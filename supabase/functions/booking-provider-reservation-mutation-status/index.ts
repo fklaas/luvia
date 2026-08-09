@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-const VERSION='1.0.0',BUILD='13.64.0',CORE='4.64.0';
+const VERSION='1.0.1',BUILD='13.65.0',CORE='4.65.0';
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json'};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:cors});
 const clean=(v:unknown)=>String(v??'').trim();

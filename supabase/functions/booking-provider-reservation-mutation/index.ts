@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
-const VERSION='1.1.0';
-const BUILD='13.64.0';
-const CORE='4.64.0';
+const VERSION='1.2.0';
+const BUILD='13.65.0';
+const CORE='4.65.0';
 const cors={
   'Access-Control-Allow-Origin':'*',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -100,6 +100,12 @@ Deno.serve(async req=>{
     const idem=clean(body?.idempotencyKey||body?.idempotency_key)||fingerprint;
     const {data:existing}=await admin.from(table).select('*').eq('booking_id',bookingId).eq('idempotency_key',idem).maybeSingle();
     if(existing?.state==='completed')return json({ok:true,idempotent:true,action,providerId,bookingId,requestId:existing.id,reservationReference,luviaStatus:existing.luvia_status,source:'provider_api'});
+    if(existing?.state==='reconciled'||(existing?.provider_outcome_known===true&&existing?.reconciliation_required!==true)){
+      const lifecycle=clean(existing?.mutation_lifecycle_state)||'unknown';
+      const terminalError=lifecycle==='rejected'?'PROVIDER_MUTATION_REJECTED':lifecycle==='failed'?'PROVIDER_MUTATION_FAILED':null;
+      if(terminalError)return json({ok:false,expected:true,idempotent:true,reconciled:true,error:terminalError,action,providerId,bookingId,requestId:existing.id,reservationReference,mutationLifecycleState:lifecycle,providerOutcomeKnown:true,reconciliationRequired:false});
+      return json({ok:true,idempotent:true,reconciled:true,action,providerId,bookingId,requestId:existing.id,reservationReference,mutationLifecycleState:lifecycle,luviaStatus:existing.luvia_status||booking.status,providerOutcomeKnown:true,reconciliationRequired:false,source:'reconciliation'});
+    }
     if(existing&&['calling_provider','applying'].includes(existing.state))return json({ok:false,expected:true,error:'RESERVATION_MUTATION_IN_PROGRESS',action,providerId,bookingId,requestId:existing.id});
     if(existing&&['timed_out','failed'].includes(existing.state))return json({ok:false,expected:true,error:'RESERVATION_MUTATION_RECONCILIATION_REQUIRED',action,providerId,bookingId,requestId:existing.id,previousState:existing.state});
 

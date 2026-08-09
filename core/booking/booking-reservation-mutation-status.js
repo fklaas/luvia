@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const clean=v=>String(v??'').trim();
 async function client(){return window.LuviaSupabaseService?.start?.();}
 function normalize(input={},mode='get'){
