@@ -16,7 +16,7 @@ function planningEditor(config={}){const fields=(config.fields||[]).filter(field
 function openOverlay(html){if(activeOverlay){activeOverlay.remove();activeOverlay=null}const node=document.createElement('div');node.className='rv2-experience-backdrop';node.innerHTML=html;document.body.appendChild(node);document.body.style.overflow='hidden';activeOverlay=node;const close=()=>{if(activeOverlay===node)activeOverlay=null;node.remove();document.body.style.overflow='';window.dispatchEvent(new CustomEvent('luvia:place-overlay-closed'))};node.addEventListener('click',e=>{if(e.target===node||e.target.closest('[data-close-place]'))close()});return{node,close}}
 function diagnostics(){return{version:VERSION,status:'ready',contracts:['canonical-module-shell','canonical-module-header','discovery','quick-filters','filter-drawer','planned-panel','planning-editor','favorite-panel','single-overlay','shared-place-design-language','guided-results-focus-mode']}}
 
-// Core 4.56.0: category interactions stay owned by each mounted Places module.
+// Core 4.57.0: category interactions stay owned by each mounted Places module.
 // Do NOT intercept these clicks at document capture level: doing so prevents the stable module-root
 // delegated handlers (r.onclick / root.addEventListener) from receiving the event after re-renders.
 // Every canonical module already delegates [data-place-query] from its persistent root.

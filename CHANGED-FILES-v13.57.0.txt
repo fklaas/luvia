@@ -1,0 +1,14 @@
+intelligence/kernel/version.js
+intelligence/backend-service.js
+core/booking/booking-provider-connections.js
+supabase/functions/booking-provider-connection-health/index.ts
+supabase/functions/booking-contact-resolve/index.ts
+supabase/migrations/20260809073000_core_v4_57_0_provider_activation_runtime_email_ownership_guard.sql
+index.html
+sw.js
+force-update.html
+RELEASE-v13.57.0.md
+DEPLOYMENT-v13.57.0.md
+TEST-v13.57.0.md
+COMMIT-v13.57.0.txt
+CHANGED-FILES-v13.57.0.txt

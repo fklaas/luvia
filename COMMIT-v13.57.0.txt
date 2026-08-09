@@ -1,0 +1,1 @@
+feat(booking): add provider activation gates and enforce venue-owned contact email

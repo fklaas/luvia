@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json'};
+const VERSION='1.1.0';
+const cors={'Access-Control-Allow-Origin':'https://myluvia.app','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Vary':'Origin'};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:cors});
 const clean=(v:unknown)=>String(v??'').trim().toLowerCase();
 const KNOWN:Record<string,string[]>= {
@@ -10,6 +11,14 @@ const KNOWN:Record<string,string[]>= {
  sevenrooms:[],resy:[],tock:[]
 };
 function credentialState(keys:string[]){if(!keys.length)return 'unknown';const count=keys.filter(k=>Boolean(Deno.env.get(k))).length;return count===0?'missing':count===keys.length?'configured':'partial';}
+function activationState(access:string,creds:string,contract:string,keys:string[]){
+ if(access==='connected')return {state:'active',reason:'CAPABILITY_ALREADY_CONNECTED'};
+ if(!keys.length)return {state:'blocked',reason:'PARTNER_CREDENTIAL_SCHEMA_REQUIRED'};
+ if(creds==='missing'||creds==='partial')return {state:'waiting_credentials',reason:creds==='partial'?'PARTIAL_CREDENTIALS':'CREDENTIALS_MISSING'};
+ if(contract==='partner_schema_required')return {state:'waiting_contract',reason:'PARTNER_STATUS_SCHEMA_REQUIRED'};
+ if(creds==='configured')return {state:'ready_to_activate',reason:'CREDENTIALS_CONFIGURED_PROBE_REQUIRED'};
+ return {state:'blocked',reason:'ACTIVATION_REQUIREMENTS_UNKNOWN'};
+}
 Deno.serve(async req=>{
  if(req.method==='OPTIONS')return new Response('ok',{headers:cors});
  if(req.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
@@ -31,13 +40,19 @@ Deno.serve(async req=>{
     const verified=(contracts||[]).some((x:any)=>x.verification_state==='verified_public'&&x.auto_apply===true);
     const schemaRequired=(contracts||[]).some((x:any)=>x.verification_state==='partner_schema_required');
     const contractState=verified?'verified_mapping_ready':schemaRequired?'partner_schema_required':'not_connected';
-    const connectionState=cap.luvia_access_state==='connected'?'connected':creds==='configured'?'ready_to_connect':'partner_required';
+    const activation=activationState(String(cap.luvia_access_state||''),creds,contractState,keys);
+    const connectionState=cap.luvia_access_state==='connected'?'connected':activation.state==='ready_to_activate'?'ready_to_connect':'partner_required';
     const statusReturnState=verified?'ready':schemaRequired?'partner_schema_required':'disabled';
-    const health={providerId:provider,displayName:cap.display_name,accessState:cap.luvia_access_state,connectionState,credentialState:creds,contractState,statusReturnState,requiredSecretCount:keys.length,configuredSecretCount:keys.filter(k=>Boolean(Deno.env.get(k))).length,contracts:contracts||[],checkedAt:new Date().toISOString()};
-    await admin.from('booking_provider_connections').upsert({provider_id:provider,connection_state:connectionState,credential_state:creds,contract_state:contractState,status_return_state:statusReturnState,required_secret_keys:keys,last_health:health,last_checked_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:'provider_id'});
+    const probeState=cap.luvia_access_state==='connected'?'healthy':activation.state==='ready_to_activate'?'ready':activation.state==='blocked'?'blocked':'not_run';
+    const checkedAt=new Date().toISOString();
+    const health={providerId:provider,displayName:cap.display_name,accessState:cap.luvia_access_state,connectionState,credentialState:creds,contractState,statusReturnState,activationState:activation.state,activationReason:activation.reason,probeState,requiredSecretCount:keys.length,configuredSecretCount:keys.filter(k=>Boolean(Deno.env.get(k))).length,contracts:contracts||[],checkedAt};
+    const {data:before}=await admin.from('booking_provider_connections').select('connection_state,activation_state').eq('provider_id',provider).maybeSingle();
+    await admin.from('booking_provider_connections').upsert({provider_id:provider,connection_state:connectionState,credential_state:creds,contract_state:contractState,status_return_state:statusReturnState,required_secret_keys:keys,last_health:health,last_checked_at:checkedAt,activation_state:activation.state,activation_reason:activation.reason,probe_state:probeState,updated_at:checkedAt},{onConflict:'provider_id'});
+    const eventType=activation.state==='ready_to_activate'?'activation_ready':activation.state==='active'?'connected':activation.state==='degraded'?'degraded':'health_checked';
+    await admin.from('booking_provider_connection_events').insert({provider_id:provider,event_type:eventType,previous_state:before?.connection_state||null,next_state:connectionState,reason:activation.reason,evidence:{credentialState:creds,contractState,statusReturnState,activationState:activation.state,probeState},occurred_at:checkedAt});
     results.push(health);
   }
   if(requested&&!results.length)return json({error:'PROVIDER_NOT_FOUND'},404);
-  return json({ok:true,version:'1.0.0',providers:results});
+  return json({ok:true,version:VERSION,providers:results});
  }catch(error){console.error('[booking-provider-connection-health]',error);return json({error:'PROVIDER_CONNECTION_HEALTH_FAILED',details:error instanceof Error?error.message:String(error)},500);}
 });
