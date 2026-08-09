@@ -1,0 +1,1 @@
+feat(booking): orchestrate provider activation and normalize expected transport states

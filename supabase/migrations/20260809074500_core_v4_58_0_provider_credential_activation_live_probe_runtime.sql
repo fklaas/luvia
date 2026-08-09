@@ -1,4 +1,4 @@
--- Luvia v13.58.0 / Core 4.58.0
+-- Luvia v13.59.0 / Core 4.59.0
 -- Provider Credential Activation + Live Probe Runtime V1
 -- Secrets remain in Supabase Edge Function environment only. Database stores state/evidence, never values.
 begin;
