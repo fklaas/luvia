@@ -23,5 +23,5 @@ Deno.serve(async(req)=>{try{
  if(threadId)await admin.from('booking_email_threads').update({state:'replied',last_inbound_message_id:stored.id,last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',threadId);
  await admin.from('booking_events').insert({booking_id:bookingId,trip_id:booking.trip_id,event_type:'booking.message.received',payload:{message_id:stored.id,transport_provider:'resend',provider_message_id:emailId,sender:stored.sender,subject:stored.subject,correlation_method:method,email_thread_id:threadId}});
  const {data:intel,error:intelError}=await admin.rpc('luvia_booking_process_inbound_intelligence_v2',{p_message_id:stored.id});if(intelError)console.warn('BOOKING_INTELLIGENCE_V2_WARNING',intelError);
- return json({ok:true,version:'2.0.0',core:'4.68.0',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null});
+ return json({ok:true,version:'2.0.0',core:'4.68.1',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null});
 }catch(error){return json({error:'BOOKING_EMAIL_INBOUND_UNHANDLED',details:error instanceof Error?error.message:String(error)},500);}});

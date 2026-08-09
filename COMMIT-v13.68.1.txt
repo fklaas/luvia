@@ -1,0 +1,1 @@
+fix(booking): harden email recipient readiness validation
