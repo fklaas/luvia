@@ -1,0 +1,18 @@
+const fs=require('fs'); const assert=require('assert');
+const migration=fs.readFileSync('supabase/migrations/20260809094500_core_v4_62_0_reservation_creation_runtime_v1.sql','utf8');
+const fn=fs.readFileSync('supabase/functions/booking-provider-reservation-create/index.ts','utf8');
+const client=fs.readFileSync('core/booking/booking-reservation-create.js','utf8');
+const index=fs.readFileSync('index.html','utf8'); const shell=fs.readFileSync('app/app-shell.js','utf8'); const sw=fs.readFileSync('sw.js','utf8');
+assert(migration.includes('booking_reservation_create_requests'));
+assert(migration.includes('booking_provider_reservation_create_readiness_v1'));
+assert(migration.includes('unique(booking_id,idempotency_key)'));
+assert(fn.includes("action:'create_reservation'"));
+assert(fn.includes('BOOKING_NOT_ACCESSIBLE'));
+assert(fn.includes('PROVIDER_RESERVATION_REFERENCE_MISSING'));
+assert(fn.includes("p_source:'provider_api'"));
+assert(fn.includes('luvia_booking_provider_reference_upsert'));
+assert(fn.includes('luvia_booking_ingest_status_signal'));
+assert(!fn.includes('fakeReservation'));
+assert(client.includes('window.LuviaBookingReservationCreate'));
+assert(index.includes('booking-reservation-create.js?v=13.62.0')); assert(shell.includes('ensureBookingReservationCreateClient')); assert(sw.includes('core/booking/booking-reservation-create.js')); 
+console.log('LUVIA_V13_62_0_RESERVATION_CREATION_RUNTIME_OK');
