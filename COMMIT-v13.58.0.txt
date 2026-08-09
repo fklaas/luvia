@@ -1,0 +1,1 @@
+feat(booking): add credential activation gates and verified live provider probes
