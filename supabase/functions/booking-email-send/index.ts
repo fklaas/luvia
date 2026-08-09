@@ -47,7 +47,7 @@ Deno.serve(async(req)=>{
     idempotency_key:idempotencyKey,
     request_fingerprint:fingerprint,
     state:'received',
-    evidence:{core:'4.68.2',build:'13.68.2',phase:'pre_recipient_verification'}
+    evidence:{core:'4.68.3',build:'13.68.3',phase:'pre_recipient_verification'}
    }).select('*').single();
    if(createError)return json({error:'EMAIL_REQUEST_AUDIT_CREATE_FAILED',details:createError.message},500);
    requestRow=created;
@@ -60,7 +60,7 @@ Deno.serve(async(req)=>{
    return json({ok:false,expected:true,error:errorCode,requestId:requestRow.id,bookingId:booking.id,intendedRecipient:intendedRecipient||null},200);
   };
 
-  const {data:verified,error:verifiedError}=await admin.rpc('luvia_booking_email_verified_candidate',{p_booking_id:booking.id,p_email:intendedRecipient});
+  const {data:verified,error:verifiedError}=await userClient.rpc('luvia_booking_email_verified_candidate',{p_booking_id:booking.id,p_email:intendedRecipient});
   if(verifiedError){
    await admin.from('booking_email_requests').update({state:'failed',expected_state:false,error_code:'EMAIL_CONTACT_VERIFICATION_FAILED',evidence:{...(requestRow.evidence||{}),verificationError:verifiedError.message},finished_at:new Date().toISOString()}).eq('id',requestRow.id);
    return json({error:'EMAIL_CONTACT_VERIFICATION_FAILED',details:verifiedError.message,requestId:requestRow.id},500);
@@ -96,6 +96,6 @@ Deno.serve(async(req)=>{
   await admin.from('booking_email_threads').update({state:'awaiting_reply',last_outbound_message_id:storedMessage.id,last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',thread.id);
   await admin.from('booking_email_requests').update({state:'sent',provider_message_id:resendPayload.id,message_id:storedMessage.id,finished_at:new Date().toISOString(),error_code:null}).eq('id',requestRow.id);
   let finalStatus=booking.status;if(['ready','needs_action'].includes(booking.status)){const {data:transitioned,error:transitionError}=await userClient.rpc('luvia_transition_booking',{p_booking_id:booking.id,p_status:'requested',p_patch:{provider:'resend',provider_reference:resendPayload.id,channel:'email',metadata:{last_mail_provider:'resend',last_mail_provider_reference:resendPayload.id,emailBookingV2:true,emailThreadId:thread.id}}});if(transitionError)return json({error:'BOOKING_TRANSITION_FAILED',details:transitionError.message,mailWasSent:true,messageWasStored:true,requestId:requestRow.id},500);finalStatus=transitioned?.status||'requested';}
-  return json({ok:true,version:'2.0.2',build:'13.68.2',core:'4.68.2',provider:'resend',providerReference:resendPayload.id,requestId:requestRow.id,threadId:thread.id,channel:'email',status:finalStatus,mode,intendedRecipient,actualRecipient,replyTo:replyAlias,message:storedMessage});
+  return json({ok:true,version:'2.0.3',build:'13.68.3',core:'4.68.3',provider:'resend',providerReference:resendPayload.id,requestId:requestRow.id,threadId:thread.id,channel:'email',status:finalStatus,mode,intendedRecipient,actualRecipient,replyTo:replyAlias,message:storedMessage});
  }catch(error){return json({error:'BOOKING_EMAIL_SEND_UNHANDLED',details:error instanceof Error?error.message:String(error)},500);}
 });

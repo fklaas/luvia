@@ -1,0 +1,33 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const mig=read('supabase/migrations/20260809194000_core_v4_68_3_email_verification_auth_context_fix.sql');
+const send=read('supabase/functions/booking-email-send/index.ts');
+const browser=read('core/booking/booking-email-v2.js');
+const index=read('index.html'),shell=read('app/app-shell.js'),sw=read('sw.js'),kernel=read('intelligence/kernel/version.js'),force=read('force-update.html');
+
+assert(mig.includes("'luvia_core','4.68.3'"));
+assert(mig.includes("'luvia_build','13.68.3'"));
+assert(mig.includes("'email_verification_authenticated_context',true"));
+
+const bookingAccess=send.indexOf("userClient.from('bookings')");
+const auditInsert=send.indexOf("admin.from('booking_email_requests').insert");
+const verifyUser=send.indexOf("userClient.rpc('luvia_booking_email_verified_candidate'");
+const verifyAdmin=send.indexOf("admin.rpc('luvia_booking_email_verified_candidate'");
+const resendFetch=send.indexOf("fetch('https://api.resend.com/emails'");
+assert(bookingAccess>=0,'booking access must use authenticated user client');
+assert(auditInsert>bookingAccess,'audit must follow authenticated booking access');
+assert(verifyUser>auditInsert,'verified contact RPC must run after early audit using authenticated context');
+assert.strictEqual(verifyAdmin,-1,'service-role client must not invoke trip-membership-aware venue verification');
+assert(resendFetch>verifyUser,'Resend transport must remain after verified recipient gate');
+assert(send.includes("state:'blocked',expected_state:true,error_code:errorCode"));
+assert(send.includes("return json({ok:false,expected:true,error:errorCode"));
+assert(send.includes("version:'2.0.3',build:'13.68.3',core:'4.68.3'"));
+assert(browser.includes("const VERSION='1.0.3'"));
+assert(index.includes('booking-email-v2.js?v=13.68.3'));
+assert(shell.includes("BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.3'"));
+assert(sw.includes("const CACHE='luvia-shell-v13.68.3'"));
+assert(kernel.includes("core:'4.68.3'"));
+assert(kernel.includes("build:'13.68.3'"));
+assert(force.includes('appv=13.68.3'));
+console.log('LUVIA_V13_68_3_EMAIL_VERIFICATION_AUTH_CONTEXT_FIX_OK');
