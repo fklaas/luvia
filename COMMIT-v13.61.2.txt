@@ -1,0 +1,1 @@
+fix(booking): wire availability client into active app shell

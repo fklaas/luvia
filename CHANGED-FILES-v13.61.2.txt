@@ -1,0 +1,16 @@
+index.html
+app/app-shell.js
+core/booking/booking-availability.js
+sw.js
+force-update.html
+intelligence/kernel/version.js
+intelligence/backend-service.js
+intelligence/services/base-services.js
+supabase/functions/luvia-gateway/index.ts
+supabase/migrations/20260809093000_core_v4_61_2_availability_client_shell_integration_fix.sql
+tests/v13.61.1-provider-availability-runtime.test.cjs
+tests/v13.61.2-availability-client-shell-integration.test.cjs
+RELEASE-v13.61.2.md
+DEPLOYMENT-v13.61.2.md
+TEST-v13.61.2.md
+COMMIT-v13.61.2.txt

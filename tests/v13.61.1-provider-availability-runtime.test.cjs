@@ -1,7 +1,7 @@
 const fs=require('fs');
 const read=p=>fs.readFileSync(p,'utf8');
 const must=(cond,msg)=>{if(!cond)throw new Error(msg);console.log('PASS',msg)};
-const mig=read('supabase/migrations/20260809090200_core_v4_61_0_provider_availability_runtime_v1.sql');
+const mig=read('supabase/migrations/20260809091500_core_v4_61_1_provider_availability_runtime_release_fix.sql');
 const fn=read('supabase/functions/booking-provider-availability/index.ts');
 const client=read('core/booking/booking-availability.js');
 const version=read('intelligence/kernel/version.js');
@@ -15,5 +15,5 @@ must(fn.includes('setTimeout(()=>controller.abort(),6500)'),'bounded provider ti
 must(fn.includes('providerSlotReference'),'provider slot reference preserved');
 must(!fn.includes('fakeSlot')&&!fn.includes('generateSlots'),'no fake slot generation');
 must(client.includes("functions.invoke('booking-provider-availability'"),'browser client uses canonical availability function');
-must(version.includes("core:'4.61.1'")&&version.includes("build:'13.61.1'"),'build/core version');
-console.log('LUVIA_V13_61_1_PROVIDER_AVAILABILITY_RUNTIME_OK');
+must(version.includes("core:'4.61.2'")&&version.includes("build:'13.61.2'"),'build/core version');
+console.log('LUVIA_V13_61_2_PROVIDER_AVAILABILITY_RUNTIME_OK');
