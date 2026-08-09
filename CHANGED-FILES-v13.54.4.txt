@@ -1,0 +1,15 @@
+Luvia v13.54.4 / Core 4.54.4
+- supabase/migrations/20260808215500_core_v4_54_4_atomic_status_signal_retry_fix.sql
+- intelligence/kernel/version.js
+- intelligence/backend-service.js
+- supabase/functions/luvia-gateway/index.ts
+- app/app-shell.js
+- index.html
+- sw.js
+- force-update.html
+- intelligence/services/base-services.js
+- RELEASE-v13.54.4.md
+- DEPLOYMENT-v13.54.4.md
+- COMMIT-v13.54.4.txt
+- TEST-v13.54.4.md
+- tests/v13.54.4-atomic-status-signal-retry.test.cjs
