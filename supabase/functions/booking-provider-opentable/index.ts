@@ -31,7 +31,7 @@ Deno.serve(async(req)=>{
       ok:true,provider:'opentable',adapterVersion:'1.0.0',accessState:cap.luvia_access_state,
       bookingMode:cap.booking_mode,connected:cap.luvia_access_state==='connected',
       clientIdConfigured,clientSecretConfigured,partnerContractConfigured,
-      capabilities:{availability:cap.supports_availability===true,createReservation:cap.supports_create_reservation===true,statusWebhook:cap.supports_status_webhook===true,statusPolling:cap.supports_status_polling===true},
+      capabilities:{availability:cap.supports_availability===true,createReservation:cap.supports_create_reservation===true,modifyReservation:cap.supports_modify_reservation===true,cancelReservation:cap.supports_cancel_reservation===true,statusWebhook:cap.supports_status_webhook===true,statusPolling:cap.supports_status_polling===true},
       publicSurface:{directoryApi:true,consumerApiV2:true},liveTransportEnabled:false
     });
     if(!['directory_lookup','availability','create_reservation','get_reservation','cancel_reservation'].includes(action))return json({error:'UNSUPPORTED_ACTION'},400);

@@ -1,0 +1,13 @@
+Luvia v13.63.0 / Core 4.63.0 local verification
+
+PASS node --check core/booking/booking-reservation-mutation.js
+PASS node --check core/booking/booking-provider-capabilities.js
+PASS node --check app/app-shell.js
+PASS node --check sw.js
+PASS tests/v13.63.0-booking-reservation-mutation-runtime.test.cjs
+PASS tests/place-detail-capability-routing.test.cjs
+PASS tests/v13.54.4-atomic-status-signal-retry.test.cjs
+
+EXPECTED HISTORICAL SNAPSHOT FAIL: tests/v13.62.0-booking-reservation-create-runtime.test.cjs checks literal ?v=13.62.0; active shell correctly moved to 13.63.0.
+PRE-EXISTING HISTORICAL TEST ISSUE: tests/v13.56.0-provider-connection-places-category.test.cjs rejects substring "secretValue" because current connection-health evidence contains "secretValuesStored:false". This exact line is already present in the supplied v13.62.0 source ZIP.
+ENVIRONMENT LIMITATION: deno executable is not installed locally, so Deno type-check was not available.

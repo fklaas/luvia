@@ -1,0 +1,24 @@
+NEW
+- supabase/migrations/20260809113000_core_v4_63_0_reservation_modify_cancel_runtime_v1.sql
+- supabase/functions/booking-provider-reservation-mutation/index.ts
+- core/booking/booking-reservation-mutation.js
+- tests/v13.63.0-booking-reservation-mutation-runtime.test.cjs
+- RELEASE-v13.63.0.md
+- DEPLOYMENT-v13.63.0.md
+- TEST-v13.63.0.md
+- COMMIT-v13.63.0.txt
+- CHANGED-FILES-v13.63.0.txt
+
+CHANGED
+- index.html
+- app/app-shell.js
+- sw.js
+- force-update.html
+- intelligence/kernel/version.js
+- core/booking/booking-provider-capabilities.js
+- supabase/functions/booking-provider-zenchef/index.ts
+- supabase/functions/booking-provider-opentable/index.ts
+- supabase/functions/booking-provider-sevenrooms/index.ts
+- supabase/functions/booking-provider-resy/index.ts
+
+- test-results-v13.63.0.txt
