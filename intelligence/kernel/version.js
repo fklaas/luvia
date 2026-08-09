@@ -1,1 +1,1 @@
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.65.0',build:'13.65.0',name:'Reservation Mutation Recovery & Reconciliation',channel:'production',builtAt:'2026-08-09T16:35:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.68.0',build:'13.68.0',name:'Email Booking V2',channel:'production',builtAt:'2026-08-09T17:45:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();

@@ -269,16 +269,15 @@
 
   async function resolveContact(id){return resolveRoute(id);}
 
-  async function sendEmail(id,{requesterName,note}={}){
+  async function sendEmail(id,{requesterName,note,testRecipient,idempotencyKey}={}){
     await init();
     const booking=await get(id);
     if(!booking)throw new Error('Buchung wurde nicht gefunden.');
     if(!booking.contact?.email)throw new Error('Für diesen Ort ist noch keine bestätigte E-Mail-Adresse verfügbar.');
-    const {data,error}=await client.functions.invoke('booking-email-send',{
-      body:{bookingId:id,requesterName:requesterName||undefined,note:note||undefined}
-    });
-    if(error)throw await functionError(error,'Versand der Buchungsanfrage ist fehlgeschlagen.');
-    if(data?.error)throw new Error(data.details||data.error);
+    let data;
+    if(window.LuviaBookingEmailV2?.send){data=await window.LuviaBookingEmailV2.send({bookingId:id,requesterName,note,testRecipient,idempotencyKey});}
+    else{const result=await client.functions.invoke('booking-email-send',{body:{bookingId:id,userApproved:true,requesterName:requesterName||undefined,note:note||undefined,testRecipient:testRecipient||undefined,idempotencyKey:idempotencyKey||undefined}});if(result.error)throw await functionError(result.error,'Versand der Buchungsanfrage ist fehlgeschlagen.');data=result.data;}
+    if(data?.error&&!data?.expected)throw new Error(data.details||data.error);
     window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'email-sent',result:data}}));
     return data;
   }
