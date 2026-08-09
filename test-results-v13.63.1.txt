@@ -1,0 +1,16 @@
+Luvia v13.63.1 / Core 4.63.1 local verification
+
+PASS tests/v13.63.1-early-mutation-audit-fix.test.cjs
+  LUVIA_V13_63_1_EARLY_MUTATION_AUDIT_FIX_OK
+PASS node --check core/booking/booking-reservation-mutation.js
+PASS node --check app/app-shell.js
+PASS node --check sw.js
+PASS node --check intelligence/kernel/version.js
+PASS tests/place-detail-capability-routing.test.cjs
+PASS tests/v13.54.4-atomic-status-signal-retry.test.cjs
+
+EXPECTED HISTORICAL SNAPSHOT FAILURES:
+- tests/v13.63.0-booking-reservation-mutation-runtime.test.cjs checks literal ?v=13.63.0 / shell cache v13.63.0; active shell correctly moved to 13.63.1.
+- tests/v13.54.3-failed-status-signal-recovery-idempotent-retry.test.cjs retains literal historical build/core/release-name assertions; its functional status-signal checks pass before those version assertions.
+
+Deno is not installed in the local build environment, so no `deno check` was run. The changed browser JavaScript is syntax-checked and the Edge Function patch is covered by the v13.63.1 structural regression test.

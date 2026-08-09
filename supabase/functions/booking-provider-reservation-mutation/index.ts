@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
-const VERSION='1.0.0';
-const BUILD='13.63.0';
-const CORE='4.63.0';
+const VERSION='1.0.1';
+const BUILD='13.63.1';
+const CORE='4.63.1';
 const cors={
   'Access-Control-Allow-Origin':'*',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -74,21 +74,19 @@ Deno.serve(async req=>{
       if(partySize!=null&&(!Number.isInteger(partySize)||partySize<1||partySize>1000))return json({error:'INVALID_PARTY_SIZE'},400);
     }
 
-    // RLS-backed access check. Provider identity and reservation reference are resolved server-side.
+    // RLS-backed access check. Only accessible bookings are audited. Provider identity and reservation reference are resolved server-side.
     const {data:booking,error:bookingError}=await userClient.from('bookings').select('*').eq('id',bookingId).maybeSingle();
     if(bookingError||!booking)return json({ok:false,expected:true,error:'BOOKING_NOT_ACCESSIBLE',bookingId});
-    const bookingState=low(booking.status);
-    if(bookingState==='cancelled')return json({ok:false,expected:true,error:'BOOKING_ALREADY_CANCELLED',bookingId,status:booking.status});
-    if(!MUTABLE_STATES.has(bookingState))return json({ok:false,expected:true,error:action==='modify'?'BOOKING_STATE_NOT_MODIFIABLE':'BOOKING_STATE_NOT_CANCELLABLE',bookingId,status:booking.status});
 
+    // Resolve reference before any business-state guard so the audit row can capture as much authoritative context as exists.
     const {data:refs,error:refError}=await admin.from('booking_provider_references').select('*').eq('booking_id',bookingId).not('reservation_reference','is',null).order('updated_at',{ascending:false}).limit(2);
     if(refError)throw refError;
-    const ref=(refs||[])[0];
-    if(!ref||!clean(ref.reservation_reference))return json({ok:false,expected:true,error:'PROVIDER_RESERVATION_REFERENCE_REQUIRED',bookingId});
-    const providerId=low(ref.provider_id); const reservationReference=clean(ref.reservation_reference);
-    if(booking.provider&&low(booking.provider)!==providerId)return json({ok:false,expected:true,error:'BOOKING_PROVIDER_REFERENCE_MISMATCH',bookingId,bookingProvider:low(booking.provider),referenceProvider:providerId});
+    const ref=(refs||[])[0]||null;
+    const providerId=ref?low(ref.provider_id):'';
+    const reservationReference=ref?clean(ref.reservation_reference):'';
+    const bookingProvider=low(booking.provider)||null;
 
-    const fingerprint=await sha256([action,bookingId,providerId,reservationReference,date,time,partySize??'',timezone||'',reason||''].join('|'));
+    const fingerprint=await sha256([action,bookingId,providerId||bookingProvider||'',reservationReference||'',date,time,partySize??'',timezone||'',reason||''].join('|'));
     const idem=clean(body?.idempotencyKey||body?.idempotency_key)||fingerprint;
     const {data:existing}=await admin.from(table).select('*').eq('booking_id',bookingId).eq('idempotency_key',idem).maybeSingle();
     if(existing?.state==='completed')return json({ok:true,idempotent:true,action,providerId,bookingId,requestId:existing.id,reservationReference,luviaStatus:existing.luvia_status,source:'provider_api'});
@@ -97,14 +95,25 @@ Deno.serve(async req=>{
 
     if(existing){
       requestId=existing.id;
-      await admin.from(table).update({state:'received',attempt_count:(existing.attempt_count||0)+1,error_code:null,expected_state:false,finished_at:null,evidence:{...(existing.evidence||{}),retryAt:new Date().toISOString(),build:BUILD,core:CORE}}).eq('id',requestId);
+      await admin.from(table).update({provider_id:providerId||null,reservation_reference:reservationReference||null,state:'received',attempt_count:(existing.attempt_count||0)+1,error_code:null,expected_state:false,finished_at:null,evidence:{...(existing.evidence||{}),retryAt:new Date().toISOString(),build:BUILD,core:CORE,bookingProvider,referenceId:ref?.id||null,referenceState:ref?.reference_state||null}}).eq('id',requestId);
     }else{
-      const record:any={requested_by:user.id,trip_id:booking.trip_id,booking_id:bookingId,provider_id:providerId,reservation_reference:reservationReference,idempotency_key:idem,request_fingerprint:fingerprint,evidence:{runtimeVersion:VERSION,build:BUILD,core:CORE,referenceId:ref.id,referenceState:ref.reference_state}};
+      const record:any={requested_by:user.id,trip_id:booking.trip_id,booking_id:bookingId,provider_id:providerId||null,reservation_reference:reservationReference||null,idempotency_key:idem,request_fingerprint:fingerprint,evidence:{runtimeVersion:VERSION,build:BUILD,core:CORE,bookingProvider,referenceId:ref?.id||null,referenceState:ref?.reference_state||null}};
       if(action==='modify'){record.requested_date=date||null;record.requested_time=time||null;record.party_size=partySize;record.timezone=timezone;record.evidence={...record.evidence,notes};}
       else record.evidence={...record.evidence,reason};
       const {data:created,error:createError}=await admin.from(table).insert(record).select('id').single();
       if(createError)throw createError;requestId=created.id;
     }
+
+    const block=async(error:string,extra:Record<string,unknown>={})=>{
+      await admin.from(table).update({state:'blocked',expected_state:true,error_code:error,evidence:{runtimeVersion:VERSION,build:BUILD,core:CORE,bookingProvider,providerId:providerId||null,reservationReferencePresent:Boolean(reservationReference),referenceId:ref?.id||null,referenceState:ref?.reference_state||null,notes:action==='modify'?notes:null,reason:action==='cancel'?reason:null,...extra},finished_at:new Date().toISOString()}).eq('id',requestId);
+      return json({ok:false,expected:true,error,action,providerId,bookingId,requestId,reservationReference,...extra});
+    };
+
+    const bookingState=low(booking.status);
+    if(bookingState==='cancelled')return await block('BOOKING_ALREADY_CANCELLED',{status:booking.status});
+    if(!MUTABLE_STATES.has(bookingState))return await block(action==='modify'?'BOOKING_STATE_NOT_MODIFIABLE':'BOOKING_STATE_NOT_CANCELLABLE',{status:booking.status});
+    if(!ref||!reservationReference)return await block('PROVIDER_RESERVATION_REFERENCE_REQUIRED');
+    if(bookingProvider&&bookingProvider!==providerId)return await block('BOOKING_PROVIDER_REFERENCE_MISMATCH',{bookingProvider,referenceProvider:providerId});
 
     const {data:ready,error:readyError}=await admin.from(VIEWS[action]).select('*').eq('provider_id',providerId).maybeSingle();
     if(readyError)throw readyError;

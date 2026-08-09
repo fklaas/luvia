@@ -1,0 +1,19 @@
+Luvia v13.63.1 / Core 4.63.1
+
+Changed:
+- supabase/functions/booking-provider-reservation-mutation/index.ts
+- supabase/migrations/20260809131500_core_v4_63_1_early_mutation_audit_fix.sql
+- intelligence/kernel/version.js
+- index.html
+- app/app-shell.js
+- sw.js
+- force-update.html
+
+Added:
+- RELEASE-v13.63.1.md
+- DEPLOYMENT-v13.63.1.md
+- TEST-v13.63.1.md
+- COMMIT-v13.63.1.txt
+- CHANGED-FILES-v13.63.1.txt
+- tests/v13.63.1-early-mutation-audit-fix.test.cjs
+- test-results-v13.63.1.txt
