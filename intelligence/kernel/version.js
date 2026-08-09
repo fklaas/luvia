@@ -1,1 +1,1 @@
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.63.1',build:'13.63.1',name:'Early Mutation Audit Fix',channel:'production',builtAt:'2026-08-09T13:14:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.64.0',build:'13.64.0',name:'Reservation Lifecycle Synchronization',channel:'production',builtAt:'2026-08-09T15:51:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();

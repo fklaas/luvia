@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
-const VERSION='1.0.1';
-const BUILD='13.63.1';
-const CORE='4.63.1';
+const VERSION='1.1.0';
+const BUILD='13.64.0';
+const CORE='4.64.0';
 const cors={
   'Access-Control-Allow-Origin':'*',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -34,6 +34,16 @@ function expectedCode(action:'modify'|'cancel',state:string){
   return ({unsupported:`${prefix}_NOT_SUPPORTED`,partner_required:'PARTNER_REQUIRED',connection_not_ready:'CONNECTION_NOT_READY',transport_not_ready:`${prefix}_TRANSPORT_NOT_ACTIVE`,probe_not_healthy:'LIVE_PROBE_NOT_HEALTHY',disabled:'PROVIDER_DISABLED'} as Record<string,string>)[state]||`${prefix}_NOT_READY`;
 }
 function normalizedProviderStatus(data:any){return clean(data?.providerStatus||data?.provider_status||data?.status||data?.reservationStatus||data?.reservation_status);}
+function normalizedMutationLifecycle(action:'modify'|'cancel',providerStatus:string,luviaStatus:string|null,data:any){
+  const p=low(providerStatus);
+  if(action==='cancel'&&(luviaStatus==='cancelled'||data?.cancelled===true||['cancelled','canceled','reservation_cancelled','reservation_canceled'].includes(p)))return 'cancelled';
+  if(luviaStatus==='alternative_proposed'||data?.alternativeProposed===true||data?.alternative_proposed===true)return 'alternative_proposed';
+  if(luviaStatus==='declined'||['rejected','declined','denied','not_accepted'].includes(p))return 'rejected';
+  if(luviaStatus==='failed'||['failed','error'].includes(p))return 'failed';
+  if(['pending','processing','queued','awaiting_confirmation','awaiting_reply','requested'].includes(p))return 'pending';
+  if(action==='cancel'&&['cancel_request_accepted','cancellation_requested','cancel_pending'].includes(p))return 'pending';
+  return 'accepted';
+}
 function normalizedLuviaStatus(action:'modify'|'cancel',data:any){
   const n=low(data?.normalizedStatus||data?.normalized_status||data?.luviaStatus||data?.luvia_status);
   if(['requested','awaiting_reply','alternative_proposed','needs_action','confirmed','declined','cancelled','failed'].includes(n))return n;
@@ -109,6 +119,11 @@ Deno.serve(async req=>{
       return json({ok:false,expected:true,error,action,providerId,bookingId,requestId,reservationReference,...extra});
     };
 
+    const recordLifecycle=async(normalizedMutationStatus:string,source:'system'|'provider_api'|'provider_webhook'|'provider_polling',providerStatus:string|null,proposedLuviaStatus:string|null,sourceEventId:string,evidence:Record<string,unknown>={})=>{
+      const {data,error}=await admin.rpc('luvia_booking_ingest_reservation_mutation_status',{p_action:action,p_request_id:requestId,p_provider_status:providerStatus,p_normalized_mutation_status:normalizedMutationStatus,p_source:source,p_source_event_id:sourceEventId,p_proposed_luvia_status:proposedLuviaStatus,p_confidence:source==='system'?0.5:1,p_evidence:{runtimeVersion:VERSION,build:BUILD,core:CORE,...evidence},p_occurred_at:new Date().toISOString()});
+      if(error)throw error; return data||{};
+    };
+
     const bookingState=low(booking.status);
     if(bookingState==='cancelled')return await block('BOOKING_ALREADY_CANCELLED',{status:booking.status});
     if(!MUTABLE_STATES.has(bookingState))return await block(action==='modify'?'BOOKING_STATE_NOT_MODIFIABLE':'BOOKING_STATE_NOT_CANCELLABLE',{status:booking.status});
@@ -128,6 +143,7 @@ Deno.serve(async req=>{
     if(!fn||!providerAction){const error=action==='modify'?'RESERVATION_MODIFY_ADAPTER_NOT_IMPLEMENTED':'RESERVATION_CANCEL_ADAPTER_NOT_IMPLEMENTED';await admin.from(table).update({state:'blocked',expected_state:true,error_code:error,finished_at:new Date().toISOString()}).eq('id',requestId);return json({ok:false,expected:true,error,action,providerId,bookingId,requestId});}
 
     await admin.from(table).update({state:'calling_provider'}).eq('id',requestId);
+    await recordLifecycle('pending','system','CALLING_PROVIDER',null,`mutation:${action}:${requestId}:calling_provider`,{phase:'calling_provider',reservationReferencePresent:true});
     const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),8000);const started=Date.now();let providerResponse:any;let httpStatus=0;
     try{
       const payload:any={action:providerAction,bookingId,reservationReference,idempotencyKey:idem};
@@ -137,6 +153,7 @@ Deno.serve(async req=>{
     }catch(error){
       const timedOut=error instanceof DOMException&&error.name==='AbortError';const code=timedOut?'PROVIDER_RESERVATION_MUTATION_TIMEOUT':'PROVIDER_RESERVATION_MUTATION_NETWORK_ERROR';
       await admin.from(table).update({state:timedOut?'timed_out':'failed',error_code:code,provider_latency_ms:Date.now()-started,evidence:{ambiguousProviderOutcome:true,requiresReconciliation:true},finished_at:new Date().toISOString()}).eq('id',requestId);
+      await recordLifecycle('unknown','system',code,null,`mutation:${action}:${requestId}:${timedOut?'timeout':'network_error'}`,{ambiguousProviderOutcome:true,requiresReconciliation:true,errorCode:code});
       return json({ok:false,error:code,action,providerId,bookingId,requestId,reconciliationRequired:true},timedOut?504:502);
     }finally{clearTimeout(timer);}
 
@@ -149,20 +166,17 @@ Deno.serve(async req=>{
 
     const pStatus=normalizedProviderStatus(providerResponse)|| (action==='modify'?'MODIFIED':'CANCEL_REQUEST_ACCEPTED');
     const luviaStatus=normalizedLuviaStatus(action,providerResponse);
-    await admin.from(table).update({state:'applying',provider_latency_ms:latency,provider_status:pStatus,luvia_status:luviaStatus,evidence:{providerHttpStatus:httpStatus,verifiedProviderApiResponse:true,responseHadExplicitLuviaStatus:Boolean(luviaStatus)}}).eq('id',requestId);
+    const mutationLifecycleState=normalizedMutationLifecycle(action,pStatus,luviaStatus,providerResponse);
+    await admin.from(table).update({state:'applying',provider_latency_ms:latency,provider_status:pStatus,luvia_status:luviaStatus,evidence:{providerHttpStatus:httpStatus,verifiedProviderApiResponse:true,responseHadExplicitLuviaStatus:Boolean(luviaStatus),mutationLifecycleState}}).eq('id',requestId);
 
-    let statusSignalId:string|null=null;
-    if(luviaStatus){
-      const sourceEventId=`provider_api:${action}:${providerId}:${requestId}`;
-      const {data:signal,error:signalError}=await admin.rpc('luvia_booking_ingest_status_signal',{p_booking_id:bookingId,p_provider_id:providerId,p_provider_reference:reservationReference,p_provider_status:pStatus,p_proposed_luvia_status:luviaStatus,p_source:'provider_api',p_source_event_id:sourceEventId,p_confidence:1,p_evidence:{mutationRequestId:requestId,mutationAction:action,providerHttpStatus:httpStatus,verifiedProviderApiResponse:true},p_occurred_at:new Date().toISOString()});
-      if(signalError)throw signalError;
-      statusSignalId=clean(signal?.signalId||signal?.signal_id||signal?.id)||null;
+    const lifecycleResult=await recordLifecycle(mutationLifecycleState,'provider_api',pStatus,luviaStatus,`provider_api:${action}:${providerId}:${requestId}`,{providerHttpStatus:httpStatus,verifiedProviderApiResponse:true,responseHadExplicitLuviaStatus:Boolean(luviaStatus)});
+    const statusSignalId=clean(lifecycleResult?.statusSignalId||lifecycleResult?.status_signal_id)||null;
+    const lifecycleEventId=clean(lifecycleResult?.lifecycleEventId||lifecycleResult?.lifecycle_event_id)||null;
+    if(action==='cancel'&&mutationLifecycleState==='cancelled'){
+      await admin.rpc('luvia_booking_provider_reference_upsert',{p_booking_id:bookingId,p_provider_id:providerId,p_venue_reference:ref.venue_reference,p_reservation_reference:reservationReference,p_reference_state:'cancelled',p_metadata:{cancelRequestId:requestId,source:'provider_api',lifecycleEventId}});
     }
-    if(action==='cancel'&&luviaStatus==='cancelled'){
-      await admin.rpc('luvia_booking_provider_reference_upsert',{p_booking_id:bookingId,p_provider_id:providerId,p_venue_reference:ref.venue_reference,p_reservation_reference:reservationReference,p_reference_state:'cancelled',p_metadata:{cancelRequestId:requestId,source:'provider_api'}});
-    }
-    await admin.from(table).update({state:'completed',status_signal_id:statusSignalId,finished_at:new Date().toISOString(),evidence:{providerHttpStatus:httpStatus,verifiedProviderApiResponse:true,statusAppliedThroughProvenance:Boolean(luviaStatus),bookingStatusNotAssumed:!luviaStatus}}).eq('id',requestId);
-    return json({ok:true,action,providerId,bookingId,requestId,reservationReference,providerStatus:pStatus,luviaStatus:luviaStatus||booking.status,statusSignalId,statusChanged:Boolean(luviaStatus),source:'provider_api'});
+    await admin.from(table).update({state:'completed',status_signal_id:statusSignalId,finished_at:new Date().toISOString(),evidence:{providerHttpStatus:httpStatus,verifiedProviderApiResponse:true,statusAppliedThroughProvenance:Boolean(luviaStatus),bookingStatusNotAssumed:!luviaStatus,mutationLifecycleState,lifecycleEventId}}).eq('id',requestId);
+    return json({ok:true,action,providerId,bookingId,requestId,reservationReference,providerStatus:pStatus,luviaStatus:luviaStatus||booking.status,statusSignalId,lifecycleEventId,mutationLifecycleState,reconciliationRequired:Boolean(lifecycleResult?.reconciliationRequired),providerOutcomeKnown:Boolean(lifecycleResult?.providerOutcomeKnown),statusChanged:Boolean(lifecycleResult?.bookingStatusApplied),source:'provider_api'});
   }catch(error){
     console.error('[booking-provider-reservation-mutation]',error);
     if(requestId&&table){try{const admin=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false}});await admin.from(table).update({state:'failed',error_code:'RESERVATION_MUTATION_RUNTIME_FAILED',evidence:{requiresReconciliation:true},finished_at:new Date().toISOString()}).eq('id',requestId);}catch{}}
