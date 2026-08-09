@@ -1,8 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.3.0';
+  const VERSION = '1.4.0';
   let pendingContract = null;
+  const searchCache = new Map();
+  const SEARCH_CACHE_TTL_MS = 90000;
   const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
   const unique = values => [...new Set((Array.isArray(values) ? values : []).map(value => String(value || '').trim()).filter(Boolean))];
   const providerId = place => String(place?.id || place?.providerPlaceId || place?.provider_place_id || place?.sourceId || '').replace(/^places\//, '');
@@ -87,7 +89,7 @@
     if (!window.LuviaPlaces?.textSearch) return [];
     const aiPlans = (Array.isArray(contract.aiSearchPlans) ? contract.aiSearchPlans : [])
       .filter(plan => String(plan?.query || '').trim())
-      .slice(0, 6);
+      .slice(0, 4);
     const includedTypes = unique(contract.includedTypes).slice(0, 8);
     const plans = aiPlans.length
       ? aiPlans.flatMap(plan => {
@@ -95,7 +97,7 @@
           return (types.length ? types : includedTypes.length ? includedTypes : ['']).map(includedType => ({ query:String(plan.query).trim(), includedType }));
         })
       : (includedTypes.length ? includedTypes : ['']).map(includedType => ({ query:contract.query, includedType }));
-    const limitedPlans = plans.slice(0, 12);
+    const limitedPlans = plans.slice(0, 4);
     const perPlan = Math.max(4, Math.min(20, Math.ceil(maxResultCount / Math.max(1, limitedPlans.length)) + 2));
     return Promise.all(limitedPlans.map(plan => window.LuviaPlaces.textSearch(plan.query, {
       destination,
@@ -115,6 +117,10 @@
     void tripId; void type;
     if (!contract) throw new Error('DISCOVERY_CONTRACT_REQUIRED');
     if (!window.LuviaPlaces) throw new Error('PLACE_SEARCH_UNAVAILABLE');
+    const destinationKey=String(destination?.placeId||destination?.id||destination?.name||destination?.canonicalCity?.name||'');
+    const cacheKey=JSON.stringify([type||contract.domain||'places',destinationKey,contract.query||'',contract.includedTypes||[],contract.featureRequirements||{},contract.minRating||null,contract.maxDistanceMeters||null,maxResultCount]);
+    const cached=searchCache.get(cacheKey);
+    if(cached&&Date.now()-cached.at<SEARCH_CACHE_TTL_MS)return clone(cached.value);
     const merged = new Map();
     const requests = [];
     const useNearby = contract.strictDestination !== false && contract.searchMode !== 'text';
@@ -125,12 +131,12 @@
     responses.forEach(response => normalizeResponse(response, contract, merged));
     let places = [...merged.values()].map(place=>({...place,evidence:window.LuviaAISearchEvidencePipeline?.evidenceFor?.(place,contract)||[],uncertainties:window.LuviaAISearchEvidencePipeline?.uncertainty?.(place)||[]}))
       .sort((a, b) => Number(b.discoveryScore || 0) - Number(a.discoveryScore || 0) || Number(a.distanceMeters ?? Infinity) - Number(b.distanceMeters ?? Infinity));
-    if (places.length && window.LuviaAI?.rankCandidates) {
+    if (places.length && window.LuviaAI?.rankCandidates && !searchOptions.skipAIRanking) {
       try { places = await window.LuviaAI.rankCandidates({ domain:contract.domain || type || 'places', contract, candidates:places }); }
       catch (error) { console.warn('[LuviaDiscoveryContracts] AI-Ranking nicht verfügbar, deterministische Reihenfolge bleibt aktiv.', error); }
     }
     places = places.slice(0, Math.max(1, maxResultCount));
-    return {
+    const result={
       ok: true,
       data: {
         places,
@@ -144,9 +150,13 @@
         strictTypeFiltering: contract.strictTypeFiltering !== false,
         noCrossCategoryFallback: true,
         requestCount: responses.length,
+        cacheHit:false,
         strategies: { nearby: useNearby, text: needsText || !useNearby, aiPlanned:Boolean(contract.aiSearchPlans?.length), aiRanked:places.some(place => place.aiMatchScore != null) }
       }
     };
+    searchCache.set(cacheKey,{at:Date.now(),value:clone(result)});
+    if(searchCache.size>40){const oldest=[...searchCache.entries()].sort((a,b)=>a[1].at-b[1].at).slice(0,10);oldest.forEach(([key])=>searchCache.delete(key));}
+    return result;
   }
 
   function summaryChips(contract = {}) {

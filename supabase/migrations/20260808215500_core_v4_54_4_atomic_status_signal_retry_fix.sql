@@ -1,5 +1,5 @@
 -- Luvia v13.54.4 / Core 4.54.4
--- Atomic Status Signal Retry Fix
+-- Provider Return Matrix + Booking/Places Reliability
 -- Reuses a previously emitted but never-applied trusted provider signal when the earlier
 -- apply attempt ended in ignored/failed. Successfully applied signals remain strictly idempotent.
 

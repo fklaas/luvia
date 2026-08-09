@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.20.1',MAX=5,MIN_SCORE=52;
+const VERSION='4.20.2',MAX=5,MIN_SCORE=52;
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const idOf=p=>String(p?.providerPlaceId||p?.id||'').replace(/^places\//,'');
 const rad=n=>Number(n)*Math.PI/180;
@@ -14,9 +14,11 @@ async function oneSearch({domain,contract,destination,plan,searchOptions}){const
 async function execute({domain,contract,destination,maxResultCount=MAX,searchOptions={}}={}){
  if(!contract)throw new Error('DISCOVERY_CONTRACT_REQUIRED');
  if(domain==='move')return executeMove({contract,destination,maxResultCount});
- const plans=(contract.aiSearchPlans||[]).filter(p=>p?.query).slice(0,6);if(plans.length<2){const q=contract.query||contract.freeText||'besondere Orte';plans.push({query:q,weight:1},{query:`${q} Alternative`,weight:.75})}
- const selectedPlans=plans.slice(0,3);const responses=await Promise.allSettled(selectedPlans.map(plan=>oneSearch({domain,contract,destination,plan,searchOptions})));
- const raw=responses.flatMap(r=>r.status==='fulfilled'?(r.value?.data?.places||[]):[]);
+ const plans=(contract.aiSearchPlans||[]).filter(p=>p?.query).slice(0,4);if(!plans.length){const q=contract.query||contract.freeText||'besondere Orte';plans.push({query:q,weight:1})}
+ const selectedPlans=plans.slice(0,4);
+ const aggregateContract={...contract,aiSearchPlans:selectedPlans};
+ const aggregate=await window.LuviaDiscoveryContracts.search({type:domain,contract:aggregateContract,destination,maxResultCount:20,searchOptions:{...searchOptions,strictDestination:true,skipAIRanking:true}});
+ const raw=aggregate?.data?.places||[];
  const c=center(destination||contract.locationContext?.destination||{}),maxRadius=Number(contract.radiusMeters||contract.maxDistanceMeters||50000);
  const valid=dedupe(raw).map(p=>{const d=distance(c,p.location||p.coordinates||p.geometry?.location);return{...p,distanceMeters:d??p.distanceMeters??null}}).filter(p=>{if(!window.LuviaDiscoveryContracts.matches(p,contract))return false;if(p.distanceMeters!=null&&p.distanceMeters>Math.max(maxRadius*1.5,80000))return false;return true});
  const dietary=contract.explicitDietary||null;const categoryValid=valid.filter(p=>{if(!dietary)return true;const blob=JSON.stringify({types:p.types,primaryType:p.primaryType,name:p.name||p.displayName,summary:p.editorialSummary,features:p.features}).toLowerCase();const hasPositive=p.features?.servesVegetarianFood===true||/vegetar|vegan/.test(blob);return hasPositive});const enriched=categoryValid.map(p=>{const evidence=evidenceFor(p);if(dietary&&(p.features?.servesVegetarianFood===true||/vegetar|vegan/.test(JSON.stringify(p).toLowerCase())))evidence.push({code:'dietary_match',value:dietary,source:p.features?.servesVegetarianFood===true?'google_places':'provider_text',confidence:p.features?.servesVegetarianFood===true?1:.75});const u=uncertainties(p);return{...p,evidence,uncertainties:u,evidenceConfidence:Math.min(1,.45+evidence.length*.11),qualityScore:localScore({...p,evidence,uncertainties:u})}}).filter(p=>p.evidence.length>=2&&p.qualityScore>=MIN_SCORE);
@@ -24,7 +26,7 @@ async function execute({domain,contract,destination,maxResultCount=MAX,searchOpt
  let ranked=enriched;try{ranked=await window.LuviaAI.rankCandidates({domain,contract,candidates:enriched})||enriched}catch(_){ranked=enriched.sort((a,b)=>b.qualityScore-a.qualityScore)}
  ranked=ranked.filter(p=>Number(p.matchScore??p.qualityScore)>=MIN_SCORE).slice(0,Math.min(MAX,maxResultCount));
  const roles={best:ranked[0]||null,relaxed:ranked[1]||null,special:ranked[2]||null,safe:ranked[3]||null,bold:ranked[4]||null};
- return{ok:ranked.length>0,data:{places:ranked,contract:clone(contract),roles,insufficientQuality:ranked.length===0},meta:{hypotheses:selectedPlans.length,strictContracts:true,distancePlausibility:true,deduplicated:true,evidenceRequired:true,googleOrderIgnored:true,maxResults:MAX}};
+ return{ok:ranked.length>0,data:{places:ranked,contract:clone(contract),roles,insufficientQuality:ranked.length===0},meta:{hypotheses:selectedPlans.length,providerRequestCount:aggregate?.meta?.requestCount||0,rankingPasses:1,strictContracts:true,distancePlausibility:true,deduplicated:true,evidenceRequired:true,googleOrderIgnored:true,maxResults:MAX}};
 }
 async function executeMove({contract,destination,maxResultCount=3}){const options=(contract.routeOptions||contract.aiSearchPlans||[]).slice(0,3).map((x,i)=>({id:x.id||`route-${i+1}`,name:x.label||x.query||['Entspannteste Verbindung','Schnellste Verbindung','Wenigster Fußweg'][i],role:['recommended','fast','comfortable'][i],durationMinutes:x.durationMinutes??null,transfers:x.transfers??null,walkingMinutes:x.walkingMinutes??null,evidence:x.evidence||[],uncertainties:x.uncertainties||['Live-Verbindungsdaten werden beim Öffnen geprüft'],matchScore:x.matchScore||80-i*7}));return{ok:options.length>0,data:{places:options.slice(0,Math.min(3,maxResultCount)),roles:{best:options[0]||null,fast:options[1]||null,comfortable:options[2]||null},contract:clone(contract),insufficientQuality:options.length===0},meta:{domain:'move',placeSearch:false,maxResults:3}}}
 window.LuviaAISearchEvidencePipeline=Object.freeze({version:VERSION,execute,dedupe,evidenceFor,uncertainty:uncertainties,distance,diagnostics:()=>({version:VERSION,maxResults:MAX,minScore:MIN_SCORE,domainSeparated:true,distancePlausibility:true,evidenceRequired:true})});

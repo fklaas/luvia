@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+const VERSION='1.1.0';
+
 const corsHeaders={
   'Access-Control-Allow-Origin':'https://myluvia.app',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -24,7 +26,7 @@ function safeHttpUrl(value:string){
 }
 async function fetchPage(url:string){
   const u=safeHttpUrl(url); if(!u)return null;
-  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
+  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),3500);
   try{
     const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':'LuviaBooking/1.0 (+https://myluvia.app)','accept':'text/html,application/xhtml+xml'}});
     if(!res.ok)return null;
@@ -33,19 +35,22 @@ async function fetchPage(url:string){
     return {url:res.url||u.toString(),html:text};
   }catch{return null;}finally{clearTimeout(timer);}
 }
+function decodeCfEmail(value:string){try{const hex=clean(value);if(hex.length<4||hex.length%2)return'';const key=parseInt(hex.slice(0,2),16);let out='';for(let i=2;i<hex.length;i+=2)out+=String.fromCharCode(parseInt(hex.slice(i,i+2),16)^key);return out}catch{return''}}
 function emailsFrom(html:string){
-  const decoded=html.replace(/&#64;|&commat;/gi,'@').replace(/&#46;|&period;/gi,'.');
+  let decoded=html.replace(/&#64;|&commat;|\u0040/gi,'@').replace(/&#46;|&period;|\u002e/gi,'.').replace(/\x40/gi,'@').replace(/\x2e/gi,'.');
+  decoded=decoded.replace(/data-cfemail=["']([0-9a-f]+)["']/gi,(_,hex)=>decodeCfEmail(hex)||'');
   const values=[...(decoded.match(emailRx)||[])];
   for(const m of decoded.matchAll(/mailto:([^"'?#\s>]+)/gi))values.push(decodeURIComponent(m[1]||''));
-  return [...new Set(values.map(x=>clean(x).replace(/[),.;:]+$/,'').toLowerCase()).filter(x=>validEmail(x)&&!blockedEmail(x)))];
+  for(const m of decoded.matchAll(/["']email["']\s*:\s*["']([^"']+)["']/gi))values.push(m[1]||'');
+  return [...new Set(values.map(x=>clean(x).replace(/^mailto:/i,'').replace(/[),.;:]+$/,'').toLowerCase()).filter(x=>validEmail(x)&&!blockedEmail(x)))];
 }
 function candidateLinks(base:string,html:string){
   const out:string[]=[]; const origin=new URL(base).origin;
   for(const m of html.matchAll(/href\s*=\s*["']([^"']+)["']/gi)){
     const href=clean(m[1]); if(!href||href.startsWith('mailto:'))continue;
-    try{const u=new URL(href,base); if(u.origin!==origin)continue; if(!/(contact|kontakt|reservation|reserv|booking|book|impressum|imprint)/i.test(u.pathname+u.search))continue; if(safeHttpUrl(u.toString()))out.push(u.toString())}catch{}
+    try{const u=new URL(href,base); if(u.origin!==origin)continue; if(!/(contact|kontakt|reservation|reserv|booking|book|impressum|imprint|privacy|legal|mentions|confidentialit|about)/i.test(u.pathname+u.search))continue; if(safeHttpUrl(u.toString()))out.push(u.toString())}catch{}
   }
-  return [...new Set(out)].slice(0,4);
+  return [...new Set(out)].slice(0,8);
 }
 
 Deno.serve(async(req)=>{
@@ -64,12 +69,13 @@ Deno.serve(async(req)=>{
     const website=clean(booking.contact?.website||booking.request?.website||booking.metadata?.website);
     const official=safeHttpUrl(website); if(!official)return json({ok:true,resolved:false,reason:'OFFICIAL_WEBSITE_MISSING'});
 
-    const {data:run,error:runError}=await admin.from('booking_discovery_runs').insert({booking_id:booking.id,trip_id:booking.trip_id,status:'running',resolver_version:'1.0.3'}).select('*').single();
+    const {data:run,error:runError}=await admin.from('booking_discovery_runs').insert({booking_id:booking.id,trip_id:booking.trip_id,status:'running',resolver_version:VERSION}).select('*').single();
     if(runError)return json({error:'DISCOVERY_RUN_CREATE_FAILED',details:runError.message},500);
     const first=await fetchPage(official.toString());
     if(!first){await admin.from('booking_discovery_runs').update({status:'failed',finished_at:new Date().toISOString(),error:{reason:'OFFICIAL_WEBSITE_FETCH_FAILED'}}).eq('id',run.id);return json({ok:true,resolved:false,reason:'OFFICIAL_WEBSITE_FETCH_FAILED'});}
     const pages=[first];
-    for(const link of candidateLinks(first.url,first.html)){const page=await fetchPage(link);if(page)pages.push(page)}
+    const extra=(await Promise.all(candidateLinks(first.url,first.html).map(link=>fetchPage(link)))).filter(Boolean) as {url:string,html:string}[];
+    pages.push(...extra);
     const seen=new Set<string>();
     for(const page of pages){
       for(const email of emailsFrom(page.html)){
@@ -78,7 +84,7 @@ Deno.serve(async(req)=>{
         const {error:candidateError}=await admin.rpc('luvia_booking_upsert_candidate',{
           p_booking_id:booking.id,p_discovery_run_id:run.id,p_kind:kind,p_provider:'official_website',p_contact_value:email,p_source_url:page.url,
           p_is_public:true,p_is_official:true,p_verification_status:'verified',p_confidence:kind==='public_reservation_email'?0.96:0.9,
-          p_evidence:{method:'official_site_html',page:page.url},p_metadata:{resolver:'booking-contact-resolve',resolverVersion:'1.0.3'}
+          p_evidence:{method:'official_site_html',page:page.url},p_metadata:{resolver:'booking-contact-resolve',resolverVersion:VERSION}
         });
         if(candidateError)console.warn('candidate upsert failed',candidateError.message);
       }

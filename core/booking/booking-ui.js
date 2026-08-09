@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.5.0';
+  const VERSION='1.6.0';
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const canonicalType=raw=>{
     const type=String(raw||'').toLowerCase();
@@ -24,7 +24,8 @@
     const email=place?.email||place?.contactEmail||'';
     const website=place?.website||place?.websiteUri||place?.website_uri||'';
     const reservationUrl=place?.reservationUrl||place?.reservation_url||place?.bookingUrl||place?.booking_url||'';
-    return `<button type="button" class="luv-place-primary-action" data-luvia-booking-place data-booking-place-type="${esc(type)}" data-booking-place-id="${esc(pid)}" data-booking-place-name="${esc(name)}" data-booking-place-email="${esc(email)}" data-booking-place-website="${esc(website)}" data-booking-place-reservation-url="${esc(reservationUrl)}">◇ ${label}</button>`;
+    const address=place?.formattedAddress||place?.address||place?.shortAddress||'';
+    return `<button type="button" class="luv-place-primary-action" data-luvia-booking-place data-booking-place-type="${esc(type)}" data-booking-place-id="${esc(pid)}" data-booking-place-name="${esc(name)}" data-booking-place-email="${esc(email)}" data-booking-place-website="${esc(website)}" data-booking-place-reservation-url="${esc(reservationUrl)}" data-booking-place-address="${esc(address)}">◇ ${label}</button>`;
   }
 
   function dialogHtml(place={}){
@@ -42,7 +43,7 @@
           <label><span>${isHotel?'Check-in':'Datum'}</span><input type="date" data-booking-date value="${esc(defaultDate)}"></label>
           ${isHotel?`<label><span>Check-out</span><input type="date" data-booking-end-date value="${esc(defaultDate)}"></label>`:`<label><span>Uhrzeit</span><input type="time" data-booking-time value="19:00"></label>`}
           <label><span>${isHotel?'Gäste':'Personen'}</span><input type="number" min="1" max="50" value="2" data-booking-party></label>
-          <label><span>Kontaktprüfung</span>${place.email?`<div class="lv-booking-auto-contact is-found"><strong>${esc(place.email)}</strong><small>Verifizierte öffentliche E-Mail auf der offiziellen Restaurant-Seite gefunden.</small></div><input type="hidden" data-booking-email value="${esc(place.email)}">`:place._bookingContactChecked?`<div class="lv-booking-auto-contact is-missing"><strong>Keine verifizierte öffentliche E-Mail-Adresse gefunden.</strong><small>Luvia hat die verfügbare offizielle Website und Kontaktseiten geprüft. Es wird keine Adresse geraten und keine Nachricht versendet.</small></div><input type="hidden" data-booking-email value="">`:`<div class="lv-booking-auto-contact"><strong>Kontakt wird geprüft …</strong><small>Luvia sucht ausschließlich auf belegbaren offiziellen Quellen.</small></div><input type="hidden" data-booking-email value="">`}</label>
+          <label><span>Kontaktprüfung</span>${place.email?`<div class="lv-booking-auto-contact is-found"><strong>${esc(place.email)}</strong><small>Verifizierte öffentliche E-Mail auf der offiziellen Restaurant-Seite gefunden.</small></div><input type="hidden" data-booking-email value="${esc(place.email)}">`:place._bookingContactChecked?`<div class="lv-booking-auto-contact is-missing"><strong>Keine verifizierte öffentliche E-Mail-Adresse gefunden.</strong><small>Luvia hat ${Number(place._bookingContactPagesChecked||0)>0?Number(place._bookingContactPagesChecked)+' offizielle Seiten einschließlich Kontakt-/Impressumsquellen geprüft.':'die verfügbare offizielle Website und Kontakt-/Impressumsquellen geprüft.'} Es wird keine Adresse geraten und keine Nachricht versendet.</small></div><input type="hidden" data-booking-email value="">`:`<div class="lv-booking-auto-contact"><strong>Kontakt wird geprüft …</strong><small>Luvia sucht ausschließlich auf belegbaren offiziellen Quellen.</small></div><input type="hidden" data-booking-email value="">`}</label>
           <label class="is-wide"><span>Wunsch / Hinweis</span><textarea data-booking-note rows="3" placeholder="z. B. Kinderwagen, ruhiger Tisch, spätes Check-in …"></textarea></label>
         </div>
         <div class="lv-booking-safety">
@@ -124,7 +125,8 @@
           name:enriched.name||detail.name||detail.displayName?.text||'',
           website:enriched.website||detail.website||detail.websiteUri||detail.website_uri||'',
           reservationUrl:enriched.reservationUrl||detail.reservationUrl||detail.reservation_url||detail.bookingUrl||detail.booking_url||'',
-          email:enriched.email||detail.email||detail.contactEmail||''
+          email:enriched.email||detail.email||detail.contactEmail||'',
+          address:enriched.address||detail.formattedAddress||detail.address||''
         };
       }catch(error){console.debug('[Luvia Booking] Place-Details für Provider-Routing konnten nicht nachgeladen werden.',error?.message||error)}
     }
@@ -156,7 +158,8 @@
       name:button.dataset.bookingPlaceName,
       email:button.dataset.bookingPlaceEmail,
       website:button.dataset.bookingPlaceWebsite,
-      reservationUrl:button.dataset.bookingPlaceReservationUrl
+      reservationUrl:button.dataset.bookingPlaceReservationUrl,
+      address:button.dataset.bookingPlaceAddress||''
     };
   }
 
@@ -226,6 +229,8 @@
       if(handoffWindow&&!handoffWindow.closed)handoffWindow.close();
       place._bookingContactChecked=true;
       place._bookingContactReason=route?.reason||'NO_VERIFIED_ROUTE';
+      place._bookingContactPagesChecked=Number(route?.pagesChecked||0);
+      place._bookingEnginesDetected=Array.isArray(route?.enginesDetected)?route.enginesDetected:[];
       if(route?.resolved&&route.channel==='email'&&route.value)place.email=route.value;
       await open(place);
     }catch(error){

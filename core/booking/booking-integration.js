@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.9.0';
+  const VERSION='1.10.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -248,7 +248,8 @@
       name:clean(place.name),
       placeType:String(place.type||place.primaryType||place.primary_type||'').toLowerCase(),
       website:clean(place.website||place.websiteUri||place.website_uri),
-      reservationUrl:clean(place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url)
+      reservationUrl:clean(place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url),
+      address:clean(place.formattedAddress||place.address||place.shortAddress)
     };
     if(!payload.name)throw new Error('Ort konnte nicht eindeutig bestimmt werden.');
     const {data,error}=await client.functions.invoke('booking-route-resolve',{body:{place:payload}});
