@@ -1,5 +1,5 @@
 -- Luvia v13.54.4 / Core 4.54.4
--- Provider Return Matrix + Booking/Places Reliability
+-- Provider Connection Runtime + Places Category Reliability
 -- Reuses a previously emitted but never-applied trusted provider signal when the earlier
 -- apply attempt ended in ignored/failed. Successfully applied signals remain strictly idempotent.
 

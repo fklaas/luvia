@@ -1,4 +1,4 @@
-# Luvia v13.55.0 / Core 4.55.0 — Provider Return Matrix + Booking/Places Reliability
+# Luvia v13.56.0 / Core 4.56.0 — Provider Connection Runtime + Places Category Reliability
 
 ## Booking Core
 - Expands the remaining provider return matrix for OpenTable, TheFork, Resy, Zenchef and SevenRooms using only public, first-party capability evidence.

@@ -14,7 +14,7 @@ ok('cloudflare e-mail decode route',route.includes('decodeCfEmail'));
 ok('legal/contact crawl for e-mail',route.includes('confidentialit'));
 ok('contact resolver cloudflare decode',contact.includes('decodeCfEmail'));
 ok('contact pages parallel',contact.includes('Promise.all(candidateLinks'));
-ok('universal quick-filter core',shell.includes('__luviaPlaceQuickFilterCoreBound')&&shell.includes('stopImmediatePropagation'));
+ok('universal quick-filter core',shell.includes("categoryInteractionMode:'module-root-delegation'")&&!shell.includes('stopImmediatePropagation()')); // Core 4.56 supersedes the faulty capture interceptor
 ok('discovery cache',discovery.includes('SEARCH_CACHE_TTL_MS = 90000'));
 ok('max four search plans',discovery.includes('plans.slice(0, 4)'));
 ok('skip nested AI ranking',discovery.includes('skipAIRanking'));

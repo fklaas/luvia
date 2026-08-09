@@ -1,4 +1,4 @@
-# Test plan — v13.55.0 / Core 4.55.0
+# Test plan — v13.56.0 / Core 4.56.0
 
 - Provider-return matrix has OpenTable/TheFork/Resy/Zenchef/SevenRooms contracts with partner-safe non-auto-apply states.
 - Quandoo/Tock verified mappings remain intact.

@@ -14,9 +14,9 @@ supabase/functions/luvia-gateway/index.ts
 index.html
 force-update.html
 sw.js
-RELEASE-v13.55.0.md
-DEPLOYMENT-v13.55.0.md
-TEST-v13.55.0.md
-COMMIT-v13.55.0.txt
-CHANGED-FILES-v13.55.0.txt
-tests/v13.55.0-provider-return-booking-discovery-reliability.test.cjs
+RELEASE-v13.56.0.md
+DEPLOYMENT-v13.56.0.md
+TEST-v13.56.0.md
+COMMIT-v13.56.0.txt
+CHANGED-FILES-v13.56.0.txt
+tests/v13.56.0-provider-return-booking-discovery-reliability.test.cjs

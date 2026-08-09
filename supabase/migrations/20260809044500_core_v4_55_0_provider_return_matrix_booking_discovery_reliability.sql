@@ -1,4 +1,4 @@
--- Luvia v13.55.0 / Core 4.55.0
+-- Luvia v13.56.0 / Core 4.56.0
 -- Provider Return Matrix + Booking Discovery Reliability
 -- Expands every remaining provider into the verified-contract matrix without inventing status vocabularies.
 begin;
@@ -40,7 +40,7 @@ on conflict(provider_id,transport) do update set
 
 -- Old placeholder polling contracts are not treated as public capabilities when only API/webhook access is verified.
 update public.booking_provider_status_contracts
-set active=false, updated_at=now(), notes=coalesce(notes,'')||' Superseded by Core 4.55.0 verified capability matrix.'
+set active=false, updated_at=now(), notes=coalesce(notes,'')||' Superseded by Core 4.56.0 verified capability matrix.'
 where (provider_id,transport) in (('opentable','polling'),('thefork','polling'),('resy','polling'))
   and verification_state='partner_schema_required';
 

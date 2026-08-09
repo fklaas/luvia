@@ -16,27 +16,9 @@ function planningEditor(config={}){const fields=(config.fields||[]).filter(field
 function openOverlay(html){if(activeOverlay){activeOverlay.remove();activeOverlay=null}const node=document.createElement('div');node.className='rv2-experience-backdrop';node.innerHTML=html;document.body.appendChild(node);document.body.style.overflow='hidden';activeOverlay=node;const close=()=>{if(activeOverlay===node)activeOverlay=null;node.remove();document.body.style.overflow='';window.dispatchEvent(new CustomEvent('luvia:place-overlay-closed'))};node.addEventListener('click',e=>{if(e.target===node||e.target.closest('[data-close-place]'))close()});return{node,close}}
 function diagnostics(){return{version:VERSION,status:'ready',contracts:['canonical-module-shell','canonical-module-header','discovery','quick-filters','filter-drawer','planned-panel','planning-editor','favorite-panel','single-overlay','shared-place-design-language','guided-results-focus-mode']}}
 
-// Core 4.55.0: one canonical quick-filter interaction path for every Places module.
-// Module renderers may replace their innerHTML; delegation on document keeps chips reliable.
-if(!window.__luviaPlaceQuickFilterCoreBound){
-  window.__luviaPlaceQuickFilterCoreBound=true;
-  document.addEventListener('click',event=>{
-    const chip=event.target?.closest?.('[data-place-query]');
-    if(!chip)return;
-    const form=chip.closest('form[data-place-search-form]');
-    if(!form)return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const query=String(chip.dataset.placeQuery||'').trim();
-    const input=form.querySelector('input[name="query"], textarea[name="query"]');
-    if(input)input.value=query;
-    form.querySelectorAll('[data-place-query]').forEach(node=>node.classList.toggle('active',node===chip));
-    const vegetarian=form.querySelector('[name="vegetarianOnly"]');
-    if(vegetarian)vegetarian.checked=/vegetar|vegan/i.test(query);
-    if(typeof form.requestSubmit==='function')form.requestSubmit();
-    else form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-  },true);
-}
-
-window.LuviaPlaceExperience=Object.freeze({version:VERSION,esc,quickFilters,filterDrawer,discovery,plannedPanel,moduleShell,planningEditor,openOverlay,diagnostics});
+// Core 4.56.0: category interactions stay owned by each mounted Places module.
+// Do NOT intercept these clicks at document capture level: doing so prevents the stable module-root
+// delegated handlers (r.onclick / root.addEventListener) from receiving the event after re-renders.
+// Every canonical module already delegates [data-place-query] from its persistent root.
+window.LuviaPlaceExperience=Object.freeze({version:VERSION,categoryInteractionMode:'module-root-delegation',esc,quickFilters,filterDrawer,discovery,plannedPanel,moduleShell,planningEditor,openOverlay,diagnostics});
 })();
