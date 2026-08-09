@@ -1,0 +1,1 @@
+fix(booking): persist email recipient expected states before transport

@@ -1,0 +1,33 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const mig=read('supabase/migrations/20260809192600_core_v4_68_2_email_send_expected_state_early_audit_fix.sql');
+const send=read('supabase/functions/booking-email-send/index.ts');
+const runtime=read('supabase/functions/booking-email-runtime/index.ts');
+const browser=read('core/booking/booking-email-v2.js');
+const index=read('index.html'),shell=read('app/app-shell.js'),sw=read('sw.js'),kernel=read('intelligence/kernel/version.js'),force=read('force-update.html');
+
+assert(mig.includes("'luvia_core','4.68.2'"));
+assert(mig.includes("'luvia_build','13.68.2'"));
+assert(mig.includes("'early_email_request_audit',true"));
+
+const auditInsert=send.indexOf("admin.from('booking_email_requests').insert");
+const verifyCall=send.indexOf("admin.rpc('luvia_booking_email_verified_candidate'");
+const resendKey=send.indexOf("Deno.env.get('RESEND_API_KEY')");
+const resendFetch=send.indexOf("fetch('https://api.resend.com/emails'");
+assert(auditInsert>=0 && verifyCall>=0 && auditInsert<verifyCall,'audit must be created before recipient verification');
+assert(resendKey>verifyCall,'Resend key must not mask expected recipient guards');
+assert(resendFetch>verifyCall,'Resend transport must be after recipient verification');
+assert(send.includes("state:'blocked',expected_state:true,error_code:errorCode"));
+assert(send.includes("return json({ok:false,expected:true,error:errorCode"));
+assert(send.includes("actual_recipient:null"));
+assert(send.includes("version:'2.0.2',build:'13.68.2',core:'4.68.2'"));
+assert(runtime.includes("version:'1.0.2',build:'13.68.2',core:'4.68.2'"));
+assert(browser.includes("const VERSION='1.0.2'"));
+assert(index.includes('booking-email-v2.js?v=13.68.2'));
+assert(shell.includes("BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.2'"));
+assert(sw.includes("const CACHE='luvia-shell-v13.68.2'"));
+assert(kernel.includes("core:'4.68.2'"));
+assert(kernel.includes("build:'13.68.2'"));
+assert(force.includes('appv=13.68.2'));
+console.log('LUVIA_V13_68_2_EMAIL_SEND_EXPECTED_STATE_EARLY_AUDIT_FIX_OK');
