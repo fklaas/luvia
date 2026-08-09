@@ -1,0 +1,1 @@
+feat(booking): add secrets readiness and service-role activation controls

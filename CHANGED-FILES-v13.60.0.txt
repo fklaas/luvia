@@ -1,0 +1,16 @@
+intelligence/kernel/version.js
+core/booking/booking-provider-connections.js
+supabase/functions/booking-provider-connection-health/index.ts
+supabase/functions/luvia-gateway/index.ts
+supabase/migrations/20260809082800_core_v4_60_0_provider_connection_secrets_readiness_admin_activation_control.sql
+index.html
+app/app-shell.js
+core/diagnostics/media-readiness.js
+intelligence/backend-service.js
+intelligence/services/base-services.js
+sw.js
+force-update.html
+RELEASE-v13.60.0.md
+DEPLOYMENT-v13.60.0.md
+TEST-v13.60.0.md
+tests/v13.60.0-provider-secrets-admin-activation.test.cjs
