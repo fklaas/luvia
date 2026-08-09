@@ -1,0 +1,1 @@
+fix(booking): publish availability runtime through existing booking health release registry

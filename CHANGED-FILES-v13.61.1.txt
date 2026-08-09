@@ -1,0 +1,15 @@
+supabase/migrations/20260809090200_core_v4_61_0_provider_availability_runtime_v1.sql
+supabase/functions/booking-provider-availability/index.ts
+core/booking/booking-availability.js
+index.html
+app/app-shell.js
+intelligence/kernel/version.js
+intelligence/backend-service.js
+intelligence/services/base-services.js
+supabase/functions/luvia-gateway/index.ts
+sw.js
+force-update.html
+RELEASE-v13.61.1.md
+DEPLOYMENT-v13.61.1.md
+TEST-v13.61.1.md
+COMMIT-v13.61.1.txt

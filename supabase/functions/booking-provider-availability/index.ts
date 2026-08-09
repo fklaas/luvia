@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const VERSION='1.0.0';
-const BUILD='13.61.0';
-const CORE='4.61.0';
+const BUILD='13.61.1';
+const CORE='4.61.1';
 const cors={
   'Access-Control-Allow-Origin':'*',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
