@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-const VERSION='1.0.0';
-const ROUTE_ORDER=Object.freeze(['api','affiliate','external_link','email','manual']);
-const ROUTE_SCORE=Object.freeze({api:500,affiliate:400,external_link:300,email:200,manual:0});
+const VERSION='1.1.0';
+const ROUTE_ORDER=Object.freeze(['api','external_link','affiliate','email','manual']);
+const ROUTE_SCORE=Object.freeze({api:500,external_link:350,affiliate:300,email:200,manual:0});
 const USER_ACTION_CHANNELS=Object.freeze(['affiliate','external_link','manual']);
 const ERROR_CLASSES=Object.freeze(['transient','permanent','user_action','unknown']);
 const clean=v=>String(v??'').trim();
@@ -79,6 +79,23 @@ function plan(candidates=[],options={}){
   excludedChannels:Object.freeze([...excluded]),ranked:Object.freeze(normalized)
  });
 }
+function explainDecision(planResult){
+ const p=planResult?.selected?planResult:plan([],{});
+ const ranked=Array.isArray(p.ranked)?p.ranked:[];
+ const winner=ranked[0]||null;
+ return Object.freeze({
+  version:VERSION,
+  policy:'user-interest-first',
+  selected:Object.freeze({channel:p.channel,provider:p.provider,target:p.target,reason:p.reason,requiresUserAction:p.requiresUserAction}),
+  selectedScore:winner?.score??0,
+  selectedBreakdown:winner?.breakdown||null,
+  alternatives:Object.freeze(ranked.slice(1).map(x=>Object.freeze({channel:x.route.channel,provider:x.route.provider,score:x.score,deltaToWinner:(winner?.score??x.score)-x.score,breakdown:x.breakdown}))),
+  invariants:Object.freeze({routeOrderMatchesServer:true,commercialWeightCapped:8,userInterestFirst:true,commercialCannotConfirmReservation:true})
+ });
+}
+function policySnapshot(){
+ return Object.freeze({version:VERSION,routeOrder:ROUTE_ORDER,routeScore:ROUTE_SCORE,commercialWeightCapped:8,userInterestFirst:true,commercialCannotConfirmReservation:true});
+}
 function classifyFailure(error={}){
  const status=Number(error.status||error.statusCode||0);const code=clean(error.code).toUpperCase();
  if(error.userActionRequired===true)return 'user_action';
@@ -111,7 +128,7 @@ function diagnostics(){
   {channel:'api',provider:'direct',target:'https://example.test/api',confidence:.9,signals:{liveAvailable:true,connectionState:'healthy',reliability:.95,directBooking:true,uxQuality:.9}},
   {channel:'affiliate',provider:'commercial',target:'https://example.test/ref',confidence:1,signals:{commercialReady:true,reliability:.8,uxQuality:.8}}
  ]);
- return Object.freeze({version:VERSION,status:'ready',ranking:'user-interest-first',commercialWeightCapped:8,directWinsCommercialOnly:good.provider==='direct',routeOrder:ROUTE_ORDER,policy:good.policy});
+ return Object.freeze({version:VERSION,status:'ready',ranking:'user-interest-first',commercialWeightCapped:8,directWinsCommercialOnly:good.provider==='direct',routeOrder:ROUTE_ORDER,routeScore:ROUTE_SCORE,policy:good.policy,serverPolicyExpected:Object.freeze({api:500,external_link:350,affiliate:300,email:200,manual:0})});
 }
-window.LuviaBookingOrchestration=Object.freeze({version:VERSION,ROUTE_ORDER,ROUTE_SCORE,USER_ACTION_CHANNELS,ERROR_CLASSES,normalizeCandidate,normalizeSignals,intelligenceBreakdown,routeScore,plan,classifyFailure,nextAfterFailure,execute,diagnostics});
+window.LuviaBookingOrchestration=Object.freeze({version:VERSION,ROUTE_ORDER,ROUTE_SCORE,USER_ACTION_CHANNELS,ERROR_CLASSES,normalizeCandidate,normalizeSignals,intelligenceBreakdown,routeScore,plan,explainDecision,policySnapshot,classifyFailure,nextAfterFailure,execute,diagnostics});
 })();

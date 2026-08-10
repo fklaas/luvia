@@ -1,8 +1,9 @@
 (function(){
 'use strict';
-const VERSION='4.72.0';
-const BUILD='13.72.0';
+const VERSION='4.73.0';
+const BUILD='13.73.0';
 const clean=v=>String(v??'').trim();
+let lastRemoteResult=Object.freeze({state:'not_checked',checkedAt:null,ok:null});
 const check=(name,ok,detail=null)=>({name,ok:Boolean(ok),detail});
 const modules=()=>({
  contract:window.LuviaBookingContract,
@@ -20,7 +21,7 @@ const modules=()=>({
  communication:window.LuviaBookingCommunication,
  monetization:window.LuviaBookingMonetization,
  reconciliation:window.LuviaBookingReconciliationProviderReturn,
- integration:window.LuviaBookingIntegration
+ integration:window.LuviaBookingIntegration||window.LuviaBooking
 });
 function componentGroups(){
  const m=modules();
@@ -35,14 +36,19 @@ function componentGroups(){
 function snapshot(){
  const m=modules();const groups=componentGroups();const providerRows=m.registry?.list?.()||[];const orchestration=m.orchestration?.diagnostics?.()||null;
  const checks=[
-  check('booking-contract',m.contract),check('provider-registry',m.registry),check('provider-capabilities',m.capabilities),
-  check('orchestration',m.orchestration),check('reservation-lifecycle',m.availability&&m.create&&m.mutation&&m.mutationStatus&&m.recovery),
+  check('booking-contract',m.contract),check('booking-events',m.events),check('booking-integration',m.integration),
+  check('provider-registry',m.registry),check('provider-capabilities',m.capabilities),check('orchestration',m.orchestration),
+  check('reservation-lifecycle',m.availability&&m.create&&m.mutation&&m.mutationStatus&&m.recovery),
   check('email-booking',m.email&&m.communication),check('commercial-core',m.monetization&&m.reconciliation),
-  check('user-interest-first',orchestration?.directWinsCommercialOnly===true,orchestration)
+  check('user-interest-first',orchestration?.directWinsCommercialOnly===true,orchestration),
+  check('route-order-server-consistent',JSON.stringify(orchestration?.routeOrder||[])===JSON.stringify(['api','external_link','affiliate','email','manual']),orchestration?.routeOrder)
  ];
+ const groupsReady=groups.every(g=>g.status==='ready');
+ const checksReady=checks.every(x=>x.ok);
+ const healthy=groupsReady&&checksReady;
  return Object.freeze({
-  version:VERSION,build:BUILD,name:'Booking Core',status:checks.every(x=>x.ok)?'ready':'degraded',healthy:checks.every(x=>x.ok),
-  providerCount:providerRows.length,providers:providerRows,groups,checks,
+  version:VERSION,build:BUILD,name:'Booking Core',status:healthy?'ready':'degraded',healthy,
+  providerCount:providerRows.length,providers:providerRows,groups,checks,backend:lastRemoteResult,
   policies:Object.freeze({commercialDoesNotConfirmReservation:true,commissionDoesNotConfirmReservation:true,userInterestFirst:true,noFakeProviderActivation:true,emailIsFallback:true}),
   orchestration
  });
@@ -61,15 +67,21 @@ async function runLocalTests(){
   ]);
   assertions.push(check('failed-direct-can-fall-back',unavailable.channel==='email',unavailable.ranked));
   assertions.push(check('commercial-weight-capped',o.diagnostics?.().commercialWeightCapped===8,o.diagnostics?.()));
+  assertions.push(check('client-server-route-order-consistent',JSON.stringify(o.ROUTE_ORDER)===JSON.stringify(['api','external_link','affiliate','email','manual']),o.policySnapshot?.()));
+  const evidence=o.explainDecision?.(plan); assertions.push(check('decision-evidence',Boolean(evidence?.selected&&evidence?.selectedBreakdown&&Array.isArray(evidence?.alternatives)),evidence));
  }
  return Object.freeze({ok:assertions.every(x=>x.ok),version:VERSION,build:BUILD,durationMs:Math.round(performance.now()-start),assertions,snapshot:snapshot()});
 }
 async function runRemoteTests(){
- const result={connectionReadiness:null,monetizationReadiness:null,errors:[]};
+ const result={connectionReadiness:null,monetizationReadiness:null,orchestrationReadiness:null,routeDecisionRuntime:null,errors:[]};
  try{result.connectionReadiness=await window.LuviaBookingProviderConnections?.readiness?.()}catch(e){result.errors.push({area:'connections',message:clean(e?.message||e)})}
  try{result.monetizationReadiness=await window.LuviaBookingMonetization?.profiles?.()}catch(e){result.errors.push({area:'monetization',message:clean(e?.message||e)})}
- return Object.freeze({...result,ok:result.errors.length===0});
+ try{result.orchestrationReadiness=await window.LuviaBooking?.orchestrationReadiness?.()}catch(e){result.errors.push({area:'orchestration',message:clean(e?.message||e)})}
+ try{result.routeDecisionRuntime=await window.LuviaBooking?.routeDecisionDiagnostics?.({limit:25})}catch(e){result.errors.push({area:'route_decisions',message:clean(e?.message||e)})}
+ const ok=result.errors.length===0&&Array.isArray(result.orchestrationReadiness);
+ lastRemoteResult=Object.freeze({state:ok?'ready':'failed',checkedAt:new Date().toISOString(),ok,errorCount:result.errors.length,providerRows:Array.isArray(result.orchestrationReadiness)?result.orchestrationReadiness.length:0,decisionRows:Array.isArray(result.routeDecisionRuntime)?result.routeDecisionRuntime.length:0});
+ return Object.freeze({...result,ok,summary:lastRemoteResult});
 }
-async function run({remote=false}={}){const local=await runLocalTests();const remoteResult=remote?await runRemoteTests():{skipped:true};return Object.freeze({ok:local.ok&&(remoteResult.skipped||remoteResult.ok),local,remote:remoteResult});}
+async function run({remote=false}={}){const local=await runLocalTests();const remoteResult=remote?await runRemoteTests():Object.freeze({skipped:true,reason:'REMOTE_NOT_REQUESTED'});return Object.freeze({ok:local.ok&&(remoteResult.skipped||remoteResult.ok),local,remote:remoteResult});}
 window.LuviaBookingCoreDiagnostics=Object.freeze({version:VERSION,build:BUILD,snapshot,componentGroups,runLocalTests,runRemoteTests,run});
 })();

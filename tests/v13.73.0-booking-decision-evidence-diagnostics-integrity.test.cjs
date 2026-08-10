@@ -1,0 +1,12 @@
+const assert=require('node:assert');const fs=require('node:fs');const vm=require('node:vm');
+const read=f=>fs.readFileSync(f,'utf8');
+const version=read('intelligence/kernel/version.js');assert(version.includes("core:'4.73.0'")&&version.includes("build:'13.73.0'"));
+const ojs=read('core/booking/booking-orchestration.js');const sandbox={window:{},console,URL,performance:{now:()=>0}};vm.createContext(sandbox);vm.runInContext(ojs,sandbox);const o=sandbox.window.LuviaBookingOrchestration;
+assert.equal(o.version,'1.1.0');assert.deepEqual(Array.from(o.ROUTE_ORDER),['api','external_link','affiliate','email','manual']);
+assert.equal(o.ROUTE_SCORE.external_link,350);assert.equal(o.ROUTE_SCORE.affiliate,300);
+let plan=o.plan([{channel:'external_link',provider:'official',target:'https://example.test/book',confidence:.9,signals:{reliability:.8,uxQuality:.8}},{channel:'affiliate',provider:'paid',target:'https://example.test/ref',confidence:1,signals:{commercialReady:true,reliability:.8,uxQuality:.8}}]);
+assert.equal(plan.channel,'external_link','official external route baseline must precede affiliate');
+const evidence=o.explainDecision(plan);assert.equal(evidence.policy,'user-interest-first');assert.equal(evidence.selected.channel,'external_link');assert(Array.isArray(evidence.alternatives));assert.equal(evidence.invariants.commercialWeightCapped,8);
+const diag=read('core/diagnostics/booking-core-diagnostics.js');assert(diag.includes("integration:window.LuviaBookingIntegration||window.LuviaBooking"));assert(diag.includes("const healthy=groupsReady&&checksReady"));assert(diag.includes("route-order-server-consistent"));assert(diag.includes("REMOTE_NOT_REQUESTED"));
+const migration=read('supabase/migrations/20260810222000_core_v4_73_0_booking_decision_evidence_diagnostics_integrity.sql');for(const x of ['booking_route_decision_runtime_v1','luvia_booking_orchestration_policy_snapshot','external_link\' then 350','affiliate\' then 300','booking_orchestration_v4_73'])assert(migration.includes(x));
+console.log('LUVIA_V13_73_0_BOOKING_DECISION_EVIDENCE_DIAGNOSTICS_INTEGRITY_OK');
