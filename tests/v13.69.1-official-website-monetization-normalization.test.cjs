@@ -1,0 +1,18 @@
+const assert=require('assert');
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const mig=fs.readFileSync(path.join(root,'supabase/migrations/20260810135500_core_v4_69_1_official_website_monetization_profile_normalization_fix.sql'),'utf8');
+assert(mig.includes("'official_website','Offizielle Website','unavailable','none','none','manual'"));
+assert(mig.includes("when v_provider_raw in ('official','official_website') then 'official_website'"));
+assert(mig.includes("case when v_profile_found then v_profile.commercial_status else 'unavailable' end"));
+assert(mig.includes("case when v_profile_found then v_profile.monetization_mode else 'none' end"));
+assert(mig.includes("case when v_profile_found then v_profile.tracking_strategy else 'none' end"));
+assert(mig.includes("'commercialSignalCanConfirmReservation',false"));
+assert(mig.includes("where c.provider_id='official_website'"));
+const version=fs.readFileSync(path.join(root,'intelligence/kernel/version.js'),'utf8');
+assert(version.includes("core:'4.69.1'"));
+assert(version.includes("build:'13.69.1'"));
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+assert(index.includes('core/booking/booking-monetization.js?v=13.69.1'));
+console.log('LUVIA_V13_69_1_OFFICIAL_WEBSITE_MONETIZATION_NORMALIZATION_OK');
