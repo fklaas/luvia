@@ -1,0 +1,22 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const shell=fs.readFileSync(path.join(root,'app/app-shell.js'),'utf8');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
+const version=fs.readFileSync(path.join(root,'intelligence/kernel/version.js'),'utf8');
+function ok(cond,msg){if(!cond)throw new Error(msg)}
+ok(shell.includes("version:'13.68.8'"),'LuviaApp version missing');
+ok(shell.includes("document.readyState==='loading'"),'readyState bootstrap guard missing');
+ok(shell.includes("startShell('document-already-ready')"),'already-ready bootstrap path missing');
+ok(shell.includes('shellStartPromise'),'idempotent shell start missing');
+ok(shell.includes('guaranteeInitialRender'),'render guarantee missing');
+ok(shell.includes("setTimeout(()=>{if(root&&root.children.length===0)guaranteeInitialRender('startup-watchdog')},900)"),'startup empty DOM watchdog missing');
+ok(shell.includes('window.LuviaBootDiagnostics=bootDiagnostics'),'boot diagnostics missing');
+ok(shell.includes("markBoot('auth-ready'"),'auth ready diagnostics missing');
+ok(shell.includes("await guaranteeInitialRender('post-bootstrap')"),'post-bootstrap guarantee missing');
+ok(index.includes('app/app-shell.js?v=13.68.8'),'index shell cache bust missing');
+ok(index.includes('app/public-entry.js?v=13.68.8'),'index public entry cache bust missing');
+ok(sw.includes("luvia-shell-v13.68.8"),'service worker cache missing');
+ok(version.includes("core:'4.68.8'")&&version.includes("build:'13.68.8'"),'kernel version missing');
+console.log('LUVIA_V13_68_8_APP_BOOTSTRAP_RENDER_GUARANTEE_OK');

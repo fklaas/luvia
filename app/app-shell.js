@@ -1,13 +1,17 @@
 (() => {
   'use strict';
   let root,activeView='today',mountedPlaces=false,mountedMove=false,mountedLifecycle=false,mountedGallery=false,mountedAlbums=false,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeAuth=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,todayRenderTimer=0,todayLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false;
+  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0;
+  const bootDiagnostics={version:'13.68.8',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  window.LuviaBootDiagnostics=bootDiagnostics;
+  function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
-  const BOOKING_AVAILABILITY_SRC='core/booking/booking-availability.js?v=13.68.7';
-  const BOOKING_RESERVATION_CREATE_SRC='core/booking/booking-reservation-create.js?v=13.68.7';
-  const BOOKING_RESERVATION_MUTATION_SRC='core/booking/booking-reservation-mutation.js?v=13.68.7';
-  const BOOKING_RESERVATION_MUTATION_STATUS_SRC='core/booking/booking-reservation-mutation-status.js?v=13.68.7';
-  const BOOKING_RESERVATION_RECOVERY_SRC='core/booking/booking-reservation-recovery.js?v=13.68.7';
-  const BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.7';
+  const BOOKING_AVAILABILITY_SRC='core/booking/booking-availability.js?v=13.68.8';
+  const BOOKING_RESERVATION_CREATE_SRC='core/booking/booking-reservation-create.js?v=13.68.8';
+  const BOOKING_RESERVATION_MUTATION_SRC='core/booking/booking-reservation-mutation.js?v=13.68.8';
+  const BOOKING_RESERVATION_MUTATION_STATUS_SRC='core/booking/booking-reservation-mutation-status.js?v=13.68.8';
+  const BOOKING_RESERVATION_RECOVERY_SRC='core/booking/booking-reservation-recovery.js?v=13.68.8';
+  const BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.8';
   let bookingAvailabilityLoadPromise=null,bookingReservationCreateLoadPromise=null,bookingReservationMutationLoadPromise=null,bookingReservationMutationStatusLoadPromise=null,bookingReservationRecoveryLoadPromise=null,bookingEmailV2LoadPromise=null;
   function ensureBookingAvailabilityClient(){
     if(window.LuviaBookingAvailability?.check&&window.LuviaBookingAvailability?.readiness)return Promise.resolve(window.LuviaBookingAvailability);
@@ -291,7 +295,77 @@
   function ready(){const t=activeTrip(),p=profile();if(!t)return noTrips();const tripId=String(t.id||t.tripId||'');lastTripRenderSignature=tripRenderSignature(t);window.LuviaTheme.apply(t);if(root.querySelector('.lv-shell')){refreshShellHeader();if(lastRenderedTripId!==tripId)return show(activeView,{force:true,animate:false});return}root.innerHTML=`<div class="lv-shell"><div class="lv-ambient-memories" aria-hidden="true"><span class="lv-ambient-item lv-ambient-passport">✦</span><span class="lv-ambient-item lv-ambient-camera">◉</span><span class="lv-ambient-item lv-ambient-heart">♡</span><span class="lv-ambient-item lv-ambient-pin">⌖</span><span class="lv-ambient-item lv-ambient-ticket">◇</span><span class="lv-ambient-item lv-ambient-route">⌁</span><span class="lv-ambient-item lv-ambient-sun">✺</span><span class="lv-ambient-item lv-ambient-cloud">☁</span><span class="lv-ambient-item lv-ambient-star">✦</span></div><header class="lv-header"><span class="lv-logo"></span><div class="lv-trip"><strong>${esc(t.title||'Unsere Reise')}</strong><small>${esc(t.destination?.name||'Reiseziel offen')}</small></div><span class="lv-spacer"></span>${releaseBadge()}<button class="lv-icon lv-ai-global-trigger" data-ai-ask-open aria-label="Mit Luvia sprechen">✦ <span class="lv-label">Luvia</span></button><button class="lv-icon" data-invite>＋ <span class="lv-label">Einladen</span></button><button class="lv-profile-trigger" data-profile-open="hub">${avatar(p)}<span><b>${esc(p.displayName||'Profil')}</b><small>${esc(t.title||'Reise')}</small></span></button></header><main class="lv-stage" data-stage></main></div>`;shellInitialized=true;show(activeView,{animate:true})}
   async function render(){const auth=(window.LuviaAuth||window.ParisAuth).getState();if(auth.loading)return bootScreen();if(!auth.authenticated)return signedOut();document.documentElement.classList.remove('lv-entry-active','lv-public-entry-active');document.body.classList.remove('lv-entry-active','lv-public-entry-active');const s=snap();if(!s.loaded)return bootScreen('Reisen werden geladen …');if(window.LuviaJoinFlow?.pending?.())return window.LuviaJoinFlow.renderIfPending(root,auth,profile());if(!s.hasTrips||!s.hasActiveTrip)return noTrips();return ready()}
   async function hydrateForAuth(client,authState){const run=++authHydration;if(!authState?.authenticated){lastAuthUserId=null;hydratedAuthUserId=null;bootComplete=true;await render();await window.LuviaBootCoordinator.reveal();return}const userId=authState.user?.id||null;if(bootComplete&&hydratedAuthUserId===userId){await render();return}await window.LuviaBootCoordinator.boot(client);if(run!==authHydration)return;const p=profile();lastAuthUserId=userId;hydratedAuthUserId=userId;activeView=window.LuviaNavigationRegistry?.normalize?.(p.defaultView)||'today';if(!['today','plan','trip','memories','more'].includes(activeView))activeView='today';window.LuviaRuntime.refresh();window.LuviaTheme.apply(activeTrip());window.LuviaDestination?.refresh?.();bootComplete=true;await render();await window.LuviaBootCoordinator.reveal();const activeId=snap().activeTripId;if(activeId){await window.LuviaCollaboration?.start?.(client);window.LuviaCollaboration?.watchTrip?.(activeId).catch?.(console.warn)}}
-  async function bootstrap(){bootScreen();try{const client=await window.LuviaSupabaseService.start();await window.LuviaJoinFlow?.start?.(client);window.LuviaPWA?.register?.().catch(e=>console.warn('[LuviaPWA]',e));const initialAuth=(window.LuviaAuth||window.ParisAuth).getState();if(initialAuth?.authenticated)lastAuthUserId=initialAuth.user?.id||null;if(!subscriptionsBound){subscriptionsBound=true;unsubscribeTrip=window.LuviaTripStore.subscribe(s=>{if(!bootComplete)return;const token=++tripSwitchToken;Promise.resolve().then(async()=>{if(!s.activeTripId||token!==tripSwitchToken)return;if(profile().activeTripId!==s.activeTripId&&(window.LuviaAuth||window.ParisAuth).getState().authenticated)await window.LuviaProfileService.setActiveTrip(s.activeTripId).catch(console.warn);await window.LuviaTimelineCore?.hydrate?.(s.activeTripId).catch(()=>{});if(token!==tripSwitchToken)return;window.LuviaDestination?.refresh?.();if(window.LuviaCollaboration?.snapshot?.().tripId!==s.activeTripId)window.LuviaCollaboration?.watchTrip?.(s.activeTripId).catch?.(console.warn);mountedPlaces=false;mountedMove=false;mountedLifecycle=false;lastTripRenderSignature=tripRenderSignature(s.activeTrip);refreshShellHeader();await show(activeView,{force:true,animate:false});}).catch(console.error)});unsubscribeProfile=window.LuviaProfileService.subscribe(()=>{if(!bootComplete)return;window.LuviaTheme.apply(activeTrip());window.LuviaCollaboration?.heartbeat?.();refreshShellHeader();refreshDashboardGrid()});unsubscribeCollaboration=window.LuviaCollaboration?.subscribe?.(state=>{if(!bootComplete||!state?.tripId||activeView!=='today'||!root?.querySelector('.lv-shell'))return;cancelAnimationFrame(collaborationFrame);collaborationFrame=requestAnimationFrame(()=>updateDashboardWidget('members'))});unsubscribeAuth=(window.LuviaAuth||window.ParisAuth).onChange(state=>{const uid=state?.user?.id||null;if(state?.authenticated&&uid!==lastAuthUserId){if(hydratedAuthUserId===uid&&bootComplete)return;window.LuviaBootCoordinator.reset();bootComplete=false;hydrateForAuth(client,state).catch(errorScreen)}else if(!state?.authenticated&&lastAuthUserId!==null){lastAuthUserId=null;bootComplete=true;render()}})}await hydrateForAuth(client,initialAuth)}catch(error){console.error('[LuviaApp]',error);bootComplete=true;errorScreen(error)}}
+  async function bootstrap(){
+    markBoot('bootstrap-enter',{bootstrapEntered:true});
+    bootScreen();
+    try{
+      const client=await window.LuviaSupabaseService.start();
+      const authApi=(window.LuviaAuth||window.ParisAuth);
+      const authAfterStart=authApi.getState();
+      markBoot('auth-ready',{authInitialized:!authAfterStart?.loading,initialSession:authAfterStart?.session?true:false});
+      await window.LuviaJoinFlow?.start?.(client);
+      window.LuviaPWA?.register?.().catch(e=>console.warn('[LuviaPWA]',e));
+      const initialAuth=authApi.getState();
+      if(initialAuth?.authenticated)lastAuthUserId=initialAuth.user?.id||null;
+      if(!subscriptionsBound){
+        subscriptionsBound=true;
+        unsubscribeTrip=window.LuviaTripStore.subscribe(s=>{if(!bootComplete)return;const token=++tripSwitchToken;Promise.resolve().then(async()=>{if(!s.activeTripId||token!==tripSwitchToken)return;if(profile().activeTripId!==s.activeTripId&&authApi.getState().authenticated)await window.LuviaProfileService.setActiveTrip(s.activeTripId).catch(console.warn);await window.LuviaTimelineCore?.hydrate?.(s.activeTripId).catch(()=>{});if(token!==tripSwitchToken)return;window.LuviaDestination?.refresh?.();if(window.LuviaCollaboration?.snapshot?.().tripId!==s.activeTripId)window.LuviaCollaboration?.watchTrip?.(s.activeTripId).catch?.(console.warn);mountedPlaces=false;mountedMove=false;mountedLifecycle=false;lastTripRenderSignature=tripRenderSignature(s.activeTrip);refreshShellHeader();await show(activeView,{force:true,animate:false});}).catch(console.error)});
+        unsubscribeProfile=window.LuviaProfileService.subscribe(()=>{if(!bootComplete)return;window.LuviaTheme.apply(activeTrip());window.LuviaCollaboration?.heartbeat?.();refreshShellHeader();refreshDashboardGrid()});
+        unsubscribeCollaboration=window.LuviaCollaboration?.subscribe?.(state=>{if(!bootComplete||!state?.tripId||activeView!=='today'||!root?.querySelector('.lv-shell'))return;cancelAnimationFrame(collaborationFrame);collaborationFrame=requestAnimationFrame(()=>updateDashboardWidget('members'))});
+        unsubscribeAuth=authApi.onChange(state=>{const uid=state?.user?.id||null;if(state?.authenticated&&uid!==lastAuthUserId){if(hydratedAuthUserId===uid&&bootComplete)return;window.LuviaBootCoordinator.reset();bootComplete=false;hydrateForAuth(client,state).catch(errorScreen)}else if(!state?.authenticated&&lastAuthUserId!==null){lastAuthUserId=null;bootComplete=true;render()}})
+      }
+      await hydrateForAuth(client,initialAuth);
+      markBoot('bootstrap-complete',{bootstrapCompleted:true,completedAt:new Date().toISOString()});
+    }catch(error){
+      console.error('[LuviaApp]',error);
+      markBoot('bootstrap-error',{lastError:error?.message||String(error),bootstrapCompleted:true,completedAt:new Date().toISOString()});
+      bootComplete=true;
+      errorScreen(error)
+    }
+  }
+  async function guaranteeInitialRender(reason='guarantee'){
+    const mountRoot=root||document.getElementById('app');
+    if(!mountRoot)return markBoot('root-missing',{lastError:'LUVIA_APP_ROOT_MISSING'});
+    root=mountRoot;
+    if(mountRoot.children.length>0)return markBoot('dom-present',{renderCompleted:true});
+    const authApi=(window.LuviaAuth||window.ParisAuth);
+    try{
+      if(authApi?.getState?.()?.loading&&window.LuviaSupabaseService?.start){
+        await Promise.race([window.LuviaSupabaseService.start(),new Promise(resolve=>setTimeout(resolve,2200))]);
+      }
+      markBoot('recovery-render',{renderAttempted:true,recoveryRenderAttempted:true});
+      await render();
+      const mounted=mountRoot.children.length>0;
+      markBoot(mounted?'recovery-render-complete':'recovery-render-empty',{renderCompleted:mounted,recoveryRenderCompleted:mounted,lastError:mounted?null:'LUVIA_INITIAL_RENDER_EMPTY'});
+      if(!mounted){
+        const state=authApi?.getState?.();
+        if(state&&!state.loading&&!state.authenticated){await signedOut();}
+      }
+      return mountRoot.children.length>0;
+    }catch(error){
+      console.error('[LuviaBoot] Recovery render failed',error);
+      markBoot('recovery-render-error',{lastError:error?.message||String(error)});
+      return false;
+    }
+  }
+  function startShell(reason='auto'){
+    if(shellStartPromise)return shellStartPromise;
+    bootDiagnostics.started=true;bootDiagnostics.startReason=reason;bootDiagnostics.startedAt=new Date().toISOString();bootDiagnostics.domReadyState=document.readyState;
+    root=document.getElementById('app');markBoot('root-resolved',{rootResolved:Boolean(root)});
+    if(!root){const error=new Error('LUVIA_APP_ROOT_MISSING');markBoot('root-error',{lastError:error.message});return Promise.reject(error)}
+    if(!shellEventsBound){shellEventsBound=true;bind();}
+    ensureBookingAvailabilityClient().catch(error=>console.warn('[Luvia Booking] Availability Client konnte nicht initialisiert werden:',error?.message||error));
+    ensureBookingReservationCreateClient().catch(error=>console.warn('[Luvia Booking] Reservation Create Client konnte nicht initialisiert werden:',error?.message||error));
+    ensureBookingReservationMutationClient().catch(error=>console.warn('[Luvia Booking] Reservation Mutation Client konnte nicht initialisiert werden:',error?.message||error));
+    ensureBookingReservationMutationStatusClient().catch(error=>console.warn('[Luvia Booking] Reservation Mutation Status Client konnte nicht initialisiert werden:',error?.message||error));
+    ensureBookingReservationRecoveryClient().catch(error=>console.warn('[Luvia Booking] Reservation Recovery Client konnte nicht initialisiert werden:',error?.message||error));
+    ensureBookingEmailV2Client().catch(error=>console.warn('[Luvia Booking] Email V2 Client konnte nicht initialisiert werden:',error?.message||error));
+    clearTimeout(bootRecoveryTimer);
+    bootRecoveryTimer=setTimeout(()=>{if(root&&root.children.length===0)guaranteeInitialRender('startup-watchdog')},900);
+    shellStartPromise=(async()=>{await bootstrap();markBoot('post-bootstrap-render-check');await guaranteeInitialRender('post-bootstrap');return true})().catch(error=>{markBoot('start-error',{lastError:error?.message||String(error)});throw error});
+    return shellStartPromise;
+  }
+
     async function openDialog(name,payload){try{if(!window.LuviaUI?.has?.(name))throw new Error(`Dialog ${name} ist noch nicht verfügbar.`);await window.LuviaUI.open(name,payload)}catch(error){console.error('[LuviaUI]',name,error);const message=error?.message||'Der Dialog konnte nicht geöffnet werden.';window.LuviaUIKit?.toast?.(message,{type:'error'})||alert(message)}}
   function toast(message){const old=document.querySelector('.lv-preview-toast');old?.remove();const el=document.createElement('div');el.className='lv-preview-toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2800)}
   function handleHubAction(action){
@@ -316,5 +390,5 @@
   })}
 
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaTimelineCore?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaTimelineCore?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const view=e.detail?.view;if(view)show(view,{force:true}).catch(console.error)});window.LuviaApp=Object.freeze({version:'13.68.7',bootstrap,render,show,openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});window.addEventListener('DOMContentLoaded',()=>{root=document.getElementById('app');bind();ensureBookingAvailabilityClient().catch(error=>console.warn('[Luvia Booking] Availability Client konnte nicht initialisiert werden:',error?.message||error));ensureBookingReservationCreateClient().catch(error=>console.warn('[Luvia Booking] Reservation Create Client konnte nicht initialisiert werden:',error?.message||error));ensureBookingReservationMutationClient().catch(error=>console.warn('[Luvia Booking] Reservation Mutation Client konnte nicht initialisiert werden:',error?.message||error));ensureBookingReservationMutationStatusClient().catch(error=>console.warn('[Luvia Booking] Reservation Mutation Status Client konnte nicht initialisiert werden:',error?.message||error));ensureBookingReservationRecoveryClient().catch(error=>console.warn('[Luvia Booking] Reservation Recovery Client konnte nicht initialisiert werden:',error?.message||error));ensureBookingEmailV2Client().catch(error=>console.warn('[Luvia Booking] Email V2 Client konnte nicht initialisiert werden:',error?.message||error));bootstrap()},{once:true});
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaTimelineCore?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const view=e.detail?.view;if(view)show(view,{force:true}).catch(console.error)});window.LuviaApp=Object.freeze({version:'13.68.8',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics}),show,openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
 })();
