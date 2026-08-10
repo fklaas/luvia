@@ -1,0 +1,13 @@
+# Changed files v13.69.0
+- core/booking/booking-monetization.js
+- core/booking/booking-integration.js
+- supabase/migrations/20260810134000_core_v4_69_0_attribution_core_monetization_foundation.sql
+- index.html
+- intelligence/kernel/version.js
+- sw.js
+- force-update.html
+- tests/v13.69.0-attribution-core-monetization-foundation.test.cjs
+- RELEASE-v13.69.0.md
+- DEPLOYMENT-v13.69.0.md
+- TEST-v13.69.0.md
+- COMMIT-v13.69.0.txt

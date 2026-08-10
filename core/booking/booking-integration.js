@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.10.0';
+  const VERSION='1.11.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -191,7 +191,7 @@
     await init();
     const tripId=activeTripId();
     if(!tripId||!route?.value)return null;
-    const {data,error}=await client.rpc('luvia_booking_record_place_handoff',{
+    const args={
       p_trip_id:tripId,
       p_place_type:String(place.type||place.primaryType||place.primary_type||'restaurant').toLowerCase(),
       p_provider_place_id:providerId(place)||null,
@@ -199,9 +199,15 @@
       p_provider:clean(route.provider)||'official',
       p_destination_url:clean(route.value),
       p_metadata:{source:'places_reserve_action',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null}
-    });
-    if(error)throw error;
-    return data;
+    };
+    const primary=await client.rpc('luvia_booking_prepare_monetized_handoff',args);
+    if(!primary.error)return primary.data;
+    const missingRpc=String(primary.error?.message||primary.error||'').toLowerCase().includes('luvia_booking_prepare_monetized_handoff');
+    if(!missingRpc)throw primary.error;
+    // Safe deploy-order compatibility: old handoff RPC remains the fallback until v4.69.0 DB migration is live.
+    const legacy=await client.rpc('luvia_booking_record_place_handoff',args);
+    if(legacy.error)throw legacy.error;
+    return {handoffId:legacy.data,legacyFallback:true,bookingStatusChanged:false};
   }
 
   async function linkRecentPlaceHandoff(bookingId,place={}){
@@ -240,6 +246,20 @@
   async function returnOrchestrationSummary(id){
     await init();
     return window.LuviaBookingReturnOrchestration?.summary?.(id)||null;
+  }
+
+  async function monetizationProfiles(){
+    await init();
+    if(window.LuviaBookingMonetization?.profiles)return window.LuviaBookingMonetization.profiles();
+    const {data,error}=await client.from('booking_monetization_provider_readiness_v1').select('*').order('provider_id');
+    if(error)throw error;return data||[];
+  }
+
+  async function monetizationForBooking(id){
+    await init();
+    if(window.LuviaBookingMonetization?.booking)return window.LuviaBookingMonetization.booking(id);
+    const {data,error}=await client.from('booking_monetization_runtime_v1').select('*').eq('booking_id',id).order('created_at',{ascending:false});
+    if(error)throw error;return data||[];
   }
 
   async function resolvePlaceRoute(place={}){
@@ -287,7 +307,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;
