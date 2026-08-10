@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const COMMERCIAL_STATUSES=Object.freeze(['researching','inquiry_sent','application_pending','partner_required','contracting','active','paused','rejected','unavailable']);
 const MODES=Object.freeze(['unknown','none','agent_attribution','affiliate_link','distribution_partner','referral','revenue_share','hybrid']);
 const TRACKING_STRATEGIES=Object.freeze(['none','click_id','sub_id','agent_id','source_id','partner_id','mixed','contract_defined']);
@@ -65,6 +65,34 @@ async function profiles(){const c=await client();const {data,error}=await c.from
 async function provider(providerId){const id=clean(providerId).toLowerCase();if(!id)throw new Error('Provider fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_provider_readiness_v1').select('*').eq('provider_id',id).maybeSingle();if(error)throw error;return data?normalizeProfile(data):null;}
 async function booking(bookingId){if(!clean(bookingId))throw new Error('Booking fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_runtime_v1').select('*').eq('booking_id',bookingId).order('created_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeRuntime);}
 async function trip(tripId){if(!clean(tripId))throw new Error('Reise fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_runtime_v1').select('*').eq('trip_id',tripId).order('created_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeRuntime);}
-function semantics(){return Object.freeze({commercialSignalCanConfirmReservation:false,commercialEventCanConfirmReservation:false,commissionCanConfirmReservation:false,conversionCanConfirmReservation:false,handoffCanConfirmReservation:false,commercialWritesAreServerOnly:true});}
-window.LuviaBookingMonetization=Object.freeze({version:VERSION,COMMERCIAL_STATUSES,MODES,TRACKING_STRATEGIES,normalizeProfile,normalizeRuntime,profiles,provider,booking,trip,semantics,diagnostics:()=>({version:VERSION,status:'ready',...semantics()})});
+
+function normalizeCommissionRuntime(raw={}){
+  return Object.freeze({
+    reconciliationId:raw.reconciliation_id||raw.reconciliationId||null,
+    conversionReportId:raw.conversion_report_id||raw.conversionReportId||null,
+    correlationId:raw.correlation_id||raw.correlationId||null,
+    bookingId:raw.booking_id||raw.bookingId||null,
+    tripId:raw.trip_id||raw.tripId||null,
+    providerId:clean(raw.provider_id||raw.providerId).toLowerCase()||null,
+    commissionState:clean(raw.commission_state||raw.commissionState).toLowerCase()||null,
+    expectedAmount:raw.expected_amount??raw.expectedAmount??null,
+    expectedCurrency:raw.expected_currency||raw.expectedCurrency||null,
+    reportedAmount:raw.reported_amount??raw.reportedAmount??null,
+    reportedCurrency:raw.reported_currency||raw.reportedCurrency||null,
+    settledAmount:raw.settled_amount??raw.settledAmount??null,
+    settledCurrency:raw.settled_currency||raw.settledCurrency||null,
+    statementReference:raw.statement_reference||raw.statementReference||null,
+    grossAmount:raw.gross_amount??raw.grossAmount??null,
+    grossCurrency:raw.gross_currency||raw.grossCurrency||null,
+    stateEventCount:Number(raw.state_event_count??raw.stateEventCount??0)||0,
+    bookingStatus:raw.booking_status||raw.bookingStatus||null,
+    bookingStatusChangedByCommission:false,
+    reservationTruthIndependent:true
+  });
+}
+async function commissionTrip(tripId){if(!clean(tripId))throw new Error('Reise fehlt.');const c=await client();const {data,error}=await c.from('booking_commission_runtime_v1').select('*').eq('trip_id',tripId).order('updated_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeCommissionRuntime);}
+async function commissionBooking(bookingId){if(!clean(bookingId))throw new Error('Booking fehlt.');const c=await client();const {data,error}=await c.from('booking_commission_runtime_v1').select('*').eq('booking_id',bookingId).order('updated_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeCommissionRuntime);}
+
+function semantics(){return Object.freeze({commercialSignalCanConfirmReservation:false,commercialEventCanConfirmReservation:false,commissionCanConfirmReservation:false,conversionCanConfirmReservation:false,handoffCanConfirmReservation:false,commercialWritesAreServerOnly:true,commissionEventsAttachToExistingConversion:true,commissionLifecycleGuarded:true,paidCommissionUsesSettledFactsOnly:true});}
+window.LuviaBookingMonetization=Object.freeze({version:VERSION,COMMERCIAL_STATUSES,MODES,TRACKING_STRATEGIES,normalizeProfile,normalizeRuntime,normalizeCommissionRuntime,profiles,provider,booking,trip,commissionTrip,commissionBooking,semantics,diagnostics:()=>({version:VERSION,status:'ready',...semantics()})});
 })();
