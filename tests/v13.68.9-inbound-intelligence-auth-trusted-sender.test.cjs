@@ -1,0 +1,18 @@
+const fs=require('fs');
+const assert=require('assert');
+const migration=fs.readFileSync('supabase/migrations/20260810101500_core_v4_68_9_inbound_intelligence_auth_trusted_sender_provenance_fix.sql','utf8');
+const inbound=fs.readFileSync('supabase/functions/booking-email-inbound/index.ts','utf8');
+assert(migration.includes('luvia_booking_is_service_role_request'));
+assert(migration.includes("request.jwt.claims"));
+assert(migration.includes("auth.jwt()->>'role'"));
+assert(migration.includes("verification_status='verified'"));
+assert(migration.includes('c.auto_usable=true'));
+assert(migration.includes("'verified_candidate_exact_match'"));
+assert(migration.includes("'UNTRUSTED_EMAIL_SENDER'"));
+assert(migration.includes('v_effective_auto:=v_classifier_auto and v_trusted_sender'));
+assert(migration.includes('v_review:=coalesce'));
+assert(migration.includes("'0.4.0-email-v2.1'"));
+assert(inbound.includes("event_type:'booking.email.reply.intelligence_failed'"));
+assert(inbound.includes("version:'2.0.1',build:'13.68.9',core:'4.68.9'"));
+assert(inbound.includes('intelligenceError'));
+console.log('LUVIA_V13_68_9_INBOUND_INTELLIGENCE_AUTH_TRUSTED_SENDER_OK');

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.68.8';
+  const VERSION = '13.68.9';
   const state = {
     screen: 'home',
     idea: null,
