@@ -1,0 +1,4 @@
+v13.72.0 booking orchestration: PASS
+Quandoo adapter regression: PASS
+TheFork adapter regression: PASS
+Historical fixed-version tests intentionally not used as current-version gates.

@@ -1,0 +1,15 @@
+intelligence/kernel/version.js
+index.html
+sw.js
+core/booking/booking-orchestration.js
+core/diagnostics/booking-core-diagnostics.js
+intelligence/console.html
+intelligence/developer-console.js
+supabase/migrations/20260810215300_core_v4_72_0_booking_intelligence_provider_orchestration_diagnostics.sql
+tests/v13.72.0-booking-intelligence-provider-orchestration-diagnostics.test.cjs
+SMOKE-v13.72.0.sql
+RELEASE-v13.72.0.md
+DEPLOYMENT-v13.72.0.md
+TEST-v13.72.0.md
+COMMIT-v13.72.0.txt
+CHANGED-FILES-v13.72.0.txt
