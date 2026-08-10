@@ -27,7 +27,7 @@ Deno.serve(async(req)=>{try{
  if(intelError){
   intelligenceError={code:intelError.code||null,message:intelError.message||'INTELLIGENCE_FAILED',details:intelError.details||null,hint:intelError.hint||null};
   console.warn('BOOKING_INTELLIGENCE_V2_WARNING',intelligenceError);
-  await admin.from('booking_events').insert({booking_id:bookingId,trip_id:booking.trip_id,event_type:'booking.email.reply.intelligence_failed',payload:{message_id:stored.id,email_thread_id:threadId,error:intelligenceError,source:'booking-email-inbound',build:'13.68.9',core:'4.68.9'}});
+  await admin.from('booking_events').insert({booking_id:bookingId,trip_id:booking.trip_id,event_type:'booking.email.reply.intelligence_failed',payload:{message_id:stored.id,email_thread_id:threadId,error:intelligenceError,source:'booking-email-inbound',build:'13.68.10',core:'4.68.10'}});
  }
- return json({ok:true,version:'2.0.1',build:'13.68.9',core:'4.68.9',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null,intelligenceError});
+ return json({ok:true,version:'2.0.2',build:'13.68.10',core:'4.68.10',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null,intelligenceError});
 }catch(error){return json({error:'BOOKING_EMAIL_INBOUND_UNHANDLED',details:error instanceof Error?error.message:String(error)},500);}});
