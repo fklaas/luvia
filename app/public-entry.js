@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.68.6';
+  const VERSION = '13.68.7';
   const state = {
     screen: 'home',
     idea: null,
@@ -283,9 +283,19 @@
     box.textContent = text; box.dataset.type = type;
   }
 
+  function resolveContainer(container) {
+    const target = container || document.getElementById('app');
+    if (!target || typeof target.querySelector !== 'function') {
+      throw new Error('LUVIA_PUBLIC_ENTRY_CONTAINER_MISSING');
+    }
+    return target;
+  }
+
   function render(container) {
-    container.innerHTML = markup();
-    const root = container.querySelector('[data-entry-root]');
+    const target = resolveContainer(container);
+    target.innerHTML = markup();
+    const root = target.querySelector('[data-entry-root]');
+    if (!root) throw new Error('LUVIA_PUBLIC_ENTRY_MOUNT_FAILED');
     document.documentElement.classList.add('lv-public-entry-active');
     document.body.classList.add('lv-public-entry-active');
     // Activate a visible screen before binding handlers. If a later handler throws,
