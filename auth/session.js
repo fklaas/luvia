@@ -7,23 +7,48 @@
   const listeners = new Set();
   const state = { session: null, user: null, loading: true, lastEvent: null };
 
-  const PENDING_KEY = 'parisAuthPendingUpgradeV2';
-  const SIGNED_OUT_KEY = 'parisAuthExplicitlySignedOutV1';
+  const PENDING_KEY = 'luviaAuthPendingUpgradeV2';
+  const SIGNED_OUT_KEY = 'luviaAuthExplicitlySignedOutV1';
+  const LEGACY_PENDING_KEY = 'parisAuthPendingUpgradeV2';
+  const LEGACY_SIGNED_OUT_KEY = 'parisAuthExplicitlySignedOutV1';
+
+  function migrateLegacyAuthStorage() {
+    try {
+      if (localStorage.getItem(PENDING_KEY) == null && localStorage.getItem(LEGACY_PENDING_KEY) != null) {
+        localStorage.setItem(PENDING_KEY, localStorage.getItem(LEGACY_PENDING_KEY));
+      }
+      if (localStorage.getItem(SIGNED_OUT_KEY) == null && localStorage.getItem(LEGACY_SIGNED_OUT_KEY) != null) {
+        localStorage.setItem(SIGNED_OUT_KEY, localStorage.getItem(LEGACY_SIGNED_OUT_KEY));
+      }
+    } catch (_) {}
+  }
+  migrateLegacyAuthStorage();
 
   function readPending() {
     try { return JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); }
     catch (_) { return null; }
   }
   function writePending(value) {
-    if (value) localStorage.setItem(PENDING_KEY, JSON.stringify(value));
-    else localStorage.removeItem(PENDING_KEY);
+    if (value) {
+      const serialized = JSON.stringify(value);
+      localStorage.setItem(PENDING_KEY, serialized);
+      localStorage.setItem(LEGACY_PENDING_KEY, serialized);
+    } else {
+      localStorage.removeItem(PENDING_KEY);
+      localStorage.removeItem(LEGACY_PENDING_KEY);
+    }
   }
   function isExplicitlySignedOut() {
-    return localStorage.getItem(SIGNED_OUT_KEY) === '1';
+    return localStorage.getItem(SIGNED_OUT_KEY) === '1' || localStorage.getItem(LEGACY_SIGNED_OUT_KEY) === '1';
   }
   function setExplicitlySignedOut(value) {
-    if (value) localStorage.setItem(SIGNED_OUT_KEY, '1');
-    else localStorage.removeItem(SIGNED_OUT_KEY);
+    if (value) {
+      localStorage.setItem(SIGNED_OUT_KEY, '1');
+      localStorage.setItem(LEGACY_SIGNED_OUT_KEY, '1');
+    } else {
+      localStorage.removeItem(SIGNED_OUT_KEY);
+      localStorage.removeItem(LEGACY_SIGNED_OUT_KEY);
+    }
   }
   function isAnonymousUser(user) {
     if (!user) return false;
@@ -37,7 +62,9 @@
   }
   function notify() {
     const snapshot = getState();
-    listeners.forEach(fn => { try { fn(snapshot); } catch (e) { console.warn('ParisAuth listener', e); } });
+    listeners.forEach(fn => { try { fn(snapshot); } catch (e) { console.warn('LuviaAuth listener', e); } });
+    document.dispatchEvent(new CustomEvent('luvia:auth-changed', { detail: snapshot }));
+    // Compatibility event for legacy modules during phase 1.
     document.dispatchEvent(new CustomEvent('paris:auth-changed', { detail: snapshot }));
   }
   function getState() {
@@ -143,7 +170,7 @@
       email: String(email || '').trim(),
       password: String(password || ''),
       options: {
-        emailRedirectTo: window.ParisSupabaseConfig.redirectUrl,
+        emailRedirectTo: (window.LuviaSupabaseConfig || window.ParisSupabaseConfig).redirectUrl,
         data: { first_name: firstName || '', last_name: lastName || '', display_name: name, luvia_preferences: preferences || undefined, preference_schema_version: preferences?.preferenceSchemaVersion || preferences?.preferenceVersion || 3, travel_idea: travelIdea || undefined, onboarding_completed_at: preferences?.preferencesCompletedAt || preferences?.travelPreferences?.onboardingCompletedAt || null }
       }
     });
@@ -170,7 +197,7 @@
     const result = await requireClient().auth.updateUser({
       email: cleanEmail,
       data: { first_name: payload.firstName, last_name: payload.lastName, display_name: name }
-    }, { emailRedirectTo: window.ParisSupabaseConfig.redirectUrl });
+    }, { emailRedirectTo: (window.LuviaSupabaseConfig || window.ParisSupabaseConfig).redirectUrl });
     if (result.error) throw result.error;
     writePending(payload);
     notify();
@@ -213,7 +240,7 @@
   function cancelPendingUpgrade() { writePending(null); notify(); }
   async function resetPassword(email) {
     const result = await requireClient().auth.resetPasswordForEmail(String(email || '').trim(), {
-      redirectTo: `${window.ParisSupabaseConfig.redirectUrl}?auth=recovery`
+      redirectTo: `${(window.LuviaSupabaseConfig || window.ParisSupabaseConfig).redirectUrl}?auth=recovery`
     });
     if (result.error) throw result.error;
     return true;
@@ -228,7 +255,7 @@
     setExplicitlySignedOut(false);
     const result = await requireClient().auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.ParisSupabaseConfig.redirectUrl, skipBrowserRedirect: false }
+      options: { redirectTo: (window.LuviaSupabaseConfig || window.ParisSupabaseConfig).redirectUrl, skipBrowserRedirect: false }
     });
     if (result.error) throw result.error;
     return result.data;
@@ -236,7 +263,7 @@
   async function linkProvider(provider) {
     const result = await requireClient().auth.linkIdentity({
       provider,
-      options: { redirectTo: window.ParisSupabaseConfig.redirectUrl }
+      options: { redirectTo: (window.LuviaSupabaseConfig || window.ParisSupabaseConfig).redirectUrl }
     });
     if (result.error) throw result.error;
     return result.data;
@@ -261,7 +288,7 @@
     return () => listeners.delete(fn);
   }
 
-  window.ParisAuth = {
+  const api = {
     init,
     ensureInitialSession,
     getState,
@@ -279,4 +306,7 @@
     linkProvider,
     signOut
   };
+  window.LuviaAuth = api;
+  // Compatibility alias; new core code must use window.LuviaAuth.
+  window.ParisAuth = api;
 })();

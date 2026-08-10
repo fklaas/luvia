@@ -1,10 +1,10 @@
 (() => {
   'use strict';
   const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  function css(){if(document.getElementById('parisAuthCss'))return;const s=document.createElement('style');s.id='parisAuthCss';s.textContent=`
+  function css(){if(document.getElementById('luviaAuthCss'))return;const s=document.createElement('style');s.id='luviaAuthCss';s.textContent=`
   .pa-stack{display:grid;gap:14px}.pa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pa-field{display:grid;gap:7px}.pa-field label{font-size:13px;font-weight:850;color:#536b7c}.pa-field input{width:100%;box-sizing:border-box;border:1px solid #dfe6e9;border-radius:14px;padding:13px 14px;background:#f8fafb;color:#314b60;font:600 16px system-ui;outline:none}.pa-field input:focus{border-color:#db7996;box-shadow:0 0 0 4px rgba(219,121,150,.12);background:#fff}.pa-wide{grid-column:1/-1}.pa-actions{display:flex;gap:9px;flex-wrap:wrap}.pa-provider{width:100%;border:1px solid #dfe5e8;border-radius:15px;padding:13px;background:#fff;color:#354f62;font-weight:850;cursor:pointer}.pa-provider.apple{background:#111;color:#fff;border-color:#111}.pa-status{padding:13px 14px;border-radius:14px;background:#eef8f5;color:#34745c;line-height:1.45;font-size:14px}.pa-status.warn{background:#fff5e8;color:#8b632b}.pa-status.error{background:#fff0f1;color:#a94455}.pa-divider{display:flex;align-items:center;gap:10px;color:#98a5ad;font-size:12px}.pa-divider:before,.pa-divider:after{content:"";height:1px;background:#e5eaec;flex:1}.pa-link{border:0;background:none;color:#b54e71;font-weight:800;padding:4px;cursor:pointer}.pa-account-hero{display:flex;align-items:center;gap:14px}.pa-avatar{width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,#e86e94,#bd5f81);color:#fff;display:grid;place-items:center;font:900 24px Georgia}.pa-muted{color:#7b8b96;font-size:14px;line-height:1.55}.pa-chip{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eef8f5;color:#34745c;font-size:12px;font-weight:900}.pa-chip.anon{background:#fff5e8;color:#966323}.pa-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:4px 0 8px}.pa-progress span{height:6px;border-radius:999px;background:#e8edef}.pa-progress span.on{background:linear-gradient(90deg,#e86e94,#bd5f81)}.pa-stepmark{font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#b15c79}.pa-mail-hero{text-align:center;padding:8px 4px}.pa-mail-icon{width:74px;height:74px;border-radius:24px;margin:0 auto 14px;display:grid;place-items:center;background:#fff0f5;font-size:34px}.pa-checklist{display:grid;gap:9px;margin:4px 0}.pa-checkitem{display:flex;gap:10px;align-items:flex-start;color:#627684;font-size:14px;line-height:1.45}.pa-checkitem b{color:#355066}.pa-security{display:grid;gap:10px}.pa-login-note{padding:14px;border:1px solid #f1d8e2;border-radius:16px;background:#fff8fb;color:#6d5862;font-size:14px;line-height:1.5}.pa-guest{width:100%;margin-top:4px}@media(max-width:520px){.pa-grid{grid-template-columns:1fr}.pa-wide{grid-column:auto}.pa-actions{display:grid}.pa-actions>*{width:100%}}
   `;document.head.appendChild(s)}
-  function auth(){return window.ParisAuth}
+  function auth(){return window.LuviaAuth || window.ParisAuth}
   function message(box,text,type=''){box.innerHTML=`<div class="pa-status ${type}">${esc(text)}</div>`}
   function validEmail(email){return /^\S+@\S+\.\S+$/.test(email)}
   function progress(step){return `<div class="pa-progress" aria-label="Schritt ${step} von 3"><span class="on"></span><span class="${step>=2?'on':''}"></span><span class="${step>=3?'on':''}"></span></div>`}
@@ -71,8 +71,8 @@
   let lastMountedContainer=null;
   const originalRender=render;
   function trackedRender(container){lastMountedContainer=container;return originalRender(container)}
-  document.addEventListener('paris:auth-changed',()=>{
+  document.addEventListener('luvia:auth-changed',()=>{
     if(lastMountedContainer?.isConnected) originalRender(lastMountedContainer);
   });
-  window.ParisAuthUI={render:trackedRender,renderAuthForm};
+  const api={render:trackedRender,renderAuthForm};window.LuviaAuthUI=api;window.ParisAuthUI=api;
 })();

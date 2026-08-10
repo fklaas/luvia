@@ -118,7 +118,7 @@
       if(matchMedia('(max-width:760px)').matches)o.querySelector('.pc-shell')?.classList.add('pc-detail');
       render(b.dataset.tab);
     });
-    o.querySelector('[data-logout]').onclick=async()=>{if(!confirm('Auf diesem Gerät wirklich abmelden?'))return;try{await window.ParisAuth?.signOut?.();close()}catch(error){alert(error?.message||'Abmelden fehlgeschlagen.')}};
+    o.querySelector('[data-logout]').onclick=async()=>{if(!confirm('Auf diesem Gerät wirklich abmelden?'))return;try{await (window.LuviaAuth||window.ParisAuth)?.signOut?.();close()}catch(error){alert(error?.message||'Abmelden fehlgeschlagen.')}};
     return o
   }
   function applyTripTheme(o){o.querySelector('.pc-shell')?.style.setProperty('--pc-accent',activeAccent())}
@@ -136,7 +136,7 @@
   }
   async function cloudTrips(){
     const client=window.ParisCloud?.client;
-    const authState=window.ParisAuth?.getState?.();
+    const authState=(window.LuviaAuth||window.ParisAuth)?.getState?.();
     if(!client||!authState?.authenticated||authState?.anonymous)return null;
     try{
       await window.ParisCloud.ready;
@@ -159,7 +159,7 @@
     return [...map.values()]
   }
   async function render(tab='trips'){const o=shell(),c=o.querySelector('[data-view]'),id=current();applyTripTheme(o);renderActiveTripBar(o);if(tab==='account'){
-    if(window.ParisAuthUI?.render)window.ParisAuthUI.render(c);else c.innerHTML='<div class="pc-card">Kontomodul wird geladen …</div>';
+    if((window.LuviaAuthUI||window.ParisAuthUI)?.render)(window.LuviaAuthUI||window.ParisAuthUI).render(c);else c.innerHTML='<div class="pc-card">Kontomodul wird geladen …</div>';
   }else if(tab==='trips'){
     c.innerHTML=`<div class="pc-head"><div><h2>Meine Reisen</h2><p>Alle Reisen dieser Anmeldung aus der Cloud verwalten.</p></div><button class="pc-btn primary" data-new>＋ Neue Reise</button></div><div class="pc-note" style="margin-bottom:14px">Cloud-Reisen werden deinem aktuellen Konto zugeordnet. Anonyme Konten sollten im Bereich „Konto“ dauerhaft gesichert werden.</div><div class="pc-grid" data-list><div class="pc-empty">Cloud-Reisen werden geladen …</div></div>`;
     c.querySelector('[data-new]').onclick=()=>window.LuviaTripCreator?.open?.();

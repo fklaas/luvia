@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.17.0';
+  const VERSION = '13.68.6';
   const state = {
     screen: 'home',
     idea: null,
@@ -182,7 +182,7 @@
       const host = root.querySelector('[data-login-host]');
       if (host) {
         host.innerHTML = '';
-        window.ParisAuthUI?.renderAuthForm?.(host, 'login');
+        (window.LuviaAuthUI||window.ParisAuthUI)?.renderAuthForm?.(host, 'login');
       }
     }
     if (next === 'preferences') {
@@ -253,7 +253,7 @@
       try {
         state.registration.password = password;
         const displayName = state.registration.displayName;
-        await window.ParisAuth.signUp({
+        await (window.LuviaAuth||window.ParisAuth).signUp({
           email: state.registration.email,
           password,
           displayName,
@@ -288,7 +288,14 @@
     const root = container.querySelector('[data-entry-root]');
     document.documentElement.classList.add('lv-public-entry-active');
     document.body.classList.add('lv-public-entry-active');
-    bind(root); show(root, 'home');
+    // Activate a visible screen before binding handlers. If a later handler throws,
+    // unauthenticated users still see a usable entry instead of a blank backdrop.
+    show(root, 'home');
+    try { bind(root); }
+    catch (error) {
+      console.error('[LuviaPublicEntry] Binding fehlgeschlagen', error);
+      window.dispatchEvent(new CustomEvent('luvia:public-entry-bind-failed', { detail: { message: error?.message || String(error) } }));
+    }
   }
 
   window.LuviaGuidedJourneyEntry = Object.freeze({ version: VERSION, render, getState: () => ({ ...state }) });

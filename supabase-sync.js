@@ -12,7 +12,7 @@
   const LIVE_KEY = 'parisLiveMomentsV2';
   const NOTES_KEY = 'parisGalleryNotesV2';
 
-  const client = window.LuviaSupabaseService?.getClient?.() || window.ParisSupabaseClient;
+  const client = window.LuviaSupabaseService?.getClient?.() || (window.LuviaSupabaseClient||window.ParisSupabaseClient);
   if(!client) throw new Error('Der zentrale Supabase-Client ist noch nicht bereit.');
 
   const originalSetItem = Storage.prototype.setItem;
@@ -59,10 +59,10 @@
   }
 
   async function ensureSession() {
-    const session = window.ParisAuth?.ensureInitialSession
-      ? await window.ParisAuth.ensureInitialSession(client)
+    const session = (window.LuviaAuth||window.ParisAuth)?.ensureInitialSession
+      ? await (window.LuviaAuth||window.ParisAuth).ensureInitialSession(client)
       : (await client.auth.getSession()).data.session;
-    const state = window.ParisAuth?.getState?.();
+    const state = (window.LuviaAuth||window.ParisAuth)?.getState?.();
     if (!session || state?.anonymous || !state?.authenticated) {
       return false;
     }

@@ -31,7 +31,7 @@
         window.LuviaTimelineCore?.hydrate?.(tripId)
       ]);
     }
-    snapshot=Object.freeze({auth:window.ParisAuth.getState(),profile:window.LuviaProfileService.snapshot(),trips:window.LuviaTripStore.snapshot(),tripId,completedAt:new Date().toISOString()});
+    snapshot=Object.freeze({auth:(window.LuviaAuth||window.ParisAuth).getState(),profile:window.LuviaProfileService.snapshot(),trips:window.LuviaTripStore.snapshot(),tripId,completedAt:new Date().toISOString()});
     return snapshot;
   }
   async function boot(client){
@@ -39,7 +39,7 @@
     begin();
     bootPromise=(async()=>{
       window.LuviaTripStore.initialize({silent:true});
-      const auth=window.ParisAuth.getState();
+      const auth=(window.LuviaAuth||window.ParisAuth).getState();
       if(auth.authenticated)await runAuthenticated(client);
       else snapshot=Object.freeze({auth,profile:null,trips:window.LuviaTripStore.snapshot(),tripId:null,completedAt:new Date().toISOString()});
       emit('prepared',{snapshot});
