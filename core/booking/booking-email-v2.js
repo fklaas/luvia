@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='1.0.3';
+const VERSION='1.0.4';
 const clean=v=>String(v??'').trim();
 async function client(){return window.LuviaSupabaseService?.start?.();}
 async function invoke(action,input={}){const c=await client();if(!c)throw new Error('Supabase ist nicht bereit.');const body={action,...input};const {data,error}=await c.functions.invoke('booking-email-runtime',{body});if(error)throw error;return data;}

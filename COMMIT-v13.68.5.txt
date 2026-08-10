@@ -1,0 +1,1 @@
+fix(booking): reject placeholder emails and prioritize verified venue contacts

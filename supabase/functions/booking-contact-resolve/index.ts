@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const VERSION='1.3.0';
+const VERSION='1.3.1';
 const corsHeaders={
   'Access-Control-Allow-Origin':'https://myluvia.app',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -18,6 +18,9 @@ const hostMatches=(host:string,base:string)=>host===base||host.endsWith('.'+base
 const isProviderHost=(host:string)=>PROVIDER_HOSTS.some(x=>hostMatches(host.toLowerCase(),x));
 const emailDomain=(email:string)=>clean(email.split('@')[1]).toLowerCase();
 const isProviderEmail=(email:string)=>PROVIDER_HOSTS.some(x=>hostMatches(emailDomain(email),x));
+const PLACEHOLDER_DOMAINS=new Set(['example.com','example.org','example.net','domain.com','domain.org','domain.net','domaine.com','domaine.fr','example.fr','example.de']);
+const PLACEHOLDER_LOCALS=new Set(['user','username','utilisateur','name','nom','email','e-mail','mail','test','testing','example','exemple','yourname','your.name','votrenom','votre.nom','firstname','lastname','first.last']);
+const isPlaceholderEmail=(email:string)=>{const e=clean(email).toLowerCase();const [local='',domain='']=e.split('@');return PLACEHOLDER_DOMAINS.has(domain)||PLACEHOLDER_LOCALS.has(local)||/^(user|username|utilisateur|example|exemple|test|testing)[._+-]?[0-9]*$/i.test(local);};
 
 function safeHttpUrl(value:string){
   try{
@@ -35,7 +38,7 @@ async function fetchPage(url:string){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),3500);
   try{
-    const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':'LuviaBooking/1.3 (+https://myluvia.app)','accept':'text/html,application/xhtml+xml'}});
+    const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':'LuviaBooking/1.3.1 (+https://myluvia.app)','accept':'text/html,application/xhtml+xml'}});
     if(!res.ok)return null;
     const ct=res.headers.get('content-type')||'';
     if(!ct.includes('text/html'))return null;
@@ -81,6 +84,7 @@ function candidateLinks(base:string,html:string){
 
 function rejectReason(email:string,pageUrl:string){
   const page=safeHttpUrl(pageUrl);
+  if(isPlaceholderEmail(email))return 'PLACEHOLDER_EMAIL';
   if(isProviderEmail(email))return 'BOOKING_PROVIDER_EMAIL_DOMAIN';
   if(page&&isProviderHost(page.hostname)&&emailDomain(email)===page.hostname.toLowerCase())return 'BOOKING_PROVIDER_CONTACT';
   return null;
@@ -225,7 +229,7 @@ Deno.serve(async(req)=>{
       legacyCandidateId,
       legacySourceUrl,
       bridgeReason:legacyEmail?(legacyContactVerified?'LEGACY_CONTACT_VERIFIED_AND_BRIDGED':'LEGACY_CONTACT_NOT_PUBLISHED_ON_OFFICIAL_SOURCE'):null,
-      rejectedProviderEmails:rejected.map(x=>({reason:x.reason,sourceUrl:x.sourceUrl}))
+      rejectedEmails:rejected.map(x=>({reason:x.reason,sourceUrl:x.sourceUrl}))
     });
   }catch(error){
     return json({error:'BOOKING_CONTACT_RESOLVE_UNHANDLED',details:error instanceof Error?error.message:String(error)},500);
