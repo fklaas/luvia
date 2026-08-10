@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const COMMERCIAL_STATUSES=Object.freeze(['researching','inquiry_sent','application_pending','partner_required','contracting','active','paused','rejected','unavailable']);
 const MODES=Object.freeze(['unknown','none','agent_attribution','affiliate_link','distribution_partner','referral','revenue_share','hybrid']);
 const TRACKING_STRATEGIES=Object.freeze(['none','click_id','sub_id','agent_id','source_id','partner_id','mixed','contract_defined']);
@@ -51,6 +51,10 @@ function normalizeRuntime(raw={}){
     latestCommissionState:raw.latestCommissionState||raw.latest_commission_state||null,
     latestCommissionAmount:raw.latestCommissionAmount??raw.latest_commission_amount??null,
     latestCommissionCurrency:raw.latestCommissionCurrency||raw.latest_commission_currency||null,
+    commercialEventCount:Number(raw.commercialEventCount??raw.commercial_event_count??0)||0,
+    pendingCommercialEventCount:Number(raw.pendingCommercialEventCount??raw.pending_commercial_event_count??0)||0,
+    latestCommercialEventKind:raw.latestCommercialEventKind||raw.latest_commercial_event_kind||null,
+    latestCommercialProcessingState:raw.latestCommercialProcessingState||raw.latest_commercial_processing_state||null,
     bookingStatus:raw.bookingStatus||raw.booking_status||null,
     bookingStatusChangedByCommercial:false,
     reservationTruthIndependent:true
@@ -61,6 +65,6 @@ async function profiles(){const c=await client();const {data,error}=await c.from
 async function provider(providerId){const id=clean(providerId).toLowerCase();if(!id)throw new Error('Provider fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_provider_readiness_v1').select('*').eq('provider_id',id).maybeSingle();if(error)throw error;return data?normalizeProfile(data):null;}
 async function booking(bookingId){if(!clean(bookingId))throw new Error('Booking fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_runtime_v1').select('*').eq('booking_id',bookingId).order('created_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeRuntime);}
 async function trip(tripId){if(!clean(tripId))throw new Error('Reise fehlt.');const c=await client();const {data,error}=await c.from('booking_monetization_runtime_v1').select('*').eq('trip_id',tripId).order('created_at',{ascending:false});if(error)throw error;return (data||[]).map(normalizeRuntime);}
-function semantics(){return Object.freeze({commercialSignalCanConfirmReservation:false,commissionCanConfirmReservation:false,conversionCanConfirmReservation:false,handoffCanConfirmReservation:false});}
+function semantics(){return Object.freeze({commercialSignalCanConfirmReservation:false,commercialEventCanConfirmReservation:false,commissionCanConfirmReservation:false,conversionCanConfirmReservation:false,handoffCanConfirmReservation:false,commercialWritesAreServerOnly:true});}
 window.LuviaBookingMonetization=Object.freeze({version:VERSION,COMMERCIAL_STATUSES,MODES,TRACKING_STRATEGIES,normalizeProfile,normalizeRuntime,profiles,provider,booking,trip,semantics,diagnostics:()=>({version:VERSION,status:'ready',...semantics()})});
 })();
