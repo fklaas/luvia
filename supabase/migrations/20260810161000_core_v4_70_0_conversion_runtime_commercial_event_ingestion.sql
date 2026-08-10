@@ -335,7 +335,10 @@ revoke all on function public.luvia_booking_verify_and_replay_commercial_event(u
 grant execute on function public.luvia_booking_verify_and_replay_commercial_event(uuid,text,jsonb,uuid,uuid) to service_role;
 
 -- Extend the existing monetization read model with commercial-ingestion health, without exposing raw partner payloads.
-create or replace view public.booking_monetization_runtime_v1 with (security_invoker=true) as
+-- PostgreSQL cannot use CREATE OR REPLACE VIEW when newly inserted columns alter the existing column order.
+-- Drop/recreate is intentional here; the view is a read model and owns no persisted data.
+drop view if exists public.booking_monetization_runtime_v1;
+create view public.booking_monetization_runtime_v1 with (security_invoker=true) as
 select
   c.id as correlation_id,c.correlation_token,c.trip_id,c.booking_id,c.handoff_event_id,c.provider_id,c.provider_place_id,c.venue_name,
   c.state as correlation_state,c.created_at,c.linked_at,c.converted_at,c.expires_at,
