@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert');
+const mig=fs.readFileSync('supabase/migrations/20260810110000_core_v4_68_11_delivery_event_auth_context_webhook_retry_idempotency_fix.sql','utf8');
+const fn=fs.readFileSync('supabase/functions/booking-email-inbound/index.ts','utf8');
+assert(mig.includes('luvia_booking_is_service_role_request()'));
+assert(mig.includes("on conflict(provider,provider_event_id) do nothing"));
+assert(mig.includes("'delayed'"));
+assert(mig.includes("'duplicate',true"));
+assert(fn.includes("email.delivery_delayed"));
+assert(fn.includes("p_provider_event_id:svixId"));
+assert(fn.includes("build:'13.68.11'"));
+console.log('LUVIA_V13_68_11_DELIVERY_EVENT_AUTH_RETRY_IDEMPOTENCY_OK');

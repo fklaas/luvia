@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Webhook } from 'npm:svix';
 const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8'}});const clean=(v:unknown)=>String(v??'').trim();
-const deliveryState=(type:string)=>type==='email.delivered'?'delivered':(['email.bounced','email.failed'].includes(type)?'failed':type==='email.complained'?'complained':type==='email.sent'?'sent':'unknown');
+const deliveryState=(type:string)=>type==='email.delivered'?'delivered':type==='email.delivery_delayed'?'delayed':(['email.bounced','email.failed'].includes(type)?'failed':type==='email.complained'?'complained':type==='email.sent'?'sent':'unknown');
 Deno.serve(async(req)=>{try{
  if(req.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
  const supabaseUrl=Deno.env.get('SUPABASE_URL'),serviceRoleKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),resendApiKey=Deno.env.get('RESEND_API_KEY'),webhookSecret=Deno.env.get('RESEND_WEBHOOK_SECRET');if(!supabaseUrl||!serviceRoleKey)return json({error:'SUPABASE_ADMIN_ENV_MISSING'},500);if(!resendApiKey)return json({error:'RESEND_API_KEY_MISSING'},500);if(!webhookSecret)return json({error:'RESEND_WEBHOOK_SECRET_MISSING'},500);
@@ -27,7 +27,7 @@ Deno.serve(async(req)=>{try{
  if(intelError){
   intelligenceError={code:intelError.code||null,message:intelError.message||'INTELLIGENCE_FAILED',details:intelError.details||null,hint:intelError.hint||null};
   console.warn('BOOKING_INTELLIGENCE_V2_WARNING',intelligenceError);
-  await admin.from('booking_events').insert({booking_id:bookingId,trip_id:booking.trip_id,event_type:'booking.email.reply.intelligence_failed',payload:{message_id:stored.id,email_thread_id:threadId,error:intelligenceError,source:'booking-email-inbound',build:'13.68.10',core:'4.68.10'}});
+  await admin.from('booking_events').insert({booking_id:bookingId,trip_id:booking.trip_id,event_type:'booking.email.reply.intelligence_failed',payload:{message_id:stored.id,email_thread_id:threadId,error:intelligenceError,source:'booking-email-inbound',build:'13.68.11',core:'4.68.11'}});
  }
- return json({ok:true,version:'2.0.2',build:'13.68.10',core:'4.68.10',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null,intelligenceError});
+ return json({ok:true,version:'2.0.2',build:'13.68.11',core:'4.68.11',bookingId,messageId:stored.id,threadId,correlationMethod:method,provider:'resend',direction:'inbound',intelligence:intel||null,intelligenceError});
 }catch(error){return json({error:'BOOKING_EMAIL_INBOUND_UNHANDLED',details:error instanceof Error?error.message:String(error)},500);}});
