@@ -1,0 +1,17 @@
+intelligence/kernel/version.js
+index.html
+sw.js
+core/booking/booking-orchestration.js
+core/booking/booking-integration.js
+core/diagnostics/booking-core-diagnostics.js
+intelligence/console.html
+intelligence/developer-console.js
+supabase/migrations/20260811065500_core_v4_75_0_adaptive_failover_decision_replay_orchestration_hardening.sql
+tests/v13.75.0-adaptive-failover-decision-replay-orchestration-hardening.test.cjs
+SMOKE-v13.75.0.sql
+RELEASE-v13.75.0.md
+DEPLOYMENT-v13.75.0.md
+TEST-v13.75.0.md
+COMMIT-v13.75.0.txt
+CHANGED-FILES-v13.75.0.txt
+TEST-RESULTS-v13.75.0.md

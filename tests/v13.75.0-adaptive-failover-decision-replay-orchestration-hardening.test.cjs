@@ -1,0 +1,16 @@
+const assert=require('node:assert');const fs=require('node:fs');const vm=require('node:vm');
+const read=f=>fs.readFileSync(f,'utf8');
+const version=read('intelligence/kernel/version.js');assert(version.includes("core:'4.75.0'")&&version.includes("build:'13.75.0'"));
+const ojs=read('core/booking/booking-orchestration.js');const sandbox={window:{},console,URL,performance:{now:()=>0}};vm.createContext(sandbox);vm.runInContext(ojs,sandbox);const o=sandbox.window.LuviaBookingOrchestration;
+assert.equal(o.version,'1.3.0');assert.deepEqual(Array.from(o.ROUTE_ORDER),['api','external_link','affiliate','email','manual']);
+assert.equal(o.failoverPolicySnapshot().preservesBookingIdentity,true);assert.equal(o.failoverPolicySnapshot().blocksOnUnknownProviderOutcome,true);
+assert.equal(o.canFailover({attemptStatus:'failed',state:'fallback_required',providerOutcomeKnown:true,reconciliationRequired:false,bookingStatus:'requested'}).allowed,true);
+assert.equal(o.canFailover({attemptStatus:'failed',state:'fallback_required',providerOutcomeKnown:false,reconciliationRequired:true,bookingStatus:'requested'}).reason,'RECONCILIATION_REQUIRED');
+assert.equal(o.canFailover({attemptStatus:'retry_scheduled',state:'retry_wait',providerOutcomeKnown:true,bookingStatus:'requested'}).allowed,false);
+const transient=o.nextAfterFailure({attemptNo:1,maxRetries:2,error:{status:503}});assert.equal(transient.action,'retry_same_route');assert.equal(transient.fallback,false);
+const permanent=o.nextAfterFailure({attemptNo:1,maxRetries:2,error:{status:400}});assert.equal(permanent.action,'fallback_next_route');assert.equal(permanent.retry,false);
+const diag=o.diagnostics();assert.equal(diag.adaptiveFailover,true);assert.equal(diag.decisionReplay,true);assert.equal(diag.retryVsFailoverSeparated,true);assert.equal(diag.decisionMode,'runtime-adaptive-failover');
+const diagnostics=read('core/diagnostics/booking-core-diagnostics.js');for(const x of ["VERSION='4.75.0'","BUILD='13.75.0'",'routeFailoverRuntime','failoverRows','failover-policy-preserves-booking','failover-blocks-unknown-provider-outcome'])assert(diagnostics.includes(x));
+const integration=read('core/booking/booking-integration.js');assert(integration.includes("const VERSION='1.14.0'"));assert(integration.includes('routeFailoverDiagnostics'));assert(integration.includes('replayRouteDecision'));
+const migration=read('supabase/migrations/20260811065500_core_v4_75_0_adaptive_failover_decision_replay_orchestration_hardening.sql');for(const x of ['booking_route_failover_events','luvia_booking_failover_route','luvia_booking_replay_route_decision','booking_route_failover_runtime_v1','RECONCILIATION_REQUIRED','preservesBookingIdentity','booking_orchestration_v4_75'])assert(migration.includes(x));
+console.log('LUVIA_V13_75_0_ADAPTIVE_FAILOVER_DECISION_REPLAY_ORCHESTRATION_HARDENING_OK');

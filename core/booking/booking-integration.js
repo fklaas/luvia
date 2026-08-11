@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.13.0';
+  const VERSION='1.14.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -284,6 +284,22 @@
     return data||[];
   }
 
+  async function routeFailoverDiagnostics({limit=25}={}){
+    await init();
+    const safeLimit=Math.max(1,Math.min(100,Number(limit)||25));
+    const {data,error}=await client.from('booking_route_failover_runtime_v1').select('*').order('created_at',{ascending:false}).limit(safeLimit);
+    if(error)throw error;
+    return data||[];
+  }
+
+  async function replayRouteDecision(decisionId){
+    await init();
+    if(!decisionId)throw new Error('Decision-ID fehlt.');
+    const {data,error}=await client.rpc('luvia_booking_replay_route_decision',{p_decision_id:decisionId});
+    if(error)throw error;
+    return data;
+  }
+
   async function resolvePlaceRoute(place={}){
     await init();
     const payload={
@@ -329,7 +345,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;
