@@ -1,7 +1,7 @@
 (function(){
 'use strict';
-const VERSION='4.73.0';
-const BUILD='13.73.0';
+const VERSION='4.74.0';
+const BUILD='13.74.0';
 const clean=v=>String(v??'').trim();
 let lastRemoteResult=Object.freeze({state:'not_checked',checkedAt:null,ok:null});
 const check=(name,ok,detail=null)=>({name,ok:Boolean(ok),detail});
@@ -68,18 +68,36 @@ async function runLocalTests(){
   assertions.push(check('failed-direct-can-fall-back',unavailable.channel==='email',unavailable.ranked));
   assertions.push(check('commercial-weight-capped',o.diagnostics?.().commercialWeightCapped===8,o.diagnostics?.()));
   assertions.push(check('client-server-route-order-consistent',JSON.stringify(o.ROUTE_ORDER)===JSON.stringify(['api','external_link','affiliate','email','manual']),o.policySnapshot?.()));
-  const evidence=o.explainDecision?.(plan); assertions.push(check('decision-evidence',Boolean(evidence?.selected&&evidence?.selectedBreakdown&&Array.isArray(evidence?.alternatives)),evidence));
+  const degraded=o.plan([
+   {channel:'api',provider:'degraded_direct',target:'https://example.test/direct',confidence:1,signals:{connectionState:'degraded',probeState:'degraded',consecutiveProbeFailures:2,reliability:.95,directBooking:true}},
+   {channel:'external_link',provider:'official_link',target:'https://example.test/book',confidence:.9,signals:{reliability:.8,uxQuality:.8}}
+  ]);
+  assertions.push(check('degraded-direct-falls-back',degraded.channel==='external_link',degraded.ranked));
+  const stale=o.plan([
+   {channel:'api',provider:'stale_direct',target:'https://example.test/direct',confidence:1,signals:{connectionState:'connected',probeState:'healthy',probeAgeSeconds:1800,availabilityRuntimeState:'ready',reliability:.95,directBooking:true}},
+   {channel:'external_link',provider:'official_link',target:'https://example.test/book',confidence:.9,signals:{reliability:.8,uxQuality:.8}}
+  ]);
+  assertions.push(check('stale-probe-degrades-direct',stale.channel==='external_link',stale.ranked));
+  const recovered=o.plan([
+   {channel:'api',provider:'recovered_direct',target:'https://example.test/direct',confidence:1,signals:{connectionState:'connected',probeState:'healthy',probeAgeSeconds:30,availabilityRuntimeState:'ready',reliability:.95,directBooking:true}},
+   {channel:'external_link',provider:'official_link',target:'https://example.test/book',confidence:.9,signals:{reliability:.8,uxQuality:.8}}
+  ]);
+  assertions.push(check('healthy-direct-recovers-priority',recovered.channel==='api',recovered.ranked));
+  assertions.push(check('runtime-health-policy',o.diagnostics?.().degradedDirectFallsBack===true,o.diagnostics?.()));
+  const evidence=o.explainDecision?.(degraded); assertions.push(check('decision-evidence',Boolean(evidence?.selected&&evidence?.selectedBreakdown&&Array.isArray(evidence?.alternatives)&&evidence?.selected?.runtimeHealth),evidence));
  }
  return Object.freeze({ok:assertions.every(x=>x.ok),version:VERSION,build:BUILD,durationMs:Math.round(performance.now()-start),assertions,snapshot:snapshot()});
 }
 async function runRemoteTests(){
- const result={connectionReadiness:null,monetizationReadiness:null,orchestrationReadiness:null,routeDecisionRuntime:null,errors:[]};
+ const result={connectionReadiness:null,monetizationReadiness:null,orchestrationReadiness:null,providerRuntimeHealth:null,routeDecisionRuntime:null,errors:[]};
  try{result.connectionReadiness=await window.LuviaBookingProviderConnections?.readiness?.()}catch(e){result.errors.push({area:'connections',message:clean(e?.message||e)})}
  try{result.monetizationReadiness=await window.LuviaBookingMonetization?.profiles?.()}catch(e){result.errors.push({area:'monetization',message:clean(e?.message||e)})}
  try{result.orchestrationReadiness=await window.LuviaBooking?.orchestrationReadiness?.()}catch(e){result.errors.push({area:'orchestration',message:clean(e?.message||e)})}
+ try{result.providerRuntimeHealth=await window.LuviaBooking?.providerRuntimeHealth?.()}catch(e){result.errors.push({area:'runtime_health',message:clean(e?.message||e)})}
  try{result.routeDecisionRuntime=await window.LuviaBooking?.routeDecisionDiagnostics?.({limit:25})}catch(e){result.errors.push({area:'route_decisions',message:clean(e?.message||e)})}
- const ok=result.errors.length===0&&Array.isArray(result.orchestrationReadiness);
- lastRemoteResult=Object.freeze({state:ok?'ready':'failed',checkedAt:new Date().toISOString(),ok,errorCount:result.errors.length,providerRows:Array.isArray(result.orchestrationReadiness)?result.orchestrationReadiness.length:0,decisionRows:Array.isArray(result.routeDecisionRuntime)?result.routeDecisionRuntime.length:0});
+ const ok=result.errors.length===0&&Array.isArray(result.orchestrationReadiness)&&Array.isArray(result.providerRuntimeHealth);
+ const healthStates=(result.providerRuntimeHealth||[]).reduce((acc,row)=>{const key=clean(row.runtime_health_state||'unknown').toLowerCase()||'unknown';acc[key]=(acc[key]||0)+1;return acc;},{});
+ lastRemoteResult=Object.freeze({state:ok?'ready':'failed',checkedAt:new Date().toISOString(),ok,errorCount:result.errors.length,providerRows:Array.isArray(result.orchestrationReadiness)?result.orchestrationReadiness.length:0,runtimeHealthRows:Array.isArray(result.providerRuntimeHealth)?result.providerRuntimeHealth.length:0,healthStates:Object.freeze(healthStates),decisionRows:Array.isArray(result.routeDecisionRuntime)?result.routeDecisionRuntime.length:0});
  return Object.freeze({...result,ok,summary:lastRemoteResult});
 }
 async function run({remote=false}={}){const local=await runLocalTests();const remoteResult=remote?await runRemoteTests():Object.freeze({skipped:true,reason:'REMOTE_NOT_REQUESTED'});return Object.freeze({ok:local.ok&&(remoteResult.skipped||remoteResult.ok),local,remote:remoteResult});}

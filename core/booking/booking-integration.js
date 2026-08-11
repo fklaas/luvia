@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.12.0';
+  const VERSION='1.13.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -269,6 +269,13 @@
     return data||[];
   }
 
+  async function providerRuntimeHealth(){
+    await init();
+    const {data,error}=await client.from('booking_provider_runtime_health_v1').select('*').order('provider_id');
+    if(error)throw error;
+    return data||[];
+  }
+
   async function routeDecisionDiagnostics({limit=25}={}){
     await init();
     const safeLimit=Math.max(1,Math.min(100,Number(limit)||25));
@@ -322,7 +329,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,routeDecisionDiagnostics,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;

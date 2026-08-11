@@ -1,0 +1,17 @@
+intelligence/kernel/version.js
+index.html
+sw.js
+core/booking/booking-orchestration.js
+core/booking/booking-integration.js
+core/diagnostics/booking-core-diagnostics.js
+intelligence/console.html
+intelligence/developer-console.js
+supabase/migrations/20260810224000_core_v4_74_0_runtime_provider_health_adaptive_booking_decisions.sql
+tests/v13.74.0-runtime-provider-health-adaptive-booking-decisions.test.cjs
+SMOKE-v13.74.0.sql
+RELEASE-v13.74.0.md
+DEPLOYMENT-v13.74.0.md
+TEST-v13.74.0.md
+COMMIT-v13.74.0.txt
+CHANGED-FILES-v13.74.0.txt
+TEST-RESULTS-v13.74.0.md
