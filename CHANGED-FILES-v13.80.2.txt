@@ -1,0 +1,17 @@
+CHANGED
+- app/control-center/booking-inbox.js
+- app/control-center/booking-inbox.css
+- supabase/functions/booking-email-reply/index.ts
+- intelligence/kernel/version.js
+- index.html
+- sw.js
+- CURRENT-BUILD.md
+
+ADDED
+- RELEASE-v13.80.2.md
+- DEPLOYMENT-v13.80.2.md
+- TEST-v13.80.2.md
+- TEST-RESULTS-v13.80.2.md
+- CHANGED-FILES-v13.80.2.txt
+- COMMIT-v13.80.2.txt
+- tests/v13.80.2-reply-verification-mobile-inbox.test.cjs

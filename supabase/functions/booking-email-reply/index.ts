@@ -27,7 +27,7 @@ Deno.serve(async(req)=>{
   if(!intendedRecipient)return json({ok:false,expected:true,error:'EMAIL_RECIPIENT_REQUIRED'},200);
   const {data:verified,error:verifiedError}=await userClient.rpc('luvia_booking_email_verified_candidate',{p_booking_id:booking.id,p_email:intendedRecipient});
   if(verifiedError)return json({error:'EMAIL_VERIFICATION_FAILED',details:verifiedError.message},500);
-  if(!verified?.verified||!verified?.autoUsable)return json({ok:false,expected:true,error:'EMAIL_RECIPIENT_NOT_VERIFIED'},200);
+  if(!verified?.ok)return json({ok:false,expected:true,error:'EMAIL_RECIPIENT_NOT_VERIFIED',reason:verified?.reason||'VENUE_EMAIL_NOT_VERIFIED'},200);
   const mode=clean(Deno.env.get('BOOKING_MODE')||'test').toLowerCase()==='production'?'production':'test';
   const testRecipient=clean(body.testRecipient||Deno.env.get('BOOKING_TEST_RECIPIENT'));
   const actualRecipient=mode==='production'?intendedRecipient:testRecipient;
