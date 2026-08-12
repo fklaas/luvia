@@ -1,21 +1,12 @@
-# CURRENT BUILD
+# Current Build
 
-- Luvia Build: **13.81.0**
-- Core: **4.81.0**
-- Release: **Booking Timeline + Modify + Cancel + Conversation Archive/Delete Lifecycle**
-- Channel: production
-- Built: 2026-08-12 11:52 +02:00
+**Luvia v13.81.1 / Core 4.81.1**
 
-## Product surfaces
-- Consumer Experience: existing/stable
-- Control Center Home: available
-- Booking Control Center: timeline + modify/cancel available
-- Booking Inbox: bidirectional replies + Intelligence actions + archive/delete lifecycle available
-- Travel Wallet: planned v13.82
-- Trip Command Center: planned v13.83
+## Name
+Booking Timeline + Modify + Cancel – Action Reliability & Mobile Booking Drilldown Fix
 
-## Truth ownership
-- Booking Truth: Booking Core
-- Message Truth: Booking Core
-- Mutation Truth: Booking Core reservation-mutation runtime + booking events
-- Conversation archive/delete: per-user presentation state only
+## Status
+Patch release for v13.81.0. Fixes non-responsive Modify/Cancel confirmation actions and aligns the mobile Booking Control Center navigation with the Booking Inbox drilldown model.
+
+## Backend
+No new DB migration. No new Edge Function. Existing v13.81.0 migration remains required if it has not been applied yet.
