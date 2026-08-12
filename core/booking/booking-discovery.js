@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='0.5.0';
+const VERSION='0.6.0';
 const KINDS=Object.freeze(['official_api','booking_provider','reservation_link','public_reservation_email','public_contact_email','manual']);
 const CHANNEL_BY_KIND=Object.freeze({official_api:'api',booking_provider:'external_link',reservation_link:'external_link',public_reservation_email:'email',public_contact_email:'email',manual:'manual'});
 const PRIORITY=Object.freeze({official_api:100,booking_provider:90,reservation_link:85,public_reservation_email:80,public_contact_email:60,manual:0});

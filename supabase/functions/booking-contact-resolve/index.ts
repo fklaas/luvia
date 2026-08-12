@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const VERSION='1.3.1';
+const VERSION='1.4.0';
 const corsHeaders={
   'Access-Control-Allow-Origin':'https://myluvia.app',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -38,7 +38,7 @@ async function fetchPage(url:string){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),3500);
   try{
-    const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':'LuviaBooking/1.3.1 (+https://myluvia.app)','accept':'text/html,application/xhtml+xml'}});
+    const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':`LuviaBooking/${VERSION} (+https://myluvia.app)`,'accept':'text/html,application/xhtml+xml'}});
     if(!res.ok)return null;
     const ct=res.headers.get('content-type')||'';
     if(!ct.includes('text/html'))return null;
@@ -59,10 +59,12 @@ function decodeCfEmail(value:string){
 
 function emailsFrom(html:string){
   let decoded=html.replace(/&#64;|&commat;|\u0040/gi,'@').replace(/&#46;|&period;|\u002e/gi,'.').replace(/\x40/gi,'@').replace(/\x2e/gi,'.');
+  decoded=decoded.replace(/\s*(?:\[at\]|\(at\)|\sat\s)\s*/gi,'@').replace(/\s*(?:\[dot\]|\(dot\)|\sdot\s)\s*/gi,'.');
   decoded=decoded.replace(/data-cfemail=["']([0-9a-f]+)["']/gi,(_,hex)=>decodeCfEmail(hex)||'');
   const values=[...(decoded.match(emailRx)||[])];
   for(const m of decoded.matchAll(/mailto:([^"'?#\s>]+)/gi))values.push(decodeURIComponent(m[1]||''));
   for(const m of decoded.matchAll(/["']email["']\s*:\s*["']([^"']+)["']/gi))values.push(m[1]||'');
+  for(const m of decoded.matchAll(/(?:email|contactEmail|contact_email)\s*["']?\s*[:=]\s*["']([^"']+@[^"']+)["']/gi))values.push(m[1]||'');
   return [...new Set(values.map(x=>clean(x).replace(/^mailto:/i,'').replace(/[),.;:]+$/,'').toLowerCase()).filter(x=>validEmail(x)&&!blockedEmail(x)))];
 }
 
@@ -75,13 +77,17 @@ function candidateLinks(base:string,html:string){
     try{
       const u=new URL(href,base);
       if(u.origin!==origin)continue;
-      if(!/(contact|kontakt|reservation|reserv|booking|book|impressum|imprint|privacy|legal|mentions|confidentialit|about)/i.test(u.pathname+u.search))continue;
+      if(!/(contact|kontakt|contactez|contacter|nous[-_ ]?contacter|reservation|reserv|réserv|booking|book|restaurants?|locations?|adresses?|impressum|imprint|privacy|legal|mentions|confidentialit|about|propos)/i.test(u.pathname+u.search+href))continue;
       if(safeHttpUrl(u.toString()))out.push(u.toString());
     }catch{}
   }
-  return [...new Set(out)].slice(0,8);
+  return [...new Set(out)].slice(0,14);
 }
-
+function guessedVenuePages(base:string){
+  const origin=new URL(base).origin;
+  return ['/contact','/contact/','/contact-us','/contactez-nous','/nous-contacter','/reservation','/reservations','/booking','/book','/restaurants','/restaurants/','/locations','/adresses']
+    .map(path=>origin+path).filter(url=>Boolean(safeHttpUrl(url)));
+}
 function rejectReason(email:string,pageUrl:string){
   const page=safeHttpUrl(pageUrl);
   if(isPlaceholderEmail(email))return 'PLACEHOLDER_EMAIL';
@@ -145,8 +151,10 @@ Deno.serve(async(req)=>{
     }
 
     const pages=[first];
-    const extra=(await Promise.all(candidateLinks(first.url,first.html).map(link=>fetchPage(link)))).filter(Boolean) as {url:string,html:string}[];
-    pages.push(...extra);
+    const discoveryUrls=[...new Set([...candidateLinks(first.url,first.html),...guessedVenuePages(first.url)])].slice(0,18);
+    const extra=(await Promise.all(discoveryUrls.map(link=>fetchPage(link)))).filter(Boolean) as {url:string,html:string}[];
+    const pageSeen=new Set([first.url]);
+    for(const page of extra){if(pageSeen.has(page.url))continue;pageSeen.add(page.url);pages.push(page);if(pages.length>=14)break;}
 
     const seen=new Set<string>();
     const rejected:{email:string,reason:string,sourceUrl:string}[]=[];
@@ -229,6 +237,8 @@ Deno.serve(async(req)=>{
       legacyCandidateId,
       legacySourceUrl,
       bridgeReason:legacyEmail?(legacyContactVerified?'LEGACY_CONTACT_VERIFIED_AND_BRIDGED':'LEGACY_CONTACT_NOT_PUBLISHED_ON_OFFICIAL_SOURCE'):null,
+      discoveryStrategy:'official-site-deep-crawl-v2',
+      redirectAware:true,
       rejectedEmails:rejected.map(x=>({reason:x.reason,sourceUrl:x.sourceUrl}))
     });
   }catch(error){

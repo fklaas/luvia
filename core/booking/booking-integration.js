@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.17.1';
+  const VERSION='1.17.2';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -439,7 +439,21 @@
     if(!id)throw new Error('Booking-ID fehlt.');
     const {data,error}=await client.rpc('luvia_booking_timeline_v1',{p_booking_id:id});
     if(error)throw new Error(error.message||'Booking-Timeline konnte nicht geladen werden.');
-    return data||{bookingId:id,items:[],source:'booking-core',ownsBookingTruth:false};
+    const payload=data||{bookingId:id,items:[],source:'booking-core',ownsBookingTruth:false};
+    const items=Array.isArray(payload.items)?payload.items:[];
+    const normalized=[];
+    for(const item of items){
+      const title=clean(item?.title||item?.label||item?.event||'');
+      const at=clean(item?.at||item?.occurred_at||item?.created_at||item?.timestamp);
+      const minute=at?at.slice(0,16):'';
+      const key=`${title.toLowerCase()}|${minute}`;
+      const previous=normalized[normalized.length-1];
+      if(previous&&previous.__key===key)continue;
+      // Transport noise directly adjacent to a domain-level modify/cancel event is collapsed.
+      if(previous&&/^(nachricht gesendet|nachricht zugestellt)$/i.test(title)&&/(änderung|stornierung).*(angefragt|verarbeitet)/i.test(clean(previous.title||previous.label||''))&&minute===previous.__minute)continue;
+      normalized.push({...item,__key:key,__minute:minute});
+    }
+    return {...payload,items:normalized.map(({__key,__minute,...item})=>item),deduplicated:true,source:'booking-core',ownsBookingTruth:false};
   }
 
   async function conversationPreferences(bookingIds=[]){

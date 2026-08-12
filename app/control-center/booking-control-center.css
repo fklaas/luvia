@@ -9,3 +9,17 @@
 
 .bcc-mobile-bookings-back{display:none;border:0;background:transparent;padding:0 0 12px;color:inherit;font-weight:700;cursor:pointer}
 @media(max-width:780px){.bcc.is-mobile-detail .bcc-hero,.bcc.is-mobile-detail .bcc-toolbar,.bcc.is-mobile-detail .bcc-status-center,.bcc.is-mobile-detail .bcc-list,.bcc.is-mobile-detail .bcc-foundation{display:none}.bcc.is-mobile-detail .bcc-layout{display:block}.bcc.is-mobile-detail .bcc-detail{display:block;border-radius:0;box-shadow:none;border-left:0;border-right:0;padding-top:18px;min-height:78vh}.bcc-mobile-bookings-back{display:inline-flex;align-items:center}.bcc:not(.is-mobile-detail) .bcc-detail{display:none}.bcc:not(.is-mobile-detail) .bcc-layout{display:block}.bcc:not(.is-mobile-detail) .bcc-list{display:block}}
+
+/* v13.81.3 mutation UX + true mobile action footer */
+body.luvia-booking-action-open .luvia-shell-nav{visibility:hidden!important;pointer-events:none!important;opacity:0!important}
+.bcc-action-sheet{z-index:50000!important}
+.bcc-action-sheet form{display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
+.bcc-action-scroll{min-height:0;overflow:auto}
+.bcc-action-buttons{position:relative;z-index:5;background:var(--luvia-surface-elevated,#fff)}
+.bcc-action-buttons button:disabled{opacity:.48;cursor:not-allowed}
+@media(max-width:780px){
+  .bcc-action-sheet{z-index:50000!important;place-items:stretch!important;background:rgba(18,22,30,.52)}
+  .bcc-action-sheet form{height:100dvh;max-height:100dvh;border-radius:0!important;padding:calc(16px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))!important;overflow:auto!important;align-content:start}
+  .bcc-action-buttons{position:sticky!important;bottom:0!important;margin:0 -18px calc(-18px - env(safe-area-inset-bottom))!important;padding:12px 18px calc(18px + env(safe-area-inset-bottom))!important;background:linear-gradient(to bottom,rgba(255,255,255,.94),var(--luvia-surface-elevated,#fff) 22%)!important;box-shadow:0 -14px 28px rgba(32,42,55,.11)!important}
+  body.luvia-booking-action-open{overflow:hidden!important}
+}

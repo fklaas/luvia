@@ -1,12 +1,22 @@
-# Current Build
+# CURRENT BUILD
 
-**Luvia v13.81.2 / Core 4.81.2**
+- App: **13.81.3**
+- Core: **4.81.3**
+- Name: **Booking Mutation UX, Mobile Action Footer & Contact/Reservation Discovery Reliability**
+- Channel: production
+- Date: 2026-08-12
 
-## Name
-Booking Timeline + Modify + Cancel – Mutation State Fallback & Mobile Action Safe-Area Fix
+## Scope
+- Mutation action-state UX / blocked CTA handling
+- Mobile Modify/Cancel modal owns the foreground and suppresses global bottom navigation while open
+- Booking timeline presentation deduplication
+- Deep official-site contact/reservation crawl
+- Green Farmer's contact-discovery regression (`hello@greenfarmers.fr`)
+- Reserve with Google handoff detection (discovery only; no claimed direct integration)
 
-## Status
-Patch release for v13.81.x. Fixes two production issues found during live testing: expected `BOOKING_STATE_NOT_MODIFIABLE` / `BOOKING_STATE_NOT_CANCELLABLE` provider outcomes now continue into the safe existing-thread fallback for eligible non-terminal bookings, and the mobile Modify/Cancel action sheet now renders above the global Luvia bottom navigation with a sticky safe-area-aware action footer.
-
-## Backend
-No new DB migration. No new Edge Function. Existing v13.81.0 migration and the already deployed v13.80.x `booking-email-reply` remain prerequisites.
+## Deployment
+- Database migration: NO
+- SQL: NO
+- Edge Functions: YES (`booking-contact-resolve`, `booking-route-resolve`)
+- New secrets: NO
+- Static app: YES

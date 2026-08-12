@@ -1,0 +1,12 @@
+const fs=require('fs'),assert=require('assert'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const contact=fs.readFileSync(path.join(root,'supabase/functions/booking-contact-resolve/index.ts'),'utf8');
+const route=fs.readFileSync(path.join(root,'supabase/functions/booking-route-resolve/index.ts'),'utf8');
+for(const required of ['contact','contactez','contacter','nous[-_ ]?contacter','reservation','restaurants?']) assert(contact.includes(required),`missing contact hint ${required}`);
+for(const required of ['/contact','/contact-us','/contactez-nous','/nous-contacter','/reservation','/reservations','/restaurants']) assert(contact.includes(required),`missing guessed page ${required}`);
+assert(contact.includes("p_provider:'official_website'"));
+assert(contact.includes("p_verification_status:'verified'"));
+assert(contact.includes("venueOwnership:'explicitly_published_on_source'"));
+assert(route.includes("provider==='google_reserve'"));
+assert(route.includes("reason:'GOOGLE_RESERVE_HANDOFF'"));
+console.log('LUVIA_V13_81_3_GREEN_FARMERS_CONTACT_RESOLVER_REGRESSION_OK');

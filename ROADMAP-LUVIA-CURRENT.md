@@ -1,3 +1,16 @@
+
+## Current
+- **v13.81.3 / Core 4.81.3 – Booking Mutation UX, Mobile Action Footer & Contact/Reservation Discovery Reliability**
+  - mutation blocked-action UX
+  - mobile action-sheet/nav isolation
+  - timeline presentation dedupe
+  - deep contact/reservation discovery
+  - Green Farmer's resolver regression
+  - Reserve with Google handoff detection (no direct integration claim)
+
+## Next
+- **v13.82 – Travel Wallet & Notifications**
+
 # Luvia Current Roadmap
 
 ## Completed / current
