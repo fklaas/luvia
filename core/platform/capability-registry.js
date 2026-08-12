@@ -15,6 +15,7 @@ register({id:'media.gallery',domain:'media',provider:'LuviaMediaCore',consumers:
 register({id:'booking.lifecycle',domain:'booking',provider:'LuviaBooking',consumers:['consumer','control-center'],probe:()=>Boolean(window.LuviaBooking||window.LuviaBookingIntegration)});
 register({id:'booking.messages',domain:'booking',provider:'Booking Core communication',consumers:['control-center'],probe:()=>Boolean(window.LuviaBookingCommunication||window.LuviaBookingEmailV2)});
 register({id:'booking.intelligence',domain:'booking',provider:'Booking Core intelligence',consumers:['control-center'],probe:()=>Boolean(window.LuviaBookingCoreDiagnostics||window.LuviaBookingOrchestration)});
+register({id:'booking.actions',domain:'booking',provider:'Booking Core message action/reply transport',consumers:['control-center'],probe:()=>Boolean(window.LuviaBooking?.reply&&window.LuviaBooking?.performIntelligenceAction)});
 register({id:'notifications.unread',domain:'notifications',provider:'future global notification service',status:'planned',consumers:['control-center']});
 register({id:'wallet.documents',domain:'wallet',provider:'future wallet service',status:'planned',consumers:['control-center']});
 window.LuviaCapabilityRegistry=Object.freeze({version:VERSION,register,get,list,probe,consumers,byConsumer,diagnostics});

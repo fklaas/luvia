@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.15.0';
+  const VERSION='1.16.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -357,6 +357,49 @@
     return {booking,messages:messageRows,intelligence,thread,source:'booking-core',ownsMessageTruth:false};
   }
 
+
+  async function reply(id,{bodyText,action=null,intelligenceId=null,testRecipient=null,idempotencyKey=null}={}){
+    await init();
+    const text=clean(bodyText);
+    if(!id)throw new Error('Booking-ID fehlt.');
+    if(!text)throw new Error('Bitte eine Nachricht eingeben.');
+    const result=await client.functions.invoke('booking-email-reply',{body:{bookingId:id,bodyText:text,action:clean(action)||undefined,intelligenceId:clean(intelligenceId)||undefined,testRecipient:testRecipient||undefined,idempotencyKey:idempotencyKey||undefined,userApproved:true}});
+    if(result.error)throw await functionError(result.error,'Antwort konnte nicht versendet werden.');
+    const data=result.data||{};
+    if(data?.error&&!data?.expected)throw new Error(data.details||data.error);
+    if(data?.expected)throw new Error(data.error||'Antwort konnte noch nicht versendet werden.');
+    window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'thread-reply-sent',result:data}}));
+    return data;
+  }
+
+  async function resolveIntelligence(intelligenceId,action,payload={}){
+    await init();
+    if(!intelligenceId)throw new Error('Intelligence-ID fehlt.');
+    const {data,error}=await client.rpc('luvia_booking_resolve_message_intelligence',{p_intelligence_id:intelligenceId,p_action:clean(action),p_payload:payload||{}});
+    if(error)throw new Error(error.message||'Booking Intelligence konnte nicht abgeschlossen werden.');
+    window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{action:'intelligence-resolved',intelligenceId,result:data}}));
+    return data;
+  }
+
+  function actionReplyText(intelligence={},action,customText=''){
+    const extracted=intelligence?.extracted||{};
+    const time=clean(extracted.proposedTime||extracted.proposed_time);
+    if(action==='accept_alternative')return `Vielen Dank.${time?` ${time} Uhr passt für uns.`:' Die vorgeschlagene Alternative passt für uns.'} Bitte bestätigen Sie die Reservierung.`;
+    if(action==='decline_alternative')return 'Vielen Dank für die Alternative. Diese passt uns leider nicht. Gibt es eine andere verfügbare Möglichkeit?';
+    if(action==='answer')return clean(customText);
+    return clean(customText);
+  }
+
+  async function performIntelligenceAction(id,{intelligence,action,bodyText='' }={}){
+    const intel=intelligence||{};
+    const intelligenceId=intel.id||intel.intelligence_id;
+    if(!intelligenceId)throw new Error('Intelligence-Aktion konnte nicht zugeordnet werden.');
+    if(action==='mark_reviewed'||action==='dismiss')return resolveIntelligence(intelligenceId,action,{});
+    const text=actionReplyText(intel,action,bodyText);
+    if(!text)throw new Error('Für diese Aktion ist eine Antwort erforderlich.');
+    return reply(id,{bodyText:text,action,intelligenceId});
+  }
+
   async function sendEmail(id,{requesterName,note,testRecipient,idempotencyKey}={}){
     await init();
     const booking=await get(id);
@@ -375,7 +418,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;

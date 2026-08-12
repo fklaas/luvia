@@ -1,1 +1,1 @@
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.79.0',build:'13.79.0',name:'Booking Inbox & Conversations',channel:'production',builtAt:'2026-08-12T10:06:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.80.0',build:'13.80.0',name:'Booking Actions & Intelligence',channel:'production',builtAt:'2026-08-12T10:45:00+02:00'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
