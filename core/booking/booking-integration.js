@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.17.0';
+  const VERSION='1.17.1';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -460,9 +460,22 @@
     return data;
   }
 
+  const THREAD_MUTATION_REQUEST_STATES=new Set(['ready','forwarded','requested','awaiting_reply','alternative_proposed','needs_action','requires_action','review_required','confirmed']);
+  function mutationErrorCode(resultOrError){return clean(resultOrError?.code||resultOrError?.error||resultOrError?.message||resultOrError).toUpperCase();}
   function mutationFallbackable(resultOrError){
-    const code=clean(resultOrError?.error||resultOrError?.message||resultOrError).toUpperCase();
-    return ['PROVIDER_RESERVATION_REFERENCE_REQUIRED','RESERVATION_MODIFY_NOT_SUPPORTED','RESERVATION_CANCEL_NOT_SUPPORTED','PARTNER_REQUIRED','CONNECTION_NOT_READY','RESERVATION_MODIFY_TRANSPORT_NOT_ACTIVE','RESERVATION_CANCEL_TRANSPORT_NOT_ACTIVE','LIVE_PROBE_NOT_HEALTHY','PROVIDER_NOT_FOUND','RESERVATION_MODIFY_ADAPTER_NOT_IMPLEMENTED','RESERVATION_CANCEL_ADAPTER_NOT_IMPLEMENTED'].some(x=>code.includes(x));
+    const code=mutationErrorCode(resultOrError);
+    return ['PROVIDER_RESERVATION_REFERENCE_REQUIRED','RESERVATION_MODIFY_NOT_SUPPORTED','RESERVATION_CANCEL_NOT_SUPPORTED','PARTNER_REQUIRED','CONNECTION_NOT_READY','RESERVATION_MODIFY_TRANSPORT_NOT_ACTIVE','RESERVATION_CANCEL_TRANSPORT_NOT_ACTIVE','LIVE_PROBE_NOT_HEALTHY','PROVIDER_NOT_FOUND','RESERVATION_MODIFY_ADAPTER_NOT_IMPLEMENTED','RESERVATION_CANCEL_ADAPTER_NOT_IMPLEMENTED','BOOKING_STATE_NOT_MODIFIABLE','BOOKING_STATE_NOT_CANCELLABLE'].some(x=>code.includes(x));
+  }
+  function bookingAllowsThreadMutationRequest(status){return THREAD_MUTATION_REQUEST_STATES.has(clean(status).toLowerCase());}
+  async function assertThreadFallbackAllowed(id,resultOrError,action){
+    const code=mutationErrorCode(resultOrError);
+    if(!code.includes('BOOKING_STATE_NOT_'))return;
+    const status=clean(resultOrError?.status||(await get(id))?.status).toLowerCase();
+    if(bookingAllowsThreadMutationRequest(status))return;
+    const err=new Error(action==='modify'?'Diese Buchung kann in ihrem aktuellen Zustand nicht mehr geändert werden.':'Diese Buchung kann in ihrem aktuellen Zustand nicht mehr storniert werden.');
+    err.code=code||'BOOKING_STATE_NOT_MUTABLE';
+    err.bookingStatus=status||null;
+    throw err;
   }
 
   function modifyReplyText(input={}){
@@ -495,7 +508,8 @@
         const result=await mutation.modify({bookingId:id,...input});
         if(result?.ok)return {...result,transport:'provider_api'};
         if(!mutationFallbackable(result))throw new Error(result?.error||'Änderung konnte nicht gestartet werden.');
-      }catch(error){if(!mutationFallbackable(error))throw error;}
+        await assertThreadFallbackAllowed(id,result,'modify');
+      }catch(error){if(!mutationFallbackable(error))throw error;await assertThreadFallbackAllowed(id,error,'modify');}
     }
     const text=modifyReplyText(input);
     const messageResult=await reply(id,{bodyText:text,action:'modify'});
@@ -513,7 +527,8 @@
         const result=await mutation.cancel({bookingId:id,...input});
         if(result?.ok)return {...result,transport:'provider_api'};
         if(!mutationFallbackable(result))throw new Error(result?.error||'Stornierung konnte nicht gestartet werden.');
-      }catch(error){if(!mutationFallbackable(error))throw error;}
+        await assertThreadFallbackAllowed(id,result,'cancel');
+      }catch(error){if(!mutationFallbackable(error))throw error;await assertThreadFallbackAllowed(id,error,'cancel');}
     }
     const messageResult=await reply(id,{bodyText:cancelReplyText(input),action:'cancel'});
     const audit=await recordMutationFallback(id,'cancel',messageResult,{reason:clean(input.reason)||null});
