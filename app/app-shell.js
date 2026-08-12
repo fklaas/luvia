@@ -8,8 +8,8 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const BOOKING_AVAILABILITY_SRC='core/booking/booking-availability.js?v=13.68.11';
   const BOOKING_RESERVATION_CREATE_SRC='core/booking/booking-reservation-create.js?v=13.68.11';
-  const BOOKING_RESERVATION_MUTATION_SRC='core/booking/booking-reservation-mutation.js?v=13.68.11';
-  const BOOKING_RESERVATION_MUTATION_STATUS_SRC='core/booking/booking-reservation-mutation-status.js?v=13.68.11';
+  const BOOKING_RESERVATION_MUTATION_SRC='core/booking/booking-reservation-mutation.js?v=13.81.0';
+  const BOOKING_RESERVATION_MUTATION_STATUS_SRC='core/booking/booking-reservation-mutation-status.js?v=13.81.0';
   const BOOKING_RESERVATION_RECOVERY_SRC='core/booking/booking-reservation-recovery.js?v=13.68.11';
   const BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.11';
   let bookingAvailabilityLoadPromise=null,bookingReservationCreateLoadPromise=null,bookingReservationMutationLoadPromise=null,bookingReservationMutationStatusLoadPromise=null,bookingReservationRecoveryLoadPromise=null,bookingEmailV2LoadPromise=null;

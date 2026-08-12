@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const clean=v=>String(v??'').trim();
 async function client(){return window.LuviaSupabaseService?.start?.();}
 function normalizeModifyInput(input={}){
@@ -24,7 +24,11 @@ function normalizeCancelInput(input={}){
 async function invoke(body){
   const c=await client();if(!c)throw new Error('Supabase ist nicht bereit.');
   const {data,error}=await c.functions.invoke('booking-provider-reservation-mutation',{body});
-  if(error)throw error;return data;
+  if(error){
+    try{const payload=error.context&&typeof error.context.json==='function'?await error.context.json():null;if(payload?.expected===true)return payload;if(payload?.error){const e=new Error(payload.error);e.code=payload.error;e.details=payload.details||null;throw e}}catch(parsed){if(parsed instanceof Error&&parsed!==error)throw parsed}
+    throw error;
+  }
+  return data;
 }
 async function modify(input){return invoke(normalizeModifyInput(input));}
 async function cancel(input){return invoke(normalizeCancelInput(input));}

@@ -1,10 +1,21 @@
-# Current Build
+# CURRENT BUILD
 
-- App: **13.80.3**
-- Core: **4.80.3**
-- Name: **Booking Actions & Intelligence – Reply Sender Consistency & Error Transparency Fix**
+- Luvia Build: **13.81.0**
+- Core: **4.81.0**
+- Release: **Booking Timeline + Modify + Cancel + Conversation Archive/Delete Lifecycle**
 - Channel: production
-- Built: 2026-08-12
+- Built: 2026-08-12 11:52 +02:00
 
-## Scope
-Patch release for the real booking reply path. Aligns reply sender configuration with the proven initial booking email path, adds provider idempotency, and surfaces structured Resend failures instead of `[object Object]`. Mobile Inbox behavior from v13.80.2 remains unchanged.
+## Product surfaces
+- Consumer Experience: existing/stable
+- Control Center Home: available
+- Booking Control Center: timeline + modify/cancel available
+- Booking Inbox: bidirectional replies + Intelligence actions + archive/delete lifecycle available
+- Travel Wallet: planned v13.82
+- Trip Command Center: planned v13.83
+
+## Truth ownership
+- Booking Truth: Booking Core
+- Message Truth: Booking Core
+- Mutation Truth: Booking Core reservation-mutation runtime + booking events
+- Conversation archive/delete: per-user presentation state only

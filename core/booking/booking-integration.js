@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.16.1';
+  const VERSION='1.17.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -434,12 +434,100 @@
     return data;
   }
 
+  async function bookingTimeline(id){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const {data,error}=await client.rpc('luvia_booking_timeline_v1',{p_booking_id:id});
+    if(error)throw new Error(error.message||'Booking-Timeline konnte nicht geladen werden.');
+    return data||{bookingId:id,items:[],source:'booking-core',ownsBookingTruth:false};
+  }
+
+  async function conversationPreferences(bookingIds=[]){
+    await init();
+    const ids=[...new Set((bookingIds||[]).map(clean).filter(Boolean))];
+    if(!ids.length)return [];
+    const {data,error}=await client.from('booking_conversation_preferences').select('*').in('booking_id',ids);
+    if(error)throw error;
+    return data||[];
+  }
+
+  async function setConversationPreference(id,action,at=null){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const {data,error}=await client.rpc('luvia_booking_conversation_preference',{p_booking_id:id,p_action:clean(action),p_at:at||new Date().toISOString()});
+    if(error)throw new Error(error.message||'Conversation-Einstellung konnte nicht gespeichert werden.');
+    window.dispatchEvent(new CustomEvent('luvia:booking-conversation-preference',{detail:{bookingId:id,action,result:data}}));
+    return data;
+  }
+
+  function mutationFallbackable(resultOrError){
+    const code=clean(resultOrError?.error||resultOrError?.message||resultOrError).toUpperCase();
+    return ['PROVIDER_RESERVATION_REFERENCE_REQUIRED','RESERVATION_MODIFY_NOT_SUPPORTED','RESERVATION_CANCEL_NOT_SUPPORTED','PARTNER_REQUIRED','CONNECTION_NOT_READY','RESERVATION_MODIFY_TRANSPORT_NOT_ACTIVE','RESERVATION_CANCEL_TRANSPORT_NOT_ACTIVE','LIVE_PROBE_NOT_HEALTHY','PROVIDER_NOT_FOUND','RESERVATION_MODIFY_ADAPTER_NOT_IMPLEMENTED','RESERVATION_CANCEL_ADAPTER_NOT_IMPLEMENTED'].some(x=>code.includes(x));
+  }
+
+  function modifyReplyText(input={}){
+    const parts=[];
+    if(clean(input.date))parts.push(`Datum auf ${clean(input.date)}`);
+    if(clean(input.time))parts.push(`Uhrzeit auf ${clean(input.time).slice(0,5)} Uhr`);
+    if(input.partySize!=null&&input.partySize!=='')parts.push(`Personenzahl auf ${Number(input.partySize)}`);
+    const notes=clean(input.notes);
+    return `Guten Tag, wir möchten unsere bestehende Reservierung gerne ändern: ${parts.join(', ')}.${notes?` Zusätzlich: ${notes}.`:''} Bitte bestätigen Sie uns die Änderung. Vielen Dank.`;
+  }
+
+  function cancelReplyText(input={}){
+    const reason=clean(input.reason);
+    return `Guten Tag, wir möchten unsere bestehende Reservierung stornieren.${reason?` Grund: ${reason}.`:''} Bitte bestätigen Sie uns die Stornierung. Vielen Dank.`;
+  }
+
+  async function recordMutationFallback(id,action,messageResult,payload={}){
+    const messageId=messageResult?.messageId||messageResult?.message_id||messageResult?.message?.id||null;
+    const {data,error}=await client.rpc('luvia_booking_record_mutation_fallback',{p_booking_id:id,p_action:action,p_message_id:messageId,p_payload:payload||{}});
+    if(error)throw new Error(error.message||'Fallback-Mutation konnte nicht protokolliert werden.');
+    return {...(data||{}),messageId,transport:'email_thread'};
+  }
+
+  async function modifyBooking(id,input={}){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const mutation=window.LuviaBookingReservationMutation;
+    if(mutation?.modify){
+      try{
+        const result=await mutation.modify({bookingId:id,...input});
+        if(result?.ok)return {...result,transport:'provider_api'};
+        if(!mutationFallbackable(result))throw new Error(result?.error||'Änderung konnte nicht gestartet werden.');
+      }catch(error){if(!mutationFallbackable(error))throw error;}
+    }
+    const text=modifyReplyText(input);
+    const messageResult=await reply(id,{bodyText:text,action:'modify'});
+    const audit=await recordMutationFallback(id,'modify',messageResult,{requestedDate:clean(input.date)||null,requestedTime:clean(input.time)||null,partySize:input.partySize==null?null:Number(input.partySize),notes:clean(input.notes)||null});
+    window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'modify-requested',result:audit}}));
+    return {ok:true,action:'modify',bookingId:id,mutationLifecycleState:'pending',awaitingProviderReply:true,providerOutcomeKnown:false,reconciliationRequired:false,bookingStatusChanged:false,...audit};
+  }
+
+  async function cancelBooking(id,input={}){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const mutation=window.LuviaBookingReservationMutation;
+    if(mutation?.cancel){
+      try{
+        const result=await mutation.cancel({bookingId:id,...input});
+        if(result?.ok)return {...result,transport:'provider_api'};
+        if(!mutationFallbackable(result))throw new Error(result?.error||'Stornierung konnte nicht gestartet werden.');
+      }catch(error){if(!mutationFallbackable(error))throw error;}
+    }
+    const messageResult=await reply(id,{bodyText:cancelReplyText(input),action:'cancel'});
+    const audit=await recordMutationFallback(id,'cancel',messageResult,{reason:clean(input.reason)||null});
+    window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'cancel-requested',result:audit}}));
+    return {ok:true,action:'cancel',bookingId:id,mutationLifecycleState:'pending',awaitingProviderReply:true,providerOutcomeKnown:false,reconciliationRequired:false,bookingStatusChanged:false,...audit};
+  }
+
   async function cancel(id){
-    return transition(id,'cancelled',{metadata:{cancelledFrom:'luvia_ui'}});
+    console.warn('[Luvia Booking] cancel() legacy shortcut is deprecated. Use cancelBooking() so final cancellation is evidence-driven.');
+    return cancelBooking(id,{});
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,bookingTimeline,conversationPreferences,setConversationPreference,modifyBooking,cancelBooking,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;

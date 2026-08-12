@@ -1,0 +1,14 @@
+const fs=require('fs');const assert=require('assert');
+const integration=fs.readFileSync('core/booking/booking-integration.js','utf8');
+const mutation=fs.readFileSync('core/booking/booking-reservation-mutation.js','utf8');
+const migration=fs.readFileSync('supabase/migrations/20260812115500_core_v4_81_0_booking_timeline_modify_cancel_conversation_lifecycle.sql','utf8');
+assert(integration.includes('mutationFallbackable'));
+assert(integration.includes("transport:'provider_api'"));
+assert(integration.includes("transport:'email_thread'"));
+assert(integration.includes("providerOutcomeKnown:false"));
+assert(integration.includes("final cancellation is evidence-driven"));
+assert(mutation.includes("if(payload?.expected===true)return payload"),'expected provider readiness failures must be available for safe email fallback');
+assert(migration.includes("'finalStatusApplied',false"));
+assert(migration.includes("'providerOutcomeKnown',false"));
+assert(!/transition\(id,'cancelled'/.test(integration));
+console.log('LUVIA_V13_81_0_MUTATION_EVIDENCE_SAFETY_OK');
