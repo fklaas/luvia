@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.14.0';
+  const VERSION='1.15.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -327,6 +327,36 @@
 
   async function resolveContact(id){return resolveRoute(id);}
 
+  async function messages(id){
+    await init();
+    if(!id)return [];
+    return repository.messages(id);
+  }
+
+  async function messageIntelligence(id){
+    await init();
+    if(!id)return [];
+    const {data,error}=await client.from('booking_message_intelligence').select('*').eq('booking_id',id).order('classified_at',{ascending:true});
+    if(error)throw error;
+    return data||[];
+  }
+
+  async function emailThread(id){
+    await init();
+    if(!id)return null;
+    const {data,error}=await client.from('booking_email_threads').select('*').eq('booking_id',id).maybeSingle();
+    if(error)throw error;
+    return data||null;
+  }
+
+  async function conversation(id){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const [booking,messageRows,intelligence,thread]=await Promise.all([get(id),messages(id),messageIntelligence(id),emailThread(id)]);
+    if(!booking)throw new Error('Buchung wurde nicht gefunden.');
+    return {booking,messages:messageRows,intelligence,thread,source:'booking-core',ownsMessageTruth:false};
+  }
+
   async function sendEmail(id,{requesterName,note,testRecipient,idempotencyKey}={}){
     await init();
     const booking=await get(id);
@@ -345,7 +375,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,sendEmail,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;
