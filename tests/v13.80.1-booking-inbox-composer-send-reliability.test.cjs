@@ -1,0 +1,20 @@
+const fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'..');
+const js=fs.readFileSync(path.join(root,'app/control-center/booking-inbox.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'app/control-center/booking-inbox.css'),'utf8');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
+const version=fs.readFileSync(path.join(root,'intelligence/kernel/version.js'),'utf8');
+function ok(v,m){if(!v)throw new Error(m)}
+ok(js.includes('data-bi-send'),'send button explicit hook missing');
+ok(js.includes("const send=e.target.closest?.('[data-bi-send]')"),'explicit click route missing');
+ok(js.includes('async function sendFromForm(form)'),'shared send path missing');
+ok(js.includes('return sendFromForm(form)'), 'submit does not use shared send path');
+ok(js.includes("composerStatus='Antwort wird versendet …'"),'inline progress missing');
+ok(js.includes("composerStatus=err?.message||'Antwort konnte nicht versendet werden.'"),'inline error missing');
+ok(js.includes("if(!api?.reply)"),'reply capability guard missing');
+ok(css.includes('.bi-composer-status'),'composer status style missing');
+ok(index.includes('booking-inbox.js?v=13.80.1'),'cache busting missing');
+ok(sw.includes('luvia-shell-v13.80.1'),'service worker cache not bumped');
+ok(version.includes("core:'4.80.1'")&&version.includes("build:'13.80.1'"),'kernel version wrong');
+console.log('LUVIA_V13_80_1_BOOKING_INBOX_COMPOSER_SEND_RELIABILITY_OK');

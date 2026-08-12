@@ -1,15 +1,15 @@
-# Current Luvia Build
+# Current Build
 
-- App: **v13.80.0**
-- Core: **4.80.0**
-- Title: **Booking Actions & Intelligence**
-- Base: confirmed v13.79.0 / Core 4.79.0
-- Release type: Booking Core + Control Center product increment
+- App: **13.80.1**
+- Core: **4.80.1**
+- Name: **Booking Actions & Intelligence – Composer Send Reliability Fix**
+- Base: v13.80.0
 
-## Production changes
-- new Booking Intelligence review/action persistence migration
-- new authenticated `booking-email-reply` Edge Function
-- real bidirectional replies over existing Email V2 threads
-- Alternatives accept / decline
-- `requires_action` / `review_required` response and review flows
-- no second Booking or Message truth in Control Center
+## Patch scope
+- explicit click handler for Booking Inbox send button
+- native submit remains supported (keyboard/Enter/form semantics)
+- one shared `sendFromForm()` transport path
+- persistent inline composer status/error feedback
+- no Booking/Message truth changes
+- no DB schema changes beyond v13.80.0
+- no Edge Function changes beyond v13.80.0
