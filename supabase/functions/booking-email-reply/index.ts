@@ -32,7 +32,7 @@ Deno.serve(async(req)=>{
   const testRecipient=clean(body.testRecipient||Deno.env.get('BOOKING_TEST_RECIPIENT'));
   const actualRecipient=mode==='production'?intendedRecipient:testRecipient;
   if(!actualRecipient)return json({ok:false,expected:true,error:'BOOKING_TEST_RECIPIENT_REQUIRED'},200);
-  const fromDefault=clean(Deno.env.get('BOOKING_FROM')||'Luvia <booking@myluvia.app>');
+  const fromDefault=clean(Deno.env.get('BOOKING_EMAIL_FROM')||Deno.env.get('BOOKING_FROM')||'Luvia Booking <booking@booking.myluvia.app>');
   const resendKey=Deno.env.get('RESEND_API_KEY');if(!resendKey)return json({error:'RESEND_API_KEY_MISSING'},500);
   const {data:lastMessage}=await admin.from('booking_messages').select('*').eq('booking_id',bookingId).order('created_at',{ascending:false}).limit(1).maybeSingle();
   const baseSubject=clean(lastMessage?.subject)||`Reservierung · ${clean(booking.title)||'Luvia'}`;
@@ -47,9 +47,9 @@ Deno.serve(async(req)=>{
   else if(clean(lastMessage?.message_id_header))headers['References']=clean(lastMessage.message_id_header);
   const resendBody:any={from:fromDefault,to:[actualRecipient],subject,text:bodyText,reply_to:thread.reply_alias,tags:[{name:'booking_id',value:booking.id},{name:'booking_thread_id',value:thread.id}]};
   if(Object.keys(headers).length)resendBody.headers=headers;
-  const resendResponse=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${resendKey}`,'Content-Type':'application/json'},body:JSON.stringify(resendBody)});
+  const resendResponse=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${resendKey}`,'Content-Type':'application/json','Idempotency-Key':idempotencyKey},body:JSON.stringify(resendBody)});
   const resendPayload=await resendResponse.json().catch(()=>({}));
-  if(!resendResponse.ok)return json({error:'RESEND_REPLY_FAILED',details:resendPayload},502);
+  if(!resendResponse.ok)return json({error:'RESEND_REPLY_FAILED',message:'Der E-Mail-Anbieter hat die Antwort abgelehnt.',details:resendPayload,resendStatus:resendResponse.status,from:fromDefault,intendedRecipient,actualRecipient},502);
   const {data:storedMessage,error:messageError}=await userClient.rpc('luvia_booking_record_message',{p_booking_id:booking.id,p_direction:'outbound',p_channel:'email',p_transport_provider:'resend',p_sender:fromDefault,p_recipient:actualRecipient,p_intended_recipient:intendedRecipient,p_actual_recipient:actualRecipient,p_subject:subject,p_body_text:bodyText,p_template_key:'booking.thread.reply.v1',p_provider_message_id:resendPayload.id,p_provider_thread_id:thread.id,p_delivery_status:'sent',p_idempotency_key:idempotencyKey,p_metadata:{mode,replyTo:thread.reply_alias,emailReplyV1:true,action:action||null,intelligenceId:intelligenceId||null},p_raw_payload:{resend:{id:resendPayload.id}}});
   if(messageError)return json({error:'REPLY_MESSAGE_RECORD_FAILED',details:messageError.message,providerReference:resendPayload.id},500);
   await admin.from('booking_messages').update({email_thread_id:thread.id,correlation_method:'outbound_thread_reply'}).eq('id',storedMessage.id);

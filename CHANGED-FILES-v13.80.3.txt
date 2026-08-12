@@ -1,0 +1,14 @@
+CURRENT-BUILD.md
+RELEASE-v13.80.3.md
+DEPLOYMENT-v13.80.3.md
+TEST-v13.80.3.md
+TEST-RESULTS-v13.80.3.md
+COMMIT-v13.80.3.txt
+CHANGED-FILES-v13.80.3.txt
+index.html
+sw.js
+intelligence/kernel/version.js
+intelligence/console.html
+core/booking/booking-integration.js
+supabase/functions/booking-email-reply/index.ts
+tests/v13.80.3-reply-sender-error-transparency.test.cjs

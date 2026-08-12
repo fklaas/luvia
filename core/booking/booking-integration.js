@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.16.0';
+  const VERSION='1.16.1';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -111,11 +111,32 @@
     return data;
   }
 
+  function readableErrorDetail(value){
+    if(value==null)return '';
+    if(typeof value==='string')return value;
+    if(value instanceof Error)return value.message||String(value);
+    if(typeof value==='object'){
+      const preferred=value.message||value.error||value.name||value.code;
+      if(typeof preferred==='string'&&preferred.trim())return preferred.trim();
+      try{return JSON.stringify(value)}catch{}
+    }
+    return String(value);
+  }
+
   async function functionError(error,fallback){
     if(!error)return new Error(fallback);
     try{
       const ctx=error.context;
-      if(ctx&&typeof ctx.json==='function'){const body=await ctx.json();const detail=body?.details||body?.error||body?.message;if(detail)return new Error(String(detail));}
+      if(ctx&&typeof ctx.json==='function'){
+        const body=await ctx.json();
+        const parts=[];
+        const code=readableErrorDetail(body?.error);
+        const message=readableErrorDetail(body?.message);
+        const details=readableErrorDetail(body?.details);
+        const status=body?.resendStatus?`Resend HTTP ${body.resendStatus}`:'';
+        for(const part of [code,message,details,status])if(part&&!parts.includes(part))parts.push(part);
+        if(parts.length)return new Error(parts.join(' · '));
+      }
     }catch{}
     return new Error(error.message||fallback);
   }
