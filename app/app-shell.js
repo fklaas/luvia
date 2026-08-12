@@ -236,7 +236,7 @@
   const updateTodayWidget=()=>updateDashboardWidget('today');
 
 
-  async function unmountCurrent(){window.LuviaBookingsView?.unmount?.();window.LuviaControlCenterHome?.unmount?.();if(mountedGallery){await window.LuviaGalleryView?.unmount?.();mountedGallery=false}if(mountedAlbums){await window.LuviaAlbumsView?.unmount?.();mountedAlbums=false}if(mountedPlaces){await window.LuviaPlacesShell?.unmount?.();mountedPlaces=false}if(mountedMove){await window.LuviaMoveShell?.unmount?.();mountedMove=false}if(mountedLifecycle){window.LuviaPlaceLifecycleHub?.unmount?.();mountedLifecycle=false}}
+  async function unmountCurrent(){window.LuviaBookingsView?.unmount?.();window.LuviaControlCenterHome?.unmount?.();window.LuviaBookingControlCenter?.unmount?.();if(mountedGallery){await window.LuviaGalleryView?.unmount?.();mountedGallery=false}if(mountedAlbums){await window.LuviaAlbumsView?.unmount?.();mountedAlbums=false}if(mountedPlaces){await window.LuviaPlacesShell?.unmount?.();mountedPlaces=false}if(mountedMove){await window.LuviaMoveShell?.unmount?.();mountedMove=false}if(mountedLifecycle){window.LuviaPlaceLifecycleHub?.unmount?.();mountedLifecycle=false}}
   function transitionMeta(view){
     if(view==='today')return{icon:'🏠',title:'Heute',subtitle:'Eure Reise auf einen Blick.'};
     if(view==='plan')return{icon:'✨',title:'Planen',subtitle:'Alles für eure gemeinsame Vorbereitung.'};
@@ -246,7 +246,7 @@
     if(view==='places')return{icon:'📍',title:'Places',subtitle:'Orte entdecken, planen und erleben.'};
     if(view==='places-lifecycle')return{icon:'🧭',title:'Meine Orte',subtitle:'Entdeckt, geplant, besucht und erinnert.'};
     if(view==='routes')return{icon:'🗺️',title:'Routen',subtitle:'Etappen einfach in Google Maps öffnen.'};
-    if(view==='gallery')return{icon:'📸',title:'Fotogalerie',subtitle:'Alle Reisefotos nach Tagen, Favoriten und Bearbeitung.'};if(view==='albums')return{icon:'💛',title:'Memory Albums',subtitle:'Bewusst gestaltete Erinnerungen – getrennt von der stabilen Galerie.'};if(view==='control-center')return{icon:'◎',title:'Control Center',subtitle:'Status, offene Aktionen und Reisebezug an einem Ort.'};
+    if(view==='gallery')return{icon:'📸',title:'Fotogalerie',subtitle:'Alle Reisefotos nach Tagen, Favoriten und Bearbeitung.'};if(view==='albums')return{icon:'💛',title:'Memory Albums',subtitle:'Bewusst gestaltete Erinnerungen – getrennt von der stabilen Galerie.'};if(view==='control-center')return{icon:'◎',title:'Control Center',subtitle:'Status, offene Aktionen und Reisebezug an einem Ort.'};if(view==='control-center-bookings')return{icon:'◫',title:'Booking Control Center',subtitle:'Alle Buchungen mit einem verständlichen Status.'};
     return{icon:'✨',title:'Luvia',subtitle:'Eure Reise wird vorbereitet.'};
   }
 
@@ -273,6 +273,7 @@
     else if(view==='places-lifecycle')content='<div id="places-lifecycle-module"></div>';
     else if(view==='bookings')content='<div id="bookings-module"></div>';
     else if(view==='control-center')content='<div id="control-center-home"></div>';
+    else if(view==='control-center-bookings')content='<div id="booking-control-center"></div>';
     else if(view==='routes')content=routeHelper(t);
     else if(view==='gallery')content='<div id="gallery-module"></div>';else if(view==='albums')content='<div id="albums-module"></div>';
     else if(['plan','trip','memories','more'].includes(view))content=window.LuviaModuleHubs?.render?.(view,t)||'';
@@ -286,6 +287,7 @@
     if(view==='places-lifecycle'){try{await window.LuviaPlaceLifecycleHub.mount(stage.querySelector('#places-lifecycle-module'),t);mountedLifecycle=true}catch(error){console.error(error);stage.innerHTML='<section class="lv-card" style="padding:24px"><h2>Meine Orte</h2><div class="lv-error">Der Places-Lifecycle konnte nicht geöffnet werden.</div></section>'}}
     if(view==='bookings'){try{await window.LuviaBookingsView.mount(stage.querySelector('#bookings-module'),t)}catch(error){console.error(error);stage.innerHTML='<section class="lv-card" style="padding:24px"><h2>Buchungen</h2><div class="lv-error">Der Booking-Bereich konnte nicht geöffnet werden.</div></section>'}}
     if(view==='control-center'){try{await window.LuviaControlCenterHome.mount(stage.querySelector('#control-center-home'))}catch(error){console.error(error);stage.innerHTML='<section class="lv-card" style="padding:24px"><h2>Control Center</h2><div class="lv-error">Das Control Center konnte nicht geöffnet werden.</div></section>'}}
+    if(view==='control-center-bookings'){try{await window.LuviaBookingControlCenter.mount(stage.querySelector('#booking-control-center'))}catch(error){console.error(error);stage.innerHTML='<section class="lv-card" style="padding:24px"><h2>Booking Control Center</h2><div class="lv-error">Das Booking Control Center konnte nicht geöffnet werden.</div></section>'}}
     if(view==='today'){lastRenderedTripId=requestedTripId;requestAnimationFrame(()=>window.LuviaTimelineCore?.bindCalendar?.(stage));}
     if(animate)completeTransition(stage);
     root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());
@@ -372,7 +374,7 @@
   function toast(message){const old=document.querySelector('.lv-preview-toast');old?.remove();const el=document.createElement('div');el.className='lv-preview-toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2800)}
   function handleHubAction(action){
     if(!action)return;
-    if(['today','plan','trip','memories','more','places','places-lifecycle','routes','gallery','albums','bookings','control-center'].includes(action))return show(action);
+    if(['today','plan','trip','memories','more','places','places-lifecycle','routes','gallery','albums','bookings','control-center','control-center-bookings'].includes(action))return show(action);
     if(action==='timeline')return show('today').then(()=>setTimeout(()=>root.querySelector('[data-widget-id="today"]')?.scrollIntoView({behavior:'smooth',block:'start'}),120));
     if(action==='profile')return window.LuviaProfileFoundation.open('hub');
     if(action==='preferences')return window.LuviaProfileFoundation.open('preferences');

@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert');
+const registry=fs.readFileSync('core/platform/product-module-registry.js','utf8');
+const manifest=fs.readFileSync('app/control-center/control-center-manifest.js','utf8');
+const shell=fs.readFileSync('app/control-center/control-center-shell.js','utf8');
+assert(registry.includes('consumerAppMustSurviveDisable')||manifest.includes('consumerAppMustSurviveDisable:true'));
+assert(manifest.includes('independentlyEnableable:true'));
+assert(manifest.includes('ownsDomainTruth:false'));
+assert(manifest.includes('inheritsGlobalDesign:true'));
+assert(shell.includes('ownsDomainTruth:false'));
+assert(shell.includes("data-luvia-design-scope','global"));
+console.log('LUVIA_V13_78_0_PRODUCT_MODULE_REGRESSION_OK');
