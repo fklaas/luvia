@@ -1,22 +1,26 @@
 # CURRENT BUILD
 
-- App: **13.81.3**
-- Core: **4.81.3**
-- Name: **Booking Mutation UX, Mobile Action Footer & Contact/Reservation Discovery Reliability**
+- App: **13.81.4**
+- Core: **4.81.4**
+- Name: **Mutation Thread Bootstrap, Mobile Mutation Surface & Discovery Fetch Hardening**
 - Channel: production
 - Date: 2026-08-12
 
 ## Scope
-- Mutation action-state UX / blocked CTA handling
-- Mobile Modify/Cancel modal owns the foreground and suppresses global bottom navigation while open
-- Booking timeline presentation deduplication
-- Deep official-site contact/reservation crawl
-- Green Farmer's contact-discovery regression (`hello@greenfarmers.fr`)
-- Reserve with Google handoff detection (discovery only; no claimed direct integration)
+- Safe mutation-thread bootstrap for Modify/Cancel when no existing booking email thread exists
+- Existing verified `booking.contact` reuse plus official-site contact verification fallback
+- True mobile Modify/Cancel fullscreen drilldown with global bottom navigation removed while active
+- Redirect-aware, browser-like fetch hardening and diagnostics for contact/route discovery
+- Green Farmer's redirect/contact regression coverage
+- Reserve with Google handoff/partner diagnostics; direct Google integration remains disabled
 
 ## Deployment
 - Database migration: NO
-- SQL: NO
-- Edge Functions: YES (`booking-contact-resolve`, `booking-route-resolve`)
+- SQL deployment: NO
+- Edge Functions: YES (`booking-email-reply`, `booking-contact-resolve`, `booking-route-resolve`)
 - New secrets: NO
 - Static app: YES
+
+## Core truth
+- Modify/Cancel requests never set `confirmed` or `cancelled` merely because a message was sent.
+- Provider/API/email evidence and the existing Booking Core provenance/reconciliation layers remain authoritative.

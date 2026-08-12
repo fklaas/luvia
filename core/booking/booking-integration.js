@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.17.2';
+  const VERSION='1.18.0';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -346,7 +346,15 @@
     return data;
   }
 
-  async function resolveContact(id){return resolveRoute(id);}
+  async function resolveContact(id){
+    await init();
+    if(!id)throw new Error('Booking-ID fehlt.');
+    const {data,error}=await client.functions.invoke('booking-contact-resolve',{body:{bookingId:id}});
+    if(error)throw await functionError(error,'Sicherer Anbieter-Kontakt konnte derzeit nicht geprüft werden.');
+    if(data?.error)throw new Error(data.details||data.error);
+    window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'contact-resolved',result:data}}));
+    return data||{resolved:false};
+  }
 
   async function messages(id){
     await init();
@@ -506,11 +514,46 @@
     return `Guten Tag, wir möchten unsere bestehende Reservierung stornieren.${reason?` Grund: ${reason}.`:''} Bitte bestätigen Sie uns die Stornierung. Vielen Dank.`;
   }
 
+  async function prepareMutationEmailFallback(id,action){
+    const existingThread=await emailThread(id);
+    if(existingThread)return {thread:existingThread,threadBootstrapRequired:false,contactDiscovery:null,contactVerification:'existing_thread'};
+    let booking=await get(id);
+    let email=clean(booking?.contact?.email).toLowerCase();
+    if(email){
+      const {data:verified,error:verificationError}=await client.rpc('luvia_booking_email_verified_candidate',{p_booking_id:id,p_email:email});
+      if(!verificationError&&verified?.ok)return {thread:null,threadBootstrapRequired:true,contactEmail:email,contactDiscovery:null,contactVerification:'verified_candidate',candidateId:verified.candidateId||null,action};
+    }
+    let contactDiscovery=null;
+    try{contactDiscovery=await resolveContact(id);}catch(error){
+      const err=new Error('Ein sicherer Anbieter-Kontakt konnte für diese Anfrage nicht verifiziert werden.');
+      err.code='MUTATION_CONTACT_DISCOVERY_FAILED';
+      err.cause=error;
+      throw err;
+    }
+    booking=await get(id);email=clean(booking?.contact?.email).toLowerCase();
+    if(!email){
+      const err=new Error('Für diese Buchung ist aktuell kein sicher verifizierter Anbieter-Kontakt verfügbar.');
+      err.code='MUTATION_CONTACT_UNAVAILABLE';
+      err.discovery=contactDiscovery;
+      throw err;
+    }
+    const {data:verified,error:verificationError}=await client.rpc('luvia_booking_email_verified_candidate',{p_booking_id:id,p_email:email});
+    if(verificationError||!verified?.ok){
+      const err=new Error('Der gefundene Anbieter-Kontakt ist noch nicht sicher für den Versand freigegeben.');
+      err.code='EMAIL_RECIPIENT_NOT_VERIFIED';
+      err.discovery=contactDiscovery;
+      throw err;
+    }
+    return {thread:null,threadBootstrapRequired:true,contactEmail:email,contactDiscovery,contactVerification:'resolver_verified_candidate',candidateId:verified.candidateId||null,action};
+  }
+
   async function recordMutationFallback(id,action,messageResult,payload={}){
     const messageId=messageResult?.messageId||messageResult?.message_id||messageResult?.message?.id||null;
     const {data,error}=await client.rpc('luvia_booking_record_mutation_fallback',{p_booking_id:id,p_action:action,p_message_id:messageId,p_payload:payload||{}});
     if(error)throw new Error(error.message||'Fallback-Mutation konnte nicht protokolliert werden.');
-    return {...(data||{}),messageId,transport:'email_thread'};
+    const mutationThreadBootstrap=Boolean(messageResult?.threadBootstrapped||messageResult?.mutationThreadBootstrap);
+    if(mutationThreadBootstrap)return {...(data||{}),messageId,transport:'email_thread_bootstrap',threadBootstrapped:Boolean(messageResult?.threadBootstrapped),mutationThreadBootstrap:true};
+    return {...(data||{}),messageId,transport:'email_thread',threadBootstrapped:false,mutationThreadBootstrap:false};
   }
 
   async function modifyBooking(id,input={}){
@@ -525,9 +568,10 @@
         await assertThreadFallbackAllowed(id,result,'modify');
       }catch(error){if(!mutationFallbackable(error))throw error;await assertThreadFallbackAllowed(id,error,'modify');}
     }
+    const fallback=await prepareMutationEmailFallback(id,'modify');
     const text=modifyReplyText(input);
     const messageResult=await reply(id,{bodyText:text,action:'modify'});
-    const audit=await recordMutationFallback(id,'modify',messageResult,{requestedDate:clean(input.date)||null,requestedTime:clean(input.time)||null,partySize:input.partySize==null?null:Number(input.partySize),notes:clean(input.notes)||null});
+    const audit=await recordMutationFallback(id,'modify',messageResult,{requestedDate:clean(input.date)||null,requestedTime:clean(input.time)||null,partySize:input.partySize==null?null:Number(input.partySize),notes:clean(input.notes)||null,threadBootstrapped:Boolean(messageResult?.threadBootstrapped||fallback.threadBootstrapRequired),contactDiscoveryReason:fallback.contactDiscovery?.reason||fallback.contactDiscovery?.bridgeReason||null});
     window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'modify-requested',result:audit}}));
     return {ok:true,action:'modify',bookingId:id,mutationLifecycleState:'pending',awaitingProviderReply:true,providerOutcomeKnown:false,reconciliationRequired:false,bookingStatusChanged:false,...audit};
   }
@@ -544,8 +588,9 @@
         await assertThreadFallbackAllowed(id,result,'cancel');
       }catch(error){if(!mutationFallbackable(error))throw error;await assertThreadFallbackAllowed(id,error,'cancel');}
     }
+    const fallback=await prepareMutationEmailFallback(id,'cancel');
     const messageResult=await reply(id,{bodyText:cancelReplyText(input),action:'cancel'});
-    const audit=await recordMutationFallback(id,'cancel',messageResult,{reason:clean(input.reason)||null});
+    const audit=await recordMutationFallback(id,'cancel',messageResult,{reason:clean(input.reason)||null,threadBootstrapped:Boolean(messageResult?.threadBootstrapped||fallback.threadBootstrapRequired),contactDiscoveryReason:fallback.contactDiscovery?.reason||fallback.contactDiscovery?.bridgeReason||null});
     window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'cancel-requested',result:audit}}));
     return {ok:true,action:'cancel',bookingId:id,mutationLifecycleState:'pending',awaitingProviderReply:true,providerOutcomeKnown:false,reconciliationRequired:false,bookingStatusChanged:false,...audit};
   }

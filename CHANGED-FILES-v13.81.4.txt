@@ -1,0 +1,34 @@
+MODIFIED
+CURRENT-BUILD.md
+index.html
+sw.js
+intelligence/kernel/version.js
+core/booking/booking-integration.js
+app/control-center/booking-control-center.js
+app/control-center/booking-control-center.css
+supabase/functions/booking-email-reply/index.ts
+supabase/functions/booking-contact-resolve/index.ts
+supabase/functions/booking-route-resolve/index.ts
+
+NEW
+RELEASE-v13.81.4.md
+DEPLOYMENT-v13.81.4.md
+TEST-v13.81.4.md
+TEST-RESULTS-v13.81.4.md
+SMOKE-v13.81.4.sql
+CHANGED-FILES-v13.81.4.txt
+COMMIT-v13.81.4.txt
+tests/v13.81.4-mutation-thread-bootstrap-mobile-surface-fetch-hardening.test.cjs
+tests/v13.81.4-green-farmers-mutation-bootstrap-regression.test.cjs
+tests/v13.81.4-google-reserve-discovery-matrix.test.cjs
+
+DELETED
+NONE
+
+INTENTIONALLY UNCHANGED
+- Existing Booking Core DB schema / migrations
+- booking_messages and booking_email_threads canonical truth tables
+- booking mutation/status provenance RPCs
+- provider adapter implementations
+- Booking Inbox normal-reply requirement for an existing thread
+- global auth, trip, realtime and product-module contracts
