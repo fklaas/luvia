@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert');
+const fn=fs.readFileSync('supabase/functions/booking-email-reply/index.ts','utf8');
+assert(fn.includes("if(body.userApproved!==true)"),'Explicit user approval gate required');
+assert(fn.includes("EMAIL_THREAD_REQUIRED"),'Existing thread guard required');
+assert(fn.includes("EMAIL_RECIPIENT_NOT_VERIFIED"),'Verified recipient guard required');
+assert(fn.includes("BOOKING_MODE")&&fn.includes("BOOKING_TEST_RECIPIENT"),'Environment recipient safety routing required');
+assert(fn.includes('idempotencyKey'),'Idempotency required');
+assert(fn.includes("if(existing)return json({ok:true,idempotent:true"),'Idempotent replay contract required');
+assert(fn.indexOf("fetch('https://api.resend.com/emails'") < fn.indexOf("rpc('luvia_booking_record_message'"),'Message must only be recorded after provider send attempt succeeds');
+assert(fn.includes("REPLY_SENT_INTELLIGENCE_RESOLUTION_FAILED"),'Partial-success state must be explicit');
+console.log('LUVIA_V13_80_0_REPLY_SAFETY_CONTRACT_OK');

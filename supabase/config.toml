@@ -45,3 +45,6 @@ verify_jwt = true
 
 [functions.booking-provider-quandoo-webhook]
 verify_jwt = false
+
+[functions.booking-email-reply]
+verify_jwt = true
