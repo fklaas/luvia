@@ -1,0 +1,14 @@
+:root{
+  --luvia-surface-primary:var(--lv-surface,#fff);
+  --luvia-surface-elevated:var(--lv-surface-soft,#f7f7f5);
+  --luvia-text-primary:var(--lv-text,#181818);
+  --luvia-text-muted:var(--lv-muted,#6f6f6f);
+  --luvia-action-primary:var(--lv-accent,currentColor);
+  --luvia-border-subtle:var(--lv-line,rgba(0,0,0,.1));
+  --luvia-radius-card:var(--lv-radius-lg,20px);
+  --luvia-space-sm:var(--lv-space-2,8px);
+  --luvia-space-md:var(--lv-space-4,16px);
+  --luvia-space-lg:var(--lv-space-6,24px);
+  --luvia-motion-fast:var(--lv-motion-fast,140ms);
+}
+[data-luvia-product-module]{color:var(--luvia-text-primary);font-family:var(--lv-font-body,inherit)}
