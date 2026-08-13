@@ -1,0 +1,132 @@
+table,owner,status,evidence_scope
+accommodations,Places,legacy/extension,migration-created
+ai_action_proposals,Intelligence,canonical/transitional,migration-created
+ai_evidence_records,Intelligence,canonical/transitional,migration-created
+ai_interaction_events,Intelligence,canonical/transitional,migration-created
+ai_learning_signals,Intelligence,canonical/transitional,migration-created
+ai_orchestration_runs,Intelligence,canonical/transitional,migration-created
+ai_usage,Intelligence,canonical/transitional,migration-created
+ai_usage_events,Intelligence,canonical/transitional,migration-created
+automation_jobs,Intelligence,canonical/transitional,migration-created
+automation_steps,Intelligence,canonical/transitional,migration-created
+booking_affiliate_attributions,Booking,canonical,migration-created
+booking_affiliate_clicks,Booking,canonical,migration-created
+booking_affiliate_conversions,Booking,canonical,migration-created
+booking_affiliate_links,Booking,canonical,migration-created
+booking_affiliate_partners,Booking,canonical,migration-created
+booking_attribution_events_v2,Booking,canonical,migration-created
+booking_audit_log,Booking,canonical,migration-created
+booking_availability_requests,Booking,canonical,migration-created
+booking_availability_snapshots,Booking,canonical,migration-created
+booking_channel_resolutions,Booking,canonical,migration-created
+booking_commercial_events,Booking,canonical,migration-created
+booking_commission_reconciliations,Booking,canonical,migration-created
+booking_commission_state_events,Booking,canonical,migration-created
+booking_contact_candidates,Booking,canonical,migration-created
+booking_conversation_preferences,Booking,canonical,migration-created
+booking_conversion_reports,Booking,canonical,migration-created
+booking_correlations,Booking,canonical,migration-created
+booking_dead_letters,Booking,canonical,migration-created
+booking_discovery_runs,Booking,canonical,migration-created
+booking_email_delivery_events,Booking,canonical,migration-created
+booking_email_requests,Booking,canonical,migration-created
+booking_email_threads,Booking,canonical,migration-created
+booking_events,Booking,canonical,migration-created
+booking_handoff_events,Booking,canonical,migration-created
+booking_health_checks,Booking,canonical,migration-created
+booking_message_intelligence,Booking,canonical,migration-created
+booking_messages,Booking,canonical,migration-created
+booking_monetization_profiles,Booking,canonical,migration-created
+booking_offers,Booking,canonical,migration-created
+booking_profiles,Booking,canonical,migration-created
+booking_provider_activation_controls,Booking,canonical,migration-created
+booking_provider_activation_runs,Booking,canonical,migration-created
+booking_provider_admin_actions,Booking,canonical,migration-created
+booking_provider_capabilities,Booking,canonical,migration-created
+booking_provider_connection_events,Booking,canonical,migration-created
+booking_provider_connections,Booking,canonical,migration-created
+booking_provider_links,Booking,canonical,migration-created
+booking_provider_probe_runs,Booking,canonical,migration-created
+booking_provider_references,Booking,canonical,migration-created
+booking_provider_status_contracts,Booking,canonical,migration-created
+booking_provider_status_receipts,Booking,canonical,migration-created
+booking_reconciliation_issues,Booking,canonical,migration-created
+booking_reconciliation_runs,Booking,canonical,migration-created
+booking_reservation_cancel_requests,Booking,canonical,migration-created
+booking_reservation_create_requests,Booking,canonical,migration-created
+booking_reservation_modify_requests,Booking,canonical,migration-created
+booking_reservation_mutation_reconciliation_attempts,Booking,canonical,migration-created
+booking_reservation_mutation_status_events,Booking,canonical,migration-created
+booking_route_attempts,Booking,canonical,migration-created
+booking_route_decisions,Booking,canonical,migration-created
+booking_route_failover_events,Booking,canonical,migration-created
+booking_route_state,Booking,canonical,migration-created
+booking_status_signals,Booking,canonical,migration-created
+booking_status_updates,Booking,canonical,migration-created
+bookings,Booking,canonical,migration-created
+budget_entries,Legacy/Paris,legacy,M0 remote/base referenced
+co_selection_aggregates,Intelligence,canonical/transitional,migration-created
+day_closures,Legacy/Paris,legacy,M0 remote/base referenced
+day_notes,Legacy/Paris,legacy,M0 remote/base referenced
+derived_user_preferences,Identity/Preferences,canonical,migration-created
+destinations,Trip/Places,transitional shared reference,migration-created
+favorites,Legacy/Paris,legacy,M0 remote/base referenced
+gallery_photos,Legacy/Paris,legacy,M0 remote/base referenced
+generated_content,Intelligence,canonical/transitional,migration-created
+live_day_decisions,Intelligence,canonical/transitional,migration-created
+live_day_snapshots,Intelligence,canonical/transitional,migration-created
+live_moment_media,Media/Memory,canonical,migration-created
+live_moments,Legacy/Paris,legacy,M0 remote/base referenced
+location_samples,Platform/Location,shared runtime data,migration-created
+media,Media/Memory,canonical,migration-created
+media_cluster_items,Media/Memory,canonical,migration-created
+media_clusters,Media/Memory,canonical,migration-created
+media_day_polaroids,Media/Memory,canonical,migration-created
+media_memory_proposals,Media/Memory,canonical,migration-created
+media_pages,Media/Memory,canonical,migration-created
+media_place_links,Media/Memory,canonical,migration-created
+memory_album_contributions,Media/Memory,canonical,migration-created
+memory_album_favorites,Media/Memory,canonical,migration-created
+memory_album_items,Media/Memory,canonical,migration-created
+memory_albums,Media/Memory,canonical,migration-created
+memory_card_album_reviews,Media/Memory,canonical,migration-created
+memory_card_album_votes,Media/Memory,canonical,migration-created
+memory_cards,Media/Memory,canonical,migration-created
+memory_journey_chapters,Media/Memory,canonical,migration-created
+memory_journey_contributions,Media/Memory,canonical,migration-created
+memory_journey_items,Media/Memory,canonical,migration-created
+memory_journeys,Media/Memory,canonical,migration-created
+memory_member_identity,Media/Memory,canonical,migration-created
+memory_stack_curation,Media/Memory,canonical,migration-created
+memory_stack_title_proposals,Media/Memory,canonical,migration-created
+modules,Platform/Modules,legacy registry data,migration-created
+paris_member_activity_feed,Legacy/Paris,legacy,M0 remote/base referenced
+paris_member_locations,Legacy/Paris,legacy,M0 remote/base referenced
+paris_member_presence,Legacy/Paris,legacy,M0 remote/base referenced
+paris_member_profiles,Legacy/Paris,legacy,M0 remote/base referenced
+place_lifecycle_history,Places,canonical,migration-created
+place_recommendation_feedback,Places,canonical,migration-created
+place_visits,Places,canonical,migration-created
+places,Places,canonical,migration-created
+popularity_aggregates,Intelligence,canonical/transitional,migration-created
+provider_cache,Places,canonical,migration-created
+recommendation_events,Intelligence,canonical/transitional,migration-created
+recommendation_instances,Intelligence,canonical/transitional,migration-created
+recommendation_memory,Intelligence,canonical/transitional,migration-created
+recommendation_settings,Intelligence,canonical/transitional,migration-created
+recommendations,Intelligence,canonical/transitional,migration-created
+restaurants,Places,legacy/extension,migration-created
+timeline_events,Trip,canonical/base,migration-created
+trip_activity_events,Collaboration,canonical projection,migration-created
+trip_members,Trip,canonical/base,M0 remote/base referenced
+trip_modules,Trip,canonical/base,migration-created
+trip_place_data,Places,canonical,migration-created
+trip_places,Places,canonical,migration-created
+trip_preferences,Trip,canonical/base,migration-created
+trip_presence,Collaboration,canonical projection,migration-created
+trip_schedule_events,Trip,canonical/base,migration-created
+trip_settings,Trip,canonical/base,M0 remote/base referenced
+trips,Trip,canonical/base,M0 remote/base referenced
+user_activity_events,Intelligence,canonical/transitional,migration-created
+user_content_overrides,Intelligence,canonical/transitional,migration-created
+user_profiles,Identity/Preferences,canonical,migration-created

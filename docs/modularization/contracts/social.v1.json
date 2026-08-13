@@ -1,0 +1,30 @@
+{
+  "contractId": "social.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "future Social stream after M4",
+  "owner": "Social (future)",
+  "status": "reserved-no-runtime",
+  "currentImplementation": [],
+  "reads": [
+    "listFeed",
+    "getExperience",
+    "getRelationshipSummary",
+    "getUnreadSummary"
+  ],
+  "commands": [
+    "publishExperience",
+    "setReaction",
+    "comment",
+    "follow/unfollow (future)",
+    "markRead"
+  ],
+  "events": [
+    "social.experience.*",
+    "social.relationship.*",
+    "social.unread.*"
+  ],
+  "internal": [
+    "future social graph/ranking/moderation schema and algorithms"
+  ]
+}

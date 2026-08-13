@@ -1,0 +1,34 @@
+{
+  "contractId": "identity.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Identity/Preferences",
+  "status": "specified-not-implemented",
+  "currentImplementation": [
+    "LuviaProfileService",
+    "LuviaUserPreferences",
+    "LuviaTravelPreferences"
+  ],
+  "reads": [
+    "getViewerIdentity",
+    "getPublicIdentity",
+    "getPreferences(self)",
+    "subscribe"
+  ],
+  "commands": [
+    "updateProfile",
+    "updatePreferences"
+  ],
+  "events": [
+    "identity.changed",
+    "preferences.changed"
+  ],
+  "internal": [
+    "full user_profiles row",
+    "private preferences/settings",
+    "auth metadata migration",
+    "profile cache",
+    "persistence RPC payloads"
+  ]
+}

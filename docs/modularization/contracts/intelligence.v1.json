@@ -1,0 +1,36 @@
+{
+  "contractId": "intelligence.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Intelligence",
+  "status": "specified-existing-facade",
+  "currentImplementation": [
+    "LuviaAI"
+  ],
+  "reads": [
+    "run",
+    "ask",
+    "rank",
+    "recommend",
+    "explain",
+    "summarize"
+  ],
+  "commands": [
+    "createProposal only; foreign-domain mutation delegated"
+  ],
+  "events": [
+    "ai.changed",
+    "ai.proposal.*",
+    "ai.evidence.*"
+  ],
+  "internal": [
+    "LuviaOpenAIProvider",
+    "model router",
+    "policy engine",
+    "tool registry",
+    "evidence store",
+    "orchestrator",
+    "model selection"
+  ]
+}

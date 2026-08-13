@@ -1,0 +1,40 @@
+{
+  "contractId": "trip.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Trip",
+  "status": "specified-not-implemented",
+  "currentImplementation": [
+    "LuviaTripStore",
+    "LuviaTripContext"
+  ],
+  "reads": [
+    "listTrips",
+    "getTrip",
+    "getActiveTrip",
+    "getContext",
+    "subscribe"
+  ],
+  "commands": [
+    "selectActiveTrip",
+    "createTrip(use-case)",
+    "updateTrip(use-case)",
+    "joinTrip(use-case)"
+  ],
+  "events": [
+    "trip.changed",
+    "trip.active.changed",
+    "trip.membership.changed",
+    "trip.timeline.changed"
+  ],
+  "internal": [
+    "LuviaLegacyParisMigrator",
+    "LuviaLegacyParisCloud",
+    "ParisCloud",
+    "ParisSupabaseClient",
+    "raw trip RPCs",
+    "trip storage keys",
+    "trip table schemas"
+  ]
+}

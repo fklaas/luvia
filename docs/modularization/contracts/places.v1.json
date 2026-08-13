@@ -1,0 +1,43 @@
+{
+  "contractId": "places.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Places",
+  "status": "specified-not-implemented",
+  "currentImplementation": [
+    "LuviaPlaceCore",
+    "LuviaPlaceEntities",
+    "LuviaPlaceCommands"
+  ],
+  "reads": [
+    "search",
+    "getPlace",
+    "listPlaces",
+    "getDetails",
+    "getLifecycle"
+  ],
+  "commands": [
+    "importPlace",
+    "favorite",
+    "unfavorite",
+    "toggleFavorite",
+    "clearFavorites",
+    "plan",
+    "unplan",
+    "updateLifecycle",
+    "confirmVisit"
+  ],
+  "events": [
+    "places.changed",
+    "place.lifecycle.changed",
+    "place.plan.changed",
+    "place.favorite.changed"
+  ],
+  "internal": [
+    "provider adapters",
+    "TripPlaceData persistence",
+    "raw backend operation names",
+    "places/trip_places/trip_place_data schemas"
+  ]
+}

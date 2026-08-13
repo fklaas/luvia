@@ -1,0 +1,46 @@
+{
+  "contractId": "media.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Media/Memory",
+  "status": "specified-not-implemented",
+  "currentImplementation": [
+    "LuviaMediaCore",
+    "LuviaMemoryAlbums",
+    "LuviaMemoryCards",
+    "LuviaMemoryJourneys"
+  ],
+  "reads": [
+    "listMedia",
+    "getMedia",
+    "signedUrl",
+    "signedOriginalUrl",
+    "listAlbums",
+    "listCards",
+    "listJourneys"
+  ],
+  "commands": [
+    "upload",
+    "update",
+    "reanalyze",
+    "toggleFavorite",
+    "setPolaroid",
+    "linkPlace",
+    "remove",
+    "memory commands"
+  ],
+  "events": [
+    "media.changed",
+    "media.deleted",
+    "media.polaroid.changed",
+    "memory.changed"
+  ],
+  "internal": [
+    "storage paths",
+    "media/memory row schemas",
+    "clustering persistence",
+    "metadata/preview internals",
+    "direct OpenAI provider"
+  ]
+}

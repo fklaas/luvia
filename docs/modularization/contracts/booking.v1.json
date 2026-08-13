@@ -1,0 +1,44 @@
+{
+  "contractId": "booking.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M3",
+  "owner": "Booking",
+  "status": "specified-existing-facade",
+  "currentImplementation": [
+    "LuviaBooking"
+  ],
+  "reads": [
+    "listForTrip",
+    "get",
+    "conversation",
+    "messages",
+    "bookingTimeline",
+    "statusSummary",
+    "capabilitySummary"
+  ],
+  "commands": [
+    "createForPlace",
+    "reply",
+    "performIntelligenceAction",
+    "resolveIntelligence",
+    "modifyBooking",
+    "cancelBooking",
+    "setConversationPreference"
+  ],
+  "events": [
+    "booking.changed",
+    "booking.created",
+    "booking.status.*",
+    "booking.message.*",
+    "booking.provider.selected"
+  ],
+  "internal": [
+    "LuviaBookingRepository",
+    "LuviaBookingCore",
+    "provider adapters",
+    "booking_* tables/views/functions",
+    "booking-* Edge Functions",
+    "provider secrets"
+  ]
+}
