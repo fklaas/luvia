@@ -1,26 +1,24 @@
 # CURRENT BUILD
 
-- App: **13.81.4**
-- Core: **4.81.4**
-- Name: **Mutation Thread Bootstrap, Mobile Mutation Surface & Discovery Fetch Hardening**
+- App: **13.81.5**
+- Core: **4.81.5**
+- Name: **M3.1 Trip Contract Adapter Foundation**
 - Channel: production
-- Date: 2026-08-12
+- Date: 2026-08-13
 
 ## Scope
-- Safe mutation-thread bootstrap for Modify/Cancel when no existing booking email thread exists
-- Existing verified `booking.contact` reuse plus official-site contact verification fallback
-- True mobile Modify/Cancel fullscreen drilldown with global bottom navigation removed while active
-- Redirect-aware, browser-like fetch hardening and diagnostics for contact/route discovery
-- Green Farmer's redirect/contact regression coverage
-- Reserve with Google handoff/partner diagnostics; direct Google integration remains disabled
+- Additive runtime implementation of the M2 `trip.v1` contract.
+- Immutable Trip read projections over the existing `LuviaTripStore` / `LuviaTripContext` truth.
+- Owner-command delegation for active selection, create, update and join.
+- Versioned Trip contract event envelope over existing DOM CustomEvent transport.
+- Existing Trip APIs, legacy bridges and persistence remain unchanged.
 
 ## Deployment
 - Database migration: NO
 - SQL deployment: NO
-- Edge Functions: YES (`booking-email-reply`, `booking-contact-resolve`, `booking-route-resolve`)
+- Edge Functions: NO
 - New secrets: NO
 - Static app: YES
 
 ## Core truth
-- Modify/Cancel requests never set `confirmed` or `cancelled` merely because a message was sent.
-- Provider/API/email evidence and the existing Booking Core provenance/reconciliation layers remain authoritative.
+M3.1 introduces no second Trip state or persistence path. `LuviaTripStore` remains frontend Trip state truth and Trip-owned use cases remain mutation owners.

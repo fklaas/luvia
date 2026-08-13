@@ -2,12 +2,13 @@
   "contractId": "trip.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M3.1",
   "owner": "Trip",
-  "status": "specified-not-implemented",
+  "status": "implemented-m3.1",
   "currentImplementation": [
     "LuviaTripStore",
-    "LuviaTripContext"
+    "LuviaTripContext",
+    "LuviaTripContractV1"
   ],
   "reads": [
     "listTrips",
@@ -36,5 +37,10 @@
     "raw trip RPCs",
     "trip storage keys",
     "trip table schemas"
-  ]
+  ],
+  "runtimeGlobals": [
+    "LuviaTripContractV1",
+    "LuviaTripContract"
+  ],
+  "eventTransport": "DOM CustomEvent via luvia:<event-name>; existing compatibility events retained"
 }

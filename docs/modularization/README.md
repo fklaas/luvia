@@ -28,3 +28,7 @@
 ## Important boundary
 
 These files specify architecture. They do **not** activate adapters, feature flags, new worktrees, database changes or Social runtime code. Those belong to later M-builds according to the master plan.
+
+## M3.1 runtime implementation
+
+`trip.v1` is now implemented additively by `core/platform/trip-contract-adapter.js`. Existing Trip implementations remain the domain truth; no caller migration or legacy removal is part of M3.1. See `PCR-M3.1-TRIP-CONTRACT-ADAPTER.md` and `M3.1-EXIT-GATE.md`.
