@@ -2,13 +2,14 @@
   "contractId": "places.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M3.2",
   "owner": "Places",
-  "status": "specified-not-implemented",
+  "status": "implemented-m3.2",
   "currentImplementation": [
     "LuviaPlaceCore",
-    "LuviaPlaceEntities",
-    "LuviaPlaceCommands"
+    "LuviaPlaces",
+    "LuviaPlaceCommands",
+    "LuviaPlacesContractV1"
   ],
   "reads": [
     "search",
@@ -36,8 +37,14 @@
   ],
   "internal": [
     "provider adapters",
+    "LuviaPlaceEntities persistence bridge",
     "TripPlaceData persistence",
     "raw backend operation names",
     "places/trip_places/trip_place_data schemas"
-  ]
+  ],
+  "runtimeGlobals": [
+    "LuviaPlacesContractV1",
+    "LuviaPlacesContract"
+  ],
+  "eventTransport": "DOM CustomEvent via luvia:<event-name>; existing compatibility events retained"
 }

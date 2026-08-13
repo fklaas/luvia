@@ -1,17 +1,18 @@
 # CURRENT BUILD
 
-- App: **13.81.5**
-- Core: **4.81.5**
-- Name: **M3.1 Trip Contract Adapter Foundation**
+- App: **13.81.6**
+- Core: **4.81.6**
+- Name: **M3.2 Places Contract Adapter Foundation**
 - Channel: production
 - Date: 2026-08-13
 
 ## Scope
-- Additive runtime implementation of the M2 `trip.v1` contract.
-- Immutable Trip read projections over the existing `LuviaTripStore` / `LuviaTripContext` truth.
-- Owner-command delegation for active selection, create, update and join.
-- Versioned Trip contract event envelope over existing DOM CustomEvent transport.
-- Existing Trip APIs, legacy bridges and persistence remain unchanged.
+- Additive runtime implementation of the M2 `places.v1` contract.
+- Safe, immutable read projections over the existing `LuviaPlaceCore`, `LuviaPlaces` and `LuviaPlaceCommands` owners.
+- Place commands delegate to existing owners and return normalized contract projections instead of raw backend/RPC responses.
+- Versioned Places contract event envelope over the existing DOM CustomEvent transport.
+- Existing Places APIs, provider adapters, persistence bridges and compatibility events remain in place.
+- Adds the missing local `LuviaPlaceCore.updateLifecycle()` compatibility path for existing Places callers.
 
 ## Deployment
 - Database migration: NO
@@ -21,4 +22,4 @@
 - Static app: YES
 
 ## Core truth
-M3.1 introduces no second Trip state or persistence path. `LuviaTripStore` remains frontend Trip state truth and Trip-owned use cases remain mutation owners.
+M3.2 introduces no second Places state or persistence path. `LuviaPlaceCore` remains the canonical in-memory Places core, `LuviaPlaces` is the existing gateway, and `LuviaPlaceCommands` and existing Places services remain mutation/persistence owners.
