@@ -1,0 +1,17 @@
+CHANGED-FILES-M3.4.txt
+CURRENT-BUILD.md
+DEPLOYMENT-M3.4.md
+RELEASE-NOTES-M3.4.md
+TEST-RESULTS-M3.4.md
+core/diagnostics/media-readiness.js
+core/platform/identity-contract-adapter.js
+docs/modularization/M3.4-EXIT-GATE.md
+docs/modularization/PCR-M3.4-IDENTITY-CONTRACT-ADAPTER.md
+docs/modularization/README.md
+docs/modularization/contracts/identity.v1.json
+force-update.html
+index.html
+intelligence/kernel/version.js
+sw.js
+tests/m3.4-identity-contract-adapter.test.cjs
+tests/m3.4-identity-contract-release-integration.test.cjs

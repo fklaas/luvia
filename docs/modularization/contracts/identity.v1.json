@@ -2,13 +2,14 @@
   "contractId": "identity.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M3.4",
   "owner": "Identity/Preferences",
-  "status": "specified-not-implemented",
+  "status": "implemented-m3.4",
   "currentImplementation": [
     "LuviaProfileService",
     "LuviaUserPreferences",
-    "LuviaTravelPreferences"
+    "LuviaTravelPreferences",
+    "LuviaIdentityContractV1"
   ],
   "reads": [
     "getViewerIdentity",
@@ -30,5 +31,11 @@
     "auth metadata migration",
     "profile cache",
     "persistence RPC payloads"
-  ]
+  ],
+  "runtimeGlobals": [
+    "LuviaIdentityContractV1",
+    "LuviaIdentityContract"
+  ],
+  "publicIdentityMode": "self-only-until-provider",
+  "eventTransport": "DOM CustomEvent via luvia:<event-name>; existing compatibility events retained"
 }

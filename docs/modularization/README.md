@@ -1,42 +1,97 @@
-# Luvia Modularization — M1/M2 Architecture Pack
+# Luvia Modularisierung — M1–M3 Architecture Pack
 
-**Baseline:** v13.81.4 / Core 4.81.4 / `aff59be`  
-**Architecture stage:** M2 — Ownership & Contract Specification  
-**Runtime impact:** none
+**Architektur-Baseline:** v13.81.4 / Core 4.81.4 / `aff59be`
+**Aktueller Runtime-Release:** v13.81.8 / Core 4.81.8
+**Aktueller Architekturstand:** M3.4 — Identity Contract Adapter Foundation
+**Runtime-Auswirkung:** additive Contract Adapter für M3.1–M3.4
 
-## Read in this order
+## Empfohlene Lesereihenfolge
 
-1. `ARCHITECTURE-INVENTORY.md` — confirmed M1 baseline and hotspots.
-2. `MODULE-OWNERSHIP.md` — normative domain/file ownership from M2 onward.
-3. `M2-CONTRACT-SPECIFICATION.md` — normative read/command/event boundaries.
-4. `DATABASE-DOMAIN-MAP.md` — table/function/storage ownership rules.
-5. `DEPENDENCY-MAP.md` and `CROSS-CORE-ACCESS.md` — migration debt and target direction.
-6. `LEGACY-MAP.md` — Paris/old-foundation compatibility and deletion gates.
-7. `PARALLEL-DEVELOPMENT-RULES.md` — rules now, operational worktrees later in M4.
-8. `BASELINE-REGRESSION-CHECKLIST.md` — release safety baseline.
-9. `M2-EXIT-GATE.md` — formal M2 completion gate.
-10. `PLATFORM-CHANGE-REQUEST-TEMPLATE.md` — mandatory template for future cross-cutting shared changes.
+1. `ARCHITECTURE-INVENTORY.md` — bestätigte M1-Baseline und technische Hotspots.
+2. `MODULE-OWNERSHIP.md` — normative Domain- und Datei-Ownership ab M2.
+3. `M2-CONTRACT-SPECIFICATION.md` — normative Read-, Command- und Event-Grenzen.
+4. `DATABASE-DOMAIN-MAP.md` — Ownership-Regeln für Tabellen, Functions und Storage.
+5. `DEPENDENCY-MAP.md` und `CROSS-CORE-ACCESS.md` — bekannte Migration Debt und Zielrichtung.
+6. `LEGACY-MAP.md` — Paris-/Legacy-Kompatibilität und spätere Lösch-Gates.
+7. `PARALLEL-DEVELOPMENT-RULES.md` — Regeln für Parallelentwicklung; operative Worktrees folgen in M4.
+8. `BASELINE-REGRESSION-CHECKLIST.md` — Release-Sicherheitsbaseline.
+9. `M2-EXIT-GATE.md` — formaler Abschluss von M2.
+10. `PLATFORM-CHANGE-REQUEST-TEMPLATE.md` — verpflichtende Vorlage für zukünftige Cross-Cutting-Änderungen.
 
-## Machine-readable inventories
+## Maschinenlesbare Inventare
 
-- `FILE-OWNERSHIP.csv` — all 2,387 original baseline files classified.
-- `GLOBAL-ACCESS-INVENTORY.csv` — Window/DOM/Supabase/RPC/event call-sites for future diffing.
-- `DATABASE-DOMAIN-MAP.csv` — table-to-owner map.
-- `CONTRACT-MATRIX.csv` — compact contract summary.
-- `contracts/*.json` — seven non-runtime contract skeletons for M3 adapter implementation.
+- `FILE-OWNERSHIP.csv`
+- `GLOBAL-ACCESS-INVENTORY.csv`
+- `DATABASE-DOMAIN-MAP.csv`
+- `CONTRACT-MATRIX.csv`
+- `contracts/*.json`
 
-## Important boundary
+## Architekturgrenze
 
-These files specify architecture. They do **not** activate adapters, feature flags, new worktrees, database changes or Social runtime code. Those belong to later M-builds according to the master plan.
+M1 und M2 definieren Architektur, Ownership und Contracts. M3 implementiert additive Runtime-Grenzen. Die Adapter ersetzen bestehende Domain-Owner nicht, sondern dienen als Strangler Boundaries für spätere Consumer-Migrationen.
 
-## M3.1 runtime implementation
+## M3.1 Runtime-Implementierung
 
-`trip.v1` is now implemented additively by `core/platform/trip-contract-adapter.js`. Existing Trip implementations remain the domain truth; no caller migration or legacy removal is part of M3.1. See `PCR-M3.1-TRIP-CONTRACT-ADAPTER.md` and `M3.1-EXIT-GATE.md`.
+`trip.v1` über `core/platform/trip-contract-adapter.js`. Bestehende Trip-Implementierungen bleiben die fachliche Wahrheit. Keine Caller-Migration oder Legacy-Entfernung.
 
-## M3.2 runtime implementation
+## M3.2 Runtime-Implementierung
 
-`places.v1` is now implemented additively by `core/platform/places-contract-adapter.js`. Existing Places implementations remain the domain truth: `LuviaPlaceCore` remains the canonical in-memory core, `LuviaPlaces` the existing gateway and `LuviaPlaceCommands` / existing Places services the mutation and persistence owners. M3.2 adds safe read/command projections, normalized contract events and the missing local `LuviaPlaceCore.updateLifecycle()` compatibility path; no caller migration, provider rewrite, database change or Places search-performance fix is part of M3.2. See `PCR-M3.2-PLACES-CONTRACT-ADAPTER.md` and `M3.2-EXIT-GATE.md`.
+`places.v1` über `core/platform/places-contract-adapter.js`. `LuviaPlaceCore`, `LuviaPlaces`, `LuviaPlaceCommands` und bestehende Places Services bleiben Owner. Sichere Projections, Commands, Events und Lifecycle-Kompatibilität; keine Provider-/DB-/Performance-Neustrukturierung.
 
-## M3.3 runtime implementation
+## M3.3 Runtime-Implementierung
 
-`media.v1` is now implemented additively by `core/platform/media-contract-adapter.js`. Existing Media/Memory owner services remain the domain truth. M3.3 adds safe immutable projections, normalized contract events, guarded command delegation and ID-based signed URL access without exposing storage internals. No Gallery/Memory consumer migration, Media redesign, database change, destructive gallery command exposure or AI-provider migration is part of M3.3. Direct OpenAI coupling remains tracked for the later Intelligence capability migration.
+`media.v1` über `core/platform/media-contract-adapter.js`. Bestehende Media-/Memory-Owner bleiben fachliche Wahrheit. Sichere immutable Projections, Events, Command-Delegation und ID-basierte Signed-URL-Grenze. Keine Gallery-/Memory-Consumer-Migration oder DB-/UX-/AI-Provider-Neustrukturierung.
+
+## M3.4 Runtime-Implementierung
+
+`identity.v1` über `core/platform/identity-contract-adapter.js`.
+
+Bestehende Owner:
+
+- `LuviaProfileService`
+- `LuviaUserPreferences`
+- `LuviaTravelPreferences`
+
+Runtime Globals:
+
+- `LuviaIdentityContractV1`
+- `LuviaIdentityContract`
+
+M3.4 ergänzt Viewer Identity, minimale Public Identity, Self Preferences, sichere Profile-/Preference-Commands, normalisierte Events, Privacy-Grenzen, Diagnostics und Release-/Service-Worker-Integration.
+
+Public Identity:
+
+- `userId`
+- `displayName`
+- `avatarUrl`
+- `avatarColor`
+
+Foreign Public Identity bleibt `self-only-until-provider`.
+
+`activeTripId` bleibt Trip-Ownership.
+
+Event Bridges:
+
+```text
+luvia:profile-changed → luvia:identity.changed
+luvia:user-preferences-changed → luvia:preferences.changed
+```
+
+`luvia:travel-preferences-changed` wird bewusst nicht erneut gebridged.
+
+Nicht Bestandteil sind Consumer-Migration, Foreign-User-Provider, neue Persistenz, neue DB-/Function-/Secret-Strukturen, Social Runtime oder UX-Redesign.
+
+## M3 Gesamtstatus
+
+- M3.1 — Trip Contract Adapter Foundation
+- M3.2 — Places Contract Adapter Foundation
+- M3.3 — Media Contract Adapter Foundation
+- M3.4 — Identity Contract Adapter Foundation
+
+Nach erfolgreichem Production-Abschluss von M3.4 ist **M3 – Contract Adapter Foundation** abgeschlossen.
+
+## Nächster Meilenstein
+
+# M4 — Parallel Development Foundation
+
+M4 schafft die operative Grundlage für stabilen `main`, Integration-Branch, getrennte Domain-Branches, Git Worktrees, verbindliche Ownership, Shared-Contract-Regeln, Feature Flags und kontrollierte Parallelentwicklung von Booking, Consumer, Social und Platform.

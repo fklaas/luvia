@@ -1,28 +1,46 @@
 # CURRENT BUILD
 
-- App: **13.81.7**
-- Core: **4.81.7**
-- Name: **M3.3 Media Contract Adapter Foundation**
+- App: **13.81.8**
+- Core: **4.81.8**
+- Name: **M3.4 Identity Contract Adapter Foundation**
 - Channel: production
-- Date: 2026-08-14
+- Datum: 2026-08-14
 
 ## Scope
-- Additive runtime implementation of the M2 `media.v1` contract.
-- Introduces `LuviaMediaContractV1` / `LuviaMediaContract` as the stable public Media/Memory boundary.
-- Safe immutable projections prevent exposure of storage paths, raw media/memory rows, metadata internals and provider-specific persistence details.
-- Media commands delegate to the existing `LuviaMediaCore`; album/card/journey commands delegate to their existing Memory owner services.
-- Signed preview/original URL requests accept a media ID and internally resolve the owner entity without exposing storage internals.
-- Existing Media/Memory compatibility events remain intact while normalized `media.v1` events are published through the existing DOM CustomEvent transport.
-- `clearTripGallery` remains intentionally outside the generic public contract.
-- No existing Gallery, Albums, Memories or Consumer caller is migrated in M3.3.
-- Adds missing Service Worker shell coverage for `memory-journeys.js`, `memory-cards.js` and the new Media contract adapter.
+
+- Additive Runtime-Implementierung des in M2 spezifizierten `identity.v1`-Contracts.
+- Führt `LuviaIdentityContractV1` und `LuviaIdentityContract` als stabile öffentliche Identity-/Preferences-Grenze ein.
+- Bestehende Owner bleiben `LuviaProfileService`, `LuviaUserPreferences` und `LuviaTravelPreferences`.
+- `getViewerIdentity()` liefert ausschließlich eine freigegebene Viewer-Projection.
+- `getPublicIdentity()` liefert ausschließlich `userId`, `displayName`, `avatarUrl`, `avatarColor`.
+- Foreign Public Identity bleibt bis zu einem echten Provider im Modus `self-only-until-provider`.
+- `getPreferences('self')` bleibt strikt selbstbezogen und getrennt von Public Identity.
+- Profiländerungen delegieren an `LuviaProfileService.save()`.
+- Preference-Änderungen delegieren an `LuviaUserPreferences.update()` bzw. `replaceCategory()`.
+- `activeTripId` bleibt Trip-Ownership.
+- `luvia:profile-changed` wird auf `luvia:identity.changed` normalisiert.
+- `luvia:user-preferences-changed` wird auf `luvia:preferences.changed` normalisiert.
+- `luvia:travel-preferences-changed` wird bewusst nicht erneut gebridged.
+- Keine Consumer-Migration, keine neue Persistenz, keine DB-/Function-/Secret-Änderung.
 
 ## Deployment
-- Database migration: NO
-- SQL deployment: NO
-- Edge Functions: NO
-- New secrets: NO
-- Static app: YES
 
-## Core truth
-M3.3 introduces no second Media or Memory state, storage system or persistence path. `LuviaMediaCore`, `LuviaMemoryAlbums`, `LuviaMemoryCards` and `LuviaMemoryJourneys` remain the implementation owners. The new adapter is a strangler boundary only. Direct Media-to-OpenAI provider coupling remains known migration debt and is not changed in M3.3.
+- Datenbankmigration: NEIN
+- SQL-Deployment: NEIN
+- Supabase Edge Functions: NEIN
+- Neue Secrets: NEIN
+- Cloudflare Secrets: NEIN
+- Statischer App-Deploy: JA
+
+## Core Truth
+
+M3.4 führt keine zweite Identity-Wahrheit, keinen zweiten Preferences-Store, keinen zusätzlichen Profile-Cache und keinen neuen Persistenzpfad ein. Der Adapter ist ausschließlich eine Strangler-Grenze über den bestehenden Implementierungen.
+
+## M3-Status
+
+- M3.1 – Trip Contract Adapter Foundation
+- M3.2 – Places Contract Adapter Foundation
+- M3.3 – Media Contract Adapter Foundation
+- M3.4 – Identity Contract Adapter Foundation
+
+Nach erfolgreichem Production-Gate von M3.4 ist M3 abgeschlossen. Danach folgt **M4 – Parallel Development Foundation**.
