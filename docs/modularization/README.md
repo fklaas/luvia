@@ -36,3 +36,7 @@ These files specify architecture. They do **not** activate adapters, feature fla
 ## M3.2 runtime implementation
 
 `places.v1` is now implemented additively by `core/platform/places-contract-adapter.js`. Existing Places implementations remain the domain truth: `LuviaPlaceCore` remains the canonical in-memory core, `LuviaPlaces` the existing gateway and `LuviaPlaceCommands` / existing Places services the mutation and persistence owners. M3.2 adds safe read/command projections, normalized contract events and the missing local `LuviaPlaceCore.updateLifecycle()` compatibility path; no caller migration, provider rewrite, database change or Places search-performance fix is part of M3.2. See `PCR-M3.2-PLACES-CONTRACT-ADAPTER.md` and `M3.2-EXIT-GATE.md`.
+
+## M3.3 runtime implementation
+
+`media.v1` is now implemented additively by `core/platform/media-contract-adapter.js`. Existing Media/Memory owner services remain the domain truth. M3.3 adds safe immutable projections, normalized contract events, guarded command delegation and ID-based signed URL access without exposing storage internals. No Gallery/Memory consumer migration, Media redesign, database change, destructive gallery command exposure or AI-provider migration is part of M3.3. Direct OpenAI coupling remains tracked for the later Intelligence capability migration.

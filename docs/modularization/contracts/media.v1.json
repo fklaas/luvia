@@ -2,14 +2,15 @@
   "contractId": "media.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M3.3",
   "owner": "Media/Memory",
-  "status": "specified-not-implemented",
+  "status": "implemented-m3.3",
   "currentImplementation": [
     "LuviaMediaCore",
     "LuviaMemoryAlbums",
     "LuviaMemoryCards",
-    "LuviaMemoryJourneys"
+    "LuviaMemoryJourneys",
+    "LuviaMediaContractV1"
   ],
   "reads": [
     "listMedia",
@@ -42,5 +43,10 @@
     "clustering persistence",
     "metadata/preview internals",
     "direct OpenAI provider"
-  ]
+  ],
+  "runtimeGlobals": [
+    "LuviaMediaContractV1",
+    "LuviaMediaContract"
+  ],
+  "eventTransport": "DOM CustomEvent via luvia:<event-name>; existing compatibility events retained"
 }

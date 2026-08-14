@@ -1,9 +1,9 @@
-/* Release 13.81.6 · Core 4.81.6 */
+/* Release 13.81.7 - Core 4.81.7 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.81.6';
-  const BUILD='13.81.6';
+  const CORE='4.81.7';
+  const BUILD='13.81.7';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -19,7 +19,7 @@
   async function run(options={}){
     const started=performance.now(), warnings=[], failedChecks=[];
     const checks={
-      centralMediaContract:Boolean(window.LuviaMediaCore&&window.LuviaMediaMetadata),
+      centralMediaContract:Boolean(window.LuviaMediaContractV1),
       canonicalMediaCore:Boolean(window.LuviaMediaCore),
       mediaMetadata:Boolean(window.LuviaMediaMetadata),
       legacyGallerySync:Boolean(window.ParisSync?.gallery||window.ParisSync?.get?.('gallery')),

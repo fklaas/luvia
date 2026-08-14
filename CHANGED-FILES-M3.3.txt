@@ -1,0 +1,17 @@
+core/platform/media-contract-adapter.js
+tests/m3.3-media-contract-adapter.test.cjs
+tests/m3.3-media-contract-release-integration.test.cjs
+docs/modularization/contracts/media.v1.json
+docs/modularization/PCR-M3.3-MEDIA-CONTRACT-ADAPTER.md
+docs/modularization/M3.3-EXIT-GATE.md
+docs/modularization/README.md
+intelligence/kernel/version.js
+index.html
+sw.js
+force-update.html
+CURRENT-BUILD.md
+RELEASE-NOTES-M3.3.md
+DEPLOYMENT-M3.3.md
+TEST-RESULTS-M3.3.md
+CHANGED-FILES-M3.3.txt
+core/diagnostics/media-readiness.js
