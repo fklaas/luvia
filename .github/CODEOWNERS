@@ -1,0 +1,92 @@
+# Luvia CODEOWNERS
+#
+# Operational GitHub guardrail for protected repository areas.
+# The normative ownership model remains:
+# docs/modularization/MODULE-OWNERSHIP.md
+#
+# CODEOWNERS does not redefine domain truth.
+# It maps protected repository paths to the currently confirmed
+# GitHub repository owner for review/visibility purposes.
+#
+# Current repository owner:
+# @fklaas
+/.github/CODEOWNERS @fklaas
+#
+# Shared migration folders are intentionally not assigned wholesale here.
+# Domain ownership of SQL objects remains governed by MODULE-OWNERSHIP.md
+# and the cross-core ownership checks established during M4.
+
+# ---------------------------------------------------------------------------
+# Platform / Shared
+# ---------------------------------------------------------------------------
+
+/core/platform/ @fklaas
+/auth/ @fklaas
+/core/services/supabase-service.js @fklaas
+/core/runtime/ @fklaas
+/core/ui/ @fklaas
+/core/design/ @fklaas
+/core/services/theme-service.js @fklaas
+/app/navigation-registry.js @fklaas
+/core/modules/module-registry.js @fklaas
+/intelligence/kernel/version.js @fklaas
+/index.html @fklaas
+/sw.js @fklaas
+/wrangler.jsonc @fklaas
+
+# ---------------------------------------------------------------------------
+# Trip
+# ---------------------------------------------------------------------------
+
+/core/trips/ @fklaas
+/luvia-trip-context.js @fklaas
+/core/context/travel-context-service.js @fklaas
+
+# ---------------------------------------------------------------------------
+# Places
+# ---------------------------------------------------------------------------
+
+/core/places/ @fklaas
+/intelligence/place-entity-service.js @fklaas
+/intelligence/places-service.js @fklaas
+
+# ---------------------------------------------------------------------------
+# Booking
+# ---------------------------------------------------------------------------
+
+/core/booking/ @fklaas
+/supabase/functions/booking-*/ @fklaas
+
+# ---------------------------------------------------------------------------
+# Media / Memory
+# ---------------------------------------------------------------------------
+
+/core/media/ @fklaas
+
+# sync/gallery.js remains legacy compatibility according to
+# MODULE-OWNERSHIP.md and is deliberately not declared as a new
+# Media/Memory write-owner surface here.
+
+# ---------------------------------------------------------------------------
+# Identity / Preferences
+# ---------------------------------------------------------------------------
+
+/core/profiles/ @fklaas
+/core/preferences/ @fklaas
+
+# Auth remains Platform-owned and is covered in the Platform section.
+
+# ---------------------------------------------------------------------------
+# Intelligence
+# ---------------------------------------------------------------------------
+
+/core/ai/ @fklaas
+/supabase/functions/luvia-intelligence/ @fklaas
+
+# ---------------------------------------------------------------------------
+# Future Social domain
+# ---------------------------------------------------------------------------
+
+# Social-specific ownership patterns will be added only when the Social
+# Architecture & Domain Model establishes its real repository boundaries.
+# No speculative Social ownership paths are introduced during M4.2.

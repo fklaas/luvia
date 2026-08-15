@@ -1619,7 +1619,7 @@ app/memory-worlds-v3.js,Consumer,Experience,Current consumer experience and app 
 app/memory-worlds-v3.ts,Consumer,Experience,Current consumer experience and app shell
 app/module-hubs.css,Consumer,Experience,Current consumer experience and app shell
 app/module-hubs.js,Consumer,Experience,Current consumer experience and app shell
-app/navigation-registry.js,Consumer,Experience,Current consumer experience and app shell
+app/navigation-registry.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 app/product-module-manifests.js,Consumer,Experience,Current consumer experience and app shell
 app/public-entry.css,Consumer,Experience,Current consumer experience and app shell
 app/public-entry.js,Consumer,Experience,Current consumer experience and app shell
@@ -1792,7 +1792,11 @@ core/planning/product-focus-reset.js,Intelligence/Planning,Domain/Application,"A
 core/platform/attention-contract.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/capability-registry.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/global-contracts.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/platform/identity-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/platform/media-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/platform/places-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/product-module-registry.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/platform/trip-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/preferences/discovery-contract-service.js,Identity/Preferences,Domain,Profile persistence and preference projections
 core/preferences/guided-discovery-sequence.css,Identity/Preferences,Domain,Profile persistence and preference projections
 core/preferences/guided-discovery-sequence.js,Identity/Preferences,Domain,Profile persistence and preference projections
