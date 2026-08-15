@@ -1791,6 +1791,7 @@ core/planning/planning-tool-registry.js,Intelligence/Planning,Domain/Application
 core/planning/product-focus-reset.js,Intelligence/Planning,Domain/Application,"AI, recommendations, discovery and planning workspace"
 core/platform/attention-contract.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/capability-registry.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/platform/feature-flag-registry.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/global-contracts.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/identity-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/platform/media-contract-adapter.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure

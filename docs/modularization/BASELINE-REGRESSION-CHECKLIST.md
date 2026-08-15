@@ -12,18 +12,61 @@ This checklist freezes the M0/M1 baseline before adapters and isolation builds b
 
 ## B. Local static regression
 
-The repository contains 142 `.test.cjs` Node/assert regression files plus SQL smoke files and diagnostics. There is no tracked central `package.json` runner or GitHub Actions workflow yet; M4 will create a controlled suite/allowlist rather than blindly execute every test.
+The repository currently contains **156 `.test.cjs` regression files** plus SQL smoke files and diagnostics.
 
-Minimum pre-merge local suite for v13.81.4 baseline:
+Historical release tests remain valuable release evidence, but they are not automatically evergreen merge gates. Tests may contain hard-coded historical versions, retired paths, network access, Supabase access, environment dependencies or other assumptions that make blind execution of every test unsafe or misleading.
 
-- `node tests/release-version-consistency.test.cjs`
-- `node tests/v13.81.4-google-reserve-discovery-matrix.test.cjs`
-- `node tests/v13.81.4-green-farmers-mutation-bootstrap-regression.test.cjs`
-- `node tests/v13.81.4-mutation-thread-bootstrap-mobile-surface-fetch-hardening.test.cjs`
-- current ProductModule/Control Center/App boot regression tests selected by affected scope
+M4.3 therefore establishes one controlled local regression entry point:
 
-Tests that mention network/Supabase/env are **not automatically safe to run as CI** until categorized. M1 inventory marked 78 files for review because they contain broad indicators such as `fetch`, Supabase, URLs, env access or child-process APIs.
+`node tests/run-m4.3-safe-regression.cjs`
 
+The runner uses an explicit reviewed allowlist. It does **not** glob all `.test.cjs` files.
+
+Current M4.3 controlled suite:
+
+- Release consistency
+- Runtime/App boot evergreen foundation
+- Feature Flag Registry unit guardrails
+- Feature Flag runtime/release integration
+- M3.1 Trip Contract Adapter
+- M3.2 Places Contract Adapter
+- M3.3 Media Contract Adapter
+- M3.4 Identity Contract Adapter
+- M3 Contract release integration evergreen
+- Places architecture evergreen
+- ProductModule / Control Center regressions
+- Booking contact/reservation discovery regressions
+- M4.2 cross-core DB ownership guardrail
+
+Current allowlist size: **17 tests**.
+
+Latest confirmed M4.3 working-tree run:
+
+- Total: **17**
+- Passed: **17**
+- Failed: **0**
+- Suite: **PASS**
+- Release: **App 13.81.9 / Core 4.81.9**
+- Cross-core mapped debt: **26 / baseline 26**
+- Unmapped DB-object debt: **39 / baseline 39**
+- Dynamic DB-call debt: **27 / baseline 27**
+
+Operational commands:
+
+- Inspect the reviewed allowlist without executing it:
+  `node tests/run-m4.3-safe-regression.cjs --list`
+- Execute the complete controlled local suite:
+  `node tests/run-m4.3-safe-regression.cjs`
+
+Rules:
+
+- [ ] run the controlled suite before promotion from a feature stream when shared/runtime behavior is affected
+- [ ] run affected domain-specific tests in addition to the controlled baseline where required
+- [ ] do not convert historical version-specific tests into evergreen gates merely by changing their expected version
+- [ ] preserve historical tests as release evidence when their original assertions describe an earlier release
+- [ ] add a test to the controlled allowlist only after it has been reviewed as local/non-destructive and successfully executed
+- [ ] a failing controlled regression gate blocks promotion
+- [ ] Browser, backend, integration/preview and deployment checks below remain separate gates and are not replaced by the Node harness
 ## C. Browser smoke — production-critical
 
 - [ ] Login succeeds and reload keeps authenticated state

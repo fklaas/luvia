@@ -33,6 +33,46 @@ Any change to the following requires an explicit PCR before implementation:
 
 A PCR must state: **problem, owner, impacted contracts, backward compatibility, affected streams/files, DB/Function impact, test plan, rollout/feature gate if needed, rollback**. Cross-cutting work is merged through Platform/integration, never hidden inside a product branch.
 
+## Feature flag governance
+
+Feature flags are temporary rollout gates, not a second configuration or domain-truth system.
+
+1. The shared registry mechanics are Platform-owned through `core/platform/feature-flag-registry.js`.
+2. Flag IDs use the form `<owner>.<feature>` and must use one registered owner prefix: `platform`, `trip`, `places`, `booking`, `media`, `identity`, `intelligence`, `consumer`, or `social`.
+3. The owning stream may define its own rollout flag, but may not modify shared registry mechanics without a Platform Change Request.
+4. Unknown flags fail closed and evaluate as disabled.
+5. New or incomplete functionality must remain safe when its flag is disabled.
+6. Feature flags must never replace:
+   - authentication or authorization;
+   - privacy or permission checks;
+   - capability availability;
+   - ProductModule lifecycle/state;
+   - domain ownership or persisted business truth;
+   - migration or schema compatibility rules.
+7. Feature definitions use only the registry schema. Arbitrary hidden configuration fields are not permitted.
+8. No parallel flag truth may be introduced through `localStorage`, query parameters, ad-hoc globals, hidden JSON configuration, or another registry.
+9. The historical `intelligence/platform.js` / `intelligence/runtime-config.json` feature-flag path must not be reactivated as the modern runtime flag system.
+10. Runtime mutation APIs such as `enable()`, `disable()` or `setEnabled()` are not part of the M4.3 foundation.
+11. A rollout change to `defaultEnabled:true` requires the owning stream's tests and the controlled baseline regression to be green.
+12. Once a rollout is permanently complete, the owner removes the temporary flag and dead gated branch in a controlled change rather than keeping permanent flag debt.
+
+## Merge order
+
+The standard merge path is:
+
+`feature/* -> integration -> controlled regression + integration smoke -> main -> production`
+
+Cross-cutting work follows this order:
+
+1. Shared Platform/contract/PCR changes are implemented and integrated first.
+2. Affected domain streams sync against that shared contract before adding dependent business behavior.
+3. Domain-owner changes are integrated before Consumer/Social composition that depends on them.
+4. Each feature stream merges to `integration`; feature branches do not bypass `integration` into `main`.
+5. Domain tests and the controlled regression baseline must pass on the integrated state.
+6. Integration/Preview smoke must pass before promotion to `main`.
+7. `main` remains the stable production release history.
+8. After each `main` release, active streams synchronize with `main` before continuing dependent work.
+9. A failed integration or regression gate stops promotion; fixes return through the owning stream or Platform/PCR path rather than being patched directly into production history.
 ## Merge rule
 
 A stream may merge when:
