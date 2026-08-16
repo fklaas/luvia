@@ -1,6 +1,6 @@
 # Test Results — M5.1b Gallery View Trip Contract Adoption
 
-**Status:** LOCAL PASS / STAGED / NOT COMMITTED / NOT RELEASED
+**Status:** FINAL PASS — PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Date:** 2026-08-16
 **Worktree:** `C:\Users\fabia\Documents\GitHub\luvia-platform`
 **Branch:** `feature/platform-core`
@@ -170,9 +170,9 @@ No cross-core DB debt growth was detected.
 - external AI call during validation: none;
 - browser, preview or production mutation during local validation: none.
 
-## Working-tree integrity
+## Historical pre-commit working-tree integrity
 
-Current local state before staging:
+Recorded local state before staging:
 
 - exact PCR-approved files: 12 / 12;
 - unexpected files: 0;
@@ -195,22 +195,149 @@ Result: **PASS**
 - staged Gallery boundary: zero forbidden Store/Context/AppState/event/DB/RPC references and exactly one `getActiveTrip()` path;
 - no commit was created by the staging gate.
 
-## Pending evidence
+## Release commit and feature-stream evidence
 
-The following gates have not yet been executed and are not claimed:
+Result: **PASS**
 
-- implementation commit SHA and clean post-commit worktree;
-- remote SHA before and after feature push;
-- integration merge and 18-test regression;
-- integration preview static and authenticated Gallery smoke;
-- main promotion and regression;
-- production static and authenticated Gallery smoke;
-- six-stream local/remote synchronization.
+- exact approved implementation scope: 12 / 12 files;
+- unexpected staged or unstaged files: 0;
+- implementation/release commit: `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- parent baseline: `0a2aa60564a75f4723ca11807905f669702e2437`;
+- commit subject: `feat(m5): adopt trip contract in gallery view`;
+- clean post-commit worktree: confirmed;
+- `origin/feature/platform-core` before push: `0a2aa60564a75f4723ca11807905f669702e2437`;
+- `origin/feature/platform-core` after push: `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- post-push local/tracking/live divergence: `0 / 0`;
+- force push: none.
 
-## Local result
+## Integration evidence
 
-M5.1b implementation, local candidate validation and staging gate: **PASS**.
+Result: **PASS**
 
-M5.1b release/promotion: **NOT YET PERFORMED**.
+- `integration` fast-forwarded from `0a2aa60564a75f4723ca11807905f669702e2437` to `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- no merge commit was created;
+- complete controlled regression on `integration`: 18 passed, 0 failed;
+- integration remote before push: `0a2aa60564a75f4723ca11807905f669702e2437`;
+- integration remote after push: `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- post-push local/tracking/live divergence: `0 / 0`;
+- integration Preview: `https://integration-luvia.njwnrvwbv5.workers.dev`;
+- Cloudflare Worker version: 184;
+- Cloudflare version ID: `5272ac11-6b95-4866-86fa-82b8dd610200`;
+- version created: `2026-08-16T18:14:25.171254Z` (`2026-08-16 20:14:25.171254 CEST`).
+
+Static Preview smoke:
+
+- App 13.82.1 / Core 4.82.1;
+- Service Worker `luvia-shell-v13.82.1`;
+- 214 active App 13.82.1 references and zero active App 13.82.0 references in `index.html`;
+- live `index.html`, kernel, Service Worker and Gallery source match the integration release after line-ending normalization;
+- live Gallery source contains zero `LuviaTripStore`, zero `LuviaTripContext`, zero `LuviaAppState` and exactly one `getActiveTrip()` read path;
+- internal repository paths return the protected HTML SPA fallback rather than repository contents.
+
+Authenticated Preview smoke:
+
+- active Trip `Paris Hochzeitstag` and destination Paris loaded;
+- Timeline data loaded;
+- Gallery settled at 51 photos, 10 photo moments and Realtime active;
+- Gallery day counts: 20 / 27 / 4 / 0;
+- active Trip, Gallery state and release identity survived reload;
+- browser console: zero errors and zero warnings.
+
+## Main and production evidence
+
+Result: **PASS**
+
+- `main` fast-forwarded from `0a2aa60564a75f4723ca11807905f669702e2437` to `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- no merge commit was created;
+- complete controlled regression on `main`: 18 passed, 0 failed;
+- main remote before push: `0a2aa60564a75f4723ca11807905f669702e2437`;
+- main remote after push: `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- post-push local/tracking/live divergence: `0 / 0`;
+- Production: `https://myluvia.app`;
+- Cloudflare Worker version: 185;
+- Cloudflare version ID: `14a8e2eb-385b-4e2a-80bb-e8056952a991`;
+- Cloudflare deployment ID: `749d237e-47ce-4e71-a1e9-349e4fb9cbc4`;
+- active production traffic: 100 %;
+- version URL: `https://14a8e2eb-luvia.njwnrvwbv5.workers.dev`;
+- version created: `2026-08-16T18:38:01.215677Z` (`2026-08-16 20:38:01.215677 CEST`).
+
+Static Production smoke:
+
+- App 13.82.1 / Core 4.82.1;
+- Service Worker `luvia-shell-v13.82.1`;
+- 214 active App 13.82.1 references and zero active App 13.82.0 references;
+- live production, the version-185 URL and the clean `main` release match after line-ending normalization;
+- normalized `index.html` SHA-256: `747d38fff7f9f87445b6e91704002e870c9185f7468d065534662ff927d9bef2`;
+- normalized kernel SHA-256: `624c3d5b143f235c5279c30c4ac641dd715cf14865067b0a702cc34bd8aa6017`;
+- normalized Service Worker SHA-256: `92efa4c317e3b7d1e1f6ed347ec68c2491be7e7dd208bb343c3f5d56a7b2f8ef`;
+- normalized Gallery SHA-256: `6437dcfc5e696b1ca4add66ff817f70efea92d29c4498393e4b21cad5e4e6ae5`;
+- internal repository paths return the protected HTML SPA fallback.
+
+Authenticated Production smoke:
+
+- active Trip `Paris Hochzeitstag`, destination Paris and dates 31 July through 3 August loaded;
+- Timeline loaded with three entries;
+- Gallery settled at 51 photos, 10 photo moments and Realtime active;
+- Gallery day counts: 20 / 27 / 4 / 0;
+- active Trip, Timeline, Gallery state and release identity survived reload;
+- browser console: zero errors and zero warnings.
+
+## Combined behavior acceptance evidence
+
+Result: **PASS**
+
+The evidence is intentionally split by side-effect risk:
+
+1. Authenticated Preview and Production browser smokes prove the actually deployed current-Trip Gallery load, data, reload and console path.
+2. The focused deterministic 3 / 3 runtime test proves state variants without changing cloud-synchronized user truth:
+   - `LuviaTripContractV1` is primary and the supported alias remains compatible;
+   - a contract supplied after Gallery evaluation is resolved lazily;
+   - consecutive calls observe a changed active Trip without a Gallery cache;
+   - destination name, latitude and longitude reach the existing photo/place context;
+   - current Trip titles reach the logical Gallery collection label;
+   - no active Trip yields the logical label `Luvia Galerie` and null destination values;
+   - forbidden Store/Context/AppState getters remain untouched;
+   - the public `LuviaGalleryView` API remains unchanged.
+
+A follow-up authenticated integration-browser safety probe confirmed that the visible Trip selector displayed the existing synchronized active Trip. The UI stated that the active selection is restored across devices; the probe itself did not perform a cross-device or persisted Trip switch. The browser automation boundary does not permit a hidden main-world Contract override. Seven existing Trips were read without selecting one; no Trip was activated, edited, archived or created, no ZIP was downloaded, the active Trip remained `Paris Hochzeitstag`, the Gallery remained at 51 photos / 10 moments and the console remained empty. The temporary test tab was closed.
+
+This combined method was selected deliberately instead of changing persisted active-Trip truth or manufacturing an empty account state. It does not claim that a cloud Trip switch or no-Trip state was performed in the live user account.
+
+## Runtime observations
+
+- Preview Gallery initially showed its existing loading/zero state and settled after roughly 9–15 seconds.
+- Production Gallery initially showed the same state and settled after roughly 20 seconds.
+- One exact text locator timed out after the production reload although the final DOM already contained the complete correct state; the final result was confirmed from the main view and all four day buttons.
+- The observations did not reproduce as Trip-data or Gallery-data loss and do not concern code changed by M5.1b.
+
+## Active-stream synchronization
+
+Result: **PASS**
+
+All six active branches were verified locally, in their tracking refs and live on GitHub at:
+
+`68e7ff5433e4581eb3c19ef98934302736be84ec`
+
+- `main`;
+- `integration`;
+- `feature/platform-core`;
+- `feature/booking-core`;
+- `feature/consumer-experience`;
+- `feature/social-experience-graph`.
+
+For every stream:
+
+- local SHA equals tracking SHA and live remote SHA;
+- divergence is `0 / 0`;
+- working tree is clean;
+- no force push was used.
+
+## Closeout-commit boundary
+
+`68e7ff5433e4581eb3c19ef98934302736be84ec` is the M5.1b implementation and production runtime release commit. The later documentation-only closeout commit is intentionally not pre-claimed in this file. It must be separately inspected, committed, promoted and synchronized after this evidence update.
+
+## Final result
+
+M5.1b implementation, validation, controlled promotion, Preview, Production and runtime-release synchronization: **PASS / COMPLETE**.
 
 M5 remains **IN PROGRESS** and its exit gate remains unclaimed.

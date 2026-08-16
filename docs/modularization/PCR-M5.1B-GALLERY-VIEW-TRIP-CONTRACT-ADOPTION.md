@@ -1,6 +1,6 @@
 # Platform Change Request — M5.1b Gallery View Trip Contract Adoption
 
-**Status:** IMPLEMENTED / LOCAL VERIFIED / STAGED / NOT COMMITTED / NOT RELEASED
+**Status:** IMPLEMENTED / PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **Baseline:** App `13.82.0` / Core `4.82.0`, Git `0a2aa60564a75f4723ca11807905f669702e2437`
 **Owners:** Platform (PCR/promotion) + Trip (truth/contract) + Consumer (Gallery projection)
@@ -21,7 +21,7 @@ The read-only M5.1b preflight confirmed the following at the baseline commit:
 - the controlled safe-regression baseline is 17 / 17 green;
 - the cross-core DB ownership baseline is unchanged: mapped 26 / 26, unmapped 39 / 39 and dynamic 27 / 27.
 
-This section records preflight evidence only. The separately recorded local implementation evidence below is green. No commit, push, preview, production or synchronization PASS is claimed.
+This section records the historical preflight state only. At that gate no commit, push, Preview, Production or synchronization PASS was claimed; the subsequently executed lifecycle evidence is recorded below.
 
 ## Problem
 
@@ -55,6 +55,8 @@ Trip remains the sole owner of Trip truth. Gallery remains a read-only Consumer 
 - `feature/consumer-experience` must not edit `app/gallery-view.js` concurrently while this PCR is active.
 - No other Consumer file is approved by this PCR.
 - After production verification, all six active streams must synchronize with the released `main` commit before dependent work continues.
+
+The temporary cross-stream lock was satisfied for implementation and rollout. After Production verification, all six streams synchronized at the runtime release commit. Future Gallery changes require their own normal Consumer ownership review or a new PCR; this closeout does not grant a continuing Platform edit right.
 
 This explicit owner agreement prevents a hidden cross-stream or cross-core change.
 
@@ -106,6 +108,17 @@ Implementation occurs in `feature/platform-core` under this PCR and follows the 
 
 The maximum later implementation/release allowlist is therefore 12 files. Historical M3/M4/M5.1a evidence and historical version-specific Gallery tests are immutable in this slice.
 
+### Documentation-only closeout subset
+
+After runtime release and six-stream synchronization, the closeout may update only this four-file subset of the approved evidence scope:
+
+- `CURRENT-BUILD.md`;
+- `RELEASE-NOTES-M5.1B.md`;
+- `TEST-RESULTS-M5.1B.md`;
+- this PCR.
+
+No Runtime, version, test, runner, deployment, configuration, Supabase or historical evidence file belongs to the documentation-only closeout.
+
 ## Explicit non-goals
 
 - no Trip Core rewrite;
@@ -138,7 +151,7 @@ The maximum later implementation/release allowlist is therefore 12 files. Histor
 
 The initial PCR-only documentation step kept App `13.82.0` / Core `4.82.0` unchanged.
 
-The locally verified compatible release candidate is:
+The released compatible runtime is:
 
 - App: `13.82.1`
 - Core: `4.82.1`
@@ -223,7 +236,7 @@ Before commit:
 4. verify remote SHA before and after push;
 5. merge `feature/platform-core` into `integration`;
 6. run the complete controlled regression and integration preview smoke;
-7. verify authenticated Gallery load, reload, active-Trip switch, download naming, empty Trip state and browser console;
+7. verify authenticated Gallery load, reload, current active Trip and browser console; verify changed-Trip observation, download naming and the no-Trip state through the focused deterministic gate without mutating cloud-synchronized Trip truth;
 8. promote through `main` only after green evidence;
 9. verify production static assets and authenticated Gallery runtime;
 10. synchronize all six active streams after the main release.
@@ -232,9 +245,9 @@ No feature flag is required because this is a compatible replacement of two read
 
 The browser smoke must not invoke paid or externally mutating AI title generation merely to validate this Trip boundary. The focused local test must stub and prove the photo/place context path.
 
-## Implementation and local evidence
+## Implementation, local and staging evidence
 
-Result: **LOCAL PASS / STAGED / NOT COMMITTED / NOT RELEASED**
+Historical pre-commit result: **LOCAL PASS / STAGING PASS**
 
 - base HEAD: `0a2aa60564a75f4723ca11807905f669702e2437`;
 - branch: `feature/platform-core`;
@@ -252,28 +265,77 @@ Result: **LOCAL PASS / STAGED / NOT COMMITTED / NOT RELEASED**
 - cross-core DB ownership debt growth: none;
 - database, migration, Function, Storage and secret impact: none;
 - `git diff --check`: PASS;
-- `git diff --cached --check`: PASS;
-- commit, push, integration, preview, main, production and stream synchronization: not yet performed.
+- `git diff --cached --check`: PASS.
 
-Local evidence is recorded in `TEST-RESULTS-M5.1B.md`; candidate release notes are recorded in `RELEASE-NOTES-M5.1B.md`.
+At this historical gate, commit, push, integration, Preview, main, Production and stream synchronization had not yet been performed and were not claimed.
 
-The pre-commit and staging gates are satisfied. This evidence authorizes the commit step only; it does not satisfy the M5.1b push, integration, release, production or completion gates.
+## Implementation and rollout evidence
+
+Result: **PASS**
+
+- implementation and runtime release commit: `68e7ff5433e4581eb3c19ef98934302736be84ec`;
+- parent baseline: `0a2aa60564a75f4723ca11807905f669702e2437`;
+- commit subject: `feat(m5): adopt trip contract in gallery view`;
+- exact approved implementation scope: 12 / 12 files;
+- clean post-commit tree: confirmed;
+- feature push: PASS, local/tracking/live divergence `0 / 0`;
+- `integration` fast-forward: PASS, no merge commit;
+- controlled regression on `integration`: 18 / 18 PASS;
+- Integration Preview static and authenticated runtime smoke: PASS;
+- Integration Cloudflare version 184, ID `5272ac11-6b95-4866-86fa-82b8dd610200`;
+- `main` fast-forward: PASS, no merge commit;
+- controlled regression on `main`: 18 / 18 PASS;
+- Production static and authenticated runtime smoke: PASS;
+- Production Cloudflare version 185, ID `14a8e2eb-385b-4e2a-80bb-e8056952a991`;
+- Production deployment ID `749d237e-47ce-4e71-a1e9-349e4fb9cbc4`, 100 % traffic;
+- authenticated Preview and Production: active Trip `Paris Hochzeitstag`, destination Paris, Gallery 51 photos / 10 photo moments / Realtime active, day counts 20 / 27 / 4 / 0 and reload persistence;
+- browser console on Preview and Production: zero errors and zero warnings;
+- all six active streams synchronized locally, in tracking refs and live on GitHub at `68e7ff5433e4581eb3c19ef98934302736be84ec`, divergence `0 / 0`, clean worktrees;
+- force pushes: none;
+- database, migration, Function, Storage, secret and corrective-data changes: none.
+
+### Combined browser and deterministic behavior evidence
+
+The authenticated browser smokes prove the deployed current-Trip Gallery load, data, reload and console path. The targeted 3 / 3 runtime test proves the state variants without changing cloud-synchronized user truth:
+
+- the versioned V1 Contract is primary and the supported alias remains compatible;
+- late Contract availability is resolved lazily;
+- consecutive calls observe a changed active Trip without a Gallery cache;
+- normalized destination context reaches the existing photo/place path;
+- the current Trip title reaches the logical Gallery collection label;
+- no active Trip yields `Luvia Galerie` and null destination values;
+- no forbidden legacy global is read and the public Gallery API is unchanged.
+
+A follow-up authenticated safety probe confirmed that the visible selector displayed the existing synchronized active Trip. The UI stated that the active selection is restored across devices; the probe itself did not perform a cross-device or persisted Trip switch. The Browser control boundary intentionally does not allow a hidden main-world Contract override. Seven Trips were read without activating one; no Trip was changed, created, edited or archived, no Gallery ZIP was downloaded, and the temporary test tab was closed. The active Trip remained `Paris Hochzeitstag`, Gallery remained at 51 photos / 10 moments and the console remained empty.
+
+This combined acceptance method is deliberate: it proves the deployed primary path live and the changed/no-Trip variants deterministically, while avoiding a persistent Trip switch or manufactured empty account state. It does not claim that those state variants were performed in the live user account.
+
+### Runtime observations
+
+- Preview Gallery settled from its existing loading/zero state after roughly 9–15 seconds.
+- Production Gallery settled from the same state after roughly 20 seconds.
+- One exact text locator timed out after the production reload although the final DOM contained the complete correct state; the result was confirmed from the main view and all four day buttons.
+- M5.1b changes neither Gallery loading nor Media, Storage or Realtime behavior; no Trip-data or Gallery-data loss was observed.
+
+Release evidence is recorded in `TEST-RESULTS-M5.1B.md` and `RELEASE-NOTES-M5.1B.md`.
+
+`68e7ff5433e4581eb3c19ef98934302736be84ec` remains the implementation and production runtime release SHA. The later documentation-only closeout commit must be inspected, committed, promoted and synchronized separately and is not pre-claimed here.
 
 ## Rollback
 
-Revert the later M5.1b implementation commit through the owning stream and normal promotion path. Restore the previous two Gallery read expressions only as part of that reviewed revert. No database, migration, storage or data rollback is needed because this slice changes no persisted truth or command.
+Revert M5.1b release commit `68e7ff5433e4581eb3c19ef98934302736be84ec` through the owning stream and normal promotion path. Restore the previous two Gallery read expressions only as part of that reviewed revert. No database, migration, storage or data rollback is needed because this slice changes no persisted truth or command.
 
-If the failure occurs before promotion, stop integration and fix or revert in `feature/platform-core`. Do not patch `integration`, `main` or production directly.
+Because M5.1b is present on `main` and Production, any rollback must be a reviewed revert commit promoted through `feature/platform-core -> integration -> main`. Do not patch `integration`, `main` or Production directly.
 
 ## Acceptance criteria
 
-- The staged and committed scope contains only PCR-approved files.
-- `app/gallery-view.js` has zero direct `LuviaTripStore` and `LuviaTripContext` references.
-- Both former reads use the existing `trip.v1.getActiveTrip()` projection through a lazy accessor.
-- No Store/Context fallback, second Trip truth, cache or Trip subscription exists in Gallery.
-- Gallery behavior and public API remain compatible for active Trip, switched Trip and no active Trip.
-- `trip.v1`, App Shell, CSS, DB, Functions, Storage, Media, Booking, Places and legacy behavior remain unchanged except for mechanical release labels explicitly listed above.
-- The targeted test, Trip contract gates, release consistency, cross-core guardrail and controlled 18-test safe regression are green.
-- Integration preview and production runtime evidence are recorded before those states are claimed.
-- Final local and remote SHAs, clean trees and six-stream synchronization are verified before M5.1b is marked complete.
+- **PASS** — The staged and committed implementation scope contains only the 12 PCR-approved files; the documentation-only closeout is restricted to the four approved evidence files.
+- **PASS** — `app/gallery-view.js` has zero direct `LuviaTripStore` and `LuviaTripContext` references.
+- **PASS** — Both former reads use the existing `trip.v1.getActiveTrip()` projection through a lazy accessor.
+- **PASS** — No Store/Context fallback, second Trip truth, cache or Trip subscription exists in Gallery.
+- **PASS, combined evidence** — Live browser smokes prove the deployed active-Trip Gallery path; the deterministic 3 / 3 gate proves switched-Trip and no-active-Trip variants plus the logical download label without mutating cloud truth.
+- **PASS** — `trip.v1`, App Shell, CSS, DB, Functions, Storage, Media, Booking, Places and legacy behavior remain unchanged except for mechanical release labels explicitly listed above.
+- **PASS** — The targeted test, Trip contract gates, release consistency, cross-core guardrail and controlled 18-test safe regression are green.
+- **PASS** — Integration Preview and Production static plus authenticated runtime evidence are recorded with their actual Cloudflare identities.
+- **PASS** — Final runtime-release local/tracking/live SHAs, clean trees and six-stream synchronization were verified before M5.1b was marked complete.
 - M5 remains in progress; this slice does not claim the M5 exit gate.

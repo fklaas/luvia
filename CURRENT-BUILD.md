@@ -3,7 +3,7 @@
 - App: **13.82.1**
 - Core: **4.82.1**
 - Name: **M5.1b Gallery View Trip Contract Adoption**
-- Channel: **feature candidate**
+- Channel: **production**
 - Datum: **2026-08-16**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -23,27 +23,33 @@ Promotion bleibt verbindlich:
 ## M5 Status
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
-- M5.1b – Gallery View Trip Contract Adoption: **PRE-COMMIT GATES PASS / STAGED 12 OF 12 / NOT COMMITTED / NOT RELEASED**
+- M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
 - M5 Exit Gate: **NOT YET CLAIMED**
 
-## M5.1b Local Candidate Evidence
+## M5.1b Release Evidence
 
 - JavaScript syntax checks: **PASS**
 - Targeted Gallery Trip Contract regression: **3 / 3 PASS**
-- Controlled safe regression before release-identity integration: **18 / 18 PASS**
+- Controlled safe regression on feature, integration and main: **18 / 18 PASS on each branch**
 - Direct Gallery TripStore/TripContext/AppState references: **0**
 - Direct Gallery DB/RPC and legacy Trip-event references: **0**
 - Cross-Core DB ownership debt growth: **NONE**
-- Candidate release consistency (`13.82.1` / Core `4.82.1`): **PASS**
-- Candidate controlled safe regression: **18 / 18 PASS**
-- Final staged scope: **12 / 12 PASS**
-- Staged diff check: **PASS**
-- Unstaged and untracked files after staging: **0 / 0**
+- Release consistency (`13.82.1` / Core `4.82.1`): **PASS**
+- Implementation scope: **12 / 12 PCR-approved files**
+- Implementation release commit: `68e7ff5433e4581eb3c19ef98934302736be84ec`
+- Parent baseline: `0a2aa60564a75f4723ca11807905f669702e2437`
+- Feature, integration and main promotion: **PASS — fast-forward only, no force push**
+- Integration Preview static and authenticated runtime smoke: **PASS**
+- Production static and authenticated runtime smoke: **PASS**
+- Live browser evidence: active Trip, Gallery load/reload, 51 photos, 10 moments and console **0 errors / 0 warnings**
+- Deterministic state-variation evidence: Trip switch, current-Trip download label and no-Trip fallback **3 / 3 PASS**
+- Six active streams synchronized locally, in tracking refs and live on GitHub: **6 / 6 at `68e7ff54`, divergence `0 / 0`, clean trees**
 - Database/Functions/Storage/Secrets impact: **NONE**
-- Commit, push, integration, preview, main and production: **NOT YET PERFORMED**
+
+The 6 / 6 clean-tree statement records the runtime-release snapshot at `68e7ff54` before this four-file documentation closeout. The later closeout commit is not pre-claimed and must be inspected, promoted and synchronized separately.
 
 ## M5.1a Release Evidence
 
@@ -94,13 +100,17 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 App:
 
-`13.82.0`
+`13.82.1`
 
 Core:
 
-`4.82.0`
+`4.82.1`
 
 Production release commit:
+
+`68e7ff5433e4581eb3c19ef98934302736be84ec`
+
+Previous M5.1a Runtime Baseline (`13.82.0` / Core `4.82.0`):
 
 `b4ffe88deddd726854f90e4fff48867deb3a91f9`
 
@@ -123,8 +133,8 @@ Harness:
 
 Bestätigter Umfang:
 
-- Total: **17**
-- Passed: **17**
+- Total: **18**
+- Passed: **18**
 - Failed: **0**
 - Suite: **PASS**
 
@@ -161,7 +171,32 @@ Feature Flags:
 - ersetzen keine Domain Truth;
 - besitzen in M4.3/M4.4 keine frei veränderbare Runtime-Override-API.
 
-## M5.1a Cloudflare Integration Preview
+## M5.1b Cloudflare Integration Preview
+
+Preview:
+
+`https://integration-luvia.njwnrvwbv5.workers.dev`
+
+Confirmed for release commit `68e7ff5433e4581eb3c19ef98934302736be84ec`:
+
+- Cloudflare Worker version: **184**;
+- Cloudflare version ID: `5272ac11-6b95-4866-86fa-82b8dd610200`;
+- HTTP 200;
+- App 13.82.1 / Core 4.82.1;
+- Service Worker `luvia-shell-v13.82.1`;
+- `index.html`, kernel, Service Worker and Gallery source match the integration commit after line-ending normalization;
+- Gallery source contains the `trip.v1` read path and zero direct `LuviaTripStore`, `LuviaTripContext` or `LuviaAppState` references;
+- authenticated active Trip `Paris Hochzeitstag` and destination Paris loaded correctly;
+- Gallery settled at 51 photos, 10 photo moments and Realtime active, with day counts 20 / 27 / 4 / 0;
+- active Trip, Gallery content and release identity survived reload;
+- browser console: zero errors and zero warnings;
+- internal repository paths remain protected by the SPA fallback.
+
+The authenticated browser smoke proves the deployed current-Trip, load and reload path. The focused 3 / 3 runtime test proves changed-Trip observation, current-Trip download labeling and the no-Trip fallback without mutating the cloud-synchronized user state.
+
+Observed operationally: Gallery can temporarily show its loading state and zero photos before Realtime/media loading settles. On Preview it settled after roughly 9–15 seconds. M5.1b changes neither Gallery loading nor Media/Realtime behavior.
+
+## Previous M5.1a Cloudflare Integration Preview Baseline
 
 Preview:
 
@@ -199,23 +234,43 @@ Production:
 
 `https://myluvia.app`
 
-Confirmed M5.1a production commit:
+Confirmed M5.1b production release commit:
 
-`b4ffe88deddd726854f90e4fff48867deb3a91f9`
+`68e7ff5433e4581eb3c19ef98934302736be84ec`
+
+Cloudflare production identity:
+
+- Worker version: **185**;
+- version ID: `14a8e2eb-385b-4e2a-80bb-e8056952a991`;
+- deployment ID: `749d237e-47ce-4e71-a1e9-349e4fb9cbc4`;
+- active traffic: **100 %**;
+- version URL: `https://14a8e2eb-luvia.njwnrvwbv5.workers.dev`.
 
 Production was verified directly after the successful `main` promotion:
 
 - HTTP 200;
-- App 13.82.0 / Core 4.82.0;
-- Service Worker `luvia-shell-v13.82.0`;
-- authenticated active Trip `Paris Hochzeitstag` loaded;
-- Control Center showed the same Trip identity and `Reise erkannt` before and after reload;
-- `Reise öffnen` reached the Trip surface;
-- Timeline data loaded with three entries;
+- App 13.82.1 / Core 4.82.1;
+- Service Worker `luvia-shell-v13.82.1`;
+- live `index.html`, kernel, Service Worker and Gallery source match the clean `main` release after line-ending normalization;
+- authenticated active Trip `Paris Hochzeitstag` and destination Paris loaded;
+- Timeline loaded with three entries;
+- Gallery settled at 51 photos, 10 photo moments and Realtime active, with day counts 20 / 27 / 4 / 0;
+- Trip identity, Timeline and Gallery survived reload;
 - browser console: zero errors and zero warnings;
 - internal repository paths remained protected by the SPA fallback.
 
-The Cloudflare production version ID was not available through the local authenticated tooling. No M5.1a version ID is claimed.
+The focused 3 / 3 runtime gate supplies the deliberately non-persistent changed-Trip, download-label and no-Trip variants. No cloud-synchronized Trip selection was changed merely to manufacture browser evidence.
+
+Observed operationally: Production Gallery initially displayed its loading/zero state and settled after roughly 20 seconds. One exact text locator timed out after reload even though the final DOM already contained the complete correct state; the final evidence was read from the main view and all four day buttons. This did not reproduce as an application failure.
+
+## Previous M5.1a Production Baseline
+
+- release commit: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- App 13.82.0 / Core 4.82.0;
+- authenticated active Trip, Control Center identity, Trip surface, three Timeline entries and reload persistence verified;
+- browser console: zero errors and zero warnings;
+- internal repository paths protected by the SPA fallback;
+- no Cloudflare version ID was claimed because it was not available through the authenticated tooling used for M5.1a.
 
 Previous confirmed M4.4 Cloudflare production version:
 
@@ -324,8 +379,14 @@ Nächster Architektur-Meilenstein:
 
 M5.1a – Travel Identity Trip Contract Adoption is complete for implementation, promotion, preview, production and active-stream synchronization.
 
+## M5.1b Slice Completion
+
+M5.1b – Gallery View Trip Contract Adoption is complete for implementation, controlled validation, promotion, Preview, Production and runtime-release synchronization.
+
+The acceptance evidence is intentionally split: authenticated Preview/Production browser smokes prove the deployed current-Trip Gallery path, while the deterministic 3 / 3 runtime gate proves changed-Trip observation, download labeling and the no-Trip fallback without changing cloud-synchronized user truth.
+
 M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 
 Next scope:
 
-**M5.1b – finish local release evidence, commit the PCR-approved scope and promote only through the controlled integration path.**
+**M5 Durchführung Punkt 1 – perform a new read-only preflight for the next PCR-approved direct Trip-read projection. Booking Inbox is the smallest current candidate; no M5.1c implementation is approved by this document.**
