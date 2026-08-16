@@ -1,24 +1,45 @@
 # CURRENT BUILD
 
-- App: **13.81.9**
-- Core: **4.81.9**
-- Name: **M4.4 Integration / Preview / Merge Proof**
-- Channel: **production**
-- Datum: **2026-08-15**
-- Milestone Status: **M4 COMPLETE**
+- App: **13.82.0**
+- Core: **4.82.0**
+- Name: **M5.1a Travel Identity Trip Contract Adoption**
+- Channel: **controlled promotion candidate**
+- Datum: **2026-08-16**
+- Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
-## Scope
+## Current Scope
 
-M4.4 schließt die Parallel Development Foundation operativ ab.
+M5.1a lenkt die erste produktive Control-Center-Projektion auf den bestehenden `trip.v1`-Contract.
 
-Der vollständige kontrollierte Entwicklungs- und Promotionspfad wurde praktisch nachgewiesen:
+`LuviaControlCenterTravelIdentity` liest Reiseliste und aktive Reise nicht mehr direkt aus `LuviaTripStore` oder `LuviaTripContext`. Phase und Reisetag bleiben bis M5 Durchführung Punkt 2 im abgeleiteten `LuviaTravelContext`.
 
-`feature/* -> integration -> Regression -> Cloudflare Integration Preview -> main -> Production`
+Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking-/Inbox-Migrationen, Legacy-Löschungen oder UI-Redesign.
 
-M4.4 ist kein neues Domain-Feature. Der Meilenstein etabliert die belastbare technische Grundlage dafür, dass Platform, Booking, Consumer, Social und weitere Streams künftig parallel entwickelt werden können, ohne die kontrollierte Integrations- und Produktionskette zu umgehen.
+Promotion bleibt verbindlich:
 
-## M4 Status
+`feature/platform-core -> integration -> controlled regression -> integration preview -> main -> production`
+
+## M5 Status
+
+- M5.1a – Travel Identity Trip Contract Adoption: **IMPLEMENTED / LOCAL VALIDATION PASS**
+- M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **PENDING**
+- M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
+- M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
+- M5 Exit Gate: **NOT YET CLAIMED**
+
+## M5.1a Local Evidence
+
+- Structural release gate: **PASS**
+- JavaScript syntax checks: **PASS**
+- Release consistency (`13.82.0` / Core `4.82.0`): **PASS**
+- Targeted Travel Identity regression: **PASS**
+- Safe Regression: **17 / 17 PASS**
+- Cross-Core DB ownership debt growth: **NONE**
+- Database/Functions/Storage/Secrets impact: **NONE**
+- Commit / Push / Integration / Preview / Production: **PENDING**
+
+## Previous M4 Baseline
 
 - M4.1 – Parallel Repository Topology Foundation: **COMPLETE**
 - M4.2 – Ownership & Cross-Core Repository Guardrails: **COMPLETE**
@@ -46,17 +67,17 @@ Verbindlicher Promotionspfad:
 
 Feature-Branches dürfen `integration` nicht umgehen.
 
-## Runtime Release
+## Current Runtime Release
 
 App:
 
-`13.81.9`
+`13.82.0`
 
 Core:
 
-`4.81.9`
+`4.82.0`
 
-M4.4 Runtime-/Hardening-Baseline:
+Previous M4.4 Runtime-/Hardening-Baseline (`13.81.9` / Core `4.81.9`):
 
 `cc9a9c920f0163ecc0c102a7cece495c892b6249`
 
