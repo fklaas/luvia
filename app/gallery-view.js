@@ -62,6 +62,8 @@
   const suggestName = () => '';
   const displayName = item => item.displayName || 'Titel hinzufügen';
   const locationName = item => item?.metadata?.resolvedLocation?.name || item?.metadata?.resolvedLocation?.address || item?.metadata?.captureLocation?.name || (item?.latitude!=null&&item?.longitude!=null?'GPS-Standort gespeichert':'Kein Standort gespeichert');
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+  const activeTrip=()=>tripContract()?.getActiveTrip?.()||{};
   const normalizeOverlay=o=>({type:o?.type==='text'?'text':'sticker',value:String(o?.value||''),x:Math.max(0,Math.min(1,Number(o?.x??.5)>1?Number(o.x)/100:Number(o?.x??.5))),y:Math.max(0,Math.min(1,Number(o?.y??.5)>1?Number(o.y)/100:Number(o?.y??.5))),size:Math.max(.025,Math.min(.5,Number(o?.size)||(((o?.type==='text') ? .07 : .13)*Number(o?.scale||1)))),rotation:Number(o?.rotation||0),schema:'image-v2'});
   const settings = item => {const value={brightness:100,contrast:100,saturation:100,temperature:0,blur:0,vignette:0,exposure:0,highlights:0,shadows:0,clarity:0,hue:0,grain:0,filter:'none',rotation:0,frame:'',sticker:'',caption:'',overlays:[],...item.editSettings};value.overlays=(value.overlays||[]).map(normalizeOverlay);return value};
   const editCss = item => {
@@ -359,7 +361,8 @@
     </div>`;
   }
 
-  function placeContextFor(item){const trip=window.LuviaTripStore?.snapshot?.().activeTrip||{};const known=item.placeId&&window.LuviaPlaceCore?.getPlace?.(item.placeId);const destination=trip.destination||{};return{placeName:item.metadata?.resolvedLocation?.name||known?.name||known?.title||null,placeAddress:item.metadata?.resolvedLocation?.address||null,destinationName:destination.name||trip.destinationName||null,destinationLatitude:destination.latitude??null,destinationLongitude:destination.longitude??null};}
+  function placeContextFor(item){const trip=activeTrip();const known=item.placeId&&window.LuviaPlaceCore?.getPlace?.(item.placeId);const destination=trip.destination||{};return{placeName:item.metadata?.resolvedLocation?.name||known?.name||known?.title||null,placeAddress:item.metadata?.resolvedLocation?.address||null,destinationName:destination.name||trip.destinationName||null,destinationLatitude:destination.latitude??null,destinationLongitude:destination.longitude??null};}
+  function galleryDownloadLabel(){const trip=activeTrip();return`${trip.title||'Luvia'} Galerie`;}
   async function aiTitleFor(item) {
     const url = await urlFor(item);
     if (!url) throw new Error('Für dieses Foto ist keine sichere Vorschau verfügbar.');
@@ -548,7 +551,7 @@
     diagnosticsState.mountCount++;diagnosticsState.mountedAt=new Date().toISOString();diag('mount',{mountCount:diagnosticsState.mountCount});
     host=target; host.dataset.luviaGalleryMounted='1'; host.innerHTML=shell();
     const input=host.querySelector('[data-gallery-input]');
-    host.querySelector('[data-gallery-download]').onclick=async()=>{try{const trip=window.LuviaTripStore?.snapshot?.()?.activeTrip||{};await downloadCollection(items.map(x=>x.id),`${trip.title||trip.name||'Luvia'} Galerie`)}catch(error){showError(error)}};
+    host.querySelector('[data-gallery-download]').onclick=async()=>{try{await downloadCollection(items.map(x=>x.id),galleryDownloadLabel())}catch(error){showError(error)}};
     host.querySelector('[data-gallery-clear]').onclick=()=>clearGallery();
     host.querySelector('[data-gallery-add]').onclick=()=>{try{input.showPicker?input.showPicker():input.click()}catch{input.click()}};
     input.onchange=async()=>{const files=[...input.files];input.value='';try{await upload(files)}catch(error){showError(error)}};

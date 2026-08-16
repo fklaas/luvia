@@ -1,20 +1,20 @@
 # CURRENT BUILD
 
-- App: **13.82.0**
-- Core: **4.82.0**
-- Name: **M5.1a Travel Identity Trip Contract Adoption**
-- Channel: **production**
+- App: **13.82.1**
+- Core: **4.82.1**
+- Name: **M5.1b Gallery View Trip Contract Adoption**
+- Channel: **feature candidate**
 - Datum: **2026-08-16**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## Current Scope
 
-M5.1a lenkt die erste produktive Control-Center-Projektion auf den bestehenden `trip.v1`-Contract.
+M5.1b lenkt die zwei direkten Active-Trip-Reads der produktiven Gallery View auf den bestehenden `trip.v1`-Contract.
 
-`LuviaControlCenterTravelIdentity` liest Reiseliste und aktive Reise nicht mehr direkt aus `LuviaTripStore` oder `LuviaTripContext`. Phase und Reisetag bleiben bis M5 Durchführung Punkt 2 im abgeleiteten `LuviaTravelContext`.
+`app/gallery-view.js` liest Zielname, Zielkoordinaten und den Titel für den Galerie-Download nicht mehr direkt aus `LuviaTripStore`. Der Contract wird bei der tatsächlichen Nutzung lazy aufgelöst; Gallery besitzt weiterhin keinen Trip-State und keine Trip-Subscription.
 
-Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking-/Inbox-Migrationen, Legacy-Löschungen oder UI-Redesign.
+Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking-/Inbox-Migrationen, App-Shell/CSS, Legacy-Löschungen, Media-/OpenAI-Bereinigungen oder UI-Redesign.
 
 Promotion bleibt verbindlich:
 
@@ -23,10 +23,27 @@ Promotion bleibt verbindlich:
 ## M5 Status
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
-- M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **PENDING**
+- M5.1b – Gallery View Trip Contract Adoption: **PRE-COMMIT GATES PASS / STAGED 12 OF 12 / NOT COMMITTED / NOT RELEASED**
+- M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
 - M5 Exit Gate: **NOT YET CLAIMED**
+
+## M5.1b Local Candidate Evidence
+
+- JavaScript syntax checks: **PASS**
+- Targeted Gallery Trip Contract regression: **3 / 3 PASS**
+- Controlled safe regression before release-identity integration: **18 / 18 PASS**
+- Direct Gallery TripStore/TripContext/AppState references: **0**
+- Direct Gallery DB/RPC and legacy Trip-event references: **0**
+- Cross-Core DB ownership debt growth: **NONE**
+- Candidate release consistency (`13.82.1` / Core `4.82.1`): **PASS**
+- Candidate controlled safe regression: **18 / 18 PASS**
+- Final staged scope: **12 / 12 PASS**
+- Staged diff check: **PASS**
+- Unstaged and untracked files after staging: **0 / 0**
+- Database/Functions/Storage/Secrets impact: **NONE**
+- Commit, push, integration, preview, main and production: **NOT YET PERFORMED**
 
 ## M5.1a Release Evidence
 
@@ -73,7 +90,7 @@ Verbindlicher Promotionspfad:
 
 Feature-Branches dürfen `integration` nicht umgehen.
 
-## Current Runtime Release
+## Current Production Runtime Release
 
 App:
 
@@ -311,4 +328,4 @@ M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 
 Next scope:
 
-**M5 Durchführung Punkt 1 – inventory and redirect the next approved direct Trip-read projection without introducing a second Trip truth.**
+**M5.1b – finish local release evidence, commit the PCR-approved scope and promote only through the controlled integration path.**
