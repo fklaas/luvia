@@ -3,7 +3,7 @@
 - App: **13.82.0**
 - Core: **4.82.0**
 - Name: **M5.1a Travel Identity Trip Contract Adoption**
-- Channel: **controlled promotion candidate**
+- Channel: **production**
 - Datum: **2026-08-16**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -22,13 +22,13 @@ Promotion bleibt verbindlich:
 
 ## M5 Status
 
-- M5.1a – Travel Identity Trip Contract Adoption: **IMPLEMENTED / LOCAL VALIDATION PASS**
+- M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **PENDING**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
 - M5 Exit Gate: **NOT YET CLAIMED**
 
-## M5.1a Local Evidence
+## M5.1a Release Evidence
 
 - Structural release gate: **PASS**
 - JavaScript syntax checks: **PASS**
@@ -37,7 +37,13 @@ Promotion bleibt verbindlich:
 - Safe Regression: **17 / 17 PASS**
 - Cross-Core DB ownership debt growth: **NONE**
 - Database/Functions/Storage/Secrets impact: **NONE**
-- Commit / Push / Integration / Preview / Production: **PENDING**
+- Release commit: `b4ffe88deddd726854f90e4fff48867deb3a91f9`
+- Parent baseline: `de79c904a7aec99975acbf720abc3084714fb152`
+- Feature, integration and main promotion: **PASS**
+- Integration and main controlled regression: **17 / 17 PASS** on each branch
+- Integration preview static and authenticated runtime smoke: **PASS**
+- Production static and authenticated runtime smoke: **PASS**
+- Six active streams synchronized locally and remotely: **6 / 6 at `b4ffe88d`, divergence `0 / 0`, clean trees**
 
 ## Previous M4 Baseline
 
@@ -76,6 +82,10 @@ App:
 Core:
 
 `4.82.0`
+
+Production release commit:
+
+`b4ffe88deddd726854f90e4fff48867deb3a91f9`
 
 Previous M4.4 Runtime-/Hardening-Baseline (`13.81.9` / Core `4.81.9`):
 
@@ -134,7 +144,25 @@ Feature Flags:
 - ersetzen keine Domain Truth;
 - besitzen in M4.3/M4.4 keine frei veränderbare Runtime-Override-API.
 
-## Cloudflare Integration Preview
+## M5.1a Cloudflare Integration Preview
+
+Preview:
+
+`https://integration-luvia.njwnrvwbv5.workers.dev`
+
+Confirmed for commit `b4ffe88deddd726854f90e4fff48867deb3a91f9`:
+
+- HTTP 200;
+- App 13.82.0 / Core 4.82.0;
+- Service Worker `luvia-shell-v13.82.0`;
+- Travel Identity source consumes `trip.v1` and the versioned Trip event;
+- authenticated active Trip and Control Center projection load correctly before and after reload;
+- browser console: zero errors and zero warnings;
+- internal repository paths remain protected by the SPA fallback.
+
+The Cloudflare version ID was not available through the local authenticated tooling. No version ID is claimed for M5.1a; the deployed artifact and runtime were verified directly.
+
+## Previous M4.4 Cloudflare Integration Preview Baseline
 
 Nicht-Production-Branches werden durch Cloudflare Workers Builds als Worker-Versionen hochgeladen.
 
@@ -154,18 +182,27 @@ Production:
 
 `https://myluvia.app`
 
-Bestätigte Cloudflare Production Version:
+Confirmed M5.1a production commit:
+
+`b4ffe88deddd726854f90e4fff48867deb3a91f9`
+
+Production was verified directly after the successful `main` promotion:
+
+- HTTP 200;
+- App 13.82.0 / Core 4.82.0;
+- Service Worker `luvia-shell-v13.82.0`;
+- authenticated active Trip `Paris Hochzeitstag` loaded;
+- Control Center showed the same Trip identity and `Reise erkannt` before and after reload;
+- `Reise öffnen` reached the Trip surface;
+- Timeline data loaded with three entries;
+- browser console: zero errors and zero warnings;
+- internal repository paths remained protected by the SPA fallback.
+
+The Cloudflare production version ID was not available through the local authenticated tooling. No M5.1a version ID is claimed.
+
+Previous confirmed M4.4 Cloudflare production version:
 
 `f61d9b23-9ea4-43f8-b318-83c44789341d`
-
-Der erfolgreiche `main`-Build desselben M4.4-Standes führte automatisch zur Production-Promotion.
-
-Production wurde anschließend live verifiziert:
-
-- HTTP 200
-- App 13.81.9 vorhanden
-- Service Worker `luvia-shell-v13.81.9`
-- Static Asset Hardening aktiv
 
 ## Static Asset Hardening
 
@@ -265,3 +302,13 @@ ist M4 vollständig abgeschlossen.
 Nächster Architektur-Meilenstein:
 
 **M5 – Trip Core Isolation**
+
+## M5.1a Slice Completion
+
+M5.1a – Travel Identity Trip Contract Adoption is complete for implementation, promotion, preview, production and active-stream synchronization.
+
+M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
+
+Next scope:
+
+**M5 Durchführung Punkt 1 – inventory and redirect the next approved direct Trip-read projection without introducing a second Trip truth.**

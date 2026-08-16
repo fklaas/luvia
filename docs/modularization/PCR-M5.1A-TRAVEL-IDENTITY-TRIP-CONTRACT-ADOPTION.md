@@ -1,6 +1,6 @@
 # Platform Change Request — M5.1a Travel Identity Trip Contract Adoption
 
-**Status:** APPROVED FOR IMPLEMENTATION
+**Status:** IMPLEMENTED / PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **Owners:** Platform + Trip + Control Center
 **Contract:** existing `trip.v1` (no contract schema or adapter change)
@@ -120,6 +120,28 @@ The targeted test must prove that Trip list and active Trip come from `trip.v1`,
 8. synchronize all active streams after the main release.
 
 No feature flag is required because this is a compatible replacement of a read path behind an existing projection, with a commit-level rollback and no persisted state change.
+
+## Implementation and rollout evidence
+
+Result: **PASS**
+
+- implementation commit: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- parent baseline: `de79c904a7aec99975acbf720abc3084714fb152`;
+- exact approved staged scope: 11 / 11 files;
+- targeted Travel Identity test: PASS;
+- release consistency: App 13.82.0 / Core 4.82.0 PASS;
+- controlled regression on feature, integration and main: 17 / 17 PASS;
+- cross-core DB ownership debt growth: none;
+- integration preview static and authenticated runtime smoke: PASS;
+- production static and authenticated runtime smoke: PASS;
+- browser console on preview and production: zero errors and zero warnings;
+- all six active streams synchronized locally and remotely at `b4ffe88d`, divergence `0 / 0`, clean worktrees;
+- force pushes: none;
+- database, migration, Function, Storage and secret changes: none.
+
+The Cloudflare version ID was not available through the local authenticated tooling. No preview or production version ID is claimed; the delivered assets and authenticated runtime were verified directly.
+
+All PCR acceptance criteria are satisfied for M5.1a. M5 remains in progress and its exit gate remains unclaimed.
 
 ## Rollback
 

@@ -1,6 +1,6 @@
 # Test Results — M5.1a Travel Identity Trip Contract Adoption
 
-**Status:** LOCAL PASS
+**Status:** FINAL PASS — PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Date:** 2026-08-16
 **Worktree:** `C:\Users\fabia\Documents\GitHub\luvia-platform`
 **Branch:** `feature/platform-core`
@@ -121,15 +121,78 @@ No cross-core DB debt growth was detected.
 
 The validation commands did not change the working tree.
 
-## Not yet evidenced
+## Commit and feature-stream evidence
 
-- staged-scope verification;
-- commit SHA and clean post-commit tree;
-- pre-/post-push remote SHA;
-- integration merge and full regression on `integration`;
-- integration preview smoke;
-- `main` promotion;
-- production smoke;
-- synchronization of all active streams.
+Result: **PASS**
 
-No PASS is claimed for these pending stages.
+- exact staged scope: 11 / 11 approved files;
+- unexpected staged or unstaged files: 0;
+- commit SHA: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- parent SHA: `de79c904a7aec99975acbf720abc3084714fb152`;
+- commit subject: `feat(m5): adopt trip contract in travel identity`;
+- clean post-commit worktree: confirmed;
+- `origin/feature/platform-core` before push: `de79c904a7aec99975acbf720abc3084714fb152`;
+- `origin/feature/platform-core` after push: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- post-push local/remote divergence: `0 / 0`.
+
+## Integration evidence
+
+Result: **PASS**
+
+- `integration` fast-forwarded from `de79c904a7aec99975acbf720abc3084714fb152` to `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- no merge commit was created;
+- complete controlled regression on `integration`: 17 passed, 0 failed;
+- integration remote before push: `de79c904a7aec99975acbf720abc3084714fb152`;
+- integration remote after push: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- integration preview: `https://integration-luvia.njwnrvwbv5.workers.dev`;
+- static preview smoke: App 13.82.0 / Core 4.82.0, Service Worker 13.82.0 and protected internal paths;
+- authenticated preview smoke: active Trip, Control Center identity, Trip surface and reload path confirmed;
+- browser console: zero errors and zero warnings.
+
+## Main and production evidence
+
+Result: **PASS**
+
+- `main` fast-forwarded from `de79c904a7aec99975acbf720abc3084714fb152` to `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- no merge commit was created;
+- complete controlled regression on `main`: 17 passed, 0 failed;
+- main remote before push: `de79c904a7aec99975acbf720abc3084714fb152`;
+- main remote after push: `b4ffe88deddd726854f90e4fff48867deb3a91f9`;
+- Production: `https://myluvia.app`;
+- static production smoke: App 13.82.0 / Core 4.82.0, Service Worker 13.82.0 and protected internal paths;
+- authenticated production smoke: active Trip `Paris Hochzeitstag`, Control Center identity, Trip surface, three Timeline entries and reload persistence confirmed;
+- browser console: zero errors and zero warnings.
+
+The Cloudflare version ID was not available through the local authenticated tooling. No preview or production version ID is claimed for M5.1a.
+
+## Runtime observation
+
+On the integration preview, the Timeline summary briefly displayed zero entries after reload. Opening the existing 31 July date showed all three entries and the correct day data. The M5.1a product diff does not modify Timeline, Dashboard or Timeline-loading code. Production subsequently loaded all three entries after reload. The observation did not reproduce as Trip-data loss and did not block M5.1a.
+
+## Active-stream synchronization
+
+Result: **PASS**
+
+All six active branches were verified locally and remotely at:
+
+`b4ffe88deddd726854f90e4fff48867deb3a91f9`
+
+- `main`;
+- `integration`;
+- `feature/platform-core`;
+- `feature/booking-core`;
+- `feature/consumer-experience`;
+- `feature/social-experience-graph`.
+
+For every stream:
+
+- local SHA equals remote SHA;
+- divergence is `0 / 0`;
+- working tree is clean;
+- no force push was used.
+
+## Final result
+
+M5.1a implementation, validation, promotion, preview, production and stream synchronization: **PASS / COMPLETE**.
+
+M5 remains **IN PROGRESS** and its exit gate remains unclaimed.
