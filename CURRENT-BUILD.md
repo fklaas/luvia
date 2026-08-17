@@ -1,20 +1,20 @@
 # CURRENT BUILD
 
-- App: **13.82.1**
-- Core: **4.82.1**
-- Name: **M5.1b Gallery View Trip Contract Adoption**
-- Channel: **production**
-- Datum: **2026-08-16**
+- App: **13.82.2**
+- Core: **4.82.2**
+- Name: **M5.1c Booking Inbox Trip Contract Adoption**
+- Channel: **feature/platform-core release candidate**
+- Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## Current Scope
 
-M5.1b lenkt die zwei direkten Active-Trip-Reads der produktiven Gallery View auf den bestehenden `trip.v1`-Contract.
+M5.1c lenkt die Trip-Liste und den Active-Trip-Read der produktiven Booking Inbox auf den bestehenden `trip.v1`-Contract.
 
-`app/gallery-view.js` liest Zielname, Zielkoordinaten und den Titel für den Galerie-Download nicht mehr direkt aus `LuviaTripStore`. Der Contract wird bei der tatsächlichen Nutzung lazy aufgelöst; Gallery besitzt weiterhin keinen Trip-State und keine Trip-Subscription.
+`app/control-center/booking-inbox.js` liest die Trip-Liste über `listTrips()` und die aktive Reise über `getActiveTrip()`. Der Contract wird bei der tatsächlichen Nutzung lazy und V1-first aufgelöst; die Inbox besitzt weiterhin nur lokale UI-Auswahl und keine Trip-Truth, keinen Trip-Cache und keine Trip-Subscription.
 
-Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking-/Inbox-Migrationen, App-Shell/CSS, Legacy-Löschungen, Media-/OpenAI-Bereinigungen oder UI-Redesign.
+Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking Control Center, App-Shell/CSS, Legacy-Löschungen, Media-/OpenAI-Bereinigungen oder UI-Redesign.
 
 Promotion bleibt verbindlich:
 
@@ -24,10 +24,31 @@ Promotion bleibt verbindlich:
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
+- M5.1c – Booking Inbox Trip Contract Adoption: **IN PROGRESS / STAGING GATE PASS / NOT COMMITTED**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
 - M5 Exit Gate: **NOT YET CLAIMED**
+
+## M5.1c Feature Evidence
+
+- Test-first boundary proof against unchanged Runtime: **EXPECTED RED — 0 / 3 PASS, caused by `LuviaTripStore`, `LuviaControlCenterTravelIdentity` and missing `trip.v1` usage**
+- Existing controlled baseline before Runtime implementation: **18 / 18 PASS**
+- JavaScript syntax checks for Runtime, focused test and controlled runner: **PASS**
+- Targeted Booking Inbox Trip Contract regression after Runtime implementation: **3 / 3 PASS**
+- Compatible Booking Actions / Intelligence boundary check: **PASS**
+- Controlled safe regression on `feature/platform-core`: **19 / 19 PASS**
+- Direct Inbox Store/Context/Travel-Identity references: **0**
+- Direct Inbox DB/RPC, Trip-event, Trip-subscription and Trip-command references: **0**
+- Cross-Core DB ownership debt growth: **NONE**
+- Runtime diff: **3 insertions / 3 deletions in the approved Trip read helpers only**
+- Controlled runner diff: **exactly one M5.1c entry; 19 unique paths; 0 duplicates**
+- Release consistency (`13.82.2` / Core `4.82.2`): **PASS**
+- Exact staged allowlist: **12 / 12 PASS; zero unstaged and zero untracked files; cached diff check PASS**
+- Staged Runtime / runner / index gates: **3 / 3 Runtime numstat; one runner entry; 214 App cache tokens and unchanged asset/load order**
+- Complete syntax, Contract, release, guardrail and controlled regression after staging: **PASS — 19 / 19**
+- Implementation commit, Remote push, Integration, Preview, Main, Production and six-stream synchronization: **NOT YET CLAIMED**
+- Database/Functions/Storage/Secrets impact: **NONE**
 
 ## M5.1b Release Evidence
 
@@ -131,10 +152,10 @@ Harness:
 
 `tests/run-m4.3-safe-regression.cjs`
 
-Bestätigter Umfang:
+Bestätigter Umfang auf dem aktuellen Feature-Kandidaten:
 
-- Total: **18**
-- Passed: **18**
+- Total: **19**
+- Passed: **19**
 - Failed: **0**
 - Suite: **PASS**
 
@@ -389,4 +410,4 @@ M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 
 Next scope:
 
-**M5 Durchführung Punkt 1 – perform a new read-only preflight for the next PCR-approved direct Trip-read projection. Booking Inbox is the smallest current candidate; no M5.1c implementation is approved by this document.**
+**M5.1c – complete the approved release-evidence, exact staging and implementation-commit gates for the already green Booking Inbox Trip Contract candidate. Integration, Preview, Main, Production and six-stream synchronization remain unclaimed.**

@@ -69,6 +69,10 @@ const SUITE = Object.freeze([
 
   {
     category: 'Product / Control Center',
+    test: 'tests/m5.1c-booking-inbox-trip-contract-adoption.test.cjs'
+  },
+  {
+    category: 'Product / Control Center',
     test: 'tests/v13.77.0-control-center-home-travel-identity.test.cjs'
   },
   {

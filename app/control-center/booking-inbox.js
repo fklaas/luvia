@@ -9,10 +9,10 @@ const STATUS_LABEL={draft:'Entwurf',ready:'Bereit',requested:'Angefragt',awaitin
 const TYPE_ICON={restaurant:'🍽',hotel:'▦',activity:'◇',event:'◇',transport:'↗',rental:'⌂',other:'✦'};
 const clean=v=>String(v??'').trim();
 const fmt=v=>{if(!v)return'';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
-const tripSnapshot=()=>window.LuviaTripStore?.snapshot?.()||{};
-const tripList=()=>{const s=tripSnapshot();return Array.isArray(s.trips)?s.trips:Array.isArray(s.items)?s.items:[]};
+const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripList=()=>{const trips=tripContract()?.listTrips?.();return Array.isArray(trips)?trips:[]};
 const tripId=t=>t?.id||t?.tripId||null;const tripTitle=t=>t?.title||t?.name||t?.destination?.name||'Reise';
-const activeTripId=()=>tripSnapshot().activeTripId||tripId(tripSnapshot().activeTrip)||window.LuviaControlCenterTravelIdentity?.snapshot?.()?.activeTrip?.id||null;
+const activeTripId=()=>tripId(tripContract()?.getActiveTrip?.())||null;
 function seenKey(id){return `luvia.booking-inbox.seen.${id}`}
 function getSeen(id){try{return localStorage.getItem(seenKey(id))||memorySeen[id]||null}catch{return memorySeen[id]||null}}
 function markSeen(id,at){const value=at||new Date().toISOString();memorySeen[id]=value;try{localStorage.setItem(seenKey(id),value)}catch{}return value}

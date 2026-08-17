@@ -1,9 +1,10 @@
 # Platform Change Request — M5.1c Booking Inbox Trip Contract Adoption
 
 **PCR ID:** `M5.1c`
-**Status:** SCOPE APPROVED / PCR-ONLY / RUNTIME IMPLEMENTATION NOT STARTED / NOT RELEASED
+**Status:** STAGING GATE PASS / RELEASE CANDIDATE PREPARED / NOT COMMITTED / NOT PUSHED / NOT RELEASED
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **Baseline:** App `13.82.1` / Core `4.82.1`, Git `487d137c36a9a4fc0a0daa1740d4e6350b9a8907`
+**Implementation parent:** `f3f7431b2db8344e34d716daed33e10559d9f7cf` (approved PCR commit)
 **Requester and implementation stream:** `feature/platform-core`
 **Owners:** Platform (PCR/lock/implementation/promotion) + Trip (truth/contract) + Control Center (Inbox projection) + Booking (business-boundary review)
 **Contract:** existing `trip.v1` (no contract schema, major version, JSON or adapter change)
@@ -195,14 +196,14 @@ The PCR-only documentation step keeps the current release unchanged:
 - Core: `4.82.1`
 - Runtime release: none
 
-The planned compatible Runtime candidate after separate implementation approval and execution is:
+The compatible Runtime candidate prepared after the approved test-first implementation is:
 
 - App: `13.82.2`
 - Core: `4.82.2`
 - Architecture slice: `M5.1c`
 - Release name: `M5.1c Booking Inbox Trip Contract Adoption`
 
-This candidate is not yet implemented or claimed. A version bump is planned because productive cached JavaScript changes. Contract `trip.v1` remains version 1.
+This candidate is implemented and validated only in the local `feature/platform-core` working tree. It is not staged, committed, pushed, integrated, previewed or released. The version bump is required because productive cached JavaScript changes. Contract `trip.v1` remains version 1.
 
 ## Test plan
 
@@ -293,6 +294,70 @@ Before a later commit:
 - version and evidence documents must contain only results that have actually been executed;
 - no PASS, SHA, Remote, Preview, Production, Cloudflare or synchronization claim may appear without corresponding evidence.
 
+## Feature implementation evidence — 2026-08-17
+
+The approved local feature implementation has been executed against implementation parent `f3f7431b2db8344e34d716daed33e10559d9f7cf`.
+
+Verified test-first sequence:
+
+- the new focused test was added before Runtime changes;
+- against unchanged Runtime it reported the intended RED result: 0 passed and 3 failed;
+- the failures identified `LuviaTripStore`, `LuviaControlCenterTravelIdentity`, the private `tripSnapshot` path and missing `trip.v1` usage;
+- the existing controlled 18-test baseline remained 18 / 18 green during the RED proof;
+- no historical release test was rewritten to manufacture the result.
+
+Verified Runtime and ownership result:
+
+- `app/control-center/booking-inbox.js` has a 3-insertion / 3-deletion functional diff limited to the approved Trip read helpers;
+- one lazy resolver prefers `LuviaTripContractV1` and falls back only to `LuviaTripContract`;
+- the Trip list uses exactly one `listTrips()` Contract read;
+- the initial active-Trip ID uses exactly one `getActiveTrip()` Contract read;
+- direct Inbox references to `LuviaTripStore`, `LuviaTripContext`, `LuviaAppState`, `LuviaControlCenterTravelIdentity` and `tripSnapshot` are zero;
+- direct Inbox Trip events, subscriptions, commands, `.from(...)` and `.rpc(...)` calls are zero;
+- Inbox-local `selectedTripId` remains local UI state and does not mutate global Trip truth;
+- Booking list, Conversation, Preference, Intelligence and Reply operations remain behind the Booking owner API;
+- the public Inbox API and Diagnostics ownership declarations remain unchanged.
+
+Verified release-candidate integration:
+
+- exactly one M5.1c test entry was added to the controlled runner;
+- the allowlist contains 19 unique paths and zero duplicates;
+- App identity is `13.82.2`, Core identity is `4.82.2` and the Service Worker cache is `luvia-shell-v13.82.2`;
+- all 214 active `index.html` cache markers changed from `13.82.1` to `13.82.2`;
+- after reversing only that version token and normalizing line endings, the complete `index.html` content equals the implementation parent, proving unchanged assets and load order;
+- the release-consistency gate reports `Build 13.82.2 / Core 4.82.2 release consistency: OK`;
+- the focused M5.1c regression reports 3 / 3 pass;
+- the compatible Booking Actions / Intelligence boundary check passes;
+- Trip Contract, evergreen Contract release integration and foundation gates pass;
+- the controlled safe regression reports 19 / 19 pass;
+- the cross-core DB ownership baseline remains 327 tracked JS/TS files, 316 static DB calls, mapped 26 / 26, unmapped 39 / 39 and dynamic 27 / 27;
+- `git diff --check` reports no whitespace error.
+
+Verified Git boundary before evidence-file creation:
+
+- branch: `feature/platform-core`;
+- local HEAD, tracking HEAD and live `origin/feature/platform-core` all equal `f3f7431b2db8344e34d716daed33e10559d9f7cf`;
+- staged files: zero;
+- implementation commit: none;
+- push: none;
+- Integration, Preview, Main, Production, Cloudflare and six-stream synchronization evidence: not yet claimed.
+
+Verified staging gate after evidence-file creation:
+
+- exactly the 12 PCR-approved files were staged through an explicit path list;
+- unexpected staged files: zero;
+- unstaged files: zero;
+- untracked files: zero;
+- `git diff --cached --check`: pass;
+- staged Runtime numstat: 3 insertions / 3 deletions;
+- staged runner numstat: 4 insertions / 0 deletions with exactly one M5.1c entry;
+- staged `index.html`: 214 App `13.82.2` tokens, zero App `13.82.1` tokens and complete equality to the implementation parent after reversing only the version token and normalizing line endings;
+- staged focused, Booking boundary, Trip Contract, Contract release, foundation, DB guardrail and release-consistency gates: pass;
+- staged controlled safe regression: 19 / 19 pass;
+- implementation commit and push: none.
+
+`RELEASE-NOTES-M5.1C.md` and `TEST-RESULTS-M5.1C.md` record the same bounded local evidence. Later staging and rollout sections must be updated only after their corresponding commands and external verifications have actually completed.
+
 ## Rollout and feature gate
 
 1. create and review this PCR-only file on clean `feature/platform-core`;
@@ -340,7 +405,7 @@ No DB, migration, schema, Storage or data rollback is required because this slic
 - All six streams are synchronized before M5.1c is marked complete.
 - M5 remains in progress and its exit gate remains unclaimed unless all separate M5 requirements are later evidenced.
 
-No acceptance criterion is marked PASS in this PCR-only step.
+The local Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardrail, controlled-regression and exact-staging acceptance criteria are **PASS** for the uncommitted feature candidate. Implementation commit, Remote push, Integration, Preview, Main, Production, Cloudflare and six-stream synchronization criteria remain **OPEN**. M5.1c and M5 are not marked complete.
 
 ## Approval
 
@@ -349,4 +414,4 @@ No acceptance criterion is marked PASS in this PCR-only step.
 - Control Center / Experience owner: scope approved for the exact Booking Inbox boundary migration only
 - Booking boundary reviewer: scope approved only while Booking APIs and business behavior remain unchanged
 - approved implementation commit / PR: **pending — no commit or PR exists**
-- Runtime implementation authorization: requires a fresh pre-change state/scope check under this PCR
+- Runtime implementation authorization: **executed after a fresh state/scope check; local candidate green, not staged or committed**
