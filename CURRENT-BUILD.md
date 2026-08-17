@@ -3,7 +3,7 @@
 - App: **13.82.2**
 - Core: **4.82.2**
 - Name: **M5.1c Booking Inbox Trip Contract Adoption**
-- Channel: **feature/platform-core release candidate**
+- Channel: **production / M5.1c closeout in progress**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -24,13 +24,13 @@ Promotion bleibt verbindlich:
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
-- M5.1c – Booking Inbox Trip Contract Adoption: **IN PROGRESS / STAGING GATE PASS / NOT COMMITTED**
+- M5.1c – Booking Inbox Trip Contract Adoption: **PRODUCTION VERIFIED / CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
 - M5 Exit Gate: **NOT YET CLAIMED**
 
-## M5.1c Feature Evidence
+## M5.1c Release Evidence
 
 - Test-first boundary proof against unchanged Runtime: **EXPECTED RED — 0 / 3 PASS, caused by `LuviaTripStore`, `LuviaControlCenterTravelIdentity` and missing `trip.v1` usage**
 - Existing controlled baseline before Runtime implementation: **18 / 18 PASS**
@@ -47,7 +47,21 @@ Promotion bleibt verbindlich:
 - Exact staged allowlist: **12 / 12 PASS; zero unstaged and zero untracked files; cached diff check PASS**
 - Staged Runtime / runner / index gates: **3 / 3 Runtime numstat; one runner entry; 214 App cache tokens and unchanged asset/load order**
 - Complete syntax, Contract, release, guardrail and controlled regression after staging: **PASS — 19 / 19**
-- Implementation commit, Remote push, Integration, Preview, Main, Production and six-stream synchronization: **NOT YET CLAIMED**
+- Implementation release commit: `83aae200b77aa7791f1d8d51b471af07506bdc0a`
+- Implementation parent / approved PCR commit: `f3f7431b2db8344e34d716daed33e10559d9f7cf`
+- Feature push: **PASS** — local, tracking and live Remote synchronized at the implementation commit
+- Integration fast-forward: **PASS** — no merge commit
+- Integration controlled regression: **19 / 19 PASS**
+- Integration Preview static verification: **PASS** — App 13.82.2 / Core 4.82.2 JavaScript assets served as `text/javascript`
+- Integration Preview authenticated runtime smoke: **PASS**
+- Main fast-forward: **PASS** — no merge commit
+- Main push: **PASS** — local, tracking and live Remote synchronized at the implementation commit
+- Main controlled regression after promotion: **19 / 19 PASS**
+- Production static verification: **PASS** — App 13.82.2 / Core 4.82.2
+- Production authenticated runtime smoke: **PASS**
+- Production browser console: **0 errors / 0 warnings**
+- Six-stream synchronization: **PENDING**
+- M5.1c Cloudflare Worker version / deployment ID: **NOT CLAIMED — no direct identity evidence recorded in this closeout**
 - Database/Functions/Storage/Secrets impact: **NONE**
 
 ## M5.1b Release Evidence
@@ -121,13 +135,17 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 App:
 
-`13.82.1`
+`13.82.2`
 
 Core:
 
-`4.82.1`
+`4.82.2`
 
-Production release commit:
+Production runtime release commit:
+
+`83aae200b77aa7791f1d8d51b471af07506bdc0a`
+
+Previous M5.1b Runtime Baseline (`13.82.1` / Core `4.82.1`):
 
 `68e7ff5433e4581eb3c19ef98934302736be84ec`
 
@@ -410,4 +428,4 @@ M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 
 Next scope:
 
-**M5.1c – complete the approved release-evidence, exact staging and implementation-commit gates for the already green Booking Inbox Trip Contract candidate. Integration, Preview, Main, Production and six-stream synchronization remain unclaimed.**
+**M5.1c – finish the documentation-only closeout, promote that closeout through the controlled Git path and synchronize all six active streams. M5 itself remains IN PROGRESS and its exit gate remains unclaimed.**

@@ -1,6 +1,6 @@
 # Release Notes — M5.1c Booking Inbox Trip Contract Adoption
 
-**Status:** STAGED RELEASE CANDIDATE / VALIDATION PASS / NOT COMMITTED / NOT RELEASED
+**Status:** PRODUCTION VERIFIED / DOCUMENTATION CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **App:** 13.82.2
 **Core:** 4.82.2
@@ -100,15 +100,15 @@ The failures identified the known direct TripStore/Travel-Identity boundary, the
 
 See `TEST-RESULTS-M5.1C.md` for the command-level local evidence.
 
-## Current Git boundary
+## Historical pre-commit Git boundary
 
 - Branch: `feature/platform-core`
 - Local HEAD: `f3f7431b2db8344e34d716daed33e10559d9f7cf`
 - Tracking HEAD before evidence creation: `f3f7431b2db8344e34d716daed33e10559d9f7cf`
 - Live `origin/feature/platform-core` before evidence creation: `f3f7431b2db8344e34d716daed33e10559d9f7cf`
 - Staged files before the staging gate: **0**
-- Implementation commit: **NONE**
-- Push: **NONE**
+- Implementation commit at this historical gate: **NONE**
+- Push at this historical gate: **NONE**
 - Force push: **NONE**
 
 Verified staging result:
@@ -126,19 +126,48 @@ Verified staging result:
 ## Promotion status
 
 - Exact staging inspection: **PASS**
-- Implementation commit: **PENDING**
-- Push to `origin/feature/platform-core`: **PENDING**
-- Integration fast-forward and 19-test regression: **PENDING**
-- Integration Preview static verification: **PENDING**
-- Authenticated non-mutating Inbox Preview smoke: **PENDING**
-- Main fast-forward and 19-test regression: **PENDING**
-- Production static verification: **PENDING**
-- Authenticated non-mutating Inbox Production smoke: **PENDING**
-- Cloudflare version/deployment/traffic evidence: **PENDING**
+- Implementation commit: **PASS** — `83aae200b77aa7791f1d8d51b471af07506bdc0a`
+- Implementation parent / approved PCR commit: `f3f7431b2db8344e34d716daed33e10559d9f7cf`
+- Commit subject: `feat(m5): adopt trip contract in booking inbox`
+- Push to `origin/feature/platform-core`: **PASS**
+- Integration fast-forward: **PASS**, no merge commit
+- Integration controlled regression: **19 / 19 PASS**
+- Integration Preview static verification: **PASS**
+- Authenticated non-mutating Inbox Preview smoke: **PASS**
+- Main fast-forward: **PASS**, no merge commit
+- Main push and Remote verification: **PASS**
+- Main controlled regression after promotion: **19 / 19 PASS**
+- Production static verification: **PASS**
+- Authenticated non-mutating Inbox Production smoke: **PASS**
+- Production console: **0 errors / 0 warnings**
 - Six-stream synchronization: **PENDING**
+- Force push: **NONE**
+- Cloudflare Worker version / deployment ID for M5.1c: **NOT CLAIMED**, because no direct identity evidence has been recorded.
 
-No commit SHA, Remote update, Preview, Production, Cloudflare identity or synchronization result is claimed by this local release-candidate document.
+## Runtime verification
 
+Integration Preview and Production both confirmed:
+
+- App `13.82.2`;
+- Core `4.82.2`;
+- active Trip `Paris Hochzeitstag`;
+- destination `Paris`;
+- Booking Inbox shows 23 conversations for Paris;
+- Inbox-local switch to Munich shows 0 conversations;
+- the global active Trip remains `Paris Hochzeitstag`;
+- switching the Inbox back to Paris restores 23 conversations;
+- the existing Café-Berry thread loads;
+- Luvia Intelligence is visible;
+- the reply field and sending boundary are visible;
+- reload persistence is correct;
+- no Reply was sent;
+- no Conversation was archived or deleted;
+- no Booking mutation was executed;
+- browser console reports zero errors and zero warnings.
+
+The Inbox Trip selector remains local UI state. The runtime smoke therefore verifies the M5.1c ownership boundary without mutating global Trip truth or Booking truth.
+
+The implementation runtime release commit is `83aae200b77aa7791f1d8d51b471af07506bdc0a`. This documentation-only closeout does not pre-claim its own future commit SHA or six-stream synchronization result.
 ## Rollback boundary
 
 Before Production, stop promotion and correct or review-revert the implementation only in `feature/platform-core`. After Production, revert the later implementation commit through `feature/platform-core -> integration -> main -> production` and synchronize all streams again.
@@ -151,6 +180,6 @@ M5.1c local implementation, release identity and controlled feature validation: 
 
 M5.1c exact staging and post-staging validation: **PASS**.
 
-M5.1c commit, promotion, Preview, Production and stream synchronization: **OPEN / NOT YET CLAIMED**.
+M5.1c implementation, controlled promotion, Integration Preview and Production verification: **PASS**. Documentation closeout and final six-stream synchronization remain **OPEN**.
 
 M5 remains **IN PROGRESS** and its exit gate remains unclaimed.

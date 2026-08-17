@@ -1,6 +1,6 @@
 # Test Results — M5.1c Booking Inbox Trip Contract Adoption
 
-**Status:** STAGING PASS / RELEASE CANDIDATE / NOT COMMITTED / NOT RELEASED
+**Status:** PRODUCTION VERIFIED / DOCUMENTATION CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING
 **Date:** 2026-08-17
 **Worktree:** `C:\Users\fabia\Documents\GitHub\luvia-platform`
 **Branch:** `feature/platform-core`
@@ -252,7 +252,7 @@ No cross-core DB debt growth was detected.
 - external AI call during validation: none;
 - browser, Preview or Production mutation during local validation: none.
 
-## Current Git boundary
+## Historical pre-commit Git boundary
 
 Verified before evidence-file creation:
 
@@ -264,7 +264,7 @@ Remote:   f3f7431b2db8344e34d716daed33e10559d9f7cf
 Staged:   0 files
 ```
 
-No implementation commit, push or force push exists.
+At this historical pre-commit gate, no implementation commit, push or force push existed.
 
 ## Staging evidence
 
@@ -288,29 +288,93 @@ Result: **PASS**
 - controlled safe regression after staging: 19 / 19 PASS;
 - implementation commit: none.
 
-## Open commit and rollout gates
+## Release commit and feature-stream evidence
 
-The following results are intentionally not claimed:
+Result: **PASS**
 
-- implementation commit SHA and clean post-commit tree;
-- Remote SHA before and after feature push;
-- Integration fast-forward and 19 / 19 regression;
-- Integration Preview static asset match;
-- authenticated non-mutating Booking Inbox Preview smoke;
-- Main fast-forward and 19 / 19 regression;
-- Production static asset match;
-- authenticated non-mutating Booking Inbox Production smoke;
-- Cloudflare version, deployment and traffic identity;
-- six-stream synchronization.
+- implementation release commit: `83aae200b77aa7791f1d8d51b471af07506bdc0a`;
+- parent / approved PCR commit: `f3f7431b2db8344e34d716daed33e10559d9f7cf`;
+- commit subject: `feat(m5): adopt trip contract in booking inbox`;
+- feature Remote push: PASS;
+- local, tracking and live `origin/feature/platform-core` were verified equal after push;
+- force push: none.
 
-These sections may be changed to PASS only after the corresponding Git, test, deployment and runtime evidence exists.
+## Integration evidence
 
+Result: **PASS**
+
+- `integration` was advanced by fast-forward only;
+- no merge commit was created;
+- complete controlled regression: 19 passed, 0 failed;
+- integration branch was pushed and post-push local, tracking and live Remote SHAs matched;
+- stable Preview: `https://integration-luvia.njwnrvwbv5.workers.dev`;
+- static Preview assets returned HTTP 200;
+- `intelligence/kernel/version.js?v=13.82.2` returned `text/javascript` and contained App 13.82.2 / Core 4.82.2;
+- `core/diagnostics/media-readiness.js?v=13.82.2` returned `text/javascript` and contained App 13.82.2 / Core 4.82.2;
+- authenticated Preview runtime smoke passed;
+- console: 0 errors / 0 warnings.
+
+Authenticated Preview behavior:
+
+- active Trip: `Paris Hochzeitstag`;
+- destination: Paris;
+- Paris Inbox: 23 conversations;
+- Inbox-local Munich selection: 0 conversations;
+- global active Trip remained Paris;
+- returning the Inbox selector to Paris restored 23 conversations;
+- Café-Berry thread, Luvia Intelligence, reply field and sending boundary were visible;
+- reload persistence passed;
+- no Reply, archive, delete or Booking mutation was executed.
+
+## Main and production evidence
+
+Result: **PASS**
+
+- `main` was advanced by fast-forward only;
+- no merge commit was created;
+- main Remote push moved `487d137c36a9a4fc0a0daa1740d4e6350b9a8907` to `83aae200b77aa7791f1d8d51b471af07506bdc0a`;
+- post-push local, tracking and live `origin/main` all matched `83aae200b77aa7791f1d8d51b471af07506bdc0a`;
+- divergence after push: `0 / 0`;
+- complete controlled regression on `main`: 19 passed, 0 failed;
+- Production: `https://myluvia.app`;
+- Production index: HTTP 200 and App 13.82.2;
+- Production Service Worker: HTTP 200, JavaScript and App 13.82.2;
+- Production `version.js`: HTTP 200, `text/javascript`, App 13.82.2 / Core 4.82.2;
+- Production `media-readiness.js`: HTTP 200, `text/javascript`, App 13.82.2 / Core 4.82.2;
+- authenticated Production runtime smoke passed;
+- console: 0 errors / 0 warnings.
+
+Authenticated Production behavior matched Preview:
+
+- active Trip `Paris Hochzeitstag`;
+- destination Paris;
+- Paris Inbox 23 conversations;
+- Munich Inbox 0 conversations;
+- global active Trip remained Paris;
+- Paris returned to 23 conversations;
+- Café-Berry thread loaded;
+- Luvia Intelligence, reply field and sending boundary were visible;
+- reload persistence passed;
+- no Reply, archive, delete or Booking mutation occurred.
+
+No M5.1c Cloudflare Worker version, deployment ID or traffic identity is claimed because no direct identity evidence has been recorded.
+
+## Remaining closeout gate
+
+The following remains intentionally open:
+
+- documentation-only closeout commit;
+- promotion of that closeout through the controlled Git path;
+- synchronization of all six active streams to the final M5.1c closeout head;
+- final local/tracking/live Remote SHA and clean-tree verification for all six streams.
+
+Until those steps are evidenced, M5.1c is not marked COMPLETE.
 ## Current result
 
 M5.1c local implementation, release identity and controlled feature validation: **PASS**.
 
 M5.1c exact staging and post-staging validation: **PASS**.
 
-M5.1c commit, promotion, Preview, Production and stream synchronization: **OPEN / NOT YET CLAIMED**.
+M5.1c implementation, controlled promotion, Integration Preview, Main regression and Production verification: **PASS**. Documentation closeout and final six-stream synchronization remain **OPEN**.
 
 M5 remains **IN PROGRESS** and its exit gate remains unclaimed.

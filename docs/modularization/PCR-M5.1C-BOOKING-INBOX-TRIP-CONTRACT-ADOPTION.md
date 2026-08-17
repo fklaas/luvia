@@ -1,7 +1,7 @@
 # Platform Change Request — M5.1c Booking Inbox Trip Contract Adoption
 
 **PCR ID:** `M5.1c`
-**Status:** STAGING GATE PASS / RELEASE CANDIDATE PREPARED / NOT COMMITTED / NOT PUSHED / NOT RELEASED
+**Status:** IMPLEMENTED / PRODUCTION VERIFIED / DOCUMENTATION CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **Baseline:** App `13.82.1` / Core `4.82.1`, Git `487d137c36a9a4fc0a0daa1740d4e6350b9a8907`
 **Implementation parent:** `f3f7431b2db8344e34d716daed33e10559d9f7cf` (approved PCR commit)
@@ -203,7 +203,7 @@ The compatible Runtime candidate prepared after the approved test-first implemen
 - Architecture slice: `M5.1c`
 - Release name: `M5.1c Booking Inbox Trip Contract Adoption`
 
-This candidate is implemented and validated only in the local `feature/platform-core` working tree. It is not staged, committed, pushed, integrated, previewed or released. The version bump is required because productive cached JavaScript changes. Contract `trip.v1` remains version 1.
+The compatible runtime is released at App `13.82.2` / Core `4.82.2` through implementation commit `83aae200b77aa7791f1d8d51b471af07506bdc0a`. Integration Preview and Production were statically and authentically verified. The version bump is required because productive cached JavaScript changed. Contract `trip.v1` remains version 1. Documentation closeout and final six-stream synchronization remain open.
 
 ## Test plan
 
@@ -382,6 +382,45 @@ Authenticated Preview and Production smoke should use a narrow/mobile Inbox stat
 
 No feature flag is required because this is a compatible replacement of a read path, changes no persisted state or Contract major, and has a commit-level Git rollback.
 
+## Verified rollout evidence — 2026-08-17
+
+Result so far: **PRODUCTION VERIFIED / FINAL STREAM SYNC PENDING**
+
+Verified Git and rollout evidence:
+
+- approved PCR commit: `f3f7431b2db8344e34d716daed33e10559d9f7cf`;
+- implementation release commit: `83aae200b77aa7791f1d8d51b471af07506bdc0a`;
+- implementation subject: `feat(m5): adopt trip contract in booking inbox`;
+- feature Remote push: PASS;
+- Integration fast-forward: PASS, no merge commit;
+- Integration controlled regression: 19 / 19 PASS;
+- Integration Preview static verification: PASS;
+- Integration authenticated non-mutating runtime smoke: PASS;
+- Main fast-forward: PASS, no merge commit;
+- Main Remote push: PASS;
+- Main local/tracking/live Remote SHA: `83aae200b77aa7791f1d8d51b471af07506bdc0a`;
+- Main post-push divergence: `0 / 0`;
+- Main controlled regression after promotion: 19 / 19 PASS;
+- Production static verification: PASS;
+- Production authenticated non-mutating runtime smoke: PASS;
+- Production console: 0 errors / 0 warnings;
+- force pushes: none.
+
+Preview and Production runtime behavior confirmed that the Inbox consumes Trip projection state without changing global Trip truth:
+
+- active Trip remained `Paris Hochzeitstag`;
+- Paris showed 23 Booking conversations;
+- Inbox-local Munich selection showed 0;
+- global active Trip remained Paris;
+- returning the Inbox selector to Paris restored 23;
+- Café-Berry thread and Luvia Intelligence loaded;
+- reply field and sending boundary remained available;
+- reload persistence passed;
+- no Reply, Archive, Delete or Booking mutation was executed.
+
+No M5.1c Cloudflare Worker version, deployment ID or traffic identity is claimed because no direct identity evidence has been recorded.
+
+The remaining acceptance gate is the documentation-only closeout commit, its controlled promotion and final synchronization of all six active streams. Until that evidence exists, this PCR does not mark M5.1c COMPLETE and does not claim the M5 exit gate.
 ## Rollback
 
 Before Production, stop promotion and correct or review-revert the implementation only in `feature/platform-core`; do not patch `integration`, `main` or Production directly.
@@ -405,7 +444,7 @@ No DB, migration, schema, Storage or data rollback is required because this slic
 - All six streams are synchronized before M5.1c is marked complete.
 - M5 remains in progress and its exit gate remains unclaimed unless all separate M5 requirements are later evidenced.
 
-The local Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardrail, controlled-regression and exact-staging acceptance criteria are **PASS** for the uncommitted feature candidate. Implementation commit, Remote push, Integration, Preview, Main, Production, Cloudflare and six-stream synchronization criteria remain **OPEN**. M5.1c and M5 are not marked complete.
+Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardrail, controlled-regression, implementation commit, feature push, Integration, Preview, Main and Production acceptance evidence are **PASS**. Documentation-only closeout promotion and final six-stream synchronization remain **OPEN**. M5.1c and M5 are not yet marked complete.
 
 ## Approval
 
@@ -413,5 +452,5 @@ The local Runtime, ownership, compatibility, focused-test, release-consistency, 
 - Trip owner: scope approved for read-only adoption of the unchanged `trip.v1` Contract
 - Control Center / Experience owner: scope approved for the exact Booking Inbox boundary migration only
 - Booking boundary reviewer: scope approved only while Booking APIs and business behavior remain unchanged
-- approved implementation commit / PR: **pending — no commit or PR exists**
-- Runtime implementation authorization: **executed after a fresh state/scope check; local candidate green, not staged or committed**
+- approved implementation commit: `83aae200b77aa7791f1d8d51b471af07506bdc0a`
+- Runtime implementation authorization: **executed, validated, promoted and Production verified; documentation closeout and final six-stream synchronization remain pending**
