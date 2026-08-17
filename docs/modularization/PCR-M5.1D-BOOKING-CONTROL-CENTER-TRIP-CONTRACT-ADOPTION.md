@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation candidate – not yet COMPLETE.
+COMPLETE.
 
 ## Purpose
 
@@ -57,16 +57,22 @@ Booking Core remains the owner of Booking truth.
 - deployment
 - Consumer redesign
 
-## Evidence required before COMPLETE
+## Final acceptance evidence
 
-- focused M5.1d regression PASS
-- existing Booking Control Center foundation regression PASS
-- M5.1c regression PASS
-- controlled Safe Regression PASS
-- forbidden Trip access absent
-- syntax check PASS
-- `git diff --check` PASS
-- exact scope PASS
-- normal feature → integration → main promotion
+- focused M5.1d regression: **PASS**
+- existing Booking Control Center foundation regression: **PASS**
+- M5.1c regression: **PASS**
+- controlled Safe Regression: **20 / 20 PASS on feature, integration and main release paths**
+- forbidden Trip access absent: **PASS**
+- syntax check: **PASS**
+- `git diff --check`: **PASS**
+- exact scope: **PASS**
+- normal feature → integration → main promotion: **PASS**
+- Integration Preview static verification: **PASS**
+- Integration Preview authenticated runtime smoke: **PASS**
+- Production deployment/static verification: **PASS**
+- Production authenticated runtime smoke: **PASS**
+- Production Version ID: 40889bd1-7225-44cf-9475-f73371dfd0d7
+- six active streams synchronized to cfb69e673854bc46cc7c5507cdb0c3946dce0fe: **6 / 6 PASS**
 
 M5 remains IN PROGRESS after M5.1d.

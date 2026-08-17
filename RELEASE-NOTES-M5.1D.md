@@ -6,8 +6,8 @@
 - Core: **4.82.3**
 - Milestone: **M5 – Trip Core Isolation**
 - Slice: **M5.1d – Booking Control Center Trip Contract Adoption**
-- Status at this commit candidate: **IMPLEMENTATION CANDIDATE**
-- Production: **NOT YET CLAIMED**
+- Status: **COMPLETE**
+- Production: **PASS / VERIFIED**
 
 ## Purpose
 
@@ -80,6 +80,27 @@ Required flow remains:
 
 eature/platform-core -> integration -> controlled regression -> integration preview -> main -> production
 
-This release note does not pre-claim integration, main, preview or production success.
+## Final promotion evidence
+
+- Feature implementation commit: e03edaa79b26bfb2fa366d3578e7e205956cd92b
+- Integration merge commit: 41fc679ccc2ed6ee1db6710e68fa2f96fb2e34d7
+- Main merge / Production Main commit: cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+- Integration controlled regression: **20 / 20 PASS**
+- Main controlled regression: **20 / 20 PASS**
+- Integration Preview static verification: **PASS**
+- Integration Preview authenticated Booking Control Center runtime smoke: **PASS**
+- Production deployment: **PASS**
+- Cloudflare Production Version ID: 40889bd1-7225-44cf-9475-f73371dfd0d7
+- Production static verification: **PASS**
+- Production authenticated Booking Control Center runtime smoke: **PASS**
+- Production console: **0 visible errors / 0 visible warnings**
+- Final active-stream synchronization: **6 / 6 PASS**
+- Final synchronized commit across all active streams: cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+
+No Booking mutation was executed during Preview or Production runtime verification.
+
+M5.1d is **COMPLETE**.
+
+M5 remains **IN PROGRESS**.
 
 M5 remains **IN PROGRESS** after this slice.

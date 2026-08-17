@@ -41,15 +41,41 @@ Observed before release-envelope creation:
 
 No debt-growth claim beyond these measured results is made until the final release regression below completes.
 
-## Not yet executed / not yet claimed
+## Final promotion and runtime evidence
 
-- feature push
-- Cloudflare feature preview
-- integration promotion
-- integration preview
-- main promotion
-- production deployment
-- authenticated production runtime smoke
-- six-stream synchronization
+- feature push: **PASS**
+- integration promotion: **PASS**
+- integration controlled regression: **20 / 20 PASS**
+- integration preview static verification: **PASS**
+- authenticated integration Booking Control Center runtime smoke: **PASS**
+- main promotion: **PASS**
+- main controlled regression: **20 / 20 PASS**
+- production deployment: **PASS**
+- Production Version ID: 40889bd1-7225-44cf-9475-f73371dfd0d7
+- production static verification: **PASS**
+- authenticated production Booking Control Center runtime smoke: **PASS**
+- production console: **0 visible errors / 0 visible warnings**
+- six-stream synchronization: **6 / 6 PASS**
 
-M5.1d is not COMPLETE at this stage.
+Behavior evidence:
+
+- active global Trip remained Paris Hochzeitstag
+- Booking Control Center initially selected the active Paris Trip
+- Paris Booking Control Center loaded **24 bookings**
+- local Booking Control Center selection changed to Munich without mutating global active Trip
+- Munich loaded **0 bookings**
+- local selection differed from global active Trip as expected
+- returning to Paris restored **24 bookings**
+- loading = false
+- error = null
+- ownsBookingTruth = false
+- source = booking-core
+- no Booking mutation was executed
+
+Final Production Main commit:
+
+cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+
+M5.1d is **COMPLETE**.
+
+M5 remains **IN PROGRESS**.

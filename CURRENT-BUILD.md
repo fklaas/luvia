@@ -26,8 +26,16 @@
 - Unmapped DB-object debt: **39 / baseline 39**
 - Dynamic DB calls: **27 / baseline 27**
 - git diff --check: **PASS**
-- Production status: **NOT YET PROMOTED / NOT YET VERIFIED**
-- M5.1d status: **IMPLEMENTATION CANDIDATE — NOT YET COMPLETE**
+- Production status: **PASS — deployed and verified**
+- Production Version ID: `40889bd1-7225-44cf-9475-f73371dfd0d7`
+- Production Main commit: `fcfb69e673854bc46cc7c5507cdb0c3946dce0fe`
+- Integration Preview static verification: **PASS**
+- Integration Preview authenticated runtime smoke: **PASS**
+- Production static verification: **PASS**
+- Production authenticated runtime smoke: **PASS**
+- Production console: **0 visible errors / 0 visible warnings**
+- Final six-stream synchronization: **6 / 6 PASS**
+- M5.1d status: **COMPLETE**
 - M5 status: **IN PROGRESS**
 ## Current Scope
 
