@@ -73,6 +73,6 @@ Booking Core remains the owner of Booking truth.
 - Production deployment/static verification: **PASS**
 - Production authenticated runtime smoke: **PASS**
 - Production Version ID: 40889bd1-7225-44cf-9475-f73371dfd0d7
-- six active streams synchronized to cfb69e673854bc46cc7c5507cdb0c3946dce0fe: **6 / 6 PASS**
+- six active streams synchronized to fcfb69e673854bc46cc7c5507cdb0c3946dce0fe: **6 / 6 PASS**
 
 M5 remains IN PROGRESS after M5.1d.

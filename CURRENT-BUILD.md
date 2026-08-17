@@ -2,7 +2,7 @@
 
 - App: **13.82.3**
 - Core: **4.82.3**
-- Name: **M5.1c Booking Inbox Trip Contract Adoption**
+- Name: **M5.1d Booking Control Center Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
@@ -17,7 +17,7 @@
 - Booking Control Center Trip reads: **Trip Contract v1**
 - Direct LuviaTripStore access in Booking Control Center: **removed**
 - LuviaControlCenterTravelIdentity as Booking Control Center Trip truth: **removed**
-- Private 	ripSnapshot truth layer: **removed**
+- Private tripSnapshot truth layer: **removed**
 - M5.1d focused regression: **PASS**
 - Booking Control Center foundation regression: **PASS**
 - M5.1c regression: **PASS**
@@ -39,21 +39,27 @@
 - M5 status: **IN PROGRESS**
 ## Current Scope
 
-M5.1c lenkt die Trip-Liste und den Active-Trip-Read der produktiven Booking Inbox auf den bestehenden `trip.v1`-Contract.
+M5.1d lenkt die Trip-Liste, den Active-Trip-Read und die Trip-Subscription des produktiven Booking Control Centers auf den bestehenden `trip.v1`-Contract.
 
-`app/control-center/booking-inbox.js` liest die Trip-Liste über `listTrips()` und die aktive Reise über `getActiveTrip()`. Der Contract wird bei der tatsächlichen Nutzung lazy und V1-first aufgelöst; die Inbox besitzt weiterhin nur lokale UI-Auswahl und keine Trip-Truth, keinen Trip-Cache und keine Trip-Subscription.
+`app/control-center/booking-control-center.js` liest Reisen über `listTrips()`, die aktive Reise über `getActiveTrip()` und beobachtet Trip-Wechsel über `subscribe()`.
 
-Nicht Bestandteil dieses Slices sind Contract-/Adapteränderungen, DB/Functions, Membership-/Timeline-/Schedule-Projections, Booking Control Center, App-Shell/CSS, Legacy-Löschungen, Media-/OpenAI-Bereinigungen oder UI-Redesign.
+Die lokale Auswahl im Booking Control Center bleibt reine UI-Auswahl und verändert die globale aktive Reise nicht.
+
+Trip Core bleibt alleiniger Owner der Trip Truth.
+
+Booking Core bleibt alleiniger Owner der Booking Truth.
+
+Nicht Bestandteil dieses Slices waren App Shell, Boot Coordinator, Trip Store Owner-Internals, Trip Contract Adapter-Internals, DB-Migrationen, Supabase Functions, Secrets oder Consumer-Redesign.
 
 Promotion bleibt verbindlich:
 
 `feature/platform-core -> integration -> controlled regression -> integration preview -> main -> production`
-
 ## M5 Status
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1c – Booking Inbox Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
+- M5.1d – Booking Control Center Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
@@ -177,15 +183,15 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 App:
 
-`13.82.2`
+`13.82.3`
 
 Core:
 
-`4.82.2`
+`4.82.3`
 
 Production runtime release commit:
 
-`83aae200b77aa7791f1d8d51b471af07506bdc0a`
+`fcfb69e673854bc46cc7c5507cdb0c3946dce0fe`
 
 Previous M5.1b Runtime Baseline (`13.82.1` / Core `4.82.1`):
 
@@ -214,8 +220,8 @@ Harness:
 
 Bestätigter Umfang auf dem aktuellen Feature-Kandidaten:
 
-- Total: **19**
-- Passed: **19**
+- Total: **20**
+- Passed: **20**
 - Failed: **0**
 - Suite: **PASS**
 

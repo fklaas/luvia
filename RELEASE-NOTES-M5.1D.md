@@ -19,7 +19,7 @@ Booking Core remains the owner of Booking truth.
 
 ## Runtime change
 
-pp/control-center/booking-control-center.js now consumes:
+app/control-center/booking-control-center.js now consumes:
 
 - LuviaTripContractV1
 - compatibility alias LuviaTripContract
@@ -32,7 +32,7 @@ Removed from the Booking Control Center:
 - direct LuviaTripStore reads
 - direct LuviaTripStore subscription
 - LuviaControlCenterTravelIdentity as Trip truth fallback
-- private 	ripSnapshot Trip truth helper
+- private tripSnapshot Trip truth helper
 
 ## Preserved boundaries
 
@@ -52,11 +52,11 @@ These remain Booking Core concerns.
 
 A dedicated evergreen test was added:
 
-	ests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs
+tests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs
 
 The test was added to:
 
-	ests/run-m4.3-safe-regression.cjs
+tests/run-m4.3-safe-regression.cjs
 
 Controlled Safe Regression target for this release:
 
@@ -78,13 +78,13 @@ No provider configuration change.
 
 Required flow remains:
 
-eature/platform-core -> integration -> controlled regression -> integration preview -> main -> production
+feature/platform-core -> integration -> controlled regression -> integration preview -> main -> production
 
 ## Final promotion evidence
 
 - Feature implementation commit: e03edaa79b26bfb2fa366d3578e7e205956cd92b
 - Integration merge commit: 41fc679ccc2ed6ee1db6710e68fa2f96fb2e34d7
-- Main merge / Production Main commit: cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+- Main merge / Production Main commit: fcfb69e673854bc46cc7c5507cdb0c3946dce0fe
 - Integration controlled regression: **20 / 20 PASS**
 - Main controlled regression: **20 / 20 PASS**
 - Integration Preview static verification: **PASS**
@@ -95,7 +95,7 @@ Required flow remains:
 - Production authenticated Booking Control Center runtime smoke: **PASS**
 - Production console: **0 visible errors / 0 visible warnings**
 - Final active-stream synchronization: **6 / 6 PASS**
-- Final synchronized commit across all active streams: cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+- Final synchronized commit across all active streams: fcfb69e673854bc46cc7c5507cdb0c3946dce0fe
 
 No Booking mutation was executed during Preview or Production runtime verification.
 

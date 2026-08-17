@@ -5,8 +5,8 @@
 - App: **13.82.3**
 - Core: **4.82.3**
 - Slice: **M5.1d – Booking Control Center Trip Contract Adoption**
-- Branch: eature/platform-core
-- Base HEAD before implementation: $expectedHead
+- Branch: feature/platform-core
+- Base HEAD before implementation: 3991cd3c93680d0dcbb9b9338a03f8abd7b6d4fe
 
 ## Implementation gates
 
@@ -29,7 +29,7 @@ Expected suite after M5.1d registration:
 
 M5.1d must appear explicitly as:
 
-	ests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs
+tests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs
 
 ## Repository guardrail baseline
 
@@ -74,7 +74,7 @@ Behavior evidence:
 
 Final Production Main commit:
 
-cfb69e673854bc46cc7c5507cdb0c3946dce0fe
+fcfb69e673854bc46cc7c5507cdb0c3946dce0fe
 
 M5.1d is **COMPLETE**.
 
