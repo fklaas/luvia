@@ -1,13 +1,34 @@
 # CURRENT BUILD
 
-- App: **13.82.2**
-- Core: **4.82.2**
+- App: **13.82.3**
+- Core: **4.82.3**
 - Name: **M5.1c Booking Inbox Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
+## M5.1d Implementation Candidate
+
+- Scope: **Booking Control Center Trip Contract Adoption**
+- Runtime release: **App 13.82.3 / Core 4.82.3**
+- Trip truth owner: **Trip Core**
+- Booking truth owner: **Booking Core**
+- Booking Control Center Trip reads: **Trip Contract v1**
+- Direct LuviaTripStore access in Booking Control Center: **removed**
+- LuviaControlCenterTravelIdentity as Booking Control Center Trip truth: **removed**
+- Private 	ripSnapshot truth layer: **removed**
+- M5.1d focused regression: **PASS**
+- Booking Control Center foundation regression: **PASS**
+- M5.1c regression: **PASS**
+- Controlled safe regression: **20 / 20 PASS**
+- Cross-Core mapped debt: **26 / baseline 26**
+- Unmapped DB-object debt: **39 / baseline 39**
+- Dynamic DB calls: **27 / baseline 27**
+- git diff --check: **PASS**
+- Production status: **NOT YET PROMOTED / NOT YET VERIFIED**
+- M5.1d status: **IMPLEMENTATION CANDIDATE — NOT YET COMPLETE**
+- M5 status: **IN PROGRESS**
 ## Current Scope
 
 M5.1c lenkt die Trip-Liste und den Active-Trip-Read der produktiven Booking Inbox auf den bestehenden `trip.v1`-Contract.
