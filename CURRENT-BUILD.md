@@ -1,57 +1,42 @@
 # CURRENT BUILD
 
-- App: **13.82.3**
-- Core: **4.82.3**
-- Name: **M5.1d Booking Control Center Trip Contract Adoption**
+- App: **13.82.4**
+- Core: **4.82.4**
+- Name: **M5.1e Active App Shell Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
-## M5.1d Implementation Candidate
+## M5.1e Implementation Candidate
 
-- Scope: **Booking Control Center Trip Contract Adoption**
-- Runtime release: **App 13.82.3 / Core 4.82.3**
+- Scope: **Active App Shell Trip Contract Adoption**
+- Runtime release: **App 13.82.4 / Core 4.82.4**
+- Implementation parent: `93f94b0276450aa841fccae9e29b0b9b8094f561`
 - Trip truth owner: **Trip Core**
-- Booking truth owner: **Booking Core**
-- Booking Control Center Trip reads: **Trip Contract v1**
-- Direct LuviaTripStore access in Booking Control Center: **removed**
-- LuviaControlCenterTravelIdentity as Booking Control Center Trip truth: **removed**
-- Private tripSnapshot truth layer: **removed**
-- M5.1d focused regression: **PASS**
-- Booking Control Center foundation regression: **PASS**
-- M5.1c regression: **PASS**
-- Controlled safe regression: **20 / 20 PASS**
-- Cross-Core mapped debt: **26 / baseline 26**
-- Unmapped DB-object debt: **39 / baseline 39**
-- Dynamic DB calls: **27 / baseline 27**
-- git diff --check: **PASS**
-- Production status: **PASS — deployed and verified**
-- Production Version ID: `40889bd1-7225-44cf-9475-f73371dfd0d7`
-- Production Main commit: `fcfb69e673854bc46cc7c5507cdb0c3946dce0fe`
-- Integration Preview static verification: **PASS**
-- Integration Preview authenticated runtime smoke: **PASS**
-- Production static verification: **PASS**
-- Production authenticated runtime smoke: **PASS**
-- Production console: **0 visible errors / 0 visible warnings**
-- Final six-stream synchronization: **6 / 6 PASS**
-- M5.1d status: **COMPLETE**
+- Active App Shell Trip reads: **Trip Contract v1**
+- Direct `LuviaTripStore` access in active App Shell: **removed**
+- Direct `LuviaTripContext` access in active App Shell: **removed**
+- Active App Shell Trip subscription: **Trip Contract v1**
+- Legacy `core/app/app-shell-v11.js`: **out of confirmed active runtime scope / unchanged**
+- M5.1e focused regression: **PENDING FINAL RELEASE GATE**
+- Controlled Safe Regression target: **21 / 21**
+- Production status: **NOT YET CLAIMED**
+- M5.1e status: **IN PROGRESS**
 - M5 status: **IN PROGRESS**
 ## Current Scope
 
-M5.1d lenkt die Trip-Liste, den Active-Trip-Read und die Trip-Subscription des produktiven Booking Control Centers auf den bestehenden `trip.v1`-Contract.
+M5.1e migrates the confirmed active production App Shell from direct Trip Store / Trip Context consumption to the canonical `trip.v1` boundary.
 
-`app/control-center/booking-control-center.js` liest Reisen über `listTrips()`, die aktive Reise über `getActiveTrip()` und beobachtet Trip-Wechsel über `subscribe()`.
+`app/app-shell.js` now reads Trip state through `LuviaTripContractV1` / `LuviaTripContract` and observes Trip switches through the Contract subscription.
 
-Die lokale Auswahl im Booking Control Center bleibt reine UI-Auswahl und verändert die globale aktive Reise nicht.
+The App Shell keeps only a local render projection required by its existing UI state (`activeTripId`, `hasTrips`, `hasActiveTrip`, `loaded`). This projection is derived from Contract reads and is not an independent or persisted Trip truth source.
 
-Trip Core bleibt alleiniger Owner der Trip Truth.
+Existing Trip-switch behavior for Profile, Timeline, Destination, Collaboration and shell rerendering remains part of the acceptance boundary.
 
-Booking Core bleibt alleiniger Owner der Booking Truth.
+`core/app/app-shell-v11.js` remains unchanged because the M5.1e reachability gate did not prove it to be part of the active runtime path.
 
-Nicht Bestandteil dieses Slices waren App Shell, Boot Coordinator, Trip Store Owner-Internals, Trip Contract Adapter-Internals, DB-Migrationen, Supabase Functions, Secrets oder Consumer-Redesign.
-
-Promotion bleibt verbindlich:
+Promotion remains:
 
 `feature/platform-core -> integration -> controlled regression -> integration preview -> main -> production`
 ## M5 Status
@@ -60,6 +45,7 @@ Promotion bleibt verbindlich:
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1c – Booking Inbox Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1d – Booking Control Center Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
+- M5.1e – Active App Shell Trip Contract Adoption: **IN PROGRESS**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**

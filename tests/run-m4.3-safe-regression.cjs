@@ -74,6 +74,9 @@ const SUITE = Object.freeze([
   {
     category: 'Product / Control Center',
     test: 'tests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs'
+  },  {
+    category: 'Product / App Shell',
+    test: 'tests/m5.1e-active-app-shell-trip-contract-adoption.test.cjs'
   },
   {
     category: 'Product / Control Center',

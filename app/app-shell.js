@@ -52,7 +52,17 @@
     }).finally(()=>{if(!window.LuviaBookingReservationCreate)bookingReservationCreateLoadPromise=null;});
     return bookingReservationCreateLoadPromise;
   }
-  const snap=()=>window.LuviaTripStore.snapshot(),activeTrip=()=>snap().activeTrip,profile=()=>window.LuviaProfileService?.snapshot?.().profile||{};
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+  function snap(){
+    const api=tripContract();
+    if(!api)return {trips:[],activeTripId:null,activeTrip:null,hasTrips:false,hasActiveTrip:false,loaded:false};
+    const trips=api.listTrips?.()||api.snapshot?.()?.trips||[];
+    const activeTrip=api.getActiveTrip?.()||api.snapshot?.()?.activeTrip||null;
+    const context=api.getContext?.()||api.snapshot?.()?.context||{};
+    const activeTripId=String(activeTrip?.id||activeTrip?.tripId||context?.tripId||'')||null;
+    return {trips,activeTripId,activeTrip,hasTrips:trips.length>0,hasActiveTrip:Boolean(activeTrip),loaded:true};
+  }
+  const activeTrip=()=>tripContract()?.getActiveTrip?.()||snap().activeTrip,profile=()=>window.LuviaProfileService?.snapshot?.().profile||{};
   const date=v=>v?new Date(v+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
   const initials=p=>(p.displayName||p.email||'L').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
   const avatar=p=>p.avatarUrl?`<img class="lv-header-avatar" src="${esc(p.avatarUrl)}" alt="Profil">`:`<span class="lv-header-avatar" style="--avatar:${esc(p.avatarColor||'#ee6f83')}">${esc(initials(p))}</span>`;
@@ -315,7 +325,7 @@
       if(initialAuth?.authenticated)lastAuthUserId=initialAuth.user?.id||null;
       if(!subscriptionsBound){
         subscriptionsBound=true;
-        unsubscribeTrip=window.LuviaTripStore.subscribe(s=>{if(!bootComplete)return;const token=++tripSwitchToken;Promise.resolve().then(async()=>{if(!s.activeTripId||token!==tripSwitchToken)return;if(profile().activeTripId!==s.activeTripId&&authApi.getState().authenticated)await window.LuviaProfileService.setActiveTrip(s.activeTripId).catch(console.warn);await window.LuviaTimelineCore?.hydrate?.(s.activeTripId).catch(()=>{});if(token!==tripSwitchToken)return;window.LuviaDestination?.refresh?.();if(window.LuviaCollaboration?.snapshot?.().tripId!==s.activeTripId)window.LuviaCollaboration?.watchTrip?.(s.activeTripId).catch?.(console.warn);mountedPlaces=false;mountedMove=false;mountedLifecycle=false;lastTripRenderSignature=tripRenderSignature(s.activeTrip);refreshShellHeader();await show(activeView,{force:true,animate:false});}).catch(console.error)});
+        unsubscribeTrip=tripContract()?.subscribe?.(s=>{if(!bootComplete)return;const active=s?.activeTrip||null,context=s?.context||{},activeTripId=String(active?.id||active?.tripId||context?.tripId||'')||null;if(!activeTripId)return;const token=++tripSwitchToken;Promise.resolve().then(async()=>{if(token!==tripSwitchToken)return;if(profile().activeTripId!==activeTripId&&authApi.getState().authenticated)await window.LuviaProfileService.setActiveTrip(activeTripId).catch(console.warn);await window.LuviaTimelineCore?.hydrate?.(activeTripId).catch(()=>{});if(token!==tripSwitchToken)return;window.LuviaDestination?.refresh?.();if(window.LuviaCollaboration?.snapshot?.().tripId!==activeTripId)window.LuviaCollaboration?.watchTrip?.(activeTripId).catch?.(console.warn);mountedPlaces=false;mountedMove=false;mountedLifecycle=false;lastTripRenderSignature=tripRenderSignature(active);refreshShellHeader();await show(activeView,{force:true,animate:false});}).catch(console.error)});
         unsubscribeProfile=window.LuviaProfileService.subscribe(()=>{if(!bootComplete)return;window.LuviaTheme.apply(activeTrip());window.LuviaCollaboration?.heartbeat?.();refreshShellHeader();refreshDashboardGrid()});
         unsubscribeCollaboration=window.LuviaCollaboration?.subscribe?.(state=>{if(!bootComplete||!state?.tripId||activeView!=='today'||!root?.querySelector('.lv-shell'))return;cancelAnimationFrame(collaborationFrame);collaborationFrame=requestAnimationFrame(()=>updateDashboardWidget('members'))});
         unsubscribeAuth=authApi.onChange(state=>{const uid=state?.user?.id||null;if(state?.authenticated&&uid!==lastAuthUserId){if(hydratedAuthUserId===uid&&bootComplete)return;window.LuviaBootCoordinator.reset();bootComplete=false;hydrateForAuth(client,state).catch(errorScreen)}else if(!state?.authenticated&&lastAuthUserId!==null){lastAuthUserId=null;bootComplete=true;render()}})
