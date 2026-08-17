@@ -74,9 +74,18 @@ const SUITE = Object.freeze([
   {
     category: 'Product / Control Center',
     test: 'tests/m5.1d-booking-control-center-trip-contract-adoption.test.cjs'
-  },  {
+  },
+  {
     category: 'Product / App Shell',
     test: 'tests/m5.1e-active-app-shell-trip-contract-adoption.test.cjs'
+  },
+  {
+    category: 'Product / Consumer',
+    test: 'tests/m5.1f-memory-worlds-v3-trip-contract-adoption.test.cjs'
+  },
+  {
+    category: 'M3 contracts',
+    test: 'tests/m5.1f-trip-contract-accent-compatibility.test.cjs'
   },
   {
     category: 'Product / Control Center',

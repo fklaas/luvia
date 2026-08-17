@@ -4,17 +4,14 @@ const VERSION='4.37.7',BUILD='13.37.7';
 let host=null,stopCards=null,stopIdentities=null,stopReviews=null,stopVotes=null,stopTrip=null,stopTheme=null,urlCache=new Map(),homeState=null;
 const deckSessionSeed=Math.random().toString(36).slice(2);
 const validColor=v=>/^#[0-9a-f]{6}$/i.test(String(v||'').trim())?String(v).trim().toLowerCase():null;
-const tripRecord=()=>{
-  const store=window.LuviaTripStore?.snapshot?.()||{},canonical=store.activeTrip||null;
-  if(canonical)return canonical;
-  return window.LuviaTripContext?.getActiveTrip?.()||window.LuviaTripContext?.getSnapshot?.()?.activeTrip||{};
-};
+const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripRecord=()=>tripContract()?.getActiveTrip?.()||{};
 const inheritedAccent=()=>{const nodes=[document.documentElement,document.body,document.querySelector('.lv-dashboard'),document.querySelector('.lv-shell'),document.querySelector('#app'),host].filter(Boolean),props=['--trip-accent','--lv-accent','--module-accent'];for(const node of nodes){const css=getComputedStyle(node);for(const prop of props){const hit=validColor(css.getPropertyValue(prop));if(hit)return hit}}return null};
 const tripAccent=()=>{
   // Canonical visual source: exactly the active trip accent already applied by LuviaTheme/dashboard.
   const themed=validColor(getComputedStyle(document.documentElement).getPropertyValue('--trip-accent'));if(themed)return themed;
-  const t=tripRecord(),storeTrip=window.LuviaTripStore?.snapshot?.()?.activeTrip||{},contextTrip=window.LuviaTripContext?.getSnapshot?.()?.trip||window.LuviaTripContext?.getActiveTrip?.()||{};
-  const canonical=[storeTrip.accent,contextTrip.accent,t.accent,storeTrip.accent_color,contextTrip.accent_color,t.accent_color,storeTrip.color,contextTrip.color,t.color].map(validColor).find(Boolean);
+  const t=tripRecord(),contextTrip=tripContract()?.getContext?.()||{};
+  const canonical=[t.accent,contextTrip.accent].map(validColor).find(Boolean);
   if(canonical)return canonical;
   const coreAccent=validColor(window.LuviaMemoryCards?.tripAccent?.());if(coreAccent)return coreAccent;
   return inheritedAccent()||'#ee6f83';
@@ -301,6 +298,6 @@ async function openCardDetail(ctx,card,members,media,onBack){
   p.onclick=e=>{if(e.target.closest('.mc-loose-card,.mc-card-focus-note,button'))return;back()};
 }
 
-async function mount(node){host=node;await renderHome();stopCards=await window.LuviaMemoryCards.subscribe(()=>setTimeout(renderHome,350));stopIdentities=await window.LuviaMemoryCards.subscribeIdentities?.(()=>{window.LuviaMemoryCards.members().then(m=>{if(!homeState)return;homeState.members=m;renderHome()})});stopReviews=await window.LuviaMemoryCards.subscribeReviews?.(()=>{if(host)setTimeout(renderHome,120)});stopVotes=await window.LuviaMemoryCards.subscribeVotes?.(()=>{if(host)setTimeout(renderHome,120)});stopTrip=window.LuviaTripStore?.subscribe?.(()=>{if(host)setTimeout(renderHome,80)});const onTheme=()=>{if(host)setTimeout(renderHome,60)};window.addEventListener('luvia:theme-changed',onTheme);stopTheme=()=>window.removeEventListener('luvia:theme-changed',onTheme);return()=>{stopCards?.();stopIdentities?.();stopReviews?.();stopVotes?.();stopTrip?.();stopTheme?.();stopCards=null;stopIdentities=null;stopReviews=null;stopVotes=null;stopTrip=null;stopTheme=null;host=null}}
+async function mount(node){host=node;await renderHome();stopCards=await window.LuviaMemoryCards.subscribe(()=>setTimeout(renderHome,350));stopIdentities=await window.LuviaMemoryCards.subscribeIdentities?.(()=>{window.LuviaMemoryCards.members().then(m=>{if(!homeState)return;homeState.members=m;renderHome()})});stopReviews=await window.LuviaMemoryCards.subscribeReviews?.(()=>{if(host)setTimeout(renderHome,120)});stopVotes=await window.LuviaMemoryCards.subscribeVotes?.(()=>{if(host)setTimeout(renderHome,120)});stopTrip=tripContract()?.subscribe?.(()=>{if(host)setTimeout(renderHome,80)});const onTheme=()=>{if(host)setTimeout(renderHome,60)};window.addEventListener('luvia:theme-changed',onTheme);stopTheme=()=>window.removeEventListener('luvia:theme-changed',onTheme);return()=>{stopCards?.();stopIdentities?.();stopReviews?.();stopVotes?.();stopTrip?.();stopTheme?.();stopCards=null;stopIdentities=null;stopReviews=null;stopVotes=null;stopTrip=null;stopTheme=null;host=null}}
 window.LuviaAlbumsView=Object.freeze({version:VERSION,build:BUILD,mount,render:renderHome,experience:'memory-deck-consistency-realtime-story-rework',model:'cards -> decks -> moments -> journeys -> studio'});
 })();

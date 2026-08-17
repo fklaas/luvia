@@ -1,8 +1,8 @@
 # CURRENT BUILD
 
-- App: **13.82.4**
-- Core: **4.82.4**
-- Name: **M5.1e Active App Shell Trip Contract Adoption**
+- App: **13.82.5**
+- Core: **4.82.5**
+- Name: **M5.1f Memory Worlds v3 Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
@@ -11,7 +11,7 @@
 ## M5.1e Closeout
 
 - Scope: **Active App Shell Trip Contract Adoption**
-- Runtime release: **App 13.82.4 / Core 4.82.4**
+- Runtime release: **App 13.82.5 / Core 4.82.5**
 - Implementation commit: `9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
 - Implementation parent: `93f94b0276450aa841fccae9e29b0b9b8094f561`
 - Trip truth owner: **Trip Core**
@@ -190,11 +190,11 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 App:
 
-`13.82.4`
+`13.82.5`
 
 Core:
 
-`4.82.4`
+`4.82.5`
 
 Production runtime release commit:
 
