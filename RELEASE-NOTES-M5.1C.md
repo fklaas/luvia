@@ -1,6 +1,6 @@
 # Release Notes — M5.1c Booking Inbox Trip Contract Adoption
 
-**Status:** PRODUCTION VERIFIED / DOCUMENTATION CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING
+**Status:** COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **App:** 13.82.2
 **Core:** 4.82.2
@@ -140,7 +140,7 @@ Verified staging result:
 - Production static verification: **PASS**
 - Authenticated non-mutating Inbox Production smoke: **PASS**
 - Production console: **0 errors / 0 warnings**
-- Six-stream synchronization: **PENDING**
+- Six-stream synchronization: **6 / 6 PASS** at `90fde6c458e4589d92dcc747978cac3853260e1d`, with local/tracking/live Remote equality, divergence `0 / 0` and clean worktrees
 - Force push: **NONE**
 - Cloudflare Worker version / deployment ID for M5.1c: **NOT CLAIMED**, because no direct identity evidence has been recorded.
 
@@ -168,6 +168,40 @@ Integration Preview and Production both confirmed:
 The Inbox Trip selector remains local UI state. The runtime smoke therefore verifies the M5.1c ownership boundary without mutating global Trip truth or Booking truth.
 
 The implementation runtime release commit is `83aae200b77aa7791f1d8d51b471af07506bdc0a`. This documentation-only closeout does not pre-claim its own future commit SHA or six-stream synchronization result.
+## Final acceptance and synchronization
+
+Result: **PASS / COMPLETE**
+
+Final evidenced six-stream acceptance snapshot:
+
+`90fde6c458e4589d92dcc747978cac3853260e1d`
+
+At that snapshot all six active streams were verified:
+
+- `main`
+- `integration`
+- `feature/platform-core`
+- `feature/booking-core`
+- `feature/consumer-experience`
+- `feature/social-experience-graph`
+
+For every stream:
+
+- local HEAD matched the acceptance snapshot;
+- tracking HEAD matched the acceptance snapshot;
+- live GitHub Remote matched the acceptance snapshot;
+- divergence was `0 / 0`;
+- the working tree was clean.
+
+Aggregate synchronization result:
+
+`FINAL 6/6 RESULT: True`
+
+This establishes M5.1c as complete for implementation, controlled validation, Integration, Preview, Main, Production and active-stream synchronization.
+
+The later COMPLETE-marker documentation commit is administrative and is intentionally not pre-claimed as already promoted or synchronized.
+
+M5 itself remains **IN PROGRESS** and its exit gate remains unclaimed.
 ## Rollback boundary
 
 Before Production, stop promotion and correct or review-revert the implementation only in `feature/platform-core`. After Production, revert the later implementation commit through `feature/platform-core -> integration -> main -> production` and synchronize all streams again.
@@ -180,6 +214,6 @@ M5.1c local implementation, release identity and controlled feature validation: 
 
 M5.1c exact staging and post-staging validation: **PASS**.
 
-M5.1c implementation, controlled promotion, Integration Preview and Production verification: **PASS**. Documentation closeout and final six-stream synchronization remain **OPEN**.
+M5.1c implementation, controlled promotion, Integration Preview, Main regression, Production verification and six-stream synchronization: **PASS / COMPLETE**.
 
 M5 remains **IN PROGRESS** and its exit gate remains unclaimed.

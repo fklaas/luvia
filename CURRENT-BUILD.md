@@ -3,7 +3,7 @@
 - App: **13.82.2**
 - Core: **4.82.2**
 - Name: **M5.1c Booking Inbox Trip Contract Adoption**
-- Channel: **production / M5.1c closeout in progress**
+- Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -24,7 +24,7 @@ Promotion bleibt verbindlich:
 
 - M5.1a – Travel Identity Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
-- M5.1c – Booking Inbox Trip Contract Adoption: **PRODUCTION VERIFIED / CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING**
+- M5.1c – Booking Inbox Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
@@ -60,10 +60,23 @@ Promotion bleibt verbindlich:
 - Production static verification: **PASS** — App 13.82.2 / Core 4.82.2
 - Production authenticated runtime smoke: **PASS**
 - Production browser console: **0 errors / 0 warnings**
-- Six-stream synchronization: **PENDING**
+- Six-stream synchronization: **6 / 6 PASS at `90fde6c458e4589d92dcc747978cac3853260e1d`; local, tracking and live Remote synchronized with divergence `0 / 0` and clean worktrees**
 - M5.1c Cloudflare Worker version / deployment ID: **NOT CLAIMED — no direct identity evidence recorded in this closeout**
 - Database/Functions/Storage/Secrets impact: **NONE**
 
+## M5.1c Completion Boundary
+
+M5.1c is **COMPLETE** for implementation, controlled validation, Integration, Preview, Main, Production and active-stream synchronization.
+
+Final evidenced six-stream acceptance snapshot:
+
+`90fde6c458e4589d92dcc747978cac3853260e1d`
+
+At that snapshot all six active streams matched locally, in their tracking refs and live on GitHub, with divergence `0 / 0` and clean worktrees.
+
+This later COMPLETE-marker documentation change does not pre-claim its own future commit SHA or its own promotion/synchronization. That administrative marker commit must still be inspected and propagated through the normal Git path.
+
+M5 itself remains **IN PROGRESS**. The M5 exit gate remains **NOT YET CLAIMED**.
 ## M5.1b Release Evidence
 
 - JavaScript syntax checks: **PASS**
@@ -428,4 +441,4 @@ M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 
 Next scope:
 
-**M5.1c – finish the documentation-only closeout, promote that closeout through the controlled Git path and synchronize all six active streams. M5 itself remains IN PROGRESS and its exit gate remains unclaimed.**
+**M5 Durchführung Punkt 1 – begin a fresh read-only preflight for the next direct Trip-read candidate. M5.1c is complete; M5 itself remains IN PROGRESS and its exit gate remains unclaimed.**

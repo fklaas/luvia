@@ -1,7 +1,7 @@
 # Platform Change Request — M5.1c Booking Inbox Trip Contract Adoption
 
 **PCR ID:** `M5.1c`
-**Status:** IMPLEMENTED / PRODUCTION VERIFIED / DOCUMENTATION CLOSEOUT IN PROGRESS / SIX-STREAM SYNC PENDING
+**Status:** COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED
 **Masterplan:** M5 — Trip Core Isolation, Durchführung Punkt 1
 **Baseline:** App `13.82.1` / Core `4.82.1`, Git `487d137c36a9a4fc0a0daa1740d4e6350b9a8907`
 **Implementation parent:** `f3f7431b2db8344e34d716daed33e10559d9f7cf` (approved PCR commit)
@@ -384,7 +384,7 @@ No feature flag is required because this is a compatible replacement of a read p
 
 ## Verified rollout evidence — 2026-08-17
 
-Result so far: **PRODUCTION VERIFIED / FINAL STREAM SYNC PENDING**
+Result: **PASS / COMPLETE — PRODUCTION VERIFIED / SIX STREAMS SYNCHRONIZED**
 
 Verified Git and rollout evidence:
 
@@ -420,7 +420,17 @@ Preview and Production runtime behavior confirmed that the Inbox consumes Trip p
 
 No M5.1c Cloudflare Worker version, deployment ID or traffic identity is claimed because no direct identity evidence has been recorded.
 
-The remaining acceptance gate is the documentation-only closeout commit, its controlled promotion and final synchronization of all six active streams. Until that evidence exists, this PCR does not mark M5.1c COMPLETE and does not claim the M5 exit gate.
+Final six-stream synchronization was verified at acceptance snapshot `90fde6c458e4589d92dcc747978cac3853260e1d`.
+
+At that snapshot all six active streams matched locally, in tracking refs and live on GitHub, each with divergence `0 / 0` and a clean working tree.
+
+The aggregate synchronization gate returned `FINAL 6/6 RESULT: True`.
+
+Therefore M5.1c satisfies its implementation, validation, promotion, Preview, Production and active-stream synchronization acceptance criteria and is **COMPLETE**.
+
+This later COMPLETE-marker documentation change does not pre-claim its own future commit SHA or synchronization state. That administrative marker commit must still follow the controlled Git path.
+
+M5 itself remains **IN PROGRESS** and the M5 exit gate remains unclaimed.
 ## Rollback
 
 Before Production, stop promotion and correct or review-revert the implementation only in `feature/platform-core`; do not patch `integration`, `main` or Production directly.
@@ -444,7 +454,7 @@ No DB, migration, schema, Storage or data rollback is required because this slic
 - All six streams are synchronized before M5.1c is marked complete.
 - M5 remains in progress and its exit gate remains unclaimed unless all separate M5 requirements are later evidenced.
 
-Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardrail, controlled-regression, implementation commit, feature push, Integration, Preview, Main and Production acceptance evidence are **PASS**. Documentation-only closeout promotion and final six-stream synchronization remain **OPEN**. M5.1c and M5 are not yet marked complete.
+Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardrail, controlled-regression, implementation commit, feature push, Integration, Preview, Main, Production and six-stream synchronization acceptance evidence are **PASS**. M5.1c is **COMPLETE**. M5 remains **IN PROGRESS** and its exit gate remains unclaimed.
 
 ## Approval
 
@@ -453,4 +463,4 @@ Runtime, ownership, compatibility, focused-test, release-consistency, DB-guardra
 - Control Center / Experience owner: scope approved for the exact Booking Inbox boundary migration only
 - Booking boundary reviewer: scope approved only while Booking APIs and business behavior remain unchanged
 - approved implementation commit: `83aae200b77aa7791f1d8d51b471af07506bdc0a`
-- Runtime implementation authorization: **executed, validated, promoted and Production verified; documentation closeout and final six-stream synchronization remain pending**
+- Runtime implementation authorization: **executed, validated, promoted, Production verified and accepted through the final six-stream synchronization gate**
