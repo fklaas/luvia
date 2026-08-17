@@ -21,8 +21,7 @@ const bookings={
  ]
 };
 const context={console,Intl,Date,setTimeout,clearTimeout,window:{
- LuviaTripStore:{snapshot:()=>({trips,activeTripId:'trip-a',activeTrip:trips[0]}),subscribe:()=>()=>{}},
- LuviaControlCenterTravelIdentity:{snapshot:()=>({activeTrip:{id:'trip-a',title:'Paris'}})},
+ LuviaTripContractV1:{listTrips:()=>trips,getActiveTrip:()=>trips[0],subscribe:()=>()=>{}},
  LuviaBooking:{init:async()=>{},listForTrip:async id=>bookings[id]||[]},
  LuviaProductModuleRegistry:{mount:()=>{},unmount:()=>{},state:()=>({enabled:true,active:true,mounted:true})}
 }};
