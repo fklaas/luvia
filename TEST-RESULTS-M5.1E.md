@@ -1,70 +1,158 @@
 # TEST RESULTS – M5.1e
 
-## Release candidate
+## Release
 
 - App: **13.82.4**
 - Core: **4.82.4**
 - Slice: **M5.1e – Active App Shell Trip Contract Adoption**
-- Branch: `feature/platform-core`
+- Implementation commit: `9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
 - Implementation parent: `93f94b0276450aa841fccae9e29b0b9b8094f561`
 
-## Runtime scope
+## Implementation gates
 
-- `app/app-shell.js`
+- App Shell syntax: **PASS**
+- focused M5.1e regression: **PASS**
+- existing App Shell foundation regression: **PASS**
+- release version consistency: **PASS**
+- Controlled Safe Regression: **21 / 21 PASS**
+- direct active App Shell `LuviaTripStore`: **0**
+- direct active App Shell `LuviaTripContext`: **0**
+- exact release scope: **PASS**
+- `git diff --check`: **PASS**
+- UTF-8 / BOM verification: **PASS**
+- repository ownership guardrail: **PASS**
 
-## Regression scope
-
-- `tests/m5.1e-active-app-shell-trip-contract-adoption.test.cjs`
-- `tests/m4.3-evergreen-foundation-regression.test.cjs`
-- `tests/run-m4.3-safe-regression.cjs`
-
-## Required implementation gates
-
-- App Shell syntax: **TO BE VERIFIED**
-- focused M5.1e regression: **TO BE VERIFIED**
-- release version consistency: **TO BE VERIFIED**
-- controlled Safe Regression: **TO BE VERIFIED**
-- forbidden direct App Shell Trip Store / Trip Context access: **TO BE VERIFIED**
-- exact release scope: **TO BE VERIFIED**
-- `git diff --check`: **TO BE VERIFIED**
-- UTF-8 BOM verification: **TO BE VERIFIED**
-
-## Expected controlled regression
-
-After M5.1e registration:
+## Controlled Safe Regression
 
 - Total: **21**
 - Passed: **21**
 - Failed: **0**
+- Suite: **PASS**
 
-The suite must include:
+M5.1e:
 
-`tests/m5.1e-active-app-shell-trip-contract-adoption.test.cjs`
+`PASS [Product / App Shell] tests/m5.1e-active-app-shell-trip-contract-adoption.test.cjs`
 
-## Ownership expectation
+Guardrail:
 
-Trip Core remains the Trip truth owner.
+- tracked JS/TS files: **327**
+- static DB calls: **316**
+- mapped cross-core debt: **26 / baseline 26**
+- unmapped DB-object debt: **39 / baseline 39**
+- dynamic DB calls: **27 / baseline 27**
 
-The active App Shell may consume Trip state only through the canonical Trip Contract boundary.
+## Integration Preview
 
-## Promotion status
+- static verification: **PASS**
+- authenticated Trip Contract runtime: **PASS**
+- active Trip preserved across reload: **PASS**
+- Trip count: **7 / 7**
+- App Shell after reload: **PASS**
+- browser console: **0 visible warnings / 0 visible errors**
 
-- feature implementation: **IN PROGRESS**
-- feature push: **NOT YET CLAIMED**
-- integration promotion: **NOT YET CLAIMED**
-- integration controlled regression: **NOT YET CLAIMED**
-- Integration Preview: **NOT YET CLAIMED**
-- main promotion: **NOT YET CLAIMED**
-- production deployment: **NOT YET CLAIMED**
-- production runtime smoke: **NOT YET CLAIMED**
-- six-stream synchronization: **NOT YET CLAIMED**
+## Main
 
-## Backend impact
+- fast-forward proof: **PASS**
+- fast-forward promotion: **PASS**
+- push: **PASS**
+- Local = Tracking = Live Remote: **PASS**
+- divergence: **0 / 0**
+- working tree: **clean**
+- release consistency: **PASS**
+- Controlled Safe Regression: **21 / 21 PASS**
+
+## Production deployment
+
+Production:
+
+`https://myluvia.app`
+
+Cloudflare Worker Version ID:
+
+`854e33a3-9c9f-4426-9173-aee3b63c93f5`
+
+Measured:
+
+- Production pre-gate: **PASS**
+- release consistency: **PASS**
+- Safe Regression directly before deployment: **21 / 21 PASS**
+- `npx wrangler deploy`: **PASS**
+- App **13.82.4** reachable: **PASS**
+- Core **4.82.4** reachable: **PASS**
+- Service Worker identity: **PASS**
+- Force Update identity: **PASS**
+- kernel identity: **PASS**
+- Media Readiness identity: **PASS**
+- live M5.1e App Shell semantics: **PASS**
+- direct live `LuviaTripStore`: **0**
+- direct live `LuviaTripContext`: **0**
+
+## Production exact asset
+
+`https://myluvia.app/app/app-shell.js`
+
+- HTTP: **200**
+- local bytes: **58987**
+- remote bytes: **58987**
+- strict UTF-8: **PASS**
+- line-normalized exact match: **PASS**
+- first difference: **NONE**
+- local main working tree: **clean**
+
+## Authenticated Production runtime
+
+- build: **13.82.4**
+- core: **4.82.4**
+- Trip Contract available: **YES**
+- `listTrips()`: **YES**
+- `getActiveTrip()`: **YES**
+- `getContext()`: **YES**
+- `subscribe()`: **YES**
+- active Trip ID same before/after reload: **PASS**
+- Trip count: **7 / 7**
+- App Shell present after reload: **PASS**
+- runtime result: **PASS**
+- Warnings/Errors console after reload: **empty**
+
+## Six-stream synchronization
+
+Final runtime snapshot:
+
+`9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
+
+- `main`: **PASS**
+- `integration`: **PASS**
+- `feature/platform-core`: **PASS**
+- `feature/booking-core`: **PASS**
+- `feature/consumer-experience`: **PASS**
+- `feature/social-experience-graph`: **PASS**
+
+For all six:
+
+- Local = Tracking = Live Remote
+- divergence = **0 / 0**
+- working tree = **clean**
+
+Final result: **6 / 6 PASS**
+
+Post-sync Release Consistency: **PASS**
+
+Post-sync Controlled Safe Regression: **21 / 21 PASS**
+
+## Backend / infrastructure impact
 
 - Database migration: **NONE**
-- Supabase Edge Function change: **NONE**
-- Secrets: **NONE**
+- Supabase Edge Function: **NONE**
+- Supabase Secrets: **NONE**
+- Cloudflare Secrets: **NONE**
+- Provider configuration: **NONE**
 
-M5.1e remains **IN PROGRESS**.
+## Status
 
-M5 remains **IN PROGRESS**.
+All implementation, validation, promotion, Preview, Production and runtime synchronization evidence required before the documentation marker is present.
+
+M5.1e: **COMPLETE**
+
+M5: **IN PROGRESS**
+
+M5 Exit Gate: **NOT YET CLAIMED**

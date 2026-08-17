@@ -8,22 +8,43 @@
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
-## M5.1e Implementation Candidate
+## M5.1e Closeout
 
 - Scope: **Active App Shell Trip Contract Adoption**
 - Runtime release: **App 13.82.4 / Core 4.82.4**
+- Implementation commit: `9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
 - Implementation parent: `93f94b0276450aa841fccae9e29b0b9b8094f561`
 - Trip truth owner: **Trip Core**
 - Active App Shell Trip reads: **Trip Contract v1**
-- Direct `LuviaTripStore` access in active App Shell: **removed**
-- Direct `LuviaTripContext` access in active App Shell: **removed**
+- Direct `LuviaTripStore` access in active App Shell: **0**
+- Direct `LuviaTripContext` access in active App Shell: **0**
 - Active App Shell Trip subscription: **Trip Contract v1**
 - Legacy `core/app/app-shell-v11.js`: **out of confirmed active runtime scope / unchanged**
-- M5.1e focused regression: **PENDING FINAL RELEASE GATE**
-- Controlled Safe Regression target: **21 / 21**
-- Production status: **NOT YET CLAIMED**
-- M5.1e status: **IN PROGRESS**
+- Focused M5.1e regression: **PASS**
+- Controlled Safe Regression: **21 / 21 PASS**
+- Integration promotion: **PASS**
+- Integration Preview static verification: **PASS**
+- Integration Preview authenticated runtime + reload smoke: **PASS**
+- Integration Preview browser console: **0 visible warnings / 0 visible errors**
+- Main promotion: **PASS**
+- Production deployment: **PASS**
+- Cloudflare Production Version ID: `854e33a3-9c9f-4426-9173-aee3b63c93f5`
+- Production static release identity: **PASS**
+- Production App Shell exact-match verification: **PASS**
+- Production authenticated runtime + reload smoke: **PASS**
+- Production browser console: **0 visible warnings / 0 visible errors**
+- Six-stream runtime synchronization: **6 / 6 PASS**
+- Six-stream runtime snapshot: `9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
+- Six-stream divergence: **0 / 0**
+- Six-stream worktrees: **clean**
+- Database migration: **NONE**
+- Supabase Edge Function change: **NONE**
+- Supabase Secret change: **NONE**
+- Cloudflare Secret change: **NONE**
+- Provider configuration change: **NONE**
+- M5.1e status: **COMPLETE**
 - M5 status: **IN PROGRESS**
+
 ## Current Scope
 
 M5.1e migrates the confirmed active production App Shell from direct Trip Store / Trip Context consumption to the canonical `trip.v1` boundary.
@@ -45,7 +66,7 @@ Promotion remains:
 - M5.1b – Gallery View Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1c – Booking Inbox Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
 - M5.1d – Booking Control Center Trip Contract Adoption: **COMPLETE / PRODUCTION VERIFIED / SIX STREAMS SYNCED**
-- M5.1e – Active App Shell Trip Contract Adoption: **IN PROGRESS**
+- M5.1e – Active App Shell Trip Contract Adoption: **COMPLETE**
 - M5 Durchführung Punkt 1 – weitere direkte Trip-Reads: **IN PROGRESS**
 - M5 Durchführung Punkt 2 – Active Trip Context zentralisieren: **PENDING**
 - M5 Durchführung Punkt 3 – Membership/Timeline/Schedule Reads: **PENDING**
@@ -169,34 +190,19 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 App:
 
-`13.82.3`
+`13.82.4`
 
 Core:
 
-`4.82.3`
+`4.82.4`
 
 Production runtime release commit:
 
-`fcfb69e673854bc46cc7c5507cdb0c3946dce0fe`
+`9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
 
-Previous M5.1b Runtime Baseline (`13.82.1` / Core `4.82.1`):
+Production Cloudflare Worker Version ID:
 
-`68e7ff5433e4581eb3c19ef98934302736be84ec`
-
-Previous M5.1a Runtime Baseline (`13.82.0` / Core `4.82.0`):
-
-`b4ffe88deddd726854f90e4fff48867deb3a91f9`
-
-Previous M4.4 Runtime-/Hardening-Baseline (`13.81.9` / Core `4.81.9`):
-
-`cc9a9c920f0163ecc0c102a7cece495c892b6249`
-
-Darin enthalten:
-
-- M4.1 Commit `52c70bd`
-- M4.2 Commit `82497d7`
-- M4.3 Commit `7963f6b`
-- M4.4 Static Asset Hardening Commit `cc9a9c9`
+`854e33a3-9c9f-4426-9173-aee3b63c93f5`
 
 ## Safe Regression Baseline
 
@@ -204,10 +210,10 @@ Harness:
 
 `tests/run-m4.3-safe-regression.cjs`
 
-Bestätigter Umfang auf dem aktuellen Feature-Kandidaten:
+Bestätigter Umfang auf dem aktuellen M5.1e Runtime-/Closeout-Stand:
 
-- Total: **20**
-- Passed: **20**
+- Total: **21**
+- Passed: **21**
 - Failed: **0**
 - Suite: **PASS**
 
@@ -216,6 +222,13 @@ Der Harness wurde erfolgreich ausgeführt auf:
 - `feature/platform-core`
 - `integration`
 - `main`
+
+Nach finaler Runtime-Synchronisierung wurde erneut bestätigt:
+
+- Six-stream synchronization: **6 / 6 PASS**
+- Local = Tracking = Live Remote
+- Divergence: **0 / 0**
+- Working Trees: **clean**
 
 ## Cross-Core Guardrail
 
