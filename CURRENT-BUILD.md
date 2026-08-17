@@ -476,3 +476,20 @@ M5 itself remains **IN PROGRESS**. The M5 exit gate remains unclaimed.
 Next scope:
 
 **M5 Durchführung Punkt 1 – begin a fresh read-only preflight for the next direct Trip-read candidate. M5.1c is complete; M5 itself remains IN PROGRESS and its exit gate remains unclaimed.**
+---
+
+## Current M5 Status – M5.1f Closed
+
+- Current App: **13.82.5**
+- Current Core: **4.82.5**
+- M5.1f Runtime Commit: `961e53addd5e7aec40241ea5ed3a59d699a40a3e`
+- M5.1f: **COMPLETE**
+- M5 Trip Core Isolation: **IN PROGRESS**
+- Controlled Safe Regression: **23 / 23 PASS**
+- Production Runtime / Reload: **PASS**
+- Production Browser Warnings / Errors after reload: **none observed**
+- Six active streams synchronized: **PASS**
+
+The detailed M5.1f closeout and deployment-order recovery evidence is recorded
+in `RELEASE-NOTES-M5.1F.md`, `TEST-RESULTS-M5.1F.md`, and
+`docs/modularization/PCR-M5.1F-MEMORY-WORLDS-TRIP-CONTRACT-ADOPTION.md`.
