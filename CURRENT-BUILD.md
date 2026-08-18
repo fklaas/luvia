@@ -648,3 +648,31 @@ The top-level build identity represents the local M5.1h release candidate.
 The authoritative verified Production Runtime remains App **13.82.6** / Core **4.82.6** until M5.1h has passed promotion to integration, promotion to main, Production deployment/runtime verification and reload/browser-console proof.
 
 M5.1h does not modify core/places/timeline-core.js, core/platform/trip-contract-adapter.js, database schema, Supabase Edge Functions, secrets, Booking Core ownership, Media Core ownership, Experience Core ownership or Intelligence Core ownership.
+
+## M5.1h Authoritative Closeout – 2026-08-18
+
+- Milestone: **M5.1h – Discovery Modules Trip Contract Adoption**
+- Final status: **COMPLETE**
+- App: **13.82.7**
+- Core: **4.82.7**
+- Implementation commit: 69f1b7da691f9a1a0212d75748477018f0257408
+- Consumer promotion: **PASS**
+- Integration promotion: **PASS**
+- Main promotion: **PASS**
+- Integration Safe Regression: **28 / 28 PASS**
+- Main Safe Regression: **28 / 28 PASS**
+- DB ownership baseline: **UNCHANGED**
+- Integration Runtime Proof: **EXACT_COMMIT_BLOBS_LIVE**
+- Integration Discovery Git blobs: **7 / 7 exact**
+- Production Runtime Proof: **TARGET_ALREADY_LIVE**
+- Production Discovery Git blobs: **7 / 7 exact**
+- Production App/Core identity: **13.82.7 / 4.82.7**
+- Manual Wrangler deployment: **NOT REQUIRED / NOT PERFORMED**
+- DB migration: **NONE**
+- Supabase Edge Function change: **NONE**
+- Secret change: **NONE**
+- Timeline / Journey mutation: **NONE**
+
+The earlier LOCAL RELEASE PREPARATION section remains a historical record of the state at that point in the lifecycle. This newer closeout section is authoritative.
+
+The final closeout-marker commit and subsequent 8/8 stream synchronization are repository synchronization steps and do not modify the M5.1h runtime.

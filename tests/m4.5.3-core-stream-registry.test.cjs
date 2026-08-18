@@ -139,8 +139,18 @@ assert(
 );
 
 assert(
-  migration.includes('M5.1h is therefore not yet formally scope-locked.'),
-  'M5.1h state must remain pending'
+  migration.includes('M5.1h is COMPLETE.'),
+  'M5.1h completed migration state missing'
+);
+
+assert(
+  migration.includes('Production Runtime Proof: TARGET_ALREADY_LIVE on App 13.82.7 / Core 4.82.7'),
+  'M5.1h Production Runtime Proof missing'
+);
+
+assert(
+  migration.includes('live remote SHA and divergence were not captured'),
+  'M5.1h historical protocol-evidence limitation missing'
 );
 
 assert(
@@ -153,4 +163,4 @@ console.log('Streams: 8');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
 console.log('Timeline reservation: PASS');
-console.log('M5.1h pending state preserved: PASS');
+console.log('M5.1h completed state preserved: PASS');

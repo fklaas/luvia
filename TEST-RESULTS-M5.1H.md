@@ -173,3 +173,41 @@ Not yet verified:
 - final M5.1h closeout
 
 M5.1h is therefore **not yet COMPLETE**.
+
+## Authoritative Final Verification
+
+Final lifecycle evidence:
+
+- Release consistency on Integration: **PASS**
+- M5.1h targeted regression on Integration: **PASS**
+- Safe Regression on Integration: **28 / 28 PASS**
+- Integration Runtime: **EXACT_COMMIT_BLOBS_LIVE**
+- Integration Discovery committed Git blobs: **7 / 7**
+- Release consistency on Main: **PASS**
+- M5.1h targeted regression on Main: **PASS**
+- Safe Regression on Main: **28 / 28 PASS**
+- DB ownership baseline: **327 tracked JS/TS / 316 static DB calls / 26 mapped debt / 39 unmapped DB-object debt / 27 dynamic DB calls**
+- Production App/Core: **13.82.7 / 4.82.7**
+- Production Runtime: **TARGET_ALREADY_LIVE**
+- Production Discovery committed Git blobs: **7 / 7**
+- Production direct legacy Trip Truth in M5.1h targets: **0**
+- Production Restaurant destination boundary: **PASS**
+- Manual Wrangler deployment: **NONE REQUIRED**
+
+### Historical protocol-evidence limitation
+
+Three early mutation moments do not have complete immediate pre-mutation live-remote/divergence evidence:
+
+1. immediately before creation of the RED implementation test;
+2. immediately before the initial Discovery runtime adoption mutation;
+3. immediately before the first Safe-Runner release mutation.
+
+At those moments, branch/HEAD/tracking and later preservation evidence exist, but live remote SHA and divergence were not captured immediately before mutation.
+
+Later checks cannot retroactively prove those mutation moments. No reset, history rewrite, destructive cleanup or synthetic replay was used to manufacture missing historical evidence.
+
+The later release implementation commit 69f1b7da691f9a1a0212d75748477018f0257408 received the complete immediate pre-mutation gate including live remote SHA and divergence. All subsequent promotion mutations followed that complete gate.
+
+This limitation is an explicit record of process history and does not replace the separately proven regression, architecture-boundary or deployed-artifact evidence.
+
+Final M5.1h status: **COMPLETE**.

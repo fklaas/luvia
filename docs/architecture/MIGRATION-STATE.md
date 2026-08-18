@@ -46,9 +46,19 @@ The previous scope-lock audit did not pass because the audit expected 23 physica
 
 That failed audit performed no file mutation and the repository remained clean.
 
-M5.1h is therefore not yet formally scope-locked.
+M5.1h is COMPLETE.
 
-After M4.5 completes, the scope audit must be repaired and rerun before the RED implementation test is created.
+The corrected scope-lock audit subsequently passed with the measured baseline of 23 direct legacy token occurrences across 19 physical source lines.
+
+The seven scope-locked Discovery modules were migrated to Trip Contract v1 without extending the public Trip Contract merely to mirror LegacyTripContext. Timeline remained reserved and unchanged.
+
+Implementation commit 69f1b7da691f9a1a0212d75748477018f0257408 was promoted Consumer -> Integration -> Main.
+
+Integration Runtime Proof: exact committed Git blobs live for all seven Discovery modules.
+
+Production Runtime Proof: TARGET_ALREADY_LIVE on App 13.82.7 / Core 4.82.7, with all seven Discovery modules matching the committed Git blobs exactly. No additional manual Wrangler deployment was required.
+
+Historical protocol-evidence limitation: immediately before RED-test creation, immediately before the initial runtime mutation and immediately before the first Safe-Runner release mutation, live remote SHA and divergence were not captured. Later verification cannot retroactively prove those three mutation moments. Repository history was not reset or rewritten to manufacture evidence. The later release implementation commit did receive the complete immediate pre-mutation live-remote/divergence gate.
 
 ## Journey / Timeline
 

@@ -180,3 +180,33 @@ Therefore:
 
 - M5.1h: **LOCAL RELEASE CANDIDATE**
 - M5: **IN PROGRESS**
+
+## Authoritative Closeout
+
+M5.1h completed its full promotion and runtime-verification lifecycle.
+
+Final evidence:
+
+- implementation commit: 69f1b7da691f9a1a0212d75748477018f0257408;
+- Consumer promotion: **PASS**;
+- Integration promotion: **PASS**;
+- Integration Safe Regression: **28 / 28 PASS**;
+- Integration Runtime: **EXACT_COMMIT_BLOBS_LIVE**;
+- Integration Discovery Git blobs: **7 / 7 exact**;
+- Main promotion: **PASS**;
+- Main Safe Regression: **28 / 28 PASS**;
+- DB ownership baseline: **UNCHANGED**;
+- Production App/Core: **13.82.7 / 4.82.7**;
+- Production Runtime: **TARGET_ALREADY_LIVE**;
+- Production Discovery Git blobs: **7 / 7 exact**;
+- direct legacy Trip truth in the seven targets: **0**;
+- Restaurant destination boundary: **PASS**;
+- additional manual Wrangler deployment: **not required and not performed**;
+- DB migration: **none**;
+- Edge Function deployment: **none**;
+- secret change: **none**;
+- Journey / Timeline mutation: **none**.
+
+Final M5.1h status: **COMPLETE**.
+
+The final documentation marker and 8/8 synchronization do not alter the released runtime.

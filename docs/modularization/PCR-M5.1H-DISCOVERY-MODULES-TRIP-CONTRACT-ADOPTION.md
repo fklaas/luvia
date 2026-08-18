@@ -233,3 +233,36 @@ Therefore:
 
 - M5.1h: **LOCAL RELEASE CANDIDATE**
 - M5: **IN PROGRESS**
+
+## Authoritative Closeout Decision
+
+M5.1h is **COMPLETE**.
+
+The seven scope-locked Discovery module runtime surfaces consume Trip truth through the existing 	rip.v1 public contract boundary while preserving legitimate domain and destination fallbacks.
+
+No new getDestination() method was added to Trip Contract merely to reproduce LuviaTripContext.
+
+Journey / Timeline remained outside this migration. core/places/timeline-core.js was not changed and remains reserved.
+
+Final evidence:
+
+- Consumer -> Integration: **PASS**
+- Integration -> Main: **PASS**
+- Integration Safe Regression: **28 / 28 PASS**
+- Main Safe Regression: **28 / 28 PASS**
+- DB ownership baseline: **UNCHANGED**
+- Integration Runtime: **EXACT_COMMIT_BLOBS_LIVE**
+- Production Runtime: **TARGET_ALREADY_LIVE**
+- Production Discovery Git-blob equality: **7 / 7**
+- App/Core: **13.82.7 / 4.82.7**
+- additional manual Wrangler deployment: **not required**
+
+### Evidence limitation retained
+
+Live remote SHA and divergence were not captured immediately before three early mutation moments: RED-test creation, initial runtime adoption and the first Safe-Runner release mutation.
+
+Subsequent verification cannot retroactively establish those exact pre-mutation states. Repository history was not reset, rewritten or replayed merely to manufacture missing evidence.
+
+The later release implementation commit and all subsequent promotion mutations used the full immediate pre-mutation protocol including live-remote and divergence verification.
+
+This limitation must remain part of future authoritative summaries of M5.1h.
