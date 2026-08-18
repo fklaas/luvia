@@ -238,7 +238,7 @@ Therefore:
 
 M5.1h is **COMPLETE**.
 
-The seven scope-locked Discovery module runtime surfaces consume Trip truth through the existing 	rip.v1 public contract boundary while preserving legitimate domain and destination fallbacks.
+The seven scope-locked Discovery module runtime surfaces consume Trip truth through the existing `trip.v1` public contract boundary while preserving legitimate domain and destination fallbacks.
 
 No new getDestination() method was added to Trip Contract merely to reproduce LuviaTripContext.
 
