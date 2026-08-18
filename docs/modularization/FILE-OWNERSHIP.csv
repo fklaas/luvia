@@ -2391,3 +2391,20 @@ tools/build-modules.py,Repository/Other,Asset/Other,Non-critical repository arti
 trip.html,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 ui.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 wrangler.jsonc,Platform/App Shell,Entry/Deploy,"Global entry, service worker or deployment configuration"
+AGENTS.md,Platform,Documentation/Architecture,Repository-wide agent navigation and architecture boundary rules
+ARCHITECTURE.md,Platform,Documentation/Architecture,Repository architecture overview and eight-stream model
+config/luvia-cores.json,Platform,Architecture Registry,Machine-readable core ownership and boundary registry
+config/luvia-streams.json,Platform,Architecture Registry,Machine-readable eight-stream topology registry
+core/experience/AGENTS.md,Experience Core,Documentation/Foundation,Experience subtree rules; no domain truth or direct domain persistence
+core/experience/README.md,Experience Core,Documentation/Foundation,Experience Core scope and target structure
+core/intelligence/AGENTS.md,Intelligence,Documentation/Foundation,Intelligence subtree rules; Intelligence-specific state only
+core/intelligence/README.md,Intelligence,Documentation/Foundation,Intelligence Core scope and classification-first migration
+docs/architecture/CONTRACT-MAP.md,Platform,Documentation/Architecture,Public contract map and planned Intelligence contract boundary
+docs/architecture/CORE-MAP.md,Platform,Documentation/Architecture,Core ownership and reserved-boundary map
+docs/architecture/DEPENDENCY-RULES.md,Platform,Documentation/Architecture,Normative cross-core dependency rules
+docs/architecture/MIGRATION-STATE.md,Platform,Documentation/Architecture,Current modularization and migration state
+docs/architecture/STREAM-TOPOLOGY.md,Platform,Documentation/Architecture,Canonical eight-stream topology documentation
+tests/m4.5.3-core-stream-registry.test.cjs,Platform,Test/Architecture,Architecture registry foundation regression
+scripts/luvia-stream-registry.cjs,Platform,Tooling/Architecture,Reusable machine-readable stream registry loader
+tests/m4.5.4-eight-stream-topology-guardrail.test.cjs,Platform,Test/Guardrail,Registry-aware eight-stream topology guardrail
+tests/m4.5.4-core-boundary-guardrails.test.cjs,Platform,Test/Guardrail,Experience and Intelligence core-boundary guardrail

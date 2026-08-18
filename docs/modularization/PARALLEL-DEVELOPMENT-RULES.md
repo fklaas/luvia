@@ -1,22 +1,27 @@
 # Parallel Development Rules — normative from M2, activated operationally in M4
 
-M2 defines the rules. **Do not create the worktrees/branches from this document yet; M4 performs that step.**
+M2 established the initial rules. M4 completed the parallel-development foundation and M4.5 expands it to the permanent eight-stream topology. `config/luvia-streams.json` is the machine-readable source of truth.
 
 ## Source of truth
 
 1. Git is the source of truth. ZIP files are release/handoff artifacts only.
-2. `main` is stable production history; `integration` is created in M4 and becomes the controlled merge staging branch.
+2. `main` is stable production history; `integration` is the controlled merge, regression and preview staging branch.
 3. One development stream = one branch + one worktree. Two chats must never edit the same worktree.
 4. Database migrations are immutable after deployment. New schema work always gets a new timestamped migration.
 
-## Planned streams after M4
+## Active streams — M4.5 eight-stream topology
 
 | Stream | Owns | May not change without Platform Change Request |
 |---|---|---|
+| `main` | production release history and approved architecture baseline | direct feature development |
+| `integration` | cross-stream convergence, regression and preview validation | direct product feature development |
 | `feature/booking-core` | Booking domain/core/providers/functions/tests | shared platform/contracts, Trip/Places/Media/Identity internals, App Shell |
 | `feature/consumer-experience` | Consumer screens/experience composition | domain internals, shared platform/contracts, DB truth |
 | `feature/social-experience-graph` | future Social domain + Social experience files | Booking internals, Trip membership internals, Identity private profile, shared platform/contracts |
 | `feature/platform-core` | contracts/adapters/shared runtime/integration tooling | domain business behavior unless owner-approved |
+| `feature/experience-core` | `core/experience/*`, shared design-system and interaction foundations | domain truth, domain persistence, unrelated domain internals |
+| `feature/intelligence-core` | `core/intelligence/*`, Intelligence-specific architecture/state and controlled Intelligence migrations | private domain truth, foreign-domain mutation, unclassified bulk moves |
+The complete active stream/worktree mapping is defined by `config/luvia-streams.json`. New topology-aware automation must consume that registry instead of maintaining a separate hard-coded six-stream list.
 
 ## Platform Change Request (PCR)
 

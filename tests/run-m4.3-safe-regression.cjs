@@ -118,6 +118,18 @@ const SUITE = Object.freeze([
   },
 
   {
+    category: 'Architecture / Registry',
+    test: 'tests/m4.5.3-core-stream-registry.test.cjs'
+  },
+  {
+    category: 'Architecture / Topology',
+    test: 'tests/m4.5.4-eight-stream-topology-guardrail.test.cjs'
+  },
+  {
+    category: 'Architecture / Core boundaries',
+    test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
+  },
+  {
     category: 'Repository guardrail',
     test: 'tests/m4.2-cross-core-db-ownership-guardrail.test.cjs'
   }

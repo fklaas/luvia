@@ -84,6 +84,19 @@
 /supabase/functions/luvia-intelligence/ @fklaas
 
 # ---------------------------------------------------------------------------
+# Experience Core
+# Shared visual and interaction infrastructure. No domain truth ownership.
+/core/experience/ @fklaas
+
+# Intelligence Core
+# Intelligence-specific infrastructure/state. Legacy core/ai and intelligence/
+# remain classification-first migration candidates.
+/core/intelligence/ @fklaas
+
+# Architecture registries / topology tooling
+/config/luvia-streams.json @fklaas
+/config/luvia-cores.json @fklaas
+/scripts/luvia-stream-registry.cjs @fklaas
 # Future Social domain
 # ---------------------------------------------------------------------------
 

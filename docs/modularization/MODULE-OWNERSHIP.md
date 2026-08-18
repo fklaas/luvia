@@ -12,7 +12,8 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 | Booking | bookings, provider selection/status/provenance, messages, intelligence, attribution, mutations, recovery | **LuviaBooking** today and remains supported; `booking.v1` contract declaration | Consumer state, Social graph, Trip/Place storage |
 | Media/Memory | media entities/storage linkage, clusters, polaroids, albums/cards/journeys | MediaCore + Memory services today; `media.v1` in M3 | Trip truth, public Identity truth, Booking truth |
 | Identity/Preferences | user profile persistence, private preference aggregate, safe public identity projection | ProfileService/UserPreferences today; `identity.v1` in M3 | Trip membership, collaboration presence, Social relationship graph |
-| Intelligence | AI capabilities, policy, evidence, orchestration, recommendation/planning intelligence | **LuviaAI** today; `intelligence.v1` contract | Final writes to Booking/Trip/Places/Media/Identity truth without domain command |
+| Intelligence | AI capabilities, policy, evidence, orchestration, recommendation/planning intelligence and Intelligence-specific state | `core/intelligence/*` foundation; planned `LuviaIntelligenceContractV1`; current LuviaAI/core/ai remains transitional | Final writes to Booking/Trip/Places/Media/Identity/Social/Journey truth without domain command |
+| Experience Core | shared design tokens, themes, layout primitives, reusable UI components, interaction patterns, motion, accessibility, icons and experience diagnostics | `core/experience/*` | Any domain truth, direct domain persistence, domain validation or business mutation lifecycle |
 | Collaboration | trip presence and trip activity projection | LuviaCollaboration | Social followers/friends, identity, trip membership truth |
 | Social (future) | social experiences/relationships/reactions/read state created by Social itself | `social.v1` specification; implementation does not exist yet | Booking status/messages, Trip membership, private Identity preferences |
 | Consumer | visible consumer experience/composition | App Shell + screens/modules | Any domain truth or direct provider/DB ownership |
@@ -41,8 +42,15 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 `core/profiles/*`, `core/preferences/*`, profile RPCs/tables. Auth remains Platform and is consumed by Identity.
 
 ### Intelligence
-`core/ai/*`, recommendation/discovery/planning intelligence, `supabase/functions/luvia-intelligence`. Old Intelligence Foundation files remain Legacy unless current entry reachability is proven.
+Canonical foundation root: `core/intelligence/*` on `feature/intelligence-core`. `LuviaIntelligenceContractV1` is planned, not yet implemented.
 
+Existing `core/ai/*`, `intelligence/*`, `core/recommendations/*`, `core/context/*` and AI-related bridges retain their current file-level ownership until the dedicated classification-first Intelligence Core Isolation & Unification migration. No bulk move is implied by the new stream.
+
+### Experience Core
+
+`core/experience/*` on `feature/experience-core` is the canonical foundation for shared visual and interaction infrastructure.
+
+Existing `core/design/*`, `core/ui/*`, current Consumer UI and module surfaces remain with their existing owners until a dedicated Experience Core / Design System migration explicitly moves them. The new Experience stream does not retroactively claim those files.
 ## Write ownership rules
 
 1. A domain is the only layer allowed to perform final persistence mutations to its owned tables.
