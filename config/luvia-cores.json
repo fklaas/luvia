@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "registryScope": "Locked core roots and explicitly reserved architectural boundaries",
+  "fileLevelOwnershipSource": "docs/modularization/FILE-OWNERSHIP.csv",
+  "cores": {
+    "trip": {
+      "root": "core/trips/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "canonical-domain-truth",
+      "contractAdapter": "core/platform/trip-contract-adapter.js",
+      "status": "active"
+    },
+    "places": {
+      "root": "core/places/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "canonical-domain-truth",
+      "contractAdapter": "core/platform/places-contract-adapter.js",
+      "status": "active",
+      "futureDirection": "Declarative category registry and shared Places experience primitives"
+    },
+    "booking": {
+      "root": "core/booking/",
+      "ownerStream": "feature/booking-core",
+      "truthOwnership": "canonical-domain-truth",
+      "status": "active"
+    },
+    "experience": {
+      "root": "core/experience/",
+      "ownerStream": "feature/experience-core",
+      "truthOwnership": "no-domain-truth",
+      "status": "foundation",
+      "purpose": "Design system, tokens, themes, layout primitives, shared components, motion and accessibility"
+    },
+    "intelligence": {
+      "root": "core/intelligence/",
+      "ownerStream": "feature/intelligence-core",
+      "truthOwnership": "intelligence-specific-state-only",
+      "status": "foundation",
+      "plannedPublicContract": "LuviaIntelligenceContractV1",
+      "plannedContractAdapter": "core/platform/intelligence-contract-adapter.js",
+      "purpose": "Cross-domain reasoning, AI orchestration, recommendations, planning and proactive intelligence"
+    },
+    "journeyTimeline": {
+      "root": "core/places/timeline-core.js",
+      "ownerStream": null,
+      "truthOwnership": "reserved-pending-architecture-audit",
+      "status": "reserved",
+      "purpose": "Future Journey / Timeline Aggregation Architecture Audit; must not be automatically moved with ordinary Places consumers"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "topologyVersion": "8-stream-v1",
+  "introducedAtMarker": "e1661dfd013a5fd85369dd082dc2ce45d68848e7",
+  "streamCount": 8,
+  "streams": [
+    {
+      "id": "main",
+      "branch": "main",
+      "worktree": "../luvia",
+      "kind": "release",
+      "purpose": "Production release and final integration target"
+    },
+    {
+      "id": "integration",
+      "branch": "integration",
+      "worktree": "../luvia-integration",
+      "kind": "integration",
+      "purpose": "Cross-stream convergence, regression and preview target"
+    },
+    {
+      "id": "platform",
+      "branch": "feature/platform-core",
+      "worktree": "../luvia-platform",
+      "kind": "feature",
+      "purpose": "Platform foundations, Trip and Places core boundaries, public contract adapters"
+    },
+    {
+      "id": "booking",
+      "branch": "feature/booking-core",
+      "worktree": "../luvia-booking",
+      "kind": "feature",
+      "purpose": "Booking domain, lifecycle, providers, mutations and booking product infrastructure"
+    },
+    {
+      "id": "consumer",
+      "branch": "feature/consumer-experience",
+      "worktree": "../luvia-consumer",
+      "kind": "feature",
+      "purpose": "Consumer-facing product experiences and domain consumers"
+    },
+    {
+      "id": "social",
+      "branch": "feature/social-experience-graph",
+      "worktree": "../luvia-social",
+      "kind": "feature",
+      "purpose": "Social, collaboration and experience-graph work"
+    },
+    {
+      "id": "experience",
+      "branch": "feature/experience-core",
+      "worktree": "../luvia-experience",
+      "kind": "feature",
+      "purpose": "Shared Luvia design system, visual language, interaction primitives and accessibility"
+    },
+    {
+      "id": "intelligence",
+      "branch": "feature/intelligence-core",
+      "worktree": "../luvia-intelligence",
+      "kind": "feature",
+      "purpose": "Luvia Intelligence architecture, AI orchestration, reasoning, tools, recommendations and proactive intelligence"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+# Luvia Experience Core
+
+## Purpose
+
+Experience Core is Luvia's shared visual, layout and interaction architecture.
+
+It exists to make global product evolution safer and more consistent after domain boundaries are stable.
+
+## It owns
+
+- design tokens
+- semantic colors
+- typography
+- spacing
+- radius and elevation
+- theme infrastructure
+- Trip-accent presentation rules
+- responsive layout primitives
+- shared UI components
+- common interaction patterns
+- loading / empty / error / offline states
+- motion
+- accessibility
+- icons
+- experience diagnostics
+
+## It does not own
+
+- Trip truth
+- Places truth
+- Booking truth
+- Media truth
+- Identity truth
+- Social truth
+- Intelligence truth
+
+## Target structure
+
+The target structure will grow only when real implementation requires it.
+
+Planned areas:
+
+- `tokens/`
+- `theme/`
+- `layout/`
+- `components/`
+- `patterns/`
+- `states/`
+- `motion/`
+- `accessibility/`
+- `icons/`
+- `diagnostics/`
+
+Do not create empty implementation files merely to make the tree look complete.
+
+## Domain composition
+
+Shared Experience primitives belong here.
+
+Domain-specific composition remains with its product or domain owner.
+
+Example:
+
+Experience Core may own a shared Sheet primitive.
+
+Booking owns the booking-specific content and behavior rendered inside that Sheet.
+
+## Long-term roadmap
+
+1. Experience Core / Design System Foundation
+2. shared primitives and token adoption
+3. product-pattern consolidation
+4. Global Experience Recomposition
+5. continued domain-specific product evolution on the shared system
