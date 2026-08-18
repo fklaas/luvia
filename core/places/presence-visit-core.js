@@ -11,7 +11,7 @@ async function hydrateVisits(){const id=tripId();const client=window.LuviaSupaba
 function point(raw){return{latitude:Number(raw.latitude??raw.coords?.latitude),longitude:Number(raw.longitude??raw.coords?.longitude),accuracy:Number(raw.accuracy??raw.coords?.accuracy??999),timestamp:raw.timestamp||Date.now()}}
 function distance(a,b){const r=6371000,p=Math.PI/180,dLat=(b.latitude-a.latitude)*p,dLon=(b.longitude-a.longitude)*p,x=Math.sin(dLat/2)**2+Math.cos(a.latitude*p)*Math.cos(b.latitude*p)*Math.sin(dLon/2)**2;return 2*r*Math.asin(Math.sqrt(x))}
 function participantId(){return window.ParisAuth?.getState?.()?.user?.id||null}
-function tripId(){return window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||null}
+function tripId(){return (window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id||null}
 function places(){return (window.LuviaPlaceCore?.getPlaces?.({tripId:tripId()})||[]).filter(p=>p?.coordinates&&Number.isFinite(Number(p.coordinates.latitude))&&Number.isFinite(Number(p.coordinates.longitude)))}
 async function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail}));await window.LuviaKernelEvents?.emit?.(name.replace('luvia:',''),detail,{service:'presence-visit'})}
 async function timeline(place,type,title,description,metadata={}){return window.LuviaTimelineCore?.record?.({tripId:place.tripId||tripId(),placeId:place.id,participantId:participantId(),type,title,description,occurredAt:now(),source:'gps',automatic:true,metadata})}

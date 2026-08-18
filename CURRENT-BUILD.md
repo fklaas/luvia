@@ -1,8 +1,8 @@
 # CURRENT BUILD
 
-- App: **13.82.5**
-- Core: **4.82.5**
-- Name: **M5.1f Memory Worlds v3 Trip Contract Adoption**
+- App: **13.82.6**
+- Core: **4.82.6**
+- Name: **M5.1g Places Domain Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-17**
 - Milestone Status: **M5 IN PROGRESS**
@@ -493,3 +493,29 @@ Next scope:
 The detailed M5.1f closeout and deployment-order recovery evidence is recorded
 in `RELEASE-NOTES-M5.1F.md`, `TEST-RESULTS-M5.1F.md`, and
 `docs/modularization/PCR-M5.1F-MEMORY-WORLDS-TRIP-CONTRACT-ADOPTION.md`.
+
+---
+
+## M5.1g Local Release Preparation
+
+- Target App: **13.82.6**
+- Target Core: **4.82.6**
+- Scope: **Places Domain Trip Contract Adoption**
+- Local implementation: **GREEN**
+- M5.1g test: **4 / 4 PASS**
+- Controlled Safe Regression: **24 / 24 PASS**
+- Repository Guardrail: **PASS**
+- Timeline: **explicitly excluded / unchanged**
+- Release implementation commit: **pending**
+- Integration promotion: **pending**
+- Production deployment: **pending**
+- Production runtime verification: **pending**
+- Final six-stream synchronization: **pending**
+- M5.1g status: **LOCAL RELEASE PREPARED**
+- M5 Trip Core Isolation: **IN PROGRESS**
+
+Important:
+
+The target release **13.82.6 / Core 4.82.6** is prepared locally but is not yet the verified Production Runtime Release.
+
+The authoritative Production Runtime section above therefore remains on the previously verified production release until deployment and production verification are complete.

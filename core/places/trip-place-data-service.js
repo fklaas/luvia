@@ -7,7 +7,7 @@ const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const canonicalUuid=v=>UUID_RE.test(String(v||'').trim())?String(v).trim():null;
 const db=()=>window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;
-const tripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||null;
+const tripId=()=>(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id||null;
 const emit=()=>{const snap=snapshot();listeners.forEach(fn=>{try{fn(snap)}catch{}});window.dispatchEvent(new CustomEvent('luvia:trip-place-data-changed',{detail:snap}))};
 function snapshot(){return clone(state)}
 function normalize(row){return {...row,fields:row?.fields&&typeof row.fields==='object'?row.fields:{}}}

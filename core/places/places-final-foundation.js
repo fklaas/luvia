@@ -18,7 +18,7 @@
   const clean=v=>String(v??'').trim();
   const providerId=p=>clean(p?.providerPlaceId||p?.id||'').replace(/^places\//,'');
   const destination=trip=>clean(trip?.destination?.name||trip?.destination?.formattedAddress||trip?.destinationName||trip?.name||'');
-  const tripId=trip=>clean(trip?.id||trip?.tripId||window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId);
+  const tripId=trip=>clean(trip?.id||trip?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id);
   const state={root:null,trip:null,phase:'entry',input:'',category:null,activeGoal:null,pendingGoals:[],question:null,answer:'',results:[],loading:false,error:null,details:new Map(),rejected:new Set(),known:new Map(),sequence:0,lastAction:null,lastError:null,lastStartedAt:null,lastCompletedAt:null};
   function storageKey(){return `luvia:places-final:${tripId(state.trip)}`}
   function loadLocal(){try{const v=JSON.parse(sessionStorage.getItem(storageKey())||'{}');state.rejected=new Set(v.rejected||[]);state.pendingGoals=Array.isArray(v.pendingGoals)?v.pendingGoals:[]}catch{state.rejected=new Set();state.pendingGoals=[]}}

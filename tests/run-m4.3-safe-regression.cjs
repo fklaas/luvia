@@ -84,6 +84,10 @@ const SUITE = Object.freeze([
     test: 'tests/m5.1f-memory-worlds-v3-trip-contract-adoption.test.cjs'
   },
   {
+    category: 'Places architecture',
+    test: 'tests/m5.1g-places-domain-trip-contract-adoption.test.cjs'
+  },
+  {
     category: 'M3 contracts',
     test: 'tests/m5.1f-trip-contract-accent-compatibility.test.cjs'
   },

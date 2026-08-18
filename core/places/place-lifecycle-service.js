@@ -4,7 +4,7 @@ const VERSION='4.27.4';
 const MEMORY_KINDS=new Set(['place_memory_linked','photo_added','photo_cluster_created','album_created','live_moment','travel_book_entry','memory']);
 const clean=v=>String(v??'').trim();
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
-const activeTripId=()=>clean(window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId);
+const activeTripId=()=>clean((window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id);
 const providerId=e=>clean(e?.place?.provider_place_id||e?.place?.source_id||e?.providerPlaceId).replace(/^places\//,'');
 const tripPlace=e=>e?.tripPlace||e?.trip_place||{};
 const place=e=>e?.place||{};

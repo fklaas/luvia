@@ -6,7 +6,7 @@ const MAP={favorited:'favorite',dismissed:'rejected',memory:'visited',travel_boo
 const records=new Map();
 const pending=new Map();
 const clean=v=>String(v??'').trim();
-const activeTripId=v=>clean(v||window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+const activeTripId=v=>clean(v||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id||'');
 const normalizeStatus=v=>{const s=MAP[clean(v)]||clean(v)||'idea';return CANONICAL.has(s)?s:'idea'};
 const entityLink=e=>e?.tripPlace||e?.trip_place||e?.rawEntity?.tripPlace||e?.rawEntity?.trip_place||{};
 const entityPlace=e=>e?.place||e?.rawEntity?.place||e||{};

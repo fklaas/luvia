@@ -2,7 +2,7 @@
 'use strict';
 const VERSION='4.19.1';
 const clean=v=>String(v??'').trim();
-const tripId=v=>clean(v||window.LuviaPlaceRuntime?.snapshot?.().activeTripId||window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId);
+const tripId=v=>clean(v||window.LuviaPlaceRuntime?.snapshot?.().activeTripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id);
 const pending=new Map();
 const key=(name,o)=>`${name}|${tripId(o.tripId)}|${clean(o.placeType)}|${clean(o.tripPlaceId||o.providerPlaceId)}`;
 async function once(name,options,worker){const k=key(name,options);if(pending.has(k))return pending.get(k);const p=Promise.resolve().then(worker).finally(()=>pending.delete(k));pending.set(k,p);return p}
