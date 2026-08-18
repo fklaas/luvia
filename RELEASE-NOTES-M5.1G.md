@@ -127,3 +127,61 @@ Still pending:
 10. final M5.1g closeout marker
 
 M5.1g must not be considered fully COMPLETE until those release lifecycle gates are evidenced.
+
+## M5.1g Authoritative Closeout
+
+Status: **COMPLETE**
+
+This is the authoritative release closeout for M5.1g. Earlier lifecycle-pending content represents the pre-production state and is superseded by this section.
+
+### Final release
+
+- App: **13.82.6**
+- Core: **4.82.6**
+- Runtime commit: `6c84a6bd440f56b71108518420fce2b07e60a959`
+- Parent: `98b84f254c1889aaa5f6bc39ab0c29073c5014c7`
+- Subject: `feat(m5): adopt Trip Contract in Places domain`
+- Runtime commit scope: **exactly 19 files**
+
+Exactly eight locked Places consumers adopted the lazy Trip Contract boundary. Direct `LuviaTripStore` and `LuviaTripContext` truth access in those eight consumers is **0**.
+
+`core/places/timeline-core.js` was explicitly excluded and remains unchanged for the later Journey / Timeline Aggregation architecture audit.
+
+### Final gates
+
+- Test-first RED: **established**
+- M5.1g direct test: **4 / 4 PASS**
+- Controlled Safe Regression: **24 / 24 PASS**
+- Release consistency: **PASS**
+- Repository guardrail: **PASS**
+- Production static verification: **PASS**
+- Production runtime pre-reload: **PASS**
+- Production runtime post-reload: **PASS**
+- State stability: **PASS**
+- Console warnings/errors after reload: **0**
+- Six-stream runtime synchronization: **PASS**
+
+### Cloudflare production evidence
+
+- Deployment ID: `a2606461-94da-4a50-9f50-2b641149873e`
+- Version ID: `c606fed4-1f5c-464e-b5a7-8a2a90344c42`
+- Traffic: **100%**
+- Source: `wrangler`
+- Created on: `2026-08-18T06:16:37.397835Z`
+
+Production already served App 13.82.6 / Core 4.82.6 before an additional manual deployment decision was made. Therefore no additional manual Wrangler deploy was executed.
+
+The evidence proves the active Wrangler deployment and version. It does not prove the exact process that triggered it, so no unsupported trigger attribution is recorded.
+
+### Infrastructure impact
+
+- DB migration: **NO**
+- Supabase Edge Function change: **NO**
+- Secret change: **NO**
+- Timeline ownership move: **NO**
+- Additional manual Production deploy during closeout: **NO**
+
+All six Git streams are synchronized on `6c84a6bd440f56b71108518420fce2b07e60a959`, divergence **0 / 0**, clean.
+
+**M5.1g = COMPLETE.**
+**M5 = IN PROGRESS.**

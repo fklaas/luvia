@@ -172,3 +172,109 @@ Therefore:
 
 - M5.1g: **RELEASE PREPARATION**
 - M5: **IN PROGRESS**
+
+## M5.1g Authoritative Closeout
+
+Status: **COMPLETE**
+
+This is the authoritative architectural closeout for M5.1g. Earlier release-lifecycle-pending statements represent the preparation state and are superseded here.
+
+### Architectural result
+
+M5.1g completes Places Domain Trip Contract adoption for the exact eight locked Places consumers.
+
+Active Trip identity is consumed through the lazy Trip Contract boundary rather than direct Trip Store / Trip Context truth access.
+
+Exact scope:
+
+- `core/places/place-core.js`
+- `core/places/place-lifecycle-hub.js`
+- `core/places/place-collection-service.js`
+- `core/places/place-command-service.js`
+- `core/places/place-lifecycle-service.js`
+- `core/places/places-final-foundation.js`
+- `core/places/presence-visit-core.js`
+- `core/places/trip-place-data-service.js`
+
+Explicitly excluded:
+
+- `core/places/timeline-core.js`
+
+Timeline remains a later cross-domain Journey / Timeline Aggregation concern. M5.1g does not reclassify it as an ordinary Places consumer and does not move its ownership.
+
+### Final Trip boundary
+
+For the exact eight consumers:
+
+- direct `LuviaTripStore` truth refs: **0**
+- direct `LuviaTripContext` truth refs: **0**
+- lazy Trip Contract adoption: **8 / 8**
+- active Trip access through `getActiveTrip`: **8 / 8**
+
+Trip Core remains the canonical Trip truth boundary. Places remains responsible for Places-domain behavior and persistence.
+
+### Verification
+
+- Test-first RED established: **YES**
+- M5.1g final test: **4 / 4 PASS**
+- Controlled Safe Regression: **24 / 24 PASS**
+- M3.1 Trip Contract Adapter regression: **PASS**
+- Places architecture evergreen regression: **PASS**
+- Repository guardrail: **PASS**
+- Runtime commit: `6c84a6bd440f56b71108518420fce2b07e60a959`
+- Runtime parent: `98b84f254c1889aaa5f6bc39ab0c29073c5014c7`
+- Runtime commit scope: **19 files**
+
+Guardrail baseline:
+
+- tracked JS/TS: **327**
+- static DB calls: **316**
+- mapped cross-core debt: **26 / 26**
+- unmapped DB-object debt: **39 / 39**
+- dynamic DB calls: **27 / 27**
+
+### Production lifecycle
+
+- App: **13.82.6**
+- Core: **4.82.6**
+- Static Production: **PASS**
+- Browser Runtime Pre-Reload: **PASS**
+- Browser Runtime Post-Reload: **PASS**
+- State Stability: **PASS**
+- Console warnings/errors: **0**
+- Cloudflare Deployment ID: `a2606461-94da-4a50-9f50-2b641149873e`
+- Cloudflare Version ID: `c606fed4-1f5c-464e-b5a7-8a2a90344c42`
+- Cloudflare traffic: **100%**
+- Cloudflare source: `wrangler`
+- Created on: `2026-08-18T06:16:37.397835Z`
+
+Production already served the target release before an additional manual deploy was considered. No additional manual Wrangler deploy was executed.
+
+The collected evidence does not prove the exact process that triggered the active Wrangler deployment; no unsupported attribution is made.
+
+### Six-stream synchronization
+
+All six streams are synchronized on `6c84a6bd440f56b71108518420fce2b07e60a959`:
+
+- `main`
+- `integration`
+- `feature/platform-core`
+- `feature/booking-core`
+- `feature/consumer-experience`
+- `feature/social-experience-graph`
+
+For every stream:
+
+- Local = Tracking = Live Remote
+- divergence = **0 / 0**
+- working tree = **clean**
+
+### Exit decision
+
+M5.1g has satisfied its implementation, regression, release, Production static, browser runtime, reload stability, console, provenance, and six-stream synchronization gates.
+
+**M5.1g = COMPLETE.**
+
+M5.1g completion does not close the overall Trip Core Isolation milestone.
+
+**M5 = IN PROGRESS.**

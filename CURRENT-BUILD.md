@@ -188,21 +188,27 @@ Feature-Branches dürfen `integration` nicht umgehen.
 
 ## Current Production Runtime Release
 
-App:
+- Current App: **13.82.6**
+- Current Core: **4.82.6**
+- Production runtime release commit: `6c84a6bd440f56b71108518420fce2b07e60a959`
+- Runtime parent: `98b84f254c1889aaa5f6bc39ab0c29073c5014c7`
+- Production Cloudflare Deployment ID: `a2606461-94da-4a50-9f50-2b641149873e`
+- Production Cloudflare Worker Version ID: `c606fed4-1f5c-464e-b5a7-8a2a90344c42`
+- Deployment traffic: **100%**
+- Cloudflare source: `wrangler`
+- Deployment created on: `2026-08-18T06:16:37.397835Z`
+- Production static verification: **PASS**
+- Browser runtime pre-reload: **PASS**
+- Browser runtime post-reload: **PASS**
+- Runtime state stability: **PASS**
+- Console warnings/errors after reload: **0**
+- Six-stream runtime synchronization: **PASS**
+- M5.1g: **COMPLETE**
+- M5 Trip Core Isolation: **IN PROGRESS**
 
-`13.82.5`
+Production was already serving the exact App 13.82.6 / Core 4.82.6 target when the production-state probe was executed. Therefore no additional manual `wrangler deploy` was performed.
 
-Core:
-
-`4.82.5`
-
-Production runtime release commit:
-
-`9a148a45af93c8ea2cf4ef5ddd3d3d4f244d155a`
-
-Production Cloudflare Worker Version ID:
-
-`854e33a3-9c9f-4426-9173-aee3b63c93f5`
+Cloudflare proves the active Deployment ID and Version ID above and reports source `wrangler`. The collected evidence does not prove which exact local, CI, GitHub, or other process triggered that deployment; no unsupported trigger attribution is made.
 
 ## Safe Regression Baseline
 
@@ -519,3 +525,95 @@ Important:
 The target release **13.82.6 / Core 4.82.6** is prepared locally but is not yet the verified Production Runtime Release.
 
 The authoritative Production Runtime section above therefore remains on the previously verified production release until deployment and production verification are complete.
+
+## M5.1g Authoritative Closeout
+
+Status: **COMPLETE**
+
+This is the authoritative M5.1g closeout. Earlier M5.1g Local Release Preparation / lifecycle-pending statements represent the pre-release state and are superseded by this section.
+
+### Release identity
+
+- App: **13.82.6**
+- Core: **4.82.6**
+- Runtime commit: `6c84a6bd440f56b71108518420fce2b07e60a959`
+- Parent: `98b84f254c1889aaa5f6bc39ab0c29073c5014c7`
+- Subject: `feat(m5): adopt Trip Contract in Places domain`
+- Runtime commit scope: **exactly 19 files**
+
+### Places Trip Contract adoption
+
+Exactly these eight Places consumers now read active Trip truth through the lazy Trip Contract boundary:
+
+- `core/places/place-core.js`
+- `core/places/place-lifecycle-hub.js`
+- `core/places/place-collection-service.js`
+- `core/places/place-command-service.js`
+- `core/places/place-lifecycle-service.js`
+- `core/places/places-final-foundation.js`
+- `core/places/presence-visit-core.js`
+- `core/places/trip-place-data-service.js`
+
+Final boundary:
+
+- direct `LuviaTripStore` truth refs: **0**
+- direct `LuviaTripContext` truth refs: **0**
+- Trip Contract adoption: **8 / 8**
+- active Trip access through `getActiveTrip`: **8 / 8**
+
+`core/places/timeline-core.js` is explicitly excluded and unchanged. Timeline remains reserved for the later cross-domain Journey / Timeline Aggregation architecture audit.
+
+### Verification
+
+- M5.1g direct test: **4 / 4 PASS**
+- Controlled Safe Regression: **24 / 24 PASS**
+- Release consistency: **App 13.82.6 / Core 4.82.6 PASS**
+- Repository guardrail: **PASS**
+- tracked JS/TS files: **327**
+- static DB calls: **316**
+- mapped cross-core debt: **26 / baseline 26**
+- unmapped DB-object debt: **39 / baseline 39**
+- dynamic DB calls: **27 / baseline 27**
+
+### Production evidence
+
+- Static Production: **PASS**
+- Browser Runtime Pre-Reload: **PASS**
+- Browser Runtime Post-Reload: **PASS**
+- State Stability: **PASS**
+- Console warnings/errors after reload: **0**
+- active Trip: **Paris Hochzeitstag**
+- active Trip ID: `a3a7cfe1-e099-4ee2-a92d-3b7b979155ae`
+- active Trip accent: `#67a98f`
+- Trip count: **7**
+- Cloudflare Deployment ID: `a2606461-94da-4a50-9f50-2b641149873e`
+- Cloudflare Version ID: `c606fed4-1f5c-464e-b5a7-8a2a90344c42`
+- Traffic: **100%**
+- Cloudflare source: `wrangler`
+- Created on: `2026-08-18T06:16:37.397835Z`
+
+No additional manual Production deploy was performed after Production was classified `TARGET_ALREADY_LIVE`. The exact triggering process for the active Wrangler deployment is not asserted because the collected evidence does not prove it.
+
+### Six-stream synchronization
+
+All six active streams resolve Local = Tracking = Live Remote to runtime commit `6c84a6bd440f56b71108518420fce2b07e60a959`, divergence **0 / 0**, working tree **clean**:
+
+- `main`
+- `integration`
+- `feature/platform-core`
+- `feature/booking-core`
+- `feature/consumer-experience`
+- `feature/social-experience-graph`
+
+### Infrastructure impact
+
+- DB migration: **NO**
+- Supabase Edge Function change: **NO**
+- Secret change: **NO**
+- Timeline ownership move: **NO**
+
+**M5.1g = COMPLETE.**
+
+This closes only M5.1g.
+
+**M5 = IN PROGRESS.**

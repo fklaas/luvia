@@ -137,3 +137,104 @@ Not yet evidenced at this stage:
 - final six-stream synchronization
 
 Therefore M5.1g remains **release lifecycle pending** and M5 remains **IN PROGRESS**.
+
+## M5.1g Authoritative Closeout
+
+Status: **PASS / COMPLETE**
+
+This section is the authoritative final verification evidence for M5.1g. Earlier lifecycle-pending content describes the pre-release state and is superseded here.
+
+### Repository and regression
+
+- Runtime commit: `6c84a6bd440f56b71108518420fce2b07e60a959`
+- Parent: `98b84f254c1889aaa5f6bc39ab0c29073c5014c7`
+- Exact runtime commit scope: **19 files**
+- M5.1g direct test: **4 total / 4 passed / 0 failed**
+- Controlled Safe Regression: **24 total / 24 passed / 0 failed / Suite PASS**
+- Release consistency: **Build 13.82.6 / Core 4.82.6 OK**
+- M3.1 Trip Contract Adapter regression: **PASS**
+- M4.3 Places architecture evergreen regression: **PASS**
+
+### Repository guardrail
+
+- tracked JS/TS files: **327**
+- static DB calls: **316**
+- mapped cross-core debt: **26 / baseline 26**
+- unmapped DB-object debt: **39 / baseline 39**
+- dynamic DB calls: **27 / baseline 27**
+
+### Production static verification
+
+Production endpoints verified:
+
+- `https://myluvia.app`
+- `https://luvia.njwnrvwbv5.workers.dev`
+
+Both served App 13.82.6 / Core 4.82.6.
+
+All eight M5.1g Places runtime files returned HTTP 200 and showed:
+
+- direct `LuviaTripStore`: **0**
+- direct `LuviaTripContext`: **0**
+- Trip Contract present: **YES**
+- `getActiveTrip` present: **YES**
+
+### Browser runtime
+
+Pre-reload:
+
+- Trip Contract available: **YES**
+- `getActiveTrip`: **YES**
+- `getContext`: **YES**
+- `listTrips`: **YES**
+- `subscribe`: **YES**
+- active Trip: **Paris Hochzeitstag**
+- active Trip ID: `a3a7cfe1-e099-4ee2-a92d-3b7b979155ae`
+- accent: `#67a98f`
+- Trip count: **7**
+- target 13.82.6 assets loaded: **YES**
+- runtime errors: **0**
+- gate: **PASS**
+
+Post-reload:
+
+- active Trip ID stable: **YES**
+- active Trip title stable: **YES**
+- active Trip accent stable: **YES**
+- Trip count stable: **YES**
+- target assets loaded: **YES**
+- runtime errors: **0**
+- State Stability: **PASS**
+- Post-Reload Runtime Gate: **PASS**
+- Console warnings/errors after reload: **0**
+
+### Cloudflare provenance
+
+- Deployment ID: `a2606461-94da-4a50-9f50-2b641149873e`
+- Version ID: `c606fed4-1f5c-464e-b5a7-8a2a90344c42`
+- Traffic: **100%**
+- Source: `wrangler`
+- Created on: `2026-08-18T06:16:37.397835Z`
+
+No additional manual deploy was executed after Production was classified `TARGET_ALREADY_LIVE`. The collected provenance does not identify the exact deployment trigger.
+
+### Six-stream final gate
+
+All six active streams resolve to runtime commit `6c84a6bd440f56b71108518420fce2b07e60a959`:
+
+- main
+- integration
+- feature/platform-core
+- feature/booking-core
+- feature/consumer-experience
+- feature/social-experience-graph
+
+For all six:
+
+- Local = Tracking = Live Remote
+- divergence = **0 / 0**
+- working tree = **clean**
+
+**FINAL M5.1g VERIFICATION = PASS.**
+**M5.1g = COMPLETE.**
+**M5 = IN PROGRESS.**
