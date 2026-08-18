@@ -1,8 +1,8 @@
 # CURRENT BUILD
 
-- App: **13.82.7**
-- Core: **4.82.7**
-- Name: **M5.1h Discovery Modules Trip Contract Adoption**
+- App: **13.82.8**
+- Core: **4.82.8**
+- Name: **M5.1i Diagnostics Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-18**
 - Milestone Status: **M5 IN PROGRESS**
@@ -676,3 +676,38 @@ M5.1h does not modify core/places/timeline-core.js, core/platform/trip-contract-
 The earlier LOCAL RELEASE PREPARATION section remains a historical record of the state at that point in the lifecycle. This newer closeout section is authoritative.
 
 The final closeout-marker commit and subsequent 8/8 stream synchronization are repository synchronization steps and do not modify the M5.1h runtime.
+
+## M5.1i Local Release Preparation
+
+- Target App: **13.82.8**
+- Target Core: **4.82.8**
+- Milestone: **M5.1i Diagnostics Trip Contract Adoption**
+- Parent baseline: **8a48a56128029da4a7f3ac4c95696b17cd82a67d**
+- Stream: **feature/platform-core**
+- Runtime targets: **2 Diagnostics consumers**
+- Direct LuviaTripStore references in scope: **0**
+- Direct LuviaTripContext references in scope: **0**
+- Trip Contract adoption: **2 / 2**
+- Trip Contract extension: **NO**
+- index reorder: **NO**
+- Timeline / Journey: **excluded / unchanged**
+- M5.1i targeted regression: **PASS**
+- Safe Regression Evergreen allowlist: **29**
+- Controlled Safe Regression: **29 / 29 PASS**
+- Repository / ownership / DB guardrails: **PASS**
+- Release consistency: **App 13.82.8 / Core 4.82.8 PASS**
+- Release implementation commit: **pending**
+- Feature-stream push: **pending**
+- Integration promotion: **pending**
+- Integration Preview verification: **pending**
+- Main promotion: **pending**
+- Production verification: **pending**
+- Final eight-stream synchronization: **pending**
+- M5.1i status: **LOCAL RELEASE PREPARED**
+- M5 Trip Core Isolation: **IN PROGRESS**
+
+The top-level build identity represents the local M5.1i release candidate.
+
+The authoritative verified Production Runtime remains App **13.82.7** / Core **4.82.7** until the M5.1i promotion and Production verification gates prove otherwise.
+
+M5.1i does not modify the Trip Contract Adapter, Timeline/Journey ownership, database schema, Supabase Edge Functions, secrets, Booking Core ownership, Media Core ownership, Experience Core ownership or Intelligence Core ownership.

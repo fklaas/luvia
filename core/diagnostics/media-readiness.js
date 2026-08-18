@@ -1,9 +1,9 @@
-/* Release 13.82.7 - Core 4.82.7 */
+/* Release 13.82.8 - Core 4.82.8 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.7';
-  const BUILD='13.82.7';
+  const CORE='4.82.8';
+  const BUILD='13.82.8';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -16,7 +16,8 @@
     try{const r=await client.storage.from(bucket).list(tripId||'',{limit:1});return{ok:!r.error,durationMs:elapsed(started),error:r.error?.message||null,items:r.data?.length||0};}
     catch(error){return{ok:false,durationMs:elapsed(started),error:error?.message||String(error),items:0}}
   }
-  async function run(options={}){
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+async function run(options={}){
     const started=performance.now(), warnings=[], failedChecks=[];
     const checks={
       centralMediaContract:Boolean(window.LuviaMediaContractV1),
@@ -30,7 +31,7 @@
       diagnosticsRegistry:Boolean(window.LuviaServiceRegistry)
     };
     const client=window.ParisCloud?.client||window.LuviaSupabase?.client?.()||window.LuviaSupabase?.getClient?.()||null;
-    const tripId=options.tripId||window.LuviaTripContext?.getActiveTripId?.()||window.LuviaTripContext?.get?.()?.id||null;
+    const tripId=options.tripId||tripContract()?.getActiveTrip?.()?.tripId||tripContract()?.getActiveTrip?.()?.id||tripContract()?.getContext?.()?.tripId||null;
     const dependencies={client:Boolean(client),tripId:Boolean(tripId)};
     if(client){
       checks.mediaTable=await probeTable(client,'media','id,trip_id,user_id,participant_id,storage_bucket,storage_path,captured_at,day_key,content_hash,place_id,status,metadata');

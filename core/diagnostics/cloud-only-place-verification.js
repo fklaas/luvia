@@ -4,7 +4,8 @@ const VERSION=window.LuviaKernelVersion?.core||'4.19.1';
 const FORBIDDEN_PATTERNS=[/^luvia\.schedule\./,/^luvia\.today\./,/^luvia\.live-day\./,/^luvia\.timeline\./,/^luvia\.place-visits\./,/^luviaRestaurantsV2Demo:/];
 const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-function activeTripId(explicit){return String(explicit||window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripContext?.getSnapshot?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');}
+const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+function activeTripId(explicit){return String(explicit||tripContract()?.getActiveTrip?.()?.tripId||tripContract()?.getActiveTrip?.()?.id||tripContract()?.getContext?.()?.tripId||'');}
 function client(){return window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;}
 function localDomainKeys(){const keys=[];try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(FORBIDDEN_PATTERNS.some(pattern=>pattern.test(String(key))))keys.push(key);}}catch{}return keys.sort();}
 function serviceState(){return{
