@@ -1,10 +1,10 @@
 # CURRENT BUILD
 
-- App: **13.82.6**
-- Core: **4.82.6**
-- Name: **M5.1g Places Domain Trip Contract Adoption**
+- App: **13.82.7**
+- Core: **4.82.7**
+- Name: **M5.1h Discovery Modules Trip Contract Adoption**
 - Channel: **production**
-- Datum: **2026-08-17**
+- Datum: **2026-08-18**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
@@ -617,3 +617,34 @@ All six active streams resolve Local = Tracking = Live Remote to runtime commit 
 This closes only M5.1g.
 
 **M5 = IN PROGRESS.**
+
+## M5.1h Local Release Preparation
+
+- Target App: **13.82.7**
+- Target Core: **4.82.7**
+- Milestone: **M5.1h – Discovery Modules Trip Contract Adoption**
+- Parent baseline: **9c1d37e67c57fa6343a55b5ca5ea8ef25858c960**
+- Stream: **feature/consumer-experience**
+- Scope Lock: **PASS**
+- Mutation Design Gate: **PASS**
+- Test-first RED: **PROVEN**
+- Targeted implementation regression: **PASS**
+- Direct LuviaTripStore references in seven Discovery modules: **0**
+- Direct LuviaTripContext references in seven Discovery modules: **0**
+- Trip Contract adoption: **7 / 7**
+- Timeline: **excluded / unchanged**
+- Trip Contract Adapter: **unchanged**
+- Safe Regression Evergreen allowlist: **28**
+- Release implementation commit: **pending**
+- Feature-stream push: **pending**
+- Integration promotion: **pending**
+- Main promotion: **pending**
+- Production verification: **pending**
+- M5.1h status: **LOCAL RELEASE PREPARATION**
+- M5 Trip Core Isolation: **IN PROGRESS**
+
+The top-level build identity represents the local M5.1h release candidate.
+
+The authoritative verified Production Runtime remains App **13.82.6** / Core **4.82.6** until M5.1h has passed promotion to integration, promotion to main, Production deployment/runtime verification and reload/browser-console proof.
+
+M5.1h does not modify core/places/timeline-core.js, core/platform/trip-contract-adapter.js, database schema, Supabase Edge Functions, secrets, Booking Core ownership, Media Core ownership, Experience Core ownership or Intelligence Core ownership.
