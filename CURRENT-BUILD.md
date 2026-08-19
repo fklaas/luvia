@@ -1,10 +1,10 @@
 # CURRENT BUILD
 
-- App: **13.82.8**
-- Core: **4.82.8**
-- Name: **M5.1i Diagnostics Trip Contract Adoption**
+- App: **13.82.9**
+- Core: **4.82.9**
+- Name: **M5.1j Profile Foundation Trip Contract Adoption**
 - Channel: **production**
-- Datum: **2026-08-18**
+- Datum: **2026-08-19**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
