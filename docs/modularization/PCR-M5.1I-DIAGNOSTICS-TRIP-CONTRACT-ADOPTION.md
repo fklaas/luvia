@@ -261,3 +261,97 @@ Later verification cannot retroactively create live-remote or divergence evidenc
 Branch, HEAD, tracking and preservation evidence remains valid, but full historical protocol compliance for those earlier mutation moments is not claimed.
 
 No destructive reset, clean, amend or force operation is performed merely to reconstruct missing retrospective proof.
+
+## Authoritative M5.1i Closeout – 2026-08-18
+
+Status: **COMPLETE**
+
+### Final release identity
+
+- App: **13.82.8**
+- Core: **4.82.8**
+- Name: **M5.1i Diagnostics Trip Contract Adoption**
+- owner stream: **feature/platform-core**
+- runtime / release implementation commit: `90f780188481365081d91f0ca3dd0a474f15bd50`
+- Integration Preview CORS support commit: `4df3224dd4bb743eda09426b69f6f9fbd76a9806`
+- final Production Worker CORS support commit: `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`
+
+### Architectural result
+
+The approved Diagnostics Trip-read migration remains exactly the intended two-source-file change:
+
+- `core/diagnostics/cloud-only-place-verification.js`
+- `core/diagnostics/media-readiness.js`
+
+Both consume Trip state through the public Trip Contract boundary.
+
+The Diagnostics runtime migration itself did not add database access, transfer ownership, extend the Trip Contract, move Timeline / Journey, or change Booking, Media, Experience or Intelligence domain truth.
+
+### Lifecycle CORS support
+
+Integration Preview verification exposed that both Edge Functions rejected the Integration Worker origin. A minimal two-file Platform support change added that exact origin and was committed as `4df3224dd4bb743eda09426b69f6f9fbd76a9806`.
+
+After the authoritative Production Worker endpoint was verified, browser runtime testing exposed the same class of blocker for the exact Production Worker origin:
+
+`https://luvia.njwnrvwbv5.workers.dev`
+
+A second minimal two-file Platform support change added that exact origin and was committed as `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`.
+
+For both support changes:
+
+- wildcard origin: **NO**
+- existing allowed origins removed: **NO**
+- fallback behavior changed: **NO**
+- environment / secret behavior changed: **NO**
+- Diagnostics business logic changed: **NO**
+- database migration: **NONE**
+- secret mutation: **NONE**
+
+The second support deployment was deliberately sequential:
+
+1. `luvia-gateway` v110 -> **v111**
+2. `luvia-intelligence` v24 -> **v25**
+
+Final status:
+
+- `luvia-gateway`: **ACTIVE / v111**
+- `luvia-intelligence`: **ACTIVE / v25**
+- Gateway four-origin matrix: **4 / 4 PASS**
+- Intelligence four-origin matrix: **4 / 4 PASS**
+- combined final Edge CORS matrix: **8 / 8 PASS**
+
+### Final validation
+
+- focused M5.1i regression: **PASS**
+- release consistency: **PASS**
+- four ownership / boundary guardrails: **PASS**
+- Safe Regression allowlist: **29**
+- Controlled Safe Regression: **29 / 29 PASS**
+- Production static Git-blob equivalence: **6 / 6 PASS**
+- Production Browser Runtime CORS Revalidation: **15 / 15 PASS**
+- failed browser assertions: **0**
+- former Production CORS policy blocker: **RESOLVED**
+- former ACAO mismatch blocker: **RESOLVED**
+- former CORS-caused `net::ERR_FAILED` blocker: **RESOLVED**
+
+### Production static state
+
+Production endpoint:
+
+`https://luvia.njwnrvwbv5.workers.dev`
+
+The exact App 13.82.8 / Core 4.82.8 static target was already live when verified.
+
+No additional manual Cloudflare / Wrangler deployment was required or performed for the static M5.1i target.
+
+### Completion boundary
+
+The earlier **Local exit state** remains a historical record of the pre-promotion lifecycle point. Its `NOT YET CLAIMED` statements are superseded by this authoritative closeout.
+
+The Evidence limitation retained section above remains authoritative and unchanged.
+
+This closeout does not pre-claim the future closeout-marker commit SHA or its subsequent propagation and eight-stream synchronization. Those repository synchronization steps must still be verified separately.
+
+**M5.1i = COMPLETE.**
+
+**M5 Trip Core Isolation = IN PROGRESS.**

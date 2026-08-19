@@ -711,3 +711,51 @@ The top-level build identity represents the local M5.1i release candidate.
 The authoritative verified Production Runtime remains App **13.82.7** / Core **4.82.7** until the M5.1i promotion and Production verification gates prove otherwise.
 
 M5.1i does not modify the Trip Contract Adapter, Timeline/Journey ownership, database schema, Supabase Edge Functions, secrets, Booking Core ownership, Media Core ownership, Experience Core ownership or Intelligence Core ownership.
+
+## M5.1i Authoritative Closeout – 2026-08-18
+
+- Milestone: **M5.1i – Diagnostics Trip Contract Adoption**
+- Final status: **COMPLETE**
+- App: **13.82.8**
+- Core: **4.82.8**
+- Owner stream: **feature/platform-core**
+- Runtime / release implementation commit: `90f780188481365081d91f0ca3dd0a474f15bd50`
+- Integration Preview CORS support commit: `4df3224dd4bb743eda09426b69f6f9fbd76a9806`
+- Final Production Worker CORS support commit: `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`
+- Platform promotion: **PASS**
+- Integration promotion: **PASS**
+- Main promotion: **PASS**
+- Main / Integration / Platform live source marker: `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`
+- Controlled Safe Regression: **29 / 29 PASS**
+- Repository / ownership / DB guardrails: **PASS**
+- Release consistency: **PASS**
+- Production static source provenance: **6 / 6 exact assets**
+- Production App / Core identity: **13.82.8 / 4.82.8**
+- Production static classification: **TARGET_ALREADY_LIVE**
+- Manual Cloudflare / Wrangler deployment for the M5.1i static release: **NOT REQUIRED / NOT PERFORMED**
+- Production Browser Runtime CORS Revalidation: **15 / 15 PASS**
+- Production browser failed assertions: **0**
+- `luvia-gateway`: **ACTIVE / v111**
+- `luvia-intelligence`: **ACTIVE / v25**
+- Final Edge CORS matrix: **8 / 8 PASS**
+- Production Worker origin accepted by both Edge Functions: **YES**
+- Database migration: **NONE**
+- Secret mutation: **NONE**
+- Timeline / Journey mutation: **NONE**
+- Trip Contract Adapter extension: **NONE**
+- M5 Trip Core Isolation: **IN PROGRESS**
+- M5 Exit Gate: **NOT YET CLAIMED**
+
+The earlier **M5.1i Local Release Preparation** section remains the historical pre-release state. This authoritative closeout supersedes its lifecycle-pending statements.
+
+The original Diagnostics runtime migration remained exactly the approved two-file Trip-read adoption. Two later minimal Platform CORS support commits were required by deployed browser origins: first the Integration Preview Worker origin and then the authoritative Production Worker origin. Those support fixes changed only the two shared CORS allowlists and did not alter Diagnostics business logic, Trip truth, database schema or secrets.
+
+The first support deployment produced `luvia-gateway` v110 and `luvia-intelligence` v24 for Integration Preview CORS. The final Production Worker-origin support deployment was performed sequentially and produced `luvia-gateway` v111 followed by `luvia-intelligence` v25.
+
+The Production static release was already serving the exact App 13.82.8 / Core 4.82.8 Git target; therefore no additional manual Wrangler deployment was performed.
+
+This closeout does not pre-claim the future closeout-marker commit SHA or its subsequent eight-stream synchronization. Those repository synchronization steps must be inspected and propagated separately.
+
+**M5.1i = COMPLETE.**
+
+**M5 = IN PROGRESS.**

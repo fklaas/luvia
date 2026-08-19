@@ -26,7 +26,7 @@ This additive M4.5 work does not invalidate the completed M4 milestone.
 
 M5: IN PROGRESS.
 
-M5.1a through M5.1g: COMPLETE.
+M5.1a through M5.1i: COMPLETE.
 
 Current shared baseline marker entering M4.5.3:
 
@@ -59,6 +59,48 @@ Integration Runtime Proof: exact committed Git blobs live for all seven Discover
 Production Runtime Proof: TARGET_ALREADY_LIVE on App 13.82.7 / Core 4.82.7, with all seven Discovery modules matching the committed Git blobs exactly. No additional manual Wrangler deployment was required.
 
 Historical protocol-evidence limitation: immediately before RED-test creation, immediately before the initial runtime mutation and immediately before the first Safe-Runner release mutation, live remote SHA and divergence were not captured. Later verification cannot retroactively prove those three mutation moments. Repository history was not reset or rewritten to manufacture evidence. The later release implementation commit did receive the complete immediate pre-mutation live-remote/divergence gate.
+
+### M5.1i
+
+M5.1i is COMPLETE.
+
+App 13.82.8 / Core 4.82.8.
+
+The approved active Diagnostics slice was migrated from direct legacy Trip Store / Trip Context reads to the canonical Trip Contract v1 boundary without extending the Trip Contract and without moving Timeline / Journey ownership.
+
+Runtime / release implementation commit: `90f780188481365081d91f0ca3dd0a474f15bd50`.
+
+Two minimal Platform lifecycle-support commits were subsequently required for deployed browser-origin CORS:
+
+- Integration Preview CORS support: `4df3224dd4bb743eda09426b69f6f9fbd76a9806`
+- Production Worker CORS support: `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`
+
+Main, Integration and Platform reached the final accepted source marker `dee95f0dd89a26a029c5ba8840a9fecdc5ca076a`.
+
+Production static provenance: 6 / 6 exact assets on App 13.82.8 / Core 4.82.8.
+
+Production static classification: TARGET_ALREADY_LIVE. No additional manual Wrangler deployment was required.
+
+Production Browser Runtime CORS Revalidation: 15 / 15 PASS.
+
+Final Production Edge state:
+
+- `luvia-gateway v111` – ACTIVE
+- `luvia-intelligence v25` – ACTIVE
+- Gateway CORS matrix: 4 / 4 PASS
+- Intelligence CORS matrix: 4 / 4 PASS
+- combined CORS matrix: 8 / 8 PASS
+- authoritative Production Worker origin accepted by both Functions
+
+No database migration or secret mutation was performed.
+
+Timeline / Journey remained reserved and unchanged.
+
+Historical protocol-evidence limitation remains retained for M5.1i. Later successful gates do not retroactively manufacture immediate live-remote/divergence evidence for earlier mutation moments where that evidence was not captured. No reset or history rewrite was performed to create retrospective proof.
+
+The future M5.1i closeout-marker commit and subsequent eight-stream repository synchronization are not pre-claimed by this migration-state update.
+
+M5 remains IN PROGRESS.
 
 ## Journey / Timeline
 

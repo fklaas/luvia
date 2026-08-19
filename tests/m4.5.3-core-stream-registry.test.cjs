@@ -159,6 +159,39 @@ assert(
 );
 
 console.log('M4.5.3 Core / Stream Registry + Architecture Foundation: PASS');
+assert(
+  migration.includes('M5.1a through M5.1i: COMPLETE.'),
+  'M5.1i aggregate completed migration state missing'
+);
+
+assert(
+  migration.includes('M5.1i is COMPLETE.'),
+  'M5.1i completed migration state missing'
+);
+
+assert(
+  migration.includes('Production static provenance: 6 / 6 exact assets on App 13.82.8 / Core 4.82.8.'),
+  'M5.1i Production static provenance missing'
+);
+
+assert(
+  migration.includes('Production Browser Runtime CORS Revalidation: 15 / 15 PASS.'),
+  'M5.1i Production browser acceptance missing'
+);
+
+assert(
+  migration.includes('`luvia-gateway v111` – ACTIVE') &&
+    migration.includes('`luvia-intelligence v25` – ACTIVE'),
+  'M5.1i final Edge Function versions missing'
+);
+
+assert(
+  migration.includes('Historical protocol-evidence limitation remains retained for M5.1i'),
+  'M5.1i historical protocol-evidence limitation missing'
+);
+
+console.log('M5.1i completed state preserved: PASS');
+
 console.log('Streams: 8');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
