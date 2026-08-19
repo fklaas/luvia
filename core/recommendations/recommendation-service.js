@@ -9,8 +9,9 @@
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
   const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
   const uid=()=>crypto.randomUUID?.()||`rec-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const activeTrip=()=>window.LuviaTripContext?.getActiveTrip?.()||window.LuviaTripContext?.getSnapshot?.()||window.LuviaTripStore?.snapshot?.()?.activeTrip||{};
-  const tripId=input=>String(input||activeTrip()?.tripId||activeTrip()?.id||'').trim();
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const activeTrip=()=>tripContract()?.getActiveTrip?.()||{};
+  const tripId=input=>String(input||tripContract()?.getContext?.()?.tripId||activeTrip()?.tripId||activeTrip()?.id||'').trim();
   const profile=()=>window.LuviaProfileService?.snapshot?.().profile||{};
   const unique=a=>[...new Set((Array.isArray(a)?a:[]).filter(Boolean))];
   function participantFromProfile(p,source='profile'){

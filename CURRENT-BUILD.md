@@ -1,8 +1,8 @@
 # CURRENT BUILD
 
-- App: **13.82.9**
-- Core: **4.82.9**
-- Name: **M5.1j Profile Foundation Trip Contract Adoption**
+- App: **13.82.10**
+- Core: **4.82.10**
+- Name: **M5.1k Recommendations Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-19**
 - Milestone Status: **M5 IN PROGRESS**
@@ -763,8 +763,8 @@ This closeout does not pre-claim the future closeout-marker commit SHA or its su
 
 - Milestone: **M5.1j – Profile Foundation Trip Contract Adoption**
 - Final status: **COMPLETE**
-- App: **13.82.9**
-- Core: **4.82.9**
+- App: **13.82.10**
+- Core: **4.82.10**
 - Owner stream: **feature/consumer-experience**
 - Runtime / release implementation commit: **a76fae471f368f33a5e68c396f9e1778c1004e18**
 - Consumer promotion: **PASS**
@@ -781,11 +781,11 @@ This closeout does not pre-claim the future closeout-marker commit SHA or its su
 - Release consistency: **PASS**
 - Integration Preview current static source provenance: **6 / 6 exact Git assets**
 - Production current static source provenance: **6 / 6 exact Git assets**
-- Production App / Core identity: **13.82.9 / 4.82.9**
-- Production index cache tokens: **214 / 214 on 13.82.9**
+- Production App / Core identity: **13.82.10 / 4.82.10**
+- Production index cache tokens: **214 / 214 on 13.82.10**
 - Stale 13.82.8 index cache tokens: **0**
-- Production Service Worker: **luvia-shell-v13.82.9**
-- Production force-update appv: **13.82.9**
+- Production Service Worker: **luvia-shell-v13.82.10**
+- Production force-update appv: **13.82.10**
 - Static Asset Hardening smoke: **PASS**
 - Manual Cloudflare / Wrangler deployment: **NONE**
 - Supabase deployment: **NONE**

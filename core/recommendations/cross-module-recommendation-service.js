@@ -3,7 +3,8 @@
 const VERSION='4.3.0',KEY='luvia.cross-module.v4';
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const state={status:'ready',tripId:null,slots:{forYou:[],rightNow:[],nearby:[],onYourWay:[],next:[],alternative:[]},candidates:[],lastUpdatedAt:null,lastError:null,offline:false,freeWindowTrace:[]};
-const tripId=()=>String(window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripId=()=>{const api=tripContract(),trip=api?.getActiveTrip?.()||null;return String(api?.getContext?.()?.tripId||trip?.tripId||trip?.id||'')};
 const score=p=>Number(p?.intelligence?.score??p?.matchScore??p?.metadata?.matchScore??0);
 const dist=p=>Number.isFinite(Number(p?.distanceMeters))?Number(p.distanceMeters):Infinity;
 const visitMinutes=p=>Math.max(15,Number(p?.minimumVisitMinutes||p?.metadata?.minimumVisitMinutes||p?.metadata?.recommendedDurationMinutes||45));

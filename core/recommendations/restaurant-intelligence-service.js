@@ -5,7 +5,8 @@
   const state={loading:false,tripId:null,restaurants:[],primary:null,nearby:null,reservationMissing:null,departure:null,betterAlternative:null,lastUpdatedAt:null,lastError:null};
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
   const now=()=>new Date();
-  const tripId=()=>String(window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripId=()=>{const api=tripContract(),trip=api?.getActiveTrip?.()||null;return String(api?.getContext?.()?.tripId||trip?.tripId||trip?.id||'')};
   const meters=v=>Number.isFinite(Number(v))?Number(v):null;
   const formatDistance=v=>{const n=meters(v);if(n==null)return null;return n<1000?`${Math.round(n)} m`:`${(n/1000).toFixed(1).replace('.',',')} km`};
   const minutesFor=(distance,mode='walk')=>{const n=meters(distance);if(n==null)return null;const metersPerMinute=mode==='drive'?700:80;return Math.max(1,Math.ceil(n/metersPerMinute)+(mode==='drive'?4:0))};

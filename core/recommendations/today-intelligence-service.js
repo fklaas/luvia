@@ -8,7 +8,8 @@
   const dayKey = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const nowIso = () => new Date().toISOString();
   const parse = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? null : d; };
-  const activeTripId = () => String(window.LuviaTripContext?.getActiveTrip?.()?.tripId || window.LuviaTripStore?.snapshot?.()?.activeTripId || '');
+  const tripContract = () => window.LuviaTripContractV1 || window.LuviaTripContract || null;
+const activeTripId = () => { const api = tripContract(); const trip = api?.getActiveTrip?.() || null; return String(api?.getContext?.()?.tripId || trip?.tripId || trip?.id || ''); };
   const timezone = () => window.LuviaTravelContext?.snapshot?.()?.destination?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
   const initialState = () => ({

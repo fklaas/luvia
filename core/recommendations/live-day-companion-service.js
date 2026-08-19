@@ -5,7 +5,8 @@
   const nowIso=()=>new Date().toISOString();
   const initial=()=>({version:VERSION,status:'day_open',generatedAt:null,lastStableAt:null,today:null,focus:null,gps:null,eta:null,risk:null,freeTime:null,rejectedSuggestions:[],sourceState:{today:'idle',gps:'inactive',online:navigator.onLine},lastError:null});
   const state=initial();
-  const tripId=()=>String(window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripId=()=>{const api=tripContract(),trip=api?.getActiveTrip?.()||null;return String(api?.getContext?.()?.tripId||trip?.tripId||trip?.id||'')};
   function cache(){return false}
   function cached(){return null}
   function validSuggestion(item){const name=String(item?.name||item?.title||'').trim();const id=String(item?.id||item?.placeId||item?.providerPlaceId||'').trim();const type=String(item?.primaryType||item?.entityType||item?.type||'').trim();return Boolean(id&&type&&name&&!/^(unbenannter ort|unbekannter ort|unknown place)$/i.test(name));}

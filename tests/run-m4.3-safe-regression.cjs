@@ -100,6 +100,10 @@ const SUITE = Object.freeze([
     test: 'tests/m5.1j-profile-foundation-trip-contract-adoption.test.cjs'
   },
   {
+    category: 'Intelligence',
+    test: 'tests/m5.1k-recommendations-trip-contract-adoption.test.cjs'
+  },
+  {
     category: 'M3 contracts',
     test: 'tests/m5.1f-trip-contract-accent-compatibility.test.cjs'
   },

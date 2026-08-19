@@ -13,7 +13,8 @@
   const todayKey=()=>dayKey(new Date());
   const parseDateTime=(date,time)=>{if(!date||!time)return null;const d=new Date(`${date}T${time}:00`);return Number.isNaN(d.getTime())?null:d};
   const formatTime=d=>d?`${pad(d.getHours())}:${pad(d.getMinutes())}`:null;
-  const tripId=()=>String(window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+  const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const tripId=()=>{const api=tripContract(),trip=api?.getActiveTrip?.()||null;return String(api?.getContext?.()?.tripId||trip?.tripId||trip?.id||'')};
   const readLocal=()=>[];
   const writeLocal=()=>{};
   const lastTripId=()=>'';
