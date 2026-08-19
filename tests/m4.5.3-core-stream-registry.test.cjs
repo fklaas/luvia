@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('fs');
 const assert = require('assert');
@@ -160,8 +160,8 @@ assert(
 
 console.log('M4.5.3 Core / Stream Registry + Architecture Foundation: PASS');
 assert(
-  migration.includes('M5.1a through M5.1j: COMPLETE.'),
-  'M5.1j aggregate completed migration state missing'
+  migration.includes('M5.1a through M5.1k: COMPLETE.'),
+  'M5.1k aggregate completed migration state missing'
 );
 
 assert(
@@ -223,6 +223,37 @@ assert(
 
 console.log('M5.1j completed state preserved: PASS');
 
+assert(
+  migration.includes('M5.1k is COMPLETE.'),
+  'M5.1k completed migration state missing'
+);
+
+assert(
+  migration.includes('Recommendations Trip Contract Adoption migrated the six approved Recommendations runtime services away from direct private LuviaTripStore and LuviaTripContext reads to the existing public Trip Contract v1 boundary.'),
+  'M5.1k Recommendations Trip Contract migration missing'
+);
+
+assert(
+  migration.includes('Integration Preview pre-Main static provenance: 11 / 11 exact assets on App 13.82.10 / Core 4.82.10.'),
+  'M5.1k pre-Main Integration Preview provenance missing'
+);
+
+assert(
+  migration.includes('Production static provenance: 11 / 11 exact assets on App 13.82.10 / Core 4.82.10.'),
+  'M5.1k Production static provenance missing'
+);
+
+assert(
+  migration.includes('pre-Main Preview gate retroactively claimed = NO.'),
+  'M5.1k Preview timing evidence missing'
+);
+
+assert(
+  migration.includes('M5.1k establishes logical Recommendations isolation only. Physical relocation of domain implementation into the final core-oriented repository topology remains pending'),
+  'M5.1k physical-isolation boundary missing'
+);
+
+console.log('M5.1k completed state preserved: PASS');
 console.log('Streams: 8');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');

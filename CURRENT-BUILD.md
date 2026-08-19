@@ -1,4 +1,4 @@
-# CURRENT BUILD
+﻿# CURRENT BUILD
 
 - App: **13.82.10**
 - Core: **4.82.10**
@@ -763,8 +763,8 @@ This closeout does not pre-claim the future closeout-marker commit SHA or its su
 
 - Milestone: **M5.1j – Profile Foundation Trip Contract Adoption**
 - Final status: **COMPLETE**
-- App: **13.82.10**
-- Core: **4.82.10**
+- App: **13.82.9**
+- Core: **4.82.9**
 - Owner stream: **feature/consumer-experience**
 - Runtime / release implementation commit: **a76fae471f368f33a5e68c396f9e1778c1004e18**
 - Consumer promotion: **PASS**
@@ -781,11 +781,11 @@ This closeout does not pre-claim the future closeout-marker commit SHA or its su
 - Release consistency: **PASS**
 - Integration Preview current static source provenance: **6 / 6 exact Git assets**
 - Production current static source provenance: **6 / 6 exact Git assets**
-- Production App / Core identity: **13.82.10 / 4.82.10**
-- Production index cache tokens: **214 / 214 on 13.82.10**
+- Production App / Core identity: **13.82.9 / 4.82.9**
+- Production index cache tokens: **214 / 214 on 13.82.9**
 - Stale 13.82.8 index cache tokens: **0**
-- Production Service Worker: **luvia-shell-v13.82.10**
-- Production force-update appv: **13.82.10**
+- Production Service Worker: **luvia-shell-v13.82.9**
+- Production force-update appv: **13.82.9**
 - Static Asset Hardening smoke: **PASS**
 - Manual Cloudflare / Wrangler deployment: **NONE**
 - Supabase deployment: **NONE**
@@ -807,3 +807,80 @@ This closeout does not pre-claim the future M5.1j closeout-marker commit SHA or 
 **M5.1j = COMPLETE.**
 
 **M5 = IN PROGRESS.**
+## M5.1k Authoritative Closeout – 2026-08-19
+
+- Milestone: **M5.1k – Recommendations Trip Contract Adoption**
+- Final status: **COMPLETE**
+- App: **13.82.10**
+- Core: **4.82.10**
+- Owner stream: **feature/intelligence-core**
+- Runtime / release implementation commit: **792d049d27b896a838e0ce6e8b34329c87ca20f6**
+- Owner implementation push: **PASS**
+- Integration fast-forward promotion: **PASS**
+- Pre-Main automatic Integration Preview gate: **PASS**
+- Main fast-forward promotion: **PASS**
+- Automatic Production acceptance: **PASS**
+- Recommendations runtime files migrated: **6 / 6**
+- Private LuviaTripStore reads: **6 -> 0**
+- Direct LuviaTripContext dependencies: **6 -> 0**
+- Public Trip Contract adoption: **6 / 6**
+- Trip Contract read extension: **NONE**
+- Trip Contract command extension: **NONE**
+- Private Trip Store mutation introduced: **NONE**
+- M5.1k targeted regression: **PASS**
+- M5.1j regression: **PASS**
+- M3.1 Trip Contract regression: **PASS**
+- Release consistency: **PASS**
+- Ownership / boundary / registry guardrails: **PASS**
+- Controlled Safe Regression: **31 / 31 PASS**
+- Integration Preview static Git provenance: **11 / 11 exact assets**
+- Integration Preview timing: **executed and accepted before Main mutation**
+- Production static Git provenance: **11 / 11 exact assets**
+- Production App / Core identity: **13.82.10 / 4.82.10**
+- Production index cache tokens: **214 / 214 on 13.82.10**
+- Stale 13.82.9 index cache tokens: **0**
+- Production Service Worker: **luvia-shell-v13.82.10**
+- Production force-update appv: **13.82.10**
+- Static Asset Hardening smoke: **PASS**
+- Manual Cloudflare / Wrangler deployment: **NONE**
+- Supabase deployment: **NONE**
+- Database migration: **NONE**
+- Edge Function deployment: **NONE**
+- Supabase Secret mutation: **NONE**
+- Cloudflare Secret mutation: **NONE**
+- Timeline / Journey mutation: **NONE**
+- Booking mutation: **NONE**
+- Media mutation: **NONE**
+- Preferences mutation: **NONE**
+- Theme Service mutation: **NONE**
+- Runtime lifecycle mutation: **NONE**
+- Trip Context bridge mutation: **NONE**
+- Legacy destination-service mutation: **NONE**
+- M5 Trip Core Isolation: **IN PROGRESS**
+- M5 Exit Gate: **NOT YET CLAIMED**
+
+The six approved Recommendations runtime services now read active Trip truth only through the existing public Trip Contract boundary. No new Trip Contract capability was required and no private Trip Store mutation was introduced.
+
+The accepted pre-Main Integration Preview gate served all eleven checked public release and Recommendations assets as exact Git blobs from implementation commit 792d049d27b896a838e0ce6e8b34329c87ca20f6 before Main was mutated. Therefore the project can truthfully record a real pre-Main Preview gate for M5.1k.
+
+The automatic Production environment subsequently served the same eleven exact Git blobs on App 13.82.10 / Core 4.82.10. No manual Cloudflare deployment and no second deployment truth were introduced.
+
+The earlier failed curl-based Preview harness attempts remain failed harness attempts and are not represented as accepted Preview evidence. The accepted Preview and Production proofs used the replacement .NET HttpClient harness.
+
+Historical documentation correction performed in this closeout: the existing M5.1j section inside CURRENT-BUILD had inherited 13.82.10 / 4.82.10 strings from the later M5.1k release registration. The dedicated M5.1j Release Notes and Migration State prove that M5.1j was App 13.82.9 / Core 4.82.9. Only the historical M5.1j subsection was restored to those proven values. No runtime history, Git history or acceptance evidence was rewritten.
+
+The retained historical protocol-evidence limitation remains part of the project record. Later checks do not retroactively manufacture immediate live-remote or divergence evidence for earlier mutation moments where it was not captured.
+
+pre-Main Preview gate retroactively claimed = NO.
+
+This closeout does not pre-claim the future M5.1k closeout-marker commit SHA or its later eight-stream synchronization.
+
+M5.1k completes the Recommendations logical Trip Contract adoption slice only. Physical repository isolation remains part of the larger M5 completion work and is not claimed by M5.1k.
+
+**M5.1k = COMPLETE.**
+
+**M5 = IN PROGRESS.**
+
+Next grouped milestone:
+
+**M5.2 – Remaining Trip Consumer Isolation.**

@@ -1,6 +1,6 @@
-# Luvia Architecture Migration State
+﻿# Luvia Architecture Migration State
 
-Date: 2026-08-18
+Date: 2026-08-19
 
 ## Parallel Development Foundation
 
@@ -26,7 +26,7 @@ This additive M4.5 work does not invalidate the completed M4 milestone.
 
 M5: IN PROGRESS.
 
-M5.1a through M5.1j: COMPLETE.
+M5.1a through M5.1k: COMPLETE.
 
 Current shared baseline marker entering M4.5.3:
 
@@ -152,6 +152,74 @@ The future M5.1j closeout-marker commit and subsequent eight-stream repository s
 
 M5 remains IN PROGRESS.
 
+### M5.1k
+
+M5.1k is COMPLETE.
+
+App 13.82.10 / Core 4.82.10.
+
+Recommendations Trip Contract Adoption migrated the six approved Recommendations runtime services away from direct private LuviaTripStore and LuviaTripContext reads to the existing public Trip Contract v1 boundary.
+
+Migrated runtime files:
+
+- core/recommendations/cross-module-recommendation-service.js
+- core/recommendations/live-day-companion-service.js
+- core/recommendations/recommendation-service.js
+- core/recommendations/restaurant-intelligence-service.js
+- core/recommendations/schedule-intelligence-service.js
+- core/recommendations/today-intelligence-service.js
+
+Private LuviaTripStore reads changed from 6 to 0.
+
+Direct LuviaTripContext dependencies changed from 6 to 0.
+
+Public Trip Contract adoption changed from 0 / 6 to 6 / 6.
+
+The existing getActiveTrip() and getContext() public reads were sufficient. No Trip Contract read extension and no Trip Contract command extension were required.
+
+No private Trip Store mutation was introduced.
+
+Runtime / release implementation commit: 792d049d27b896a838e0ce6e8b34329c87ca20f6.
+
+The implementation commit was promoted feature/intelligence-core -> integration -> main by controlled fast-forward and normal non-force pushes.
+
+Safe Regression: 31 / 31 PASS.
+
+M5.1k targeted regression, M5.1j regression, M3.1 Trip Contract regression, release consistency and the controlled ownership / boundary / registry guardrails passed.
+
+Integration Preview pre-Main static provenance: 11 / 11 exact assets on App 13.82.10 / Core 4.82.10.
+
+The Integration Preview provenance gate was completed before Main mutation.
+
+Production static provenance: 11 / 11 exact assets on App 13.82.10 / Core 4.82.10.
+
+Production index cache identity: 214 / 214 current App 13.82.10 tokens and zero stale 13.82.9 tokens.
+
+Production Service Worker: luvia-shell-v13.82.10.
+
+Production force-update appv: 13.82.10.
+
+Static Asset Hardening remained active. CURRENT-BUILD.md, the M5.1k targeted test and the Safe Regression runner were not exposed as direct static repository source.
+
+No manual Cloudflare / Wrangler deployment was performed.
+
+No Supabase deployment, database migration, Edge Function deployment or secret mutation was performed.
+
+Booking, Media, Preferences, Theme Service, Runtime lifecycle, Trip Context bridge, legacy destination-service and Timeline / Journey remained outside M5.1k.
+
+Timeline / Journey remained reserved and unchanged.
+
+The earlier failed curl Preview harness attempts are retained as failed test-harness executions and are not counted as accepted Preview evidence. The accepted pre-Main Preview and Production proofs used the .NET HttpClient harness.
+
+Historical protocol-evidence limitation remains retained. Later verification cannot retroactively create live-remote or divergence evidence for earlier mutation moments where that evidence was not captured. No reset, clean, amend, force operation or history rewrite was performed to manufacture retrospective proof.
+
+pre-Main Preview gate retroactively claimed = NO.
+
+M5.1k establishes logical Recommendations isolation only. Physical relocation of domain implementation into the final core-oriented repository topology remains pending as part of the larger M5 completion and exit-gate work.
+
+The future M5.1k closeout-marker commit and subsequent eight-stream repository synchronization are not pre-claimed by this migration-state update.
+
+M5 remains IN PROGRESS.
 ## Journey / Timeline
 
 `core/places/timeline-core.js` remains explicitly reserved for the later Journey / Timeline Aggregation Architecture Audit.
