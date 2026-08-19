@@ -160,8 +160,8 @@ assert(
 
 console.log('M4.5.3 Core / Stream Registry + Architecture Foundation: PASS');
 assert(
-  migration.includes('M5.1a through M5.1i: COMPLETE.'),
-  'M5.1i aggregate completed migration state missing'
+  migration.includes('M5.1a through M5.1j: COMPLETE.'),
+  'M5.1j aggregate completed migration state missing'
 );
 
 assert(
@@ -191,6 +191,37 @@ assert(
 );
 
 console.log('M5.1i completed state preserved: PASS');
+assert(
+  migration.includes('M5.1j is COMPLETE.'),
+  'M5.1j completed migration state missing'
+);
+
+assert(
+  migration.includes('Profile Foundation was migrated from direct private LuviaTripStore access to the canonical public Trip Contract v1 boundary.'),
+  'M5.1j Profile Foundation Trip Contract migration missing'
+);
+
+assert(
+  migration.includes('Production static provenance: 6 / 6 exact assets on App 13.82.9 / Core 4.82.9.'),
+  'M5.1j Production static provenance missing'
+);
+
+assert(
+  migration.includes('Integration Preview current static provenance: 6 / 6 exact assets on App 13.82.9 / Core 4.82.9.'),
+  'M5.1j Integration Preview current provenance missing'
+);
+
+assert(
+  migration.includes('A pre-Main Preview HTTP gate is not retroactively claimed.'),
+  'M5.1j Preview evidence timing limitation missing'
+);
+
+assert(
+  migration.includes('Historical protocol-evidence limitation remains retained.'),
+  'M5.1j retained historical protocol-evidence limitation missing'
+);
+
+console.log('M5.1j completed state preserved: PASS');
 
 console.log('Streams: 8');
 console.log('Experience Core boundary: PASS');

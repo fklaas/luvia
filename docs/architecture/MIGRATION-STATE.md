@@ -26,7 +26,7 @@ This additive M4.5 work does not invalidate the completed M4 milestone.
 
 M5: IN PROGRESS.
 
-M5.1a through M5.1i: COMPLETE.
+M5.1a through M5.1j: COMPLETE.
 
 Current shared baseline marker entering M4.5.3:
 
@@ -99,6 +99,56 @@ Timeline / Journey remained reserved and unchanged.
 Historical protocol-evidence limitation remains retained for M5.1i. Later successful gates do not retroactively manufacture immediate live-remote/divergence evidence for earlier mutation moments where that evidence was not captured. No reset or history rewrite was performed to create retrospective proof.
 
 The future M5.1i closeout-marker commit and subsequent eight-stream repository synchronization are not pre-claimed by this migration-state update.
+
+M5 remains IN PROGRESS.
+
+### M5.1j
+
+M5.1j is COMPLETE.
+
+App 13.82.9 / Core 4.82.9.
+
+Profile Foundation was migrated from direct private LuviaTripStore access to the canonical public Trip Contract v1 boundary.
+
+The migrated public reads are listTrips(), getActiveTrip() and getContext().
+
+The migrated public activation command is selectActiveTrip(id).
+
+No Trip Contract read or command extension was required. The private owner-internal store bridge remains behind the public Trip Contract command.
+
+Runtime / release implementation commit: a76fae471f368f33a5e68c396f9e1778c1004e18.
+
+The implementation commit was promoted Consumer -> Integration -> Main by controlled fast-forward and normal non-force pushes.
+
+Consumer, Integration and Main reached the accepted source marker a76fae471f368f33a5e68c396f9e1778c1004e18.
+
+Safe Regression: 30 / 30 PASS.
+
+M5.1j targeted regression, M3.1 Trip Contract regression, release consistency and the controlled ownership / boundary / registry guardrails passed.
+
+Integration Preview current static provenance: 6 / 6 exact assets on App 13.82.9 / Core 4.82.9.
+
+Production static provenance: 6 / 6 exact assets on App 13.82.9 / Core 4.82.9.
+
+Production index cache identity: 214 / 214 current App 13.82.9 tokens and zero stale 13.82.8 tokens.
+
+Production Service Worker: luvia-shell-v13.82.9.
+
+Production force-update identity: appv=13.82.9.
+
+Static Asset Hardening smoke: PASS.
+
+No manual Wrangler deployment was performed.
+
+No Supabase deployment, database migration, Edge Function deployment or secret mutation was performed.
+
+Timeline / Journey remained reserved and unchanged.
+
+The current Integration Preview and Production provenance checks were executed after Main promotion. A pre-Main Preview HTTP gate is not retroactively claimed.
+
+Historical protocol-evidence limitation remains retained. Later verification does not retroactively create live-remote or divergence evidence for earlier mutation moments where that evidence was not captured. No reset, history rewrite or destructive operation was performed to manufacture retrospective proof.
+
+The future M5.1j closeout-marker commit and subsequent eight-stream repository synchronization are not pre-claimed by this migration-state update.
 
 M5 remains IN PROGRESS.
 

@@ -759,3 +759,51 @@ This closeout does not pre-claim the future closeout-marker commit SHA or its su
 **M5.1i = COMPLETE.**
 
 **M5 = IN PROGRESS.**
+## M5.1j Authoritative Closeout – 2026-08-19
+
+- Milestone: **M5.1j – Profile Foundation Trip Contract Adoption**
+- Final status: **COMPLETE**
+- App: **13.82.9**
+- Core: **4.82.9**
+- Owner stream: **feature/consumer-experience**
+- Runtime / release implementation commit: **a76fae471f368f33a5e68c396f9e1778c1004e18**
+- Consumer promotion: **PASS**
+- Integration promotion: **PASS**
+- Main promotion: **PASS**
+- Consumer / Integration / Main live source marker: **a76fae471f368f33a5e68c396f9e1778c1004e18**
+- Profile Foundation direct LuviaTripStore reads: **REMOVED**
+- Profile Foundation direct LuviaTripStore mutation: **REMOVED**
+- Public Trip Contract reads adopted: **listTrips(), getActiveTrip(), getContext()**
+- Public Trip Contract command adopted: **selectActiveTrip(id)**
+- Trip Contract Adapter extension: **NONE**
+- Controlled Safe Regression: **30 / 30 PASS**
+- Repository / ownership / boundary / registry guardrails: **PASS**
+- Release consistency: **PASS**
+- Integration Preview current static source provenance: **6 / 6 exact Git assets**
+- Production current static source provenance: **6 / 6 exact Git assets**
+- Production App / Core identity: **13.82.9 / 4.82.9**
+- Production index cache tokens: **214 / 214 on 13.82.9**
+- Stale 13.82.8 index cache tokens: **0**
+- Production Service Worker: **luvia-shell-v13.82.9**
+- Production force-update appv: **13.82.9**
+- Static Asset Hardening smoke: **PASS**
+- Manual Cloudflare / Wrangler deployment: **NONE**
+- Supabase deployment: **NONE**
+- Database migration: **NONE**
+- Edge Function deployment: **NONE**
+- Secret mutation: **NONE**
+- Timeline / Journey mutation: **NONE**
+- M5 Trip Core Isolation: **IN PROGRESS**
+- M5 Exit Gate: **NOT YET CLAIMED**
+
+The Profile Foundation consumer now uses only the public Trip Contract boundary for the migrated Trip list, active-trip and activation behavior. The private owner-internal store bridge behind selectActiveTrip remains unchanged and remains valid implementation detail of the Trip Contract owner.
+
+The Integration Preview and Production environments were verified after Main promotion and both currently serve the exact six Git blobs derived from implementation commit a76fae471f368f33a5e68c396f9e1778c1004e18. This closeout does not retroactively claim that the Preview HTTP provenance check was a pre-Main promotion gate.
+
+The retained historical protocol-evidence limitation from earlier M5 work remains part of the project record. Later verification does not retroactively manufacture immediate live-remote or divergence evidence for earlier mutation moments where it was not captured. No reset, history rewrite or destructive repository operation was performed to manufacture retrospective proof.
+
+This closeout does not pre-claim the future M5.1j closeout-marker commit SHA or its subsequent eight-stream synchronization. Those repository synchronization steps remain separate gates.
+
+**M5.1j = COMPLETE.**
+
+**M5 = IN PROGRESS.**
