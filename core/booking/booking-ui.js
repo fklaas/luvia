@@ -31,7 +31,7 @@
   function dialogHtml(place={}){
     const type=String(place.type||'other');
     const isHotel=type==='accommodation'||type==='hotel';
-    const trip=window.LuviaTripStore?.snapshot?.()?.activeTrip||{};
+    const trip=window.LuviaTripContractV1?.getActiveTrip?.()||{};
     const defaultDate=(trip.startDate||trip.start_date||new Date().toISOString().slice(0,10));
     return `<div class="lv-booking-backdrop">
       <section class="lv-booking-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingDialogTitle">

@@ -10,7 +10,7 @@
     mobility:'transport'
   }[String(type||'').toLowerCase()]||'other');
 
-  const activeTrip=()=>window.LuviaTripStore?.snapshot?.()?.activeTrip||null;
+  const activeTrip=()=>window.LuviaTripContractV1?.getActiveTrip?.()||null;
   const activeTripId=()=>activeTrip()?.id||activeTrip()?.tripId||null;
   const clean=v=>String(v??'').trim();
 
