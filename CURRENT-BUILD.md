@@ -1,10 +1,10 @@
 # CURRENT BUILD
 
-- App: **13.82.11**
-- Core: **4.82.11**
-- Name: **M5.1k Recommendations Trip Contract Adoption**
+- App: **13.82.12**
+- Core: **4.82.12**
+- Name: **M5.3 Active Trip Context Runtime Release**
 - Channel: **production**
-- Datum: **2026-08-19**
+- Datum: **2026-08-20**
 - Milestone Status: **M5 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 

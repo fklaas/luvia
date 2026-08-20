@@ -154,6 +154,10 @@ const SUITE = Object.freeze([
     test: 'tests/run-nfr0-foundation-regression.cjs'
   },
   {
+    category: 'M5.3 / Active Trip Context',
+    test: 'tests/run-m5.3-active-trip-context-regression.cjs'
+  },
+  {
     category: 'Repository guardrail',
     test: 'tests/m4.2-cross-core-db-ownership-guardrail.test.cjs'
   }
