@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "status": "NFR-0 FOUNDATION",
+  "owner": "platform",
+  "architecture": "LUVIA NATIVE FIRST READY ARCHITECTURE",
+  "rule": "Domain cores consume runtime-neutral ports. Web, iOS and Android provide platform adapters.",
+  "ports": [
+    {
+      "id": "StoragePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "SecureStoragePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "AuthSessionPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "LocationPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "MediaPickerPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "MediaCapturePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "MediaStoragePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "NotificationPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "NetworkPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "LifecyclePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "SharingPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "DeepLinkPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "ExternalNavigationPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "DevicePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "PermissionPort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "id": "OfflineCachePort",
+      "owner": "platform",
+      "boundary": "runtime-neutral",
+      "adapterTargets": [
+        "web",
+        "ios",
+        "android"
+      ]
+    }
+  ]
+}

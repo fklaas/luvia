@@ -150,6 +150,10 @@ const SUITE = Object.freeze([
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },
   {
+    category: 'Native readiness',
+    test: 'tests/run-nfr0-foundation-regression.cjs'
+  },
+  {
     category: 'Repository guardrail',
     test: 'tests/m4.2-cross-core-db-ownership-guardrail.test.cjs'
   }

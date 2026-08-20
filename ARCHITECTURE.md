@@ -106,3 +106,26 @@ It receives its own later architecture and reachability audit.
 Feature stream -> Integration -> regression / preview -> Main -> production verification -> stream synchronization.
 
 Static architecture-only changes do not require a runtime deploy unless they alter served runtime assets or deployment configuration.
+<!-- NFR-0 NATIVE FIRST READY BEGIN -->
+
+## Native First Ready Architecture
+
+The binding Native First architecture contract is:
+
+`docs/architecture/NATIVE-FIRST-READY-ARCHITECTURE.md`
+
+Existing Web runtime debt is frozen in:
+
+`config/luvia-native-readiness-debt.json`
+
+New Domain Browser coupling is forbidden unless the Architecture baseline is explicitly reviewed and changed.
+
+`window.LuviaTripContractV1` is a temporary Web Runtime Compatibility Binding and is not the final native contract transport.
+
+Platform boundaries are defined in:
+
+`config/luvia-platform-ports.json`
+
+M5.3 remains blocked until NFR-0 closes.
+
+<!-- NFR-0 NATIVE FIRST READY END -->
