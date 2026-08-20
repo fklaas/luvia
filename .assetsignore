@@ -29,3 +29,6 @@ tools/**
 # Historical machine-readable test evidence
 test-results-*.json
 TEST-RESULTS-*.json
+# NFR-0 Native First internal architecture artifacts
+config/luvia-native-readiness-debt.json
+config/luvia-platform-ports.json

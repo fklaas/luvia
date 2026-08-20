@@ -139,6 +139,26 @@ assert.strictEqual(
   1
 );
 
+const assetsIgnore = read(
+  '.assetsignore'
+);
+
+const assetIgnoreLines = new Set(
+  assetsIgnore
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+);
+
+for (const internalPath of [
+  'config/luvia-native-readiness-debt.json',
+  'config/luvia-platform-ports.json',
+]) {
+  assert.ok(
+    assetIgnoreLines.has(internalPath),
+    'Native First internal asset must be excluded from static upload: ' + internalPath
+  );
+}
 console.log(
   'PASS Native First Architecture Contract'
 );
