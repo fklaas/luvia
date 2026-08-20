@@ -1,10 +1,10 @@
-(() => {
+﻿(() => {
 'use strict';
 const VERSION='4.37.7',BUILD='13.37.7';
 let channel=null,identityChannel=null,voteChannel=null,reviewChannel=null,writeDepth=0;
 const missing=e=>['42P01','PGRST205'].includes(e?.code);
 const validColor=v=>/^#[0-9a-f]{6}$/i.test(String(v||'').trim())?String(v).trim().toLowerCase():null;
-function activeTrip(){return window.LuviaTripStore?.snapshot?.()?.activeTrip||window.LuviaTripContext?.getActiveTrip?.()||window.LuviaTripContext?.getSnapshot?.()?.activeTrip||{}}
+function activeTrip(){return window.LuviaTripContractV1?.getActiveTrip?.()||{}}
 function tripAccent(){const themed=validColor(getComputedStyle(document.documentElement).getPropertyValue('--trip-accent'));if(themed)return themed;const t=activeTrip();return [t.accent,t.accent_color,t.themeColor,t.theme_color,t.color,t.settings?.accent,t.settings?.accent_color,t.settings?.themeColor,t.settings?.theme_color].map(validColor).find(Boolean)||null}
 async function ctx(){const media=window.LuviaMediaCore;if(!media)throw new Error('Media Core ist nicht geladen.');return{...(await media.getContext()),media}}
 async function list(filters={}){const{client,tripId}=await ctx();let q=client.from('memory_cards').select('*').eq('trip_id',tripId).neq('status','dismissed').order('created_at',{ascending:true});if(filters.clusterId)q=q.eq('cluster_id',filters.clusterId);if(filters.authorId)q=q.eq('author_id',filters.authorId);if(filters.cardType)q=q.eq('card_type',filters.cardType);const r=await q;if(r.error){if(missing(r.error))return[];throw r.error}return r.data||[]}

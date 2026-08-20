@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   'use strict';
   const VERSION='4.30.1',BUILD='13.30.1',BUCKET='luvia-media',channels=new Map();
   const id=()=>crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -6,8 +6,8 @@
   const day=iso=>{const d=new Date(iso);return Number.isNaN(d.getTime())?null:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   async function context(){
     const client=window.LuviaSupabaseService?.getClient?.()||window.LuviaSupabase?.getClient?.()||window.LuviaSupabase?.client?.()||window.ParisSupabaseClient||window.ParisCloud?.client;
-    const trip=window.LuviaTripContext?.getActiveTrip?.()||window.LuviaTripContext?.getSnapshot?.()?.trip||window.LuviaTripStore?.snapshot?.()?.activeTrip||null;
-    const tripId=String(trip?.id||trip?.tripId||window.LuviaTripContext?.getSnapshot?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||'');
+    const tripContract=window.LuviaTripContractV1,trip=tripContract?.getActiveTrip?.()||null,tripContext=tripContract?.getContext?.()||{};
+    const tripId=String(trip?.id||trip?.tripId||tripContext?.activeTripId||tripContext?.tripId||'');
     let userId=window.ParisAuth?.getState?.()?.user?.id||window.LuviaRuntime?.getSnapshot?.()?.auth?.user?.id||null;
     if(!userId&&client?.auth?.getSession){const session=await client.auth.getSession();if(session?.error)throw session.error;userId=session?.data?.session?.user?.id||null}
     if(!client)throw new Error('Media Core benötigt eine aktive Supabase-Verbindung.');

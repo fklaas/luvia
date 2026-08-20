@@ -1,7 +1,7 @@
 ﻿# CURRENT BUILD
 
-- App: **13.82.10**
-- Core: **4.82.10**
+- App: **13.82.11**
+- Core: **4.82.11**
 - Name: **M5.1k Recommendations Trip Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-19**
@@ -884,3 +884,52 @@ M5.1k completes the Recommendations logical Trip Contract adoption slice only. P
 Next grouped milestone:
 
 **M5.2 – Remaining Trip Consumer Isolation.**
+## M5.2 Remaining Trip Consumer Isolation – Platform Foundation
+
+Status: IN PROGRESS
+
+Release registration:
+
+- App: 13.82.11
+- Core: 4.82.11
+- Date: 2026-08-19
+- Built at: 2026-08-19T22:14:00+02:00
+- Platform execution stream: feature/platform-core
+- Booking execution stream: feature/booking-core
+- Platform runtime portion: ACCEPTED / UNCOMMITTED
+- Platform migrated files: 5 / 5
+- Booking runtime portion: NOT STARTED
+- Remaining Booking legacy files: 2 / 7
+- Remaining private LuviaTripStore references: 2
+- Remaining direct LuviaTripContext references: 0
+- Trip Contract extension: NONE
+- DB migration: NONE
+- Edge Function deployment: NONE
+- Secret mutation: NONE
+
+Retained adjacent-test limitation:
+
+- tests/user-preference-core.test.cjs remains a proven preexisting baseline failure.
+- The same api.version === 3.0.0 assertion failure was reproduced from untouched baseline c143fad9651e6090cae61cce91d69869c0e526a6.
+- The failing test and its dependencies were not changed by the M5.2 Platform runtime migration.
+- The test is not part of Safe Regression.
+- The test is not claimed PASS.
+- The test is not silently ignored.
+
+M5.2 remains IN PROGRESS.
+
+Pending before M5.2 closure:
+
+- dedicated Platform implementation commit
+- Platform push
+- Booking stream synchronization
+- Booking two-file Trip Contract migration
+- full 7 / 7 M5.2 GREEN
+- Integration propagation
+- automatic Integration Preview
+- Main promotion
+- Production acceptance
+- closeout documentation
+- final eight-stream synchronization
+
+pre-Main Preview gate retroactively claimed = NO

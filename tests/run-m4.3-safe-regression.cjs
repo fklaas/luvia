@@ -104,6 +104,10 @@ const SUITE = Object.freeze([
     test: 'tests/m5.1k-recommendations-trip-contract-adoption.test.cjs'
   },
   {
+    category: 'Runtime foundation',
+    test: 'tests/m5.2-remaining-trip-consumer-isolation.test.cjs'
+  },
+  {
     category: 'M3 contracts',
     test: 'tests/m5.1f-trip-contract-accent-compatibility.test.cjs'
   },

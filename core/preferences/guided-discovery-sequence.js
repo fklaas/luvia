@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   'use strict';
 
   const VERSION = '1.2.0';
@@ -11,7 +11,7 @@
   const unique = values => [...new Set((Array.isArray(values) ? values : []).filter(Boolean))];
 
   function accentOf(options = {}) {
-    const trip = options.trip || window.LuviaTripContext?.getActiveTrip?.() || window.LuviaTripStore?.getActive?.() || {};
+    const trip = options.trip || window.LuviaTripContractV1?.getActiveTrip?.() || {};
     return options.accent || trip.accent || trip.color || getComputedStyle(document.documentElement).getPropertyValue('--trip-accent').trim() || '#ee6f83';
   }
 
@@ -28,7 +28,7 @@
 
   function draftKey(domain, options = {}) {
     const userId = window.ParisAuth?.getState?.().user?.id || 'guest';
-    const tripId = options.trip?.id || window.LuviaTripStore?.snapshot?.().activeTripId || 'global';
+    const trip = options.trip || window.LuviaTripContractV1?.getActiveTrip?.() || {}; const tripContext = window.LuviaTripContractV1?.getContext?.() || {}; const tripId = trip.id || trip.tripId || tripContext.activeTripId || tripContext.tripId || 'global';
     return `luviaGuidedDiscoveryDraftV3:${userId}:${tripId}:${domain}`;
   }
 
