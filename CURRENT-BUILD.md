@@ -1,4 +1,4 @@
-﻿# CURRENT BUILD
+# CURRENT BUILD
 
 - App: **13.82.11**
 - Core: **4.82.11**
@@ -884,52 +884,98 @@ M5.1k completes the Recommendations logical Trip Contract adoption slice only. P
 Next grouped milestone:
 
 **M5.2 – Remaining Trip Consumer Isolation.**
-## M5.2 Remaining Trip Consumer Isolation – Platform Foundation
+## M5.2 Authoritative Closeout Preparation - 2026-08-20
 
-Status: IN PROGRESS
+- Milestone: **M5.2 - Remaining Trip Consumer Isolation**
+- Runtime / Production acceptance: **COMPLETE**
+- Overall M5.2 status: **CLOSEOUT PENDING**
+- App: **13.82.11**
+- Core: **4.82.11**
+- Platform stream: **feature/platform-core**
+- Booking stream: **feature/booking-core**
+- Platform implementation commit: **221bceb89f2ba927f58e7e076c1769169115373c**
+- Booking / final runtime target: **a2098a1188b40edbe60573322c6eec2d936ad28a**
+- Platform consumers: **5 / 5**
+- Booking consumers: **2 / 2**
+- Total approved consumers: **7 / 7**
+- Private LuviaTripStore references: **0**
+- Direct LuviaTripContext references: **0**
+- Public Trip Contract adoption: **7 / 7**
+- Trip Contract extension: **NONE**
+- Private Trip mutation introduced: **NONE**
+- Trip DB mutation introduced: **NONE**
+- M5.2 targeted regression: **PASS**
+- Safe Regression: **32 / 32 PASS**
+- Integration promotion: **PASS**
+- Real pre-Main Integration Preview static provenance: **12 / 12 BYTE-EXACT PASS**
+- Preview consumer boundary: **7 / 7 PASS**
+- Preview Static Asset Hardening: **3 / 3 PASS**
+- Preview authenticated runtime: **PASS**
+- Preview F5 reload: **PASS**
+- Preview authenticated Booking read: **24 rows / PASS**
+- Main fast-forward: **PASS**
+- Main push: **PASS**
+- Main local / tracking / live divergence: **0 / 0**
+- Production static provenance: **12 / 12 BYTE-EXACT PASS**
+- Production root exact target index: **PASS**
+- Production consumer boundary: **7 / 7 PASS**
+- Production Static Asset Hardening: **3 / 3 PASS**
+- Production authenticated runtime: **PASS**
+- Production F5 reload: **PASS**
+- Production active Trip restore: **PASS**
+- Production Booking read: **24 rows / PASS**
+- Production Service Worker: **luvia-shell-v13.82.11**
+- Manual Cloudflare deployment: **NONE**
+- Database migration: **NONE**
+- Edge Function deployment: **NONE**
+- Secret mutation: **NONE**
 
-Release registration:
+The approved M5.2 consumer set now reads active Trip truth through the public Trip Contract boundary.
 
-- App: 13.82.11
-- Core: 4.82.11
-- Date: 2026-08-19
-- Built at: 2026-08-19T22:14:00+02:00
-- Platform execution stream: feature/platform-core
-- Booking execution stream: feature/booking-core
-- Platform runtime portion: ACCEPTED / UNCOMMITTED
-- Platform migrated files: 5 / 5
-- Booking runtime portion: NOT STARTED
-- Remaining Booking legacy files: 2 / 7
-- Remaining private LuviaTripStore references: 2
-- Remaining direct LuviaTripContext references: 0
-- Trip Contract extension: NONE
-- DB migration: NONE
-- Edge Function deployment: NONE
-- Secret mutation: NONE
+The runtime history is linear:
 
-Retained adjacent-test limitation:
+c143fad9651e6090cae61cce91d69869c0e526a6
+-> 221bceb89f2ba927f58e7e076c1769169115373c
+-> a2098a1188b40edbe60573322c6eec2d936ad28a
 
-- tests/user-preference-core.test.cjs remains a proven preexisting baseline failure.
-- The same api.version === 3.0.0 assertion failure was reproduced from untouched baseline c143fad9651e6090cae61cce91d69869c0e526a6.
-- The failing test and its dependencies were not changed by the M5.2 Platform runtime migration.
-- The test is not part of Safe Regression.
-- The test is not claimed PASS.
-- The test is not silently ignored.
+The automatic Integration Preview served the accepted target before Main mutation.
 
-M5.2 remains IN PROGRESS.
+The accepted static Preview gate proved twelve byte-exact Git assets, seven of seven scoped consumer boundaries and three of three Static Asset Hardening probes.
 
-Pending before M5.2 closure:
+Authenticated Preview runtime and F5 reload passed.
 
-- dedicated Platform implementation commit
-- Platform push
-- Booking stream synchronization
-- Booking two-file Trip Contract migration
-- full 7 / 7 M5.2 GREEN
-- Integration propagation
-- automatic Integration Preview
-- Main promotion
-- Production acceptance
-- closeout documentation
-- final eight-stream synchronization
+Main was promoted by controlled fast-forward and normal non-force push.
 
-pre-Main Preview gate retroactively claimed = NO
+Automatic Production subsequently served the same accepted target.
+
+Production static provenance, release identity, runtime, F5 reload, active Trip restore, Booking read and Service Worker registration passed.
+
+The initial text-based Preview comparison remains retained as failed harness evidence. The accepted replacement proof used raw Git blob bytes and raw HTTP bytes.
+
+The initial Booking push harness error remains retained as a post-push PowerShell stderr-handling harness failure after remote success was proven.
+
+Main Pre-flight V1 remains retained as a comparison-harness failure. Set forensics proved the 15-file scopes were logically identical and V2 passed.
+
+The known tests/user-preference-core.test.cjs api.version === 3.0.0 failure remains PREEXISTING FAIL / RETAINED / NOT PASS.
+
+The geolocation user-gesture and Tracking Prevention messages remain retained browser warnings. The Console is not claimed warning-free.
+
+Historical protocol-evidence limitations remain retained.
+
+pre-Main Preview gate retroactively claimed = NO.
+
+That historical statement does not negate the genuine current M5.2 pre-Main Preview acceptance.
+
+Final physical Trip Core isolation remains later M5 work.
+
+The Docs Marker commit SHA is not pre-claimed by this working-tree state.
+
+Final eight-stream synchronization remains pending.
+
+**M5.2 runtime / Production acceptance = COMPLETE.**
+
+**M5.2 overall = CLOSEOUT PENDING.**
+
+**M5 = IN PROGRESS.**
+
+NFR-0 begins only after the Docs Marker and final eight-stream synchronization are proven.

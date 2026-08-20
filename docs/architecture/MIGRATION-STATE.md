@@ -1,4 +1,4 @@
-﻿# Luvia Architecture Migration State
+# Luvia Architecture Migration State
 
 Date: 2026-08-19
 
@@ -220,6 +220,89 @@ M5.1k establishes logical Recommendations isolation only. Physical relocation of
 The future M5.1k closeout-marker commit and subsequent eight-stream repository synchronization are not pre-claimed by this migration-state update.
 
 M5 remains IN PROGRESS.
+### M5.2
+
+M5.2 runtime and Production acceptance is COMPLETE.
+
+App 13.82.11 / Core 4.82.11.
+
+Remaining Trip Consumer Isolation migrated the seven approved Platform and Booking runtime consumers to the public Trip Contract v1 boundary.
+
+Platform consumers migrated: 5 / 5.
+
+Booking consumers migrated: 2 / 2.
+
+Total approved consumer set: 7 / 7.
+
+Direct private LuviaTripStore references after migration: 0.
+
+Direct LuviaTripContext references after migration: 0.
+
+The existing getActiveTrip() public read was sufficient.
+
+No Trip Contract read extension and no Trip Contract command extension were required.
+
+No private Trip mutation and no Trip database mutation were introduced.
+
+Platform implementation commit: 221bceb89f2ba927f58e7e076c1769169115373c.
+
+Booking and final runtime target: a2098a1188b40edbe60573322c6eec2d936ad28a.
+
+Safe Regression: 32 / 32 PASS.
+
+Integration Preview pre-Main static provenance: 12 / 12 byte-exact assets on App 13.82.11 / Core 4.82.11.
+
+Integration Preview M5.2 consumer boundary: 7 / 7 PASS.
+
+Integration Preview Static Asset Hardening: 3 / 3 PASS.
+
+Production static provenance: 12 / 12 byte-exact assets on App 13.82.11 / Core 4.82.11.
+
+Production authenticated runtime navigate and reload: PASS.
+
+Production M5.2 consumer boundary: 7 / 7 PASS.
+
+Production Static Asset Hardening: 3 / 3 PASS.
+
+Production Service Worker: luvia-shell-v13.82.11.
+
+A genuine current M5.2 pre-Main Preview gate was executed and accepted before Main mutation.
+
+Main local, tracking and live remote reached a2098a1188b40edbe60573322c6eec2d936ad28a with divergence 0 / 0.
+
+No manual Cloudflare deployment was performed.
+
+No Supabase deployment, database migration, Edge Function deployment or secret mutation was performed.
+
+The known tests/user-preference-core.test.cjs failure remains PREEXISTING FAIL / RETAINED / NOT PASS.
+
+The geolocation user-gesture and Tracking Prevention warnings remain retained.
+
+The initial text Preview failure remains retained as harness evidence.
+
+The initial Booking push harness failure remains retained as post-push harness evidence after remote success proof.
+
+Main Pre-flight V1 remains retained as comparison-harness evidence. Main Pre-flight V2 passed.
+
+Historical protocol-evidence limitations remain retained.
+
+pre-Main Preview gate retroactively claimed = NO.
+
+This historical statement does not negate the genuine current M5.2 pre-Main Preview acceptance.
+
+M5.2 establishes logical isolation for the approved remaining Trip consumers only.
+
+Final physical Trip Core isolation remains later M5 work.
+
+M5.2 closeout documentation is PREPARED.
+
+M5.2 final eight-stream synchronization remains pending.
+
+M5.2 overall remains CLOSEOUT PENDING until the Docs Marker and final eight-stream synchronization are proven.
+
+M5 remains IN PROGRESS.
+
+NFR-0 begins only after final M5.2 closeout and eight-stream synchronization.
 ## Journey / Timeline
 
 `core/places/timeline-core.js` remains explicitly reserved for the later Journey / Timeline Aggregation Architecture Audit.

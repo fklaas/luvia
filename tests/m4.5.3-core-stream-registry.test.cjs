@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const fs = require('fs');
 const assert = require('assert');
@@ -254,6 +254,37 @@ assert(
 );
 
 console.log('M5.1k completed state preserved: PASS');
+assert(
+  migration.includes('M5.2 runtime and Production acceptance is COMPLETE.'),
+  'M5.2 runtime / Production acceptance missing'
+);
+
+assert(
+  migration.includes('Remaining Trip Consumer Isolation migrated the seven approved Platform and Booking runtime consumers to the public Trip Contract v1 boundary.'),
+  'M5.2 Trip Contract migration missing'
+);
+
+assert(
+  migration.includes('Integration Preview pre-Main static provenance: 12 / 12 byte-exact assets on App 13.82.11 / Core 4.82.11.'),
+  'M5.2 pre-Main Preview provenance missing'
+);
+
+assert(
+  migration.includes('Production static provenance: 12 / 12 byte-exact assets on App 13.82.11 / Core 4.82.11.'),
+  'M5.2 Production provenance missing'
+);
+
+assert(
+  migration.includes('Production authenticated runtime navigate and reload: PASS.'),
+  'M5.2 Production runtime acceptance missing'
+);
+
+assert(
+  migration.includes('M5.2 final eight-stream synchronization remains pending.'),
+  'M5.2 final stream synchronization boundary missing'
+);
+
+console.log('M5.2 runtime and Production acceptance state preserved: PASS');
 console.log('Streams: 8');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
