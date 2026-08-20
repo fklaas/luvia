@@ -10,6 +10,7 @@ const root = path.resolve(
 
 const tests = [
   'tests/m5.3-active-trip-context-foundation.test.cjs',
+  'tests/m5.3-active-trip-context-web-binding.test.cjs',
 ];
 
 let passed = 0;

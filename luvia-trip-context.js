@@ -1,9 +1,106 @@
-(() => {
-  'use strict';
-  const listeners=new Set();
-  const empty=()=>({trip:null,tripId:null,hasActiveTrip:false,tripName:'Unsere Reise',destination:null,destinationName:'',symbol:'❤️',accent:'#ee6f83',startDate:null,endDate:null,role:null,isOwner:false});
-  function snapshot(){const source=window.LuviaTripStore?.snapshot?.();const trip=source?.activeTrip;if(!trip)return Object.freeze(empty());return Object.freeze({trip,tripId:trip.id,hasActiveTrip:true,tripName:trip.title||'Unsere Reise',destination:trip.destination||null,destinationName:trip.destination?.name||'',symbol:trip.symbol||'❤️',accent:trip.accent||'#ee6f83',startDate:trip.startDate||null,endDate:trip.endDate||null,role:trip.role||null,isOwner:Boolean(trip.isOwner||['owner','admin'].includes(trip.role))})}
-  function emit(){const value=snapshot();listeners.forEach(fn=>{try{fn(value)}catch(e){console.warn('[LuviaTripContext]',e)}});return value}
-  window.addEventListener('luvia:trips-changed',emit);
-  window.LuviaTripContext=Object.freeze({getActiveTrip:()=>snapshot().trip,getDestination:()=>snapshot().destination,getDestinationName:()=>snapshot().destinationName,getTripName:()=>snapshot().tripName,getAccent:()=>snapshot().accent,getDates:()=>({startDate:snapshot().startDate,endDate:snapshot().endDate}),getSnapshot:snapshot,refresh(){window.LuviaTripStore?.reconcileLegacy?.();return emit()},subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn)}});
-})();
+import {
+  ACTIVE_TRIP_CONTEXT_VERSION,
+  createActiveTripContext,
+} from './core/trips/active-trip-context.mjs?v=13.82.11';
+
+const web =
+  globalThis.window;
+
+if (!web) {
+  throw new Error(
+    'LuviaTripContext Web Binding requires a browser window.'
+  );
+}
+
+const tripStore =
+  web.LuviaTripStore;
+
+if (
+  !tripStore ||
+  typeof tripStore.snapshot !==
+    'function' ||
+  typeof tripStore.subscribe !==
+    'function'
+) {
+  throw new Error(
+    'LuviaTripContext Web Binding requires LuviaTripStore before initialization.'
+  );
+}
+
+const coreContext =
+  createActiveTripContext({
+    readTripState:
+      () =>
+        tripStore.snapshot(),
+
+    subscribeTripState:
+      (listener) =>
+        tripStore.subscribe(
+          listener
+        ),
+  });
+
+function refresh() {
+  tripStore
+    .reconcileLegacy
+    ?.();
+
+  return coreContext
+    .getSnapshot();
+}
+
+const api =
+  Object.freeze({
+    getActiveTrip:
+      coreContext
+        .getActiveTrip,
+
+    getDestination:
+      coreContext
+        .getDestination,
+
+    getDestinationName:
+      coreContext
+        .getDestinationName,
+
+    getTripName:
+      coreContext
+        .getTripName,
+
+    getAccent:
+      coreContext
+        .getAccent,
+
+    getDates:
+      coreContext
+        .getDates,
+
+    getSnapshot:
+      coreContext
+        .getSnapshot,
+
+    refresh,
+
+    subscribe:
+      coreContext
+        .subscribe,
+
+    diagnostics:
+      () =>
+        Object.freeze({
+          binding:
+            'web-runtime-compatibility',
+
+          coreVersion:
+            ACTIVE_TRIP_CONTEXT_VERSION,
+
+          provider:
+            'LuviaTripStore',
+
+          ready:
+            true,
+        }),
+  });
+
+web.LuviaTripContext =
+  api;
