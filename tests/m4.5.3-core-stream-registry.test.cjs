@@ -290,3 +290,155 @@ console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
 console.log('Timeline reservation: PASS');
 console.log('M5.1h completed state preserved: PASS');
+
+/* NFR-0 CLOSEOUT REGISTRY BEGIN */
+(() => {
+  const _nfrFs = require('fs');
+  const _nfrPath = require('path');
+  const _nfrRoot = process.cwd();
+
+  const _nfrRead = (relative) =>
+    _nfrFs.readFileSync(
+      _nfrPath.join(
+        _nfrRoot,
+        relative
+      ),
+      'utf8'
+    );
+
+  const _nfrRequired = [
+    'CURRENT-BUILD.md',
+    'RELEASE-NOTES-NFR-0.md',
+    'TEST-RESULTS-NFR-0.md',
+    'docs/architecture/MIGRATION-STATE.md',
+    'docs/modularization/PCR-NFR-0-NATIVE-FIRST-READY.md'
+  ];
+
+  for (const relative of _nfrRequired) {
+    if (
+      !_nfrFs.existsSync(
+        _nfrPath.join(
+          _nfrRoot,
+          relative
+        )
+      )
+    ) {
+      throw new Error(
+        'NFR-0 closeout required file missing: ' +
+        relative
+      );
+    }
+  }
+
+  const current =
+    _nfrRead(
+      'CURRENT-BUILD.md'
+    );
+
+  const release =
+    _nfrRead(
+      'RELEASE-NOTES-NFR-0.md'
+    );
+
+  const tests =
+    _nfrRead(
+      'TEST-RESULTS-NFR-0.md'
+    );
+
+  const migration =
+    _nfrRead(
+      'docs/architecture/MIGRATION-STATE.md'
+    );
+
+  const pcr =
+    _nfrRead(
+      'docs/modularization/PCR-NFR-0-NATIVE-FIRST-READY.md'
+    );
+
+  const requiredCurrent = [
+    'NFR-0 Native First Ready',
+    'COMPLETE / CLOSED',
+    '13.82.11',
+    '4.82.11',
+    'c57aec1912578e3b4e5ea31e1a8e9f4ed5b75a27',
+    'M5.3'
+  ];
+
+  for (const marker of requiredCurrent) {
+    if (!current.includes(marker)) {
+      throw new Error(
+        'NFR-0 CURRENT-BUILD marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    'a64e6c0fd3bd5954fe29571f8c4ea128f265a201',
+    'c57aec1912578e3b4e5ea31e1a8e9f4ed5b75a27',
+    '13.82.11',
+    '4.82.11',
+    'Static Asset Privacy',
+    'Native First'
+  ]) {
+    if (!release.includes(marker)) {
+      throw new Error(
+        'NFR-0 Release Notes marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    '3 / 3',
+    '33 / 33',
+    '7 / 7',
+    '5 / 5',
+    'Authenticated Production Browser Smoke',
+    'PASS'
+  ]) {
+    if (!tests.includes(marker)) {
+      throw new Error(
+        'NFR-0 Test Results marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    'NFR-0',
+    'Native First Ready',
+    'M5.3',
+    'c57aec1912578e3b4e5ea31e1a8e9f4ed5b75a27'
+  ]) {
+    if (!migration.includes(marker)) {
+      throw new Error(
+        'NFR-0 Migration State marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    '546',
+    '8008',
+    '186',
+    '3149',
+    '16',
+    'Static Asset Exposure',
+    'window.LuviaTripContractV1',
+    'M5.3'
+  ]) {
+    if (!pcr.includes(marker)) {
+      throw new Error(
+        'NFR-0 PCR marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  console.log(
+    'PASS NFR-0 closeout registry'
+  );
+})();
+/* NFR-0 CLOSEOUT REGISTRY END */

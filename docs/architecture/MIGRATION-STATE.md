@@ -334,3 +334,31 @@ New foundation root:
 No current UI or CSS implementation has been moved by M4.5.1-M4.5.3.
 
 Future work will establish the Design System Foundation before Global Experience Recomposition.
+
+<!-- NFR-0 MIGRATION CLOSEOUT BEGIN -->
+## NFR-0 Native First Ready migration state
+
+NFR-0 establishes the runtime-neutral Native First Ready architecture foundation between M5.2 and M5.3.
+
+Foundation Commit: a64e6c0fd3bd5954fe29571f8c4ea128f265a201
+
+Static Asset Hardening / Production Accepted Head: c57aec1912578e3b4e5ea31e1a8e9f4ed5b75a27
+
+Runtime App/Core remains 13.82.11 / 4.82.11.
+
+Project-wide browser dependency inventory and debt classification are registered.
+
+The 16 Platform Port boundaries are registered.
+
+New domain-browser dependency growth is guarded.
+
+Browserless core smoke foundation is active.
+
+window.LuviaTripContractV1 remains a temporary Web Runtime Compatibility Binding and is not final native transport.
+
+M5.3 consumes NFR-0 with priority on Active Trip Context, runtime-neutral Trip access, Trip Store browser coupling, travel context and Web bootstrap compatibility boundaries.
+
+NFR-0 becomes COMPLETE / CLOSED after this exact Docs Marker reaches Local = Tracking = Live on all eight active streams with 0/0 divergence and clean worktrees.
+
+M5.3 is UNBLOCKED / READY only after that final synchronization gate.
+<!-- NFR-0 MIGRATION CLOSEOUT END -->

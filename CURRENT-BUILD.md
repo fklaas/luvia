@@ -979,3 +979,45 @@ Final eight-stream synchronization remains pending.
 **M5 = IN PROGRESS.**
 
 NFR-0 begins only after the Docs Marker and final eight-stream synchronization are proven.
+
+<!-- NFR-0 CLOSEOUT BEGIN -->
+## NFR-0 Native First Ready
+
+Date: 2026-08-20
+
+Runtime App/Core: 13.82.11 / 4.82.11
+
+Foundation Commit: a64e6c0fd3bd5954fe29571f8c4ea128f265a201
+
+Production / Static Asset Hardening Head: c57aec1912578e3b4e5ea31e1a8e9f4ed5b75a27
+
+Closeout Docs Marker: this commit.
+
+NFR-0 status: COMPLETE / CLOSED after final 8/8 synchronization of this exact Docs Marker.
+
+M5 status: IN PROGRESS.
+
+Next milestone: M5.3 Active Trip Context / runtime-neutral Trip access.
+
+M5.3 remains blocked until the final 8/8 synchronization gate for this marker passes.
+
+Regression: NFR 3 / 3 PASS; Safe 33 / 33 PASS; M5.2 7 / 7 PASS.
+
+Preview Static Asset Privacy: 5 / 5 PASS.
+
+Production Static Asset Privacy: 5 / 5 PASS.
+
+Authenticated Production Browser Smoke: PASS.
+
+App/Core version bump for NFR-0: NONE.
+
+DB migration: NONE.
+
+Supabase Function change: NONE.
+
+Secret change: NONE.
+
+Manual Cloudflare deployment: NONE.
+
+Retained warnings: browser Tracking Prevention and geolocation user-gesture warning from global-location-bootstrap.js?v=13.82.11.
+<!-- NFR-0 CLOSEOUT END -->
