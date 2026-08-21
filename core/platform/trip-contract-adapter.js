@@ -111,6 +111,15 @@
     if(!trip){const error=new Error('Trip Contract v1: Reise nicht gefunden.');error.code='TRIP_CONTRACT_TRIP_NOT_FOUND';error.tripId=clean(tripId);throw error;}
     return tripProjection(await experience().update(trip,patch||{}));
   }
+  function applyResolvedDestination(tripId,destination={}){
+    const trip=ownedTrip(tripId);
+    if(!trip){const error=new Error('Trip Contract v1: Reise nicht gefunden.');error.code='TRIP_CONTRACT_TRIP_NOT_FOUND';error.tripId=clean(tripId);throw error;}
+    const model=destination&&typeof destination==='object'?{...destination}:{name:clean(destination)};
+    const destinationName=clean(model.name||model.displayName||trip.destinationName);
+    const next={...trip,destination:model,destinationName,updatedAt:new Date().toISOString()};
+    store().upsert(next);
+    return tripProjection(next);
+  }
   async function joinTrip(code,memberName){
     const result=await joinFlow().join(code,memberName);
     const tripId=clean(result?.trip_id||result?.tripId||result?.id); return Object.freeze({joined:Boolean(tripId),tripId});
@@ -165,10 +174,10 @@
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
-    commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,joinTrip}),
+    commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip}),
     events:Object.freeze(['trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
     listTrips,getTrip,getActiveTrip,getContext,subscribe,
-    selectActiveTrip,createTrip,updateTrip,joinTrip,
+    selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip,
     snapshot,
     diagnostics:()=>Object.freeze({
       contractId:CONTRACT_ID,
