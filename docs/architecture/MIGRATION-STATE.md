@@ -486,3 +486,26 @@ Evidence rule:
 Main promotion causation is not retroactively reconstructed beyond the currently proven Git, reflog, Cloudflare and byte-provenance evidence.
 
 M5.4.2 closes only with its documentation marker and final 8/8 synchronization.
+
+## M5.4.3 — Active TripStore Consumer Isolation — CLOSED
+
+Runtime Commit: `cf4a6b32c0ef11f4ac798766a38996bd4973e5b3`
+
+The active non-owner private TripStore consumer debt identified for this stage has been reduced from six direct references to zero.
+
+Migrated runtime consumers:
+
+- Join Flow
+- Trip Creator
+- Trip Experience
+- Timeline Core
+
+The owner boundary remains `core/platform/trip-contract-adapter.js` and the canonical Web Trip Truth remains `core/trips/trip-store.js`.
+
+`luvia-trip-context.js` remains an explicit Web compatibility binding and is deferred to the bundled M5.4 FINAL architecture block.
+
+No duplicate Trip Truth was introduced.
+
+No DB migration, Edge Function, secret or manual Cloudflare change was required.
+
+M5.4 remains IN PROGRESS. M5 remains IN PROGRESS.

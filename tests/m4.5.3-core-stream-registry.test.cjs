@@ -678,3 +678,39 @@ console.log('M5.1h completed state preserved: PASS');
 
   console.log('PASS M5.4.2 closeout registry');
 }
+
+// M5.4.3 Active TripStore Consumer Isolation closeout guardrail
+{
+  const fsM543 = require('fs');
+  const pathM543 = require('path');
+  const rootM543 = process.cwd();
+  const readM543 = relative => fsM543.readFileSync(pathM543.join(rootM543, ...relative.split('/')), 'utf8');
+  const assertM543 = (condition, message) => { if (!condition) throw new Error(message); };
+
+  const currentM543 = readM543('CURRENT-BUILD.md');
+  const releaseM543 = readM543('RELEASE-NOTES-M5.4.3.md');
+  const resultsM543 = readM543('TEST-RESULTS-M5.4.3.md');
+  const migrationM543 = readM543('docs/architecture/MIGRATION-STATE.md');
+  const pcrM543 = readM543('docs/modularization/PCR-M5.4.3-ACTIVE-TRIPSTORE-CONSUMER-ISOLATION.md');
+  const safeM543 = readM543('tests/run-m4.3-safe-regression.cjs');
+  const joinM543 = readM543('core/trips/join-flow.js');
+  const creatorM543 = readM543('core/trips/trip-creator.js');
+  const experienceM543 = readM543('core/trips/trip-experience.js');
+  const timelineM543 = readM543('core/places/timeline-core.js');
+  const adapterM543 = readM543('core/platform/trip-contract-adapter.js');
+
+  assertM543(currentM543.includes('M5.4.3 Active TripStore Consumer Isolation — COMPLETE / CLOSED'), 'CURRENT-BUILD missing M5.4.3 closeout');
+  assertM543(releaseM543.includes('cf4a6b32c0ef11f4ac798766a38996bd4973e5b3'), 'Release Notes missing M5.4.3 runtime commit');
+  assertM543(resultsM543.includes('Safe Regression: 37/37 PASS'), 'Test Results missing 37/37 evidence');
+  assertM543(migrationM543.includes('M5.4.3 — Active TripStore Consumer Isolation — CLOSED'), 'Migration State missing M5.4.3 closeout');
+  assertM543(pcrM543.includes('Active non-owner direct private Store references: 6 -> 0'), 'PCR missing M5.4.3 isolation result');
+  assertM543(safeM543.includes('tests/m5.4.3-active-tripstore-consumer-isolation.test.cjs'), 'Safe harness missing M5.4.3 test');
+
+  assertM543(!joinM543.includes('LuviaTripStore'), 'Join Flow private TripStore debt regressed');
+  assertM543(!creatorM543.includes('LuviaTripStore'), 'Trip Creator private TripStore debt regressed');
+  assertM543(!experienceM543.includes('LuviaTripStore'), 'Trip Experience private TripStore debt regressed');
+  assertM543(!timelineM543.includes('LuviaTripStore'), 'Timeline private TripStore debt regressed');
+  assertM543(adapterM543.includes('function commitTripSnapshot(trip,options={})'), 'Trip owner command boundary missing commitTripSnapshot');
+
+  console.log('PASS M5.4.3 closeout registry');
+}

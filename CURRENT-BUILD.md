@@ -1201,3 +1201,36 @@ Browser Tracking Prevention messages and the geolocation user-gesture `[Violatio
 - Manual Cloudflare change: NONE.
 
 M5.4.2 is eligible for COMPLETE / CLOSED only after this documentation marker is committed, pushed and all eight active streams are proven synchronized to the marker.
+
+## M5.4.3 Active TripStore Consumer Isolation — COMPLETE / CLOSED
+
+- Date: 2026-08-21
+- App: 13.82.12
+- Core: 4.82.12
+- Runtime Commit: `cf4a6b32c0ef11f4ac798766a38996bd4973e5b3`
+- Runtime Parent: `e62a7e99973306f787c9320b796935ce5a1bd9bf`
+- Runtime Subject: `feat(m5): isolate remaining active TripStore consumers`
+- Active non-owner private `LuviaTripStore` references: 6 -> 0
+- Join Flow: private Store 2 -> 0
+- Trip Creator: private Store 1 -> 0
+- Trip Experience: private Store 2 -> 0
+- Timeline Core: private Store 1 -> 0
+- TripStore remains sole Trip Truth.
+- Transitional owner command: `commitTripSnapshot`.
+- Web `luvia-trip-context.js` compatibility binding remains deliberately deferred.
+- NFR browser-global baseline was not widened.
+- Safe Regression: 37/37 PASS.
+- Integration Preview: PASS.
+- Authenticated Integration F5: PASS.
+- Production byte provenance: PASS.
+- Authenticated Production F5: PASS.
+- DB migration: none.
+- Edge Function change: none.
+- Secret change: none.
+- Manual Cloudflare change: none.
+- Retained browser debt: Geolocation user-gesture warning and Tracking Prevention/fetch diagnostics.
+- Create real Trip: not executed during browser acceptance.
+- Join real Trip: not executed during browser acceptance.
+- M5.4 remains IN PROGRESS.
+- M5 remains IN PROGRESS.
+- Next: one bundled M5.4 FINAL architecture block; no micro-slice chain.
