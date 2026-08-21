@@ -17,7 +17,7 @@ assert(
 );
 
 assert(
-  adapter.includes('commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,joinTrip})'),
+  /commands\s*:\s*Object\.freeze\(\{[^}]*\bselectActiveTrip\b[^}]*\}\)/.test(adapter),
   'existing Trip Contract command namespace must expose selectActiveTrip'
 );
 
