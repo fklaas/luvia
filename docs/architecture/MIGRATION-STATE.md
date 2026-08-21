@@ -442,3 +442,47 @@ Next: M5.4 Remaining Trip Web Compatibility / Runtime Dependency Reduction.
 - No DB migration, Edge Function change, Secret change or manual Cloudflare change.
 - M5 remains IN PROGRESS.
 <!-- LUVIA:M5.4.1:CLOSEOUT:END -->
+
+## M5.4.2 Runtime / Bootstrap Trip Boundary — COMPLETE / CLOSED
+
+Runtime implementation commit:
+
+`5b6af89ba061e9638fc12be3268767e6d681c1b9`
+
+App/Core:
+
+13.82.12 / 4.82.12
+
+Migration outcome:
+- Boot Coordinator private Trip Store access: 7 -> 0.
+- Shared Runtime private Trip Store access: 3 -> 0.
+- Trip owner adapter now exposes runtime state/initialize/loadRemote operations.
+- Active Trip boot selection preserves owner options through the public command boundary.
+- Trip Store remains sole Trip Truth.
+- No duplicate truth.
+- No DB migration.
+- No Edge Function change.
+- No Secret change.
+- No manual Cloudflare change.
+
+Validation:
+- focused M5.4.2 PASS
+- retained M5.4.1 PASS
+- Safe Regression 36/36 PASS
+- Integration Preview byte provenance PASS
+- Integration authenticated F5 PASS
+- Production byte provenance PASS
+- Production authenticated F5 PASS
+- Production static privacy PASS
+
+Retained debt:
+- owner-internal Web compatibility bindings remain classified
+- `luvia-trip-context.js` is not claimed migrated in M5.4.2
+- Tracking Prevention and geolocation user-gesture warnings remain
+- remaining Trip-owned runtime/legacy paths continue in later M5.4 work
+- physical Trip Core isolation remains required before M5 exit
+
+Evidence rule:
+Main promotion causation is not retroactively reconstructed beyond the currently proven Git, reflog, Cloudflare and byte-provenance evidence.
+
+M5.4.2 closes only with its documentation marker and final 8/8 synchronization.

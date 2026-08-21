@@ -586,3 +586,95 @@ console.log('M5.1h completed state preserved: PASS');
   );
 })();
 /* M5.3 CLOSEOUT REGISTRY END */
+
+/* M5.4.2 closeout registry */
+{
+  const fsM542 = require('fs');
+  const pathM542 = require('path');
+
+  const rootM542 = process.cwd();
+
+  const currentM542 = fsM542.readFileSync(
+    pathM542.join(rootM542, 'CURRENT-BUILD.md'),
+    'utf8'
+  );
+
+  const releaseM542 = fsM542.readFileSync(
+    pathM542.join(rootM542, 'RELEASE-NOTES-M5.4.2.md'),
+    'utf8'
+  );
+
+  const testsM542 = fsM542.readFileSync(
+    pathM542.join(rootM542, 'TEST-RESULTS-M5.4.2.md'),
+    'utf8'
+  );
+
+  const migrationM542 = fsM542.readFileSync(
+    pathM542.join(rootM542, 'docs', 'architecture', 'MIGRATION-STATE.md'),
+    'utf8'
+  );
+
+  const pcrM542 = fsM542.readFileSync(
+    pathM542.join(
+      rootM542,
+      'docs',
+      'modularization',
+      'PCR-M5.4.2-RUNTIME-BOOTSTRAP-TRIP-BOUNDARY.md'
+    ),
+    'utf8'
+  );
+
+  const runtimeCommitM542 =
+    '5b6af89ba061e9638fc12be3268767e6d681c1b9';
+
+  const closeoutTextM542 =
+    'M5.4.2 Runtime / Bootstrap Trip Boundary';
+
+  if (
+    !currentM542.includes(closeoutTextM542) ||
+    !currentM542.includes(runtimeCommitM542)
+  ) {
+    throw new Error(
+      'M5.4.2 CURRENT-BUILD closeout registry mismatch'
+    );
+  }
+
+  if (
+    !releaseM542.includes(runtimeCommitM542) ||
+    !releaseM542.includes('Safe Regression: 36 / 36 PASS')
+  ) {
+    throw new Error(
+      'M5.4.2 Release Notes registry mismatch'
+    );
+  }
+
+  if (
+    !testsM542.includes(runtimeCommitM542) ||
+    !testsM542.includes('Passed: 36') ||
+    !testsM542.includes('Failed: 0')
+  ) {
+    throw new Error(
+      'M5.4.2 Test Results registry mismatch'
+    );
+  }
+
+  if (
+    !migrationM542.includes(closeoutTextM542) ||
+    !migrationM542.includes(runtimeCommitM542)
+  ) {
+    throw new Error(
+      'M5.4.2 Migration State registry mismatch'
+    );
+  }
+
+  if (
+    !pcrM542.includes(runtimeCommitM542) ||
+    !pcrM542.includes('M5.4 remains IN PROGRESS')
+  ) {
+    throw new Error(
+      'M5.4.2 PCR registry mismatch'
+    );
+  }
+
+  console.log('PASS M5.4.2 closeout registry');
+}

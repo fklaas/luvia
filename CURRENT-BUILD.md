@@ -1096,3 +1096,108 @@ M5 remains **IN PROGRESS**.
 
 Next grouped milestone: **M5.4 - Remaining Trip Web Compatibility / Runtime Dependency Reduction**.
 <!-- M5.3 CLOSEOUT END -->
+
+## M5.4.2 Runtime / Bootstrap Trip Boundary — COMPLETE / CLOSED
+
+Date: 2026-08-21
+
+### Runtime release state
+
+- App: 13.82.12
+- Core: 4.82.12
+- Runtime implementation commit: `5b6af89ba061e9638fc12be3268767e6d681c1b9`
+- Runtime parent / previous M5.4.1 closeout marker: `2748c02bdb1497b0460c85630c1fd8c8a5bc76d8`
+- Runtime version bump in M5.4.2: NONE
+- M5.4 overall state: IN PROGRESS
+- M5 overall state: IN PROGRESS
+
+### Scope
+
+M5.4.2 isolated the active Web runtime/bootstrap path from direct private Trip Store access without creating a second Trip Truth.
+
+Runtime files:
+- `core/platform/trip-contract-adapter.js`
+- `core/runtime/boot-coordinator.js`
+- `core/runtime/runtime.js`
+
+Test/guardrail files:
+- `tests/m5.1j-profile-foundation-trip-contract-adoption.test.cjs`
+- `tests/m5.4.2-runtime-bootstrap-trip-boundary.test.cjs`
+- `tests/run-m4.3-safe-regression.cjs`
+
+### Architecture result
+
+- `core/runtime/boot-coordinator.js`: direct `LuviaTripStore` references 7 -> 0.
+- `core/runtime/runtime.js`: direct `LuviaTripStore` references 3 -> 0.
+- Trip Store remains the sole private Trip Truth owner.
+- Trip Contract owner adapter gained runtime-neutral owner operations:
+  - `getState`
+  - `initialize`
+  - `loadRemote`
+- `selectActiveTrip(tripId, options={})` preserves boot `touch` / `source` semantics and forwards them only through the Trip owner boundary.
+- No second Trip Truth was introduced.
+- No new Trip-domain cloud mutation was introduced.
+- Owner-internal private Trip Store references inside `core/platform/trip-contract-adapter.js` remain intentional owner implementation detail.
+- Existing Web compatibility binding `window.LuviaTripStore` remains classified compatibility debt and is not claimed removed globally.
+
+### Regression
+
+- M5.4.2 focused regression: PASS.
+- M5.4.1 command retention: PASS.
+- M5.4.1 destination boundary retention: PASS.
+- M5.1j owner bridge guardrail: PASS after exact additive signature update.
+- Safe Regression: 36 / 36 PASS.
+- NFR-0 regression remains PASS.
+- M5.3 Active Trip Context regression remains PASS.
+- Cross-core DB ownership guardrail remains PASS.
+
+### Integration Preview
+
+- Integration/Platform target: `5b6af89ba061e9638fc12be3268767e6d681c1b9`.
+- Cloudflare integration check: `96750127577` — success.
+- Integration Build ID: `8791679f-d968-4580-809d-9a5c0572cbe8`.
+- Integration Version ID: `a1fb1cf3-34c3-4d68-b9fc-fb159da95f2d`.
+- Immutable preview URL was not exposed in the check output and is not retroactively invented.
+- Integration alias byte provenance: PASS.
+- App/Core on preview: 13.82.12 / 4.82.12.
+- Static privacy: PASS via SPA fallback proof.
+- Authenticated Integration F5 smoke: PASS.
+- Active Trip after F5: Paris Hochzeitstag / Paris.
+- Booking Center after F5: PASS.
+
+### Main / Production
+
+- Main current runtime state: `5b6af89ba061e9638fc12be3268767e6d681c1b9`.
+- Production Cloudflare check: `96753083232` — success.
+- Production Build ID: `3a51d89b-ae7c-4844-befe-09bf22e98052`.
+- Production Version ID: `38c83250-b231-46d6-b573-1e111fcd1d97`.
+- Production byte provenance: PASS.
+- Production static privacy: PASS.
+- Authenticated Production F5 smoke: PASS.
+- Runtime phase after F5: ready.
+- Authentication after F5: true.
+- Active Trip after F5: Paris Hochzeitstag / Paris.
+- Booking Center after F5: PASS.
+
+### Production runtime hashes
+
+- `index.html`: `6be9d480f7659559550017f3d1bd550644101e3cbf32a766ed414959d583c63e`
+- `intelligence/kernel/version.js`: `6bd816ebb3becab04dab7296f0d41df673b66bf26ac21bd85ce503c0493430db`
+- `core/platform/trip-contract-adapter.js`: `dfb3110f2e94d3f6a1325e345d8548566e9f45cbbed3554ffaf6d66eedd8552b`
+- `core/runtime/boot-coordinator.js`: `6b5e1164bb81c4a6ca3f56c0807ad4de5488eeb8343f875563175a47ef7a532a`
+- `core/runtime/runtime.js`: `da7ef53d2b222c46fea06563c76518652fae8defb1e251fad56a5e3cdae4c6c5`
+
+### Retained evidence / warnings
+
+The exact causal action that first promoted Main from `2748c02bdb1497b0460c85630c1fd8c8a5bc76d8` to `5b6af89ba061e9638fc12be3268767e6d681c1b9` is not retroactively claimed. Later read-only evidence proved Main Local = Tracking = Live on the runtime commit, local reflog records a Fast Forward, the commit-specific Production Cloudflare check succeeded, and Production bytes match the runtime commit exactly. Missing immediate mutation-time causal evidence is not manufactured retroactively.
+
+Browser Tracking Prevention messages and the geolocation user-gesture `[Violation]` from `core/location/global-location-bootstrap.js` remain retained Web runtime warnings. They are NOT claimed fixed by M5.4.2 and did not produce a new M5.4.2 Boot/Runtime failure.
+
+### Infrastructure
+
+- DB migration: NONE.
+- Supabase Edge Function change: NONE.
+- Secret change: NONE.
+- Manual Cloudflare change: NONE.
+
+M5.4.2 is eligible for COMPLETE / CLOSED only after this documentation marker is committed, pushed and all eight active streams are proven synchronized to the marker.
