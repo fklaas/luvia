@@ -6,7 +6,7 @@ let state={tripId:null,loading:false,hydrated:false,entries:[],days:[],lastUpdat
 let channels=[];const listeners=new Set();
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const client=()=>window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;
-const activeTripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.tripId||window.LuviaTripStore?.snapshot?.()?.activeTripId||null;
+const activeTripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.tripId||null;
 const iso=(d,t='00:00')=>new Date(`${d}T${String(t||'00:00').slice(0,5)}:00`).toISOString();
 const dayKey=v=>new Date(v).toLocaleDateString('sv-SE');
 const typeIcon=t=>({restaurant:'🍽️',accommodation:'🏨',attraction:'🏛️',activity:'🎟️',photo_spot:'📸',photo_memory:'📸',parking:'🅿️',charging:'🔌',shopping:'🛍️',nature:'🌿',mobility:'🚉'}[t]||'📍');

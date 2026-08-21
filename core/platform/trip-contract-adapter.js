@@ -124,6 +124,12 @@
     store().setActive(id||null,options||{});
     return snapshot();
   }
+  function commitTripSnapshot(trip,options={}){
+    const id=clean(trip?.id||trip?.tripId);
+    if(!id)throw new Error('Trip command commitTripSnapshot requires a Trip id.');
+    store().upsert(trip,options||{});
+    return getTrip(id);
+  }
   async function createTrip(input){
     return tripProjection(await creator().save(input||{}));
   }
@@ -196,7 +202,7 @@
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
     runtime:Object.freeze({getState:getRuntimeState,initialize:initializeRuntime,loadRemote:loadRemoteRuntime}),
-    commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip}),
+    commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip,commitTripSnapshot}),
     events:Object.freeze(['trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
     listTrips,getTrip,getActiveTrip,getContext,subscribe,
     selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip,
