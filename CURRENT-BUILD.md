@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.12**
-- Core: **4.82.12**
+- App: **13.82.13**
+- Core: **4.82.13**
 - Name: **M5.3 Active Trip Context Runtime Release**
 - Channel: **production**
 - Datum: **2026-08-20**
