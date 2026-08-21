@@ -98,9 +98,30 @@
     return store().subscribe(()=>listener(snapshot()));
   }
 
-  function selectActiveTrip(tripId){
+  function getRuntimeState(){
+    const source=store().snapshot?.()||{};
+    const trips=Object.freeze((source.trips||[]).map(tripProjection).filter(Boolean));
+    const activeTrip=tripProjection(source.activeTrip||null);
+    return Object.freeze({
+      trips,
+      activeTripId:clean(source.activeTripId),
+      activeTrip,
+      hasTrips:source.hasTrips==null?trips.length>0:Boolean(source.hasTrips),
+      hasActiveTrip:source.hasActiveTrip==null?Boolean(activeTrip):Boolean(source.hasActiveTrip),
+      loaded:Boolean(source.loaded)
+    });
+  }
+  function initializeRuntime(options={}){
+    store().initialize(options||{});
+    return getRuntimeState();
+  }
+  async function loadRemoteRuntime(client,options={}){
+    await store().loadRemote(client,options||{});
+    return getRuntimeState();
+  }
+  function selectActiveTrip(tripId,options={}){
     const id=clean(tripId);
-    store().setActive(id||null);
+    store().setActive(id||null,options||{});
     return snapshot();
   }
   async function createTrip(input){
@@ -174,6 +195,7 @@
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
+    runtime:Object.freeze({getState:getRuntimeState,initialize:initializeRuntime,loadRemote:loadRemoteRuntime}),
     commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip}),
     events:Object.freeze(['trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
     listTrips,getTrip,getActiveTrip,getContext,subscribe,

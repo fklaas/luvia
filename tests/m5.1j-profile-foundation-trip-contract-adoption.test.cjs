@@ -22,7 +22,7 @@ assert(
 );
 
 assert(
-  adapter.includes('store().setActive(id||null);'),
+  adapter.includes('store().setActive(id||null,options||{});'),
   'selectActiveTrip must remain the public command bridge to the private Trip Store owner'
 );
 

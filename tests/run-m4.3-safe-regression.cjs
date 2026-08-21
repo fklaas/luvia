@@ -108,6 +108,10 @@ const SUITE = Object.freeze([
     test: 'tests/m5.4.1b-destination-service-trip-boundary-adoption.test.cjs'
   },
   {
+    category: 'Intelligence',
+    test: 'tests/m5.4.2-runtime-bootstrap-trip-boundary.test.cjs'
+  },
+  {
     category: 'Runtime foundation',
     test: 'tests/m5.2-remaining-trip-consumer-isolation.test.cjs'
   },
