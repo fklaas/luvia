@@ -362,3 +362,63 @@ NFR-0 becomes COMPLETE / CLOSED after this exact Docs Marker reaches Local = Tra
 
 M5.3 is UNBLOCKED / READY only after that final synchronization gate.
 <!-- NFR-0 MIGRATION CLOSEOUT END -->
+
+<!-- M5.3 MIGRATION CLOSEOUT BEGIN -->
+## M5.3 Active Trip Context migration state
+
+M5.3 runtime and Production acceptance is COMPLETE.
+
+Runtime App 13.82.12 / Core 4.82.12.
+
+Runtime Release Commit: 1dc39b0b034e09aebfab3737598c2f2ac393cacd.
+
+Foundation Commit: 464ec0b48306beb40ec05f8c8c5f966e19d22c90.
+
+Web Compatibility Binding Commit: abbe3334d08cd30ac5cd82c80cb7e2ff953dcc29.
+
+core/trips/active-trip-context.mjs now owns the runtime-neutral Active Trip read and subscription projection.
+
+TripStore remains the canonical Trip Truth provider.
+
+No duplicate persisted Trip Truth was introduced.
+
+luvia-trip-context.js is the Web Runtime Compatibility Binding (`web-runtime-compatibility`) for the runtime-neutral core.
+
+window.LuviaTripContext remains a temporary Web compatibility surface, not final native transport.
+
+window.LuviaTripStore, window.LuviaTripContractV1 and window.LuviaTravelContext remain later compatibility/runtime debt.
+
+The correct Travel Context implementation path is core/context/travel-context-service.js.
+
+The historical core/services/travel-context-service.js reference is stale and is not the authoritative M5.3 path.
+
+Integration and Production browser acceptance proved TripStore = TripContext = TripContract = TravelContext for the active Trip before and after F5.
+
+The ES module scheduling / boot-order risk identified before Main promotion was explicitly accepted on Integration and Production.
+
+M5.3 focused regression: 2 / 2 PASS.
+
+NFR Foundation: 3 / 3 PASS.
+
+Safe Regression: 34 / 34 PASS.
+
+M5.2 targeted regression: 7 / 7 PASS.
+
+Integration Static Asset Privacy: 5 / 5 PASS.
+
+Production Static Asset Privacy: 5 / 5 PASS.
+
+Authenticated Production Browser Smoke and F5: PASS.
+
+No database migration, Edge Function deployment, secret mutation or manual Cloudflare deployment was required.
+
+Earlier M5.2 and NFR-0 pre-sync wording remains historical point-in-time evidence and is not the current repository synchronization state.
+
+This Docs Marker does not pre-claim its own cross-stream synchronization.
+
+M5.3 becomes COMPLETE / CLOSED only after this exact Docs Marker is synchronized to all eight active streams.
+
+M5 remains IN PROGRESS.
+
+Next: M5.4 Remaining Trip Web Compatibility / Runtime Dependency Reduction.
+<!-- M5.3 MIGRATION CLOSEOUT END -->

@@ -442,3 +442,147 @@ console.log('M5.1h completed state preserved: PASS');
   );
 })();
 /* NFR-0 CLOSEOUT REGISTRY END */
+
+/* M5.3 CLOSEOUT REGISTRY BEGIN */
+(() => {
+  const _m53Fs = require('fs');
+  const _m53Path = require('path');
+  const _m53Root = process.cwd();
+
+  const _m53Read = (relative) =>
+    _m53Fs.readFileSync(
+      _m53Path.join(
+        _m53Root,
+        relative
+      ),
+      'utf8'
+    );
+
+  const _m53Required = [
+    'CURRENT-BUILD.md',
+    'RELEASE-NOTES-M5.3.md',
+    'TEST-RESULTS-M5.3.md',
+    'docs/architecture/MIGRATION-STATE.md',
+    'docs/modularization/PCR-M5.3-ACTIVE-TRIP-CONTEXT.md'
+  ];
+
+  for (const relative of _m53Required) {
+    if (
+      !_m53Fs.existsSync(
+        _m53Path.join(
+          _m53Root,
+          relative
+        )
+      )
+    ) {
+      throw new Error(
+        'M5.3 closeout required file missing: ' +
+        relative
+      );
+    }
+  }
+
+  const current =
+    _m53Read('CURRENT-BUILD.md');
+
+  const release =
+    _m53Read('RELEASE-NOTES-M5.3.md');
+
+  const tests =
+    _m53Read('TEST-RESULTS-M5.3.md');
+
+  const migration =
+    _m53Read('docs/architecture/MIGRATION-STATE.md');
+
+  const pcr =
+    _m53Read('docs/modularization/PCR-M5.3-ACTIVE-TRIP-CONTEXT.md');
+
+  for (const marker of [
+    'M5.3 Active Trip Context Closeout',
+    '13.82.12',
+    '4.82.12',
+    '1dc39b0b034e09aebfab3737598c2f2ac393cacd',
+    '34 / 34 PASS',
+    'COMPLETE / CLOSED only after final 8 / 8 synchronization'
+  ]) {
+    if (!current.includes(marker)) {
+      throw new Error(
+        'M5.3 CURRENT-BUILD marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    'M5.3 Active Trip Context',
+    '464ec0b48306beb40ec05f8c8c5f966e19d22c90',
+    'abbe3334d08cd30ac5cd82c80cb7e2ff953dcc29',
+    '1dc39b0b034e09aebfab3737598c2f2ac393cacd',
+    'web-runtime-compatibility',
+    'Static Asset Privacy',
+    'Production F5 module-order / continuity proof',
+    'M5.4'
+  ]) {
+    if (!release.includes(marker)) {
+      throw new Error(
+        'M5.3 Release Notes marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    '2 / 2 PASS',
+    '3 / 3 PASS',
+    '34 / 34 PASS',
+    '7 / 7 PASS',
+    '5 / 5 PASS',
+    'Authenticated Production Browser Smoke',
+    'F5 Module-Order Proof: PASS'
+  ]) {
+    if (!tests.includes(marker)) {
+      throw new Error(
+        'M5.3 Test Results marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    'M5.3 runtime and Production acceptance is COMPLETE.',
+    'core/trips/active-trip-context.mjs',
+    'core/context/travel-context-service.js',
+    'web-runtime-compatibility',
+    'all eight active streams',
+    'M5.4'
+  ]) {
+    if (!migration.includes(marker)) {
+      throw new Error(
+        'M5.3 Migration State marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  for (const marker of [
+    'runtime-neutral Active Trip Context',
+    'TripStore remains Trip Truth',
+    'window.LuviaTripContext',
+    'window.LuviaTripContractV1',
+    'core/context/travel-context-service.js',
+    'boot-order risk',
+    'M5.4'
+  ]) {
+    if (!pcr.includes(marker)) {
+      throw new Error(
+        'M5.3 PCR marker missing: ' +
+        marker
+      );
+    }
+  }
+
+  console.log(
+    'PASS M5.3 closeout registry'
+  );
+})();
+/* M5.3 CLOSEOUT REGISTRY END */

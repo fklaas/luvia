@@ -1021,3 +1021,58 @@ Manual Cloudflare deployment: NONE.
 
 Retained warnings: browser Tracking Prevention and geolocation user-gesture warning from global-location-bootstrap.js?v=13.82.11.
 <!-- NFR-0 CLOSEOUT END -->
+
+<!-- M5.3 CLOSEOUT BEGIN -->
+## M5.3 Active Trip Context Closeout - 2026-08-21
+
+- Milestone: **M5.3 - Active Trip Context / Runtime-Neutral Trip Access**
+- Runtime App: **13.82.12**
+- Runtime Core: **4.82.12**
+- Runtime Release Commit: **1dc39b0b034e09aebfab3737598c2f2ac393cacd**
+- Foundation Commit: **464ec0b48306beb40ec05f8c8c5f966e19d22c90**
+- Web Compatibility Binding Commit: **abbe3334d08cd30ac5cd82c80cb7e2ff953dcc29**
+- Runtime / Production acceptance: **COMPLETE**
+- M5.3 focused regression: **2 / 2 PASS**
+- NFR Foundation regression: **3 / 3 PASS**
+- Safe Regression: **34 / 34 PASS**
+- M5.2 retained targeted regression: **7 / 7 PASS**
+- Integration Preview Static Asset Privacy: **5 / 5 PASS**
+- Production Static Asset Privacy: **5 / 5 PASS**
+- Integration authenticated browser + F5 module-order proof: **PASS**
+- Production authenticated browser + F5 module-order proof: **PASS**
+- Active Trip Context Core version: **1.0.0**
+- Web Runtime Compatibility Binding: **web-runtime-compatibility**
+- Runtime provider: **LuviaTripStore**
+- Trip truth equality proof: **TripStore = TripContext = TripContract = TravelContext**
+- Service Worker after F5: **PASS**
+- Booking Control Center after F5: **PASS**
+- Database migration: **NONE**
+- Supabase Edge Function deployment: **NONE**
+- Secret mutation: **NONE**
+- Manual Cloudflare deployment: **NONE**
+- App/Core bump for this closeout documentation commit: **NONE**
+
+M5.3 establishes a runtime-neutral Active Trip Context in core/trips/active-trip-context.mjs and keeps luvia-trip-context.js as a Web Runtime Compatibility Binding.
+
+TripStore remains the sole Trip Truth provider. Active Trip Context owns no duplicate persisted truth and exposes only derived runtime-neutral Active Trip reads and subscriptions.
+
+The browser-facing globals window.LuviaTripStore, window.LuviaTripContext, window.LuviaTripContractV1 and window.LuviaTravelContext remain compatibility/runtime debt and are not claimed as the final native transport.
+
+The correct Travel Context source path for current architecture work is core/context/travel-context-service.js. The historical stale core/services/travel-context-service.js path is not authoritative.
+
+The former module-scheduling risk caused by converting luvia-trip-context.js to type=module was explicitly tested on Integration and Production before and after F5. No Active Trip boot race was observed.
+
+Retained browser messages include Tracking Prevention storage warnings and DevTools fetch-completion information. The Console is not claimed warning-free.
+
+Retained M5.3 harness history includes the Safe-registration structural preflight failure, the incomplete Release Consistency mutation, and the later corrected in-place repair path. No failed harness is rewritten as PASS.
+
+Historical M5.2 and NFR-0 pre-sync statements elsewhere in this document remain retained as point-in-time evidence. They are not the current synchronization status.
+
+Closeout Docs Marker: **this commit**.
+
+M5.3 is **COMPLETE / CLOSED only after final 8 / 8 synchronization of this exact Docs Marker is proven with Local = Tracking = Live, divergence 0 / 0 and clean worktrees.**
+
+M5 remains **IN PROGRESS**.
+
+Next grouped milestone: **M5.4 - Remaining Trip Web Compatibility / Runtime Dependency Reduction**.
+<!-- M5.3 CLOSEOUT END -->
