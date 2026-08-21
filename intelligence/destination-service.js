@@ -40,8 +40,10 @@
 
   function tripRegistry(){return parse(localStorage.getItem(TRIP_REGISTRY_KEY),[])||[]}
   function identity(){return parse(localStorage.getItem(IDENTITY_KEY),{})||{}}
+  function tripContract(){return window.LuviaTripContractV1||window.LuviaTripContract||null}
+  function tripReads(){const contract=tripContract();return contract?.reads||contract||null}
   function activeTrip(){
-    const canonical=window.LuviaTripStore?.snapshot?.().activeTrip||null;
+    const canonical=tripReads()?.getActiveTrip?.()||null;
     if(canonical?.id||canonical?.tripId)return {...canonical,tripId:canonical.id||canonical.tripId};
     const direct=window.LuviaTripContext?.getActiveTrip?.()||null;
     if(direct?.tripId)return direct;
@@ -151,17 +153,18 @@
   async function ensureResolved(input,options={}){const destination=resolve(input,options);if(destination.center&&destination.countryCode&&!options.refresh)return destination;return resolveLocation(destination,options);}
   async function ensureActiveResolved(options={}){const active=getActive({refresh:true});if(!active?.isUsable)return active;if(!options.refresh&&Date.now()<(state.nextResolveAt||0))return active;try{const result=await ensureResolved(active,options);state.nextResolveAt=0;return result}catch(error){state.nextResolveAt=Date.now()+30000;state.lastError=error?.message||String(error);return clone(active)}}
   function persistActiveDestination(destination){
-    const tripId=destination?.tripId||window.LuviaTripStore?.snapshot?.().activeTripId||identity()?.tripId;if(!tripId)return false;
-    const canonicalTrip=window.LuviaTripStore?.snapshot?.().trips?.find?.(trip=>trip.id===tripId||trip.tripId===tripId);
+    const reads=tripReads(),active=reads?.getActiveTrip?.()||null;
+    const tripId=destination?.tripId||active?.tripId||active?.id||identity()?.tripId;if(!tripId)return false;
+    const canonicalTrip=reads?.getTrip?.(tripId)||null;
     const model={
       name:destination.name||'',formattedAddress:destination.displayName||destination.formattedAddress||destination.name||'',country:destination.country||'',countryCode:destination.countryCode||'',placeId:destination.placeId||'',
       latitude:destination.center?.lat??destination.location?.latitude??null,longitude:destination.center?.lng??destination.location?.longitude??null,timezone:destination.timezone||'',provider:destination.provider||destination.source||'google-places'
     };
-    if(canonicalTrip&&window.LuviaTripStore?.upsert){window.LuviaTripStore.upsert({...canonicalTrip,destination:model,destinationName:model.name,updatedAt:now()});}
+    const contract=tripContract();if(canonicalTrip&&contract?.commands?.applyResolvedDestination){contract.commands.applyResolvedDestination(tripId,model);}
     const trips=tripRegistry();let changed=false;
     const next=trips.map(trip=>{if((trip?.tripId||trip?.id)!==tripId)return trip;changed=true;return {...trip,destination:model.name,destinationModel:model,destinationName:model.name,destinationId:destination.id,destinationPlaceId:model.placeId,destinationLat:model.latitude,destinationLng:model.longitude,destinationViewport:destination.viewport||null,country:model.country,countryCode:model.countryCode,timezone:model.timezone,timezoneName:destination.timezoneName,timezoneStatus:destination.timezoneStatus,timezoneError:destination.timezoneError,languageCodes:destination.languageCodes,currency:destination.currency,locale:destination.locale,flagEmoji:destination.flagEmoji,searchRadiusMeters:destination.searchRadiusMeters,destinationProvider:model.provider,destination_context:{...destination,validation:undefined,location:undefined}}});
     if(changed)localStorage.setItem(TRIP_REGISTRY_KEY,JSON.stringify(next));
-    window.LuviaLegacyParisMigrator?.mirror?.(window.LuviaTripStore?.snapshot?.()||{});
+    window.LuviaLegacyParisMigrator?.mirror?.(contract?.snapshot?.()||{});
     window.LuviaTripContext?.refresh?.();document.dispatchEvent(new CustomEvent('luvia:trip-context-changed',{detail:{tripId,destination:model.name}}));
     return Boolean(changed||canonicalTrip);
   }
@@ -180,7 +183,7 @@
     if(!navigator.onLine||!window.LuviaData?.list)return {loaded:0,source:'local'};
     try{const result=await window.LuviaData.list('destinations',{scope:'global'});let loaded=0;(result.data||[]).forEach(row=>{try{register({id:row.id,name:row.name,country:row.country,countryCode:row.country_code,placeId:row.google_place_id,center:row.latitude!=null&&row.longitude!=null?{lat:row.latitude,lng:row.longitude}:null,viewport:row.viewport,timezone:row.timezone,timezoneName:row.timezone_name,languageCodes:row.language_codes,currency:row.currency,locale:row.locale,flagEmoji:row.flag_emoji,searchRadiusMeters:row.search_radius_meters,provider:row.provider,source:'database'},{source:'database'});loaded++}catch{}});return{loaded,source:result.source||'supabase'}}catch(error){state.lastError=error.message;return{loaded:0,source:'local',warning:error.message}}
   }
-  async function init(){if(state.initialized)return snapshot();migrateTrips();await loadRemoteRegistry();state.active=resolve(activeTrip());state.initialized=true;if(!state.tripSubscription&&window.LuviaTripStore?.subscribe){state.tripSubscription=window.LuviaTripStore.subscribe(()=>{state.active=resolve(activeTrip(),{refresh:true});emit('context-changed',{destination:state.active,source:'trip-store'});});}emit('ready',{destination:state.active});queueMicrotask(()=>ensureActiveResolved().catch(()=>{}));return snapshot()}
+  async function init(){if(state.initialized)return snapshot();migrateTrips();await loadRemoteRegistry();state.active=resolve(activeTrip());state.initialized=true;const reads=tripReads();if(!state.tripSubscription&&reads?.subscribe){state.tripSubscription=reads.subscribe(()=>{state.active=resolve(activeTrip(),{refresh:true});emit('context-changed',{destination:state.active,source:'trip-contract'});});}emit('ready',{destination:state.active});queueMicrotask(()=>ensureActiveResolved().catch(()=>{}));return snapshot()}
   function diagnostics(){const active=getActive();return{version:VERSION,status:state.initialized?'ready':'created',active,registryCount:registry().length,cacheCount:Object.keys(cache()).length,cacheHits:state.cacheHits,cacheMisses:state.cacheMisses,resolutions:state.resolutions,resolutionFailures:state.resolutionFailures,lastResolvedAt:state.lastResolvedAt,pendingResolutions:pending.size,lastMigration:state.lastMigration||parse(localStorage.getItem(MIGRATION_KEY),null),lastError:state.lastError}}
   function snapshot(){return diagnostics()}
   function subscribe(listener){if(typeof listener!=='function')return()=>{};listeners.add(listener);listener({type:'snapshot',at:now(),destination:getActive()});return()=>listeners.delete(listener)}
