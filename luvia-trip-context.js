@@ -12,18 +12,18 @@ if (!web) {
   );
 }
 
-const tripStore =
-  web.LuviaTripStore;
+const tripStateReader =
+  web.LuviaTripStateReaderV1;
 
 if (
-  !tripStore ||
-  typeof tripStore.snapshot !==
+  !tripStateReader ||
+  typeof tripStateReader.snapshot !==
     'function' ||
-  typeof tripStore.subscribe !==
+  typeof tripStateReader.subscribe !==
     'function'
 ) {
   throw new Error(
-    'LuviaTripContext Web Binding requires LuviaTripStore before initialization.'
+    'LuviaTripContext Web Binding requires LuviaTripStateReaderV1 before initialization.'
   );
 }
 
@@ -31,17 +31,17 @@ const coreContext =
   createActiveTripContext({
     readTripState:
       () =>
-        tripStore.snapshot(),
+        tripStateReader.snapshot(),
 
     subscribeTripState:
       (listener) =>
-        tripStore.subscribe(
+        tripStateReader.subscribe(
           listener
         ),
   });
 
 function refresh() {
-  tripStore
+  tripStateReader
     .reconcileLegacy
     ?.();
 
@@ -95,7 +95,7 @@ const api =
             ACTIVE_TRIP_CONTEXT_VERSION,
 
           provider:
-            'LuviaTripStore',
+            'LuviaTripStateReaderV1',
 
           ready:
             true,

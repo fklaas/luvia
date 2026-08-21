@@ -1,0 +1,247 @@
+'use strict';
+
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+
+const root = process.cwd();
+
+const load = relative =>
+  fs.readFileSync(
+    path.join(root, ...relative.split('/')),
+    'utf8'
+  );
+
+const count = (source, token) =>
+  source.split(token).length - 1;
+
+const store =
+  load('core/trips/trip-store.js');
+
+const context =
+  load('luvia-trip-context.js');
+
+const adapter =
+  load('core/platform/trip-contract-adapter.js');
+
+const travel =
+  load('core/context/travel-context-service.js');
+
+const activeCore =
+  load('core/trips/active-trip-context.mjs');
+
+const index =
+  load('index.html');
+
+
+assert(
+  store.includes(
+    'LuviaTripStateReaderV1'
+  ),
+  'Trip Store owner must publish the early read-only state reader'
+);
+
+const readerLine =
+  store
+    .split(/\r?\n/)
+    .find(
+      line =>
+        line.includes(
+          'LuviaTripStateReaderV1=Object.freeze'
+        )
+    ) || '';
+
+assert(
+  readerLine,
+  'Trip State Reader declaration missing'
+);
+
+assert(
+  readerLine.includes('snapshot') &&
+  readerLine.includes('subscribe'),
+  'Trip State Reader must expose snapshot and subscribe'
+);
+
+for (const forbidden of [
+  'upsert',
+  'setActive',
+  'clearActive',
+  'loadRemote'
+]) {
+  assert(
+    !readerLine.includes(forbidden),
+    'Trip State Reader must remain read-only: ' +
+    forbidden
+  );
+}
+
+
+assert.strictEqual(
+  count(
+    context,
+    'LuviaTripStore'
+  ),
+  0,
+  'Web Trip Context must not depend directly on private TripStore'
+);
+
+assert(
+  context.includes(
+    'web.LuviaTripStateReaderV1'
+  ),
+  'Web Trip Context must bind through TripStateReaderV1'
+);
+
+assert(
+  context.includes(
+    "'LuviaTripStateReaderV1'"
+  ) ||
+  context.includes(
+    '"LuviaTripStateReaderV1"'
+  ),
+  'Trip Context diagnostics must identify the read-only provider'
+);
+
+
+assert.strictEqual(
+  count(
+    adapter,
+    'LuviaTripStore'
+  ),
+  2,
+  'Owner adapter may retain only the private Store owner helper reference and provider label'
+);
+
+assert.strictEqual(
+  count(
+    adapter,
+    'window.LuviaTripStore'
+  ),
+  1,
+  'Owner adapter must have exactly one direct private Web Store access'
+);
+
+assert(
+  count(
+    adapter,
+    'window.LuviaTripStateReaderV1'
+  ) >= 4,
+  'Owner adapter readiness/diagnostics must use the read-only State Reader'
+);
+
+
+assert(
+  travel.includes(
+    'const trip=()=>window.LuviaTripContext?.getActiveTrip?.()||{};'
+  ),
+  'Travel Context must derive Trip state from public Trip Context only'
+);
+
+assert(
+  !travel.includes(
+    'window.LuviaAppState?.getSnapshot?.()?.trip?.trip'
+  ),
+  'Travel Context must not retain secondary AppState Trip fallback'
+);
+
+assert.strictEqual(
+  count(
+    travel,
+    'LuviaTripStore'
+  ),
+  0,
+  'Travel Context must not access private TripStore'
+);
+
+
+for (const token of [
+  'window',
+  'document',
+  'localStorage',
+  'sessionStorage',
+  'navigator'
+]) {
+  assert(
+    !activeCore.includes(token),
+    'Runtime-neutral Active Trip Context core must remain browserless: ' +
+    token
+  );
+}
+
+
+const storeIndex =
+  index.indexOf(
+    'core/trips/trip-store.js'
+  );
+
+const contextIndex =
+  index.indexOf(
+    'luvia-trip-context.js'
+  );
+
+const adapterIndex =
+  index.indexOf(
+    'core/platform/trip-contract-adapter.js'
+  );
+
+assert(
+  storeIndex >= 0 &&
+  contextIndex > storeIndex &&
+  adapterIndex > contextIndex,
+  'Web load order must remain TripStore -> TripContext -> Trip owner adapter'
+);
+
+
+for (const legacy of [
+  'app/memory-worlds-v2.js',
+  'app/memory-worlds-v3.ts',
+  'core/app/app-shell-v11.js',
+  'intelligence/services/base-services.js',
+  'luvia-entry.js'
+]) {
+  assert(
+    !index.includes(legacy),
+    'Deferred legacy debt must remain outside active index graph: ' +
+    legacy
+  );
+}
+
+
+assert(
+  adapter.includes(
+    'function commitTripSnapshot(trip,options={})'
+  ),
+  'M5.4.3 owner commit command must remain preserved'
+);
+
+console.log(
+  'M5.4 FINAL Web Compatibility Boundary: PASS'
+);
+
+console.log(
+  'Web Trip Context private LuviaTripStore refs: 0'
+);
+
+console.log(
+  'Owner adapter direct private Store access: exactly 1'
+);
+
+console.log(
+  'TripStateReaderV1: READ-ONLY snapshot / subscribe'
+);
+
+console.log(
+  'Travel Context secondary AppState Trip fallback: REMOVED'
+);
+
+console.log(
+  'Active Trip Context core: BROWSERLESS'
+);
+
+console.log(
+  'Unreachable legacy TripStore debt: DEFERRED / NOT REACTIVATED'
+);
+
+console.log(
+  'TripStore sole Trip Truth: PRESERVED'
+);

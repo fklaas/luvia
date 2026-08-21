@@ -1,11 +1,11 @@
 (() => {
   'use strict';
   const listeners=new Set();let state={trips:[],activeTripId:null,loaded:false};
-  const storage=()=>window.LuviaStorage;const migrator=()=>window.LuviaLegacyParisMigrator;
+  const web=window;const storage=()=>web.LuviaStorage;const migrator=()=>web.LuviaLegacyParisMigrator;
   const sort=items=>[...items].sort((a,b)=>(Date.parse(b.lastOpenedAt||b.updatedAt||b.createdAt||0)||0)-(Date.parse(a.lastOpenedAt||a.updatedAt||a.createdAt||0)||0));
   function persist({mirror=true}={}){storage().set(storage().keys.trips,state.trips);if(state.activeTripId)storage().setText(storage().keys.activeTripId,state.activeTripId);else storage().remove(storage().keys.activeTripId);if(mirror)migrator().mirror(state)}
   function snapshot(){const activeTrip=state.trips.find(t=>t.id===state.activeTripId)||null;return Object.freeze({trips:[...state.trips],activeTripId:state.activeTripId,activeTrip,hasTrips:state.trips.length>0,hasActiveTrip:Boolean(activeTrip),loaded:state.loaded})}
-  function emit(reason='changed'){const value=snapshot();listeners.forEach(fn=>{try{fn(value)}catch(e){console.warn('[LuviaTripStore]',e)}});window.dispatchEvent(new CustomEvent('luvia:trips-changed',{detail:{...value,reason}}));document.dispatchEvent(new CustomEvent('luvia:trip-context-changed',{detail:value}));return value}
+  function emit(reason='changed'){const value=snapshot();listeners.forEach(fn=>{try{fn(value)}catch(e){console.warn('[LuviaTripStore]',e)}});web.dispatchEvent(new CustomEvent('luvia:trips-changed',{detail:{...value,reason}}));document.dispatchEvent(new CustomEvent('luvia:trip-context-changed',{detail:value}));return value}
 
   function mergeDestination(previous={},incoming={}){const merged={...previous,...incoming};for(const [key,value] of Object.entries(merged)){if(value===''||value==null){const old=previous?.[key];if(old!==''&&old!=null)merged[key]=old;}}return merged}
   function mergeTrip(previous={},incoming={}){const destination=mergeDestination(previous.destination||{},incoming.destination||{});const merged={...previous,...incoming,destination,destinationName:destination.name||incoming.destinationName||previous.destinationName};for(const [key,value] of Object.entries(merged)){if((value===''||value==null)&&previous?.[key]!==''&&previous?.[key]!=null)merged[key]=previous[key];}return merged}
@@ -15,7 +15,7 @@
   function setActive(id,{touch=true,source='user'}={}){if(!id){state.activeTripId=null;persist();return emit('trip-cleared')}const trip=state.trips.find(t=>t.id===id);if(!trip)throw new Error('Die ausgewählte Reise ist nicht verfügbar.');if(touch)trip.lastOpenedAt=new Date().toISOString();state.activeTripId=id;state.trips=sort(state.trips);persist();document.dispatchEvent(new CustomEvent('reisezeit:trip-selected',{detail:migrator().toLegacy(trip)}));return emit(source==='boot-cloud'?'trip-selected-cloud':'trip-selected')}
   async function loadRemote(client,{authoritative=true,ignoreLocalActive=false}={}){
     let rows=[];
-    try{rows=await window.LuviaLegacyParisCloud.listTrips(client)}catch(error){
+    try{rows=await web.LuviaLegacyParisCloud.listTrips(client)}catch(error){
       if(!state.trips.length)throw error;
       console.warn('[LuviaTripStore] Remote-Liste nicht verfügbar, lokaler Cache bleibt als Offline-Fallback aktiv.',error);
       return snapshot();
@@ -28,7 +28,7 @@
         const cloudIncomplete=!cloudTrip.destination?.name||!cloudTrip.destination?.country||!cloudTrip.startDate||!cloudTrip.endDate;
         const cacheComplete=Boolean(cached?.destination?.name&&(cached.destination.country||cached.destination.placeId)&&cached.startDate&&cached.endDate);
         if(cloudIncomplete&&cacheComplete){
-          try{await window.LuviaLegacyParisCloud.saveProfile(client,cached);remote[i]=mergeTrip(cloudTrip,cached);console.info('[LuviaTripStore] Vollständiges lokales Reiseprofil einmalig nach Supabase repariert.',cloudTrip.id)}catch(error){console.warn('[LuviaTripStore] Cloud-Profil konnte nicht repariert werden.',error)}
+          try{await web.LuviaLegacyParisCloud.saveProfile(client,cached);remote[i]=mergeTrip(cloudTrip,cached);console.info('[LuviaTripStore] Vollständiges lokales Reiseprofil einmalig nach Supabase repariert.',cloudTrip.id)}catch(error){console.warn('[LuviaTripStore] Cloud-Profil konnte nicht repariert werden.',error)}
         }
       }
       const previousActive=ignoreLocalActive?null:state.activeTripId;
@@ -50,4 +50,5 @@
   }
   function clearActive(){return setActive(null)}
   window.LuviaTripStore=Object.freeze({initialize,reconcileLegacy,snapshot,upsert,setActive,clearActive,loadRemote,normalize:input=>migrator().normalize(input),subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn)}});
+  web.LuviaTripStateReaderV1=Object.freeze({snapshot,subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn)}});
 })();

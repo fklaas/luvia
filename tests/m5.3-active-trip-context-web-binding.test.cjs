@@ -87,7 +87,7 @@ async function main() {
 
   assert.ok(
     binding.includes(
-      'LuviaTripStore'
+      'LuviaTripStateReaderV1'
     ),
     'M5.3 Web Binding must inject the existing Trip Truth provider'
   );
@@ -289,7 +289,7 @@ async function main() {
   };
 
   globalThis.window = {
-    LuviaTripStore:
+    LuviaTripStateReaderV1:
       tripStore,
   };
 

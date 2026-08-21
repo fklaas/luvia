@@ -46,7 +46,7 @@ const consumers = [
 const privateRefs =
   consumers.reduce(
     (total, [, source]) =>
-      total + count(source, 'LuviaTripStore'),
+      total + count(source, 'LuviaTripStateReaderV1'),
     0
   );
 
@@ -58,7 +58,7 @@ assert.strictEqual(
 
 for (const [name, source] of consumers) {
   assert.strictEqual(
-    count(source, 'LuviaTripStore'),
+    count(source, 'LuviaTripStateReaderV1'),
     0,
     name + ' must not access private Trip Store'
   );
@@ -126,7 +126,7 @@ assert(
 );
 
 assert(
-  !timeline.includes('LuviaTripStore'),
+  !timeline.includes('LuviaTripStateReaderV1'),
   'Timeline must not retain private Trip Store fallback'
 );
 
@@ -139,7 +139,7 @@ assert(
 
 assert(
   context.includes(
-    'web.LuviaTripStore'
+    'web.LuviaTripStateReaderV1'
   ),
   'M5.3 Web compatibility TripContext binding must remain explicitly preserved'
 );

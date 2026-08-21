@@ -8,7 +8,7 @@
   const state={now:new Date(),location:initial&&Date.now()-(initial.updatedAt||0)<86400000?initial:null,permission:'unknown',requesting:false,error:null};
   const clone=v=>JSON.parse(JSON.stringify(v));
   const dateOnly=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
-  const trip=()=>window.LuviaTripContext?.getActiveTrip?.()||window.LuviaAppState?.getSnapshot?.()?.trip?.trip||{};
+  const trip=()=>window.LuviaTripContext?.getActiveTrip?.()||{};
   function tripDates(t=trip()){const start=t.startDate||t.start_date,end=t.endDate||t.end_date;return{start:start?new Date(`${start}T00:00:00`):null,end:end?new Date(`${end}T23:59:59`):null}}
   function phase(t=trip(),now=state.now){const {start,end}=tripDates(t);if(!start||!end)return'planning';if(now<start)return'before';if(now>end)return'after';return'during'}
   function tripDay(t=trip(),now=state.now){const {start,end}=tripDates(t);if(!start||!end||now<start||now>end)return null;return Math.floor((dateOnly(now)-dateOnly(start))/86400000)+1}

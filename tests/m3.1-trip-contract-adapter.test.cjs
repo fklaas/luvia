@@ -20,6 +20,7 @@ const rawTrips=[
 const snapshot=()=>({trips:rawTrips,activeTripId:activeId,activeTrip:rawTrips.find(t=>t.id===activeId)||null,loaded:true});
 const calls={setActive:[],create:[],update:[],join:[],registered:[]};
 window.LuviaTripStore={snapshot,setActive(id){calls.setActive.push(id);activeId=id;return snapshot()},subscribe(fn){fn(snapshot());return()=>{}}};
+window.LuviaTripStateReaderV1=Object.freeze({snapshot:window.LuviaTripStore.snapshot,subscribe:window.LuviaTripStore.subscribe});
 window.LuviaTripContext={getActiveTrip:()=>snapshot().activeTrip,getSnapshot:()=>({tripId:activeId,hasActiveTrip:Boolean(activeId),tripName:snapshot().activeTrip?.title||'Unsere Reise',destination:snapshot().activeTrip?.destination||null,destinationName:snapshot().activeTrip?.destination?.name||'',symbol:snapshot().activeTrip?.symbol||'❤️',accent:snapshot().activeTrip?.accent||'#ee6f83',startDate:snapshot().activeTrip?.startDate||null,endDate:snapshot().activeTrip?.endDate||null,role:snapshot().activeTrip?.role||null,isOwner:Boolean(snapshot().activeTrip?.isOwner)})};
 window.LuviaTripCreator={async save(input){calls.create.push(input);return {...rawTrips[0],id:'t3',title:input.title||'New'}}};
 window.LuviaTripExperience={async update(trip,patch){calls.update.push({trip,patch});return {...trip,...patch}}};

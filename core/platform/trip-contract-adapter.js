@@ -170,7 +170,7 @@
     return detail;
   }
 
-  let previousActiveId=clean(window.LuviaTripStore?.snapshot?.()?.activeTripId);
+  let previousActiveId=clean(window.LuviaTripStateReaderV1?.snapshot?.()?.activeTripId);
   function bridgeTripsChanged(event){
     const state=snapshot();
     const reason=event?.detail?.reason||'changed';
@@ -211,9 +211,9 @@
       contractId:CONTRACT_ID,
       version:VERSION,
       runtimeVersion:RUNTIME_VERSION,
-      ready:Boolean(window.LuviaTripStore&&window.LuviaTripContext),
+      ready:Boolean(window.LuviaTripStateReaderV1&&window.LuviaTripContext),
       providers:Object.freeze({
-        store:Boolean(window.LuviaTripStore),
+        store:Boolean(window.LuviaTripStateReaderV1),
         context:Boolean(window.LuviaTripContext),
         create:Boolean(window.LuviaTripCreator?.save),
         update:Boolean(window.LuviaTripExperience?.update),
@@ -228,6 +228,6 @@
     id:CONTRACT_ID,
     version:VERSION,
     required:false,
-    probe:()=>({available:Boolean(window.LuviaTripContractV1&&window.LuviaTripStore&&window.LuviaTripContext),detail:'Trip v1 owner adapter'})
+    probe:()=>({available:Boolean(window.LuviaTripContractV1&&window.LuviaTripStateReaderV1&&window.LuviaTripContext),detail:'Trip v1 owner adapter'})
   });
 })();

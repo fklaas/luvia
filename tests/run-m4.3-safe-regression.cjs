@@ -116,6 +116,10 @@ const SUITE = Object.freeze([
     test: 'tests/m5.4.3-active-tripstore-consumer-isolation.test.cjs'
   },
   {
+    category: 'Native readiness',
+    test: 'tests/m5.4-final-web-compatibility-boundary.test.cjs'
+  },
+  {
     category: 'Runtime foundation',
     test: 'tests/m5.2-remaining-trip-consumer-isolation.test.cjs'
   },
