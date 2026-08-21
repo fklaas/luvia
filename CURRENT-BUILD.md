@@ -1,3 +1,23 @@
+<!-- LUVIA:M5.4.1:CLOSEOUT:START -->
+## M5.4.1 – Active Foreign Trip Truth Isolation / Destination Service
+
+**Status:** COMPLETE / CLOSED
+**Closeout:** 2026-08-21
+**Runtime App / Core:** 13.82.12 / 4.82.12
+**Runtime source commit:** `c36a68b9a7abfca5f3d804dac98f96b72148a7ba`
+**Previous closeout marker:** `c0ea48f7aeffc7df5ffb0b137cec21e31d0dfd47`
+
+M5.4.1 isolates the active Destination Service from private Trip Truth access. `intelligence/destination-service.js` now reads and subscribes through the public Trip Contract and persists resolved destination state through the Trip-owned `applyResolvedDestination` command boundary.
+
+TripStore remains the sole Trip Truth. The owner command preserves the existing local/offline canonical write semantics with one TripStore upsert and does not route through `TripExperience.update` or introduce `luvia_save_trip_profile`.
+
+Integration preview, Main promotion, Production static byte provenance and authenticated browser/F5 acceptance are PASS. Safe Regression is 35/35 PASS.
+
+No App/Core version bump was required. No DB migration, Edge Function change, Secret change or manual Cloudflare change was required.
+
+M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global Trip dependency reduction.
+<!-- LUVIA:M5.4.1:CLOSEOUT:END -->
+
 # CURRENT BUILD
 
 - App: **13.82.12**

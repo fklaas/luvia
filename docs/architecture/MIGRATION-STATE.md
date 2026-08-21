@@ -422,3 +422,23 @@ M5 remains IN PROGRESS.
 
 Next: M5.4 Remaining Trip Web Compatibility / Runtime Dependency Reduction.
 <!-- M5.3 MIGRATION CLOSEOUT END -->
+<!-- LUVIA:M5.4.1:CLOSEOUT:START -->
+## 2026-08-21 – M5.4.1 Active Foreign Trip Truth Isolation / Destination Service
+
+**State:** COMPLETE / CLOSED
+
+- Runtime source: `c36a68b9a7abfca5f3d804dac98f96b72148a7ba`.
+- Added Trip-owned narrow command `applyResolvedDestination(tripId, destination)` in `core/platform/trip-contract-adapter.js`.
+- Migrated active `intelligence/destination-service.js` private `LuviaTripStore` references from 8 to 0.
+- Destination Service now uses public Trip Contract reads/subscription plus the Trip-owned command boundary.
+- Existing Legacy destination compatibility mirror and Trip Context refresh behavior remain preserved.
+- No `TripExperience.update` path is used by the new narrow owner command.
+- No new `luvia_save_trip_profile` write exists in Destination Service or the narrow owner command.
+- Integration and Main Safe Regression: 35/35 PASS.
+- Integration Preview static provenance and authenticated F5 smoke: PASS.
+- Production static byte provenance and authenticated F5 smoke: PASS.
+- Native/Web compatibility globals remain explicitly classified debt for subsequent M5.4 work; their existence is not treated as final Native architecture.
+- No Runtime App/Core bump; remains 13.82.12 / 4.82.12.
+- No DB migration, Edge Function change, Secret change or manual Cloudflare change.
+- M5 remains IN PROGRESS.
+<!-- LUVIA:M5.4.1:CLOSEOUT:END -->
