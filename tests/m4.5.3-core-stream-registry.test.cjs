@@ -952,13 +952,13 @@ console.log('M5.1h completed state preserved: PASS');
 
   const stateCoreLoadM5Final =
     indexM5Final.indexOf(
-      'core/trips/trip-state-core.js?v=13.82.14'
+      'core/trips/trip-state-core.js?v='
     );
 
 
   const storeLoadM5Final =
     indexM5Final.indexOf(
-      'core/trips/trip-store.js?v=13.82.14'
+      'core/trips/trip-store.js?v='
     );
 
 

@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.14**
-- Core: **4.82.14**
-- Name: **M5 FINAL Physical Trip Core Isolation**
+- App: **13.82.15**
+- Core: **4.82.15**
+- Name: **M6.1 Places State Core Foundation**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
