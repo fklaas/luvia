@@ -2410,3 +2410,7 @@ tests/m4.5.3-core-stream-registry.test.cjs,Platform,Test/Architecture,Architectu
 scripts/luvia-stream-registry.cjs,Platform,Tooling/Architecture,Reusable machine-readable stream registry loader
 tests/m4.5.4-eight-stream-topology-guardrail.test.cjs,Platform,Test/Guardrail,Registry-aware eight-stream topology guardrail
 tests/m4.5.4-core-boundary-guardrails.test.cjs,Platform,Test/Guardrail,Experience and Intelligence core-boundary guardrail
+core/places/places-domain-contract-core.js,Places,Domain,Runtime-neutral Places v1 projections and canonical declarative category routing
+app/adapters/platform-port-adapters.mjs,Platform/App Shell,Adapter/Web,Web implementations for formal Platform Ports
+app/adapters/places-discovery-adapter.js,Intelligence,Adapter/Web,Places discovery orchestration over public owner boundary; no Places truth
+tests/m6-final-places-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M6 exit guard for browserless Places contracts routing ports and Trip boundary

@@ -1,18 +1,7 @@
 (() => {
 'use strict';
 const VERSION='4.54.3';
-const UI_CATEGORIES=Object.freeze({
-food:{key:'food',label:'Essen & Trinken',domainTypes:['restaurant'],includedTypes:['restaurant','cafe','bakery','bar','meal_takeaway','vegetarian_restaurant','vegan_restaurant'],excludedTypes:['hospital','movie_theater','locality'],synonyms:['Restaurant','Café','Bistro','Essen']},
-accommodation:{key:'accommodation',label:'Unterkünfte',domainTypes:['accommodation'],includedTypes:['lodging','hotel','hostel','motel','bed_and_breakfast','guest_house','resort_hotel','campground'],excludedTypes:['restaurant','hospital','locality'],synonyms:['Hotel','Unterkunft','Hostel','Apartment','Bed and Breakfast']},
-activities:{key:'activities',label:'Aktivitäten',domainTypes:['activity','attraction','family'],includedTypes:['amusement_park','aquarium','bowling_alley','escape_room','gym','spa','stadium','swimming_pool','water_park','zoo','tourist_attraction'],excludedTypes:['hospital','store','locality'],synonyms:['Aktivität','Erlebnis','Freizeit']},
-sights:{key:'sights',label:'Sehenswürdigkeiten',domainTypes:['attraction'],includedTypes:['tourist_attraction','historical_landmark','monument','observation_deck'],excludedTypes:['restaurant','hospital'],synonyms:['Sehenswürdigkeit','Wahrzeichen','Aussichtspunkt']},
-photo:{key:'photo',label:'Fotospots',domainTypes:['photo_spot','attraction','nature'],includedTypes:['tourist_attraction','historical_landmark','monument','observation_deck','park','garden','natural_feature'],excludedTypes:['hospital'],synonyms:['Fotospot','Fotoort','Aussicht','Architektur']},
-culture:{key:'culture',label:'Kultur',domainTypes:['attraction','activity'],includedTypes:['museum','movie_theater','art_gallery','performing_arts_theater','concert_hall'],excludedTypes:['hospital','restaurant'],synonyms:['Museum','Kino','Theater','Galerie']},
-nature:{key:'nature',label:'Natur & Erholung',domainTypes:['nature','activity'],includedTypes:['park','garden','beach','hiking_area','natural_feature','spa'],excludedTypes:['store','hospital'],synonyms:['Park','Garten','See','Strand','Natur']},
-shopping:{key:'shopping',label:'Shopping',domainTypes:['shopping'],includedTypes:['shopping_mall','market','store','clothing_store','department_store'],excludedTypes:['hospital'],synonyms:['Shopping','Markt','Geschäft']},
-nightlife:{key:'nightlife',label:'Nachtleben',domainTypes:['activity','restaurant'],includedTypes:['night_club','bar','concert_hall'],excludedTypes:['hospital','locality'],synonyms:['Club','Bar','Live-Musik','Rooftop']},
-practical:{key:'practical',label:'Praktisch unterwegs',domainTypes:['custom','mobility'],includedTypes:['pharmacy','supermarket','parking','electric_vehicle_charging_station','gas_station','atm','laundry'],excludedTypes:['tourist_attraction'],synonyms:['Apotheke','Supermarkt','Parkplatz','Ladestation']}
-});
+const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   skydiving:{category:'activities',label:'Fallschirmspringen',patterns:[/fallschirm/i,/skydiv/i,/tandemsprung/i,/parachut/i,/bodyflying/i,/windtunnel/i],queries:['Fallschirmspringen','Tandemsprung','Skydiving','Fallschirmsprung','Indoor Skydiving','Bodyflying'],match:/fallschirm|skydiv|tandemsprung|parachut|bodyflying|windtunnel|freefall/i,exclude:/tierpark|zoo|museum|trampolin|superfly(?!.*skydiv)/i,niche:true},
   swimming:{category:'activities',label:'Schwimmen',patterns:[/schwimm/i,/baden/i,/badesee/i,/pool/i,/wasserpark/i],queries:['Schwimmbad','Hallenbad','Freibad','Badesee','Therme','Wasserpark','Aquatic Center'],match:/schwimm|hallenbad|freibad|therme|badesee|wasserpark|aquatic|pool/i,niche:false},

@@ -2,22 +2,23 @@
   'use strict';
   const VERSION='4.28.5.2';
   let running=null,watcherStarted=false,retryTimer=0;
+  async function ports(){if(globalThis.LuviaPlatformPorts)return globalThis.LuviaPlatformPorts;try{await globalThis.LuviaPlatformPortsReady}catch{}return globalThis.LuviaPlatformPorts||null}
   async function authenticated(){
     const state=window.ParisAuth?.getState?.();
     if(state?.authenticated&&state?.user?.id)return true;
     const client=window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client;
     try{return Boolean((await client?.auth?.getSession?.())?.data?.session?.user?.id)}catch{return false}
   }
-  const onePosition=()=>new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:30000}));
   async function start(){
-    if(!navigator.geolocation||!window.LuviaPresenceVisitCore)return{ok:false,reason:'unavailable'};
+    const registry=await ports(),devicePositionPort=registry?.get?.('LocationPort'),permissions=registry?.get?.('PermissionPort');
+    if(!devicePositionPort?.isSupported?.()||!window.LuviaPresenceVisitCore)return{ok:false,reason:'unavailable'};
     if(running)return running;
     running=(async()=>{
       if(!(await authenticated()))return{ok:false,reason:'auth'};
       try{
-        const permission=await navigator.permissions?.query?.({name:'geolocation'}).catch(()=>null);
-        if(permission?.state==='denied')return{ok:false,reason:'denied'};
-        const position=await onePosition();
+        const permission=await permissions?.query?.('geolocation');
+        if(permission==='denied')return{ok:false,reason:'denied'};
+        const position=await devicePositionPort.getCurrent({accuracy:'high',timeoutMs:15000,maximumAgeMs:30000});
         await window.LuviaPresenceVisitCore.ingestPosition(position);
         if(!watcherStarted){await window.LuviaPresenceVisitCore.setGlobalEnabled(true);watcherStarted=true}
         const detail=window.LuviaPresenceVisitCore.diagnostics();

@@ -69,6 +69,10 @@ const SUITE = Object.freeze([
     category: 'Places architecture',
     test: 'tests/m6.2-places-runtime-projection-core.test.cjs'
   },
+  {
+    category: 'Places architecture',
+    test: 'tests/m6-final-places-domain-native-readiness.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

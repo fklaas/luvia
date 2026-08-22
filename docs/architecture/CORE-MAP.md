@@ -28,6 +28,8 @@ Owner stream: `feature/platform-core`
 
 Role: canonical Places domain behavior and Place lifecycle infrastructure.
 
+Browserless domain surface and canonical declarative Category Registry: `core/places/places-domain-contract-core.js`
+
 Physical in-memory state owner: `core/places/place-state-core.js`
 
 Web compatibility/orchestration adapter: `core/places/place-core.js`
@@ -40,7 +42,13 @@ Collection actions delegate to the runtime projection and own no second Place/Tr
 
 Public boundary: `core/platform/places-contract-adapter.js`
 
-Long-term direction: declarative Category Registry plus shared category primitives.
+Web Platform Port implementations: `app/adapters/platform-port-adapters.mjs`
+
+Places/Intelligence provider composition: `app/adapters/places-discovery-adapter.js`
+
+Category routing is derived from the browserless Domain Registry. Category UI remains Consumer/Experience-owned and owns no Places truth.
+
+Browser globals, device capabilities, persistence, Deep Links, and external navigation are confined to app/platform adapters. Places domain code consumes public contracts and injected ports.
 
 ### Booking
 

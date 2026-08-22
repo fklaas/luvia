@@ -4,13 +4,14 @@ const VERSION='4.27.4';
 const clean=v=>String(v??'').trim();
 const provider=e=>clean(e?.place?.provider_place_id||e?.place?.source_id||e?.providerPlaceId).replace(/^places\//,'');
 const client=()=>window.LuviaSupabaseService?.getClient?.();
+const online=()=>globalThis.LuviaPlatformPorts?.get?.('NetworkPort')?.isOnline?.()===true;
 const memoryPattern=/(photo|memory|album|reisebuch|travel_book|live_moment)/i;
 const plannedPattern=/(planned|schedule|timeline|place_planned)/i;
 
 async function loadEvidence(tripId){
  const db=client();
  const empty={visits:new Map(),planned:new Map(),memories:new Map()};
- if(!db||!tripId||!navigator.onLine)return empty;
+ if(!db||!tripId||!online())return empty;
  const [visitsResult,dataResult,eventsResult]=await Promise.all([
   db.from('place_visits').select('place_id,arrived_at,state,is_confirmed').eq('trip_id',tripId).order('arrived_at',{ascending:false}),
   db.from('trip_place_data').select('trip_place_id,place_id,place_type,fields').eq('trip_id',tripId),

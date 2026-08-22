@@ -1,6 +1,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8');
+const domainCoreSource=fs.readFileSync(path.join(root,'core/places/places-domain-contract-core.js'),'utf8');
 const stateCoreSource=fs.readFileSync(path.join(root,'core/places/place-state-core.js'),'utf8');
 const coreSource=fs.readFileSync(path.join(root,'core/places/place-core.js'),'utf8');
 
@@ -66,9 +67,17 @@ window.LuviaPlaceCommands={
   async unplan(options){calls.unplan.push(options);return{trip_id:options.tripId,trip_place_id:options.tripPlaceId,fields:{private:'raw-rpc'}}}
 };
 window.LuviaPresenceVisitCore={confirmVisit(){}};
+window.LuviaPlacesDiscoveryService={
+  async listSaved(){return[{place:rawPlace,tripPlace:{id:'tp-saved',trip_id:'t1',status:'favorite',is_favorite:true}}]},
+  async recommend(){return{places:[{...rawPlace,id:'recommend-1',providerPlaceId:'places/google-recommend',rating:4.8}],plan:{ai:{fallback:false}}}}
+};
+window.LuviaPlatformPorts={
+  get(id){return id==='DeepLinkPort'?{open(route){return route}}:null},
+  has(id){return id==='DeepLinkPort'}
+};
 window.LuviaGlobalContracts={register(def){calls.registered.push(def)}};
 
-vm.runInNewContext(source,{window,CustomEvent,console,Date,Number,Object,Array,String,Boolean,TypeError,Error,Set,Map});
+vm.runInNewContext(domainCoreSource+'\n'+source,{window,CustomEvent,console,Date,Number,Object,Array,String,Boolean,TypeError,Error,Set,Map,LuviaPlacesDiscoveryService:window.LuviaPlacesDiscoveryService,LuviaPlatformPorts:window.LuviaPlatformPorts});
 const api=window.LuviaPlacesContractV1;
 assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
@@ -77,8 +86,8 @@ assert.strictEqual(api.version,'1');
 assert.strictEqual(api.runtimeVersion,'1.0.0');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getLifecycle']);
-assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
+assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','openDiscovery']);
 
 const place=api.getPlace('p1');
 assert(Object.isFrozen(place));
@@ -111,9 +120,24 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(details.providerRaw,undefined,'raw provider detail payload must not leak');
   assert(Object.isFrozen(details.types));
 
+  const saved=await api.listSaved({tripId:'t1'});
+  assert.strictEqual(saved.length,1);
+  assert.strictEqual(saved[0].tripPlaceId,'tp-saved');
+  assert.strictEqual(saved[0].isFavorite,true);
+  assert.strictEqual(saved[0].storageSecret,undefined);
+
+  const recommended=await api.recommend({text:'Pasta essen',category:'food'});
+  assert.strictEqual(recommended.count,1);
+  assert.strictEqual(recommended.places[0].providerPlaceId,'google-recommend');
+  assert.strictEqual(recommended.places[0].rating,4.8);
+  assert.strictEqual(api.categories().food.label,'Essen & Trinken');
+  assert.strictEqual(api.routeDiscovery({text:'Hotel in Paris'}).category,'accommodation');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(api.openDiscovery({category:'nature'}))),{screen:'places',params:{category:'nature',query:'Parks Gärten Natur Erholung'}});
+
   const imported=await api.importPlace('google-import',{type:'restaurant'});
   assert.strictEqual(imported.id,'import-1');
   assert.strictEqual(imported.providerPlaceId,'google-import');
+  assert.strictEqual(imported.tripPlaceId,'tp-import');
   assert.strictEqual(imported.private_join,undefined);
   assert.strictEqual(calls.importPlace.length,1);
 
@@ -215,7 +239,7 @@ assert.strictEqual(listed[0].storageSecret,undefined);
 
   const diag=api.diagnostics();
   assert.strictEqual(diag.ready,true);
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(diag.providers)),{core:true,gateway:true,commands:true,visit:true});
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(diag.providers)),{core:true,gateway:true,commands:true,visit:true,discovery:true,domainContractCore:true,deepLinkPort:true});
 
   console.log('M3.2 Places Contract Adapter: OK');
 })().catch(error=>{console.error(error);process.exitCode=1});
