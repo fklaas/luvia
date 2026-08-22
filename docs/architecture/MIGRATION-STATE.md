@@ -723,3 +723,35 @@ Infrastructure:
 
 M6 is **COMPLETE / CLOSED**. M7 starts with a read-only baseline derived from the normative roadmap and current repository evidence.
 <!-- LUVIA:M6:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.1:CLOSEOUT:START -->
+## M7.1 Media Acquisition Native Ports — COMPLETE / CLOSED
+
+Date: 2026-08-22
+
+Runtime App/Core: **13.82.18 / 4.82.18**
+
+Feature commit: `b2792df68a89b45f886c021be7c05404e33d1f4d`
+
+Runtime release commit: `625dc47cb36427a0f28586d28e65eab344bc1ae9`
+
+Measured result:
+
+- Gallery direct `navigator`, browser-storage, embedded file-input, and `new File` bypasses: **0**;
+- Web Media acquisition/device ports: **5/5**, including the existing LocationPort;
+- browser and DOM capability ownership: Web Platform adapter only;
+- Platform adapter Media truth/Supabase ownership: **0**;
+- Media Readiness Contract/Port diagnostics: **PASS**;
+- Safe Regression on Platform, Integration, Main: **43/43 PASS**;
+- Integration Preview: **9/9 exact assets**, **5/5 privacy**, authenticated F5/Gallery, console **0/0**;
+- Production: **9/9 exact assets**, **5/5 privacy**, authenticated F5/Gallery, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview version: `708bc5e4-0ab2-4335-945e-95dadc7f8310`.
+
+Production version at 100%: `97d5674b-db5d-43b0-8eee-ce8700acf6f2`.
+
+Production build/check: `9e5a19ef-ed16-4042-a046-8557a6ef1087` / `97020481096`, **SUCCESS**.
+
+No database, RPC/schema, bucket/RLS, Edge Function, secret, or manual Production deployment/configuration mutation occurred. Timeline/Journey remains separately reserved and unchanged. M7 continues with the measured Media Contract, owner, Realtime/hydration, storage, offline, Memory Experience, and browserless-core debt.
+<!-- LUVIA:M7.1:CLOSEOUT:END -->

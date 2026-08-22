@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M7.1 Media Acquisition Native Ports**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1417,3 +1417,29 @@ No database migration, RPC/schema change, Edge Function change, secret change, o
 
 M6 is **COMPLETE / CLOSED**. M7 begins only with a fresh read-only baseline and scope lock from the normative roadmap and real repository state.
 <!-- LUVIA:M6:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.1:CLOSEOUT:START -->
+## M7.1 — Media Acquisition Native Ports
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.18 / 4.82.18
+
+**Feature Commit:** `b2792df68a89b45f886c021be7c05404e33d1f4d`
+
+**Runtime Release Commit:** `625dc47cb36427a0f28586d28e65eab344bc1ae9`
+
+Gallery media selection, camera capture, capture location, device metadata, sharing, and diagnostic preference storage now cross the formal Platform Port boundary. Browser and DOM capabilities remain in the Web adapter; `core/media` receives no new browser coupling and no second Media truth was created.
+
+Safe Regression is **43/43 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **9/9 exact changed-runtime Git blobs**, **5/5 private-path SPA fallback**, authenticated F5, active-Trip retention, Gallery rendering with 51 existing photos, both native acquisition actions, and **0/0 browser-console warnings/errors**.
+
+Integration Preview Cloudflare version: `708bc5e4-0ab2-4335-945e-95dadc7f8310`.
+
+Production Cloudflare version at 100% traffic: `97d5674b-db5d-43b0-8eee-ce8700acf6f2`.
+
+Production GitHub/Cloudflare build `9e5a19ef-ed16-4042-a046-8557a6ef1087`, check `97020481096`: **SUCCESS**.
+
+No database migration, schema/RPC/bucket/RLS change, Edge Function change, secret change, or manual Production deployment/configuration change occurred. M7 remains in progress; Media Contract adoption, Realtime/hydration ownership, storage/background upload, offline queue, Memory Experience adoption, and browserless Media Core readiness remain explicit later M7 work.
+<!-- LUVIA:M7.1:CLOSEOUT:END -->
