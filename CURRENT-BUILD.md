@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.18**
-- Core: **4.82.18**
-- Name: **M7.1 Media Acquisition Native Ports**
+- App: **13.82.19**
+- Core: **4.82.19**
+- Name: **M7.2 Gallery Media Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1 COMPLETE / CLOSED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1 COMPLETE / CLOSED; M7.2 RELEASE CANDIDATE**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
