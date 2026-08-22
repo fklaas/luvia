@@ -32,6 +32,12 @@ Physical in-memory state owner: `core/places/place-state-core.js`
 
 Web compatibility/orchestration adapter: `core/places/place-core.js`
 
+Trip-scoped Place/TripPlace runtime projection owner: `core/places/place-runtime-projection-core.js`
+
+Web runtime/event adapter: `core/places/place-runtime-store.js`
+
+Collection actions delegate to the runtime projection and own no second Place/TripPlace record map.
+
 Public boundary: `core/platform/places-contract-adapter.js`
 
 Long-term direction: declarative Category Registry plus shared category primitives.
