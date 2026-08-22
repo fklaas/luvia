@@ -15,6 +15,9 @@ const load = relative =>
 const count = (source, token) =>
   source.split(token).length - 1;
 
+const stateCore =
+  load('core/trips/trip-state-core.js');
+
 const store =
   load('core/trips/trip-store.js');
 
@@ -41,24 +44,36 @@ assert(
   'Trip Store owner must publish the early read-only state reader'
 );
 
-const readerLine =
-  store
-    .split(/\r?\n/)
-    .find(
-      line =>
-        line.includes(
-          'LuviaTripStateReaderV1=Object.freeze'
-        )
-    ) || '';
+const readerStart =
+  store.indexOf(
+    'web.LuviaTripStateReaderV1=Object.freeze({'
+  );
 
 assert(
-  readerLine,
+  readerStart >= 0,
   'Trip State Reader declaration missing'
 );
 
+const readerEnd =
+  store.indexOf(
+    '});',
+    readerStart
+  );
+
 assert(
-  readerLine.includes('snapshot') &&
-  readerLine.includes('subscribe'),
+  readerEnd > readerStart,
+  'Trip State Reader declaration end missing'
+);
+
+const readerBlock =
+  store.slice(
+    readerStart,
+    readerEnd + 3
+  );
+
+assert(
+  readerBlock.includes('snapshot') &&
+  readerBlock.includes('subscribe'),
   'Trip State Reader must expose snapshot and subscribe'
 );
 
@@ -69,7 +84,7 @@ for (const forbidden of [
   'loadRemote'
 ]) {
   assert(
-    !readerLine.includes(forbidden),
+    !readerBlock.includes(forbidden),
     'Trip State Reader must remain read-only: ' +
     forbidden
   );

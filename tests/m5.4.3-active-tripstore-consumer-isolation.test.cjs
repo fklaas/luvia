@@ -30,6 +30,9 @@ const experience =
 const timeline =
   load('core/places/timeline-core.js');
 
+const stateCore =
+  load('core/trips/trip-state-core.js');
+
 const store =
   load('core/trips/trip-store.js');
 
