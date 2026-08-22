@@ -632,3 +632,47 @@ M6.1 is **COMPLETE / PRODUCTION VERIFIED**. M6 remains **IN PROGRESS**.
 
 Next controlled work begins with a read-only proof of runtime/collection projection ownership before another Places state mutation. Location/Permission port adoption remains a separate slice.
 <!-- LUVIA:M6.1:CLOSEOUT:END -->
+
+<!-- LUVIA:M6.2:CLOSEOUT:START -->
+## M6.2 Places Runtime Projection Core — COMPLETE / PRODUCTION VERIFIED
+
+Feature Commit: `ecd94eac7f5c97b68be74c13097aad1a9086164b`
+
+Runtime Release Commit: `d1c45cbb0fe357a061dffc8f52bef29e9593c612`
+
+App/Core: **13.82.16 / 4.82.16**
+
+Migration outcome:
+
+- the trip/type-scoped Place/TripPlace runtime projection is physically owned by browserless `core/places/place-runtime-projection-core.js`;
+- the Web runtime adapter contains zero projection maps;
+- the Collection service contains zero Place/TripPlace record maps and delegates to the single runtime projection;
+- the Collection `pending` map remains command concurrency state, not Domain Truth;
+- cloud services remain authoritative for persisted Place, TripPlace, lifecycle, favorite, and TripPlace-data rows;
+- Timeline/Journey remains separately classified and unchanged;
+- public `places.v1` remains unchanged and its later alignment is not pre-claimed.
+
+Validation:
+
+- focused M6.2 guardrail: **PASS**;
+- Platform, Integration, and Main Safe Regression: **41/41 PASS**;
+- Integration Preview: **10/10 exact assets**, **5/5 privacy**, authenticated F5/UI, ten categories, console **0/0**;
+- Production: **10/10 exact assets**, **5/5 privacy**, authenticated F5/UI, ten categories, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview Cloudflare version: `a7294e57-baf5-42b7-80d9-efeb6aabda38`.
+
+Production Cloudflare version at 100% traffic: `98b38643-2d9e-46cc-a032-1fddeae77788`.
+
+Both associated GitHub checks remained stuck at `in_progress` without conclusions or errors. This check-reporting fault is preserved explicitly; successful version/deployment state plus exact bytes and authenticated acceptance supply the independent environment proof.
+
+Infrastructure:
+
+- DB migration: **NONE**;
+- RPC/schema change: **NONE**;
+- Edge Function change: **NONE**;
+- Secret change: **NONE**;
+- manual Cloudflare configuration change: **NONE**.
+
+M6 remains **IN PROGRESS**. Remaining exit work is locked only after a fresh read-only contract/routing/Platform Port/Intelligence/offline/browserless gap audit.
+<!-- LUVIA:M6.2:CLOSEOUT:END -->

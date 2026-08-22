@@ -1365,3 +1365,27 @@ No database migration, RPC/schema change, Edge Function change, secret change, o
 
 M6 remains IN PROGRESS. The next controlled scope is a read-only ownership audit of Places runtime/collection projections before any further state consolidation; Location/Permission extraction remains separate.
 <!-- LUVIA:M6.1:CLOSEOUT:END -->
+
+<!-- LUVIA:M6.2:CLOSEOUT:START -->
+## M6.2 — Places Runtime Projection Core
+
+**Status:** COMPLETE / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.16 / 4.82.16
+
+**Feature Commit:** `ecd94eac7f5c97b68be74c13097aad1a9086164b`
+
+**Runtime Release Commit:** `d1c45cbb0fe357a061dffc8f52bef29e9593c612`
+
+The trip/type-scoped Places runtime projection now lives in browserless `core/places/place-runtime-projection-core.js`. The Web runtime store owns no projection maps, and the Collection service's duplicate Place/TripPlace record map is removed. Public Web compatibility behavior, cloud-authoritative lifecycle/favorite writes, and Timeline/Journey separation remain intact.
+
+Safe Regression is **41/41 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **10/10 exact changed-runtime assets**, **5/5 private-path SPA fallback**, authenticated F5, Places routing, all ten category labels, and **0/0 console warnings/errors**.
+
+The Integration and Production GitHub checks remained stuck at `in_progress` without conclusion or error. Direct Cloudflare evidence proves Preview version `a7294e57-baf5-42b7-80d9-efeb6aabda38` and Production deployment version `98b38643-2d9e-46cc-a032-1fddeae77788`; exact bytes and authenticated runtime acceptance independently close the environment gates. No successful GitHub-check conclusion is claimed.
+
+No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change occurred.
+
+M6 remains **IN PROGRESS** pending the measured contract/routing/ports/Intelligence/offline/browserless exit scope.
+<!-- LUVIA:M6.2:CLOSEOUT:END -->

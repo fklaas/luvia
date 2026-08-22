@@ -1,6 +1,6 @@
 # PCR M6.2 — Places Runtime Projection Core
 
-Status: feature implementation complete; local validation **41 / 41 PASS**; release/promotion pending.
+Status: **COMPLETE / PRODUCTION VERIFIED**; local, Preview, Main, and Production gates measured.
 
 Baseline / source-lock marker: `31314e5a6d9d2325d6e2fe2279f488f49be8f5f4`
 
@@ -97,6 +97,30 @@ Measured feature evidence:
 - static, mapped, unmapped, and dynamic DB debt counts: unchanged from the accepted baseline.
 
 The non-allowlisted `nature-place-integration.test.cjs` remains a historical literal-shape artifact: it expects an obsolete `nature:{type:'nature'` shell string and fails identically on the clean source-lock marker. M6.2 does not alter Nature routing and does not rewrite that historical assertion into a passing claim.
+
+## Runtime release and acceptance
+
+- feature commit: `ecd94eac7f5c97b68be74c13097aad1a9086164b`;
+- runtime release commit: `d1c45cbb0fe357a061dffc8f52bef29e9593c612`;
+- App / Core: **13.82.16 / 4.82.16**;
+- Platform, Integration, and Main controlled Safe Regression: **41 / 41 PASS** each;
+- Main promotion: **FF-only PASS**;
+- Integration Preview changed-runtime provenance: **10 / 10 EXACT**;
+- Integration static privacy: **5 / 5 SPA-FALLBACK PASS**;
+- Integration authenticated F5, Places routing, and ten-category UI: **PASS**;
+- Integration console warnings / errors: **0 / 0**;
+- Production changed-runtime provenance: **10 / 10 EXACT**;
+- Production static privacy: **5 / 5 SPA-FALLBACK PASS**;
+- Production authenticated F5, Places routing, and ten-category UI: **PASS**;
+- Production console warnings / errors: **0 / 0**.
+
+Cloudflare created Integration Preview version `a7294e57-baf5-42b7-80d9-efeb6aabda38` with alias `integration`, `has_preview=true`, and `workers/triggered_by=version_upload`. The corresponding GitHub check `97012982228` / Build ID `8850bdcd-0330-40d8-ba90-41b397dffbe6` remained stuck at `in_progress` without conclusion, error text, or annotations. Preview version creation plus exact bytes and authenticated runtime acceptance independently prove the build result; the stuck check is retained as a reporting-channel fault and is not rewritten as a successful check conclusion.
+
+Cloudflare created and deployed Production version `98b38643-2d9e-46cc-a032-1fddeae77788` at 100% traffic. The corresponding GitHub check `97015247495` / Build ID `4e368c02-115d-4fd2-86e8-73b2131e206f` likewise remained stuck at `in_progress` without a conclusion. Production deployment listing, exact Git-blob provenance, release UI, authenticated F5, Places UI, and console evidence establish Production independently.
+
+No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change occurred.
+
+M6 remains **IN PROGRESS**. M6.2 removes the measured duplicate runtime/Collection projection state, but it does not pre-claim the remaining M6 contract, routing, Platform Port, Intelligence, offline, or browserless exit work.
 
 ## Rollback
 
