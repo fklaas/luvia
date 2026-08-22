@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M7.2 Gallery Media Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1 COMPLETE / CLOSED; M7.2 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1-M7.2 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1443,3 +1443,29 @@ Production GitHub/Cloudflare build `9e5a19ef-ed16-4042-a046-8557a6ef1087`, check
 
 No database migration, schema/RPC/bucket/RLS change, Edge Function change, secret change, or manual Production deployment/configuration change occurred. M7 remains in progress; Media Contract adoption, Realtime/hydration ownership, storage/background upload, offline queue, Memory Experience adoption, and browserless Media Core readiness remain explicit later M7 work.
 <!-- LUVIA:M7.1:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.2:CLOSEOUT:START -->
+## M7.2 — Gallery Media Contract Adoption
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.19 / 4.82.19
+
+**Feature Commit:** `eaf505fdc715825a862c0d1dd733feb1330367a2`
+
+**Runtime Release Commit:** `54eb8d16cf94a92cc8b77e1442dfe88bb44f4144`
+
+All 19 direct Gallery references to the private Media Core are removed. Gallery now consumes the additive `media.v1` 1.1.0 surface for projected reads, signed assets, Polaroids, commands, rendered previews, Gallery clearing, and normalized Media Realtime subscription. The adapter exposes sanitized Media semantics without storage paths, bucket names, content hashes, raw metadata, user IDs, or database rows.
+
+Safe Regression is **44/44 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **10/10 exact changed-runtime Git blobs**, **5/5 private-path SPA fallback**, authenticated F5, active-Trip retention, 51 Gallery photos, 10 photo moments, Realtime-active status, native acquisition actions, and **0/0 browser-console warnings/errors**.
+
+Integration Preview version: `5c94df43-a9c9-4ea8-9687-44243348ea5c`.
+
+Production version at 100% traffic: `bd7b5df9-667d-4a8e-93a5-d00f4583d5f0`.
+
+Production build/check: `aaa26d29-24cf-4ad1-abd8-3abdee9b9153` / `97022054088`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, or manual Cloudflare deployment/configuration mutation occurred. Clustering, AI Memory, Albums/Cards/Journeys, Timeline/Journey, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
+<!-- LUVIA:M7.2:CLOSEOUT:END -->

@@ -755,3 +755,36 @@ Production build/check: `9e5a19ef-ed16-4042-a046-8557a6ef1087` / `97020481096`, 
 
 No database, RPC/schema, bucket/RLS, Edge Function, secret, or manual Production deployment/configuration mutation occurred. Timeline/Journey remains separately reserved and unchanged. M7 continues with the measured Media Contract, owner, Realtime/hydration, storage, offline, Memory Experience, and browserless-core debt.
 <!-- LUVIA:M7.1:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.2:CLOSEOUT:START -->
+## M7.2 Gallery Media Contract Adoption — COMPLETE / CLOSED
+
+Date: 2026-08-22
+
+Runtime App/Core: **13.82.19 / 4.82.19**
+
+Feature commit: `eaf505fdc715825a862c0d1dd733feb1330367a2`
+
+Runtime release commit: `54eb8d16cf94a92cc8b77e1442dfe88bb44f4144`
+
+Measured result:
+
+- Gallery direct private Media Core refs: **19 -> 0**;
+- `media.v1` runtime surface: **1.1.0**, Contract major remains v1;
+- raw Media metadata/storage/DB projection leakage: **0**;
+- signed assets, Polaroids, Media commands, rendered previews, Gallery clear, and Media Realtime: public Contract path;
+- Media Core persistence and Realtime channel ownership: unchanged;
+- Clustering 8, AI Memory 3, Timeline/Journey 1 direct references: retained as separately classified later scopes;
+- Safe Regression on Platform, Integration, Main: **44/44 PASS**;
+- Integration Preview: **10/10 exact assets**, **5/5 privacy**, authenticated F5/Gallery, console **0/0**;
+- Production: **10/10 exact assets**, **5/5 privacy**, authenticated F5/Gallery, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview version: `5c94df43-a9c9-4ea8-9687-44243348ea5c`.
+
+Production version at 100%: `bd7b5df9-667d-4a8e-93a5-d00f4583d5f0`.
+
+Production build/check: `aaa26d29-24cf-4ad1-abd8-3abdee9b9153` / `97022054088`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
+<!-- LUVIA:M7.2:CLOSEOUT:END -->
