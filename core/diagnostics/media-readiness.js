@@ -17,10 +17,20 @@
     catch(error){return{ok:false,durationMs:elapsed(started),error:error?.message||String(error),items:0}}
   }
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+  const platformPort=id=>globalThis.LuviaPlatformPorts?.get?.(id)||null;
 async function run(options={}){
     const started=performance.now(), warnings=[], failedChecks=[];
     const checks={
       centralMediaContract:Boolean(window.LuviaMediaContractV1),
+      mediaContractReads:Boolean(window.LuviaMediaContractV1?.reads?.listMedia&&window.LuviaMediaContractV1?.reads?.getMedia),
+      mediaContractCommands:Boolean(window.LuviaMediaContractV1?.commands?.media?.upload),
+      mediaPickerPort:Boolean(platformPort('MediaPickerPort')),
+      mediaCapturePort:Boolean(platformPort('MediaCapturePort')),
+      locationPort:Boolean(platformPort('LocationPort')),
+      devicePort:Boolean(platformPort('DevicePort')),
+      sharingPort:Boolean(platformPort('SharingPort')),
+      networkPort:Boolean(platformPort('NetworkPort')),
+      offlineCachePort:Boolean(platformPort('OfflineCachePort')),
       canonicalMediaCore:Boolean(window.LuviaMediaCore),
       mediaMetadata:Boolean(window.LuviaMediaMetadata),
       legacyGallerySync:Boolean(window.ParisSync?.gallery||window.ParisSync?.get?.('gallery')),
@@ -32,7 +42,7 @@ async function run(options={}){
     };
     const client=window.ParisCloud?.client||window.LuviaSupabase?.client?.()||window.LuviaSupabase?.getClient?.()||null;
     const tripId=options.tripId||tripContract()?.getActiveTrip?.()?.tripId||tripContract()?.getActiveTrip?.()?.id||tripContract()?.getContext?.()?.tripId||null;
-    const dependencies={client:Boolean(client),tripId:Boolean(tripId)};
+    const dependencies={client:Boolean(client),tripId:Boolean(tripId),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)};
     if(client){
       checks.mediaTable=await probeTable(client,'media','id,trip_id,user_id,participant_id,storage_bucket,storage_path,captured_at,day_key,content_hash,place_id,status,metadata');
       checks.galleryPhotosTable=await probeTable(client,'gallery_photos','id,trip_id,created_by,storage_path,taken_at');
@@ -48,6 +58,6 @@ async function run(options={}){
     warnings.push('live_moment_status.linked_photo_id bleibt für Altbestände lesbar; neue n:m-Verknüpfungen nutzen live_moment_media.');
     return {service:'media-readiness',version:VERSION,build:BUILD,status:failedChecks.length?'degraded':'active',ok:failedChecks.length===0,checkedAt:now(),durationMs:elapsed(started),dependencies,checks,failedChecks,warnings,gate:'SMART PHOTO FOUNDATION'};
   }
-  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaTimelineCore),serviceRegistry:Boolean(window.LuviaServiceRegistry)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'SMART PHOTO FOUNDATION'};}
+  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaTimelineCore),serviceRegistry:Boolean(window.LuviaServiceRegistry),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true,mediaPickerPort:Boolean(platformPort('MediaPickerPort')),mediaCapturePort:Boolean(platformPort('MediaCapturePort')),locationPort:Boolean(platformPort('LocationPort')),devicePort:Boolean(platformPort('DevicePort')),sharingPort:Boolean(platformPort('SharingPort'))},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'M7 MEDIA NATIVE PORT FOUNDATION'};}
   window.LuviaMediaReadiness=Object.freeze({version:VERSION,build:BUILD,run,diagnostics});
 })();

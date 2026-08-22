@@ -77,10 +77,72 @@ const offlineCachePort=Object.freeze({
   }
 });
 
+function chooseMedia({accept='image/*',multiple=true,capture=null}={}){
+  if(!root.document?.createElement)return Promise.reject(new Error('Media-Auswahl wird von dieser Plattform nicht unterstützt.'));
+  return new Promise((resolve,reject)=>{
+    const input=root.document.createElement('input');
+    let settled=false;
+    const finish=files=>{
+      if(settled)return;
+      settled=true;
+      root.removeEventListener?.('focus',onFocus);
+      input.remove();
+      resolve(Object.freeze([...(files||[])]));
+    };
+    const onFocus=()=>root.setTimeout?.(()=>{if(!settled&&!input.files?.length)finish([])},0);
+    input.type='file';
+    input.accept=accept;
+    input.multiple=Boolean(multiple);
+    if(capture)input.setAttribute('capture',capture);
+    input.hidden=true;
+    input.addEventListener('change',()=>finish(input.files),{once:true});
+    input.addEventListener('cancel',()=>finish([]),{once:true});
+    root.addEventListener?.('focus',onFocus,{once:true});
+    root.document.body?.appendChild(input);
+    try{if(typeof input.showPicker==='function')input.showPicker();else input.click()}catch(error){
+      settled=true;
+      root.removeEventListener?.('focus',onFocus);
+      input.remove();
+      reject(error);
+    }
+  });
+}
+const mediaPickerPort=Object.freeze({
+  isSupported:()=>Boolean(root.document?.createElement),
+  pickImages:options=>chooseMedia({accept:'image/*,.jpg,.jpeg,.png,.webp,.heic,.heif,.avif',multiple:true,...options})
+});
+const mediaCapturePort=Object.freeze({
+  isSupported:()=>Boolean(root.document?.createElement),
+  async captureImage(options={}){const files=await chooseMedia({accept:'image/*',multiple:false,capture:options.facingMode==='user'?'user':'environment'});return files[0]||null}
+});
+const devicePort=Object.freeze({
+  info:()=>Object.freeze({
+    userAgent:String(root.navigator?.userAgent||''),
+    platform:String(root.navigator?.userAgentData?.platform||root.navigator?.platform||''),
+    language:String(root.navigator?.language||''),
+    mobile:Boolean(root.navigator?.userAgentData?.mobile)
+  })
+});
+const sharingPort=Object.freeze({
+  isSupported:()=>typeof root.navigator?.share==='function',
+  async shareFiles({title='',text='',files=[]}={}){
+    if(typeof root.navigator?.share!=='function'||typeof root.File!=='function')return false;
+    const nativeFiles=files.map((entry,index)=>entry instanceof root.File?entry:new root.File([entry.blob],entry.name||`media-${index+1}`,{type:entry.type||entry.blob?.type||'application/octet-stream'}));
+    const payload={title,text,files:nativeFiles};
+    if(root.navigator.canShare&&!root.navigator.canShare(payload))return false;
+    await root.navigator.share(payload);
+    return true;
+  }
+});
+
 const registry=createPlatformPortRegistry({
   LocationPort:locationPort,
   PermissionPort:permissionPort,
   NetworkPort:networkPort,
+  MediaPickerPort:mediaPickerPort,
+  MediaCapturePort:mediaCapturePort,
+  DevicePort:devicePort,
+  SharingPort:sharingPort,
   DeepLinkPort:deepLinkPort,
   ExternalNavigationPort:externalNavigationPort,
   OfflineCachePort:offlineCachePort

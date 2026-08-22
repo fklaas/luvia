@@ -2414,3 +2414,4 @@ core/places/places-domain-contract-core.js,Places,Domain,Runtime-neutral Places 
 app/adapters/platform-port-adapters.mjs,Platform/App Shell,Adapter/Web,Web implementations for formal Platform Ports
 app/adapters/places-discovery-adapter.js,Intelligence,Adapter/Web,Places discovery orchestration over public owner boundary; no Places truth
 tests/m6-final-places-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M6 exit guard for browserless Places contracts routing ports and Trip boundary
+tests/m7.1-media-acquisition-native-ports.test.cjs,Shared Tests,Test/Guardrail,M7.1 guard for Media acquisition ports and Gallery browser boundary

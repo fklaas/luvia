@@ -4,7 +4,8 @@
   const VERSION = '4.29.4';
   const BUILD = '13.29.4';
   const DIAGNOSTICS_LABEL = '[LuviaGalleryDiagnostics]';
-  let diagnosticsEnabled = /(?:^|[?&])galleryDebug=1(?:&|$)/.test(location.search) || localStorage.getItem('luvia.gallery.debug') === '1';
+  const platformPort=id=>globalThis.LuviaPlatformPorts?.get?.(id)||null;
+  let diagnosticsEnabled = /(?:^|[?&])galleryDebug=1(?:&|$)/.test(location.search);
   const diagnosticsState = {
     mountedAt: null, mountCount: 0, loadCount: 0, readDataCount: 0, renderAllCount: 0,
     renderFavoritesCount: 0, renderClustersCount: 0, renderDaysCount: 0,
@@ -95,8 +96,7 @@
     return `<section class="lv-gallery-view">
       <header class="lv-gallery-hero">
         <div><span>📸 Realtime Galerie</span><h1>Eure gemeinsamen Reisefotos</h1><p>Momente, Reisetage, Favoriten und kreative Bearbeitung – ohne sichtbares Neuladen.</p></div>
-        <div class="lv-gallery-upload-actions"><button type="button" data-gallery-download>Galerie herunterladen</button><button type="button" class="lv-gallery-danger" data-gallery-clear>Galerie leeren</button><button type="button" class="lv-gallery-upload" data-gallery-add>Fotos hinzufügen</button></div>
-        <input class="lv-gallery-file-input" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.heic,.heif,.avif" multiple data-gallery-input>
+        <div class="lv-gallery-upload-actions"><button type="button" data-gallery-download>Galerie herunterladen</button><button type="button" class="lv-gallery-danger" data-gallery-clear>Galerie leeren</button><button type="button" class="lv-gallery-upload" data-gallery-add>Fotos auswählen</button><button type="button" class="lv-gallery-upload" data-gallery-capture>Foto aufnehmen</button></div>
       </header>
       <div class="lv-gallery-status" data-gallery-status>Galerie wird geladen …</div>
       <section class="lv-gallery-section"><div class="lv-gallery-section-head"><div><span>⭐ Auswahl</span><h2>Favoriten</h2></div><strong data-favorite-count>0</strong></div><div class="lv-favorites" data-gallery-favorites></div></section>
@@ -125,7 +125,7 @@
   async function ensureMedia(id){return items.find(x=>String(x.id)===String(id))||await window.LuviaMediaCore.get(id)}
   async function downloadPhotoAsset(idOrItem){const item=typeof idOrItem==='string'?await ensureMedia(idOrItem):idOrItem,url=await urlFor(item);if(!url)throw new Error('Foto konnte nicht geladen werden.');const r=await fetch(url);if(!r.ok)throw new Error('Foto konnte nicht heruntergeladen werden.');triggerDownload(await r.blob(),downloadFileName(item,1,url));return true}
   async function downloadCollection(ids,label='Luvia-Galerie'){const files=[];for(let i=0;i<ids.length;i++){const item=await ensureMedia(typeof ids[i]==='string'?ids[i]:ids[i].id),url=item?await urlFor(item):'';if(!url)continue;const r=await fetch(url);if(!r.ok)continue;files.push({name:downloadFileName(item,files.length+1,url),bytes:new Uint8Array(await r.arrayBuffer())})}if(!files.length)throw new Error('Keine Bilder konnten geladen werden.');triggerDownload(zipBlob(files),`${safeFileName(label,'Luvia-Galerie')}.zip`);return true}
-  async function shareCollection(ids,label='Luvia-Album'){const files=[];for(let i=0;i<ids.length;i++){const item=await ensureMedia(ids[i]),url=item?await urlFor(item):'';if(!url)continue;const r=await fetch(url);if(!r.ok)continue;const blob=await r.blob();files.push(new File([blob],downloadFileName(item,files.length+1,url),{type:blob.type||'image/jpeg'}))}if(files.length&&navigator.canShare?.({files})&&navigator.share){await navigator.share({title:label,text:`${label} · ${files.length} Fotos`,files});return true}await downloadCollection(ids,label);return false}
+  async function shareCollection(ids,label='Luvia-Album'){const files=[];for(let i=0;i<ids.length;i++){const item=await ensureMedia(ids[i]),url=item?await urlFor(item):'';if(!url)continue;const r=await fetch(url);if(!r.ok)continue;const blob=await r.blob();files.push({blob,name:downloadFileName(item,files.length+1,url),type:blob.type||'image/jpeg'})}if(files.length&&await platformPort('SharingPort')?.shareFiles?.({title:label,text:`${label} · ${files.length} Fotos`,files}))return true;await downloadCollection(ids,label);return false}
   function status(text, type='') {
     const node = host?.querySelector('[data-gallery-status]');
     if (!node) return;
@@ -495,9 +495,9 @@
   }
 
   async function currentLocation() {
-    if(!navigator.geolocation)return null;
-    if(window.LuviaTravelContext?.requestLocation){try{return await window.LuviaTravelContext.requestLocation()}catch{}}
-    return new Promise(resolve=>navigator.geolocation.getCurrentPosition(position=>resolve({latitude:position.coords.latitude,longitude:position.coords.longitude,accuracy:position.coords.accuracy,capturedAt:new Date().toISOString()}),()=>resolve(null),{enableHighAccuracy:true,timeout:8000,maximumAge:30000}));
+    const port=platformPort('LocationPort');
+    if(!port?.isSupported?.())return null;
+    try{return await port.getCurrent({accuracy:'high',timeoutMs:8000,maximumAgeMs:30000})}catch{return null}
   }
   async function upload(files,{camera=false}={}) {
     const list=[...files]; if(!list.length)return;
@@ -507,7 +507,7 @@
     status(`${list.length} Foto${list.length===1?'':'s'} werden hochgeladen …`);
     for(let i=0;i<list.length;i++){
       status(`Upload ${i+1}/${list.length}: ${list[i].name||'Foto'}`);
-      await window.LuviaMediaCore.upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?{userAgent:navigator.userAgent,platform:navigator.platform,language:navigator.language}:null});
+      await window.LuviaMediaCore.upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?platformPort('DevicePort')?.info?.()||null:null});
     }
     await load({silent:false,analyze:true,force:true});
     suppressRealtimeUntil=Date.now()+5000;
@@ -550,11 +550,11 @@
     if (host) await unmount();
     diagnosticsState.mountCount++;diagnosticsState.mountedAt=new Date().toISOString();diag('mount',{mountCount:diagnosticsState.mountCount});
     host=target; host.dataset.luviaGalleryMounted='1'; host.innerHTML=shell();
-    const input=host.querySelector('[data-gallery-input]');
+    diagnosticsEnabled=diagnosticsEnabled||platformPort('OfflineCachePort')?.read('gallery.debug',false)===true;
     host.querySelector('[data-gallery-download]').onclick=async()=>{try{await downloadCollection(items.map(x=>x.id),galleryDownloadLabel())}catch(error){showError(error)}};
     host.querySelector('[data-gallery-clear]').onclick=()=>clearGallery();
-    host.querySelector('[data-gallery-add]').onclick=()=>{try{input.showPicker?input.showPicker():input.click()}catch{input.click()}};
-    input.onchange=async()=>{const files=[...input.files];input.value='';try{await upload(files)}catch(error){showError(error)}};
+    host.querySelector('[data-gallery-add]').onclick=async()=>{try{const files=await platformPort('MediaPickerPort')?.pickImages?.()||[];await upload(files)}catch(error){showError(error)}};
+    host.querySelector('[data-gallery-capture]').onclick=async()=>{try{const file=await platformPort('MediaCapturePort')?.captureImage?.({facingMode:'environment'});if(file)await upload([file],{camera:true})}catch(error){showError(error)}};
         unsubMedia=await window.LuviaMediaCore.subscribe(mediaRealtime);
     unsubClusters=await window.LuviaMediaClustering.subscribe(clusterRealtime);
     const refresh=()=>scheduleLoad('Media-Ansicht aktualisiert',{immediate:true,force:true,analyze:false});window.addEventListener('luvia:media-composite-updated',refresh);window.addEventListener('luvia:media-view-refresh',refresh);window.addEventListener('luvia:media-deleted',refresh);host.__luviaMediaRefresh=refresh;await load({silent:false,analyze:true,force:true});
@@ -562,6 +562,6 @@
   }
   async function unmount(){if(host?.__luviaMediaRefresh){window.removeEventListener('luvia:media-composite-updated',host.__luviaMediaRefresh);window.removeEventListener('luvia:media-view-refresh',host.__luviaMediaRefresh);window.removeEventListener('luvia:media-deleted',host.__luviaMediaRefresh)}clearTimeout(loadTimer);await unsubMedia?.();await unsubClusters?.();unsubMedia=unsubClusters=null;urlCache.clear();urlFailureCache.clear();if(host){delete host.dataset.luviaGalleryMounted;host.innerHTML=''}host=null;activeDay=null;lastFingerprint='';lastClusterInputFingerprint='';lastMediaRealtimeAt=0}
 
-  window.LuviaGalleryDiagnostics=Object.freeze({version:VERSION,build:BUILD,snapshot:()=>JSON.parse(JSON.stringify({...diagnosticsState,enabled:diagnosticsEnabled})),reset:()=>{for(const key of Object.keys(diagnosticsState)){if(typeof diagnosticsState[key]==='number')diagnosticsState[key]=0;else if(key==='reasons')diagnosticsState[key]={}}diag('reset')},enable:()=>{diagnosticsEnabled=true;localStorage.setItem('luvia.gallery.debug','1');console.info(DIAGNOSTICS_LABEL,'enabled')},disable:()=>{diagnosticsEnabled=false;localStorage.removeItem('luvia.gallery.debug')},isEnabled:()=>diagnosticsEnabled});
+  window.LuviaGalleryDiagnostics=Object.freeze({version:VERSION,build:BUILD,snapshot:()=>JSON.parse(JSON.stringify({...diagnosticsState,enabled:diagnosticsEnabled,nativePorts:{picker:Boolean(platformPort('MediaPickerPort')),capture:Boolean(platformPort('MediaCapturePort')),location:Boolean(platformPort('LocationPort')),device:Boolean(platformPort('DevicePort')),sharing:Boolean(platformPort('SharingPort'))}})),reset:()=>{for(const key of Object.keys(diagnosticsState)){if(typeof diagnosticsState[key]==='number')diagnosticsState[key]=0;else if(key==='reasons')diagnosticsState[key]={}}diag('reset')},enable:()=>{diagnosticsEnabled=true;platformPort('OfflineCachePort')?.write('gallery.debug',true);console.info(DIAGNOSTICS_LABEL,'enabled')},disable:()=>{diagnosticsEnabled=false;platformPort('OfflineCachePort')?.remove('gallery.debug')},isEnabled:()=>diagnosticsEnabled});
   window.LuviaGalleryView=Object.freeze({version:VERSION,build:BUILD,mount,unmount,refresh:options=>load({silent:false,force:true,...options}),openPhoto:openLightbox,openEditor,renderVisual:(item,attrs='')=>photoVisual(item,attrs),hydrateVisuals:(root,list)=>hydrateImages(root,list),locationName,downloadPhoto:downloadPhotoAsset,downloadCollection,shareCollection,diagnostics:()=>window.LuviaGalleryDiagnostics.snapshot()});
 })();
