@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.16**
-- Core: **4.82.16**
-- Name: **M6.2 Places Runtime Projection Core**
+- App: **13.82.17**
+- Core: **4.82.17**
+- Name: **M6 Final Places Core Isolation**
 - Channel: **production**
 - Datum: **2026-08-22**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 IN PROGRESS**
