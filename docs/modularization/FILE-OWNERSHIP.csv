@@ -1757,6 +1757,7 @@ core/places/place-collection-service.js,Places,Domain,Place lifecycle/planning/t
 core/places/place-command-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/place-conformance-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/place-core.js,Places,Domain,Place lifecycle/planning/timeline/place data
+core/places/place-state-core.js,Places,Domain,Runtime-neutral in-memory Place record state
 core/places/place-detail-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/place-domain.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/place-experience-shell.js,Places,Domain,Place lifecycle/planning/timeline/place data

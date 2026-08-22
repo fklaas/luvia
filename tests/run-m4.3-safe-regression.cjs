@@ -61,6 +61,10 @@ const SUITE = Object.freeze([
     category: 'Places architecture',
     test: 'tests/m4.3-places-architecture-evergreen.test.cjs'
   },
+  {
+    category: 'Places architecture',
+    test: 'tests/m6.1-places-state-core-foundation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

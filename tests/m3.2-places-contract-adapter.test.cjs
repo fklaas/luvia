@@ -1,6 +1,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8');
+const stateCoreSource=fs.readFileSync(path.join(root,'core/places/place-state-core.js'),'utf8');
 const coreSource=fs.readFileSync(path.join(root,'core/places/place-core.js'),'utf8');
 
 for(const forbidden of ['LuviaBackend','Supabase','TripPlaceData','trip_places','trip_place_data','localStorage','sessionStorage','ParisCloud','ParisSupabase','LuviaPlaceEntities']){
@@ -20,7 +21,7 @@ assert(coreSource.includes('getPlaces,registerPlace,updatePlace,updateLifecycle,
     getTypes(){return[]},
     diagnostics(){return{}}
   };
-  vm.runInNewContext(coreSource,{window:localWindow,console,Date,Object,Array,String,Boolean,Number,Error,Map,Set});
+  vm.runInNewContext(stateCoreSource+'\n'+coreSource,{window:localWindow,console,Date,Object,Array,String,Boolean,Number,Error,Map,Set});
   const localCore=localWindow.LuviaPlaceCore;
   assert(localCore,'PlaceCore must install');
   localCore.registerPlace({id:'local-1',name:'Local',primaryType:'custom',roles:[],capabilities:[],lifecycle:'discovered'},{normalized:true});

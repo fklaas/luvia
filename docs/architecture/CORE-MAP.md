@@ -28,6 +28,10 @@ Owner stream: `feature/platform-core`
 
 Role: canonical Places domain behavior and Place lifecycle infrastructure.
 
+Physical in-memory state owner: `core/places/place-state-core.js`
+
+Web compatibility/orchestration adapter: `core/places/place-core.js`
+
 Public boundary: `core/platform/places-contract-adapter.js`
 
 Long-term direction: declarative Category Registry plus shared category primitives.
