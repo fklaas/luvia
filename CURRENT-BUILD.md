@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M6 Final Places Core Isolation**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 READ-ONLY BASELINE NEXT**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1389,3 +1389,31 @@ No database migration, RPC/schema change, Edge Function change, secret change, o
 
 M6 remains **IN PROGRESS** pending the measured contract/routing/ports/Intelligence/offline/browserless exit scope.
 <!-- LUVIA:M6.2:CLOSEOUT:END -->
+
+<!-- LUVIA:M6:FINAL:CLOSEOUT:START -->
+## M6 FINAL — Places Core Isolation
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.17 / 4.82.17
+
+**Feature Commit:** `be839773659039692d5d4b69586490f2584593de`
+
+**Runtime Release Commit:** `2917bc055409b05fb57199031cb91db7d7f66f73`
+
+The M6 exit block adds the browserless Places domain surface and canonical ten-entry Category Registry, expands the public `places.v1` boundary, isolates Places/Intelligence discovery composition, and moves Web/device capability access behind Location, Permission, Network, DeepLink, ExternalNavigation, and OfflineCache ports. Places remains the sole truth owner; Intelligence ranks and plans without owning Place truth; Consumer/Experience owns only the category UI. Timeline/Journey remains separately classified and unchanged.
+
+Safe Regression is **42/42 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **18/18 exact changed-runtime assets**, **5/5 private-path SPA fallback**, authenticated F5, active-Trip retention, the 13.82.17/4.82.17 release identity, Places routing, all ten categories, and **0/0 browser-console warnings/errors**.
+
+Integration Preview Cloudflare version: `c996a818-5b79-47ac-9f7a-3897596b2d1f`.
+
+Production Cloudflare version at 100% traffic: `9962d8e5-8c3e-4eb1-bf42-de9df9917c50`.
+
+Production GitHub/Cloudflare build `1cec3007-675c-4c4b-8772-ac01982db0ed`, check `97018298435`: **SUCCESS**.
+
+No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change occurred.
+
+M6 is **COMPLETE / CLOSED**. M7 begins only with a fresh read-only baseline and scope lock from the normative roadmap and real repository state.
+<!-- LUVIA:M6:FINAL:CLOSEOUT:END -->

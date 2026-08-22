@@ -676,3 +676,50 @@ Infrastructure:
 
 M6 remains **IN PROGRESS**. Remaining exit work is locked only after a fresh read-only contract/routing/Platform Port/Intelligence/offline/browserless gap audit.
 <!-- LUVIA:M6.2:CLOSEOUT:END -->
+
+<!-- LUVIA:M6:FINAL:CLOSEOUT:START -->
+## M6 Places Core Isolation — COMPLETE / CLOSED
+
+Feature Commit: `be839773659039692d5d4b69586490f2584593de`
+
+Runtime Release Commit: `2917bc055409b05fb57199031cb91db7d7f66f73`
+
+App/Core: **13.82.17 / 4.82.17**
+
+Migration outcome:
+
+- Places catalog state and trip-scoped runtime projections each have one measured physical owner;
+- `places.v1` exposes the stabilized search/get/saved/recommend/lifecycle/category/deep-link surface through the owner adapter;
+- browserless Places domain projections and category/discovery routing are centralized in `places-domain-contract-core.js`;
+- the ten Category definitions have one declarative Domain Registry;
+- Web device, permission, network, deep-link, external-navigation, and offline-cache behavior is supplied through formal Platform Ports;
+- Places/Intelligence discovery composition is isolated without moving Place truth to Intelligence;
+- active Places Trip coupling uses the public Trip Contract rather than private Trip Context or Trip Store access;
+- Timeline/Journey remains a reserved cross-domain aggregator and was not reclassified or migrated.
+
+Validation:
+
+- focused M6 exit guard: **PASS**;
+- canonical Categories: **10/10**;
+- direct navigator use in locked Places device paths: **0**;
+- Platform, Integration, and Main Safe Regression: **42/42 PASS**;
+- Integration Preview: **18/18 exact assets**, **5/5 privacy**, authenticated F5/UI, ten categories, console **0/0**;
+- Production: **18/18 exact assets**, **5/5 privacy**, authenticated F5/UI, ten categories, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview Cloudflare version: `c996a818-5b79-47ac-9f7a-3897596b2d1f`.
+
+Production Cloudflare version at 100% traffic: `9962d8e5-8c3e-4eb1-bf42-de9df9917c50`.
+
+Production build/check: `1cec3007-675c-4c4b-8772-ac01982db0ed` / `97018298435`, **SUCCESS**.
+
+Infrastructure:
+
+- DB migration: **NONE**;
+- RPC/schema change: **NONE**;
+- Edge Function change: **NONE**;
+- Secret change: **NONE**;
+- manual Cloudflare configuration change: **NONE**.
+
+M6 is **COMPLETE / CLOSED**. M7 starts with a read-only baseline derived from the normative roadmap and current repository evidence.
+<!-- LUVIA:M6:FINAL:CLOSEOUT:END -->

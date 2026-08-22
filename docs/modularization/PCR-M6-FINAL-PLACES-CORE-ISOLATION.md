@@ -1,6 +1,6 @@
 # PCR M6 FINAL — Places Core Isolation
 
-Status: **FEATURE IMPLEMENTATION COMPLETE / PROMOTION PENDING**
+Status: **COMPLETE / PRODUCTION VERIFIED**
 
 Baseline / source-lock marker: `ecf3fc25abc25d11a9a1fbe4c9bacf4b4fa77f21`
 
@@ -71,7 +71,26 @@ The non-allowlisted `tests/m3.2-places-contract-release-integration.test.cjs` re
 
 ## Promotion and release evidence
 
-Pending feature commit, Integration runtime release, Preview acceptance, Main promotion, Production acceptance, and final eight-stream synchronization.
+- feature commit: `be839773659039692d5d4b69586490f2584593de`;
+- runtime release commit: `2917bc055409b05fb57199031cb91db7d7f66f73`;
+- App / Core: **13.82.17 / 4.82.17**;
+- Platform, Integration, and Main controlled Safe Regression: **42 / 42 PASS** each;
+- Main promotion: **FF-only PASS**;
+- Integration Preview Cloudflare version: `c996a818-5b79-47ac-9f7a-3897596b2d1f`, alias `integration`, `has_preview=true`, trigger annotation `version_upload`;
+- Integration changed-runtime provenance: **18 / 18 EXACT**;
+- Integration static privacy: **5 / 5 SPA-FALLBACK PASS**;
+- Integration authenticated F5, active Trip, release identity, Places route, and ten categories: **PASS**;
+- Integration browser-console warnings / errors: **0 / 0**;
+- Production Cloudflare build: `1cec3007-675c-4c4b-8772-ac01982db0ed`, GitHub check `97018298435`: **SUCCESS**;
+- Production Cloudflare version: `9962d8e5-8c3e-4eb1-bf42-de9df9917c50` at **100% traffic**;
+- Production changed-runtime provenance: **18 / 18 EXACT**;
+- Production static privacy: **5 / 5 SPA-FALLBACK PASS**;
+- Production authenticated F5, active Trip, release identity, Places route, and ten categories: **PASS**;
+- Production browser-console warnings / errors: **0 / 0**.
+
+No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change occurred.
+
+M6 is **COMPLETE / CLOSED**. Its exit conditions are measured rather than inferred: single Places state owners, stabilized browserless public domain rules, declarative Category Registry, formal device/navigation/cache ports, public Trip coupling, isolated Places/Intelligence orchestration, browserless exit smoke, Preview acceptance, and Production acceptance all pass. Timeline/Journey remains reserved and unchanged.
 
 ## Rollback
 
