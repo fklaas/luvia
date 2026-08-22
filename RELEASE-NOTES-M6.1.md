@@ -59,7 +59,7 @@ Historical version-pinned 13.26/13.27 test artifacts remain historical evidence 
 
 - Main live commit: `f4adb8b07cc131166241bfa3051c1ea3119c1bfb`
 - Production URL: `https://myluvia.app`
-- Active Cloudflare version: `50a9ad97-d841-46e0-81d3-9ca1e5619f77` at 100% traffic
+- Runtime-acceptance Cloudflare version: `50a9ad97-d841-46e0-81d3-9ca1e5619f77` at 100% traffic
 - Runtime Git blob provenance: **12 / 12 EXACT**
 - Static privacy / SPA fallback classification: **5 / 5 PASS**
 - App/Core: **13.82.15 / 4.82.15**
@@ -70,7 +70,7 @@ Historical version-pinned 13.26/13.27 test artifacts remain historical evidence 
 - Ten visible Places discovery categories: **10 / 10 PASS**
 - Browser console warnings/errors: **0 / 0**
 
-Cloudflare reported the active deployment/version source as `Unknown (deployment/version_upload)`. The deployment appeared after Main promotion and Production subsequently served exact Main Git blobs, but no more specific automatic/manual trigger causation is asserted.
+Cloudflare reported the accepted runtime deployment/version source as `Unknown (deployment/version_upload)`. The deployment appeared after Main promotion and Production subsequently served exact Main Git blobs, but no more specific automatic/manual trigger causation is asserted. A later documentation-only Main marker produced Cloudflare version `0528dd85-fa57-4169-8c8b-a47ecf222ff2`; it does not replace the runtime acceptance evidence recorded above.
 
 ## Infrastructure
 

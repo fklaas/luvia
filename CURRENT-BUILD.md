@@ -1359,7 +1359,7 @@ The existing in-memory Place record map is now owned by browserless `core/places
 
 Platform, Integration, and Main Safe Regression are 40/40 PASS. Integration Preview and Production each serve 12/12 exact runtime Git blobs, protect 5/5 internal paths through SPA-fallback classification, preserve authenticated active-Trip state before and after F5, render the Places hub and all ten categories, and report zero browser-console warnings/errors.
 
-Production currently serves Cloudflare version `50a9ad97-d841-46e0-81d3-9ca1e5619f77` at 100% traffic. Cloudflare reports `Unknown (deployment/version_upload)` as source; no unsupported trigger causation is claimed.
+The runtime acceptance was measured on Cloudflare version `50a9ad97-d841-46e0-81d3-9ca1e5619f77` at 100% traffic. Cloudflare reports `Unknown (deployment/version_upload)` as source; no unsupported trigger causation is claimed. A later documentation-only Main marker produced version `0528dd85-fa57-4169-8c8b-a47ecf222ff2`; it is not used to rewrite or overstate the measured runtime acceptance.
 
 No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change was required.
 
