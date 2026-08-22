@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M5 FINAL Physical Trip Core Isolation**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1288,3 +1288,56 @@ Known retained browser debt:
 Next milestone:
 - **M5 remains IN PROGRESS.**
 - Next work is the controlled physical Trip Core isolation / M5 Exit.
+
+<!-- LUVIA:M5:FINAL:CLOSEOUT:START -->
+## M5 FINAL — Physical Trip Core Isolation
+
+**Status:** COMPLETE / CLOSED
+**Closeout:** 2026-08-22
+**Runtime App / Core:** 13.82.14 / 4.82.14
+**Runtime Release Commit:** `579e72c9419fc4456ce724bc63ba15d8f24233c7`
+**Physical Isolation Feature Commit:** `d3a13e829ea1eca4fbbeff38b16ecf52e2eec58e`
+**Previous M5.4 closeout marker:** `3274235e3623e1b5cdd7765137e95ad4ebbc8812`
+
+### Final architecture
+
+- `core/trips/trip-state-core.js` owns the runtime-neutral in-memory Trip state and is browserless.
+- `core/trips/trip-store.js` is the Web compatibility adapter for persistence, legacy migration, cloud synchronization and DOM/Web events; it no longer owns a second local Trip state object.
+- `LuviaTripStateReaderV1` remains read-only and exposes only `snapshot` and `subscribe`.
+- `LuviaTripStore` remains available only as a Web compatibility binding; it is not the native target API.
+- Active Trip Context remains browserless and consumer-side private TripStore access remains isolated behind public Trip boundaries.
+- No duplicate Trip Truth was introduced.
+
+### Native First Ready exit interpretation
+
+`config/luvia-native-readiness-debt.json` is retained unchanged as the historical NFR-0 baseline. Its original `core/trips/trip-store.js` DOMAIN_VIOLATION classification records the pre-migration baseline and is not rewritten retroactively. The measured M5 final runtime architecture supersedes that baseline for current Trip state ownership: runtime-neutral Trip state core plus Web compatibility adapter.
+
+### Final validation
+
+- Safe Regression: **39/39 PASS**.
+- Integration Preview runtime byte provenance: **11/11 EXACT**.
+- Integration authenticated F5 smoke: **25/25 PASS**.
+- Integration visual Active Trip + Booking Center acceptance: **UI PASS**.
+- Main promotion: **FF-only PASS**.
+- Production runtime byte provenance: **11/11 EXACT**.
+- Production Static Privacy: **PASS**.
+- Production authenticated F5 smoke: **25/25 PASS**.
+- Production visual Active Trip + Booking Center acceptance: **UI PASS**.
+- Production Physical Trip Core / Native-readiness semantics: **PASS**.
+
+### Infrastructure
+
+- DB migration: **NONE**.
+- Edge Function change: **NONE**.
+- Secret change: **NONE**.
+- Manual Cloudflare configuration change: **NONE**.
+- Cloudflare deployment version identifier: **not independently captured in this closeout; acceptance is byte-provenance based**.
+
+### Retained non-blocking Browser / Platform warnings
+
+Tracking Prevention messages and the geolocation user-gesture warning remain existing Browser / Platform debt. They did not fail the authenticated Integration or Production acceptance gates and are not silently reclassified as Trip Core defects.
+
+### Milestone result
+
+M5 Trip Core Isolation is **COMPLETE / CLOSED**. The next roadmap milestone is **M6**.
+<!-- LUVIA:M5:FINAL:CLOSEOUT:END -->

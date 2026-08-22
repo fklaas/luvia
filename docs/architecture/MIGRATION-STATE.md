@@ -538,3 +538,51 @@ M5 status:
 - M5.4: COMPLETE
 - M5 overall: **IN PROGRESS**
 - Remaining exit work: physical Trip Core isolation and final Native Readiness / ownership exit proof.
+
+<!-- LUVIA:M5:FINAL:CLOSEOUT:START -->
+## M5 FINAL — Physical Trip Core Isolation — COMPLETE / CLOSED
+
+Runtime Release Commit: `579e72c9419fc4456ce724bc63ba15d8f24233c7`
+Physical Isolation Feature Commit: `d3a13e829ea1eca4fbbeff38b16ecf52e2eec58e`
+App/Core: **13.82.14 / 4.82.14**
+
+Migration outcome:
+
+- active consumer TripStore isolation from M5.1 through M5.4 remains preserved;
+- runtime-neutral `core/trips/trip-state-core.js` now owns the in-memory Trip state;
+- `core/trips/trip-store.js` is reduced to the Web compatibility adapter around that state core;
+- physical Trip state core browser coupling is measured at **0**;
+- Web Trip Store contains **no second local Trip state declaration**;
+- `LuviaTripStateReaderV1` remains read-only with `snapshot` / `subscribe`;
+- Active Trip Context remains browserless;
+- no duplicate Trip Truth was introduced;
+- Web compatibility globals remain compatibility surfaces, not the native target API.
+
+Native-readiness baseline handling:
+
+- `config/luvia-native-readiness-debt.json` remains the historical NFR-0 baseline and is not retroactively rewritten;
+- its original Trip Store `DOMAIN_VIOLATION` entry therefore describes the pre-migration baseline, while current runtime ownership is proven by the physical state core, focused guardrail and deployed byte provenance.
+
+Validation:
+
+- final Safe Regression: **39/39 PASS**;
+- Integration Preview runtime provenance: **11/11 EXACT**;
+- Integration authenticated F5: **25/25 PASS**;
+- Integration visual acceptance: **UI PASS**;
+- Main FF-only promotion: **PASS**;
+- Production runtime provenance: **11/11 EXACT**;
+- Production Static Privacy: **PASS**;
+- Production authenticated F5: **25/25 PASS**;
+- Production visual acceptance: **UI PASS**;
+- Production Physical Trip Core / Native-readiness semantics: **PASS**.
+
+Infrastructure:
+
+- DB migration: **NONE**;
+- Edge Function change: **NONE**;
+- Secret change: **NONE**;
+- manual Cloudflare configuration change: **NONE**.
+
+M5 status: **COMPLETE / CLOSED**.
+Next milestone: **M6**.
+<!-- LUVIA:M5:FINAL:CLOSEOUT:END -->

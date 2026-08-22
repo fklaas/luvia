@@ -757,3 +757,229 @@ console.log('M5.1h completed state preserved: PASS');
     'PCR must identify physical Trip Core isolation as next M5 exit work'
   );
 }
+
+// M5 FINAL Physical Trip Core Isolation closeout guardrail
+{
+  const fsM5Final = require('fs');
+  const pathM5Final = require('path');
+
+  const rootM5Final =
+    process.cwd();
+
+  const readM5Final =
+    relative =>
+      fsM5Final.readFileSync(
+        pathM5Final.join(
+          rootM5Final,
+          ...relative.split('/')
+        ),
+        'utf8'
+      );
+
+  const assertM5Final =
+    (
+      condition,
+      message
+    ) => {
+      if (!condition) {
+        throw new Error(
+          message
+        );
+      }
+    };
+
+
+  const currentM5Final =
+    readM5Final(
+      'CURRENT-BUILD.md'
+    );
+
+  const releaseM5Final =
+    readM5Final(
+      'RELEASE-NOTES-M5.md'
+    );
+
+  const resultsM5Final =
+    readM5Final(
+      'TEST-RESULTS-M5.md'
+    );
+
+  const migrationM5Final =
+    readM5Final(
+      'docs/architecture/MIGRATION-STATE.md'
+    );
+
+  const pcrM5Final =
+    readM5Final(
+      'docs/modularization/PCR-M5-FINAL-PHYSICAL-TRIP-CORE-ISOLATION.md'
+    );
+
+  const stateCoreM5Final =
+    readM5Final(
+      'core/trips/trip-state-core.js'
+    );
+
+  const storeM5Final =
+    readM5Final(
+      'core/trips/trip-store.js'
+    );
+
+  const indexM5Final =
+    readM5Final(
+      'index.html'
+    );
+
+  const safeM5Final =
+    readM5Final(
+      'tests/run-m4.3-safe-regression.cjs'
+    );
+
+
+  for (
+    const token
+    of [
+      'M5 COMPLETE / CLOSED',
+      '13.82.14',
+      '4.82.14',
+      '579e72c9419fc4456ce724bc63ba15d8f24233c7',
+      'd3a13e829ea1eca4fbbeff38b16ecf52e2eec58e',
+      'M5 FINAL — Physical Trip Core Isolation'
+    ]
+  ) {
+    assertM5Final(
+      currentM5Final.includes(
+        token
+      ),
+      'CURRENT-BUILD missing M5 FINAL token: ' +
+        token
+    );
+  }
+
+
+  for (
+    const token
+    of [
+      'COMPLETE / CLOSED',
+      '579e72c9419fc4456ce724bc63ba15d8f24233c7',
+      'd3a13e829ea1eca4fbbeff38b16ecf52e2eec58e',
+      '39/39 PASS',
+      '11/11 EXACT',
+      '25/25 PASS',
+      'UI PASS',
+      'historical NFR-0 baseline'
+    ]
+  ) {
+    assertM5Final(
+      releaseM5Final.includes(
+        token
+      ),
+      'M5 Release Notes missing token: ' +
+        token
+    );
+  }
+
+
+  for (
+    const token
+    of [
+      '39/39 PASS',
+      '11/11 EXACT',
+      '25/25 PASS',
+      'UI PASS',
+      'a6d219beb1b3fa03e63cac43cbc4e30d3d3a4c572349de39037076d93c357a17',
+      '22a1573e12c35dc830cf3fa67d6d88e2369e7e10b3798a7d98569aa32867a74d'
+    ]
+  ) {
+    assertM5Final(
+      resultsM5Final.includes(
+        token
+      ),
+      'M5 Test Results missing token: ' +
+        token
+    );
+  }
+
+
+  assertM5Final(
+    migrationM5Final.includes(
+      'M5 status: **COMPLETE / CLOSED**'
+    ),
+    'Migration State must close M5'
+  );
+
+
+  assertM5Final(
+    pcrM5Final.includes(
+      'runtime-neutral'
+    ) &&
+      pcrM5Final.includes(
+        'core/trips/trip-state-core.js'
+      ) &&
+      pcrM5Final.includes(
+        'M5 is COMPLETE / CLOSED'
+      ),
+    'M5 FINAL PCR architecture / exit evidence missing'
+  );
+
+
+  const browserTokensM5Final =
+    /\bwindow\b|\bdocument\b|\blocalStorage\b|\bsessionStorage\b|\bnavigator\b|\bCustomEvent\b|\bdispatchEvent\b|\bfetch\s*\(|\bsupabase\b/i;
+
+
+  assertM5Final(
+    !browserTokensM5Final.test(
+      stateCoreM5Final
+    ),
+    'Physical Trip State Core regressed browser coupling'
+  );
+
+
+  assertM5Final(
+    !/let\s+state\s*=/.test(
+      storeM5Final
+    ),
+    'Web Trip Store regressed a second local Trip state'
+  );
+
+
+  assertM5Final(
+    /LuviaTripStateReaderV1=Object\.freeze\(\{[\s\S]*?snapshot[\s\S]*?subscribe/.test(
+      storeM5Final
+    ),
+    'Read-only Trip State Reader missing after M5 final closeout'
+  );
+
+
+  const stateCoreLoadM5Final =
+    indexM5Final.indexOf(
+      'core/trips/trip-state-core.js?v=13.82.14'
+    );
+
+
+  const storeLoadM5Final =
+    indexM5Final.indexOf(
+      'core/trips/trip-store.js?v=13.82.14'
+    );
+
+
+  assertM5Final(
+    stateCoreLoadM5Final >=
+      0 &&
+      storeLoadM5Final >
+        stateCoreLoadM5Final,
+    'Physical Trip State Core must load before Web Trip Store'
+  );
+
+
+  assertM5Final(
+    safeM5Final.includes(
+      'tests/m5-final-physical-trip-core-isolation.test.cjs'
+    ),
+    'Safe Regression must retain the M5 final physical isolation guardrail'
+  );
+
+
+  console.log(
+    'PASS M5 FINAL closeout registry'
+  );
+}
