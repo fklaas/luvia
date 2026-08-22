@@ -13,7 +13,8 @@ const MQ=['Was ist das Erste, das dir bei diesem Moment wieder einfällt?','Was 
 const JQ=['Welche Begegnung gehört für dich zu dieser Reise?','Welcher Geschmack bringt dich sofort zurück?','Was war schöner als vorher geplant?','Welcher kleine Umweg ist dir geblieben?','Welche Stimmung fehlt auf den Fotos?','Welcher Augenblick war für dich am meisten „wir“?'];
 const TONES:any={natural:'Natürlich',warm:'Wärmer',funny:'Lockerer',cheeky:'Frecher',romantic:'Romantischer',cinematic:'Bildhafter',nostalgic:'Nostalgischer',short:'Kürzer',long:'Ausführlicher'};
 const signedCache=new Map<string,string>();
-async function signed(m:any){if(!m)return'';const k=String(m.id);if(signedCache.has(k))return signedCache.get(k)!;const u=await (window as any).LuviaMediaCore?.signedUrl?.(m,3600).catch(()=>null)||'';signedCache.set(k,u);return u}
+const mediaContract=()=>{const runtime=window as any;return runtime.LuviaMediaContractV1||runtime.LuviaMediaContract||null};
+async function signed(m:any){if(!m?.id)return'';const k=String(m.id);if(signedCache.has(k))return signedCache.get(k)!;let u='';try{u=await mediaContract()?.reads?.signedUrl?.(m.id,3600)||''}catch{}signedCache.set(k,u);return u}
 async function img(el:HTMLElement|null,m:any){if(!el||!m)return;const u=await signed(m);if(u&&el.isConnected)(el.style as any).backgroundImage=`url("${u.replace(/"/g,'%22')}")`}
 function toast(msg:string){(window as any).LuviaToast?.show?.(msg)||console.info('[Memory]',msg)}
 function source(){return (window as any).LuviaMemoryJourneys.source()}

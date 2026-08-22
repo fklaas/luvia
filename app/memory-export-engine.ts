@@ -3,7 +3,8 @@
 type Media=any;
 type Model={title?:string;story?:string;media?:Media[];weights?:Record<string,number>;cover?:string;days?:any[];voices?:any[];sensory?:{food?:string;people?:string;weather?:string};destination?:string};
 const clean=(html='')=>{const d=document.createElement('div');d.innerHTML=html;return (d.textContent||'').replace(/\s+/g,' ').trim()};
-async function signed(m:Media){return await (window as any).LuviaMediaCore?.signedUrl?.(m,3600).catch(()=>null)||''}
+const mediaContract=()=>{const runtime=window as any;return runtime.LuviaMediaContractV1||runtime.LuviaMediaContract||null};
+async function signed(m:Media){if(!m?.id)return'';try{return await mediaContract()?.reads?.signedUrl?.(m.id,3600)||''}catch{return''}}
 async function image(m:Media){const u=await signed(m);if(!u)return null;return await new Promise<HTMLImageElement|null>(r=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u})}
 function selected(model:Model,n=8){const arr=[...(model.media||[])];return arr.sort((a,b)=>{const ca=String(a.id)===String(model.cover)?5:0,cb=String(b.id)===String(model.cover)?5:0;return(cb+(model.weights?.[String(b.id)]||2))-(ca+(model.weights?.[String(a.id)]||2))}).slice(0,n)}
 function fit(ctx:CanvasRenderingContext2D,im:HTMLImageElement,x:number,y:number,w:number,h:number,zoom=1){const s=Math.max(w/im.naturalWidth,h/im.naturalHeight)*zoom,iw=im.naturalWidth*s,ih=im.naturalHeight*s;ctx.drawImage(im,x+(w-iw)/2,y+(h-ih)/2,iw,ih)}

@@ -1,7 +1,14 @@
 (() => {
     'use strict';
     const clean = (html = '') => { const d = document.createElement('div'); d.innerHTML = html; return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
-    async function signed(m) { return await window.LuviaMediaCore?.signedUrl?.(m, 3600).catch(() => null) || ''; }
+    const mediaContract = () => window.LuviaMediaContractV1 || window.LuviaMediaContract || null;
+    async function signed(m) { if (!m?.id)
+        return ''; try {
+        return await mediaContract()?.reads?.signedUrl?.(m.id, 3600) || '';
+    }
+    catch {
+        return '';
+    } }
     async function image(m) { const u = await signed(m); if (!u)
         return null; return await new Promise(r => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => r(im); im.onerror = () => r(null); im.src = u; }); }
     function selected(model, n = 8) { const arr = [...(model.media || [])]; return arr.sort((a, b) => { const ca = String(a.id) === String(model.cover) ? 5 : 0, cb = String(b.id) === String(model.cover) ? 5 : 0; return (cb + (model.weights?.[String(b.id)] || 2)) - (ca + (model.weights?.[String(a.id)] || 2)); }).slice(0, n); }

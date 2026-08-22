@@ -2416,3 +2416,4 @@ app/adapters/places-discovery-adapter.js,Intelligence,Adapter/Web,Places discove
 tests/m6-final-places-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M6 exit guard for browserless Places contracts routing ports and Trip boundary
 tests/m7.1-media-acquisition-native-ports.test.cjs,Shared Tests,Test/Guardrail,M7.1 guard for Media acquisition ports and Gallery browser boundary
 tests/m7.2-gallery-media-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.2 guard for Gallery public Media Contract adoption
+tests/m7.3-memory-asset-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.3 guard for Memory Experience public Media asset delivery

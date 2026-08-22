@@ -5,7 +5,8 @@ let host=null,albums=[],journeys=[],unsub=null,unsubJourneys=null,urlCache=new M
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=v=>{if(!v)return'';const d=new Date(v);return Number.isNaN(d.getTime())?'':new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'long',year:'numeric'}).format(d)};
 const auth=()=>window.ParisAuth?.getState?.()?.user||{};
-async function imageUrl(item){if(!item)return'';if(urlCache.has(item.id))return urlCache.get(item.id);const url=await window.LuviaMediaCore.signedUrl(item,3600).catch(()=>null)||'';urlCache.set(item.id,url);return url}
+const mediaContract=()=>window.LuviaMediaContractV1||window.LuviaMediaContract||null;
+async function imageUrl(item){if(!item?.id)return'';if(urlCache.has(item.id))return urlCache.get(item.id);let url='';try{url=await mediaContract()?.reads?.signedUrl?.(item.id,3600)||''}catch{}urlCache.set(item.id,url);return url}
 async function setImage(node,item,alt='Reisefoto'){if(!node||!item)return;const url=await imageUrl(item);if(!node.isConnected)return;node.innerHTML=url?`<img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" decoding="async">`:'<span class="lv-memory-empty-art">💛</span>'}
 const moodIcon=m=>({'Romantisch':'💞','Abenteuer':'🧭','Familienzeit':'👨‍👩‍👧','Genuss':'🍝','Entdeckung':'✨','Alltagsmoment':'☕','Meilenstein':'🏆'}[m]||'💛');
 function meta(album){const m=album.metadata||{};return[m.dateStart?fmt(m.dateStart):'',m.locationName||'',`${album.mediaIds?.length||0} Fotos`].filter(Boolean).join(' · ')}
