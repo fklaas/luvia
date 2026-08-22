@@ -509,3 +509,32 @@ No duplicate Trip Truth was introduced.
 No DB migration, Edge Function, secret or manual Cloudflare change was required.
 
 M5.4 remains IN PROGRESS. M5 remains IN PROGRESS.
+
+
+---
+
+## M5.4 FINAL — Trip Web Compatibility Boundary
+
+Status: **COMPLETE / CLOSED**
+
+Runtime release:
+- App 13.82.13
+- Core 4.82.13
+- Runtime Commit `4c1827aa122ae5ba91b4ada845ad919fd273edf4`
+
+Migration result:
+- Remaining active non-owner TripStore consumers are isolated behind public Trip boundaries.
+- Web Trip Context no longer directly accesses private TripStore.
+- `LuviaTripStateReaderV1` provides read-only `snapshot` / `subscribe`.
+- Owner adapter retains exactly one private Store mutation access.
+- Travel Context secondary AppState Trip fallback removed.
+- Active Trip Context core remains browserless.
+- TripStore remains sole domain truth.
+
+M5 status:
+- M5.1: COMPLETE
+- M5.2: COMPLETE
+- M5.3: COMPLETE
+- M5.4: COMPLETE
+- M5 overall: **IN PROGRESS**
+- Remaining exit work: physical Trip Core isolation and final Native Readiness / ownership exit proof.

@@ -714,3 +714,46 @@ console.log('M5.1h completed state preserved: PASS');
 
   console.log('PASS M5.4.3 closeout registry');
 }
+
+
+// M5.4 FINAL closeout evidence
+{
+  const fs = require('fs');
+
+  const currentBuild = fs.readFileSync('CURRENT-BUILD.md', 'utf8');
+  const release = fs.readFileSync('RELEASE-NOTES-M5.4.md', 'utf8');
+  const results = fs.readFileSync('TEST-RESULTS-M5.4.md', 'utf8');
+  const migration = fs.readFileSync('docs/architecture/MIGRATION-STATE.md', 'utf8');
+  const pcr = fs.readFileSync('docs/modularization/PCR-M5.4-FINAL-TRIP-WEB-COMPATIBILITY-BOUNDARY.md', 'utf8');
+
+  for (const token of [
+    'M5.4 FINAL',
+    '13.82.13',
+    '4.82.13',
+    '4c1827aa122ae5ba91b4ada845ad919fd273edf4',
+    'TripStateReaderV1',
+    'COMPLETE / CLOSED'
+  ]) {
+    assert(currentBuild.includes(token), `CURRENT-BUILD missing M5.4 FINAL token: ${token}`);
+    assert(release.includes(token), `Release Notes missing M5.4 FINAL token: ${token}`);
+  }
+
+  for (const token of [
+    '38/38 PASS',
+    '25/25 PASS',
+    'Production',
+    'Static privacy'
+  ]) {
+    assert(results.includes(token), `Test Results missing token: ${token}`);
+  }
+
+  assert(
+    migration.includes('M5 overall: **IN PROGRESS**'),
+    'Migration state must keep M5 open after M5.4 closeout'
+  );
+
+  assert(
+    pcr.includes('physical Trip Core isolation'),
+    'PCR must identify physical Trip Core isolation as next M5 exit work'
+  );
+}

@@ -1234,3 +1234,57 @@ M5.4.2 is eligible for COMPLETE / CLOSED only after this documentation marker is
 - M5.4 remains IN PROGRESS.
 - M5 remains IN PROGRESS.
 - Next: one bundled M5.4 FINAL architecture block; no micro-slice chain.
+
+
+---
+
+## M5.4 FINAL — Trip Web Compatibility Boundary
+
+Status: **COMPLETE / CLOSED**
+
+Runtime Release:
+- App: **13.82.13**
+- Core: **4.82.13**
+- Runtime Commit: `4c1827aa122ae5ba91b4ada845ad919fd273edf4`
+- Feature Commit: `2ab95fa27f67912f170124295f5662b82608531c`
+
+Final architecture:
+- `LuviaTripStateReaderV1` is the read-only Web Trip state boundary.
+- Reader surface is limited to `snapshot` and `subscribe`.
+- Web Trip Context has **0 private `LuviaTripStore` references**.
+- Trip owner adapter retains exactly **1 direct private Store access** for owner mutation flow.
+- Travel Context secondary `LuviaAppState` Trip fallback is removed.
+- Active Trip Context core remains browserless.
+- TripStore remains the sole Trip Truth.
+- Unreachable legacy TripStore debt remains deferred and was not reactivated.
+
+Release acceptance:
+- Platform regression: **38/38 PASS**
+- Integration regression: **38/38 PASS**
+- Main regression: **38/38 PASS**
+- Integration Preview byte provenance: **PASS**
+- Integration authenticated F5 smoke: **25/25 PASS**
+- Production byte provenance: **PASS**
+- Production architecture acceptance: **PASS**
+- Production static privacy: **PASS**
+- Production authenticated F5 smoke: **25/25 PASS**
+
+Infrastructure:
+- DB migration: **NONE**
+- Edge Function change: **NONE**
+- Secret change: **NONE**
+- Manual Cloudflare change: **NONE**
+
+Static asset classification:
+- Deployment-private architecture artifacts remain blocked by `.assetsignore`.
+- `config/luvia-streams.json` and `config/luvia-cores.json` are intentionally deployment-public canonical architecture registries.
+- HTTP 200 SPA fallback for excluded internal paths is not classified as direct asset exposure.
+
+Known retained browser debt:
+- Tracking Prevention storage warnings.
+- Geolocation user-gesture warning.
+- These are pre-existing and not introduced by M5.4.
+
+Next milestone:
+- **M5 remains IN PROGRESS.**
+- Next work is the controlled physical Trip Core isolation / M5 Exit.
