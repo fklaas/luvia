@@ -23,8 +23,7 @@ for(const forbidden of [
   'LuviaMediaClustering',
   "from('media')",
   'memory_cards',
-  '.storage.',
-  'clearTripGallery'
+  '.storage.'
 ]){
   assert(
     !source.includes(forbidden),
@@ -78,8 +77,35 @@ const rawMedia={
   previewPath:'t1/p.jpg',
   thumbnailPath:'t1/t.jpg',
   contentHash:'secret',
-  metadata:{secret:true},
+  metadata:{
+    secret:true,
+    renderedPreviewPath:'t1/rendered.jpg',
+    mediaKind:'photo',
+    captureEvidence:{source:'exif'},
+    metadataAutoCheckedAt:'2026-08-22T00:00:00Z',
+    resolvedLocation:{
+      name:'Paris',
+      address:'Paris, France',
+      providerPlaceId:'place-1',
+      secret:'hidden'
+    },
+    captureLocation:{name:'Camera location'}
+  },
   favorite:true,
+  editSettings:{
+    brightness:112,
+    frame:'polaroid',
+    overlays:[{
+      type:'text',
+      value:'Paris',
+      x:.5,
+      y:.4,
+      size:.1,
+      rotation:0,
+      schema:'image-v2',
+      secret:'hidden'
+    }]
+  },
   width:100,
   height:80,
   fileSize:123,
@@ -140,6 +166,44 @@ window.LuviaMediaCore={
 
   async remove(){
     return true;
+  },
+
+  async listPolaroids(){
+    return {'2026-08-22':'m1'};
+  },
+
+  async subscribe(callback){
+    callback({
+      table:'media',
+      eventType:'UPDATE',
+      new:{
+        ...rawMedia,
+        displayName:undefined,
+        display_name:'Updated Photo',
+        storage_path:'SECRET'
+      }
+    });
+    return async()=>{};
+  },
+
+  async saveRenderedPreview(mediaId,blob,options){
+    assert.strictEqual(mediaId,'m1');
+    assert(blob instanceof Blob);
+    assert.strictEqual(options.displayName,'Edited');
+    assert.strictEqual(options.editSettings.frame,'polaroid');
+    assert.strictEqual(options.metadataPatch,undefined);
+    return rawMedia;
+  },
+
+  async clearTripGallery(options={}){
+    options.onProgress?.('clearing');
+    return {
+      tripId:'t1',
+      count:1,
+      albumCount:2,
+      clusterCount:3,
+      secret:'hidden'
+    };
   }
 };
 
@@ -317,7 +381,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   api.runtimeVersion,
-  '1.0.0'
+  '1.1.0'
 );
 
 assert(
@@ -341,6 +405,8 @@ assert.deepStrictEqual(
     'getMedia',
     'signedUrl',
     'signedOriginalUrl',
+    'listPolaroids',
+    'subscribe',
     'listAlbums',
     'listCards',
     'listJourneys'
@@ -366,7 +432,9 @@ assert.deepStrictEqual(
     'toggleFavorite',
     'setPolaroid',
     'linkPlace',
-    'remove'
+    'remove',
+    'saveRenderedPreview',
+    'clearGallery'
   ]
 );
 
@@ -418,6 +486,109 @@ assert(
   assert.strictEqual(
     await api.signedOriginalUrl('m1',240),
     'original:240'
+  );
+
+  assert.strictEqual(
+    media[0].renderedPreviewAvailable,
+    true
+  );
+
+  assert.strictEqual(
+    media[0].mediaKind,
+    'photo'
+  );
+
+  assert.strictEqual(
+    media[0].captureEvidenceAvailable,
+    true
+  );
+
+  assert.strictEqual(
+    media[0].metadataAutoChecked,
+    true
+  );
+
+  assert.deepStrictEqual(
+    {...media[0].resolvedLocation},
+    {
+      name:'Paris',
+      address:'Paris, France',
+      providerPlaceId:'place-1',
+      primaryType:null,
+      status:null,
+      source:null,
+      distanceMeters:null,
+      confidence:null
+    }
+  );
+
+  assert.strictEqual(
+    media[0].resolvedLocation.secret,
+    undefined
+  );
+
+  assert.strictEqual(media[0].editSettings.frame,'polaroid');
+  assert.strictEqual(media[0].editSettings.overlays[0].value,'Paris');
+  assert.strictEqual(media[0].editSettings.overlays[0].secret,undefined);
+  assert(Object.isFrozen(media[0].editSettings.overlays));
+  assert(Object.isFrozen(media[0].editSettings.overlays[0]));
+
+  assert.deepStrictEqual(
+    {...await api.listPolaroids()},
+    {'2026-08-22':'m1'}
+  );
+
+  let realtime=null;
+  const unsubscribe=await api.subscribe(
+    payload=>{realtime=payload;}
+  );
+
+  assert.strictEqual(
+    realtime.scope,
+    'media'
+  );
+
+  assert.strictEqual(
+    realtime.media.displayName,
+    'Updated Photo'
+  );
+
+  assert.strictEqual(
+    realtime.media.storagePath,
+    undefined
+  );
+
+  assert.strictEqual(
+    typeof unsubscribe,
+    'function'
+  );
+
+  const saved=await api.commands.media.saveRenderedPreview(
+    'm1',
+    new Blob(['image']),
+    {
+      displayName:'Edited',
+      editSettings:{frame:'polaroid'},
+      metadataPatch:{secret:'forbidden'}
+    }
+  );
+
+  assert.strictEqual(saved.id,'m1');
+
+  let progress='';
+  const cleared=await api.commands.media.clearGallery({
+    onProgress:value=>{progress=value;}
+  });
+
+  assert.strictEqual(progress,'clearing');
+  assert.deepStrictEqual(
+    {...cleared},
+    {
+      tripId:'t1',
+      count:1,
+      albumCount:2,
+      clusterCount:3
+    }
   );
 
   const albums=await api.listAlbums();

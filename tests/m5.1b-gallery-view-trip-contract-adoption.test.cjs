@@ -25,6 +25,7 @@ function instrumentGallery() {
   window.__LuviaM51bGalleryTripTest = Object.freeze({
     tripContract,
     activeTrip,
+    tripDays,
     placeContextFor,
     galleryDownloadLabel
   });
@@ -114,7 +115,7 @@ test('Gallery has no direct Trip truth, DB or legacy-event access', () => {
   );
 });
 
-test('both Gallery call sites use one lazy trip.v1 active-Trip projection', () => {
+test('all Gallery Trip reads use one lazy trip.v1 active-Trip projection', () => {
   assert.ok(
     /\bwindow\.LuviaTripContractV1\b/.test(SOURCE),
     'Gallery must prefer the versioned trip.v1 runtime surface'
@@ -145,13 +146,13 @@ test('both Gallery call sites use one lazy trip.v1 active-Trip projection', () =
 
   assert.equal(
     activeTripCalls.length,
-    2,
-    'Exactly the place context and download label must read the active Trip'
+    3,
+    'Exactly trip days, place context and download label must read the active Trip'
   );
   assert.equal(
     activeTripReferences.length,
-    3,
-    'The active-Trip helper must have one definition and two call sites'
+    4,
+    'The active-Trip helper must have one definition and three call sites'
   );
   assert.equal(
     contractReads.length,
@@ -164,6 +165,10 @@ test('both Gallery call sites use one lazy trip.v1 active-Trip projection', () =
     downloadLabelReferences.length,
     2,
     'The download-label helper must have one definition and one click-handler call'
+  );
+  assert.ok(
+    /async\s+function\s+tripDays\s*\([^)]*\)\s*\{[^}]*\bactiveTrip\s*\(\s*\)/.test(SOURCE),
+    'Gallery day grouping must use the shared active-Trip accessor'
   );
   assert.ok(
     /function\s+placeContextFor\s*\([^)]*\)\s*\{[^}]*\bactiveTrip\s*\(\s*\)/.test(SOURCE),

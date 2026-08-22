@@ -62,9 +62,12 @@
   const fmtTime = value => value ? new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit'}).format(new Date(value)) : '–';
   const suggestName = () => '';
   const displayName = item => item.displayName || 'Titel hinzufügen';
-  const locationName = item => item?.metadata?.resolvedLocation?.name || item?.metadata?.resolvedLocation?.address || item?.metadata?.captureLocation?.name || (item?.latitude!=null&&item?.longitude!=null?'GPS-Standort gespeichert':'Kein Standort gespeichert');
+  const locationName = item => item?.resolvedLocation?.name || item?.resolvedLocation?.address || item?.captureLocationName || (item?.latitude!=null&&item?.longitude!=null?'GPS-Standort gespeichert':'Kein Standort gespeichert');
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
   const activeTrip=()=>tripContract()?.getActiveTrip?.()||{};
+  const mediaContract=()=>window.LuviaMediaContractV1||window.LuviaMediaContract||null;
+  const mediaReads=()=>{const api=mediaContract()?.reads;if(!api)throw new Error('Media Contract v1 ist nicht verfügbar.');return api};
+  const mediaCommands=()=>{const api=mediaContract()?.commands?.media;if(!api)throw new Error('Media Contract v1 Commands sind nicht verfügbar.');return api};
   const normalizeOverlay=o=>({type:o?.type==='text'?'text':'sticker',value:String(o?.value||''),x:Math.max(0,Math.min(1,Number(o?.x??.5)>1?Number(o.x)/100:Number(o?.x??.5))),y:Math.max(0,Math.min(1,Number(o?.y??.5)>1?Number(o.y)/100:Number(o?.y??.5))),size:Math.max(.025,Math.min(.5,Number(o?.size)||(((o?.type==='text') ? .07 : .13)*Number(o?.scale||1)))),rotation:Number(o?.rotation||0),schema:'image-v2'});
   const settings = item => {const value={brightness:100,contrast:100,saturation:100,temperature:0,blur:0,vignette:0,exposure:0,highlights:0,shadows:0,clarity:0,hue:0,grain:0,filter:'none',rotation:0,frame:'',sticker:'',caption:'',overlays:[],...item.editSettings};value.overlays=(value.overlays||[]).map(normalizeOverlay);return value};
   const editCss = item => {
@@ -76,14 +79,14 @@
   };
   const overlayMarkup = edit => `<span class="lv-saved-overlays" style="--image-rotation:${Number(edit.rotation||0)}deg">${(edit.overlays||[]).map(raw=>{const o=normalizeOverlay(raw);return `<span class="lv-saved-overlay ${o.type==='text'?'is-text':'is-sticker'}" style="--overlay-x:${o.x*100};--overlay-y:${o.y*100};--overlay-rotation:${o.rotation}deg;--overlay-size:${o.size}">${esc(o.value||'')}</span>`}).join('')}</span>`;
   const photoVisual = (item, attrs='') => {
-    const edit = settings(item),baked=Boolean(item?.metadata?.renderedPreviewPath||item?.renderedPreviewPath);
+    const edit = settings(item),baked=Boolean(item?.renderedPreviewAvailable);
     return `<span class="lv-photo-visual ${baked?'is-baked':`frame-${esc(edit.frame||'none')}`}" ${attrs}><span class="lv-photo-media-canvas"><img alt="${esc(displayName(item))}" ${baked?'':`style="filter:${esc(editCss(item))};transform:rotate(${Number(edit.rotation||0)}deg)"`}><i>Bild wird geladen …</i>${baked?'':`${edit.vignette?`<b class="lv-photo-vignette" style="opacity:${Math.min(.8,Number(edit.vignette)/100)}"></b>`:''}${overlayMarkup(edit)}`}</span></span>`;
   };
 
   function syncOverlayGeometry(scope=document){scope.querySelectorAll('.lv-photo-media-canvas,.lv-lightbox-canvas').forEach(canvas=>{const img=canvas.querySelector(':scope > img'),stage=canvas.querySelector(':scope > .lv-saved-overlays');if(!img||!stage)return;const sync=()=>{const bw=img.clientWidth,bh=img.clientHeight,nw=img.naturalWidth,nh=img.naturalHeight;if(!bw||!bh||!nw||!nh)return;const scale=Math.min(bw/nw,bh/nh),w=nw*scale,h=nh*scale;stage.style.left=`${(bw-w)/2}px`;stage.style.top=`${(bh-h)/2}px`;stage.style.width=`${w}px`;stage.style.height=`${h}px`};img.addEventListener('load',sync,{once:true});if(img.complete)requestAnimationFrame(sync);if(!img.dataset.overlayObserved){img.dataset.overlayObserved='1';new ResizeObserver(sync).observe(img)}})}
 
   async function renderComposite(item,state){
-    const sourceUrl=await window.LuviaMediaCore.signedOriginalUrl(item,1800);if(!sourceUrl)throw new Error('Originalfoto konnte nicht geladen werden.');
+    const sourceUrl=await mediaReads().signedOriginalUrl(item.id,1800);if(!sourceUrl)throw new Error('Originalfoto konnte nicht geladen werden.');
     const response=await fetch(sourceUrl);if(!response.ok)throw new Error('Originalfoto konnte nicht geladen werden.');
     const bitmap=await createImageBitmap(await response.blob()),max=2400,scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height)),w=Math.max(1,Math.round(bitmap.width*scale)),h=Math.max(1,Math.round(bitmap.height*scale));
     const base=document.createElement('canvas');base.width=w;base.height=h;const ctx=base.getContext('2d',{alpha:false});ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.filter=editCss({editSettings:state});ctx.drawImage(bitmap,0,0,w,h);ctx.filter='none';bitmap.close?.();
@@ -106,23 +109,23 @@
   }
 
   async function urlFor(item) {
-    const cacheKey=`${item.id}:${item.metadata?.renderedPreviewPath||item.renderedPreviewPath||item.previewPath||item.storagePath}:${item.updatedAt||''}`;
+    const cacheKey=`${item.id}:${item.renderedPreviewAvailable?'rendered':'source'}:${item.updatedAt||''}`;
     if (urlCache.has(cacheKey)) return urlCache.get(cacheKey);
     if ((urlFailureCache.get(item.id)||0)>Date.now()) return '';
     try {
-      const url = await window.LuviaMediaCore.signedUrl(item, 1800);
+      const url = await mediaReads().signedUrl(item.id, 1800);
       if (url) {urlCache.set(cacheKey, url);urlFailureCache.delete(item.id);return url}
       urlFailureCache.set(item.id,Date.now()+300000);return '';
     } catch {urlFailureCache.set(item.id,Date.now()+300000);return ''}
   }
   const safeFileName=(value,fallback='foto')=>{const v=String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-{2,}/g,'-').replace(/^-+|-+$/g,'');return(v||fallback).slice(0,90)};
-  const extensionFor=(item,url='')=>{const mime=String(item?.metadata?.renderedPreviewPath?'image/jpeg':item?.mimeType||'').split('/')[1];if(mime)return mime.replace('jpeg','jpg');return String(item?.originalName||url).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i)?.[1]?.toLowerCase()||'jpg'};
+  const extensionFor=(item,url='')=>{const mime=String(item?.renderedPreviewAvailable?'image/jpeg':item?.mimeType||'').split('/')[1];if(mime)return mime.replace('jpeg','jpg');return String(item?.originalName||url).match(/\.([a-z0-9]{2,5})(?:$|[?#])/i)?.[1]?.toLowerCase()||'jpg'};
   const downloadFileName=(item,index=1,url='')=>`${String(index).padStart(2,'0')}-${safeFileName(displayName(item)||item?.originalName||`foto-${index}`)}.${extensionFor(item,url)}`;
   function triggerDownload(source,name){const href=typeof source==='string'?source:URL.createObjectURL(source),a=document.createElement('a');a.href=href;a.download=name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();if(typeof source!=='string')setTimeout(()=>URL.revokeObjectURL(href),5000)}
   const encoder=new TextEncoder(),crcTable=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?0xEDB88320^(c>>>1):c>>>1;t[i]=c>>>0}return t})();
   function crc32(bytes){let c=0xFFFFFFFF;for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
   function zipBlob(files){const local=[],central=[];let offset=0;for(const f of files){const data=f.bytes,name=encoder.encode(f.name),crc=crc32(data),lh=new Uint8Array(30+name.length),lv=new DataView(lh.buffer);lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(8,0,true);lv.setUint32(14,crc,true);lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);lv.setUint16(26,name.length,true);lh.set(name,30);local.push(lh,data);const ch=new Uint8Array(46+name.length),cv=new DataView(ch.buffer);cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);cv.setUint16(28,name.length,true);cv.setUint32(42,offset,true);ch.set(name,46);central.push(ch);offset+=lh.length+data.length}const size=central.reduce((n,x)=>n+x.length,0),end=new Uint8Array(22),ev=new DataView(end.buffer);ev.setUint32(0,0x06054b50,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);ev.setUint32(12,size,true);ev.setUint32(16,offset,true);return new Blob([...local,...central,end],{type:'application/zip'})}
-  async function ensureMedia(id){return items.find(x=>String(x.id)===String(id))||await window.LuviaMediaCore.get(id)}
+  async function ensureMedia(id){return items.find(x=>String(x.id)===String(id))||await mediaReads().getMedia(id)}
   async function downloadPhotoAsset(idOrItem){const item=typeof idOrItem==='string'?await ensureMedia(idOrItem):idOrItem,url=await urlFor(item);if(!url)throw new Error('Foto konnte nicht geladen werden.');const r=await fetch(url);if(!r.ok)throw new Error('Foto konnte nicht heruntergeladen werden.');triggerDownload(await r.blob(),downloadFileName(item,1,url));return true}
   async function downloadCollection(ids,label='Luvia-Galerie'){const files=[];for(let i=0;i<ids.length;i++){const item=await ensureMedia(typeof ids[i]==='string'?ids[i]:ids[i].id),url=item?await urlFor(item):'';if(!url)continue;const r=await fetch(url);if(!r.ok)continue;files.push({name:downloadFileName(item,files.length+1,url),bytes:new Uint8Array(await r.arrayBuffer())})}if(!files.length)throw new Error('Keine Bilder konnten geladen werden.');triggerDownload(zipBlob(files),`${safeFileName(label,'Luvia-Galerie')}.zip`);return true}
   async function shareCollection(ids,label='Luvia-Album'){const files=[];for(let i=0;i<ids.length;i++){const item=await ensureMedia(ids[i]),url=item?await urlFor(item):'';if(!url)continue;const r=await fetch(url);if(!r.ok)continue;const blob=await r.blob();files.push({blob,name:downloadFileName(item,files.length+1,url),type:blob.type||'image/jpeg'})}if(files.length&&await platformPort('SharingPort')?.shareFiles?.({title:label,text:`${label} · ${files.length} Fotos`,files}))return true;await downloadCollection(ids,label);return false}
@@ -138,7 +141,7 @@
   }
   function fingerprint() {
     return JSON.stringify({
-      items: items.map(item => [item.id,item.favorite,item.displayName,item.dayKey,item.previewPath,item.editSettings,item.status]),
+      items: items.map(item => [item.id,item.favorite,item.displayName,item.dayKey,item.renderedPreviewAvailable,item.updatedAt,item.editSettings,item.status]),
       clusters: clusters.map(cluster => [cluster.id,cluster.title,cluster.state,cluster.mediaIds]),
       polaroids
     });
@@ -146,7 +149,7 @@
   function clusterInputFingerprint(list=items) {
     return JSON.stringify(list.map(item => [
       String(item.id), String(item.dayKey||''), String(item.capturedAt||item.createdAt||''), String(item.status||''),
-      item.latitude ?? null, item.longitude ?? null, item.metadata?.mediaKind || null
+      item.latitude ?? null, item.longitude ?? null, item.mediaKind || null
     ]).sort((a,b)=>a[0].localeCompare(b[0])));
   }
   function scheduleLoad(reason='Realtime', options={}) {
@@ -178,8 +181,7 @@
   }
 
   async function tripDays() {
-    const context = await window.LuviaMediaCore.getContext();
-    const trip = context.trip || {};
+    const trip = activeTrip();
     const start = trip.start_date || trip.startDate || trip.startsAt || trip.start_at;
     const end = trip.end_date || trip.endDate || trip.endsAt || trip.end_at;
     if (!start || !end) return [];
@@ -221,16 +223,16 @@
     root.querySelectorAll('[data-photo-open]').forEach(button => button.onclick = () => openLightbox(button.dataset.photoOpen));
     root.querySelectorAll('[data-photo-favorite]').forEach(button => button.onclick = async event => {
       event.stopPropagation(); suppressRealtimeUntil = Date.now()+1500;
-      await window.LuviaMediaCore.toggleFavorite(button.dataset.photoFavorite);
+      await mediaCommands().toggleFavorite(button.dataset.photoFavorite);
       await load({reason:'Favorit',silent:true,analyze:false,force:true});
     });
-    root.querySelectorAll('[data-photo-timeline]').forEach(button => button.onclick = async event => {event.stopPropagation();const item=items.find(x=>x.id===button.dataset.photoTimeline);if(!item?.dayKey)return showError(new Error('Dieses Foto ist keinem Reisetag zugeordnet.'));suppressRealtimeUntil=Date.now()+1400;button.disabled=true;try{await window.LuviaMediaCore.setPolaroid(item.id,item.dayKey);await load({reason:'Polaroid',silent:true,analyze:false,force:true});status('Foto wurde als Polaroid des Tages zur Timeline hinzugefügt.','ready')}finally{button.disabled=false}});
+    root.querySelectorAll('[data-photo-timeline]').forEach(button => button.onclick = async event => {event.stopPropagation();const item=items.find(x=>x.id===button.dataset.photoTimeline);if(!item?.dayKey)return showError(new Error('Dieses Foto ist keinem Reisetag zugeordnet.'));suppressRealtimeUntil=Date.now()+1400;button.disabled=true;try{await mediaCommands().setPolaroid(item.id,item.dayKey);await load({reason:'Polaroid',silent:true,analyze:false,force:true});status('Foto wurde als Polaroid des Tages zur Timeline hinzugefügt.','ready')}finally{button.disabled=false}});
     root.querySelectorAll('[data-photo-edit]').forEach(button => button.onclick = event => { event.stopPropagation(); openEditor(button.dataset.photoEdit); });
     root.querySelectorAll('[data-photo-remove]').forEach(button => button.onclick = async event => {
       event.stopPropagation();
       if (!confirm('Foto wirklich entfernen?')) return;
       suppressRealtimeUntil = Date.now()+1800;
-      await window.LuviaMediaCore.remove(button.dataset.photoRemove);
+      await mediaCommands().remove(button.dataset.photoRemove);
       await load({reason:'Löschen',silent:true,analyze:true,force:true});
     });
   }
@@ -334,12 +336,12 @@
   }
 
   async function openLightbox(id) {
-    let item=items.find(entry=>entry.id===id);if(!item){item=await window.LuviaMediaCore.get(id).catch(()=>null);if(item)items=[...items,item]}if(!item)return;
+    let item=items.find(entry=>entry.id===id);if(!item){item=await mediaReads().getMedia(id).catch(()=>null);if(item)items=[...items,item]}if(!item)return;
     const url=await urlFor(item),overlay=document.createElement('div');overlay.className='lv-photo-overlay';
     overlay.innerHTML=`<section class="lv-photo-dialog"><button data-close>×</button><div class="lv-photo-large">${url?`<img class="lv-photo-direct-image" src="${esc(url)}" alt="${esc(displayName(item))}">`:'<p>Bild konnte nicht geladen werden.</p>'}</div><footer><div><strong>${esc(displayName(item))}</strong><small>${esc(fmtDate(item.capturedAt))} · ${esc(fmtTime(item.capturedAt))}</small><small class="lv-photo-location">📍 ${esc(locationName(item))}</small></div><button data-light-download>⬇ Herunterladen</button><button data-light-polaroid>▣ Polaroid des Tages</button><button data-light-fav>${item.favorite?'★ Favorit':'☆ Favorit'}</button><button data-light-edit>✎ Bearbeiten</button></footer></section>`;
     const removeOverlay=mountOverlay(overlay),close=()=>removeOverlay();overlay.querySelector('[data-close]').onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
-    overlay.querySelector('[data-light-download]').onclick=async()=>{try{await downloadPhotoAsset(item)}catch(error){showError(error)}};const pb=overlay.querySelector('[data-light-polaroid]');if(pb)pb.onclick=async()=>{try{await window.LuviaMediaCore.setPolaroid(item.id,item.dayKey);status('Polaroid des Tages wurde in die Timeline übernommen.','ready')}catch(error){showError(error)}};
-    overlay.querySelector('[data-light-fav]').onclick=async()=>{suppressRealtimeUntil=Date.now()+1200;await window.LuviaMediaCore.toggleFavorite(id);close();await load({silent:true,force:true})};
+    overlay.querySelector('[data-light-download]').onclick=async()=>{try{await downloadPhotoAsset(item)}catch(error){showError(error)}};const pb=overlay.querySelector('[data-light-polaroid]');if(pb)pb.onclick=async()=>{try{await mediaCommands().setPolaroid(item.id,item.dayKey);status('Polaroid des Tages wurde in die Timeline übernommen.','ready')}catch(error){showError(error)}};
+    overlay.querySelector('[data-light-fav]').onclick=async()=>{suppressRealtimeUntil=Date.now()+1200;await mediaCommands().toggleFavorite(id);close();await load({silent:true,force:true})};
     overlay.querySelector('[data-light-edit]').onclick=()=>{close();openEditor(id)};
   }
 
@@ -361,7 +363,7 @@
     </div>`;
   }
 
-  function placeContextFor(item){const trip=activeTrip();const known=item.placeId&&window.LuviaPlaceCore?.getPlace?.(item.placeId);const destination=trip.destination||{};return{placeName:item.metadata?.resolvedLocation?.name||known?.name||known?.title||null,placeAddress:item.metadata?.resolvedLocation?.address||null,destinationName:destination.name||trip.destinationName||null,destinationLatitude:destination.latitude??null,destinationLongitude:destination.longitude??null};}
+  function placeContextFor(item){const trip=activeTrip();const known=item.placeId&&window.LuviaPlaceCore?.getPlace?.(item.placeId);const destination=trip.destination||{};return{placeName:item.resolvedLocation?.name||known?.name||known?.title||null,placeAddress:item.resolvedLocation?.address||null,destinationName:destination.name||trip.destinationName||null,destinationLatitude:destination.latitude??null,destinationLongitude:destination.longitude??null};}
   function galleryDownloadLabel(){const trip=activeTrip();return`${trip.title||'Luvia'} Galerie`;}
   async function aiTitleFor(item) {
     const url = await urlFor(item);
@@ -374,7 +376,7 @@
   }
 
   async function openEditor(id) {
-    let item=items.find(entry=>entry.id===id); if(!item){item=await window.LuviaMediaCore.get(id).catch(()=>null);if(item)items=[...items,item]} if(!item)return;
+    let item=items.find(entry=>entry.id===id); if(!item){item=await mediaReads().getMedia(id).catch(()=>null);if(item)items=[...items,item]} if(!item)return;
     const validPolaroid=(await tripDays()).includes(item.dayKey),url=await urlFor(item),edit=settings(item),state={...edit,overlays:[...(edit.overlays||[])]},overlay=document.createElement('div');
     if(edit.sticker && !(edit.overlays||[]).length)state.overlays.push({type:'sticker',value:edit.sticker,x:.84,y:.16,size:.13,rotation:0,schema:'image-v2'});
     if(edit.caption && !(edit.overlays||[]).some(x=>x.type==='text'))state.overlays.push({type:'text',value:edit.caption,x:.5,y:.78,size:.07,rotation:0,schema:'image-v2'});
@@ -383,7 +385,7 @@
     const removeOverlay=mountOverlay(overlay);
     const preview=overlay.querySelector('.lv-editor-preview'),img=preview.querySelector('img'),vignette=preview.querySelector('.lv-photo-vignette'),overlayStage=preview.querySelector('[data-overlay-stage]');
     const syncOverlayStage=()=>{overlayStage.style.left=`${img.offsetLeft}px`;overlayStage.style.top=`${img.offsetTop}px`;overlayStage.style.width=`${img.offsetWidth}px`;overlayStage.style.height=`${img.offsetHeight}px`;overlayStage.style.transform=`rotate(${Number(state.rotation||0)}deg)`;overlayStage.style.transformOrigin='center';};img.addEventListener('load',()=>requestAnimationFrame(syncOverlayStage));if(img.complete)requestAnimationFrame(syncOverlayStage);img.addEventListener('error',()=>{if(!img.alt)img.alt='Vorschau nicht verfügbar'});new ResizeObserver(()=>syncOverlayStage()).observe(preview);
-    overlay.querySelector('[data-ed="frame"]').value=state.frame||''; const nameInput=overlay.querySelector('[data-edit-name]'); if(nameInput) nameInput.value=item.displayName||''; const summary=overlay.querySelector('[data-metadata-summary]'); if(summary) summary.textContent=[item.capturedAt?`${fmtDate(item.capturedAt)} · ${fmtTime(item.capturedAt)}`:'',item.metadata?.resolvedLocation?.name?`Ort: ${item.metadata.resolvedLocation.name}`:item.latitude!=null&&item.longitude!=null?'EXIF-GPS vorhanden, Ort noch nicht benannt':'Kein GPS in der gelieferten Datei',item.metadata?.captureEvidence||item.metadata?.exif?.gpsAvailable?'Metadaten verfügbar':''].filter(Boolean).join(' · ');
+    overlay.querySelector('[data-ed="frame"]').value=state.frame||''; const nameInput=overlay.querySelector('[data-edit-name]'); if(nameInput) nameInput.value=item.displayName||''; const summary=overlay.querySelector('[data-metadata-summary]'); if(summary) summary.textContent=[item.capturedAt?`${fmtDate(item.capturedAt)} · ${fmtTime(item.capturedAt)}`:'',item.resolvedLocation?.name?`Ort: ${item.resolvedLocation.name}`:item.latitude!=null&&item.longitude!=null?'EXIF-GPS vorhanden, Ort noch nicht benannt':'Kein GPS in der gelieferten Datei',item.captureEvidenceAvailable?'Metadaten verfügbar':''].filter(Boolean).join(' · ');
     const renderOverlays=()=>{overlayStage.innerHTML=(state.overlays||[]).map((raw,i)=>{const o=normalizeOverlay(raw);state.overlays[i]=o;return `<div class="lv-canvas-item ${o.type==='text'?'is-text':'is-sticker'}" data-overlay-index="${i}" style="left:${o.x*100}%;top:${o.y*100}%;--overlay-size:${o.size};transform:translate(-50%,-50%) rotate(${o.rotation}deg)"><span>${esc(o.value||'')}</span><button type="button" data-overlay-delete="${i}">×</button><i data-overlay-handle="${i}" title="Größe ziehen · Doppeltippen dreht">↗</i><output>${Math.round(o.size*100)}%</output></div>`}).join('');bindCanvasItems()};
     const bindCanvasItems=()=>{overlayStage.querySelectorAll('.lv-canvas-item').forEach(node=>{let start=null;node.onpointerdown=e=>{if(e.target.closest('button,i'))return;node.setPointerCapture(e.pointerId);const r=overlayStage.getBoundingClientRect(),o=state.overlays[Number(node.dataset.overlayIndex)];start={x:e.clientX,y:e.clientY,ox:o.x,oy:o.y,r};};node.onpointermove=e=>{if(!start)return;const o=state.overlays[Number(node.dataset.overlayIndex)];o.x=Math.max(0,Math.min(1,start.ox+(e.clientX-start.x)/start.r.width));o.y=Math.max(0,Math.min(1,start.oy+(e.clientY-start.y)/start.r.height));node.style.left=(o.x*100)+'%';node.style.top=(o.y*100)+'%'};node.onpointerup=()=>start=null;});overlayStage.querySelectorAll('[data-overlay-delete]').forEach(b=>b.onclick=()=>{state.overlays.splice(Number(b.dataset.overlayDelete),1);renderOverlays()});overlayStage.querySelectorAll('[data-overlay-handle]').forEach(h=>{let startDistance=0,base=.13;h.onpointerdown=e=>{e.preventDefault();e.stopPropagation();const node=h.parentElement,r=node.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;startDistance=Math.max(1,Math.hypot(e.clientX-cx,e.clientY-cy));base=state.overlays[Number(h.dataset.overlayHandle)].size||.13;h.setPointerCapture(e.pointerId)};h.onpointermove=e=>{if(!h.hasPointerCapture(e.pointerId))return;const node=h.parentElement,r=node.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.max(1,Math.hypot(e.clientX-cx,e.clientY-cy)),o=state.overlays[Number(h.dataset.overlayHandle)];o.size=Math.max(.025,Math.min(.5,base*(d/startDistance)));node.style.setProperty('--overlay-size',o.size);const out=node.querySelector('output');if(out)out.textContent=Math.round(o.size*100)+'%'};h.onpointerup=e=>{try{h.releasePointerCapture(e.pointerId)}catch{}};h.onpointercancel=h.onpointerup;h.ondblclick=()=>{const o=state.overlays[Number(h.dataset.overlayHandle)];o.rotation=(Number(o.rotation||0)+15)%360;renderOverlays()}})};
     const apply=()=>{img.style.filter=editCss({editSettings:state});img.style.transform=`rotate(${Number(state.rotation||0)}deg)`;preview.className=`lv-editor-preview frame-${state.frame||'none'}`;vignette.style.opacity=Math.min(.8,Number(state.vignette||0)/100);syncOverlayStage();renderOverlays()}; apply();
@@ -397,8 +399,8 @@
     overlay.querySelectorAll('[data-quick-sticker]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.quickSticker;if(!value)return;state.overlays=[...(state.overlays||[]),{type:'sticker',value,x:.5,y:.5,size:.13,rotation:0,schema:'image-v2'}];apply()}));
     overlay.querySelector('[data-add-text]')?.addEventListener('click',()=>{const value=overlay.querySelector('[data-ed="caption"]')?.value?.trim()||'Euer Moment';state.overlays=[...(state.overlays||[]),{type:'text',value,x:.5,y:.78,size:.07,rotation:0,schema:'image-v2'}];apply()});
     overlay.querySelector('[data-reset]').onclick=()=>{Object.assign(state,{brightness:100,contrast:100,saturation:100,temperature:0,blur:0,vignette:0,exposure:0,highlights:0,shadows:0,clarity:0,hue:0,grain:0,filter:'none',rotation:0,frame:'',sticker:'',caption:'',overlays:[]});const textInput=overlay.querySelector('[data-ed="caption"]'); if(textInput) textInput.value=''; apply();overlay.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('is-active',x.dataset.filter==='none'))};
-    const polaroidButton=overlay.querySelector('[data-polaroid]'); if(polaroidButton&&!polaroidButton.disabled)polaroidButton.onclick=async()=>{suppressRealtimeUntil=Date.now()+1200;await window.LuviaMediaCore.setPolaroid(id,item.dayKey);removeOverlay();await load({silent:true,force:true});status('Polaroid des Tages gespeichert.','ready')};
-    overlay.querySelector('[data-save]').onclick=async()=>{const button=overlay.querySelector('[data-save]');button.disabled=true;button.textContent='Wird fest gespeichert …';try{suppressRealtimeUntil=Date.now()+2200;const blob=await renderComposite(item,state),name=overlay.querySelector('[data-edit-name]')?.value||item.displayName||'';await window.LuviaMediaCore.saveRenderedPreview(id,blob,{displayName:name,editSettings:state});urlCache.clear();window.dispatchEvent(new CustomEvent('luvia:media-view-refresh',{detail:{mediaId:id}}));removeOverlay();await load({silent:true,force:true});status('Foto wurde als feste bearbeitete Ansicht gespeichert.','ready')}catch(error){showError(error);button.disabled=false;button.textContent='Speichern'}};
+    const polaroidButton=overlay.querySelector('[data-polaroid]'); if(polaroidButton&&!polaroidButton.disabled)polaroidButton.onclick=async()=>{suppressRealtimeUntil=Date.now()+1200;await mediaCommands().setPolaroid(id,item.dayKey);removeOverlay();await load({silent:true,force:true});status('Polaroid des Tages gespeichert.','ready')};
+    overlay.querySelector('[data-save]').onclick=async()=>{const button=overlay.querySelector('[data-save]');button.disabled=true;button.textContent='Wird fest gespeichert …';try{suppressRealtimeUntil=Date.now()+2200;const blob=await renderComposite(item,state),name=overlay.querySelector('[data-edit-name]')?.value||item.displayName||'';await mediaCommands().saveRenderedPreview(id,blob,{displayName:name,editSettings:state});urlCache.clear();window.dispatchEvent(new CustomEvent('luvia:media-view-refresh',{detail:{mediaId:id}}));removeOverlay();await load({silent:true,force:true});status('Foto wurde als feste bearbeitete Ansicht gespeichert.','ready')}catch(error){showError(error);button.disabled=false;button.textContent='Speichern'}};
     const close=()=>removeOverlay(); overlay.querySelector('[data-close]').onclick=close; overlay.onclick=e=>{if(e.target===overlay)close()};
   }
 
@@ -413,10 +415,10 @@
 
   async function readData({analyze=false}={}) {
     const started=performance.now(); diagnosticsState.readDataCount++;
-    items=await window.LuviaMediaCore.list({type:'image'});
-    const pendingMetadata=items.filter(item=>!item.metadata?.captureEvidence&&!item.metadata?.metadataAutoCheckedAt).slice(0,4);
-    for(const candidate of pendingMetadata){try{const refreshed=await window.LuviaMediaCore.reanalyze(candidate.id);items=items.map(x=>x.id===refreshed.id?refreshed:x)}catch{}}
-    polaroids=await window.LuviaMediaCore.listPolaroids();
+    items=await mediaReads().listMedia({type:'image'});
+    const pendingMetadata=items.filter(item=>!item.captureEvidenceAvailable&&!item.metadataAutoChecked).slice(0,4);
+    for(const candidate of pendingMetadata){try{const refreshed=await mediaCommands().reanalyze(candidate.id);items=items.map(x=>x.id===refreshed.id?refreshed:x)}catch{}}
+    polaroids=await mediaReads().listPolaroids();
     if (analyze) {
       const clusterFingerprint=clusterInputFingerprint(items);
       if (clusterFingerprint === lastClusterInputFingerprint) {
@@ -485,7 +487,7 @@
     suppressRealtimeUntil=Date.now()+120000;clearTimeout(loadTimer);loadTimer=null;pending=null;
     status('Galerie wird vollständig geleert …');
     try{
-      const result=await window.LuviaMediaCore.clearTripGallery({onProgress:progress=>status(progress)});
+      const result=await mediaCommands().clearGallery({onProgress:progress=>status(progress)});
       urlCache.clear();urlFailureCache.clear();items=[];clusters=[];polaroids={};lastFingerprint='';lastClusterInputFingerprint='';
       await renderAll({force:true});status('Galerie wurde vollständig geleert.','ready');
       window.dispatchEvent(new CustomEvent('luvia:gallery-cleared',{detail:result}));
@@ -507,7 +509,7 @@
     status(`${list.length} Foto${list.length===1?'':'s'} werden hochgeladen …`);
     for(let i=0;i<list.length;i++){
       status(`Upload ${i+1}/${list.length}: ${list[i].name||'Foto'}`);
-      await window.LuviaMediaCore.upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?platformPort('DevicePort')?.info?.()||null:null});
+      await mediaCommands().upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?platformPort('DevicePort')?.info?.()||null:null});
     }
     await load({silent:false,analyze:true,force:true});
     suppressRealtimeUntil=Date.now()+5000;
@@ -516,18 +518,17 @@
   function mediaRealtime(payload) {
     diagnosticsState.mediaRealtimeCount++;
     lastMediaRealtimeAt=Date.now();
-    const table=payload?.table||'';
-    const event=payload?.eventType || payload?.event;
-    diag('media-realtime',{table,event});
-    if(!['media','media_day_polaroids'].includes(table))return;
-    if(table==='media' && event==='UPDATE'){
-      const newRow=payload?.new||{},current=items.find(item=>String(item.id)===String(newRow.id));
-      const visibleNow=current?{display_name:current.displayName||null,favorite:Boolean(current.favorite),edit_settings:current.editSettings||{},status:current.status,captured_at:current.capturedAt,day_key:current.dayKey}:null;
-      const meaningful=!visibleNow||['display_name','favorite','edit_settings','status','captured_at','day_key'].some(key=>JSON.stringify(visibleNow[key]??null)!==JSON.stringify(newRow[key]??null));
+    const scope=payload?.scope||'';
+    const event=payload?.eventType;
+    diag('media-realtime',{scope,event});
+    if(!['media','polaroids'].includes(scope))return;
+    if(scope==='media' && event==='UPDATE'){
+      const next=payload?.media||{},current=items.find(item=>String(item.id)===String(next.id));
+      const meaningful=!current||['displayName','favorite','editSettings','status','capturedAt','dayKey','renderedPreviewAvailable','updatedAt'].some(key=>JSON.stringify(current[key]??null)!==JSON.stringify(next[key]??null));
       if(!meaningful){diag('media-realtime-ignored',{reason:'delivery-metadata-update'});return}
     }
-    const newRow=payload?.new||{},current=items.find(item=>String(item.id)===String(newRow.id));
-    const analyze=table==='media'&&(event==='INSERT'||event==='DELETE'||(event==='UPDATE'&&(!current||String(current.capturedAt||'')!==String(newRow.captured_at||'')||String(current.dayKey||'')!==String(newRow.day_key||'')||String(current.status||'')!==String(newRow.status||''))));
+    const next=payload?.media||{},current=items.find(item=>String(item.id)===String(next.id||payload?.mediaId));
+    const analyze=scope==='media'&&(event==='INSERT'||event==='DELETE'||(event==='UPDATE'&&(!current||String(current.capturedAt||'')!==String(next.capturedAt||'')||String(current.dayKey||'')!==String(next.dayKey||'')||String(current.status||'')!==String(next.status||''))));
     scheduleLoad('Media Realtime',{realtime:true,silent:true,analyze,force:false});
   }
   function clusterRealtime(payload) {
@@ -555,7 +556,7 @@
     host.querySelector('[data-gallery-clear]').onclick=()=>clearGallery();
     host.querySelector('[data-gallery-add]').onclick=async()=>{try{const files=await platformPort('MediaPickerPort')?.pickImages?.()||[];await upload(files)}catch(error){showError(error)}};
     host.querySelector('[data-gallery-capture]').onclick=async()=>{try{const file=await platformPort('MediaCapturePort')?.captureImage?.({facingMode:'environment'});if(file)await upload([file],{camera:true})}catch(error){showError(error)}};
-        unsubMedia=await window.LuviaMediaCore.subscribe(mediaRealtime);
+    unsubMedia=await mediaReads().subscribe(mediaRealtime);
     unsubClusters=await window.LuviaMediaClustering.subscribe(clusterRealtime);
     const refresh=()=>scheduleLoad('Media-Ansicht aktualisiert',{immediate:true,force:true,analyze:false});window.addEventListener('luvia:media-composite-updated',refresh);window.addEventListener('luvia:media-view-refresh',refresh);window.addEventListener('luvia:media-deleted',refresh);host.__luviaMediaRefresh=refresh;await load({silent:false,analyze:true,force:true});
     return ()=>unmount();

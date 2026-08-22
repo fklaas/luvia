@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='media.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.0.0';
+  const RUNTIME_VERSION='1.1.0';
 
   function providerError(provider){
     const error=new Error(`Media contract provider unavailable: ${provider}`);
@@ -53,16 +53,68 @@
       'contrast',
       'saturation',
       'warmth',
-      'filter'
+      'temperature',
+      'blur',
+      'vignette',
+      'exposure',
+      'highlights',
+      'shadows',
+      'clarity',
+      'hue',
+      'grain',
+      'filter',
+      'frame',
+      'sticker',
+      'caption'
     ]){
       if(value[key]!==undefined)out[key]=value[key];
+    }
+
+    if(Array.isArray(value.overlays)){
+      out.overlays=freezeArray(
+        value.overlays.map(item=>Object.freeze({
+          type:text(item?.type),
+          value:text(item?.value),
+          x:number(item?.x),
+          y:number(item?.y),
+          size:number(item?.size),
+          rotation:number(item?.rotation),
+          schema:text(item?.schema)
+        }))
+      );
     }
 
     return Object.freeze(out);
   }
 
+  function projectResolvedLocation(value){
+    if(!value||typeof value!=='object'||Array.isArray(value))return null;
+
+    return Object.freeze({
+      name:text(value.name),
+      address:text(value.address),
+      providerPlaceId:text(
+        pick(value,'providerPlaceId','provider_place_id')
+      ),
+      primaryType:text(
+        pick(value,'primaryType','primary_type')
+      ),
+      status:text(value.status),
+      source:text(value.source),
+      distanceMeters:number(
+        pick(value,'distanceMeters','distance_meters')
+      ),
+      confidence:number(value.confidence)
+    });
+  }
+
   function projectMedia(item){
     if(!item)return null;
+
+    const metadata=
+      item.metadata&&typeof item.metadata==='object'
+        ?item.metadata
+        :{};
 
     return Object.freeze({
       id:text(item.id),
@@ -85,6 +137,25 @@
       fileSize:number(pick(item,'fileSize','file_size')),
       placeId:text(pick(item,'placeId','place_id')),
       favorite:bool(item.favorite),
+      renderedPreviewAvailable:Boolean(
+        pick(item,'renderedPreviewPath','rendered_preview_path')||
+        metadata.renderedPreviewPath
+      ),
+      mediaKind:text(
+        pick(item,'mediaKind','media_kind')??metadata.mediaKind
+      ),
+      captureEvidenceAvailable:Boolean(
+        metadata.captureEvidence||metadata.exif?.gpsAvailable
+      ),
+      metadataAutoChecked:Boolean(
+        metadata.metadataAutoCheckedAt
+      ),
+      resolvedLocation:projectResolvedLocation(
+        metadata.resolvedLocation
+      ),
+      captureLocationName:text(
+        metadata.captureLocation?.name
+      ),
       editSettings:projectEditSettings(
         pick(item,'editSettings','edit_settings')
       ),
@@ -292,6 +363,59 @@
     )(item,expiresIn);
   }
 
+  async function listPolaroids(){
+    const rows=await provider(
+      'LuviaMediaCore',
+      'listPolaroids'
+    )();
+
+    return Object.freeze(
+      Object.fromEntries(
+        Object.entries(rows||{}).map(
+          ([dayKey,mediaId])=>[
+            String(dayKey),
+            text(mediaId)
+          ]
+        )
+      )
+    );
+  }
+
+  function projectMediaRealtime(payload={}){
+    const table=text(payload.table);
+    const current=projectMedia(payload.new);
+    const previous=projectMedia(payload.old);
+
+    return Object.freeze({
+      scope:table==='media_day_polaroids'
+        ?'polaroids'
+        :'media',
+      eventType:text(
+        pick(payload,'eventType','event_type','event')
+      ),
+      mediaId:text(
+        current?.id??previous?.id??
+        pick(payload.new,'id','media_id')??
+        pick(payload.old,'id','media_id')
+      ),
+      media:current,
+      previous
+    });
+  }
+
+  async function subscribe(listener){
+    if(typeof listener!=='function'){
+      throw new TypeError(
+        'Media Contract v1: subscribe(listener) benötigt eine Funktion.'
+      );
+    }
+
+    return provider(
+      'LuviaMediaCore',
+      'subscribe'
+    )(payload=>listener(projectMediaRealtime(payload)));
+  }
+
   async function listAlbums(){
     const rows=await provider(
       'LuviaMemoryAlbums',
@@ -416,6 +540,54 @@
           'remove'
         )(mediaId)
       );
+    },
+
+    async saveRenderedPreview(
+      mediaId,
+      blob,
+      options={}
+    ){
+      const safeOptions={};
+      if(options.displayName!==undefined){
+        safeOptions.displayName=text(options.displayName);
+      }
+      if(options.editSettings!==undefined){
+        safeOptions.editSettings=projectEditSettings(
+          options.editSettings
+        );
+      }
+
+      return projectMedia(
+        await provider(
+          'LuviaMediaCore',
+          'saveRenderedPreview'
+        )(mediaId,blob,safeOptions)
+      );
+    },
+
+    async clearGallery(options={}){
+      const result=await provider(
+        'LuviaMediaCore',
+        'clearTripGallery'
+      )({
+        onProgress:
+          typeof options.onProgress==='function'
+            ?options.onProgress
+            :undefined
+      });
+
+      return Object.freeze({
+        tripId:text(
+          pick(result,'tripId','trip_id')
+        ),
+        count:number(result?.count)??0,
+        albumCount:number(
+          pick(result,'albumCount','album_count')
+        )??0,
+        clusterCount:number(
+          pick(result,'clusterCount','cluster_count')
+        )??0
+      });
     }
 
   });
@@ -744,6 +916,8 @@
     getMedia,
     signedUrl,
     signedOriginalUrl,
+    listPolaroids,
+    subscribe,
     listAlbums,
     listCards,
     listJourneys
@@ -804,6 +978,8 @@
     getMedia,
     signedUrl,
     signedOriginalUrl,
+    listPolaroids,
+    subscribe,
     listAlbums,
     listCards,
     listJourneys,
