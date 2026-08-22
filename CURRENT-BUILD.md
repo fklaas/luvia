@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M7.3 Memory Asset Delivery Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-22**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1-M7.2 COMPLETE / CLOSED; M7.3 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1-M7.3 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1469,3 +1469,29 @@ Production build/check: `aaa26d29-24cf-4ad1-abd8-3abdee9b9153` / `97022054088`, 
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, or manual Cloudflare deployment/configuration mutation occurred. Clustering, AI Memory, Albums/Cards/Journeys, Timeline/Journey, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
 <!-- LUVIA:M7.2:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.3:CLOSEOUT:START -->
+## M7.3 — Memory Asset Delivery Contract Adoption
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.20 / 4.82.20
+
+**Feature Commit:** `21ef490c30dc2cc0ddc011300ef0e3b638321d10`
+
+**Runtime Release Commit:** `63a73bcd3b39de723b97c86887b866e488659d60`
+
+All six direct private Media Core references in the locked Memory Experience asset-delivery targets are removed. Albums View, Memory Worlds v2/v3, and the Memory Export Engine now resolve signed assets lazily through `media.v1` and pass only Media IDs across the public boundary. URL caching, graceful missing-asset behavior, and the JavaScript/TypeScript source mirrors are preserved.
+
+Safe Regression is **45/45 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **11/11 exact changed-runtime Git blobs**, **5/5 private-path SPA fallback**, authenticated F5, active-Trip retention, Memory Albums rendering with 59 curated Cards and 2 travelers, loaded signed images, and **0/0 browser-console warnings/errors**.
+
+Integration Preview version: `805b8187-86f9-4b43-8254-7f574b11c6ae`, alias `integration`, `has_preview=true`.
+
+Production version at 100% traffic: `476ec499-830d-4cbb-87a3-e9e32a79cd4d`.
+
+Production build/check: `7df7ffbb-7f30-43aa-bd9c-76335dba88a4` / `97023989740`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, or manual Cloudflare deployment/configuration mutation occurred. Smart Photo Moments/Clustering, AI Memory, Memory owner services, legacy Gallery sync, Timeline/Journey, Realtime/hydration ownership, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
+<!-- LUVIA:M7.3:CLOSEOUT:END -->

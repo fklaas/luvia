@@ -788,3 +788,36 @@ Production build/check: `aaa26d29-24cf-4ad1-abd8-3abdee9b9153` / `97022054088`, 
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
 <!-- LUVIA:M7.2:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.3:CLOSEOUT:START -->
+## M7.3 Memory Asset Delivery Contract Adoption — COMPLETE / CLOSED
+
+Date: 2026-08-22
+
+Runtime App/Core: **13.82.20 / 4.82.20**
+
+Feature commit: `21ef490c30dc2cc0ddc011300ef0e3b638321d10`
+
+Runtime release commit: `63a73bcd3b39de723b97c86887b866e488659d60`
+
+Measured result:
+
+- locked Memory Experience direct private Media Core refs: **6 -> 0**;
+- signed asset requests: lazy public `media.v1`, **Media ID-only**;
+- Contract version/projection change: **NONE**;
+- Media/Album/Card/Journey/Trip truth move: **NONE**;
+- JavaScript/TypeScript source mirrors: aligned;
+- Smart Photo Moments 3, Clustering 2, AI Memory 5, Memory owners 4, Timeline/Journey 2, and legacy sync 10 direct references: retained as separately classified later scopes;
+- Safe Regression on Platform, Integration, Main: **45/45 PASS**;
+- Integration Preview: **11/11 exact assets**, **5/5 privacy**, authenticated F5/Memory Albums, console **0/0**;
+- Production: **11/11 exact assets**, **5/5 privacy**, authenticated F5/Memory Albums, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview version: `805b8187-86f9-4b43-8254-7f574b11c6ae`, alias `integration`, `has_preview=true`.
+
+Production version at 100%: `476ec499-830d-4cbb-87a3-e9e32a79cd4d`.
+
+Production build/check: `7df7ffbb-7f30-43aa-bd9c-76335dba88a4` / `97023989740`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
+<!-- LUVIA:M7.3:CLOSEOUT:END -->

@@ -1,6 +1,6 @@
 # PCR M7.3 — Memory Asset Delivery Contract Adoption
 
-Status: **IMPLEMENTED / LOCAL VALIDATED**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED**
 
 Source-lock marker: `18cff2350c487647a0984dd472d93e2785094861`
 
@@ -44,6 +44,32 @@ Locked targets:
 - existing Memory behavior and source mirrors: retained;
 - separately classified direct-reference counts: unchanged;
 - Safe Regression: **45/45 PASS** on `feature/platform-core`.
+
+The separately executed historical non-Allowlist test `memory-visual-system-v13.37.0.test.cjs` still expects Memory Worlds 13.37.0/4.37.0 while both its Git-HEAD baseline and current runtime are 13.37.7/4.37.7. M7.3 did not alter those version lines, did not rewrite the historical test, and does not count it as new acceptance evidence.
+
+## Release and environment acceptance
+
+- Feature commit: `21ef490c30dc2cc0ddc011300ef0e3b638321d10`;
+- Runtime release commit: `63a73bcd3b39de723b97c86887b866e488659d60`;
+- App/Core: **13.82.20 / 4.82.20**;
+- Safe Regression: **45/45 PASS** on Platform, Integration, and Main;
+- Integration Preview version: `805b8187-86f9-4b43-8254-7f574b11c6ae`, alias `integration`, `has_preview=true`, trigger annotation `version_upload`;
+- Integration: **11/11 exact Git blobs**, **5/5 privacy**, authenticated F5, active Trip, 59 curated Cards, 2 travelers, signed images rendered, console **0/0**;
+- Main promotion: **FF-only PASS**;
+- Production version: `476ec499-830d-4cbb-87a3-e9e32a79cd4d` at **100%**;
+- Production build/check: `7df7ffbb-7f30-43aa-bd9c-76335dba88a4` / `97023989740`, **SUCCESS**;
+- Production: **11/11 exact Git blobs**, **5/5 privacy**, authenticated F5, active Trip, 59 curated Cards, 2 travelers, signed images rendered, console **0/0**.
+
+## Infrastructure and milestone result
+
+- database/schema/RPC/bucket/RLS change: **NONE**;
+- Edge Function change: **NONE**;
+- secret change: **NONE**;
+- manual Cloudflare deployment/configuration change: **NONE**;
+- Media/Memory truth or Realtime-owner move: **NONE**;
+- Timeline/Journey change: **NONE**.
+
+M7.3 is closed; M7 remains in progress.
 
 ## Rollback
 
