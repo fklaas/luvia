@@ -586,3 +586,49 @@ Infrastructure:
 M5 status: **COMPLETE / CLOSED**.
 Next milestone: **M6**.
 <!-- LUVIA:M5:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M6.1:CLOSEOUT:START -->
+## M6.1 Places State Core Foundation — COMPLETE / PRODUCTION VERIFIED
+
+Feature Commit: `9b9b782baa3fa58ed8bc9be5e96214da084a52e4`
+
+Runtime Release Commit: `f4adb8b07cc131166241bfa3051c1ea3119c1bfb`
+
+App/Core: **13.82.15 / 4.82.15**
+
+Migration outcome:
+
+- the pre-existing `place-core.js` record map is physically isolated in runtime-neutral `core/places/place-state-core.js`;
+- the physical Places State Core has zero browser, DOM, storage, network, Supabase, DB, RPC, or device coupling;
+- `core/places/place-core.js` is the Web compatibility/orchestration adapter and owns no second record map;
+- the `LuviaPlaceCore` / `LuviaPlacesCore` Web API surface remains compatible;
+- public `places.v1` remains unchanged;
+- Timeline/Journey remains reserved, separately classified, and unchanged;
+- runtime/collection projection maps remain retained debt under explicit later audit rather than being silently declared duplicate-free;
+- no Category, Discovery, Intelligence, Location, Permission, Deep Link, External Navigation, Offline/Cache, Experience, DB, RPC, or schema migration was bundled into the state slice.
+
+Validation:
+
+- maintained focused Places regression: **7/7 PASS**;
+- Platform, Integration, and Main Safe Regression: **40/40 PASS** each;
+- Integration Preview runtime provenance: **12/12 EXACT**;
+- Integration Preview static privacy: **5/5 PASS**;
+- Integration authenticated F5 and Places UI: **PASS**;
+- Production runtime provenance: **12/12 EXACT**;
+- Production static privacy: **5/5 PASS**;
+- Production authenticated F5 and Places UI: **PASS**;
+- Places discovery categories visible in Preview and Production: **10/10 PASS**;
+- Browser console warnings/errors: **0/0** in both accepted environments.
+
+Infrastructure:
+
+- DB migration: **NONE**;
+- RPC/schema change: **NONE**;
+- Edge Function change: **NONE**;
+- Secret change: **NONE**;
+- manual Cloudflare configuration change: **NONE**.
+
+M6.1 is **COMPLETE / PRODUCTION VERIFIED**. M6 remains **IN PROGRESS**.
+
+Next controlled work begins with a read-only proof of runtime/collection projection ownership before another Places state mutation. Location/Permission port adoption remains a separate slice.
+<!-- LUVIA:M6.1:CLOSEOUT:END -->

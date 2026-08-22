@@ -1341,3 +1341,27 @@ Tracking Prevention messages and the geolocation user-gesture warning remain exi
 
 M5 Trip Core Isolation is **COMPLETE / CLOSED**. The next roadmap milestone is **M6**.
 <!-- LUVIA:M5:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M6.1:CLOSEOUT:START -->
+## M6.1 — Places State Core Foundation
+
+**Status:** COMPLETE / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-22
+
+**Runtime App / Core:** 13.82.15 / 4.82.15
+
+**Feature Commit:** `9b9b782baa3fa58ed8bc9be5e96214da084a52e4`
+
+**Runtime Release Commit:** `f4adb8b07cc131166241bfa3051c1ea3119c1bfb`
+
+The existing in-memory Place record map is now owned by browserless `core/places/place-state-core.js`. `core/places/place-core.js` remains the Web compatibility/orchestration adapter and contains no second record map. `places.v1`, Timeline/Journey, DB/RPC, Location, Category routing, Intelligence, Experience, and persistence behavior remain unchanged.
+
+Platform, Integration, and Main Safe Regression are 40/40 PASS. Integration Preview and Production each serve 12/12 exact runtime Git blobs, protect 5/5 internal paths through SPA-fallback classification, preserve authenticated active-Trip state before and after F5, render the Places hub and all ten categories, and report zero browser-console warnings/errors.
+
+Production currently serves Cloudflare version `50a9ad97-d841-46e0-81d3-9ca1e5619f77` at 100% traffic. Cloudflare reports `Unknown (deployment/version_upload)` as source; no unsupported trigger causation is claimed.
+
+No database migration, RPC/schema change, Edge Function change, secret change, or manual Cloudflare configuration change was required.
+
+M6 remains IN PROGRESS. The next controlled scope is a read-only ownership audit of Places runtime/collection projections before any further state consolidation; Location/Permission extraction remains separate.
+<!-- LUVIA:M6.1:CLOSEOUT:END -->

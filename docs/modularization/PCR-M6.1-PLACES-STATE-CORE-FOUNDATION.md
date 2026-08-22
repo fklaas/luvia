@@ -1,6 +1,6 @@
 # PCR M6.1 — Places State Core Foundation
 
-Status: scope locked from read-only baseline; implementation limited to the physical Places record-state boundary.
+Status: **COMPLETE / PRODUCTION VERIFIED**. Scope was locked from the read-only baseline and implementation remained limited to the physical Places record-state boundary.
 
 Baseline commit: `5cb5161f942cf67b6378c954befae94f6d541203`
 
