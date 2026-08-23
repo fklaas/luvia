@@ -6,7 +6,7 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 
 | Owner | Owns truth for | Public surface today / M3 target | Must not own |
 |---|---|---|---|
-| Platform | boot primitives, auth/session, single Supabase client, global contracts/capabilities, design/UI primitives, runtime stages, navigation intents/history policy, product-module lifecycle | GlobalContracts, CapabilityRegistry, ProductModuleRegistry, `app-runtime.v1`, `module-mount.v1`, `navigation.v1`, `navigation-history.v1`, Auth, SupabaseService, shared UI/theme | Trip/Places/Booking/Media/Identity/Social business truth |
+| Platform | boot primitives, auth/session, single Supabase client, global contracts/capabilities, design/UI primitives, runtime stages/signals, navigation intents/history policy, product-module lifecycle | GlobalContracts, CapabilityRegistry, ProductModuleRegistry, `app-runtime.v1`, `app-runtime-signals.v1`, `module-mount.v1`, `navigation.v1`, `navigation-history.v1`, Auth, SupabaseService, shared UI/theme | Trip/Places/Booking/Media/Identity/Social business truth |
 | Trip | trips, active trip state, trip metadata, trip membership truth boundary, timeline/schedule trip truth | TripStore + TripContext today; `trip.v1` adapter in M3 | Places lifecycle, Booking lifecycle, Media storage, Social graph |
 | Places | places, trip-place lifecycle/planning linkage, place visits, place search/import abstraction | PlaceCore/PlaceEntities/PlaceCommands today; `places.v1` in M3 | Trip identity, Booking provider truth, Media truth |
 | Booking | bookings, provider selection/status/provenance, messages, intelligence, attribution, mutations, recovery | **LuviaBooking** today and remains supported; `booking.v1` contract declaration | Consumer state, Social graph, Trip/Place storage |
@@ -24,7 +24,7 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 ## Protected owner files / areas
 
 ### Platform / Shared
-`core/platform/*`, `auth/*`, `core/services/supabase-service.js`, `core/runtime/*`, `core/ui/*`, `core/design/*`, `core/services/theme-service.js`, `app/navigation-registry.js`, `app/adapters/navigation-history-web-adapter.js`, `core/modules/module-registry.js`, `intelligence/kernel/version.js`, `index.html`, `sw.js`, `wrangler.jsonc`.
+`core/platform/*`, `auth/*`, `core/services/supabase-service.js`, `core/runtime/*`, `core/ui/*`, `core/design/*`, `core/services/theme-service.js`, `app/navigation-registry.js`, `app/adapters/navigation-history-web-adapter.js`, `app/adapters/runtime-signal-web-adapter.js`, `core/modules/module-registry.js`, `intelligence/kernel/version.js`, `index.html`, `sw.js`, `wrangler.jsonc`.
 
 ### Trip
 `core/trips/*`, `luvia-trip-context.js`, Trip-owned migrations/tables, membership/timeline/schedule contracts. `core/context/travel-context-service.js` is a derived Trip context service.

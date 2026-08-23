@@ -83,6 +83,7 @@ Timeline/Journey is consumed only as a separately owned projection and is not re
 Browserless contracts:
 
 - `app-runtime.v1` — ordered readiness, failure and recovery stages;
+- `app-runtime-signals.v1` — idempotent Auth/Lifecycle/Network transitions and sanitized session/resume/reconnect actions;
 - `module-mount.v1` — serialized mount/unmount transitions from canonical descriptors;
 - `navigation.v1` — routes, aliases, immutable `screen.navigate` intents and Deep-Link serialization;
 - `navigation-history.v1` — idempotent push/replace/restore policy and Back/Forward commands.
@@ -91,9 +92,10 @@ Web bindings:
 
 - `LuviaNavigationContractV1` through `app/navigation-registry.js`;
 - `LuviaNavigationHistoryV1` through `app/adapters/navigation-history-web-adapter.js`;
+- `LuviaAppRuntimeSignalsV1` through `app/adapters/runtime-signal-web-adapter.js` over AuthSession/Lifecycle/Network ports;
 - Consumer commit boundary through `app/app-shell.js` only after successful screen mount.
 
-History is a Platform projection, not a second route registry or Domain Truth owner. Intelligence may request a sanitized Navigation Intent but cannot bypass Domain Commands through screen navigation.
+History and Runtime Signals are Platform projections, not route/session/Domain Truth owners. Intelligence may request a sanitized Navigation Intent but cannot bypass Domain Commands through screen navigation or Runtime Actions.
 
 ## Dependency principle
 

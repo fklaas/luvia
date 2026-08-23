@@ -78,6 +78,8 @@ The Web History API belongs in the Platform Web adapter. Browserless runtime/nav
 
 Consumer commits navigation only after a successful mount. Domain navigation requests remain distinct from Domain Commands, and screen navigation grants no authority to mutate foreign Domain Truth.
 
+Auth, Lifecycle and Network transitions enter App Shell orchestration only through `app-runtime-signals.v1` and their Platform Ports. The policy may emit sanitized session/resume/reconnect actions but must not retain tokens, duplicate session truth or absorb domain-specific sync ownership. Resume/reconnect preserves the current Navigation Intent and must not add History.
+
 ## 11. Tests
 
 Every migration slice must have targeted regression coverage.

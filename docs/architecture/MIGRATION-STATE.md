@@ -943,3 +943,31 @@ No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production de
 
 M9 remains in progress. Remaining App Shell orchestration, lifecycle/resume and legacy URL-owner work requires a fresh measured scope lock.
 <!-- LUVIA:M9.3:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.4:CLOSEOUT:START -->
+## M9.4 Runtime Signals and Resume Coordination — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.33 / 4.82.33**
+
+Platform / Consumer / Runtime: `c9377153ff8e6a95e592293745640c2ff058b31b` / `e9dd548e0e8a4841ead1f6d956612eff51f1e4e1` / `236f32c1072d6e0e5d5ef8978d906289db7156cc`
+
+Measured result:
+
+- browserless `app-runtime-signals.v1`: PASS, no session/token or Domain Truth;
+- Web binding: AuthSessionPort + LifecyclePort + NetworkPort only;
+- direct App Shell Auth render subscription: `1 -> 0`;
+- session/resume/reconnect orchestration: serialized;
+- eligible Resume/Reconnect: current Navigation Intent retained, History length unchanged;
+- visible Offline/Reconnect/Resume `aria-live` projection: PASS;
+- NFR-0: **3/3 PASS**;
+- Safe Regression: **53/53 PASS**;
+- final Preview `44cd8304-0063-4605-b711-2420a9f9ee91`: **12/12 exact**, **5/5 privacy**, Runtime Actions, **25/25 F5**, console **0**;
+- Production version/deployment `93f9bc43-e25e-45c5-b727-15d31e41a33d` / `f2ae2af2-2c39-48a7-9060-02a3a0eadb12`: **100%**, same gates, **25/25 F5**, console **0**;
+- Main promotion: **FF-only PASS**.
+
+Candidates `13.82.31` and `13.82.32` were explicitly rejected for Release Identity defects. No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment/configuration or Domain Truth mutation occurred. Timeline/Journey and owner-specific Auth/Join/Booking URL flows remain separate.
+
+M9 remains in progress. Real login/logout environment acceptance, remaining owner-specific URL boundaries and inactive legacy-shell deletion proof require a new read-only scope lock.
+<!-- LUVIA:M9.4:CLOSEOUT:END -->

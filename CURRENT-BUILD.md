@@ -23,9 +23,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - App: **13.82.33**
 - Core: **4.82.33**
 - Name: **M9.4 Runtime Signals and Resume Coordination**
-- Channel: **production candidate**
+- Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1708,10 +1708,10 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; its next mutation requires a fresh read-only scope lock over the remaining App Shell orchestration, lifecycle/resume and legacy URL-owner boundaries.
 <!-- LUVIA:M9.3:CLOSEOUT:END -->
 
-<!-- LUVIA:M9.4:CANDIDATE:START -->
+<!-- LUVIA:M9.4:CLOSEOUT:START -->
 ## M9.4 — Runtime Signals and Resume Coordination
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING; 13.82.31 + 13.82.32 RELEASE IDENTITY CANDIDATES REJECTED
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED; 13.82.31 + 13.82.32 RELEASE IDENTITY CANDIDATES REJECTED
 
 **Runtime App / Core:** 13.82.33 / 4.82.33
 
@@ -1719,15 +1719,21 @@ M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 
 **Consumer Adoption Commit:** `e9dd548e0e8a4841ead1f6d956612eff51f1e4e1`
 
+**Final Runtime Release:** `236f32c1072d6e0e5d5ef8978d906289db7156cc`
+
 M9.4 introduces browserless `app-runtime-signals.v1` and one Web binding over the existing `AuthSessionPort`, `LifecyclePort` and `NetworkPort`. The policy normalizes idempotent session, background/foreground and connectivity transitions without storing session tokens or owning Domain Truth.
 
 The Consumer App Shell no longer binds Auth transitions directly to an inline render callback. Session activate/switch/deactivate, eligible resume and reconnect effects are serialized through one Runtime Action queue. Background intervals below 15 seconds do not remount the active module. Eligible resume and reconnect preserve the current canonical Navigation Intent and explicitly write no History entry. Offline resume remains local until the NetworkPort reports a real reconnect.
 
 Offline, reconnect and eligible resume state now has a responsive, reduced-motion-compatible `aria-live` projection below the App header. Collaboration, Media upload, Location and Travel Context keep their existing domain-specific transition owners. Auth, Join and Booking URL policies plus Timeline/Journey remain outside this scope.
 
-Focused M9.4, NFR-0, controlled Safe Regression, Integration Preview lifecycle/reconnect acceptance, Main, Production and final eight-stream synchronization must pass before this candidate may be called complete.
+Focused M9.4 regression is PASS, NFR-0 is **3/3 PASS**, and controlled Safe Regression is **53/53 PASS** on Platform, Consumer, Integration and Main. Final Integration Preview version `44cd8304-0063-4605-b711-2420a9f9ee91` passed **12/12 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated Runtime-Signal diagnostics, visible Offline/Reconnect, 16.3-second Resume with unchanged History length, active Trip/View retention, **25/25 authenticated F5** at 2.5–4.7 seconds and console **0**.
+
+Production version `93f9bc43-e25e-45c5-b727-15d31e41a33d` is deployed at **100%** by deployment `f2ae2af2-2c39-48a7-9060-02a3a0eadb12`. Production passed the same **12/12 exact assets**, **5/5 privacy**, authenticated Offline/Reconnect/16.3-second Resume contract, unchanged History length, active Trip/View retention and **25/25 F5** at 2.1–3.9 seconds with console **0**.
 
 The first Preview candidate `13.82.31 / 4.82.31` passed runtime byte/privacy gates but still exposed the previous M9.3 name and build timestamp in `LuviaKernelVersion`; Main did not move. Candidate `13.82.32 / 4.82.32` corrected the milestone identity and passed all Preview gates, but its static `integration` channel was then proven unchanged after the same artifact reached 100% Production. That Production identity mismatch is rejected rather than rewritten as a pass. The final candidate is `13.82.33 / 4.82.33` with the established M9.4 / Production descriptor.
 
-No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or data rollback is part of this candidate. Rollback is code-only to the M9.3 synchronized marker `7e8829119727a6c65e1a05c3029c981d6af78369`.
-<!-- LUVIA:M9.4:CANDIDATE:END -->
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification occurred. Rollback is code-only to the M9.3 synchronized marker `7e8829119727a6c65e1a05c3029c981d6af78369`.
+
+M9.4 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; actual login/logout acceptance, separately owned Auth/Join/Booking URL policies and inactive legacy-shell deletion proof require a fresh measured scope lock.
+<!-- LUVIA:M9.4:CLOSEOUT:END -->

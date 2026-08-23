@@ -1,6 +1,6 @@
 # M9 — App Shell I: Runtime & Navigation Baseline / Scope Lock
 
-Status: BASELINE COMPLETE; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED
+Status: BASELINE COMPLETE; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Source marker: `052873bd70eb2f5cc6913beacd96b0c0bedf3484`
 
@@ -58,9 +58,9 @@ Web, iOS and Android will be able to map the same `screen.navigate` intent and r
 1. explicit App Runtime stage contract and Boot-stage diagnostics — **M9.2 COMPLETE**;
 2. Consumer adoption of Navigation Contract mount descriptors — **M9.2 COMPLETE**;
 3. History/Back/Deep-Link policy through Web adapter and native equivalents — **M9.3 COMPLETE**;
-4. auth/session events separated from render orchestration;
-5. Lifecycle/Network state fed through existing Platform Ports;
-6. cold-start, reload, login, logout, deep-link, back and resume acceptance;
+4. auth/session events separated from render orchestration — **M9.4 COMPLETE**;
+5. Lifecycle/Network state fed through existing Platform Ports — **M9.4 COMPLETE**;
+6. cold-start, reload, deep-link, back and resume acceptance complete; real login/logout environment acceptance remains;
 7. runtime release, production proof and eight-stream closeout.
 
 ## M9.3 measured baseline and scope lock
@@ -99,3 +99,5 @@ The active App Shell has one direct `authApi.onChange(...)` render-orchestration
 M9.4 bundles the two inseparable remaining Runtime concerns: Platform normalizes Auth/Lifecycle/Network transitions into browserless, idempotent Runtime Actions; Consumer serializes those actions into session activation/deactivation, eligible foreground resume and visible offline/reconnect status. The policy stores no token/session and owns no Domain Truth. Background intervals below 15 seconds do not remount the current module; eligible resume preserves the current Navigation Intent and writes no History entry.
 
 Collaboration, Media upload, Location and Travel Context retain their existing domain-specific transition reactions. Auth, Join and Booking URL owners, inactive legacy shells and Timeline/Journey remain outside the M9.4 mutation scope.
+
+M9.4 closeout: Platform `c9377153ff8e6a95e592293745640c2ff058b31b`, Consumer `e9dd548e0e8a4841ead1f6d956612eff51f1e4e1`, final runtime `236f32c1072d6e0e5d5ef8978d906289db7156cc`, App/Core `13.82.33 / 4.82.33`, NFR-0 `3/3`, Safe Regression `53/53`, final Preview and Production each `12/12` exact, `5/5` privacy, authenticated Offline/Reconnect/Resume with unchanged History, `25/25` F5, active Trip/View retained and console `0`. Two rejected release-identity candidates remain recorded; neither is rewritten as the final release.
