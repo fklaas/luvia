@@ -20,10 +20,10 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.32**
-- Core: **4.82.32**
+- App: **13.82.33**
+- Core: **4.82.33**
 - Name: **M9.4 Runtime Signals and Resume Coordination**
-- Channel: **integration candidate**
+- Channel: **production candidate**
 - Datum: **2026-08-23**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -1711,9 +1711,9 @@ M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 <!-- LUVIA:M9.4:CANDIDATE:START -->
 ## M9.4 — Runtime Signals and Resume Coordination
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING; 13.82.31 PREVIEW REJECTED FOR STALE RELEASE DESCRIPTOR
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING; 13.82.31 + 13.82.32 RELEASE IDENTITY CANDIDATES REJECTED
 
-**Runtime App / Core:** 13.82.32 / 4.82.32
+**Runtime App / Core:** 13.82.33 / 4.82.33
 
 **Platform Foundation Commit:** `c9377153ff8e6a95e592293745640c2ff058b31b`
 
@@ -1727,7 +1727,7 @@ Offline, reconnect and eligible resume state now has a responsive, reduced-motio
 
 Focused M9.4, NFR-0, controlled Safe Regression, Integration Preview lifecycle/reconnect acceptance, Main, Production and final eight-stream synchronization must pass before this candidate may be called complete.
 
-The first Preview candidate `13.82.31 / 4.82.31` passed runtime byte/privacy gates but still exposed the previous M9.3 name and Production channel in `LuviaKernelVersion`. Main did not move. The corrected candidate is `13.82.32 / 4.82.32` with an explicit M9.4 / Integration descriptor; the rejected candidate remains recorded and is not rewritten as a pass.
+The first Preview candidate `13.82.31 / 4.82.31` passed runtime byte/privacy gates but still exposed the previous M9.3 name and build timestamp in `LuviaKernelVersion`; Main did not move. Candidate `13.82.32 / 4.82.32` corrected the milestone identity and passed all Preview gates, but its static `integration` channel was then proven unchanged after the same artifact reached 100% Production. That Production identity mismatch is rejected rather than rewritten as a pass. The final candidate is `13.82.33 / 4.82.33` with the established M9.4 / Production descriptor.
 
 No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or data rollback is part of this candidate. Rollback is code-only to the M9.3 synchronized marker `7e8829119727a6c65e1a05c3029c981d6af78369`.
 <!-- LUVIA:M9.4:CANDIDATE:END -->
