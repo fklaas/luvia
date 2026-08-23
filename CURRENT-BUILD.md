@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.35**
-- Core: **4.82.35**
-- Name: **M9.5 Owner Flow Navigation Convergence**
-- Channel: **production**
+- App: **13.82.36**
+- Core: **4.82.36**
+- Name: **M9.6 Authenticated Surface Session Exit Hygiene**
+- Channel: **integration**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.5 RUNTIME RELEASED / PRODUCTION VERIFIED / AUTH CYCLE OPEN; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.6 IN INTEGRATION ACCEPTANCE; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
