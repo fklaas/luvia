@@ -2,6 +2,10 @@
 
 Status: **IMPLEMENTATION COMPLETE / INTEGRATION + RELEASE PENDING**
 
+Integration runtime candidate: **App 13.82.34 / Core 4.82.34**
+
+Implementation chain: Platform `cefc35e21e7cebd14ac2215d0e32beca16dc6e80`, Consumer `9f47e953adde516d17c697a4daa7278487919e77`, Booking `e84a794ff92fcb10379d8718e558bb735c966bd3`.
+
 ## Measured baseline
 
 M9.1–M9.4 established canonical screen intents, staged module mounting, one History owner and runtime signal coordination. The remaining M9 scope was not another App Shell router. It consisted of owner-specific transitions in Auth, Trip Join/Public Entry and Booking plus two byte-identical inactive legacy Shell copies.
