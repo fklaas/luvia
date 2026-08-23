@@ -11,6 +11,7 @@ const runtimeSource=read('core/runtime/app-runtime-contract-core.js');
 const navigationSource=read('core/runtime/navigation-contract-core.js');
 const mountSource=read('core/runtime/module-mount-contract-core.js');
 const bootSource=read('core/runtime/boot-coordinator.js');
+const shellSource=read('app/app-shell.js');
 const indexSource=read('index.html');
 
 for(const [name,source] of [['app-runtime.v1',runtimeSource],['module-mount.v1',mountSource]]){
@@ -78,6 +79,19 @@ async function main(){
   assert.match(bootSource,/appRuntime\.run\('domain-context-ready'/);
   assert.match(bootSource,/timeoutMs:30000/);
   assert.match(bootSource,/function reset\(\)\{bootPromise=null;snapshot=null;phase='idle';\}/,'auth changes must be able to rehydrate after the initial splash');
+  assert.match(shellSource,/appRuntime\(\)\.run\('platform-ready'/);
+  assert.match(shellSource,/appRuntime\(\)\.run\('auth-ready'/);
+  assert.match(shellSource,/appRuntime\(\)\.run\('domain-context-ready'/);
+  assert.match(shellSource,/completeRuntimeStage\('shell-ready'/);
+  assert.match(shellSource,/appRuntime\(\)\.run\('modules-ready'/);
+  assert.equal((shellSource.match(/moduleMountRegistry\.register\('/g)||[]).length,9,'all nine canonical module routes need concrete Consumer adapters');
+  assert.match(shellSource,/if\(mount\.mode==='module'\)content=`<div id="\$\{esc\(mount\.targetId\)\}"><\/div>`/,'module targets must come from navigation.v1 descriptors');
+  assert.doesNotMatch(shellSource,/\.mount\(stage\.querySelector\(/,'App Shell must not retain direct route-specific target mounting');
+  assert.doesNotMatch(shellSource,/\bmounted(?:Places|Move|Lifecycle|Gallery|Albums)\b/,'manual module-mounted flags must be removed');
+  const registryBlock=shellSource.slice(shellSource.indexOf('function moduleMounts()'),shellSource.indexOf('async function unmountCurrent'));
+  assert.doesNotMatch(registryBlock,/LuviaTimelineCore|LuviaJourney/,'Timeline/Journey must stay outside ordinary module mounting');
+  assert.match(shellSource,/appRuntime:window\.LuviaAppRuntime\?\.diagnostics/);
+  assert.match(shellSource,/moduleMount:moduleMountRegistry\?\.diagnostics/);
   const runtimeIndex=indexSource.indexOf('core/runtime/app-runtime-contract-core.js');
   const navigationIndex=indexSource.indexOf('core/runtime/navigation-contract-core.js');
   const mountIndex=indexSource.indexOf('core/runtime/module-mount-contract-core.js');

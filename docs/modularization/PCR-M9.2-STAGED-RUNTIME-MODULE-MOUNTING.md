@@ -12,7 +12,7 @@ Baseline App / Core: `13.82.26 / 4.82.26`
 
 - All eight streams are synchronized to the M9.1 documentation marker with `Local = Tracking = Live`, divergence `0/0` and clean worktrees.
 - `core/runtime/boot-coordinator.js` exposes seven Web splash/boot phases but no platform-neutral App Runtime stage contract.
-- `app/app-shell.js` directly coordinates Supabase startup, auth readiness, Trip/Profile hydration, shell rendering and ten concrete module mount paths.
+- `app/app-shell.js` directly coordinates Supabase startup, auth readiness, Trip/Profile hydration, shell rendering and nine concrete module mount paths; a stale Move unmount flag exists without an active Move route mount.
 - Navigation M9.1 already defines canonical mount descriptors for all 15 routes through `navigation.v1`.
 - Concrete Web mounting remains Consumer-owned; shared runtime sequencing remains Platform-owned.
 - Existing `LifecyclePort` and `NetworkPort` are available through Platform Ports. They are not required for the first staged-runtime mutation and remain a later M9 adoption surface.
@@ -52,7 +52,7 @@ The current behavior works, but boot and mounting are implicit control flow. Dia
 - Both contract cores execute without `window`, `document`, `navigator`, Web Storage or direct browser navigation.
 - Runtime stage gaps are rejected; timeouts become measured failed state; recovery is explicit.
 - Module activation consumes the canonical route descriptor, resolves its declared target and unmounts serially.
-- App Shell contains no route-specific mount `if` chain for the ten module routes.
+- App Shell contains no route-specific mount `if` chain for the nine canonical module routes, and the stale Move mounted-state flag is removed.
 - Existing Trip Contract adoption and active-Trip switch behavior stay intact.
 - Focused M9.2 regression and complete safe regression pass.
 - Preview and Production runtime assets are byte-proven against the release commit, followed by authenticated F5 and UI acceptance.
