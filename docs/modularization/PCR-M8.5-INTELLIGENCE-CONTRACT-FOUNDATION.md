@@ -4,7 +4,7 @@ Date: 2026-08-23
 
 Owner streams: `feature/platform-core` (public Web adapter/runtime integration), `feature/intelligence-core` (owner core and Intelligence-owned consumers)
 
-Status: **APPROVED / IMPLEMENTATION IN PROGRESS**
+Status: **IMPLEMENTATION COMPLETE / RELEASE CANDIDATE**
 
 ## Source lock
 

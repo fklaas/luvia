@@ -97,6 +97,10 @@ const SUITE = Object.freeze([
     category: 'Identity / Events architecture',
     test: 'tests/m8-final-identity-event-native-readiness.test.cjs'
   },
+  {
+    category: 'Intelligence architecture',
+    test: 'tests/m8.5-final-intelligence-core-isolation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

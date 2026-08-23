@@ -12,7 +12,7 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 | Booking | bookings, provider selection/status/provenance, messages, intelligence, attribution, mutations, recovery | **LuviaBooking** today and remains supported; `booking.v1` contract declaration | Consumer state, Social graph, Trip/Place storage |
 | Media/Memory | media entities/storage linkage, clusters, polaroids, albums/cards/journeys | MediaCore + Memory services today; `media.v1` in M3 | Trip truth, public Identity truth, Booking truth |
 | Identity/Preferences | user profile persistence, private preference aggregate, safe public identity projection | ProfileService/UserPreferences today; `identity.v1` in M3 | Trip membership, collaboration presence, Social relationship graph |
-| Intelligence | AI capabilities, policy, evidence, orchestration, recommendation/planning intelligence and Intelligence-specific state | `core/intelligence/*` foundation; planned `LuviaIntelligenceContractV1`; current LuviaAI/core/ai remains transitional | Final writes to Booking/Trip/Places/Media/Identity/Social/Journey truth without domain command |
+| Intelligence | AI capabilities, policy, evidence, orchestration, recommendation/planning intelligence and Intelligence-specific state | browserless `core/intelligence/intelligence-domain-contract-core.js`; active `LuviaIntelligenceContractV1`; LuviaAI/core/ai remains transitional Web runtime | Final writes to Booking/Trip/Places/Media/Identity/Social/Journey truth without domain command |
 | Experience Core | shared design tokens, themes, layout primitives, reusable UI components, interaction patterns, motion, accessibility, icons and experience diagnostics | `core/experience/*` | Any domain truth, direct domain persistence, domain validation or business mutation lifecycle |
 | Collaboration | trip presence and trip activity projection | LuviaCollaboration | Social followers/friends, identity, trip membership truth |
 | Social (future) | social experiences/relationships/reactions/read state created by Social itself | `social.v1` specification; implementation does not exist yet | Booking status/messages, Trip membership, private Identity preferences |
@@ -42,9 +42,9 @@ This file is **normative from M2 onward**. Existing code can temporarily violate
 `core/profiles/*`, `core/preferences/*`, profile RPCs/tables. Auth remains Platform and is consumed by Identity.
 
 ### Intelligence
-Canonical foundation root: `core/intelligence/*` on `feature/intelligence-core`. `LuviaIntelligenceContractV1` is planned, not yet implemented.
+Canonical owner root: `core/intelligence/*` on `feature/intelligence-core`. `LuviaIntelligenceContractV1` is active from M8.5 through the Platform-owned Web adapter.
 
-Existing `core/ai/*`, `intelligence/*`, `core/recommendations/*`, `core/context/*` and AI-related bridges retain their current file-level ownership until the dedicated classification-first Intelligence Core Isolation & Unification migration. No bulk move is implied by the new stream.
+Shared capability, domain/tool metadata, model tiers, policy, validation, context-envelope, signal/proposal and evidence semantics are owned by the browserless Intelligence Core. The continuing Intelligence Core Isolation & Unification migration remains classification-first: existing `core/ai/*`, `intelligence/*`, `core/recommendations/*`, `core/context/*` and AI-related bridges retain their current file-level ownership until each file is classified and migrated. No bulk move is implied.
 
 ### Experience Core
 

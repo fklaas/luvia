@@ -60,23 +60,23 @@ Browserless envelope contract:
 
 `events.v1` standardizes event identity, time, owner, source, subject, correlation and causation. Notification eligibility is metadata only; delivery always requires an explicit platform command.
 
-## Planned Intelligence contract
+## Intelligence
 
-Planned public name:
+Public name:
 
 `LuviaIntelligenceContractV1`
 
-Planned adapter:
+Web adapter:
 
 `core/platform/intelligence-contract-adapter.js`
 
-Status:
+Browserless owner rules:
 
-PLANNED ONLY.
+`core/intelligence/intelligence-domain-contract-core.js`
 
-M4.5.3 does not implement this contract.
+M8.5 activates sanitized capability, domain/tool, model-tier, policy, memory/system diagnostics and reasoning reads plus proposal creation. Foreign-domain mutation is not part of `intelligence.v1`; it remains delegated to the respective owner command.
 
-The later Intelligence Core Isolation & Unification milestone will define its exact methods after current AI / Intelligence services have been classified.
+Timeline/Journey is consumed only as a separately owned projection and is not reclassified as Intelligence truth.
 
 ## Dependency principle
 

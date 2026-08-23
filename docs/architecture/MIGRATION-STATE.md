@@ -321,6 +321,16 @@ No current AI or Intelligence runtime implementation has been moved by M4.5.1-M4
 
 Future migration is classification-first, not a big-bang move.
 
+### M8.5 Intelligence Contract Foundation
+
+M8.5 implementation is complete and release acceptance is in progress.
+
+The browserless `core/intelligence/intelligence-domain-contract-core.js` now owns capability, domain/tool metadata, model tiers, policy, validation, context-envelope, Intelligence signal/proposal and evidence semantics. The active Web boundary is `LuviaIntelligenceContractV1`.
+
+The current AI dashboard, Tool Registry, Memory and proposal identity/Trip lookups consume public contracts. The visible dashboard no longer exposes the private Timeline execution path and adds Intelligence Transparency.
+
+This is a classification-first foundation, not a bulk move. Timeline/Journey remains separately reserved; foreign-domain mutation remains outside `intelligence.v1`.
+
 ## Experience
 
 New permanent stream:

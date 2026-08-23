@@ -2428,3 +2428,10 @@ app/adapters/event-contract-web-adapter.js,Platform/Events,Adapter/Web,Web compa
 app/control-center/identity-center.js,Consumer/Control Center,Experience,Visible Identity and Privacy Center over public contracts and Platform Ports
 app/control-center/identity-center.css,Experience/Control Center,Experience,Responsive accessible visual system for Identity and Privacy Center
 tests/m8-final-identity-event-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M8 exit guard for Identity Event and platform-port boundaries
+core/intelligence/intelligence-domain-contract-core.js,Intelligence,Domain/Contract,Browserless Intelligence capability policy validation signal proposal evidence and contract semantics
+core/platform/intelligence-contract-adapter.js,Platform/Intelligence,Adapter/Web,Web compatibility binding for intelligence.v1 without foreign-domain mutation ownership
+docs/modularization/PCR-M8.5-INTELLIGENCE-CONTRACT-FOUNDATION.md,Platform/Intelligence,Documentation/Architecture,M8.5 measured Intelligence baseline classification and cross-stream scope lock
+tests/m8.5.0-intelligence-contract-platform-foundation.test.cjs,Shared Tests,Test/Guardrail,M8.5 Platform adapter foundation guard
+tests/m8.5.1-intelligence-domain-contract-core.test.cjs,Shared Tests,Test/Guardrail,M8.5 browserless Intelligence owner-core guard
+tests/m8.5.2-intelligence-contract-runtime-adoption.test.cjs,Shared Tests,Test/Guardrail,M8.5 runtime contract adoption and visible transparency guard
+tests/m8.5-final-intelligence-core-isolation.test.cjs,Shared Tests,Test/Guardrail,M8.5 exit guard for browserless owner active contract consumer isolation and Journey reservation

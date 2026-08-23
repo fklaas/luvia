@@ -64,9 +64,19 @@
       "root": "core/intelligence/",
       "ownerStream": "feature/intelligence-core",
       "truthOwnership": "intelligence-specific-state-only",
-      "status": "foundation",
-      "plannedPublicContract": "LuviaIntelligenceContractV1",
-      "plannedContractAdapter": "core/platform/intelligence-contract-adapter.js",
+      "status": "active",
+      "publicContract": "LuviaIntelligenceContractV1",
+      "contractAdapter": "core/platform/intelligence-contract-adapter.js",
+      "browserlessCore": "core/intelligence/intelligence-domain-contract-core.js",
+      "excludedTruth": [
+        "trip",
+        "places",
+        "booking",
+        "media",
+        "identity-explicit-preferences",
+        "social",
+        "journey-timeline"
+      ],
       "purpose": "Cross-domain reasoning, AI orchestration, recommendations, planning and proactive intelligence"
     },
     "journeyTimeline": {

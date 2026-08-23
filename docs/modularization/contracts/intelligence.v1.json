@@ -2,11 +2,13 @@
   "contractId": "intelligence.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M8.5",
   "owner": "Intelligence",
-  "status": "specified-existing-facade",
+  "status": "active",
   "currentImplementation": [
-    "LuviaAI"
+    "core/intelligence/intelligence-domain-contract-core.js",
+    "LuviaIntelligenceContractV1",
+    "LuviaAI compatibility runtime"
   ],
   "reads": [
     "run",
@@ -14,15 +16,23 @@
     "rank",
     "recommend",
     "explain",
-    "summarize"
+    "summarize",
+    "getCapabilities",
+    "getDomains",
+    "getTools",
+    "getModelTiers",
+    "getPolicy",
+    "getMemorySnapshot",
+    "getSystemSnapshot",
+    "subscribe"
   ],
   "commands": [
     "createProposal only; foreign-domain mutation delegated"
   ],
   "events": [
     "ai.changed",
-    "ai.proposal.*",
-    "ai.evidence.*"
+    "ai.proposal.changed",
+    "ai.memory.changed"
   ],
   "internal": [
     "LuviaOpenAIProvider",

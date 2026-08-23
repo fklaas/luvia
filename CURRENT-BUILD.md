@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.23**
-- Core: **4.82.23**
-- Name: **M8 Identity / Event Contracts / Native Readiness**
+- App: **13.82.24**
+- Core: **4.82.24**
+- Name: **M8.5 Intelligence Contract Core Foundation**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 NEXT**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 RELEASE CANDIDATE**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1581,3 +1581,27 @@ No database migration, schema/RPC/RLS/bucket change, Edge Function change, secre
 
 M8 is **COMPLETE / CLOSED**. M8.5 starts only after a fresh read-only Intelligence classification, dependency, runtime-reachability and ownership scope lock; no bulk move is pre-authorized.
 <!-- LUVIA:M8:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M8.5:RUNTIME-CANDIDATE:START -->
+## M8.5 — Intelligence Contract Core Foundation
+
+**Status:** IMPLEMENTATION COMPLETE / RELEASE CANDIDATE
+
+**Runtime App / Core:** 13.82.24 / 4.82.24
+
+**Platform Contract Foundation:** `211632d8a8675117d47652951d6bf2ab00ea9a52`
+
+**Platform NFR-Neutral Adapter Fix:** `6f481e3f17267058c17b183a79c6b368a7c5a133`
+
+**Intelligence Feature Commit:** `89db1e20584004a60282725ed59f65e20d9024e2`
+
+The new browserless Intelligence owner core centralizes nine capabilities, three model tiers, five domain classifications, twelve source tools, policy/sanitization, output validation, context envelopes, learning-signal lifecycle, proposal lifecycle and evidence state. `LuviaIntelligenceContractV1` is active as the additive Web compatibility binding.
+
+Capability, domain, model-routing, policy, validator and evidence Web modules delegate shared rules to the owner core. Dashboard, tool, Memory and proposal identity/Trip reads use public contracts. The dashboard no longer exposes direct Timeline execution and adds a visible Intelligence Transparency surface.
+
+Timeline/Journey remains separately reserved and read-only from Intelligence. Proposal creation grants no final foreign-domain mutation authority.
+
+Feature validation: focused Intelligence suite **17/17 PASS**, NFR-0 **3/3 PASS**, pre-release controlled Safe Regression **48/48 PASS**. The release candidate raises the controlled suite to **49** by adding the M8.5 exit guard; final runtime, Preview, Main and Production acceptance must be measured after the release commit and is not pre-claimed here.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change or manual Cloudflare configuration change is part of this release candidate.
+<!-- LUVIA:M8.5:RUNTIME-CANDIDATE:END -->

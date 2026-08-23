@@ -124,6 +124,12 @@ Role: reasoning, orchestration, AI capabilities, Intelligence-specific memory, r
 
 Domain truth ownership: Intelligence-specific state only.
 
+Browserless owner surface: `core/intelligence/intelligence-domain-contract-core.js`
+
+Public Web boundary: `core/platform/intelligence-contract-adapter.js`
+
+The current `core/ai`, planning and recommendation runtime is migrated incrementally through this boundary. Trip, Places, Identity and Journey/Timeline are read through public owner projections; Intelligence proposal creation does not grant foreign-domain write ownership.
+
 ## Reserved architecture
 
 ### Journey / Timeline

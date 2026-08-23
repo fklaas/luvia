@@ -23,7 +23,7 @@ assert.doesNotMatch(
 );
 assert.match(
   parisEntry,
-  /smart-photo-moments\.js\?v=13\.82\.23/,
+  /smart-photo-moments\.js\?v=13\.82\.24/,
   'The reachable Paris Legacy path must cache-bust the adopted Smart Photo runtime'
 );
 assert.match(

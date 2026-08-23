@@ -136,14 +136,14 @@ assert(
 
 assert(
   moduleOwnership.includes(
-    'Canonical foundation root: `core/intelligence/*`'
+    'Canonical owner root: `core/intelligence/*`'
   ),
-  'Module ownership missing Intelligence foundation root'
+  'Module ownership missing active Intelligence owner root'
 );
 
 assert(
   moduleOwnership.includes(
-    'classification-first Intelligence Core Isolation & Unification'
+    'classification-first'
   ),
   'Module ownership must preserve classification-first AI migration'
 );

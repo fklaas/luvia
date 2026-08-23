@@ -73,8 +73,23 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
-  cores.cores.intelligence.plannedPublicContract,
+  cores.cores.intelligence.publicContract,
   'LuviaIntelligenceContractV1'
+);
+
+assert.strictEqual(
+  cores.cores.intelligence.status,
+  'active'
+);
+
+assert.strictEqual(
+  cores.cores.intelligence.browserlessCore,
+  'core/intelligence/intelligence-domain-contract-core.js'
+);
+
+assert.strictEqual(
+  cores.cores.intelligence.contractAdapter,
+  'core/platform/intelligence-contract-adapter.js'
 );
 
 assert.strictEqual(
