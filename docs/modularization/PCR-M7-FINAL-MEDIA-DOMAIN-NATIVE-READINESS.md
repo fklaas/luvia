@@ -1,6 +1,6 @@
 # PCR M7 FINAL — Media Domain / Native Readiness
 
-Status: **IMPLEMENTED / LOCAL VERIFIED**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED**
 
 Source-lock marker: `a44e95c3ba5a7e144652f90e95e9bc6f04c20526`
 
@@ -82,6 +82,20 @@ Web background handling is intentionally capability-accurate: queued uploads per
 - new M7 FINAL guard: **PASS**;
 - NFR-0 Foundation Regression: **3/3 PASS**;
 - Safe Regression: **47/47 PASS** on `feature/platform-core`.
+
+## Promotion and runtime acceptance
+
+- Integration and Main promotion: **FF-only PASS**;
+- Safe Regression: **47/47 PASS** on Platform, Integration, and Main;
+- NFR-0 Foundation Regression: **3/3 PASS** on the release candidate;
+- Integration Preview: **15/15 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated App/Core 13.82.22/4.82.22, active Trip, Gallery 51 photos/10 moments/Realtime active, native media actions, F5 PASS, console **0 entries**;
+- Production: **15/15 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated App/Core 13.82.22/4.82.22, active Trip, Gallery 51 photos/10 moments/Realtime active, native media actions, F5 PASS, console **0 entries**;
+- Integration Preview version: `689f9a78-f0b9-46ac-a690-78ac7678d797`;
+- Integration build/check: `64bfe8b8-2f64-4634-9b04-3b9071fdf2ef` / `97173988989`, **SUCCESS**;
+- Production version at 100%: `e1477e68-d8d1-4cfd-a7a4-c28a73f905dd`;
+- Production deployment/build/check: `83b155fc-58a5-4d4f-a12d-1e3347333d29` / `c2fed981-7394-44d5-8af5-1107dadd8687` / `97174286216`, **SUCCESS**.
+
+No database migration, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation was required. Production causation is attributed to the successful Main Workers build and the measured 100% deployment above.
 
 The historical non-Allowlist `m3.3-media-contract-release-integration.test.cjs` remains pinned to Core 4.81.7 while the source-lock runtime is already Core 4.82.21. It is not rewritten or presented as current acceptance evidence.
 

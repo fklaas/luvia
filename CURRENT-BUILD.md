@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M7 Final Media Domain / Native Readiness**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 FINAL RELEASE CANDIDATE; M7.1-M7.4 COMPLETE / CLOSED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1521,3 +1521,35 @@ Production deployment/build/check: `36f63a2a-8e5e-438e-8323-12f698d8d195` / `193
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. Media Clustering and Memory owner internals, legacy Gallery sync, Timeline/Journey, Realtime/hydration ownership, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
 <!-- LUVIA:M7.4:CLOSEOUT:END -->
+
+<!-- LUVIA:M7:FINAL:CLOSEOUT:START -->
+## M7 FINAL — Media Core Isolation / Native Readiness
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-23
+
+**Runtime App / Core:** 13.82.22 / 4.82.22
+
+**Feature Commit:** `48e496aec0605d2dc8650f25692539010b67ca10`
+
+**Runtime Release Commit:** `2e87a9fcce31d15fa73c2abf2c183b413154c606`
+
+The M7 exit block establishes a browserless Media Domain Contract Core for canonical/public/Realtime projections and upload-state rules. All seven canonical direct Supabase Storage calls now cross a dedicated MediaStoragePort Web adapter. Persisted offline upload commands drain through injected NetworkPort and LifecyclePort transitions while online uploads preserve their existing behavior. The canonical legacy Gallery bridge has moved from ten private Media Core references to the public `media.v1` 1.2.0 boundary.
+
+Media Core remains the sole Media truth and Realtime owner. Gallery, Memory Experience, Smart Photo, AI Memory, and legacy compatibility consumers use the public Contract; IndexedDB holds pending commands rather than a second Media database. Media Clustering and Memory Album/Card/Journey services remain same-owner internals. Timeline/Journey remains separately classified, unchanged, and retains exactly two measured private Media references.
+
+Safe Regression is **47/47 PASS** on Platform, Integration, and Main. NFR-0 is **3/3 PASS** and the browserless Media Core smoke is **PASS**. Integration Preview and Production each passed **15/15 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated active-Trip/F5 acceptance, Gallery hydration with 51 photos and 10 photo moments, Realtime-active status, native acquisition actions, and **0 browser-console entries**.
+
+Integration Preview version: `689f9a78-f0b9-46ac-a690-78ac7678d797`, alias `integration`, `has_preview=true`.
+
+Integration build/check: `64bfe8b8-2f64-4634-9b04-3b9071fdf2ef` / `97173988989`, **SUCCESS**.
+
+Production version at 100% traffic: `e1477e68-d8d1-4cfd-a7a4-c28a73f905dd`.
+
+Production deployment/build/check: `83b155fc-58a5-4d4f-a12d-1e3347333d29` / `c2fed981-7394-44d5-8af5-1107dadd8687` / `97174286216`, **SUCCESS**.
+
+No database migration, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. Rollback is code-only; no canonical Media data rollback is required.
+
+M7 is **COMPLETE / CLOSED**. M8 begins only from a fresh read-only source-lock baseline after the final eight-stream synchronization proof.
+<!-- LUVIA:M7:FINAL:CLOSEOUT:END -->

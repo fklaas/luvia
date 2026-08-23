@@ -857,3 +857,43 @@ Production deployment/build/check: `36f63a2a-8e5e-438e-8323-12f698d8d195` / `193
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
 <!-- LUVIA:M7.4:CLOSEOUT:END -->
+
+<!-- LUVIA:M7:FINAL:CLOSEOUT:START -->
+## M7 Media Core Isolation — COMPLETE / CLOSED
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.22 / 4.82.22**
+
+Feature commit: `48e496aec0605d2dc8650f25692539010b67ca10`
+
+Runtime release commit: `2e87a9fcce31d15fa73c2abf2c183b413154c606`
+
+Measured M7 exit result:
+
+- browserless Media Domain Contract Core: **PASS**, with zero browser/device/storage/Supabase dependencies;
+- canonical Media owner direct Supabase Storage calls: **7 -> 0**;
+- dedicated Web MediaStoragePort: remote object operations plus persistent IndexedDB command queue;
+- NetworkPort transition subscription and LifecyclePort: **PASS**;
+- upload coordinator: offline staging plus online/foreground drain through injected capabilities;
+- `media.v1` runtime surface: **1.2.0**, Contract major remains **v1**;
+- legacy Gallery compatibility bridge direct private Media Core refs: **10 -> 0**;
+- canonical Realtime owner: **Media Core**; public hydration/subscription boundary: **media.v1**;
+- Media Clustering direct owner refs: **2**, unchanged same-owner internals;
+- Memory Album/Card/Journey owner refs: **4**, unchanged same-owner internals;
+- Timeline/Journey direct Media refs: **2**, separately classified and unchanged;
+- Safe Regression on Platform, Integration, and Main: **47/47 PASS**;
+- NFR-0: **3/3 PASS**;
+- Integration Preview and Production: **15/15 exact runtime assets**, **5/5 privacy**, authenticated F5/Gallery, 51 photos, 10 moments, Realtime active, native actions, console **0 entries**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview version/build/check: `689f9a78-f0b9-46ac-a690-78ac7678d797` / `64bfe8b8-2f64-4634-9b04-3b9071fdf2ef` / `97173988989`, **SUCCESS**.
+
+Production version at 100%: `e1477e68-d8d1-4cfd-a7a4-c28a73f905dd`.
+
+Production deployment/build/check: `83b155fc-58a5-4d4f-a12d-1e3347333d29` / `c2fed981-7394-44d5-8af5-1107dadd8687` / `97174286216`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. The Web queue is pending-command state, not a second Media truth. Native adapters can reuse the same Media rules and provide native background-transfer capabilities without a Domain-Core rewrite.
+
+M7 is **COMPLETE / CLOSED**. M8 requires a new read-only baseline and explicit scope lock from this final synchronized marker.
+<!-- LUVIA:M7:FINAL:CLOSEOUT:END -->
