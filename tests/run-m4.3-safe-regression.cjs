@@ -109,6 +109,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Runtime',
     test: 'tests/m9.2-staged-runtime-module-mounting.test.cjs'
   },
+  {
+    category: 'App Shell / History',
+    test: 'tests/m9.3-navigation-history-policy-foundation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

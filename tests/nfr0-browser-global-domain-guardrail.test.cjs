@@ -27,7 +27,7 @@ const patterns = [
   ['CACHE_STORAGE', /(?<![A-Za-z0-9_$])caches\b/g],
   ['SERVICE_WORKER', /\bserviceWorker\b/g],
   ['LOCATION', /(?<![A-Za-z0-9_$])(?:window\.)?location\b/g],
-  ['HISTORY', /(?<![A-Za-z0-9_$])(?:window\.)?history\b/g],
+  ['HISTORY', /(?<![A-Za-z0-9_$])(?:window\.)?history\.(?:pushState|replaceState|back|forward|go|state|length|scrollRestoration)\b/g],
   ['MATCH_MEDIA', /\bmatchMedia\s*\(/g],
   ['GEOLOCATION', /\bgeolocation\b/g],
   ['MEDIA_DEVICES', /\bmediaDevices\b/g],

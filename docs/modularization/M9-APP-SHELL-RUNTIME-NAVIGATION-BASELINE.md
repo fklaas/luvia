@@ -1,6 +1,6 @@
 # M9 — App Shell I: Runtime & Navigation Baseline / Scope Lock
 
-Status: BASELINE COMPLETE; M9.1 + M9.2 CLOSED; M9.3 NEXT
+Status: BASELINE COMPLETE; M9.1 + M9.2 CLOSED; M9.3 BASELINE / OWNER LOCK COMPLETE
 
 Source marker: `052873bd70eb2f5cc6913beacd96b0c0bedf3484`
 
@@ -62,3 +62,30 @@ Web, iOS and Android will be able to map the same `screen.navigate` intent and r
 5. Lifecycle/Network state fed through existing Platform Ports;
 6. cold-start, reload, login, logout, deep-link, back and resume acceptance;
 7. runtime release, production proof and eight-stream closeout.
+
+## M9.3 measured baseline and scope lock
+
+The current `index.html` loads 204 local scripts. Across that active load set the read-only M9.3 inventory measured:
+
+- direct History API writes: 2, in `auth/session.js` and `core/trips/join-flow.js`;
+- `popstate` handlers: 0;
+- `hashchange` handlers: 0;
+- direct Location writes/reloads: 10 across Auth UI, PWA, Booking, Trip Join/Invite and Public Entry owners;
+- direct `window.open` calls: 5 across Booking, Trip, Bookings View and the active App Shell route helper;
+- `luvia:navigate-request` paths: 4 across DeepLinkPort, Timeline/Journey, Booking UI and App Shell;
+- direct active `LuviaApp.show(...)` callers outside the App Shell: 1 in Albums View.
+
+Classification:
+
+- The missing shell-level History/Back projection is the M9.3 mutation scope.
+- The two existing direct History writers and owner-specific Auth/Join/Booking URL flows are recorded debt with their existing owners; this PCR does not silently absorb those domain/application flows into the App Shell.
+- The active App Shell's direct Maps `window.open` is migrated to the existing `ExternalNavigationPort` during Consumer adoption.
+- Both inactive legacy shell copies retain hash-module History code and remain outside mutation scope until a later reference/runtime deletion proof.
+- `navigation.v1` remains canonical. The new History contract may project or restore Navigation Intents but may not define routes or Domain Truth.
+
+M9.3 implementation sequence:
+
+1. browserless `navigation-history.v1` policy and Web adapter in Platform;
+2. Consumer-owned App Shell adoption with successful-route commits and Popstate restores;
+3. focused/NFR/Safe Regression;
+4. integration Preview Deep-Link/Back/Forward/Reload/F5 acceptance before Main.
