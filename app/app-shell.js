@@ -292,6 +292,7 @@
     }
     if(action.type==='session.deactivate'){
       if(authState?.authenticated)return;
+      window.LuviaProfileFoundation?.close?.();
       await unmountCurrent('session.deactivate');recoverRuntime('auth-ready',{reason:'session.deactivate'});window.LuviaBootCoordinator.reset();lastAuthUserId=null;lastRenderedTripId=null;bootComplete=false;await hydrateForAuth(client,authState);
     }
   }

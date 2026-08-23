@@ -129,6 +129,10 @@ const SUITE = Object.freeze([
     category: 'Booking / Owner Flows',
     test: 'tests/m9.5-booking-owner-flow-adoption.test.cjs'
   },
+  {
+    category: 'App Shell / Session Exit',
+    test: 'tests/m9.6-authenticated-surface-session-exit-hygiene.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
