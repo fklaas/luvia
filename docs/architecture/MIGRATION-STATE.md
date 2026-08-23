@@ -1062,7 +1062,7 @@ No database, schema/RPC/RLS/bucket migration, Edge Function change, secret chang
 <!-- LUVIA:M10:FINAL:CLOSEOUT:END -->
 
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:START -->
-## M10.5 Experience Core / Design System Foundation — LOCAL RELEASE CANDIDATE
+## M10.5 Experience Core / Design System Foundation — COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Date: 2026-08-23
 
@@ -1082,7 +1082,13 @@ Measured result:
 - Journey/Timeline remains separately reserved and unchanged;
 - focused M10.5 guard: **PASS**;
 - Safe Regression: **67/67 PASS**;
-- NFR-0: **3/3 PASS**.
+- NFR-0: **3/3 PASS**;
+- implementation/Main runtime: `8f70dca88d18488e908b6a2f56c2d76eabdef643`;
+- Integration Preview `a6c98e88-4d28-4fdd-8264-0c8f4a7d0c5b`: **13/13 exact**, **5/5 privacy**, authenticated premium AI surface, focus/Escape restoration, **25/25 F5**, console **0/0**;
+- Production version/deployment `f0df5811-3543-49f2-aa44-d53fe7df396f` / `5470e8ac-ec82-4ef3-8bcb-62c0450071aa`: **100%**, version URL and `myluvia.app` each **13/13 exact** and **5/5 privacy**, final clean **25/25 F5** at **3.047–3.601 seconds**, console **0/0**;
+- Main promotion: **FF-only PASS**.
 
-No database, schema/RPC/RLS/bucket, Edge Function, secret, manual Cloudflare configuration or Domain Truth mutation occurred. Integration/Production acceptance remains pending and must not be inferred from local gates.
+An earlier Production sample exceeded the initial 12-second locator window after 17 successful reloads and was rejected. Read-only diagnosis found the correct fully settled page and no console error; a new independent 25-sample series supplied the accepted gate. No failed sample was rewritten as success.
+
+No database, schema/RPC/RLS/bucket, Edge Function, secret, manual Cloudflare configuration or Domain Truth mutation occurred. Timeline/Journey remains separately reserved. M10.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**.
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->

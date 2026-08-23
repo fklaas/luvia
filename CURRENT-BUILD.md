@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.40**
-- Core: **4.82.40**
-- Name: **M10 Overlay Host & Interaction Boundary**
+- App: **13.82.41**
+- Core: **4.82.41**
+- Name: **M10.5 Experience Contract & Premium AI Surface**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 EXPERIENCE CORE RESERVED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1823,7 +1823,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:START -->
 ## M10.5 — Experience Contract Foundation and Premium AI Surface
 
-**Status:** LOCAL RELEASE CANDIDATE; INTEGRATION / PRODUCTION ACCEPTANCE PENDING
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.41 / 4.82.41
 
@@ -1837,5 +1837,11 @@ The existing global Luvia AI trigger and question dialog are the visible first c
 
 Focused Experience guard: **PASS**. Semantic tokens **69**; components/states **13/9**; SwiftUI/Compose mappings **PASS**; Journey/Timeline reservation **PRESERVED**. Controlled Safe Regression: **67/67 PASS**. NFR-0: **3/3 PASS**. Global keydown owner: exactly **1**. Browser dependency growth in the locked Intelligence path: **0**.
 
-No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline reclassification occurred. Integration, Preview, Main and Production evidence must be filled only after the corresponding measured gates pass.
+Runtime implementation and Main release commit: `8f70dca88d18488e908b6a2f56c2d76eabdef643`. Integration Preview version `a6c98e88-4d28-4fdd-8264-0c8f4a7d0c5b` passed **13/13 changed deployable assets byte-exact**, **5/5 private-path SPA fallback**, authenticated premium-surface/focus/Escape acceptance, **25/25 authenticated F5** at **3.158–3.985 seconds** (average **3.507 seconds**) and console **0/0**.
+
+Production version `f0df5811-3543-49f2-aa44-d53fe7df396f` is active at **100%** in deployment `5470e8ac-ec82-4ef3-8bcb-62c0450071aa`. Version URL and `myluvia.app` each passed **13/13 byte-exact assets** and **5/5 privacy**. The authenticated App Shell retained the Paris Trip, App/Core identity, Experience `v1`, 44 px touch target, Restaurant prompt, Overlay Host dismissal and focus restoration. The final clean Production series passed **25/25 F5** at **3.047–3.601 seconds** (average **3.202 seconds**) with overlay depth zero and console **0/0**.
+
+One earlier Production observation exceeded the initial 12-second locator window after 17 successful samples. Read-only diagnosis proved that the same page subsequently reached the correct Trip/version/Experience state with no console error. That sample remains rejected and was not rewritten as PASS; the final independent 25-sample series above is the accepted gate.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline reclassification occurred. Main promotion was fast-forward only. Rollback is code-only to the synchronized M10 marker `f789f481876f4fc9dbf2abf8957e0cc6741ef07d`; no persisted-data compensation is required.
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->
