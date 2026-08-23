@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.29**
-- Core: **4.82.29**
-- Name: **M9.2 Staged App Runtime and Module Mounting**
+- App: **13.82.30**
+- Core: **4.82.30**
+- Name: **M9.3 History, Back and Deep-Link Policy**
 - Channel: **production**
 - Datum: **2026-08-23**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
@@ -1677,3 +1677,25 @@ Production version `15c2ba3c-8b16-40e4-bd53-01bc9f9893e4` is deployed at **100%*
 
 No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification is part of M9.2.
 <!-- LUVIA:M9.2:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.3:CLOSEOUT:START -->
+## M9.3 — History, Back and Deep-Link Policy
+
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+
+**Runtime App / Core:** 13.82.30 / 4.82.30
+
+**Platform Foundation Commit:** `965c231263d0554105e0bf8364dad1ab1323eb28`
+
+**Consumer Adoption Commit:** `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`
+
+M9.3 adds the browserless `navigation-history.v1` policy and one Web History adapter. `navigation.v1` remains the sole route and intent truth; browser History is a projection and owns no Domain Truth. Explicit recognized URL routes and sanitized parameters are restored on authenticated cold start, while plain root URLs preserve the user’s configured default screen.
+
+The Consumer App Shell commits a screen only after its module mounted successfully. Same-route navigation is idempotent, browser Back/Forward restores an existing intent without pushing a new entry, and external Google Maps navigation now crosses `ExternalNavigationPort`. Existing Auth, Join and Booking URL flows remain separately owner-classified rather than being silently absorbed.
+
+Timeline/Journey remains a separately reserved cross-domain aggregator. No Trip, Places, Media, Identity, Booking or Intelligence truth moved into Platform or Consumer.
+
+Focused M9.3 regression, NFR-0 and controlled Safe Regression must remain green after this runtime cut. Integration Preview, authenticated direct-Deep-Link/Back/Forward/reload acceptance, Main, Production and final eight-stream synchronization remain pending and must not be claimed before direct measurement.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change or manual Cloudflare configuration change is part of this candidate.
+<!-- LUVIA:M9.3:CLOSEOUT:END -->

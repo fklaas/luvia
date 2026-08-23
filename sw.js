@@ -1,4 +1,4 @@
-const CACHE='luvia-shell-v13.82.29';
+const CACHE='luvia-shell-v13.82.30';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
