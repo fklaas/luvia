@@ -1817,6 +1817,8 @@ core/recommendations/restaurant-recommendation-adapter.js,Intelligence/Planning,
 core/recommendations/schedule-intelligence-service.js,Intelligence/Planning,Domain/Application,"AI, recommendations, discovery and planning workspace"
 core/recommendations/today-intelligence-service.js,Intelligence/Planning,Domain/Application,"AI, recommendations, discovery and planning workspace"
 core/runtime/boot-coordinator.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
+core/runtime/app-runtime-contract-core.js,Platform,Shared Runtime,Browserless staged App Runtime contract without domain truth
+core/runtime/module-mount-contract-core.js,Platform,Shared Runtime,Browserless module mount lifecycle contract consuming navigation descriptors
 core/runtime/network-guard.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/runtime/runtime.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/services/supabase-service.js,Platform,Shared Runtime,Shared services; inspect per-service before moving

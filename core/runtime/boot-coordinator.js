@@ -1,5 +1,9 @@
 (() => {
   'use strict';
+  const appRuntimeCore=window.LuviaAppRuntimeContractCoreV1;
+  if(!appRuntimeCore?.createRuntime)throw new Error('LuviaBootCoordinator requires app-runtime.v1.');
+  const appRuntime=window.LuviaAppRuntime||appRuntimeCore.createRuntime();
+  window.LuviaAppRuntime=appRuntime;
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
   const tripRuntime=()=>{
     const runtime=tripContract()?.runtime;
@@ -48,16 +52,16 @@
   async function boot(client){
     if(bootPromise)return bootPromise;
     begin();
-    bootPromise=(async()=>{
+    bootPromise=appRuntime.run('domain-context-ready',async()=>{
       tripRuntime().initialize({silent:true});
       const auth=(window.LuviaAuth||window.ParisAuth).getState();
       if(auth.authenticated)await runAuthenticated(client);
       else snapshot=Object.freeze({auth,profile:null,trips:tripRuntime().getState(),tripId:null,completedAt:new Date().toISOString()});
       emit('prepared',{snapshot});
       return snapshot;
-    })().catch(error=>{emit('failed',{error});document.documentElement.classList.remove('lv-booting','lv-boot-revealing');throw error});
+    },{timeoutMs:30000,detail:{source:'boot-coordinator',authenticated:Boolean((window.LuviaAuth||window.ParisAuth).getState()?.authenticated)}}).catch(error=>{emit('failed',{error});document.documentElement.classList.remove('lv-booting','lv-boot-revealing');throw error});
     return bootPromise;
   }
   function reset(){if(window.__LUVIA_BOOT_DONE__)return;bootPromise=null;snapshot=null;phase='idle';}
-  window.LuviaBootCoordinator=Object.freeze({version:'1.3.0',boot,reveal:finish,reset,get phase(){return phase},get snapshot(){return snapshot},get booting(){return !['ready','failed','idle'].includes(phase)}});
+  window.LuviaBootCoordinator=Object.freeze({version:'1.4.0',boot,reveal:finish,reset,appRuntime,get phase(){return phase},get snapshot(){return snapshot},get booting(){return !['ready','failed','idle'].includes(phase)}});
 })();
