@@ -149,6 +149,10 @@ const SUITE = Object.freeze([
     category: 'Product / Overlay Host',
     test: 'tests/m10.4-consumer-overlay-host-adoption.test.cjs'
   },
+  {
+    category: 'Booking / Overlay Host',
+    test: 'tests/m10.4b-booking-overlay-host-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

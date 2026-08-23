@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const VERSION='1.6.0';
+  const VERSION='1.7.0';
+  let activeHandle=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const canonicalType=raw=>{
     const type=String(raw||'').toLowerCase();
@@ -59,16 +60,17 @@
     </div>`;
   }
 
-  function close(node){node?.remove();}
+  function close(node,reason='owner'){if(!activeHandle||activeHandle.overlay!==node)return false;const current=activeHandle;activeHandle=null;return current.close(reason)}
 
   async function open(place={}){
-    document.querySelector('.lv-booking-backdrop')?.remove();
+    close(activeHandle?.overlay,'replace');
     const wrap=document.createElement('div');
     wrap.innerHTML=dialogHtml(place);
     const node=wrap.firstElementChild;
-    document.body.appendChild(node);
+    const ui=LuviaUI;if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');
+    let mounted=null;mounted=ui.adopt(node,{name:'booking.place-request',kind:'dialog',content:node.querySelector('.lv-booking-dialog'),closeSelector:'[data-booking-close]',initialFocus:'[data-booking-date]',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted;
     node.addEventListener('click',async e=>{
-      if(e.target===node||e.target.closest('[data-booking-close]'))return close(node);
+      if(e.target===node||e.target.closest('[data-booking-close]'))return;
       const create=e.target.closest('[data-booking-create]');
       if(!create)return;
       if(!node.querySelector('[data-booking-email]')?.value){return;}
@@ -98,7 +100,7 @@
         create.remove();
         // Nach erfolgreichem Anlegen die gesamte Overlay-Kette schließen: Booking-Dialog
         // und ggf. darunter geöffnete Place-Detailkarte.
-        close(node);
+        close(node,'confirmed');
         try{window.LuviaPlaceDetail?.close?.()}catch{}
         try{window.LuviaPlaceDetails?.close?.()}catch{}
         setTimeout(()=>window.dispatchEvent(new CustomEvent('luvia:navigate-request',{detail:{view:'bookings'}})),120);
