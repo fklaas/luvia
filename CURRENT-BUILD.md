@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.26**
-- Core: **4.82.26**
-- Name: **M9.1 Navigation Contract Foundation**
+- App: **13.82.27**
+- Core: **4.82.27**
+- Name: **M9.2 Staged App Runtime and Module Mounting**
 - Channel: **production**
 - Datum: **2026-08-23**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
@@ -1643,3 +1643,25 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 
 M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; the next owner-locked slice is staged runtime boot and explicit module mounting, with Consumer App Shell changes requiring their own Consumer-owned PCR and regression gate.
 <!-- LUVIA:M9.1:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.2:RUNTIME-CANDIDATE:START -->
+## M9.2 — Staged App Runtime and Module Mounting
+
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+
+**Runtime App / Core:** 13.82.27 / 4.82.27
+
+**Platform Foundation Commit:** `216c8389865434087c2cf4d1e5185824c8640b3b`
+
+**Platform Rehydration Fix:** `ca19583c5023df2ed45e68d9cba8d199037f817a`
+
+**Consumer Adoption Commit:** `b44b21602debf2e2d3f55b6fb0e9ef7712f06725`
+
+M9.2 adds browserless `app-runtime.v1` and `module-mount.v1`. App startup now has ordered Platform, Auth, Domain Context, Shell and Module readiness stages with immutable diagnostics, timeouts, explicit failure and recovery. Auth changes can rehydrate after the initial splash without retaining the first boot promise.
+
+The Consumer App Shell removes five manual mounted-state flags and the direct route-specific mount chain. Nine canonical module routes now resolve their targets from `navigation.v1` and use serialized concrete Web adapters. Screen composition stays Consumer-owned, Domain Truth stays in its existing Cores, and Timeline/Journey remains separately hydrated outside the ordinary module registry.
+
+Focused M9.2 regression, NFR-0 and the controlled Safe Regression are required to remain green after this runtime cut. Integration Preview, Main, Production and final eight-stream synchronization remain pending and must not be claimed before direct measurement.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification is part of M9.2.
+<!-- LUVIA:M9.2:RUNTIME-CANDIDATE:END -->
