@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.24**
-- Core: **4.82.24**
+- App: **13.82.25**
+- Core: **4.82.25**
 - Name: **M8.5 Intelligence Contract Core Foundation**
 - Channel: **production**
 - Datum: **2026-08-23**
@@ -1587,7 +1587,7 @@ M8 is **COMPLETE / CLOSED**. M8.5 starts only after a fresh read-only Intelligen
 
 **Status:** IMPLEMENTATION COMPLETE / RELEASE CANDIDATE
 
-**Runtime App / Core:** 13.82.24 / 4.82.24
+**Runtime App / Core:** 13.82.25 / 4.82.25
 
 **Platform Contract Foundation:** `211632d8a8675117d47652951d6bf2ab00ea9a52`
 

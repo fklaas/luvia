@@ -39,7 +39,7 @@
     if(button.matches('[data-ai-transparency-open]'))return transparencyModal();
     const trip=activeTrip()||{};
     if(button.matches('[data-ai-brief-refresh]')){button.disabled=true;await refresh(trip,{force:true}).catch(error=>window.LuviaUIKit?.toast?.(error.message,{type:'error'}));button.disabled=false;}
-  });
+  },true);
   window.addEventListener('luvia:journey-context-changed',()=>{const trip=activeTrip()||{};if(tripId(trip))refresh(trip,{force:true}).catch(()=>{})});
   window.LuviaAIDashboard=Object.freeze({version:VERSION,render,refresh,openChat:askModal,openTransparency:transparencyModal,diagnostics:()=>({version:VERSION,entries:state.size,widget:'aiBrain',contract:'intelligence.v1'})});
 })();

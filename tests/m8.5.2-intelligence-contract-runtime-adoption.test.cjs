@@ -26,6 +26,7 @@ assert.equal(memory.includes('LuviaUserPreferences'),false,'memory still mutates
 assert.equal(memory.includes('window.LuviaAI?.run'),false,'memory still uses transitional AI facade');
 assert.equal(/window\.LuviaAI(?:\.|\?\.)/.test(dashboard),false,'dashboard still uses transitional AI facade');
 assert.equal(dashboard.includes('data-ai-timeline-check'),false,'dashboard still exposes direct Timeline execution path');
+assert.ok(/document\.addEventListener\('click',[\s\S]*?\},true\);/.test(dashboard),'dashboard actions must use capture delegation so shell handlers cannot intercept Intelligence controls');
 for(const token of [
   'data-ai-transparency-open',
   'So denkt Luvia',
