@@ -8,18 +8,21 @@ Milestone: M9 — App Shell I: Runtime & Navigation
 
 The real Preview logout removed the authenticated App Shell, published `SIGNED_OUT` and rendered Public Entry without reloading the document. The open Profile Foundation overlay nevertheless remained mounted and exposed the previous profile and trip projection above the signed-out surface. Console errors remained at zero, so this was a lifecycle cleanup defect rather than an Auth or rendering failure.
 
+The first repaired Preview candidate proved the overlay cleanup and same-document Login restoration, but the isolated Console gate then exposed one unauthenticated `booking_integration_summary` read during the session transition. Candidate App/Core 13.82.36 / 4.82.36 therefore stopped before Main and is retained as a failed Console acceptance sample.
+
 ## Ownership and scope lock
 
 - Auth session truth remains owned by Supabase Auth through `AuthSessionPort`.
 - `runtime-signal-web-adapter.js` remains the only Web adapter translating Auth, lifecycle and network port state into `app-runtime-signals.v1` effects.
 - Profile Foundation continues to own its public `close()` cleanup command.
 - The Consumer App Shell already owns ordered handling of `session.deactivate`; it now invokes that owner command before module unmount and signed-out hydration.
+- The Consumer Control Center Attention aggregator consumes `AuthSessionPort`, suppresses projection refresh as soon as the public logout lifecycle starts, invalidates stale refresh completions and re-enables reads only after canonical session activation plus a hydrated Travel Identity signal.
 - The fix creates no Auth listener, session cache or second identity truth.
 - No Trip, Places, Media, Booking, Intelligence or Timeline/Journey ownership changes.
 
 ## Mutation
 
-`app/app-shell.js` now closes the authenticated Profile Foundation surface when the canonical Runtime Action reports `session.deactivate`. Stale deactivation effects are still ignored while `AuthSessionPort` reports an authenticated session. A focused regression locks cleanup-before-unmount-before-signed-out-hydration ordering and forbids private Auth or browser-storage reads in that branch.
+`app/app-shell.js` now closes the authenticated Profile Foundation surface when the canonical Runtime Action reports `session.deactivate`. Stale deactivation effects are still ignored while `AuthSessionPort` reports an authenticated session. `app/control-center/control-center-attention-service.js` now clears and pauses its read-only attention projection during session exit and rejects stale refresh completion. A focused browserless regression locks cleanup ordering, proves unauthenticated Booking reads are suppressed, proves post-activation Travel Identity may refresh again and forbids private Auth or browser-storage reads.
 
 ## Native First Ready
 

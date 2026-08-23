@@ -19,6 +19,9 @@ const windowObj={
     getActiveTrip:()=>{tripCalls.getActiveTrip++;return trips[0]}
   },
   LuviaTravelContext:{snapshot:()=>({phase:'during',tripDay:1})},
+  LuviaPlatformPorts:{
+    get:id=>id==='AuthSessionPort'?{snapshot:()=>({authenticated:true,loading:false})}:null
+  },
   LuviaAttentionContract:{normalize:x=>Object.freeze({...x,resolved:false})},
   LuviaBookingIntegration:{listForTrip:async()=>[{id:'bk1',title:'Café',status:'review_required'}]}
 };
