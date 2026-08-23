@@ -10,6 +10,7 @@ const read=relative=>fs.readFileSync(path.join(ROOT,relative),'utf8');
 const navigationSource=read('core/runtime/navigation-contract-core.js');
 const historySource=read('core/runtime/navigation-history-policy-core.js');
 const adapterSource=read('app/adapters/navigation-history-web-adapter.js');
+const shellSource=read('app/app-shell.js');
 const portsSource=read('app/adapters/platform-port-adapters.mjs');
 const indexSource=read('index.html');
 
@@ -81,5 +82,15 @@ const registryIndex=indexSource.indexOf('app/navigation-registry.js');
 const adapterIndex=indexSource.indexOf('app/adapters/navigation-history-web-adapter.js');
 const shellIndex=indexSource.indexOf('app/app-shell.js');
 assert.ok(navigationIndex>=0&&navigationIndex<historyIndex&&historyIndex<registryIndex&&registryIndex<adapterIndex&&adapterIndex<shellIndex,'Navigation, History Policy, Web adapter and Consumer Shell load order must be explicit');
+
+assert.match(shellSource,/LuviaNavigationHistoryV1/,'Active App Shell must adopt the History contract');
+assert.match(shellSource,/currentIntent\(\)/,'Authenticated cold start must honor an explicit Deep Link intent');
+assert.match(shellSource,/commitScreenIntent\(intent,options\)/,'Only the active App Shell may commit a successfully mounted screen');
+assert.match(shellSource,/historyAction:e\.detail\?\.historyAction/,'Navigate requests must preserve restore semantics');
+assert.match(shellSource,/back:\(\)=>navigationHistory\(\)\.back\(\)/,'App Shell must expose contract-backed Back navigation');
+assert.match(shellSource,/forward:\(\)=>navigationHistory\(\)\.forward\(\)/,'App Shell must expose contract-backed Forward navigation');
+assert.match(shellSource,/ExternalNavigationPort/,'External map navigation must cross the Platform Port boundary');
+assert.doesNotMatch(shellSource,/window\.open\s*\(/,'Active App Shell must not open external navigation directly');
+assert.match(shellSource,/navigationHistory:window\.LuviaNavigationHistoryV1\?\.diagnostics/,'History state must be visible in App Shell diagnostics');
 
 console.log('M9.3 Navigation History / Back / Deep-Link Policy Foundation: PASS');
