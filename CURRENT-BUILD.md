@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M9.5 Owner Flow Navigation Convergence**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.5 PRODUCTION CANDIDATE; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.5 RUNTIME RELEASED / PRODUCTION VERIFIED / AUTH CYCLE OPEN; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1737,3 +1737,37 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 
 M9.4 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; actual login/logout acceptance, separately owned Auth/Join/Booking URL policies and inactive legacy-shell deletion proof require a fresh measured scope lock.
 <!-- LUVIA:M9.4:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:START -->
+## M9.5 — Owner Flow Navigation Convergence
+
+**Status:** RUNTIME RELEASED / PRODUCTION VERIFIED; REAL LOGOUT → LOGIN ACCEPTANCE OPEN
+
+**Runtime App / Core:** 13.82.35 / 4.82.35
+
+**Platform Foundation:** `cefc35e21e7cebd14ac2215d0e32beca16dc6e80`
+
+**Consumer Adoption:** `9f47e953adde516d17c697a4daa7278487919e77`
+
+**Booking Adoption:** `e84a794ff92fcb10379d8718e558bb735c966bd3`
+
+**Integration Release:** `2cfa11a75cab0cf28d77d578006c0fc025f0f996`
+
+**Production Runtime Release:** `7773087ede7c72d39bdd235269cd0fc7c2a9d90e`
+
+M9.5 adds browserless `owner-flow-navigation.v1` effects for Auth, Join and Booking. The Web adapter delegates same-document URL replacement to the established Navigation History owner and external surfaces to Storage, Sharing, DeepLink and ExternalNavigation Ports. It owns no Domain Truth.
+
+Password-login success no longer forces a document reload. Auth logout no longer writes Web History directly. Join pending state uses `StoragePort`; Public Entry and Join cleanup preserve unrelated URL parameters and rerender without a reload. Trip Invite and Booking external handoffs cross Platform Ports, while Booking attribution and provider validation remain Booking-owned.
+
+The two byte-identical, unreachable legacy Shell JavaScript files `luvia-app-shell.js` and `legacy/ui/luvia-app-shell.js` were deleted after a zero-reachability proof. Their SHA-256 before deletion was `4651AC3D4E921E5CA18AE4B03B6AFB6C72F28723D6CE8D55DFFC99B36B3ABC7E`. Historical CSS, `core/app/app-shell-v11.js` and the archived v11 HTML remain unchanged.
+
+Focused Platform, Consumer and Booking guards, NFR-0 **3/3**, and controlled Safe Regression **56/56** are PASS on Integration and Main.
+
+Integration Preview version `563a84f3-c30b-483d-9d87-1bc9f0cb4ff4` passed **23/23 byte-exact runtime assets**, **5/5 private-path SPA fallback**, **2/2 removed-shell SPA fallback**, authenticated owner-flow diagnostics, same-document invalid-Join cleanup, **25/25 authenticated F5** at **2.231–4.060 seconds** (average **2.953 seconds**), active Trip/View retention and console **0/0**.
+
+Production version `56d56a8b-5b1d-46af-bcd2-3cf0fb3e4479` passed the same **23/23**, **5/5**, **2/2**, authenticated runtime and same-document Join gates plus **25/25 authenticated F5** at **2.291–5.389 seconds** (average **2.852 seconds**) with active Trip/View retention and console **0/0**. The first post-activation byte sample observed a short four-HTML-asset edge-generation mix; read-only byte/marker/newline diagnosis proved convergence before the complete second gate passed **23/23**. The first mixed sample is retained as non-pass evidence.
+
+An actual destructive logout followed by a credentialed login was not executed. The selected browser had a valuable authenticated Preview and Production session, and no credential source was authorized for safe restoration. Therefore M9 is not closed and no real login/logout acceptance claim is made. The remaining M9 exit gate is exactly one reversible credentialed logout → login → active-Trip/runtime verification cycle.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification occurred. Rollback is code-only to synchronized M9.4 marker `1a21b4a3c01fa103c0c380272a84fe3d4c9a6b74` / Production version `93f9bc43-e25e-45c5-b727-15d31e41a33d`.
+<!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:END -->

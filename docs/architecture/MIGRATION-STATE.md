@@ -971,3 +971,31 @@ Candidates `13.82.31` and `13.82.32` were explicitly rejected for Release Identi
 
 M9 remains in progress. Real login/logout environment acceptance, remaining owner-specific URL boundaries and inactive legacy-shell deletion proof require a new read-only scope lock.
 <!-- LUVIA:M9.4:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:START -->
+## M9.5 Owner Flow Navigation Convergence — RUNTIME RELEASED / PRODUCTION VERIFIED / AUTH CYCLE OPEN
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.35 / 4.82.35**
+
+Platform / Consumer / Booking / Integration / Production: `cefc35e21e7cebd14ac2215d0e32beca16dc6e80` / `9f47e953adde516d17c697a4daa7278487919e77` / `e84a794ff92fcb10379d8718e558bb735c966bd3` / `2cfa11a75cab0cf28d77d578006c0fc025f0f996` / `7773087ede7c72d39bdd235269cd0fc7c2a9d90e`
+
+Measured result:
+
+- browserless `owner-flow-navigation.v1`, Domain Truth **NONE**;
+- one Web owner-flow adapter over Navigation History plus Storage, Sharing, DeepLink and ExternalNavigation Ports;
+- password login forced reload: **removed**;
+- Auth logout direct History write: **removed**;
+- Join direct localStorage/History/Location navigation: **removed**;
+- Trip Invite and Booking direct browser handoff: **removed from locked paths**;
+- unreachable byte-identical legacy Shell JavaScript copies: **2 deleted**, deployed asset reachability **0/2**;
+- focused M9.5 gates: **3/3 PASS**;
+- NFR-0: **3/3 PASS**;
+- Safe Regression: **56/56 PASS**;
+- Integration `563a84f3-c30b-483d-9d87-1bc9f0cb4ff4`: **23/23 exact**, **5/5 privacy**, **2/2 deleted SPA fallback**, same-document Join cleanup, **25/25 authenticated F5**, console **0/0**;
+- Production `56d56a8b-5b1d-46af-bcd2-3cf0fb3e4479`: same gates, **25/25 authenticated F5**, console **0/0**;
+- Timeline/Journey: separately reserved and unchanged.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, Cloudflare configuration or Domain Truth mutation occurred. M9 remains open only for a real reversible logout → credentialed login → active-Trip/runtime acceptance cycle; no credential-cycle pass is claimed.
+<!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:END -->

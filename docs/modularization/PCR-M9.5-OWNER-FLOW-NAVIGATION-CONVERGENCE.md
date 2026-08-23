@@ -1,6 +1,6 @@
 # PCR M9.5 – Owner Flow Navigation Convergence
 
-Status: **IMPLEMENTATION COMPLETE / INTEGRATION + RELEASE PENDING**
+Status: **RUNTIME RELEASED / PRODUCTION VERIFIED / REAL LOGOUT → LOGIN ACCEPTANCE OPEN**
 
 Integration runtime candidate: **App 13.82.34 / Core 4.82.34**
 
@@ -58,3 +58,25 @@ Public Entry now opens an invitation through `owner-flow-navigation.v1` without 
 ## Booking adoption
 
 Booking Core still resolves, validates and attributes the provider route. It now reserves the user-gesture handoff surface and opens the validated provider URL through `ExternalNavigationPort`; the port reports popup blocking instead of fabricating success. Booking engine detection receives its default base from the owner-flow/environment boundary and no longer reads `location.href` directly. No Booking persistence, provider, status or reconciliation rule changed.
+
+## Measured release evidence
+
+- Integration runtime candidate: App/Core **13.82.34 / 4.82.34**, commit `2cfa11a75cab0cf28d77d578006c0fc025f0f996`;
+- Integration version: `563a84f3-c30b-483d-9d87-1bc9f0cb4ff4`;
+- Production runtime: App/Core **13.82.35 / 4.82.35**, commit `7773087ede7c72d39bdd235269cd0fc7c2a9d90e`;
+- Production version: `56d56a8b-5b1d-46af-bcd2-3cf0fb3e4479`;
+- focused Platform / Consumer / Booking guards: **3/3 PASS**;
+- NFR-0: **3/3 PASS**;
+- Safe Regression: **56/56 PASS**;
+- Preview: **23/23 exact**, **5/5 privacy**, removed legacy assets **2/2 SPA fallback**, authenticated Runtime/Owner-Flow diagnostics, same-document invalid-Join cleanup, **25/25 authenticated F5** at **2.231–4.060 seconds**, console **0/0**;
+- Production: **23/23 exact**, **5/5 privacy**, removed legacy assets **2/2 SPA fallback**, authenticated Runtime/Owner-Flow diagnostics, same-document invalid-Join cleanup, **25/25 authenticated F5** at **2.291–5.389 seconds**, console **0/0**.
+
+The first immediate Production sample observed four HTML assets from different edge generations while the new version activated. Read-only follow-up proved identical version markers, LF form and full Git-blob equality; only then did the complete second gate pass 23/23. The mixed sample remains classified as a failed sample, not rewritten as success.
+
+## Remaining M9 exit gate
+
+The active Preview and Production sessions were deliberately not destroyed without an authorized credential source for restoration. Consequently, actual logout → credentialed login → active-Trip/runtime acceptance remains open. Static policy tests, authenticated cold starts and Join-flow runtime acceptance are PASS, but they are not mislabeled as a real credential cycle.
+
+M9.5 is runtime-released and Production-verified. M9 remains **IN PROGRESS** until that single environment gate is measured. Timeline/Journey remains separately reserved and is not an ordinary Places, Trip or App-Shell consumer.
+
+No DB/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change or Domain Truth reassignment occurred.

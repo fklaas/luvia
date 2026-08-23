@@ -2452,6 +2452,7 @@ tests/m9.4-runtime-signals-resume-coordination.test.cjs,Shared Tests,Test/Guardr
 core/runtime/owner-flow-navigation-policy-core.js,Platform,Shared Runtime,M9.5 browserless Auth Join Booking navigation effect policy without Domain Truth
 app/adapters/owner-flow-navigation-web-adapter.js,Platform,Adapter/Web,M9.5 Web binding through Navigation History and formal Platform Ports
 docs/modularization/PCR-M9.5-OWNER-FLOW-NAVIGATION-CONVERGENCE.md,Platform,Documentation/Architecture,M9.5 measured owner-flow and legacy-shell scope lock
+docs/modularization/RELEASE-NOTES-M9.5.md,Platform,Documentation/Release,M9.5 measured runtime release Production evidence and honest Auth-cycle residual
 tests/m9.5-owner-flow-navigation-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.5 Platform Auth Join Invite and legacy-shell reachability guard
 tests/m9.5-consumer-owner-flow-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,M9.5 Public Entry Booking surface and App Shell owner-flow adoption guard
 tests/m9.5-booking-owner-flow-adoption.test.cjs,Booking/Shared Tests,Test/Guardrail,M9.5 Booking Handoff and engine URL boundary adoption guard
