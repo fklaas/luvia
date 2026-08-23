@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='2.0.0';
+  const VERSION='2.1.0';
   const CONTRACT_ID='overlay-host.v1';
   const core=window.LuviaOverlayHostContractCoreV1;
   if(!core?.createStack)throw new Error('Luvia UI Host benötigt overlay-host.v1.');
@@ -60,17 +60,18 @@
       if(heading){heading.id=heading.id||`luvia-ui-title-${Math.random().toString(36).slice(2,10)}`;content.setAttribute('aria-labelledby',heading.id)}
     }
   }
-  function mount({name='dialog',kind='dialog',content,className='',modal=true,closeOnBackdrop=true,closeOnEscape=true,closeOnBack=true,closeSelector='[data-ui-close]',initialFocus=null,label='',onClose}={}){
+  function mount({name='dialog',kind='dialog',content,className='',modal=true,closeOnBackdrop=true,closeOnEscape=true,closeOnBack=true,closeSelector='[data-ui-close]',initialFocus=null,label='',onClose,overlayRoot=null}={}){
     if(!(content instanceof HTMLElement))throw new Error('UI-Overlay benötigt ein HTMLElement.');
     const effect=policy.open({name,kind,modal,closeOnBackdrop,closeOnEscape,closeOnBack});
     const {id}=effect.entry;
-    const overlay=document.createElement('div');
-    overlay.className=`luvia-ui-overlay ${className}`.trim();
+    const overlay=overlayRoot instanceof HTMLElement?overlayRoot:document.createElement('div');
+    overlay.classList.add('luvia-ui-overlay');
+    String(className||'').split(/\s+/).filter(Boolean).forEach(token=>overlay.classList.add(token));
     overlay.dataset.luviaUiOverlay=id;
     overlay.dataset.luviaUiName=effect.entry.name;
     overlay.dataset.luviaUiKind=effect.entry.kind;
     dialogSemantics(content,{modal,label});
-    overlay.appendChild(content);
+    if(content!==overlay&&!overlay.contains(content))overlay.appendChild(content);
     const previousFocus=document.activeElement;
     let closed=false;
     const finalize=reason=>{
@@ -91,7 +92,7 @@
     overlay.addEventListener('click',event=>{if(!closeSelector)return;let trigger=null;try{trigger=event.target.closest?.(closeSelector)}catch(error){console.error('[LuviaUI] invalid close selector',error)}if(trigger&&overlay.contains(trigger))requestClose('button')});
     const handle=Object.freeze({id,name:effect.entry.name,kind:effect.entry.kind,overlay,content,close:forceClose,requestClose,get closed(){return closed}});
     mounts.set(id,handle);
-    document.body.appendChild(overlay);
+    if(!overlay.isConnected)document.body.appendChild(overlay);
     syncLayers();
     queueMicrotask(()=>{
       if(closed)return;
@@ -100,6 +101,11 @@
       try{target?.focus?.({preventScroll:true})}catch{}
     });
     return handle;
+  }
+  function adopt(overlay,options={}){
+    if(!(overlay instanceof HTMLElement))throw new Error('UI-Overlay-Adoption benötigt ein HTMLElement.');
+    const content=options.content instanceof HTMLElement?options.content:overlay.firstElementChild||overlay;
+    return mount({...options,content,overlayRoot:overlay});
   }
   function topMount(){const id=policy.snapshot().top?.id;return id?mounts.get(id)||null:null}
   function closeTop(reason='api'){const top=topMount();return top?top.close(reason):false}
@@ -123,8 +129,8 @@
   window.addEventListener('luvia:runtime-action',event=>{if(event.detail?.type==='session.deactivate')closeAll('session')});
   window.addEventListener('luvia:logout',()=>closeAll('session'));
   const style=document.createElement('style');
-  style.textContent=`.luvia-ui-overlay{position:fixed;inset:0;z-index:var(--luvia-overlay-z,2147483000);display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));background:rgba(31,43,54,.56);backdrop-filter:blur(12px);overscroll-behavior:contain}.luvia-ui-overlay[data-luvia-ui-layer="underlay"]{pointer-events:none}html.luvia-ui-open,body.luvia-ui-open{overflow:hidden;overscroll-behavior:none}@media(max-width:760px){.luvia-ui-overlay{padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));place-items:stretch}}@media(prefers-reduced-motion:reduce){.luvia-ui-overlay,.luvia-ui-overlay *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}`;
+  style.textContent=`:where(.luvia-ui-overlay){position:fixed;inset:0;z-index:var(--luvia-overlay-z,2147483000);display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));background:rgba(31,43,54,.56);backdrop-filter:blur(12px);overscroll-behavior:contain}.luvia-ui-overlay[data-luvia-ui-layer="underlay"]{pointer-events:none}html.luvia-ui-open,body.luvia-ui-open{overflow:hidden;overscroll-behavior:none}@media(max-width:760px){:where(.luvia-ui-overlay){padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));place-items:stretch}}@media(prefers-reduced-motion:reduce){.luvia-ui-overlay,.luvia-ui-overlay *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}`;
   document.head.appendChild(style);
-  window.LuviaUI=Object.freeze({version:VERSION,contractId:CONTRACT_ID,register,has,open,mount,closeTop,closeAll,handleBack,diagnostics});
+  window.LuviaUI=Object.freeze({version:VERSION,contractId:CONTRACT_ID,register,has,open,mount,adopt,closeTop,closeAll,handleBack,diagnostics});
   window.dispatchEvent(new CustomEvent('luvia:ui-ready',{detail:window.LuviaUI}));
 })();
