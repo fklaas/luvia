@@ -1616,14 +1616,16 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 M8.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. Remaining mixed AI, Planning, Discovery, provider/persistence and Journey/Timeline boundaries stay explicitly classified for later measured slices; this closeout does not claim a big-bang isolation of those roots.
 <!-- LUVIA:M8.5:FINAL:CLOSEOUT:END -->
 
-<!-- LUVIA:M9.1:RUNTIME-CANDIDATE:START -->
+<!-- LUVIA:M9.1:CLOSEOUT:START -->
 ## M9.1 — Navigation Contract Foundation
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.26 / 4.82.26
 
 **Feature Commit:** `5248eccdbb2d8616a1b8248ec065bfc56bc41b7c`
+
+**Runtime Release Commit:** `8a538e395aadf361fe9c2d360e258ecad35de880`
 
 M9.1 adds browserless `navigation.v1` route, alias, immutable `screen.navigate` intent, Deep Link and declarative mount semantics. The Platform-owned Web Registry remains backward-compatible and binds `LuviaNavigationContractV1`; the Consumer-owned App Shell is unchanged in this Platform slice.
 
@@ -1631,9 +1633,13 @@ M9.1 adds browserless `navigation.v1` route, alias, immutable `screen.navigate` 
 
 The measured M9 baseline and PCR are recorded in `docs/modularization/M9-APP-SHELL-RUNTIME-NAVIGATION-BASELINE.md` and `docs/modularization/PCR-M9.1-NAVIGATION-CONTRACT-FOUNDATION.md`.
 
-Focused M9.1 regression is **PASS**, NFR-0 is **3/3 PASS**, and controlled Safe Regression is **50/50 PASS** locally before the runtime cut.
+Focused M9.1 regression is **PASS**, NFR-0 is **3/3 PASS**, and controlled Safe Regression is **50/50 PASS** on Platform, Integration and Main.
 
-No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, Domain Truth move, Consumer App Shell rewrite or Journey/Timeline reclassification is part of M9.1.
+Integration Preview version `43c5bdbb-569a-417c-9d69-9428abd5b86e` passed **11/11 byte-exact runtime assets**, **5/5 private-path SPA fallback**, **25/25 authenticated F5**, active-Trip/version retention, Planen -> Places navigation and **0** console warnings/errors. Build/check `99bf67e7-f36e-4d0c-93cc-6791b34d8baf` / `97191761126` is **SUCCESS**.
 
-Integration Preview, Production acceptance and final eight-stream synchronization remain pending and must not be claimed before measurement.
-<!-- LUVIA:M9.1:RUNTIME-CANDIDATE:END -->
+Production version `7e41749e-23ee-41e6-b67d-b0a3379c3969` is at **100%** in deployment `a1310844-e263-4c96-903c-50eace9f39da`. Production passed **11/11 byte-exact runtime assets**, **5/5 private-path SPA fallback**, **25/25 authenticated F5**, active-Trip/version retention, Planen -> Places with all ten categories and **0** console warnings/errors. The associated build is `a855c3b3-cb97-478a-873a-aa6bb58be7dc`. GitHub check `97193079285` remained `in_progress` without an error or conclusion at closeout; its status is not rewritten as success. The independent Cloudflare version/deployment records and exact authenticated runtime measurements prove the deployed Production state.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, Domain Truth move, Consumer App Shell rewrite or Journey/Timeline reclassification occurred. Rollback is code-only to M8.5 runtime `240968cd81d13610fa24a7c79892415df0871067` / Production version `af037f55-89b6-48a8-a441-7c747d08064a`.
+
+M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; the next owner-locked slice is staged runtime boot and explicit module mounting, with Consumer App Shell changes requiring their own Consumer-owned PCR and regression gate.
+<!-- LUVIA:M9.1:CLOSEOUT:END -->
