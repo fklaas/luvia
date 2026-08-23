@@ -20,10 +20,10 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.30**
-- Core: **4.82.30**
-- Name: **M9.3 History, Back and Deep-Link Policy**
-- Channel: **production**
+- App: **13.82.31**
+- Core: **4.82.31**
+- Name: **M9.4 Runtime Signals and Resume Coordination**
+- Channel: **integration candidate**
 - Datum: **2026-08-23**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
@@ -1707,3 +1707,25 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 
 M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; its next mutation requires a fresh read-only scope lock over the remaining App Shell orchestration, lifecycle/resume and legacy URL-owner boundaries.
 <!-- LUVIA:M9.3:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.4:CANDIDATE:START -->
+## M9.4 — Runtime Signals and Resume Coordination
+
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING
+
+**Runtime App / Core:** 13.82.31 / 4.82.31
+
+**Platform Foundation Commit:** `c9377153ff8e6a95e592293745640c2ff058b31b`
+
+**Consumer Adoption Commit:** `e9dd548e0e8a4841ead1f6d956612eff51f1e4e1`
+
+M9.4 introduces browserless `app-runtime-signals.v1` and one Web binding over the existing `AuthSessionPort`, `LifecyclePort` and `NetworkPort`. The policy normalizes idempotent session, background/foreground and connectivity transitions without storing session tokens or owning Domain Truth.
+
+The Consumer App Shell no longer binds Auth transitions directly to an inline render callback. Session activate/switch/deactivate, eligible resume and reconnect effects are serialized through one Runtime Action queue. Background intervals below 15 seconds do not remount the active module. Eligible resume and reconnect preserve the current canonical Navigation Intent and explicitly write no History entry. Offline resume remains local until the NetworkPort reports a real reconnect.
+
+Offline, reconnect and eligible resume state now has a responsive, reduced-motion-compatible `aria-live` projection below the App header. Collaboration, Media upload, Location and Travel Context keep their existing domain-specific transition owners. Auth, Join and Booking URL policies plus Timeline/Journey remain outside this scope.
+
+Focused M9.4, NFR-0, controlled Safe Regression, Integration Preview lifecycle/reconnect acceptance, Main, Production and final eight-stream synchronization must pass before this candidate may be called complete.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or data rollback is part of this candidate. Rollback is code-only to the M9.3 synchronized marker `7e8829119727a6c65e1a05c3029c981d6af78369`.
+<!-- LUVIA:M9.4:CANDIDATE:END -->
