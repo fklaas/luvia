@@ -165,6 +165,10 @@ const SUITE = Object.freeze([
     category: 'Journey / Timeline Overlay Host',
     test: 'tests/m10.4e-journey-timeline-overlay-host-adoption.test.cjs'
   },
+  {
+    category: 'App Shell / Overlay Closeout',
+    test: 'tests/m10-final-overlay-global-handler-closeout.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
