@@ -133,6 +133,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Session Exit',
     test: 'tests/m9.6-authenticated-surface-session-exit-hygiene.test.cjs'
   },
+  {
+    category: 'App Shell / Overlay Host',
+    test: 'tests/m10.1-overlay-host-foundation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

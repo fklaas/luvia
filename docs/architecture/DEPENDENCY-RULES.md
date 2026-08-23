@@ -85,3 +85,9 @@ Auth, Lifecycle and Network transitions enter App Shell orchestration only throu
 Every migration slice must have targeted regression coverage.
 
 Repository-wide safe regression and ownership guardrails remain mandatory at release gates.
+
+## 12. Overlay and modal ownership
+
+Domain and product flows may provide content and owner commands, but must not create a second global modal stack, keyboard dispatcher, scroll-lock owner or z-index hierarchy. Shared presentation crosses `overlay-host.v1`; Web DOM behavior remains in the Web compatibility host and native clients bind native presentation adapters.
+
+Journey / Timeline remains separately reserved even where its current implementation renders an overlay. It must not be migrated as an ordinary Places consumer without its dedicated architecture audit.

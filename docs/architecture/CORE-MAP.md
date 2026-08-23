@@ -112,13 +112,15 @@ Owner stream: `feature/platform-core`
 
 Role: platform-neutral App Runtime stages, canonical screen intents, declarative module-mount semantics, browserless navigation-history policy and Auth/Lifecycle/Network Runtime Action policy; owns no business Domain Truth.
 
-Browserless surfaces: `core/runtime/app-runtime-contract-core.js`, `core/runtime/runtime-signal-policy-core.js`, `core/runtime/navigation-contract-core.js`, `core/runtime/module-mount-contract-core.js`, `core/runtime/navigation-history-policy-core.js`.
+Browserless surfaces: `core/runtime/app-runtime-contract-core.js`, `core/runtime/runtime-signal-policy-core.js`, `core/runtime/navigation-contract-core.js`, `core/runtime/module-mount-contract-core.js`, `core/runtime/navigation-history-policy-core.js`, `core/runtime/overlay-host-contract-core.js`.
 
 Web boundaries: `app/navigation-registry.js`, `app/adapters/navigation-history-web-adapter.js`, `app/adapters/runtime-signal-web-adapter.js` and the Consumer-owned `app/app-shell.js` screen composer.
 
 `navigation.v1` is the sole route/intent truth. `navigation-history.v1` projects and restores those intents; it does not define routes. Future native clients consume the same intents and provide native stack adapters.
 
 `app-runtime-signals.v1` consumes AuthSession, Lifecycle and Network ports, stores no session/token and emits only sanitized Runtime Actions. Native clients bind the same policy to their native lifecycle/network/session adapters.
+
+`overlay-host.v1` owns only platform-neutral overlay stack and dismissal semantics. The current `core/ui/ui-manager.js` is its explicit Web DOM compatibility host. It centralizes modal layering, focus containment, Escape/Back commands, safe-area rendering, scroll lock and session/navigation cleanup without owning Domain Truth. Native clients consume the same stack semantics through native presentation adapters. Shared visual tokens and component styling remain reserved for M10.5 Experience Core.
 
 ### Experience
 
