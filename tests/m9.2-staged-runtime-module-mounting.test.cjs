@@ -11,6 +11,7 @@ const runtimeSource=read('core/runtime/app-runtime-contract-core.js');
 const navigationSource=read('core/runtime/navigation-contract-core.js');
 const mountSource=read('core/runtime/module-mount-contract-core.js');
 const bootSource=read('core/runtime/boot-coordinator.js');
+const authSource=read('auth/session.js');
 const shellSource=read('app/app-shell.js');
 const indexSource=read('index.html');
 
@@ -75,6 +76,38 @@ async function main(){
   await registry.deactivate({reason:'test'});
   assert.equal(registry.snapshot().status,'idle');
   assert.deepEqual(Array.from(registry.diagnostics().registered),['gallery','places']);
+
+  let resolveInitialSession;
+  let getSessionCalls=0;
+  const authContext=vm.createContext({
+    window:{},
+    document:{dispatchEvent(){}},
+    CustomEvent:class CustomEvent{constructor(type,options){this.type=type;this.detail=options?.detail}},
+    console,
+    Promise,
+    Map,
+    Set,
+    Object,
+    Array,
+    String,
+    Boolean
+  });
+  vm.runInContext(authSource,authContext);
+  const authClient={auth:{
+    getSession(){getSessionCalls+=1;return new Promise(resolve=>{resolveInitialSession=resolve})},
+    onAuthStateChange(){return{data:{subscription:{unsubscribe(){}}}}}
+  }};
+  const firstAuthInit=authContext.window.LuviaAuth.init(authClient);
+  const concurrentAuthInit=authContext.window.LuviaAuth.init(authClient);
+  await Promise.resolve();
+  assert.equal(getSessionCalls,1,'concurrent Auth initialization must share one provider request');
+  assert.equal(authContext.window.LuviaAuth.getState().loading,true);
+  resolveInitialSession({data:{session:null},error:null});
+  const [firstAuthState,concurrentAuthState]=await Promise.all([firstAuthInit,concurrentAuthInit]);
+  assert.equal(firstAuthState.loading,false);
+  assert.equal(concurrentAuthState.loading,false,'concurrent callers must not receive a premature loading snapshot');
+  assert.equal((await authContext.window.LuviaAuth.init(authClient)).loading,false);
+  assert.equal(getSessionCalls,1,'settled Auth initialization must remain idempotent');
 
   assert.match(bootSource,/appRuntime\.run\('domain-context-ready'/);
   assert.match(bootSource,/timeoutMs:30000/);

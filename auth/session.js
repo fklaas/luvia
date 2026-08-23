@@ -3,6 +3,7 @@
 
   let client = null;
   let initialized = false;
+  let initPromise = null;
   let authSubscription = null;
   const listeners = new Set();
   const state = { session: null, user: null, loading: true, lastEvent: null };
@@ -110,26 +111,38 @@
     notify();
   }
   async function init(supabaseClient) {
-    if (initialized) return getState();
+    if (initialized && !state.loading) return getState();
+    if (initPromise) return initPromise;
     client = supabaseClient;
     initialized = true;
-    const initial = await client.auth.getSession();
-    if (initial.error) throw initial.error;
-    let initialSession = initial.data.session;
-    // getSession kann direkt nach einer E-Mail-Bestätigung noch ein älteres User-Objekt
-    // enthalten. getUser holt den aktuellen Status vom Auth-Server.
-    if (initialSession) {
-      const fresh = await client.auth.getUser();
-      if (!fresh.error && fresh.data.user) {
-        initialSession = { ...initialSession, user: fresh.data.user };
+    initPromise = (async () => {
+      const initial = await client.auth.getSession();
+      if (initial.error) throw initial.error;
+      let initialSession = initial.data.session;
+      // getSession kann direkt nach einer E-Mail-Bestätigung noch ein älteres User-Objekt
+      // enthalten. getUser holt den aktuellen Status vom Auth-Server.
+      if (initialSession) {
+        const fresh = await client.auth.getUser();
+        if (!fresh.error && fresh.data.user) {
+          initialSession = { ...initialSession, user: fresh.data.user };
+        }
       }
+      await setFromSession(initialSession, 'INITIAL_SESSION');
+      const listener = client.auth.onAuthStateChange((event, nextSession) => {
+        Promise.resolve().then(() => setFromSession(nextSession, event));
+      });
+      authSubscription = listener?.data?.subscription || null;
+      return getState();
+    })();
+    try {
+      return await initPromise;
+    } catch (error) {
+      initialized = false;
+      client = null;
+      throw error;
+    } finally {
+      initPromise = null;
     }
-    await setFromSession(initialSession, 'INITIAL_SESSION');
-    const listener = client.auth.onAuthStateChange((event, nextSession) => {
-      Promise.resolve().then(() => setFromSession(nextSession, event));
-    });
-    authSubscription = listener?.data?.subscription || null;
-    return getState();
   }
   async function ensureInitialSession(supabaseClient) {
     await init(supabaseClient);
