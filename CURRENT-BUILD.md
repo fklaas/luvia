@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M8 Identity / Event Contracts / Native Readiness**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 NEXT**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1554,14 +1554,16 @@ No database migration, schema/RPC, bucket/RLS, Edge Function, secret, manual Pro
 M7 is **COMPLETE / CLOSED**. M8 begins only from a fresh read-only source-lock baseline after the final eight-stream synchronization proof.
 <!-- LUVIA:M7:FINAL:CLOSEOUT:END -->
 
-<!-- LUVIA:M8:RUNTIME-CANDIDATE:START -->
-## M8 — Identity / Event Contracts / Native Readiness
+<!-- LUVIA:M8:FINAL:CLOSEOUT:START -->
+## M8 FINAL — Identity / Event Contracts / Native Readiness
 
-**Status:** RELEASE CANDIDATE — ENVIRONMENT ACCEPTANCE PENDING
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.23 / 4.82.23
 
 **Feature Commit:** `2894f6f36f6905e7dd6314492e7624019478810d`
+
+**Runtime Release Commit:** `34808b0f35352e16d36040ae2090e976a08cb0b8`
 
 M8 establishes a browserless physical Identity State/Contract Core and a browserless `events.v1` envelope core. Global viewer identity and explicit preferences are Identity truth; Trip context and observed Intelligence signals are excluded from that owner surface. Profile/Auth direct browser-storage references are reduced from 27 to zero, and profile session readiness now crosses `AuthSessionPort`.
 
@@ -1569,7 +1571,13 @@ Web implementations for StoragePort, SecureStoragePort, AuthSessionPort and Noti
 
 The visible Identity & Privacy Center is integrated into Control Center and the App Shell. It exposes profile clarity, preference provenance, session/storage/notification status and native-adapter readiness without owning domain truth.
 
-Focused M8 guard, M3.4 Identity regression, Profile payload/rollback, NFR-0 **3/3**, and controlled Safe Regression **48/48** are PASS on the Platform release candidate.
+Focused M8 guard, M3.4 Identity regression, Profile payload/rollback, NFR-0 **3/3**, and controlled Safe Regression **48/48** are PASS on Platform, Integration and Main.
+
+Integration Preview passed **21/21 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated Identity Center acceptance, active Trip, **25/25 authenticated F5**, and **0** console warnings/errors. Integration version/build/check: `d36c6bb8-541d-4a77-b6b6-13ccb6ac2cb4` / `d28bf78e-6bd8-48b1-90e6-3e36cb0c0a23` / `97178357197`, **SUCCESS**.
+
+Production version `1472c0d6-d390-4a4d-b613-301399a5b620` is at **100%** in deployment `18b1524e-1f8b-40c7-8821-bc09940f13b9`. Build/check `330ed0ca-9962-40b8-9638-ea2af03df70b` / `97179308782` is **SUCCESS**. Production passed **21/21 byte exact**, **5/5 private-path SPA fallback**, **25/25 public F5**, and **0** console warnings/errors. The selected Production browser had no authenticated Production-origin session, so no authenticated-Production claim is made; the authenticated product path was measured in Integration and Production equality was proved byte-for-byte.
 
 No database migration, schema/RPC/RLS/bucket change, Edge Function change, secret change, manual Cloudflare configuration change, Trip truth move, Intelligence signal move or Timeline/Journey reclassification occurred.
-<!-- LUVIA:M8:RUNTIME-CANDIDATE:END -->
+
+M8 is **COMPLETE / CLOSED**. M8.5 starts only after a fresh read-only Intelligence classification, dependency, runtime-reachability and ownership scope lock; no bulk move is pre-authorized.
+<!-- LUVIA:M8:FINAL:CLOSEOUT:END -->

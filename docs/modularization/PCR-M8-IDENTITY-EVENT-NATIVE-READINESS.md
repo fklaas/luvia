@@ -4,7 +4,7 @@ Date: 2026-08-23
 
 Owner stream: `feature/platform-core`
 
-Status: **IMPLEMENTATION COMPLETE / RELEASE ACCEPTANCE PENDING**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED**
 
 ## Source lock
 
@@ -104,3 +104,17 @@ The new `control-center-identity` route provides:
 ## Rollback
 
 Rollback is code-only: remove the two browserless cores, four Web port bindings and Identity Center, restore the previous Web profile/auth metadata paths, and restore the Identity adapter runtime surface. No canonical DB data or cloud configuration rollback is required.
+
+## Release acceptance
+
+- runtime release commit: `34808b0f35352e16d36040ae2090e976a08cb0b8`;
+- App/Core: **13.82.23 / 4.82.23**;
+- Platform, Integration and Main Safe Regression: **48/48 PASS**;
+- Integration Preview: **21/21 byte exact**, **5/5 private-path SPA fallback**, authenticated Identity Center, active Trip, **25/25 authenticated F5**, console **0 warnings/errors**;
+- Integration version/build/check: `d36c6bb8-541d-4a77-b6b6-13ccb6ac2cb4` / `d28bf78e-6bd8-48b1-90e6-3e36cb0c0a23` / `97178357197`, **SUCCESS**;
+- Production: **21/21 byte exact**, **5/5 private-path SPA fallback**, **25/25 public F5**, console **0 warnings/errors**;
+- Production version/deployment/build/check: `1472c0d6-d390-4a4d-b613-301399a5b620` / `18b1524e-1f8b-40c7-8821-bc09940f13b9` / `330ed0ca-9962-40b8-9638-ea2af03df70b` / `97179308782`, **SUCCESS**, **100% traffic**.
+
+The selected Production browser had no authenticated Production-origin session. Authenticated product behavior was therefore measured in Integration, and Production equality was established by exact comparison of 21 Git blobs. No authenticated-Production result is claimed or inferred from HTTP status alone.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function, secret, manual Production deployment or manual Cloudflare configuration change occurred. M8 is **COMPLETE / CLOSED**; M8.5 starts with a fresh read-only Intelligence classification and reachability baseline.
