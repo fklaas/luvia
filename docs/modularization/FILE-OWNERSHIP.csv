@@ -2457,3 +2457,10 @@ docs/modularization/RELEASE-NOTES-M9.5.md,Platform,Documentation/Release,M9.5 me
 tests/m9.5-owner-flow-navigation-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.5 Platform Auth Join Invite and legacy-shell reachability guard
 tests/m9.5-consumer-owner-flow-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,M9.5 Public Entry Booking surface and App Shell owner-flow adoption guard
 tests/m9.5-booking-owner-flow-adoption.test.cjs,Booking/Shared Tests,Test/Guardrail,M9.5 Booking Handoff and engine URL boundary adoption guard
+core/experience/experience-contract-core.js,Experience Core,Foundation/Contract,Browserless experience.v1 tokens components states motion accessibility and native mappings without Domain Truth
+core/experience/experience-foundation.css,Experience Core,Experience/Web,Additive Web primitives and CSS custom-property projection styles for experience.v1
+app/adapters/experience-web-adapter.js,Experience Core,Adapter/Web,Web CSS custom-property binding for experience.v1 without product or Domain Truth
+docs/modularization/M10.5-EXPERIENCE-BASELINE-AND-SCOPE-LOCK.md,Experience Core,Documentation/Architecture,M10.5 measured token component state motion accessibility legacy and native baseline
+docs/modularization/PCR-M10.5-EXPERIENCE-CONTRACT-PREMIUM-PILOT.md,Experience Core,Documentation/Architecture,M10.5 cross-stream Experience Contract Web adapter and premium AI pilot PCR
+tests/m10.5-experience-contract-premium-pilot.test.cjs,Shared Tests,Test/Guardrail,M10.5 browserless Experience Contract native mapping Web adapter accessibility and visible pilot guard
+docs/modularization/RELEASE-NOTES-M10.5.md,Experience Core,Documentation/Release,M10.5 Experience Contract premium AI surface gates deployment evidence and rollback

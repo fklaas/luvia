@@ -67,8 +67,15 @@ Booking owns the booking-specific content and behavior rendered inside that Shee
 
 ## Long-term roadmap
 
-1. Experience Core / Design System Foundation
+1. Experience Core / Design System Foundation — active through browserless `experience.v1`
 2. shared primitives and token adoption
 3. product-pattern consolidation
 4. Global Experience Recomposition
 5. continued domain-specific product evolution on the shared system
+
+## Active contract foundation
+
+- `experience-contract-core.js` is the platform-neutral semantic source for tokens, component roles, states, motion, accessibility and native mappings.
+- `app/adapters/experience-web-adapter.js` is the Web-only CSS custom-property projection.
+- `core/design/design-system-contract.js` remains a compatibility facade while legacy consumers migrate.
+- `core/experience/experience-foundation.css` contains additive Web primitives. Existing feature CSS is adopted incrementally after measured classification; it is not bulk-moved.

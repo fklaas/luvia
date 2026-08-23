@@ -57,7 +57,11 @@
       "root": "core/experience/",
       "ownerStream": "feature/experience-core",
       "truthOwnership": "no-domain-truth",
-      "status": "foundation",
+      "publicContract": "LuviaExperienceContractV1",
+      "contractAdapter": "app/adapters/experience-web-adapter.js",
+      "browserlessCore": "core/experience/experience-contract-core.js",
+      "legacyCompatibility": "core/design/design-system-contract.js",
+      "status": "active",
       "purpose": "Design system, tokens, themes, layout primitives, shared components, motion and accessibility"
     },
     "intelligence": {

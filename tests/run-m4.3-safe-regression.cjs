@@ -169,6 +169,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Overlay Closeout',
     test: 'tests/m10-final-overlay-global-handler-closeout.test.cjs'
   },
+  {
+    category: 'Experience / Design System',
+    test: 'tests/m10.5-experience-contract-premium-pilot.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

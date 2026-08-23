@@ -1819,3 +1819,23 @@ Rejected evidence remains explicit: the first Preview `/index.html` sample was a
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline ownership reassignment occurred. M10 is **COMPLETE / CLOSED**. M10.5 requires a fresh Experience ownership, token, component and composition baseline before mutation.
 <!-- LUVIA:M10:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:START -->
+## M10.5 — Experience Contract Foundation and Premium AI Surface
+
+**Status:** LOCAL RELEASE CANDIDATE; INTEGRATION / PRODUCTION ACCEPTANCE PENDING
+
+**Runtime App / Core:** 13.82.41 / 4.82.41
+
+**Release name / channel:** M10.5 Experience Contract & Premium AI Surface / production
+
+The measured M10.5 baseline found no Experience runtime implementation and 29 active local stylesheets totalling 543,882 bytes. Those stylesheets include 1,848 literal hex colours, 2,309 `!important` declarations, 134 z-index declarations, 24 reduced-motion queries and 25 `:focus-visible` selectors. This remains explicit incremental-adoption debt; no unsafe bulk CSS move was performed.
+
+`core/experience/experience-contract-core.js` now owns browserless `experience.v1` semantics: 69 design tokens, 13 shared component contracts, nine UI states, four motion patterns, accessibility release thresholds and explicit SwiftUI/Compose mappings. `app/adapters/experience-web-adapter.js` is the Web-only CSS custom-property projection. The former `LuviaDesignSystemContract` is now a backwards-compatible facade over that single semantic source.
+
+The existing global Luvia AI trigger and question dialog are the visible first consumer. They now use the Experience Command Surface, responsive premium styling, explicit context, prompt starters, semantic loading/success/error/attention states, minimum touch targets, focus-visible rules and reduced-motion behavior while retaining `intelligence.v1` reads and the sole M10 Overlay Host. No Domain Command authority was added.
+
+Focused Experience guard: **PASS**. Semantic tokens **69**; components/states **13/9**; SwiftUI/Compose mappings **PASS**; Journey/Timeline reservation **PRESERVED**. Controlled Safe Regression: **67/67 PASS**. NFR-0: **3/3 PASS**. Global keydown owner: exactly **1**. Browser dependency growth in the locked Intelligence path: **0**.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline reclassification occurred. Integration, Preview, Main and Production evidence must be filled only after the corresponding measured gates pass.
+<!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->

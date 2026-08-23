@@ -132,6 +132,14 @@ Role: shared design and interaction architecture.
 
 Domain truth ownership: none.
 
+Browserless semantic surface: `core/experience/experience-contract-core.js`
+
+Public Web boundary: `app/adapters/experience-web-adapter.js`
+
+Legacy compatibility facade: `core/design/design-system-contract.js`
+
+`experience.v1` owns design-token, component, state, motion, accessibility and native presentation-mapping semantics. It stores no product or Domain Truth. Web projects the same semantics through CSS custom properties; future SwiftUI and Compose hosts consume the native mappings without importing DOM APIs.
+
 ### Intelligence
 
 Root: `core/intelligence/`

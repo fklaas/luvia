@@ -58,7 +58,7 @@ Experience Core centralizes:
 
 It is not a domain truth owner.
 
-A later dedicated roadmap block will establish the Design System Foundation followed by Global Experience Recomposition.
+M10.5 establishes browserless `experience.v1` semantics in `core/experience/experience-contract-core.js` and the explicit Web projection in `app/adapters/experience-web-adapter.js`. The legacy Design System global is a compatibility facade, not a second semantic truth. Global Experience Recomposition proceeds incrementally against this contract.
 
 ## Intelligence architecture
 

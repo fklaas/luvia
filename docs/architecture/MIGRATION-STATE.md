@@ -1060,3 +1060,29 @@ The rejected CRLF archive was never uploaded. The accepted LF-clean archive pass
 
 No database, schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change or Domain Truth reassignment occurred. M10 is **COMPLETE / CLOSED**. M10.5 Experience Core remains reserved and requires its own read-only baseline.
 <!-- LUVIA:M10:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:START -->
+## M10.5 Experience Core / Design System Foundation — LOCAL RELEASE CANDIDATE
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.41 / 4.82.41**
+
+Measured result:
+
+- physical browserless `experience.v1` source established in `core/experience/experience-contract-core.js`;
+- 69 semantic token contracts across colour, typography, spacing, radius, elevation, motion, layout and layer semantics;
+- 13 component contracts and nine shared UI state semantics;
+- accessibility thresholds and reduced-motion policy are contract-owned;
+- SwiftUI and Compose mappings are explicit for tokens, components and motion;
+- Web CSS projection is isolated in `app/adapters/experience-web-adapter.js`;
+- legacy `LuviaDesignSystemContract` is a compatibility facade, not a second semantic truth;
+- the global Luvia trigger/dialog is the first visible premium consumer and remains on the M10 Overlay Host;
+- no domain command, foreign private store, browser dependency growth or new global keydown owner;
+- Journey/Timeline remains separately reserved and unchanged;
+- focused M10.5 guard: **PASS**;
+- Safe Regression: **67/67 PASS**;
+- NFR-0: **3/3 PASS**.
+
+No database, schema/RPC/RLS/bucket, Edge Function, secret, manual Cloudflare configuration or Domain Truth mutation occurred. Integration/Production acceptance remains pending and must not be inferred from local gates.
+<!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->

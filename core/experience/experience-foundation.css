@@ -1,0 +1,73 @@
+/* M10.5 Experience Core — additive Web projection of experience.v1. */
+:root{
+  --luvia-color-surface-canvas:#fff8f7;
+  --luvia-color-surface-primary:#fbfcfd;
+  --luvia-color-surface-elevated:#fff;
+  --luvia-color-surface-subtle:#f3f7f8;
+  --luvia-color-surface-scrim:rgba(31,43,54,.56);
+  --luvia-color-text-primary:#263f54;
+  --luvia-color-text-muted:#687b8c;
+  --luvia-color-text-inverse:#fff;
+  --luvia-color-border-subtle:#dfe6ea;
+  --luvia-color-border-focus:#d94f71;
+  --luvia-color-action-primary:var(--lv-accent,#e96784);
+  --luvia-color-action-on-primary:var(--trip-accent-contrast,#fff);
+  --luvia-color-action-primary-soft:var(--trip-accent-soft,#fff0f4);
+  --luvia-color-status-success:#2d8a63;
+  --luvia-color-status-warning:#a96916;
+  --luvia-color-status-danger:#b7465a;
+  --luvia-color-status-info:#4779a8;
+  --luvia-font-family-body:var(--lv-font-body,"Manrope","Inter",system-ui,sans-serif);
+  --luvia-font-family-display:var(--lv-font-display,var(--luvia-font-family-body));
+  --luvia-font-family-mono:var(--lv-font-mono,"SFMono-Regular",Consolas,monospace);
+  --luvia-space-1:4px;--luvia-space-2:8px;--luvia-space-3:12px;--luvia-space-4:16px;--luvia-space-5:20px;--luvia-space-6:24px;--luvia-space-8:32px;
+  --luvia-radius-xs:10px;--luvia-radius-sm:14px;--luvia-radius-md:18px;--luvia-radius-lg:24px;--luvia-radius-xl:30px;--luvia-radius-pill:999px;
+  --luvia-elevation-control:0 6px 18px rgba(41,49,67,.08);
+  --luvia-elevation-card:0 16px 44px rgba(41,49,67,.08);
+  --luvia-elevation-float:0 30px 100px rgba(31,38,53,.22);
+  --luvia-motion-instant:0ms;--luvia-motion-fast:140ms;--luvia-motion-base:220ms;--luvia-motion-slow:360ms;
+  --luvia-ease-standard:cubic-bezier(.22,.72,.2,1);--luvia-ease-enter:cubic-bezier(.16,1,.3,1);--luvia-ease-exit:cubic-bezier(.4,0,1,1);
+  --luvia-layout-touch-minimum:44px;
+  --luvia-focus-ring:0 0 0 4px color-mix(in srgb,var(--luvia-color-border-focus) 20%,transparent);
+}
+html[data-theme="dark"]{
+  --luvia-color-surface-canvas:#101820;--luvia-color-surface-primary:#17232d;--luvia-color-surface-elevated:#1d2b36;--luvia-color-surface-subtle:#243541;
+  --luvia-color-surface-scrim:rgba(4,9,13,.72);--luvia-color-text-primary:#f2f6f8;--luvia-color-text-muted:#a9bac5;--luvia-color-text-inverse:#101820;
+  --luvia-color-border-subtle:#30434f;--luvia-color-border-focus:#ff9db2;--luvia-color-action-primary-soft:#4b2e3a;
+  --luvia-color-status-success:#72d7a9;--luvia-color-status-warning:#f2bd66;--luvia-color-status-danger:#ff91a4;--luvia-color-status-info:#86b9e8;
+  --luvia-elevation-control:0 8px 22px rgba(0,0,0,.24);--luvia-elevation-card:0 18px 50px rgba(0,0,0,.28);--luvia-elevation-float:0 32px 110px rgba(0,0,0,.5);
+}
+
+:where(button,[href],input,select,textarea,[role="button"],[tabindex]:not([tabindex="-1"])):focus-visible{
+  outline:2px solid var(--luvia-color-border-focus);
+  outline-offset:3px;
+  box-shadow:var(--luvia-focus-ring);
+}
+.lvx-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+.lvx-command-trigger.lv-ai-global-trigger{
+  min-height:var(--luvia-layout-touch-minimum);padding:7px 13px 7px 8px!important;display:inline-flex;align-items:center;gap:9px;border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 24%,var(--luvia-color-border-subtle))!important;
+  border-radius:var(--luvia-radius-pill)!important;background:linear-gradient(145deg,var(--luvia-color-surface-elevated),var(--luvia-color-action-primary-soft))!important;color:var(--luvia-color-text-primary)!important;
+  box-shadow:var(--luvia-elevation-control)!important;transition:transform var(--luvia-motion-fast) var(--luvia-ease-standard),box-shadow var(--luvia-motion-base) var(--luvia-ease-standard)!important;
+}
+.lvx-command-trigger.lv-ai-global-trigger:hover{transform:translateY(-1px);box-shadow:0 12px 32px color-mix(in srgb,var(--luvia-color-action-primary) 18%,transparent)!important}
+.lvx-command-trigger-mark{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--luvia-color-action-primary),color-mix(in srgb,var(--luvia-color-action-primary) 54%,#8e7cf3));color:var(--luvia-color-action-on-primary);box-shadow:0 7px 18px color-mix(in srgb,var(--luvia-color-action-primary) 30%,transparent);font-size:14px}
+.lvx-command-trigger-copy{display:grid;gap:1px;text-align:left;line-height:1.05}.lvx-command-trigger-copy b{font-size:12px}.lvx-command-trigger-copy small{color:var(--luvia-color-text-muted);font-size:9px;font-weight:600;letter-spacing:.02em}
+
+.luv-ai-proposal.lvx-command-surface{width:min(760px,100%);padding:0;overflow:hidden;background:var(--luvia-color-surface-elevated);border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 20%,var(--luvia-color-border-subtle));box-shadow:var(--luvia-elevation-float)}
+.lvx-command-hero{position:relative;padding:clamp(24px,5vw,42px);background:radial-gradient(circle at 92% 2%,color-mix(in srgb,var(--luvia-color-action-primary) 22%,transparent),transparent 38%),linear-gradient(145deg,var(--luvia-color-action-primary-soft),var(--luvia-color-surface-elevated) 68%)}
+.lvx-command-hero::after{content:"";position:absolute;width:180px;height:180px;right:-70px;top:-95px;border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 18%,transparent);border-radius:50%;box-shadow:0 0 0 28px color-mix(in srgb,var(--luvia-color-action-primary) 5%,transparent);pointer-events:none}
+.lvx-command-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;color:var(--luvia-color-action-primary);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.lvx-command-brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--luvia-color-action-primary);color:var(--luvia-color-action-on-primary);box-shadow:0 9px 24px color-mix(in srgb,var(--luvia-color-action-primary) 28%,transparent)}
+.lvx-command-surface h2{max-width:18ch;margin:0;color:var(--luvia-color-text-primary);font-family:var(--luvia-font-family-display);font-size:clamp(1.75rem,4vw,2.65rem);line-height:1.05;letter-spacing:-.045em}.lvx-command-lead{max-width:60ch;margin:13px 0 0;color:var(--luvia-color-text-muted);line-height:1.65}
+.lvx-command-context{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}.lvx-command-context span{padding:7px 10px;border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 16%,var(--luvia-color-border-subtle));border-radius:var(--luvia-radius-pill);background:color-mix(in srgb,var(--luvia-color-surface-elevated) 78%,transparent);color:var(--luvia-color-text-muted);font-size:11px;font-weight:700}
+.lvx-command-body{display:grid;gap:18px;padding:clamp(22px,4vw,34px)}.lvx-command-label{display:grid;gap:7px;color:var(--luvia-color-text-primary);font-weight:750}.lvx-command-label small{color:var(--luvia-color-text-muted);font-weight:500}
+.lvx-command-input{width:100%;min-height:122px;box-sizing:border-box;padding:16px 17px;border:1px solid var(--luvia-color-border-subtle)!important;border-radius:var(--luvia-radius-md)!important;background:var(--luvia-color-surface-primary)!important;color:var(--luvia-color-text-primary)!important;font:inherit;line-height:1.55;resize:vertical;transition:border-color var(--luvia-motion-fast) var(--luvia-ease-standard),box-shadow var(--luvia-motion-fast) var(--luvia-ease-standard)}
+.lvx-command-input:focus{border-color:var(--luvia-color-border-focus)!important;box-shadow:var(--luvia-focus-ring)!important}
+.lvx-command-prompts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.lvx-command-prompt{min-height:var(--luvia-layout-touch-minimum);padding:11px 12px;border:1px solid var(--luvia-color-border-subtle);border-radius:var(--luvia-radius-sm);background:var(--luvia-color-surface-subtle);color:var(--luvia-color-text-primary);font-size:12px;font-weight:700;text-align:left;cursor:pointer;transition:transform var(--luvia-motion-fast) var(--luvia-ease-standard),border-color var(--luvia-motion-fast) var(--luvia-ease-standard)}.lvx-command-prompt:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--luvia-color-action-primary) 42%,var(--luvia-color-border-subtle))}
+.lvx-command-answer:empty{display:none}.lvx-command-answer .luv-ai-answer{margin:0;border:1px solid var(--luvia-color-border-subtle);border-radius:var(--luvia-radius-md);background:var(--luvia-color-surface-subtle);color:var(--luvia-color-text-primary)}.lvx-command-answer .luv-ai-answer.is-error{border-color:color-mix(in srgb,var(--luvia-color-status-danger) 38%,var(--luvia-color-border-subtle));color:var(--luvia-color-status-danger)}
+.lvx-command-status{min-height:20px;color:var(--luvia-color-text-muted);font-size:12px}.lvx-command-status[data-state="loading"]{color:var(--luvia-color-status-info)}.lvx-command-status[data-state="success"]{color:var(--luvia-color-status-success)}.lvx-command-status[data-state="error"]{color:var(--luvia-color-status-danger)}
+.lvx-command-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.lvx-command-safety{max-width:39ch;color:var(--luvia-color-text-muted);font-size:10px;line-height:1.45}.lvx-command-buttons{display:flex;gap:9px}.lvx-button{min-height:var(--luvia-layout-touch-minimum);padding:10px 16px;border:0;border-radius:var(--luvia-radius-sm);font-weight:750;cursor:pointer}.lvx-button-secondary{background:var(--luvia-color-surface-subtle);color:var(--luvia-color-text-primary)}.lvx-button-primary{background:var(--luvia-color-action-primary);color:var(--luvia-color-action-on-primary);box-shadow:0 9px 24px color-mix(in srgb,var(--luvia-color-action-primary) 25%,transparent)}.lvx-button:disabled{opacity:.55;cursor:wait}
+
+@media(max-width:900px){.lvx-command-trigger-copy small{display:none}}
+@media(max-width:720px){.lvx-command-trigger.lv-ai-global-trigger{padding:6px!important}.lvx-command-trigger-copy{display:none}.lvx-command-prompts{grid-template-columns:1fr}.lvx-command-actions{align-items:stretch;flex-direction:column}.lvx-command-buttons{display:grid;grid-template-columns:1fr 1fr}.lvx-command-buttons .lvx-button{width:100%}}
+@media(prefers-reduced-motion:reduce){.lvx-command-trigger,.lvx-command-trigger::after,.lvx-command-prompt,.lvx-button,.lvx-command-surface{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.lvx-command-trigger:hover,.lvx-command-prompt:hover{transform:none}}

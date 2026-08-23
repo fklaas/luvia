@@ -78,6 +78,26 @@ M8.5 activates sanitized capability, domain/tool, model-tier, policy, memory/sys
 
 Timeline/Journey is consumed only as a separately owned projection and is not reclassified as Intelligence truth.
 
+## Experience
+
+Public name:
+
+`LuviaExperienceContractV1`
+
+Web adapter:
+
+`app/adapters/experience-web-adapter.js`
+
+Browserless semantic contract:
+
+`core/experience/experience-contract-core.js`
+
+Legacy facade:
+
+`core/design/design-system-contract.js`
+
+`experience.v1` defines shared tokens, component roles and variants, UI state semantics, motion/reduced-motion policy, accessibility thresholds and explicit SwiftUI/Compose mappings. It owns no product or Domain Truth. `overlay-host.v1` remains the lifecycle owner for dialogs and sheets; Experience defines their presentation semantics.
+
 ## Platform Runtime & Navigation
 
 Browserless contracts:
