@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.25**
-- Core: **4.82.25**
-- Name: **M8.5 Intelligence Contract Core Foundation**
+- App: **13.82.26**
+- Core: **4.82.26**
+- Name: **M9.1 Navigation Contract Foundation**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1615,3 +1615,25 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 
 M8.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. Remaining mixed AI, Planning, Discovery, provider/persistence and Journey/Timeline boundaries stay explicitly classified for later measured slices; this closeout does not claim a big-bang isolation of those roots.
 <!-- LUVIA:M8.5:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.1:RUNTIME-CANDIDATE:START -->
+## M9.1 — Navigation Contract Foundation
+
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+
+**Runtime App / Core:** 13.82.26 / 4.82.26
+
+**Feature Commit:** `5248eccdbb2d8616a1b8248ec065bfc56bc41b7c`
+
+M9.1 adds browserless `navigation.v1` route, alias, immutable `screen.navigate` intent, Deep Link and declarative mount semantics. The Platform-owned Web Registry remains backward-compatible and binds `LuviaNavigationContractV1`; the Consumer-owned App Shell is unchanged in this Platform slice.
+
+`DeepLinkPort` no longer calls `LuviaApp.show()` directly. It resolves a runtime-neutral Navigation Intent and publishes it through the existing navigation event boundary. This keeps Domain Commands separate from screen navigation and provides one semantic contract that later Web, iOS, Android and authorized Luvia Intelligence tools can consume.
+
+The measured M9 baseline and PCR are recorded in `docs/modularization/M9-APP-SHELL-RUNTIME-NAVIGATION-BASELINE.md` and `docs/modularization/PCR-M9.1-NAVIGATION-CONTRACT-FOUNDATION.md`.
+
+Focused M9.1 regression is **PASS**, NFR-0 is **3/3 PASS**, and controlled Safe Regression is **50/50 PASS** locally before the runtime cut.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, Domain Truth move, Consumer App Shell rewrite or Journey/Timeline reclassification is part of M9.1.
+
+Integration Preview, Production acceptance and final eight-stream synchronization remain pending and must not be claimed before measurement.
+<!-- LUVIA:M9.1:RUNTIME-CANDIDATE:END -->
