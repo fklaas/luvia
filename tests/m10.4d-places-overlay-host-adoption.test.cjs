@@ -35,11 +35,10 @@ assert.equal(count(restaurants,'data-rv2-gallery='),0,'Restaurant detail must no
 assert.equal(count(restaurants,"querySelectorAll('[data-rv2-gallery]')"),1,'The measured unreachable duplicate gallery binder must remain explicit until dead-code cleanup');
 assert.equal(count(finalPlaces,'localStorage')+count(finalPlaces,'sessionStorage'),0,'Final Places host adoption must not add browser-storage ownership');
 assert.equal(count(placeDetail,'localStorage')+count(placeDetail,'sessionStorage'),0,'Place Detail host adoption must not add browser-storage ownership');
-assert.equal(count(timeline,'ui.adopt('),0,'Timeline/Journey must remain reserved for its dedicated host audit');
-assert.equal(count(timeline,'document.body.appendChild'),3,'Timeline/Journey legacy surface inventory must remain measured and untouched in M10.4D');
+assert(!timeline.includes("name:'places.timeline"),'Timeline/Journey must remain separately classified and must not be absorbed into Places UI ownership');
 assert(safeRunner.includes('tests/m10.4d-places-overlay-host-adoption.test.cjs'),'M10.4D guard missing from Safe Regression');
 
 console.log('M10.4D Places Overlay Host Adoption: PASS');
 console.log('Final planning + canonical Place photos + Restaurant workspace: host-owned');
 console.log('Restaurant duplicate photo binder: unreachable / explicitly classified');
-console.log('Timeline/Journey legacy roots: 3 / reserved');
+console.log('Timeline/Journey ownership: separately reserved');

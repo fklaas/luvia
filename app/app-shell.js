@@ -173,7 +173,6 @@
     payload={...payload,returnView:requestedReturn};
     const moduleId=moduleForPlaceType(payload.type),enabled=moduleId&&window.LuviaModuleRegistry?.isEnabled?.(activeTrip(),moduleId);
     if(payload.overlayOnly&&enabled){
-      document.querySelectorAll('.lv-timeline-modal:not(.lv-time-editor)').forEach(node=>node.remove());
       if(await openTypedPlaceOverlay(payload))return;
       const typeLabel=payload.type==='accommodation'?'Unterkunft':payload.type==='restaurant'?'Restaurant':payload.type==='attraction'?'Aktivität':payload.type==='photo_spot'?'Fotospot':payload.type==='shopping'?'Shopping':payload.type==='nature'?'Natur & Ausflüge':payload.type==='mobility'?'Move':'Place';
       const overlay=window.LuviaPlaceDetails?.openLoading?.({typeLabel});

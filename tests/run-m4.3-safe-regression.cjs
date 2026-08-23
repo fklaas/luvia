@@ -161,6 +161,10 @@ const SUITE = Object.freeze([
     category: 'Places / Overlay Host',
     test: 'tests/m10.4d-places-overlay-host-adoption.test.cjs'
   },
+  {
+    category: 'Journey / Timeline Overlay Host',
+    test: 'tests/m10.4e-journey-timeline-overlay-host-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
