@@ -2,7 +2,7 @@
 
 Date: 2026-08-23
 
-Status: **RUNTIME RELEASED / PRODUCTION VERIFIED / REAL LOGOUT → LOGIN ACCEPTANCE OPEN**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED; REAL LOGOUT → LOGIN ACCEPTED BY M9.6**
 
 Runtime: **App 13.82.35 / Core 4.82.35**
 
@@ -24,9 +24,9 @@ Runtime: **App 13.82.35 / Core 4.82.35**
 - Preview version `563a84f3-c30b-483d-9d87-1bc9f0cb4ff4`: **23/23 exact**, **5/5 privacy**, **2/2 removed SPA fallback**, **25/25 authenticated F5**, same-document Join cleanup, active Trip/View retained, console **0/0**;
 - Production version `56d56a8b-5b1d-46af-bcd2-3cf0fb3e4479`: same gates and **25/25 authenticated F5**, console **0/0**.
 
-## Honest remaining gate
+## M9.6 closure of the original remaining gate
 
-The existing authenticated sessions were not destroyed without an authorized credential source for restoration. Therefore no real logout → credentialed login acceptance is claimed. This is the only remaining M9 exit gate before M9 can be closed and M10 can begin from a synchronized marker.
+At the original M9.5 release, the authenticated sessions were not destroyed without an authorized credential source for restoration, so no real credential cycle was claimed. M9.6 later received explicit authorization, found and repaired the Profile-overlay cleanup defect plus the session-exit Booking projection race, and passed the real same-document logout/login cycle on Preview and Production. See `RELEASE-NOTES-M9.6.md` for the final M9 evidence.
 
 ## Boundaries
 

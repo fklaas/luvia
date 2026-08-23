@@ -999,3 +999,34 @@ Measured result:
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, Cloudflare configuration or Domain Truth mutation occurred. M9 remains open only for a real reversible logout → credentialed login → active-Trip/runtime acceptance cycle; no credential-cycle pass is claimed.
 <!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:END -->
+
+<!-- LUVIA:M9:FINAL:CLOSEOUT:START -->
+## M9 App Shell Runtime and Navigation — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-23
+
+Final runtime App/Core: **13.82.38 / 4.82.38**
+
+M9.6 Consumer cleanup/read-guard: `f65b68a0ff194b410d773287ea54b47b9229c971` / `5494d8aed0f416603f1c71b90a58690895392493`
+
+Integration / Production runtime: `c81face994744f38b7389e20d29e173bea6509d9` / `3bca0bab3467c38c9207e01d75ad07926d977b51`
+
+Measured final result:
+
+- browserless Navigation, History, Module Mount, Runtime Signal and Owner Flow policies: **PASS**;
+- one Web History owner and same-document Auth/Join lifecycle: **PASS**;
+- Profile authenticated-surface cleanup before signed-out hydration: **PASS**;
+- Control Center Attention unauthenticated Booking reads: **1 observed -> 0**;
+- stale async attention completion during session exit: invalidated;
+- Auth/Trip/Booking truth reassignment: **NONE**;
+- Timeline/Journey: separately reserved and unchanged;
+- NFR-0: **3/3 PASS**;
+- Safe Regression: **57/57 PASS**;
+- Preview version `9a51ec22-84f5-469b-993c-63caf7b618fe`: **24/24 exact**, **5/5 privacy**, **2/2 deleted SPA fallback**, real same-document logout/login, History delta 0, Today/Paris restored, CDP 0;
+- Production version/deployment `1905015c-cf29-46b8-8f9a-402e8fdb3a75` / `27b46a4c-4e43-4835-9d9e-ed83029e6f16`: **100%**, identical static/runtime/privacy/console gates;
+- Main promotion: **FF-only PASS**.
+
+Preview 13.82.36 and the initial CRLF-form Production 13.82.38 sample remain recorded as rejected acceptance evidence. No failed sample is rewritten as success. No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change or Domain Truth mutation occurred.
+
+M9 is **COMPLETE / CLOSED**. M10 requires a new read-only baseline and explicit scope lock from the synchronized M9 marker.
+<!-- LUVIA:M9:FINAL:CLOSEOUT:END -->

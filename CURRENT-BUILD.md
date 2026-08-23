@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M9.6 Authenticated Surface Session Exit Hygiene**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.6 IN PRODUCTION ACCEPTANCE; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1–M9.6 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1771,3 +1771,25 @@ An actual destructive logout followed by a credentialed login was not executed. 
 
 No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification occurred. Rollback is code-only to synchronized M9.4 marker `1a21b4a3c01fa103c0c380272a84fe3d4c9a6b74` / Production version `93f9bc43-e25e-45c5-b727-15d31e41a33d`.
 <!-- LUVIA:M9.5:RUNTIME-CLOSEOUT:END -->
+
+<!-- LUVIA:M9:FINAL:CLOSEOUT:START -->
+## M9 Final — App Shell Runtime, Navigation and Session Lifecycle
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Runtime App / Core:** 13.82.38 / 4.82.38
+
+**M9.6 Consumer commits:** `f65b68a0ff194b410d773287ea54b47b9229c971` / `5494d8aed0f416603f1c71b90a58690895392493`
+
+**Integration / Production runtime:** `c81face994744f38b7389e20d29e173bea6509d9` / `3bca0bab3467c38c9207e01d75ad07926d977b51`
+
+M9 now provides browserless Navigation, Navigation History, Module Mount, Runtime Signal and Owner Flow policies; one Web History owner; staged module mounting; serialized Auth/Lifecycle/Network actions; same-document Auth/Join flows; Platform-Port external handoffs; and deterministic authenticated-surface cleanup. The two inactive legacy Shell copies remain deleted. Timeline/Journey remains separately reserved.
+
+M9.6 closes the final real-environment gate. App Shell closes the Profile-owned surface before signed-out hydration. Control Center Attention pauses and clears its read-only projection during session exit via `AuthSessionPort`, invalidates stale reads and resumes only after session activation plus hydrated Travel Identity. Consumer owns no Auth, Trip or Booking truth.
+
+Safe Regression is **57/57 PASS** and NFR-0 is **3/3 PASS**. Integration Preview version `9a51ec22-84f5-469b-993c-63caf7b618fe` and final Production version/deployment `1905015c-cf29-46b8-8f9a-402e8fdb3a75` / `27b46a4c-4e43-4835-9d9e-ed83029e6f16` passed **24/24 byte-exact assets**, **5/5 privacy**, **2/2 removed-shell fallback**, real logout/login in the same document, History delta **0**, active Paris Trip/Today restoration and isolated CDP **0** warnings/errors/exceptions.
+
+Rejected evidence remains explicit: Preview 13.82.36 exposed one unauthenticated Booking projection read and never moved Main. The first 13.82.38 manual Production sample matched 24/24 Working-Copy bytes and normalized to 24/24 Git content but was only 1/24 raw Git-byte exact because of CRLF checkout conversion. Final deployment used a verified blob-clean temporary checkout and passed 24/24 raw Git equality.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth reassignment or Timeline/Journey reclassification occurred. M10 begins only after eight-stream synchronization on the final documentation marker.
+<!-- LUVIA:M9:FINAL:CLOSEOUT:END -->

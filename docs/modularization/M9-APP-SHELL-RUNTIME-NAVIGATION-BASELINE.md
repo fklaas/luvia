@@ -1,6 +1,6 @@
 # M9 — App Shell I: Runtime & Navigation Baseline / Scope Lock
 
-Status: BASELINE COMPLETE; M9.1 + M9.2 + M9.3 + M9.4 COMPLETE / CLOSED / PRODUCTION VERIFIED
+Status: **M9.1–M9.6 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE**
 
 Source marker: `052873bd70eb2f5cc6913beacd96b0c0bedf3484`
 
@@ -101,3 +101,13 @@ M9.4 bundles the two inseparable remaining Runtime concerns: Platform normalizes
 Collaboration, Media upload, Location and Travel Context retain their existing domain-specific transition reactions. Auth, Join and Booking URL owners, inactive legacy shells and Timeline/Journey remain outside the M9.4 mutation scope.
 
 M9.4 closeout: Platform `c9377153ff8e6a95e592293745640c2ff058b31b`, Consumer `e9dd548e0e8a4841ead1f6d956612eff51f1e4e1`, final runtime `236f32c1072d6e0e5d5ef8978d906289db7156cc`, App/Core `13.82.33 / 4.82.33`, NFR-0 `3/3`, Safe Regression `53/53`, final Preview and Production each `12/12` exact, `5/5` privacy, authenticated Offline/Reconnect/Resume with unchanged History, `25/25` F5, active Trip/View retained and console `0`. Two rejected release-identity candidates remain recorded; neither is rewritten as the final release.
+
+## M9 final closeout
+
+M9.5 converged Auth, Join and Booking owner flows on browserless policy plus Platform Ports, removed password-login reloads and two unreachable legacy Shell copies, and released App/Core 13.82.35/4.82.35. M9.6 then used the authorized real credential cycle to expose and repair two final lifecycle defects: Profile Foundation was not closed on session deactivation, and Control Center Attention could issue a Booking projection read during logout.
+
+The App Shell now closes the authenticated owner surface before unmount/hydration. Control Center Attention consumes `AuthSessionPort`, clears and pauses its read-only projection on public logout/session deactivation, rejects stale async completions and resumes only after canonical activation plus hydrated Travel Identity. No Auth, Booking or Trip truth moved into Consumer.
+
+Final runtime: Production App/Core **13.82.38 / 4.82.38**, commit `3bca0bab3467c38c9207e01d75ad07926d977b51`, Cloudflare version/deployment `1905015c-cf29-46b8-8f9a-402e8fdb3a75` / `27b46a4c-4e43-4835-9d9e-ed83029e6f16`. Safe Regression is **57/57**, NFR-0 **3/3**, Preview and Production are each **24/24 exact**, **5/5 privacy**, **2/2 removed-shell fallback**, and the real logout/login cycle restores Today plus the active Paris Trip in the same document with History delta 0 and CDP warnings/errors/exceptions 0.
+
+Timeline/Journey remains a separately reserved cross-domain aggregator. M9 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**; M10 requires a fresh measured baseline rather than extending M9 ownership by assumption.

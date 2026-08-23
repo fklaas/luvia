@@ -1,6 +1,6 @@
 # PCR M9.5 – Owner Flow Navigation Convergence
 
-Status: **RUNTIME RELEASED / PRODUCTION VERIFIED / REAL LOGOUT → LOGIN ACCEPTANCE OPEN**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED; REAL LOGOUT → LOGIN ACCEPTED BY M9.6**
 
 Integration runtime candidate: **App 13.82.34 / Core 4.82.34**
 
@@ -73,10 +73,10 @@ Booking Core still resolves, validates and attributes the provider route. It now
 
 The first immediate Production sample observed four HTML assets from different edge generations while the new version activated. Read-only follow-up proved identical version markers, LF form and full Git-blob equality; only then did the complete second gate pass 23/23. The mixed sample remains classified as a failed sample, not rewritten as success.
 
-## Remaining M9 exit gate
+## M9.6 closure of the remaining exit gate
 
-The active Preview and Production sessions were deliberately not destroyed without an authorized credential source for restoration. Consequently, actual logout → credentialed login → active-Trip/runtime acceptance remains open. Static policy tests, authenticated cold starts and Join-flow runtime acceptance are PASS, but they are not mislabeled as a real credential cycle.
+The active Preview and Production sessions were deliberately not destroyed during the original M9.5 release without an authorized credential source for restoration. M9.6 subsequently received that authorization and executed the real reversible logout → credentialed login → active-Trip/runtime cycle on both environments. The cycle exposed and repaired Profile overlay cleanup plus a session-exit Booking projection race, then passed with same-document restoration, History delta 0, no authenticated data leakage and a clean isolated CDP gate.
 
-M9.5 is runtime-released and Production-verified. M9 remains **IN PROGRESS** until that single environment gate is measured. Timeline/Journey remains separately reserved and is not an ordinary Places, Trip or App-Shell consumer.
+M9.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED** through the M9.6 acceptance closure. Timeline/Journey remains separately reserved and is not an ordinary Places, Trip or App-Shell consumer.
 
 No DB/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change or Domain Truth reassignment occurred.
