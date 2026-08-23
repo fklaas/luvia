@@ -1819,6 +1819,9 @@ core/recommendations/today-intelligence-service.js,Intelligence/Planning,Domain/
 core/runtime/boot-coordinator.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/runtime/app-runtime-contract-core.js,Platform,Shared Runtime,Browserless staged App Runtime contract without domain truth
 core/runtime/module-mount-contract-core.js,Platform,Shared Runtime,Browserless module mount lifecycle contract consuming navigation descriptors
+docs/modularization/PCR-M9.2-STAGED-RUNTIME-MODULE-MOUNTING.md,Platform/Consumer,Documentation/Architecture,M9.2 staged runtime and module mounting ownership lock and measured closeout
+docs/modularization/RELEASE-NOTES-M9.2.md,Platform/Consumer,Documentation/Release,M9.2 release identity gates provenance rollback and exclusions
+tests/m9.2-staged-runtime-module-mounting.test.cjs,Shared Tests,Test/Guardrail,M9.2 runtime mounting auth concurrency and Consumer adoption guard
 core/runtime/network-guard.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/runtime/runtime.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
 core/services/supabase-service.js,Platform,Shared Runtime,Shared services; inspect per-service before moving

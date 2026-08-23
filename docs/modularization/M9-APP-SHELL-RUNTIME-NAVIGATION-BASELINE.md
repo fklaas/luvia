@@ -1,6 +1,6 @@
 # M9 — App Shell I: Runtime & Navigation Baseline / Scope Lock
 
-Status: READ-ONLY BASELINE COMPLETE; M9.1 MUTATION SCOPE LOCKED
+Status: BASELINE COMPLETE; M9.1 + M9.2 CLOSED; M9.3 NEXT
 
 Source marker: `052873bd70eb2f5cc6913beacd96b0c0bedf3484`
 
@@ -55,9 +55,9 @@ Web, iOS and Android will be able to map the same `screen.navigate` intent and r
 
 ## Subsequent M9 blocks
 
-1. explicit App Runtime stage contract and Boot-stage diagnostics;
-2. Consumer adoption of Navigation Contract mount descriptors;
-3. History/Back/Deep-Link policy through Web adapter and native equivalents;
+1. explicit App Runtime stage contract and Boot-stage diagnostics — **M9.2 COMPLETE**;
+2. Consumer adoption of Navigation Contract mount descriptors — **M9.2 COMPLETE**;
+3. History/Back/Deep-Link policy through Web adapter and native equivalents — **NEXT / M9.3**;
 4. auth/session events separated from render orchestration;
 5. Lifecycle/Network state fed through existing Platform Ports;
 6. cold-start, reload, login, logout, deep-link, back and resume acceptance;

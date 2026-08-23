@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M9.2 Staged App Runtime and Module Mounting**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1644,10 +1644,10 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; the next owner-locked slice is staged runtime boot and explicit module mounting, with Consumer App Shell changes requiring their own Consumer-owned PCR and regression gate.
 <!-- LUVIA:M9.1:CLOSEOUT:END -->
 
-<!-- LUVIA:M9.2:RUNTIME-CANDIDATE:START -->
+<!-- LUVIA:M9.2:CLOSEOUT:START -->
 ## M9.2 — Staged App Runtime and Module Mounting
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.29 / 4.82.29
 
@@ -1661,6 +1661,8 @@ M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 
 **Consumer Boot-Race Repair:** `4109e5f3d200cd8b4c8a64cd6c6c0e8fe38d8716`
 
+**Final Runtime Release:** `740f127041cb275cf8a5716965bf9c20d4158d04`
+
 M9.2 adds browserless `app-runtime.v1` and `module-mount.v1`. App startup now has ordered Platform, Auth, Domain Context, Shell and Module readiness stages with immutable diagnostics, timeouts, explicit failure and recovery. Auth changes can rehydrate after the initial splash without retaining the first boot promise.
 
 The first Integration Preview candidate exposed a real authenticated cold-start race: the 900-ms recovery watchdog attempted Shell readiness while Domain Context hydration was still running. Main was not moved. The Consumer repair makes that watchdog wait for the canonical Domain Context stage; the ordered state machine remains strict.
@@ -1669,7 +1671,9 @@ The second candidate passed a clean authenticated cold start and Plan-to-Places 
 
 The Consumer App Shell removes five manual mounted-state flags and the direct route-specific mount chain. Nine canonical module routes now resolve their targets from `navigation.v1` and use serialized concrete Web adapters. Screen composition stays Consumer-owned, Domain Truth stays in its existing Cores, and Timeline/Journey remains separately hydrated outside the ordinary module registry.
 
-Focused M9.2 regression, NFR-0 and the controlled Safe Regression are required to remain green after this runtime cut. Integration Preview, Main, Production and final eight-stream synchronization remain pending and must not be claimed before direct measurement.
+Focused M9.2 regression and NFR-0 are PASS. The controlled Safe Regression is **51/51 PASS** on Platform, Integration and Main. Integration Preview version `6f18047f-a0c5-4020-8e40-1ba97ee20744` passed **14/14 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated cold start, Planen -> Places, all ten Places categories, **25/25 authenticated F5**, active-Trip retention and **0** console warnings/errors before Main moved.
+
+Production version `15c2ba3c-8b16-40e4-bd53-01bc9f9893e4` is deployed at **100%** by deployment `db4ad571-9919-4c1e-b36d-1eaa2bf1fe34`. `myluvia.app` passed the same **14/14 byte-exact assets**, **5/5 privacy**, authenticated cold start, module routing, ten categories, **25/25 F5**, active-Trip retention and clean console. The two rejected Preview candidates remain recorded as failed gates; neither moved Main.
 
 No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification is part of M9.2.
-<!-- LUVIA:M9.2:RUNTIME-CANDIDATE:END -->
+<!-- LUVIA:M9.2:CLOSEOUT:END -->
