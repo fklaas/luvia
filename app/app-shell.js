@@ -385,6 +385,11 @@
       if(authApi?.getState?.()?.loading&&window.LuviaSupabaseService?.start){
         await Promise.race([window.LuviaSupabaseService.start(),new Promise(resolve=>setTimeout(resolve,2200))]);
       }
+      const authState=authApi?.getState?.();
+      if(authState?.authenticated&&!appRuntime().isAtLeast('domain-context-ready')){
+        markBoot('recovery-await-domain-context',{lastError:null});
+        return false;
+      }
       markBoot('recovery-render',{renderAttempted:true,recoveryRenderAttempted:true});
       await render();
       const mounted=mountRoot.children.length>0;

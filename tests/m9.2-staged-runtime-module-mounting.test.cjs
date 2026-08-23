@@ -92,6 +92,8 @@ async function main(){
   assert.doesNotMatch(registryBlock,/LuviaTimelineCore|LuviaJourney/,'Timeline/Journey must stay outside ordinary module mounting');
   assert.match(shellSource,/appRuntime:window\.LuviaAppRuntime\?\.diagnostics/);
   assert.match(shellSource,/moduleMount:moduleMountRegistry\?\.diagnostics/);
+  assert.match(shellSource,/authState\?\.authenticated&&!appRuntime\(\)\.isAtLeast\('domain-context-ready'\)/,'authenticated recovery rendering must wait for Domain Context hydration');
+  assert.match(shellSource,/markBoot\('recovery-await-domain-context'/);
   const runtimeIndex=indexSource.indexOf('core/runtime/app-runtime-contract-core.js');
   const navigationIndex=indexSource.indexOf('core/runtime/navigation-contract-core.js');
   const mountIndex=indexSource.indexOf('core/runtime/module-mount-contract-core.js');
