@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const redirectUrl = window.LuviaEnvironment?.authRedirectUrl?.('index.html') || `${location.origin}${location.pathname}`;
+  if (!window.LuviaEnvironment?.authRedirectUrl) throw new Error('Luvia Environment fehlt vor der Auth-Konfiguration.');
+  const redirectUrl = window.LuviaEnvironment.authRedirectUrl('index.html');
   const config = Object.freeze({
     url: 'https://yiadkcxgyzdgyadnhyqe.supabase.co',
     publishableKey: 'sb_publishable_RMrTCl-8az9LV2y8OAGPEw_dy3ioVOs',

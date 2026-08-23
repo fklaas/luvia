@@ -70,9 +70,17 @@ const lifecyclePort=Object.freeze({
   }
 });
 const externalNavigationPort=Object.freeze({
-  open(url){
+  reserve({placeholder='/booking-handoff.html'}={}){
+    const target=new URL(placeholder,root.location?.href);
+    if(target.origin!==root.location?.origin)throw new Error('ExternalNavigationPort Platzhalter muss same-origin sein.');
+    const handle=root.open(target.href,'_blank');
+    if(handle)handle.opener=null;
+    return handle||null;
+  },
+  open(url,{reserved=null}={}){
     const parsed=new URL(url,root.location?.href);
-    if(!/^https?:$/.test(parsed.protocol))throw new Error('ExternalNavigationPort unterstützt nur HTTP/HTTPS.');
+    if(!['http:','https:','mailto:'].includes(parsed.protocol))throw new Error('ExternalNavigationPort unterstützt nur HTTP/HTTPS/Mailto.');
+    if(reserved&&!reserved.closed&&reserved.location?.replace){reserved.location.replace(parsed.href);return true}
     root.open(parsed.href,'_blank','noopener,noreferrer');
     return true;
   },
@@ -161,6 +169,16 @@ const devicePort=Object.freeze({
 });
 const sharingPort=Object.freeze({
   isSupported:()=>typeof root.navigator?.share==='function',
+  async share({title='',text='',url=''}={}){
+    if(typeof root.navigator?.share!=='function')return false;
+    await root.navigator.share({title,text,url});
+    return true;
+  },
+  async copyText(value){
+    if(!root.navigator?.clipboard?.writeText)return false;
+    await root.navigator.clipboard.writeText(String(value??''));
+    return true;
+  },
   async shareFiles({title='',text='',files=[]}={}){
     if(typeof root.navigator?.share!=='function'||typeof root.File!=='function')return false;
     const nativeFiles=files.map((entry,index)=>entry instanceof root.File?entry:new root.File([entry.blob],entry.name||`media-${index+1}`,{type:entry.type||entry.blob?.type||'application/octet-stream'}));

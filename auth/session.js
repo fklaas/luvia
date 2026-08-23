@@ -303,7 +303,7 @@
       setExplicitlySignedOut(false);
       throw result.error;
     }
-    try { const port=appStorage();port.remove('luviaActiveModule',{scope:'session'});port.remove('luviaPendingModule',{scope:'session'});port.remove('luviaActiveModule');port.remove('luviaPendingModule');history.replaceState(null, '', location.pathname); } catch (_) {}
+    try { const port=appStorage();port.remove('luviaActiveModule',{scope:'session'});port.remove('luviaPendingModule',{scope:'session'});port.remove('luviaActiveModule');port.remove('luviaPendingModule');window.LuviaOwnerFlowNavigationV1?.authLogout?.(); } catch (_) {}
     await setFromSession(null, 'SIGNED_OUT');
   }
   function onChange(fn) {

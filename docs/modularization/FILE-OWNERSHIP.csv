@@ -1904,7 +1904,6 @@ intelligence/test.html,Developer,Developer Tooling,Developer console / harness
 legacy/paris/cloud-adapter.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 legacy/ui/index-v11.0.0.html,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 legacy/ui/luvia-app-shell.css,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/luvia-app-shell.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 legacy/ui/luvia-dashboard.css,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 legacy/ui/luvia-dashboard.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 legacy/ui/luvia-v7-enhancements.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
@@ -1913,7 +1912,6 @@ live-moments.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product
 location-service.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-2026.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-app-shell.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
-luvia-app-shell.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-app-state.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-brand.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-dashboard.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
@@ -2451,3 +2449,7 @@ core/runtime/runtime-signal-policy-core.js,Platform,Shared Runtime,M9.4 browserl
 app/adapters/runtime-signal-web-adapter.js,Platform,Adapter/Web,M9.4 AuthSession Lifecycle Network Platform-Port binding
 docs/modularization/PCR-M9.4-RUNTIME-SIGNALS-RESUME-COORDINATION.md,Platform,Documentation/Architecture,M9.4 measured runtime signal and resume scope lock
 tests/m9.4-runtime-signals-resume-coordination.test.cjs,Shared Tests,Test/Guardrail,M9.4 browserless runtime signal load-order port and Consumer adoption guard
+core/runtime/owner-flow-navigation-policy-core.js,Platform,Shared Runtime,M9.5 browserless Auth Join Booking navigation effect policy without Domain Truth
+app/adapters/owner-flow-navigation-web-adapter.js,Platform,Adapter/Web,M9.5 Web binding through Navigation History and formal Platform Ports
+docs/modularization/PCR-M9.5-OWNER-FLOW-NAVIGATION-CONVERGENCE.md,Platform,Documentation/Architecture,M9.5 measured owner-flow and legacy-shell scope lock
+tests/m9.5-owner-flow-navigation-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.5 Platform Auth Join Invite and legacy-shell reachability guard

@@ -79,10 +79,21 @@
     root.history.replaceState(null,'',`${url.pathname}${url.search}`);
     return true;
   }
+  function replaceLocation(next={},options={}){
+    const url=new URL(root.location.href);
+    if(next.path)url.pathname=String(next.path).startsWith('/')?String(next.path):`/${String(next.path)}`;
+    url.search='';
+    Object.entries(next.query||{}).forEach(([key,value])=>{if(key&&value!=null)url.searchParams.set(String(key),String(value))});
+    url.hash=next.hash?`#${String(next.hash).replace(/^#/,'')}`:'';
+    const state=options.preserveState===false?null:root.history.state;
+    root.history.replaceState(state,'',`${url.pathname}${url.search}${url.hash}`);
+    publish(Object.freeze({action:'replace-location',source:options.source||'owner-flow',location:Object.freeze({path:url.pathname,search:url.search,hash:url.hash})}),options.source||'owner-flow');
+    return Object.freeze({path:url.pathname,search:url.search,hash:url.hash});
+  }
   function back(){const command=policy.back();root.history.back();return command}
   function forward(){const command=policy.forward();root.history.forward();return command}
   function diagnostics(){return Object.freeze({version:VERSION,started,adapter:'web-history',policy:policy.diagnostics(),currentUrl:`${root.location.pathname}${root.location.search}${root.location.hash}`})}
 
-  const api=Object.freeze({version:VERSION,start,currentIntent,project,back,forward,clear,snapshot:policy.snapshot,diagnostics});
+  const api=Object.freeze({version:VERSION,start,currentIntent,project,back,forward,clear,replaceLocation,snapshot:policy.snapshot,diagnostics});
   root.LuviaNavigationHistoryV1=api;
 })();

@@ -117,6 +117,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Lifecycle',
     test: 'tests/m9.4-runtime-signals-resume-coordination.test.cjs'
   },
+  {
+    category: 'App Shell / Owner Flows',
+    test: 'tests/m9.5-owner-flow-navigation-foundation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
