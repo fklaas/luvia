@@ -85,6 +85,10 @@ const SUITE = Object.freeze([
     category: 'Media architecture',
     test: 'tests/m7.3-memory-asset-contract-adoption.test.cjs'
   },
+  {
+    category: 'Media architecture',
+    test: 'tests/m7.4-remaining-media-consumer-contract-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

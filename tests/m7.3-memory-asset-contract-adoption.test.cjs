@@ -61,17 +61,17 @@ const retained = {
 assert.deepStrictEqual(
   retained,
   {
-    smartPhotoMoments: 3,
+    smartPhotoMoments: 0,
     mediaClustering: 2,
-    aiMemory: 5,
+    aiMemory: 0,
     memoryOwners: 4,
     timeline: 2,
     legacySync: 10
   },
-  'M7.3 must preserve separately classified Clustering, Intelligence, owner, Timeline, and legacy-sync scopes'
+  'Current M7 guards must preserve owner, Timeline, and legacy-sync scopes while allowing approved later consumer adoption'
 );
 
 console.log('M7.3 Memory Asset Delivery Contract Adoption: PASS');
 console.log('Memory Experience direct LuviaMediaCore refs: 6 -> 0');
 console.log('Signed asset boundary: media.v1 ID-only');
-console.log('Clustering / AI Memory / owner services / Timeline / legacy sync: preserved');
+console.log('Clustering / owner services / Timeline / legacy sync: preserved');
