@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.31**
-- Core: **4.82.31**
+- App: **13.82.32**
+- Core: **4.82.32**
 - Name: **M9.4 Runtime Signals and Resume Coordination**
 - Channel: **integration candidate**
 - Datum: **2026-08-23**
@@ -1711,9 +1711,9 @@ M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 <!-- LUVIA:M9.4:CANDIDATE:START -->
 ## M9.4 — Runtime Signals and Resume Coordination
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING
+**Status:** RUNTIME CANDIDATE; LOCAL GATES PENDING; 13.82.31 PREVIEW REJECTED FOR STALE RELEASE DESCRIPTOR
 
-**Runtime App / Core:** 13.82.31 / 4.82.31
+**Runtime App / Core:** 13.82.32 / 4.82.32
 
 **Platform Foundation Commit:** `c9377153ff8e6a95e592293745640c2ff058b31b`
 
@@ -1726,6 +1726,8 @@ The Consumer App Shell no longer binds Auth transitions directly to an inline re
 Offline, reconnect and eligible resume state now has a responsive, reduced-motion-compatible `aria-live` projection below the App header. Collaboration, Media upload, Location and Travel Context keep their existing domain-specific transition owners. Auth, Join and Booking URL policies plus Timeline/Journey remain outside this scope.
 
 Focused M9.4, NFR-0, controlled Safe Regression, Integration Preview lifecycle/reconnect acceptance, Main, Production and final eight-stream synchronization must pass before this candidate may be called complete.
+
+The first Preview candidate `13.82.31 / 4.82.31` passed runtime byte/privacy gates but still exposed the previous M9.3 name and Production channel in `LuviaKernelVersion`. Main did not move. The corrected candidate is `13.82.32 / 4.82.32` with an explicit M9.4 / Integration descriptor; the rejected candidate remains recorded and is not rewritten as a pass.
 
 No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or data rollback is part of this candidate. Rollback is code-only to the M9.3 synchronized marker `7e8829119727a6c65e1a05c3029c981d6af78369`.
 <!-- LUVIA:M9.4:CANDIDATE:END -->
