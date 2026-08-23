@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.27**
-- Core: **4.82.27**
+- App: **13.82.28**
+- Core: **4.82.28**
 - Name: **M9.2 Staged App Runtime and Module Mounting**
 - Channel: **production**
 - Datum: **2026-08-23**
@@ -1649,7 +1649,7 @@ M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 
 **Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
 
-**Runtime App / Core:** 13.82.27 / 4.82.27
+**Runtime App / Core:** 13.82.28 / 4.82.28
 
 **Platform Foundation Commit:** `216c8389865434087c2cf4d1e5185824c8640b3b`
 
@@ -1657,7 +1657,11 @@ M9.1 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**;
 
 **Consumer Adoption Commit:** `b44b21602debf2e2d3f55b6fb0e9ef7712f06725`
 
+**Consumer Boot-Race Repair:** `4109e5f3d200cd8b4c8a64cd6c6c0e8fe38d8716`
+
 M9.2 adds browserless `app-runtime.v1` and `module-mount.v1`. App startup now has ordered Platform, Auth, Domain Context, Shell and Module readiness stages with immutable diagnostics, timeouts, explicit failure and recovery. Auth changes can rehydrate after the initial splash without retaining the first boot promise.
+
+The first Integration Preview candidate exposed a real authenticated cold-start race: the 900-ms recovery watchdog attempted Shell readiness while Domain Context hydration was still running. Main was not moved. The Consumer repair makes that watchdog wait for the canonical Domain Context stage; the ordered state machine remains strict.
 
 The Consumer App Shell removes five manual mounted-state flags and the direct route-specific mount chain. Nine canonical module routes now resolve their targets from `navigation.v1` and use serialized concrete Web adapters. Screen composition stays Consumer-owned, Domain Truth stays in its existing Cores, and Timeline/Journey remains separately hydrated outside the ordinary module registry.
 
