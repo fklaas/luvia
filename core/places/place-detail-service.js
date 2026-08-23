@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='4.39.2';
+const VERSION='4.39.3';
 const adapters=new Map();const capabilityRenderers=new Map();const detailCache=new Map();const detailInflight=new Map();const photoCache=new Map();const photoInflight=new Map();let current=null;
 const esc=v=>window.LuviaPlaceExperience?.esc?.(v)||String(v??'');
 const LABELS={discovered:'Entdeckt',planned:'Geplant',visited:'Besucht',remembered:'Erinnert'};
@@ -49,7 +49,16 @@ function section(t,h,c=''){return h?`<section class="rv2-summary ${c}"><span>${e
 function registerCapabilityRenderer(type,renderer){const key=String(type||'').trim();if(!key||typeof renderer!=='function')throw new Error('Place-Typ und Capability-Renderer sind erforderlich.');capabilityRenderers.set(key,renderer);return renderer}
 function capabilityContent(c,p,i){if(Object.prototype.hasOwnProperty.call(c,'capabilityContent'))return c.capabilityContent||'';const type=String(c.placeType||p.primaryType||'').trim(),renderer=capabilityRenderers.get(type);if(!renderer)return'';try{return String(renderer({place:p,intelligence:i,context:c})||'')}catch(error){console.warn(`[Luvia Place Detail] Capability-Bereich für ${type} konnte nicht gerendert werden.`,error);return''}}
 function render(c={}){const p=c.place||{},i=c.intelligence||{},m=window.LuviaPlaceUI?.typeMeta?.(p)||['📍','Ort'];const provider=window.LuviaPlaceProviderFields?.render?.(p)||'';const alternatives=c.alternativesContent||window.LuviaPlaceUIStates?.empty?.('Aktuell wurden keine passenden Alternativen gefunden.')||'<p>Keine Alternativen verfügbar.</p>';const capabilities=capabilityContent(c,p,i);return `<button class="rv2-experience-close" data-close-place aria-label="Schließen">×</button>${gallery(p,c.photos||[])}<div class="rv2-experience-body luv-place-detail__body"><div class="rv2-experience-title"><div><span class="rv2-detail-kicker">${esc(c.typeLabel||m[1])} · ${esc(c.destination||'')}</span><h2>${esc(p.name)}</h2><p>📍 ${esc(p.address||p.formattedAddress||c.destination||'')}</p></div></div><div class="rv2-detail-primary-actions luv-place-actions">${canonicalActions(c.primaryActions||'')}${bookingAction(c,p)}</div>${facts(p,i)}${c.tags||''}${lifecycle(c.lifecycle||{})}${p.editorialSummary?`<section class="rv2-summary"><span>Überblick</span><p>${esc(p.editorialSummary)}</p></section>`:''}${provider}${window.LuviaPlaceUI?.assessment?.(i)||''}${capabilities}${section('Alternativen',alternatives,'luv-place-alternatives')}${c.extraContent||''}${c.footerActions||''}<div hidden data-place-prepared-sections>${c.participantContent||''}${c.suggestionsContent||''}${c.scheduleCard||''}</div></div>`}
-function bindGallery(r,photos,p){r.querySelectorAll('[data-place-gallery]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.placeGallery),l=document.createElement('div');l.className='rv2-lightbox';l.innerHTML=`<button type="button">×</button><img src="${esc(photos[n]?.uri||photos[n]?.url)}" alt="${esc(p.name)}"><span>${n+1} / ${photos.length}</span>`;document.body.appendChild(l);l.onclick=e=>{if(e.target===l||e.target.closest('button'))l.remove()}})}
+function bindGallery(r,photos,p){
+ r.querySelectorAll('[data-place-gallery]').forEach(b=>b.onclick=()=>{
+  const n=Number(b.dataset.placeGallery),light=document.createElement('div');
+  light.className='rv2-lightbox';
+  light.innerHTML=`<button type="button" aria-label="Schließen">×</button><img src="${esc(photos[n]?.uri||photos[n]?.url)}" alt="${esc(p.name)}"><span>${n+1} / ${photos.length}</span>`;
+  const ui=LuviaUI;
+  if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');
+  ui.adopt(light,{name:'places.detail-photo',kind:'dialog',content:light,closeSelector:'button',initialFocus:'button',label:`${p.name||'Place'} Foto ${n+1} von ${photos.length}`});
+ })
+}
 function update(o,c={}){if(!o?.node?.isConnected)return o;o.node.classList.remove('is-loading');o.node.innerHTML=render(c);bindGallery(o.node,c.photos||[],c.place||{});return o}
 function open(c={}){const o=openLoading(c);return update(o,c)}
 function registerAdapter(t,a){adapters.set(t,a);return a}
