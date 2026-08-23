@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M8.5 Intelligence Contract Core Foundation**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1582,10 +1582,10 @@ No database migration, schema/RPC/RLS/bucket change, Edge Function change, secre
 M8 is **COMPLETE / CLOSED**. M8.5 starts only after a fresh read-only Intelligence classification, dependency, runtime-reachability and ownership scope lock; no bulk move is pre-authorized.
 <!-- LUVIA:M8:FINAL:CLOSEOUT:END -->
 
-<!-- LUVIA:M8.5:RUNTIME-CANDIDATE:START -->
+<!-- LUVIA:M8.5:FINAL:CLOSEOUT:START -->
 ## M8.5 — Intelligence Contract Core Foundation
 
-**Status:** IMPLEMENTATION COMPLETE / RELEASE CANDIDATE
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.25 / 4.82.25
 
@@ -1595,13 +1595,23 @@ M8 is **COMPLETE / CLOSED**. M8.5 starts only after a fresh read-only Intelligen
 
 **Intelligence Feature Commit:** `89db1e20584004a60282725ed59f65e20d9024e2`
 
+**Initial Runtime Candidate:** `78ceb7f3754c6de4a45595874206796671f6f0af`
+
+**Final Runtime Release / Preview Repair:** `240968cd81d13610fa24a7c79892415df0871067`
+
 The new browserless Intelligence owner core centralizes nine capabilities, three model tiers, five domain classifications, twelve source tools, policy/sanitization, output validation, context envelopes, learning-signal lifecycle, proposal lifecycle and evidence state. `LuviaIntelligenceContractV1` is active as the additive Web compatibility binding.
 
 Capability, domain, model-routing, policy, validator and evidence Web modules delegate shared rules to the owner core. Dashboard, tool, Memory and proposal identity/Trip reads use public contracts. The dashboard no longer exposes direct Timeline execution and adds a visible Intelligence Transparency surface.
 
 Timeline/Journey remains separately reserved and read-only from Intelligence. Proposal creation grants no final foreign-domain mutation authority.
 
-Feature validation: focused Intelligence suite **17/17 PASS**, NFR-0 **3/3 PASS**, pre-release controlled Safe Regression **48/48 PASS**. The release candidate raises the controlled suite to **49** by adding the M8.5 exit guard; final runtime, Preview, Main and Production acceptance must be measured after the release commit and is not pre-claimed here.
+Feature validation: focused Intelligence suite **17/17 PASS**, NFR-0 **3/3 PASS**, and controlled Safe Regression **49/49 PASS** on Platform, Integration and Main.
 
-No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change or manual Cloudflare configuration change is part of this release candidate.
-<!-- LUVIA:M8.5:RUNTIME-CANDIDATE:END -->
+The first Preview candidate correctly stopped before Main after browser acceptance found intercepted bubble-phase Dashboard actions. Release `240968c` switches those actions to capture delegation and adds a regression assertion. The repaired Integration Preview version `e9b2bf20-9b71-48c4-8648-63a78c82f3e3` passed **21/21 byte-exact assets**, **25/25 authenticated F5**, active-Trip retention, visible Intelligence Transparency and **0** console warnings/errors.
+
+Production version `af037f55-89b6-48a8-a441-7c747d08064a` is at **100%** in deployment `60c76d81-c96b-4528-b5e6-fc7dfecc09f4`. Production passed **21/21 byte-exact assets**, **25/25 authenticated F5**, active-Trip retention, the full 9-capability / 3-tier / 6-source Transparency surface, Journey/Timeline reservation, owner-confirmation copy and **0** console warnings/errors.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or foreign-domain truth move occurred. Rollback is code-only; the prior Production version is `e149aa86-a512-4083-9d18-08dc174d1860`.
+
+M8.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. Remaining mixed AI, Planning, Discovery, provider/persistence and Journey/Timeline boundaries stay explicitly classified for later measured slices; this closeout does not claim a big-bang isolation of those roots.
+<!-- LUVIA:M8.5:FINAL:CLOSEOUT:END -->

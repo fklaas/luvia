@@ -4,7 +4,7 @@ Date: 2026-08-23
 
 Owner streams: `feature/platform-core` (public Web adapter/runtime integration), `feature/intelligence-core` (owner core and Intelligence-owned consumers)
 
-Status: **IMPLEMENTATION COMPLETE / RELEASE CANDIDATE**
+Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED**
 
 ## Source lock
 
@@ -65,3 +65,36 @@ The physical owner core must contain no `window`, `document`, `navigator`, brows
 The rollout is additive: Platform adapter scaffold → Intelligence owner core and consumer adoption → Platform runtime registration/release. The adapter performs no provider lookup at load time, so the intermediate commit remains safe.
 
 Rollback is code-only: remove the owner core, adapter, delegation and transparency surface, then restore the previous runtime loader/cache metadata. No canonical DB data or cloud configuration rollback is required.
+
+## Commit and release evidence
+
+- source lock / previous closeout: `b091d09a4b23b41b9c766d2e33437a45dd5b4a04`;
+- Platform contract scaffold: `211632d8a8675117d47652951d6bf2ab00ea9a52`;
+- NFR-neutral Platform adapter repair: `6f481e3f17267058c17b183a79c6b368a7c5a133`;
+- Intelligence owner-core and consumer feature: `89db1e20584004a60282725ed59f65e20d9024e2`;
+- initial runtime candidate: `78ceb7f3754c6de4a45595874206796671f6f0af`, App/Core `13.82.24 / 4.82.24`;
+- final runtime release and Preview repair: `240968cd81d13610fa24a7c79892415df0871067`, App/Core `13.82.25 / 4.82.25`.
+
+The first Integration Preview exposed a real UI acceptance failure: App-Shell event handling could intercept the bubble-phase Dashboard action listener, so the rendered Chat and Intelligence Transparency controls did not open. The candidate was stopped before `main`. The final release uses capture-phase delegation, adds a regression assertion for that integration condition and was re-run through the complete release path. No failed candidate was promoted to Production.
+
+## Measured acceptance
+
+- focused Intelligence validation: **17/17 PASS**;
+- NFR-0 Foundation: **3/3 PASS**, including browser-global guardrail and browserless smoke;
+- controlled Safe Regression on Platform, Integration and Main: **49/49 PASS**;
+- release consistency: App/Core **13.82.25 / 4.82.25 PASS**;
+- Integration Preview version: `e9b2bf20-9b71-48c4-8648-63a78c82f3e3`, alias `integration`, `has_preview=true`;
+- Integration Preview: **21/21 byte-exact changed runtime assets**, **25/25 authenticated F5**, active Trip retained, Intelligence Transparency UI PASS, **0** console warnings/errors;
+- Production version: `af037f55-89b6-48a8-a441-7c747d08064a` at **100%**;
+- Production deployment: `60c76d81-c96b-4528-b5e6-fc7dfecc09f4`;
+- Production: **21/21 byte-exact changed runtime assets**, **25/25 authenticated F5**, active Trip retained, Intelligence Transparency UI PASS, **0** console warnings/errors.
+
+Remote byte provenance compares HTTP response bytes with Git blobs, not CRLF-normalized working-copy bytes. All changed runtime assets matched commit `240968cd81d13610fa24a7c79892415df0871067` exactly.
+
+## Residual scope and exit decision
+
+M8.5 closes the Intelligence contract foundation, not every historical AI/Planning/Discovery implementation. Provider transport, Intelligence-owned persistence, remaining legacy/browser-bound services and the eventual Journey/Timeline owner boundary remain explicit later slices. Existing direct proposal execution internals are transitional and are not exposed as foreign-domain mutation authority by `intelligence.v1`.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change or foreign-domain truth move occurred. Rollback can select the previous Production version `e149aa86-a512-4083-9d18-08dc174d1860` and revert the code release; no canonical data rollback is needed.
+
+M8.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. The next Intelligence slice must begin from a fresh measured residual-debt and owner-boundary lock rather than treating the mixed legacy roots as already isolated.

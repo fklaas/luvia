@@ -323,13 +323,13 @@ Future migration is classification-first, not a big-bang move.
 
 ### M8.5 Intelligence Contract Foundation
 
-M8.5 implementation is complete and release acceptance is in progress.
+M8.5 is complete, closed and Production-verified at App/Core `13.82.25 / 4.82.25`.
 
 The browserless `core/intelligence/intelligence-domain-contract-core.js` now owns capability, domain/tool metadata, model tiers, policy, validation, context-envelope, Intelligence signal/proposal and evidence semantics. The active Web boundary is `LuviaIntelligenceContractV1`.
 
 The current AI dashboard, Tool Registry, Memory and proposal identity/Trip lookups consume public contracts. The visible dashboard no longer exposes the private Timeline execution path and adds Intelligence Transparency.
 
-This is a classification-first foundation, not a bulk move. Timeline/Journey remains separately reserved; foreign-domain mutation remains outside `intelligence.v1`.
+This is a classification-first foundation, not a bulk move. Timeline/Journey remains separately reserved; foreign-domain mutation remains outside `intelligence.v1`. Controlled Safe Regression is 49/49 PASS, and Integration plus Production each passed 21/21 byte-exact runtime assets, 25/25 authenticated F5, the visible Intelligence Transparency flow and a clean console.
 
 ## Experience
 
