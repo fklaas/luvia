@@ -1,6 +1,6 @@
 # PCR M9.4 — Runtime Signals and Resume Coordination
 
-Status: APPROVED FOR IMPLEMENTATION
+Status: IMPLEMENTED; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
 
 Owner streams: `feature/platform-core` for the browserless signal policy and Platform-Port Web binding; `feature/consumer-experience` for serialized App Shell action handling and the visible runtime-status projection.
 

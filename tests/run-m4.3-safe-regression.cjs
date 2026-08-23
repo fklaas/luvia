@@ -113,6 +113,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / History',
     test: 'tests/m9.3-navigation-history-policy-foundation.test.cjs'
   },
+  {
+    category: 'App Shell / Lifecycle',
+    test: 'tests/m9.4-runtime-signals-resume-coordination.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

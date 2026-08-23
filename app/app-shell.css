@@ -193,3 +193,12 @@ html,body{
 
 /* Build 13.17.0 — release metadata is always visible and central. */
 .lv-build-badge{font-size:10px;line-height:1.2;color:var(--lv-muted);border:1px solid var(--lv-line);background:var(--lv-surface);border-radius:999px;padding:6px 9px;white-space:nowrap}@media(max-width:760px){.lv-build-badge{font-size:0;padding:6px}.lv-build-badge::after{content:'v';font-size:10px}}
+
+/* M9.4 — accessible runtime connectivity and resume projection. */
+.lv-runtime-status{position:sticky;top:71px;z-index:29;display:flex;align-items:center;justify-content:center;min-height:34px;padding:7px 16px;border-bottom:1px solid var(--lv-line);background:color-mix(in srgb,var(--lv-surface-elevated) 94%,transparent);backdrop-filter:blur(14px);color:var(--lv-muted);font-size:12px;font-weight:750;letter-spacing:.01em;text-align:center}
+.lv-runtime-status[hidden]{display:none}
+.lv-runtime-status[data-runtime-status=offline]{border-color:color-mix(in srgb,#d69a35 34%,var(--lv-line));background:color-mix(in srgb,#f2bd5d 14%,var(--lv-surface-elevated));color:color-mix(in srgb,#a8660c 76%,var(--lv-text))}
+.lv-runtime-status[data-runtime-status=reconnect]{border-color:color-mix(in srgb,#3da777 32%,var(--lv-line));background:color-mix(in srgb,#55bd8b 13%,var(--lv-surface-elevated));color:color-mix(in srgb,#18714c 76%,var(--lv-text))}
+.lv-runtime-status[data-runtime-status=resume]{border-color:color-mix(in srgb,var(--lv-accent) 30%,var(--lv-line));background:color-mix(in srgb,var(--lv-accent) 10%,var(--lv-surface-elevated));color:var(--lv-text)}
+@media(max-width:720px){.lv-runtime-status{top:67px;padding-inline:12px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.lv-runtime-status{transition:none}}

@@ -10,6 +10,9 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const coreSource=read('core/runtime/runtime-signal-policy-core.js');
 const adapterSource=read('app/adapters/runtime-signal-web-adapter.js');
 const indexSource=read('index.html');
+const shellSource=read('app/app-shell.js');
+const shellCss=read('app/app-shell.css');
+const safeRunner=read('tests/run-m4.3-safe-regression.cjs');
 
 const context={console,setTimeout,clearTimeout};
 vm.createContext(context);
@@ -48,5 +51,16 @@ const coreIndex=indexSource.indexOf('core/runtime/runtime-signal-policy-core.js'
 const adapterIndex=indexSource.indexOf('app/adapters/runtime-signal-web-adapter.js');
 const shellIndex=indexSource.indexOf('app/app-shell.js');
 assert(coreIndex>0&&adapterIndex>coreIndex&&shellIndex>adapterIndex,'M9.4 runtime signal load order invalid');
+
+assert(!shellSource.includes('authApi.onChange('),'App Shell still binds Auth directly');
+for(const token of ['runtimeSignals().subscribe','await runtimeSignals().start()','session.activate','session.deactivate','session.switch','runtime.resume','runtime.reconnect','runtime.offline'])assert(shellSource.includes(token),`Consumer adoption missing ${token}`);
+assert(shellSource.includes("history:false,source:'runtime-resume'"),'resume must not push History');
+assert(shellSource.includes("history:false,source:'runtime-reconnect'"),'reconnect must not push History');
+assert(shellSource.includes("action.payload?.online===false"),'offline resume must not remount network-backed modules');
+assert(shellSource.includes("setAttribute('aria-live','polite')"),'runtime status must be announced accessibly');
+assert(shellSource.includes('runtimeActionChain=runtimeActionChain.then'),'Runtime Actions must be serialized');
+assert(shellSource.includes('runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()'),'App diagnostics missing Runtime Signals');
+for(const token of ['.lv-runtime-status','data-runtime-status=offline','data-runtime-status=reconnect','prefers-reduced-motion'])assert(shellCss.includes(token),`runtime status CSS missing ${token}`);
+assert(safeRunner.includes('tests/m9.4-runtime-signals-resume-coordination.test.cjs'),'M9.4 guard missing from Safe Regression');
 
 console.log('M9.4 Runtime Signals / Resume Coordination Foundation: PASS');
