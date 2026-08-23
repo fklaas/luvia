@@ -137,6 +137,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Overlay Host',
     test: 'tests/m10.1-overlay-host-foundation.test.cjs'
   },
+  {
+    category: 'Intelligence / Overlay Host',
+    test: 'tests/m10.2-intelligence-overlay-host-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

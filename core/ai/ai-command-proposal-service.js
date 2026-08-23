@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.0.0';
+  const VERSION='1.1.0';
   const listeners=new Set();
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
   const userId=()=>window.LuviaIdentityContractV1?.getViewerIdentity?.()?.userId||null;
@@ -42,13 +42,12 @@
     const payload=proposal.action_payload||proposal.actionPayload||{};const changes=payload.changes||[];
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     return new Promise(resolve=>{
-      const overlay=document.createElement('div');overlay.className='luv-ai-proposal-overlay';
-      overlay.innerHTML=`<section class="luv-ai-proposal" role="dialog" aria-modal="true"><span class="luv-ai-kicker">Luvia denkt mit – du entscheidest</span><h2>${esc(payload.title||'Vorschlag für euren Reisetag')}</h2><p>${esc(proposal.explanation||payload.explanation||'Diese Änderungen werden erst nach deiner Bestätigung gespeichert.')}</p><div class="luv-ai-proposal-list">${changes.map(change=>`<article><b>${esc(change.action==='remove'?'Entfernen':change.action==='update'?'Ändern':'Einplanen')}</b><span>${esc(change.date||'')} ${esc(change.time||'')} · ${esc(change.title||change.eventId||'Eintrag')}</span><small>${esc(change.reason||'')}</small></article>`).join('')||'<article><span>Keine ausführbaren Änderungen vorhanden.</span></article>'}</div><div class="luv-ai-proposal-actions"><button type="button" data-ai-reject>Nicht übernehmen</button><button type="button" data-ai-confirm ${changes.length?'':'disabled'}>Änderungen übernehmen</button></div></section>`;
-      document.body.appendChild(overlay);
-      const close=value=>{overlay.remove();resolve(value)};
-      overlay.addEventListener('click',event=>{if(event.target===overlay)close(false)});
-      overlay.querySelector('[data-ai-reject]').onclick=()=>close(false);
-      overlay.querySelector('[data-ai-confirm]').onclick=()=>close(true);
+      const ui=LuviaUI;if(!ui?.mount)throw new Error('Overlay Host v1 ist noch nicht bereit.');const content=document.createElement('section');content.className='luv-ai-proposal';
+      content.innerHTML=`<span class="luv-ai-kicker">Luvia denkt mit – du entscheidest</span><h2>${esc(payload.title||'Vorschlag für euren Reisetag')}</h2><p>${esc(proposal.explanation||payload.explanation||'Diese Änderungen werden erst nach deiner Bestätigung gespeichert.')}</p><div class="luv-ai-proposal-list">${changes.map(change=>`<article><b>${esc(change.action==='remove'?'Entfernen':change.action==='update'?'Ändern':'Einplanen')}</b><span>${esc(change.date||'')} ${esc(change.time||'')} · ${esc(change.title||change.eventId||'Eintrag')}</span><small>${esc(change.reason||'')}</small></article>`).join('')||'<article><span>Keine ausführbaren Änderungen vorhanden.</span></article>'}</div><div class="luv-ai-proposal-actions"><button type="button" data-ai-reject>Nicht übernehmen</button><button type="button" data-ai-confirm ${changes.length?'':'disabled'}>Änderungen übernehmen</button></div>`;
+      let settled=false,mounted=null;const finish=value=>{if(settled)return;settled=true;mounted.close(value?'confirm':'reject');resolve(value)};
+      mounted=ui.mount({name:'intelligence.command-proposal',kind:'dialog',content,className:'luv-ai-proposal-overlay',initialFocus:changes.length?'[data-ai-confirm]':'[data-ai-reject]',onClose:()=>{if(!settled){settled=true;resolve(false)}}});
+      mounted.overlay.querySelector('[data-ai-reject]').onclick=()=>finish(false);
+      mounted.overlay.querySelector('[data-ai-confirm]').onclick=()=>finish(true);
     });
   }
   async function present(input={}){
