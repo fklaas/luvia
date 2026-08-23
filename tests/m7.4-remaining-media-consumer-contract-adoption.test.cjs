@@ -8,11 +8,23 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
 const smartPhoto = read('smart-photo-moments.js');
 const aiMemory = read('core/media/ai-memory-bridge.js');
+const appEntry = read('index.html');
+const parisEntry = read('paris-official.html');
 
 assert.doesNotMatch(
   smartPhoto,
   /\bLuviaMediaCore\b/,
   'Smart Photo Moments must not bypass media.v1'
+);
+assert.doesNotMatch(
+  appEntry,
+  /smart-photo-moments\.js/,
+  'Smart Photo Moments must remain outside the current App entry classification'
+);
+assert.match(
+  parisEntry,
+  /smart-photo-moments\.js\?v=13\.82\.21/,
+  'The reachable Paris Legacy path must cache-bust the adopted Smart Photo runtime'
 );
 assert.match(
   smartPhoto,
