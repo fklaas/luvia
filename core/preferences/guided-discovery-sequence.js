@@ -1,10 +1,10 @@
 ﻿(() => {
   'use strict';
 
-  const VERSION = '1.2.0';
+  const VERSION = '1.3.0';
   const instances = new WeakMap();
   let activeOverlay = null;
-  let suspendedSurface = null;
+  let activeHandle = null;
 
   const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -440,39 +440,16 @@
     return create(root, {...options, embedded: true});
   }
 
-  function suspendUnderlyingSurface() {
-    const profileOverlay = document.querySelector('.pf-overlay');
-    if (!profileOverlay) return;
-    suspendedSurface = {
-      node: profileOverlay,
-      inert: Boolean(profileOverlay.inert),
-      ariaHidden: profileOverlay.getAttribute('aria-hidden')
-    };
-    profileOverlay.inert = true;
-    profileOverlay.setAttribute('aria-hidden', 'true');
-    profileOverlay.classList.add('is-guided-suspended');
-  }
-
-  function restoreUnderlyingSurface() {
-    if (!suspendedSurface?.node?.isConnected) { suspendedSurface = null; return; }
-    const {node,inert,ariaHidden} = suspendedSurface;
-    node.inert = inert;
-    if (ariaHidden == null) node.removeAttribute('aria-hidden'); else node.setAttribute('aria-hidden', ariaHidden);
-    node.classList.remove('is-guided-suspended');
-    suspendedSurface = null;
-  }
-
   function open(options = {}) {
-    close();
-    suspendUnderlyingSurface();
+    close('replace');
+    const ui = LuviaUI;
+    if (!ui?.adopt) throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');
     const overlay = document.createElement('div');
     overlay.className = 'gds-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.innerHTML = '<div class="gds-overlay-host"></div>';
-    document.body.appendChild(overlay);
     document.documentElement.classList.add('gds-overlay-open');
-    activeOverlay = overlay;
     const closeOverlay = () => close();
     const controller = create(overlay.querySelector('.gds-overlay-host'), {
       ...options,
@@ -484,15 +461,27 @@
         });
       }
     });
+    let mounted = null;
+    mounted = ui.adopt(overlay, {
+      name: `identity.guided-discovery.${options.domain || 'profile'}`,
+      kind: 'sheet',
+      content: overlay.querySelector('.gds-overlay-host'),
+      closeOnBackdrop: false,
+      closeSelector: '',
+      label: 'Geführter Reisekompass',
+      initialFocus: '.gds-cloud,.gds-browse,.gds-continue',
+      onClose: () => {
+        if (activeHandle?.id === mounted.id) activeHandle = null;
+        if (activeOverlay === overlay) activeOverlay = null;
+        document.documentElement.classList.remove('gds-overlay-open');
+      }
+    });
+    activeOverlay = overlay;
+    activeHandle = mounted;
     return controller;
   }
 
-  function close() {
-    if (activeOverlay) activeOverlay.remove();
-    activeOverlay = null;
-    document.documentElement.classList.remove('gds-overlay-open');
-    restoreUnderlyingSurface();
-  }
+  function close(reason = 'owner') { return activeHandle?.close(reason) || false; }
 
   window.LuviaGuidedDiscovery = Object.freeze({version: VERSION, mount, open, close, buildContract: (...args) => window.LuviaPreferenceSchema?.buildContract?.(...args)});
 })();
