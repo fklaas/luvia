@@ -1,6 +1,6 @@
 # M9 — App Shell I: Runtime & Navigation Baseline / Scope Lock
 
-Status: BASELINE COMPLETE; M9.1 + M9.2 CLOSED; M9.3 BASELINE / OWNER LOCK COMPLETE
+Status: BASELINE COMPLETE; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Source marker: `052873bd70eb2f5cc6913beacd96b0c0bedf3484`
 
@@ -57,7 +57,7 @@ Web, iOS and Android will be able to map the same `screen.navigate` intent and r
 
 1. explicit App Runtime stage contract and Boot-stage diagnostics — **M9.2 COMPLETE**;
 2. Consumer adoption of Navigation Contract mount descriptors — **M9.2 COMPLETE**;
-3. History/Back/Deep-Link policy through Web adapter and native equivalents — **NEXT / M9.3**;
+3. History/Back/Deep-Link policy through Web adapter and native equivalents — **M9.3 COMPLETE**;
 4. auth/session events separated from render orchestration;
 5. Lifecycle/Network state fed through existing Platform Ports;
 6. cold-start, reload, login, logout, deep-link, back and resume acceptance;
@@ -89,3 +89,5 @@ M9.3 implementation sequence:
 2. Consumer-owned App Shell adoption with successful-route commits and Popstate restores;
 3. focused/NFR/Safe Regression;
 4. integration Preview Deep-Link/Back/Forward/Reload/F5 acceptance before Main.
+
+M9.3 closeout: Platform foundation `965c231263d0554105e0bf8364dad1ab1323eb28`, Consumer adoption `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`, runtime release `6648f41c6f831645dc79c6cd5463fe8cc945765e`, App/Core `13.82.30 / 4.82.30`, NFR-0 `3/3`, Safe Regression `52/52`, Preview and Production each `11/11` byte exact, `5/5` privacy, authenticated Deep-Link/Back/Forward, `25/25` F5, active Trip retained and clean console. Timeline/Journey and the separately owned Auth/Join/Booking URL flows remain outside this completed slice.

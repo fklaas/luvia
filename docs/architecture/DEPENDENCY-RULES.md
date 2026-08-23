@@ -70,7 +70,15 @@ Do not combine a broad visual redesign with a risky domain-core boundary change 
 
 The future Experience Core exists specifically so global redesign work can later proceed against stable domain contracts.
 
-## 10. Tests
+## 10. Runtime navigation
+
+`navigation.v1` is the canonical route and screen-intent truth. Platform-specific history stacks may only project or restore those intents.
+
+The Web History API belongs in the Platform Web adapter. Browserless runtime/navigation cores must not import DOM, browser storage, `window`, `location` or History APIs.
+
+Consumer commits navigation only after a successful mount. Domain navigation requests remain distinct from Domain Commands, and screen navigation grants no authority to mutate foreign Domain Truth.
+
+## 11. Tests
 
 Every migration slice must have targeted regression coverage.
 

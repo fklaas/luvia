@@ -1,6 +1,6 @@
 # PCR M9.3 — History, Back and Deep-Link Policy
 
-Status: APPROVED FOR IMPLEMENTATION
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Owner streams: `feature/platform-core` for browserless policy/Web adapter and `feature/consumer-experience` for App Shell adoption.
 
@@ -53,3 +53,20 @@ M9.1 established one browserless `screen.navigate` route truth and M9.2 establis
 ## Rollout and rollback
 
 The additive scripts are released through Platform -> Consumer -> Integration -> Preview -> Main -> Production. Rollback is code-only to the M9.2 Runtime Release `740f127041cb275cf8a5716965bf9c20d4158d04`; no data rollback is required.
+
+## Measured closeout
+
+- Platform foundation: `965c231263d0554105e0bf8364dad1ab1323eb28`;
+- Consumer adoption: `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`;
+- final runtime release: `6648f41c6f831645dc79c6cd5463fe8cc945765e`;
+- App/Core: `13.82.30 / 4.82.30`;
+- focused M9.3, NFR-0 `3/3`, controlled Safe Regression `52/52`: PASS;
+- Integration Preview version `2fd3416e-703a-4bc6-9172-3cc86f4b9714`: `11/11` exact assets, `5/5` privacy, authenticated Places Deep Link, ten categories, Back/Forward restore, `25/25` F5, active Trip retained, console `0`;
+- Production version/deployment `5c966e7f-1685-4976-9af1-d94871869954` / `32291cf2-f7c4-4ec7-bd11-f88d46520b77`: 100%, with the same exact/private/authenticated contract gates and `25/25` F5 at 3.1–5.1 seconds, console `0`;
+- Main promotion: fast-forward only;
+- DB/schema/RPC/RLS/bucket, Edge Functions, secrets and manual Cloudflare configuration: unchanged;
+- Timeline/Journey: separately reserved and unchanged.
+
+The initial Preview observer used a 15-second wait and timed out once. Read-only inspection proved that the same reload subsequently reached the correct `plan` state, release identity and active Trip with no console entry. The remaining observations used a 30-second window aligned with the runtime’s bounded stage contract; this harness incident is retained explicitly.
+
+M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. Existing direct History/Location flows in Auth, Join and Booking keep their measured owners and are not reclassified by this closeout.

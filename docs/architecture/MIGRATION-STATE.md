@@ -907,3 +907,39 @@ No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production de
 
 M7 is **COMPLETE / CLOSED**. M8 requires a new read-only baseline and explicit scope lock from this final synchronized marker.
 <!-- LUVIA:M7:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M9.3:CLOSEOUT:START -->
+## M9.3 History, Back and Deep-Link Policy — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.30 / 4.82.30**
+
+Platform foundation: `965c231263d0554105e0bf8364dad1ab1323eb28`
+
+Consumer adoption: `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`
+
+Runtime release: `6648f41c6f831645dc79c6cd5463fe8cc945765e`
+
+Measured result:
+
+- browserless `navigation-history.v1`: PASS, owns no route or Domain Truth;
+- one Web History adapter: push/replace/restore plus Back/Forward bridge;
+- canonical route/intent owner: unchanged `navigation.v1`;
+- Consumer screen commit: only after successful module mount;
+- authenticated direct Places Deep Link and sanitized category parameters: PASS;
+- active App Shell external Maps navigation: `ExternalNavigationPort`;
+- Auth, Join and Booking URL owners: separately classified and unchanged;
+- Timeline/Journey: separately reserved and unchanged;
+- NFR-0: **3/3 PASS**;
+- Safe Regression on Platform, Consumer, Integration and Main: **52/52 PASS**;
+- Integration Preview `2fd3416e-703a-4bc6-9172-3cc86f4b9714`: **11/11 exact**, **5/5 privacy**, Deep-Link/Back/Forward, **25/25 authenticated F5**, active Trip retained, console **0**;
+- Production version/deployment `5c966e7f-1685-4976-9af1-d94871869954` / `32291cf2-f7c4-4ec7-bd11-f88d46520b77`: **100%**, same exact/private/contract gates, **25/25 F5**, 3.1–5.1 seconds, console **0**;
+- Main promotion: **FF-only PASS**.
+
+One Preview observer timed out at 15 seconds while the same reload subsequently reached the correct state without a console error. Read-only diagnosis was completed before the remaining runs used a 30-second window aligned to the bounded runtime contract.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, manual Cloudflare configuration or Domain Truth mutation occurred. Rollback is code-only to M9.2 runtime `740f127041cb275cf8a5716965bf9c20d4158d04`.
+
+M9 remains in progress. Remaining App Shell orchestration, lifecycle/resume and legacy URL-owner work requires a fresh measured scope lock.
+<!-- LUVIA:M9.3:CLOSEOUT:END -->

@@ -104,6 +104,20 @@ Domain Events never directly trigger browser or native notifications. Delivery r
 
 ## Foundation cores
 
+### Platform Runtime & Navigation
+
+Root: `core/runtime/`
+
+Owner stream: `feature/platform-core`
+
+Role: platform-neutral App Runtime stages, canonical screen intents, declarative module-mount semantics and browserless navigation-history policy; owns no business Domain Truth.
+
+Browserless surfaces: `core/runtime/app-runtime-contract-core.js`, `core/runtime/navigation-contract-core.js`, `core/runtime/module-mount-contract-core.js`, `core/runtime/navigation-history-policy-core.js`.
+
+Web boundaries: `app/navigation-registry.js`, `app/adapters/navigation-history-web-adapter.js` and the Consumer-owned `app/app-shell.js` screen composer.
+
+`navigation.v1` is the sole route/intent truth. `navigation-history.v1` projects and restores those intents; it does not define routes. Future native clients consume the same intents and provide native stack adapters.
+
 ### Experience
 
 Root: `core/experience/`

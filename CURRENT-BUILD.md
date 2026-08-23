@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M9.3 History, Back and Deep-Link Policy**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1 + M9.2 + M9.3 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1681,7 +1681,7 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 <!-- LUVIA:M9.3:CLOSEOUT:START -->
 ## M9.3 — History, Back and Deep-Link Policy
 
-**Status:** RUNTIME CANDIDATE; LOCAL GATES PASS; ENVIRONMENT GATES PENDING
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 **Runtime App / Core:** 13.82.30 / 4.82.30
 
@@ -1689,13 +1689,21 @@ No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, sec
 
 **Consumer Adoption Commit:** `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`
 
+**Final Runtime Release:** `6648f41c6f831645dc79c6cd5463fe8cc945765e`
+
 M9.3 adds the browserless `navigation-history.v1` policy and one Web History adapter. `navigation.v1` remains the sole route and intent truth; browser History is a projection and owns no Domain Truth. Explicit recognized URL routes and sanitized parameters are restored on authenticated cold start, while plain root URLs preserve the user’s configured default screen.
 
 The Consumer App Shell commits a screen only after its module mounted successfully. Same-route navigation is idempotent, browser Back/Forward restores an existing intent without pushing a new entry, and external Google Maps navigation now crosses `ExternalNavigationPort`. Existing Auth, Join and Booking URL flows remain separately owner-classified rather than being silently absorbed.
 
 Timeline/Journey remains a separately reserved cross-domain aggregator. No Trip, Places, Media, Identity, Booking or Intelligence truth moved into Platform or Consumer.
 
-Focused M9.3 regression, NFR-0 and controlled Safe Regression must remain green after this runtime cut. Integration Preview, authenticated direct-Deep-Link/Back/Forward/reload acceptance, Main, Production and final eight-stream synchronization remain pending and must not be claimed before direct measurement.
+Focused M9.3 regression is PASS, NFR-0 is **3/3 PASS**, and controlled Safe Regression is **52/52 PASS** on Platform, Consumer, Integration and Main. Integration Preview version `2fd3416e-703a-4bc6-9172-3cc86f4b9714` passed **11/11 byte-exact runtime assets**, **5/5 private-path SPA fallback**, authenticated direct Places Deep Link with ten categories, browser Back/Forward restore, **25/25 authenticated F5**, active-Trip retention and an empty warning/error console.
 
-No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change or manual Cloudflare configuration change is part of this candidate.
+One Preview reload exceeded the initial 15-second observer window but subsequently reached the fully correct state with no console error. Read-only diagnosis proved the application state before the remaining measurements used a contract-aligned 30-second observer window; the delayed result is retained rather than rewritten as an instant pass.
+
+Production version `5c966e7f-1685-4976-9af1-d94871869954` is deployed at **100%** by deployment `32291cf2-f7c4-4ec7-bd11-f88d46520b77`. Production passed the same **11/11 exact assets**, **5/5 privacy**, authenticated Deep-Link/Back/Forward contract diagnostics and **25/25 F5** with observed stable-start latency **3.1–5.1 seconds**, active Trip retained and console **0**.
+
+No database migration, schema/RPC/RLS/bucket mutation, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Timeline/Journey reclassification occurred. Rollback is code-only to M9.2 runtime `740f127041cb275cf8a5716965bf9c20d4158d04` / Production version `15c2ba3c-8b16-40e4-bd53-01bc9f9893e4`.
+
+M9.3 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**. M9 remains **IN PROGRESS**; its next mutation requires a fresh read-only scope lock over the remaining App Shell orchestration, lifecycle/resume and legacy URL-owner boundaries.
 <!-- LUVIA:M9.3:CLOSEOUT:END -->

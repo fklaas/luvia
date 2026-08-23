@@ -78,6 +78,23 @@ M8.5 activates sanitized capability, domain/tool, model-tier, policy, memory/sys
 
 Timeline/Journey is consumed only as a separately owned projection and is not reclassified as Intelligence truth.
 
+## Platform Runtime & Navigation
+
+Browserless contracts:
+
+- `app-runtime.v1` — ordered readiness, failure and recovery stages;
+- `module-mount.v1` — serialized mount/unmount transitions from canonical descriptors;
+- `navigation.v1` — routes, aliases, immutable `screen.navigate` intents and Deep-Link serialization;
+- `navigation-history.v1` — idempotent push/replace/restore policy and Back/Forward commands.
+
+Web bindings:
+
+- `LuviaNavigationContractV1` through `app/navigation-registry.js`;
+- `LuviaNavigationHistoryV1` through `app/adapters/navigation-history-web-adapter.js`;
+- Consumer commit boundary through `app/app-shell.js` only after successful screen mount.
+
+History is a Platform projection, not a second route registry or Domain Truth owner. Intelligence may request a sanitized Navigation Intent but cannot bypass Domain Commands through screen navigation.
+
 ## Dependency principle
 
 Contracts may expose stable projections and supported commands.
