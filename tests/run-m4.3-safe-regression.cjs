@@ -173,6 +173,10 @@ const SUITE = Object.freeze([
     category: 'Experience / Design System',
     test: 'tests/m10.5-experience-contract-premium-pilot.test.cjs'
   },
+  {
+    category: 'Product / Consumer',
+    test: 'tests/m11-premium-today-attention-composition.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

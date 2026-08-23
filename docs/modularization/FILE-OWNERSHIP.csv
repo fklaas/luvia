@@ -2464,3 +2464,9 @@ docs/modularization/M10.5-EXPERIENCE-BASELINE-AND-SCOPE-LOCK.md,Experience Core,
 docs/modularization/PCR-M10.5-EXPERIENCE-CONTRACT-PREMIUM-PILOT.md,Experience Core,Documentation/Architecture,M10.5 cross-stream Experience Contract Web adapter and premium AI pilot PCR
 tests/m10.5-experience-contract-premium-pilot.test.cjs,Shared Tests,Test/Guardrail,M10.5 browserless Experience Contract native mapping Web adapter accessibility and visible pilot guard
 docs/modularization/RELEASE-NOTES-M10.5.md,Experience Core,Documentation/Release,M10.5 Experience Contract premium AI surface gates deployment evidence and rollback
+app/today/today-composition-core.js,Consumer,Application/Presentation Contract,M11 browserless Today view-model composition without Domain Truth or Journey ownership
+app/today/today-experience.js,Consumer,Adapter/Web,M11 Web composition over read-only Trip travel identity attention Experience and NetworkPort projections
+app/today/today-experience.css,Consumer/Experience,Experience,M11 premium responsive accessible Today surface consuming experience.v1 tokens
+docs/modularization/M11-CONSUMER-TODAY-ATTENTION-BASELINE-AND-SCOPE-LOCK.md,Consumer,Documentation/Architecture,M11 measured Consumer estate ownership baseline and locked premium Today scope
+docs/modularization/PCR-M11-PREMIUM-TODAY-ATTENTION-COMPOSITION.md,Consumer,Documentation/Architecture,M11 Consumer Today Attention and Journey-reservation PCR
+tests/m11-premium-today-attention-composition.test.cjs,Consumer/Shared Tests,Test/Guardrail,M11 browserless composition ownership native readiness load order accessibility and Journey reservation guard
