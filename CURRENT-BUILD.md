@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.36**
-- Core: **4.82.36**
+- App: **13.82.37**
+- Core: **4.82.37**
 - Name: **M9.6 Authenticated Surface Session Exit Hygiene**
 - Channel: **integration**
 - Datum: **2026-08-23**
