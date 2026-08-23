@@ -1092,3 +1092,32 @@ An earlier Production sample exceeded the initial 12-second locator window after
 
 No database, schema/RPC/RLS/bucket, Edge Function, secret, manual Cloudflare configuration or Domain Truth mutation occurred. Timeline/Journey remains separately reserved. M10.5 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**.
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->
+
+<!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:START -->
+## M11 Premium Today and Attention Composition — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-24
+
+Runtime App/Core: **13.82.42 / 4.82.42**
+
+Runtime commit: `e1e642409b65576f92f9f2521d43d1766754ec92`
+
+Measured final result:
+
+- browserless `consumer.today-composition.v1`: **PASS**, with no browser global, storage, Supabase, private Store or foreign-domain command;
+- premium Today composition over read-only Trip, Travel Identity, Attention, Experience and Network projections: **ACTIVE**;
+- existing Dashboard Widget Registry and AI Command Surface: **PRESERVED / REUSED**;
+- Journey/Timeline: exactly one separately owned `reserved-read-only` projection; not absorbed into Consumer or Intelligence;
+- desktop and 390 x 844 responsive layout: **PASS**, three 48 px actions and no horizontal overflow;
+- AI open, focus, Escape restoration and safe Plan navigation: **PASS**;
+- Safe Regression: **68/68 PASS**;
+- NFR-0: **3/3 PASS**;
+- Cross-Core DB guardrail: no growth;
+- Integration Preview: **10/10 exact**, **5/5 privacy**, authenticated **25/25 F5**;
+- Production version `57d3bb86-0d50-457f-b405-edf8c0b01c60` at **100%**: version URL and `myluvia.app` each **10/10 exact Git blobs**, **5/5 privacy**, authenticated final **25/25 F5** at **3.629-4.163 seconds** (average **3.853 seconds**);
+- Main promotion: **FF-only PASS**.
+
+An earlier high-frequency Production series reached 6/8 inside a 10-second locator window and one diagnostic reload settled correctly at 14.727 seconds. Those observations remain rejected. The independent paced final series is the accepted gate; no failure was rewritten as success.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function, secret, provider, manual Cloudflare configuration, manual Cloudflare upload/deploy or Domain Truth reassignment occurred. Cloudflare labels the automatically observed active version source `Unknown`; chronology is recorded without asserting unproven causation.
+<!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:END -->

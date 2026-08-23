@@ -1,6 +1,6 @@
 # PCR – M11 Premium Today and Attention Composition
 
-Status: IMPLEMENTATION COMPLETE / LOCAL GATES PASS / PREVIEW PENDING
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Owner: Consumer
 
@@ -58,4 +58,15 @@ Ship as one versioned static runtime bundle. Roll back to `5067332492fca8a7df79b
 - Controlled Safe Regression after the version-dependent Trip cache assertions were advanced with the release: **68/68 PASS**.
 - Cross-Core DB guardrail: static **316**, mapped debt **26/26**, unmapped object debt **39/39**, dynamic **27/27**; no debt growth.
 - Correct Consumer-worktree local server: `.42` Today core, adapter and CSS assets loaded; signed-out public route stable; browser console **0 warnings / 0 errors**.
-- Authenticated product acceptance, Integration Preview, Main and Production remain deliberately unclaimed until measured.
+- Feature, Integration and Main promotion: fast-forward only; each branch reached runtime commit `e1e642409b65576f92f9f2521d43d1766754ec92` with clean worktree and `0/0` divergence at its release gate.
+- Integration Preview stable alias: all ten changed deployable runtime assets are exact Git blobs; five internal/private paths return the exact `index.html` SPA fallback; authenticated App/Core, Paris Trip, Attention, AI open/Escape/focus restoration, Plan navigation, Journey reservation and 390 x 844 responsive acceptance are PASS.
+- Integration authenticated reload acceptance: **25/25 PASS**, **3.980-8.077 seconds**, average **4.401 seconds**.
+- Main: controlled Safe Regression **68/68 PASS**; NFR-0 **3/3 PASS**; Cross-Core DB guardrail unchanged.
+- Production active version: `57d3bb86-0d50-457f-b405-edf8c0b01c60` at **100%**, created `2026-08-23T23:11:46.736Z`; Cloudflare reports source `Unknown (version_upload/deployment)`. It appeared after Main promotion; no manual upload or deploy was performed and causation is not asserted beyond the measured chronology.
+- Production version URL and `myluvia.app`: each **10/10 exact Git blobs** and **5/5 private-path SPA fallback**. The proof compares HTTP bytes to canonical Git object IDs, avoiding Windows checkout/archive CRLF effects.
+- Production authenticated UX: App/Core **13.82.42 / 4.82.42**, active Paris Trip, `consumer.today-composition.v1`, `Alles ruhig`, exactly one `reserved-read-only` Journey projection, three 48 px actions, AI dialog focus/Escape restoration, safe Plan navigation and 390 x 844 responsive layout with no horizontal overflow: **PASS**.
+- Production final clean reload series: **25/25 PASS**, **3.629-4.163 seconds**, average **3.853 seconds**, with version, Trip, Today, Attention and Journey boundary present in every sample.
+- A prior deliberately rejected stress series reached only **6/8** within a 10-second locator gate; one diagnostic reload settled correctly at **14.727 seconds**. After load pacing and cooldown, the independent final 25-sample series above supplied the accepted gate. No failed observation was rewritten as PASS.
+- Browser evidence exposed no visible runtime error. The final browser-control surface did not expose a separate retrospective console-buffer API, so no unsupported `console 0/0` claim is made for this closeout.
+
+M11 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**.

@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M11 Premium Today & Attention Composition**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 IMPLEMENTATION COMPLETE / LOCAL GATES PASS / PREVIEW PENDING**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1845,3 +1845,34 @@ One earlier Production observation exceeded the initial 12-second locator window
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline reclassification occurred. Main promotion was fast-forward only. Rollback is code-only to the synchronized M10 marker `f789f481876f4fc9dbf2abf8957e0cc6741ef07d`; no persisted-data compensation is required.
 <!-- LUVIA:M10.5:EXPERIENCE-FOUNDATION:END -->
+
+<!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:START -->
+## M11 Premium Today and Attention Composition
+
+M11 is **COMPLETE / CLOSED / PRODUCTION VERIFIED**.
+
+Runtime App/Core: **13.82.42 / 4.82.42**
+
+Runtime commit: `e1e642409b65576f92f9f2521d43d1766754ec92`
+
+The new browserless `consumer.today-composition.v1` builds a deterministic, immutable presentation model from public/read-only Trip, Travel Identity, Attention, Experience and Network projections. Consumer owns Today presentation only. Trip, Booking, Places, Media, Identity and Intelligence truth ownership is unchanged; the composition core contains no browser global, storage, DB/RPC/Supabase, private Store or foreign-domain command path.
+
+The visible Today surface now combines active-trip identity, travel phase, connectivity, attention and safe primary actions. It reuses the canonical Luvia AI Command Surface and Overlay Host without autonomous mutation authority. The existing Dashboard Widget Registry remains active. Journey/Timeline remains a separately owned cross-domain aggregator and is embedded exactly once through `reserved-read-only`.
+
+Measured evidence:
+
+- Focused M11 guard: **PASS**.
+- Safe Regression on Feature, Integration and Main: **68/68 PASS**.
+- NFR-0: **3/3 PASS**.
+- Cross-Core DB guardrail: static **316**, mapped **26/26**, unmapped **39/39**, dynamic **27/27**; no growth.
+- Integration Preview: **10/10 exact Git blobs**, **5/5 privacy**, authenticated desktop/mobile/AI/navigation/Journey acceptance and **25/25 F5** at **3.980-8.077 seconds** (average **4.401 seconds**).
+- Production active version `57d3bb86-0d50-457f-b405-edf8c0b01c60` at **100%**. Version URL and `myluvia.app` each passed **10/10 exact Git blobs** and **5/5 privacy**.
+- Production authenticated UX: App/Core identity, Paris Trip, Today Contract, Attention, one Journey boundary, AI focus/Escape restoration, safe Plan navigation and 390 x 844 responsive layout without horizontal overflow: **PASS**.
+- Production independent final reload series: **25/25 PASS**, **3.629-4.163 seconds**, average **3.853 seconds**.
+
+A prior high-frequency Production series reached only 6/8 inside a 10-second locator gate and one diagnostic reload settled correctly at 14.727 seconds. Those observations remain rejected. After cooldown and pacing, the separate clean 25-sample series above supplied the accepted gate. No failed observation was rewritten as PASS.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function, secret, provider, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reported the new active version after Main promotion with source `Unknown`; deployment causation is not invented.
+
+Rollback is code-only to the synchronized M10.5 documentation marker `5067332492fca8a7df79bb6584c891c973550180`; no persisted-data compensation is required.
+<!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:END -->

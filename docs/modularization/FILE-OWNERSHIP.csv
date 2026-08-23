@@ -2470,3 +2470,4 @@ app/today/today-experience.css,Consumer/Experience,Experience,M11 premium respon
 docs/modularization/M11-CONSUMER-TODAY-ATTENTION-BASELINE-AND-SCOPE-LOCK.md,Consumer,Documentation/Architecture,M11 measured Consumer estate ownership baseline and locked premium Today scope
 docs/modularization/PCR-M11-PREMIUM-TODAY-ATTENTION-COMPOSITION.md,Consumer,Documentation/Architecture,M11 Consumer Today Attention and Journey-reservation PCR
 tests/m11-premium-today-attention-composition.test.cjs,Consumer/Shared Tests,Test/Guardrail,M11 browserless composition ownership native readiness load order accessibility and Journey reservation guard
+docs/modularization/RELEASE-NOTES-M11.md,Consumer,Documentation/Release,M11 premium Today Attention preview production acceptance provenance and rollback

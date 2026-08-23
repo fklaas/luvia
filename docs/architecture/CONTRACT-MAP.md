@@ -122,3 +122,21 @@ History and Runtime Signals are Platform projections, not route/session/Domain T
 Contracts may expose stable projections and supported commands.
 
 They must not expose another core's private mutable state as a new global dependency.
+
+## Consumer Today Composition
+
+Public contract:
+
+`consumer.today-composition.v1`
+
+Browserless composition core:
+
+`app/today/today-composition-core.js`
+
+Web presentation adapter:
+
+`app/today/today-experience.js`
+
+M11 composes read-only Trip, Travel Identity, Attention, Experience and Network projections into an immutable Today view model. It owns presentation state only: no Trip, Booking, Places, Media, Identity, Intelligence or Journey truth, no DB/RPC/Supabase access and no foreign-domain command execution.
+
+The existing Journey/Timeline widget remains outside this contract and is embedded only through the explicit `reserved-read-only` projection boundary. The global Luvia AI Command Surface is opened through the established Overlay Host; M11 grants it no autonomous mutation authority.
