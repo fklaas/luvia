@@ -20,8 +20,8 @@
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const emit=(next,detail={})=>{phase=next;document.documentElement.dataset.luviaBoot=next;window.dispatchEvent(new CustomEvent('luvia:boot-phase',{detail:{phase:next,...detail}}));};
   function splash(){return document.getElementById('luviaBootSplash')}
-  function begin(){if(window.__LUVIA_BOOT_DONE__||phase!=='idle')return;startedAt=performance.now();document.documentElement.classList.add('lv-booting');emit('splash');}
-  async function finish(){if(phase==='ready'||phase==='revealing')return;const remaining=Math.max(0,MIN_SPLASH_MS-(performance.now()-startedAt));if(remaining)await delay(remaining);const node=splash();emit('revealing');document.documentElement.classList.add('lv-boot-revealing');node?.setAttribute('aria-hidden','true');await delay(620);node?.remove();window.__LUVIA_BOOT_DONE__=true;document.documentElement.classList.remove('lv-booting','lv-boot-revealing');emit('ready',{snapshot});}
+  function begin(){if(phase!=='idle')return;startedAt=performance.now();if(window.__LUVIA_BOOT_DONE__){emit('rehydrating');return}document.documentElement.classList.add('lv-booting');emit('splash');}
+  async function finish(){if(phase==='ready'||phase==='revealing')return;if(window.__LUVIA_BOOT_DONE__){emit('ready',{snapshot,rehydrated:true});return}const remaining=Math.max(0,MIN_SPLASH_MS-(performance.now()-startedAt));if(remaining)await delay(remaining);const node=splash();emit('revealing');document.documentElement.classList.add('lv-boot-revealing');node?.setAttribute('aria-hidden','true');await delay(620);node?.remove();window.__LUVIA_BOOT_DONE__=true;document.documentElement.classList.remove('lv-booting','lv-boot-revealing');emit('ready',{snapshot});}
   function chooseActiveTrip(){
     const trips=tripRuntime().getState().trips;
     const profile=window.LuviaProfileService.snapshot().profile||{};
@@ -62,6 +62,6 @@
     },{timeoutMs:30000,detail:{source:'boot-coordinator',authenticated:Boolean((window.LuviaAuth||window.ParisAuth).getState()?.authenticated)}}).catch(error=>{emit('failed',{error});document.documentElement.classList.remove('lv-booting','lv-boot-revealing');throw error});
     return bootPromise;
   }
-  function reset(){if(window.__LUVIA_BOOT_DONE__)return;bootPromise=null;snapshot=null;phase='idle';}
+  function reset(){bootPromise=null;snapshot=null;phase='idle';}
   window.LuviaBootCoordinator=Object.freeze({version:'1.4.0',boot,reveal:finish,reset,appRuntime,get phase(){return phase},get snapshot(){return snapshot},get booting(){return !['ready','failed','idle'].includes(phase)}});
 })();

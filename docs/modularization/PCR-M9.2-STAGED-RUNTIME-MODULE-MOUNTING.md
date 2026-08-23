@@ -1,8 +1,11 @@
 # PCR M9.2 - Staged App Runtime and Module Mounting
 
-Status: `APPROVED FOR IMPLEMENTATION`  
-Owner streams: Platform foundation, followed by Consumer adoption  
-Baseline marker: `3e8a25f28b92275831ced0df7b3883cc96bebcac`  
+Status: `APPROVED FOR IMPLEMENTATION`
+
+Owner streams: Platform foundation, followed by Consumer adoption
+
+Baseline marker: `3e8a25f28b92275831ced0df7b3883cc96bebcac`
+
 Baseline App / Core: `13.82.26 / 4.82.26`
 
 ## Measured baseline

@@ -77,6 +77,7 @@ async function main(){
 
   assert.match(bootSource,/appRuntime\.run\('domain-context-ready'/);
   assert.match(bootSource,/timeoutMs:30000/);
+  assert.match(bootSource,/function reset\(\)\{bootPromise=null;snapshot=null;phase='idle';\}/,'auth changes must be able to rehydrate after the initial splash');
   const runtimeIndex=indexSource.indexOf('core/runtime/app-runtime-contract-core.js');
   const navigationIndex=indexSource.indexOf('core/runtime/navigation-contract-core.js');
   const mountIndex=indexSource.indexOf('core/runtime/module-mount-contract-core.js');
