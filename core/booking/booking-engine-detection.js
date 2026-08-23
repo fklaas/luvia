@@ -17,7 +17,8 @@ const ENGINES=Object.freeze([
 {id:'simpleerb',name:'simpleERB',hosts:[/(^|\.)simpleerb\.com$/i]}
 ]);
 const clean=v=>String(v??'').trim();
-function safeUrl(value,base){try{const u=new URL(clean(value),base||location.href);return /^https?:$/.test(u.protocol)?u:null}catch{return null}}
+function runtimeBase(){if(typeof LuviaOwnerFlowNavigationV1!=='undefined')return LuviaOwnerFlowNavigationV1.current?.().href||'';if(typeof LuviaEnvironment!=='undefined')return LuviaEnvironment.snapshot?.().canonicalUrl||'';return'https://myluvia.app/'}
+function safeUrl(value,base){try{const u=new URL(clean(value),base||runtimeBase());return /^https?:$/.test(u.protocol)?u:null}catch{return null}}
 function detectUrl(value,base){const u=safeUrl(value,base);if(!u)return null;const host=u.hostname.toLowerCase().replace(/^www\./,'');for(const e of ENGINES)if(e.hosts.some(rx=>rx.test(host)))return Object.freeze({id:e.id,name:e.name,url:u.toString(),host});return null;}
 function scanDocument(doc=document){const hits=[];const sels=['a[href]','iframe[src]','form[action]','script[src]','[data-booking-url]','[data-reservation-url]','[data-widget-url]'];for(const el of doc.querySelectorAll(sels.join(','))){for(const attr of ['href','src','action','data-booking-url','data-reservation-url','data-widget-url']){const value=el.getAttribute?.(attr);if(!value)continue;const hit=detectUrl(value,doc.baseURI);if(hit)hits.push({...hit,tag:String(el.tagName||'').toLowerCase(),attribute:attr});}}return Object.freeze(hits.filter((v,i,a)=>a.findIndex(x=>x.id===v.id&&x.url===v.url)===i));}
 window.LuviaBookingEngineDetection=Object.freeze({version:VERSION,engines:ENGINES,detectUrl,scanDocument});

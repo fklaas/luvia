@@ -81,8 +81,7 @@ const externalNavigationPort=Object.freeze({
     const parsed=new URL(url,root.location?.href);
     if(!['http:','https:','mailto:'].includes(parsed.protocol))throw new Error('ExternalNavigationPort unterstützt nur HTTP/HTTPS/Mailto.');
     if(reserved&&!reserved.closed&&reserved.location?.replace){reserved.location.replace(parsed.href);return true}
-    root.open(parsed.href,'_blank','noopener,noreferrer');
-    return true;
+    return Boolean(root.open(parsed.href,'_blank','noopener,noreferrer'));
   },
   openMaps({latitude,longitude,label='',providerPlaceId=''}={}){
     const query=latitude!=null&&longitude!=null?`${latitude},${longitude}`:label;

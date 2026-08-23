@@ -213,7 +213,7 @@
       const warmed=routeCache.has(key);
       let handoffWindow=null;
       if(!warmed){
-        try{handoffWindow=window.open('/booking-handoff.html','_blank');if(handoffWindow)handoffWindow.opener=null}catch{}
+        try{handoffWindow=LuviaOwnerFlowNavigationV1.reserveBookingHandoff()}catch{}
       }
       const resolved=await resolveRouteCached(place);
       place=resolved.place||place;
@@ -221,8 +221,7 @@
       if(route?.resolved&&route.channel==='external_link'&&route.value){
         let target=null;try{target=new URL(route.value);if(!/^https?:$/.test(target.protocol))throw new Error('invalid')}catch{throw new Error('Der gefundene Buchungslink ist ungültig.')}
         window.LuviaBooking.recordPlaceHandoff?.(place,{...route,value:target.toString()}).catch(error=>console.debug('[Luvia Booking] Handoff-Attribution konnte nicht protokolliert werden.',error?.message||error));
-        if(handoffWindow&&!handoffWindow.closed){handoffWindow.location.replace(target.toString());return;}
-        const opened=window.open(target.toString(),'_blank','noopener,noreferrer');
+        const opened=LuviaOwnerFlowNavigationV1.openBooking(target.toString(),{reserved:handoffWindow});
         if(!opened)window.LuviaUIKit?.toast?.('Der Browser hat das Buchungsfenster blockiert. Bitte Pop-ups für Luvia erlauben und erneut auf „Reservieren“ klicken.',{type:'warning'});
         return;
       }

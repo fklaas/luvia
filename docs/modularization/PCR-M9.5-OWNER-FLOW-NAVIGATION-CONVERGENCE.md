@@ -1,6 +1,6 @@
 # PCR M9.5 – Owner Flow Navigation Convergence
 
-Status: **PLATFORM + CONSUMER IMPLEMENTED / BOOKING ADOPTION PENDING**
+Status: **IMPLEMENTATION COMPLETE / INTEGRATION + RELEASE PENDING**
 
 ## Measured baseline
 
@@ -50,3 +50,7 @@ The deleted `luvia-app-shell.js` and `legacy/ui/luvia-app-shell.js` had identica
 ## Consumer adoption
 
 Public Entry now opens an invitation through `owner-flow-navigation.v1` without assigning a new document URL. The active App Shell listens only for Join-owned flow effects and renders the appropriate signed-out, Join or authenticated surface without becoming the owner of Auth or Booking policy. Consumer Booking external routes use the same validated external boundary and contain no direct `window.open` call.
+
+## Booking adoption
+
+Booking Core still resolves, validates and attributes the provider route. It now reserves the user-gesture handoff surface and opens the validated provider URL through `ExternalNavigationPort`; the port reports popup blocking instead of fabricating success. Booking engine detection receives its default base from the owner-flow/environment boundary and no longer reads `location.href` directly. No Booking persistence, provider, status or reconciliation rule changed.

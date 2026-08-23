@@ -125,6 +125,10 @@ const SUITE = Object.freeze([
     category: 'Product / Owner Flows',
     test: 'tests/m9.5-consumer-owner-flow-adoption.test.cjs'
   },
+  {
+    category: 'Booking / Owner Flows',
+    test: 'tests/m9.5-booking-owner-flow-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
