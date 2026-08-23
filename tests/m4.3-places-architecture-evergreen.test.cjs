@@ -79,6 +79,7 @@ const placeUi = read('core/places/place-ui.js');
 const placesShell = read('modules/places-shell.js');
 const appShell = read('app/app-shell.js');
 const navigationRegistry = read('app/navigation-registry.js');
+const navigationContractCore = read('core/runtime/navigation-contract-core.js');
 
 for (const asset of [
   'core/places/place-runtime-store.js',
@@ -118,12 +119,12 @@ assert(
 );
 
 assert(
-  navigationRegistry.includes("move:'plan'"),
+  navigationContractCore.includes("move:'plan'"),
   'Move navigation alias must resolve to Plan'
 );
 
 assert(
-  navigationRegistry.includes("mobility:'plan'"),
+  navigationContractCore.includes("mobility:'plan'"),
   'Mobility navigation alias must resolve to Plan'
 );
 

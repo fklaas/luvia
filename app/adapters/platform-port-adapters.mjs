@@ -85,14 +85,19 @@ const externalNavigationPort=Object.freeze({
 });
 const deepLinkPort=Object.freeze({
   open(route={}){
-    const detail={screen:String(route.screen||''),params:{...(route.params||{})}};
-    root.dispatchEvent(new CustomEvent('luvia:deep-link-requested',{detail}));
-    if(detail.screen==='places')root.LuviaApp?.show?.('places');
-    return Object.freeze(detail);
+    const contract=root.LuviaNavigationContractV1||root.LuviaNavigationContractCoreV1;
+    const intent=contract?.resolve
+      ?contract.resolve(route,{source:'DeepLinkPort'})
+      :Object.freeze({kind:'screen.navigate',route:String(route.screen||route.view||''),params:Object.freeze({...route.params}),source:'DeepLinkPort'});
+    root.dispatchEvent(new CustomEvent('luvia:deep-link-requested',{detail:intent}));
+    root.dispatchEvent(new CustomEvent('luvia:navigate-request',{detail:{view:intent.route,intent}}));
+    return intent;
   },
   current(){
+    const contract=root.LuviaNavigationContractV1||root.LuviaNavigationContractCoreV1;
+    if(contract?.fromUrl)return contract.fromUrl(root.location?.href||'',{source:'DeepLinkPort.current'});
     const params=new URLSearchParams(root.location?.search||'');
-    return Object.freeze({screen:params.get('screen')||null,params:Object.freeze(Object.fromEntries(params.entries()))});
+    return Object.freeze({kind:'screen.navigate',route:params.get('screen')||null,params:Object.freeze(Object.fromEntries(params.entries())),source:'DeepLinkPort.current'});
   }
 });
 const offlineCachePort=Object.freeze({

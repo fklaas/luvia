@@ -2435,3 +2435,7 @@ tests/m8.5.0-intelligence-contract-platform-foundation.test.cjs,Shared Tests,Tes
 tests/m8.5.1-intelligence-domain-contract-core.test.cjs,Shared Tests,Test/Guardrail,M8.5 browserless Intelligence owner-core guard
 tests/m8.5.2-intelligence-contract-runtime-adoption.test.cjs,Shared Tests,Test/Guardrail,M8.5 runtime contract adoption and visible transparency guard
 tests/m8.5-final-intelligence-core-isolation.test.cjs,Shared Tests,Test/Guardrail,M8.5 exit guard for browserless owner active contract consumer isolation and Journey reservation
+core/runtime/navigation-contract-core.js,Platform,Shared Runtime,M9 browserless Navigation Contract route intent and mount semantics
+docs/modularization/M9-APP-SHELL-RUNTIME-NAVIGATION-BASELINE.md,Platform,Documentation/Architecture,M9 measured App Shell Runtime and Navigation baseline scope lock
+docs/modularization/PCR-M9.1-NAVIGATION-CONTRACT-FOUNDATION.md,Platform,Documentation/Architecture,M9.1 cross-stream Navigation Contract PCR
+tests/m9.1-navigation-contract-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.1 browserless Navigation Contract adapter Deep Link and load-order guard

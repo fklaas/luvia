@@ -1,14 +1,32 @@
 (() => {
   'use strict';
-  const VERSION='4.26.1';
-  const items=Object.freeze([
-    {id:'today',label:'Heute',icon:'🏠',description:'Tagesbriefing und das Wichtigste für heute.'},
-    {id:'plan',label:'Planen',icon:'✨',description:'Orte, Timeline, Checklisten und Reisevorbereitung.'},
-    {id:'trip',label:'Reise',icon:'🧳',description:'Tagesverlauf, Teilnehmer und besuchte Orte.'},
-    {id:'memories',label:'Erinnerungen',icon:'📸',description:'Fotos, Alben, Reisebuch und Revue.'},
-    {id:'more',label:'Mehr',icon:'•••',description:'Profil, Reisekompass und Einstellungen.'}
-  ]);
-  const aliases=Object.freeze({dashboard:'today',places:'places',move:'plan',mobility:'plan'});
-  const normalize=id=>aliases[id]||id||'today';
-  window.LuviaNavigationRegistry=Object.freeze({version:VERSION,items:()=>items.slice(),get:id=>items.find(x=>x.id===normalize(id))||null,normalize,diagnostics:()=>({version:VERSION,items:items.map(x=>x.id),aliases})});
+  const VERSION='4.27.0';
+  const core=window.LuviaNavigationContractCoreV1;
+  if(!core?.normalize||!core?.resolve||!core?.items)throw new Error('Luvia Navigation Contract Core fehlt.');
+  const contract=Object.freeze({
+    contractId:core.contractId,
+    version:core.version,
+    runtimeVersion:core.runtimeVersion,
+    normalize:core.normalize,
+    get:core.get,
+    routes:core.listRoutes,
+    items:core.items,
+    createIntent:core.createIntent,
+    fromUrl:core.fromUrl,
+    resolve:core.resolve,
+    toDeepLink:core.toDeepLink,
+    diagnostics:core.diagnostics
+  });
+  window.LuviaNavigationContractV1=contract;
+  window.LuviaNavigationRegistry=Object.freeze({
+    version:VERSION,
+    contractVersion:core.runtimeVersion,
+    items:contract.items,
+    get:contract.get,
+    normalize:contract.normalize,
+    resolve:contract.resolve,
+    createIntent:contract.createIntent,
+    fromUrl:contract.fromUrl,
+    diagnostics:()=>Object.freeze({version:VERSION,contract:contract.diagnostics()})
+  });
 })();
