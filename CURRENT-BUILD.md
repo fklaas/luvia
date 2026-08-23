@@ -20,12 +20,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.38**
-- Core: **4.82.38**
-- Name: **M9.6 Authenticated Surface Session Exit Hygiene**
-- Channel: **production**
+- App: **13.82.39**
+- Core: **4.82.39**
+- Name: **M10 Overlay Host & Interaction Boundary**
+- Channel: **integration**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9.1–M9.6 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 TECHNICALLY COMPLETE / IN INTEGRATION ACCEPTANCE; M10.5 EXPERIENCE CORE RESERVED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
