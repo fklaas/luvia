@@ -91,3 +91,11 @@ M9.3 implementation sequence:
 4. integration Preview Deep-Link/Back/Forward/Reload/F5 acceptance before Main.
 
 M9.3 closeout: Platform foundation `965c231263d0554105e0bf8364dad1ab1323eb28`, Consumer adoption `9a9108f4c3ff85a4d06e24fadeaf8c795ad4d432`, runtime release `6648f41c6f831645dc79c6cd5463fe8cc945765e`, App/Core `13.82.30 / 4.82.30`, NFR-0 `3/3`, Safe Regression `52/52`, Preview and Production each `11/11` byte exact, `5/5` privacy, authenticated Deep-Link/Back/Forward, `25/25` F5, active Trip retained and clean console. Timeline/Journey and the separately owned Auth/Join/Booking URL flows remain outside this completed slice.
+
+## M9.4 measured baseline and scope lock
+
+The active App Shell has one direct `authApi.onChange(...)` render-orchestration callback and no LifecyclePort or NetworkPort subscription. Productive Web `AuthSessionPort`, `LifecyclePort` and `NetworkPort` implementations already exist, so a second browser/device source is neither required nor permitted.
+
+M9.4 bundles the two inseparable remaining Runtime concerns: Platform normalizes Auth/Lifecycle/Network transitions into browserless, idempotent Runtime Actions; Consumer serializes those actions into session activation/deactivation, eligible foreground resume and visible offline/reconnect status. The policy stores no token/session and owns no Domain Truth. Background intervals below 15 seconds do not remount the current module; eligible resume preserves the current Navigation Intent and writes no History entry.
+
+Collaboration, Media upload, Location and Travel Context retain their existing domain-specific transition reactions. Auth, Join and Booking URL owners, inactive legacy shells and Timeline/Journey remain outside the M9.4 mutation scope.

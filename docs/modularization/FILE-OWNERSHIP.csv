@@ -2447,3 +2447,7 @@ docs/modularization/M9-APP-SHELL-RUNTIME-NAVIGATION-BASELINE.md,Platform,Documen
 docs/modularization/PCR-M9.1-NAVIGATION-CONTRACT-FOUNDATION.md,Platform,Documentation/Architecture,M9.1 cross-stream Navigation Contract PCR
 tests/m9.1-navigation-contract-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.1 browserless Navigation Contract adapter Deep Link and load-order guard
 tests/m9.3-navigation-history-policy-foundation.test.cjs,Shared Tests,Test/Guardrail,M9.3 browserless History policy Web adapter and Consumer adoption guard
+core/runtime/runtime-signal-policy-core.js,Platform,Shared Runtime,M9.4 browserless Auth Lifecycle Network transition and resume policy
+app/adapters/runtime-signal-web-adapter.js,Platform,Adapter/Web,M9.4 AuthSession Lifecycle Network Platform-Port binding
+docs/modularization/PCR-M9.4-RUNTIME-SIGNALS-RESUME-COORDINATION.md,Platform,Documentation/Architecture,M9.4 measured runtime signal and resume scope lock
+tests/m9.4-runtime-signals-resume-coordination.test.cjs,Shared Tests,Test/Guardrail,M9.4 browserless runtime signal load-order port and Consumer adoption guard
