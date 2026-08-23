@@ -1030,3 +1030,33 @@ Preview 13.82.36 and the initial CRLF-form Production 13.82.38 sample remain rec
 
 M9 is **COMPLETE / CLOSED**. M10 requires a new read-only baseline and explicit scope lock from the synchronized M9 marker.
 <!-- LUVIA:M9:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M10:FINAL:CLOSEOUT:START -->
+## M10 Overlay Host and Interaction Boundary — COMPLETE / CLOSED
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.40 / 4.82.40**
+
+Technical closeout / Integration / Production: `c879d63de29ca7864a23ece2452702faf0c04362` / `f42a1bad295475314095d8f5b01ce6e3b25d4a0f` / `1110ad8d9b63d6c970f37bc05cb6f5db1791f16e`
+
+Measured final result:
+
+- browserless `overlay-host.v1`: **PASS**, with no DOM, browser storage, navigation or Domain Truth;
+- one canonical Web DOM host owns stack, focus, Escape/Back, inertness, safe areas, scroll lock and cleanup;
+- 211/211 active local script references resolved;
+- six remaining `document.body.append/appendChild` sites are explicitly classified;
+- global `keydown` ownership: exactly **1**, in `core/ui/ui-manager.js`;
+- actively reachable private modal stacks: **0 measured**;
+- Trip, Places, Booking, Media, Identity, Intelligence and Journey truth moves: **NONE**;
+- Timeline/Journey: separately classified cross-domain aggregator and physical Core candidate;
+- Safe Regression: **66/66 PASS**;
+- NFR-0: **3/3 PASS**;
+- Integration `ec418361-2592-428c-bbd0-a9658a2d3e3f`: **24/24 exact**, **5/5 privacy**, **25/25 authenticated F5**, nested overlay depth semantics, console **0/0**;
+- Production version/deployment `860f485b-3321-4348-93a9-69145cd87562` / `077c28b5-4f7e-4da8-aa11-b3c91b69d091`: **100%**, **24/24 exact**, **5/5 privacy**, **25/25 authenticated F5**, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+The rejected CRLF archive was never uploaded. The accepted LF-clean archive passed local and deployed raw Git-blob equality. The rejected `/index.html` Preview sample was a correctly classified canonical 307 redirect. No failed sample is rewritten as success.
+
+No database, schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change or Domain Truth reassignment occurred. M10 is **COMPLETE / CLOSED**. M10.5 Experience Core remains reserved and requires its own read-only baseline.
+<!-- LUVIA:M10:FINAL:CLOSEOUT:END -->

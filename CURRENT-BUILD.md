@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M10 Overlay Host & Interaction Boundary**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 TECHNICALLY COMPLETE / IN PRODUCTION ACCEPTANCE; M10.5 EXPERIENCE CORE RESERVED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 EXPERIENCE CORE RESERVED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1793,3 +1793,29 @@ Rejected evidence remains explicit: Preview 13.82.36 exposed one unauthenticated
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth reassignment or Timeline/Journey reclassification occurred. M10 begins only after eight-stream synchronization on the final documentation marker.
 <!-- LUVIA:M9:FINAL:CLOSEOUT:END -->
+
+<!-- LUVIA:M10:FINAL:CLOSEOUT:START -->
+## M10 Final — Overlay Host and Interaction Boundary
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Runtime App / Core:** 13.82.40 / 4.82.40
+
+**Technical closeout:** `c879d63de29ca7864a23ece2452702faf0c04362`
+
+**Integration / Production runtime:** `f42a1bad295475314095d8f5b01ce6e3b25d4a0f` / `1110ad8d9b63d6c970f37bc05cb6f5db1791f16e`
+
+M10 establishes one browserless `overlay-host.v1` policy and one Web DOM compatibility host. The host owns overlay stacking, focus containment and restoration, Escape/Back dismissal, background inertness, safe-area presentation, scroll locking and navigation/session cleanup; it owns no Domain Truth. Native clients can bind the same runtime-neutral entries to native sheets and dialogs.
+
+Trip Experience, Trip Join, Places Experience, Intelligence surfaces, Albums, Gallery, Memory Worlds, Consumer flows, Booking sheets, Identity Profile, Guided Discovery, Trip Creator, Module Manager, Places detail/photo/Restaurant surfaces and the separately classified Journey/Timeline overlays now use the common host. Journey/Timeline remains a cross-domain aggregator and physical extraction candidate; it was not reclassified as Places.
+
+The final active-runtime guard resolved all 211 referenced local JavaScript assets, classified all six remaining body-append sites, and proves exactly one global keydown owner: `core/ui/ui-manager.js`. No measured actively reachable private modal stack remains. Inline handlers and Web compatibility bindings remain measured migration debt, not falsely reported as modal ownership.
+
+Safe Regression is **66/66 PASS** and NFR-0 is **3/3 PASS**. Integration Preview version `ec418361-2592-428c-bbd0-a9658a2d3e3f` passed **24/24 byte-exact assets**, **5/5 privacy**, **25/25 authenticated F5**, product-surface and nested-stack acceptance with final depth zero and console **0/0**.
+
+Production version `860f485b-3321-4348-93a9-69145cd87562` is at 100% in deployment `077c28b5-4f7e-4da8-aa11-b3c91b69d091`. Production passed **24/24 byte-exact assets**, **5/5 privacy**, **25/25 authenticated F5** at **3.213–5.943 seconds** (average **3.564 seconds**), active Paris Trip/version retention, nested overlay semantics and console **0/0**.
+
+Rejected evidence remains explicit: the first Preview `/index.html` sample was a canonical 307 redirect, not a byte mismatch; the first local Production package contained CRLF checkout bytes, failed raw equality 0/24 and was never uploaded. Final deployment causation is claimed only for the explicitly uploaded LF-clean Production version and deployment above.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret change, manual Cloudflare configuration change, foreign Domain Truth move or Journey/Timeline ownership reassignment occurred. M10 is **COMPLETE / CLOSED**. M10.5 requires a fresh Experience ownership, token, component and composition baseline before mutation.
+<!-- LUVIA:M10:FINAL:CLOSEOUT:END -->
