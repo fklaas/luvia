@@ -26,17 +26,9 @@ for (const forbidden of [
   );
 }
 
-const listeners = new Map();
 const registrations = [];
 
-const window = {
-  addEventListener(name, handler) {
-    if (!listeners.has(name)) listeners.set(name, new Set());
-    listeners.get(name).add(handler);
-  },
-  removeEventListener(name, handler) {
-    listeners.get(name)?.delete(handler);
-  },
+const context = {
   LuviaGlobalContracts: {
     register(definition) {
       registrations.push(definition);
@@ -44,8 +36,7 @@ const window = {
   }
 };
 
-vm.runInNewContext(source, {
-  window,
+Object.assign(context, {
   Object,
   Array,
   Set,
@@ -56,12 +47,14 @@ vm.runInNewContext(source, {
   Boolean,
   Date,
   console
-}, { filename: adapterPath });
+});
 
-const api = window.LuviaIntelligenceContractV1;
+vm.runInNewContext(source, context, { filename: adapterPath });
+
+const api = context.LuviaIntelligenceContractV1;
 
 assert.ok(api, 'LuviaIntelligenceContractV1 missing');
-assert.equal(window.LuviaIntelligenceContract, api);
+assert.equal(context.LuviaIntelligenceContract, api);
 assert.equal(api.contractId, 'intelligence.v1');
 assert.equal(api.version, '1');
 assert.equal(api.runtimeVersion, '1.0.0');

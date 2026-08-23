@@ -4,7 +4,7 @@
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
   const RUNTIME_VERSION = '1.0.0';
-  const root = window;
+  const root = globalThis;
 
   const EVENTS = Object.freeze([
     'ai.changed',
@@ -132,26 +132,24 @@
       );
     }
 
-    const bindings = [
-      ['luvia:ai-changed', 'ai.changed'],
-      ['luvia:ai-proposal-changed', 'ai.proposal.changed'],
-      ['luvia:ai-memory-changed', 'ai.memory.changed']
-    ].map(([sourceEvent, name]) => {
-      const handler = event => listener(immutable({
+    const subscriptions = [];
+    const bind = (provider, name, project) => {
+      if (typeof provider?.subscribe !== 'function') return;
+      const unsubscribe = provider.subscribe((value, reason) => listener(immutable({
         name,
         version: VERSION,
         source: 'intelligence',
         occurredAt: new Date().toISOString(),
-        detail: domainCore().sanitize(event?.detail || {})
-      }));
+        detail: domainCore().sanitize(project(value, reason))
+      })));
+      if (typeof unsubscribe === 'function') subscriptions.push(unsubscribe);
+    };
 
-      root.addEventListener(sourceEvent, handler);
-      return [sourceEvent, handler];
-    });
+    bind(root.LuviaAI, 'ai.changed', value => value || {});
+    bind(root.LuviaAIProposals, 'ai.proposal.changed', (proposal, reason) => ({ reason, proposal }));
+    bind(root.LuviaAIMemory, 'ai.memory.changed', (snapshot, reason) => ({ reason, snapshot }));
 
-    return () => bindings.forEach(([name, handler]) =>
-      root.removeEventListener(name, handler)
-    );
+    return () => subscriptions.splice(0).forEach(unsubscribe => unsubscribe());
   }
 
   function diagnostics() {
