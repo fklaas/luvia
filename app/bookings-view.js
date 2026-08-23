@@ -57,7 +57,7 @@
   }
   async function handleClick(e){
     const open=e.target.closest?.('[data-booking-open-route]');
-    if(open){e.preventDefault();e.stopPropagation();const url=open.dataset.bookingRouteUrl;try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error('Ungültiger Buchungslink.');window.open(parsed.toString(),'_blank','noopener,noreferrer')}catch(error){msg(open.dataset.bookingOpenRoute,error?.message||'Buchungslink konnte nicht geöffnet werden.','error');await load()}return;}
+    if(open){e.preventDefault();e.stopPropagation();const url=open.dataset.bookingRouteUrl;try{window.LuviaOwnerFlowNavigationV1.openBooking(url)}catch(error){msg(open.dataset.bookingOpenRoute,error?.message||'Buchungslink konnte nicht geöffnet werden.','error');await load()}return;}
     const send=e.target.closest?.('[data-booking-send]');
     if(send){e.preventDefault();e.stopPropagation();const id=send.dataset.bookingSend;try{await run(id,'Buchungsanfrage wird sicher versendet …',()=>window.LuviaBooking.sendEmail(id,{}));msg(id,'Buchungsanfrage wurde versendet.','success');await load()}catch{}return;}
     const cancel=e.target.closest?.('[data-booking-cancel]');

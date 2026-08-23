@@ -1,6 +1,6 @@
 # PCR M9.5 – Owner Flow Navigation Convergence
 
-Status: **PLATFORM FOUNDATION IMPLEMENTED / CONSUMER + BOOKING ADOPTION PENDING**
+Status: **PLATFORM + CONSUMER IMPLEMENTED / BOOKING ADOPTION PENDING**
 
 ## Measured baseline
 
@@ -46,3 +46,7 @@ The Platform foundation introduces a browserless immutable policy with no DOM, b
 Auth password login no longer reloads the document. Auth logout clears navigation through the owner-flow boundary. Join URLs preserve unrelated parameters, remove `join`/`invite` only when requested and retain the completion screen until the traveler explicitly opens the joined trip.
 
 The deleted `luvia-app-shell.js` and `legacy/ui/luvia-app-shell.js` had identical SHA-256 `4651AC3D4E921E5CA18AE4B03B6AFB6C72F28723D6CE8D55DFFC99B36B3ABC7E` and zero active reachability.
+
+## Consumer adoption
+
+Public Entry now opens an invitation through `owner-flow-navigation.v1` without assigning a new document URL. The active App Shell listens only for Join-owned flow effects and renders the appropriate signed-out, Join or authenticated surface without becoming the owner of Auth or Booking policy. Consumer Booking external routes use the same validated external boundary and contain no direct `window.open` call.

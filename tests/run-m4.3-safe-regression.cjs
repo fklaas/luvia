@@ -121,6 +121,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Owner Flows',
     test: 'tests/m9.5-owner-flow-navigation-foundation.test.cjs'
   },
+  {
+    category: 'Product / Owner Flows',
+    test: 'tests/m9.5-consumer-owner-flow-adoption.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

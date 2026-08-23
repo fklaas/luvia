@@ -273,7 +273,9 @@
       event.preventDefault();
       const code = String(new FormData(event.currentTarget).get('code') || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
       if (!code) return setMessage(event.currentTarget, 'Bitte gib deinen Einladungscode ein.');
-      const url = new URL(location.href); url.searchParams.set('join', code); location.assign(url.toString());
+      const navigation = window.LuviaOwnerFlowNavigationV1;
+      if (!navigation?.openJoin) return setMessage(event.currentTarget, 'Die Einladungsnavigation ist noch nicht bereit.');
+      navigation.openJoin(code);
     });
   }
 
