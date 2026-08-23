@@ -2421,3 +2421,10 @@ tests/m7.4-remaining-media-consumer-contract-adoption.test.cjs,Shared Tests,Test
 core/media/media-domain-contract-core.js,Media/Memory,Domain/Contract,Browserless Media entity projection Realtime projection and upload coordination rules
 app/adapters/media-storage-web-adapter.mjs,Platform/Media,Adapter/Web,Web MediaStoragePort remote object storage and IndexedDB upload queue adapter
 tests/m7-final-media-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M7 exit guard for browserless Media domain storage ports upload queue and Timeline reservation
+core/identity/identity-domain-contract-core.js,Identity,Domain/Contract,Browserless Identity state projections explicit preference rules and write policy
+core/events/event-contract-core.js,Platform/Events,Foundation/Contract,Browserless versioned cross-core event envelope and notification-intent policy
+app/adapters/identity-platform-web-adapter.js,Platform/Identity,Adapter/Web,Web Storage SecureStorage AuthSession and Notification platform adapters
+app/adapters/event-contract-web-adapter.js,Platform/Events,Adapter/Web,Web compatibility and Kernel bridge for events.v1 envelopes
+app/control-center/identity-center.js,Consumer/Control Center,Experience,Visible Identity and Privacy Center over public contracts and Platform Ports
+app/control-center/identity-center.css,Experience/Control Center,Experience,Responsive accessible visual system for Identity and Privacy Center
+tests/m8-final-identity-event-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M8 exit guard for Identity Event and platform-port boundaries

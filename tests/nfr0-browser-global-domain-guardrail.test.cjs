@@ -220,6 +220,7 @@ for (
 
 const nativeCleanRoots = [
   'core/identity/',
+  'core/events/',
   'core/social/',
   'core/intelligence/',
   'core/experience/',

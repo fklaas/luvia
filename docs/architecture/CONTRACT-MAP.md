@@ -28,7 +28,11 @@ Adapter:
 
 `core/platform/media-contract-adapter.js`
 
-The existence of this adapter does not imply that every historical Media or Memory file already follows the final ownership model.
+Browserless owner contract and upload rules:
+
+`core/media/media-domain-contract-core.js`
+
+M7 closed the Media consumer/storage isolation. Timeline/Journey and owner-internal memory composition remain explicitly classified rather than treated as ordinary consumers.
 
 ### Identity
 
@@ -36,7 +40,25 @@ Adapter:
 
 `core/platform/identity-contract-adapter.js`
 
-Identity-related ownership continues to follow the current ownership documentation until future isolation work locks additional roots.
+M8 locks the Identity root and its browserless read/write rules; Web persistence remains an adapter around that owner state.
+
+Browserless owner state and rules:
+
+`core/identity/identity-domain-contract-core.js`
+
+M8 locks global viewer identity and explicit preferences as Identity truth. Trip context remains Trip-owned; inferred or observed signals remain Intelligence-owned until explicit confirmation.
+
+### Events
+
+Adapter:
+
+`app/adapters/event-contract-web-adapter.js`
+
+Browserless envelope contract:
+
+`core/events/event-contract-core.js`
+
+`events.v1` standardizes event identity, time, owner, source, subject, correlation and causation. Notification eligibility is metadata only; delivery always requires an explicit platform command.
 
 ## Planned Intelligence contract
 

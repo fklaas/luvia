@@ -93,6 +93,10 @@ const SUITE = Object.freeze([
     category: 'Media architecture',
     test: 'tests/m7-final-media-domain-native-readiness.test.cjs'
   },
+  {
+    category: 'Identity / Events architecture',
+    test: 'tests/m8-final-identity-event-native-readiness.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

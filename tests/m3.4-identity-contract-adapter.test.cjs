@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 
 const adapterPath = 'core/platform/identity-contract-adapter.js';
+const domainPath = 'core/identity/identity-domain-contract-core.js';
 
 assert.ok(
   fs.existsSync(adapterPath),
@@ -10,6 +11,7 @@ assert.ok(
 );
 
 const source = fs.readFileSync(adapterPath, 'utf8');
+const domainSource = fs.readFileSync(domainPath, 'utf8');
 
 for (const forbidden of [
   'LuviaSupabaseService',
@@ -187,6 +189,12 @@ const context = {
   queueMicrotask
 };
 
+vm.runInNewContext(domainSource, context, {
+  filename: domainPath
+});
+window.LuviaIdentityDomainContractCoreV1 =
+  context.LuviaIdentityDomainContractCoreV1;
+
 vm.runInNewContext(source, context, {
   filename: adapterPath
 });
@@ -197,7 +205,7 @@ assert.ok(api, 'LuviaIdentityContractV1 missing');
 assert.equal(window.LuviaIdentityContract, api, 'identity alias mismatch');
 assert.equal(api.contractId, 'identity.v1');
 assert.equal(api.version, '1');
-assert.equal(api.runtimeVersion, '1.0.0');
+assert.equal(api.runtimeVersion, '1.1.0');
 assert.equal(Object.isFrozen(api), true);
 
 assert.deepEqual(
@@ -475,7 +483,7 @@ assert.throws(
 
   assert.equal(diagnostics.contractId, 'identity.v1');
   assert.equal(diagnostics.version, '1');
-  assert.equal(diagnostics.runtimeVersion, '1.0.0');
+  assert.equal(diagnostics.runtimeVersion, '1.1.0');
   assert.equal(diagnostics.ready, true);
   assert.equal(diagnostics.providers.profile, true);
   assert.equal(diagnostics.providers.preferences, true);

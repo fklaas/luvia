@@ -18,6 +18,35 @@
       "status": "active",
       "futureDirection": "Declarative category registry and shared Places experience primitives"
     },
+    "media": {
+      "root": "core/media/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "canonical-domain-truth",
+      "contractAdapter": "core/platform/media-contract-adapter.js",
+      "browserlessCore": "core/media/media-domain-contract-core.js",
+      "status": "active"
+    },
+    "identity": {
+      "root": "core/identity/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "canonical-global-identity-and-explicit-preference-truth",
+      "contractAdapter": "core/platform/identity-contract-adapter.js",
+      "browserlessCore": "core/identity/identity-domain-contract-core.js",
+      "status": "active",
+      "excludedTruth": [
+        "trip-context",
+        "intelligence-observed-signals"
+      ]
+    },
+    "events": {
+      "root": "core/events/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "no-domain-truth",
+      "contractAdapter": "app/adapters/event-contract-web-adapter.js",
+      "browserlessCore": "core/events/event-contract-core.js",
+      "status": "foundation",
+      "purpose": "Versioned cross-core event envelopes without notification delivery ownership"
+    },
     "booking": {
       "root": "core/booking/",
       "ownerStream": "feature/booking-core",

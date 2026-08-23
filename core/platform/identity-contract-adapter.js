@@ -3,7 +3,8 @@
 
   const CONTRACT_ID = 'identity.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.0.0';
+  const RUNTIME_VERSION = '1.1.0';
+  const root = window;
 
   const EVENTS = Object.freeze([
     'identity.changed',
@@ -124,7 +125,7 @@
   }
 
   function profileProvider() {
-    const provider = window.LuviaProfileService;
+    const provider = root.LuviaProfileService;
 
     if (
       !provider ||
@@ -139,7 +140,7 @@
   }
 
   function preferencesProvider() {
-    const provider = window.LuviaUserPreferences;
+    const provider = root.LuviaUserPreferences;
 
     if (
       !provider ||
@@ -157,110 +158,30 @@
     return profileProvider().snapshot()?.profile || {};
   }
 
+  function domainCore() {
+    const core = root.LuviaIdentityDomainContractCoreV1;
+    if (!core) throw providerUnavailable('LuviaIdentityDomainContractCoreV1');
+    return core;
+  }
+
   function projectViewer(input = {}) {
-    const output = {};
-
-    for (const field of VIEWER_FIELDS) {
-      output[field] =
-        input[field] === undefined
-          ? null
-          : clone(input[field]);
-    }
-
-    return deepFreeze(output);
+    return domainCore().projectViewer(input);
   }
 
   function projectPublic(input = {}) {
-    return deepFreeze({
-      userId:
-        input.userId === undefined
-          ? null
-          : clone(input.userId),
-
-      displayName:
-        input.displayName === undefined
-          ? null
-          : clone(input.displayName),
-
-      avatarUrl:
-        input.avatarUrl === undefined
-          ? null
-          : clone(input.avatarUrl),
-
-      avatarColor:
-        input.avatarColor === undefined
-          ? null
-          : clone(input.avatarColor)
-    });
+    return domainCore().projectPublic(input);
   }
 
   function projectPreferences(input = {}) {
-    const output = {};
-
-    for (const field of PREFERENCE_FIELDS) {
-      output[field] =
-        input[field] === undefined
-          ? null
-          : clone(input[field]);
-    }
-
-    return deepFreeze(output);
+    return domainCore().projectPreferences(input);
   }
 
   function sanitizeProfilePatch(patch = {}) {
-    if (
-      !patch ||
-      typeof patch !== 'object' ||
-      Array.isArray(patch)
-    ) {
-      throw contractError(
-        'IDENTITY_CONTRACT_PROFILE_PATCH_REQUIRED',
-        'Identity profile patch must be an object.'
-      );
-    }
-
-    const allowed = new Set(PROFILE_WRITE_FIELDS);
-    const output = {};
-
-    for (const [field, value] of Object.entries(patch)) {
-      if (!allowed.has(field)) {
-        throw profileFieldNotAllowed(field);
-      }
-
-      output[field] = clone(value);
-    }
-
-    return output;
+    return domainCore().sanitizeProfilePatch(patch);
   }
 
   function sanitizePreferencePatch(patch = {}) {
-    if (
-      !patch ||
-      typeof patch !== 'object' ||
-      Array.isArray(patch)
-    ) {
-      throw contractError(
-        'IDENTITY_CONTRACT_PREFERENCE_PATCH_REQUIRED',
-        'Identity preference patch must be an object.'
-      );
-    }
-
-    const allowed = new Set(PREFERENCE_FIELDS);
-    const output = {};
-
-    for (const [field, value] of Object.entries(patch)) {
-      if (!allowed.has(field)) {
-        throw contractError(
-          'IDENTITY_CONTRACT_PREFERENCE_FIELD_NOT_ALLOWED',
-          `Identity preference field not allowed: ${field}`,
-          { field }
-        );
-      }
-
-      output[field] = clone(value);
-    }
-
-    return output;
+    return domainCore().sanitizePreferencePatch(patch);
   }
 
   function getViewerIdentity() {
@@ -403,10 +324,21 @@
       payload
     );
 
-    window.dispatchEvent(
+    root.dispatchEvent(
       new CustomEvent(`luvia:${name}`, {
         detail
       })
+    );
+
+    root.LuviaEventContractV1?.publish?.(
+      name,
+      payload,
+      {
+        source,
+        domainContractId: CONTRACT_ID,
+        domainVersion: VERSION,
+        subject: 'viewer'
+      }
     );
 
     return detail;
@@ -430,12 +362,12 @@
     );
   }
 
-  window.addEventListener(
+  root.addEventListener(
     'luvia:profile-changed',
     bridgeProfile
   );
 
-  window.addEventListener(
+  root.addEventListener(
     'luvia:user-preferences-changed',
     bridgePreferences
   );
@@ -454,23 +386,23 @@
     const preferenceHandler = event =>
       listener(event.detail);
 
-    window.addEventListener(
+    root.addEventListener(
       'luvia:identity.changed',
       identityHandler
     );
 
-    window.addEventListener(
+    root.addEventListener(
       'luvia:preferences.changed',
       preferenceHandler
     );
 
     return () => {
-      window.removeEventListener(
+      root.removeEventListener(
         'luvia:identity.changed',
         identityHandler
       );
 
-      window.removeEventListener(
+      root.removeEventListener(
         'luvia:preferences.changed',
         preferenceHandler
       );
@@ -481,20 +413,20 @@
     const providers = deepFreeze({
       profile:
         Boolean(
-          window.LuviaProfileService &&
-          typeof window.LuviaProfileService.snapshot ===
+          root.LuviaProfileService &&
+          typeof root.LuviaProfileService.snapshot ===
             'function'
         ),
 
       preferences:
         Boolean(
-          window.LuviaUserPreferences &&
-          typeof window.LuviaUserPreferences.get ===
+          root.LuviaUserPreferences &&
+          typeof root.LuviaUserPreferences.get ===
             'function'
         ),
 
       travelPreferences:
-        Boolean(window.LuviaTravelPreferences),
+        Boolean(root.LuviaTravelPreferences),
 
       publicIdentityLookup: false
     });
@@ -508,7 +440,13 @@
         providers.preferences &&
         providers.travelPreferences,
       providers,
-      publicIdentityMode: 'self-only'
+      publicIdentityMode: 'self-only',
+      browserlessDomainCore: Boolean(root.LuviaIdentityDomainContractCoreV1),
+      eventEnvelopeContract: Boolean(root.LuviaEventContractV1),
+      platformPorts: ['StoragePort','SecureStoragePort','AuthSessionPort','NotificationPort'].map(id => ({
+        id,
+        registered: Boolean(root.LuviaPlatformPorts?.has?.(id) || root.LuviaIdentityPlatformWebPorts?.[id])
+      }))
     });
   }
 
@@ -531,21 +469,21 @@
     diagnostics
   });
 
-  window.LuviaIdentityContractV1 = api;
-  window.LuviaIdentityContract = api;
+  root.LuviaIdentityContractV1 = api;
+  root.LuviaIdentityContract = api;
 
   if (
-    window.LuviaGlobalContracts &&
-    typeof window.LuviaGlobalContracts.register ===
+    root.LuviaGlobalContracts &&
+    typeof root.LuviaGlobalContracts.register ===
       'function'
   ) {
-    window.LuviaGlobalContracts.register({
+    root.LuviaGlobalContracts.register({
       id: CONTRACT_ID,
       version: VERSION,
       required: false,
       probe: () => ({
         available:
-          Boolean(window.LuviaIdentityContractV1),
+          Boolean(root.LuviaIdentityContractV1),
         detail: 'identity.v1 runtime adapter'
       })
     });

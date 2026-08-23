@@ -3,11 +3,17 @@ const fs=require('fs');
 const vm=require('vm');
 const assert=require('assert');
 async function main(){
- const storage=new Map(); let fail=false; let lastRpc=null;
+ const storage=new Map(); let fail=false; let lastRpc=null; let savedPayload=null;
  const user={id:'11111111-1111-1111-1111-111111111111',email:'fabian@example.test',user_metadata:{display_name:'Fabian'}};
- const client={async rpc(name,payload){lastRpc={name,payload};if(fail)return{data:null,error:new Error('rpc failed')};return{error:null,data:{user_id:user.id,display_name:payload.p_display_name,dietary_preferences:payload.p_dietary_preferences,travel_interests:payload.p_travel_interests,travel_styles:payload.p_travel_styles,activity_preferences:payload.p_activity_preferences,entertainment_preferences:payload.p_entertainment_preferences,dining_preferences:payload.p_dining_preferences,mobility_preferences:payload.p_mobility_preferences,atmosphere_preferences:payload.p_atmosphere_preferences,travel_pace:payload.p_travel_pace,budget_preference:payload.p_budget_preference,family_preferences:payload.p_family_preferences,accessibility_preferences:payload.p_accessibility_preferences,preference_schema_version:payload.p_preference_schema_version,preferences_completed_at:payload.p_preferences_completed_at,preferences_updated_at:payload.p_preferences_updated_at,settings:payload.p_settings,theme_mode:payload.p_theme_mode}}}};
- const window={dispatchEvent(){},ParisAuth:{getState(){return{authenticated:true,user}}},LuviaSupabaseService:{async start(){return client}}};
- const context=vm.createContext({window,console,Date,Math,Object,Array,Set,Map,JSON,String,Number,Boolean,Intl,structuredClone,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},CustomEvent:class{constructor(type,init){this.type=type;this.detail=init?.detail}}});
+ const client={async rpc(name,payload){if(name!=='luvia_get_my_profile'){lastRpc={name,payload};savedPayload=payload}if(fail&&name!=='luvia_get_my_profile')return{data:null,error:new Error('rpc failed')};const value=payload||savedPayload||{};return{error:null,data:{user_id:user.id,display_name:value.p_display_name,dietary_preferences:value.p_dietary_preferences,travel_interests:value.p_travel_interests,travel_styles:value.p_travel_styles,activity_preferences:value.p_activity_preferences,entertainment_preferences:value.p_entertainment_preferences,dining_preferences:value.p_dining_preferences,mobility_preferences:value.p_mobility_preferences,atmosphere_preferences:value.p_atmosphere_preferences,travel_pace:value.p_travel_pace,budget_preference:value.p_budget_preference,family_preferences:value.p_family_preferences,accessibility_preferences:value.p_accessibility_preferences,preference_schema_version:value.p_preference_schema_version,preferences_completed_at:value.p_preferences_completed_at,preferences_updated_at:value.p_preferences_updated_at,settings:value.p_settings,theme_mode:value.p_theme_mode}}}};
+ const window={dispatchEvent(){},ParisAuth:{getState(){return{authenticated:true,user,session:{user}}}},LuviaSupabaseService:{async start(){return client}}};
+ const context=vm.createContext({window,console,Date,Math,Object,Array,Set,Map,JSON,String,Number,Boolean,Intl,structuredClone,CustomEvent:class{constructor(type,init){this.type=type;this.detail=init?.detail}}});
+ vm.runInContext(fs.readFileSync('core/identity/identity-domain-contract-core.js','utf8'),context);
+ window.LuviaIdentityDomainContractCoreV1=context.LuviaIdentityDomainContractCoreV1;
+ window.LuviaIdentityPlatformWebPorts={
+  StoragePort:{get:(key,fallback=null)=>storage.has(key)?storage.get(key):fallback,set:(key,value)=>storage.set(key,value),remove:key=>storage.delete(key)},
+  AuthSessionPort:{snapshot:()=>window.ParisAuth.getState(),requireSession:async()=>({user})}
+ };
  vm.runInContext(fs.readFileSync('core/preferences/preference-schema.js','utf8'),context);
  vm.runInContext(fs.readFileSync('core/profiles/profile-service.js','utf8'),context);
  const api=window.LuviaProfileService;

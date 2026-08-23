@@ -12,42 +12,52 @@
   const LEGACY_PENDING_KEY = 'parisAuthPendingUpgradeV2';
   const LEGACY_SIGNED_OUT_KEY = 'parisAuthExplicitlySignedOutV1';
 
+  const volatileValues = new Map();
+  const volatileStorage = Object.freeze({
+    get:(key,fallback=null)=>volatileValues.has(String(key))?volatileValues.get(String(key)):fallback,
+    set:(key,value)=>{volatileValues.set(String(key),value);return value},
+    remove:key=>volatileValues.delete(String(key))
+  });
+  const secureStorage = () => window.LuviaPlatformPorts?.get?.('SecureStoragePort') || window.LuviaIdentityPlatformWebPorts?.SecureStoragePort || volatileStorage;
+  const appStorage = () => window.LuviaPlatformPorts?.get?.('StoragePort') || window.LuviaIdentityPlatformWebPorts?.StoragePort || volatileStorage;
+
   function migrateLegacyAuthStorage() {
     try {
-      if (localStorage.getItem(PENDING_KEY) == null && localStorage.getItem(LEGACY_PENDING_KEY) != null) {
-        localStorage.setItem(PENDING_KEY, localStorage.getItem(LEGACY_PENDING_KEY));
+      const port=secureStorage();
+      if (port.get(PENDING_KEY, null) == null && port.get(LEGACY_PENDING_KEY, null) != null) {
+        port.set(PENDING_KEY, port.get(LEGACY_PENDING_KEY, null));
       }
-      if (localStorage.getItem(SIGNED_OUT_KEY) == null && localStorage.getItem(LEGACY_SIGNED_OUT_KEY) != null) {
-        localStorage.setItem(SIGNED_OUT_KEY, localStorage.getItem(LEGACY_SIGNED_OUT_KEY));
+      if (port.get(SIGNED_OUT_KEY, null) == null && port.get(LEGACY_SIGNED_OUT_KEY, null) != null) {
+        port.set(SIGNED_OUT_KEY, port.get(LEGACY_SIGNED_OUT_KEY, null));
       }
     } catch (_) {}
   }
   migrateLegacyAuthStorage();
 
   function readPending() {
-    try { return JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); }
+    try { return secureStorage().get(PENDING_KEY, null); }
     catch (_) { return null; }
   }
   function writePending(value) {
     if (value) {
-      const serialized = JSON.stringify(value);
-      localStorage.setItem(PENDING_KEY, serialized);
-      localStorage.setItem(LEGACY_PENDING_KEY, serialized);
+      secureStorage().set(PENDING_KEY, value);
+      secureStorage().set(LEGACY_PENDING_KEY, value);
     } else {
-      localStorage.removeItem(PENDING_KEY);
-      localStorage.removeItem(LEGACY_PENDING_KEY);
+      secureStorage().remove(PENDING_KEY);
+      secureStorage().remove(LEGACY_PENDING_KEY);
     }
   }
   function isExplicitlySignedOut() {
-    return localStorage.getItem(SIGNED_OUT_KEY) === '1' || localStorage.getItem(LEGACY_SIGNED_OUT_KEY) === '1';
+    const values=[secureStorage().get(SIGNED_OUT_KEY, false),secureStorage().get(LEGACY_SIGNED_OUT_KEY, false)];
+    return values.some(value=>value===true||value===1||value==='1');
   }
   function setExplicitlySignedOut(value) {
     if (value) {
-      localStorage.setItem(SIGNED_OUT_KEY, '1');
-      localStorage.setItem(LEGACY_SIGNED_OUT_KEY, '1');
+      secureStorage().set(SIGNED_OUT_KEY, true);
+      secureStorage().set(LEGACY_SIGNED_OUT_KEY, true);
     } else {
-      localStorage.removeItem(SIGNED_OUT_KEY);
-      localStorage.removeItem(LEGACY_SIGNED_OUT_KEY);
+      secureStorage().remove(SIGNED_OUT_KEY);
+      secureStorage().remove(LEGACY_SIGNED_OUT_KEY);
     }
   }
   function isAnonymousUser(user) {
@@ -280,7 +290,7 @@
       setExplicitlySignedOut(false);
       throw result.error;
     }
-    try { sessionStorage.removeItem('luviaActiveModule'); sessionStorage.removeItem('luviaPendingModule'); localStorage.removeItem('luviaActiveModule'); localStorage.removeItem('luviaPendingModule'); history.replaceState(null, '', location.pathname); } catch (_) {}
+    try { const port=appStorage();port.remove('luviaActiveModule',{scope:'session'});port.remove('luviaPendingModule',{scope:'session'});port.remove('luviaActiveModule');port.remove('luviaPendingModule');history.replaceState(null, '', location.pathname); } catch (_) {}
     await setFromSession(null, 'SIGNED_OUT');
   }
   function onChange(fn) {

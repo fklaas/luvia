@@ -166,7 +166,12 @@ const sharingPort=Object.freeze({
   }
 });
 
+const identityPorts=root.LuviaIdentityPlatformWebPorts||{};
 const registry=createPlatformPortRegistry({
+  ...(identityPorts.StoragePort?{StoragePort:identityPorts.StoragePort}:{}),
+  ...(identityPorts.SecureStoragePort?{SecureStoragePort:identityPorts.SecureStoragePort}:{}),
+  ...(identityPorts.AuthSessionPort?{AuthSessionPort:identityPorts.AuthSessionPort}:{}),
+  ...(identityPorts.NotificationPort?{NotificationPort:identityPorts.NotificationPort}:{}),
   LocationPort:locationPort,
   PermissionPort:permissionPort,
   NetworkPort:networkPort,

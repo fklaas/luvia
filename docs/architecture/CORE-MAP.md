@@ -58,6 +58,50 @@ Owner stream: `feature/booking-core`
 
 Role: Booking truth, reservation lifecycle, mutations, provider integration and recovery.
 
+### Media
+
+Root: `core/media/`
+
+Owner stream: `feature/platform-core`
+
+Role: canonical Media truth, asset metadata, Media lifecycle and upload coordination.
+
+Browserless domain surface: `core/media/media-domain-contract-core.js`
+
+Public boundary: `core/platform/media-contract-adapter.js`
+
+Web object storage and offline queue adapter: `app/adapters/media-storage-web-adapter.mjs`
+
+### Identity
+
+Root: `core/identity/`
+
+Owner stream: `feature/platform-core`
+
+Role: canonical global viewer identity and explicitly confirmed preference truth.
+
+Browserless state/rules surface: `core/identity/identity-domain-contract-core.js`
+
+Public boundary: `core/platform/identity-contract-adapter.js`
+
+Web platform adapter: `app/adapters/identity-platform-web-adapter.js`
+
+Trip context is not Identity truth. Observed or inferred preference signals are Intelligence-owned until a user explicitly confirms them.
+
+### Events
+
+Root: `core/events/`
+
+Owner stream: `feature/platform-core`
+
+Role: versioned cross-core event envelopes and causal metadata; owns no domain truth.
+
+Browserless envelope surface: `core/events/event-contract-core.js`
+
+Public Web boundary: `app/adapters/event-contract-web-adapter.js`
+
+Domain Events never directly trigger browser or native notifications. Delivery requires an explicit `NotificationPort` command.
+
 ## Foundation cores
 
 ### Experience
@@ -79,14 +123,6 @@ Owner stream: `feature/intelligence-core`
 Role: reasoning, orchestration, AI capabilities, Intelligence-specific memory, recommendations and proactive intelligence.
 
 Domain truth ownership: Intelligence-specific state only.
-
-## Existing contracted domains
-
-Media and Identity already have contract-adapter foundations under `core/platform/`.
-
-Their full future core-root / stream topology is not redefined by M4.5.3.
-
-Until a dedicated ownership migration locks those boundaries, file-level ownership remains authoritative through `docs/modularization/FILE-OWNERSHIP.csv`.
 
 ## Reserved architecture
 
