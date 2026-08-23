@@ -21,6 +21,12 @@ async function main(){
       async update(patch,options){updates.push({patch,options});return patch}
     }
   };
+  window.LuviaIdentityContractV1={
+    getViewerIdentity(){return{userId:'user-1'}},
+    getPreferences(){return window.LuviaUserPreferences.get()},
+    commands:{updatePreferences:(patch,options)=>window.LuviaUserPreferences.update(patch,options)}
+  };
+  window.LuviaTripContractV1={getContext(){return{tripId:'trip-1'}}};
   const context=vm.createContext({window,console,Date,Math,Object,Array,Map,Set,JSON,String,Number,Boolean,Promise,CustomEvent:class{constructor(type,init){this.type=type;this.detail=init?.detail}}});
   vm.runInContext(fs.readFileSync('core/ai/ai-memory-service.js','utf8'),context);
   await window.LuviaAIMemory.confirmSignal(signal);

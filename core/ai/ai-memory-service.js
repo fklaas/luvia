@@ -6,8 +6,8 @@
   let state = {signals:[], loaded:false, loading:false, error:null, updatedAt:null};
 
   const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
-  const userId = () => window.ParisAuth?.getState?.()?.user?.id || null;
-  const tripId = () => window.LuviaTripContext?.getActiveTrip?.()?.id || window.LuviaTripContext?.getActiveTrip?.()?.tripId || null;
+  const userId = () => window.LuviaIdentityContractV1?.getViewerIdentity?.()?.userId || null;
+  const tripId = () => window.LuviaTripContractV1?.getContext?.()?.tripId || null;
   const text = value => String(value ?? '').trim();
   const values = value => [...new Set((Array.isArray(value) ? value : [value]).map(text).filter(Boolean))];
 
@@ -117,7 +117,7 @@
     const target = CATEGORY_TARGETS[category];
     const label = text(signal.value?.label || signal.value?.value || signal.label);
     if (!target || !label) throw new Error('AI_SIGNAL_NOT_CONFIRMABLE');
-    const current = window.LuviaUserPreferences?.get?.() || {};
+    const current = window.LuviaIdentityContractV1?.getPreferences?.('self') || {};
     if (target.type === 'array') return {[target.key]:values([...(current[target.key] || []), label])};
     if (target.type === 'scalar') return {[target.key]:label};
     const currentObject = current[target.key] && typeof current[target.key] === 'object' ? current[target.key] : {};
@@ -126,7 +126,9 @@
 
   async function confirmSignal(signal={}){
     const patch = preferencePatch(signal);
-    await window.LuviaUserPreferences.update(patch, {reason:'ai-signal-confirmed'});
+    const command = window.LuviaIdentityContractV1?.commands?.updatePreferences;
+    if (typeof command !== 'function') throw new Error('IDENTITY_PREFERENCE_COMMAND_UNAVAILABLE');
+    await command(patch, {reason:'ai-signal-confirmed'});
     const updated = await updateSignalStatus(signal, 'confirmed');
     await recordInteraction({
       capability:'memory.confirm',
@@ -171,7 +173,7 @@
   async function learnFromEvent(event={}){
     try {
       await recordInteraction(event);
-      const result = await window.LuviaAI?.run?.('memory.extract', {input:event}, {fallback:true});
+      const result = await window.LuviaIntelligenceContractV1?.run?.('memory.extract', {input:event}, {fallback:true});
       for (const signal of result?.data?.signals || []) await recordSignal(signal, {capability:'memory.extract'});
       return result;
     } catch (error) {

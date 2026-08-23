@@ -1,7 +1,15 @@
-(() => {'use strict';const VERSION='4.19.1';const domains=new Map();const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));function register(def={}){if(!def.id)throw new Error('AI_DOMAIN_ID_REQUIRED');const item=Object.freeze({id:def.id,description:def.description||'',capabilities:[...(def.capabilities||[])],tools:[...(def.tools||[])],events:[...(def.events||[])],contracts:{...(def.contracts||{})}});domains.set(item.id,item);return item}[
-{id:'journey',capabilities:['dashboard.brief','brain.ask','timeline.propose'],tools:['journey.context','journey.events','journey.reservations'],events:['luvia:journey-context-changed']},
-{id:'places',capabilities:['discovery.plan','discovery.rank'],tools:['journey.context','preferences.current','places.saved'],contracts:{placeContractsRequired:true,providerFactsAuthoritative:true}},
-{id:'move',capabilities:['discovery.plan','discovery.rank'],tools:['journey.context','preferences.current'],contracts:{timelineForbidden:true,providerFactsAuthoritative:true}},
-{id:'timeline',capabilities:['timeline.propose'],tools:['journey.context','journey.events'],contracts:{writesRequireConfirmation:true}},
-{id:'future',capabilities:[],tools:['journey.context'],contracts:{registrationRequired:true}}
-].forEach(register);function get(id){return clone(domains.get(String(id))||null)}function list(){return[...domains.values()].map(clone)}function diagnostics(){return{version:VERSION,count:domains.size,domains:list()}}window.LuviaAIDomains=Object.freeze({version:VERSION,register,get,list,diagnostics});})();
+(() => {
+  'use strict';
+  const VERSION='4.19.1';
+  const root=globalThis.window||globalThis;
+  const core=root.LuviaIntelligenceDomainContractCoreV1;
+  if(!core)throw new Error('INTELLIGENCE_DOMAIN_CORE_REQUIRED');
+  const registry=core.createDomainRegistry();
+  root.LuviaAIDomains=Object.freeze({
+    version:VERSION,
+    register:registry.register,
+    get:registry.get,
+    list:registry.list,
+    diagnostics:()=>Object.freeze({...registry.diagnostics(),version:VERSION,ownerCore:core.runtimeVersion})
+  });
+})();

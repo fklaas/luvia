@@ -1,1 +1,16 @@
-(() => {'use strict';const VERSION='4.19.1';const records=new Map();const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));function put(items=[],meta={}){for(const item of items||[]){if(!item?.id)continue;records.set(String(item.id),Object.freeze({...clone(item),meta:{...(item.meta||{}),...meta},storedAt:new Date().toISOString()}))}return records.size}function get(id){return clone(records.get(String(id))||null)}function resolve(ids=[]){return ids.map(get).filter(Boolean)}function clear(){records.clear()}function diagnostics(){const byKind={};for(const r of records.values())byKind[r.kind]=(byKind[r.kind]||0)+1;return{version:VERSION,count:records.size,byKind}}window.LuviaAIEvidence=Object.freeze({version:VERSION,put,get,resolve,clear,diagnostics});})();
+(() => {
+  'use strict';
+  const VERSION='4.19.1';
+  const root=globalThis.window||globalThis;
+  const core=root.LuviaIntelligenceDomainContractCoreV1;
+  if(!core)throw new Error('INTELLIGENCE_DOMAIN_CORE_REQUIRED');
+  const state=core.createEvidenceState({now:()=>new Date().toISOString()});
+  root.LuviaAIEvidence=Object.freeze({
+    version:VERSION,
+    put:state.put,
+    get:state.get,
+    resolve:state.resolve,
+    clear:state.clear,
+    diagnostics:()=>Object.freeze({...state.diagnostics(),version:VERSION,ownerCore:core.runtimeVersion})
+  });
+})();

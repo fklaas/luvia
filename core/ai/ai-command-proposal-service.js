@@ -3,8 +3,8 @@
   const VERSION='1.0.0';
   const listeners=new Set();
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
-  const userId=()=>window.ParisAuth?.getState?.()?.user?.id||null;
-  const tripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.id||window.LuviaTripContext?.getActiveTrip?.()?.tripId||null;
+  const userId=()=>window.LuviaIdentityContractV1?.getViewerIdentity?.()?.userId||null;
+  const tripId=()=>window.LuviaTripContractV1?.getContext?.()?.tripId||null;
   const emit=(reason,proposal)=>{listeners.forEach(fn=>{try{fn(clone(proposal),reason)}catch{}});window.dispatchEvent(new CustomEvent('luvia:ai-proposal-changed',{detail:{reason,proposal:clone(proposal)}}))};
   async function create(input={}){
     const uid=userId();if(!uid)throw new Error('AUTH_REQUIRED');

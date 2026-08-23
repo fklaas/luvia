@@ -1,6 +1,8 @@
 /* Build 13.19.1 – provider-independent Luvia model tiers */
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const window={};const context=vm.createContext({window,console,Object,Array,Map,Set,JSON,String,Number,Boolean});
+const window={};const context=vm.createContext({window,console,Object,Array,Map,Set,WeakSet,JSON,String,Number,Boolean});
+vm.runInContext(fs.readFileSync('core/intelligence/intelligence-domain-contract-core.js','utf8'),context);
+window.LuviaIntelligenceDomainContractCoreV1=context.LuviaIntelligenceDomainContractCoreV1;
 vm.runInContext(fs.readFileSync('core/ai/ai-capability-registry.js','utf8'),context);
 vm.runInContext(fs.readFileSync('core/ai/ai-model-router.js','utf8'),context);
 assert.strictEqual(window.LuviaAIModelRouter.resolve('memory.extract').alias,'Luna');

@@ -53,8 +53,10 @@ Before moving an existing service, classify it:
 
 Preserve compatibility until all active consumers have migrated.
 
-## Planned contract
+## Public contract
 
-`LuviaIntelligenceContractV1` is a planned contract, not an existing implementation at M4.5.3.
+`LuviaIntelligenceContractV1` is active from M8.5 through `core/platform/intelligence-contract-adapter.js`.
 
-Do not fabricate runtime success for functionality that has not yet been built.
+The contract may expose Intelligence reads, reasoning and draft-proposal creation. Do not add foreign-domain execution, raw private context, prompts, credentials or provider internals to it.
+
+Keep `intelligence-domain-contract-core.js` browserless and provider-neutral. Web, iOS and Android bindings belong in adapters outside the owner core.

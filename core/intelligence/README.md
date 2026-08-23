@@ -4,7 +4,7 @@
 
 Luvia Intelligence is the cross-domain reasoning and orchestration layer of the application.
 
-It should eventually understand context from the whole Luvia platform without becoming the owner of every domain.
+It understands context from the whole Luvia platform without becoming the owner of every domain.
 
 ## Governing rule
 
@@ -48,7 +48,15 @@ Never:
 
 `Intelligence -> private domain Store / direct foreign DB mutation`
 
-## Planned target structure
+## Current physical foundation
+
+- `intelligence-domain-contract-core.js` owns the browserless `intelligence.v1` capability, domain/tool metadata, model tiers, policy, validation, context-envelope, Intelligence-memory signal, proposal and evidence semantics.
+- `core/platform/intelligence-contract-adapter.js` is the Web compatibility binding.
+- transitional runtime services remain under `core/ai/`, `core/planning/`, `core/recommendations/` and selected adapters until each file is classified and migrated.
+
+The owner core has no runtime, UI, provider SDK, database, network, storage or device dependency. Runtime-specific implementations inject those capabilities outside the physical core.
+
+## Target structure
 
 The target structure will grow with real migration work:
 
@@ -70,17 +78,17 @@ The target structure will grow with real migration work:
 
 Do not generate empty implementation files just to populate this tree.
 
-## Planned public boundary
+## Public boundary
 
-Planned runtime contract:
+Runtime contract:
 
 `LuviaIntelligenceContractV1`
 
-Planned platform adapter:
+Platform adapter:
 
 `core/platform/intelligence-contract-adapter.js`
 
-This contract does not exist yet and must not be faked during foundation work.
+The v1 boundary is additive and active from M8.5. It exposes sanitized reads, reasoning execution and proposal creation. It deliberately exposes no foreign-domain execution command.
 
 ## Migration strategy
 
@@ -99,8 +107,8 @@ Each candidate is first classified as:
 
 Migration phases:
 
-1. stream and boundary foundation
-2. pure Intelligence infrastructure
+1. stream and boundary foundation — complete
+2. pure Intelligence infrastructure — in progress; shared rules and evidence state are adopted
 3. context and orchestration
 4. Intelligence memory
 5. recommendations
