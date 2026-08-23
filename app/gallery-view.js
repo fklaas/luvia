@@ -45,10 +45,7 @@
   let lastClusterInputFingerprint = '';
   let lastMediaRealtimeAt = 0;
   let dayLimit = 10;
-  let modalScrollY = 0;
-  function lockPageScroll(){if(document.body.classList.contains('lv-photo-modal-open'))return;modalScrollY=window.scrollY||0;document.body.style.top=`-${modalScrollY}px`;document.body.classList.add('lv-photo-modal-open');}
-  function unlockPageScroll(){if(!document.body.classList.contains('lv-photo-modal-open'))return;document.body.classList.remove('lv-photo-modal-open');document.body.style.top='';window.scrollTo(0,modalScrollY);}
-  function mountOverlay(overlay){lockPageScroll();document.body.appendChild(overlay);return()=>{overlay.remove();if(!document.querySelector('.lv-photo-overlay'))unlockPageScroll()}}
+  function mountOverlay(overlay,{name='consumer.gallery',initialFocus=null,onClose}={}){const ui=LuviaUI;if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');const mounted=ui.adopt(overlay,{name,kind:'dialog',closeSelector:'[data-close],[data-cancel]',initialFocus,onClose});return(reason='owner')=>mounted.close(reason)}
   const urlCache = new Map();
   const urlFailureCache = new Map();
 
@@ -306,7 +303,7 @@
     const cluster=clusters.find(entry=>String(entry.id)===String(clusterId)); if(!cluster)return;
     const overlay=document.createElement('div'); overlay.className='lv-photo-overlay';
     overlay.innerHTML=`<section class="lv-cluster-dialog lv-title-picker"><button data-close>×</button><span>✨ Luvia Titelfunk</span><h2>Wie soll dieser Fotomoment heißen?</h2><p>Die Auswahl wird bei jedem Öffnen neu gemischt. „Neue Vorschläge“ erzeugt eine frische Runde.</p><div class="lv-title-suggestion-status">Verspielte Titel werden vorbereitet …</div><div class="lv-title-suggestions" data-title-suggestions></div><div class="lv-editor-actions"><button type="button" data-title-refresh>✨ Neue Vorschläge</button><button type="button" data-cancel>Abbrechen</button></div></section>`;
-    const removeOverlay=mountOverlay(overlay),close=()=>removeOverlay();
+    const removeOverlay=mountOverlay(overlay,{name:'consumer.gallery.cluster-title',initialFocus:'[data-title-refresh]'}),close=()=>removeOverlay();
     overlay.querySelector('[data-close]').onclick=close;overlay.querySelector('[data-cancel]').onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
     const render=async()=>{
       const statusNode=overlay.querySelector('.lv-title-suggestion-status'),grid=overlay.querySelector('[data-title-suggestions]'),refresh=overlay.querySelector('[data-title-refresh]');
@@ -330,7 +327,7 @@
     const selected = items.filter(item=>cluster.mediaIds.includes(item.id));
     const overlay=document.createElement('div'); overlay.className='lv-photo-overlay';
     overlay.innerHTML=`<section class="lv-cluster-dialog"><button data-close>×</button><span>✨ Memory Moment</span><h2>${esc(cluster.title||'Gemeinsamer Memory Moment')}</h2><p>${esc(clusterReason(cluster))}</p><div class="lv-cluster-detail-grid">${selected.map(item=>`<button type="button" data-cluster-photo="${esc(item.id)}">${photoVisual(item,`data-photo-image="${esc(item.id)}"`)}</button>`).join('')}</div></section>`;
-    const removeOverlay=mountOverlay(overlay); await hydrateImages(overlay,selected);
+    const removeOverlay=mountOverlay(overlay,{name:'consumer.gallery.cluster'}); await hydrateImages(overlay,selected);
     overlay.querySelector('[data-close]').onclick=()=>removeOverlay(); overlay.onclick=e=>{if(e.target===overlay)removeOverlay()};
     overlay.querySelectorAll('[data-cluster-photo]').forEach(button=>button.onclick=()=>{removeOverlay();openLightbox(button.dataset.clusterPhoto)});
   }
@@ -339,7 +336,7 @@
     let item=items.find(entry=>entry.id===id);if(!item){item=await mediaReads().getMedia(id).catch(()=>null);if(item)items=[...items,item]}if(!item)return;
     const url=await urlFor(item),overlay=document.createElement('div');overlay.className='lv-photo-overlay';
     overlay.innerHTML=`<section class="lv-photo-dialog"><button data-close>×</button><div class="lv-photo-large">${url?`<img class="lv-photo-direct-image" src="${esc(url)}" alt="${esc(displayName(item))}">`:'<p>Bild konnte nicht geladen werden.</p>'}</div><footer><div><strong>${esc(displayName(item))}</strong><small>${esc(fmtDate(item.capturedAt))} · ${esc(fmtTime(item.capturedAt))}</small><small class="lv-photo-location">📍 ${esc(locationName(item))}</small></div><button data-light-download>⬇ Herunterladen</button><button data-light-polaroid>▣ Polaroid des Tages</button><button data-light-fav>${item.favorite?'★ Favorit':'☆ Favorit'}</button><button data-light-edit>✎ Bearbeiten</button></footer></section>`;
-    const removeOverlay=mountOverlay(overlay),close=()=>removeOverlay();overlay.querySelector('[data-close]').onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+    const removeOverlay=mountOverlay(overlay,{name:'consumer.gallery.lightbox'}),close=()=>removeOverlay();overlay.querySelector('[data-close]').onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
     overlay.querySelector('[data-light-download]').onclick=async()=>{try{await downloadPhotoAsset(item)}catch(error){showError(error)}};const pb=overlay.querySelector('[data-light-polaroid]');if(pb)pb.onclick=async()=>{try{await mediaCommands().setPolaroid(item.id,item.dayKey);status('Polaroid des Tages wurde in die Timeline übernommen.','ready')}catch(error){showError(error)}};
     overlay.querySelector('[data-light-fav]').onclick=async()=>{suppressRealtimeUntil=Date.now()+1200;await mediaCommands().toggleFavorite(id);close();await load({silent:true,force:true})};
     overlay.querySelector('[data-light-edit]').onclick=()=>{close();openEditor(id)};
@@ -382,7 +379,7 @@
     if(edit.caption && !(edit.overlays||[]).some(x=>x.type==='text'))state.overlays.push({type:'text',value:edit.caption,x:.5,y:.78,size:.07,rotation:0,schema:'image-v2'});
     state.sticker=''; state.caption=''; overlay.className='lv-photo-overlay';
     overlay.innerHTML=`<section class="lv-editor-dialog lv-editor-pro"><header class="lv-editor-topbar"><div><span>🎨 Luvia Photo Studio</span><strong>Foto bearbeiten</strong></div><button data-close aria-label="Editor schließen">×</button></header><div class="lv-editor-workspace"><div class="lv-editor-preview-shell"><div class="lv-editor-preview frame-${esc(edit.frame||'none')}"><img src="${esc(url)}" alt="${esc(displayName(item))}"><b class="lv-photo-vignette"></b><div class="lv-editor-overlay-stage" data-overlay-stage></div></div></div><aside class="lv-editor-panel">${editorControls(edit)}</aside></div><div class="lv-editor-actions"><button data-reset>Zurücksetzen</button><button data-polaroid ${validPolaroid?'':'disabled'}>Polaroid des Tages</button><button class="primary" data-save>Speichern</button></div></section>`;
-    const removeOverlay=mountOverlay(overlay);
+    const removeOverlay=mountOverlay(overlay,{name:'consumer.gallery.editor',initialFocus:'[data-close]'});
     const preview=overlay.querySelector('.lv-editor-preview'),img=preview.querySelector('img'),vignette=preview.querySelector('.lv-photo-vignette'),overlayStage=preview.querySelector('[data-overlay-stage]');
     const syncOverlayStage=()=>{overlayStage.style.left=`${img.offsetLeft}px`;overlayStage.style.top=`${img.offsetTop}px`;overlayStage.style.width=`${img.offsetWidth}px`;overlayStage.style.height=`${img.offsetHeight}px`;overlayStage.style.transform=`rotate(${Number(state.rotation||0)}deg)`;overlayStage.style.transformOrigin='center';};img.addEventListener('load',()=>requestAnimationFrame(syncOverlayStage));if(img.complete)requestAnimationFrame(syncOverlayStage);img.addEventListener('error',()=>{if(!img.alt)img.alt='Vorschau nicht verfügbar'});new ResizeObserver(()=>syncOverlayStage()).observe(preview);
     overlay.querySelector('[data-ed="frame"]').value=state.frame||''; const nameInput=overlay.querySelector('[data-edit-name]'); if(nameInput) nameInput.value=item.displayName||''; const summary=overlay.querySelector('[data-metadata-summary]'); if(summary) summary.textContent=[item.capturedAt?`${fmtDate(item.capturedAt)} · ${fmtTime(item.capturedAt)}`:'',item.resolvedLocation?.name?`Ort: ${item.resolvedLocation.name}`:item.latitude!=null&&item.longitude!=null?'EXIF-GPS vorhanden, Ort noch nicht benannt':'Kein GPS in der gelieferten Datei',item.captureEvidenceAvailable?'Metadaten verfügbar':''].filter(Boolean).join(' · ');
@@ -408,7 +405,7 @@
     try {
       const proposal=await window.LuviaAIMemoryBridge.analyze(clusterId),overlay=document.createElement('div'); overlay.className='lv-photo-overlay';
       overlay.innerHTML=`<section class="lv-editor-dialog"><button data-close>×</button><span>✨ AI Memory Bridge</span><h2>${esc(proposal.title)}</h2><p>${esc(proposal.explanation)}</p><div class="lv-inline-empty"><b>Warum wurde dieser Moment erkannt?</b><ul>${(proposal.evidenceSummary?.facts||proposal.context?.summary?.facts||[]).map(f=>`<li>${esc(f)}</li>`).join('')}</ul></div>${proposal.actions.map((action,index)=>`<label class="lv-memory-option"><input type="checkbox" data-memory-action="${index}" checked><span><b>${esc(action.label)}</b><small>${Math.round((action.confidence||0)*100)} % Sicherheit</small></span></label>`).join('')}<div class="lv-editor-actions"><button data-cancel>Abbrechen</button><button class="primary" data-confirm>Bestätigen & verknüpfen</button></div></section>`;
-      const removeOverlay=mountOverlay(overlay); const close=()=>removeOverlay(); overlay.querySelector('[data-close]').onclick=close; overlay.querySelector('[data-cancel]').onclick=close;
+      const removeOverlay=mountOverlay(overlay,{name:'consumer.gallery.memory-bridge'}); const close=()=>removeOverlay(); overlay.querySelector('[data-close]').onclick=close; overlay.querySelector('[data-cancel]').onclick=close;
       overlay.querySelector('[data-confirm]').onclick=async()=>{const selected=proposal.actions.filter((_,i)=>overlay.querySelector(`[data-memory-action="${i}"]`)?.checked);await window.LuviaAIMemoryBridge.apply(proposal,{confirmed:true,selectedActions:selected});close();status('Erinnerung wurde bestätigt und verknüpft.','ready')};
     } catch(error) { showError(error); }
   }
@@ -473,8 +470,7 @@
     return new Promise(resolve=>{
       const overlay=document.createElement('div');overlay.className='lv-photo-overlay';
       overlay.innerHTML=`<section class="lv-editor-dialog lv-gallery-clear-dialog"><button data-close aria-label="Schließen">×</button><span>⚠️ Endgültig löschen</span><h2>Galerie vollständig leeren?</h2><p>Alle Fotos dieser Reise werden aus Galerie und Storage gelöscht. Fotomomente, Memory Albums sowie Foto- und Polaroid-Einträge der Timeline verschwinden ebenfalls.</p><div class="lv-gallery-clear-warning"><b>Dieser Vorgang kann nicht rückgängig gemacht werden.</b><small>Tippe <strong>GALERIE LEEREN</strong> ein, um fortzufahren.</small></div><label>Bestätigung<input data-clear-confirm autocomplete="off" placeholder="GALERIE LEEREN"></label><div class="lv-editor-actions"><button data-cancel>Abbrechen</button><button class="danger" data-confirm disabled>Alles endgültig löschen</button></div></section>`;
-      const remove=mountOverlay(overlay),input=overlay.querySelector('[data-clear-confirm]'),confirmButton=overlay.querySelector('[data-confirm]');
-      const finish=value=>{remove();resolve(value)};
+      let settled=false,remove=null;const finish=value=>{if(settled)return;settled=true;remove?.(value?'confirm':'reject');resolve(value)};remove=mountOverlay(overlay,{name:'consumer.gallery.clear',initialFocus:'[data-clear-confirm]',onClose:()=>{if(!settled){settled=true;resolve(false)}}});const input=overlay.querySelector('[data-clear-confirm]'),confirmButton=overlay.querySelector('[data-confirm]');
       overlay.querySelector('[data-close]').onclick=()=>finish(false);overlay.querySelector('[data-cancel]').onclick=()=>finish(false);overlay.onclick=e=>{if(e.target===overlay)finish(false)};
       input.oninput=()=>{confirmButton.disabled=input.value.trim().toUpperCase()!=='GALERIE LEEREN'};
       confirmButton.onclick=()=>finish(true);requestAnimationFrame(()=>input.focus());

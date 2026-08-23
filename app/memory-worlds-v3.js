@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.37.7',BUILD='13.37.7';
+const VERSION='4.38.0',BUILD='13.37.7';
 let host=null,stopCards=null,stopIdentities=null,stopReviews=null,stopVotes=null,stopTrip=null,stopTheme=null,urlCache=new Map(),homeState=null;
 const deckSessionSeed=Math.random().toString(36).slice(2);
 const validColor=v=>/^#[0-9a-f]{6}$/i.test(String(v||'').trim())?String(v).trim().toLowerCase():null;
@@ -140,7 +140,7 @@ function renderStack(key,items,members,index){
   </button><div class="mc-deck-summary">${summaryChips}<span class="mc-deck-summary-status">${esc(status)}</span></div>${cluster?`<div class="mc-deck-curation"><button type="button" data-title-propose="${esc(clusterId)}">Titel vorschlagen${proposals.length?` · ${proposals.length}`:''}</button>${voteAction}${isTripOwner()?`<button type="button" class="danger" data-stack-dissolve="${esc(clusterId)}">Stapel auflösen</button>`:''}</div>`:''}</div>`
 }
 
-function curationModal(html){const root=document.createElement('div');root.className='mc-curation-modal';root.innerHTML=`<div class="mc-curation-dialog">${html}</div>`;document.body.append(root);const close=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)close()});root.querySelectorAll('[data-modal-close]').forEach(b=>b.addEventListener('click',close));return{root,close}}
+function curationModal(html){const root=document.createElement('div');root.className='mc-curation-modal';root.innerHTML=`<div class="mc-curation-dialog">${html}</div>`;const ui=LuviaUI;if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');const mounted=ui.adopt(root,{name:'consumer.memory-worlds.curation',kind:'dialog',closeSelector:'[data-modal-close]'}),close=()=>mounted.close('owner');root.addEventListener('click',e=>{if(e.target===root)close()});root.querySelectorAll('[data-modal-close]').forEach(b=>b.addEventListener('click',close));return{root,close}}
 function openTitleModal(clusterId){const proposals=homeState?.curation?.proposals?.[String(clusterId)]||[],uid=String(me().id||''),own=proposals.find(p=>String(p.user_id)===uid)?.title||'';const m=curationModal(`<button class="mc-modal-x" data-modal-close>×</button><small>EUER STAPEL · TITELIDEE</small><h2>Wie soll dieser Moment heißen?</h2><p>Jeder Mitreisende darf einen Vorschlag machen. Später entscheidet ihr gemeinsam, welcher Titel bleibt.</p><label>Dein Vorschlag<input data-title-input maxlength="90" value="${esc(own)}" placeholder="z. B. Parade, Sonne und schönes Chaos"></label><div class="mc-modal-actions"><button data-modal-close>Abbrechen</button><button class="is-primary" data-save-title>Vorschlag speichern</button></div>`);const input=m.root.querySelector('[data-title-input]');setTimeout(()=>input?.focus(),80);m.root.querySelector('[data-save-title]').onclick=async e=>{const title=input.value.trim();if(!title)return;const b=e.currentTarget;b.disabled=true;try{await window.LuviaMemoryCards.saveTitleProposal(clusterId,title);m.close();await renderHome()}catch(err){b.disabled=false;input.setCustomValidity(err.message||'Speichern nicht möglich');input.reportValidity()}}}
 async function openVotingModal(clusterId){
   const key=`cluster:${clusterId}`,cluster=clusterForKey(key,homeState?.clusters||[]),items=experienceCards(homeState?.grouped?.get(key)||[],cluster),candidates=candidateCards(items,homeState?.reviewSummary);if(!candidates.length)return;
@@ -162,7 +162,7 @@ async function openVotingResults(clusterId){
 
 async function paintCardPhotos(root,cards,media){const map=new Map(media.map(m=>[String(m.id),m]));for(const el of root.querySelectorAll('[data-card-media]')){const m=map.get(String(el.dataset.cardMedia));if(m)await putImg(el,m)}}
 
-function overlay({deck=false}={}){const root=document.createElement('div');root.className=deck?'mc-overlay mc-deck-overlay':'mc-overlay';root.innerHTML='<div class="mc-flow"></div><div class="mc-overlay-nav"><button class="mc-back" aria-label="Zurück">←</button><button class="mc-x" aria-label="Schließen">×</button></div>';document.body.append(root);document.body.classList.add('mc-open');const close=()=>{root.classList.add('closing');setTimeout(()=>{root.remove();document.body.classList.remove('mc-open')},260)};root.querySelector('.mc-x').onclick=close;return{root,flow:root.querySelector('.mc-flow'),back:root.querySelector('.mc-back'),close}}
+function overlay({deck=false,onClose=null}={}){const root=document.createElement('div');root.className=deck?'mc-overlay mc-deck-overlay':'mc-overlay';root.innerHTML='<div class="mc-flow"></div><div class="mc-overlay-nav"><button class="mc-back" aria-label="Zurück">←</button><button class="mc-x" aria-label="Schließen">×</button></div>';const ui=LuviaUI;if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');document.body.classList.add('mc-open');let timer=null,closing=false;const mounted=ui.adopt(root,{name:deck?'consumer.memory-worlds.deck':'consumer.memory-worlds.flow',kind:'sheet',content:root.querySelector('.mc-flow'),closeOnBackdrop:false,closeSelector:'',label:deck?'Memory Moment':'Memory World',onClose:reason=>{if(timer)clearTimeout(timer);document.body.classList.remove('mc-open');onClose?.(reason)}});const close=(delay=260)=>{if(closing||mounted.closed)return;closing=true;root.classList.add('closing');timer=setTimeout(()=>mounted.close('owner'),delay)};root.querySelector('.mc-x').onclick=()=>close();return{root,flow:root.querySelector('.mc-flow'),back:root.querySelector('.mc-back'),close}}
 async function swap(ctx,html,{motion='fade',showBack=true}={}){
   const old=ctx.flow.firstElementChild;
   if(old){old.classList.add('is-leaving');await new Promise(r=>setTimeout(r,180));old.remove()}
@@ -201,8 +201,8 @@ async function openDeck(key,sourceEl){
   const cluster=clusterForKey(key,homeState.clusters);items=experienceCards(items,cluster);const media=cluster?await window.LuviaMemoryAlbums.mediaByIds(cluster.mediaIds):homeState.src.media||[];
   const home=host.querySelector('.mc-home');const decks=[...host.querySelectorAll('.mc-deck')];decks.forEach(d=>d.classList.toggle('is-source',d===sourceEl));home?.classList.add('is-deck-opening');
   await new Promise(r=>setTimeout(r,520));
-  const ctx=overlay({deck:true});ctx.root.classList.add('mc-canvas-overlay');
-  const baseClose=ctx.close;ctx.close=()=>{ctx.root.classList.add('closing');setTimeout(()=>{ctx.root.remove();document.body.classList.remove('mc-open');home?.classList.remove('is-deck-opening');decks.forEach(d=>d.classList.remove('is-source'));},420)};ctx.root.querySelector('.mc-x').onclick=ctx.close;
+  const ctx=overlay({deck:true,onClose:()=>{home?.classList.remove('is-deck-opening');decks.forEach(d=>d.classList.remove('is-source'))}});ctx.root.classList.add('mc-canvas-overlay');
+  const baseClose=ctx.close;ctx.close=()=>baseClose(420);ctx.root.querySelector('.mc-x').onclick=ctx.close;
   const visual=resolveMemoryVisualPalette(items,homeState.members),people=visual.people;
   const [stageA,stageB]=stagePalette(items,homeState.members);ctx.root.style.setProperty('--mc-stage-a',stageA);ctx.root.style.setProperty('--mc-stage-b',stageB);ctx.root.style.setProperty('--mc-stage-trip',tripAccent());
   ctx.back.onclick=()=>ctx.close();
