@@ -21,6 +21,7 @@
 async function run(options={}){
     const started=performance.now(), warnings=[], failedChecks=[];
     const checks={
+      browserlessMediaDomainCore:Boolean(window.LuviaMediaDomainContractCoreV1),
       centralMediaContract:Boolean(window.LuviaMediaContractV1),
       mediaContractReads:Boolean(window.LuviaMediaContractV1?.reads?.listMedia&&window.LuviaMediaContractV1?.reads?.getMedia),
       mediaContractCommands:Boolean(window.LuviaMediaContractV1?.commands?.media?.upload),
@@ -29,7 +30,10 @@ async function run(options={}){
       locationPort:Boolean(platformPort('LocationPort')),
       devicePort:Boolean(platformPort('DevicePort')),
       sharingPort:Boolean(platformPort('SharingPort')),
+      mediaStoragePort:Boolean(platformPort('MediaStoragePort')),
       networkPort:Boolean(platformPort('NetworkPort')),
+      networkTransitions:Boolean(platformPort('NetworkPort')?.subscribe),
+      lifecyclePort:Boolean(platformPort('LifecyclePort')),
       offlineCachePort:Boolean(platformPort('OfflineCachePort')),
       canonicalMediaCore:Boolean(window.LuviaMediaCore),
       mediaMetadata:Boolean(window.LuviaMediaMetadata),
@@ -40,6 +44,11 @@ async function run(options={}){
       timelineCore:Boolean(window.LuviaTimelineCore),
       diagnosticsRegistry:Boolean(window.LuviaServiceRegistry)
     };
+    const mediaCoreDiagnostics=window.LuviaMediaCore?.diagnostics?.()||null;
+    checks.mediaRealtimeOwner=mediaCoreDiagnostics?.checks?.realtimeOwner==='media-core';
+    checks.mediaHydrationBoundary=mediaCoreDiagnostics?.checks?.hydrationBoundary==='media.v1';
+    checks.backgroundUploadAdapterCapable=mediaCoreDiagnostics?.checks?.backgroundUploadAdapterCapable===true;
+    checks.offlineQueueAdapterCapable=mediaCoreDiagnostics?.checks?.offlineQueueAdapterCapable===true;
     const client=window.ParisCloud?.client||window.LuviaSupabase?.client?.()||window.LuviaSupabase?.getClient?.()||null;
     const tripId=options.tripId||tripContract()?.getActiveTrip?.()?.tripId||tripContract()?.getActiveTrip?.()?.id||tripContract()?.getContext?.()?.tripId||null;
     const dependencies={client:Boolean(client),tripId:Boolean(tripId),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)};
@@ -56,8 +65,8 @@ async function run(options={}){
     if(!checks.centralMediaContract) failedChecks.push('centralMediaContract');
     warnings.push('gallery_photos/paris-gallery bleibt nur als lesbarer Legacy-Kompatibilitätspfad; neue Uploads laufen über media/luvia-media.');
     warnings.push('live_moment_status.linked_photo_id bleibt für Altbestände lesbar; neue n:m-Verknüpfungen nutzen live_moment_media.');
-    return {service:'media-readiness',version:VERSION,build:BUILD,status:failedChecks.length?'degraded':'active',ok:failedChecks.length===0,checkedAt:now(),durationMs:elapsed(started),dependencies,checks,failedChecks,warnings,gate:'SMART PHOTO FOUNDATION'};
+    return {service:'media-readiness',version:VERSION,build:BUILD,status:failedChecks.length?'degraded':'active',ok:failedChecks.length===0,checkedAt:now(),durationMs:elapsed(started),dependencies,checks,failedChecks,warnings,gate:'M7 MEDIA DOMAIN NATIVE READINESS'};
   }
-  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaTimelineCore),serviceRegistry:Boolean(window.LuviaServiceRegistry),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true,mediaPickerPort:Boolean(platformPort('MediaPickerPort')),mediaCapturePort:Boolean(platformPort('MediaCapturePort')),locationPort:Boolean(platformPort('LocationPort')),devicePort:Boolean(platformPort('DevicePort')),sharingPort:Boolean(platformPort('SharingPort'))},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'M7 MEDIA NATIVE PORT FOUNDATION'};}
+  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaTimelineCore),serviceRegistry:Boolean(window.LuviaServiceRegistry),mediaDomainCore:Boolean(window.LuviaMediaDomainContractCoreV1),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true,mediaPickerPort:Boolean(platformPort('MediaPickerPort')),mediaCapturePort:Boolean(platformPort('MediaCapturePort')),mediaStoragePort:Boolean(platformPort('MediaStoragePort')),locationPort:Boolean(platformPort('LocationPort')),devicePort:Boolean(platformPort('DevicePort')),sharingPort:Boolean(platformPort('SharingPort')),networkTransitions:Boolean(platformPort('NetworkPort')?.subscribe),lifecyclePort:Boolean(platformPort('LifecyclePort')),backgroundUploadAdapterCapable:true,offlineQueueAdapterCapable:true,realtimeOwner:'media-core',hydrationBoundary:'media.v1'},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'M7 MEDIA DOMAIN NATIVE READINESS'};}
   window.LuviaMediaReadiness=Object.freeze({version:VERSION,build:BUILD,run,diagnostics});
 })();

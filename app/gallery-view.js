@@ -503,15 +503,18 @@
   }
   async function upload(files,{camera=false}={}) {
     const list=[...files]; if(!list.length)return;
+    let queued=0;
     suppressRealtimeUntil=Date.now()+Math.max(15000,list.length*5000);
     let location=window.LuviaPresenceVisitCore?.diagnostics?.()?.lastPosition||null;
     if(camera&&!location) location=await currentLocation();
     status(`${list.length} Foto${list.length===1?'':'s'} werden hochgeladen …`);
     for(let i=0;i<list.length;i++){
       status(`Upload ${i+1}/${list.length}: ${list[i].name||'Foto'}`);
-      await mediaCommands().upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?platformPort('DevicePort')?.info?.()||null:null});
+      const result=await mediaCommands().upload(list[i],{source:camera?'app_camera':'user_upload',captureSource:camera?'app_camera':'file_picker',capturedAt:camera?new Date().toISOString():undefined,captureLocation:location,deviceMetadata:camera?platformPort('DevicePort')?.info?.()||null:null});
+      if(result?.queued)queued++;
     }
-    await load({silent:false,analyze:true,force:true});
+    if(queued<list.length)await load({silent:false,analyze:true,force:true});
+    if(queued)status(`${queued} Foto${queued===1?' wurde':'s wurden'} offline vorgemerkt und wird bei aktiver Verbindung hochgeladen.`,'ready');
     suppressRealtimeUntil=Date.now()+5000;
   }
 

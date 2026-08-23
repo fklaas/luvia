@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='media.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.1.0';
+  const RUNTIME_VERSION='1.2.0';
 
   function providerError(provider){
     const error=new Error(`Media contract provider unavailable: ${provider}`);
@@ -109,59 +109,13 @@
   }
 
   function projectMedia(item){
-    if(!item)return null;
-
-    const metadata=
-      item.metadata&&typeof item.metadata==='object'
-        ?item.metadata
-        :{};
-
-    return Object.freeze({
-      id:text(item.id),
-      tripId:text(pick(item,'tripId','trip_id')),
-      participantId:text(pick(item,'participantId','participant_id')),
-      type:text(item.type),
-      purpose:text(item.purpose),
-      source:text(item.source),
-      originalName:text(pick(item,'originalName','original_name')),
-      displayName:text(pick(item,'displayName','display_name')),
-      mimeType:text(pick(item,'mimeType','mime_type')),
-      status:text(item.status),
-      capturedAt:text(pick(item,'capturedAt','captured_at')),
-      dayKey:text(pick(item,'dayKey','day_key')),
-      timezone:text(item.timezone),
-      latitude:number(item.latitude),
-      longitude:number(item.longitude),
-      width:number(item.width),
-      height:number(item.height),
-      fileSize:number(pick(item,'fileSize','file_size')),
-      placeId:text(pick(item,'placeId','place_id')),
-      favorite:bool(item.favorite),
-      renderedPreviewAvailable:Boolean(
-        pick(item,'renderedPreviewPath','rendered_preview_path')||
-        metadata.renderedPreviewPath
-      ),
-      mediaKind:text(
-        pick(item,'mediaKind','media_kind')??metadata.mediaKind
-      ),
-      captureEvidenceAvailable:Boolean(
-        metadata.captureEvidence||metadata.exif?.gpsAvailable
-      ),
-      metadataAutoChecked:Boolean(
-        metadata.metadataAutoCheckedAt
-      ),
-      resolvedLocation:projectResolvedLocation(
-        metadata.resolvedLocation
-      ),
-      captureLocationName:text(
-        metadata.captureLocation?.name
-      ),
-      editSettings:projectEditSettings(
-        pick(item,'editSettings','edit_settings')
-      ),
-      createdAt:text(pick(item,'createdAt','created_at')),
-      updatedAt:text(pick(item,'updatedAt','updated_at'))
-    });
+    const core=globalThis.LuviaMediaDomainContractCoreV1;
+    if(!core?.projectPublicMedia){
+      throw providerError(
+        'LuviaMediaDomainContractCoreV1.projectPublicMedia'
+      );
+    }
+    return core.projectPublicMedia(item);
   }
 
   function projectContribution(row){
@@ -363,6 +317,13 @@
     )(item,expiresIn);
   }
 
+  async function download(mediaId,variant='original'){
+    return provider(
+      'LuviaMediaCore',
+      'downloadAsset'
+    )(mediaId,variant);
+  }
+
   async function listPolaroids(){
     const rows=await provider(
       'LuviaMediaCore',
@@ -382,25 +343,13 @@
   }
 
   function projectMediaRealtime(payload={}){
-    const table=text(payload.table);
-    const current=projectMedia(payload.new);
-    const previous=projectMedia(payload.old);
-
-    return Object.freeze({
-      scope:table==='media_day_polaroids'
-        ?'polaroids'
-        :'media',
-      eventType:text(
-        pick(payload,'eventType','event_type','event')
-      ),
-      mediaId:text(
-        current?.id??previous?.id??
-        pick(payload.new,'id','media_id')??
-        pick(payload.old,'id','media_id')
-      ),
-      media:current,
-      previous
-    });
+    const core=globalThis.LuviaMediaDomainContractCoreV1;
+    if(!core?.projectRealtime){
+      throw providerError(
+        'LuviaMediaDomainContractCoreV1.projectRealtime'
+      );
+    }
+    return core.projectRealtime(payload);
   }
 
   async function subscribe(listener){
@@ -461,7 +410,10 @@
         entity:projectMedia(
           result?.entity||result
         ),
-        duplicate:Boolean(result?.duplicate)
+        duplicate:Boolean(result?.duplicate),
+        queued:Boolean(result?.queued),
+        uploadTask:globalThis.LuviaMediaDomainContractCoreV1
+          ?.projectUploadTask?.(result?.uploadTask)||null
       });
     },
 
@@ -471,6 +423,19 @@
           'LuviaMediaCore',
           'update'
         )(mediaId,patch)
+      );
+    },
+
+    async updateLegacyGallery(mediaId,patch={}){
+      return projectMedia(
+        await provider(
+          'LuviaMediaCore',
+          'updateLegacyGallery'
+        )(mediaId,{
+          ...('favorite'in patch?{favorite:Boolean(patch.favorite)}:{}),
+          ...('polaroid'in patch?{polaroid:Boolean(patch.polaroid)}:{}),
+          ...('caption'in patch?{caption:String(patch.caption||'')}: {})
+        })
       );
     },
 
@@ -916,6 +881,7 @@
     getMedia,
     signedUrl,
     signedOriginalUrl,
+    download,
     listPolaroids,
     subscribe,
     listAlbums,
@@ -943,6 +909,7 @@
     runtimeVersion:RUNTIME_VERSION,
 
     ready:Boolean(
+      globalThis.LuviaMediaDomainContractCoreV1&&
       window.LuviaMediaCore&&
       window.LuviaMemoryAlbums&&
       window.LuviaMemoryCards&&
@@ -950,6 +917,9 @@
     ),
 
     providers:Object.freeze({
+      domainCore:Boolean(
+        globalThis.LuviaMediaDomainContractCoreV1
+      ),
       media:Boolean(
         window.LuviaMediaCore
       ),
@@ -978,6 +948,7 @@
     getMedia,
     signedUrl,
     signedOriginalUrl,
+    download,
     listPolaroids,
     subscribe,
     listAlbums,

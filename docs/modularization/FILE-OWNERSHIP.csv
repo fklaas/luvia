@@ -2418,3 +2418,6 @@ tests/m7.1-media-acquisition-native-ports.test.cjs,Shared Tests,Test/Guardrail,M
 tests/m7.2-gallery-media-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.2 guard for Gallery public Media Contract adoption
 tests/m7.3-memory-asset-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.3 guard for Memory Experience public Media asset delivery
 tests/m7.4-remaining-media-consumer-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.4 guard for Smart Photo and AI Memory public Media Contract adoption
+core/media/media-domain-contract-core.js,Media/Memory,Domain/Contract,Browserless Media entity projection Realtime projection and upload coordination rules
+app/adapters/media-storage-web-adapter.mjs,Platform/Media,Adapter/Web,Web MediaStoragePort remote object storage and IndexedDB upload queue adapter
+tests/m7-final-media-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M7 exit guard for browserless Media domain storage ports upload queue and Timeline reservation

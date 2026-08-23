@@ -66,9 +66,9 @@ assert.deepStrictEqual(
     aiMemory: 0,
     memoryOwners: 4,
     timeline: 2,
-    legacySync: 10
+    legacySync: 0
   },
-  'Current M7 guards must preserve owner, Timeline, and legacy-sync scopes while allowing approved later consumer adoption'
+  'Current M7 guards must preserve owner and Timeline scopes while retaining approved later consumer/legacy adoption'
 );
 
 console.log('M7.3 Memory Asset Delivery Contract Adoption: PASS');

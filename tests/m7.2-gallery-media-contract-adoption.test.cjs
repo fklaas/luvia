@@ -8,6 +8,7 @@ const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const gallery=read('app/gallery-view.js');
 const adapter=read('core/platform/media-contract-adapter.js');
+const domain=read('core/media/media-domain-contract-core.js');
 const clustering=read('core/media/media-clustering.js');
 
 assert.strictEqual(
@@ -67,17 +68,22 @@ assert.strictEqual(
 );
 
 for(const token of [
-  "const RUNTIME_VERSION='1.1.0'",
-  'renderedPreviewAvailable',
-  'captureEvidenceAvailable',
-  'metadataAutoChecked',
-  'resolvedLocation:projectResolvedLocation',
+  "const RUNTIME_VERSION='1.2.0'",
   'async function listPolaroids',
   'async function subscribe(listener)',
   'async saveRenderedPreview',
   'async clearGallery'
 ]){
   assert(adapter.includes(token),`media.v1 missing additive M7.2 surface: ${token}`);
+}
+
+for(const token of [
+  'renderedPreviewAvailable',
+  'captureEvidenceAvailable',
+  'metadataAutoChecked',
+  'resolvedLocation:projectResolvedLocation'
+]){
+  assert(domain.includes(token),`browserless Media projection missing M7.2 field: ${token}`);
 }
 
 for(const leak of [
@@ -103,4 +109,4 @@ assert(
 console.log('M7.2 Gallery Media Contract Adoption: PASS');
 console.log('Gallery direct LuviaMediaCore refs: 19 -> 0');
 console.log('Clustering / AI Memory / Timeline scope: preserved');
-console.log('media.v1 runtime surface: 1.1.0');
+console.log('media.v1 runtime surface: 1.2.0');

@@ -8,6 +8,10 @@ const adapterPath=path.join(
   root,
   'core/platform/media-contract-adapter.js'
 );
+const domainPath=path.join(
+  root,
+  'core/media/media-domain-contract-core.js'
+);
 
 assert(
   fs.existsSync(adapterPath),
@@ -15,6 +19,7 @@ assert(
 );
 
 const source=fs.readFileSync(adapterPath,'utf8');
+const domainSource=fs.readFileSync(domainPath,'utf8');
 
 for(const forbidden of [
   'LuviaSupabase',
@@ -131,6 +136,10 @@ window.LuviaMediaCore={
     return `original:${ttl}`;
   },
 
+  async downloadAsset(){
+    return new Blob(['media']);
+  },
+
   async upload(){
     return {
       entity:rawMedia,
@@ -139,6 +148,10 @@ window.LuviaMediaCore={
   },
 
   async update(){
+    return rawMedia;
+  },
+
+  async updateLegacyGallery(){
     return rawMedia;
   },
 
@@ -353,6 +366,16 @@ const context={
 vm.createContext(context);
 
 vm.runInContext(
+  domainSource,
+  context,
+  {
+    filename:'media-domain-contract-core.js'
+  }
+);
+window.LuviaMediaDomainContractCoreV1=
+  context.LuviaMediaDomainContractCoreV1;
+
+vm.runInContext(
   source,
   context,
   {
@@ -381,7 +404,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   api.runtimeVersion,
-  '1.1.0'
+  '1.2.0'
 );
 
 assert(
@@ -405,6 +428,7 @@ assert.deepStrictEqual(
     'getMedia',
     'signedUrl',
     'signedOriginalUrl',
+    'download',
     'listPolaroids',
     'subscribe',
     'listAlbums',
@@ -428,6 +452,7 @@ assert.deepStrictEqual(
   [
     'upload',
     'update',
+    'updateLegacyGallery',
     'reanalyze',
     'toggleFavorite',
     'setPolaroid',
@@ -486,6 +511,10 @@ assert(
   assert.strictEqual(
     await api.signedOriginalUrl('m1',240),
     'original:240'
+  );
+
+  assert(
+    await api.download('m1','original') instanceof Blob
   );
 
   assert.strictEqual(
@@ -680,6 +709,7 @@ assert(
   assert.deepStrictEqual(
     {...diagnostics.providers},
     {
+      domainCore:true,
       media:true,
       albums:true,
       cards:true,

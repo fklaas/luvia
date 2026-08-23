@@ -37,7 +37,38 @@ const permissionPort=Object.freeze({
     try{return (await root.navigator.permissions.query({name})).state||'unknown'}catch{return'unknown'}
   }
 });
-const networkPort=Object.freeze({isOnline:()=>root.navigator?.onLine!==false});
+const networkPort=Object.freeze({
+  isOnline:()=>root.navigator?.onLine!==false,
+  subscribe(listener){
+    if(typeof listener!=='function')return()=>{};
+    const publish=()=>listener(Object.freeze({online:root.navigator?.onLine!==false,at:new Date().toISOString()}));
+    root.addEventListener?.('online',publish);
+    root.addEventListener?.('offline',publish);
+    publish();
+    return()=>{
+      root.removeEventListener?.('online',publish);
+      root.removeEventListener?.('offline',publish);
+    };
+  }
+});
+const lifecycleState=()=>root.document?.visibilityState==='hidden'?'background':'active';
+const lifecyclePort=Object.freeze({
+  state:lifecycleState,
+  subscribe(listener){
+    if(typeof listener!=='function')return()=>{};
+    const publish=()=>listener(Object.freeze({state:lifecycleState(),at:new Date().toISOString()}));
+    const background=()=>listener(Object.freeze({state:'background',at:new Date().toISOString()}));
+    root.document?.addEventListener?.('visibilitychange',publish);
+    root.addEventListener?.('pageshow',publish);
+    root.addEventListener?.('pagehide',background);
+    publish();
+    return()=>{
+      root.document?.removeEventListener?.('visibilitychange',publish);
+      root.removeEventListener?.('pageshow',publish);
+      root.removeEventListener?.('pagehide',background);
+    };
+  }
+});
 const externalNavigationPort=Object.freeze({
   open(url){
     const parsed=new URL(url,root.location?.href);
@@ -139,6 +170,7 @@ const registry=createPlatformPortRegistry({
   LocationPort:locationPort,
   PermissionPort:permissionPort,
   NetworkPort:networkPort,
+  LifecyclePort:lifecyclePort,
   MediaPickerPort:mediaPickerPort,
   MediaCapturePort:mediaCapturePort,
   DevicePort:devicePort,
