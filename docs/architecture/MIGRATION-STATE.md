@@ -821,3 +821,39 @@ Production build/check: `7df7ffbb-7f30-43aa-bd9c-76335dba88a4` / `97023989740`, 
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
 <!-- LUVIA:M7.3:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.4:CLOSEOUT:START -->
+## M7.4 Remaining Media Consumer Contract Adoption — COMPLETE / CLOSED
+
+Date: 2026-08-23
+
+Runtime App/Core: **13.82.21 / 4.82.21**
+
+Feature commit: `dfbeffbe7bbbd003f1a3e72220cd5d1f666768b0`
+
+Runtime release commit: `2f8fe62b71f93643cef474ff002a90bd267bac01`
+
+Measured result:
+
+- Smart Photo Moments direct private Media Core refs: **3 -> 0**;
+- AI Memory direct private Media Core refs: **5 -> 0**;
+- Smart Photo reads/assets: public `media.v1`, ID-only signed asset requests;
+- AI Memory evidence: sanitized public Media projection;
+- AI Media-to-Place writes: public Media-owned `linkPlace` command;
+- Contract version/projection change: **NONE**;
+- Media/Memory/Place/Trip/Intelligence truth move: **NONE**;
+- Media Clustering and Memory owner internals: unchanged;
+- Timeline/Journey: separately classified and unchanged;
+- Safe Regression on Platform, Integration, Main: **46/46 PASS**;
+- Integration Preview: **13/13 exact assets**, **5/5 privacy**, authenticated F5/Gallery, 51 photos, 10 moments, Realtime active, console **0/0**;
+- Production: **13/13 exact assets**, **5/5 privacy**, authenticated F5/Gallery, 51 photos, 10 moments, Realtime active, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Integration Preview version: `0541fd51-4bd3-4e10-8ac0-3bc0d16aafb9`.
+
+Production version at 100%: `2ad42346-348b-4fbe-ba10-e32ede4e71ef`.
+
+Production deployment/build/check: `36f63a2a-8e5e-438e-8323-12f698d8d195` / `193a43c1-3021-46f6-89ff-a417fb3ed1d3` / `97170830238`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. M7 remains in progress.
+<!-- LUVIA:M7.4:CLOSEOUT:END -->

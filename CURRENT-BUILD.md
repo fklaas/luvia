@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M7.4 Remaining Media Consumer Contract Adoption**
 - Channel: **production**
 - Datum: **2026-08-23**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1-M7.3 COMPLETE / CLOSED; M7.4 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 IN PROGRESS; M7.1-M7.4 COMPLETE / CLOSED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1495,3 +1495,29 @@ Production build/check: `7df7ffbb-7f30-43aa-bd9c-76335dba88a4` / `97023989740`, 
 
 No database, schema/RPC, bucket/RLS, Edge Function, secret, or manual Cloudflare deployment/configuration mutation occurred. Smart Photo Moments/Clustering, AI Memory, Memory owner services, legacy Gallery sync, Timeline/Journey, Realtime/hydration ownership, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
 <!-- LUVIA:M7.3:CLOSEOUT:END -->
+
+<!-- LUVIA:M7.4:CLOSEOUT:START -->
+## M7.4 — Remaining Media Consumer Contract Adoption
+
+**Status:** COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+**Closeout:** 2026-08-23
+
+**Runtime App / Core:** 13.82.21 / 4.82.21
+
+**Feature Commit:** `dfbeffbe7bbbd003f1a3e72220cd5d1f666768b0`
+
+**Runtime Release Commit:** `2f8fe62b71f93643cef474ff002a90bd267bac01`
+
+The three Smart Photo Moments and five AI Memory direct private Media Core references are removed. The reachable Paris Legacy/Experience path now consumes public Media reads and ID-only signed assets. Active AI Memory consumes sanitized public Media evidence and uses the Media-owned `linkPlace` command; it no longer borrows the private Media runtime context. Media/Memory truth, owner services, Clustering persistence, and Timeline/Journey classification remain unchanged.
+
+Safe Regression is **46/46 PASS** on Platform, Integration, and Main. Integration Preview and Production each passed **13/13 exact changed/runtime Git blobs**, **5/5 private-path SPA fallback**, authenticated F5, active-Trip retention, Gallery hydration with 51 photos and 10 photo moments, Realtime-active status, and **0/0 browser-console warnings/errors**.
+
+Integration Preview version: `0541fd51-4bd3-4e10-8ac0-3bc0d16aafb9`, alias `integration`, `has_preview=true`.
+
+Production version at 100% traffic: `2ad42346-348b-4fbe-ba10-e32ede4e71ef`.
+
+Production deployment/build/check: `36f63a2a-8e5e-438e-8323-12f698d8d195` / `193a43c1-3021-46f6-89ff-a417fb3ed1d3` / `97170830238`, **SUCCESS**.
+
+No database, schema/RPC, bucket/RLS, Edge Function, secret, manual Production deployment, or Cloudflare configuration mutation occurred. Media Clustering and Memory owner internals, legacy Gallery sync, Timeline/Journey, Realtime/hydration ownership, MediaStorage/background upload, and offline queue remain explicit later M7 scopes.
+<!-- LUVIA:M7.4:CLOSEOUT:END -->
