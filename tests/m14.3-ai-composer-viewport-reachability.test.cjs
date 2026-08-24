@@ -21,6 +21,7 @@ for(const needle of [
   '.lvx-command-suggestions button{',
   '.lvx-button-send-mark{',
   'min-height:var(--luvia-layout-touch-minimum)',
+  '@media(max-height:780px)',
   '@media(max-height:520px)',
   '@media(prefers-reduced-motion:reduce)'
 ])assert.ok(css.includes(needle),`Experience Composer missing ${needle}`);
