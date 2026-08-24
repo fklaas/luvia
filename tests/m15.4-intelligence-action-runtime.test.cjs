@@ -38,6 +38,7 @@ const context={
 context.globalThis=context;
 vm.createContext(context);
 vm.runInContext(read('core/intelligence/intelligence-action-contract-core.js'),context,{filename:'core/intelligence/intelligence-action-contract-core.js'});
+vm.runInContext(read('core/intelligence/intelligence-action-ledger-core.js'),context,{filename:'core/intelligence/intelligence-action-ledger-core.js'});
 vm.runInContext(source,context,{filename:runtimePath});
 
 (async()=>{

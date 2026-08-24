@@ -25,7 +25,7 @@ const core=context.LuviaIntelligenceActionContractCoreV1;
 assert.ok(core,'Action Contract Core missing');
 assert.equal(core.contractId,'intelligence.actions.v1');
 assert.equal(core.version,'1');
-assert.equal(core.listActions().length,6);
+assert.ok(core.listActions().length>=6,'M15 pilot actions must remain registered after additive capability expansion');
 assert.equal(Object.isFrozen(core.listActions()),true);
 assert.equal(core.getAction('places.restaurant.recommend').ownerContract,'places.v1');
 assert.equal(core.getAction('booking.restaurant.open').ownerContract,'booking.v1');

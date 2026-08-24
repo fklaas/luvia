@@ -29,6 +29,8 @@ It understands context from the whole Luvia platform without becoming the owner 
 - evaluation
 - telemetry
 - Intelligence diagnostics
+- action capability and owner-connection diagnostics
+- confirmation, idempotency, receipt and recovery orchestration metadata
 
 ## It must not own
 
@@ -51,6 +53,8 @@ Never:
 ## Current physical foundation
 
 - `intelligence-domain-contract-core.js` owns the browserless `intelligence.v1` capability, domain/tool metadata, model tiers, policy, validation, context-envelope, Intelligence-memory signal, proposal and evidence semantics.
+- `intelligence-action-contract-core.js` owns the browserless `intelligence.actions.v1` registry, R0-R3 policy, rich-result normalization and execution-envelope semantics.
+- `intelligence-action-ledger-core.js` owns the browserless digest-only `intelligence.action-ledger.v1` state machine. It stores no raw action payload and no foreign Domain Truth.
 - `core/platform/intelligence-contract-adapter.js` is the Web compatibility binding.
 - transitional runtime services remain under `core/ai/`, `core/planning/`, `core/recommendations/` and selected adapters until each file is classified and migrated.
 
@@ -89,6 +93,14 @@ Platform adapter:
 `core/platform/intelligence-contract-adapter.js`
 
 The v1 boundary is additive and active from M8.5. It exposes sanitized reads, reasoning execution and proposal creation. It deliberately exposes no foreign-domain execution command.
+
+M16 adds an action-orchestration boundary without changing Domain ownership:
+
+`User gesture -> Intelligence action policy/confirmation -> Owner public command -> receipt/recovery metadata`
+
+The registered M16 surface contains 19 actions across Trip, Places, Booking, Journey, Memory and Identity. R0 reads may auto-run. R1 requires the selected control. R2 and R3 require an explicit confirmation card. An unclear R3 external outcome is never blindly retried and must be reconciled by the Booking owner.
+
+Runtime diagnostics distinguish owner-contract registration, operation availability and ledger state. Registration is not itself proof that every authenticated database/provider operation succeeds live; those paths remain part of integration and production acceptance.
 
 ## Migration strategy
 
