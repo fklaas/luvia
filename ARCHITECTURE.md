@@ -6,28 +6,38 @@ Luvia is evolving from a historically grown application into a modular platform 
 
 The target is not merely file separation. The target is independent evolvability without duplicate truth.
 
-## Eight-stream topology
+## Core-aligned nineteen-stream topology
 
 The machine-readable topology is `config/luvia-streams.json`.
 
-Active streams:
+The active topology contains `main`, `integration`, the non-owning Consumer
+product stream and one explicit owner stream for every active or bindingly
+reserved Core boundary. Trip, Places, Booking, Media, Memory, Identity,
+Events, Journey, Experience, Intelligence, Collaboration, Attention, Travel
+Wallet, Reviews, Admin and Platform therefore have distinct branches and
+worktree mappings.
 
-- `main`
-- `integration`
-- `feature/platform-core`
-- `feature/booking-core`
-- `feature/consumer-experience`
-- `feature/social-experience-graph`
-- `feature/experience-core`
-- `feature/intelligence-core`
+Existing peer branches such as `feature/experience-core` and
+`feature/intelligence-core` remain active; the new domain-aligned branches are
+listed completely in `docs/architecture/STREAM-TOPOLOGY.md`.
 
-The authoritative stream role and worktree mapping lives in the registry. New topology-aware scripts should consume the registry instead of hard-coding a six-stream list.
+The former `feature/social-experience-graph` branch is preserved as historical
+lineage but is not a second Collaboration owner. The canonical future
+Membership owner stream is `feature/collaboration-core`.
+
+The authoritative stream role and worktree mapping lives in the registry.
+Topology-aware scripts must consume the registry instead of hard-coding a
+stream count or branch list.
 
 ## Domain model
 
 Canonical domain truth remains with domain cores.
 
-Current locked roots include Trip, Places and Booking. Experience and Intelligence are new foundation cores with strict non-domain-truth boundaries.
+Current locked roots include Platform Runtime, Trip, Places, Booking, Media,
+Memory, Identity, Events, Journey, Experience and Intelligence. Collaboration,
+Attention, Travel Wallet, Reviews and Admin are bindingly reserved boundaries;
+their registry entries and streams do not falsely claim implemented runtime or
+persistence.
 
 File-level ownership remains governed by `docs/modularization/FILE-OWNERSHIP.csv` where a dedicated core root has not yet been locked.
 
@@ -35,11 +45,13 @@ File-level ownership remains governed by `docs/modularization/FILE-OWNERSHIP.csv
 
 Cross-domain consumers should rely on public contract adapters.
 
-Existing contract foundations include Trip, Places, Media and Identity adapters under `core/platform/`.
+Existing contract foundations include Trip, Places, Booking, Media, Memory,
+Identity, Events, Journey, Experience and Intelligence. Reserved future
+contracts are clearly marked as planned and must not be consumed before their
+browserless owner core and authorization rules exist.
 
-A future Intelligence public contract is planned as `LuviaIntelligenceContractV1` with a platform adapter at `core/platform/intelligence-contract-adapter.js`.
-
-The planned contract is not implemented by this architecture-foundation step.
+Contract adapters may remain under `core/platform/`; this does not transfer
+Domain Truth or implementation ownership back to Platform.
 
 ## Experience architecture
 
@@ -114,6 +126,23 @@ Identity, Social or Intelligence truth.
 Its public boundary is `journey.v1` through `core/platform/journey-contract-adapter.js`.
 
 Journey is a heterogeneous cross-domain aggregator. It may compose read-only Trip, Places, Booking, Media and other owner projections, but it never copies or mutates their canonical truth. `core/places/timeline-core.js` remains an explicit Web/DB compatibility provider behind the public contract until its persistence and presentation responsibilities are decomposed in later measured slices.
+
+## Admin / Governance
+
+Admin is a mandatory reserved Core boundary with owner stream
+`feature/admin-core`. It will own platform-administrative roles, capability
+grants, scopes, policy decisions, approvals, time-boxed break-glass sessions
+and immutable administrative audit receipts.
+
+Identity continues to own the person and authentication context; Collaboration
+continues to own trip/group membership. Admin may reference those owners by ID
+and contract but must not copy their truth. An Admin Experience is a separate,
+server-authorized product surface and never a client-side role flag.
+
+The future implementation is default-deny and server-enforced, prohibits
+self-escalation, protects the last Superadmin, requires step-up authentication
+and dual control for the highest-risk operations, and never allows Intelligence
+to grant itself authority or autonomously perform break-glass actions.
 
 ## Release model
 

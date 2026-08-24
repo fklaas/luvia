@@ -101,7 +101,7 @@ const registry=JSON.parse(read('config/luvia-cores.json'));
 const contractSpec=JSON.parse(read('docs/modularization/contracts/journey.v1.json'));
 assert.equal(registry.cores.journeyTimeline.status,'active');
 assert.equal(registry.cores.journeyTimeline.root,'core/journey/');
-assert.equal(registry.cores.journeyTimeline.ownerStream,'feature/platform-core');
+assert.equal(registry.cores.journeyTimeline.ownerStream,'feature/journey-core');
 assert.equal(registry.cores.journeyTimeline.browserlessCore,corePath);
 assert.equal(registry.cores.journeyTimeline.contractAdapter,adapterPath);
 assert.equal(registry.cores.journeyTimeline.legacyCompatibility,'core/places/timeline-core.js');

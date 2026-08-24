@@ -126,7 +126,7 @@ const registry=JSON.parse(read('config/luvia-cores.json'));
 const contract=JSON.parse(read(contractPath));
 assert.equal(registry.cores.memory.status,'active');
 assert.equal(registry.cores.memory.root,'core/memory/');
-assert.equal(registry.cores.memory.ownerStream,'feature/platform-core');
+assert.equal(registry.cores.memory.ownerStream,'feature/memory-core');
 assert.equal(registry.cores.memory.truthOwnership,'canonical-memory-and-narrative-truth');
 assert.equal(registry.cores.memory.browserlessCore,corePath);
 assert.equal(registry.cores.memory.contractAdapter,adapterPath);

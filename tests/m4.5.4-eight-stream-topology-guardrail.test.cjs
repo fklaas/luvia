@@ -17,14 +17,14 @@ const {
 
 assert.strictEqual(
   registry.topologyVersion,
-  '8-stream-v1',
+  '19-stream-core-aligned-v1',
   'Unexpected topology version'
 );
 
 assert.strictEqual(
   streams.length,
-  8,
-  'Luvia topology must contain exactly eight active streams'
+  19,
+  'Luvia topology must contain exactly nineteen active streams'
 );
 
 const byId = new Map(
@@ -34,12 +34,23 @@ const byId = new Map(
 for (const requiredId of [
   'main',
   'integration',
-  'platform',
-  'booking',
   'consumer',
-  'social',
+  'platform',
+  'trip',
+  'places',
+  'booking',
+  'media',
+  'memory',
+  'identity',
+  'events',
+  'journey',
   'experience',
-  'intelligence'
+  'intelligence',
+  'collaboration',
+  'attention',
+  'travel-wallet',
+  'reviews',
+  'admin'
 ]) {
   assert(
     byId.has(requiredId),
@@ -65,6 +76,16 @@ assert.strictEqual(
 assert.strictEqual(
   byId.get('intelligence').worktree,
   '../luvia-intelligence'
+);
+
+assert.strictEqual(
+  byId.get('admin').branch,
+  'feature/admin-core'
+);
+
+assert.strictEqual(
+  byId.get('admin').worktree,
+  '../luvia-admin'
 );
 
 const parallelRules = fs.readFileSync(
@@ -109,6 +130,8 @@ const codeowners = fs.readFileSync(
 for (const rule of [
   '/core/experience/ @fklaas',
   '/core/intelligence/ @fklaas',
+  '/core/admin/ @fklaas',
+  '/core/travel-wallet/ @fklaas',
   '/config/luvia-streams.json @fklaas',
   '/config/luvia-cores.json @fklaas',
   '/scripts/luvia-stream-registry.cjs @fklaas'
@@ -148,8 +171,18 @@ assert(
   'Module ownership must preserve classification-first AI migration'
 );
 
+assert(
+  moduleOwnership.includes('| Admin / Governance (mandatory reserved) |'),
+  'Module ownership missing mandatory Admin Core boundary'
+);
+
+assert(
+  moduleOwnership.includes('protect the last Superadmin'),
+  'Module ownership missing last-Superadmin protection'
+);
+
 console.log(
-  'M4.5.4 eight-stream topology guardrail: PASS'
+  'M16.5 core-aligned nineteen-stream topology guardrail: PASS'
 );
 console.log(`Streams: ${streams.length}`);
 console.log('Registry-driven topology: PASS');

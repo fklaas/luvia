@@ -219,3 +219,31 @@ Web compatibility adapter:
 `core/platform/journey-contract-adapter.js`
 
 Reads expose immutable Day Graph, entries, conflicts and subscriptions. Commands route hydration, Journey events, legacy schedule editing and owner-specific open actions through one compatibility provider. The contract owns derived ordering, temporal integrity and provenance only; foreign domain truth remains with Trip, Places, Booking, Media, Identity, Social and Intelligence.
+
+## Reserved future owner contracts
+
+The following names reserve ownership and compatibility direction. They are
+not active runtime APIs until the matching browserless Core, authorization
+model and tests are implemented:
+
+- `collaboration.membership.v1` — spaces, memberships, invitations and scoped
+  collaboration roles; global Admin authority remains excluded;
+- `attention.notification-intent.v1` — attention policy, semantic intents,
+  scheduling, dedupe and delivery receipts;
+- `travel-wallet.documents.v1` — redacted secure-document projections and
+  capability-based document commands;
+- `reviews.reputation.v1` — reviews, revision history, moderation, appeals and
+  transparent reputation projections;
+- `admin.governance.v1` — administrative roles, grants, scopes, policies,
+  approvals and time-boxed break-glass commands;
+- `admin.audit.v1` — immutable administrative action and policy receipts.
+
+Admin is not Identity and not Collaboration. Identity proves who the actor is;
+Collaboration owns trip/group membership; Admin decides server-side whether an
+authenticated actor has a scoped administrative capability. The Admin
+Experience consumes sanitized projections and cannot authorize itself.
+
+Highest-risk Admin commands are never available to autonomous Intelligence.
+Intelligence may explain policy, detect anomalies or draft a proposal, but it
+cannot grant/revoke Superadmin, open break-glass, suspend/delete an account or
+approve its own request.

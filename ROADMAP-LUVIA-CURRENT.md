@@ -31,7 +31,10 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - Experience Core.
 - Journey Core as independent cross-domain Day Graph/Timeline aggregator.
 - Memory Core.
-- Social Experience Graph stream boundary.
+- Core-aligned nineteen-stream ownership topology: one stream for every active
+  or bindingly reserved Core, plus Main, Integration and non-owning Consumer.
+- Historical Social Experience Graph branch preserved; canonical future
+  Membership ownership moves to the Collaboration Core stream.
 
 Consumer and Experience own no Domain Truth. Intelligence may reason, rank,
 plan and orchestrate, but executes changes only through public owner commands.
@@ -44,11 +47,21 @@ architecture remains. Required outputs:
 
 - Corporate Design and brand foundation;
 - two to three distinct creative territories;
-- complete screen, state and interaction architecture;
+- exhaustive inventory of every active, hidden, empty, loading, error,
+  offline, confirmation and recovery surface plus every relevant UI/CSS/
+  Experience/legacy file and active runtime asset;
+- complete screen, state and interaction architecture for all boxes,
+  containers, navigation, forms, tables, cards, maps, overlays, sheets and AI
+  Rich Results;
 - dynamic motion language and native Web/iOS/Android adaptations;
+- explicit Hover/Press/Focus/Drag/Scroll, screen-transition,
+  micro-interaction, animation, haptic-equivalent and reduced-motion language;
 - accessibility, performance and reduced-motion budgets;
 - semantic active-Trip accent system for buttons, selection, highlights,
   headings, outlines and motion;
+- separately composed Administrative Experience for user/role/grant/policy,
+  approvals, incidents, break-glass and audit exploration; UI visibility never
+  substitutes server authorization;
 - explicit user-approved Design Freeze before M17.
 
 ## Accelerated delivery corridor
@@ -59,7 +72,8 @@ architecture remains. Required outputs:
 - M18.2: Attention / Notification Intent Core.
 - M18.3: Travel Wallet / Documents Core.
 - M18.4: Reviews / Reputation Core.
-- M18.5: Universal Search / projection index, not a shadow Domain Core.
+- M18.5: Admin / Governance Core — mandatory security and operability Core.
+- M18.6: Universal Search / projection index, not a shadow Domain Core.
 - M19: Offline/Sync, conflicts, resilience, observability and AI evals.
 - M20-M21: native iOS/Android delivery and productization using the same
   Domain contracts.
@@ -69,11 +83,11 @@ architecture remains. Required outputs:
 
 ## M18 Core blueprints
 
-All four new Cores follow the same owner-first delivery sequence: read-only
+All five new Cores follow the same owner-first delivery sequence: read-only
 inventory and ADR; public Contract, Commands, Events and state machine;
 browserless policy tests; separately approved persistence/security changes;
 Web and native adapters; Experience/Intelligence integration; regression,
-Preview, Production and eight-stream closeout. Consumers never write private
+Preview, Production and nineteen-stream closeout. Consumers never write private
 owner persistence, and every mutation carries actor, scope, idempotency,
 expected version, correlation and an owner receipt.
 
@@ -157,7 +171,51 @@ expected version, correlation and an owner receipt.
   media safety, accessibility, browserless policy smoke, load and Production
   rollback evidence.
 
-### M18.5 Universal Search / Projection Index
+### M18.5 Admin / Governance Core — mandatory
+
+- Owns platform-administrative roles, capability grants, resource scopes,
+  policy versions, delegations, approval requests, time-boxed break-glass
+  sessions and immutable administrative audit receipts. Identity owns the
+  person/authentication context; Collaboration owns trip/group membership;
+  managed Domain Cores retain their own Truth and invariants.
+- Publishes `admin.governance.v1` and `admin.audit.v1`. Canonical models include
+  AdminPrincipalRef, AdminRole, Capability, ResourceScope, PolicyRule,
+  RoleAssignment, Delegation, ApprovalRequest, BreakGlassSession, AuditEntry
+  and AdminActionReceipt.
+- Commands cover create/update/retire role, grant/revoke assignment, delegate,
+  request/approve/deny high-risk change, suspend/reactivate subject, revoke
+  sessions and open/close break-glass. Every command carries actor, purpose,
+  scope, reason, idempotency key, expected version and correlation.
+- Default deny, least privilege and separation of duties are server-enforced.
+  Client visibility, cached projection, JWT convenience claim or hidden route
+  is never sufficient authorization. Self-grant/self-escalation is forbidden;
+  the last Superadmin cannot be removed or weakened without a recoverable,
+  independently approved successor.
+- Highest-risk changes require step-up authentication, explicit reason,
+  dual control/four-eyes approval, expiry and immutable audit evidence.
+  Break-glass is exceptional, time-boxed, narrowly scoped, alerted and reviewed;
+  it is not a permanent Superadmin shortcut.
+- Administrative UI is a dedicated Experience surface: overview, user and
+  principal directory, roles, permission matrix, scopes, pending approvals,
+  audit explorer, incident/break-glass console and system-health projections.
+  The UI calls Admin commands and foreign owner commands; it never writes
+  tables directly or becomes a second Domain owner.
+- Intelligence may explain access, draft policy changes and flag anomalies.
+  It may never grant/revoke Superadmin, approve its own proposal, open
+  break-glass, suspend/delete accounts or autonomously perform highest-risk
+  administrative actions.
+- Native First uses AuthSession, SecureStorage, Device, Permission, Network,
+  Lifecycle, Notification and DeepLink Ports. Offline Admin state is redacted
+  read-only cache; mutation fails closed until online policy and owner receipts
+  are available.
+- Persistence/RLS/RPC/Edge work is a separately approved security migration.
+  Acceptance includes full permission matrix, negative privilege-escalation
+  and IDOR/RLS tests, concurrent grant/revoke, last-Superadmin protection,
+  dual-control races, audit tamper evidence, break-glass expiry, session
+  revocation, offline deny, reload/deep-link, accessibility, browserless policy
+  smoke, Preview/Production provenance and independent security review.
+
+### M18.6 Universal Search / Projection Index
 
 Universal Search is explicitly not a Domain owner. It consumes approved events
 and stores source owner, entity ID, version, visibility and freshness. Search
@@ -172,6 +230,16 @@ It does not yet certify every database table, RPC, Realtime subscription,
 Edge Function, bucket and provider workflow in the entire application. That
 complete proof is a mandatory M21.5 gate and cannot be replaced by HTTP 200,
 static source inspection or a single UI sample.
+
+## Core-to-stream rule
+
+Every active or bindingly reserved Core has its own GitHub stream. The
+canonical roster is `config/luvia-streams.json`; branches are owner lanes over
+one integrated repository tree, not copies of business truth. Main,
+Integration and Consumer remain coordination/product streams. Universal Search
+does not receive a false Domain-Core stream because it is a projection/index
+capability. The former Social branch remains historical and must not evolve as
+a second Collaboration owner.
 
 ## Stop rules
 

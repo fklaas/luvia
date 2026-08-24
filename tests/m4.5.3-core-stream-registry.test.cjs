@@ -11,18 +11,29 @@ const cores = JSON.parse(read('config/luvia-cores.json'));
 const expectedBranches = [
   'main',
   'integration',
-  'feature/platform-core',
-  'feature/booking-core',
   'feature/consumer-experience',
-  'feature/social-experience-graph',
+  'feature/platform-core',
+  'feature/trip-core',
+  'feature/places-core',
+  'feature/booking-core',
+  'feature/media-core',
+  'feature/memory-core',
+  'feature/identity-core',
+  'feature/events-core',
+  'feature/journey-core',
   'feature/experience-core',
-  'feature/intelligence-core'
+  'feature/intelligence-core',
+  'feature/collaboration-core',
+  'feature/attention-core',
+  'feature/travel-wallet-core',
+  'feature/reviews-core',
+  'feature/admin-core'
 ];
 
 assert.strictEqual(streams.schemaVersion, 1);
-assert.strictEqual(streams.topologyVersion, '8-stream-v1');
-assert.strictEqual(streams.streamCount, 8);
-assert.strictEqual(streams.streams.length, 8);
+assert.strictEqual(streams.topologyVersion, '19-stream-core-aligned-v1');
+assert.strictEqual(streams.streamCount, 19);
+assert.strictEqual(streams.streams.length, 19);
 
 assert.deepStrictEqual(
   streams.streams.map(stream => stream.branch),
@@ -31,12 +42,12 @@ assert.deepStrictEqual(
 
 assert.strictEqual(
   new Set(streams.streams.map(stream => stream.branch)).size,
-  8
+  19
 );
 
 assert.strictEqual(
   new Set(streams.streams.map(stream => stream.worktree)).size,
-  8
+  19
 );
 
 const experienceStream = streams.streams.find(
@@ -114,7 +125,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   cores.cores.memory.ownerStream,
-  'feature/platform-core'
+  'feature/memory-core'
 );
 
 assert.strictEqual(
@@ -330,7 +341,34 @@ assert(
 );
 
 console.log('M5.2 runtime and Production acceptance state preserved: PASS');
-console.log('Streams: 8');
+for (const [coreId, branch] of Object.entries({
+  platformRuntime: 'feature/platform-core',
+  trip: 'feature/trip-core',
+  places: 'feature/places-core',
+  booking: 'feature/booking-core',
+  media: 'feature/media-core',
+  memory: 'feature/memory-core',
+  identity: 'feature/identity-core',
+  events: 'feature/events-core',
+  journeyTimeline: 'feature/journey-core',
+  experience: 'feature/experience-core',
+  intelligence: 'feature/intelligence-core',
+  collaborationMembership: 'feature/collaboration-core',
+  attentionNotificationIntent: 'feature/attention-core',
+  travelWalletDocuments: 'feature/travel-wallet-core',
+  reviewsReputation: 'feature/reviews-core',
+  adminGovernance: 'feature/admin-core'
+})) {
+  assert.strictEqual(
+    cores.cores[coreId].ownerStream,
+    branch,
+    `Core/stream owner mismatch for ${coreId}`
+  );
+}
+assert.strictEqual(cores.cores.adminGovernance.status, 'reserved-mandatory');
+assert.strictEqual(cores.cores.adminGovernance.plannedPublicContract, 'admin.governance.v1');
+assert.strictEqual(cores.cores.adminGovernance.plannedAuditContract, 'admin.audit.v1');
+console.log('Streams: 19');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
 console.log('Timeline reservation: PASS');

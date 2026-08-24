@@ -370,6 +370,10 @@ const SUITE = Object.freeze([
     test: 'tests/m4.5.4-eight-stream-topology-guardrail.test.cjs'
   },
   {
+    category: 'M16.5 / Visual inventory',
+    test: 'tests/m16.5-visual-surface-inventory.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

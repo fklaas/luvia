@@ -12,7 +12,7 @@ The machine-readable locked-core registry is `config/luvia-cores.json`.
 
 Root: `core/trips/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/trip-core`
 
 Role: canonical Trip truth.
 
@@ -24,7 +24,7 @@ Consumers must not create independent Trip truth.
 
 Root: `core/places/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/places-core`
 
 Role: canonical Places domain behavior and Place lifecycle infrastructure.
 
@@ -69,7 +69,7 @@ copying Booking routing or gaining reservation truth.
 
 Root: `core/media/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/media-core`
 
 Role: canonical Media truth, asset metadata, Media lifecycle and upload coordination.
 
@@ -86,7 +86,7 @@ cards, stories, chapters, contributions or narrative composition.
 
 Root: `core/memory/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/memory-core`
 
 Role: canonical durable Memory and Narrative truth for albums, cards, stories,
 chapters, contributions, curation decisions and narrative lifecycle.
@@ -113,7 +113,7 @@ Social membership or Intelligence reasoning truth.
 
 Root: `core/identity/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/identity-core`
 
 Role: canonical global viewer identity and explicitly confirmed preference truth.
 
@@ -129,7 +129,7 @@ Trip context is not Identity truth. Observed or inferred preference signals are 
 
 Root: `core/events/`
 
-Owner stream: `feature/platform-core`
+Owner stream: `feature/events-core`
 
 Role: versioned cross-core event envelopes and causal metadata; owns no domain truth.
 
@@ -197,6 +197,8 @@ The current `core/ai`, planning and recommendation runtime is migrated increment
 
 Owner root: `core/journey/`
 
+Owner stream: `feature/journey-core`
+
 Status: ACTIVE.
 
 Domain truth ownership: derived Day Graph, temporal ordering, conflict policy and source-owner provenance only.
@@ -210,3 +212,61 @@ Visible Consumer composition: `app/journey/journey-day-composer.js`
 Legacy compatibility: `core/places/timeline-core.js` retains current Web presentation, Supabase hydration/realtime and persistence routing behind the adapter. It is not a Places truth owner and active consumers must not access it directly.
 
 Journey may aggregate owner projections, but it must not absorb Trip, Places, Booking, Media, Identity, Social or Intelligence truth.
+
+## Bindingly reserved future Core boundaries
+
+These roots and streams reserve one future owner. They do not claim an active
+runtime, schema or public API before their measured implementation milestone.
+
+### Collaboration / Membership
+
+Reserved root: `core/collaboration/`
+
+Owner stream: `feature/collaboration-core`
+
+Planned public boundary: `collaboration.membership.v1`
+
+The existing collaboration service owns presence/activity projection only. It
+is not Membership Truth and must not become a second owner beside M18.1.
+
+### Attention / Notification Intent
+
+Reserved root: `core/attention/`
+
+Owner stream: `feature/attention-core`
+
+Planned public boundary: `attention.notification-intent.v1`
+
+### Travel Wallet / Documents
+
+Reserved root: `core/travel-wallet/`
+
+Owner stream: `feature/travel-wallet-core`
+
+Planned public boundary: `travel-wallet.documents.v1`
+
+### Reviews / Reputation
+
+Reserved root: `core/reviews/`
+
+Owner stream: `feature/reviews-core`
+
+Planned public boundary: `reviews.reputation.v1`
+
+### Admin / Governance — mandatory
+
+Reserved root: `core/admin/`
+
+Owner stream: `feature/admin-core`
+
+Planned public boundaries: `admin.governance.v1` and `admin.audit.v1`
+
+Admin owns administrative roles, capability grants, scopes, policies,
+approvals, time-boxed break-glass sessions and immutable audit receipts. It
+does not own Auth Session, Identity Profile, Trip/Collaboration Membership or
+the Truth of any domain it administers.
+
+The Admin Experience is a separately designed M16.5 surface. Its visibility is
+not authorization. Every mutation is server-authorized, default-deny and
+audited; self-escalation is forbidden, the last Superadmin is protected and
+highest-risk operations require step-up authentication plus dual control.

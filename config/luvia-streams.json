@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "topologyVersion": "8-stream-v1",
-  "introducedAtMarker": "e1661dfd013a5fd85369dd082dc2ce45d68848e7",
-  "streamCount": 8,
+  "topologyVersion": "19-stream-core-aligned-v1",
+  "expandedFromMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
+  "streamCount": 19,
   "streams": [
     {
       "id": "main",
@@ -19,46 +19,123 @@
       "purpose": "Cross-stream convergence, regression and preview target"
     },
     {
+      "id": "consumer",
+      "branch": "feature/consumer-experience",
+      "worktree": "../luvia-consumer",
+      "kind": "product",
+      "purpose": "Consumer-facing product composition without Domain Truth"
+    },
+    {
       "id": "platform",
       "branch": "feature/platform-core",
       "worktree": "../luvia-platform",
-      "kind": "feature",
-      "purpose": "Platform foundations, Trip and Places core boundaries, public contract adapters"
+      "kind": "core",
+      "purpose": "Platform Runtime, Platform Ports, shared contracts and integration tooling"
+    },
+    {
+      "id": "trip",
+      "branch": "feature/trip-core",
+      "worktree": "../luvia-trip",
+      "kind": "core",
+      "purpose": "Trip Domain Truth, Active Trip Context and Trip-owned commands"
+    },
+    {
+      "id": "places",
+      "branch": "feature/places-core",
+      "worktree": "../luvia-places",
+      "kind": "core",
+      "purpose": "Places Domain Truth, lifecycle, discovery rules and Place commands"
     },
     {
       "id": "booking",
       "branch": "feature/booking-core",
       "worktree": "../luvia-booking",
-      "kind": "feature",
-      "purpose": "Booking domain, lifecycle, providers, mutations and booking product infrastructure"
+      "kind": "core",
+      "purpose": "Booking Domain Truth, lifecycle, providers, mutations and recovery"
     },
     {
-      "id": "consumer",
-      "branch": "feature/consumer-experience",
-      "worktree": "../luvia-consumer",
-      "kind": "feature",
-      "purpose": "Consumer-facing product experiences and domain consumers"
+      "id": "media",
+      "branch": "feature/media-core",
+      "worktree": "../luvia-media",
+      "kind": "core",
+      "purpose": "Media asset truth, acquisition, storage and transfer lifecycle"
     },
     {
-      "id": "social",
-      "branch": "feature/social-experience-graph",
-      "worktree": "../luvia-social",
-      "kind": "feature",
-      "purpose": "Social, collaboration and experience-graph work"
+      "id": "memory",
+      "branch": "feature/memory-core",
+      "worktree": "../luvia-memory",
+      "kind": "core",
+      "purpose": "Memory and Narrative Truth, stories, chapters and curation lifecycle"
+    },
+    {
+      "id": "identity",
+      "branch": "feature/identity-core",
+      "worktree": "../luvia-identity",
+      "kind": "core",
+      "purpose": "Global viewer identity and explicitly confirmed preference truth"
+    },
+    {
+      "id": "events",
+      "branch": "feature/events-core",
+      "worktree": "../luvia-events",
+      "kind": "core",
+      "purpose": "Versioned cross-core event envelopes and causal metadata without Domain Truth"
+    },
+    {
+      "id": "journey",
+      "branch": "feature/journey-core",
+      "worktree": "../luvia-journey",
+      "kind": "core",
+      "purpose": "Derived Journey Day Graph, temporal integrity, conflict policy and provenance"
     },
     {
       "id": "experience",
       "branch": "feature/experience-core",
       "worktree": "../luvia-experience",
-      "kind": "feature",
-      "purpose": "Shared Luvia design system, visual language, interaction primitives and accessibility"
+      "kind": "core",
+      "purpose": "Corporate Design, shared visual language, interaction semantics and accessibility"
     },
     {
       "id": "intelligence",
       "branch": "feature/intelligence-core",
       "worktree": "../luvia-intelligence",
-      "kind": "feature",
-      "purpose": "Luvia Intelligence architecture, AI orchestration, reasoning, tools, recommendations and proactive intelligence"
+      "kind": "core",
+      "purpose": "AI orchestration, reasoning, tools, recommendations and Intelligence-specific state"
+    },
+    {
+      "id": "collaboration",
+      "branch": "feature/collaboration-core",
+      "worktree": "../luvia-collaboration",
+      "kind": "core",
+      "purpose": "Reserved owner stream for Collaboration and Membership Truth"
+    },
+    {
+      "id": "attention",
+      "branch": "feature/attention-core",
+      "worktree": "../luvia-attention",
+      "kind": "core",
+      "purpose": "Reserved owner stream for Attention Policy and Notification Intent Truth"
+    },
+    {
+      "id": "travel-wallet",
+      "branch": "feature/travel-wallet-core",
+      "worktree": "../luvia-travel-wallet",
+      "kind": "core",
+      "purpose": "Reserved owner stream for secure Travel Wallet and Documents Truth"
+    },
+    {
+      "id": "reviews",
+      "branch": "feature/reviews-core",
+      "worktree": "../luvia-reviews",
+      "kind": "core",
+      "purpose": "Reserved owner stream for Reviews, Moderation and Reputation Truth"
+    },
+    {
+      "id": "admin",
+      "branch": "feature/admin-core",
+      "worktree": "../luvia-admin",
+      "kind": "core",
+      "purpose": "Reserved owner stream for administrative roles, grants, policies, approvals and audit truth"
     }
   ]
 }

@@ -67,6 +67,7 @@
 # ---------------------------------------------------------------------------
 
 /core/media/ @fklaas
+/core/memory/ @fklaas
 
 # sync/gallery.js remains legacy compatibility according to
 # MODULE-OWNERSHIP.md and is deliberately not declared as a new
@@ -76,6 +77,7 @@
 # Identity / Preferences
 # ---------------------------------------------------------------------------
 
+/core/identity/ @fklaas
 /core/profiles/ @fklaas
 /core/preferences/ @fklaas
 
@@ -98,13 +100,20 @@
 # remain classification-first migration candidates.
 /core/intelligence/ @fklaas
 
+# Events Core
+/core/events/ @fklaas
+
+# Reserved future Core roots. These entries protect ownership; they do not
+# claim that the corresponding runtime or persistence already exists.
+/core/collaboration/ @fklaas
+/core/attention/ @fklaas
+/core/travel-wallet/ @fklaas
+/core/reviews/ @fklaas
+/core/admin/ @fklaas
+
 # Architecture registries / topology tooling
 /config/luvia-streams.json @fklaas
 /config/luvia-cores.json @fklaas
 /scripts/luvia-stream-registry.cjs @fklaas
-# Future Social domain
-# ---------------------------------------------------------------------------
-
-# Social-specific ownership patterns will be added only when the Social
-# Architecture & Domain Model establishes its real repository boundaries.
-# No speculative Social ownership paths are introduced during M4.2.
+# Historical feature/social-experience-graph remains preserved as Git history,
+# but it is not a second active owner beside feature/collaboration-core.

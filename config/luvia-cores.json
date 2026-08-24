@@ -3,16 +3,23 @@
   "registryScope": "Locked core roots and explicitly reserved architectural boundaries",
   "fileLevelOwnershipSource": "docs/modularization/FILE-OWNERSHIP.csv",
   "cores": {
+    "platformRuntime": {
+      "root": "core/runtime/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "no-domain-truth",
+      "status": "active",
+      "purpose": "Platform-neutral runtime, navigation, lifecycle and module orchestration"
+    },
     "trip": {
       "root": "core/trips/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/trip-core",
       "truthOwnership": "canonical-domain-truth",
       "contractAdapter": "core/platform/trip-contract-adapter.js",
       "status": "active"
     },
     "places": {
       "root": "core/places/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/places-core",
       "truthOwnership": "canonical-domain-truth",
       "contractAdapter": "core/platform/places-contract-adapter.js",
       "status": "active",
@@ -20,7 +27,7 @@
     },
     "media": {
       "root": "core/media/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/media-core",
       "truthOwnership": "canonical-domain-truth",
       "contractAdapter": "core/platform/media-contract-adapter.js",
       "browserlessCore": "core/media/media-domain-contract-core.js",
@@ -34,7 +41,7 @@
     },
     "memory": {
       "root": "core/memory/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/memory-core",
       "truthOwnership": "canonical-memory-and-narrative-truth",
       "publicContract": "LuviaMemoryContractV1",
       "contractAdapter": "core/platform/memory-contract-adapter.js",
@@ -52,7 +59,7 @@
         "places",
         "journey-schedule",
         "identity",
-        "social-membership",
+        "collaboration-membership",
         "intelligence-reasoning"
       ],
       "status": "active",
@@ -60,19 +67,21 @@
     },
     "identity": {
       "root": "core/identity/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/identity-core",
       "truthOwnership": "canonical-global-identity-and-explicit-preference-truth",
       "contractAdapter": "core/platform/identity-contract-adapter.js",
       "browserlessCore": "core/identity/identity-domain-contract-core.js",
       "status": "active",
       "excludedTruth": [
         "trip-context",
+        "collaboration-membership",
+        "administrative-grants",
         "intelligence-observed-signals"
       ]
     },
     "events": {
       "root": "core/events/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/events-core",
       "truthOwnership": "no-domain-truth",
       "contractAdapter": "app/adapters/event-contract-web-adapter.js",
       "browserlessCore": "core/events/event-contract-core.js",
@@ -96,7 +105,7 @@
       "browserlessCore": "core/experience/experience-contract-core.js",
       "legacyCompatibility": "core/design/design-system-contract.js",
       "status": "active",
-      "purpose": "Design system, tokens, themes, layout primitives, shared components, motion and accessibility"
+      "purpose": "Corporate Design, design system, tokens, themes, layout primitives, shared components, motion and accessibility"
     },
     "intelligence": {
       "root": "core/intelligence/",
@@ -117,14 +126,15 @@
         "booking",
         "media",
         "identity-explicit-preferences",
-        "social",
+        "collaboration-membership",
+        "admin-governance",
         "journey-timeline"
       ],
       "purpose": "Cross-domain reasoning, AI orchestration, recommendations, planning and proactive intelligence"
     },
     "journeyTimeline": {
       "root": "core/journey/",
-      "ownerStream": "feature/platform-core",
+      "ownerStream": "feature/journey-core",
       "truthOwnership": "derived-day-graph-and-conflict-policy",
       "publicContract": "LuviaJourneyContractV1",
       "contractAdapter": "core/platform/journey-contract-adapter.js",
@@ -136,11 +146,67 @@
         "booking",
         "media",
         "identity",
-        "social",
+        "collaboration-membership",
         "intelligence"
       ],
       "status": "active",
       "purpose": "Cross-domain Day Graph ordering, temporal integrity, conflict policy and owner-provenance projection without foreign Domain Truth"
+    },
+    "collaborationMembership": {
+      "root": "core/collaboration/",
+      "ownerStream": "feature/collaboration-core",
+      "truthOwnership": "reserved-collaboration-membership-truth",
+      "plannedPublicContract": "collaboration.membership.v1",
+      "legacyCompatibility": "core/collaboration/collaboration-service.js",
+      "status": "reserved",
+      "purpose": "Future collaboration spaces, memberships, invitations, scoped roles and grants; current presence/activity projection is not membership truth"
+    },
+    "attentionNotificationIntent": {
+      "root": "core/attention/",
+      "ownerStream": "feature/attention-core",
+      "truthOwnership": "reserved-attention-and-notification-intent-truth",
+      "plannedPublicContract": "attention.notification-intent.v1",
+      "status": "reserved",
+      "purpose": "Future attention policy, semantic notification intents, scheduling, dedupe and delivery receipts"
+    },
+    "travelWalletDocuments": {
+      "root": "core/travel-wallet/",
+      "ownerStream": "feature/travel-wallet-core",
+      "truthOwnership": "reserved-secure-travel-document-truth",
+      "plannedPublicContract": "travel-wallet.documents.v1",
+      "status": "reserved",
+      "purpose": "Future secure travel documents, versions, validity, verification claims and share grants"
+    },
+    "reviewsReputation": {
+      "root": "core/reviews/",
+      "ownerStream": "feature/reviews-core",
+      "truthOwnership": "reserved-reviews-moderation-and-reputation-truth",
+      "plannedPublicContract": "reviews.reputation.v1",
+      "status": "reserved",
+      "purpose": "Future reviews, revisions, moderation, reports, appeals and transparent reputation projections"
+    },
+    "adminGovernance": {
+      "root": "core/admin/",
+      "ownerStream": "feature/admin-core",
+      "truthOwnership": "reserved-administrative-governance-truth",
+      "plannedPublicContract": "admin.governance.v1",
+      "plannedAuditContract": "admin.audit.v1",
+      "status": "reserved-mandatory",
+      "excludedTruth": [
+        "authentication-session",
+        "identity-profile",
+        "trip-membership",
+        "collaboration-membership",
+        "trip",
+        "places",
+        "booking",
+        "media",
+        "memory",
+        "journey",
+        "reviews",
+        "feature-flag-definition"
+      ],
+      "purpose": "Mandatory future administrative roles, capability grants, scopes, policies, approvals, break-glass sessions and immutable audit receipts"
     }
   }
 }

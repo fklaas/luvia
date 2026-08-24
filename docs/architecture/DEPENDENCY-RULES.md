@@ -108,3 +108,39 @@ The current `core/media/memory-*.js` services are explicitly classified Web/DB
 compatibility providers behind `memory.v1`. Consumers must not add new direct
 dependencies on their `LuviaMemory*` globals. The older Memory functions on
 `media.v1` are compatibility only and must not become a second owner surface.
+
+## 14. Admin Governance boundary
+
+Administrative authority belongs to the reserved Admin Core, not to Identity,
+Collaboration, Platform, Experience or Intelligence. Identity supplies the
+authenticated actor reference; Collaboration supplies group/trip membership;
+Admin owns global administrative roles, scoped capability grants, policy
+decisions, approvals, break-glass sessions and administrative audit receipts.
+
+Allowed pattern:
+
+`Admin Experience -> admin.governance.v1 -> server policy -> owner command`
+
+Forbidden patterns:
+
+- client-side `isAdmin` or hidden-navigation checks as authorization;
+- self-grant, self-escalation or Intelligence-granted authority;
+- direct Admin mutation of foreign Domain tables;
+- Superadmin removal that would leave the system without a recoverable owner;
+- autonomous AI break-glass, account suspension or highest-risk role changes.
+
+The implementation is default-deny, least-privilege and server-enforced.
+Highest-risk operations require step-up authentication, reason, immutable
+audit evidence and dual control. Cached/offline Admin projections are read-only
+and fail closed for mutations.
+
+## 15. Core-aligned stream ownership
+
+Every active or bindingly reserved Core has exactly one owner stream in
+`config/luvia-streams.json`. A branch is not a copy of Domain Truth: all
+streams converge on the same integrated tree after release, while mutations
+originate only in the declared owner lane.
+
+The historical Social branch is not permission to create a second
+Collaboration/Membership system. Universal Search remains a projection/index
+capability and therefore does not receive a false Domain-Core stream.
