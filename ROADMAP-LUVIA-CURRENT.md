@@ -18,6 +18,9 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - Database/schema/RPC/RLS/bucket migration in M16: none.
 - Supabase Edge Function, secret and manual Cloudflare configuration change in
   M16: none.
+- M16.5 architecture marker: `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`;
+  Safe Regression 92/92 on Platform, Integration and Main; NFR-0 3/3;
+  20/20 streams synchronized. Runtime App/Core remains unchanged.
 
 ## Completed architecture boundaries
 

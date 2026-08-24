@@ -26,7 +26,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Channel: **production**
 - Datum: **2026-08-24**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 COMPLETE VISUAL REDESIGN INVENTORY ACTIVE / DESIGN FREEZE PENDING**
-- Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED CORRECTION IN VALIDATION**
+- Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
 ## M16 Runtime Assembly
 
@@ -68,8 +68,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social/Experience Graph Core: **strategic anti-vanity Social Travel Intelligence reservation for consented graph/relationship state, Travel Twins, Echoes, Drops, Fork provenance and inspiration signals; Collaboration membership and all foreign Domain Truth remain excluded**
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
-- Active GitHub topology: **20 registry streams specified; final Local = Tracking = live Remote / 0/0 / clean synchronization is pending the corrected documentation marker**
-- Safe Regression target: **92 / 92 on Platform, Integration and Main**
+- Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
+- Safe Regression: **92 / 92 PASS on Platform, Integration and Main**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**

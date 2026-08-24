@@ -75,6 +75,30 @@ owners of their respective truth and commands.
 - FF-only Integration/Main promotion;
 - 20/20 Local = Tracking = live Remote, divergence 0/0, clean.
 
+## Closeout evidence
+
+Implementation marker:
+`41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`.
+
+Platform, Integration and Main each passed the controlled Safe Regression
+`92/92`. NFR-0 remained `3/3`; the cross-Core DB guard remained unchanged at
+361 tracked JavaScript/TypeScript files, static 310, mapped `30/30`, unmapped
+`39/39` and dynamic `27/27`.
+
+All twenty registry streams were then measured at the implementation marker:
+Local = Tracking = live Remote, divergence `0/0`, working tree clean. This
+includes the reactivated `feature/social-experience-graph` owner lane.
+
+App/Core remains `13.82.48 / 4.82.48` and runtime source remains
+`0d7468596dbdb42803738f427d4355bf31281c65`. No runtime asset, database,
+schema, RPC, RLS, bucket, Edge Function, secret, provider or Cloudflare
+configuration changed. No Preview or Production deployment was triggered or
+claimed.
+
+M16.5 visual design remains active and not frozen. The next product gate is
+the jointly reviewed Creative Territories and end-to-end flow prototypes;
+neither Social nor Admin runtime implementation is claimed by this closeout.
+
 ## Rollback
 
 Rollback is a reviewed code/docs revert. The pre-existing Social branch and
