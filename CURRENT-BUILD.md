@@ -39,7 +39,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Safe execution: **R0 registered reads only; R1 direct gesture; R2/R3 explicit confirm/cancel; idempotency and owner receipts**
 - External uncertainty: **R3 unknown outcome blocks blind retry until owner reconciliation**
 - Platform runtime registration: **Contract → Ledger → Runtime → Chat load order PASS; Service Worker and Core Registry PASS**
-- Safe Regression: **89 / 89 PASS**
+- Safe Regression: **90 / 90 PASS**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Runtime registration and shared Experience styling: **FEATURE STREAMS COMPLETE**

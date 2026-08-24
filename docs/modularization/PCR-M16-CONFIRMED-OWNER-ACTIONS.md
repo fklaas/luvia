@@ -195,6 +195,13 @@ This is an additive M16 capability presentation, not the later full Corporate
 Design replacement. Authenticated Preview/Production acceptance, deployment
 causation and eight-stream synchronization remain unclaimed here.
 
+## Feature-stream consolidation evidence
+
+Platform FF-only adopted the Experience owner commit and registered M16.6 in
+the controlled runner. The consolidated feature state reports `90 / 90 PASS`
+with no Native-First or DB-ownership debt growth. This is the candidate for
+Integration; it is not yet a Preview, Main or Production acceptance claim.
+
 ## Rollback
 
 Runtime rollback returns to the synchronized M15 marker

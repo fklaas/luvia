@@ -261,6 +261,10 @@ const SUITE = Object.freeze([
     category: 'Platform / M16 Runtime Registration',
     test: 'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
   },
+  {
+    category: 'Experience / Confirmed Owner Actions',
+    test: 'tests/m16.6-confirmed-owner-action-experience.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
