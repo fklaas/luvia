@@ -25,8 +25,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M14 Runtime Clarity & Conversational AI**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 RELEASE CANDIDATE**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
+
+## M14 Runtime Release
+
+- Scope: **App Shell Runtime Clarity, proof-based Paris Legacy Retirement and Conversational Luvia AI**
+- Runtime release: **App 13.82.45 / Core 4.82.45**
+- Runtime implementation, Integration and Main commit: `41a1b651c24dcc300454043fcca8d99bf515b6dc`
+- Feature commits: Consumer `5c5abb54885c3625a147be01064a11921ac082cb`; Intelligence `2794645e25a2303d76846efb6d3ecbd1aa7d3ce3` and `e3846cb9775e90a35829b12d37acdd7806bcee9f`; Experience `1c8730d48534e6c564af22f0f774ab42a32f1d0` and `6ede24b86ba89526ae4ff20faa4c3f611e0ec41e`
+- App Shell runtime assets: **one declarative registry, one generic deduplicated loader, bounded timeout and diagnostics**
+- Retired unreachable Paris UI copies: **5 files / 7,702 deleted legacy lines; recoverable from Git**
+- Retained active Paris compatibility boundaries: **3 paths with explicit replacement and removal gate**
+- Luvia AI composer: **visible submit, Enter submit, Shift+Enter newline, IME guard, in-flight guard, persistent conversation and contextual follow-ups**
+- Experience acceptance: **separate conversation scroll region, fixed actions, dynamic viewport/safe-area support, reduced motion and 44+ px targets**
+- Domain command authority added to Intelligence: **NO**
+- Safe Regression: **74 / 74 PASS**
+- NFR-0: **3 / 3 PASS**
+- Cross-Core DB guard: **357 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
+- Database / schema / RPC / RLS / bucket migration: **NONE**
+- Supabase Edge Functions / secrets: **NONE**
+- Provider or manual Cloudflare configuration: **NONE**
+- Integration Preview version `2225b653-d0b0-4154-b000-47d49266f513`: immutable URL and stable alias each **9/9 byte-exact Git blobs**, **5/5 private-path** and **5/5 retired-path SPA fallback**, authenticated chat/keyboard/responsive acceptance, final **25/25 F5** at **3.552-4.789 seconds** (average **4.150 seconds**) and console **0/0**
+- Main promotion: **FF-only PASS**
+- Production version/deployment `5ecb0362-579f-4c7d-a8b3-c50b12572823` / `935193e9-ba4a-42e4-aee7-36909ba63b90`: **100%**
+- Production immutable URL and `myluvia.app`: each **9/9 byte-exact Git blobs**, **5/5 private-path** and **5/5 retired-path SPA fallback**
+- Production authenticated chat/keyboard/responsive acceptance: **PASS**; final **25/25 F5** at **4.553-7.932 seconds** (average **5.725 seconds**), active Ostseeurlaub/Scharbeutz retained and console **0/0**
+- Eight-stream documentation synchronization: **pending this closeout marker**
+- Cloudflare causation: **not inferred**; active versions were observed after Git promotion and Cloudflare reports source/version/deployment without a Git commit annotation
 
 ## M13 Runtime Release
 
