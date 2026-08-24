@@ -17,7 +17,7 @@ assert.match(shell,/const bookingRuntimeAssets=Object\.freeze\(\{/);
 assert.equal((shell.match(/path:'core\/booking\/booking-/g)||[]).length,6,'all six Booking runtime clients need one declarative descriptor');
 assert.equal((shell.match(/document\.createElement\('script'\)/g)||[]).length,1,'App Shell must keep one shared dynamic script creation path');
 assert.equal((shell.match(/document\.head\.appendChild\(node\)/g)||[]).length,1,'App Shell must keep one shared dynamic script append path');
-assert.match(shell,/runtimeAssetUrl=path=>`\$\{path\}\?v=\$\{encodeURIComponent\(window\.LuviaKernelVersion\?\.build\|\|'13\.82\.44'\)\}`/);
+assert.match(shell,/runtimeAssetUrl=path=>`\$\{path\}\?v=\$\{encodeURIComponent\(window\.LuviaKernelVersion\?\.build\|\|'\d+\.\d+\.\d+'\)\}`/,'runtime assets must follow the current Kernel build with a semantic release fallback');
 assert.match(shell,/runtimeAssetLoads\.has\(descriptor\.id\)/,'concurrent asset requests must share one promise');
 assert.match(shell,/timer=setTimeout\(\(\)=>validate\(/,'missing registrations need a bounded timeout');
 assert.match(shell,/runtimeAssets:runtimeAssetSnapshot\(\)/,'runtime loader state must be observable');

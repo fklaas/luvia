@@ -1,7 +1,7 @@
 import {
   ACTIVE_TRIP_CONTEXT_VERSION,
   createActiveTripContext,
-} from './core/trips/active-trip-context.mjs?v=13.82.44';
+} from './core/trips/active-trip-context.mjs?v=13.82.45';
 
 const web =
   globalThis.window;
