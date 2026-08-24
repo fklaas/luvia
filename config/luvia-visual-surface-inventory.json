@@ -4403,8 +4403,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 8675,
-      "sha256": "3c753718441c7590fdaf536890a2df211b62e60703b8a2b05818adb37df874dc"
+      "bytes": 8713,
+      "sha256": "e3a4e7d85b015fbad0a3a2f2691f1d0fc08624b27ceb36fa2ba0278bd4fe95c0"
     },
     {
       "path": "smart-photo-moments.css",

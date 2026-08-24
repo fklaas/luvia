@@ -11,7 +11,7 @@ const {
 const ROOT = path.resolve(__dirname, '..');
 const TARGET = path.join(ROOT, 'config', 'luvia-visual-surface-inventory.json');
 const expected = buildInventory();
-const actualText = fs.readFileSync(TARGET, 'utf8');
+const actualText = fs.readFileSync(TARGET, 'utf8').replace(/\r\n?/g, '\n');
 const actual = JSON.parse(actualText);
 
 assert.strictEqual(actualText, serialize(expected), 'M16.5 visual inventory is stale');

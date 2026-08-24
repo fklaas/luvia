@@ -265,7 +265,9 @@ function main() {
     const target = process.argv[checkIndex + 1];
     if (!target) throw new Error('--check requires a repository-relative path');
     const expected = serialize(inventory);
-    const actual = fs.readFileSync(path.resolve(ROOT, target), 'utf8');
+    const actual = fs
+      .readFileSync(path.resolve(ROOT, target), 'utf8')
+      .replace(/\r\n?/g, '\n');
     if (actual !== expected) {
       throw new Error(`Visual inventory is stale: ${target}`);
     }
