@@ -25,8 +25,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M16 Confirmed Owner Actions**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 DESIGN-ONLY / JOINT GATE NEXT**
-- Parallel Development Status: **PARALLEL DEVELOPMENT READY**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 COMPLETE VISUAL REDESIGN INVENTORY ACTIVE / DESIGN FREEZE PENDING**
+- Parallel Development Status: **NINETEEN-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
 ## M16 Runtime Assembly
 
@@ -51,6 +51,30 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Supabase Edge Functions / secrets: **UNCHANGED**
 - Manual Cloudflare configuration: **NONE**
 - Eight-stream documentation synchronization: **PENDING THIS CLOSEOUT MARKER**
+
+## M16.5 Complete Visual Redesign / Admin and Core-stream Foundation
+
+- Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance ownership and Core-aligned GitHub streams**
+- Runtime App / Core: **13.82.48 / 4.82.48 unchanged**
+- Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
+- Runtime source remains: `0d7468596dbdb42803738f427d4355bf31281c65`
+- M16.5 status: **DESIGN-ONLY ACTIVE; current visual language is rejected; joint Corporate Design and Design Freeze remain pending**
+- Exhaustive manifest: **2,741 tracked files; 650 visual candidates; 261 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **58 files; 837,078 LF-normalized bytes; 6,157 lines; 3,219 `!important`; 2,845 literal hex colours; 226 z-index declarations; 35 reduced-motion queries; 36 focus-visible selectors**
+- Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
+- Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
+- Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
+- Admin runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.5 after a dedicated security, RLS and migration gate**
+- Active GitHub topology: **19/19 registry streams created locally and remotely at `f44036bf7e62e2557585142845f53ffa553ce4d7`; Local = Tracking = live Remote; divergence 0/0; clean**
+- Historical Social branch: **preserved, not deleted and not an active second Membership owner**
+- Safe Regression: **91 / 91 PASS on Platform, Integration and Main**
+- NFR-0: **3 / 3 PASS**
+- Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
+- Rejected evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until the manifest and comparison both used canonical LF text provenance while leaving binary assets raw-byte exact**
+- Database / schema / RPC / RLS / bucket migration: **NONE**
+- Supabase Edge Functions / secrets: **UNCHANGED**
+- Runtime assets / Cloudflare / Preview / Production: **UNCHANGED; no runtime deployment was triggered or claimed**
+- Next design gate: **two to three genuinely different Creative Territories, complete system/flow prototypes and the user's explicit Design Freeze before broad M17 implementation**
 
 ## M15 Runtime Release
 

@@ -222,6 +222,36 @@ not receive a false Domain-Core stream.
 7. Preserve the historical Social branch without destructive deletion.
 8. Continue M16.5 visual design inventory and joint Design Freeze.
 
+## Architecture-slice closeout evidence
+
+The architecture implementation chain is
+`6880e881fd433d28e75396502adee12af528fb8b`,
+`3679a06fbaf45b132dac2238ba198d658b5ceb02` and
+`f44036bf7e62e2557585142845f53ffa553ce4d7`.
+
+At `f44036bf7e62e2557585142845f53ffa553ce4d7` all nineteen registry-active
+branches and their mapped worktrees existed locally and on GitHub, resolved
+Local = Tracking = live Remote, had divergence `0/0` and clean working trees.
+The historical Social branch remained preserved and registry-inactive.
+
+Focused topology and visual-inventory guards passed. Controlled Safe
+Regression passed `91/91` on Platform, Integration and Main; NFR-0 remained
+`3/3`. The cross-Core DB guard remained unchanged at 361 tracked JavaScript/
+TypeScript files, static 310, mapped `30/30`, unmapped `39/39` and dynamic
+`27/27`.
+
+One Integration candidate was correctly rejected before promotion: the first
+manifest compared raw Working-Copy line endings and therefore treated LF and
+CRLF checkouts of identical Git text blobs as different. The generator and
+comparison were corrected to canonical LF text provenance while retaining raw
+byte equality for binary assets. Only the corrected candidate advanced.
+
+This slice changed no runtime asset, App/Core version, database, schema, RPC,
+RLS, bucket, Edge Function, secret or Cloudflare configuration. No Preview or
+Production deployment was triggered or claimed. The Admin runtime and Admin
+Experience remain future implementation work; only their mandatory ownership,
+security architecture and design surface are reserved here.
+
 ## Later Admin implementation sequence
 
 1. Read-only auth/RLS/admin-debt inventory and threat model.
