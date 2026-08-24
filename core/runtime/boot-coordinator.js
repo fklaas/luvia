@@ -43,7 +43,7 @@
     if(tripId){
       await Promise.all([
         window.LuviaTripPlaceData?.hydrate?.(tripId),
-        window.LuviaTimelineCore?.hydrate?.(tripId)
+        window.LuviaJourneyContractV1?.commands?.hydrate?.(tripId)
       ]);
     }
     snapshot=Object.freeze({auth:(window.LuviaAuth||window.ParisAuth).getState(),profile:window.LuviaProfileService.snapshot(),trips:tripRuntime().getState(),tripId,completedAt:new Date().toISOString()});

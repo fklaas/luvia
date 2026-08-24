@@ -1,0 +1,56 @@
+{
+  "contractId": "journey.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M12",
+  "owner": "Journey",
+  "status": "active",
+  "truthOwnership": "derived-day-graph-and-conflict-policy",
+  "foreignDomainTruth": false,
+  "currentImplementation": [
+    "core/journey/journey-domain-contract-core.js",
+    "core/platform/journey-contract-adapter.js",
+    "LuviaJourneyContractV1"
+  ],
+  "reads": [
+    "snapshot",
+    "list",
+    "listDays",
+    "getDay",
+    "entriesForDate",
+    "listConflicts",
+    "subscribe",
+    "composeProjection"
+  ],
+  "commands": [
+    "init",
+    "hydrate",
+    "recordEvent",
+    "removeEntry",
+    "clearEntries",
+    "removePhotoMemoryByCluster",
+    "openPhotoMemory",
+    "editEntry",
+    "openPlanningEditor"
+  ],
+  "events": [
+    "journey.changed"
+  ],
+  "sourceOwners": [
+    "booking",
+    "journey",
+    "media",
+    "places",
+    "trip"
+  ],
+  "excludedTruth": [
+    "trip",
+    "places",
+    "booking",
+    "media",
+    "identity",
+    "social",
+    "intelligence"
+  ],
+  "legacyCompatibility": "core/places/timeline-core.js"
+}

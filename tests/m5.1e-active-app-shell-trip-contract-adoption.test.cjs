@@ -50,7 +50,7 @@ assert(
 
 for (const required of [
   'window.LuviaProfileService.setActiveTrip(activeTripId)',
-  'window.LuviaTimelineCore?.hydrate?.(activeTripId)',
+  'window.LuviaJourneyContractV1?.commands?.hydrate?.(activeTripId)',
   'window.LuviaDestination?.refresh?.()',
   'window.LuviaCollaboration?.watchTrip?.(activeTripId)',
   'lastTripRenderSignature=tripRenderSignature(active)',

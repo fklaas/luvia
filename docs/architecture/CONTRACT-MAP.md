@@ -139,4 +139,20 @@ Web presentation adapter:
 
 M11 composes read-only Trip, Travel Identity, Attention, Experience and Network projections into an immutable Today view model. It owns presentation state only: no Trip, Booking, Places, Media, Identity, Intelligence or Journey truth, no DB/RPC/Supabase access and no foreign-domain command execution.
 
-The existing Journey/Timeline widget remains outside this contract and is embedded only through the explicit `reserved-read-only` projection boundary. The global Luvia AI Command Surface is opened through the established Overlay Host; M11 grants it no autonomous mutation authority.
+The Journey widget remains outside this Consumer contract and is embedded through the explicit `journey.v1-read-only` projection boundary. The global Luvia AI Command Surface is opened through the established Overlay Host; M11 grants it no autonomous mutation authority.
+
+## Journey
+
+Public contract:
+
+`journey.v1`
+
+Browserless owner core:
+
+`core/journey/journey-domain-contract-core.js`
+
+Web compatibility adapter:
+
+`core/platform/journey-contract-adapter.js`
+
+Reads expose immutable Day Graph, entries, conflicts and subscriptions. Commands route hydration, Journey events, legacy schedule editing and owner-specific open actions through one compatibility provider. The contract owns derived ordering, temporal integrity and provenance only; foreign domain truth remains with Trip, Places, Booking, Media, Identity, Social and Intelligence.

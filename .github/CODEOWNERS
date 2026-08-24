@@ -42,6 +42,11 @@
 /luvia-trip-context.js @fklaas
 /core/context/travel-context-service.js @fklaas
 
+# Journey / Timeline
+# Derived Day Graph and conflict policy; foreign domain truth remains excluded.
+/core/journey/ @fklaas
+/app/journey/ @fklaas
+
 # ---------------------------------------------------------------------------
 # Places
 # ---------------------------------------------------------------------------

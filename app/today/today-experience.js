@@ -33,7 +33,7 @@ function premiumMarkup(model,esc){
 }
 function render({trip={},profile={},widgetsHtml='',esc=fallbackEsc}={}){
   const model=modelFor({trip,profile});
-  return`<section class="lv-dashboard lvt-surface" data-today-experience data-today-contract="${core().contractId}">${premiumMarkup(model,esc)}<section class="lvt-journey" data-journey-projection="reserved-read-only"><div><span>Reiseverlauf</span><h2>Was ihr geplant habt</h2><p>Journey und Timeline bleiben eine eigenständige, read-only eingebundene Reiseprojektion.</p></div><button type="button" data-view="plan">Plan öffnen</button></section><div class="lv-grid" data-widget-grid>${widgetsHtml}</div></section>`;
+  return`<section class="lv-dashboard lvt-surface" data-today-experience data-today-contract="${core().contractId}">${premiumMarkup(model,esc)}<section class="lvt-journey" data-journey-projection="journey.v1-read-only"><div><span>Journey Core</span><h2>Was ihr geplant habt</h2><p>Der browserlose Day Graph verbindet freigegebene Projektionen, erkennt Konflikte und übernimmt keine fremde Domain Truth.</p></div><button type="button" data-view="plan">Plan öffnen</button></section><div class="lv-grid" data-widget-grid>${widgetsHtml}</div></section>`;
 }
 function update(){
   const surface=binding?.container?.querySelector?.('[data-today-experience]');
@@ -58,7 +58,7 @@ function bind(container,context={}){
   update();
   return unbind;
 }
-function diagnostics(){return Object.freeze({version:VERSION,contract:core().contractId,bound:Boolean(binding),domainTruth:false,journeyTimeline:'reserved-read-only-projection',ports:['NetworkPort']})}
+function diagnostics(){return Object.freeze({version:VERSION,contract:core().contractId,bound:Boolean(binding),domainTruth:false,journeyTimeline:'journey.v1-read-only-projection',ports:['NetworkPort']})}
 
 window.LuviaTodayExperience=Object.freeze({version:VERSION,render,bind,unbind,update,diagnostics});
 })();

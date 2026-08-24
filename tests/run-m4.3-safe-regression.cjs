@@ -177,6 +177,10 @@ const SUITE = Object.freeze([
     category: 'Product / Consumer',
     test: 'tests/m11-premium-today-attention-composition.test.cjs'
   },
+  {
+    category: 'Journey architecture',
+    test: 'tests/m12-journey-core-day-composer.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

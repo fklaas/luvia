@@ -91,7 +91,7 @@ function compose(input={}){
     status:Object.freeze({online,actionRequired,totalAttention:attention.length,message:status}),
     attention,
     quickActions:quickActions(phase),
-    provenance:Object.freeze({trip:'trip.v1 read-only projection',attention:'consumer attention read model',journeyTimeline:'reserved read-only projection outside this composition',domainTruth:false})
+    provenance:Object.freeze({trip:'trip.v1 read-only projection',attention:'consumer attention read model',journeyTimeline:'journey.v1 read-only projection outside this composition',domainTruth:false})
   });
 }
 function diagnostics(){return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,journeyTimelineOwner:false,allowedNavigationRoutes:[...ALLOWED_ROUTES]})}

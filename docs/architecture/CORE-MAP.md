@@ -156,14 +156,20 @@ Public Web boundary: `core/platform/intelligence-contract-adapter.js`
 
 The current `core/ai`, planning and recommendation runtime is migrated incrementally through this boundary. Trip, Places, Identity and Journey/Timeline are read through public owner projections; Intelligence proposal creation does not grant foreign-domain write ownership.
 
-## Reserved architecture
+## Journey / Timeline Core
 
-### Journey / Timeline
+Owner root: `core/journey/`
 
-Current file: `core/places/timeline-core.js`
+Status: ACTIVE.
 
-Status: RESERVED.
+Domain truth ownership: derived Day Graph, temporal ordering, conflict policy and source-owner provenance only.
 
-Do not automatically move it with ordinary Places consumers.
+Browserless owner surface: `core/journey/journey-domain-contract-core.js`
 
-Future work: Journey / Timeline Aggregation Architecture Audit.
+Public Web boundary: `core/platform/journey-contract-adapter.js` (`journey.v1`)
+
+Visible Consumer composition: `app/journey/journey-day-composer.js`
+
+Legacy compatibility: `core/places/timeline-core.js` retains current Web presentation, Supabase hydration/realtime and persistence routing behind the adapter. It is not a Places truth owner and active consumers must not access it directly.
+
+Journey may aggregate owner projections, but it must not absorb Trip, Places, Booking, Media, Identity, Social or Intelligence truth.

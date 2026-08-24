@@ -63,8 +63,13 @@ assert.strictEqual(
 );
 assert.strictEqual(
   (gallery.match(/window\.LuviaTimelineCore/g)||[]).length,
+  0,
+  'Gallery must not regain private Timeline/Journey provider access'
+);
+assert.strictEqual(
+  (gallery.match(/window\.LuviaJourneyContractV1/g)||[]).length,
   1,
-  'M7.2 must not silently migrate Timeline/Journey ownership'
+  'Gallery must remove photo memories through the public journey.v1 boundary'
 );
 
 for(const token of [
@@ -108,5 +113,5 @@ assert(
 
 console.log('M7.2 Gallery Media Contract Adoption: PASS');
 console.log('Gallery direct LuviaMediaCore refs: 19 -> 0');
-console.log('Clustering / AI Memory / Timeline scope: preserved');
+console.log('Clustering / AI Memory scope: preserved; Journey uses journey.v1');
 console.log('media.v1 runtime surface: 1.2.0');

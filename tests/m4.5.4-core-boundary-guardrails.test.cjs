@@ -114,11 +114,21 @@ assert.strictEqual(
 
 assert.strictEqual(
   cores.cores.journeyTimeline.status,
-  'reserved'
+  'active'
 );
 
 assert.strictEqual(
   cores.cores.journeyTimeline.root,
+  'core/journey/'
+);
+
+assert.strictEqual(
+  cores.cores.journeyTimeline.truthOwnership,
+  'derived-day-graph-and-conflict-policy'
+);
+
+assert.strictEqual(
+  cores.cores.journeyTimeline.legacyCompatibility,
   'core/places/timeline-core.js'
 );
 
@@ -238,5 +248,5 @@ console.log(
 console.log(
   `Intelligence DB/API candidate files: ${intelligenceDbFiles.length}`
 );
-console.log('Journey / Timeline reservation: PASS');
+console.log('Journey / Timeline independent Core boundary: PASS');
 console.log('Legacy AI roots excluded from automatic reassignment: PASS');

@@ -64,8 +64,9 @@ const ownerNames=[
 ];
 for(const owner of ownerNames)assert(joined.includes(owner),`M10 owner-classified Overlay Host adoption missing ${owner}`);
 
-assert.equal(registry.cores.journeyTimeline.status,'reserved','Journey/Timeline must remain separately reserved after Overlay Host adoption');
-assert.equal(registry.cores.journeyTimeline.root,'core/places/timeline-core.js','Journey/Timeline physical debt must remain explicit until its own Core extraction');
+assert.equal(registry.cores.journeyTimeline.status,'active','Journey must remain a separately owned active Core after extraction');
+assert.equal(registry.cores.journeyTimeline.root,'core/journey/','Journey physical Core root must remain explicit');
+assert.equal(registry.cores.journeyTimeline.legacyCompatibility,'core/places/timeline-core.js','Journey legacy Web/DB provider must remain explicit');
 assert.match(read('core/runtime/overlay-host-contract-core.js'),/browserless:true,domainTruth:false,platformRendering:false/,'Overlay policy must remain browserless and truth-free');
 assert.match(read('core/ui/ui-manager.js'),/adapter:'web-dom-compatibility'/,'DOM host must remain an explicit Web adapter');
 assert.doesNotMatch(read('core/ui/ui-manager.js'),/history\.(?:pushState|replaceState|back)/,'Overlay Host must not become a second History owner');

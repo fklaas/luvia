@@ -1781,7 +1781,7 @@ core/places/places-final-foundation.css,Places,Domain,Place lifecycle/planning/t
 core/places/places-final-foundation.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/presence-visit-core.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/shopping-intelligence-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
-core/places/timeline-core.js,Places,Domain,Place lifecycle/planning/timeline/place data
+core/places/timeline-core.js,Journey,Adapter/Web Compatibility,Legacy Journey Supabase hydration realtime persistence and overlay provider behind journey.v1; not Places truth
 core/places/transport-intelligence-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/trip-place-data-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/planning/planning-candidate-research.js,Intelligence/Planning,Domain/Application,"AI, recommendations, discovery and planning workspace"
@@ -2471,3 +2471,12 @@ docs/modularization/M11-CONSUMER-TODAY-ATTENTION-BASELINE-AND-SCOPE-LOCK.md,Cons
 docs/modularization/PCR-M11-PREMIUM-TODAY-ATTENTION-COMPOSITION.md,Consumer,Documentation/Architecture,M11 Consumer Today Attention and Journey-reservation PCR
 tests/m11-premium-today-attention-composition.test.cjs,Consumer/Shared Tests,Test/Guardrail,M11 browserless composition ownership native readiness load order accessibility and Journey reservation guard
 docs/modularization/RELEASE-NOTES-M11.md,Consumer,Documentation/Release,M11 premium Today Attention preview production acceptance provenance and rollback
+core/journey/AGENTS.md,Journey,Repository Governance,Journey Day Graph ownership foreign-truth exclusion and native-readiness rules
+core/journey/journey-domain-contract-core.js,Journey,Domain/Contract Core,Browserless journey.v1 Day Graph ordering conflict policy and owner provenance without persistence
+core/platform/journey-contract-adapter.js,Journey/Platform,Adapter/Web,Public journey.v1 reads and commands over one legacy Web DB compatibility provider
+app/journey/journey-day-composer.js,Journey/Consumer,Experience/Web,Visible responsive Day Composer over immutable journey.v1 projections and Overlay Host
+app/journey/journey-day-composer.css,Journey/Experience,Experience/Web,Premium responsive accessible Day Composer styles using Experience tokens
+docs/modularization/contracts/journey.v1.json,Journey,Contract,Versioned public Journey reads commands events ownership and compatibility specification
+docs/modularization/PCR-M12-JOURNEY-CORE-DAY-COMPOSER.md,Journey/Platform,Documentation/Architecture,M12 measured Journey ownership lock implementation scope rollback and release gates
+tests/m12-journey-core-day-composer.test.cjs,Journey/Shared Tests,Test/Guardrail,M12 browserless core adapter runtime ownership consumer isolation accessibility and load-order guard
+tests/fixtures/m12-journey-day-composer-browser.html,Journey/Shared Tests,Test/Fixture,Data-free browser fixture for desktop mobile conflict and Day Composer overlay acceptance

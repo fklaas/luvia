@@ -94,12 +94,22 @@ assert.strictEqual(
 
 assert.strictEqual(
   cores.cores.journeyTimeline.root,
-  'core/places/timeline-core.js'
+  'core/journey/'
 );
 
 assert.strictEqual(
   cores.cores.journeyTimeline.status,
-  'reserved'
+  'active'
+);
+
+assert.strictEqual(
+  cores.cores.journeyTimeline.publicContract,
+  'LuviaJourneyContractV1'
+);
+
+assert.strictEqual(
+  cores.cores.journeyTimeline.legacyCompatibility,
+  'core/places/timeline-core.js'
 );
 
 const rootAgents = read('AGENTS.md');

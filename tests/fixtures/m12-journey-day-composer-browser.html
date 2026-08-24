@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M12 Journey Day Composer Browser Fixture</title>
+  <link rel="stylesheet" href="../../core/experience/experience-foundation.css">
+  <link rel="stylesheet" href="../../app/journey/journey-day-composer.css">
+  <style>
+    :root{--lv-text:#263f54;--lv-muted:#687b8c;--lv-line:#dfe6ea}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f6f3f1,#edf4f5);font-family:Manrope,system-ui,sans-serif;color:var(--lv-text)}
+    main{width:min(1180px,calc(100% - 32px));margin:32px auto;padding:28px;border:1px solid rgba(38,63,84,.08);border-radius:28px;background:rgba(255,255,255,.94);box-shadow:0 24px 70px rgba(38,63,84,.12)}
+    .fixture-overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgba(24,39,52,.5);backdrop-filter:blur(8px)}
+    @media(max-width:560px){main{width:100%;margin:0;padding:18px 14px;border:0;border-radius:0;min-height:100dvh}.fixture-overlay{align-items:end;padding:0}}
+  </style>
+</head>
+<body>
+  <main data-fixture-root aria-label="Journey Day Composer Vorschau"></main>
+  <script src="../../core/journey/journey-domain-contract-core.js"></script>
+  <script>
+    (()=>{
+      const source={tripId:'trip-paris',hydrated:true,entries:[
+        {id:'schedule-breakfast',source:'schedule',tripId:'trip-paris',entityType:'restaurant',title:'Frühstück im Marais',startAt:'2026-08-24T08:30:00.000Z',endAt:'2026-08-24T09:45:00.000Z',placeId:'place-cafe'},
+        {id:'place-louvre',source:'place-data',tripId:'trip-paris',entityType:'attraction',title:'Louvre – Denon Flügel',startAt:'2026-08-24T09:30:00.000Z',durationMinutes:120,placeId:'place-louvre',tripPlaceId:'trip-place-louvre'},
+        {id:'visit-seine',source:'gps',tripId:'trip-paris',entityType:'nature',title:'Spaziergang an der Seine',startAt:'2026-08-24T13:30:00.000Z',durationMinutes:75,placeId:'place-seine',automatic:true},
+        {id:'memory-sunset',source:'event',tripId:'trip-paris',entityType:'photo_memory',kind:'photo_memory',title:'Goldene Stunde am Pont Neuf',startAt:'2026-08-25T19:15:00.000Z',durationMinutes:30,metadata:{mediaIds:['media-1','media-2']}},
+        {id:'schedule-dinner',source:'schedule',tripId:'trip-paris',entityType:'restaurant',title:'Abendessen mit Aussicht',startAt:'2026-08-26T18:30:00.000Z',durationMinutes:120,placeId:'place-dinner'}
+      ]};
+      globalThis.LuviaTimelineCore={snapshot:()=>source,subscribe:()=>()=>{},diagnostics:()=>({cloudAuthoritative:true,realtime:true,metrics:{queued:0}}),hydrate:async()=>source,init:async()=>source,record:async()=>source,removeEntry:async()=>true,clearEntries:async()=>source,removePhotoMemoryByCluster:async()=>true,openPhotoMemory:()=>null,editEntry:()=>null,openPlanningEditor:()=>null};
+      globalThis.LuviaTripContractV1={getActiveTrip:()=>({id:'trip-paris',title:'Paris zu zweit',destination:{name:'Paris'},startDate:'2026-08-24',endDate:'2026-08-27'})};
+      globalThis.LuviaExperienceContractV1={contractId:'experience.v1'};
+      globalThis.LuviaGlobalContracts={register:()=>{}};
+      globalThis.LuviaUI={mount:options=>{const overlay=document.createElement('div');overlay.className='fixture-overlay '+(options.className||'');overlay.append(options.content);document.body.append(overlay);const handle={id:'fixture-overlay',overlay,close:()=>{overlay.remove();options.onClose?.();return true}};overlay.addEventListener('click',event=>{if(event.target===overlay)handle.close()});overlay.querySelector(options.closeSelector)?.addEventListener('click',()=>handle.close());return handle}};
+    })();
+  </script>
+  <script src="../../core/platform/journey-contract-adapter.js"></script>
+  <script src="../../app/journey/journey-day-composer.js"></script>
+  <script>
+    (()=>{const root=document.querySelector('[data-fixture-root]'),trip=globalThis.LuviaTripContractV1.getActiveTrip();root.innerHTML=globalThis.LuviaJourneyDayComposer.renderCalendar(trip);globalThis.LuviaJourneyDayComposer.bindCalendar(root)})();
+  </script>
+</body>
+</html>

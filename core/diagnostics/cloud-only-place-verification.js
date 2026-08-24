@@ -10,7 +10,7 @@ function client(){return window.LuviaSupabaseService?.getClient?.()||window.Pari
 function localDomainKeys(){const keys=[];try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(FORBIDDEN_PATTERNS.some(pattern=>pattern.test(String(key))))keys.push(key);}}catch{}return keys.sort();}
 function serviceState(){return{
  schedule:{available:Boolean(window.LuviaScheduleIntelligence),cloudAuthoritative:Boolean(window.LuviaScheduleIntelligence?.diagnostics?.()?.cloudAuthoritative),persistence:window.LuviaScheduleIntelligence?.snapshot?.()?.persistence||null},
- timeline:{available:Boolean(window.LuviaTimelineCore),cloudAuthoritative:Boolean(window.LuviaTimelineCore?.diagnostics?.()?.cloudAuthoritative)},
+ timeline:{available:Boolean(window.LuviaJourneyContractV1),cloudAuthoritative:Boolean(window.LuviaJourneyContractV1?.diagnostics?.()?.cloudAuthoritative)},
  visits:{available:Boolean(window.LuviaPresenceVisitCore),cloudAuthoritative:Boolean(window.LuviaPresenceVisitCore?.diagnostics?.()?.cloudAuthoritative)},
  places:{available:Boolean(window.LuviaPlaceCore),cloudAuthoritative:Boolean(window.LuviaPlaceCore?.diagnostics?.()?.cloud?.authoritative)}
 };}
@@ -19,7 +19,7 @@ async function backendProbe(tripId){const db=client();if(!db?.rpc)throw new Erro
 async function rehydrate(tripId){await Promise.all([
  window.LuviaPlaceCore?.hydrateAll?.({tripId}),
  window.LuviaScheduleIntelligence?.refresh?.({tripId,force:true,skipThrottle:true}),
- window.LuviaTimelineCore?.hydrate?.(tripId),
+ window.LuviaJourneyContractV1?.commands?.hydrate?.(tripId),
  window.LuviaPresenceVisitCore?.hydrateVisits?.()
 ]);return snapshot();}
 function duplicateIdentityProbe(){const a={title:"McDonald's",providerPlaceId:'google-meppen',placeId:'11111111-1111-4111-8111-111111111111'};const b={title:"McDonald's",providerPlaceId:'google-haren',placeId:'22222222-2222-4222-8222-222222222222'};return{sameTitle:a.title===b.title,distinctProviderIds:a.providerPlaceId!==b.providerPlaceId,distinctPlaceIds:a.placeId!==b.placeId,passed:a.providerPlaceId!==b.providerPlaceId&&a.placeId!==b.placeId};}

@@ -60,9 +60,11 @@ Classify before moving.
 
 ## 8. Timeline boundary
 
-`core/places/timeline-core.js` is reserved for a later Journey / Timeline Aggregation Architecture Audit.
+`journey.v1` is the only public Journey boundary. Active consumers use its explicit `reads` and `commands` surfaces.
 
-Do not classify it as an ordinary Places consumer solely because of its current path.
+`core/journey/` owns the browserless derived Day Graph, ordering, conflict policy and provenance. It may aggregate public owner projections, but it may not persist or duplicate Trip, Places, Booking, Media, Identity, Social or Intelligence truth.
+
+`core/places/timeline-core.js` is the explicit Web/DB compatibility provider behind the adapter. No active consumer may reach its private `LuviaTimelineCore` global directly.
 
 ## 9. Experience changes versus core changes
 
@@ -90,4 +92,4 @@ Repository-wide safe regression and ownership guardrails remain mandatory at rel
 
 Domain and product flows may provide content and owner commands, but must not create a second global modal stack, keyboard dispatcher, scroll-lock owner or z-index hierarchy. Shared presentation crosses `overlay-host.v1`; Web DOM behavior remains in the Web compatibility host and native clients bind native presentation adapters.
 
-Journey / Timeline remains separately reserved even where its current implementation renders an overlay. It must not be migrated as an ordinary Places consumer without its dedicated architecture audit.
+Journey supplies domain-specific content and commands through `journey.v1`; Overlay Host remains the sole global presentation lifecycle owner. The legacy Journey presentation provider is an explicit compatibility layer, not permission to create another modal stack or reclassify Journey as Places.

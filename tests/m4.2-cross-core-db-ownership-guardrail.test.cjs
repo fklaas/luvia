@@ -124,6 +124,13 @@ const globalInventory = loadCsv(path.join(MOD, 'GLOBAL-ACCESS-INVENTORY.csv'));
 
 const fileOwnerByPath = new Map(fileOwnership.map(row => [row.path, row.owner]));
 const dbOwnerByTarget = new Map(databaseMap.map(row => [row.table, row.owner]));
+const historicalOwnerByPath = new Map(fileOwnerByPath);
+
+// The M1 inventory recorded timeline-core.js under Places. M12 truthfully
+// reclassifies that unchanged physical file as the Journey Web/DB
+// compatibility provider. Preserve the historical baseline calculation while
+// separately allowing only the newly visible, measured compatibility debt.
+historicalOwnerByPath.set('core/places/timeline-core.js', 'Places');
 
 const baselineAccess = globalInventory.filter(row => row.kind === 'supabase_table');
 
@@ -151,7 +158,7 @@ for (const row of baselineAccess) {
     continue;
   }
 
-  if (!ownersCompatible(fileOwnerByPath.get(row.path), dbOwnerByTarget.get(row.target))) {
+  if (!ownersCompatible(historicalOwnerByPath.get(row.path), dbOwnerByTarget.get(row.target))) {
     increment(baselineCross, key);
   }
 }
@@ -166,6 +173,23 @@ assert.equal(
   total(baselineUnmapped),
   39,
   'Historical unmapped DB-object debt changed unexpectedly'
+);
+
+const approvedArchitectureReclassification = new Map([
+  [compositeKey('core/places/timeline-core.js', 'place_visits'), 2],
+  [compositeKey('core/places/timeline-core.js', 'trip_places'), 1],
+  [compositeKey('core/places/timeline-core.js', 'places'), 1]
+]);
+
+const allowedCurrentCross = new Map(baselineCross);
+for (const [key, count] of approvedArchitectureReclassification) {
+  increment(allowedCurrentCross, key, count);
+}
+
+assert.equal(
+  total(allowedCurrentCross),
+  30,
+  'M12 Journey compatibility reclassification debt must remain exactly measured'
 );
 
 // Existing dynamic .from(variable/expression) debt.
@@ -299,7 +323,7 @@ function rejectGrowth(current, allowed, label) {
 
 rejectGrowth(
   currentCross,
-  baselineCross,
+  allowedCurrentCross,
   'New/increased cross-core direct DB access'
 );
 
@@ -330,7 +354,7 @@ console.log(
     'M4.2 cross-core DB ownership guardrail: OK',
     `tracked JS/TS files: ${trackedFiles.length}`,
     `static DB calls: ${staticCalls.length}`,
-    `mapped cross-core debt: ${total(currentCross)} / baseline ${total(baselineCross)}`,
+    `mapped cross-core debt: ${total(currentCross)} / allowed ${total(allowedCurrentCross)} (historical baseline ${total(baselineCross)})`,
     `unmapped DB-object debt: ${total(currentUnmapped)} / baseline ${total(baselineUnmapped)}`,
     `dynamic DB calls: ${dynamicCalls.length} / baseline ${total(dynamicBaseline)}`
   ].join('\n')

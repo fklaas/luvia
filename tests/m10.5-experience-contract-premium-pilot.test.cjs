@@ -95,8 +95,9 @@ assert.equal(registry.cores.experience.publicContract,'LuviaExperienceContractV1
 assert.equal(registry.cores.experience.browserlessCore,'core/experience/experience-contract-core.js');
 assert.equal(registry.cores.experience.contractAdapter,'app/adapters/experience-web-adapter.js');
 assert.equal(registry.cores.experience.truthOwnership,'no-domain-truth');
-assert.equal(registry.cores.journeyTimeline.status,'reserved');
-assert.equal(registry.cores.journeyTimeline.root,'core/places/timeline-core.js');
+assert.equal(registry.cores.journeyTimeline.status,'active');
+assert.equal(registry.cores.journeyTimeline.root,'core/journey/');
+assert.equal(registry.cores.journeyTimeline.publicContract,'LuviaJourneyContractV1');
 assert(safeRunner.includes('tests/m10.5-experience-contract-premium-pilot.test.cjs'));
 for(const file of ['core/experience/experience-contract-core.js','core/experience/experience-foundation.css','app/adapters/experience-web-adapter.js','tests/m10.5-experience-contract-premium-pilot.test.cjs'])assert(ownership.includes(file),`ownership registry missing ${file}`);
 
@@ -104,4 +105,4 @@ console.log('M10.5 Experience Contract / Premium AI Pilot: PASS');
 console.log(`Semantic tokens: ${core.diagnostics().tokenCount}`);
 console.log(`Components / states: ${core.diagnostics().componentCount} / ${core.diagnostics().stateCount}`);
 console.log('Native mappings: SwiftUI + Compose');
-console.log('Journey / Timeline reservation: PRESERVED');
+console.log('Journey / Timeline: independent active Core preserved');

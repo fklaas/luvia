@@ -26,7 +26,7 @@ Directory-specific `AGENTS.md` files add stricter rules for their subtree.
 - Preserve recovery, idempotency, migration and regression behavior.
 - Do not move a file merely because its current directory name is misleading; classify ownership first.
 - Do not combine a risky core-boundary change with a large visual redesign in the same release.
-- `core/places/timeline-core.js` is reserved for a later Journey / Timeline Aggregation Architecture Audit.
+- `core/journey/` owns the browserless Journey Day Graph and conflict policy. `core/places/timeline-core.js` is only the classified Web/DB compatibility provider behind `journey.v1` and must not be used directly by consumers.
 
 ## Experience Core
 

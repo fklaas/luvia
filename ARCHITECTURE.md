@@ -95,11 +95,11 @@ The existing seven Discovery modules are future consolidation candidates after t
 
 ## Journey / Timeline
 
-`core/places/timeline-core.js` is explicitly reserved.
+`core/journey/` owns the browserless Journey Day Graph, temporal ordering, conflict policy and owner provenance.
 
-Its future architecture is heterogeneous Journey / Timeline aggregation, not ordinary Places-consumer ownership.
+Its public boundary is `journey.v1` through `core/platform/journey-contract-adapter.js`.
 
-It receives its own later architecture and reachability audit.
+Journey is a heterogeneous cross-domain aggregator. It may compose read-only Trip, Places, Booking, Media and other owner projections, but it never copies or mutates their canonical truth. `core/places/timeline-core.js` remains an explicit Web/DB compatibility provider behind the public contract until its persistence and presentation responsibilities are decomposed in later measured slices.
 
 ## Release model
 

@@ -26,8 +26,9 @@ for(const table of ['trip_schedule_events','timeline_events','place_visits','tri
 assert.equal(count(timeline,'LuviaMediaCore'),2,'Timeline/Journey Media reservation must remain measured');
 assert(!timeline.includes('LuviaTripStore'),'Timeline/Journey must not regain private Trip truth access');
 assert(!timeline.includes("name:'places.timeline"),'Journey presentation owner must not be mislabeled as Places ownership');
-assert.equal(registry.cores?.journeyTimeline?.status,'reserved','Core registry must preserve Journey/Timeline reservation');
-assert.equal(registry.cores?.journeyTimeline?.truthOwnership,'reserved-pending-architecture-audit','Journey/Timeline truth must remain explicitly unresolved until its physical extraction');
+assert.equal(registry.cores?.journeyTimeline?.status,'active','Journey Core must remain independently active after physical extraction');
+assert.equal(registry.cores?.journeyTimeline?.truthOwnership,'derived-day-graph-and-conflict-policy','Journey must own only derived Day Graph and conflict policy');
+assert.equal(registry.cores?.journeyTimeline?.legacyCompatibility,'core/places/timeline-core.js','Legacy Web/DB provider must remain explicitly classified');
 assert(safeRunner.includes('tests/m10.4e-journey-timeline-overlay-host-adoption.test.cjs'),'M10.4E guard missing from Safe Regression');
 
 console.log('M10.4E Journey / Timeline Overlay Host Adoption: PASS');

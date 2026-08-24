@@ -84,11 +84,24 @@
       "purpose": "Cross-domain reasoning, AI orchestration, recommendations, planning and proactive intelligence"
     },
     "journeyTimeline": {
-      "root": "core/places/timeline-core.js",
-      "ownerStream": null,
-      "truthOwnership": "reserved-pending-architecture-audit",
-      "status": "reserved",
-      "purpose": "Future Journey / Timeline Aggregation Architecture Audit; must not be automatically moved with ordinary Places consumers"
+      "root": "core/journey/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "derived-day-graph-and-conflict-policy",
+      "publicContract": "LuviaJourneyContractV1",
+      "contractAdapter": "core/platform/journey-contract-adapter.js",
+      "browserlessCore": "core/journey/journey-domain-contract-core.js",
+      "legacyCompatibility": "core/places/timeline-core.js",
+      "excludedTruth": [
+        "trip",
+        "places",
+        "booking",
+        "media",
+        "identity",
+        "social",
+        "intelligence"
+      ],
+      "status": "active",
+      "purpose": "Cross-domain Day Graph ordering, temporal integrity, conflict policy and owner-provenance projection without foreign Domain Truth"
     }
   }
 }

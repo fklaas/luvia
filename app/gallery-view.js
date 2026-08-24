@@ -295,7 +295,7 @@
     root.querySelectorAll('[data-memory-bridge]').forEach(button => button.onclick = () => openMemoryBridge(button.dataset.memoryBridge));
     root.querySelectorAll('[data-cluster-dismiss]').forEach(button => button.onclick = async () => {
       if (!confirm('Automatische Gruppierung auflösen?')) return;
-      suppressRealtimeUntil=Date.now()+1600; await window.LuviaMediaClustering.dissolve(button.dataset.clusterDismiss); await window.LuviaTimelineCore?.removePhotoMemoryByCluster?.(button.dataset.clusterDismiss); await load({silent:true,analyze:false,force:true});
+      suppressRealtimeUntil=Date.now()+1600; await window.LuviaMediaClustering.dissolve(button.dataset.clusterDismiss); await window.LuviaJourneyContractV1?.commands?.removePhotoMemoryByCluster?.(button.dataset.clusterDismiss); await load({silent:true,analyze:false,force:true});
     });
   }
 

@@ -45,7 +45,7 @@ assert.equal(model.attention[0].id,'booking');
 assert.equal(model.attention.find(item=>item.id==='unsafe').action,null);
 assert.equal(model.quickActions[0].route,'places');
 assert.equal(model.provenance.domainTruth,false);
-assert.match(model.provenance.journeyTimeline,/reserved read-only/);
+assert.match(model.provenance.journeyTimeline,/journey\.v1 read-only/);
 assert.equal(Object.isFrozen(model),true);
 assert.equal(Object.isFrozen(model.attention),true);
 assert.equal(Object.isFrozen(model.attention[0]),true);
@@ -76,20 +76,21 @@ assert.match(rendered,/data-today-contract="consumer\.today-composition\.v1"/);
 assert.match(rendered,/Paris gehört heute euch\./);
 assert.match(rendered,/Restaurant bestätigen/);
 assert.match(rendered,/data-ai-ask-open/);
-assert.match(rendered,/data-journey-projection="reserved-read-only"/);
+assert.match(rendered,/data-journey-projection="journey\.v1-read-only"/);
 assert.match(rendered,/data-widget-id="today">Journey calendar/);
 
 for(const token of ['LuviaTripStore','TripStore','LuviaPlaceCore','LuviaBooking','supabase','\\.from\\(','localStorage','sessionStorage']){
   assert.equal(new RegExp(token).test(adapterSource),false,`Today Web adapter contains private/domain shortcut: ${token}`);
 }
-for(const required of ['LuviaControlCenterTravelIdentity','LuviaControlCenterAttention','LuviaPlatformPorts',"get?.('NetworkPort')",'LuviaTodayCompositionCoreV1','data-ai-ask-open','data-view','data-journey-projection="reserved-read-only"','bind','unbind'])assert.ok(adapterSource.includes(required),`Today adapter missing ${required}`);
+for(const required of ['LuviaControlCenterTravelIdentity','LuviaControlCenterAttention','LuviaPlatformPorts',"get?.('NetworkPort')",'LuviaTodayCompositionCoreV1','data-ai-ask-open','data-view','data-journey-projection="journey.v1-read-only"','bind','unbind'])assert.ok(adapterSource.includes(required),`Today adapter missing ${required}`);
 assert.ok(shellSource.includes('window.LuviaTodayExperience'));
 assert.match(shellSource,/today\.render\(\{trip:t,profile:p,esc,widgetsHtml:/);
 assert.match(shellSource,/LuviaTodayExperience\?\.unbind/);
 assert.match(shellSource,/LuviaTodayExperience\?\.bind/);
 assert.ok(shellSource.includes('[data-widget-grid]'),'existing dashboard refresh mount must stay compatible');
 assert.ok(widgetSource.includes("register({id:'today'"));
-assert.ok(widgetSource.includes('LuviaTimelineCore?.renderCalendar'));
+assert.ok(widgetSource.includes('LuviaJourneyDayComposer?.renderCalendar'));
+assert.equal(widgetSource.includes('LuviaTimelineCore?.renderCalendar'),false);
 assert.equal(coreSource.includes('TimelineCore'),false,'pure Consumer composition must not import Journey runtime');
 
 for(const variable of ['--luvia-color-action-primary','--luvia-color-surface-elevated','--luvia-layout-touch-minimum','--luvia-color-border-focus','--luvia-focus-ring'])assert.ok(cssSource.includes(variable),`Experience token missing: ${variable}`);

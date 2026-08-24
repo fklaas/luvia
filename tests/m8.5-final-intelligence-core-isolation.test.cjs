@@ -52,7 +52,9 @@ assert.equal(registry.cores.intelligence.publicContract,'LuviaIntelligenceContra
 assert.equal(registry.cores.intelligence.contractAdapter,adapterPath);
 assert.equal(registry.cores.intelligence.browserlessCore,corePath);
 assert.ok(registry.cores.intelligence.excludedTruth.includes('journey-timeline'));
-assert.equal(registry.cores.journeyTimeline.status,'reserved');
+assert.equal(registry.cores.journeyTimeline.status,'active');
+assert.equal(registry.cores.journeyTimeline.publicContract,'LuviaJourneyContractV1');
+assert.equal(registry.cores.journeyTimeline.truthOwnership,'derived-day-graph-and-conflict-policy');
 
 assert.equal(contract.contractId,'intelligence.v1');
 assert.equal(contract.status,'active');
@@ -77,4 +79,4 @@ console.log('M8.5 FINAL Intelligence Core Isolation Foundation: PASS');
 console.log('Browserless owner core: PASS');
 console.log('intelligence.v1 runtime: ACTIVE');
 console.log('Private Trip/Places/Identity dashboard-tool-memory refs: 0');
-console.log('Timeline/Journey reservation: PRESERVED');
+console.log('Journey Core: independently active / excluded from Intelligence truth');

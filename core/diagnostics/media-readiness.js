@@ -1,9 +1,9 @@
-/* Release 13.82.42 - Core 4.82.42 */
+/* Release 13.82.43 - Core 4.82.43 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.42';
-  const BUILD='13.82.42';
+  const CORE='4.82.43';
+  const BUILD='13.82.43';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -41,7 +41,7 @@ async function run(options={}){
       legacyLiveMomentSync:Boolean(window.ParisSync?.liveMoments||window.ParisSync?.get?.('liveMoments')),
       placeCore:Boolean(window.LuviaPlaceCore&&window.LuviaPlaceLifecycle),
       canonicalPlaceRegistry:Boolean(window.LuviaPlaceRegistry),
-      timelineCore:Boolean(window.LuviaTimelineCore),
+      timelineCore:Boolean(window.LuviaJourneyContractV1),
       diagnosticsRegistry:Boolean(window.LuviaServiceRegistry)
     };
     const mediaCoreDiagnostics=window.LuviaMediaCore?.diagnostics?.()||null;
@@ -67,6 +67,6 @@ async function run(options={}){
     warnings.push('live_moment_status.linked_photo_id bleibt für Altbestände lesbar; neue n:m-Verknüpfungen nutzen live_moment_media.');
     return {service:'media-readiness',version:VERSION,build:BUILD,status:failedChecks.length?'degraded':'active',ok:failedChecks.length===0,checkedAt:now(),durationMs:elapsed(started),dependencies,checks,failedChecks,warnings,gate:'M7 MEDIA DOMAIN NATIVE READINESS'};
   }
-  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaTimelineCore),serviceRegistry:Boolean(window.LuviaServiceRegistry),mediaDomainCore:Boolean(window.LuviaMediaDomainContractCoreV1),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true,mediaPickerPort:Boolean(platformPort('MediaPickerPort')),mediaCapturePort:Boolean(platformPort('MediaCapturePort')),mediaStoragePort:Boolean(platformPort('MediaStoragePort')),locationPort:Boolean(platformPort('LocationPort')),devicePort:Boolean(platformPort('DevicePort')),sharingPort:Boolean(platformPort('SharingPort')),networkTransitions:Boolean(platformPort('NetworkPort')?.subscribe),lifecyclePort:Boolean(platformPort('LifecyclePort')),backgroundUploadAdapterCapable:true,offlineQueueAdapterCapable:true,realtimeOwner:'media-core',hydrationBoundary:'media.v1'},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'M7 MEDIA DOMAIN NATIVE READINESS'};}
+  function diagnostics(){return{service:'media-readiness',version:VERSION,build:BUILD,status:'active',ok:true,checkedAt:now(),durationMs:0,dependencies:{placeCore:Boolean(window.LuviaPlaceCore),timelineCore:Boolean(window.LuviaJourneyContractV1),serviceRegistry:Boolean(window.LuviaServiceRegistry),mediaDomainCore:Boolean(window.LuviaMediaDomainContractCoreV1),mediaContract:Boolean(window.LuviaMediaContractV1),platformPorts:Boolean(globalThis.LuviaPlatformPorts)},checks:{staticAuditComplete:true,newUploadImplemented:true,canonicalMediaCore:true,privateBucketContract:true,placeLinks:true,liveMomentLinks:true,mediaPickerPort:Boolean(platformPort('MediaPickerPort')),mediaCapturePort:Boolean(platformPort('MediaCapturePort')),mediaStoragePort:Boolean(platformPort('MediaStoragePort')),locationPort:Boolean(platformPort('LocationPort')),devicePort:Boolean(platformPort('DevicePort')),sharingPort:Boolean(platformPort('SharingPort')),networkTransitions:Boolean(platformPort('NetworkPort')?.subscribe),lifecyclePort:Boolean(platformPort('LifecyclePort')),backgroundUploadAdapterCapable:true,offlineQueueAdapterCapable:true,realtimeOwner:'media-core',hydrationBoundary:'media.v1'},failedChecks:[],warnings:['Live-Prüfung über run() erforderlich.'],gate:'M7 MEDIA DOMAIN NATIVE READINESS'};}
   window.LuviaMediaReadiness=Object.freeze({version:VERSION,build:BUILD,run,diagnostics});
 })();
