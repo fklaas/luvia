@@ -25,13 +25,14 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M15 Actionable Intelligence & Rich Results**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 RELEASE CANDIDATE / VALIDATION IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
-## M15 Runtime Release Candidate
+## M15 Runtime Release
 
 - Scope: **Actionable Intelligence, owner-backed Rich Results, restaurant/day pilot and Places discovery reliability**
 - Runtime release: **App 13.82.47 / Core 4.82.47**
+- Runtime source: `d39ed496d45b38cc6722cd0668d25f99e490940c`
 - Action contract: **intelligence.actions.v1 / 6 registered actions / 6 rich-result kinds**
 - Safe auto-run: **registered READ + NEVER confirmation only**
 - Explicit owner actions: **Places favorite/plan, Booking flow and Journey planning editor require a direct user gesture**
@@ -46,7 +47,11 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Safe Regression: **84 / 84 PASS**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **360 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
-- Preview, Production and eight-stream synchronization: **PENDING RELEASE GATES**
+- Booking route Function: **2.5.1 / Supabase deployment version 11 / CORS matrix 6/6 PASS / exact Diercksen route PASS**
+- Integration Preview `ae4fdd36-3b54-4f0f-a072-bbbdd30cc37c`: **both URLs 15/15 byte-exact, 5/5 private and 5/5 retired fallback, authenticated Rich Result/mobile/keyboard PASS, 25/25 F5 at 3.963-6.562 seconds (average 4.625 seconds), console 0**
+- Main promotion: **FF-only PASS**
+- Production version/deployment `3f12dc7d-5332-4521-b38c-3cc36f7b38b1` / `e36fe7ad-97a6-4654-97bd-e425653753ad`: **100%, both URLs 15/15 byte-exact, 5/5 private and 5/5 retired fallback, authenticated Rich Result PASS, 25/25 F5 at 3.571-6.625 seconds (average 4.269 seconds), console 0**
+- Eight-stream documentation synchronization: **PENDING THIS CLOSEOUT MARKER**
 
 ## M14 Runtime Release
 

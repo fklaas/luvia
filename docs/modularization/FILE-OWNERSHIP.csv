@@ -2507,5 +2507,9 @@ tests/m15.0b-places-progressive-breadth-runtime.test.cjs,Places/Shared Tests,Tes
 tests/m15.1-intelligence-action-contract-core.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Browserless action registry immutability sanitization confirmation and receipt guard
 tests/m15.2-booking-owner-chat-entry.test.cjs,Booking/Shared Tests,Test/Guardrail,Booking owner chat entry reuse and attribution route guard
 tests/m15.4-intelligence-action-runtime.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Public owner-contract action runtime and foreign-store isolation guard
-tests/m15.5-ai-chat-rich-results.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Rich Places Day Plan receipt and explicit user-gesture chat guard
+tests/m15.5-actionable-ai-chat-rich-results.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Rich Places Day Plan receipt and explicit user-gesture chat guard
 tests/m15.6-actionable-ai-rich-result-experience.test.cjs,Experience/Shared Tests,Test/Guardrail,Responsive accessible rich-result cards motion and trip-accent semantics guard
+tests/m15.7-booking-route-cors-acceptance.test.cjs,Booking/Shared Tests,Test/Guardrail,Request-scoped Production Integration immutable Preview and hostile-origin CORS guard
+tests/m15.8-intelligence-day-intent-rich-result.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Natural language day-planning intent routing into Journey Rich Results
+docs/modularization/RELEASE-NOTES-M15.md,Platform/Intelligence/Booking/Places/Experience,Documentation/Release,M15 runtime release incidents infrastructure Preview Production rollback and provenance
+docs/modularization/TEST-RESULTS-M15.md,Platform/Intelligence/Booking/Places/Experience,Documentation/Test Evidence,M15 automated Function byte privacy authenticated browser responsive and reload evidence

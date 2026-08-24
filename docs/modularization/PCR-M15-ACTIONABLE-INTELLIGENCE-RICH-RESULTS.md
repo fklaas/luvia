@@ -2,7 +2,11 @@
 
 Date: 2026-08-24
 
-Status: APPROVED FOR IMPLEMENTATION / SCOPE LOCKED
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Runtime source: `d39ed496d45b38cc6722cd0668d25f99e490940c`
+
+App / Core: `13.82.47 / 4.82.47`
 
 ## Problem
 
@@ -117,7 +121,10 @@ Experience / `feature/experience-core`:
 ## Database, Functions, secrets and deployment
 
 - Database/schema/RPC/RLS/bucket migration: NONE.
-- Supabase Edge Function change: NONE.
+- Supabase Edge Function change: `booking-route-resolve` 2.5.0 -> 2.5.1.
+  The request-scoped allowlist now supports Production, Integration and
+  immutable account-owned Luvia Preview origins while rejecting untrusted
+  origins. No wildcard was introduced.
 - Secret/provider change: NONE.
 - Manual Cloudflare configuration change: NONE.
 - Deployment follows the existing automatic Integration/Main path; causation
@@ -142,6 +149,40 @@ Experience / `feature/experience-core`:
 
 The changes are additive and ship with the App/Core release identity. If the
 registered action path cannot produce a safe owner result, the composer uses
-the unchanged text fallback. Rollback is code-only to the synchronized M14
-documentation marker `bb31c530a974b0d50da63887a46bc7a39b32b2bb`; no data
-or infrastructure compensation is required.
+the unchanged text fallback. Runtime rollback targets the synchronized M14
+documentation marker `bb31c530a974b0d50da63887a46bc7a39b32b2bb`. Because
+M15 also deployed one Edge Function, a full rollback additionally redeploys
+`booking-route-resolve` 2.5.0 from that marker. No database, storage, RLS,
+bucket or secret compensation is required.
+
+## Final measured acceptance
+
+- Safe Regression: 84 / 84 PASS.
+- NFR-0: 3 / 3 PASS.
+- Cross-Core DB guard: 360 tracked JS/TS, static 310, mapped 30/30,
+  unmapped 39/39 and dynamic 27/27; no debt growth.
+- Integration Preview version:
+  `ae4fdd36-3b54-4f0f-a072-bbbdd30cc37c`.
+- Integration stable and immutable URLs: each 15/15 byte-exact runtime assets,
+  5/5 private-path SPA fallbacks and 5/5 retired-path SPA fallbacks.
+- Preview authenticated browser: App/Core, active Trip, six Action definitions,
+  all four owner bindings, Enter, Shift+Enter, Journey Rich Result, mobile and
+  keyboard viewports PASS; console 0.
+- Preview authenticated reloads: 25/25 PASS, 3.963-6.562 seconds,
+  average 4.625 seconds.
+- Supabase `booking-route-resolve`: active deployment version 11, resolver
+  2.5.1, CORS positive/negative matrix 6/6 PASS. The exact Diercksen probe
+  resolved two verified candidates from seven checked pages to the correct
+  official-site e-mail fallback instead of the former CORS failure.
+- Main promotion: fast-forward only to runtime source commit PASS.
+- Production Cloudflare version/deployment:
+  `3f12dc7d-5332-4521-b38c-3cc36f7b38b1` /
+  `e36fe7ad-97a6-4654-97bd-e425653753ad`, 100%.
+- Production immutable URL and `myluvia.app`: each 15/15 byte-exact runtime
+  assets, 5/5 private-path and 5/5 retired-path SPA fallbacks.
+- Production authenticated browser: Journey Rich Result with four day cards,
+  Owner action, App/Core, active Trip and owner contracts PASS; console 0.
+- Production authenticated reloads: 25/25 PASS, 3.571-6.625 seconds,
+  average 4.269 seconds.
+- Cloudflare causation is not inferred. The recorded versions and deployments
+  were observed after Git promotion and accepted through byte provenance.
