@@ -241,6 +241,26 @@ const SUITE = Object.freeze([
     category: 'Intelligence / Natural Day Intent',
     test: 'tests/m15.8-intelligence-day-intent-rich-result.test.cjs'
   },
+  {
+    category: 'Intelligence / Action Ledger',
+    test: 'tests/m16.1-intelligence-action-ledger-core.test.cjs'
+  },
+  {
+    category: 'Intelligence / Capability Policy',
+    test: 'tests/m16.2-intelligence-action-capability-policy.test.cjs'
+  },
+  {
+    category: 'Intelligence / Confirmed Owner Runtime',
+    test: 'tests/m16.3-intelligence-confirmed-owner-action-runtime.test.cjs'
+  },
+  {
+    category: 'Intelligence / Confirmation Chat',
+    test: 'tests/m16.4-intelligence-confirmation-recovery-chat.test.cjs'
+  },
+  {
+    category: 'Platform / M16 Runtime Registration',
+    test: 'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

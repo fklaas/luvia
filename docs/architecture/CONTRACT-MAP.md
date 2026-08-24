@@ -132,6 +132,13 @@ results and receipts. Its Web runtime may auto-run registered READ actions;
 WRITE and EXTERNAL actions require a direct user gesture or explicit
 confirmation and the public command of the declared owner contract.
 
+M16 expands this additive surface to 19 actions across Trip, Places, Booking,
+Journey, Memory and Identity and adds `intelligence.action-ledger.v1` for
+digest-only orchestration state. R2/R3 execution requires a visible explicit
+confirmation, owner commands receive an idempotency key where required and an
+unknown external outcome blocks blind retry until owner reconciliation. The
+ledger stores no raw foreign payload and no foreign Domain Truth.
+
 Timeline/Journey is consumed only as a separately owned projection and is not reclassified as Intelligence truth.
 
 ## Experience

@@ -153,6 +153,25 @@ These results prove the owner implementation only. Runtime asset loading,
 shared Experience styling, authenticated Preview/Production behavior and
 eight-stream synchronization are not yet claimed at this marker.
 
+## Platform assembly evidence
+
+Completed on `feature/platform-core` after FF-only adoption of the Intelligence
+owner commit:
+
+- App/Core release identity advanced to `13.82.48 / 4.82.48`;
+- browser load order is Action Contract -> Action Ledger -> Action Runtime ->
+  Chat consumer;
+- Service Worker, Core Registry, architecture Contract Map and release cache
+  identity include the Action Ledger;
+- the controlled Safe Regression contains M16.1-M16.5 and reports
+  `89 / 89 PASS`;
+- NFR-0 Foundation reports `3 / 3 PASS`;
+- the cross-core DB ownership guard reports no static, dynamic, mapped or
+  unmapped database-access growth.
+
+This still does not claim shared Experience styling, authenticated Preview or
+Production acceptance, deployment causation or eight-stream synchronization.
+
 ## Rollback
 
 Runtime rollback returns to the synchronized M15 marker

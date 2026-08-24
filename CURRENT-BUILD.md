@@ -20,13 +20,32 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.47**
-- Core: **4.82.47**
-- Name: **M15 Actionable Intelligence & Rich Results**
+- App: **13.82.48**
+- Core: **4.82.48**
+- Name: **M16 Confirmed Owner Actions**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
+
+## M16 Runtime Assembly
+
+- Scope: **Confirmed Owner Actions, Action Ledger, capability/connection diagnostics and expanded rich-result chat**
+- Runtime release target: **App 13.82.48 / Core 4.82.48**
+- Intelligence owner feature: `808f99af1d791614581244d51a107459dd3f0c87`
+- Action surface: **intelligence.actions.v1 / 19 actions / 6 public owner contracts / R0-R3**
+- Action Ledger: **intelligence.action-ledger.v1 / digest-only / no raw payload / no foreign Domain Truth**
+- Chat results: **Places, Journey, Trip, Booking, Memory and Identity projections plus confirmation and receipt cards**
+- Safe execution: **R0 registered reads only; R1 direct gesture; R2/R3 explicit confirm/cancel; idempotency and owner receipts**
+- External uncertainty: **R3 unknown outcome blocks blind retry until owner reconciliation**
+- Platform runtime registration: **Contract → Ledger → Runtime → Chat load order PASS; Service Worker and Core Registry PASS**
+- Safe Regression: **89 / 89 PASS**
+- NFR-0: **3 / 3 PASS**
+- Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
+- Runtime registration, Experience styling, Integration/Production acceptance and eight-stream sync: **IN PROGRESS**
+- Database / schema / RPC / RLS / bucket migration: **NONE PLANNED**
+- Supabase Edge Functions / secrets: **NONE PLANNED**
+- Manual Cloudflare configuration: **NONE PLANNED**
 
 ## M15 Runtime Release
 

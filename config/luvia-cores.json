@@ -108,6 +108,8 @@
       "browserlessCore": "core/intelligence/intelligence-domain-contract-core.js",
       "actionContract": "LuviaIntelligenceActionContractCoreV1",
       "browserlessActionCore": "core/intelligence/intelligence-action-contract-core.js",
+      "actionLedgerContract": "intelligence.action-ledger.v1",
+      "browserlessActionLedger": "core/intelligence/intelligence-action-ledger-core.js",
       "webActionRuntime": "core/ai/ai-action-runtime.js",
       "excludedTruth": [
         "trip",
