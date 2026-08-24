@@ -2496,3 +2496,6 @@ docs/modularization/TEST-RESULTS-M14.md,Consumer/Intelligence/Experience,Documen
 docs/modularization/RELEASE-NOTES-M13.md,Memory/Consumer/Platform,Documentation/Release,M13 Memory Core Premium Memories ownership Native First infrastructure and rollback release record
 docs/modularization/TEST-RESULTS-M13.md,Memory/Consumer/Platform,Documentation/Test Evidence,M13 automated and local browser release candidate evidence with pending external gates
 docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,M12 Journey Core Day Graph Day Composer preview production provenance and rollback
+core/platform/booking-contract-adapter.js,Platform/Booking,Adapter/Web,Public booking.v1 adapter over the existing Booking owner runtime and verified owner-flow entry
+docs/modularization/PCR-M15-ACTIONABLE-INTELLIGENCE-RICH-RESULTS.md,Platform/Intelligence/Experience,Documentation/Architecture,M15 measured actionable Intelligence rich-result owner-contract scope rollback and release gates
+tests/m15.3-owner-contract-rich-card-adapters.test.cjs,Platform/Shared Tests,Test/Guardrail,M15 Places card-media and Booking owner-flow public adapter guard

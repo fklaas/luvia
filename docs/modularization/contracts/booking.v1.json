@@ -2,10 +2,11 @@
   "contractId": "booking.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M3",
+  "runtimeImplementationStage": "M15",
   "owner": "Booking",
-  "status": "specified-existing-facade",
+  "status": "active",
   "currentImplementation": [
+    "LuviaBookingContractV1",
     "LuviaBooking"
   ],
   "reads": [
@@ -24,7 +25,8 @@
     "resolveIntelligence",
     "modifyBooking",
     "cancelBooking",
-    "setConversationPreference"
+    "setConversationPreference",
+    "openPlaceBooking"
   ],
   "events": [
     "booking.changed",
