@@ -161,6 +161,27 @@
       "status": "reserved",
       "purpose": "Future collaboration spaces, memberships, invitations, scoped roles and grants; current presence/activity projection is not membership truth"
     },
+    "socialExperienceGraph": {
+      "root": "core/social/",
+      "ownerStream": "feature/social-experience-graph",
+      "truthOwnership": "reserved-consent-scoped-social-experience-graph-truth",
+      "plannedPublicContract": "social.experience-graph.v1",
+      "compatibilityContract": "social.v1",
+      "status": "reserved-strategic",
+      "excludedTruth": [
+        "collaboration-membership",
+        "identity-profile",
+        "private-travel-dna",
+        "memory-content",
+        "trip",
+        "places",
+        "booking",
+        "reviews-reputation",
+        "commission-attribution",
+        "attention-delivery"
+      ],
+      "purpose": "Future anti-vanity Social Travel Intelligence Network: consented Experience Graph edges, circles/relationships, visibility, Travel Twin relationship state, Echo/Drop lifecycle, Trip Fork provenance and inspiration signals without copying foreign Domain Truth"
+    },
     "attentionNotificationIntent": {
       "root": "core/attention/",
       "ownerStream": "feature/attention-core",

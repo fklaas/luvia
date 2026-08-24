@@ -7,7 +7,7 @@
 Topology-aware automation reads this registry. Hard-coded stream counts or
 parallel branch lists are forbidden.
 
-## Active nineteen-stream topology
+## Active twenty-stream topology
 
 | Stream | Branch | Worktree | Primary role |
 |---|---|---|---|
@@ -26,6 +26,7 @@ parallel branch lists are forbidden.
 | Experience | `feature/experience-core` | `../luvia-experience` | Corporate Design and interaction system |
 | Intelligence | `feature/intelligence-core` | `../luvia-intelligence` | AI orchestration and Intelligence state |
 | Collaboration | `feature/collaboration-core` | `../luvia-collaboration` | Reserved Membership owner |
+| Social | `feature/social-experience-graph` | `../luvia-social` | Reserved Social Travel Experience Graph owner |
 | Attention | `feature/attention-core` | `../luvia-attention` | Reserved Notification Intent owner |
 | Travel Wallet | `feature/travel-wallet-core` | `../luvia-travel-wallet` | Reserved secure Documents owner |
 | Reviews | `feature/reviews-core` | `../luvia-reviews` | Reserved Reviews/Reputation owner |
@@ -36,12 +37,15 @@ tables, policies or contracts already exist. Activation still requires a
 browserless Core, public contract, security model, tests and separately gated
 persistence changes.
 
-## Historical Social stream
+## Social and Collaboration are not duplicates
 
-`feature/social-experience-graph` remains on GitHub as non-destructively
-preserved history. It is no longer an active Truth owner and must not evolve in
-parallel with `feature/collaboration-core`. Existing presence/activity code is
-classified compatibility until M18.1 establishes Membership Truth.
+`feature/social-experience-graph` is an active reserved owner lane for the
+anti-vanity Social Travel Intelligence Network. It owns future consented graph
+edges, relationship/visibility lifecycle, Echoes, Drops, Trip Fork provenance
+and inspiration signals. `feature/collaboration-core` owns concrete spaces,
+memberships, invitations and scoped group/trip roles. Existing presence/
+activity code remains classified compatibility until M18.1 establishes
+Membership Truth; it is not automatically Social Graph truth.
 
 ## Promotion model
 

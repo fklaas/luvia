@@ -17,14 +17,14 @@ const {
 
 assert.strictEqual(
   registry.topologyVersion,
-  '19-stream-core-aligned-v1',
+  '20-stream-core-aligned-v1',
   'Unexpected topology version'
 );
 
 assert.strictEqual(
   streams.length,
-  19,
-  'Luvia topology must contain exactly nineteen active streams'
+  20,
+  'Luvia topology must contain exactly twenty active streams'
 );
 
 const byId = new Map(
@@ -47,6 +47,7 @@ for (const requiredId of [
   'experience',
   'intelligence',
   'collaboration',
+  'social',
   'attention',
   'travel-wallet',
   'reviews',
@@ -130,6 +131,7 @@ const codeowners = fs.readFileSync(
 for (const rule of [
   '/core/experience/ @fklaas',
   '/core/intelligence/ @fklaas',
+  '/core/social/ @fklaas',
   '/core/admin/ @fklaas',
   '/core/travel-wallet/ @fklaas',
   '/config/luvia-streams.json @fklaas',
@@ -177,12 +179,17 @@ assert(
 );
 
 assert(
+  moduleOwnership.includes('| Social / Experience Graph (reserved strategic) |'),
+  'Module ownership missing strategic Social Experience Graph boundary'
+);
+
+assert(
   moduleOwnership.includes('protect the last Superadmin'),
   'Module ownership missing last-Superadmin protection'
 );
 
 console.log(
-  'M16.5 core-aligned nineteen-stream topology guardrail: PASS'
+  'M16.5 core-aligned twenty-stream topology guardrail: PASS'
 );
 console.log(`Streams: ${streams.length}`);
 console.log('Registry-driven topology: PASS');

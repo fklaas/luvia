@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2741,
+    "trackedFiles": 2744,
     "visualCandidates": 650,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
@@ -5283,16 +5283,16 @@
       "classes": [
         "navigation-source"
       ],
-      "bytes": 26842,
-      "sha256": "d5fdf6baeb6f19c4e1047e13ca15b98e420e51d3f66e7368f4fbecc867c747db"
+      "bytes": 26939,
+      "sha256": "23a5ec54748ea9d7b50c7d3134e3b1ca8093bfa5b58cf54d8a8191703a2edb47"
     },
     {
       "path": "tests/m4.5.4-eight-stream-topology-guardrail.test.cjs",
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 3700,
-      "sha256": "b77a7cded74b92e99cacee0bccf5de3fdd8885308576f8c2c41831a9baf771ac"
+      "bytes": 3901,
+      "sha256": "45f7fa3257ed29a4a27548d8874eb20aee415426a4406ca5323e9a87574d15b3"
     },
     {
       "path": "tests/m5-final-physical-trip-core-isolation.test.cjs",
@@ -5739,8 +5739,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 13322,
-      "sha256": "6db0766b075526b297e094ff440eedec8b1f7f7040894661509c106aedc25b66"
+      "bytes": 13450,
+      "sha256": "5f9267f7f85a78cf1aaefb1342c5b4a4bdd9eb9bcda2f43b9eb24fa19ff552de"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

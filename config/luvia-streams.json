@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "topologyVersion": "19-stream-core-aligned-v1",
+  "topologyVersion": "20-stream-core-aligned-v1",
   "expandedFromMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
-  "streamCount": 19,
+  "streamCount": 20,
   "streams": [
     {
       "id": "main",
@@ -108,6 +108,13 @@
       "worktree": "../luvia-collaboration",
       "kind": "core",
       "purpose": "Reserved owner stream for Collaboration and Membership Truth"
+    },
+    {
+      "id": "social",
+      "branch": "feature/social-experience-graph",
+      "worktree": "../luvia-social",
+      "kind": "core",
+      "purpose": "Reserved owner stream for the consent-scoped Social Travel Experience Graph, relationships, Echoes, Drops, Fork provenance and inspiration signals"
     },
     {
       "id": "attention",

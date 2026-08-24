@@ -24,6 +24,7 @@ const expectedBranches = [
   'feature/experience-core',
   'feature/intelligence-core',
   'feature/collaboration-core',
+  'feature/social-experience-graph',
   'feature/attention-core',
   'feature/travel-wallet-core',
   'feature/reviews-core',
@@ -31,9 +32,9 @@ const expectedBranches = [
 ];
 
 assert.strictEqual(streams.schemaVersion, 1);
-assert.strictEqual(streams.topologyVersion, '19-stream-core-aligned-v1');
-assert.strictEqual(streams.streamCount, 19);
-assert.strictEqual(streams.streams.length, 19);
+assert.strictEqual(streams.topologyVersion, '20-stream-core-aligned-v1');
+assert.strictEqual(streams.streamCount, 20);
+assert.strictEqual(streams.streams.length, 20);
 
 assert.deepStrictEqual(
   streams.streams.map(stream => stream.branch),
@@ -42,12 +43,12 @@ assert.deepStrictEqual(
 
 assert.strictEqual(
   new Set(streams.streams.map(stream => stream.branch)).size,
-  19
+  20
 );
 
 assert.strictEqual(
   new Set(streams.streams.map(stream => stream.worktree)).size,
-  19
+  20
 );
 
 const experienceStream = streams.streams.find(
@@ -354,6 +355,7 @@ for (const [coreId, branch] of Object.entries({
   experience: 'feature/experience-core',
   intelligence: 'feature/intelligence-core',
   collaborationMembership: 'feature/collaboration-core',
+  socialExperienceGraph: 'feature/social-experience-graph',
   attentionNotificationIntent: 'feature/attention-core',
   travelWalletDocuments: 'feature/travel-wallet-core',
   reviewsReputation: 'feature/reviews-core',
@@ -368,7 +370,7 @@ for (const [coreId, branch] of Object.entries({
 assert.strictEqual(cores.cores.adminGovernance.status, 'reserved-mandatory');
 assert.strictEqual(cores.cores.adminGovernance.plannedPublicContract, 'admin.governance.v1');
 assert.strictEqual(cores.cores.adminGovernance.plannedAuditContract, 'admin.audit.v1');
-console.log('Streams: 19');
+console.log('Streams: 20');
 console.log('Experience Core boundary: PASS');
 console.log('Intelligence Core boundary: PASS');
 console.log('Timeline reservation: PASS');

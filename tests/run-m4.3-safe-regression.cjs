@@ -374,6 +374,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-visual-surface-inventory.test.cjs'
   },
   {
+    category: 'M16.5 / Social Experience Graph',
+    test: 'tests/m16.5b-social-experience-graph-reservation.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

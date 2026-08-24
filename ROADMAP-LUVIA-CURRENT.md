@@ -31,10 +31,11 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - Experience Core.
 - Journey Core as independent cross-domain Day Graph/Timeline aggregator.
 - Memory Core.
-- Core-aligned nineteen-stream ownership topology: one stream for every active
+- Core-aligned twenty-stream ownership topology: one stream for every active
   or bindingly reserved Core, plus Main, Integration and non-owning Consumer.
-- Historical Social Experience Graph branch preserved; canonical future
-  Membership ownership moves to the Collaboration Core stream.
+- Social / Experience Graph and Collaboration / Membership are separate
+  reserved owners: Social is the anti-vanity Social Travel Intelligence layer;
+  Collaboration owns concrete group/trip membership, invitations and roles.
 
 Consumer and Experience own no Domain Truth. Intelligence may reason, rank,
 plan and orchestrate, but executes changes only through public owner commands.
@@ -73,7 +74,10 @@ architecture remains. Required outputs:
 - M18.3: Travel Wallet / Documents Core.
 - M18.4: Reviews / Reputation Core.
 - M18.5: Admin / Governance Core — mandatory security and operability Core.
-- M18.6: Universal Search / projection index, not a shadow Domain Core.
+- M18.6: Social / Experience Graph Core — strategic Social Travel Intelligence.
+- M18.7: Universal Search / projection index, not a shadow Domain Core.
+- M18.8: Luvia Intelligence Product Evolution II — system-wide context,
+  capability coverage, proactive assistance, Voice/Multimodal and evals.
 - M19: Offline/Sync, conflicts, resilience, observability and AI evals.
 - M20-M21: native iOS/Android delivery and productization using the same
   Domain contracts.
@@ -83,11 +87,11 @@ architecture remains. Required outputs:
 
 ## M18 Core blueprints
 
-All five new Cores follow the same owner-first delivery sequence: read-only
+All six new Cores follow the same owner-first delivery sequence: read-only
 inventory and ADR; public Contract, Commands, Events and state machine;
 browserless policy tests; separately approved persistence/security changes;
 Web and native adapters; Experience/Intelligence integration; regression,
-Preview, Production and nineteen-stream closeout. Consumers never write private
+Preview, Production and twenty-stream closeout. Consumers never write private
 owner persistence, and every mutation carries actor, scope, idempotency,
 expected version, correlation and an owner receipt.
 
@@ -215,13 +219,114 @@ expected version, correlation and an owner receipt.
   revocation, offline deny, reload/deep-link, accessibility, browserless policy
   smoke, Preview/Production provenance and independent security review.
 
-### M18.6 Universal Search / Projection Index
+### M18.6 Social / Experience Graph Core — strategic
+
+- Product position: Luvia is not a classic feed/follower/like network. It is a
+  Social Travel Intelligence Network that answers which consented experiences
+  from trusted or behaviorally compatible people are relevant to the active
+  trip and can be transformed into owner-confirmed action.
+- Owns consented Experience Graph edges and lifecycle, circles/relationships,
+  visibility and blocking, Travel Twin relationship state, Experience Drops,
+  Echo eligibility/delivery state, Trip Fork provenance and inspiration
+  signals. It does not copy Trip, Places, Booking, Memory, Media, Identity,
+  Reviews, Collaboration, Attention or monetization truth.
+- Publishes `social.experience-graph.v1`; `social.v1` remains the compatibility
+  name. Public projections cover relevant experiences, relationship/circle
+  state, privacy-safe compatibility evidence, Echo/Drop/Fork provenance and
+  inspiration receipts—never a hidden global popularity score.
+- Anti-vanity is a binding product invariant: no follower race, public like
+  count, engagement feed or influencer override. Relevance is explained using
+  trust, context, recency, verified evidence and similarity with uncertainty.
+- Travel DNA remains split correctly: Identity owns explicit preferences;
+  Intelligence owns inferred behavioral models and match calculation; Social
+  consumes only a privacy-safe vector/projection and owns durable consented
+  relationship state, not the private model.
+- Travel Twins: Intelligence calculates explainable compatibility; Social
+  governs discovery consent, candidate visibility, dismissal/blocking and any
+  accepted connection. Match percentages include provenance, uncertainty and
+  minimum-sample gates.
+- Luvia Echoes: Memory owns source memories; Places owns location references;
+  Social owns the consented person-to-experience connection and Echo lifecycle;
+  Attention owns notification intent/delivery and Platform LocationPort owns
+  device location access.
+- Experience Drops: Social owns the message, audience and lifecycle while
+  Places/Media/Identity are referenced by public IDs/projections. Audiences are
+  private, family, friends, circle or moderated community; precise presence is
+  never inferred or exposed without consent.
+- Fork my Trip: Intelligence adapts an inspiration projection; Trip creates the
+  new trip through its owner command; Social stores provenance/credit only.
+  No booking, schedule or traveler truth is copied as Social truth.
+- Social Compass and Social Booking combine Social relevance with Places,
+  Booking and Journey public contracts. Booking owns availability,
+  reservation, provider status, partner attribution and commission; Social
+  supplies inspiration provenance and never calls providers or Booking tables.
+- Verified Experience is an evidence-backed attestation referencing owner
+  receipts with consent. Reviews owns authored review/moderation truth; Social
+  may rank relevance but cannot convert evidence into an undisclosed rating.
+- Group Intelligence remains Collaboration + Intelligence + Journey: members
+  and votes are Collaboration truth, preference reasoning is Intelligence and
+  the plan is committed through Journey/Trip owner commands.
+- Safety/privacy requires explicit audience and reuse consent, purpose binding,
+  blocking/reporting, child/minor protection, location minimization, retention,
+  deletion propagation, export, anti-Sybil/rate limits, moderation and no raw
+  private Identity/Memory/Booking payload in graph or model logs.
+- M16.5 designs Social as relevant in-context cards, Compass explanations,
+  Travel Twin evidence, Echoes, Drops and Fork provenance—never a generic
+  Social tab or endless feed. Implementation starts only after the shared
+  Corporate Design Freeze and a dedicated Social threat/consent model.
+- Acceptance includes graph ownership/consent matrices, RLS/IDOR negatives,
+  visibility/block/delete propagation, Twin evals and fairness, provenance,
+  Echo geo/privacy gates, Fork idempotency, verified-evidence integrity,
+  moderation, offline/reload, accessibility, browserless policy smoke,
+  Production provenance and twenty-stream synchronization.
+
+### M18.7 Universal Search / Projection Index
 
 Universal Search is explicitly not a Domain owner. It consumes approved events
 and stores source owner, entity ID, version, visibility and freshness. Search
 returns owner references; authorization, details and commands resolve through
 the owner. Reindex, tombstones, erasure propagation, ranking evals and offline
 search projections are mandatory gates.
+
+### M18.8 Luvia Intelligence Product Evolution II
+
+M8.5-M16 already delivered a real Intelligence foundation, not merely a UI
+mockup: browserless owner Core, capability/tool policy, model routing,
+evidence, Rich Results, Action Ledger, R0-R3 confirmation/recovery and 19
+registered actions across six public owner contracts. The restaurant/day/
+Booking chat is the first production vertical slice.
+
+Evolution II turns that foundation into the system-wide Luvia assistant after
+the missing owners expose safe contracts:
+
+- complete Capability/Tool Registry across Trip, Places, Booking, Journey,
+  Memory, Identity, Collaboration, Social, Attention, Wallet, Reviews and
+  authorized Admin explanation/draft tools;
+- natural-language commands and multi-step plans with explicit owner,
+  capability, risk, confirmation, idempotency, receipts and recovery for every
+  action;
+- context aggregation over public projections, active trip, time, weather,
+  group constraints, Travel DNA projection and Social relevance without
+  copying foreign Domain Truth;
+- proactive but consented day, booking, conflict, document, attention and
+  location-aware signals with explainable timing and easy suppression;
+- controlled personalization and Intelligence Memory with provenance,
+  correction, forgetting, export and privacy boundaries;
+- model routing by capability, latency, privacy, cost and reliability plus
+  deterministic fallback and unknown-outcome reconciliation;
+- Voice and Multimodal input/output, camera/document handoff and native iOS/
+  Android command surfaces through Platform Ports;
+- cards, maps, media, comparisons, confirmations and owner receipts directly
+  in the conversational surface instead of text-only answers;
+- offline/degraded planning, resumable tasks and cross-device continuity
+  without pretending that an unconfirmed foreign mutation succeeded;
+- complete eval/telemetry for intent accuracy, tool selection, plan quality,
+  hallucination, unsafe action, confirmation, latency, cost, accessibility,
+  personalization and user correction.
+
+Intelligence remains an orchestrator. High-risk Admin, Wallet, identity,
+publication, relationship, booking and destructive actions remain owner- and
+policy-controlled; no model receives direct foreign table/provider authority.
 
 ## Database connection truth
 
@@ -238,8 +343,8 @@ canonical roster is `config/luvia-streams.json`; branches are owner lanes over
 one integrated repository tree, not copies of business truth. Main,
 Integration and Consumer remain coordination/product streams. Universal Search
 does not receive a false Domain-Core stream because it is a projection/index
-capability. The former Social branch remains historical and must not evolve as
-a second Collaboration owner.
+capability. Social and Collaboration each have one distinct owner stream and
+may reference one another only through public contracts.
 
 ## Stop rules
 

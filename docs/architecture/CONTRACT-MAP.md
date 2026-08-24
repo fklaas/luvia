@@ -228,6 +228,9 @@ model and tests are implemented:
 
 - `collaboration.membership.v1` — spaces, memberships, invitations and scoped
   collaboration roles; global Admin authority remains excluded;
+- `social.experience-graph.v1` / `social.v1` — consented relationship and
+  Experience Graph projections, privacy-safe Travel Twin evidence, Echo/Drop/
+  Fork provenance and inspiration receipts without foreign Domain Truth;
 - `attention.notification-intent.v1` — attention policy, semantic intents,
   scheduling, dedupe and delivery receipts;
 - `travel-wallet.documents.v1` — redacted secure-document projections and

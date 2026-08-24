@@ -12,7 +12,7 @@ active or bindingly reserved Core boundary with its own owner stream.
 3. One development stream = one branch + one worktree. Two chats must never edit the same worktree.
 4. Database migrations are immutable after deployment. New schema work always gets a new timestamped migration.
 
-## Active streams — M16.5 core-aligned nineteen-stream topology
+## Active streams — M16.5 core-aligned twenty-stream topology
 
 | Stream | Owns | May not change without Platform Change Request |
 |---|---|---|
@@ -31,6 +31,7 @@ active or bindingly reserved Core boundary with its own owner stream.
 | `feature/experience-core` | `core/experience/*`, shared design-system and interaction foundations | domain truth, domain persistence, unrelated domain internals |
 | `feature/intelligence-core` | `core/intelligence/*`, Intelligence-specific architecture/state and controlled Intelligence migrations | private domain truth, foreign-domain mutation, unclassified bulk moves |
 | `feature/collaboration-core` | reserved Collaboration/Membership owner boundary | Identity, Trip membership or Admin governance truth |
+| `feature/social-experience-graph` | reserved Social Travel Experience Graph, relationship/visibility, Echo/Drop/Fork provenance and inspiration boundary | Collaboration membership, private Travel DNA, foreign Domain Truth or vanity-feed shortcuts |
 | `feature/attention-core` | reserved Attention/Notification Intent owner boundary | source-domain truth or provider-specific UI ownership |
 | `feature/travel-wallet-core` | reserved secure Travel Wallet/Documents owner boundary | Booking, Trip, Identity or Media truth |
 | `feature/reviews-core` | reserved Reviews/Moderation/Reputation owner boundary | Places/Booking truth or hidden global social score |
@@ -38,9 +39,9 @@ active or bindingly reserved Core boundary with its own owner stream.
 
 The complete active stream/worktree mapping is defined by
 `config/luvia-streams.json`. New topology-aware automation must consume that
-registry instead of maintaining a separate hard-coded branch list. The former
-`feature/social-experience-graph` branch is preserved as historical lineage,
-not a second active Collaboration owner.
+registry instead of maintaining a separate hard-coded branch list. Social and
+Collaboration are separate active reserved owner lanes and may cross only via
+public contracts.
 
 ## Platform Change Request (PCR)
 
@@ -65,7 +66,7 @@ Feature flags are temporary rollout gates, not a second configuration or domain-
 2. Flag IDs use the form `<owner>.<feature>` and must use a registered owner
    prefix such as `platform`, `trip`, `places`, `booking`, `media`, `memory`,
    `identity`, `events`, `journey`, `experience`, `intelligence`, `consumer`,
-   `collaboration`, `attention`, `travel-wallet`, `reviews` or `admin`.
+   `collaboration`, `social`, `attention`, `travel-wallet`, `reviews` or `admin`.
 3. The owning stream may define its own rollout flag, but may not modify shared registry mechanics without a Platform Change Request.
 4. Unknown flags fail closed and evaluate as disabled.
 5. New or incomplete functionality must remain safe when its flag is disabled.

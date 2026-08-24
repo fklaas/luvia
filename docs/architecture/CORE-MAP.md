@@ -229,6 +229,23 @@ Planned public boundary: `collaboration.membership.v1`
 The existing collaboration service owns presence/activity projection only. It
 is not Membership Truth and must not become a second owner beside M18.1.
 
+### Social / Experience Graph
+
+Reserved root: `core/social/`
+
+Owner stream: `feature/social-experience-graph`
+
+Planned public boundary: `social.experience-graph.v1` with `social.v1`
+compatibility
+
+Social owns the future consent-scoped Experience Graph, relationship and
+visibility lifecycle, Travel Twin relationship state, Echoes, Experience
+Drops, Trip Fork provenance and inspiration signals. It does not own
+Collaboration membership, private Travel DNA, Memories, Trip/Places/Booking,
+Reviews, notification delivery or commission truth. Identity supplies minimal
+public identity; Intelligence computes privacy-safe compatibility; every
+action still crosses the target Domain command.
+
 ### Attention / Notification Intent
 
 Reserved root: `core/attention/`

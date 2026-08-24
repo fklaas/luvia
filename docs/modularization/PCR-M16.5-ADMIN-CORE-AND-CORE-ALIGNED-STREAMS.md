@@ -1,5 +1,10 @@
 # PCR M16.5 — Mandatory Admin Core and Core-aligned GitHub Streams
 
+Supersession note: the nineteen-stream classification below is retained as the
+auditable first architecture slice. PCR M16.5B proves a distinct Social /
+Experience Graph owner and corrects the current topology to twenty active
+streams before the normative v4.4 Masterfahrplan and Design Freeze.
+
 Date: 2026-08-24
 
 Owner for this architecture slice: `feature/platform-core`

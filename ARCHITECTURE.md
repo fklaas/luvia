@@ -6,24 +6,27 @@ Luvia is evolving from a historically grown application into a modular platform 
 
 The target is not merely file separation. The target is independent evolvability without duplicate truth.
 
-## Core-aligned nineteen-stream topology
+## Core-aligned twenty-stream topology
 
 The machine-readable topology is `config/luvia-streams.json`.
 
 The active topology contains `main`, `integration`, the non-owning Consumer
 product stream and one explicit owner stream for every active or bindingly
 reserved Core boundary. Trip, Places, Booking, Media, Memory, Identity,
-Events, Journey, Experience, Intelligence, Collaboration, Attention, Travel
-Wallet, Reviews, Admin and Platform therefore have distinct branches and
+Events, Journey, Experience, Intelligence, Collaboration, Social, Attention,
+Travel Wallet, Reviews, Admin and Platform therefore have distinct branches and
 worktree mappings.
 
 Existing peer branches such as `feature/experience-core` and
 `feature/intelligence-core` remain active; the new domain-aligned branches are
 listed completely in `docs/architecture/STREAM-TOPOLOGY.md`.
 
-The former `feature/social-experience-graph` branch is preserved as historical
-lineage but is not a second Collaboration owner. The canonical future
-Membership owner stream is `feature/collaboration-core`.
+`feature/social-experience-graph` is an active reserved owner lane distinct
+from `feature/collaboration-core`. Collaboration owns trip/group membership,
+invitations and roles. Social owns the future consent-scoped Experience Graph,
+relationship/visibility lifecycle, Travel Twin relationship state, Echoes,
+Drops, Trip Fork provenance and inspiration signals. Neither may become a
+second owner for the other.
 
 The authoritative stream role and worktree mapping lives in the registry.
 Topology-aware scripts must consume the registry instead of hard-coding a
@@ -35,7 +38,7 @@ Canonical domain truth remains with domain cores.
 
 Current locked roots include Platform Runtime, Trip, Places, Booking, Media,
 Memory, Identity, Events, Journey, Experience and Intelligence. Collaboration,
-Attention, Travel Wallet, Reviews and Admin are bindingly reserved boundaries;
+Social, Attention, Travel Wallet, Reviews and Admin are bindingly reserved boundaries;
 their registry entries and streams do not falsely claim implemented runtime or
 persistence.
 
@@ -74,7 +77,11 @@ M10.5 establishes browserless `experience.v1` semantics in `core/experience/expe
 
 ## Intelligence architecture
 
-Intelligence Core will unify the future AI and reasoning architecture.
+Intelligence Core already provides the browserless owner foundation,
+capability/tool and action policy, model routing, evidence, Action Ledger,
+owner-backed Rich Results and confirmed owner-action runtime established from
+M8.5 through M16. This is a production foundation and first vertical product
+slice, not the completed system-wide Intelligence product.
 
 It may aggregate context from Trip, Places, Booking, Media, Identity and Journey through official contracts.
 
@@ -94,6 +101,11 @@ They must first be classified as:
 - OBSOLETE
 
 No big-bang directory move is allowed.
+
+The later Intelligence Product Evolution II expands public tool coverage to
+every implemented Core, contextual planning, proactive signals, controlled
+personalization, Voice/Multimodal, native presentation and complete eval/
+telemetry. It still executes foreign changes only through owner commands.
 
 ## Places evolution
 
@@ -143,6 +155,24 @@ The future implementation is default-deny and server-enforced, prohibits
 self-escalation, protects the last Superadmin, requires step-up authentication
 and dual control for the highest-risk operations, and never allows Intelligence
 to grant itself authority or autonomously perform break-glass actions.
+
+## Social / Experience Graph
+
+Social is a strategic reserved Core boundary with owner stream
+`feature/social-experience-graph`. It will own consent-scoped Experience Graph
+edges, relationship/visibility lifecycle, Travel Twin relationship state,
+Echoes, Experience Drops, Trip Fork provenance and inspiration signals.
+
+It is explicitly anti-vanity: no endless feed, public follower/like race or
+hidden global popularity score defines relevance. Collaboration remains the
+owner of memberships, invitations and group roles. Identity owns explicit
+preferences, Intelligence the private inferred Travel DNA and match
+calculation, Memory the source memories, Booking provider/commission truth,
+Reviews authored review/moderation truth and Attention notification delivery.
+
+Social references those owners through consented public IDs/projections and
+requests actions through contracts. It never copies their truth or exposes
+precise travel presence without explicit purpose-bound consent.
 
 ## Release model
 

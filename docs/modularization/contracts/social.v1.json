@@ -1,30 +1,69 @@
 {
   "contractId": "social.v1",
+  "canonicalDirection": "social.experience-graph.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "future Social stream after M4",
-  "owner": "Social (future)",
-  "status": "reserved-no-runtime",
+  "runtimeImplementationStage": "M18.6 after consent/threat model and M16.5 Design Freeze",
+  "owner": "Social / Experience Graph",
+  "ownerStream": "feature/social-experience-graph",
+  "status": "reserved-strategic-no-runtime",
+  "productInvariant": "anti-vanity-social-travel-intelligence-no-endless-feed",
   "currentImplementation": [],
   "reads": [
-    "listFeed",
-    "getExperience",
-    "getRelationshipSummary",
-    "getUnreadSummary"
+    "getRelevantExperienceSignals",
+    "getRelationshipProjection",
+    "listCircles",
+    "getTravelTwinEvidence",
+    "listEchoes",
+    "listExperienceDrops",
+    "getTripForkProvenance",
+    "getInspirationReceipt"
   ],
   "commands": [
-    "publishExperience",
-    "setReaction",
-    "comment",
-    "follow/unfollow (future)",
-    "markRead"
+    "requestConnection",
+    "acceptConnection",
+    "disconnect",
+    "block/unblock",
+    "create/update/archive Experience Drop",
+    "set audience and reuse consent",
+    "dismiss/acknowledge Echo",
+    "record Trip Fork provenance",
+    "record inspiration provenance",
+    "export/delete Social graph subject data"
   ],
   "events": [
-    "social.experience.*",
     "social.relationship.*",
-    "social.unread.*"
+    "social.experience-signal.*",
+    "social.echo.*",
+    "social.drop.*",
+    "social.trip-fork.*",
+    "social.inspiration.*",
+    "social.consent.*"
+  ],
+  "crossCoreRules": {
+    "collaboration": "Membership, invitations, roles and group votes remain Collaboration truth",
+    "identity": "Only minimal public identity and explicit consent projection; no private profile or Travel DNA copy",
+    "intelligence": "Computes privacy-safe compatibility/ranking with provenance and uncertainty; owns the private behavioral model",
+    "tripJourney": "Fork creates/adapts through owner commands; Social stores provenance only",
+    "memoryMedia": "Echoes and experiences reference consented public IDs/projections; source content remains owner truth",
+    "places": "Drops and experiences reference Place IDs; no Places lifecycle or provider copy",
+    "booking": "Availability/reservation/provider/commission truth and execution remain Booking-owned",
+    "reviews": "Authored reviews, moderation and reputation remain Reviews-owned",
+    "attention": "Notification intent and delivery remain Attention-owned"
+  },
+  "forbidden": [
+    "public follower or like counters as ranking authority",
+    "endless engagement feed as primary product loop",
+    "reinterpret trip_members or presence as Social relationships",
+    "copy private Identity preferences, Travel DNA, Memories or booking/provider payloads",
+    "direct Booking provider/table access or foreign Domain mutation",
+    "precise live-presence exposure without explicit purpose-bound consent",
+    "hidden global popularity or reputation score"
   ],
   "internal": [
-    "future social graph/ranking/moderation schema and algorithms"
+    "consent-scoped Experience Graph edges and lifecycle",
+    "relationship/circle/visibility/block state",
+    "Echo/Drop/Fork/inspiration provenance and receipts",
+    "privacy, retention, deletion propagation and moderation state"
   ]
 }

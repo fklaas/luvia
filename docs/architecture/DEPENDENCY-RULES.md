@@ -134,13 +134,32 @@ Highest-risk operations require step-up authentication, reason, immutable
 audit evidence and dual control. Cached/offline Admin projections are read-only
 and fail closed for mutations.
 
-## 15. Core-aligned stream ownership
+## 15. Social Experience Graph boundary
+
+Social and Collaboration are separate owners. Collaboration owns concrete
+spaces, memberships, invitations and scoped roles. Social owns consented
+Experience Graph edges, relationship/visibility lifecycle, Echo/Drop/Fork
+provenance and inspiration signals.
+
+Social consumes only public projections from Identity, Trip, Places, Booking,
+Memory, Media, Reviews, Attention and Intelligence. It must not copy private
+Travel DNA, memories, booking/provider state, review truth or precise presence;
+must not call Booking providers/tables; and must not reinterpret
+`trip_members` or Collaboration presence as Social relationships.
+
+Travel Twin scores are calculated by Intelligence from privacy-safe evidence;
+Social may own consented discovery/relationship state and explanation
+references, never the private behavioral model. Fork My Trip commits through
+Trip/Journey owners, Social Booking through Booking, and Echo delivery through
+Attention/Platform ports.
+
+## 16. Core-aligned stream ownership
 
 Every active or bindingly reserved Core has exactly one owner stream in
 `config/luvia-streams.json`. A branch is not a copy of Domain Truth: all
 streams converge on the same integrated tree after release, while mutations
 originate only in the declared owner lane.
 
-The historical Social branch is not permission to create a second
-Collaboration/Membership system. Universal Search remains a projection/index
-capability and therefore does not receive a false Domain-Core stream.
+The active Social stream is not permission to create a second Collaboration/
+Membership system. Universal Search remains a projection/index capability and
+therefore does not receive a false Domain-Core stream.

@@ -106,6 +106,7 @@
 # Reserved future Core roots. These entries protect ownership; they do not
 # claim that the corresponding runtime or persistence already exists.
 /core/collaboration/ @fklaas
+/core/social/ @fklaas
 /core/attention/ @fklaas
 /core/travel-wallet/ @fklaas
 /core/reviews/ @fklaas
@@ -115,5 +116,5 @@
 /config/luvia-streams.json @fklaas
 /config/luvia-cores.json @fklaas
 /scripts/luvia-stream-registry.cjs @fklaas
-# Historical feature/social-experience-graph remains preserved as Git history,
-# but it is not a second active owner beside feature/collaboration-core.
+# Social and Collaboration are separate reserved owners; neither may mutate
+# the other's truth without a public contract and reviewed owner command.
