@@ -16,6 +16,10 @@ const RASTER_EXTENSIONS = new Set([
 ]);
 const FONT_EXTENSIONS = new Set(['.woff', '.woff2', '.ttf', '.otf', '.eot']);
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx']);
+const TEXT_EXTENSIONS = new Set([
+  '.css', '.html', '.htm', '.svg', '.js', '.mjs', '.cjs', '.ts', '.tsx',
+  '.jsx', '.json', '.webmanifest', '.xml', '.txt', '.md'
+]);
 
 const UI_SOURCE_SIGNALS = [
   /\b(?:document|window)\b/,
@@ -48,6 +52,15 @@ function trackedFiles() {
 
 function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
+}
+
+function canonicalBuffer(relative, buffer) {
+  const extension = path.extname(relative).toLowerCase();
+  if (!TEXT_EXTENSIONS.has(extension)) return buffer;
+  return Buffer.from(
+    buffer.toString('utf8').replace(/\r\n?/g, '\n'),
+    'utf8'
+  );
 }
 
 function count(text, pattern) {
@@ -178,7 +191,7 @@ function buildInventory() {
 
   for (const relative of files) {
     const absolute = path.join(ROOT, ...relative.split('/'));
-    const buffer = fs.readFileSync(absolute);
+    const buffer = canonicalBuffer(relative, fs.readFileSync(absolute));
     const { classes, text } = classify(relative, buffer);
 
     if (entryReferenceSet.has(relative)) {
