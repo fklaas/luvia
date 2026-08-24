@@ -200,23 +200,15 @@
   new MutationObserver(observeBookingButtons).observe(document.documentElement,{childList:true,subtree:true});
   queueMicrotask(observeBookingButtons);
 
-  document.addEventListener('click',async e=>{
-    const button=e.target.closest('[data-luvia-booking-place]');
-    if(!button)return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(button.dataset.bookingBusy==='1')return;
-    let place=placeFromButton(button);
-    button.dataset.bookingBusy='1';button.disabled=true;
+  async function openForPlace(input={},options={}){
+    let place={...input,type:canonicalType(input.type||input.primaryType||input.primary_type||'restaurant')};
+    const key=cacheKey(place);
+    const warmed=routeCache.has(key);
+    let handoffWindow=null;
+    if(!warmed&&options.reserveExternalWindow!==false){
+      try{handoffWindow=LuviaOwnerFlowNavigationV1.reserveBookingHandoff()}catch{}
+    }
     try{
-      // If a warmed route already exists, this resolves immediately. Otherwise open one
-      // lightweight Luvia handoff tab while the authenticated resolver validates the route.
-      const key=cacheKey(place);
-      const warmed=routeCache.has(key);
-      let handoffWindow=null;
-      if(!warmed){
-        try{handoffWindow=LuviaOwnerFlowNavigationV1.reserveBookingHandoff()}catch{}
-      }
       const resolved=await resolveRouteCached(place);
       place=resolved.place||place;
       const route=resolved.route;
@@ -225,7 +217,7 @@
         window.LuviaBooking.recordPlaceHandoff?.(place,{...route,value:target.toString()}).catch(error=>console.debug('[Luvia Booking] Handoff-Attribution konnte nicht protokolliert werden.',error?.message||error));
         const opened=LuviaOwnerFlowNavigationV1.openBooking(target.toString(),{reserved:handoffWindow});
         if(!opened)window.LuviaUIKit?.toast?.('Der Browser hat das Buchungsfenster blockiert. Bitte Pop-ups für Luvia erlauben und erneut auf „Reservieren“ klicken.',{type:'warning'});
-        return;
+        return Object.freeze({opened:Boolean(opened),channel:'external_link',provider:route.provider||null,requiresOwnerFlow:true});
       }
       if(handoffWindow&&!handoffWindow.closed)handoffWindow.close();
       place._bookingContactChecked=true;
@@ -234,16 +226,33 @@
       place._bookingEnginesDetected=Array.isArray(route?.enginesDetected)?route.enginesDetected:[];
       if(route?.resolved&&route.channel==='email'&&route.value)place.email=route.value;
       await open(place);
+      return Object.freeze({opened:true,channel:route?.channel||'owner_dialog',provider:route?.provider||null,requiresOwnerFlow:true});
     }catch(error){
-      try{for(const w of [])w.close()}catch{}
+      if(handoffWindow&&!handoffWindow.closed)handoffWindow.close();
       console.warn('[Luvia Booking] Route-Preview fehlgeschlagen; sicherer Fallback wird geöffnet.',error);
       place._bookingContactChecked=false;
       await open(place);
+      return Object.freeze({opened:true,channel:'owner_dialog_fallback',provider:null,requiresOwnerFlow:true});
+    }
+  }
+
+  document.addEventListener('click',async e=>{
+    const button=e.target.closest('[data-luvia-booking-place]');
+    if(!button)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(button.dataset.bookingBusy==='1')return;
+    const place=placeFromButton(button);
+    button.dataset.bookingBusy='1';button.disabled=true;
+    try{
+      await openForPlace(place,{reserveExternalWindow:true});
+    }catch(error){
+      window.LuviaUIKit?.toast?.(error?.message||'Der Booking-Owner-Flow konnte nicht geöffnet werden.',{type:'error'});
     }finally{
       button.dataset.bookingBusy='0';button.disabled=false;
     }
   },true);
 
 
-  window.LuviaBookingUI=Object.freeze({version:VERSION,actionButton,open});
+  window.LuviaBookingUI=Object.freeze({version:VERSION,actionButton,open,openForPlace});
 })();

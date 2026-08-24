@@ -45,6 +45,22 @@
     const response=await gateway().details(placeId,options||{});
     return detailsProjection(response?.data?.place||response?.data||response);
   }
+  async function getCard(placeId,options={}){
+    const response=await gateway().details(placeId,options||{});
+    const source=response?.data?.place||response?.data||response;
+    const place=detailsProjection(source);
+    if(!place)return Object.freeze({place:null,image:null});
+    const photo=Array.isArray(source?.photos)?source.photos[0]:null;
+    let url=clean(photo?.uri||photo?.url||photo?.photoUri),attribution=clean(photo?.attribution||photo?.authorAttributions?.[0]?.displayName);
+    if(!url&&photo?.name&&typeof gateway().photo==='function'){
+      try{
+        const resolved=await gateway().photo(photo.name,{maxWidthPx:Number(options.maxWidthPx||960),maxHeightPx:Number(options.maxHeightPx||720)});
+        url=clean(resolved?.data?.photoUri||resolved?.photoUri);
+      }catch{}
+    }
+    const image=url?Object.freeze({url,attribution:attribution||null,alt:place.name}):null;
+    return Object.freeze({place,image});
+  }
   function getLifecycle(query){
     if(query&&typeof query==='object'){
       const record=globalThis.LuviaPlaceRuntime?.find?.(query);
@@ -175,10 +191,10 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,getPlace,listPlaces,getDetails,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
+    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
     commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,getPlace,listPlaces,getDetails,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
+    search,getPlace,listPlaces,getDetails,getCard,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
     importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery,
     snapshot,
     diagnostics:()=>Object.freeze({
@@ -195,7 +211,7 @@
         domainContractCore:Boolean(globalThis.LuviaPlacesDomainContractCoreV1),
         deepLinkPort:Boolean(globalThis.LuviaPlatformPorts?.has?.('DeepLinkPort'))
       }),
-      nativeReady:Object.freeze({browserlessDomainSurface:true,deviceLocation:'injected-context',offlineCache:'platform-port',externalNavigation:'platform-port'})
+      nativeReady:Object.freeze({browserlessDomainSurface:true,deviceLocation:'injected-context',offlineCache:'platform-port',externalNavigation:'platform-port',cardMedia:'owner-adapter-projection'})
     })
   });
 
