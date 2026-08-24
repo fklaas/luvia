@@ -1,0 +1,43 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+
+const source=fs.readFileSync('core/ai/ai-dashboard-service.js','utf8');
+const ownership=fs.readFileSync('docs/modularization/FILE-OWNERSHIP.csv','utf8');
+const safeRunner=fs.readFileSync('tests/run-m4.3-safe-regression.cjs','utf8');
+
+for(const needle of [
+  'data-ai-command-form',
+  'data-ai-composer-footer',
+  'type="submit" data-ai-send',
+  'aria-label="Anfrage an Luvia senden"',
+  'aria-keyshortcuts="Enter"',
+  '<kbd>Enter</kbd> sendet',
+  '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
+  'form.onsubmit=',
+  "overlay.addEventListener('keydown'",
+  "event.target!==input||event.key!=='Enter'||event.shiftKey||event.isComposing||event.keyCode===229",
+  'event.preventDefault();submit()',
+  'if(submitting)return',
+  "sendLabel.textContent='Luvia denkt …'",
+  "sendLabel.textContent='Senden'",
+  'input.readOnly=submitting',
+  "button.setAttribute('aria-busy'"
+])assert.ok(source.includes(needle),`AI Composer missing ${needle}`);
+
+assert.equal((source.match(/type="submit" data-ai-send aria-label=/g)||[]).length,1,'exactly one semantic send control expected');
+assert.doesNotMatch(source,/button\.textContent='Luvia denkt/,'loading copy must not destroy nested accessible button markup');
+assert.doesNotMatch(source,/if\(event\.target\.closest\?\.\('\[data-ai-send\]'\)\)submit\(\)/,'send must use form semantics instead of delegated click-only behavior');
+
+for(const forbidden of ['localStorage','sessionStorage','LuviaTripStore','LuviaPlacesCore','LuviaBookingRepository','.from(','.rpc(','functions.invoke(','commands.execute']){
+  assert.equal(source.includes(forbidden),false,`M14 Composer may not gain persistence or Domain Command authority: ${forbidden}`);
+}
+
+assert.ok(safeRunner.includes('tests/m14.2-ai-composer-keyboard-submit.test.cjs'));
+assert.ok(ownership.includes('tests/m14.2-ai-composer-keyboard-submit.test.cjs'));
+
+console.log('M14.2 AI Composer Keyboard / Submit Semantics: PASS');
+console.log('Visible semantic submit: PASS');
+console.log('Enter / Shift+Enter / IME safety: PASS');
+console.log('Domain command authority: NONE');

@@ -189,6 +189,10 @@ const SUITE = Object.freeze([
     category: 'Product / Consumer',
     test: 'tests/m13.2-premium-memories-experience.test.cjs'
   },
+  {
+    category: 'Intelligence / AI Composer',
+    test: 'tests/m14.2-ai-composer-keyboard-submit.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
