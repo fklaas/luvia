@@ -25,7 +25,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M12 Journey Core & Day Composer**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M5.1e Closeout
@@ -1876,3 +1876,37 @@ No database/schema/RPC/RLS/bucket migration, Edge Function, secret, provider, ma
 
 Rollback is code-only to the synchronized M10.5 documentation marker `5067332492fca8a7df79bb6584c891c973550180`; no persisted-data compensation is required.
 <!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:END -->
+
+<!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:START -->
+## M12 Journey Core, Day Graph and Day Composer — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-24
+
+Runtime App/Core: **13.82.43 / 4.82.43**
+
+Runtime implementation, Integration and Main commit: `32ecd52aa79af007d54a3fb675e2feccdf86df5a`
+
+Measured final result:
+
+- physical browserless `journey.v1` Domain/Contract Core: **PASS**;
+- Journey owns immutable Day Graph composition, ordering, temporal-integrity/conflict policy and source provenance only;
+- Trip, Places, Booking, Media, Identity, Social and Intelligence truth moves or copies: **NONE**;
+- `LuviaJourneyContractV1` exposes explicit `reads` and `commands` over exactly one Web compatibility provider;
+- active non-provider runtime consumers of private `LuviaTimelineCore`: **0**;
+- legacy `core/places/timeline-core.js`: explicitly classified `journey-web-compatibility-adapter`, not Places truth and not a second Journey truth;
+- visible premium Day Composer: **ACTIVE**, responsive at desktop and 390 x 844, no horizontal overflow, all measured actions 48 px, reduced-motion support;
+- authenticated Paris Journey composition, owner provenance and overlap conflict dialog: **PASS**;
+- focused M12 guard: **PASS**;
+- Safe Regression: **69/69 PASS** on Platform, Integration and Main;
+- NFR-0: **3/3 PASS**;
+- Cross-Core DB guardrail: static **316**, mapped **30/30** with historical baseline **26** plus four exact approved Journey owner-reclassification entries, unmapped **39/39**, dynamic **27/27**;
+- Integration Preview: **32/32 byte-exact Git blobs**, **5/5 private-path SPA fallback**, authenticated Day Composer/conflict flow, **25/25 F5** at **3.275–4.215 seconds** (average **3.717 seconds**), console **0/0**;
+- Production Cloudflare version/deployment `2e1019c3-80a4-4304-981a-8044c5122e2e` / `d5bdf394-bad6-4c3b-a22f-a02da2eb956e`: **100%**;
+- Production version URL and `myluvia.app`: each **32/32 byte-exact Git blobs** and **5/5 private-path SPA fallback**;
+- Production authenticated Day Composer/conflict flow: **PASS**; final **25/25 F5** at **2.999–5.152 seconds** (average **3.342 seconds**), console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+Two preliminary F5 probes were stopped and rejected because their predicates inspected deliberately absent module globals and then sampled before authenticated hydration. Read-only diagnosis proved the runtime healthy; the accepted Integration series waits on the stable public Journey UI. No rejected sample is rewritten as PASS.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provider change, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reports the automatically observed version source as `Unknown`; chronology and measured bytes are recorded without inventing deployment causation. Rollback is code-only to synchronized M11 marker `06b6c069471cd0c744390553c3dbecbf9b7b0c0b`.
+<!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:END -->

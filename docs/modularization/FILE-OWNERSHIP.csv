@@ -2480,3 +2480,4 @@ docs/modularization/contracts/journey.v1.json,Journey,Contract,Versioned public 
 docs/modularization/PCR-M12-JOURNEY-CORE-DAY-COMPOSER.md,Journey/Platform,Documentation/Architecture,M12 measured Journey ownership lock implementation scope rollback and release gates
 tests/m12-journey-core-day-composer.test.cjs,Journey/Shared Tests,Test/Guardrail,M12 browserless core adapter runtime ownership consumer isolation accessibility and load-order guard
 tests/fixtures/m12-journey-day-composer-browser.html,Journey/Shared Tests,Test/Fixture,Data-free browser fixture for desktop mobile conflict and Day Composer overlay acceptance
+docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,M12 Journey Core Day Graph Day Composer preview production provenance and rollback

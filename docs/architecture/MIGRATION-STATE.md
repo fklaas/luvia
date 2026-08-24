@@ -1121,3 +1121,30 @@ An earlier high-frequency Production series reached 6/8 inside a 10-second locat
 
 No database/schema/RPC/RLS/bucket migration, Edge Function, secret, provider, manual Cloudflare configuration, manual Cloudflare upload/deploy or Domain Truth reassignment occurred. Cloudflare labels the automatically observed active version source `Unknown`; chronology is recorded without asserting unproven causation.
 <!-- LUVIA:M11:PREMIUM-TODAY:CLOSEOUT:END -->
+
+<!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:START -->
+## M12 Journey Core / Day Graph / Day Composer — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-24
+
+Runtime App/Core: **13.82.43 / 4.82.43**
+
+Runtime commit: `32ecd52aa79af007d54a3fb675e2feccdf86df5a`
+
+Measured result:
+
+- browserless physical Journey Core and immutable `journey.v1` Day Graph: **PASS**;
+- Journey ownership: ordering, grouping, conflict/temporal policy and source-owner provenance only;
+- foreign Domain Truth ownership or persistence: **NONE**;
+- active runtime consumers migrated to public `journey.v1`; private `LuviaTimelineCore` references outside the provider/adapter pair: **0**;
+- former Places-path Timeline runtime explicitly reclassified as a Journey Web compatibility adapter; no history rewrite of the NFR-0 debt snapshot;
+- visible responsive Day Composer plus Overlay Host conflict dialog: **PASS** at desktop and 390 x 844, 48 px measured controls, no horizontal overflow;
+- Safe Regression **69/69**, NFR-0 **3/3**;
+- DB guardrail static **316**, mapped **30/30** (historical baseline **26** plus four exact approved architecture-reclassification entries), unmapped **39/39**, dynamic **27/27**;
+- Integration Preview: **32/32 exact**, **5/5 privacy**, authenticated Journey/conflict acceptance, **25/25 F5** at **3.275–4.215 seconds**, average **3.717 seconds**, console **0/0**;
+- Production version/deployment `2e1019c3-80a4-4304-981a-8044c5122e2e` / `d5bdf394-bad6-4c3b-a22f-a02da2eb956e`: **100%**;
+- Production version URL and `myluvia.app`: each **32/32 exact** and **5/5 privacy**; authenticated Journey/conflict flow and **25/25 F5** at **2.999–5.152 seconds**, average **3.342 seconds**, console **0/0**;
+- Main promotion: **FF-only PASS**.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function, secret/provider, manual Cloudflare configuration, manual Cloudflare upload/deploy or foreign Domain Truth reassignment occurred. The active Cloudflare version was automatically observed with source `Unknown`; deployment causation is not inferred. Rollback is code-only to `06b6c069471cd0c744390553c3dbecbf9b7b0c0b`.
+<!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:END -->

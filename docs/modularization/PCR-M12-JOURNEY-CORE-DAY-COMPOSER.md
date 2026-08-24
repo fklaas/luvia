@@ -2,7 +2,7 @@
 
 Date: 2026-08-24
 
-Status: APPROVED FOR IMPLEMENTATION
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 ## Problem
 
@@ -75,3 +75,14 @@ The public Journey contract is additive. The active Dashboard switches to the ne
 ## Rollback
 
 Code-only rollback to the synchronized M11 marker `06b6c069471cd0c744390553c3dbecbf9b7b0c0b`. No persisted-data compensation is required because M12 introduces no schema or data migration.
+
+## Measured release acceptance
+
+- Runtime App/Core: **13.82.43 / 4.82.43**.
+- Runtime implementation, Integration and Main commit: `32ecd52aa79af007d54a3fb675e2feccdf86df5a`.
+- Focused M12 guard, browserless Journey Core and compatibility adoption: **PASS**.
+- Safe Regression: **69/69 PASS** on Platform, Integration and Main; NFR-0: **3/3 PASS**.
+- Integration Preview: **32/32 exact Git blobs**, **5/5 private-path SPA fallback**, authenticated Day Composer and conflict flow, **25/25 F5**, console **0/0**.
+- Production version/deployment `2e1019c3-80a4-4304-981a-8044c5122e2e` / `d5bdf394-bad6-4c3b-a22f-a02da2eb956e`: **100%**; Worker version URL and `myluvia.app` each **32/32 exact** and **5/5 privacy**.
+- Production authenticated Day Composer/conflict flow and **25/25 F5**: **PASS**, console **0/0**.
+- Database/RPC/RLS/bucket, Edge Function, secret/provider and manual Cloudflare configuration changes: **NONE**.
