@@ -89,6 +89,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - M16.5C deployment scope: **single-cycle App Shell navigation continuity only; Design-only landing/onboarding/target-navigation prototype remains undeployed**
 - M16.5C infrastructure: **no DB/schema/RPC/RLS/bucket migration, no Supabase Function or secret change, no manual Cloudflare configuration change**
 - M16.5C rollback: **redeploy raw runtime blobs from pre-release marker `4128db468dd1fbed5b57bd3dd0fc58937c592029`; no data rollback**
+- M16.5D design decision: **public landing and onboarding are the binding motion/visual benchmark; account/profile plus full Reisekompass are separated from the complete first-Trip Composer**
+- M16.5D interaction decision: **semantic Magnetic/Haptic Experience grammar with Web adapter and native iOS/Android mappings; no direct device dependency in Domain Cores**
+- M16.5D prototype scope: **profile-onboarding, Trip identity, canonical place, travel mood, dates, Collaboration handoff, seven product modules, privacy, active-Trip accent and review; Design-only and not deployed**
 
 ## M15 Runtime Release
 

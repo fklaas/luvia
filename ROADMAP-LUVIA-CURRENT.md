@@ -103,12 +103,38 @@ complete Design Freeze:
   navigation, cinematic landing flow, complete first-Trip onboarding and
   reversible scroll/route choreography. It does not write production Trip
   truth and is not deployed as the final redesign;
+- public entry and onboarding are now the binding visual/motion benchmark for
+  every remaining product surface: bright travel canvas, cinematic scene
+  changes, reversible fade/depth transitions, restrained magnetic response,
+  semantic haptic intents and native-quality reduced-motion parity;
+- account/profile onboarding and Trip creation are deliberately separate
+  product flows. Identity owns account, consent and the global Reisekompass;
+  Trip owns the concrete journey frame; Collaboration owns invitations,
+  membership and roles. A shared visual handoff must never merge ownership;
+- the Identity flow must cover the complete existing Reisekompass vocabulary:
+  interests, dietary preferences, travel style, activities, evening,
+  mobility, family, accessibility, pace and budget. Learned signals remain
+  proposals until the person explicitly confirms them;
+- the independent Trip Composer must preserve at least the complete current
+  Trip-creation capability: name, optional subtitle, canonical destination,
+  symbol, start/end or flexible dates, active modules, privacy, members/roles,
+  invitation handoff and active-Trip accent. No redesign may silently drop an
+  existing creation capability;
+- the active-Trip colour is previewed during creation and then follows the
+  selected Trip across primary actions, selections, focus, routes, headings,
+  outlines, confirmations and shared-element motion. Corporate base colours
+  and semantic status colours remain stable and contrast-safe;
+- "magnetic" and "haptic" mean an Experience-owned interaction grammar, not
+  direct browser/device calls from Domain code. Web vibration is an optional
+  adapter, while iOS/Android later map the same semantic intents to native
+  feedback;
 - the active Runtime App Shell double-arrival defect is independently isolated:
   the obsolete full-field module splash is replaced by a single target-mount
   transition while canonical `navigation.v1` semantics remain unchanged.
 
 Evidence and remaining gates are recorded in
-`docs/modularization/PCR-M16.5C-CINEMATIC-PRODUCT-NAVIGATION-FOUNDATION.md`.
+`docs/modularization/PCR-M16.5C-CINEMATIC-PRODUCT-NAVIGATION-FOUNDATION.md`
+and `docs/modularization/PCR-M16.5D-PROFILE-TRIP-ONBOARDING-SPLIT.md`.
 
 ## Accelerated delivery corridor
 
