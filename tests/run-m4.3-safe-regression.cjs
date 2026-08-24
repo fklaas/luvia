@@ -193,6 +193,10 @@ const SUITE = Object.freeze([
     category: 'App Shell / Legacy Runtime',
     test: 'tests/m14.1-app-shell-legacy-runtime-hardening.test.cjs'
   },
+  {
+    category: 'Intelligence / AI Composer',
+    test: 'tests/m14.2-ai-composer-keyboard-submit.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
