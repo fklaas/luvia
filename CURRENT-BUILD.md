@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.48**
-- Core: **4.82.48**
-- Name: **M16 Confirmed Owner Actions**
+- App: **13.82.49**
+- Core: **4.82.49**
+- Name: **M16.5 Navigation Continuity**
 - Channel: **production**
 - Datum: **2026-08-24**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 COMPLETE VISUAL REDESIGN INVENTORY ACTIVE / DESIGN FREEZE PENDING**
@@ -55,12 +55,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.48 / 4.82.48 unchanged**
+- Runtime App / Core: **13.82.49 / 4.82.49 release candidate for the isolated navigation-continuity correction; the broad redesign remains Design-only**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - Runtime source remains: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **DESIGN-ONLY ACTIVE; current visual language is rejected; joint Corporate Design and Design Freeze remain pending**
-- Exhaustive manifest: **2,744 tracked files; 650 visual candidates; 261 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **58 files; 837,078 LF-normalized bytes; 6,157 lines; 3,219 `!important`; 2,845 literal hex colours; 226 z-index declarations; 35 reduced-motion queries; 36 focus-visible selectors**
+- Exhaustive manifest: **2,746 tracked files; 651 visual candidates; 261 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **58 files; 838,366 LF-normalized bytes; 6,162 lines; 3,230 `!important`; 2,845 literal hex colours; 228 z-index declarations; 36 reduced-motion queries; 36 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -69,13 +69,13 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **92 / 92 PASS on Platform, Integration and Main**
+- Safe Regression: **93 / 93 PASS on the Consumer feature and Integration release candidate**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **UNCHANGED**
-- Runtime assets / Cloudflare / Preview / Production: **UNCHANGED; no runtime deployment was triggered or claimed**
+- Runtime assets / Cloudflare / Preview / Production: **the Design-only prototype remains undeployed; only the isolated navigation-continuity runtime correction advances through Preview/Production acceptance**
 - Next design gate: **two to three genuinely different Creative Territories, complete system/flow prototypes and the user's explicit Design Freeze before broad M17 implementation**
 - M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
 - Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**

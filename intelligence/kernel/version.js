@@ -1,1 +1,1 @@
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.48',build:'13.82.48',name:'M16 Confirmed Owner Actions',channel:'production',builtAt:'2026-08-24T11:29:06.444Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.49',build:'13.82.49',name:'M16.5 Navigation Continuity',channel:'production',builtAt:'2026-08-24T20:56:00.134Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
