@@ -25,13 +25,14 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M16 Confirmed Owner Actions**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 IN PROGRESS**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 DESIGN-ONLY / JOINT GATE NEXT**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
 ## M16 Runtime Assembly
 
 - Scope: **Confirmed Owner Actions, Action Ledger, capability/connection diagnostics and expanded rich-result chat**
 - Runtime release target: **App 13.82.48 / Core 4.82.48**
+- Runtime source: `0d7468596dbdb42803738f427d4355bf31281c65`
 - Intelligence owner feature: `808f99af1d791614581244d51a107459dd3f0c87`
 - Action surface: **intelligence.actions.v1 / 19 actions / 6 public owner contracts / R0-R3**
 - Action Ledger: **intelligence.action-ledger.v1 / digest-only / no raw payload / no foreign Domain Truth**
@@ -43,10 +44,13 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Runtime registration and shared Experience styling: **FEATURE STREAMS COMPLETE**
-- Integration/Production acceptance and eight-stream sync: **IN PROGRESS**
-- Database / schema / RPC / RLS / bucket migration: **NONE PLANNED**
-- Supabase Edge Functions / secrets: **NONE PLANNED**
-- Manual Cloudflare configuration: **NONE PLANNED**
+- Integration Preview `ae43731e-d8d8-4819-b271-020d276b55cf`: **both URLs 17/17 exact, 5/5 private and 5/5 retired fallback; six-owner authenticated read acceptance, R2 confirm/cancel, mobile PASS; 25/25 F5; console 0**
+- Main promotion: **FF-only PASS**
+- Production version/deployment `a17a3bbf-2519-4fe2-a35a-64c25fe55186` / `213ac503-00e4-4855-8059-dd61d2e6ca6a`: **100%; both URLs 17/17 exact, 5/5 private and 5/5 retired fallback; six-owner authenticated reads PASS; 25/25 F5; console 0**
+- Database / schema / RPC / RLS / bucket migration: **NONE**
+- Supabase Edge Functions / secrets: **UNCHANGED**
+- Manual Cloudflare configuration: **NONE**
+- Eight-stream documentation synchronization: **PENDING THIS CLOSEOUT MARKER**
 
 ## M15 Runtime Release
 

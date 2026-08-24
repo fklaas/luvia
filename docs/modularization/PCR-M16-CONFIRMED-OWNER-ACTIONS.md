@@ -2,7 +2,7 @@
 
 Date: 2026-08-24
 
-Status: INTELLIGENCE OWNER FEATURE COMPLETE / RUNTIME INTEGRATION PENDING
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 Baseline marker: `efd64fed5ed47624b399635c9ae1942c5e5ac86f`
 
@@ -200,7 +200,61 @@ causation and eight-stream synchronization remain unclaimed here.
 Platform FF-only adopted the Experience owner commit and registered M16.6 in
 the controlled runner. The consolidated feature state reports `90 / 90 PASS`
 with no Native-First or DB-ownership debt growth. This is the candidate for
-Integration; it is not yet a Preview, Main or Production acceptance claim.
+Integration.
+
+## Final runtime and release evidence
+
+- Intelligence owner commit:
+  `808f99af1d791614581244d51a107459dd3f0c87`.
+- Experience owner commit:
+  `7b3a49128fab9399e3a8e9ac14ea5aa1496a1bd6`.
+- Consolidated Platform, Integration and Main runtime:
+  `0d7468596dbdb42803738f427d4355bf31281c65`.
+- App/Core: `13.82.48 / 4.82.48`.
+- Safe Regression: `90 / 90 PASS`.
+- NFR-0: `3 / 3 PASS`.
+- Cross-Core DB guard: 361 tracked JS/TS, static 310, mapped 30/30,
+  unmapped 39/39 and dynamic 27/27; no growth.
+- Integration Preview version:
+  `ae43731e-d8d8-4819-b271-020d276b55cf`.
+- Stable Integration and immutable Preview URLs: each 17/17 byte-exact Git
+  blobs plus 5/5 private and 5/5 retired paths classified byte-exact as SPA
+  index fallback.
+- Authenticated Preview: Trip, Places, Booking, Journey, Memory and Identity
+  read paths PASS; provider-backed restaurant search returned four rich
+  Places cards; R2 plan confirmation and cancellation produced no owner
+  command; 390 x 844 and 390 x 500 responsive gates PASS; console 0.
+- Authenticated Preview F5: 25/25 PASS, 3.027-5.203 seconds, average 3.877
+  seconds; active Ostseeurlaub/Scharbeutz retained.
+- Main promotion: fast-forward only, PASS.
+- Production version/deployment:
+  `a17a3bbf-2519-4fe2-a35a-64c25fe55186` /
+  `213ac503-00e4-4855-8059-dd61d2e6ca6a`, 100%.
+- `myluvia.app` and immutable Production URL: each 17/17 byte-exact Git
+  blobs plus 5/5 private and 5/5 retired SPA fallback.
+- Authenticated Production: all six owner-backed read paths, real Places
+  provider search, App/Core identity and active Trip PASS; console 0.
+- Authenticated Production F5: 25/25 PASS, 3.120-4.846 seconds, average
+  3.409 seconds.
+
+The six M16 owner connections are live for the accepted read paths. This does
+not claim that every table, RPC, Realtime channel, Edge Function or external
+provider path in the complete application has already been exercised. That
+exhaustive evidence remains the mandatory M21.5 full-function acceptance
+matrix.
+
+One long Production browser-automation sequence produced an unintended but
+reversible R1 Places favourite command while an R2 confirmation card was being
+exercised. The owner receipt identifies `DAS LEO`; no R2/R3 command, booking,
+trip update or cancellation was confirmed. The observation is retained rather
+than rewritten as a PASS, and data cleanup requires explicit user approval.
+The independent Preview confirmation/cancel flow and byte-identical Production
+runtime remain the accepted command-boundary evidence.
+
+No database/schema/RPC/RLS/bucket migration, Supabase Edge Function change,
+secret change or manual Cloudflare configuration change occurred. Cloudflare
+reported the active version and deployment with source `Unknown`; Git
+deployment causation is not inferred.
 
 ## Rollback
 
