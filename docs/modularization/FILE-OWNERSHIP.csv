@@ -2491,6 +2491,7 @@ app/memories/premium-memories-experience.js,Consumer/Memory Experience,Experienc
 app/memories/premium-memories-experience.css,Experience/Consumer,Experience/Web,Responsive accessible Premium Memories and Story Composer presentation
 tests/m13.2-premium-memories-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,M13.2 public-contract Experience App Shell load-order accessibility and Native First guard
 tests/fixtures/m13-premium-memories-browser.html,Consumer/Shared Tests,Test/Fixture,Data-free desktop and mobile Premium Memories Story Composer browser acceptance fixture
+tests/m14.3-ai-composer-viewport-reachability.test.cjs,Experience/Shared Tests,Test/Guardrail,M14.3 responsive accessible AI conversation viewport composer action and safe-area reachability guard
 docs/modularization/RELEASE-NOTES-M13.md,Memory/Consumer/Platform,Documentation/Release,M13 Memory Core Premium Memories ownership Native First infrastructure and rollback release record
 docs/modularization/TEST-RESULTS-M13.md,Memory/Consumer/Platform,Documentation/Test Evidence,M13 automated and local browser release candidate evidence with pending external gates
 docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,M12 Journey Core Day Graph Day Composer preview production provenance and rollback
