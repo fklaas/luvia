@@ -83,7 +83,9 @@
       "root": "core/booking/",
       "ownerStream": "feature/booking-core",
       "truthOwnership": "canonical-domain-truth",
-      "status": "active"
+      "status": "active",
+      "publicContract": "LuviaBookingContractV1",
+      "contractAdapter": "core/platform/booking-contract-adapter.js"
     },
     "experience": {
       "root": "core/experience/",

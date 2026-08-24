@@ -58,6 +58,13 @@ Owner stream: `feature/booking-core`
 
 Role: Booking truth, reservation lifecycle, mutations, provider integration and recovery.
 
+Public boundary: `core/platform/booking-contract-adapter.js` (`booking.v1`).
+
+The existing `LuviaBooking` facade remains the owner runtime behind this
+adapter. M15 adds a bounded `openPlaceBooking` owner command so conversational
+and other consumers can enter the same provider/handoff/email policy without
+copying Booking routing or gaining reservation truth.
+
 ### Media
 
 Root: `core/media/`

@@ -86,7 +86,7 @@ assert.strictEqual(api.version,'1');
 assert.strictEqual(api.runtimeVersion,'1.0.0');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
 assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','openDiscovery']);
 
 const place=api.getPlace('p1');
