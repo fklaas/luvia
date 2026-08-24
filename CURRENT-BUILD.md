@@ -57,9 +57,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
 - Runtime App / Core: **13.82.49 / 4.82.49 release candidate for the isolated navigation-continuity correction; the broad redesign remains Design-only**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
-- Runtime source remains: `0d7468596dbdb42803738f427d4355bf31281c65`
+- M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **DESIGN-ONLY ACTIVE; current visual language is rejected; joint Corporate Design and Design Freeze remain pending**
-- Exhaustive manifest: **2,746 tracked files; 651 visual candidates; 261 active entry references; 0 unclassified entry references**
+- Exhaustive manifest: **2,748 tracked files; 651 visual candidates; 261 active entry references; 0 unclassified entry references**
 - Canonical CSS baseline: **58 files; 838,366 LF-normalized bytes; 6,162 lines; 3,230 `!important`; 2,845 literal hex colours; 228 z-index declarations; 36 reduced-motion queries; 36 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
@@ -80,7 +80,15 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
 - Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**
 - Design-only prototype: **cinematic landing, complete first-Trip onboarding, desktop/mobile target navigation, reversible scroll reveals and reduced-motion parity; no production Trip write and no broad visual deployment**
-- Runtime continuity defect: **obsolete intermediate module splash identified as the apparent double load; isolated single-cycle route transition is in Consumer release validation**
+- Runtime continuity defect: **obsolete intermediate module splash removed; isolated single-cycle route transition is Production verified**
+- M16.5C runtime source: `0e8d6c51972f1aa4d6873707e8d02206cbe3957f`
+- M16.5C Consumer feature: `b1ea5efd7ab27de8bc5140eb621369a8b01865a3`
+- Integration Worker `73a3eda8-c83f-46fe-9db0-23221bf19bf7`: **8/8 exact Git runtime assets; authenticated 25/25 F5; one final route host; obsolete module intros 0; console 0**
+- Main promotion: **fast-forward only to `0e8d6c51972f1aa4d6873707e8d02206cbe3957f`; 93/93 PASS**
+- Production Worker `48770d4e-5a97-4a81-8543-1c42626995c9`: **custom and direct URL 16/16 exact Git runtime assets; authenticated 25/25 F5; one final route host; obsolete module intros 0; console 0**
+- M16.5C deployment scope: **single-cycle App Shell navigation continuity only; Design-only landing/onboarding/target-navigation prototype remains undeployed**
+- M16.5C infrastructure: **no DB/schema/RPC/RLS/bucket migration, no Supabase Function or secret change, no manual Cloudflare configuration change**
+- M16.5C rollback: **redeploy raw runtime blobs from pre-release marker `4128db468dd1fbed5b57bd3dd0fc58937c592029`; no data rollback**
 
 ## M15 Runtime Release
 

@@ -3,7 +3,7 @@
 Date: 2026-08-24
 
 Status: DIRECTIONAL FOUNDATION ACTIVE / DESIGN-ONLY PROTOTYPE / RUNTIME
-CONTINUITY FIX IN RELEASE VALIDATION / DESIGN FREEZE PENDING
+CONTINUITY FIX PRODUCTION VERIFIED / DESIGN FREEZE PENDING
 
 ## Product decision
 
@@ -123,3 +123,20 @@ M16.5 remains active. A complete Design Freeze still requires:
 Broad M17 runtime restyling remains blocked until that joint gate. The isolated
 navigation-continuity defect may be released independently because it removes
 a confirmed runtime problem without applying the unapproved visual language.
+
+## Runtime release closeout
+
+The isolated correction is Production verified as App/Core
+`13.82.49 / 4.82.49` from runtime source
+`0e8d6c51972f1aa4d6873707e8d02206cbe3957f`.
+
+Integration is 8/8 exact Git runtime assets, authenticated 25/25 F5, one final
+route host, zero obsolete module intros and console 0. Production custom and
+direct Worker URLs are together 16/16 exact, authenticated 25/25 F5, one final
+route host, zero obsolete module intros and console 0. The accepted Worker
+versions and rejected CRLF intermediate evidence are retained in
+`TEST-RESULTS-M16.5C.md` and `RELEASE-NOTES-M16.5C.md`.
+
+No database, schema, RPC, RLS, bucket, Supabase Function, secret or manual
+Cloudflare configuration changed. The Design-only prototype remains outside
+the deployed runtime.

@@ -7,8 +7,8 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- App/Core: 13.82.48 / 4.82.48.
-- Runtime: `0d7468596dbdb42803738f427d4355bf31281c65`.
+- App/Core: 13.82.49 / 4.82.49.
+- Runtime: `0e8d6c51972f1aa4d6873707e8d02206cbe3957f`.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
 - Safe Regression: 90/90 PASS; NFR-0: 3/3 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
@@ -20,7 +20,12 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   M16: none.
 - M16.5 architecture marker: `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`;
   Safe Regression 92/92 on Platform, Integration and Main; NFR-0 3/3;
-  20/20 streams synchronized. Runtime App/Core remains unchanged.
+  20/20 architecture streams synchronized at that marker.
+- M16.5C navigation-continuity runtime: Production verified at App/Core
+  13.82.49 / 4.82.49; Safe Regression 93/93; Integration 8/8 exact plus
+  authenticated 25/25 F5; Production 16/16 exact plus authenticated 25/25 F5;
+  zero obsolete module intros and console 0. The broad redesign remains
+  Design-only and its Design Freeze is still pending.
 
 ## Completed architecture boundaries
 
