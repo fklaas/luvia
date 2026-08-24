@@ -22,6 +22,26 @@ Adapter:
 
 Places remains responsible for Places-domain behavior and persistence.
 
+M15 adds the bounded `getCard` read for conversational and other rich-result
+consumers. It returns the immutable Place projection plus optional owner-
+resolved image URL and attribution; provider-photo mechanics remain behind the
+Places adapter.
+
+### Booking
+
+Public name:
+
+`LuviaBookingContractV1`
+
+Web adapter:
+
+`core/platform/booking-contract-adapter.js`
+
+The adapter exposes the established Booking reads and commands over the
+existing `LuviaBooking` owner runtime. `openPlaceBooking` enters the same
+provider, tracked-handoff and verified e-mail fallback owned by Booking; a
+calling consumer never receives reservation truth or provider secrets.
+
 ### Media
 
 Adapter:
@@ -105,6 +125,12 @@ Browserless owner rules:
 `core/intelligence/intelligence-domain-contract-core.js`
 
 M8.5 activates sanitized capability, domain/tool, model-tier, policy, memory/system diagnostics and reasoning reads plus proposal creation. Foreign-domain mutation is not part of `intelligence.v1`; it remains delegated to the respective owner command.
+
+M15 adds `intelligence.actions.v1` as a supplemental browserless owner surface
+for action definitions, effects, confirmation requirements, structured rich
+results and receipts. Its Web runtime may auto-run registered READ actions;
+WRITE and EXTERNAL actions require a direct user gesture or explicit
+confirmation and the public command of the declared owner contract.
 
 Timeline/Journey is consumed only as a separately owned projection and is not reclassified as Intelligence truth.
 
