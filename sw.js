@@ -1,4 +1,4 @@
-const CACHE='luvia-shell-v13.82.43';
+const CACHE='luvia-shell-v13.82.44';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -7,6 +7,8 @@ const APP_SHELL=['','index.html','offline.html','manifest.webmanifest','icon-192
   'core/platform/journey-contract-adapter.js',
   'app/journey/journey-day-composer.js',
   'app/journey/journey-day-composer.css',
+  'app/memories/premium-memories-experience.js',
+  'app/memories/premium-memories-experience.css',
   'core/places/place-state-core.js',
   'core/places/place-runtime-projection-core.js',
   'core/places/places-domain-contract-core.js',

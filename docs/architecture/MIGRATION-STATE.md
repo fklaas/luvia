@@ -2,6 +2,30 @@
 
 Date: 2026-08-19
 
+## M13 Memory Core and Premium Memories
+
+M13: **IN PROGRESS / LOCAL RELEASE CANDIDATE VERIFIED**.
+
+The platform foundation establishes `core/memory/` and the public
+`memory.v1` / `LuviaMemoryContractV1` boundary for durable albums, cards,
+stories, chapters, contributions, curation and narrative lifecycle. Media
+assets remain Media-owned and cross the boundary by ID through `media.v1`.
+
+The legacy Memory DB/realtime providers remain one compatibility provider set;
+private `LuviaMediaCore` references in those providers are reduced from four to
+zero. No database ownership is duplicated and Timeline/Journey remains an
+independent cross-domain Core.
+
+The active Memories route now renders Premium Memories: responsive large
+library paging, search, filters, bounded selection, signed previews, transfer
+status and an Overlay-Host Story Composer. Consumer/Experience owns no Memory
+or Media truth and all durable story writes route through Memory owner commands.
+
+Local release candidate: App 13.82.44 / Core 4.82.44. Safe Regression 71/71,
+NFR-0 3/3 and desktop/mobile browser fixture acceptance are PASS. Integration
+Preview, Main, Production and final 8/8 synchronization remain pending and are
+not pre-claimed.
+
 ## Parallel Development Foundation
 
 M4: COMPLETE.

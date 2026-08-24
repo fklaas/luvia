@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M13 Premium Memories Browser Fixture</title>
+  <link rel="stylesheet" href="../../core/experience/experience-foundation.css">
+  <link rel="stylesheet" href="../../app/memories/premium-memories-experience.css">
+  <style>
+    :root{--lv-text:#263f54;--lv-muted:#687b8c;--lv-line:#dfe6ea}*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f7f2f3,#edf5f5);font-family:Manrope,system-ui,sans-serif;color:var(--lv-text)}main{width:min(1320px,calc(100% - 30px));margin:24px auto}.fixture-overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(24,39,52,.52);backdrop-filter:blur(9px)}
+    @media(max-width:680px){main{width:100%;margin:0;padding:10px}.fixture-overlay{align-items:end;padding:0}}
+  </style>
+</head>
+<body>
+  <main data-fixture-root aria-label="Premium Memories Vorschau"></main>
+  <script src="../../core/memory/memory-domain-contract-core.js"></script>
+  <script>
+    (()=>{
+      const core=globalThis.LuviaMemoryDomainContractCoreV1;
+      const media=Array.from({length:58},(_,index)=>({id:`media-${index+1}`,tripId:'trip-paris',type:index%8===0?'video':'image',mimeType:index%8===0?'video/mp4':'image/jpeg',displayName:['Pont Neuf','Café am Morgen','Louvre Detail','Spaziergang an der Seine'][index%4]+` ${index+1}`,capturedAt:new Date(Date.UTC(2026,7,24+(index%4),8+(index%11),index)).toISOString(),dayKey:`2026-08-${String(24+(index%4)).padStart(2,'0')}`,favorite:index%7===0,placeName:['Paris','Le Marais','Louvre','Seine'][index%4],status:'ready'}));
+      let stories=[core.projectStory({id:'story-1',tripId:'trip-paris',title:'Vier Tage, die nach Paris klingen',description:'Kleine Cafés, große Kunst und ein Abend an der Seine.',status:'draft',chapters:[{position:0,title:'Ankommen',dayKey:'2026-08-24'}],items:[{position:0,chapterPosition:0,mediaId:'media-1'}]})];
+      const albums=[core.projectAlbum({id:'album-1',tripId:'trip-paris',title:'Paris in Rosé',mediaIds:['media-2','media-3','media-7']})];
+      const makeLibrary=options=>core.buildLibrary({media,albums,stories},options);
+      const svg=id=>`data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e96784"/><stop offset="1" stop-color="#7cb9b4"/></linearGradient></defs><rect width="600" height="750" fill="url(#g)"/><circle cx="460" cy="160" r="105" fill="#fff" fill-opacity=".2"/><text x="42" y="660" fill="white" font-family="sans-serif" font-size="42">${id}</text></svg>`)}`;
+      globalThis.LuviaMemoryContractV1={contractId:'memory.v1',composition:{createSelection:core.createSelection,toggleSelection:core.toggleSelection},reads:{snapshot:async options=>({contractId:'memory.v1',tripId:'trip-paris',library:makeLibrary(options),albums,cards:[],stories,clusters:[],transfers:core.projectTransfer({online:true,total:0,counts:{}})}),library:async options=>makeLibrary(options),createDraft:async(ids,options)=>core.createStoryDraft({media:media.filter(item=>ids.includes(item.id)),trip:options.trip}),signedAsset:async id=>svg(id),getStory:async id=>stories.find(item=>item.id===id),subscribe:async()=>()=>{}},commands:{stories:{save:async input=>{const saved=core.projectStory({...input,id:input.id||`story-${stories.length+1}`,updatedAt:new Date().toISOString()});stories=[saved,...stories.filter(item=>item.id!==saved.id)];return saved},publish:async input=>{const saved=core.projectStory({...input,id:input.id||`story-${stories.length+1}`,status:'published',updatedAt:new Date().toISOString()});stories=[saved,...stories.filter(item=>item.id!==saved.id)];return saved}}}};
+      globalThis.LuviaUIKit={toast:message=>{document.querySelector('[data-fixture-status]').textContent=message}};
+      globalThis.LuviaUI={mount:options=>{const overlay=document.createElement('div');overlay.className='fixture-overlay '+(options.className||'');overlay.append(options.content);document.body.append(overlay);const handle={id:`fixture-${Date.now()}`,overlay,close:()=>{overlay.remove();options.onClose?.();return true}};overlay.addEventListener('click',event=>{if(event.target===overlay)handle.close()});overlay.querySelectorAll(options.closeSelector||'[data-close]').forEach(button=>button.addEventListener('click',()=>handle.close()));setTimeout(()=>overlay.querySelector(options.initialFocus)?.focus(),0);return handle}};
+    })();
+  </script>
+  <script src="../../app/memories/premium-memories-experience.js"></script>
+  <script>
+    (()=>{const root=document.querySelector('[data-fixture-root]'),trip={id:'trip-paris',title:'Paris zu zweit',destination:{name:'Paris'}};root.innerHTML=globalThis.LuviaPremiumMemoriesExperience.render({trip});globalThis.LuviaPremiumMemoriesExperience.bind(root,{trip});const status=document.createElement('p');status.dataset.fixtureStatus='true';status.setAttribute('aria-live','polite');status.style.cssText='position:fixed;left:-9999px';document.body.append(status)})();
+  </script>
+</body>
+</html>

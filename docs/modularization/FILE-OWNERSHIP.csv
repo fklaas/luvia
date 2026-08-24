@@ -2487,4 +2487,10 @@ core/platform/memory-runtime-context-adapter.js,Platform/Memory,Adapter/Web,Memo
 docs/modularization/contracts/memory.v1.json,Memory,Contract,Machine-readable Memory public contract and ownership boundary
 tests/m13.1-memory-core-contract-foundation.test.cjs,Memory/Shared Tests,Test/Guardrail,M13.1 browserless Memory truth library selection story lifecycle transfer projection adapter and registry guard
 docs/modularization/PCR-M13-PREMIUM-MEMORIES-STORY-COMPOSITION.md,Memory/Platform,Documentation/Architecture,M13 measured Memory ownership lock platform foundation premium consumer scope rollback and release gates
+app/memories/premium-memories-experience.js,Consumer/Memory Experience,Experience/Web,Premium Memories library selection and Story Composer over memory.v1 without domain truth
+app/memories/premium-memories-experience.css,Experience/Consumer,Experience/Web,Responsive accessible Premium Memories and Story Composer presentation
+tests/m13.2-premium-memories-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,M13.2 public-contract Experience App Shell load-order accessibility and Native First guard
+tests/fixtures/m13-premium-memories-browser.html,Consumer/Shared Tests,Test/Fixture,Data-free desktop and mobile Premium Memories Story Composer browser acceptance fixture
+docs/modularization/RELEASE-NOTES-M13.md,Memory/Consumer/Platform,Documentation/Release,M13 Memory Core Premium Memories ownership Native First infrastructure and rollback release record
+docs/modularization/TEST-RESULTS-M13.md,Memory/Consumer/Platform,Documentation/Test Evidence,M13 automated and local browser release candidate evidence with pending external gates
 docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,M12 Journey Core Day Graph Day Composer preview production provenance and rollback

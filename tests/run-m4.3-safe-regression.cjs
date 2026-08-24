@@ -185,6 +185,10 @@ const SUITE = Object.freeze([
     category: 'Memory architecture',
     test: 'tests/m13.1-memory-core-contract-foundation.test.cjs'
   },
+  {
+    category: 'Product / Consumer',
+    test: 'tests/m13.2-premium-memories-experience.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

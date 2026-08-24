@@ -20,13 +20,29 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.43**
-- Core: **4.82.43**
-- Name: **M12 Journey Core & Day Composer**
+- App: **13.82.44**
+- Core: **4.82.44**
+- Name: **M13 Memory Core & Premium Memories**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 IN PROGRESS / LOCAL VERIFIED**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
+
+## M13 Runtime Candidate
+
+- Scope: **Memory Core Isolation and Premium Memories & Story Composition**
+- Runtime release: **App 13.82.44 / Core 4.82.44**
+- Canonical Memory contract: **memory.v1 / LuviaMemoryContractV1**
+- Browserless Memory domain rules: **PASS**
+- Private Memory provider references to `LuviaMediaCore`: **4 -> 0**
+- Premium Memories: **responsive library, search, filters, bounded selection, signed previews, story draft/publish and transfer status**
+- Experience owns Domain Truth: **NO**
+- Safe Regression: **71 / 71 PASS locally before release promotion**
+- NFR-0: **3 / 3 PASS**
+- Database / RPC / RLS / bucket migration: **NONE**
+- Supabase Edge Functions / secrets: **NONE**
+- Manual Cloudflare configuration: **NONE**
+- Integration Preview / Main / Production: **PENDING**
 
 ## M5.1e Closeout
 

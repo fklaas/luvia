@@ -2,7 +2,7 @@
 
 Date: 2026-08-24
 
-Status: IN PROGRESS - PLATFORM FOUNDATION VERIFIED
+Status: IN PROGRESS - LOCAL RELEASE CANDIDATE VERIFIED
 
 ## Problem
 
@@ -56,6 +56,20 @@ Memory.
 - Browserless Memory Core: **PASS**.
 - NFR-0 Native First foundation: **3/3 PASS**.
 - Safe Regression after platform foundation: **70/70 PASS**.
+
+## Measured Premium Memories acceptance
+
+- Runtime candidate: **App 13.82.44 / Core 4.82.44**.
+- Premium Memories contract/Experience guard: **PASS**.
+- Safe Regression after consumer adoption: **71/71 PASS**.
+- Local desktop browser: hero, Memory metrics, Story Atelier, library and
+  signed preview hydration: **PASS**.
+- Interaction: two-item selection, Story Composer, correct chapter count,
+  Favorite filter **9/9** and Louvre search **14/14**: **PASS**.
+- Mobile 390 x 844: no horizontal document overflow; visible controls at least
+  48 px; component-local visually-hidden search label: **PASS**.
+- Integration Preview, Main, Production and final 8/8 synchronization:
+  **PENDING / NOT CLAIMED**.
 
 ## Database, functions, secrets and deployment
 
