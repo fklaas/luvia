@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const uniquePlaces=items=>{
@@ -59,14 +59,17 @@ async function recommend(options={}){
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
   const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
   const candidates=[];
-  for(const query of plan.queries){
+  const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
+  const queryLimit=candidateLimit>20?5:3;
+  const hasEnoughCandidates=()=>uniquePlaces(candidates).length>=candidateLimit;
+  for(const query of plan.queries.slice(0,queryLimit)){
     for(const strictDestination of (intent.niche?[true,false]:[true])){
       const response=await window.LuviaPlaceEntities.searchPlaces({
         tripId:options.tripId,
         type:discoveryRoute.primaryType,
         includedType:intent.niche?'':discoveryRoute.includedType,
         query,
-        maxResultCount:Math.min(20,Math.max(5,Number(options.candidateLimit||20))),
+        maxResultCount:Math.min(20,Math.max(5,candidateLimit)),
         strictDestination,
         providers:options.providers||['google','foursquare'],
         profileContext:options.profileContext||{},
@@ -74,9 +77,9 @@ async function recommend(options={}){
         positionContext:options.positionContext||null
       });
       candidates.push(...(response?.data?.places||[]).filter(place=>!rejected.has(providerId(place))));
-      if(candidates.length>=Number(options.candidateLimit||20))break;
+      if(hasEnoughCandidates())break;
     }
-    if(candidates.length>=Number(options.candidateLimit||20))break;
+    if(hasEnoughCandidates())break;
   }
   const accepts=place=>window.LuviaGlobalPlaceContracts?.accepts?.(place,discoveryRoute.category,goal.text,options.preferences||{})!==false;
   let ranked=uniquePlaces(candidates).filter(accepts);
@@ -86,6 +89,6 @@ async function recommend(options={}){
   ranked=ranked.filter(accepts).sort((left,right)=>deterministicScore(right,options,discoveryRoute)-deterministicScore(left,options,discoveryRoute));
   return{places:ranked.slice(0,Math.min(20,Math.max(1,Number(options.limit||5)))).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute}};
 }
-function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),deviceLocationSource:'injected-context-only'}}
+function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),maxCandidateLimit:60,breadthUsesUniquePlaces:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});
 })();

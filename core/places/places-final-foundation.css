@@ -3,6 +3,8 @@
 
 .places-final-reasons{display:grid;gap:7px;margin:0 0 20px;padding:0;list-style:none}.places-final-reasons li,.places-final-reasons p{position:relative;padding:9px 12px 9px 32px;margin:0;border-radius:14px;background:color-mix(in srgb,var(--trip-accent,#bd6b9f) 8%,#f7fafb);color:#40576a;font-size:14px;line-height:1.4}.places-final-reasons li:before,.places-final-reasons p:before{content:'✓';position:absolute;left:12px;top:9px;color:var(--trip-accent,#bd6b9f);font-weight:900}.places-final-inline-status:not(:empty){grid-column:1/-1;margin:0;color:#9d4155;font-weight:700}
 
+.places-final-more{display:grid;justify-items:center;gap:8px;margin:24px 0 4px}.places-final-more p{margin:0;font-size:13px}.places-final-more button{min-height:48px;box-shadow:0 14px 34px color-mix(in srgb,var(--trip-accent,#bd6b9f) 18%,transparent)}
+
 .places-final-provider{font-size:.75rem;color:var(--lv-muted);margin:.35rem 0}.places-final-reasons{margin:.5rem 0 1rem;padding-left:1.2rem}.places-final-reasons li,.places-final-reasons p{margin:.25rem 0}
 
 /* v13.40.0 — AI result rhythm: visually even, but never clip text or actions. */
