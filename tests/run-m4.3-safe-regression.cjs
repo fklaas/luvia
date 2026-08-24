@@ -189,6 +189,10 @@ const SUITE = Object.freeze([
     category: 'Product / Consumer',
     test: 'tests/m13.2-premium-memories-experience.test.cjs'
   },
+  {
+    category: 'App Shell / Legacy Runtime',
+    test: 'tests/m14.1-app-shell-legacy-runtime-hardening.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

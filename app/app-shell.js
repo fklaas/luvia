@@ -2,56 +2,47 @@
   'use strict';
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,todayRenderTimer=0,todayLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve();
-  const bootDiagnostics={version:'13.68.11',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.44',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
-  const BOOKING_AVAILABILITY_SRC='core/booking/booking-availability.js?v=13.68.11';
-  const BOOKING_RESERVATION_CREATE_SRC='core/booking/booking-reservation-create.js?v=13.68.11';
-  const BOOKING_RESERVATION_MUTATION_SRC='core/booking/booking-reservation-mutation.js?v=13.81.0';
-  const BOOKING_RESERVATION_MUTATION_STATUS_SRC='core/booking/booking-reservation-mutation-status.js?v=13.81.0';
-  const BOOKING_RESERVATION_RECOVERY_SRC='core/booking/booking-reservation-recovery.js?v=13.68.11';
-  const BOOKING_EMAIL_V2_SRC='core/booking/booking-email-v2.js?v=13.68.11';
-  let bookingAvailabilityLoadPromise=null,bookingReservationCreateLoadPromise=null,bookingReservationMutationLoadPromise=null,bookingReservationMutationStatusLoadPromise=null,bookingReservationRecoveryLoadPromise=null,bookingEmailV2LoadPromise=null;
-  function ensureBookingAvailabilityClient(){
-    if(window.LuviaBookingAvailability?.check&&window.LuviaBookingAvailability?.readiness)return Promise.resolve(window.LuviaBookingAvailability);
-    if(bookingAvailabilityLoadPromise)return bookingAvailabilityLoadPromise;
-    bookingAvailabilityLoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingAvailability?.check&&window.LuviaBookingAvailability?.readiness?resolve(window.LuviaBookingAvailability):reject(new Error('Booking Availability Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-availability],script[src*="core/booking/booking-availability.js"]');
-      if(existing){
-        if(window.LuviaBookingAvailability)return done();
-        existing.addEventListener('load',done,{once:true});
-        existing.addEventListener('error',()=>reject(new Error('Booking Availability Client konnte nicht geladen werden.')),{once:true});
-        setTimeout(done,1200);
-        return;
-      }
-      const script=document.createElement('script');
-      script.src=BOOKING_AVAILABILITY_SRC;
-      script.dataset.luviaBookingAvailability='true';
-      script.onload=done;
-      script.onerror=()=>reject(new Error('Booking Availability Client konnte nicht geladen werden.'));
-      document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingAvailability)bookingAvailabilityLoadPromise=null;});
-    return bookingAvailabilityLoadPromise;
+  const runtimeAssetLoads=new Map(),runtimeAssetDiagnostics=new Map();
+  const bookingRuntimeAssets=Object.freeze({
+    availability:Object.freeze({id:'booking-availability',path:'core/booking/booking-availability.js',selector:'script[data-luvia-booking-availability],script[src*="core/booking/booking-availability.js"]',datasetKey:'luviaBookingAvailability',global:'LuviaBookingAvailability',validate:client=>Boolean(client?.check&&client?.readiness),label:'Booking Availability Client'}),
+    reservationCreate:Object.freeze({id:'booking-reservation-create',path:'core/booking/booking-reservation-create.js',selector:'script[data-luvia-booking-reservation-create],script[src*="core/booking/booking-reservation-create.js"]',datasetKey:'luviaBookingReservationCreate',global:'LuviaBookingReservationCreate',validate:client=>Boolean(client?.create&&client?.readiness),label:'Booking Reservation Create Client'}),
+    reservationMutation:Object.freeze({id:'booking-reservation-mutation',path:'core/booking/booking-reservation-mutation.js',selector:'script[data-luvia-booking-reservation-mutation],script[src*="core/booking/booking-reservation-mutation.js"]',datasetKey:'luviaBookingReservationMutation',global:'LuviaBookingReservationMutation',validate:client=>Boolean(client?.modify&&client?.cancel&&client?.readiness),label:'Booking Reservation Mutation Client'}),
+    reservationMutationStatus:Object.freeze({id:'booking-reservation-mutation-status',path:'core/booking/booking-reservation-mutation-status.js',selector:'script[data-luvia-booking-reservation-mutation-status],script[src*="core/booking/booking-reservation-mutation-status.js"]',datasetKey:'luviaBookingReservationMutationStatus',global:'LuviaBookingReservationMutationStatus',validate:client=>Boolean(client?.get&&client?.history),label:'Booking Reservation Mutation Status Client'}),
+    reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
+    emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
+  });
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.44')}`;
+  function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
+    const current=()=>window[descriptor.global];
+    if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
+    if(runtimeAssetLoads.has(descriptor.id))return runtimeAssetLoads.get(descriptor.id);
+    const promise=new Promise((resolve,reject)=>{
+      let settled=false,timer=0,node=document.querySelector(descriptor.selector),created=false;
+      const cleanup=()=>{if(timer)clearTimeout(timer);node?.removeEventListener?.('load',onLoad);node?.removeEventListener?.('error',onError)};
+      const complete=(status,source,value)=>{if(settled)return;settled=true;cleanup();runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status,source,path:descriptor.path}));status==='ready'?resolve(value):reject(value)};
+      const validate=(source,final=false)=>{const client=current();if(descriptor.validate(client)){complete('ready',source,client);return true}if(final)complete('failed',source,new Error(`${descriptor.label} wurde nicht registriert.`));return false};
+      const onLoad=()=>validate(created?'dynamic-load':'existing-load',true);
+      const onError=()=>complete('failed',created?'dynamic-error':'existing-error',new Error(`${descriptor.label} konnte nicht geladen werden.`));
+      if(!node){node=document.createElement('script');node.src=runtimeAssetUrl(descriptor.path);node.dataset[descriptor.datasetKey]='true';created=true}
+      node.addEventListener('load',onLoad,{once:true});node.addEventListener('error',onError,{once:true});
+      runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'loading',source:created?'dynamic':'existing',path:descriptor.path}));
+      timer=setTimeout(()=>validate(created?'dynamic-timeout':'existing-timeout',true),timeoutMs);
+      if(created)document.head.appendChild(node);else queueMicrotask(()=>validate('existing-registered'));
+    }).finally(()=>{runtimeAssetLoads.delete(descriptor.id)});
+    runtimeAssetLoads.set(descriptor.id,promise);
+    return promise;
   }
-  function ensureBookingReservationCreateClient(){
-    if(window.LuviaBookingReservationCreate?.create&&window.LuviaBookingReservationCreate?.readiness)return Promise.resolve(window.LuviaBookingReservationCreate);
-    if(bookingReservationCreateLoadPromise)return bookingReservationCreateLoadPromise;
-    bookingReservationCreateLoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingReservationCreate?.create&&window.LuviaBookingReservationCreate?.readiness?resolve(window.LuviaBookingReservationCreate):reject(new Error('Booking Reservation Create Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-reservation-create],script[src*="core/booking/booking-reservation-create.js"]');
-      if(existing){
-        if(window.LuviaBookingReservationCreate)return done();
-        existing.addEventListener('load',done,{once:true});
-        existing.addEventListener('error',()=>reject(new Error('Booking Reservation Create Client konnte nicht geladen werden.')),{once:true});
-        setTimeout(done,1200); return;
-      }
-      const script=document.createElement('script'); script.src=BOOKING_RESERVATION_CREATE_SRC; script.dataset.luviaBookingReservationCreate='true';
-      script.onload=done; script.onerror=()=>reject(new Error('Booking Reservation Create Client konnte nicht geladen werden.')); document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingReservationCreate)bookingReservationCreateLoadPromise=null;});
-    return bookingReservationCreateLoadPromise;
-  }
+  const ensureBookingAvailabilityClient=()=>ensureRuntimeAsset(bookingRuntimeAssets.availability);
+  const ensureBookingReservationCreateClient=()=>ensureRuntimeAsset(bookingRuntimeAssets.reservationCreate);
+  const ensureBookingReservationMutationClient=()=>ensureRuntimeAsset(bookingRuntimeAssets.reservationMutation);
+  const ensureBookingReservationMutationStatusClient=()=>ensureRuntimeAsset(bookingRuntimeAssets.reservationMutationStatus);
+  const ensureBookingReservationRecoveryClient=()=>ensureRuntimeAsset(bookingRuntimeAssets.reservationRecovery);
+  const ensureBookingEmailV2Client=()=>ensureRuntimeAsset(bookingRuntimeAssets.emailV2);
+  const runtimeAssetSnapshot=()=>Object.freeze(Object.fromEntries([...runtimeAssetDiagnostics].map(([id,value])=>[id,{...value}])));
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
   function snap(){
     const api=tripContract();
@@ -67,50 +58,6 @@
   const avatar=p=>p.avatarUrl?`<img class="lv-header-avatar" src="${esc(p.avatarUrl)}" alt="Profil">`:`<span class="lv-header-avatar" style="--avatar:${esc(p.avatarColor||'#ee6f83')}">${esc(initials(p))}</span>`;
   function bootScreen(){if(root)root.innerHTML=''}
   function errorScreen(error){root.innerHTML=`<main class="lv-empty"><section class="lv-card"><span class="lv-logo"></span><h1>Start nicht möglich</h1><div class="lv-error">${esc(error?.message||error||'Unbekannter Fehler')}</div><div class="lv-actions"><button class="lv-primary" data-retry>Erneut versuchen</button><a class="lv-secondary" href="intelligence/console.html">Developer Console</a></div></section></main>`}
-  function ensureBookingReservationMutationClient(){
-    if(window.LuviaBookingReservationMutation?.modify&&window.LuviaBookingReservationMutation?.cancel&&window.LuviaBookingReservationMutation?.readiness)return Promise.resolve(window.LuviaBookingReservationMutation);
-    if(bookingReservationMutationLoadPromise)return bookingReservationMutationLoadPromise;
-    bookingReservationMutationLoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingReservationMutation?.modify&&window.LuviaBookingReservationMutation?.cancel&&window.LuviaBookingReservationMutation?.readiness?resolve(window.LuviaBookingReservationMutation):reject(new Error('Booking Reservation Mutation Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-reservation-mutation],script[src*="core/booking/booking-reservation-mutation.js"]');
-      if(existing){if(window.LuviaBookingReservationMutation)return done();existing.addEventListener('load',done,{once:true});existing.addEventListener('error',()=>reject(new Error('Booking Reservation Mutation Client konnte nicht geladen werden.')),{once:true});return;}
-      const script=document.createElement('script');script.src=BOOKING_RESERVATION_MUTATION_SRC;script.dataset.luviaBookingReservationMutation='true';script.onload=done;script.onerror=()=>reject(new Error('Booking Reservation Mutation Client konnte nicht geladen werden.'));document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingReservationMutation)bookingReservationMutationLoadPromise=null;});
-    return bookingReservationMutationLoadPromise;
-  }
-  function ensureBookingReservationMutationStatusClient(){
-    if(window.LuviaBookingReservationMutationStatus?.get&&window.LuviaBookingReservationMutationStatus?.history)return Promise.resolve(window.LuviaBookingReservationMutationStatus);
-    if(bookingReservationMutationStatusLoadPromise)return bookingReservationMutationStatusLoadPromise;
-    bookingReservationMutationStatusLoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingReservationMutationStatus?.get&&window.LuviaBookingReservationMutationStatus?.history?resolve(window.LuviaBookingReservationMutationStatus):reject(new Error('Booking Reservation Mutation Status Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-reservation-mutation-status],script[src*="core/booking/booking-reservation-mutation-status.js"]');
-      if(existing){if(window.LuviaBookingReservationMutationStatus)return done();existing.addEventListener('load',done,{once:true});existing.addEventListener('error',()=>reject(new Error('Booking Reservation Mutation Status Client konnte nicht geladen werden.')),{once:true});return;}
-      const script=document.createElement('script');script.src=BOOKING_RESERVATION_MUTATION_STATUS_SRC;script.dataset.luviaBookingReservationMutationStatus='true';script.onload=done;script.onerror=()=>reject(new Error('Booking Reservation Mutation Status Client konnte nicht geladen werden.'));document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingReservationMutationStatus)bookingReservationMutationStatusLoadPromise=null;});
-    return bookingReservationMutationStatusLoadPromise;
-  }
-  function ensureBookingReservationRecoveryClient(){
-    if(window.LuviaBookingReservationRecovery?.get&&window.LuviaBookingReservationRecovery?.list&&window.LuviaBookingReservationRecovery?.reconcile&&window.LuviaBookingReservationRecovery?.history)return Promise.resolve(window.LuviaBookingReservationRecovery);
-    if(bookingReservationRecoveryLoadPromise)return bookingReservationRecoveryLoadPromise;
-    bookingReservationRecoveryLoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingReservationRecovery?.get&&window.LuviaBookingReservationRecovery?.list&&window.LuviaBookingReservationRecovery?.reconcile&&window.LuviaBookingReservationRecovery?.history?resolve(window.LuviaBookingReservationRecovery):reject(new Error('Booking Reservation Recovery Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]');
-      if(existing){if(window.LuviaBookingReservationRecovery)return done();existing.addEventListener('load',done,{once:true});existing.addEventListener('error',()=>reject(new Error('Booking Reservation Recovery Client konnte nicht geladen werden.')),{once:true});return;}
-      const script=document.createElement('script');script.src=BOOKING_RESERVATION_RECOVERY_SRC;script.dataset.luviaBookingReservationRecovery='true';script.onload=done;script.onerror=()=>reject(new Error('Booking Reservation Recovery Client konnte nicht geladen werden.'));document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingReservationRecovery)bookingReservationRecoveryLoadPromise=null;});
-    return bookingReservationRecoveryLoadPromise;
-  }
-  function ensureBookingEmailV2Client(){
-    if(window.LuviaBookingEmailV2?.readiness&&window.LuviaBookingEmailV2?.get&&window.LuviaBookingEmailV2?.history&&window.LuviaBookingEmailV2?.queue&&window.LuviaBookingEmailV2?.send)return Promise.resolve(window.LuviaBookingEmailV2);
-    if(bookingEmailV2LoadPromise)return bookingEmailV2LoadPromise;
-    bookingEmailV2LoadPromise=new Promise((resolve,reject)=>{
-      const done=()=>window.LuviaBookingEmailV2?.readiness&&window.LuviaBookingEmailV2?.get&&window.LuviaBookingEmailV2?.history&&window.LuviaBookingEmailV2?.queue&&window.LuviaBookingEmailV2?.send?resolve(window.LuviaBookingEmailV2):reject(new Error('Booking Email V2 Client wurde nicht registriert.'));
-      const existing=document.querySelector('script[data-luvia-booking-email-v2],script[src*=\"core/booking/booking-email-v2.js\"]');
-      if(existing){if(window.LuviaBookingEmailV2)return done();existing.addEventListener('load',done,{once:true});existing.addEventListener('error',()=>reject(new Error('Booking Email V2 Client konnte nicht geladen werden.')),{once:true});return;}
-      const script=document.createElement('script');script.src=BOOKING_EMAIL_V2_SRC;script.dataset.luviaBookingEmailV2='true';script.onload=done;script.onerror=()=>reject(new Error('Booking Email V2 Client konnte nicht geladen werden.'));document.head.appendChild(script);
-    }).finally(()=>{if(!window.LuviaBookingEmailV2)bookingEmailV2LoadPromise=null;});
-    return bookingEmailV2LoadPromise;
-  }
   async function signedOut(){
     const mountRoot=root||document.getElementById('app');
     const authApi=(window.LuviaAuth||window.ParisAuth),authUI=(window.LuviaAuthUI||window.ParisAuthUI);
@@ -510,6 +457,6 @@
   })}
 
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route)show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)});window.LuviaApp=Object.freeze({version:'13.82.44',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null}),show,back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route)show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)});window.LuviaApp=Object.freeze({version:'13.82.44',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();

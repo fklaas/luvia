@@ -1903,11 +1903,6 @@ intelligence/services/base-services.js,Legacy/Intelligence Foundation,Legacy/Dia
 intelligence/services/service-registry.js,Legacy/Intelligence Foundation,Legacy/Diagnostics,Older foundation/kernel/data/platform generation unless explicitly productive
 intelligence/test.html,Developer,Developer Tooling,Developer console / harness
 legacy/paris/cloud-adapter.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/index-v11.0.0.html,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/luvia-app-shell.css,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/luvia-dashboard.css,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/luvia-dashboard.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
-legacy/ui/luvia-v7-enhancements.js,Legacy,Legacy Bridge,Paris/old UI compatibility; deletion requires replacement proof
 live-moments.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 live-moments.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 location-service.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
@@ -2490,6 +2485,7 @@ docs/modularization/PCR-M13-PREMIUM-MEMORIES-STORY-COMPOSITION.md,Memory/Platfor
 app/memories/premium-memories-experience.js,Consumer/Memory Experience,Experience/Web,Premium Memories library selection and Story Composer over memory.v1 without domain truth
 app/memories/premium-memories-experience.css,Experience/Consumer,Experience/Web,Responsive accessible Premium Memories and Story Composer presentation
 tests/m13.2-premium-memories-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,M13.2 public-contract Experience App Shell load-order accessibility and Native First guard
+tests/m14.1-app-shell-legacy-runtime-hardening.test.cjs,Consumer/Shared Tests,Test/Guardrail,M14 App Shell runtime asset loader and proof-based legacy retirement gate
 tests/fixtures/m13-premium-memories-browser.html,Consumer/Shared Tests,Test/Fixture,Data-free desktop and mobile Premium Memories Story Composer browser acceptance fixture
 docs/modularization/RELEASE-NOTES-M13.md,Memory/Consumer/Platform,Documentation/Release,M13 Memory Core Premium Memories ownership Native First infrastructure and rollback release record
 docs/modularization/TEST-RESULTS-M13.md,Memory/Consumer/Platform,Documentation/Test Evidence,M13 automated and local browser release candidate evidence with pending external gates
