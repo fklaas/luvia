@@ -68,6 +68,43 @@ architecture remains. Required outputs:
   substitutes server authorization;
 - explicit user-approved Design Freeze before M17.
 
+### M16.5C active directional foundation
+
+The joint work has now moved from unrelated concept screens into one accepted
+directional foundation. This is a binding product direction, but not yet the
+complete Design Freeze:
+
+- Q/R is the strongest visual base; B spatial orientation, D Corporate warmth,
+  E complete action/consent/receipt flows, F Living-Itinerary phases and G
+  shared-element motion remain required functional DNA;
+- Luvia uses a bright, open, primarily white canvas with meaningful travel
+  imagery, depth, rhythm and affectionate detail; it must not become sterile,
+  newspaper-like, insurance-like, overly soft/blurred or space-themed;
+- warmth is created by anticipation, shared travel, discoveries, recovery and
+  memories. Image language is decided separately and does not equate warmth
+  with indiscriminate stock photos of people;
+- primary navigation is Heute, Planen, central Luvia, Reise and Erinnern.
+  Wallet, Booking, Collaboration, Profile/Settings, Attention and Admin/Social
+  remain contextual flows backed by their own owners;
+- the central Luvia surface means "Fragen, planen, handeln": it combines
+  conversation, rich owner projections, confirmations and receipts without
+  taking foreign Domain Truth;
+- public entry, onboarding, first-Trip creation and signed-in product form one
+  continuous story. Scroll, entrance/exit, creation, change, confirmation and
+  recovery motion use one spatial model with reduced-motion parity;
+- active-Trip colour is a semantic accent across actions, selections, focus,
+  highlights, route traces and motion, always with contrast-safe fallbacks;
+- the first design-only implementation now covers the target desktop/mobile
+  navigation, cinematic landing flow, complete first-Trip onboarding and
+  reversible scroll/route choreography. It does not write production Trip
+  truth and is not deployed as the final redesign;
+- the active Runtime App Shell double-arrival defect is independently isolated:
+  the obsolete full-field module splash is replaced by a single target-mount
+  transition while canonical `navigation.v1` semantics remain unchanged.
+
+Evidence and remaining gates are recorded in
+`docs/modularization/PCR-M16.5C-CINEMATIC-PRODUCT-NAVIGATION-FOUNDATION.md`.
+
 ## Accelerated delivery corridor
 
 - M17: token-first implementation of the approved visual product language in

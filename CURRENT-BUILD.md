@@ -77,6 +77,10 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Supabase Edge Functions / secrets: **UNCHANGED**
 - Runtime assets / Cloudflare / Preview / Production: **UNCHANGED; no runtime deployment was triggered or claimed**
 - Next design gate: **two to three genuinely different Creative Territories, complete system/flow prototypes and the user's explicit Design Freeze before broad M17 implementation**
+- M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
+- Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**
+- Design-only prototype: **cinematic landing, complete first-Trip onboarding, desktop/mobile target navigation, reversible scroll reveals and reduced-motion parity; no production Trip write and no broad visual deployment**
+- Runtime continuity defect: **obsolete intermediate module splash identified as the apparent double load; isolated single-cycle route transition is in Consumer release validation**
 
 ## M15 Runtime Release
 

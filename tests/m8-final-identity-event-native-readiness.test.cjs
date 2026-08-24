@@ -62,6 +62,7 @@ const files={
   eventAdapter:read('app/adapters/event-contract-web-adapter.js'),platformWeb:read('app/adapters/identity-platform-web-adapter.js'),
   platformRegistry:read('app/adapters/platform-port-adapters.mjs'),identityCenter:read('app/control-center/identity-center.js'),
   identityCss:read('app/control-center/identity-center.css'),home:read('app/control-center/control-center-home.js'),shell:read('app/app-shell.js'),
+  navigation:read('core/runtime/navigation-contract-core.js'),
   index:read('index.html'),paris:read('paris-official.html'),sw:read('sw.js'),cores:read('config/luvia-cores.json'),coreMap:read('docs/architecture/CORE-MAP.md'),timeline:read('core/places/timeline-core.js')
 };
 for(const source of [files.profile,files.auth]){
@@ -87,7 +88,8 @@ for(const token of ['Deine Identität. Deine Entscheidungen.','Native Platform P
 assert(files.identityCss.includes('@media(max-width:780px)'));
 assert(files.identityCss.includes('@media(prefers-reduced-motion:reduce)'));
 assert(files.home.includes("card('Identität & Datenschutz'"));
-for(const token of ["view==='control-center-identity'",'LuviaIdentityCenter.mount','LuviaIdentityCenter?.unmount'])assert(files.shell.includes(token),`App Shell Identity route missing: ${token}`);
+assert(files.navigation.includes("id:'control-center-identity'"),'Navigation Contract Identity route missing');
+for(const token of ["moduleMountRegistry.register('control-center-identity'",'LuviaIdentityCenter.mount','LuviaIdentityCenter?.unmount'])assert(files.shell.includes(token),`App Shell Identity route missing: ${token}`);
 
 const positions={
   web:files.index.indexOf('app/adapters/identity-platform-web-adapter.js'),

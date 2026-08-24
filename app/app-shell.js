@@ -283,21 +283,8 @@
     'control-center-inbox':['Booking Inbox','Die Booking Inbox konnte nicht geöffnet werden.']
   });
   function renderMountFailure(view,error,stage){console.error(error);const copy=MOUNT_FAILURES[view]||['Luvia','Dieser Bereich konnte nicht geöffnet werden.'];stage.innerHTML=`<section class="lv-card" style="padding:24px"><h2>${esc(copy[0])}</h2><div class="lv-error">${esc(copy[1])}</div></section>`}
-  function transitionMeta(view){
-    if(view==='today')return{icon:'🏠',title:'Heute',subtitle:'Eure Reise auf einen Blick.'};
-    if(view==='plan')return{icon:'✨',title:'Planen',subtitle:'Alles für eure gemeinsame Vorbereitung.'};
-    if(view==='trip')return{icon:'🧳',title:'Reise',subtitle:'Euer gemeinsamer Reiseverlauf.'};
-    if(view==='memories')return{icon:'📸',title:'Erinnerungen',subtitle:'Fotos, Alben und Geschichten, die bleiben.'};
-    if(view==='more')return{icon:'•••',title:'Mehr',subtitle:'Profil und Einstellungen.'};
-    if(view==='places')return{icon:'📍',title:'Places',subtitle:'Orte entdecken, planen und erleben.'};
-    if(view==='places-lifecycle')return{icon:'🧭',title:'Meine Orte',subtitle:'Entdeckt, geplant, besucht und erinnert.'};
-    if(view==='routes')return{icon:'🗺️',title:'Routen',subtitle:'Etappen einfach in Google Maps öffnen.'};
-    if(view==='gallery')return{icon:'📸',title:'Fotogalerie',subtitle:'Alle Reisefotos nach Tagen, Favoriten und Bearbeitung.'};if(view==='albums')return{icon:'💛',title:'Memory Albums',subtitle:'Bewusst gestaltete Erinnerungen – getrennt von der stabilen Galerie.'};if(view==='control-center')return{icon:'◎',title:'Control Center',subtitle:'Status, offene Aktionen und Reisebezug an einem Ort.'};if(view==='control-center-identity')return{icon:'◉',title:'Identität & Datenschutz',subtitle:'Profil, Vorlieben und Gerätefähigkeiten transparent getrennt.'};if(view==='control-center-bookings')return{icon:'◫',title:'Booking Control Center',subtitle:'Alle Buchungen mit einem verständlichen Status.'};if(view==='control-center-inbox')return{icon:'✉',title:'Booking Inbox',subtitle:'Gespräche mit Restaurants, Hotels und weiteren Anbietern.'};
-    return{icon:'✨',title:'Luvia',subtitle:'Eure Reise wird vorbereitet.'};
-  }
-
-  function transitionHost(view,content){const meta=transitionMeta(view);return `<section class="lv-view-host lv-module-host lv-module-entering"><div class="lv-module-intro" role="status" aria-live="polite"><div class="lv-module-intro-icon">${esc(meta.icon)}</div><strong>${esc(meta.title)}</strong><span>${esc(meta.subtitle)}</span></div><div class="lv-view-content">${content}</div></section>`}
-  function completeTransition(stage){const host=stage.querySelector('.lv-view-host');if(!host)return;const started=performance.now();requestAnimationFrame(()=>{const elapsed=performance.now()-started;setTimeout(()=>host.classList.add('is-ready'),Math.max(220-elapsed,0));setTimeout(()=>host.classList.remove('lv-module-entering'),Math.max(620-elapsed,420))})}
+  function transitionHost(view,content){return `<section class="lv-view-host lv-module-host lv-route-entering" aria-busy="true"><div class="lv-view-content">${content}</div></section>`}
+  function completeTransition(stage,host,previousHost=null){if(!host)return;requestAnimationFrame(()=>requestAnimationFrame(()=>{host.classList.add('is-ready');host.setAttribute('aria-busy','false');previousHost?.classList.add('is-exiting');setTimeout(()=>{previousHost?.remove();host.classList.remove('lv-route-entering','is-ready')},560)}))}
   function routeHelper(t){
     const destination=t?.destination?.formattedAddress||t?.destination?.name||'';
     return `<section class="lv-route-helper"><div class="lv-route-card"><span class="lv-kicker">Einfach weiterreisen</span><h1>Route in Google Maps öffnen.</h1><p>Luvia ersetzt keine Navigation. Wählt Start und Ziel; Google Maps übernimmt die aktuelle Route. Mehrere geplante Orte werden später automatisch in sinnvolle Etappen geteilt.</p><div class="lv-route-grid"><div class="lv-route-field"><label>Start</label><input data-route-origin placeholder="Aktueller Standort oder Adresse"></div><div class="lv-route-field"><label>Ziel</label><input data-route-destination value="${esc(destination)}" placeholder="Ort oder Adresse"></div></div><div class="lv-route-actions"><button class="primary" data-route-open>In Google Maps öffnen</button><button data-view="plan">Zurück zu Planen</button></div></div></section>`;
@@ -314,7 +301,7 @@
     if(sameView&&!options.force){activeView=view;commitScreenIntent(intent,options);root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());return;}
     const sequence=++showSequence;await unmountCurrent('route-change');if(sequence!==showSequence)return;window.LuviaTodayExperience?.unbind?.();window.LuviaPremiumMemoriesExperience?.unbind?.();
     activeView=view;const animate=options.animate!==false;
-    const wrap=(name,content)=>{const html=transitionHost(name,content);return animate?html:html.replace(' lv-module-entering','').replace('lv-view-host','lv-view-host is-ready')};
+    const wrap=(name,content)=>{const html=transitionHost(name,content);return animate?html:html.replace(' lv-route-entering','').replace(' aria-busy="true"','').replace('lv-view-host','lv-view-host is-ready')};
     const route=navigationContract().get(view);
     const mount=route?.mount||{mode:'inline',key:view};
     let content='';
@@ -323,16 +310,19 @@
     else if(view==='memories')content=window.LuviaPremiumMemoriesExperience?.render?.({trip:t,esc})||window.LuviaModuleHubs?.render?.(view,t)||'';
     else if(['plan','trip','more'].includes(view))content=window.LuviaModuleHubs?.render?.(view,t)||'';
     else {view='today';activeView='today';content=dashboard(t);}
-    stage.innerHTML=wrap(view,content);const host=stage.querySelector('.lv-view-host');host?.setAttribute('data-view',view);host?.setAttribute('data-trip-id',requestedTripId);
+    const previousHost=stage.querySelector(':scope > .lv-view-host');
+    if(animate&&previousHost){previousHost.classList.add('lv-route-previous');previousHost.setAttribute('aria-hidden','true');stage.insertAdjacentHTML('afterbegin',wrap(view,content))}
+    else stage.innerHTML=wrap(view,content);
+    const host=stage.querySelector(':scope > .lv-view-host');host?.setAttribute('data-view',view);host?.setAttribute('data-trip-id',requestedTripId);
     try{
       if(appRuntime().snapshot().status==='failed')recoverRuntime('shell-ready',{reason:'module-retry',route:view});
       await appRuntime().run('modules-ready',()=>moduleMounts().activate(view,{trip:t,options,force:Boolean(options.force),resolveTarget:targetId=>stage.querySelector(`#${targetId}`)}),{timeoutMs:20000,detail:{route:view,mountMode:mount.mode,mountKey:mount.key}});
-      if(sequence!==showSequence)return;
-    }catch(error){renderMountFailure(view,error,stage);return}
+      if(sequence!==showSequence){host?.remove();previousHost?.classList.remove('lv-route-previous','is-exiting');previousHost?.removeAttribute('aria-hidden');return;}
+    }catch(error){previousHost?.remove();renderMountFailure(view,error,stage);return}
     commitScreenIntent(intent,options);
     if(view==='today'){lastRenderedTripId=requestedTripId;window.LuviaTodayExperience?.bind?.(stage,{trip:t,profile:profile(),esc});requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(stage));}
     if(view==='memories')window.LuviaPremiumMemoriesExperience?.bind?.(stage,{trip:t,profile:profile(),esc});
-    if(animate)completeTransition(stage);
+    if(animate)completeTransition(stage,host,previousHost);
     root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());
   }
 

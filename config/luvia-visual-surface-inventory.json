@@ -4,18 +4,18 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2744,
-    "visualCandidates": 650,
+    "trackedFiles": 2746,
+    "visualCandidates": 651,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 58,
-      "bytes": 837078,
-      "lines": 6157,
-      "important": 3219,
+      "bytes": 838366,
+      "lines": 6162,
+      "important": 3230,
       "literalHexColours": 2845,
-      "zIndexDeclarations": 226,
-      "reducedMotionQueries": 35,
+      "zIndexDeclarations": 228,
+      "reducedMotionQueries": 36,
       "focusVisibleSelectors": 36
     }
   },
@@ -519,8 +519,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 36703,
-      "sha256": "9a6d1343509de37f105fed1bb90e56a7136305760a47c1dce0782837958da588"
+      "bytes": 37991,
+      "sha256": "15a3fc70d8961bc9d5571d73d3ddc6da3e00599019aa45a757afa61953e7db87"
     },
     {
       "path": "app/app-shell.js",
@@ -533,8 +533,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 62362,
-      "sha256": "8fc19f3d79aef25f41851393cecb3065a57273f413506d1fe186652796ca8a5e"
+      "bytes": 60769,
+      "sha256": "18277986c44ba4de50eff8e6105ac30ce1fdc07b966573aaca000684eea7f15e"
     },
     {
       "path": "app/bookings-view.css",
@@ -5205,6 +5205,17 @@
       "sha256": "4b4ecbb57c99ef6dce2a7dbf55c110a6ab2bfcfd94adbce8702b733f4452f255"
     },
     {
+      "path": "tests/m16.5c-single-cycle-navigation-transition.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 2537,
+      "sha256": "ee5858a5486d1275ae20e1df8a0ff65c176a6657abcd524c75fdf7a03b018c26"
+    },
+    {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
       "classes": [
         "accessibility-source",
@@ -5481,8 +5492,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 10096,
-      "sha256": "62e8b55004cb8280332ccc19aee6f94305e45896ddbf2fbfc19c673ef3690d90"
+      "bytes": 10293,
+      "sha256": "7290ba2ff9f91a7b749d8f024b60551595f2939dd708188a95329c7f1beadcc2"
     },
     {
       "path": "tests/m8.5-final-intelligence-core-isolation.test.cjs",
@@ -5736,11 +5747,12 @@
     {
       "path": "tests/run-m4.3-safe-regression.cjs",
       "classes": [
+        "motion-source",
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 13450,
-      "sha256": "5f9267f7f85a78cf1aaefb1342c5b4a4bdd9eb9bcda2f43b9eb24fa19ff552de"
+      "bytes": 13575,
+      "sha256": "ba1f22a1f779d02b6baadf7ae99536010cf20a744d2bde6be579ec736c491869"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
@@ -5978,10 +5990,11 @@
     {
       "path": "tests/v13.78.0-booking-control-center-foundation.test.cjs",
       "classes": [
-        "dom-rendering-source"
+        "dom-rendering-source",
+        "navigation-source"
       ],
-      "bytes": 2641,
-      "sha256": "98f6ba6d62420b0e87ea20235629b4b09ad04d2c8d00ebffbe8232834b72eeb4"
+      "bytes": 2791,
+      "sha256": "8a92a9f28f583977dc56bf9d5ee7e985f8259953cf704ceaf4d63e6b828593a4"
     },
     {
       "path": "tests/v13.79.0-booking-core-conversation-seam.test.cjs",
