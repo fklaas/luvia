@@ -1,0 +1,25 @@
+{
+  "contractId": "intelligence.actions.v1",
+  "version": "1",
+  "owner": "intelligence",
+  "truthOwnership": "intelligence-specific-orchestration-state-only",
+  "effects": ["READ", "DRAFT", "WRITE", "EXTERNAL"],
+  "confirmations": ["NEVER", "USER_GESTURE", "EXPLICIT"],
+  "richResultKinds": ["message", "place_collection", "day_plan", "receipt", "clarification", "error"],
+  "actions": [
+    {"id": "places.restaurant.recommend", "effect": "READ", "confirmation": "NEVER", "ownerContract": "places.v1", "ownerOperation": "reads.recommend"},
+    {"id": "places.place.favorite", "effect": "WRITE", "confirmation": "USER_GESTURE", "ownerContract": "places.v1", "ownerOperation": "commands.favorite"},
+    {"id": "places.place.plan", "effect": "WRITE", "confirmation": "USER_GESTURE", "ownerContract": "places.v1", "ownerOperation": "commands.plan"},
+    {"id": "booking.restaurant.open", "effect": "EXTERNAL", "confirmation": "USER_GESTURE", "ownerContract": "booking.v1", "ownerOperation": "commands.openPlaceBooking"},
+    {"id": "journey.day.read", "effect": "READ", "confirmation": "NEVER", "ownerContract": "journey.v1", "ownerOperation": "reads.snapshot"},
+    {"id": "journey.day.open", "effect": "DRAFT", "confirmation": "USER_GESTURE", "ownerContract": "journey.v1", "ownerOperation": "commands.openPlanningEditor"}
+  ],
+  "invariants": {
+    "autoRun": "registered READ actions with NEVER confirmation only",
+    "foreignDomainTruth": false,
+    "directForeignDatabaseMutation": false,
+    "uiOwnership": false,
+    "journeyRemainsSeparateAggregator": true,
+    "nativeBindings": ["SwiftUI", "Jetpack Compose", "Web"]
+  }
+}

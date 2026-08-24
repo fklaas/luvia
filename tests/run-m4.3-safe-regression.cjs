@@ -201,6 +201,38 @@ const SUITE = Object.freeze([
     category: 'Experience / AI Composer',
     test: 'tests/m14.3-ai-composer-viewport-reachability.test.cjs'
   },
+  {
+    category: 'Places / Discovery Reliability',
+    test: 'tests/m15.0-places-verified-dietary-filter-regression.test.cjs'
+  },
+  {
+    category: 'Places / Discovery Breadth',
+    test: 'tests/m15.0b-places-progressive-breadth-runtime.test.cjs'
+  },
+  {
+    category: 'Intelligence / Action Contract',
+    test: 'tests/m15.1-intelligence-action-contract-core.test.cjs'
+  },
+  {
+    category: 'Booking / AI Owner Entry',
+    test: 'tests/m15.2-booking-owner-chat-entry.test.cjs'
+  },
+  {
+    category: 'Platform / Rich Owner Adapters',
+    test: 'tests/m15.3-owner-contract-rich-card-adapters.test.cjs'
+  },
+  {
+    category: 'Intelligence / Action Runtime',
+    test: 'tests/m15.4-intelligence-action-runtime.test.cjs'
+  },
+  {
+    category: 'Intelligence / Rich Conversation',
+    test: 'tests/m15.5-actionable-ai-chat-rich-results.test.cjs'
+  },
+  {
+    category: 'Experience / Rich Results',
+    test: 'tests/m15.6-actionable-ai-rich-result-experience.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

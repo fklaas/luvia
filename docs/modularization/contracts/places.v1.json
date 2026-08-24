@@ -2,9 +2,9 @@
   "contractId": "places.v1",
   "version": "1",
   "compatibility": "additive-within-major",
-  "runtimeImplementationStage": "M15",
+  "runtimeImplementationStage": "M3.2",
   "owner": "Places",
-  "status": "active",
+  "status": "implemented-m3.2",
   "currentImplementation": [
     "LuviaPlaceCore",
     "LuviaPlaces",

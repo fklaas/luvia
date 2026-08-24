@@ -20,13 +20,32 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.45**
-- Core: **4.82.45**
-- Name: **M14 Runtime Clarity & Conversational AI**
+- App: **13.82.46**
+- Core: **4.82.46**
+- Name: **M15 Actionable Intelligence & Rich Results**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 RELEASE CANDIDATE / VALIDATION IN PROGRESS**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
+
+## M15 Runtime Release Candidate
+
+- Scope: **Actionable Intelligence, owner-backed Rich Results, restaurant/day pilot and Places discovery reliability**
+- Runtime release: **App 13.82.46 / Core 4.82.46**
+- Action contract: **intelligence.actions.v1 / 6 registered actions / 6 rich-result kinds**
+- Safe auto-run: **registered READ + NEVER confirmation only**
+- Explicit owner actions: **Places favorite/plan, Booking flow and Journey planning editor require a direct user gesture**
+- Rich conversation: **provider-backed Place cards with image/evidence/actions, Journey Day Plan, immutable owner receipts and unchanged text fallback**
+- Places incident correction: **verified dietary provider evidence preserved; false/unknown/conflicting evidence remains rejected**
+- Places breadth: **up to 60 unique candidates across at most 5 query variants; up to 18 ranked results progressively visible in 6-result steps**
+- Journey/Timeline ownership: **separate cross-domain aggregator retained**
+- Database / schema / RPC / RLS / bucket migration: **NONE**
+- Supabase Edge Functions / secrets: **NONE**
+- Manual Cloudflare configuration: **NONE**
+- Safe Regression: **82 / 82 PASS**
+- NFR-0: **3 / 3 PASS**
+- Cross-Core DB guard: **360 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
+- Preview, Production and eight-stream synchronization: **PENDING RELEASE GATES**
 
 ## M14 Runtime Release
 

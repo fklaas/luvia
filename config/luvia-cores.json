@@ -106,6 +106,9 @@
       "publicContract": "LuviaIntelligenceContractV1",
       "contractAdapter": "core/platform/intelligence-contract-adapter.js",
       "browserlessCore": "core/intelligence/intelligence-domain-contract-core.js",
+      "actionContract": "LuviaIntelligenceActionContractCoreV1",
+      "browserlessActionCore": "core/intelligence/intelligence-action-contract-core.js",
+      "webActionRuntime": "core/ai/ai-action-runtime.js",
       "excludedTruth": [
         "trip",
         "places",

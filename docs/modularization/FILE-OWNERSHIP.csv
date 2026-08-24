@@ -2499,3 +2499,13 @@ docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,
 core/platform/booking-contract-adapter.js,Platform/Booking,Adapter/Web,Public booking.v1 adapter over the existing Booking owner runtime and verified owner-flow entry
 docs/modularization/PCR-M15-ACTIONABLE-INTELLIGENCE-RICH-RESULTS.md,Platform/Intelligence/Experience,Documentation/Architecture,M15 measured actionable Intelligence rich-result owner-contract scope rollback and release gates
 tests/m15.3-owner-contract-rich-card-adapters.test.cjs,Platform/Shared Tests,Test/Guardrail,M15 Places card-media and Booking owner-flow public adapter guard
+core/intelligence/intelligence-action-contract-core.js,Intelligence,Domain/Action Contract,Browserless action effect confirmation rich-result receipt and owner-contract policy
+core/ai/ai-action-runtime.js,Intelligence,Adapter/Web,M15 Web orchestration through public Places Booking Journey and Trip owner contracts only
+docs/modularization/contracts/intelligence.actions.v1.json,Intelligence,Contract,Machine-readable M15 action IDs effects confirmations owner contracts and rich-result kinds
+tests/m15.0-places-verified-dietary-filter-regression.test.cjs,Places/Shared Tests,Test/Guardrail,Verified dietary evidence and progressive result breadth regression
+tests/m15.0b-places-progressive-breadth-runtime.test.cjs,Places/Shared Tests,Test/Guardrail,Bounded multi-query unique-candidate and expanded ranked result runtime regression
+tests/m15.1-intelligence-action-contract-core.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Browserless action registry immutability sanitization confirmation and receipt guard
+tests/m15.2-booking-owner-chat-entry.test.cjs,Booking/Shared Tests,Test/Guardrail,Booking owner chat entry reuse and attribution route guard
+tests/m15.4-intelligence-action-runtime.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Public owner-contract action runtime and foreign-store isolation guard
+tests/m15.5-ai-chat-rich-results.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Rich Places Day Plan receipt and explicit user-gesture chat guard
+tests/m15.6-actionable-ai-rich-result-experience.test.cjs,Experience/Shared Tests,Test/Guardrail,Responsive accessible rich-result cards motion and trip-accent semantics guard

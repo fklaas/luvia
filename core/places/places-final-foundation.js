@@ -151,8 +151,7 @@
     r.querySelectorAll('[data-maps]').forEach(b=>b.onclick=()=>openMaps(findResult(b.dataset.maps)));
     r.querySelectorAll('[data-discover]').forEach(b=>b.onclick=()=>markDiscovered(findResult(b.dataset.discover),b));
     r.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>reject(findResult(b.dataset.reject)));
-    r.querySelector('[data-show-more]')?.addEventListener('click',()=>{state.visibleResultCount=Math.min(state.results.length,state.visibleResultCount+RESULT_PAGE_SIZE);render()});
-    r.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{state.phase='entry';state.input='';state.activeGoal=null;state.pendingGoals=[];state.question=null;state.results=[];state.visibleResultCount=INITIAL_VISIBLE_RESULTS;state.error=null;saveLocal();render()});
+    r.querySelectorAll('[data-reset],[data-show-more]').forEach(b=>b.onclick=()=>{if(b.matches('[data-show-more]')){state.visibleResultCount=Math.min(state.results.length,state.visibleResultCount+RESULT_PAGE_SIZE);render();return}state.phase='entry';state.input='';state.activeGoal=null;state.pendingGoals=[];state.question=null;state.results=[];state.visibleResultCount=INITIAL_VISIBLE_RESULTS;state.error=null;saveLocal();render()});
     r.querySelectorAll('[data-catalog]').forEach(b=>b.onclick=()=>window.LuviaPlacesShell?.showBrowse?.());
     r.querySelector('[data-continue]')?.addEventListener('click',()=>search(state.activeGoal));
   }
