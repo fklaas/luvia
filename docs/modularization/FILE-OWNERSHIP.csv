@@ -1740,14 +1740,14 @@ core/discovery/conversational-discovery.css,Intelligence/Planning,Domain/Applica
 core/discovery/curated-travel-canvas.js,Intelligence/Planning,Domain/Application,"AI, recommendations, discovery and planning workspace"
 core/legacy/paris-migrator.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 core/location/global-location-bootstrap.js,Platform,Shared Runtime,Cross-product platform/runtime infrastructure
-core/media/ai-memory-bridge.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/media-clustering.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/media-core.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/media-metadata.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/media-preview.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/memory-albums.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/memory-cards.js,Media/Memory,Domain,Media shared core and Memory domain services
-core/media/memory-journeys.js,Media/Memory,Domain,Media shared core and Memory domain services
+core/media/ai-memory-bridge.js,Intelligence,Adapter/Web Compatibility,Legacy AI Memory proposal and confirmed owner-command orchestration; no Media or Memory truth
+core/media/media-clustering.js,Media,Domain,Canonical Media clustering service
+core/media/media-core.js,Media,Domain,Canonical Media asset transfer persistence and Realtime owner
+core/media/media-metadata.js,Media,Domain,Media metadata extraction behind acquisition adapters
+core/media/media-preview.js,Media,Domain,Media preview generation behind acquisition adapters
+core/media/memory-albums.js,Memory,Adapter/Web Compatibility,Legacy Memory Album DB and Realtime provider behind memory.v1; Media assets referenced by ID
+core/media/memory-cards.js,Memory,Adapter/Web Compatibility,Legacy Memory Card curation DB and Realtime provider behind memory.v1
+core/media/memory-journeys.js,Memory,Adapter/Web Compatibility,Legacy Memory Story chapter contribution DB and Realtime provider behind memory.v1
 core/modules/module-registry.js,Platform/Modules,Shared Runtime,Module catalog/policy
 core/places/global-place-contracts.js,Places,Domain,Place lifecycle/planning/timeline/place data
 core/places/nature-intelligence-service.js,Places,Domain,Place lifecycle/planning/timeline/place data
@@ -2423,7 +2423,7 @@ tests/m7.1-media-acquisition-native-ports.test.cjs,Shared Tests,Test/Guardrail,M
 tests/m7.2-gallery-media-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.2 guard for Gallery public Media Contract adoption
 tests/m7.3-memory-asset-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.3 guard for Memory Experience public Media asset delivery
 tests/m7.4-remaining-media-consumer-contract-adoption.test.cjs,Shared Tests,Test/Guardrail,M7.4 guard for Smart Photo and AI Memory public Media Contract adoption
-core/media/media-domain-contract-core.js,Media/Memory,Domain/Contract,Browserless Media entity projection Realtime projection and upload coordination rules
+core/media/media-domain-contract-core.js,Media,Domain/Contract,Browserless Media entity projection Realtime projection and upload coordination rules
 app/adapters/media-storage-web-adapter.mjs,Platform/Media,Adapter/Web,Web MediaStoragePort remote object storage and IndexedDB upload queue adapter
 tests/m7-final-media-domain-native-readiness.test.cjs,Shared Tests,Test/Guardrail,M7 exit guard for browserless Media domain storage ports upload queue and Timeline reservation
 core/identity/identity-domain-contract-core.js,Identity,Domain/Contract,Browserless Identity state projections explicit preference rules and write policy
@@ -2480,4 +2480,11 @@ docs/modularization/contracts/journey.v1.json,Journey,Contract,Versioned public 
 docs/modularization/PCR-M12-JOURNEY-CORE-DAY-COMPOSER.md,Journey/Platform,Documentation/Architecture,M12 measured Journey ownership lock implementation scope rollback and release gates
 tests/m12-journey-core-day-composer.test.cjs,Journey/Shared Tests,Test/Guardrail,M12 browserless core adapter runtime ownership consumer isolation accessibility and load-order guard
 tests/fixtures/m12-journey-day-composer-browser.html,Journey/Shared Tests,Test/Fixture,Data-free browser fixture for desktop mobile conflict and Day Composer overlay acceptance
+core/memory/AGENTS.md,Memory,Architecture,Memory Core ownership and Native First boundary instructions
+core/memory/memory-domain-contract-core.js,Memory,Domain/Contract,Browserless Memory library selection story composition and transfer projection rules
+core/platform/memory-contract-adapter.js,Platform/Memory,Adapter/Web,Public memory.v1 adapter over one legacy Memory DB and Realtime provider set plus media.v1 asset references
+core/platform/memory-runtime-context-adapter.js,Platform/Memory,Adapter/Web,Memory Web runtime context through trip.v1 AuthSessionPort and Supabase service without private Media Core borrowing
+docs/modularization/contracts/memory.v1.json,Memory,Contract,Machine-readable Memory public contract and ownership boundary
+tests/m13.1-memory-core-contract-foundation.test.cjs,Memory/Shared Tests,Test/Guardrail,M13.1 browserless Memory truth library selection story lifecycle transfer projection adapter and registry guard
+docs/modularization/PCR-M13-PREMIUM-MEMORIES-STORY-COMPOSITION.md,Memory/Platform,Documentation/Architecture,M13 measured Memory ownership lock platform foundation premium consumer scope rollback and release gates
 docs/modularization/RELEASE-NOTES-M12.md,Journey/Platform,Documentation/Release,M12 Journey Core Day Graph Day Composer preview production provenance and rollback

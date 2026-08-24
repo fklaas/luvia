@@ -365,6 +365,25 @@
     )(payload=>listener(projectMediaRealtime(payload)));
   }
 
+  async function uploadQueueSnapshot(){
+    const snapshot=await provider(
+      'LuviaMediaCore',
+      'uploadQueueDiagnostics'
+    )();
+    const states=['queued','uploading','retry','completed','failed'];
+    const counts=Object.freeze(Object.fromEntries(states.map(state=>[
+      state,
+      Math.max(0,Number(snapshot?.counts?.[state])||0)
+    ])));
+    return Object.freeze({
+      started:Boolean(snapshot?.started),
+      running:Boolean(snapshot?.running),
+      online:snapshot?.online!==false,
+      total:Math.max(0,Number(snapshot?.total)||0),
+      counts
+    });
+  }
+
   async function listAlbums(){
     const rows=await provider(
       'LuviaMemoryAlbums',
@@ -548,6 +567,9 @@
         count:number(result?.count)??0,
         albumCount:number(
           pick(result,'albumCount','album_count')
+        )??0,
+        storyCount:number(
+          pick(result,'storyCount','story_count')
         )??0,
         clusterCount:number(
           pick(result,'clusterCount','cluster_count')
@@ -884,6 +906,7 @@
     download,
     listPolaroids,
     subscribe,
+    uploadQueueSnapshot,
     listAlbums,
     listCards,
     listJourneys
@@ -951,6 +974,7 @@
     download,
     listPolaroids,
     subscribe,
+    uploadQueueSnapshot,
     listAlbums,
     listCards,
     listJourneys,
@@ -964,7 +988,7 @@
   window.LuviaGlobalContracts?.register?.({
     id:CONTRACT_ID,
     version:VERSION,
-    owner:'Media/Memory',
+    owner:'Media',
     api,
 
     probe:()=>({

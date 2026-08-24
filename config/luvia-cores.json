@@ -24,7 +24,39 @@
       "truthOwnership": "canonical-domain-truth",
       "contractAdapter": "core/platform/media-contract-adapter.js",
       "browserlessCore": "core/media/media-domain-contract-core.js",
-      "status": "active"
+      "status": "active",
+      "excludedTruth": [
+        "memory-albums",
+        "memory-cards",
+        "memory-stories",
+        "narrative-composition"
+      ]
+    },
+    "memory": {
+      "root": "core/memory/",
+      "ownerStream": "feature/platform-core",
+      "truthOwnership": "canonical-memory-and-narrative-truth",
+      "publicContract": "LuviaMemoryContractV1",
+      "contractAdapter": "core/platform/memory-contract-adapter.js",
+      "browserlessCore": "core/memory/memory-domain-contract-core.js",
+      "runtimeContextAdapter": "core/platform/memory-runtime-context-adapter.js",
+      "legacyCompatibility": [
+        "core/media/memory-albums.js",
+        "core/media/memory-cards.js",
+        "core/media/memory-journeys.js",
+        "core/platform/media-contract-adapter.js"
+      ],
+      "excludedTruth": [
+        "media-assets",
+        "trip",
+        "places",
+        "journey-schedule",
+        "identity",
+        "social-membership",
+        "intelligence-reasoning"
+      ],
+      "status": "active",
+      "purpose": "Durable albums, cards, stories, chapters, contributions, curation decisions and narrative lifecycle; Media assets remain Media-owned and are referenced by ID"
     },
     "identity": {
       "root": "core/identity/",

@@ -75,30 +75,30 @@ gallery_photos,Legacy/Paris,legacy,M0 remote/base referenced
 generated_content,Intelligence,canonical/transitional,migration-created
 live_day_decisions,Intelligence,canonical/transitional,migration-created
 live_day_snapshots,Intelligence,canonical/transitional,migration-created
-live_moment_media,Media/Memory,canonical,migration-created
+live_moment_media,Media,canonical,migration-created
 live_moments,Legacy/Paris,legacy,M0 remote/base referenced
 location_samples,Platform/Location,shared runtime data,migration-created
-media,Media/Memory,canonical,migration-created
-media_cluster_items,Media/Memory,canonical,migration-created
-media_clusters,Media/Memory,canonical,migration-created
-media_day_polaroids,Media/Memory,canonical,migration-created
-media_memory_proposals,Media/Memory,canonical,migration-created
-media_pages,Media/Memory,canonical,migration-created
-media_place_links,Media/Memory,canonical,migration-created
-memory_album_contributions,Media/Memory,canonical,migration-created
-memory_album_favorites,Media/Memory,canonical,migration-created
-memory_album_items,Media/Memory,canonical,migration-created
-memory_albums,Media/Memory,canonical,migration-created
-memory_card_album_reviews,Media/Memory,canonical,migration-created
-memory_card_album_votes,Media/Memory,canonical,migration-created
-memory_cards,Media/Memory,canonical,migration-created
-memory_journey_chapters,Media/Memory,canonical,migration-created
-memory_journey_contributions,Media/Memory,canonical,migration-created
-memory_journey_items,Media/Memory,canonical,migration-created
-memory_journeys,Media/Memory,canonical,migration-created
-memory_member_identity,Media/Memory,canonical,migration-created
-memory_stack_curation,Media/Memory,canonical,migration-created
-memory_stack_title_proposals,Media/Memory,canonical,migration-created
+media,Media,canonical,migration-created
+media_cluster_items,Media,canonical,migration-created
+media_clusters,Media,canonical,migration-created
+media_day_polaroids,Media,canonical,migration-created
+media_memory_proposals,Intelligence,canonical/transitional,migration-created
+media_pages,Media,canonical,migration-created
+media_place_links,Media,canonical,migration-created
+memory_album_contributions,Memory,canonical,migration-created
+memory_album_favorites,Memory,canonical,migration-created
+memory_album_items,Memory,canonical,migration-created
+memory_albums,Memory,canonical,migration-created
+memory_card_album_reviews,Memory,canonical,migration-created
+memory_card_album_votes,Memory,canonical,migration-created
+memory_cards,Memory,canonical,migration-created
+memory_journey_chapters,Memory,canonical,migration-created
+memory_journey_contributions,Memory,canonical,migration-created
+memory_journey_items,Memory,canonical,migration-created
+memory_journeys,Memory,canonical,migration-created
+memory_member_identity,Memory,canonical,migration-created
+memory_stack_curation,Memory,canonical,migration-created
+memory_stack_title_proposals,Memory,canonical,migration-created
 modules,Platform/Modules,legacy registry data,migration-created
 paris_member_activity_feed,Legacy/Paris,legacy,M0 remote/base referenced
 paris_member_locations,Legacy/Paris,legacy,M0 remote/base referenced

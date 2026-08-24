@@ -128,11 +128,9 @@
     const rows=all.data||[],mediaIds=rows.map(row=>row.id);
     const safe=async promise=>{const r=await promise;if(r?.error&&!['42P01','PGRST205','42703'].includes(r.error.code))throw r.error;return r};
     progress('Verknüpfte Memory Journeys und Memory Moments werden entfernt …');
-    await safe(client.from('memory_journeys').delete().eq('trip_id',tripId));
-    const albumRows=await safe(client.from('memory_albums').select('id').eq('trip_id',tripId));
-    const albumIds=(albumRows?.data||[]).map(x=>x.id);
-    if(albumIds.length){await safe(client.from('memory_album_favorites').delete().in('album_id',albumIds));await safe(client.from('memory_album_items').delete().in('album_id',albumIds))}
-    await safe(client.from('memory_albums').delete().eq('trip_id',tripId));
+    const memoryContract=globalThis.LuviaMemoryContractV1;
+    if(!memoryContract?.commands?.maintenance?.clearForTrip)throw new Error('Memory Contract v1 Maintenance Command fehlt.');
+    const clearedMemories=await memoryContract.commands.maintenance.clearForTrip({tripId,reason:'gallery-clear'});
     progress('Fotomomente und Polaroids werden entfernt …');
     await safe(client.from('media_day_polaroids').delete().eq('trip_id',tripId));
     const clusterRows=await safe(client.from('media_clusters').select('id').eq('trip_id',tripId));
@@ -152,7 +150,7 @@
     progress('Mediendatensätze werden endgültig gelöscht …');
     const deleted=await client.from('media').delete().eq('trip_id',tripId);if(deleted.error)throw deleted.error;
     window.dispatchEvent(new CustomEvent('luvia:gallery-cleared',{detail:{tripId,count:rows.length}}));
-    return{tripId,count:rows.length,albumCount:albumIds.length,clusterCount:clusterIds.length};
+    return{tripId,count:rows.length,albumCount:Number(clearedMemories?.albums)||0,storyCount:Number(clearedMemories?.stories)||0,clusterCount:clusterIds.length};
   }
 
   async function subscribe(callback){const{client,tripId}=await context();if(channels.has(tripId))await channels.get(tripId)();const c=client.channel(`luvia-media-${tripId}-${Math.random().toString(36).slice(2)}`).on('postgres_changes',{event:'*',schema:'public',table:'media',filter:`trip_id=eq.${tripId}`},callback).on('postgres_changes',{event:'*',schema:'public',table:'media_day_polaroids',filter:`trip_id=eq.${tripId}`},callback).subscribe();const stop=async()=>{await client.removeChannel(c);channels.delete(tripId)};channels.set(tripId,stop);return stop}

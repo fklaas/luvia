@@ -80,6 +80,8 @@ function normalizeOwner(owner) {
   if (/^Booking(?:\/|$)/.test(value)) return 'Booking';
   if (/^Places(?:\/|$)/.test(value)) return 'Places';
   if (/^Trip(?:\/|$)/.test(value)) return 'Trip';
+  if (/^Media(?:\/|$)/.test(value)) return 'Media';
+  if (/^Memory(?:\/|$)/.test(value)) return 'Memory';
 
   return value;
 }
@@ -125,12 +127,57 @@ const globalInventory = loadCsv(path.join(MOD, 'GLOBAL-ACCESS-INVENTORY.csv'));
 const fileOwnerByPath = new Map(fileOwnership.map(row => [row.path, row.owner]));
 const dbOwnerByTarget = new Map(databaseMap.map(row => [row.table, row.owner]));
 const historicalOwnerByPath = new Map(fileOwnerByPath);
+const historicalDbOwnerByTarget = new Map(dbOwnerByTarget);
 
 // The M1 inventory recorded timeline-core.js under Places. M12 truthfully
 // reclassifies that unchanged physical file as the Journey Web/DB
 // compatibility provider. Preserve the historical baseline calculation while
 // separately allowing only the newly visible, measured compatibility debt.
 historicalOwnerByPath.set('core/places/timeline-core.js', 'Places');
+
+// M13 separates current Media asset ownership, Memory/Narrative ownership and
+// Intelligence proposal state without rewriting the M1 inventory. Preserve
+// the historical combined Media/Memory classification only for the baseline
+// calculation; current validation uses the precise owners above.
+for (const file of [
+  'core/media/ai-memory-bridge.js',
+  'core/media/media-clustering.js',
+  'core/media/media-core.js',
+  'core/media/media-metadata.js',
+  'core/media/media-preview.js',
+  'core/media/memory-albums.js',
+  'core/media/memory-cards.js',
+  'core/media/memory-journeys.js'
+]) {
+  historicalOwnerByPath.set(file, 'Media/Memory');
+}
+
+for (const target of [
+  'live_moment_media',
+  'media',
+  'media_cluster_items',
+  'media_clusters',
+  'media_day_polaroids',
+  'media_memory_proposals',
+  'media_pages',
+  'media_place_links',
+  'memory_album_contributions',
+  'memory_album_favorites',
+  'memory_album_items',
+  'memory_albums',
+  'memory_card_album_reviews',
+  'memory_card_album_votes',
+  'memory_cards',
+  'memory_journey_chapters',
+  'memory_journey_contributions',
+  'memory_journey_items',
+  'memory_journeys',
+  'memory_member_identity',
+  'memory_stack_curation',
+  'memory_stack_title_proposals'
+]) {
+  historicalDbOwnerByTarget.set(target, 'Media/Memory');
+}
 
 const baselineAccess = globalInventory.filter(row => row.kind === 'supabase_table');
 
@@ -158,7 +205,7 @@ for (const row of baselineAccess) {
     continue;
   }
 
-  if (!ownersCompatible(historicalOwnerByPath.get(row.path), dbOwnerByTarget.get(row.target))) {
+  if (!ownersCompatible(historicalOwnerByPath.get(row.path), historicalDbOwnerByTarget.get(row.target))) {
     increment(baselineCross, key);
   }
 }

@@ -72,6 +72,36 @@ Public boundary: `core/platform/media-contract-adapter.js`
 
 Web object storage and offline queue adapter: `app/adapters/media-storage-web-adapter.mjs`
 
+Media Core owns assets and their transfer lifecycle. It does not own albums,
+cards, stories, chapters, contributions or narrative composition.
+
+### Memory
+
+Root: `core/memory/`
+
+Owner stream: `feature/platform-core`
+
+Role: canonical durable Memory and Narrative truth for albums, cards, stories,
+chapters, contributions, curation decisions and narrative lifecycle.
+
+Browserless domain surface: `core/memory/memory-domain-contract-core.js`
+
+Public boundary: `core/platform/memory-contract-adapter.js` (`memory.v1`)
+
+Web runtime context boundary:
+`core/platform/memory-runtime-context-adapter.js` (`trip.v1`,
+`AuthSessionPort`, Supabase service; no Media Core context borrowing)
+
+Legacy Web/DB compatibility providers:
+`core/media/memory-albums.js`, `core/media/memory-cards.js` and
+`core/media/memory-journeys.js`. Their current paths do not make their durable
+records Media truth. The older Memory methods on `media.v1` remain a temporary
+compatibility facade and route to the same providers.
+
+Memory references Media assets by ID and consumes sanitized `media.v1`
+projections. It owns no Media asset, Trip, Places, Journey schedule, Identity,
+Social membership or Intelligence reasoning truth.
+
 ### Identity
 
 Root: `core/identity/`

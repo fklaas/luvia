@@ -96,7 +96,7 @@
 | `trip_place_data` | canonical | migration-created |
 | `trip_places` | canonical | migration-created |
 
-### Media/Memory
+### Media
 | Table | Status | Evidence |
 |---|---|---|
 | `live_moment_media` | canonical | migration-created |
@@ -104,9 +104,12 @@
 | `media_cluster_items` | canonical | migration-created |
 | `media_clusters` | canonical | migration-created |
 | `media_day_polaroids` | canonical | migration-created |
-| `media_memory_proposals` | canonical | migration-created |
 | `media_pages` | canonical | migration-created |
 | `media_place_links` | canonical | migration-created |
+
+### Memory
+| Table | Status | Evidence |
+|---|---|---|
 | `memory_album_contributions` | canonical | migration-created |
 | `memory_album_favorites` | canonical | migration-created |
 | `memory_album_items` | canonical | migration-created |
@@ -131,6 +134,7 @@
 ### Intelligence
 | Table | Status | Evidence |
 |---|---|---|
+| `media_memory_proposals` | canonical/transitional | migration-created |
 | `ai_action_proposals` | canonical/transitional | migration-created |
 | `ai_evidence_records` | canonical/transitional | migration-created |
 | `ai_interaction_events` | canonical/transitional | migration-created |

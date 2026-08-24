@@ -34,6 +34,36 @@ Browserless owner contract and upload rules:
 
 M7 closed the Media consumer/storage isolation. Timeline/Journey and owner-internal memory composition remain explicitly classified rather than treated as ordinary consumers.
 
+`media.v1` remains the public asset and transfer boundary. Its historical
+Memory reads and commands are retained only as compatibility while active M13
+consumers adopt `memory.v1`.
+
+### Memory
+
+Public name:
+
+`LuviaMemoryContractV1`
+
+Web adapter:
+
+`core/platform/memory-contract-adapter.js`
+
+Web runtime context adapter:
+
+`core/platform/memory-runtime-context-adapter.js`
+
+Browserless owner rules and composition policy:
+
+`core/memory/memory-domain-contract-core.js`
+
+M13 establishes Memory as the owner of durable albums, cards, stories,
+chapters, contributions, curation decisions and narrative lifecycle. Media
+assets stay Media-owned and are referenced by ID through `media.v1`.
+
+The existing `core/media/memory-albums.js`, `memory-cards.js` and
+`memory-journeys.js` services remain one set of Web/DB compatibility providers
+behind the adapter until their physical relocation is separately proven safe.
+
 ### Identity
 
 Adapter:

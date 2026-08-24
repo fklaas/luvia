@@ -107,7 +107,9 @@ assert(files.paris.indexOf('media-domain-contract-core.js')<files.paris.indexOf(
 
 assert.strictEqual((files.timeline.match(/\bLuviaMediaCore\b/g)||[]).length,2,'Timeline/Journey reservation changed');
 assert.strictEqual((files.clustering.match(/\bLuviaMediaCore\b/g)||[]).length,2,'Media Clustering owner scope changed');
-assert.strictEqual([files.albums,files.cards,files.journeys].reduce((sum,source)=>sum+(source.match(/\bLuviaMediaCore\b/g)||[]).length,0),4,'Memory owner-service scope changed');
+assert.strictEqual([files.albums,files.cards,files.journeys].reduce((sum,source)=>sum+(source.match(/\bLuviaMediaCore\b/g)||[]).length,0),0,'M13 Memory providers must not borrow private Media Core context');
+assert(files.albums.includes('LuviaMediaContractV1'),'Memory Album asset reads must cross media.v1');
+for(const source of [files.albums,files.cards,files.journeys])assert(source.includes('LuviaMemoryRuntimeContextV1'),'Memory provider must use the explicit runtime context boundary');
 
 (async()=>{
   const queue=new Map();

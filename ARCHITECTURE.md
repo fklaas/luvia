@@ -93,6 +93,20 @@ Potential future categories include beaches, cafes, nightlife, playgrounds, well
 
 The existing seven Discovery modules are future consolidation candidates after their domain boundaries are stable.
 
+## Memory / Narrative
+
+`core/memory/` owns durable Memory and Narrative truth: albums, cards,
+stories, chapters, contributions, curation decisions and narrative lifecycle.
+
+Its public boundary is `memory.v1` through
+`core/platform/memory-contract-adapter.js`. Media assets remain owned by Media
+Core and cross the boundary as IDs and sanitized `media.v1` projections.
+
+The current database and realtime providers under `core/media/memory-*.js` are
+explicit legacy compatibility providers behind `memory.v1`; they are not a
+second Memory state. Memory Core owns no Trip, Places, Journey schedule,
+Identity, Social or Intelligence truth.
+
 ## Journey / Timeline
 
 `core/journey/` owns the browserless Journey Day Graph, temporal ordering, conflict policy and owner provenance.

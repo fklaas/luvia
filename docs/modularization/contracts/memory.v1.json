@@ -1,0 +1,57 @@
+{
+  "contractId": "memory.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M13",
+  "owner": "Memory",
+  "status": "active",
+  "truthOwnership": "canonical-memory-and-narrative-truth",
+  "mediaAssetTruth": false,
+  "foreignDomainTruth": false,
+  "currentImplementation": [
+    "core/memory/memory-domain-contract-core.js",
+    "core/platform/memory-contract-adapter.js",
+    "LuviaMemoryContractV1"
+  ],
+  "reads": [
+    "snapshot",
+    "library",
+    "listAlbums",
+    "listCards",
+    "listStories",
+    "getStory",
+    "listClusters",
+    "transferSnapshot",
+    "createDraft",
+    "signedAsset",
+    "subscribe"
+  ],
+  "commands": {
+    "stories": ["save", "publish", "archive", "remove", "contribute"],
+    "albums": ["save", "remove", "contribute"],
+    "cards": ["save", "updateStory", "dismiss"],
+    "maintenance": ["clearForTrip"]
+  },
+  "events": [
+    "memory.album.changed",
+    "memory.card.changed",
+    "memory.story.changed",
+    "memory.media.changed",
+    "memory.transfer.changed"
+  ],
+  "excludedTruth": [
+    "media-assets",
+    "trip",
+    "places",
+    "journey-schedule",
+    "identity",
+    "social-membership",
+    "intelligence-reasoning"
+  ],
+  "legacyCompatibility": [
+    "core/media/memory-albums.js",
+    "core/media/memory-cards.js",
+    "core/media/memory-journeys.js",
+    "core/platform/media-contract-adapter.js"
+  ]
+}

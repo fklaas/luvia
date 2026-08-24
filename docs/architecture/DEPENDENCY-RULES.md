@@ -93,3 +93,18 @@ Repository-wide safe regression and ownership guardrails remain mandatory at rel
 Domain and product flows may provide content and owner commands, but must not create a second global modal stack, keyboard dispatcher, scroll-lock owner or z-index hierarchy. Shared presentation crosses `overlay-host.v1`; Web DOM behavior remains in the Web compatibility host and native clients bind native presentation adapters.
 
 Journey supplies domain-specific content and commands through `journey.v1`; Overlay Host remains the sole global presentation lifecycle owner. The legacy Journey presentation provider is an explicit compatibility layer, not permission to create another modal stack or reclassify Journey as Places.
+
+## 13. Memory versus Media ownership
+
+`memory.v1` is the public boundary for albums, cards, stories, chapters,
+contributions, curation decisions and narrative lifecycle. Memory references
+Media assets by ID and consumes sanitized `media.v1` projections.
+
+Media owns asset metadata, acquisition, delivery and upload state. It must not
+absorb durable narrative truth. Memory must not copy storage paths, buckets or
+Media entity state.
+
+The current `core/media/memory-*.js` services are explicitly classified Web/DB
+compatibility providers behind `memory.v1`. Consumers must not add new direct
+dependencies on their `LuviaMemory*` globals. The older Memory functions on
+`media.v1` are compatibility only and must not become a second owner surface.

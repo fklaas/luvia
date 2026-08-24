@@ -132,6 +132,21 @@ assert.strictEqual(
   'core/places/timeline-core.js'
 );
 
+assert.strictEqual(
+  cores.cores.memory.root,
+  'core/memory/'
+);
+
+assert.strictEqual(
+  cores.cores.memory.truthOwnership,
+  'canonical-memory-and-narrative-truth'
+);
+
+assert.strictEqual(
+  cores.cores.memory.contractAdapter,
+  'core/platform/memory-contract-adapter.js'
+);
+
 const ownershipRows = loadCsv(
   'docs/modularization/FILE-OWNERSHIP.csv'
 );

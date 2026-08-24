@@ -181,6 +181,10 @@ const SUITE = Object.freeze([
     category: 'Journey architecture',
     test: 'tests/m12-journey-core-day-composer.test.cjs'
   },
+  {
+    category: 'Memory architecture',
+    test: 'tests/m13.1-memory-core-contract-foundation.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

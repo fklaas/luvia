@@ -185,6 +185,17 @@ window.LuviaMediaCore={
     return {'2026-08-22':'m1'};
   },
 
+  async uploadQueueDiagnostics(){
+    return {
+      started:true,
+      running:false,
+      online:true,
+      total:2,
+      counts:{queued:1,uploading:0,retry:1,completed:0,failed:0},
+      secret:'hidden'
+    };
+  },
+
   async subscribe(callback){
     callback({
       table:'media',
@@ -214,6 +225,7 @@ window.LuviaMediaCore={
       tripId:'t1',
       count:1,
       albumCount:2,
+      storyCount:1,
       clusterCount:3,
       secret:'hidden'
     };
@@ -431,6 +443,7 @@ assert.deepStrictEqual(
     'download',
     'listPolaroids',
     'subscribe',
+    'uploadQueueSnapshot',
     'listAlbums',
     'listCards',
     'listJourneys'
@@ -616,6 +629,7 @@ assert(
       tripId:'t1',
       count:1,
       albumCount:2,
+      storyCount:1,
       clusterCount:3
     }
   );
@@ -654,6 +668,17 @@ assert(
   assert.strictEqual(
     journeys[0].metadata,
     undefined
+  );
+
+  assert.deepStrictEqual(
+    JSON.parse(JSON.stringify(await api.reads.uploadQueueSnapshot())),
+    {
+      started:true,
+      running:false,
+      online:true,
+      total:2,
+      counts:{queued:1,uploading:0,retry:1,completed:0,failed:0}
+    }
   );
 
   assert.strictEqual(

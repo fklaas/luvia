@@ -112,6 +112,26 @@ assert.strictEqual(
   'core/places/timeline-core.js'
 );
 
+assert.strictEqual(
+  cores.cores.memory.ownerStream,
+  'feature/platform-core'
+);
+
+assert.strictEqual(
+  cores.cores.memory.truthOwnership,
+  'canonical-memory-and-narrative-truth'
+);
+
+assert.strictEqual(
+  cores.cores.memory.publicContract,
+  'LuviaMemoryContractV1'
+);
+
+assert.strictEqual(
+  cores.cores.memory.status,
+  'active'
+);
+
 const rootAgents = read('AGENTS.md');
 const architecture = read('ARCHITECTURE.md');
 const dependencies = read('docs/architecture/DEPENDENCY-RULES.md');

@@ -58,20 +58,35 @@ const retained = {
   legacySync: count(source('sync/gallery.js'), /\bLuviaMediaCore\b/g)
 };
 
+const memoryProviders = [
+  source('core/media/memory-albums.js'),
+  source('core/media/memory-cards.js'),
+  source('core/media/memory-journeys.js')
+];
+
+assert.ok(
+  memoryProviders.every((value) => /\bLuviaMemoryRuntimeContextV1\b/.test(value)),
+  'M13 Memory providers must use the explicit Memory runtime context boundary'
+);
+assert.ok(
+  /\bLuviaMediaContractV1\b/.test(memoryProviders[0]),
+  'M13 Memory Album asset reads must cross the public media.v1 boundary'
+);
+
 assert.deepStrictEqual(
   retained,
   {
     smartPhotoMoments: 0,
     mediaClustering: 2,
     aiMemory: 0,
-    memoryOwners: 4,
+    memoryOwners: 0,
     timeline: 2,
     legacySync: 0
   },
-  'Current M7 guards must preserve owner and Timeline scopes while retaining approved later consumer/legacy adoption'
+  'Current guards must preserve Media owner and Timeline scopes while enforcing the later M13 Memory boundary'
 );
 
 console.log('M7.3 Memory Asset Delivery Contract Adoption: PASS');
 console.log('Memory Experience direct LuviaMediaCore refs: 6 -> 0');
 console.log('Signed asset boundary: media.v1 ID-only');
-console.log('Clustering / owner services / Timeline / legacy sync: preserved');
+console.log('Clustering / Timeline / legacy sync preserved; Memory providers isolated by public contracts');
