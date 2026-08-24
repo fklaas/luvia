@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.0.1';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RESULT_KINDS=Object.freeze({MESSAGE:'message',PLACE_COLLECTION:'place_collection',DAY_PLAN:'day_plan',RECEIPT:'receipt',CLARIFICATION:'clarification',ERROR:'error'});
@@ -128,7 +128,7 @@ function createReceipt(input={}){
 function routeIntent(message=''){
   const request=text(message);if(!request)return null;
   if(/\b(restaurant|restaurants|essen|abendessen|mittagessen|frühstück|café|cafe|bistro|pizzeria|pizza|sushi|tisch|reservier\w*)\b/i.test(request))return immutable({actionId:'places.restaurant.recommend',input:{query:request,category:'food',limit:4}});
-  if(/\b(tagesplan|tag\s+planen|plane\w*\s+(?:mir|uns)?\s*(?:einen|den)?\s*(?:schönen|ganzen|freien)?\s*tag|heute\s+(?:machen|unternehmen)|vorschl\w*\s+(?:für\s+)?(?:den\s+)?tag)\b/i.test(request))return immutable({actionId:'journey.day.read',input:{query:request}});
+  if(/\b(tagesplan|tag\s+planen|plan(?:e|t|en)?\b.{0,64}\btag|heute\s+(?:machen|unternehmen)|vorschl\w*\s+(?:für\s+)?(?:den\s+)?tag)\b/i.test(request))return immutable({actionId:'journey.day.read',input:{query:request}});
   return null;
 }
 function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,confirmation:CONFIRMATION,autoRun:'registered-read-only',writeExecution:'direct-user-gesture-or-explicit-confirmation-plus-owner-command',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
