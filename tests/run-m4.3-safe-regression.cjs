@@ -197,6 +197,10 @@ const SUITE = Object.freeze([
     category: 'Intelligence / AI Composer',
     test: 'tests/m14.2-ai-composer-keyboard-submit.test.cjs'
   },
+  {
+    category: 'Experience / AI Composer',
+    test: 'tests/m14.3-ai-composer-viewport-reachability.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',
