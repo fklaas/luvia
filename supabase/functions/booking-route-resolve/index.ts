@@ -1,15 +1,27 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const VERSION='2.5.0';
+const VERSION='2.5.1';
 const FETCH_TIMEOUT_MS=6500;
 const BROWSER_UA='Mozilla/5.0 (compatible; LuviaBooking/2.5; +https://myluvia.app) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151 Safari/537.36';
-const corsHeaders={
-  'Access-Control-Allow-Origin':'https://myluvia.app',
+const DEFAULT_ORIGINS=['https://myluvia.app','https://www.myluvia.app','https://integration-luvia.njwnrvwbv5.workers.dev','https://luvia.njwnrvwbv5.workers.dev','http://localhost:3000','http://localhost:5500','http://127.0.0.1:5500'];
+const allowedOrigins=()=>[...new Set([...DEFAULT_ORIGINS,...(Deno.env.get('LUVIA_ALLOWED_ORIGINS')||'').split(',').map(value=>value.trim().replace(/\/$/,'')).filter(Boolean)])];
+const resolveOrigin=(value:string|null)=>{
+  const origin=clean(value).replace(/\/$/,'');
+  if(!origin)return DEFAULT_ORIGINS[0];
+  if(allowedOrigins().includes(origin))return origin;
+  if(/^https:\/\/[a-z0-9-]+-luvia\.njwnrvwbv5\.workers\.dev$/i.test(origin))return origin;
+  if(/^https:\/\/[a-z0-9-]+\.github\.io$/i.test(origin))return origin;
+  if(/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin))return origin;
+  return'';
+};
+const corsHeaders=(origin:string)=>({
+  'Access-Control-Allow-Origin':origin||'null',
   'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods':'POST, OPTIONS',
+  'Access-Control-Max-Age':'86400',
   'Vary':'Origin'
-};
-const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status,headers:{...corsHeaders,'content-type':'application/json; charset=utf-8'}});
+});
+const json=(data:unknown,status=200,origin=DEFAULT_ORIGINS[0])=>new Response(JSON.stringify(data),{status,headers:{...corsHeaders(origin),'content-type':'application/json; charset=utf-8'}});
 const clean=(v:unknown)=>String(v??'').trim();
 const isGoogleReserve=(value:string)=>{try{const u=new URL(value);return /(^|\.)google\.[a-z.]+$/i.test(u.hostname)&&/^\/maps\/reserve(?:\/|$)/i.test(u.pathname)}catch{return false}};
 const emailRx=/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
@@ -193,27 +205,30 @@ async function discoverRoute(input:{name:string,website:string,reservationUrl?:s
 }
 
 Deno.serve(async(req)=>{
-  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:corsHeaders});
+  const requestOrigin=resolveOrigin(req.headers.get('Origin'));
+  const reply=(data:unknown,status=200)=>json(data,status,requestOrigin);
+  if(req.method==='OPTIONS')return new Response(null,{status:requestOrigin?204:403,headers:corsHeaders(requestOrigin)});
   try{
-    if(req.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
-    const url=Deno.env.get('SUPABASE_URL'),anon=Deno.env.get('SUPABASE_ANON_KEY'),service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');if(!url||!anon||!service)return json({error:'SUPABASE_ENV_MISSING'},500);
-    const authorization=req.headers.get('Authorization')||'';if(!authorization)return json({error:'AUTH_REQUIRED'},401);
+    if(!requestOrigin)return reply({error:'ORIGIN_NOT_ALLOWED'},403);
+    if(req.method!=='POST')return reply({error:'METHOD_NOT_ALLOWED'},405);
+    const url=Deno.env.get('SUPABASE_URL'),anon=Deno.env.get('SUPABASE_ANON_KEY'),service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');if(!url||!anon||!service)return reply({error:'SUPABASE_ENV_MISSING'},500);
+    const authorization=req.headers.get('Authorization')||'';if(!authorization)return reply({error:'AUTH_REQUIRED'},401);
     const userClient=createClient(url,anon,{global:{headers:{Authorization:authorization}}});const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
     const body=await req.json().catch(()=>({}));const bookingId=clean(body.bookingId);
 
     // Preview mode: resolve the route before Luvia shows an e-mail fallback form.
     if(!bookingId){
       const place=body.place||{};const name=clean(place.name);const placeType=clean(place.placeType||place.type);const website=clean(place.website);const reservationUrl=clean(place.reservationUrl||place.bookingUrl||place.googleReserveUrl||place.google_reserve_url||place.googleMapsBookingUrl);
-      if(!name)return json({error:'PLACE_NAME_REQUIRED'},400);
+      if(!name)return reply({error:'PLACE_NAME_REQUIRED'},400);
       const discovered:any=await discoverRoute({name,placeType,website,reservationUrl,contactEmail:clean(place.email||place.contactEmail||place.contact_email)});
-      return json({ok:true,resolved:discovered.resolved,channel:(discovered as any).channel||null,provider:(discovered as any).provider||null,value:(discovered as any).value||null,kind:(discovered as any).kind||null,reason:discovered.reason,pagesChecked:discovered.pages.length,candidatesFound:discovered.candidates.length,rejectedRoutes:discovered.rejected?.length||0,enginesDetected:(discovered as any).enginesDetected||[],googleReserveDetected:Boolean((discovered as any).googleReserveDetected),googlePartnerIdentified:(discovered as any).googlePartnerIdentified||null,googleExternalBookingLink:(discovered as any).googleExternalBookingLink||null,googleDirectIntegration:false,existingContactPresent:Boolean((discovered as any).existingContactPresent),existingContactVerified:Boolean((discovered as any).existingContactVerified),fetchDiagnostics:(discovered as any).fetchDiagnostics||[],httpStatus:(discovered as any).httpStatus||((discovered as any).fetchDiagnostics||[])[0]?.httpStatus||0,finalUrl:(discovered as any).finalUrl||((discovered as any).pages||[])[0]?.url||null,errorClass:(discovered as any).errorClass||null,reasonDetails:(discovered as any).reasonDetails||null,resolverVersion:VERSION});
+      return reply({ok:true,resolved:discovered.resolved,channel:(discovered as any).channel||null,provider:(discovered as any).provider||null,value:(discovered as any).value||null,kind:(discovered as any).kind||null,reason:discovered.reason,pagesChecked:discovered.pages.length,candidatesFound:discovered.candidates.length,rejectedRoutes:discovered.rejected?.length||0,enginesDetected:(discovered as any).enginesDetected||[],googleReserveDetected:Boolean((discovered as any).googleReserveDetected),googlePartnerIdentified:(discovered as any).googlePartnerIdentified||null,googleExternalBookingLink:(discovered as any).googleExternalBookingLink||null,googleDirectIntegration:false,existingContactPresent:Boolean((discovered as any).existingContactPresent),existingContactVerified:Boolean((discovered as any).existingContactVerified),fetchDiagnostics:(discovered as any).fetchDiagnostics||[],httpStatus:(discovered as any).httpStatus||((discovered as any).fetchDiagnostics||[])[0]?.httpStatus||0,finalUrl:(discovered as any).finalUrl||((discovered as any).pages||[])[0]?.url||null,errorClass:(discovered as any).errorClass||null,reasonDetails:(discovered as any).reasonDetails||null,resolverVersion:VERSION});
     }
 
-    const {data:booking,error}=await userClient.from('bookings').select('*').eq('id',bookingId).single();if(error||!booking)return json({error:'BOOKING_NOT_FOUND_OR_FORBIDDEN'},404);
+    const {data:booking,error}=await userClient.from('bookings').select('*').eq('id',bookingId).single();if(error||!booking)return reply({error:'BOOKING_NOT_FOUND_OR_FORBIDDEN'},404);
     const existingUrl=clean(booking.contact?.bookingUrl||booking.contact?.booking_url||booking.request?.reservationUrl||booking.request?.googleReserveUrl||booking.metadata?.googleReserveUrl);
     const discovered:any=await discoverRoute({name:clean(booking.title),placeType:clean(booking.request?.sourcePlaceType||booking.booking_type),website:clean(booking.contact?.website||booking.request?.website||booking.metadata?.website),reservationUrl:existingUrl,contactEmail:clean(booking.contact?.email)});
 
-    const {data:run,error:runError}=await admin.from('booking_discovery_runs').insert({booking_id:booking.id,trip_id:booking.trip_id,status:'running',resolver_version:VERSION}).select('*').single();if(runError)return json({error:'DISCOVERY_RUN_CREATE_FAILED',details:runError.message},500);
+    const {data:run,error:runError}=await admin.from('booking_discovery_runs').insert({booking_id:booking.id,trip_id:booking.trip_id,status:'running',resolver_version:VERSION}).select('*').single();if(runError)return reply({error:'DISCOVERY_RUN_CREATE_FAILED',details:runError.message},500);
     if(!discovered.pages.length&&!discovered.candidates.length){await admin.from('booking_discovery_runs').update({status:discovered.resolved?'completed':'failed',finished_at:new Date().toISOString(),error:discovered.resolved?null:{reason:discovered.reason}}).eq('id',run.id)}
     let candidateCount=0;const seen=new Set<string>();
     const push=async(c:Candidate)=>{const key=`${c.kind}|${c.contactValue}|${c.sourceUrl}`;if(seen.has(key))return;seen.add(key);candidateCount++;const {error:candidateError}=await admin.rpc('luvia_booking_upsert_candidate',{p_booking_id:booking.id,p_discovery_run_id:run.id,p_kind:c.kind,p_provider:c.provider,p_contact_value:c.contactValue,p_source_url:c.sourceUrl,p_is_public:true,p_is_official:c.isOfficial,p_verification_status:'verified',p_confidence:c.confidence,p_evidence:{...c.evidence,venueVerified:true,score:c.score},p_metadata:{resolver:'booking-route-resolve',resolverVersion:VERSION}});if(candidateError)console.warn('candidate upsert failed',candidateError.message)};
@@ -227,7 +242,7 @@ Deno.serve(async(req)=>{
       await push({kind:discovered.kind||'public_contact_email',provider:discovered.provider||'official_website',contactValue:discovered.value,sourceUrl:clean(booking.contact?.website||booking.request?.website||''),isOfficial:true,confidence:0.95,score:55,evidence:{method:'verified_email_fallback'}})
     }
 
-    const {data:resolution,error:resolveError}=await admin.rpc('luvia_booking_resolve_channel',{p_booking_id:booking.id,p_discovery_run_id:run.id});if(resolveError)return json({error:'CHANNEL_RESOLUTION_FAILED',details:resolveError.message},500);
-    return json({ok:true,...(resolution||{}),pagesChecked:discovered.pages.length,candidatesFound:candidateCount,resolverVersion:VERSION,venueVerified:true,enginesDetected:(discovered as any).enginesDetected||[],googleReserveDetected:Boolean((discovered as any).googleReserveDetected),googlePartnerIdentified:(discovered as any).googlePartnerIdentified||null,googleExternalBookingLink:(discovered as any).googleExternalBookingLink||null,googleDirectIntegration:false,existingContactPresent:Boolean((discovered as any).existingContactPresent),existingContactVerified:Boolean((discovered as any).existingContactVerified),fetchDiagnostics:(discovered as any).fetchDiagnostics||[],httpStatus:(discovered as any).httpStatus||((discovered as any).fetchDiagnostics||[])[0]?.httpStatus||0,finalUrl:(discovered as any).finalUrl||((discovered as any).pages||[])[0]?.url||null,errorClass:(discovered as any).errorClass||null,reasonDetails:(discovered as any).reasonDetails||null});
-  }catch(error){return json({error:'BOOKING_ROUTE_RESOLVE_UNHANDLED',details:error instanceof Error?error.message:String(error)},500)}
+    const {data:resolution,error:resolveError}=await admin.rpc('luvia_booking_resolve_channel',{p_booking_id:booking.id,p_discovery_run_id:run.id});if(resolveError)return reply({error:'CHANNEL_RESOLUTION_FAILED',details:resolveError.message},500);
+    return reply({ok:true,...(resolution||{}),pagesChecked:discovered.pages.length,candidatesFound:candidateCount,resolverVersion:VERSION,venueVerified:true,enginesDetected:(discovered as any).enginesDetected||[],googleReserveDetected:Boolean((discovered as any).googleReserveDetected),googlePartnerIdentified:(discovered as any).googlePartnerIdentified||null,googleExternalBookingLink:(discovered as any).googleExternalBookingLink||null,googleDirectIntegration:false,existingContactPresent:Boolean((discovered as any).existingContactPresent),existingContactVerified:Boolean((discovered as any).existingContactVerified),fetchDiagnostics:(discovered as any).fetchDiagnostics||[],httpStatus:(discovered as any).httpStatus||((discovered as any).fetchDiagnostics||[])[0]?.httpStatus||0,finalUrl:(discovered as any).finalUrl||((discovered as any).pages||[])[0]?.url||null,errorClass:(discovered as any).errorClass||null,reasonDetails:(discovered as any).reasonDetails||null});
+  }catch(error){return reply({error:'BOOKING_ROUTE_RESOLVE_UNHANDLED',details:error instanceof Error?error.message:String(error)},500)}
 });
