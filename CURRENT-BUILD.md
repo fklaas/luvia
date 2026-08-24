@@ -25,10 +25,10 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Name: **M13 Memory Core & Premium Memories**
 - Channel: **production**
 - Datum: **2026-08-24**
-- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 IN PROGRESS / LOCAL VERIFIED**
+- Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 NEXT**
 - Parallel Development Status: **PARALLEL DEVELOPMENT READY**
 
-## M13 Runtime Candidate
+## M13 Runtime Release
 
 - Scope: **Memory Core Isolation and Premium Memories & Story Composition**
 - Runtime release: **App 13.82.44 / Core 4.82.44**
@@ -37,12 +37,20 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Private Memory provider references to `LuviaMediaCore`: **4 -> 0**
 - Premium Memories: **responsive library, search, filters, bounded selection, signed previews, story draft/publish and transfer status**
 - Experience owns Domain Truth: **NO**
-- Safe Regression: **71 / 71 PASS locally before release promotion**
+- Runtime implementation, Integration and Main commit: `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`
+- Platform foundation commit: `1778fad04a0131da0f91e1b65de9fe7fa19b2962`
+- Safe Regression: **71 / 71 PASS**
 - NFR-0: **3 / 3 PASS**
 - Database / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **NONE**
 - Manual Cloudflare configuration: **NONE**
-- Integration Preview / Main / Production: **PENDING**
+- Integration Preview version `9dfe232e-15de-4aad-a965-955f7607845e`: **12/12 byte-exact Git blobs**, **5/5 private-path SPA fallback**, authenticated Memories/AI/focus/mobile acceptance, **25/25 F5** at **3.395-5.940 seconds** (average **4.166 seconds**) and console **0/0**
+- Main promotion: **FF-only PASS**
+- Production version/deployment `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` / `98b1f425-fc75-4eca-b7b1-b1eae69becbe`: **100%**
+- Production version URL and `myluvia.app`: each **12/12 byte-exact Git blobs** and **5/5 private-path SPA fallback**
+- Production authenticated Memories/AI/focus/mobile acceptance: **PASS**; final **25/25 F5** at **2.667-4.238 seconds** (average **2.956 seconds**), active Ostseeurlaub/Scharbeutz retained and console **0/0**
+- Eight-stream runtime synchronization on `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`: **8/8 PASS**
+- Cloudflare causation: **not inferred**; active versions were observed after Git promotion and Cloudflare reports the deployment source without a Git commit annotation
 
 ## M5.1e Closeout
 
@@ -1926,3 +1934,35 @@ Two preliminary F5 probes were stopped and rejected because their predicates ins
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provider change, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reports the automatically observed version source as `Unknown`; chronology and measured bytes are recorded without inventing deployment causation. Rollback is code-only to synchronized M11 marker `06b6c069471cd0c744390553c3dbecbf9b7b0c0b`.
 <!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:END -->
+
+<!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:START -->
+## M13 Memory Core and Premium Memories — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-24
+
+Runtime App/Core: **13.82.44 / 4.82.44**
+
+Platform foundation: `1778fad04a0131da0f91e1b65de9fe7fa19b2962`
+
+Runtime implementation, Integration and Main: `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`
+
+Measured final result:
+
+- physical browserless Memory Domain/Contract Core and public `memory.v1`: **PASS**;
+- Memory owns albums, cards, stories, chapters, contributions, curation and narrative lifecycle; Media owns assets, acquisition, storage and delivery;
+- Memory-to-Media crossings use public IDs and sanitized `media.v1` projections; private `LuviaMediaCore` references in Memory providers: **4 -> 0**;
+- Trip, Places, Booking, Identity, Social, Intelligence and Media truth reassignment: **NONE**;
+- Timeline/Journey remains a separate cross-domain Core and is not absorbed into Memory;
+- Premium Memories with metrics, transfer state, large-library search/filter/paging, bounded selection, signed previews and Overlay-Host Story Composer: **ACTIVE**;
+- authenticated real account empty state: **PASS**; deterministic local large-data fixture independently passed accent-insensitive search, filters, two-item selection and story composition without being represented as Production user data;
+- responsive 390 x 844: no horizontal overflow and all active M13 actions 48 px;
+- contextual global Luvia AI, focused input, Escape dismissal and trigger-focus restoration: **PASS**;
+- Safe Regression **71/71**, NFR-0 **3/3**;
+- DB ownership guard: static **310**, mapped **30/30** with historical baseline **26**, unmapped **39/39**, dynamic **27/27**; no growth;
+- Integration Preview `9dfe232e-15de-4aad-a965-955f7607845e`: **12/12 exact**, **5/5 privacy**, authenticated UI and **25/25 F5** at **3.395-5.940 seconds** (average **4.166 seconds**), console **0/0**;
+- Production version/deployment `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` / `98b1f425-fc75-4eca-b7b1-b1eae69becbe`: **100%**;
+- Production version URL and `myluvia.app`: each **12/12 exact** and **5/5 privacy**; authenticated final **25/25 F5** at **2.667-4.238 seconds** (average **2.956 seconds**), active Ostseeurlaub/Scharbeutz retained, console **0/0**;
+- Main promotion: **FF-only PASS**; runtime synchronization: **8/8 PASS**.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provider change, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reported the automatically observed active version without a Git commit annotation; causation is not inferred. Rollback is code-only to synchronized M12 marker `b610b0fa8db5f34a631fe8c87b82f8266c3a5b75`. M14 begins with a fresh read-only legacy/runtime/CSS debt baseline and scope lock.
+<!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:END -->

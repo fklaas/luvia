@@ -8,8 +8,11 @@
 - Memory owner stream: `feature/platform-core`
 - Premium Experience stream: `feature/consumer-experience`
 - Public contract: `memory.v1`
-- Status: local release candidate verified; runtime commit and deployment
-  provenance will be recorded after promotion.
+- Runtime implementation, Integration and Main commit:
+  `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`
+- Production version/deployment: `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` /
+  `98b1f425-fc75-4eca-b7b1-b1eae69becbe`
+- Status: **COMPLETE / CLOSED / PRODUCTION VERIFIED**
 
 ## Delivered
 
@@ -48,6 +51,25 @@
 - Supabase Edge Function change: none.
 - Secret/provider change: none.
 - Manual Cloudflare configuration change: none.
+
+## Release evidence
+
+- Safe Regression: **71/71 PASS**; NFR-0: **3/3 PASS**.
+- Integration Preview `9dfe232e-15de-4aad-a965-955f7607845e`:
+  **12/12 byte-exact**, **5/5 privacy**, authenticated Memories and contextual
+  AI acceptance, **25/25 F5** at **3.395-5.940 seconds** (average
+  **4.166 seconds**), console **0/0**.
+- Main promotion: **fast-forward only**.
+- Production: active version at **100%**; immutable version URL and
+  `myluvia.app` each **12/12 byte-exact** and **5/5 privacy**.
+- Production authenticated acceptance: real empty Memories state for the
+  active Ostseeurlaub/Scharbeutz Trip, AI context, focus/Escape restoration,
+  390 x 844 without horizontal overflow, all active M13 controls 48 px, and
+  console **0/0**.
+- Production final reload series: **25/25 PASS**, **2.667-4.238 seconds**,
+  average **2.956 seconds**.
+- Runtime commit synchronization: **8/8 PASS**.
+- Cloudflare deployment causation is not inferred from chronology.
 
 ## Rollback
 

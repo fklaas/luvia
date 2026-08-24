@@ -4,7 +4,7 @@ Date: 2026-08-19
 
 ## M13 Memory Core and Premium Memories
 
-M13: **IN PROGRESS / LOCAL RELEASE CANDIDATE VERIFIED**.
+M13: **COMPLETE / CLOSED / PRODUCTION VERIFIED**.
 
 The platform foundation establishes `core/memory/` and the public
 `memory.v1` / `LuviaMemoryContractV1` boundary for durable albums, cards,
@@ -21,10 +21,28 @@ library paging, search, filters, bounded selection, signed previews, transfer
 status and an Overlay-Host Story Composer. Consumer/Experience owns no Memory
 or Media truth and all durable story writes route through Memory owner commands.
 
-Local release candidate: App 13.82.44 / Core 4.82.44. Safe Regression 71/71,
-NFR-0 3/3 and desktop/mobile browser fixture acceptance are PASS. Integration
-Preview, Main, Production and final 8/8 synchronization remain pending and are
-not pre-claimed.
+Runtime release: App 13.82.44 / Core 4.82.44 at implementation, Integration and
+Main commit `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`. Safe Regression is
+71/71 and NFR-0 is 3/3. Integration Preview
+`9dfe232e-15de-4aad-a965-955f7607845e` passed 12/12 byte-exact assets,
+5/5 private-path SPA fallback, authenticated Memories/AI/focus/mobile
+acceptance, 25/25 F5 at 3.395-5.940 seconds (average 4.166 seconds), and
+console 0/0 before Main moved.
+
+Production version/deployment `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` /
+`98b1f425-fc75-4eca-b7b1-b1eae69becbe` is active at 100%. Its immutable
+version URL and `myluvia.app` each passed 12/12 byte-exact Git blobs and 5/5
+private-path SPA fallback. Authenticated Production preserved Ostseeurlaub /
+Scharbeutz, App/Core identity, the Memories empty state and the contextual
+Luvia AI focus/Escape contract. The final reload series passed 25/25 at
+2.667-4.238 seconds (average 2.956 seconds), with console 0/0. Main promotion
+was fast-forward only and the runtime commit was synchronized to all eight
+streams. Cloudflare deployment causation is not inferred from chronology.
+
+No database/schema/RPC/RLS/bucket migration, Edge Function change,
+secret/provider change or manual Cloudflare configuration change occurred.
+Rollback is code-only to the synchronized M12 marker
+`b610b0fa8db5f34a631fe8c87b82f8266c3a5b75`.
 
 ## Parallel Development Foundation
 
@@ -1172,3 +1190,29 @@ Measured result:
 
 No database/schema/RPC/RLS/bucket migration, Edge Function, secret/provider, manual Cloudflare configuration, manual Cloudflare upload/deploy or foreign Domain Truth reassignment occurred. The active Cloudflare version was automatically observed with source `Unknown`; deployment causation is not inferred. Rollback is code-only to `06b6c069471cd0c744390553c3dbecbf9b7b0c0b`.
 <!-- LUVIA:M12:JOURNEY-CORE:CLOSEOUT:END -->
+
+<!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:START -->
+## M13 Memory Core / Premium Memories — COMPLETE / CLOSED / PRODUCTION VERIFIED
+
+Date: 2026-08-24
+
+Runtime App/Core: **13.82.44 / 4.82.44**
+
+Platform / runtime commits: `1778fad04a0131da0f91e1b65de9fe7fa19b2962` / `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`
+
+Measured result:
+
+- browserless physical Memory Core and public `memory.v1`: **PASS**;
+- single Memory truth for albums, cards, stories, chapters, contributions, curation and lifecycle;
+- Media assets remain Media-owned and cross the boundary by public ID;
+- private `LuviaMediaCore` references in Memory providers: **4 -> 0**;
+- Premium Memories presentation owns no Domain Truth; durable operations use Memory owner commands;
+- Journey/Timeline remains a separately owned cross-domain aggregator;
+- Safe Regression **71/71**, NFR-0 **3/3**, DB ownership guard with no baseline growth;
+- Integration Preview `9dfe232e-15de-4aad-a965-955f7607845e`: **12/12 exact**, **5/5 privacy**, authenticated Memories/AI/mobile, **25/25 F5**, console **0/0**;
+- Production version/deployment `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` / `98b1f425-fc75-4eca-b7b1-b1eae69becbe`: **100%**, version URL and stable origin each **12/12 exact** and **5/5 privacy**;
+- Production authenticated final series: **25/25 F5**, **2.667-4.238 seconds**, average **2.956 seconds**, active Trip retained, console **0/0**;
+- Main promotion **FF-only** and runtime synchronization **8/8 PASS**.
+
+The Production account contained no Media items; the real empty state was accepted without mutating user data. Large-library interaction evidence came from the deterministic local fixture and is separately classified. No database/schema/RPC/RLS/bucket migration, Edge Function, secret/provider, manual Cloudflare configuration, manual upload/deploy or foreign Domain Truth reassignment occurred. Deployment causation is not inferred. Rollback is code-only to `b610b0fa8db5f34a631fe8c87b82f8266c3a5b75`.
+<!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:END -->

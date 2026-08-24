@@ -2,7 +2,7 @@
 
 Date: 2026-08-24
 
-Status: IN PROGRESS - LOCAL RELEASE CANDIDATE VERIFIED
+Status: COMPLETE / CLOSED / PRODUCTION VERIFIED
 
 ## Problem
 
@@ -68,8 +68,19 @@ Memory.
   Favorite filter **9/9** and Louvre search **14/14**: **PASS**.
 - Mobile 390 x 844: no horizontal document overflow; visible controls at least
   48 px; component-local visually-hidden search label: **PASS**.
-- Integration Preview, Main, Production and final 8/8 synchronization:
-  **PENDING / NOT CLAIMED**.
+- Integration Preview `9dfe232e-15de-4aad-a965-955f7607845e`: **12/12**
+  byte-exact assets, **5/5** privacy, authenticated Memories/AI/focus/mobile,
+  **25/25 F5** at **3.395-5.940 seconds** (average **4.166 seconds**) and
+  console **0/0**.
+- Main promotion: **FF-only PASS**.
+- Production version/deployment `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` /
+  `98b1f425-fc75-4eca-b7b1-b1eae69becbe`: **100%**; version URL and
+  `myluvia.app` each **12/12** byte-exact and **5/5** privacy.
+- Production authenticated Memories/AI/focus/mobile: **PASS**; **25/25 F5**
+  at **2.667-4.238 seconds** (average **2.956 seconds**), active Trip retained
+  and console **0/0**.
+- Runtime synchronization on `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`:
+  **8/8 PASS**.
 
 ## Database, functions, secrets and deployment
 
@@ -78,15 +89,20 @@ Memory.
 - Supabase Edge Function change: NONE.
 - Secret/provider change: NONE.
 - Manual Cloudflare configuration change: NONE.
-- Runtime release/deployment: pending the Premium Memories consumer slice.
+- Runtime release commit: `8fa43791f960cb1c5e8e67e253b5676d8dd46e6b`.
+- Cloudflare Production version/deployment:
+  `a5aa7b3f-0cd1-4b38-a12d-c3102478f214` /
+  `98b1f425-fc75-4eca-b7b1-b1eae69becbe`, active at **100%**.
+- Cloudflare causation is not inferred; chronology and measured bytes are the
+  accepted provenance evidence.
 
 ## Premium product slice
 
-The next controlled block adds a visible, responsive Memories surface over the
-public contracts: large-library search and filters, bounded selection, story
-draft composition, album/story projections and explicit transfer/offline
-status. The Experience owns presentation only; all durable writes route through
-`memory.v1` owner commands and asset delivery remains behind `media.v1`.
+The visible, responsive Memories surface is released over the public contracts:
+large-library search and filters, bounded selection, story draft composition,
+album/story projections and explicit transfer/offline status. The Experience
+owns presentation only; all durable writes route through `memory.v1` owner
+commands and asset delivery remains behind `media.v1`.
 
 ## Rollback
 
