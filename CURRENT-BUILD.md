@@ -42,7 +42,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Safe Regression: **89 / 89 PASS**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
-- Runtime registration, Experience styling, Integration/Production acceptance and eight-stream sync: **IN PROGRESS**
+- Runtime registration and shared Experience styling: **FEATURE STREAMS COMPLETE**
+- Integration/Production acceptance and eight-stream sync: **IN PROGRESS**
 - Database / schema / RPC / RLS / bucket migration: **NONE PLANNED**
 - Supabase Edge Functions / secrets: **NONE PLANNED**
 - Manual Cloudflare configuration: **NONE PLANNED**

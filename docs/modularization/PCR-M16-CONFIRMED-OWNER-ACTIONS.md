@@ -172,6 +172,29 @@ owner commit:
 This still does not claim shared Experience styling, authenticated Preview or
 Production acceptance, deployment causation or eight-stream synchronization.
 
+## Experience owner evidence
+
+Completed on `feature/experience-core` after FF-only adoption of the Platform
+assembly:
+
+- explicit confirmation, confirm/cancel controls and recovery receipts use
+  shared Experience semantics;
+- Trip, Booking, Memory and Identity result cards use responsive shared
+  entity/preference primitives;
+- active-Trip cards, primary actions, focus and highlights inherit semantic
+  action tokens and therefore the selected Trip accent rather than a fixed
+  product colour;
+- mobile reachability, minimum touch targets and reduced-motion behavior are
+  retained;
+- new `!important` declaration debt is zero;
+- M15 Experience compatibility and focused M16.6 Experience tests: PASS;
+- controlled pre-integration Safe Regression remains `89 / 89 PASS` before
+  M16.6 is added to the Platform-owned runner.
+
+This is an additive M16 capability presentation, not the later full Corporate
+Design replacement. Authenticated Preview/Production acceptance, deployment
+causation and eight-stream synchronization remain unclaimed here.
+
 ## Rollback
 
 Runtime rollback returns to the synchronized M15 marker
