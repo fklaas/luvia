@@ -233,6 +233,14 @@ const SUITE = Object.freeze([
     category: 'Experience / Rich Results',
     test: 'tests/m15.6-actionable-ai-rich-result-experience.test.cjs'
   },
+  {
+    category: 'Booking / Preview CORS',
+    test: 'tests/m15.7-booking-route-cors-acceptance.test.cjs'
+  },
+  {
+    category: 'Intelligence / Natural Day Intent',
+    test: 'tests/m15.8-intelligence-day-intent-rich-result.test.cjs'
+  },
 
   {
     category: 'Product / Consumer',

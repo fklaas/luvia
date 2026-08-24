@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.46**
-- Core: **4.82.46**
+- App: **13.82.47**
+- Core: **4.82.47**
 - Name: **M15 Actionable Intelligence & Rich Results**
 - Channel: **production**
 - Datum: **2026-08-24**
@@ -31,7 +31,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M15 Runtime Release Candidate
 
 - Scope: **Actionable Intelligence, owner-backed Rich Results, restaurant/day pilot and Places discovery reliability**
-- Runtime release: **App 13.82.46 / Core 4.82.46**
+- Runtime release: **App 13.82.47 / Core 4.82.47**
 - Action contract: **intelligence.actions.v1 / 6 registered actions / 6 rich-result kinds**
 - Safe auto-run: **registered READ + NEVER confirmation only**
 - Explicit owner actions: **Places favorite/plan, Booking flow and Journey planning editor require a direct user gesture**
@@ -40,9 +40,10 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Places breadth: **up to 60 unique candidates across at most 5 query variants; up to 18 ranked results progressively visible in 6-result steps**
 - Journey/Timeline ownership: **separate cross-domain aggregator retained**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
-- Supabase Edge Functions / secrets: **NONE**
+- Supabase Edge Functions: **booking-route-resolve 2.5.1 – request-scoped allowlisted CORS for Production, Integration and immutable Luvia Preview origins**
+- Supabase secrets: **UNCHANGED**
 - Manual Cloudflare configuration: **NONE**
-- Safe Regression: **82 / 82 PASS**
+- Safe Regression: **84 / 84 PASS**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **360 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Preview, Production and eight-stream synchronization: **PENDING RELEASE GATES**
