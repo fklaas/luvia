@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2757,
-    "visualCandidates": 657,
+    "trackedFiles": 2759,
+    "visualCandidates": 658,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -5263,6 +5263,17 @@
       ],
       "bytes": 6931,
       "sha256": "5d88e094d596584079879b41ad6283395cf3ecadfdeb457372cafb69f61e44a7"
+    },
+    {
+      "path": "tests/m16.5f-signed-in-living-product-vertical-slice.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 5026,
+      "sha256": "b5dbc4f98ecd51f3c326a37840e6465e86ce7266053419581f23185268b698e5"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
