@@ -7,13 +7,14 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- Integration candidate App/Core: 13.82.50 / 4.82.50.
-- Integration source before the M16.5G Platform commit:
-  `e1e4b5fce80c854bba745f9bb12e1ef0c4bda74d`.
+- Integration candidate App/Core target: 13.82.51 / 4.82.51.
+- Integration source before the M16.5J Platform release commit:
+  `fee1cdbe02707f845fa6543d17b9c03718135c23`.
 - Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
   Preview acceptance.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Integration candidate Safe Regression: 96/96 PASS; NFR-0: 3/3 PASS.
+- Integration candidate Safe Regression: 99/99 PASS; visual inventory freshness
+  2,768/660 PASS; NFR-0: 3/3 PASS; cross-Core DB guard without debt growth.
 - Main/Production M16 baseline before visual promotion: 90/90 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
   Memory and Identity with R0-R3 policy and digest-only Action Ledger.
@@ -43,6 +44,18 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   4.82.50; 96/96 Safe Regression, NFR-0 3/3 and the regenerated 2,761-file
   visual inventory pass. Preview, authenticated desktop/mobile acceptance,
   Main and Production remain pending.
+- M16.5H accepted Living Shell adoption: the productive App Shell now uses the
+  accepted light desktop sidebar, responsive five-destination mobile dock,
+  official layered Compass and real Trip/Navigation/Collaboration/Intelligence
+  projections at Consumer source
+  `fee1cdbe02707f845fa6543d17b9c03718135c23`.
+- M16.5I visual parity/no-substitution gate: the 27-file accepted reference is
+  pinned by six SHA-256 key inputs; twelve mandatory product surfaces have an
+  explicit desktop/mobile/motion/state/accessibility/joint-acceptance matrix.
+  A new shell around an old feature is explicitly not completion.
+- M16.5J release target: App/Core 13.82.51 / 4.82.51 packages H/I as an
+  immutable Integration review candidate. Main and Production stay locked on
+  13.82.49 / 4.82.49 until the complete matrix is jointly accepted.
 
 ## Completed architecture boundaries
 
@@ -65,11 +78,13 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 Consumer and Experience own no Domain Truth. Intelligence may reason, rank,
 plan and orchestrate, but executes changes only through public owner commands.
 
-## Next mandatory gate: M16.5 Complete Visual Product Redesign
+## Current mandatory gate: M16.5 Complete Visual Product Redesign
 
-M16.5 is design-only and jointly approved before broad code implementation.
-The current visual design is replaced completely while the proven Domain
-architecture remains. Required outputs:
+The jointly selected M16.5 design is now the binding productive endpoint. Its
+implementation proceeds in measured feature slices, but no alternative visual
+interpretation or legacy substitution is allowed. The current visual design is
+replaced completely while the proven Domain architecture remains. Required
+outputs and release gates:
 
 - Corporate Design and brand foundation;
 - two to three distinct creative territories;

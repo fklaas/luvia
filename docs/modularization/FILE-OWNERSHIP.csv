@@ -2530,3 +2530,5 @@ tests/m16.5h-accepted-living-shell-adoption.test.cjs,Consumer/Shared Tests,Test/
 config/luvia-m16.5-visual-parity-contract.json,Experience Core,Configuration/Release Gate,Binding accepted-reference hashes complete surface matrix allowed runtime differences and no-substitution release lock
 docs/modularization/M16.5-VISUAL-PARITY-AND-NO-SUBSTITUTION-GATE.md,Experience Core,Documentation/Architecture,Human-readable complete visual parity contract per-surface evidence requirements and Main Production lock
 tests/m16.5i-visual-parity-no-substitution-gate.test.cjs,Experience/Shared Tests,Test/Guardrail,Accepted reference hash matrix mandatory surface gate and no-substitution release-lock guard
+docs/modularization/PCR-M16.5J-ACCEPTED-LIVING-SHELL-RUNTIME-RELEASE.md,Platform/Experience,Documentation/Architecture,M16.5J immutable Integration release provenance visual lock infrastructure exclusion and rollback scope
+tests/m16.5j-accepted-living-shell-runtime-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,App Core cache entry accepted shell parity lock Safe Regression registration and ownership guard
