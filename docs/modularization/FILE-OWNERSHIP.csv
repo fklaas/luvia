@@ -2530,3 +2530,5 @@ tests/m16.5h-accepted-living-shell-adoption.test.cjs,Consumer/Shared Tests,Test/
 config/luvia-m16.5-visual-parity-contract.json,Experience Core,Configuration/Release Gate,Binding accepted-reference hashes complete surface matrix allowed runtime differences and no-substitution release lock
 docs/modularization/M16.5-VISUAL-PARITY-AND-NO-SUBSTITUTION-GATE.md,Experience Core,Documentation/Architecture,Human-readable complete visual parity contract per-surface evidence requirements and Main Production lock
 tests/m16.5i-visual-parity-no-substitution-gate.test.cjs,Experience/Shared Tests,Test/Guardrail,Accepted reference hash matrix mandatory surface gate and no-substitution release-lock guard
+docs/modularization/PCR-M16.5J-PLAN-COMPASS-PRODUCTIVE-ADOPTION.md,Consumer/Experience,Documentation/Architecture,M16.5J productive embedded Plan Compass brand-source flight eight directions responsive evidence release gate and rollback
+tests/m16.5j-plan-compass-productive-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,Official layered Plan Compass top-left brand flight native needle eight directions mobile no-scroll and public Places boundary guard

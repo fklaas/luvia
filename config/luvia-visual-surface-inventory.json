@@ -10,12 +10,12 @@
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 58,
-      "bytes": 866615,
-      "lines": 6239,
-      "important": 3230,
-      "literalHexColours": 2854,
-      "zIndexDeclarations": 239,
-      "reducedMotionQueries": 38,
+      "bytes": 881869,
+      "lines": 6297,
+      "important": 3228,
+      "literalHexColours": 2865,
+      "zIndexDeclarations": 254,
+      "reducedMotionQueries": 39,
       "focusVisibleSelectors": 37
     }
   },
@@ -533,8 +533,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 66102,
-      "sha256": "7026770b8c881f867dbe8669f3e1aa0cbdf8ed6c766bf2a812595190cc79b5e5"
+      "bytes": 71477,
+      "sha256": "7951c631526ca83f71bdd4dacb1127f9b15fecac4c2bdcb3b460e00a2911e25a"
     },
     {
       "path": "app/bookings-view.css",
@@ -845,17 +845,19 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 4524,
-      "sha256": "5219373491c5d63f2312492a8d833ee289a963fc5e9ba642a4a8fc5ebc9c8e97"
+      "bytes": 19778,
+      "sha256": "06befd89d307d7ecadec8e4ce88570c335cb32134016a0d836fc05b0a5e0610e"
     },
     {
       "path": "app/module-hubs.js",
       "classes": [
+        "accessibility-source",
         "dom-rendering-source",
+        "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 6015,
-      "sha256": "0bfb192383a0839c828d3a6ffc704afbfc4778834b4c2d447026f7ff295098ef"
+      "bytes": 9007,
+      "sha256": "9614b8a1392683238bcfe169a3715b4b056a2ba39b56a9bcd4d6f3cdea105580"
     },
     {
       "path": "app/navigation-registry.js",
@@ -5830,8 +5832,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 14206,
-      "sha256": "27accc8b11c2103c07b1e76a72478379aa95a86f347bf9f19ff08fe47412bd7c"
+      "bytes": 14331,
+      "sha256": "b598e2b11e8796fd00683f3cfe932d740f79e4e4546bdebbb61f72c202cb3c0b"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
