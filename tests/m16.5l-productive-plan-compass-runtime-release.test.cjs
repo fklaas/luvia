@@ -16,17 +16,17 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5L-PRODUCTIVE-PLAN-COMPASS-RUNTIME-RELEASE.md');
 
-assert.match(version,/core:'4\.82\.52'/);
-assert.match(version,/build:'13\.82\.52'/);
-assert.match(version,/name:'M16\.5 Productive Plan Compass Candidate'/);
+assert.match(version,/core:'4\.82\.53'/);
+assert.match(version,/build:'13\.82\.53'/);
+assert.match(version,/name:'M16\.5 Plan Compass Navigation Alignment'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.52'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.53'/);
 assert.equal(/\?v=13\.82\.51/.test(index),false,'active entry retains the previous cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
-  assert.ok(index.includes(`${asset}?v=13.82.52`),`active entry release key missing for ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.53`),`active entry release key missing for ${asset}`);
 }
 
-assert.match(shell,/version:'13\.82\.52'/);
+assert.match(shell,/version:'13\.82\.53'/);
 assert.match(shell,/function planCompassBrandSource/);
 assert.match(hubs,/data-plan-compass-stage/);
 assert.equal(parity.binding,true);
@@ -41,7 +41,8 @@ for(const file of [
 ])assert.ok(ownership.includes(file),`ownership registry missing ${file}`);
 assert.match(pcr,/Main and Production remain locked/);
 assert.match(pcr,/No database\/schema\/RPC\/RLS\/bucket migration/);
+assert.match(pcr,/13\.82\.52 \/ 4\.82\.52/,'historical M16.5L provenance must remain recorded');
 
 console.log('M16.5L Productive Plan Compass Runtime Release: PASS');
-console.log('App / Core: 13.82.52 / 4.82.52');
+console.log('Historical App / Core: 13.82.52 / 4.82.52; active candidate advanced safely');
 console.log('Main / Production visual parity lock: ACTIVE');

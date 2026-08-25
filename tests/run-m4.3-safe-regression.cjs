@@ -414,6 +414,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5l-productive-plan-compass-runtime-release.test.cjs'
   },
   {
+    category: 'M16.5 / Plan Compass Navigation Alignment',
+    test: 'tests/m16.5m-plan-compass-navigation-alignment.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },
