@@ -2532,3 +2532,5 @@ docs/modularization/M16.5-VISUAL-PARITY-AND-NO-SUBSTITUTION-GATE.md,Experience C
 tests/m16.5i-visual-parity-no-substitution-gate.test.cjs,Experience/Shared Tests,Test/Guardrail,Accepted reference hash matrix mandatory surface gate and no-substitution release-lock guard
 docs/modularization/PCR-M16.5J-ACCEPTED-LIVING-SHELL-RUNTIME-RELEASE.md,Platform/Experience,Documentation/Architecture,M16.5J immutable Integration release provenance visual lock infrastructure exclusion and rollback scope
 tests/m16.5j-accepted-living-shell-runtime-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,App Core cache entry accepted shell parity lock Safe Regression registration and ownership guard
+docs/modularization/PCR-M16.5K-PLAN-COMPASS-PRODUCTIVE-ADOPTION.md,Consumer/Experience,Documentation/Architecture,M16.5K productive embedded Plan Compass brand-source flight eight directions responsive evidence release gate and rollback
+tests/m16.5k-plan-compass-productive-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,Official layered Plan Compass top-left brand flight native needle eight directions mobile no-scroll and public Places boundary guard

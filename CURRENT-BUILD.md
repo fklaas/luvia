@@ -54,6 +54,24 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secrets / manual Cloudflare change: **NONE**.
 
+## M16.5K Productive Plan Compass Candidate
+
+- Productive Plan entry: **accepted embedded eight-direction Living Compass in
+  the Signed-in shell; no overlay and no legacy tile-wall substitution**.
+- Shared element: **official layered Compass travels from the top-left Luvia
+  brand; the separate `Luvia Compass` navigation item continues to open the real
+  Intelligence chat**.
+- Motion: **only the official two-ended needle rotates; feature directions enter
+  after the Compass, float subtly, and leave before the selected owner route**.
+- Data: **Plan counts use the public Places contract; no private owner Store or
+  direct database access**.
+- Responsive local evidence: **390 × 844 and 320 × 673 fit without document or
+  horizontal navigation scrolling**.
+- Step 5 status: **IN PROGRESS — embedded Plan Compass candidate complete;
+  productive Places search/map and Booking visual migration continue next**.
+- Release status: **Integration candidate only; Main and Production remain
+  locked and unchanged pending complete joint visual acceptance**.
+
 ## M16.5E–G Living Product Foundation Candidate
 
 - Experience foundation: **official Living Compass vector family, active-Trip

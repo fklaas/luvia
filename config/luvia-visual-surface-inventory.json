@@ -4,18 +4,18 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2768,
-    "visualCandidates": 660,
+    "trackedFiles": 2770,
+    "visualCandidates": 661,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 58,
-      "bytes": 866615,
-      "lines": 6239,
-      "important": 3230,
-      "literalHexColours": 2854,
-      "zIndexDeclarations": 239,
-      "reducedMotionQueries": 38,
+      "bytes": 881812,
+      "lines": 6296,
+      "important": 3228,
+      "literalHexColours": 2865,
+      "zIndexDeclarations": 254,
+      "reducedMotionQueries": 39,
       "focusVisibleSelectors": 37
     }
   },
@@ -533,8 +533,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 66102,
-      "sha256": "0ab28d94c7a49be174fe13490f8f751d125d096f90e6438a5d81e5566603daba"
+      "bytes": 71477,
+      "sha256": "a7e1e6dde7519b359ce231c302908d01040d2d9625d82e0b26878a539ce36362"
     },
     {
       "path": "app/bookings-view.css",
@@ -845,17 +845,19 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 4524,
-      "sha256": "5219373491c5d63f2312492a8d833ee289a963fc5e9ba642a4a8fc5ebc9c8e97"
+      "bytes": 19721,
+      "sha256": "77d08f9aa03e546138560c69a080ce525e0716cc9fdb81754c3b0b05fe049071"
     },
     {
       "path": "app/module-hubs.js",
       "classes": [
+        "accessibility-source",
         "dom-rendering-source",
+        "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 6015,
-      "sha256": "0bfb192383a0839c828d3a6ffc704afbfc4778834b4c2d447026f7ff295098ef"
+      "bytes": 9007,
+      "sha256": "9614b8a1392683238bcfe169a3715b4b056a2ba39b56a9bcd4d6f3cdea105580"
     },
     {
       "path": "app/navigation-registry.js",
@@ -5295,6 +5297,17 @@
       "sha256": "5dbda781ed39b33c9581e25ade8c90c5e989917db47f0bb65e83829ddce9ab99"
     },
     {
+      "path": "tests/m16.5k-plan-compass-productive-adoption.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 4507,
+      "sha256": "70062a3c3e654f918348a921569a0757543acd8ed70195c080bda4e5ca2c8322"
+    },
+    {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
       "classes": [
         "accessibility-source",
@@ -5830,8 +5843,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 14342,
-      "sha256": "1030920f01e0f7ac3df5f688b7d6b78c23adb2579257ed9bf0c32907aff0c579"
+      "bytes": 14467,
+      "sha256": "334298249883af3d567d0702ad4f6e6de88ce9a9f92b24c90dbe95f4ad19bb9b"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

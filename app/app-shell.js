@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,todayRenderTimer=0,todayLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false;
-  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve();
+  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),planCompassTransition=false,planCompassEntryTimer=0;
   const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.51',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
@@ -101,6 +101,40 @@
   const compassAssetBase='assets/brand/luvia-living-compass/layers';
   function livingCompass(className=''){
     return `<span class="lv-living-compass ${esc(className)}" aria-hidden="true"><img class="lv-living-compass__face" src="${compassAssetBase}/face.svg" alt=""><img class="lv-living-compass__needle" src="${compassAssetBase}/two-ended-needle.svg" alt=""><img class="lv-living-compass__hub" src="${compassAssetBase}/hub.svg" alt=""></span>`;
+  }
+  const compassWait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const compassMotionReduced=()=>document.documentElement.classList.contains('reduce-motion')||document.body.classList.contains('reduce-motion')||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  function planCompassBrandSource(){
+    const mobile=window.matchMedia?.('(max-width: 800px)')?.matches;
+    const preferred=root?.querySelector(mobile?'.lv-living-mobile-compass':'.lv-living-brand-compass');
+    if(preferred?.getClientRects?.().length)return preferred;
+    return root?.querySelector('.lv-living-brand-compass,.lv-living-mobile-compass')||null;
+  }
+  async function flyPlanCompass(source,target,{returning=false}={}){
+    if(!source||!target||compassMotionReduced())return;
+    const start=source.getBoundingClientRect(),end=target.getBoundingClientRect();
+    if(!start.width||!end.width)return;
+    const flight=source.cloneNode(true);flight.className='lv-plan-compass-flight';
+    Object.assign(flight.style,{left:`${start.left}px`,top:`${start.top}px`,width:`${start.width}px`,height:`${start.height}px`});root.appendChild(flight);
+    const dx=end.left+end.width/2-(start.left+start.width/2),dy=end.top+end.height/2-(start.top+start.height/2),scale=end.width/Math.max(start.width,1);
+    const frames=returning
+      ?[{transform:'translate3d(0,0,0) scale(1) rotate(0deg)',opacity:1},{transform:`translate3d(${dx*.72}px,${dy*.72}px,0) scale(${Math.max(scale*1.25,.3)}) rotate(13deg)`,opacity:.96,offset:.72},{transform:`translate3d(${dx}px,${dy}px,0) scale(${scale}) rotate(0deg)`,opacity:.16}]
+      :[{transform:'translate3d(0,0,0) scale(1) rotate(0deg)',opacity:1},{transform:`translate3d(${dx*.68}px,${dy*.68}px,0) scale(${Math.max(scale*.82,1.08)}) rotate(-9deg)`,opacity:.98,offset:.68},{transform:`translate3d(${dx}px,${dy}px,0) scale(${scale}) rotate(0deg)`,opacity:.1}];
+    try{await flight.animate(frames,{duration:returning?920:900,easing:'cubic-bezier(.16,.84,.18,1)',fill:'forwards'}).finished}catch{}finally{flight.remove()}
+  }
+  async function revealPlanCompass(){
+    const stage=root?.querySelector('[data-plan-compass-stage]'),shell=root?.querySelector('.lv-living-shell');if(!stage||activeView!=='plan'||planCompassTransition)return;
+    stage.classList.remove('is-ready','is-navigating','is-returning');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    if(activeView!=='plan'||!stage.isConnected)return;
+    const source=planCompassBrandSource(),target=stage.querySelector('.lv-plan-compass-mark');shell?.classList.add('is-plan-compass-detached');
+    await flyPlanCompass(source,target);
+    if(activeView!=='plan'||!stage.isConnected){shell?.classList.remove('is-plan-compass-detached');return}
+    stage.classList.add('is-ready');
+  }
+  async function returnPlanCompassHome(stage){
+    const shell=root?.querySelector('.lv-living-shell'),source=stage?.querySelector('.lv-plan-compass-mark'),target=planCompassBrandSource();
+    stage?.classList.add('is-returning');await flyPlanCompass(source,target,{returning:true});shell?.classList.remove('is-plan-compass-detached');
+    if(target){const lockup=target.closest('.lv-living-brand,.lv-living-mobile-brand')||target;lockup.classList.add('lv-plan-compass-home-arrival');setTimeout(()=>lockup.classList.remove('lv-plan-compass-home-arrival'),760)}
   }
   function navigationItems(){
     const registered=new Map((window.LuviaNavigationRegistry?.items?.()||[]).map(item=>[item.id,item]));
@@ -366,6 +400,9 @@
     if(view==='memories')window.LuviaPremiumMemoriesExperience?.bind?.(stage,{trip:t,profile:profile(),esc});
     if(animate)completeTransition(stage,host,previousHost);
     root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());refreshNavigationSelection(view);
+    clearTimeout(planCompassEntryTimer);
+    if(view==='plan')planCompassEntryTimer=setTimeout(()=>revealPlanCompass().catch(error=>console.warn('[Luvia Plan Compass]',error)),animate?140:0);
+    else if(!planCompassTransition)root.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached');
   }
 
   function refreshDashboardGrid(){const t=activeTrip(),grid=root?.querySelector('[data-widget-grid]');if(!t||activeView!=='today'||!grid)return false;grid.innerHTML=window.LuviaDashboardWidgets.render({trip:t,profile:profile(),esc});requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(grid));return true;}
@@ -478,14 +515,34 @@
     const labels={checklists:'Checklisten',budget:'Budget',language:'Sprachhilfe',weather:'Wetter',gallery:'Fotogalerie','travel-book':'Reisebuch',review:'Reise-Revue',albums:'Alben'};
     toast(`${labels[action]||'Dieser Bereich'} wird in einem kommenden Luvia-Baustein hier integriert.`);
   }
+  const planCompassRoutes=new Set(['places','places-lifecycle','timeline','bookings','routes']);
+  async function leavePlanCompass(destination='today',selected=null){
+    const stage=root?.querySelector('[data-plan-compass-stage]');if(!stage||planCompassTransition)return;
+    planCompassTransition=true;clearTimeout(planCompassEntryTimer);
+    if(selected){
+      const angle=Number(selected.dataset.planAngle||0);selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${1080+angle}deg`);stage.classList.add('is-navigating');
+      await compassWait(compassMotionReduced()?0:720);
+    }else stage.classList.add('is-navigating');
+    await returnPlanCompassHome(stage);
+    planCompassTransition=false;
+    if(destination==='today')return show('today');
+    return handleHubAction(destination);
+  }
+  function choosePlanCompassDirection(button){
+    const action=button?.dataset.hubAction;if(!action||planCompassTransition)return;
+    if(!planCompassRoutes.has(action)){button.classList.add('is-selected');setTimeout(()=>button.classList.remove('is-selected'),720);return handleHubAction(action)}
+    return leavePlanCompass(action,button);
+  }
   function bind(){root.addEventListener('click',e=>{
     const suggestion=e.target.closest('[data-today-suggestion-add]');if(suggestion){e.preventDefault();e.stopPropagation();return addTodaySuggestion(suggestion)}
     const placeTarget=e.target.closest('[data-place-open]');if(placeTarget){e.preventDefault();return openPlace(placeOpenPayload(placeTarget)).catch(console.error)}
     if(e.target.closest('[data-retry]'))return bootstrap();if(e.target.closest('[data-create]'))return window.LuviaTripCreator.open();if(e.target.closest('[data-signout]'))return (window.LuviaAuth||window.ParisAuth).signOut();if(e.target.closest('[data-join-code]'))return window.LuviaJoinFlow?.openCodeEntry?.();if(e.target.closest('[data-invite]'))return openDialog('trip.invite',activeTrip());if(e.target.closest('[data-edit]'))return openDialog('trip.edit',activeTrip());
     const po=e.target.closest('[data-profile-open]');if(po)return window.LuviaProfileFoundation.open(po.dataset.profileOpen||'hub');
+    const planClose=e.target.closest('[data-plan-compass-close]');if(planClose){e.preventDefault();e.stopPropagation();return leavePlanCompass('today')}
+    const planDirection=e.target.closest('.lv-plan-direction[data-hub-action]');if(planDirection){e.preventDefault();e.stopPropagation();return choosePlanCompassDirection(planDirection)}
     const action=e.target.closest('[data-hub-action]')?.dataset.hubAction;if(action)return handleHubAction(action);
     const route=e.target.closest('[data-route-open]');if(route){const origin=root.querySelector('[data-route-origin]')?.value?.trim()||'',destination=root.querySelector('[data-route-destination]')?.value?.trim()||'';if(!destination)return toast('Bitte zuerst ein Ziel eingeben.');const params=new URLSearchParams({api:'1',destination,travelmode:'driving'});if(origin)params.set('origin',origin);window.LuviaPlatformPorts.require('ExternalNavigationPort').open(`https://www.google.com/maps/dir/?${params.toString()}`);return;}
-    const view=e.target.closest('[data-view]')?.dataset.view;if(view){e.preventDefault();e.stopPropagation();return show(view)}
+    const view=e.target.closest('[data-view]')?.dataset.view;if(view){e.preventDefault();e.stopPropagation();if(activeView==='plan'&&view!=='plan'&&root.querySelector('[data-plan-compass-stage]'))return leavePlanCompass(view);return show(view)}
   })}
 
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
