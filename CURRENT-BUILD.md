@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.51**
-- Core: **4.82.51**
-- Name: **M16.5 Accepted Living Shell Candidate**
+- App: **13.82.52**
+- Core: **4.82.52**
+- Name: **M16.5 Productive Plan Compass Candidate**
 - Channel: **integration-preview**
 - Datum: **2026-08-25**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -48,14 +48,17 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Main / Production: **LOCKED until every mandatory row is measured on desktop
   and mobile and jointly accepted**. Production remains on **13.82.49 /
   4.82.49**.
-- Candidate validation: **99 / 99 Safe Regression PASS; visual inventory
-  freshness PASS at 2,768 tracked files / 660 visual candidates; NFR-0 3 / 3
+- Candidate validation: **99 / 99 Safe Regression PASS on the immutable M16.5J
+  baseline; visual inventory freshness PASS at 2,768 tracked files / 660 visual
+  candidates; NFR-0 3 / 3
   PASS; cross-Core DB ownership guard PASS without debt growth**.
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secrets / manual Cloudflare change: **NONE**.
 
 ## M16.5K Productive Plan Compass Candidate
 
+- Consumer source: `37cead7b30230f2731b866390c510f812ba50291`.
+- Runtime target: **App 13.82.52 / Core 4.82.52 / Integration Preview**.
 - Productive Plan entry: **accepted embedded eight-direction Living Compass in
   the Signed-in shell; no overlay and no legacy tile-wall substitution**.
 - Shared element: **official layered Compass travels from the top-left Luvia
@@ -69,6 +72,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
   horizontal navigation scrolling**.
 - Step 5 status: **IN PROGRESS — embedded Plan Compass candidate complete;
   productive Places search/map and Booking visual migration continue next**.
+- Candidate validation: **101 / 101 Safe Regression PASS; visual inventory
+  freshness 2,772 / 661 PASS; NFR-0 3 / 3 PASS; cross-Core DB ownership guard
+  PASS without debt growth**.
 - Release status: **Integration candidate only; Main and Production remain
   locked and unchanged pending complete joint visual acceptance**.
 
@@ -120,12 +126,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.51 / 4.82.51 Integration candidate for the accepted Living Shell; complete visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.52 / 4.82.52 Integration candidate for the productive Plan Compass; complete visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,768 tracked files; 660 visual candidates; 261 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **58 files; 866,615 LF-normalized bytes; 6,239 lines; 3,230 `!important`; 2,854 literal hex colours; 239 z-index declarations; 38 reduced-motion queries; 37 focus-visible selectors**
+- Exhaustive manifest: **2,772 tracked files; 661 visual candidates; 261 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **58 files; 881,812 LF-normalized bytes; 6,296 lines; 3,228 `!important`; 2,865 literal hex colours; 254 z-index declarations; 39 reduced-motion queries; 37 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -134,13 +140,13 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **99 / 99 PASS on the Platform 13.82.51 / 4.82.51 release candidate**
+- Safe Regression: **101 / 101 PASS on the Platform 13.82.52 / 4.82.52 release candidate**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **UNCHANGED**
-- Runtime assets / Cloudflare / Preview / Production: **M16.5H/I are now a productive Living Shell plus binding no-substitution gate; the M16.5J Integration Preview is pending, while Main and Production remain on 13.82.49 / 4.82.49**
+- Runtime assets / Cloudflare / Preview / Production: **M16.5H–K are now a productive Living Shell, binding no-substitution gate and embedded Plan Compass; the M16.5L Integration Preview is pending, while Main and Production remain on 13.82.49 / 4.82.49**
 - Next design gate: **complete feature-by-feature parity in the accepted stage, including every desktop/mobile state and popup, followed by the user's explicit Design Freeze before Main/Production promotion**
 - M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
 - Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**

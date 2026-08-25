@@ -7,14 +7,15 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- Integration candidate App/Core target: 13.82.51 / 4.82.51.
+- Integration candidate App/Core target: 13.82.52 / 4.82.52.
 - Integration source before the M16.5J Platform release commit:
   `fee1cdbe02707f845fa6543d17b9c03718135c23`.
 - Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
   Preview acceptance.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Integration candidate Safe Regression: 99/99 PASS; visual inventory freshness
-  2,768/660 PASS; NFR-0: 3/3 PASS; cross-Core DB guard without debt growth.
+- Integration candidate Safe Regression: 101/101 PASS; visual inventory
+  freshness 2,772/661 PASS; NFR-0: 3/3 PASS; cross-Core DB guard without debt
+  growth.
 - Main/Production M16 baseline before visual promotion: 90/90 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
   Memory and Identity with R0-R3 policy and digest-only Action Ledger.
@@ -56,6 +57,14 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - M16.5J release target: App/Core 13.82.51 / 4.82.51 packages H/I as an
   immutable Integration review candidate. Main and Production stay locked on
   13.82.49 / 4.82.49 until the complete matrix is jointly accepted.
+- M16.5K productive Plan Compass: Consumer source
+  `37cead7b30230f2731b866390c510f812ba50291` replaces the Plan tile wall with
+  the accepted embedded eight-direction Compass, official native-needle motion
+  and no-scroll 390×844 / 320×673 responsive sizing.
+- M16.5L release target: App/Core 13.82.52 / 4.82.52 publishes K as a new
+  immutable Integration review candidate. Places/Booking and all remaining
+  feature stages continue before joint Design Freeze; Main/Production remain
+  locked.
 
 ## Completed architecture boundaries
 
