@@ -10,12 +10,12 @@
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 58,
-      "bytes": 838366,
-      "lines": 6162,
+      "bytes": 851296,
+      "lines": 6188,
       "important": 3230,
       "literalHexColours": 2845,
-      "zIndexDeclarations": 228,
-      "reducedMotionQueries": 36,
+      "zIndexDeclarations": 231,
+      "reducedMotionQueries": 37,
       "focusVisibleSelectors": 36
     }
   },
@@ -519,8 +519,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 37991,
-      "sha256": "15a3fc70d8961bc9d5571d73d3ddc6da3e00599019aa45a757afa61953e7db87"
+      "bytes": 45772,
+      "sha256": "4169ee34c2c05340bd944a8aadba850c3f4f0e9a0afba4c970a0872e29faed3b"
     },
     {
       "path": "app/app-shell.js",
@@ -533,8 +533,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 60769,
-      "sha256": "5ae41922d7be4d9592e9176d24d1b3ce4fc51ca20486d9ff9cb05d791805788d"
+      "bytes": 62511,
+      "sha256": "bc5aabf12446728d23e1053d8aa8d48f88b15790504afcfcab2d07387b2c6255"
     },
     {
       "path": "app/bookings-view.css",
@@ -912,8 +912,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 7184,
-      "sha256": "d5453a8a4ceb307731e9ec7dbc380f38a3d4d02beb4a66d390fd68d1ee34d8ed"
+      "bytes": 12333,
+      "sha256": "f4003424d9d01436ac5f526f6942f05a8ff76b2b515ce3bc2b1443b3a354fe2d"
     },
     {
       "path": "app/today/today-experience.js",
@@ -923,8 +923,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 6104,
-      "sha256": "e21c13cc891bdac019513193145982d4a90bfad826be2095eb16baf7b21a4979"
+      "bytes": 7203,
+      "sha256": "a97647874dd6201c55a690f6a224d66f4b38bef1c920b8aeaf8aabe6c46b56ae"
     },
     {
       "path": "assets/brand/luvia-living-compass/compact.svg",
@@ -5800,8 +5800,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 13702,
-      "sha256": "4a2f5ad582d45f5572e4d21db8679cac46ab0d8dac3aebf06354ae990d89a0e2"
+      "bytes": 13835,
+      "sha256": "a6d284848819c22fcb91054650ca09cf280c701db57bc34c72049267e44a9961"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

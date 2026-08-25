@@ -2521,3 +2521,5 @@ assets/brand/luvia-living-compass/layers/two-ended-needle.svg,Experience Core,As
 assets/brand/luvia-living-compass/layers/hub.svg,Experience Core,Asset/Animated Vector,Fixed Living Compass hub layer
 docs/modularization/PCR-M16.5E-LIVING-DESIGN-COMPASS-FOUNDATION.md,Experience Core,Documentation/Architecture,M16.5E active-Trip accent Compass vector motion haptic native mapping and rollback scope lock
 tests/m16.5e-living-design-compass-foundation.test.cjs,Experience/Shared Tests,Test/Guardrail,Browserless active-Trip palette Compass assets needle-only motion haptic Web SwiftUI Compose guard
+docs/modularization/PCR-M16.5F-SIGNED-IN-LIVING-PRODUCT-VERTICAL-SLICE.md,Consumer/Experience,Documentation/Architecture,M16.5F productive Signed-in Shell Today target navigation ownership scope and Platform release gate
+tests/m16.5f-signed-in-living-product-vertical-slice.test.cjs,Consumer/Shared Tests,Test/Guardrail,Real Today target navigation central Intelligence Compass active-Trip responsive reduced-motion and private-owner boundary guard
