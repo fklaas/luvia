@@ -382,6 +382,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5c-single-cycle-navigation-transition.test.cjs'
   },
   {
+    category: 'M16.5 / Living Design and Compass',
+    test: 'tests/m16.5e-living-design-compass-foundation.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

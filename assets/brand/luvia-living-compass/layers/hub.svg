@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" aria-hidden="true">
+  <defs>
+    <linearGradient id="eye" x1="52" y1="58" x2="76" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#ef6254"/><stop offset=".52" stop-color="#f4b34c"/><stop offset="1" stop-color="#2c93a9"/></linearGradient>
+    <radialGradient id="hub" cx="38%" cy="30%" r="74%"><stop stop-color="#ffffff"/><stop offset=".58" stop-color="#fffaf4"/><stop offset="1" stop-color="#f2e6dc"/></radialGradient>
+  </defs>
+  <circle cx="64" cy="67" r="15.2" fill="url(#hub)" stroke="#fff" stroke-width="3"/>
+  <circle cx="64" cy="67" r="12.1" fill="none" stroke="#ef6254" stroke-opacity=".12" stroke-width="1"/>
+  <path d="M53.5 68.8c4.4-7.6 16.5-8.8 21.8-2-2.5 7.8-13.5 11.6-21.2 6.7" fill="none" stroke="url(#eye)" stroke-width="3.8" stroke-linecap="round"/>
+  <circle cx="53.5" cy="68.8" r="3.1" fill="#ef6254"/>
+  <path d="M67.7 57.1c.75 3.7 2.95 5.9 6.65 6.65-3.7.75-5.9 2.95-6.65 6.65-.75-3.7-2.95-5.9-6.65-6.65 3.7-.75 5.9-2.95 6.65-6.65Z" fill="#f4a34b"/>
+  <circle cx="60.3" cy="62.2" r="2.2" fill="#fff" fill-opacity=".82"/>
+</svg>

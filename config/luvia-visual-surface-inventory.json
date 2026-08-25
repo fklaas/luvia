@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2748,
-    "visualCandidates": 651,
+    "trackedFiles": 2757,
+    "visualCandidates": 657,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -425,8 +425,8 @@
         "experience-infrastructure",
         "active-entry-reference"
       ],
-      "bytes": 2927,
-      "sha256": "200d3d3abcb80a141c6a353c9a7e7eea272f8b8af63dd8392a4939a9685811ad"
+      "bytes": 3379,
+      "sha256": "0cb68c08a1ac71a0aaad9b8e8b9e9c084444fd4edf0728e9c68fe6194394eedf"
     },
     {
       "path": "app/adapters/identity-platform-web-adapter.js",
@@ -925,6 +925,46 @@
       ],
       "bytes": 6104,
       "sha256": "e21c13cc891bdac019513193145982d4a90bfad826be2095eb16baf7b21a4979"
+    },
+    {
+      "path": "assets/brand/luvia-living-compass/compact.svg",
+      "classes": [
+        "vector-asset"
+      ],
+      "bytes": 4253,
+      "sha256": "309cfe26ea9087dfcd5e8c89eaa1a45559d2bcafd295d487e44280b44b2043f5"
+    },
+    {
+      "path": "assets/brand/luvia-living-compass/layers/face.svg",
+      "classes": [
+        "vector-asset"
+      ],
+      "bytes": 3297,
+      "sha256": "4c3afc33c9b2bb4d676cfe0770c1246dc89e75b3fbb142ed6db73f6e5964ec4a"
+    },
+    {
+      "path": "assets/brand/luvia-living-compass/layers/hub.svg",
+      "classes": [
+        "vector-asset"
+      ],
+      "bytes": 1119,
+      "sha256": "8bd5d30bd1095145e1a67a6dd6e59e08b77597e0a338368094327e571b58b84f"
+    },
+    {
+      "path": "assets/brand/luvia-living-compass/layers/two-ended-needle.svg",
+      "classes": [
+        "vector-asset"
+      ],
+      "bytes": 1174,
+      "sha256": "6900cfebad18f86116fc0114cc8014faba8dc479e7d294ed2eeb8c55b9102d11"
+    },
+    {
+      "path": "assets/brand/luvia-living-compass/primary.svg",
+      "classes": [
+        "vector-asset"
+      ],
+      "bytes": 6215,
+      "sha256": "955e91bd6522ebe4533a2d930d489e72e10b963b20aed02738c5a7a40a3000e4"
     },
     {
       "path": "assets/reisezeit-horizon.webp",
@@ -1744,8 +1784,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 17833,
-      "sha256": "9e5f4cdceea5726a50b677f563059b1907551a3faec20120cba23b1be9dd8d91"
+      "bytes": 28170,
+      "sha256": "58c452f44618e9d7b907f2bb4f725733de329266cb5ff2863abddfd0c7fff0e3"
     },
     {
       "path": "core/experience/experience-foundation.css",
@@ -5216,6 +5256,15 @@
       "sha256": "ee5858a5486d1275ae20e1df8a0ff65c176a6657abcd524c75fdf7a03b018c26"
     },
     {
+      "path": "tests/m16.5e-living-design-compass-foundation.test.cjs",
+      "classes": [
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 6931,
+      "sha256": "5d88e094d596584079879b41ad6283395cf3ecadfdeb457372cafb69f61e44a7"
+    },
+    {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
       "classes": [
         "accessibility-source",
@@ -5751,8 +5800,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 13575,
-      "sha256": "ba1f22a1f779d02b6baadf7ae99536010cf20a744d2bde6be579ec736c491869"
+      "bytes": 13702,
+      "sha256": "4a2f5ad582d45f5572e4d21db8679cac46ab0d8dac3aebf06354ae990d89a0e2"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

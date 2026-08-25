@@ -3,7 +3,7 @@ var LuviaExperienceContractCoreV1=(()=>{
 
 const CONTRACT_ID='experience.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 
 function immutable(value){
   if(value==null||typeof value!=='object')return value;
@@ -16,9 +16,67 @@ function copy(value){
   return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,copy(item)]));
 }
 function text(value,fallback=''){return String(value??fallback).trim()}
+function clamp(value,min,max){return Math.min(max,Math.max(min,Number(value)||0))}
+function normalizeHex(value,fallback='#ef6254'){
+  const candidate=text(value).toLowerCase();
+  if(/^#[0-9a-f]{3}$/.test(candidate))return `#${candidate.slice(1).split('').map(character=>character.repeat(2)).join('')}`;
+  if(/^#[0-9a-f]{6}$/.test(candidate))return candidate;
+  return fallback;
+}
+function hexChannels(value){
+  const hex=normalizeHex(value).slice(1);
+  return [0,2,4].map(index=>parseInt(hex.slice(index,index+2),16));
+}
+function toHex(channels){return `#${channels.map(channel=>Math.round(clamp(channel,0,255)).toString(16).padStart(2,'0')).join('')}`}
+function mixHex(from,to,amount){
+  const ratio=clamp(amount,0,1);
+  const left=hexChannels(from);
+  const right=hexChannels(to);
+  return toHex(left.map((channel,index)=>channel+(right[index]-channel)*ratio));
+}
+function luminance(value){
+  const channels=hexChannels(value).map(channel=>channel/255).map(channel=>channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4);
+  return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
+}
+function contrastRatio(first,second){
+  const values=[luminance(first),luminance(second)].sort((a,b)=>b-a);
+  return Number(((values[0]+.05)/(values[1]+.05)).toFixed(2));
+}
+function rgbToHsl(value){
+  const [red,green,blue]=hexChannels(value).map(channel=>channel/255);
+  const max=Math.max(red,green,blue);
+  const min=Math.min(red,green,blue);
+  const delta=max-min;
+  let hue=0;
+  if(delta){
+    if(max===red)hue=60*(((green-blue)/delta)%6);
+    else if(max===green)hue=60*((blue-red)/delta+2);
+    else hue=60*((red-green)/delta+4);
+  }
+  if(hue<0)hue+=360;
+  const lightness=(max+min)/2;
+  const saturation=delta===0?0:delta/(1-Math.abs(2*lightness-1));
+  return [hue,saturation,lightness];
+}
+function hslToHex(hue,saturation,lightness){
+  const s=clamp(saturation,0,1);
+  const l=clamp(lightness,0,1);
+  const chroma=(1-Math.abs(2*l-1))*s;
+  const segment=((hue%360)+360)%360/60;
+  const x=chroma*(1-Math.abs(segment%2-1));
+  const [red,green,blue]=segment<1?[chroma,x,0]:segment<2?[x,chroma,0]:segment<3?[0,chroma,x]:segment<4?[0,x,chroma]:segment<5?[x,0,chroma]:[chroma,0,x];
+  const match=l-chroma/2;
+  return toHex([(red+match)*255,(green+match)*255,(blue+match)*255]);
+}
 function token(category,value,dark,cssVariable,swiftUI,compose){
   return immutable({category,value,dark:dark??value,cssVariable,native:{swiftUI,compose}});
 }
+
+const BRAND=immutable({
+  ink:'#102a3c',
+  mineral:'#f7f9f9',
+  directions:{north:'#ef6254',east:'#f4b34c',south:'#2c93a9',west:'#2f8c73'}
+});
 
 const TOKENS=immutable({
   'color.surface.canvas':token('color','#fff8f7','#101820','--luvia-color-surface-canvas','LuviaColor.surfaceCanvas','LuviaTheme.colorScheme.surfaceCanvas'),
@@ -34,6 +92,16 @@ const TOKENS=immutable({
   'color.action.primary':token('color','#e96784','#f58da4','--luvia-color-action-primary','LuviaColor.actionPrimary','LuviaTheme.colorScheme.actionPrimary'),
   'color.action.onPrimary':token('color','#ffffff','#17232d','--luvia-color-action-on-primary','LuviaColor.onActionPrimary','LuviaTheme.colorScheme.onActionPrimary'),
   'color.action.primarySoft':token('color','#fff0f4','#4b2e3a','--luvia-color-action-primary-soft','LuviaColor.actionPrimarySoft','LuviaTheme.colorScheme.actionPrimarySoft'),
+  'color.brand.ink':token('color',BRAND.ink,'#f2f6f8','--luvia-color-brand-ink','LuviaColor.brandInk','LuviaTheme.colorScheme.brandInk'),
+  'color.brand.mineral':token('color',BRAND.mineral,'#17232d','--luvia-color-brand-mineral','LuviaColor.brandMineral','LuviaTheme.colorScheme.brandMineral'),
+  'color.brand.compass.north':token('color',BRAND.directions.north,'#ff8d81','--luvia-color-compass-north','LuviaColor.compassNorth','LuviaTheme.colorScheme.compassNorth'),
+  'color.brand.compass.east':token('color',BRAND.directions.east,'#f8c878','--luvia-color-compass-east','LuviaColor.compassEast','LuviaTheme.colorScheme.compassEast'),
+  'color.brand.compass.south':token('color',BRAND.directions.south,'#72c2d2','--luvia-color-compass-south','LuviaColor.compassSouth','LuviaTheme.colorScheme.compassSouth'),
+  'color.brand.compass.west':token('color',BRAND.directions.west,'#72c1a8','--luvia-color-compass-west','LuviaColor.compassWest','LuviaTheme.colorScheme.compassWest'),
+  'color.trip.accent':token('color',BRAND.directions.north,'#ff8d81','--luvia-color-trip-accent','LuviaColor.tripAccent','LuviaTheme.colorScheme.tripAccent'),
+  'color.trip.complement':token('color',BRAND.directions.south,'#72c2d2','--luvia-color-trip-complement','LuviaColor.tripComplement','LuviaTheme.colorScheme.tripComplement'),
+  'color.trip.onAccent':token('color','#ffffff',BRAND.ink,'--luvia-color-trip-on-accent','LuviaColor.onTripAccent','LuviaTheme.colorScheme.onTripAccent'),
+  'color.trip.accentSoft':token('color','#fff0ed','#4b2e3a','--luvia-color-trip-accent-soft','LuviaColor.tripAccentSoft','LuviaTheme.colorScheme.tripAccentSoft'),
   'color.status.success':token('color','#2d8a63','#72d7a9','--luvia-color-status-success','LuviaColor.statusSuccess','LuviaTheme.colorScheme.statusSuccess'),
   'color.status.warning':token('color','#a96916','#f2bd66','--luvia-color-status-warning','LuviaColor.statusWarning','LuviaTheme.colorScheme.statusWarning'),
   'color.status.danger':token('color','#b7465a','#ff91a4','--luvia-color-status-danger','LuviaColor.statusDanger','LuviaTheme.colorScheme.statusDanger'),
@@ -77,6 +145,8 @@ const TOKENS=immutable({
   'motion.duration.fast':token('motion','140ms',null,'--luvia-motion-fast','LuviaMotion.fast','LuviaTheme.motion.fast'),
   'motion.duration.base':token('motion','220ms',null,'--luvia-motion-base','LuviaMotion.base','LuviaTheme.motion.base'),
   'motion.duration.slow':token('motion','360ms',null,'--luvia-motion-slow','LuviaMotion.slow','LuviaTheme.motion.slow'),
+  'motion.duration.story':token('motion','720ms',null,'--luvia-motion-story','LuviaMotion.story','LuviaTheme.motion.story'),
+  'motion.duration.brandIntro':token('motion','2400ms',null,'--luvia-motion-brand-intro','LuviaMotion.brandIntro','LuviaTheme.motion.brandIntro'),
   'motion.easing.standard':token('motion','cubic-bezier(.22,.72,.2,1)',null,'--luvia-ease-standard','LuviaMotion.standard','LuviaTheme.motion.standard'),
   'motion.easing.enter':token('motion','cubic-bezier(.16,1,.3,1)',null,'--luvia-ease-enter','LuviaMotion.enter','LuviaTheme.motion.enter'),
   'motion.easing.exit':token('motion','cubic-bezier(.4,0,1,1)',null,'--luvia-ease-exit','LuviaMotion.exit','LuviaTheme.motion.exit'),
@@ -105,7 +175,8 @@ const COMPONENTS=immutable({
   menu:{role:'action-list',variants:['standard','contextual'],hostContract:'overlay-host.v1',native:{swiftUI:'LuviaMenu',compose:'LuviaMenu'}},
   toast:{role:'transient-feedback',variants:['info','success','warning','error'],native:{swiftUI:'LuviaToastHost',compose:'LuviaToastHost'}},
   banner:{role:'persistent-feedback',variants:['info','success','warning','error','offline'],native:{swiftUI:'LuviaBanner',compose:'LuviaBanner'}},
-  commandSurface:{role:'assistant-command',variants:['global','contextual','confirmation'],hostContract:'overlay-host.v1',states:['idle','loading','success','error'],native:{swiftUI:'LuviaCommandSurface',compose:'LuviaCommandSurface'}}
+  commandSurface:{role:'assistant-command',variants:['global','contextual','confirmation'],hostContract:'overlay-host.v1',states:['idle','loading','success','error'],native:{swiftUI:'LuviaCommandSurface',compose:'LuviaCommandSurface'}},
+  livingCompass:{role:'spatial-navigation-and-intelligence-entry',variants:['brand','activeTrip','compact','expanded'],states:['dormant','inviting','expanded','seeking','settled'],layers:['face','needle','hub'],rotatableLayer:'needle',minimumTouchTarget:44,native:{swiftUI:'LuviaLivingCompass',compose:'LuviaLivingCompass'}}
 });
 
 const STATES=immutable({
@@ -124,7 +195,21 @@ const MOTION=immutable({
   enter:{duration:'motion.duration.slow',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',native:{swiftUI:'LuviaMotion.enter',compose:'LuviaMotion.enter'}},
   exit:{duration:'motion.duration.fast',easing:'motion.easing.exit',reducedDuration:'motion.duration.instant',native:{swiftUI:'LuviaMotion.exit',compose:'LuviaMotion.exit'}},
   feedback:{duration:'motion.duration.base',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',native:{swiftUI:'LuviaMotion.feedback',compose:'LuviaMotion.feedback'}},
-  sharedTransition:{duration:'motion.duration.slow',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',native:{swiftUI:'LuviaMotion.sharedTransition',compose:'LuviaMotion.sharedTransition'}}
+  sharedTransition:{duration:'motion.duration.slow',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',native:{swiftUI:'LuviaMotion.sharedTransition',compose:'LuviaMotion.sharedTransition'}},
+  compassSharedElement:{duration:'motion.duration.story',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',layers:['face','needle','hub'],native:{swiftUI:'LuviaMotion.compassSharedElement',compose:'LuviaMotion.compassSharedElement'}},
+  compassNodeReveal:{duration:'motion.duration.slow',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',staggerMilliseconds:42,native:{swiftUI:'LuviaMotion.compassNodeReveal',compose:'LuviaMotion.compassNodeReveal'}},
+  compassNeedleSeek:{duration:'motion.duration.story',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',rotates:['needle'],fixed:['face','hub'],native:{swiftUI:'LuviaMotion.compassNeedleSeek',compose:'LuviaMotion.compassNeedleSeek'}},
+  compassAmbientInvite:{duration:'motion.duration.brandIntro',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',rotates:['needle'],fixed:['face','hub'],nonBlocking:true,native:{swiftUI:'LuviaMotion.compassAmbientInvite',compose:'LuviaMotion.compassAmbientInvite'}},
+  compassBrandIntro:{duration:'motion.duration.brandIntro',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',playsOncePerLaunch:true,nonBlocking:true,native:{swiftUI:'LuviaMotion.compassBrandIntro',compose:'LuviaMotion.compassBrandIntro'}}
+});
+
+const HAPTICS=immutable({
+  select:{intensity:'light',webIntent:'optional',native:{swiftUI:'selectionChanged',compose:'TextHandleMove'}},
+  navigate:{intensity:'light',webIntent:'optional',native:{swiftUI:'impactLight',compose:'VirtualKey'}},
+  confirm:{intensity:'medium',webIntent:'optional',native:{swiftUI:'impactMedium',compose:'Confirm'}},
+  success:{intensity:'semantic',webIntent:'optional',native:{swiftUI:'notificationSuccess',compose:'Confirm'}},
+  warning:{intensity:'semantic',webIntent:'optional',native:{swiftUI:'notificationWarning',compose:'Reject'}},
+  compassSeek:{intensity:'light',webIntent:'optional',native:{swiftUI:'selectionChanged',compose:'SegmentFrequentTick'}}
 });
 
 const ACCESSIBILITY=immutable({
@@ -156,23 +241,76 @@ function resolveMotion(id,options={}){
   const durationId=options.reducedMotion?definition.reducedDuration:definition.duration;
   return immutable({id:text(id),durationToken:durationId,duration:getToken(durationId)?.value||'0ms',easingToken:definition.easing,easing:getToken(definition.easing)?.value||'linear',reducedMotion:Boolean(options.reducedMotion),native:copy(definition.native)});
 }
+function getHaptic(id){return HAPTICS[text(id)]||null}
+function listHaptics(){return Object.entries(HAPTICS).map(([id,definition])=>immutable({id,...copy(definition)}))}
+function deriveActiveTripPalette(options={}){
+  const accent=normalizeHex(options.accent,BRAND.directions.north);
+  const [hue,saturation,lightness]=rgbToHsl(accent);
+  const complement=normalizeHex(options.complement,hslToHex(hue+165,Math.max(.46,saturation*.88),clamp(lightness,.34,.62)));
+  const candidates=[BRAND.ink,'#ffffff','#000000'];
+  const onAccent=candidates.sort((first,second)=>contrastRatio(accent,second)-contrastRatio(accent,first))[0];
+  const soft=mixHex('#ffffff',accent,.13);
+  return immutable({
+    contractId:CONTRACT_ID,
+    source:'explicit-experience-input',
+    personalized:Boolean(text(options.accent)),
+    accent,
+    complement,
+    onAccent,
+    soft,
+    contrast:{onAccent:contrastRatio(accent,onAccent),minimumNormalText:ACCESSIBILITY.contrast.normalText},
+    cssVariables:{
+      '--luvia-color-trip-accent':accent,
+      '--luvia-color-trip-complement':complement,
+      '--luvia-color-trip-on-accent':onAccent,
+      '--luvia-color-trip-accent-soft':soft,
+      '--luvia-color-action-primary':accent,
+      '--luvia-color-action-on-primary':onAccent,
+      '--luvia-color-action-primary-soft':soft
+    },
+    domainTruth:false
+  });
+}
+function createCompassTheme(options={}){
+  const activeTrip=deriveActiveTripPalette(options);
+  const personalized=activeTrip.personalized||text(options.variant)==='activeTrip';
+  const ringStops=personalized
+    ?[{offset:0,color:activeTrip.accent},{offset:.5,color:activeTrip.complement},{offset:1,color:activeTrip.accent}]
+    :[{offset:0,color:BRAND.directions.north},{offset:.25,color:BRAND.directions.east},{offset:.5,color:BRAND.directions.south},{offset:.75,color:BRAND.directions.west},{offset:1,color:BRAND.directions.north}];
+  return immutable({
+    contractId:CONTRACT_ID,
+    version:VERSION,
+    variant:personalized?'activeTrip':'brand',
+    palette:{ringStops,directionPoints:copy(BRAND.directions),needle:{north:personalized?activeTrip.accent:BRAND.directions.north,south:personalized?activeTrip.complement:BRAND.directions.south},hub:{primary:personalized?activeTrip.accent:BRAND.directions.north,secondary:personalized?activeTrip.complement:BRAND.directions.east}},
+    geometry:{viewBox:'0 0 128 128',center:{x:64,y:64},safeAreaRatio:.125,minimumCompactPixels:16,primaryFromPixels:96},
+    layers:{fixed:['face','hub'],rotatable:['needle'],rotationOrigin:{x:64,y:64},forbidden:['whole-mark','face','hub']},
+    assets:{primary:'assets/brand/luvia-living-compass/primary.svg',compact:'assets/brand/luvia-living-compass/compact.svg',face:'assets/brand/luvia-living-compass/layers/face.svg',needle:'assets/brand/luvia-living-compass/layers/two-ended-needle.svg',hub:'assets/brand/luvia-living-compass/layers/hub.svg'},
+    activeTripPalette:activeTrip,
+    domainTruth:false
+  });
+}
 function createTheme(options={}){
   const mode=text(options.mode,'light')==='dark'?'dark':'light';
   const values=Object.fromEntries(Object.entries(TOKENS).map(([id,definition])=>[id,mode==='dark'?definition.dark:definition.value]));
-  const accent=text(options.accent);
-  if(accent)values['color.action.primary']=accent;
-  const onAccent=text(options.onAccent);
-  if(onAccent)values['color.action.onPrimary']=onAccent;
-  const accentSoft=text(options.accentSoft);
-  if(accentSoft)values['color.action.primarySoft']=accentSoft;
-  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,mode,values});
+  const explicitAccent=text(options.tripAccent||options.accent);
+  const activeTrip=deriveActiveTripPalette({accent:explicitAccent,complement:options.tripComplement||options.complement});
+  if(explicitAccent){
+    values['color.action.primary']=text(options.accent)||activeTrip.accent;
+    values['color.action.onPrimary']=text(options.onAccent)||activeTrip.onAccent;
+    values['color.action.primarySoft']=text(options.accentSoft)||activeTrip.soft;
+  }
+  values['color.trip.accent']=activeTrip.accent;
+  values['color.trip.complement']=activeTrip.complement;
+  values['color.trip.onAccent']=activeTrip.onAccent;
+  values['color.trip.accentSoft']=activeTrip.soft;
+  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,mode,values,activeTrip,compass:createCompassTheme({accent:explicitAccent,complement:options.tripComplement||options.complement})});
 }
 function getSystemSnapshot(){
-  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,scope:'global',layers:['primitive','semantic','component','feature'],tokens:listTokens(),components:listComponents(),states:listStates(),motion:Object.entries(MOTION).map(([id,definition])=>({id,...copy(definition)})),accessibility:copy(ACCESSIBILITY),nativePlatforms:['swiftui','compose'],inheritsGlobalTheme:true,allowsProductForks:false,domainTruth:false});
+  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,scope:'global',layers:['primitive','semantic','component','feature'],tokens:listTokens(),components:listComponents(),states:listStates(),motion:Object.entries(MOTION).map(([id,definition])=>({id,...copy(definition)})),haptics:listHaptics(),brand:copy(BRAND),compass:createCompassTheme(),accessibility:copy(ACCESSIBILITY),nativePlatforms:['swiftui','compose'],inheritsGlobalTheme:true,allowsProductForks:false,domainTruth:false});
 }
 function diagnostics(){
-  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,tokenCount:Object.keys(TOKENS).length,componentCount:Object.keys(COMPONENTS).length,stateCount:Object.keys(STATES).length,motionPatternCount:Object.keys(MOTION).length,nativePlatforms:['swiftui','compose'],overlayHost:'overlay-host.v1'});
+  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,tokenCount:Object.keys(TOKENS).length,componentCount:Object.keys(COMPONENTS).length,stateCount:Object.keys(STATES).length,motionPatternCount:Object.keys(MOTION).length,hapticIntentCount:Object.keys(HAPTICS).length,activeTripPalette:'explicit-input-only',compassRotatableLayers:['needle'],nativePlatforms:['swiftui','compose'],overlayHost:'overlay-host.v1'});
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,getToken,listTokens,getComponent,listComponents,getState,listStates,getMotion,resolveMotion,createTheme,getSystemSnapshot,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,getToken,listTokens,getComponent,listComponents,getState,listStates,getMotion,resolveMotion,getHaptic,listHaptics,deriveActiveTripPalette,createCompassTheme,createTheme,getSystemSnapshot,diagnostics});
 })();

@@ -79,3 +79,7 @@ Booking owns the booking-specific content and behavior rendered inside that Shee
 - `app/adapters/experience-web-adapter.js` is the Web-only CSS custom-property projection.
 - `core/design/design-system-contract.js` remains a compatibility facade while legacy consumers migrate.
 - `core/experience/experience-foundation.css` contains additive Web primitives. Existing feature CSS is adopted incrementally after measured classification; it is not bulk-moved.
+- `assets/brand/luvia-living-compass/` contains the runtime vector subset of the official Living Compass. Face and hub remain fixed; only the two-ended needle is rotatable.
+- `deriveActiveTripPalette()` consumes an explicit accent projection and derives contrast-safe action, soft and complementary values without reading Trip state.
+- `createCompassTheme()` exposes the neutral four-direction Corporate palette or a controlled two-family active-Trip palette with stable geometry and direction semantics.
+- Compass shared-element, node-reveal, needle-seek, ambient-invitation and brand-intro motion plus semantic haptic intents map to Web, SwiftUI and Compose. Reduced motion always resolves to an instant, hierarchy-preserving state change.
