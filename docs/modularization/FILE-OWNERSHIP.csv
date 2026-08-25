@@ -1840,8 +1840,8 @@ day-closure.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product
 day-closure.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 dynamic-background.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 dynamic-background.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
-favicon.ico,Repository/Other,Asset/Other,Non-critical repository artifact
-favicon.svg,Repository/Other,Asset/Other,Non-critical repository artifact
+favicon.ico,Experience/Platform,Asset/Brand,Official Living Compass browser favicon distributed by Platform
+favicon.svg,Experience/Platform,Asset/Brand,Official Living Compass compact vector browser favicon
 force-update.html,Platform/App Shell,Entry/Deploy,"Global entry, service worker or deployment configuration"
 fotospot-alexandre.webp,Repository/Other,Asset/Other,Non-critical repository artifact
 fotospot-disney.webp,Repository/Other,Asset/Other,Non-critical repository artifact
@@ -1851,8 +1851,8 @@ fotospot-trocadero.webp,Repository/Other,Asset/Other,Non-critical repository art
 fotospot-universite.webp,Repository/Other,Asset/Other,Non-critical repository artifact
 gallery.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 gallery.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
-icon-192.png,Repository/Other,Asset/Other,Non-critical repository artifact
-icon-512.png,Repository/Other,Asset/Other,Non-critical repository artifact
+icon-192.png,Experience/Platform,Asset/Brand,Official Living Compass Android and PWA application icon 192
+icon-512.png,Experience/Platform,Asset/Brand,Official Living Compass PWA application icon 512
 index.html,Platform/App Shell,Entry/Deploy,"Global entry, service worker or deployment configuration"
 intelligence/backend-console.css,Legacy/Intelligence Foundation,Legacy/Diagnostics,Older foundation/kernel/data/platform generation unless explicitly productive
 intelligence/backend-console.js,Legacy/Intelligence Foundation,Legacy/Diagnostics,Older foundation/kernel/data/platform generation unless explicitly productive
@@ -1913,14 +1913,14 @@ luvia-brand.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product
 luvia-dashboard.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-dashboard.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-entry.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
-luvia-logo.svg,Repository/Other,Asset/Other,Non-critical repository artifact
+luvia-logo.svg,Experience/Platform,Asset/Brand,Canonical global Living Compass compact runtime logo
 luvia-module-accent-v83.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-module-accent-v84.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-module-accent-v85.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-module-accent-v86.css,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
 luvia-trip-context.js,Trip,Domain,Trip state/use cases/membership join flow
 luvia-v7-enhancements.js,Consumer/Root Legacy,Legacy/Shared,Root-level historical/product file; inspect before modification
-manifest.webmanifest,Repository/Other,Asset/Other,Non-critical repository artifact
+manifest.webmanifest,Platform/App Shell,Entry/Deploy,Canonical PWA identity theme and official Living Compass icon registration
 menu-elio-1.jpg,Repository/Other,Asset/Other,Non-critical repository artifact
 menu-elio-1.webp,Repository/Other,Asset/Other,Non-critical repository artifact
 menu-elio-2.jpg,Repository/Other,Asset/Other,Non-critical repository artifact
@@ -2523,3 +2523,5 @@ docs/modularization/PCR-M16.5E-LIVING-DESIGN-COMPASS-FOUNDATION.md,Experience Co
 tests/m16.5e-living-design-compass-foundation.test.cjs,Experience/Shared Tests,Test/Guardrail,Browserless active-Trip palette Compass assets needle-only motion haptic Web SwiftUI Compose guard
 docs/modularization/PCR-M16.5F-SIGNED-IN-LIVING-PRODUCT-VERTICAL-SLICE.md,Consumer/Experience,Documentation/Architecture,M16.5F productive Signed-in Shell Today target navigation ownership scope and Platform release gate
 tests/m16.5f-signed-in-living-product-vertical-slice.test.cjs,Consumer/Shared Tests,Test/Guardrail,Real Today target navigation central Intelligence Compass active-Trip responsive reduced-motion and private-owner boundary guard
+docs/modularization/PCR-M16.5G-GLOBAL-LIVING-COMPASS-RELEASE.md,Platform/Experience,Documentation/Architecture,M16.5G global official Compass assets cache build provenance and preview scope lock
+tests/m16.5g-global-living-compass-release.test.cjs,Platform/Experience Shared Tests,Test/Guardrail,Official root favicon PWA icons manifest runtime version cache and immutable historical-evidence guard

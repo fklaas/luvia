@@ -14,8 +14,8 @@
     "minimal-ui"
   ],
   "orientation": "any",
-  "background_color": "#fff8f6",
-  "theme_color": "#7c4c5c",
+  "background_color": "#fff8f7",
+  "theme_color": "#ef6254",
   "categories": [
     "travel",
     "lifestyle",

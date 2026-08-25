@@ -1,16 +1,20 @@
 # Luvia Current Roadmap
 
-Date: 2026-08-24
+Date: 2026-08-25
 
 Source of truth: Git/runtime evidence first; the complete normative roadmap is
 the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- App/Core: 13.82.49 / 4.82.49.
-- Runtime: `0e8d6c51972f1aa4d6873707e8d02206cbe3957f`.
+- Integration candidate App/Core: 13.82.50 / 4.82.50.
+- Integration source before the M16.5G Platform commit:
+  `e1e4b5fce80c854bba745f9bb12e1ef0c4bda74d`.
+- Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
+  Preview acceptance.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Safe Regression: 90/90 PASS; NFR-0: 3/3 PASS.
+- Integration candidate Safe Regression: 96/96 PASS; NFR-0: 3/3 PASS.
+- Main/Production M16 baseline before visual promotion: 90/90 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
   Memory and Identity with R0-R3 policy and digest-only Action Ledger.
 - Integration and Production: 17/17 critical assets exact; 10/10
@@ -26,6 +30,19 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   authenticated 25/25 F5; Production 16/16 exact plus authenticated 25/25 F5;
   zero obsolete module intros and console 0. The broad redesign remains
   Design-only and its Design Freeze is still pending.
+- M16.5E Living Design/Compass foundation: official neutral and active-Trip
+  Compass variants, needle-only motion, semantic haptics and native mappings;
+  feature/Integration foundation commit
+  `afddfca01f1b5a0f9d6083a1dceb83b3a3949eef`.
+- M16.5F Signed-in Living Product vertical slice: productive App Shell and
+  Today composition, target meanings Heute/Planen/Luvia Compass/Reise/
+  Erinnern, real owner projections and unchanged `navigation.v1`; Integration
+  commit `e1e4b5fce80c854bba745f9bb12e1ef0c4bda74d`; Safe Regression 95/95.
+- M16.5G Platform release gate: official Compass replaces the active root,
+  favicon and PWA icon family; active runtime/cache advances to 13.82.50 /
+  4.82.50; 96/96 Safe Regression, NFR-0 3/3 and the regenerated 2,761-file
+  visual inventory pass. Preview, authenticated desktop/mobile acceptance,
+  Main and Production remain pending.
 
 ## Completed architecture boundaries
 

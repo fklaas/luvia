@@ -390,6 +390,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5f-signed-in-living-product-vertical-slice.test.cjs'
   },
   {
+    category: 'M16.5 / Global Living Compass Release',
+    test: 'tests/m16.5g-global-living-compass-release.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },
