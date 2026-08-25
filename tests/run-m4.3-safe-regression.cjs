@@ -394,6 +394,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5g-global-living-compass-release.test.cjs'
   },
   {
+    category: 'M16.5 / Accepted Living Shell',
+    test: 'tests/m16.5h-accepted-living-shell-adoption.test.cjs'
+  },
+  {
+    category: 'M16.5 / Visual Parity Gate',
+    test: 'tests/m16.5i-visual-parity-no-substitution-gate.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

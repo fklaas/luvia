@@ -4,19 +4,19 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2761,
-    "visualCandidates": 658,
+    "trackedFiles": 2766,
+    "visualCandidates": 660,
     "activeEntryReferences": 261,
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 58,
-      "bytes": 851296,
-      "lines": 6188,
+      "bytes": 866615,
+      "lines": 6239,
       "important": 3230,
-      "literalHexColours": 2845,
-      "zIndexDeclarations": 231,
-      "reducedMotionQueries": 37,
-      "focusVisibleSelectors": 36
+      "literalHexColours": 2854,
+      "zIndexDeclarations": 239,
+      "reducedMotionQueries": 38,
+      "focusVisibleSelectors": 37
     }
   },
   "routes": {
@@ -519,8 +519,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 45772,
-      "sha256": "4169ee34c2c05340bd944a8aadba850c3f4f0e9a0afba4c970a0872e29faed3b"
+      "bytes": 61091,
+      "sha256": "1b9dcc3ce08909126d95f32d16aee0365f9318add464871c2502163f11d2ae96"
     },
     {
       "path": "app/app-shell.js",
@@ -533,8 +533,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 62511,
-      "sha256": "bc5aabf12446728d23e1053d8aa8d48f88b15790504afcfcab2d07387b2c6255"
+      "bytes": 66102,
+      "sha256": "7026770b8c881f867dbe8669f3e1aa0cbdf8ed6c766bf2a812595190cc79b5e5"
     },
     {
       "path": "app/bookings-view.css",
@@ -5272,8 +5272,27 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 5026,
-      "sha256": "b5dbc4f98ecd51f3c326a37840e6465e86ce7266053419581f23185268b698e5"
+      "bytes": 5244,
+      "sha256": "868045a207089f348261f1d4d44f3806ec08775d39f6ac22c9ab99e615e5014d"
+    },
+    {
+      "path": "tests/m16.5h-accepted-living-shell-adoption.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 4451,
+      "sha256": "7a6199265f6daaf8c5ea48a2689e79abfa37bf2872003367831deb2b379e0680"
+    },
+    {
+      "path": "tests/m16.5i-visual-parity-no-substitution-gate.test.cjs",
+      "classes": [
+        "navigation-source"
+      ],
+      "bytes": 3549,
+      "sha256": "5dbda781ed39b33c9581e25ade8c90c5e989917db47f0bb65e83829ddce9ab99"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
@@ -5811,8 +5830,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 13963,
-      "sha256": "340f8a16b2c48b04e03515eac02b8f682e34a47c0378ca213198137a8a5e8f58"
+      "bytes": 14206,
+      "sha256": "27accc8b11c2103c07b1e76a72478379aa95a86f347bf9f19ff08fe47412bd7c"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

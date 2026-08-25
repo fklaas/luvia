@@ -2525,3 +2525,8 @@ docs/modularization/PCR-M16.5F-SIGNED-IN-LIVING-PRODUCT-VERTICAL-SLICE.md,Consum
 tests/m16.5f-signed-in-living-product-vertical-slice.test.cjs,Consumer/Shared Tests,Test/Guardrail,Real Today target navigation central Intelligence Compass active-Trip responsive reduced-motion and private-owner boundary guard
 docs/modularization/PCR-M16.5G-GLOBAL-LIVING-COMPASS-RELEASE.md,Platform/Experience,Documentation/Architecture,M16.5G global official Compass assets cache build provenance and preview scope lock
 tests/m16.5g-global-living-compass-release.test.cjs,Platform/Experience Shared Tests,Test/Guardrail,Official root favicon PWA icons manifest runtime version cache and immutable historical-evidence guard
+docs/modularization/PCR-M16.5H-ACCEPTED-LIVING-SHELL-ADOPTION.md,Consumer/Experience,Documentation/Architecture,M16.5H visually accepted productive shell adoption negative Integration evidence ownership release gates and rollback
+tests/m16.5h-accepted-living-shell-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,Accepted Living shell official layered Compass real owner projections responsive light surface and private-boundary guard
+config/luvia-m16.5-visual-parity-contract.json,Experience Core,Configuration/Release Gate,Binding accepted-reference hashes complete surface matrix allowed runtime differences and no-substitution release lock
+docs/modularization/M16.5-VISUAL-PARITY-AND-NO-SUBSTITUTION-GATE.md,Experience Core,Documentation/Architecture,Human-readable complete visual parity contract per-surface evidence requirements and Main Production lock
+tests/m16.5i-visual-parity-no-substitution-gate.test.cjs,Experience/Shared Tests,Test/Guardrail,Accepted reference hash matrix mandatory surface gate and no-substitution release-lock guard

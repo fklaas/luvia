@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "contractId": "luvia.m16.5.visual-parity.v1",
+  "milestone": "M16.5 – Complete Visual Product Redesign",
+  "binding": true,
+  "decision": "The jointly accepted M16.5 demo is the binding productive interface specification. Productive surfaces must adopt its composition, visual language, interaction model and motion grammar completely; they may not merely resemble it.",
+  "reference": {
+    "localSource": "C:/Users/fabia/Documents/ChatGPT/Luvia/m16.5-design-foundation/prototype-rq",
+    "publicPreview": "https://luvia-m165-design-preview-20260825.vj27q4422x.chatgpt.site/",
+    "capturedAt": "2026-08-25",
+    "fileCount": 27,
+    "totalBytes": 11703321,
+    "keyFiles": [
+      {
+        "path": "index.html",
+        "bytes": 79340,
+        "sha256": "e9292e437fe9889d7906ea95f7ef058619b63aaf31cf0a7c9205e54098bfb525"
+      },
+      {
+        "path": "styles.css",
+        "bytes": 138375,
+        "sha256": "cae88bad7e47f94e00c66c7dc14c9068da1ecb62c1085732e09de4807fc519c5"
+      },
+      {
+        "path": "app-redesign.css",
+        "bytes": 108455,
+        "sha256": "27ad4fcc5c736870b9159cc3579c7258af600b2fc079cba30eacb4fd67f8ab9a"
+      },
+      {
+        "path": "app.js",
+        "bytes": 121793,
+        "sha256": "fdb3c14ff96886697c53f8c759e41cd22f3b40f8787f81be408ce82b24713560"
+      },
+      {
+        "path": "landing.html",
+        "bytes": 14223,
+        "sha256": "3e25d9fd8027ede08d8eb4b323a4a1d9c8de0f114cb19d6796db2625a5bd5d83"
+      },
+      {
+        "path": "onboarding.html",
+        "bytes": 18158,
+        "sha256": "30a649e406af64ee87e1fab69681dd6fb2d01041cab89dc55af21843c1a7ad74"
+      }
+    ]
+  },
+  "nonNegotiableProductLanguage": [
+    "open light travel world without dark product containers",
+    "active Trip colour as the semantic accent throughout the signed-in product",
+    "official layered Living Compass with the two-ended logo needle as the only rotating needle",
+    "the accepted desktop sidebar and responsive five-destination mobile navigation",
+    "cinematic but controlled fades, shared-element continuity, magnetic feedback and reduced-motion alternatives",
+    "warm image-led travel storytelling without returning to legacy tile walls",
+    "real owner-contract data and actions inside the accepted composition",
+    "complete readable responsive layouts with no horizontally scrolling mobile navigation",
+    "consistent Corporate Design across pages, dialogs, sheets, popups, empty states, loading, errors and offline states"
+  ],
+  "allowedDifferences": [
+    "real runtime data replaces prototype fixtures",
+    "responsive reflow and safe-area adaptation preserve the design concept",
+    "accessible focus, contrast, reduced-motion and assistive semantics",
+    "measured loading, empty, error, offline, permission and consent states",
+    "platform-native controls behind the same Experience semantics"
+  ],
+  "forbiddenSubstitutions": [
+    "legacy screen retained behind a redesigned header",
+    "approximate styling over the old information architecture",
+    "dark product blocks or containers outside an explicitly accepted media treatment",
+    "static tile walls as a substitute for the accepted staged feature composition",
+    "prototype fixtures copied as Domain Truth",
+    "feature removal to make visual parity easier",
+    "desktop-only parity without the accepted mobile behavior",
+    "silent visual deviation without joint design approval"
+  ],
+  "requiredGateFields": [
+    "referenceComposition",
+    "realOwnerContracts",
+    "tripAccent",
+    "desktop",
+    "mobile",
+    "motion",
+    "states",
+    "accessibility",
+    "jointAcceptance"
+  ],
+  "surfaces": [
+    {
+      "id": "public-landing",
+      "referenceEntry": "landing.html",
+      "status": "accepted_direction_fine_tuning_pending",
+      "gates": {"referenceComposition":"accepted_direction","realOwnerContracts":"not_applicable","tripAccent":"not_applicable","desktop":"accepted_direction","mobile":"accepted_direction","motion":"fine_tuning_pending","states":"content_pass_pending","accessibility":"verification_pending","jointAcceptance":"accepted_with_fine_tuning"}
+    },
+    {
+      "id": "account-onboarding",
+      "referenceEntry": "profile-onboarding.html",
+      "status": "accepted_direction_fine_tuning_pending",
+      "gates": {"referenceComposition":"accepted_direction","realOwnerContracts":"adoption_pending","tripAccent":"not_applicable","desktop":"accepted_direction","mobile":"accepted_direction","motion":"fine_tuning_pending","states":"completion_pending","accessibility":"verification_pending","jointAcceptance":"accepted_with_fine_tuning"}
+    },
+    {
+      "id": "trip-onboarding",
+      "referenceEntry": "onboarding.html",
+      "status": "accepted_direction_fine_tuning_pending",
+      "gates": {"referenceComposition":"accepted_direction","realOwnerContracts":"adoption_pending","tripAccent":"accepted_direction","desktop":"accepted_direction","mobile":"accepted_direction","motion":"fine_tuning_pending","states":"completion_pending","accessibility":"verification_pending","jointAcceptance":"accepted_with_fine_tuning"}
+    },
+    {
+      "id": "signed-in-shell",
+      "referenceEntry": "index.html",
+      "status": "adoption_in_progress",
+      "gates": {"referenceComposition":"adoption_in_progress","realOwnerContracts":"wired","tripAccent":"wired","desktop":"local_candidate","mobile":"verification_pending","motion":"adoption_in_progress","states":"pending","accessibility":"partial","jointAcceptance":"pending"}
+    },
+    {
+      "id": "today",
+      "referenceEntry": "index.html#today",
+      "status": "adoption_in_progress",
+      "gates": {"referenceComposition":"adoption_in_progress","realOwnerContracts":"wired","tripAccent":"partial","desktop":"local_candidate","mobile":"pending","motion":"partial","states":"pending","accessibility":"partial","jointAcceptance":"pending"}
+    },
+    {
+      "id": "plan-places-booking",
+      "referenceEntry": "index.html#plan",
+      "status": "productive_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"existing_runtime_to_adopt","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    },
+    {
+      "id": "trip-journey-collaboration",
+      "referenceEntry": "index.html#trip",
+      "status": "productive_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"existing_runtime_to_adopt","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    },
+    {
+      "id": "memories-cards-albums-stories",
+      "referenceEntry": "index.html#memories",
+      "status": "productive_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"existing_runtime_to_adopt","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    },
+    {
+      "id": "profile-profile-compass",
+      "referenceEntry": "index.html#profile",
+      "status": "productive_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"existing_runtime_to_adopt","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    },
+    {
+      "id": "intelligence-chat-actions",
+      "referenceEntry": "index.html#intelligence",
+      "status": "foundation_present_product_evolution_pending",
+      "gates": {"referenceComposition":"partial","realOwnerContracts":"read_and_command_contracts_required","tripAccent":"partial","desktop":"local_candidate","mobile":"pending","motion":"partial","states":"pending","accessibility":"partial","jointAcceptance":"pending"}
+    },
+    {
+      "id": "overlays-dialogs-sheets-popups",
+      "referenceEntry": "index.html#states",
+      "status": "inventory_and_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"per_owner","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    },
+    {
+      "id": "cross-product-runtime-states",
+      "referenceEntry": "index.html#states",
+      "status": "inventory_and_adoption_pending",
+      "gates": {"referenceComposition":"pending","realOwnerContracts":"per_owner","tripAccent":"pending","desktop":"pending","mobile":"pending","motion":"pending","states":"pending","accessibility":"pending","jointAcceptance":"pending"}
+    }
+  ],
+  "releaseGate": {
+    "mainAllowed": false,
+    "productionAllowed": false,
+    "unlockCondition": "Every required surface has all gate fields measured and jointAcceptance=accepted; full safe regression and immutable Integration provenance pass; the user explicitly accepts the complete desktop and mobile result.",
+    "currentReason": "The productive shell is being adopted, while several signed-in feature surfaces still use legacy internal compositions."
+  }
+}

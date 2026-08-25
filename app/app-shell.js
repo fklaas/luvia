@@ -93,15 +93,47 @@
     today:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2v8.3a.5.5 0 0 1-.5.5h-5v-6h-5v6h-5a.5.5 0 0 1-.5-.5Z"/></svg>',
     plan:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4M11 7.5v7M7.5 11h7"/></svg>',
     trip:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5 10 3l4 2.5L19 3v15.5L14 21l-4-2.5L5 21Z"/><path d="M10 3v15.5M14 5.5V21"/></svg>',
-    memories:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.5"/><path d="m6.5 17 4-4 2.7 2.5 2.3-2 2 3.5"/></svg>'
+    memories:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.5"/><path d="m6.5 17 4-4 2.7 2.5 2.3-2 2 3.5"/></svg>',
+    profile:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10Z"/></svg>',
+    control:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/></svg>',
+    invite:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.2 2.4-5 5.5-5s4.9 1.8 5.5 5M18 8v6M15 11h6"/></svg>'
   });
-  function dock(){
+  const compassAssetBase='assets/brand/luvia-living-compass/layers';
+  function livingCompass(className=''){
+    return `<span class="lv-living-compass ${esc(className)}" aria-hidden="true"><img class="lv-living-compass__face" src="${compassAssetBase}/face.svg" alt=""><img class="lv-living-compass__needle" src="${compassAssetBase}/two-ended-needle.svg" alt=""><img class="lv-living-compass__hub" src="${compassAssetBase}/hub.svg" alt=""></span>`;
+  }
+  function navigationItems(){
     const registered=new Map((window.LuviaNavigationRegistry?.items?.()||[]).map(item=>[item.id,item]));
-    const routeItem=id=>registered.get(id)||{id,label:id};
-    const items=[routeItem('today'),routeItem('plan'),{id:'compass',label:'Luvia Compass',action:'assistant'},routeItem('trip'),routeItem('memories')];
-    return `<div class="lv-dock-wrap"><nav class="lv-dock" aria-label="Hauptnavigation">${items.map(item=>item.action==='assistant'
-      ?`<button class="lv-nav lv-nav--compass" type="button" data-ai-ask-open data-luvia-experience-component="livingCompass" aria-label="Luvia Compass öffnen" aria-haspopup="dialog"><span class="lv-nav-compass-mark" aria-hidden="true"><span class="lv-nav-compass-needle"></span></span><span class="lv-nav-label">${esc(item.label)}</span></button>`
+    const fallbackLabels={today:'Heute',plan:'Planen',trip:'Reise',memories:'Erinnern'},routeItem=id=>registered.get(id)||{id,label:fallbackLabels[id]||id};
+    return [routeItem('today'),routeItem('plan'),{id:'compass',label:'Luvia Compass',action:'assistant'},routeItem('trip'),routeItem('memories')];
+  }
+  function dock(){
+    return `<div class="lv-dock-wrap"><nav class="lv-dock" aria-label="Hauptnavigation">${navigationItems().map(item=>item.action==='assistant'
+      ?`<button class="lv-nav lv-nav--compass" type="button" data-ai-ask-open data-luvia-experience-component="commandSurface" data-luvia-experience-role="livingCompass" aria-label="Luvia Compass öffnen" aria-haspopup="dialog">${livingCompass('lv-nav-compass-mark')}<span class="lv-nav-label">${esc(item.label)}</span></button>`
       :`<button class="lv-nav ${activeView===item.id?'on':''}" type="button" data-view="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-nav-icon">${navigationIcons[item.id]||''}</span><span class="lv-nav-label">${esc(item.label)}</span></button>`).join('')}</nav></div>`;
+  }
+  function sidebarNavigation(){
+    return `<nav class="lv-living-primary-nav" aria-label="Luvia Bereiche">${navigationItems().map(item=>item.action==='assistant'
+      ?`<button class="lv-living-nav-item lv-living-nav-ai" type="button" data-ai-ask-open data-luvia-experience-component="commandSurface" data-luvia-experience-role="livingCompass" aria-label="Luvia Compass öffnen" aria-haspopup="dialog">${livingCompass('lv-living-nav-compass')}<span class="lvx-command-trigger-copy"><b>${esc(item.label)}</b><small>Fragen &amp; handeln</small></span></button>`
+      :`<button class="lv-living-nav-item ${activeView===item.id?'is-active':''}" type="button" data-view="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-living-nav-icon">${navigationIcons[item.id]||''}</span><span>${esc(item.label)}</span></button>`).join('')}<button class="lv-living-nav-item" type="button" data-profile-open="hub"><span class="lv-living-nav-icon">${navigationIcons.profile}</span><span>Profil</span></button></nav>`;
+  }
+  function phaseRail(){
+    const hour=new Date().getHours(),active=hour<11?0:hour<15?1:hour<18?2:hour<22?3:4;
+    return `<div class="lv-living-phase-rail" aria-label="Reisephase">${['Morgen','Unterwegs','Vor Ort','Abend','Erinnern'].map((label,index)=>`<span class="${index===active?'is-active':''}"><b>${label}</b><i></i></span>`).join('')}</div>`;
+  }
+  function companionProjection(){
+    const state=window.LuviaCollaboration?.snapshot?.()||{},members=Array.isArray(state.members)?state.members:[];
+    if(!members.length)return '';
+    return `<div class="lv-living-companions" aria-label="Mitreisende">${members.slice(0,3).map(member=>`<span title="${esc(member.displayName||member.name||'Mitreisende Person')}">${esc(initials(member))}</span>`).join('')}${members.length>3?`<span>+${members.length-3}</span>`:''}</div>`;
+  }
+  function activeTripMarkup(t){
+    return `<span>Aktive Reise</span><strong>${esc(t.title||'Unsere Reise')}</strong><small>${esc(t.destination?.name||'Reiseziel offen')}${t.startDate||t.endDate?` · ${esc([t.startDate,t.endDate].filter(Boolean).join(' – '))}`:''}</small><div class="lv-living-trip-accent" aria-hidden="true"><i></i><i></i><i></i><i></i></div>`;
+  }
+  function refreshNavigationSelection(view=activeView){
+    root?.querySelectorAll?.('.lv-living-nav-item[data-view],.lv-dock .lv-nav[data-view]').forEach(button=>{
+      const selected=button.dataset.view===view;button.classList.toggle(button.closest('.lv-living-primary-nav')?'is-active':'on',selected);
+      if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
+    });
   }
 
 
@@ -308,7 +340,7 @@
     const currentTripId=stage.querySelector('.lv-view-host')?.dataset?.tripId||'';
     const requestedTripId=String(t.id||t.tripId||'');
     const sameView=current===view&&currentTripId===requestedTripId;
-    if(sameView&&!options.force){activeView=view;commitScreenIntent(intent,options);root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());return;}
+    if(sameView&&!options.force){activeView=view;commitScreenIntent(intent,options);refreshNavigationSelection(view);return;}
     const sequence=++showSequence;await unmountCurrent('route-change');if(sequence!==showSequence)return;window.LuviaTodayExperience?.unbind?.();window.LuviaPremiumMemoriesExperience?.unbind?.();
     activeView=view;const animate=options.animate!==false;
     const wrap=(name,content)=>{const html=transitionHost(name,content);return animate?html:html.replace(' lv-route-entering','').replace(' aria-busy="true"','').replace('lv-view-host','lv-view-host is-ready')};
@@ -333,13 +365,13 @@
     if(view==='today'){lastRenderedTripId=requestedTripId;window.LuviaTodayExperience?.bind?.(stage,{trip:t,profile:profile(),esc});requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(stage));}
     if(view==='memories')window.LuviaPremiumMemoriesExperience?.bind?.(stage,{trip:t,profile:profile(),esc});
     if(animate)completeTransition(stage,host,previousHost);
-    root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());
+    root.querySelector('.lv-dock-wrap')?.remove();root.querySelector('.lv-shell')?.insertAdjacentHTML('beforeend',dock());refreshNavigationSelection(view);
   }
 
   function refreshDashboardGrid(){const t=activeTrip(),grid=root?.querySelector('[data-widget-grid]');if(!t||activeView!=='today'||!grid)return false;grid.innerHTML=window.LuviaDashboardWidgets.render({trip:t,profile:profile(),esc});requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(grid));return true;}
-  function refreshShellHeader(){const t=activeTrip(),p=profile(),shell=root?.querySelector('.lv-shell');if(!t||!shell)return;const trip=shell.querySelector('.lv-trip');if(trip)trip.innerHTML=`<span>Aktive Reise</span><strong>${esc(t.title||'Unsere Reise')}</strong><small>${esc(t.destination?.name||'Reiseziel offen')}</small>`;const trigger=shell.querySelector('.lv-profile-trigger');if(trigger)trigger.innerHTML=`${avatar(p)}<span><b>${esc(p.displayName||'Profil')}</b><small>${esc(t.title||'Reise')}</small></span>`;root.querySelector('.lv-dock-wrap')?.remove();shell.insertAdjacentHTML('beforeend',dock(t));}
+  function refreshShellHeader(){const t=activeTrip(),p=profile(),shell=root?.querySelector('.lv-shell');if(!t||!shell)return;shell.querySelectorAll('.lv-trip').forEach(trip=>{trip.innerHTML=activeTripMarkup(t)});shell.querySelectorAll('.lv-profile-trigger').forEach(trigger=>{trigger.innerHTML=`${avatar(p)}<span><b>${esc(p.displayName||'Profil')}</b><small>Profil &amp; Reisekompass</small></span>`});const companions=shell.querySelector('[data-living-companions]');if(companions)companions.innerHTML=companionProjection();root.querySelector('.lv-dock-wrap')?.remove();shell.insertAdjacentHTML('beforeend',dock(t));refreshNavigationSelection();}
   function releaseBadge(){const v=window.LuviaKernelVersion||window.LuviaCoreVersion||{core:'4.17.0',build:'13.17.0'};return `<span class="lv-build-badge" title="Luvia Core ${v.core} · Build ${v.build}">${v.build} · Core ${v.core}</span>`;}
-  function ready(){const t=activeTrip(),p=profile();if(!t)return noTrips();const tripId=String(t.id||t.tripId||'');lastTripRenderSignature=tripRenderSignature(t);window.LuviaTheme.apply(t);if(root.querySelector('.lv-shell')){completeRuntimeStage('shell-ready',{surface:'app-shell',reused:true});refreshShellHeader();if(lastRenderedTripId!==tripId)return show(activeView,{force:true,animate:false});completeRuntimeStage('modules-ready',{route:activeView,reused:true});return}root.innerHTML=`<div class="lv-shell"><div class="lv-ambient-memories" aria-hidden="true"><span class="lv-ambient-item lv-ambient-passport">✦</span><span class="lv-ambient-item lv-ambient-camera">◉</span><span class="lv-ambient-item lv-ambient-heart">♡</span><span class="lv-ambient-item lv-ambient-pin">⌖</span><span class="lv-ambient-item lv-ambient-ticket">◇</span><span class="lv-ambient-item lv-ambient-route">⌁</span><span class="lv-ambient-item lv-ambient-sun">✺</span><span class="lv-ambient-item lv-ambient-cloud">☁</span><span class="lv-ambient-item lv-ambient-star">✦</span></div><header class="lv-header"><button class="lv-brand" type="button" data-view="today" aria-label="Luvia Heute öffnen"><span class="lv-logo" aria-hidden="true"></span><span class="lv-brand-copy"><b>LUVIA</b><small>Reisen, die mit dir leben.</small></span></button><div class="lv-trip"><span>Aktive Reise</span><strong>${esc(t.title||'Unsere Reise')}</strong><small>${esc(t.destination?.name||'Reiseziel offen')}</small></div><span class="lv-spacer"></span>${releaseBadge()}<button class="lv-icon" data-view="control-center" aria-label="Control Center"><span aria-hidden="true">◎</span> <span class="lv-label">Control</span></button><button class="lv-icon lv-ai-global-trigger lvx-command-trigger" data-ai-ask-open data-luvia-experience-component="commandSurface" aria-label="Mit Luvia sprechen" aria-haspopup="dialog"><span class="lvx-command-trigger-mark" aria-hidden="true">✦</span><span class="lvx-command-trigger-copy"><b>Luvia</b><small>Fragen &amp; planen</small></span></button><button class="lv-icon" data-invite aria-label="Personen einladen"><span aria-hidden="true">＋</span> <span class="lv-label">Einladen</span></button><button class="lv-profile-trigger" data-profile-open="hub">${avatar(p)}<span><b>${esc(p.displayName||'Profil')}</b><small>${esc(t.title||'Reise')}</small></span></button></header><main class="lv-stage" data-stage></main></div>`;shellInitialized=true;completeRuntimeStage('shell-ready',{surface:'app-shell',reused:false});return show(activeView,{animate:true})}
+  function ready(){const t=activeTrip(),p=profile();if(!t)return noTrips();const tripId=String(t.id||t.tripId||'');lastTripRenderSignature=tripRenderSignature(t);window.LuviaTheme.apply(t);if(root.querySelector('.lv-shell')){completeRuntimeStage('shell-ready',{surface:'app-shell',reused:true});refreshShellHeader();if(lastRenderedTripId!==tripId)return show(activeView,{force:true,animate:false});completeRuntimeStage('modules-ready',{route:activeView,reused:true});return}root.innerHTML=`<div class="lv-shell lv-living-shell"><div class="lv-living-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div><aside class="lv-living-sidebar"><button class="lv-living-brand" type="button" data-view="today" aria-label="Luvia Heute öffnen">${livingCompass('lv-living-brand-compass')}<span><b>LUVIA</b><small>Reisen, die mit dir leben.</small></span></button><div class="lv-trip lv-living-trip">${activeTripMarkup(t)}</div>${sidebarNavigation()}<div class="lv-living-sidebar-spacer"></div><button class="lv-living-quiet-action" type="button" data-view="control-center"><span class="lv-living-nav-icon">${navigationIcons.control}</span><span>Control Center</span></button><button class="lv-profile-trigger lv-living-profile" data-profile-open="hub">${avatar(p)}<span><b>${esc(p.displayName||'Profil')}</b><small>Profil &amp; Reisekompass</small></span></button></aside><section class="lv-living-workspace"><header class="lv-header lv-living-topbar"><button class="lv-living-mobile-brand" type="button" data-view="today" aria-label="Luvia Heute öffnen">${livingCompass('lv-living-mobile-compass')}<b>LUVIA</b></button>${phaseRail()}<div class="lv-living-top-actions"><button class="lv-trip lv-living-trip-switcher" type="button" data-edit>${activeTripMarkup(t)}</button><span data-living-companions>${companionProjection()}</span>${releaseBadge()}<button class="lv-living-icon-button" type="button" data-view="control-center" aria-label="Control Center">${navigationIcons.control}</button><button class="lv-living-icon-button" type="button" data-invite aria-label="Personen einladen">${navigationIcons.invite}</button><button class="lv-profile-trigger lv-living-top-profile" data-profile-open="hub" aria-label="Profil öffnen">${avatar(p)}</button></div></header><main class="lv-stage lv-living-stage" data-stage></main></section></div>`;shellInitialized=true;completeRuntimeStage('shell-ready',{surface:'app-shell',reused:false});return show(activeView,{animate:true})}
   async function render(){const auth=(window.LuviaAuth||window.ParisAuth).getState();if(auth.loading)return bootScreen();if(!auth.authenticated)return signedOut();document.documentElement.classList.remove('lv-entry-active','lv-public-entry-active');document.body.classList.remove('lv-entry-active','lv-public-entry-active');const s=snap();if(!s.loaded)return bootScreen('Reisen werden geladen …');if(window.LuviaJoinFlow?.pending?.())return window.LuviaJoinFlow.renderIfPending(root,auth,profile());if(!s.hasTrips||!s.hasActiveTrip)return noTrips();return ready()}
   async function hydrateForAuth(client,authState){
     const run=++authHydration;
