@@ -47,7 +47,14 @@ for(const route of ['places','places-lifecycle','timeline','bookings','routes'])
 assert.match(cssScope,/height:calc\(100dvh - 81px\)/,'desktop Plan stage must occupy the signed-in product viewport');
 assert.match(cssScope,/@media\(max-width:800px\)/,'mobile Plan stage adaptation is missing');
 assert.match(cssScope,/@media\(max-width:390px\)/,'compact Plan stage adaptation is missing');
+assert.match(cssScope,/@media\(max-width:800px\) and \(max-height:560px\) and \(orientation:landscape\)/,'short mobile landscape must retain a compact, non-clipped radial Compass stage');
 assert.match(cssScope,/\.lv-living-shell:has\(\.lv-view-host\[data-view="plan"\]\)\{padding-bottom:0\}/,'mobile Plan stage must not create document scrolling behind the fixed dock');
+assert.match(cssScope,/\.lv-plan-compass-close\{top:5px;right:6px;width:44px;height:44px/,'mobile Compass close must remain a 44 px touch target');
+assert.match(cssScope,/\.lv-plan-direction\{width:clamp\(76px,23vw,94px\);min-height:44px/,'mobile Compass directions must remain 44 px touch targets');
+assert.match(cssScope,/\.lv-plan-compass-footer button\{min-height:44px;display:inline-flex/,'mobile Compass horizon controls must remain 44 px touch targets');
+assert.match(cssScope,/--lv-plan-direction-radius:clamp\(44px,min\(12vw,12vh\),58px\);grid-template-rows:32px minmax\(0,1fr\) 44px/,'landscape must compact the same radial composition into the available height');
+assert.match(cssScope,/\.lv-plan-compass-heading>div>span,\.lv-plan-compass-heading p\{display:none\}/,'landscape may remove supporting copy instead of clipping interactive directions');
+assert.match(cssScope,/\.lv-plan-compass-footer p\{display:none\}/,'landscape may remove the passive legend instead of clipping touch controls');
 assert.match(cssScope,/@media\(prefers-reduced-motion:reduce\)/,'reduced-motion fallback is missing');
 assert.match(cssScope,/\.lv-plan-compass-needle\{[^}]*transform:rotate\(var\(--lv-plan-selection-angle/,'only the official native needle must receive the selection angle');
 assert.doesNotMatch(cssScope,/\.is-navigating \.lv-plan-direction\{[^}]*scale:/,'unselected directions must fade in place instead of collapsing toward a shared point');
