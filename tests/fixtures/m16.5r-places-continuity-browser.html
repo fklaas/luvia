@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="../../">
+  <title>M16.5R Places Continuity</title>
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #f7faf9; font-family: Arial, sans-serif; }
+    #app { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+  <script>
+  (()=>{
+    const places=Array.from({length:6},(_,index)=>({
+      id:`place-${index+1}`,
+      providerPlaceId:`place-${index+1}`,
+      name:`Kontinuitätsort ${index+1}`,
+      address:`Uferweg ${index+1}, Scharbeutz`,
+      description:`Evidenz für Kontinuitätsort ${index+1}`,
+      rating:4.1+index/10,
+      userRatingCount:100+index,
+      openNow:true,
+      priceLevel:'PRICE_LEVEL_MODERATE',
+      coordinates:{latitude:54.01+index/100,longitude:10.75+index/100},
+      bookingDomains:['restaurant']
+    }));
+    window.__placesFixture={mapInstances:0,mapRemovals:0,mapEaseCalls:[],detailRequests:[]};
+    class FixtureMap{
+      constructor(options){this.container=options.container;this.center=options.center;this.zoom=options.zoom;this.handlers={};window.__placesFixture.mapInstances+=1}
+      addControl(){}
+      on(name,handler){this.handlers[name]=handler;if(name==='load')setTimeout(()=>handler(),0)}
+      getStyle(){return{layers:[]}}
+      setPaintProperty(){}
+      fitBounds(){this.center='bounds'}
+      easeTo(options){if(options.center)this.center=options.center;if(options.zoom)this.zoom=options.zoom;window.__placesFixture.mapEaseCalls.push({center:options.center||null,zoom:options.zoom||null})}
+      getZoom(){return this.zoom}
+      loaded(){return true}
+      resize(){}
+      remove(){window.__placesFixture.mapRemovals+=1}
+    }
+    class FixtureMarker{
+      constructor({element}){this.element=element}
+      setLngLat(value){this.lngLat=value;return this}
+      addTo(map){map.container.appendChild(this.element);return this}
+      remove(){this.element.remove()}
+    }
+    window.maplibregl={Map:FixtureMap,Marker:FixtureMarker,NavigationControl:class{}};
+    window.LuviaPlacesContractV1={reads:{
+      categories:()=>({food:{key:'food',label:'Essen & Trinken',primaryType:'restaurant',query:'Restaurants'}}),
+      recommend:async()=>({places}),
+      listSaved:async()=>[],
+      getDetails:async id=>{window.__placesFixture.detailRequests.push(id);await new Promise(resolve=>setTimeout(resolve,180));const place=places.find(item=>item.providerPlaceId===id);return{...place,website:`https://example.test/${id}`,phone:'+49 4503 000'}}
+    }};
+    window.LuviaBookingContractV1={commands:{openPlaceBooking:async()=>({opened:false})}};
+    const network={isOnline:()=>true,subscribe:()=>()=>{}};
+    window.LuviaPlatformPorts={get:id=>id==='NetworkPort'?network:id==='OfflineCachePort'?{read:()=>null,write:()=>true}:id==='ExternalNavigationPort'?{open:()=>true,openMaps:()=>true}:null};
+    window.LuviaUIKit={toast:()=>{}};
+    window.LuviaApp={openCompass:()=>true,show:()=>true};
+  })();
+  </script>
+  <script src="app/places/places-spatial-composition-core.js"></script>
+  <script src="app/places/places-spatial-experience.js"></script>
+  <script>
+  addEventListener('DOMContentLoaded',async()=>{
+    await window.LuviaPlacesSpatialExperience.mount(document.querySelector('#app'),{id:'trip-continuity',destination:{name:'Scharbeutz',countryCode:'DE'},startDate:'2026-08-26'});
+    window.__placesFixture.ready=true;
+  });
+  </script>
+</body>
+</html>

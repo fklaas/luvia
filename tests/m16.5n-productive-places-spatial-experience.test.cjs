@@ -202,6 +202,18 @@ assert.match(experience,/data-places-external="\$\{esc\(value\.website\)\}"/,'pu
 assert.match(experience,/navigationPort\.open\(url\)/,'external Place websites must be opened by ExternalNavigationPort');
 assert.match(experience,/link\.addEventListener\('click',event=>\{event\.preventDefault\(\);openExternal\(link\.dataset\.placesExternal\)\}\)/,'external Place links must suppress native navigation before delegating to the platform port');
 
+assert.match(experience,/data-places-detail-region="\$\{esc\(id\)\}" aria-live="polite"/,'each result must own a stable live detail region outside full-surface rendering');
+assert.match(experience,/function renderDetail\(id\)/,'detail state must have a card-local renderer');
+const detailStart=experience.indexOf('async function loadDetails');
+const detailEnd=experience.indexOf('function openMaps',detailStart);
+assert.notEqual(detailStart,-1,'Places detail loader missing');
+assert.notEqual(detailEnd,-1,'Places detail loader boundary missing');
+const detailScope=experience.slice(detailStart,detailEnd);
+assert.doesNotMatch(detailScope,/\brender\(\)/,'opening or resolving evidence must not rebuild the result rail and map');
+assert.match(detailScope,/select\(id,false,true\)/,'opening evidence must select the exact same Place and synchronize its map position');
+assert.match(detailScope,/state\.details\.get\(id\)!==pending/,'late detail completion must not reopen a closed or superseded detail');
+assert.match(detailScope,/lifecycleToken!==state\.lifecycleToken\|\|state\.root!==root/,'late detail completion must not mutate an unmounted Places surface');
+
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');
 assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:markerButton\(marker\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
@@ -275,6 +287,14 @@ for(const asset of [corePath,...expectedExperienceFiles]){
   assert.ok(index.includes(asset),`index.html missing M16.5N asset: ${asset}`);
   assert.ok(worker.includes(asset),`sw.js missing M16.5N offline shell asset: ${asset}`);
 }
+for(const file of ['tests/fixtures/m16.5r-places-continuity-browser.html','tests/m16.5r-places-detail-continuity-e2e.cjs']){
+  assert.equal(fs.existsSync(path.join(ROOT,file)),true,`M16.5R real-browser continuity evidence missing: ${file}`);
+}
+const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
+assert.match(ownership,/tests\/fixtures\/m16\.5r-places-continuity-browser\.html/);
+assert.match(ownership,/tests\/m16\.5r-places-detail-continuity-e2e\.cjs/);
+assert.match(read('tests/m16.5r-places-detail-continuity-e2e.cjs'),/Rail scroll retained/,'real Edge evidence must measure the exact horizontal result context');
+assert.match(read('tests/m16.5r-places-detail-continuity-e2e.cjs'),/mapInstances,1/,'real Edge evidence must prove detail loading does not rebuild the map');
 assert.ok(index.indexOf(corePath)<index.indexOf('app/places/places-spatial-experience.js'),'browserless Places composition must load before its Web Experience');
 assert.ok(index.indexOf('app/places/places-spatial-experience.js')<index.indexOf('modules/places-shell.js'),'productive Places Experience must load before its shell mount');
 
