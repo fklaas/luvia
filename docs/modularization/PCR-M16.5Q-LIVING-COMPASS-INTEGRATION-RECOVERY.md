@@ -327,26 +327,47 @@ acceptance. App 13.82.58 then passed the expanded local geometry/direct-entry
  the disconnected carrier/Compass and needle timing. App 13.82.59 is therefore
  also revoked and provides no functional acceptance.
 
-Mandatory App 13.82.60 public re-acceptance after deployment:
+App 13.82.60 public stable-origin re-acceptance completed after deployment:
 
-1. settle the new Service Worker and repeat from the settled controller;
-2. real left-click selection through all five Compass contexts and every Plan
-   direction class, including immediate click during entry and rapid
-   context-to-direction input;
-3. visibly confirm that the target carrier appears only with the arriving
-   Compass and the needle takes the direct target angle;
-4. prove exact Places routing, result ↔ marker selection, Places Back, X,
-   Escape, reload and browser Back without duplicate stage or lingering flight;
-5. compare stable and immutable runtime bytes with the committed source and
-   probe private/local paths;
-6. keep the browser console free of the `Blocked aria-hidden ... retained
-   focus` warning throughout the selection/route sequence.
-7. begin from normal Today, Trip, Memories, Profile and Places feature views and
-   prove that each direct desktop/mobile primary-navigation click opens its
-   accepted Compass context without first opening Plan.
+1. a separate authenticated in-app browser tab loaded only `.60`-keyed runtime
+   scripts and retained the exact route after a real reload;
+2. a real primary pointer pressed and released during the visible
+   `is-compass-arriving` / not-yet-`is-ready` window at 910 × 698 and 390 × 844;
+   an immediate click repeated the same early window at 320 × 673. The latched
+   direction routed exactly once despite the target switching from
+   `pointer-events:none` to interactive between the physical phases;
+3. direct clicks opened Plan, Trip, Memories, Profile and Today Compass
+   contexts without a Plan-first precondition. Every context retained eight
+   primary directions and the same center without stale route hosts;
+4. all eight Plan directions produced their exact visible target state. Places,
+   My Places, Booking and Routes committed their canonical URLs; Timeline
+   returned to Today; reserved Checklist, Budget and Weather states remained
+   deliberately ephemeral instead of forging productive routes;
+5. the first Browser Back was issued immediately after the early Places
+   history commit and restored the deep-linked Plan Compass despite the Places
+   activation still being in flight. No duplicate host, stale stage or focused
+   descendant below `aria-hidden` remained. X and Escape independently returned
+   to Today; after the bounded return phase no stage or flight remained;
+6. deployed motion sampling proved carrier and target mark stayed jointly at
+   opacity zero through the flight phase, materialized together, and exposed
+   directions only afterward. Selection preserved an identical card rectangle,
+   added the coral underlay, used the direct `-90deg` angle, showed no flight
+   during the hold and kept needle animation disabled;
+7. authenticated Places returned 18 productive Scharbeutz results, six
+   coordinate-qualified visible results and six MapLibre markers. Search,
+   visible marker → result selection, honest empty/loading states and
+   zero horizontal overflow passed at desktop, 390 × 844 and 320 × 673;
+8. the browser console contained no `Blocked aria-hidden ... retained focus`,
+   Compass or transition warning. The only warning was the pre-existing Trip
+   remote-list fallback retaining its local offline cache;
+9. all ten changed runtime assets are byte-exact between clean commit export,
+   stable origin and immutable origin. Probes under `tests`, `docs`, `.git` and
+   `wrangler.jsonc` returned only the public SPA entry and exposed no private
+   artifact bytes.
 
-Status before deployment: **LOCAL E2E/PWA PASS; PUBLIC PENDING — no functional
-acceptance claimed**.
+Status after deployment: **LOCAL EDGE E2E/PWA PASS; AUTHENTICATED PUBLIC VISIBLE
+RECOVERY E2E PASS WITHIN THE M16.5Q MATRIX. This does not accept the remaining
+M16.5 visual-parity matrix or authorize Main/Production promotion.**
 
 ## 7. Source and deployment provenance
 
@@ -384,7 +405,7 @@ Integration provenance:
 - App 13.82.58 deterministic direct-entry assembly: `04a6f3c`.
 - App 13.82.59 intent-ordering assembly: `7637dcb`.
 - App 13.82.60 human-interaction/motion assembly: `9b4bbc4`; runtime release
-  commit: **PENDING**.
+  commit: `bc3549eeadbbb117469dd2340b1a022700ded644`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -431,7 +452,17 @@ Superseded, unaccepted App 13.82.59 Integration:
   slow Places mount; stale exit cleanup could reset the restored Plan stage;
   and carrier/Compass/needle timing deviated from the binding reference.
 
-App 13.82.60 Cloudflare Integration version/deployment: **PENDING**.
+App 13.82.60 Cloudflare Integration evidence:
+
+- source commit: `bc3549eeadbbb117469dd2340b1a022700ded644`;
+- version ID: `a785c5b2-e4a2-4310-9b11-8d43c6fb129f`;
+- deployment ID: `1015592a-43f3-4aa6-ac2e-8fd5d1ecdf32`;
+- traffic: 100%;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- immutable URL:
+  `https://a785c5b2-integration-luvia.njwnrvwbv5.workers.dev/`;
+- ten changed runtime assets byte-exact across clean commit export, stable and
+  immutable origins.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -451,8 +482,9 @@ Production remained exactly on deployment
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
-- App 13.82.60 public stable/immutable deployment and uninterrupted visible E2E
-  re-acceptance;
+- authenticated functional execution in an independently controlled external
+  Edge profile; the connected Edge control surface was unavailable, while the
+  local Edge E2E and authenticated in-app public E2E both passed;
 - the remaining M16.5 visual-parity matrix, especially complete Booking and all
   other surfaces not included in this recovery;
 - the user's explicit complete Design Freeze and any later Main/Production
