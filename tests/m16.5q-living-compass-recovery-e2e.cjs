@@ -71,6 +71,14 @@ async function assertInsideViewport(page){
     await desktop.goBack();await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');assert.equal(await desktop.locator('[data-plan-compass-stage]').count(),1,'Back during a live transition must leave exactly one Compass stage');
     await desktop.reload({waitUntil:'networkidle'});await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');console.log('desktop exact route, Back and reload: PASS');
 
+    const stalled=await browser.newPage({viewport:{width:1440,height:900}});stalled.setDefaultTimeout(3500);
+    await stalled.addInitScript(()=>{const nativeAnimate=Element.prototype.animate;Element.prototype.animate=function(...args){if(this.classList?.contains('lv-plan-compass-flight'))return{finished:new Promise(()=>{}),cancel(){}};return nativeAnimate.apply(this,args)}});
+    await stalled.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(stalled,'Welche Richtung soll die Planung nehmen?');
+    const stalledStart=Date.now();await stalled.getByRole('button',{name:/^Places:/}).click();await heading(stalled,'Places');
+    assert.ok(Date.now()-stalledStart<2500,'a stalled decorative Compass flight must never gate destination routing');
+    assert.equal(new URL(stalled.url()).searchParams.get('screen'),'places','stalled-flight selection must still reach Places');
+    console.log('stalled decorative flight / deterministic destination routing: PASS');
+
     const reduced=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});reduced.setDefaultTimeout(8000);await reduced.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(reduced,'Welche Richtung soll die Planung nehmen?');
     await reduced.getByRole('button',{name:'Heute',exact:true}).first().click();await expectCompass(reduced,'Was braucht euer Tag gerade?');await reduced.getByRole('button',{name:'Kompass schließen und zu Heute zurückkehren'}).click();await heading(reduced,'Heute');
 

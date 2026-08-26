@@ -1,7 +1,8 @@
 (() => {
   'use strict';
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,todayRenderTimer=0,todayLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false;
-  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null;
+  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null;
+  const activeCompassAnimations=new Set();
   const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.50',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
@@ -104,6 +105,11 @@
   }
   const compassWait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const compassMotionReduced=()=>document.documentElement.classList.contains('reduce-motion')||document.body.classList.contains('reduce-motion')||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  function cancelCompassFlights(){
+    ++compassFlightSequence;
+    activeCompassAnimations.forEach(animation=>{try{animation.cancel()}catch{}});activeCompassAnimations.clear();
+    document.querySelectorAll('.lv-plan-compass-flight').forEach(node=>node.remove());
+  }
   function planCompassBrandSource(){
     const mobile=window.matchMedia?.('(max-width: 800px)')?.matches;
     const preferred=root?.querySelector(mobile?'.lv-living-mobile-compass':'.lv-living-brand-compass');
@@ -111,35 +117,45 @@
     return root?.querySelector('.lv-living-brand-compass,.lv-living-mobile-compass')||null;
   }
   async function flyPlanCompass(source,target,{returning=false}={}){
-    if(!source||!target||compassMotionReduced())return;
+    if(!source||!target||compassMotionReduced())return true;
+    cancelCompassFlights();const sequence=compassFlightSequence;
     const start=source.getBoundingClientRect(),end=target.getBoundingClientRect();
-    if(!start.width||!end.width)return;
-    const flightHost=root?.querySelector('.lv-living-shell')||root;if(!flightHost)return;
+    if(!start.width||!end.width)return true;
+    const flightHost=root?.querySelector('.lv-living-shell')||root;if(!flightHost)return true;
     const flight=source.cloneNode(true);flight.className='lv-plan-compass-flight';
     Object.assign(flight.style,{left:`${start.left}px`,top:`${start.top}px`,width:`${start.width}px`,height:`${start.height}px`});flightHost.appendChild(flight);
     const dx=end.left+end.width/2-(start.left+start.width/2),dy=end.top+end.height/2-(start.top+start.height/2),scale=end.width/Math.max(start.width,1);
     const frames=returning
       ?[{transform:'translate3d(0,0,0) scale(1) rotate(0deg)',opacity:1},{transform:`translate3d(${dx*.72}px,${dy*.72}px,0) scale(${Math.max(scale*1.25,.3)}) rotate(13deg)`,opacity:.96,offset:.72},{transform:`translate3d(${dx}px,${dy}px,0) scale(${scale}) rotate(0deg)`,opacity:.16}]
       :[{transform:'translate3d(0,0,0) scale(1) rotate(0deg)',opacity:1},{transform:`translate3d(${dx*.68}px,${dy*.68}px,0) scale(${Math.max(scale*.82,1.08)}) rotate(-9deg)`,opacity:.98,offset:.68},{transform:`translate3d(${dx}px,${dy}px,0) scale(${scale}) rotate(0deg)`,opacity:.1}];
-    try{await flight.animate(frames,{duration:returning?920:900,easing:'cubic-bezier(.16,.84,.18,1)',fill:'forwards'}).finished}catch{}finally{flight.remove()}
+    const duration=returning?920:900;let animation=null;
+    try{
+      animation=flight.animate(frames,{duration,easing:'cubic-bezier(.16,.84,.18,1)',fill:'forwards'});activeCompassAnimations.add(animation);
+      await Promise.race([animation.finished.catch(()=>null),compassWait(duration+180)]);
+    }catch{}finally{if(animation){activeCompassAnimations.delete(animation);try{animation.cancel()}catch{}}flight.remove()}
+    return sequence===compassFlightSequence;
   }
   async function revealPlanCompass(){
     const stage=root?.querySelector('[data-plan-compass-stage]'),shell=root?.querySelector('.lv-living-shell');if(!stage||activeView!=='plan'||planCompassTransition)return;
-    stage.classList.remove('is-ready','is-navigating','is-returning');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(activeView!=='plan'||!stage.isConnected)return;
     const source=planCompassBrandSource(),target=stage.querySelector('.lv-plan-compass-mark');shell?.classList.add('is-plan-compass-detached');
-    await flyPlanCompass(source,target);
-    if(activeView!=='plan'||!stage.isConnected){shell?.classList.remove('is-plan-compass-detached');return}
-    stage.classList.add('is-ready');
+    const arrivalTimer=setTimeout(()=>{if(activeView==='plan'&&!planCompassTransition&&stage.isConnected)stage.classList.add('is-compass-arriving')},compassMotionReduced()?0:620);
+    const completed=await flyPlanCompass(source,target);
+    clearTimeout(arrivalTimer);
+    if(!completed||planCompassTransition||activeView!=='plan'||!stage.isConnected){shell?.classList.remove('is-plan-compass-detached');return}
+    stage.classList.add('is-compass-arriving');requestAnimationFrame(()=>stage.isConnected&&stage.classList.add('is-ready'));
   }
-  function clearPlanCompassVisuals(){
-    clearTimeout(planCompassEntryTimer);document.querySelectorAll('.lv-plan-compass-flight').forEach(node=>node.remove());root?.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached');
-    root?.querySelectorAll('[data-plan-compass-stage]').forEach(stage=>{stage.classList.remove('is-ready','is-navigating','is-returning','is-context-leaving','is-context-entering','is-context-seeking','is-context-pulsing');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'))});
+  function clearPlanCompassVisuals({preserveFlights=false}={}){
+    clearTimeout(planCompassEntryTimer);if(!preserveFlights){cancelCompassFlights();root?.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached')}
+    root?.querySelectorAll('[data-plan-compass-stage]').forEach(stage=>{stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning','is-context-leaving','is-context-entering','is-context-seeking','is-context-pulsing');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'))});
   }
   async function returnPlanCompassHome(stage){
     const shell=root?.querySelector('.lv-living-shell'),source=stage?.querySelector('.lv-plan-compass-mark'),target=planCompassBrandSource();
-    stage?.classList.add('is-returning');await flyPlanCompass(source,target,{returning:true});shell?.classList.remove('is-plan-compass-detached');
-    if(target){const lockup=target.closest('.lv-living-brand,.lv-living-mobile-brand')||target;lockup.classList.add('lv-plan-compass-home-arrival');setTimeout(()=>lockup.classList.remove('lv-plan-compass-home-arrival'),760)}
+    stage?.classList.add('is-returning');let completed=false;
+    try{completed=await flyPlanCompass(source,target,{returning:true})}finally{shell?.classList.remove('is-plan-compass-detached')}
+    if(completed&&target){const lockup=target.closest('.lv-living-brand,.lv-living-mobile-brand')||target;lockup.classList.add('lv-plan-compass-home-arrival');setTimeout(()=>lockup.classList.remove('lv-plan-compass-home-arrival'),760)}
+    return completed;
   }
   function navigationItems(){
     const registered=new Map((window.LuviaNavigationRegistry?.items?.()||[]).map(item=>[item.id,item]));
@@ -552,7 +568,7 @@
     if(planCompassTransition){if(activeCompassContext!==key)pendingCompassContext={key,focus};return}
     if(activeCompassContext===key)return;
     const token=++compassContextToken,host=currentStage.closest('.lv-view-host'),content=host?.querySelector('.lv-view-content');if(!content)return;
-    planCompassTransition=true;lastCompassFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    planCompassTransition=true;cancelCompassFlights();root?.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached');lastCompassFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
     currentStage.classList.add('is-context-leaving','is-context-seeking','is-context-pulsing');
     await compassWait(compassMotionReduced()?0:220);
     if(token!==compassContextToken||!content.isConnected){planCompassTransition=false;return;}
@@ -568,12 +584,12 @@
     const stage=root?.querySelector('[data-plan-compass-stage]');if(!stage)return;if(planCompassTransition){pendingCompassExit={destination,selected};return}
     selected=selected?.isConnected?selected:[...stage.querySelectorAll('[data-hub-action]')].find(node=>node.dataset.hubAction===destination)||selected;
     const meta={label:selected?.dataset.compassLabel||selected?.textContent?.trim()||'',maturity:selected?.dataset.maturity||'active',context:activeCompassContext||'plan',fromCompass:true};
-    planCompassTransition=true;pendingCompassContext=null;pendingCompassExit=null;clearTimeout(planCompassEntryTimer);++compassContextToken;
+    planCompassTransition=true;pendingCompassContext=null;pendingCompassExit=null;clearTimeout(planCompassEntryTimer);++compassContextToken;cancelCompassFlights();
     try{
-      if(selected){const angle=Number(selected.dataset.planAngle||0);selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${1080+angle}deg`);stage.classList.add('is-navigating');await compassWait(compassMotionReduced()?0:720)}else stage.classList.add('is-navigating');
-      await returnPlanCompassHome(stage);
-    }finally{planCompassTransition=false;activeCompassContext=null;clearPlanCompassVisuals()}
-    return handleHubAction(destination,meta);
+      if(selected){const angle=Number(selected.dataset.planAngle||0),directAngle=((angle+180)%360+360)%360-180;selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${directAngle}deg`);stage.classList.add('is-navigating');await compassWait(compassMotionReduced()?0:720)}else stage.classList.add('is-navigating');
+      void returnPlanCompassHome(stage).catch(error=>console.warn('[Luvia Plan Compass]',error));
+      return await Promise.resolve(handleHubAction(destination,meta));
+    }finally{planCompassTransition=false;activeCompassContext=null;clearPlanCompassVisuals({preserveFlights:true})}
   }
   function choosePlanCompassDirection(button){
     const action=button?.dataset.hubAction;if(!action)return;if(planCompassTransition){pendingCompassExit={destination:action,selected:button};return}
