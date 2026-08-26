@@ -109,7 +109,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Cache/PWA: **the expected cache derives from the release build, old shell caches are pruned only after registration/update, newly active workers reload an already controlled page once, and brand/static assets recover network-first from the current cache only**.
 - Local visible browser evidence: **real Edge pointer, touch, keyboard, reload, browser Back and reduced-motion E2E PASS at desktop plus 390 × 844, 360 × 740 and 320 × 673**.
 - Local PWA evidence: **real Edge Service Worker registration, stale `luvia-shell-v13.17.0` pruning, current `luvia-shell-v13.82.55` activation and offline document/CSS reload PASS**.
-- Candidate validation: **106 / 106 Safe Regression PASS; regenerated visual inventory 2,787 / 672 with 59 CSS files; NFR-0 3 / 3 PASS; cross-Core DB ownership guard PASS without debt growth**.
+- Candidate validation: **106 / 106 Safe Regression PASS; regenerated visual inventory 2,786 / 672 with 59 CSS files; NFR-0 3 / 3 PASS; cross-Core DB ownership guard PASS without debt growth**.
 - Release status: **new immutable Integration version pending; Main and Production remain locked and unchanged**.
 - Database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual Cloudflare configuration change: **NONE**.
 
@@ -207,7 +207,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,787 tracked files; 672 visual candidates; 264 active entry references; 0 unclassified entry references**
+- Exhaustive manifest: **2,786 tracked files; 672 visual candidates; 264 active entry references; 0 unclassified entry references**
 - Canonical CSS baseline: **59 files; 936,476 LF-normalized bytes; 8,339 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 44 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
