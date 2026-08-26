@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.57 / Core 4.82.57
+Runtime: App 13.82.58 / Core 4.82.58
 
 Channel: Integration Preview only
 
@@ -14,9 +14,12 @@ not accepted: parallel user testing reproduced a delayed Compass selection in
 which the selected item moved but the destination appeared not to open. App
 13.82.56 corrected that gate but remained unaccepted: public console evidence
 then proved an outgoing focused direction was placed below `aria-hidden`.
-App 13.82.57 is the corrective Integration candidate. It receives no
-functional acceptance until a new, uninterrupted, real-pointer public E2E run
-and console/accessibility check have visibly completed after deployment and
+App 13.82.57 also remains unaccepted. A second unchanged user recording and
+parallel desktop/mobile testing proved intermittent stationary-page clicks,
+direct primary-navigation fallback to legacy views and dependence on opening
+Plan first. App 13.82.58 is the corrective Integration candidate. It receives
+no functional acceptance until a new, uninterrupted, real-pointer public E2E
+run and console/accessibility check have visibly completed after deployment and
 Service Worker settlement.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
@@ -39,6 +42,24 @@ User evidence:
   briefly exposes a blank/incorrect Compass state and routes to Today instead
   of switching to the Today constellation. Subsequent pointer movement also
   exposes collapsing direction geometry.
+
+Additional unchanged user evidence:
+
+- file: `Luvia – Gemeinsam reisen. Für immer erinnern. und 5 weitere Seiten - Persönlich – Microsoft​ Edge 2026-08-26 13-12-34.mp4`;
+- SHA-256: `D5A5150F06C946ACE4190ADD986091957E568DE550105A2DB0C19377C5C4E627`;
+- unchanged duration/resolution evidence: 73.301 seconds / 1920 × 1020;
+- decisive sequence: at full desktop size, real pointer clicks on Plan
+  directions repeatedly leave the visible view unchanged; the accepted Trip
+  and Memories constellations are available only after opening Plan first,
+  whereas direct primary navigation opens legacy feature compositions. The
+  same non-routing click then recurs in compact mobile size.
+- console capture: `pasted-text.txt`, 46,952 bytes, SHA-256
+  `4E05891B80E6DAAD8E67D6C3FAD26ADFBC880E3CEF552B2EF9A98CAC3094ECB8`.
+  It contains no uncaught application exception and no repeated
+  focus/`aria-hidden` warning. Edge Tracking Prevention, aborted requests and
+  external MapLibre style/sprite warnings are present, but none explains or
+  gates the Compass command path. The failure is therefore bound to the
+  application state/geometry causes below rather than storage prevention.
 
 ## 3. Proven root causes
 
@@ -84,6 +105,21 @@ User evidence:
     Chromium correctly blocked the ARIA change and emitted repeated accessibility
     warnings. Superseded/Back transitions also removed `aria-hidden` without a
     single owner for restoring the host's focusability.
+14. Accepted-context routing was conditional on finding an already-open
+    `[data-plan-compass-stage]`. Direct Today, Trip, Memories or Profile input
+    from a normal feature view therefore executed `show(view)` and exposed the
+    legacy feature composition; opening Plan first accidentally made the same
+    input take the accepted in-stage path.
+15. The remaining hover and selected rules still changed each direction's
+    scale and animated `transform`. The earlier browser assertion compared only
+    the centre point, so a resizing hit box could pass while a physical pointer
+    near its edge observed the item moving away and lost the intended click.
+16. `leavePlanCompass` queued a context selected during destination routing but
+    did not replay `pendingCompassContext` after the route committed. This made
+    fast cross-context input appear intermittently inert.
+17. Broad stage lookup could select a `[data-plan-compass-stage]` below an
+    outgoing `.lv-route-previous` host. Commands then updated the hidden old
+    Compass while the visible current view remained unchanged.
 
 ## 4. Recovery implementation
 
@@ -91,8 +127,11 @@ User evidence:
 
 - Five accepted contexts now live in the same embedded stage: Today, Plan,
   Trip, Memories and Profile.
-- A top-level context click keeps the committed feature route and switches the
-  constellation in place.
+- Every desktop and mobile primary-navigation context target carries explicit
+  Compass intent. Direct Today, Plan, Trip, Memories and Profile clicks now
+  enter the accepted stage even when no Compass was previously open; the
+  committed feature URL remains the context URL while the constellation
+  switches in place.
 - Each context preserves eight primary directions plus the two accepted
   horizon targets and explicitly distinguishes active, foundation and reserved
   maturity without replacing an unfinished destination with legacy UI.
@@ -103,9 +142,10 @@ User evidence:
 - X and Escape return to Today. Arrow keys move direction focus. Compact
   targets remain at least 44 px. Reduced motion removes the flight/animation
   without removing state or action.
-- Rapid context, close and direction input is queued and replayed. Detached
-  selections are resolved against the current stage before the exact action is
-  executed.
+- Rapid context, close and direction input is queued and replayed after the
+  route commits. Stage lookup is restricted to the current non-previous host,
+  and detached selections are resolved against that live stage before the
+  exact action is executed.
 - The shared-element flight is mounted in the persistent `.lv-living-shell`;
   every flight has a common cancellation owner and a bounded fallback. The
   destination action starts after the selection feedback without awaiting the
@@ -116,6 +156,9 @@ User evidence:
   phase. `is-compass-arriving` cross-fades and scales it in only while the
   official Compass reaches the target, then the heading and eight directions
   enter. Context switches no longer spin the needle.
+- Hover and selection never resize or translate the direction element; visual
+  feedback uses opacity only, preserving the full physical pointer/touch hit
+  rectangle from press through route commit.
 - The standalone Luvia Compass navigation control still opens the real
   Intelligence dialog directly.
 - Before an outgoing host becomes hidden, focus is released from any descendant;
@@ -149,13 +192,16 @@ User evidence:
 Real Microsoft Edge browser E2E passed against the assembled Integration
 runtime:
 
-- desktop pointer click, all eight hover hit centres stationary, keyboard
-  arrows, Escape, exact Places routing, rapid browser Back, reload and one-stage
-  cleanup;
+- desktop physical pointer press/release at 1920 × 1020 through all eight Plan
+  directions, with exact hit owner plus unchanged centre, width and height on
+  hover; keyboard arrows, Escape, exact routing, rapid browser Back, reload and
+  one-stage cleanup;
 - touch at 390 × 844, 360 × 740 and 320 × 673 with all eight direction targets
   inside the viewport and at least 44 px;
 - reduced-motion context switch and close-to-Today;
-- all five context constellations;
+- all five context constellations, including direct primary-navigation entry
+  from ordinary Today/Plan/Trip/Memories/Profile views without a Plan-first
+  precondition and entry from Places while preserving `?screen=places`;
 - a deliberately never-finishing Web Animations `finished` promise; the real
   Places click still reached the destination inside the fixed routing budget;
 - direct needle evidence (`Places` = `-90deg`, without `1080deg` addition);
@@ -166,7 +212,7 @@ runtime:
   arrival and cross-fades only in the final shared-element phase;
 - Service Worker registration, deliberate stale
   `luvia-shell-v13.17.0` creation/pruning, active
-  `luvia-shell-v13.82.57` recovery and offline document/CSS reload.
+  `luvia-shell-v13.82.58` recovery and offline document/CSS reload.
 
 Visual evidence is retained locally under
 `test-results/m16.5q/desktop-entry-before-arrival.png`,
@@ -192,10 +238,13 @@ The earlier App 13.82.55 stable-origin sequence is retained only as revoked
 diagnostic evidence. It did not cover the document-timeline throttling race.
 The App 13.82.56 public run proved deterministic routing after Service Worker
 settlement and all eight Plan destinations, but the user's console screenshot
-proved the focus/`aria-hidden` contract still failed. Neither run supports
-functional acceptance.
+proved the focus/`aria-hidden` contract still failed. App 13.82.57 then cleared
+that narrow automated gate, but the second user recording proved its direct
+entry, live-stage ownership, hit-geometry and queued-context behavior still
+failed on desktop and compact mobile. None of these runs supports functional
+acceptance.
 
-Mandatory App 13.82.57 public re-acceptance after deployment:
+Mandatory App 13.82.58 public re-acceptance after deployment:
 
 1. settle the new Service Worker and repeat from the settled controller;
 2. real left-click selection through all five Compass contexts and every Plan
@@ -209,6 +258,9 @@ Mandatory App 13.82.57 public re-acceptance after deployment:
    probe private/local paths;
 6. keep the browser console free of the `Blocked aria-hidden ... retained
    focus` warning throughout the selection/route sequence.
+7. begin from normal Today, Trip, Memories, Profile and Places feature views and
+   prove that each direct desktop/mobile primary-navigation click opens its
+   accepted Compass context without first opening Plan.
 
 Status before deployment: **PENDING — no functional acceptance claimed**.
 
@@ -224,6 +276,9 @@ Consumer source commits:
   routing, timed target-carrier arrival and direct needle angle.
 - `873cfc3a6a2989d3ff40f56d842054bffd746fde` — outgoing-route focus release,
   inert/ARIA pairing and browser regression coverage.
+- `1c4cf04` — deterministic direct context entry, live-stage ownership,
+  stationary hover/selection geometry, queued-context replay and full-size
+  physical pointer regression coverage.
 
 Integration provenance:
 
@@ -234,6 +289,7 @@ Integration provenance:
 - deterministic transition assembly: `57ee461`;
 - App 13.82.56 runtime release candidate: `a3f8614`.
 - route-transition focus integrity assembly: `570fa2e`.
+- App 13.82.58 deterministic Compass assembly: `04a6f3c`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -250,7 +306,15 @@ Superseded, unaccepted App 13.82.56 Integration:
 - deployment ID: `9c407d98-aeba-4538-9a33-e11188ae54cf`;
 - reason superseded: public focus/`aria-hidden` console failure.
 
-App 13.82.57 Cloudflare Integration version/deployment: **PENDING**.
+Superseded, unaccepted App 13.82.57 Integration:
+
+- version ID: `183d62af-5c49-43ce-a148-08ebc8813364`;
+- deployment ID: `b06ef844-3b91-4de8-959b-03bab9fcfdb5`;
+- reason superseded: unchanged real desktop/mobile recording proved direct
+  context, hit-geometry, live-stage and queued-context failures after the
+  narrower focus/ARIA correction.
+
+App 13.82.58 Cloudflare Integration version/deployment: **PENDING**.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -270,7 +334,7 @@ Production remained exactly on deployment
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
-- App 13.82.57 public stable/immutable deployment and uninterrupted visible E2E
+- App 13.82.58 public stable/immutable deployment and uninterrupted visible E2E
   re-acceptance;
 - the remaining M16.5 visual-parity matrix, especially complete Booking and all
   other surfaces not included in this recovery;
@@ -282,10 +346,11 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 5d722f6f-60a0-4c4f-b728-3a1af9b5201e@100 --name integration-luvia --message "Rollback M16.5Q to M16.5P" --yes
+npx wrangler versions deploy 183d62af-5c49-43ce-a148-08ebc8813364@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.57" --yes
 ```
 
-The rollback target is the previous Integration version
-`5d722f6f-60a0-4c4f-b728-3a1af9b5201e` from deployment
-`5f8b9bd5-7ec4-4743-8f72-f3a8d9d8a1ca`. No data rollback is required because
-M16.5Q changed no database, storage schema, Edge Function or secret.
+The rollback target is the immediately previous Integration version
+`183d62af-5c49-43ce-a148-08ebc8813364` from deployment
+`b06ef844-3b91-4de8-959b-03bab9fcfdb5`. It is an operational fallback only,
+not an accepted functional build. No data rollback is required because M16.5Q
+changed no database, storage schema, Edge Function or secret.
