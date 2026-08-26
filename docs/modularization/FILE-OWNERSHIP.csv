@@ -2551,3 +2551,4 @@ tests/fixtures/m16.5q-living-compass-recovery-browser.html,Consumer/Shared Tests
 tests/m16.5q-living-compass-recovery-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer touch hover keyboard reload browser history reduced motion and compact viewport recovery regression
 tests/m16.5q-living-compass-recovery-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,Integration release cache Service Worker Compass contexts exact routing cleanup and Places map recovery lock
 tests/m16.5q-pwa-cache-recovery-e2e.cjs,Platform/Experience Shared Tests,Test/E2E,Real Edge stale cache pruning active Service Worker cache and offline reload recovery evidence
+.assetsignore,Platform,Deployment Configuration,Excludes local M16.5Q browser evidence from the public Cloudflare static asset manifest

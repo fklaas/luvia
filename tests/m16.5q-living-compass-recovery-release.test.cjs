@@ -17,6 +17,7 @@ const places=read('app/places/places-spatial-experience.js');
 const placesCss=read('app/places/places-spatial-experience.css');
 const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
+const assetsIgnore=read('.assetsignore');
 
 assert.match(version,/core:'4\.82\.55'/);
 assert.match(version,/build:'13\.82\.55'/);
@@ -33,6 +34,7 @@ assert.match(pwa,/beforeinstallprompt',event=>\{event\.preventDefault\(\);deferr
 assert.match(pwa,/controlledAtLoad&&!controllerReloadGuard[\s\S]*location\.reload\(\)/,'new active workers must reload an already controlled page exactly once');
 assert.match(worker,/\(\?:js\|css\|json\|webmanifest\|svg\|png\|ico\|html\)/,'versioned static and brand assets must use network-first recovery');
 assert.match(worker,/activeCache\.match\(request,\{ignoreSearch:true\}\)/,'runtime fetches must read only the current shell cache');
+assert.match(assetsIgnore,/(?:^|\n)test-results\/(?:\n|$)/,'local browser evidence must not enter the public Integration asset manifest');
 
 for(const context of ['today','plan','trip','memories','profile'])assert.match(hubs,new RegExp(`${context}:Object\\.freeze`),`Compass context missing: ${context}`);
 assert.match(shell,/openLivingCompassContext\(context\)/,'top-level navigation must switch embedded Compass context');
@@ -54,7 +56,7 @@ assert.match(places,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back action 
 assert.match(places,/data-places-map-fallback/,'honest map fallback markup is required');
 assert.match(placesCss,/\.lv-places-spatial__map-fallback/,'honest bright map fallback styling is required');
 
-for(const file of ['tests/fixtures/m16.5q-living-compass-recovery-browser.html','tests/m16.5q-living-compass-recovery-e2e.cjs','tests/m16.5q-pwa-cache-recovery-e2e.cjs','tests/m16.5q-living-compass-recovery-release.test.cjs'])assert.ok(ownership.includes(file),`ownership registry missing ${file}`);
+for(const file of ['.assetsignore','tests/fixtures/m16.5q-living-compass-recovery-browser.html','tests/m16.5q-living-compass-recovery-e2e.cjs','tests/m16.5q-pwa-cache-recovery-e2e.cjs','tests/m16.5q-living-compass-recovery-release.test.cjs'])assert.ok(ownership.includes(file),`ownership registry missing ${file}`);
 assert.match(runner,/tests\/m16\.5q-living-compass-recovery-release\.test\.cjs/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
