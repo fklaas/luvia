@@ -4,6 +4,13 @@ var LuviaPlacesDomainContractCoreV1=(()=>{
 const VERSION='1';
 const clean=value=>String(value??'').trim();
 const number=value=>value==null||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
+const coordinateNumber=value=>{
+  if(typeof value==='boolean'||value==null)return null;
+  if(typeof value!=='number'&&typeof value!=='string')return null;
+  if(typeof value==='string'&&!value.trim())return null;
+  const normalized=Number(value);
+  return Number.isFinite(normalized)?normalized:null;
+};
 const providerId=value=>clean(value).replace(/^places\//,'');
 const immutable=value=>{
   if(value==null||typeof value!=='object')return value;
@@ -57,8 +64,9 @@ function createDeepLink(input={}){
 
 function coordinatesProjection(input){
   if(!input||typeof input!=='object')return null;
-  const latitude=number(input.latitude??input.lat),longitude=number(input.longitude??input.lng);
-  if(latitude==null&&longitude==null)return null;
+  const latitude=coordinateNumber(input.latitude??input.lat),longitude=coordinateNumber(input.longitude??input.lng);
+  if(latitude==null||longitude==null)return null;
+  if(latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
   return immutable({latitude,longitude});
 }
 function projectPlace(input){
@@ -74,7 +82,7 @@ function projectPlace(input){
     roles:[...(input.roles||[])].map(String),
     name:clean(input.name||input.displayName?.text||input.displayName)||'Unbenannter Ort',
     description:clean(input.description||input.editorialSummary?.text||input.editorialSummary),
-    coordinates:coordinatesProjection(input.coordinates||input.position||{latitude:input.latitude,longitude:input.longitude}),
+    coordinates:coordinatesProjection(input.coordinates||input.position||input.location||{latitude:input.latitude,longitude:input.longitude}),
     address:clean(input.address||input.formattedAddress||input.formatted_address),
     lifecycle:clean(input.lifecycle||input.lifecycleStatus||input.lifecycle_status||input.status)||'discovered',
     isFavorite:typeof input.isFavorite==='boolean'?input.isFavorite:(typeof input.is_favorite==='boolean'?input.is_favorite:null),

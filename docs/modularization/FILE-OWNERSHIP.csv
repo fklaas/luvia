@@ -2513,3 +2513,5 @@ tests/m15.7-booking-route-cors-acceptance.test.cjs,Booking/Shared Tests,Test/Gua
 tests/m15.8-intelligence-day-intent-rich-result.test.cjs,Intelligence/Shared Tests,Test/Guardrail,Natural language day-planning intent routing into Journey Rich Results
 docs/modularization/RELEASE-NOTES-M15.md,Platform/Intelligence/Booking/Places/Experience,Documentation/Release,M15 runtime release incidents infrastructure Preview Production rollback and provenance
 docs/modularization/TEST-RESULTS-M15.md,Platform/Intelligence/Booking/Places/Experience,Documentation/Test Evidence,M15 automated Function byte privacy authenticated browser responsive and reload evidence
+tests/m16.5n-places-coordinate-projection-hardening.test.cjs,Places/Shared Tests,Test/Guardrail,M16.5N browserless complete finite WGS84 coordinate and provider location projection guard
+docs/modularization/PCR-M16.5N-PLACES-COORDINATE-HARDENING.md,Places,Documentation/Architecture,M16.5N Places owner coordinate projection scope behavior tests and rollback evidence
