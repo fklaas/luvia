@@ -21,6 +21,10 @@
   const productDemoSteps = [...root.querySelectorAll(".product-demo-steps li")];
   const compassCore = root.querySelector("[data-compass-next]");
   const compassCurrent = root.querySelector("[data-compass-current]");
+  const compassGate = root.querySelector("[data-compass-gate]");
+  const compassGateCore = root.querySelector("[data-compass-gate-toggle]");
+  const compassGatePaths = root.querySelector(".compass-gate-paths");
+  const gateIntents = [...root.querySelectorAll("[data-gate-intent]")];
   const compassStageNames = Object.freeze({ top: "Vorfreude", story: "Planen", live: "Erleben", memory: "Erinnern" });
   const compassTurns = Object.freeze({ top: -18, story: 42, live: 132, memory: 222 });
   const sections = threadButtons.map(button => ({
@@ -212,7 +216,9 @@
     if (livingCompass && productDemo) {
       const productRect = productDemo.getBoundingClientRect();
       const productOwnsViewport = productRect.top < viewportHeight * .64 && productRect.bottom > viewportHeight * .34;
-      livingCompass.classList.toggle("is-product-preview", productOwnsViewport);
+      const gateRect = compassGate?.getBoundingClientRect();
+      const gateOwnsViewport = Boolean(gateRect && gateRect.top < viewportHeight * .72 && gateRect.bottom > viewportHeight * .28);
+      livingCompass.classList.toggle("is-product-preview", productOwnsViewport || gateOwnsViewport);
     }
     updateSceneMotion(viewportHeight, viewportWidth);
     updateProductTheater(viewportHeight);
@@ -261,6 +267,16 @@
     frame = requestAnimationFrame(update);
   }
 
+  function setCompassGateOpen(open, { focusPath = false } = {}) {
+    if (!compassGate || !compassGateCore || !compassGatePaths) return;
+    compassGate.classList.toggle("is-open", open);
+    compassGateCore.setAttribute("aria-expanded", String(open));
+    compassGatePaths.setAttribute("aria-hidden", String(!open));
+    if (open && focusPath) {
+      window.setTimeout(() => compassGatePaths.querySelector("a")?.focus({ preventScroll: true }), reduced ? 0 : 640);
+    }
+  }
+
   threadButtons.forEach(button => button.addEventListener("click", () => {
     const target = button.dataset.threadTarget === "top" ? hero : root.querySelector(`#${button.dataset.threadTarget}`);
     target?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
@@ -274,6 +290,25 @@
     next?.section?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   });
 
+  gateIntents.forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
+    setCompassGateOpen(false);
+    compassGate?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    if (event.detail === 0) window.setTimeout(() => compassGateCore?.focus({ preventScroll: true }), reduced ? 0 : 720);
+  }, { signal: lifecycle.signal }));
+
+  compassGateCore?.addEventListener("click", event => {
+    const open = !compassGate?.classList.contains("is-open");
+    setCompassGateOpen(open, { focusPath: event.detail === 0 });
+  }, { signal: lifecycle.signal });
+
+  compassGate?.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !compassGate.classList.contains("is-open")) return;
+    event.preventDefault();
+    setCompassGateOpen(false);
+    compassGateCore?.focus({ preventScroll: true });
+  }, { signal: lifecycle.signal });
+
   window.addEventListener("scroll", queue, { passive: true, signal: lifecycle.signal });
   window.addEventListener("resize", queue, { passive: true, signal: lifecycle.signal });
   initLivingMap();
@@ -282,10 +317,11 @@
     lifecycle.abort();
     revealObserver?.disconnect?.();
     livingMap?.remove?.();
+    setCompassGateOpen(false);
     if (frame) cancelAnimationFrame(frame);
     document.documentElement.classList.remove('motion-linked');
   };
   }
 
-  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.68', mount });
+  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.71', mount });
 })();

@@ -21,9 +21,9 @@
     <nav aria-label="Öffentliche Navigation">
       <a href="#product-demo">App live erleben</a>
       <a href="#story">So lebt Luvia</a>
-      <a href="#begin">Reise beginnen</a>
+      <a href="#compass-gate">Reise beginnen</a>
     </nav>
-    <div class="public-actions"><a class="text-link" href="#anmelden" data-public-auth="login" data-cinematic-link>Anmelden</a><a class="primary-link" href="#registrieren" data-public-auth="register" data-cinematic-link data-magnetic data-haptic="navigate">Luvia erleben</a></div>
+    <div class="public-actions"><a class="text-link" href="#compass-gate" data-gate-intent="login">Weiterreisen</a><a class="primary-link" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Reise beginnen</a></div>
   </header>
 
   <aside class="journey-thread living-compass-thread" data-living-compass data-compass-stage="top" aria-label="Living Compass – Reiseverlauf dieser Seite">
@@ -50,9 +50,9 @@
       <div class="public-hero-shade"></div>
       <div class="public-hero-copy" data-reveal>
         <span class="kicker"><i></i> Eine Reise, ein lebendiger Zusammenhang</span>
-        <h1 id="public-hero-title">Nicht nur planen.<br><em>Vorfreude, Erleben und Erinnern.</em></h1>
-        <p>Luvia verbindet eure Wünsche, Orte, Wege, Buchungen und Erinnerungen – und hält euch trotzdem immer in Kontrolle.</p>
-        <div class="hero-actions"><a class="primary-link large" href="#registrieren" data-public-auth="register" data-cinematic-link data-magnetic data-haptic="navigate">Deine Luvia beginnen</a><a class="soft-link" href="#story">Entdecken, wie Luvia lebt <span>↓</span></a></div>
+        <h1 id="public-hero-title">Deine Reise beginnt<br><em>nicht mit einem Formular.</em></h1>
+        <p>Luvia verbindet Wünsche, Orte, Wege und Erinnerungen zu einer Reise, die sich bewegt – geführt vom Living Compass und immer unter deiner Kontrolle.</p>
+        <div class="hero-actions"><a class="primary-link large" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Dem Compass folgen</a><a class="soft-link" href="#story">Erst Luvia entdecken <span>↓</span></a></div>
       </div>
       <aside class="hero-live-card" data-float data-reveal aria-label="Beispiel für einen lebendigen Reisetag">
         <span class="live-label"><i></i> Gerade unterwegs</span>
@@ -75,7 +75,7 @@
           <li><span>03</span><div><strong>Funktion erleben</strong><small>Der Compass kehrt zurück; nur das Ziel erscheint.</small></div></li>
         </ol>
         <div class="product-demo-actions">
-          <a class="primary-link large" href="tests/fixtures/m16.5q-living-compass-recovery-browser.html?screen=today&amp;surface=landing" data-cinematic-link data-magnetic>Demo groß öffnen</a>
+          <a class="primary-link large" href="app/demo/living-compass-browser.html?screen=today&amp;surface=landing" data-cinematic-link data-magnetic>Demo groß öffnen</a>
           <span><i></i> Keine echten Buchungen · sicher gekennzeichnete Beispieldaten</span>
         </div>
       </div>
@@ -84,7 +84,7 @@
         <div class="product-phone-glow" aria-hidden="true"></div>
         <div class="product-phone-frame">
           <div class="product-phone-speaker" aria-hidden="true"></div>
-          <iframe src="tests/fixtures/m16.5q-living-compass-recovery-browser.html?screen=today&amp;surface=landing" title="Interaktive Luvia-App mit Beispieldaten" loading="eager"></iframe>
+          <iframe src="app/demo/living-compass-browser.html?screen=today&amp;surface=landing" title="Interaktive Luvia-App mit Beispieldaten" loading="eager"></iframe>
           <div class="product-phone-home" aria-hidden="true"></div>
         </div>
         <span class="product-demo-badge"><i></i> Live bedienbar · Ostseeurlaub als Beispieldatensatz</span>
@@ -163,7 +163,33 @@
         <i>→</i>
         <article class="accent-choice" data-reveal data-motion="stagger-card" data-motion-delay="2"><span class="begin-mark">✦</span><small>Was wird euer roter Faden?</small><strong>Coral begleitet diese Reise.</strong><div><b></b><b></b><b></b><b></b></div></article>
       </div>
-      <a class="primary-link large" href="#registrieren" data-public-auth="register" data-cinematic-link data-magnetic data-haptic="navigate">Deine Luvia beginnen</a>
+      <a class="primary-link large" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Zum Living Compass</a>
+    </section>
+
+    <section id="compass-gate" class="compass-gate motion-scene" data-motion-scene data-compass-gate aria-labelledby="compass-gate-title">
+      <header data-reveal data-motion="fade-zoom">
+        <span class="kicker coral">Der Anfang gehört dir</span>
+        <h2 id="compass-gate-title">Wohin darf Luvia<br><em>dich zuerst führen?</em></h2>
+        <p>Öffne den Living Compass. Erst dann zeigt er dir die zwei Wege in deine Reisewelt.</p>
+      </header>
+      <div class="compass-gate-stage" data-reveal data-motion="fade-zoom">
+        <span class="compass-gate-halo halo-one" aria-hidden="true"></span>
+        <span class="compass-gate-halo halo-two" aria-hidden="true"></span>
+        <button class="compass-gate-core" type="button" data-compass-gate-toggle aria-expanded="false" aria-controls="compassGatePaths">
+          <span class="compass-gate-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="compass-gate-shell" aria-hidden="true"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><i></i></span>
+          <span class="compass-gate-label"><small>Living Compass</small><strong>Öffnen</strong></span>
+        </button>
+        <span class="compass-gate-hand" aria-hidden="true"><i>☝</i><b>Hier beginnt deine Richtung</b></span>
+        <nav id="compassGatePaths" class="compass-gate-paths" aria-label="Wähle deinen Weg zu Luvia" aria-hidden="true">
+          <a class="compass-path path-login" href="#anmelden" data-public-auth="login" data-cinematic-link>
+            <small>Ich bin schon dabei</small><strong>Weiterreisen</strong><span>→</span>
+          </a>
+          <a class="compass-path path-register" href="#registrieren" data-public-auth="register" data-cinematic-link data-haptic="navigate">
+            <small>Ich bin neu hier</small><strong>Meine Reise beginnen</strong><span>→</span>
+          </a>
+        </nav>
+      </div>
     </section>
   </main>
 

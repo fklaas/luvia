@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.82.68';
+  const VERSION = '13.82.71';
   const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
   const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
   let activeContainer = null;
@@ -67,6 +67,10 @@
           <a class="lv-public-auth-brand" href="#top" data-public-auth-close aria-label="Zurück zur Luvia Startseite"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><span><b>LUVIA</b><small>Reisen, die mit dir leben.</small></span></a>
           <button class="lv-public-auth-close" type="button" data-public-auth-close aria-label="Anmeldung schließen">×</button>
         </header>
+        <div class="lv-public-auth-compass-guide" aria-label="Der Living Compass begleitet deine ersten Schritte">
+          <div class="lv-public-auth-compass-character" aria-hidden="true"><i></i><i></i><img src="assets/public-landing/luvia-compass-brand.svg" alt=""></div>
+          <div><span>Living Compass · Kapitel 1</span><strong>Erst sicher ankommen. Dann entdecken wir, wie du reisen möchtest.</strong><p>Nach der E-Mail-Bestätigung führt dich der Compass beim ersten Anmelden spielerisch durch deine Reisewelt.</p><div class="lv-public-auth-preference-preview" aria-hidden="true"><b>Ernährung</b><b>Rhythmus</b><b>Mobilität</b><b>Menschen</b></div></div>
+        </div>
         <div class="lv-public-auth-copy"><span data-public-auth-kicker>Willkommen zurück</span><h2 id="lvPublicAuthTitle" data-public-auth-title>Anmelden</h2><p data-public-auth-description>Öffne deine Reisen dort, wo du aufgehört hast.</p></div>
         <div class="lv-public-auth-host" data-public-auth-host></div>
         <p class="lv-public-auth-trust">Private Reisen · klare Kontrolle · nachvollziehbare Wirkungen</p>
@@ -77,7 +81,7 @@
   function updateAuthCopy(layer, mode) {
     const copy = {
       login: ['Willkommen zurück', 'Anmelden', 'Öffne deine Reisen dort, wo du aufgehört hast.'],
-      register: ['Deine erste Reise beginnt', 'Luvia erleben', 'Erstelle nur dein sicheres Konto. Profil und Reise entstehen anschließend in Ruhe.'],
+      register: ['Deine Reise beginnt hier', 'Lass uns losreisen', 'Heute legst du nur deinen sicheren Zugang an. Nach der E-Mail-Bestätigung übernimmt der Living Compass und lernt mit dir deine Reisewelt kennen.'],
       recovery: ['Sicher zurück zu deiner Reise', 'Neues Passwort festlegen', 'Lege ein neues Passwort für dein bestehendes Luvia-Konto fest.']
     }[mode] || [];
     layer.querySelector('[data-public-auth-kicker]').textContent = copy[0] || '';

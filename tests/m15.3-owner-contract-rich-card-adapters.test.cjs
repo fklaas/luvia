@@ -18,13 +18,13 @@ for(const forbidden of ['LuviaBookingRepository','.from(','.rpc(','functions.inv
 assert.ok(placesSource.includes('async function getCard(placeId,options={})'));
 assert.ok(placesSource.includes("cardMedia:'owner-adapter-projection'"));
 const order=[
-  'core/intelligence/intelligence-action-contract-core.js?v=13.82.68',
-  'core/platform/booking-contract-adapter.js?v=13.82.68',
-  'core/platform/journey-contract-adapter.js?v=13.82.68',
-  'core/platform/trip-contract-adapter.js?v=13.82.68',
-  'core/platform/places-contract-adapter.js?v=13.82.68',
-  'core/ai/ai-action-runtime.js?v=13.82.68',
-  'core/ai/ai-dashboard-service.js?v=13.82.68'
+  'core/intelligence/intelligence-action-contract-core.js?v=13.82.71',
+  'core/platform/booking-contract-adapter.js?v=13.82.71',
+  'core/platform/journey-contract-adapter.js?v=13.82.71',
+  'core/platform/trip-contract-adapter.js?v=13.82.71',
+  'core/platform/places-contract-adapter.js?v=13.82.71',
+  'core/ai/ai-action-runtime.js?v=13.82.71',
+  'core/ai/ai-dashboard-service.js?v=13.82.71'
 ];
 for(const asset of order)assert.ok(index.includes(asset),`M15 runtime asset missing: ${asset}`);
 const actionCoreIndex=index.indexOf(order[0]);
@@ -33,7 +33,7 @@ assert.ok(actionCoreIndex<actionRuntimeIndex,'browserless action policy must loa
 for(const ownerAsset of order.slice(1,5))assert.ok(index.indexOf(ownerAsset)<actionRuntimeIndex,`${ownerAsset} must load before the Web action runtime`);
 assert.ok(actionRuntimeIndex<index.indexOf(order[6]),'the chat must load only after its action runtime');
 for(const asset of ['core/intelligence/intelligence-action-contract-core.js','core/ai/ai-action-runtime.js'])assert.ok(serviceWorker.includes(`'${asset}'`),`Service Worker misses ${asset}`);
-assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.68'"));
+assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.71'"));
 
 const registrations=[];
 const window={
