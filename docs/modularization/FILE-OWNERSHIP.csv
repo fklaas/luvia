@@ -2538,3 +2538,5 @@ docs/modularization/PCR-M16.5L-PRODUCTIVE-PLAN-COMPASS-RUNTIME-RELEASE.md,Platfo
 tests/m16.5l-productive-plan-compass-runtime-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,App Core cache entry productive Plan Compass parity lock Safe Regression registration and ownership guard
 docs/modularization/PCR-M16.5M-PLAN-COMPASS-NAVIGATION-ALIGNMENT.md,Platform/Experience,Documentation/Architecture,M16.5M responsive central navigation Compass alignment immutable Integration provenance release lock and rollback
 tests/m16.5m-plan-compass-navigation-alignment.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,Mobile five-column dock normal-flow Compass sizing cache version parity lock and ownership guard
+tests/m16.5n-places-coordinate-projection-hardening.test.cjs,Places/Shared Tests,Test/Guardrail,M16.5N browserless complete finite WGS84 coordinate and provider location projection guard
+docs/modularization/PCR-M16.5N-PLACES-COORDINATE-HARDENING.md,Places,Documentation/Architecture,M16.5N Places owner coordinate projection scope behavior tests and rollback evidence
