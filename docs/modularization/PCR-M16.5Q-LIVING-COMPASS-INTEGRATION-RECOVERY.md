@@ -438,11 +438,53 @@ and live-update defects later reproduced by the user:
 Historical App 13.82.60 result: **the then-current local and public matrix
 passed, but the functional/visual acceptance based on that matrix is revoked.**
 
-App 13.82.61 status before publication: **LOCAL EDGE COMPASS E2E PASS; LOCAL
-EDGE PWA E2E PASS; 106 / 106 SAFE REGRESSION PASS; PUBLIC VISIBLE E2E PENDING.**
-No App 13.82.61 functional acceptance may be recorded until a real visible
-pointer sequence has passed on the newly deployed stable origin and the
-immutable artifact has been matched to that exact release.
+App 13.82.61 public stable-origin recovery E2E completed after deployment in a
+separate authenticated in-app browser tab with coordinate-based CUA pointer
+input rather than DOM-dispatched clicks:
+
+1. the loaded `index.html`, kernel, PWA service and App Shell referenced only
+   `13.82.61`; a real reload retained the exact
+   `?screen=plan&qa=m165q-138261-public-back-reload` deep link and one ready Plan
+   Compass stage;
+2. real sidebar left-clicks switched Plan → Trip → Plan. Timed samples first
+   retained the eight Trip labels under `is-context-leaving` with
+   `lv-plan-direction-pop-out`, then replaced them with the eight Plan labels
+   under `is-context-entering` and `lv-plan-direction-pop-in`. The top-left
+   source Compass remained at opacity 0 throughout, while the bounded context
+   needle changed direction without affecting concrete-selection semantics;
+3. settled idle samples changed the nested direction transform from about
+   `-1.59px` to `+0.81px` and changed the needle transform, while the outer
+   Places hit rectangle stayed exactly `149.99998474121094 × 60` at the same
+   coordinates. A real pointer hover lifted/scaled only the nested surface and
+   again left that outer rectangle unchanged;
+4. both the lower `Profil` navigation item and the upper `Profil öffnen` avatar
+   entered the Profile Compass with eight Profile directions, the accepted
+   heading and no legacy dialog. The source Compass stayed detached;
+5. a real Places left-click kept the selected rectangle byte-for-byte fixed,
+   set `--lv-plan-selection-angle:-90deg`, produced the direct needle matrix
+   with `animation-name:none`, committed `?screen=places`, and then reduced both
+   carrier opacity and effective mark opacity to 0 before stage cleanup. No
+   white carrier remained after the Compass left;
+6. productive Places settled at 18 Scharbeutz results, six visible
+   coordinate-qualified results and six live MapLibre markers. A physical map
+   marker hit selected FoodRunner Scharbeutz; selected marker and selected card
+   shared the exact `place-result-5` `aria-controls`/DOM id. Document overflow
+   was zero in the connected public viewport;
+7. in a second isolated authenticated tab, the Places URL committed 1.088
+   seconds after the real press. The first immediate Browser Back restored the
+   exact Plan deep link with one ready Plan stage, zero Places surfaces and zero
+   `.lv-route-previous` hosts;
+8. neither public tab produced a browser-console entry, and no spontaneous
+   reload/flicker occurred during the uninterrupted context/selection sequence;
+9. all 11 changed runtime assets are byte-exact between source commit, stable
+   origin and immutable origin. The immutable hostname remains unauthenticated
+   by design because session credentials are origin-scoped.
+
+Status after publication: **LOCAL EDGE COMPASS E2E PASS; LOCAL EDGE PWA E2E
+PASS; 106 / 106 SAFE REGRESSION PASS; AUTHENTICATED PUBLIC VISIBLE CUA RECOVERY
+E2E PASS; IMMUTABLE ASSET PARITY PASS.** This accepts only the corrected M16.5Q
+recovery matrix. It does not complete the overall M16.5 visual-parity matrix,
+the user's Design Freeze or any Main/Production promotion.
 
 ## 7. Source and deployment provenance
 
@@ -489,7 +531,7 @@ Integration provenance:
 - App 13.82.60 human-interaction/motion assembly: `9b4bbc4`; runtime release
   commit: `bc3549eeadbbb117469dd2340b1a022700ded644`.
 - App 13.82.61 choreography assembly: `59a0368`; release source commit:
-  **PENDING**.
+  `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -551,13 +593,15 @@ Superseded, unaccepted App 13.82.60 Cloudflare Integration evidence:
 
 App 13.82.61 Cloudflare Integration evidence:
 
-- source commit: **PENDING**;
-- version ID: **PENDING**;
-- deployment ID: **PENDING**;
-- traffic: **PENDING**;
+- source commit: `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`;
+- version ID: `65cc6c08-df40-424a-9658-9a643a26a0bd`;
+- deployment ID: `bfae734c-fbf6-41bb-8264-9883118888c2`;
+- traffic: 100%;
 - stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
-- immutable URL: **PENDING**;
-- authenticated stable-origin visible E2E and immutable byte parity: **PENDING**.
+- immutable URL:
+  `https://65cc6c08-integration-luvia.njwnrvwbv5.workers.dev/`;
+- authenticated stable-origin visible CUA E2E and immutable byte parity: PASS;
+- changed runtime asset parity: 11 / 11 exact on both stable and immutable.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
