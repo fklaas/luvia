@@ -287,5 +287,5 @@
   };
   }
 
-  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.67', mount });
+  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.68', mount });
 })();

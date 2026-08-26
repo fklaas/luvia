@@ -14,7 +14,7 @@ const safe=read('tests/run-m4.3-safe-regression.cjs');
 assert.match(entry,/LuviaOwnerFlowNavigationV1/);
 assert.match(entry,/window\.addEventListener\('popstate', syncAuthToLocation/);
 assert.match(entry,/history\[replace \? 'replaceState' : 'pushState'\]/);
-assert.match(entry,/if \(history\.state\?\.luviaPublicAuth\) history\.back\(\)/);
+assert.match(entry,/if \(history\.state\?\.luviaPublicAuth\) \{\s*history\.back\(\);\s*setTimeout\(clearAuthHash, 450\)/);
 assert.doesNotMatch(entry,/location\.(?:assign|replace|reload)/,'Public Landing/Auth must not perform document navigation for local auth states');
 
 assert.match(bookings,/LuviaOwnerFlowNavigationV1\.openBooking\(url\)/);

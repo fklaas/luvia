@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.82.67';
+  const VERSION = '13.82.68';
   const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
   const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
   let activeContainer = null;
@@ -100,10 +100,16 @@
     layer.removeAttribute('data-auth-mode');
     document.body.classList.remove('lv-public-auth-open');
     if (updateHistory && !recoveryRequested() && Object.values(AUTH_HASHES).includes(window.location.hash)) {
-      const url = new URL(window.location.href);
-      url.hash = '';
-      if (history.state?.luviaPublicAuth) history.back();
-      else history.replaceState({ luviaPublicAuth: null }, '', `${url.pathname}${url.search}`);
+      const clearAuthHash = () => {
+        if (!Object.values(AUTH_HASHES).includes(window.location.hash)) return;
+        const url = new URL(window.location.href);
+        url.hash = '';
+        history.replaceState({ luviaPublicAuth: null }, '', `${url.pathname}${url.search}`);
+      };
+      if (history.state?.luviaPublicAuth) {
+        history.back();
+        setTimeout(clearAuthHash, 450);
+      } else clearAuthHash();
     }
     if (restoreFocus && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     previousFocus = null;
@@ -139,7 +145,8 @@
 
   function syncAuthToLocation() {
     const mode = authModeFromLocation();
-    if (mode) openAuth(mode, { updateHistory: false, focus: false });
+    const layer = activeRoot?.querySelector('[data-public-auth-layer]');
+    if (mode) openAuth(mode, { updateHistory: false, focus: Boolean(layer?.hidden) });
     else closeAuth({ updateHistory: false, restoreFocus: false });
   }
 

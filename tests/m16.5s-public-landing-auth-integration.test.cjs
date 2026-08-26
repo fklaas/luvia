@@ -13,15 +13,17 @@ const authUi = read('auth/ui.js');
 const landing = read('app/public-landing.html');
 const sw = read('sw.js');
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.67" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.67" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.67') < index.indexOf('app/public-entry.js?v=13.82.67'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.67') < index.indexOf('app/public-entry.js?v=13.82.67'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.68" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.68" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.68') < index.indexOf('app/public-entry.js?v=13.82.68'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.68') < index.indexOf('app/public-entry.js?v=13.82.68'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /link\[data-luvia-public-landing-style\]/);
 assert.match(entry, /AUTH_HASHES = Object\.freeze\(\{ login: '#anmelden', register: '#registrieren' \}\)/);
 assert.match(entry, /window\.addEventListener\('popstate', syncAuthToLocation/);
+assert.match(entry, /focus: Boolean\(layer\?\.hidden\)/);
+assert.match(entry, /setTimeout\(clearAuthHash, 450\)/);
 assert.match(entry, /renderRecoveryForm/);
 assert.match(entry, /window\.LuviaGuidedJourneyEntry = Object\.freeze/);
 
@@ -50,7 +52,7 @@ for (const asset of [
   assert.match(sw, new RegExp(`assets/public-landing/${asset.replace('.', '\\.').replace('-', '\\-')}`));
 }
 
-assert.match(sw, /luvia-shell-v13\.82\.67/);
+assert.match(sw, /luvia-shell-v13\.82\.68/);
 assert.match(sw, /app\/public-landing\.html/);
 assert.match(sw, /app\/public-landing-motion\.js/);
 
