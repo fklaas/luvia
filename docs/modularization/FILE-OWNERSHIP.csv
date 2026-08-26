@@ -2540,3 +2540,8 @@ docs/modularization/PCR-M16.5M-PLAN-COMPASS-NAVIGATION-ALIGNMENT.md,Platform/Exp
 tests/m16.5m-plan-compass-navigation-alignment.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,Mobile five-column dock normal-flow Compass sizing cache version parity lock and ownership guard
 tests/m16.5n-places-coordinate-projection-hardening.test.cjs,Places/Shared Tests,Test/Guardrail,M16.5N browserless complete finite WGS84 coordinate and provider location projection guard
 docs/modularization/PCR-M16.5N-PLACES-COORDINATE-HARDENING.md,Places,Documentation/Architecture,M16.5N Places owner coordinate projection scope behavior tests and rollback evidence
+app/places/places-spatial-composition-core.js,Consumer/Experience,Composition Core,Deterministic public places.v1 spatial result marker bounds and state projection without Domain Truth
+app/places/places-spatial-experience.js,Consumer/Experience,Adapter/Web,Productive light Places search map results actions and public owner-contract orchestration
+app/places/places-spatial-experience.css,Consumer/Experience,Presentation,Accepted light Corporate Places spatial stage responsive accessibility and reduced-motion styling
+docs/modularization/PCR-M16.5O-PRODUCTIVE-PLACES-SPATIAL-EXPERIENCE.md,Consumer/Places/Experience,Documentation/Architecture,M16.5O productive Places spatial composition ownership coordinate integrity accessibility and rollback lock
+tests/m16.5n-productive-places-spatial-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,Productive Places composition coordinate map owner-boundary responsive accessibility and cache guard

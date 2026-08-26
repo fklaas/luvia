@@ -50,6 +50,7 @@ assert.match(cssScope,/@media\(max-width:390px\)/,'compact Plan stage adaptation
 assert.match(cssScope,/\.lv-living-shell:has\(\.lv-view-host\[data-view="plan"\]\)\{padding-bottom:0\}/,'mobile Plan stage must not create document scrolling behind the fixed dock');
 assert.match(cssScope,/@media\(prefers-reduced-motion:reduce\)/,'reduced-motion fallback is missing');
 assert.match(cssScope,/\.lv-plan-compass-needle\{[^}]*transform:rotate\(var\(--lv-plan-selection-angle/,'only the official native needle must receive the selection angle');
+assert.doesNotMatch(cssScope,/\.is-navigating \.lv-plan-direction\{[^}]*scale:/,'unselected directions must fade in place instead of collapsing toward a shared point');
 assert.doesNotMatch(cssScope,/\.lv-plan-compass-mark\{[^}]*animation:[^}]*rotate/,'the complete Compass mark may not rotate');
 assert.doesNotMatch(cssScope,/\.lv-plan-compass-core::before/,'a synthetic external needle may not be introduced');
 assert.equal(/!important/i.test(cssScope),false,'M16.5K may not add new !important debt');
