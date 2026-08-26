@@ -20,7 +20,7 @@ assert.strictEqual(actual.milestone, 'M16.5');
 assert(actual.summary.trackedFiles > 1000, 'Tracked-file inventory is unexpectedly small');
 assert(actual.summary.visualCandidates > 100, 'Visual candidate inventory is unexpectedly small');
 assert.strictEqual(actual.summary.css.files, 59, 'M16.5 CSS baseline file count changed unexpectedly');
-assert.strictEqual(actual.summary.css.bytes, 936311, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
+assert.strictEqual(actual.summary.css.bytes, 936701, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
 assert.strictEqual(actual.summary.css.important, 3228, 'M16.5 !important baseline changed unexpectedly');
 assert.strictEqual(actual.summary.css.literalHexColours, 2924, 'M16.5 literal colour baseline changed unexpectedly');
 assert.strictEqual(actual.summary.css.zIndexDeclarations, 274, 'M16.5 z-index baseline changed unexpectedly');

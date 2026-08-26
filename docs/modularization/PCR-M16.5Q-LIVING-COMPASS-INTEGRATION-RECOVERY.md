@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.59 / Core 4.82.59
+Runtime: App 13.82.60 / Core 4.82.60
 
 Channel: Integration Preview only
 
@@ -20,7 +20,12 @@ direct primary-navigation fallback to legacy views and dependence on opening
 Plan first. App 13.82.58 corrected those four narrow causes, but public
 authenticated testing and simultaneous user testing then reproduced an older
 delayed Places/Compass operation overwriting a newer navigation intent. App
-13.82.59 is the corrective Integration candidate. It receives
+13.82.59 also remains unaccepted. It passed automation that waited for the
+Compass to settle, but unchanged human pointer testing reproduced the inert
+selection on both the integrated and external browsers; the first Browser Back
+during a still-mounting Places route was ineffective; and the accepted motion
+reference exposed a premature white carrier plus an incorrect needle handoff.
+13.82.60 is the corrective Integration candidate. It receives
 no functional acceptance until a new, uninterrupted, real-pointer public E2E
 run and console/accessibility check have visibly completed after deployment and
 Service Worker settlement.
@@ -62,7 +67,20 @@ Additional unchanged user evidence:
   focus/`aria-hidden` warning. Edge Tracking Prevention, aborted requests and
   external MapLibre style/sprite warnings are present, but none explains or
   gates the Compass command path. The failure is therefore bound to the
-  application state/geometry causes below rather than storage prevention.
+   application state/geometry causes below rather than storage prevention.
+
+Binding accepted-motion reference:
+
+- file: `Luvia M16.5E — Signed-in Living Product und 1 weitere Seite - Persönlich – Microsoft​ Edge 2026-08-26 14-34-16.mp4`;
+- bytes / SHA-256: `54,880,341` /
+  `CFA1998083F3A5C2158F11ACB392CD9C5A37ED862FE348128E30B27196424224`;
+- unchanged duration/resolution evidence: 50.211633 seconds / 1920 × 1020;
+- binding sequence: the source Compass flies into a still-empty atmospheric
+  stage; the Compass and white carrier materialize together only in the final
+  handoff; heading and eight fixed orbital points follow with a radial stagger;
+  a selected point stays in place with a coral underlay while all others fade;
+  and the two-ended needle turns directly to that selected point without a
+  search loop before the Compass returns to the brand source.
 
 ## 3. Proven root causes
 
@@ -130,6 +148,22 @@ Additional unchanged user evidence:
     destination. The public authenticated sequence reproduced this under real
     Places data load; parallel user testing reproduced it in both integrated
     and external browsers.
+19. App 13.82.59 tests waited for `.is-ready` and then another settlement delay.
+    A human could press while a visible direction was still entering; if the
+    browser's pointer target changed between `pointerdown` and `pointerup`, the
+    native click was lost even though the point visibly reacted or shifted.
+20. `commitScreenIntent` ran only after asynchronous module activation. During
+    a slow Places mount there was no committed Places history entry yet, so the
+    first Browser Back could not restore Plan and the late mount could still
+    write stale visible state.
+21. `leavePlanCompass` kept the global visual-transition lock for the complete
+    asynchronous destination mount. A newer Back/Plan intent could render, but
+    its entry was denied by that old lock; when the older task settled, its
+    global cleanup then removed readiness from the newer Compass stage.
+22. The carrier was allowed to reveal while the target Compass mark remained
+    forced invisible until `is-ready`, and the return-flight clone lost the
+    inherited signed selection angle. This separated the white disc from the
+    arriving mark and could reset the needle during a still-visible exit frame.
 
 ## 4. Recovery implementation
 
@@ -147,8 +181,9 @@ Additional unchanged user evidence:
   maturity without replacing an unfinished destination with legacy UI.
 - The selected direction remains stationary, the official two-ended needle
   aligns by the shortest signed angle in `[-180deg, 180deg]`, and non-selected
-  directions fade at their orbital positions. No decorative revolution is
-  added.
+  directions fade at their orbital positions. The selected point receives the
+  accepted coral underlay and remains calmly visible for the bounded 620 ms
+  reference hold. No decorative revolution is added.
 - X and Escape return to Today. Arrow keys move direction focus. Compact
   targets remain at least 44 px. Reduced motion removes the flight/animation
   without removing state or action.
@@ -159,9 +194,14 @@ Additional unchanged user evidence:
 - Every Compass/context/route command carries a monotonic user-intent sequence.
   A delayed animation, module mount or queued context may finish cleanup, but
   it cannot execute or replay after a newer click, Back/popstate or navigation
-  request. The requested `activeView` is committed before asynchronous module
-  deactivation so live owner refreshes also observe the destination rather
-  than the outgoing Plan stage.
+  request. The browser-history intent and requested `activeView` are committed
+  before asynchronous module deactivation/activation, so the first Back gesture
+  is authoritative even while Places is still mounting.
+- Physical primary-pointer input latches the visible direction at
+  `pointerdown`, captures that pointer and resolves the same action at
+  `pointerup` within the movement tolerance. The synthesized follow-up click is
+  suppressed, so a direction cannot be dropped or executed twice if animation
+  changes the browser hit target between press and release.
 - The shared-element flight is mounted in the persistent `.lv-living-shell`;
   every flight has a common cancellation owner and a bounded fallback. The
   destination action starts after the selection feedback without awaiting the
@@ -169,9 +209,11 @@ Additional unchanged user evidence:
   routing. Cleanup removes detached flights, transition classes, duplicate
   hosts and the detached-brand state.
 - The central white target carrier stays invisible during the first flight
-  phase. `is-compass-arriving` cross-fades and scales it in only while the
-  official Compass reaches the target, then the heading and eight directions
-  enter. Context switches no longer spin the needle.
+  phase. `is-compass-arriving` cross-fades/scales the carrier and official target
+  Compass together during the final 1.1-second flight handoff; only after the
+  bounded handoff pause do the heading and eight fixed directions enter with
+  the accepted stagger. The return clone inherits the exact signed selection
+  angle and its needle animation is explicitly `none`.
 - Hover and selection never resize or translate the direction element; visual
   feedback uses opacity only, preserving the full physical pointer/touch hit
   rectangle from press through route commit.
@@ -180,6 +222,10 @@ Additional unchanged user evidence:
 - Before an outgoing host becomes hidden, focus is released from any descendant;
   the host is then both inert and `aria-hidden`. A superseded/Back transition
   removes both states together, so no hidden subtree retains or regains focus.
+- The visual exit lock is released as soon as the destination action starts;
+  it no longer spans the destination's asynchronous owner mount. Cleanup is
+  scoped to the captured old stage and re-checks the monotonic intent before it
+  may touch that stage, so a late task cannot reset a newer Compass.
 
 ### Places and map
 
@@ -212,6 +258,9 @@ runtime:
   directions, with exact hit owner plus unchanged centre, width and height on
   hover; keyboard arrows, Escape, exact routing, rapid browser Back, reload and
   one-stage cleanup;
+- an explicit pre-ready physical press in which the Places element is moved 96
+  px after `pointerdown` and before `pointerup`; the originally pressed Places
+  action still executes exactly once;
 - touch at 390 × 844, 360 × 740 and 320 × 673 with all eight direction targets
   inside the viewport and at least 44 px;
 - reduced-motion context switch and close-to-Today;
@@ -223,19 +272,26 @@ runtime:
 - a deliberately delayed Places module mount followed by a queued Plan click
   and a newer Routes navigation; after all delayed promises settle, Routes
   remains visible and no stale Compass stage is replayed;
+- a separate 1.6-second delayed Places mount followed by the first Browser Back;
+  Plan remains visible after the old mount settles and exactly one Plan stage
+  owns `?screen=plan`;
 - direct needle evidence (`Places` = `-90deg`, without `1080deg` addition);
+- exit evidence that the selected Places card retains its exact rectangle,
+  receives a coral underlay, holds before flight, and the return-flight clone
+  retains `-90deg` with `animation-name: none`;
 - outgoing-route focus/ARIA evidence: zero focused descendants below
   `aria-hidden`, with the previous host inert for the transition and restored
   together on cancellation;
-- timed entry-frame evidence proving the white target carrier is hidden before
-  arrival and cross-fades only in the final shared-element phase;
+- timed entry-frame evidence proving the white target carrier and target Compass
+  are both hidden before arrival, materialize together in the final
+  shared-element phase, and precede the staggered direction sequence;
 - Service Worker registration, deliberate stale
   `luvia-shell-v13.17.0` creation/pruning, active
-  `luvia-shell-v13.82.59` recovery and offline document/CSS reload.
+  `luvia-shell-v13.82.60` recovery and offline document/CSS reload.
 
 Visual evidence is retained locally under
 `test-results/m16.5q/desktop-entry-before-arrival.png`,
-`desktop-entry-arrival-crossfade.png`, `desktop-plan.png`,
+`desktop-entry-arrival-crossfade.png`, `desktop-entry-shared-handoff.png`, `desktop-plan.png`,
 `desktop-today-context.png`, `desktop-places-destination.png` and
 `mobile-390-plan.png`. The screenshots are test evidence, not public runtime
 assets.
@@ -262,12 +318,16 @@ that narrow automated gate, but the second user recording proved its direct
 entry, live-stage ownership, hit-geometry and queued-context behavior still
 failed on desktop and compact mobile. None of these runs supports functional
 acceptance. App 13.82.58 then passed the expanded local geometry/direct-entry
-suite, but the authenticated public run reproduced a delayed Places activation
-replaying Plan over a newer route. The user simultaneously reproduced the same
-failure in the integrated and external browsers, so App 13.82.58 is revoked as
-well.
+ suite, but the authenticated public run reproduced a delayed Places activation
+ replaying Plan over a newer route. The user simultaneously reproduced the same
+ failure in the integrated and external browsers, so App 13.82.58 is revoked as
+ well. App 13.82.59 then passed automation only after internal readiness waits;
+ real human input reproduced the inert direction before settlement, the first
+ Back failed during an in-flight Places mount, and the binding reference exposed
+ the disconnected carrier/Compass and needle timing. App 13.82.59 is therefore
+ also revoked and provides no functional acceptance.
 
-Mandatory App 13.82.59 public re-acceptance after deployment:
+Mandatory App 13.82.60 public re-acceptance after deployment:
 
 1. settle the new Service Worker and repeat from the settled controller;
 2. real left-click selection through all five Compass contexts and every Plan
@@ -285,7 +345,8 @@ Mandatory App 13.82.59 public re-acceptance after deployment:
    prove that each direct desktop/mobile primary-navigation click opens its
    accepted Compass context without first opening Plan.
 
-Status before deployment: **PENDING — no functional acceptance claimed**.
+Status before deployment: **LOCAL E2E/PWA PASS; PUBLIC PENDING — no functional
+acceptance claimed**.
 
 ## 7. Source and deployment provenance
 
@@ -305,6 +366,11 @@ Consumer source commits:
 - `f7a7d44` — monotonic user-intent ordering across delayed module mounts,
   Compass queues, route requests and Browser Back, plus deterministic slow
   Places regression coverage.
+- `ffe86dd` — physical pointer ownership across moving targets, early
+  browser-history commitment, scoped asynchronous cleanup and reference-bound
+  carrier/selection/needle motion.
+- `4a07245` — retain the direct selected needle angle through the still-visible
+  outgoing route handoff.
 
 Integration provenance:
 
@@ -317,6 +383,8 @@ Integration provenance:
 - route-transition focus integrity assembly: `570fa2e`.
 - App 13.82.58 deterministic direct-entry assembly: `04a6f3c`.
 - App 13.82.59 intent-ordering assembly: `7637dcb`.
+- App 13.82.60 human-interaction/motion assembly: `9b4bbc4`; runtime release
+  commit: **PENDING**.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -351,7 +419,19 @@ Superseded, unaccepted App 13.82.58 Integration:
 - reason superseded: authenticated public and parallel user testing proved a
   delayed Places/Compass operation could replay over a newer route intent.
 
-App 13.82.59 Cloudflare Integration version/deployment: **PENDING**.
+Superseded, unaccepted App 13.82.59 Integration:
+
+- source commit: `6abb10607f992b1ced0d63df226ce3d560395319`;
+- version ID: `599148c7-6783-416d-9988-12bb111ab898`;
+- deployment ID: `aec7b747-5879-4973-bf81-5ef9d8e1fb0d`;
+- immutable URL:
+  `https://599148c7-integration-luvia.njwnrvwbv5.workers.dev/`;
+- reason superseded: human pointer input before internal readiness could lose
+  the direction between press and release; history was not committed before a
+  slow Places mount; stale exit cleanup could reset the restored Plan stage;
+  and carrier/Compass/needle timing deviated from the binding reference.
+
+App 13.82.60 Cloudflare Integration version/deployment: **PENDING**.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -371,7 +451,7 @@ Production remained exactly on deployment
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
-- App 13.82.59 public stable/immutable deployment and uninterrupted visible E2E
+- App 13.82.60 public stable/immutable deployment and uninterrupted visible E2E
   re-acceptance;
 - the remaining M16.5 visual-parity matrix, especially complete Booking and all
   other surfaces not included in this recovery;
@@ -383,11 +463,11 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 8e7f17d0-242a-4290-ab0b-106d4f8353c6@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.58" --yes
+npx wrangler versions deploy 599148c7-6783-416d-9988-12bb111ab898@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.59" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`8e7f17d0-242a-4290-ab0b-106d4f8353c6` from deployment
-`a025dd9b-4495-4c53-bcf2-3aaa963c2366`. It is an operational fallback only,
+`599148c7-6783-416d-9988-12bb111ab898` from deployment
+`aec7b747-5879-4973-bf81-5ef9d8e1fb0d`. It is an operational fallback only,
 not an accepted functional build. No data rollback is required because M16.5Q
 changed no database, storage schema, Edge Function or secret.

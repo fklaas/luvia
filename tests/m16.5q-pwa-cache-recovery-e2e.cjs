@@ -14,7 +14,7 @@ const BROWSER=process.env.LUVIA_E2E_BROWSER||chromium.executablePath();
   const page=await context.newPage();page.setDefaultTimeout(30000);
   try{
     await page.goto(`${BASE_URL}/?qa=m16.5q-pwa`,{waitUntil:'domcontentloaded',timeout:60000});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.59'&&Boolean(window.LuviaPWA));
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&Boolean(window.LuviaPWA));
     await page.evaluate(async()=>{
       const stale=await caches.open('luvia-shell-v13.17.0');
       await stale.put(new Request(new URL('stale-cache-probe',location.href)),new Response('stale'));
@@ -22,16 +22,16 @@ const BROWSER=process.env.LUVIA_E2E_BROWSER||chromium.executablePath();
     });
     await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.59'&&Boolean(navigator.serviceWorker.controller));
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&Boolean(navigator.serviceWorker.controller));
 
     const cachesAfterUpdate=await page.evaluate(()=>caches.keys());
-    assert.ok(cachesAfterUpdate.includes('luvia-shell-v13.82.59'),'current release cache is missing');
+    assert.ok(cachesAfterUpdate.includes('luvia-shell-v13.82.60'),'current release cache is missing');
     assert.equal(cachesAfterUpdate.includes('luvia-shell-v13.17.0'),false,'stale fixed cache survived recovery');
 
     await context.setOffline(true);
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.59'&&document.querySelector('#app')?.children.length>0);
-    const offlineCss=await page.evaluate(()=>fetch('app/module-hubs.css?v=13.82.59').then(response=>response.text()));
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&document.querySelector('#app')?.children.length>0);
+    const offlineCss=await page.evaluate(()=>fetch('app/module-hubs.css?v=13.82.60').then(response=>response.text()));
     assert.match(offlineCss,/\.lv-plan-compass-stage/,'offline active-cache recovery missed the Living Compass stylesheet');
     assert.equal(await page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL.endsWith('/sw.js')),true,'offline document lost the active worker controller');
 

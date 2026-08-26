@@ -19,13 +19,13 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.59'/);
-assert.match(version,/build:'13\.82\.59'/);
+assert.match(version,/core:'4\.82\.60'/);
+assert.match(version,/build:'13\.82\.60'/);
 assert.match(version,/name:'M16\.5 Living Compass Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.59'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.60'/);
 assert.equal(index.includes('?v=13.82.54'),false,'active entry retains the revoked candidate cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.59`),`M16.5Q cache key missing for ${asset}`);
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.60`),`M16.5Q cache key missing for ${asset}`);
 
 assert.match(pwa,/const EXPECTED_CACHE=`luvia-shell-v\$\{RELEASE_BUILD\}`/,'PWA cache identity must derive from the active release');
 assert.doesNotMatch(pwa,/luvia-shell-v13\.17\.0/,'stale fixed cache identity must be removed');
@@ -43,19 +43,23 @@ assert.match(shell,/pendingCompassContext/,'rapid context input must be queued')
 assert.match(shell,/pendingCompassExit/,'rapid close or selection input must be queued');
 assert.match(shell,/compassIntentSequence=0/,'Compass and route commands must share a monotonic user-intent sequence');
 assert.match(shell,/if\(planCompassTransition\)\{pendingCompassExit=\{destination:action,selected:button,intentSequence\}/,'touch selection during a context transition must be replayed instead of dropped');
-assert.match(shell,/activeView=view;const sequence=\+\+showSequence;await unmountCurrent/,'the requested route must be committed before asynchronous module deactivation');
+assert.match(shell,/activeView=view;const sequence=\+\+showSequence;commitScreenIntent\(intent,options\);await unmountCurrent/,'the requested browser-history route must be committed before asynchronous module deactivation');
 assert.match(shell,/data-view="\$\{item\.id\}" data-compass-context="\$\{item\.id\}"/,'desktop and mobile primary navigation must expose direct Compass context intent');
 assert.match(shell,/const compassNavigation=e\.target\.closest\('button\[data-compass-context\]'\)[\s\S]*openLivingCompassContext\(compassNavigation\.dataset\.compassContext\|\|'plan'\)/,'direct context navigation must enter the accepted Compass without a prior Plan detour');
 assert.match(shell,/currentPlanCompassStage=\(\)=>root\?\.querySelector\('\[data-stage\] > \.lv-view-host:not\(\.lv-route-previous\) \[data-plan-compass-stage\]'\)/,'Compass commands must never bind to a stale outgoing stage');
 assert.match(shell,/queuedContext&&queuedContext\.intentSequence===compassIntentSequence/,'only the latest queued context may replay after destination routing');
 assert.match(shell,/superseded=intentSequence!==compassIntentSequence/,'an older delayed Compass action must stop before executing over a newer intent');
-assert.match(shell,/compassFeedbackFrame=.*compassWait\(80\)/,'semantic routing may wait only for a bounded visual feedback frame');
-assert.doesNotMatch(shell,/compassWait\(compassMotionReduced\(\)\?0:720\)/,'direction routing must not wait for the old decorative selection delay');
+assert.match(shell,/compassSelectionHold=.*compassWait\(620\)/,'the accepted selected-point hold must remain bounded and match the reference exit timing');
+assert.doesNotMatch(shell,/compassWait\(compassMotionReduced\(\)\?0:720\)/,'direction routing must not restore the superseded decorative selection delay');
 assert.match(shell,/function cancelCompassFlights\(\)[\s\S]*animation\.cancel\(\)/,'in-flight Compass animations must be cancellable');
 assert.match(shell,/Promise\.race\(\[animation\.finished\.catch\(\(\)=>null\),compassWait\(duration\+180\)\]\)/,'decorative Compass flights must have a bounded lifetime');
 assert.doesNotMatch(shell,/await returnPlanCompassHome\(stage\)/,'decorative return flight must never gate destination routing');
 assert.match(shell,/directAngle=\(\(angle\+180\)%360\+360\)%360-180/,'the needle must take the direct signed angle to the selected direction');
+assert.match(shell,/inheritedSelectionAngle=getComputedStyle\(source\)\.getPropertyValue\('--lv-plan-selection-angle'\)/,'the return flight must preserve the directly selected needle angle');
 assert.doesNotMatch(shell,/1080\+angle/,'direction selection must not force three decorative needle rotations');
+assert.match(shell,/function rememberCompassPointer\(event\)[\s\S]*setPointerCapture/,'a visible direction must own the physical pointer gesture from press through release');
+assert.match(shell,/function releaseCompassPointer\(event\)[\s\S]*choosePlanCompassDirection\(direction\)/,'the latched physical gesture must execute its exact direction even if the animated target moves');
+assert.match(shell,/navigationTask=Promise\.resolve\(handleHubAction\(destination,meta\)\)[\s\S]*planCompassTransition=false/,'the visual exit lock must be released before an asynchronous destination mount settles');
 assert.match(shell,/function excludeRouteHost\(host,excluded=true\)[\s\S]*document\.activeElement\?\.blur\?\.\(\)[\s\S]*host\.inert=excluded/,'an outgoing route must release focus before it becomes inert and aria-hidden');
 assert.match(shell,/excludeRouteHost\(previousHost,false\)/,'a superseded route transition must restore the previous host accessibility state');
 assert.match(shell,/function settleRouteTransition\(stage\)[\s\S]*hosts\.forEach\(host=>host\.remove\(\)\)/,'rapid Back or route input must remove stale transition hosts');
@@ -64,13 +68,18 @@ assert.match(shell,/ArrowLeft.*ArrowRight.*ArrowUp.*ArrowDown/,'Compass must exp
 assert.match(shell,/openCompass:\(context='plan'\)=>openLivingCompassContext\(context\)/,'Places and other destinations must be able to restore the embedded Compass');
 assert.doesNotMatch(hubCss,/lv-plan-direction-float/,'Compass direction hit geometry must not float or collapse');
 assert.doesNotMatch(hubCss,/--lv-plan-direction-scale|\.lv-plan-direction:hover\{[^}]*scale|\.lv-plan-direction\{[^}]*transition:[^}]*transform/,'hover and selection must never resize or translate a direction hit target');
-assert.match(hubCss,/not\(\.is-compass-arriving\):not\(\.is-ready\) \.lv-plan-compass-core\{opacity:0/,'the target Compass carrier must remain invisible before the shared element arrives');
+assert.match(hubCss,/not\(\.is-ready\) \.lv-plan-compass-core\{opacity:0/,'the target Compass carrier must remain invisible before the shared element arrives');
+assert.match(hubCss,/is-compass-arriving:not\(\.is-ready\) \.lv-plan-compass-core\{opacity:1[\s\S]*is-compass-arriving:not\(\.is-ready\) \.lv-plan-compass-mark\{opacity:1/,'carrier and target Compass must materialize in the same final handoff phase');
+assert.match(hubCss,/\.lv-plan-compass-flight \.lv-living-compass__needle,[^}]*animation:none/,'the flight needle must never inherit a searching or looping animation');
 assert.doesNotMatch(hubCss,/@keyframes lv-plan-context-seek/,'context changes must not spin the needle through decorative revolutions');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/stalled decorative Compass flight must never gate destination routing/,'real browser coverage must include a deliberately stalled flight');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/outgoing route host must never retain focused descendants while aria-hidden/,'real browser coverage must lock the focus/aria-hidden transition contract');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/direct Today\/Plan\/Trip\/Memories\/Profile context entry/,'real browser coverage must enter every context directly from primary navigation');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/1920x1020 physical pointer routing through all eight Plan directions/,'real browser coverage must reproduce full-size physical pointer routing');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/slow Places mount \/ newer navigation intent ordering/,'real browser coverage must prove that a delayed Places activation cannot overwrite a newer route');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/slow Places mount \/ first Browser Back ordering/,'real browser coverage must prove that the first Back gesture wins during a delayed Places activation');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/visible pre-ready press \/ moving target pointer ownership/,'real browser coverage must press a direction before settlement and move it before release');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/reference-timed carrier\/mark handoff, radial stagger, coral selection and direct needle/,'real browser coverage must lock the accepted reference motion and selection feedback');
 
 assert.match(places,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late map callbacks must not mutate a replacement surface');
 assert.match(places,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'result selection must move the map using the public coordinate tuple');
@@ -86,6 +95,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.59 / 4.82.59 / luvia-shell-v13.82.59');
+console.log('App / Core / shell cache: 13.82.60 / 4.82.60 / luvia-shell-v13.82.60');
 console.log('Compass contexts, exact routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');
