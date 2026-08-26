@@ -384,7 +384,11 @@
   });
   function renderMountFailure(view,error,stage){console.error(error);const copy=MOUNT_FAILURES[view]||['Luvia','Dieser Bereich konnte nicht geöffnet werden.'];stage.innerHTML=`<section class="lv-card" style="padding:24px"><h2>${esc(copy[0])}</h2><div class="lv-error">${esc(copy[1])}</div></section>`}
   function transitionHost(view,content){return `<section class="lv-view-host lv-module-host lv-route-entering" aria-busy="true"><div class="lv-view-content">${content}</div></section>`}
-  function settleRouteTransition(stage){clearTimeout(routeTransitionTimer);routeTransitionTimer=0;const hosts=[...stage.querySelectorAll(':scope > .lv-view-host')],current=hosts.shift();hosts.forEach(host=>host.remove());current?.classList.remove('lv-route-entering','is-ready','lv-route-previous','is-exiting');current?.removeAttribute('aria-hidden');current?.setAttribute('aria-busy','false')}
+  function excludeRouteHost(host,excluded=true){
+    if(!host)return;if(excluded&&host.contains(document.activeElement))document.activeElement?.blur?.();host.inert=excluded;
+    if(excluded)host.setAttribute('aria-hidden','true');else host.removeAttribute('aria-hidden');
+  }
+  function settleRouteTransition(stage){clearTimeout(routeTransitionTimer);routeTransitionTimer=0;const hosts=[...stage.querySelectorAll(':scope > .lv-view-host')],current=hosts.shift();hosts.forEach(host=>host.remove());current?.classList.remove('lv-route-entering','is-ready','lv-route-previous','is-exiting');excludeRouteHost(current,false);current?.setAttribute('aria-busy','false')}
   function completeTransition(stage,host,previousHost=null){if(!host)return;requestAnimationFrame(()=>requestAnimationFrame(()=>{host.classList.add('is-ready');host.setAttribute('aria-busy','false');previousHost?.classList.add('is-exiting');routeTransitionTimer=setTimeout(()=>{previousHost?.remove();host.classList.remove('lv-route-entering','is-ready');routeTransitionTimer=0},560)}))}
   function routeHelper(t){
     const destination=t?.destination?.formattedAddress||t?.destination?.name||'';
@@ -415,13 +419,13 @@
     else if(['trip','more'].includes(view))content=window.LuviaModuleHubs?.render?.(view,t)||'';
     else {view='today';activeView='today';content=dashboard(t);}
     const previousHost=stage.querySelector(':scope > .lv-view-host');
-    if(animate&&previousHost){previousHost.classList.add('lv-route-previous');previousHost.setAttribute('aria-hidden','true');stage.insertAdjacentHTML('afterbegin',wrap(view,content))}
+    if(animate&&previousHost){previousHost.classList.add('lv-route-previous');excludeRouteHost(previousHost,true);stage.insertAdjacentHTML('afterbegin',wrap(view,content))}
     else stage.innerHTML=wrap(view,content);
     const host=stage.querySelector(':scope > .lv-view-host');host?.setAttribute('data-view',view);host?.setAttribute('data-trip-id',requestedTripId);
     try{
       if(appRuntime().snapshot().status==='failed')recoverRuntime('shell-ready',{reason:'module-retry',route:view});
       await appRuntime().run('modules-ready',()=>moduleMounts().activate(view,{trip:t,options,force:Boolean(options.force),resolveTarget:targetId=>stage.querySelector(`#${targetId}`)}),{timeoutMs:20000,detail:{route:view,mountMode:mount.mode,mountKey:mount.key}});
-      if(sequence!==showSequence){host?.remove();previousHost?.classList.remove('lv-route-previous','is-exiting');previousHost?.removeAttribute('aria-hidden');return;}
+      if(sequence!==showSequence){host?.remove();previousHost?.classList.remove('lv-route-previous','is-exiting');excludeRouteHost(previousHost,false);return;}
     }catch(error){previousHost?.remove();renderMountFailure(view,error,stage);return}
     commitScreenIntent(intent,options);
     if(view==='today'){lastRenderedTripId=requestedTripId;window.LuviaTodayExperience?.bind?.(stage,{trip:t,profile:profile(),esc});requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(stage));}
