@@ -71,6 +71,24 @@ Main and Production remain locked. Joint acceptance of the entire M16.5
 desktop/mobile surface matrix and an explicit Design Freeze are still required
 before promotion.
 
+## Local candidate evidence
+
+- Consumer source: `96d46fefe00358785cb1c34ed9b6faa0bf32e9d9`;
+- complete safe regression: **105 / 105 PASS**;
+- NFR-0 browser/global and browserless Core suite: **3 / 3 PASS**;
+- cross-Core database ownership guard: **PASS**;
+- focused Plan Compass, Places composition, coordinate and runtime-release
+  guards: **PASS**;
+- visual inventory: **2,783 tracked files / 668 visual candidates / 59 CSS
+  files**, fresh at the candidate commit;
+- 801–1080 px connected map/result reflow, 44 px mobile touch targets,
+  short-landscape Compass containment and the non-mutating five-pixel visual
+  marker-tail offset are locked by regression guards.
+
+Authenticated desktop/mobile Browser acceptance and immutable Cloudflare
+Integration provenance are deliberately not claimed until the public candidate
+has been uploaded and measured. Main and Production remain unchanged.
+
 ## Rollback
 
 Rollback redeploys the immutable M16.5M Integration candidate or restores the

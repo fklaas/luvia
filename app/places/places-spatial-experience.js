@@ -324,7 +324,7 @@
       map.on('load',()=>{
         styleCorporateMap(map);
         for(const marker of view.markers){
-          const instance=new globalThis.maplibregl.Marker({element:markerButton(marker),anchor:'bottom'}).setLngLat(marker.lngLat).addTo(map);
+          const instance=new globalThis.maplibregl.Marker({element:markerButton(marker),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);
           state.mapMarkers.set(marker.providerPlaceId,instance);
         }
         if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:{top:72,right:72,bottom:170,left:72},maxZoom:15,duration:reducedMotion()?0:650});

@@ -8,6 +8,18 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const read=relative=>fs.readFileSync(path.join(ROOT,relative),'utf8').replace(/\r\n?/g,'\n');
 const plain=value=>JSON.parse(JSON.stringify(value));
+function cssBlockAfter(source,marker){
+  const markerIndex=source.indexOf(marker);
+  assert.notEqual(markerIndex,-1,`CSS marker missing: ${marker}`);
+  const openIndex=source.indexOf('{',markerIndex);
+  assert.notEqual(openIndex,-1,`CSS block missing: ${marker}`);
+  let depth=0;
+  for(let index=openIndex;index<source.length;index++){
+    if(source[index]==='{')depth++;
+    if(source[index]==='}'&&--depth===0)return source.slice(openIndex+1,index);
+  }
+  assert.fail(`CSS block is not balanced: ${marker}`);
+}
 const corePath='app/places/places-spatial-composition-core.js';
 const coreSource=read(corePath);
 
@@ -192,6 +204,7 @@ assert.match(experience,/link\.addEventListener\('click',event=>\{event\.prevent
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');
+assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:markerButton\(marker\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
 assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinate-qualified result bounds');
 assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view\)/,'only the latest render may mount a MapLibre instance into the current map host');
 assert.doesNotMatch(experience,/Math\.random|pin-a|pin-b|pin-c|pin-d|pin-e|map-land|map-sea/,'synthetic prototype pin placement may not enter the productive Experience');
@@ -218,6 +231,31 @@ assert.match(css,/@media\s*\(max-width\s*:\s*800px\)/);
 assert.match(css,/min-width\s*:\s*0/);
 assert.match(css,/max-width\s*:\s*100%/);
 assert.doesNotMatch(css,/\.pin-[a-e]\b|\.map-(?:land|sea)\b/);
+
+const rootCss=cssBlockAfter(css,'.lv-places-spatial {');
+assert.match(rootCss,/overflow-x\s*:\s*clip/,'Places must contain local horizontal rails instead of widening the document');
+assert.doesNotMatch(css,/\b100vw\b/,'Places may not use viewport width inside the already constrained app workspace');
+
+const narrowStageCss=cssBlockAfter(css,'@media (min-width: 801px) and (max-width: 1080px)');
+const narrowCanvasCss=cssBlockAfter(narrowStageCss,'.lv-places-spatial__canvas');
+const narrowMapCss=cssBlockAfter(narrowStageCss,'.lv-places-spatial__map');
+const narrowResultsCss=cssBlockAfter(narrowStageCss,'.lv-places-spatial__results');
+const narrowResultListCss=cssBlockAfter(narrowStageCss,'.lv-places-spatial__result-list');
+const narrowResultCardCss=cssBlockAfter(narrowStageCss,'.lv-places-spatial__result-card');
+assert.match(narrowCanvasCss,/grid-template-columns\s*:\s*minmax\(0,\s*1fr\)/,'801–1080 px must reflow the connected canvas before the map is squeezed by the desktop sidebar');
+assert.match(narrowCanvasCss,/min-height\s*:\s*0/);
+assert.match(narrowMapCss,/grid-row\s*:\s*1/,'the geographic map must remain first in the narrow connected stage');
+assert.match(narrowMapCss,/border-right\s*:\s*0/);
+assert.match(narrowResultsCss,/grid-row\s*:\s*2/,'the matching result surface must follow the map');
+assert.match(narrowResultsCss,/max-height\s*:\s*none/);
+assert.match(narrowResultListCss,/display\s*:\s*flex/);
+assert.match(narrowResultListCss,/overflow-x\s*:\s*auto/,'narrow result cards must scroll only inside their own rail');
+assert.match(narrowResultListCss,/overflow-y\s*:\s*hidden/);
+assert.match(narrowResultListCss,/scroll-snap-type\s*:\s*inline mandatory/);
+assert.match(narrowResultCardCss,/scroll-snap-align\s*:\s*start/);
+
+const markerCss=cssBlockAfter(css,'.lv-places-spatial__marker {');
+assert.doesNotMatch(markerCss,/(?:^|;)\s*transform\s*:/m,'MapLibre owns marker transforms; CSS may only define transform-origin and scale');
 
 const hubStart=shell.indexOf('async function showHub');
 const hubEnd=shell.indexOf('function bind',hubStart);

@@ -1231,6 +1231,93 @@
   transition-duration: 70ms;
 }
 
+/* Narrow desktop/tablet: preserve the connected stage before the shell becomes mobile. */
+@media (min-width: 801px) and (max-width: 1080px) {
+  .lv-places-spatial__heading h1 {
+    font-size: clamp(54px, 7.2vw, 76px);
+  }
+
+  .lv-places-spatial__context {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 18px 24px;
+    padding: 24px;
+  }
+
+  .lv-places-spatial__context-compass {
+    max-width: 88px;
+  }
+
+  .lv-places-spatial__capabilities {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: start;
+  }
+
+  .lv-places-spatial__canvas {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .lv-places-spatial__map {
+    grid-row: 1;
+    height: clamp(520px, 62svh, 680px);
+    min-height: 520px;
+    border-right: 0;
+    border-bottom: 1px solid var(--places-line);
+  }
+
+  .lv-places-spatial__results {
+    grid-row: 2;
+    width: 100%;
+    max-height: none;
+    overflow: hidden;
+  }
+
+  .lv-places-spatial__results-header {
+    position: relative;
+  }
+
+  .lv-places-spatial__result-list {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    padding: 16px 16px 22px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-padding-inline: 16px;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lv-places-spatial__result-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lv-places-spatial__result-card {
+    flex: 0 0 min(390px, calc(100% - 52px));
+    border: 1px solid var(--places-line);
+    border-radius: 24px;
+    box-shadow: 0 16px 38px rgba(31, 56, 72, 0.08);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .lv-places-spatial__result-card:is(.is-selected, [aria-current="true"]) {
+    border-color: color-mix(in srgb, var(--places-accent) 42%, var(--places-line));
+    box-shadow: inset 0 4px 0 var(--places-accent), 0 18px 42px rgba(31, 56, 72, 0.1);
+  }
+
+  .lv-places-spatial__load-more {
+    flex: 0 0 auto;
+    align-self: center;
+    width: calc(100% - 32px);
+    min-height: 52px;
+    margin: 0 16px 20px;
+  }
+}
+
 /* Tablet and phone: same composition, reflowed; map always precedes cards. */
 @media (max-width: 800px) {
   .lv-places-spatial {

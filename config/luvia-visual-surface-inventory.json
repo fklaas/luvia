@@ -10,8 +10,8 @@
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 59,
-      "bytes": 927644,
-      "lines": 8210,
+      "bytes": 931135,
+      "lines": 8305,
       "important": 3228,
       "literalHexColours": 2920,
       "zIndexDeclarations": 274,
@@ -848,8 +848,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 19672,
-      "sha256": "290de0443aaf0368fca2323edda60d4a924f9ea221e805d587e6ead03bc76174"
+      "bytes": 21068,
+      "sha256": "ef81f8c79314250725c6717085652788182030a9e1484fa061f583a1631980c0"
     },
     {
       "path": "app/module-hubs.js",
@@ -886,8 +886,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 45839,
-      "sha256": "2890789a9d05823e91efec40af118f3fe1700de3aac3fa0d839f4164fbf82514"
+      "bytes": 47934,
+      "sha256": "f0b0ae95f28ca97f0db0ebee387b70d6c1cbeb2ec45e6d01d7008159ef20c1ea"
     },
     {
       "path": "app/places/places-spatial-experience.js",
@@ -900,8 +900,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 38104,
-      "sha256": "62ac1a3d26af665f765c81671dbdbaff0c5d09923f8bcb32350137269def26e2"
+      "bytes": 38118,
+      "sha256": "cb5eb5df500c1e814af1e04a94ac6904054e46eafcc85e73be553cf58354135b"
     },
     {
       "path": "app/product-module-manifests.js",
@@ -5339,8 +5339,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 4676,
-      "sha256": "f67d8cd46f41680d8a21396233c57c069d56dcfc6f93d385c17d9d001b15c822"
+      "bytes": 5872,
+      "sha256": "15c89918c67fea11d0647ecb8d207e90f33612d79dae99a2cedbd3bcc07a9599"
     },
     {
       "path": "tests/m16.5m-plan-compass-navigation-alignment.test.cjs",
@@ -5369,8 +5369,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 18180,
-      "sha256": "e482257b07720e4a6addef04722b995baf0b2a723fddd3bfb772f0a134d05117"
+      "bytes": 20888,
+      "sha256": "8a93a7e26fca04ac944b809423c291f8aa40ed870f8276aa42275277f5726aef"
     },
     {
       "path": "tests/m16.5p-productive-places-runtime-release.test.cjs",

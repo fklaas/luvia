@@ -180,7 +180,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
 - Exhaustive manifest: **2,783 tracked files; 668 visual candidates; 264 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **59 files; 927,644 LF-normalized bytes; 8,210 lines; 3,228 `!important`; 2,920 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 39 focus-visible selectors**
+- Canonical CSS baseline: **59 files; 931,135 LF-normalized bytes; 8,305 lines; 3,228 `!important`; 2,920 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 39 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
