@@ -31,7 +31,7 @@ assert.match(dockBlock,/registered=new Map\(\(window\.LuviaNavigationRegistry/,'
 for(const route of ['today','plan','trip','memories','more'])assert.match(navigation,new RegExp(`id:'${route}'.*topLevel:true`),`navigation.v1 route truth changed unexpectedly: ${route}`);
 assert.match(shell,/class="lv-(?:brand|living-brand)"[^>]*data-view="today"/,'official brand must return to Today');
 assert.match(shell,/class="lv-logo"/,'App Shell must retain the replaceable official logo mount');
-assert.match(shell,/version:'13\.82\.55'/,'Consumer candidate version is missing');
+assert.match(shell,/version:'13\.82\.56'/,'Consumer candidate version is missing');
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceStore','LuviaBookingStore','LuviaMemoryStore','supabase.from','.from(']){
   assert.equal(dockBlock.includes(forbidden),false,`Consumer navigation introduced a private owner shortcut: ${forbidden}`);

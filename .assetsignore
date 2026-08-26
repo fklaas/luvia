@@ -1,0 +1,36 @@
+.git
+.git/**
+.wrangler
+.wrangler/**
+.github
+.github/**
+node_modules
+node_modules/**
+*.log
+# M4.4 deployment-private artifacts
+.assetsignore
+wrangler.jsonc
+
+# Source / development directories
+supabase
+supabase/**
+tests
+tests/**
+docs
+docs/**
+tools
+tools/**
+
+# Internal documentation / database artifacts
+*.md
+*.sql
+*.txt
+
+# Historical machine-readable test evidence
+test-results
+test-results/**
+test-results-*.json
+TEST-RESULTS-*.json
+# NFR-0 Native First internal architecture artifacts
+config/luvia-native-readiness-debt.json
+config/luvia-platform-ports.json

@@ -45,6 +45,16 @@ async function assertInsideViewport(page){
   fs.mkdirSync(OUTPUT,{recursive:true});
   const browser=await chromium.launch({headless:true,executablePath:BROWSER});
   try{
+    const entry=await browser.newPage({viewport:{width:1440,height:900}});entry.setDefaultTimeout(8000);
+    await entry.goto(FIXTURE,{waitUntil:'domcontentloaded'});await entry.locator('[data-plan-compass-stage]').waitFor({state:'visible'});
+    await entry.waitForFunction(()=>{const stage=document.querySelector('[data-plan-compass-stage]'),core=stage?.querySelector('.lv-plan-compass-core');return Boolean(stage&&!stage.classList.contains('is-compass-arriving')&&core&&Number.parseFloat(getComputedStyle(core).opacity)<.05)});
+    await entry.screenshot({path:path.join(OUTPUT,'desktop-entry-before-arrival.png'),fullPage:true});
+    await entry.waitForFunction(()=>document.querySelector('[data-plan-compass-stage]')?.classList.contains('is-compass-arriving'));
+    await entry.waitForTimeout(260);
+    assert.ok(await entry.locator('.lv-plan-compass-core').evaluate(node=>Number.parseFloat(getComputedStyle(node).opacity)>.35),'the target carrier must cross-fade only as the shared Compass reaches it');
+    await entry.screenshot({path:path.join(OUTPUT,'desktop-entry-arrival-crossfade.png'),fullPage:true});await expectCompass(entry,'Welche Richtung soll die Planung nehmen?');await entry.close();
+    console.log('shared Compass arrival / target carrier timing: PASS');
+
     const desktop=await browser.newPage({viewport:{width:1440,height:900}});
     desktop.setDefaultTimeout(8000);
     await desktop.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');
@@ -65,7 +75,7 @@ async function assertInsideViewport(page){
     await desktop.keyboard.press('Escape');await heading(desktop,'Heute');await desktop.locator('[data-plan-compass-stage]').waitFor({state:'detached'});assert.equal(await desktop.locator('[data-plan-compass-stage]').count(),0,'Escape must close to Today');console.log('desktop keyboard and Escape: PASS');
 
     await desktop.getByRole('button',{name:'Planen',exact:true}).first().click();await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');
-    await desktop.getByRole('button',{name:/^Places:/}).click();await heading(desktop,'Places');
+    await desktop.getByRole('button',{name:/^Places:/}).click();assert.equal(await desktop.locator('[data-plan-compass-stage]').evaluate(stage=>stage.style.getPropertyValue('--lv-plan-selection-angle')),'-90deg','the needle must take the direct angle to Places without decorative revolutions');await heading(desktop,'Places');
     assert.equal(new URL(desktop.url()).searchParams.get('screen'),'places','direction selection must reach the exact Places route');
     await desktop.screenshot({path:path.join(OUTPUT,'desktop-places-destination.png'),fullPage:true});
     await desktop.goBack();await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');assert.equal(await desktop.locator('[data-plan-compass-stage]').count(),1,'Back during a live transition must leave exactly one Compass stage');
