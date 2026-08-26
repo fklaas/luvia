@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.73**
-- Core: **4.82.73**
+- App: **13.82.74**
+- Core: **4.82.74**
 - Name: **M16.5 Landing Auth Foundation**
 - Channel: **integration-preview**
 - Datum: **2026-08-27**
@@ -115,7 +115,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5S Public Landing / Real Authentication Scope Lock
 
-- Runtime target: **App 13.82.73 / Core 4.82.73 / Integration Preview only**.
+- Runtime target: **App 13.82.74 / Core 4.82.74 / Integration Preview only**.
 - Status: **Compass-first public journey candidate complete with bounded local visible E2E PASS; public Integration publication and exact deployed-byte E2E are pending. This is not the complete M16.5 Product-Surface or Design-Freeze acceptance**.
 - Compass-first Landing: **after the Luvia intro, the closed layered Living Compass is the first and central public experience. The intro mark grows and visually docks into its housing. A subtle glint and responsive engravings invite discovery without a hand or explicit click instruction. The three initial choices appear only after the housing opens**.
 - Journey-first entry: **the open Compass presents “Luvia kennenlernen”, “Weiterreisen” and “Meine Reise beginnen”. Login enters from the left and registration/recovery from the right while the single productive Auth owner remains unchanged**.
@@ -128,9 +128,11 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Public demo correction: **the interactive Landing iframe and full-size demo link now use the deployable `app/demo/living-compass-browser.html` asset with root-relative base ownership, `noindex,nofollow` and explicit Service Worker coverage. The excluded `tests/fixtures/**` URL is no longer referenced, preventing the public SPA fallback from recursively loading the wrong document and generating broken `/tests/fixtures/core/**` scripts**.
 - Recovery completion: **the existing `?auth=recovery` request contract now has a complete callback surface for valid, invalid and expired links and delegates the actual password mutation to the productive Auth UI owner. The final credential-changing submit was intentionally not executed during automated browser verification**.
 - History/lifecycle: **login/register/recovery states are reloadable and Browser-Back coherent; signed-in transition cleanup removes the public Landing runtime, motion and focus ownership before the Living Product mounts**.
-- Local visible evidence: **real cursor clicks at 1440 x 900 and 390 x 844 opened the closed Compass, the three primary directions, all six Luvia worlds and the final “Ein ruhiger Anfang” canvas with the complete new short product introduction. Canvas Back and Browser Back return coherently; reload replays the intro and restores a closed Compass under the active `luvia-shell-v13.82.73`; mobile horizontal overflow is absent. Keyboard Enter/Space, Reduced Motion, theme selection and the other five canvases were also visibly exercised. Hardware `Input.dispatchTouchEvent` is unavailable in the integrated browser, so no new physical-device touch claim is made for this public-Landing slice**.
+- Cache-upgrade correction: **Service Worker precaching retains the complete shell list but now runs through a strict four-request worker pool. A new worker can warm in parallel without flooding the network used by the already controlled document; the entire shell is no longer started at once through `Promise.allSettled(APP_SHELL.map(...))`**.
+- Local visible evidence: **real cursor clicks at 1440 x 900 and 390 x 844 opened the closed Compass, the three primary directions, all six Luvia worlds and the final “Ein ruhiger Anfang” canvas with the complete new short product introduction. Canvas Back and Browser Back return coherently; reload replays the intro and restores a closed Compass under the active `luvia-shell-v13.82.74`; mobile horizontal overflow is absent. Keyboard Enter/Space, Reduced Motion, theme selection and the other five canvases were also visibly exercised. Hardware `Input.dispatchTouchEvent` is unavailable in the integrated browser, so no new physical-device touch claim is made for this public-Landing slice**.
 - Rejected public evidence: **App 13.82.66 reached an immutable Integration version, but its visible Browser-Back sequence exposed a false legacy-login fallback. The mount watchdog incorrectly treated viewport intersection as mount health on the deliberately long Landing. App 13.82.66 receives no functional/public acceptance and is superseded by the `.67` connected-DOM/visibility correction**.
 - Rejected visual evidence: **App 13.82.71 reached immutable Integration, but the opened Compass choices inherited the scroll-scene blur of their stage at large desktop sizes. App 13.82.71 receives no visual acceptance and is superseded by `.72`, where the active stage and both signposts remain at computed `filter:none` and opacity `1`**.
+- Rejected cache-upgrade evidence: **App 13.82.73 passed immutable Desktop/Mobile E2E and 18 / 18 source-to-immutable byte parity, then failed the mandatory Stable upgrade path: the existing `.72` controller and the new worker's unbounded full-shell install fetches competed for the same network, leaving the document at `readyState: loading` and multiple runtime resources pending beyond 37 seconds. `.73` was immediately rolled back to the accepted `.72` version and receives no functional/public acceptance. `.74` is the bounded-precache correction**.
 - Previous accepted public baseline: **App 13.82.72, Integration version `9bdfd528-d5b2-4773-8a0f-949cc6e37fe0`, deployment `852438a1-1bc8-45f5-9875-f26e59db16c9`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://9bdfd528-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Validation: **110 / 110 Safe Regression PASS; Landing/Auth contract, scope lock, release consistency, NFR-0 3 / 3, regenerated visual inventory and cross-Core DB ownership guard PASS**.
 - State lock: **23 mandatory Landing/login/register/recovery/OAuth/session/invite/offline states remain binding; later Profile onboarding and First-Trip onboarding are explicitly separate and still open**.
@@ -250,7 +252,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.73 / 4.82.73 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.74 / 4.82.74 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**

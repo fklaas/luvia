@@ -19,10 +19,10 @@ const demo = read('app/demo/living-compass-browser.html');
 const sw = read('sw.js');
 const photoSources = JSON.parse(read('assets/public-landing/travel-photo-sources.json'));
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.73" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.73" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.73') < index.indexOf('app/public-entry.js?v=13.82.73'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.73') < index.indexOf('app/public-entry.js?v=13.82.73'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.74" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.74" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.74') < index.indexOf('app/public-entry.js?v=13.82.74'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.74') < index.indexOf('app/public-entry.js?v=13.82.74'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /AUTH_HASHES = Object\.freeze\(\{ login: '#anmelden', register: '#registrieren' \}\)/);
@@ -43,6 +43,8 @@ assert.match(entryCss, /prefers-reduced-motion:reduce/);
 assert.match(shell, /await window\.LuviaGuidedJourneyEntry\.render\(mountRoot,\{authMode\}\)/);
 assert.match(shell, /if\(recoveryRequested\(\)\)return signedOut\(\{authMode:'recovery'\}\)/);
 assert.match(shell, /window\.LuviaGuidedJourneyEntry\?\.deactivate\?\.\(\)/);
+assert.match(shell, /function schedulePwaRegistration\(\)/);
+assert.match(shell, /window\.addEventListener\('load',afterLoad,\{once:true\}\)/);
 assert.doesNotMatch(authUi, /name="firstName"[^]*standardForm/);
 assert.match(authUi, /signUp\(\{email,password\}\)/);
 assert.match(authUi, /function renderRecoveryRequest/);
@@ -115,8 +117,10 @@ for (const photo of photoSources.photos) {
   assert.match(sw, new RegExp(photo.asset.replace('.', '\\.')));
 }
 assert.equal((landing.match(/Foto ·/g) || []).length, 5);
-assert.match(sw, /luvia-shell-v13\.82\.73/);
+assert.match(sw, /luvia-shell-v13\.82\.74/);
 assert.match(sw, /svg\|png\|webp\|ico/);
 assert.match(sw, /travel-photo-sources\.json/);
+assert.match(sw, /const PRECACHE_CONCURRENCY=4/);
+assert.doesNotMatch(sw, /Promise\.allSettled\(APP_SHELL\.map/);
 
 console.log('M16.5S Compass-first public Landing/Auth integration contract: PASS');
