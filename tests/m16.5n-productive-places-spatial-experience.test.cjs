@@ -206,7 +206,12 @@ assert.match(experience,/maplibregl/,'productive spatial surface must use the ac
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');
 assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:markerButton\(marker\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
 assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinate-qualified result bounds');
-assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view\)/,'only the latest render may mount a MapLibre instance into the current map host');
+assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view,renderToken\)/,'only the latest render may mount a MapLibre instance into the current map host');
+assert.match(experience,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late MapLibre callbacks must be fenced to the current render and live map host');
+assert.match(experience,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'selecting a result card must move the map to the same owner coordinate');
+assert.match(experience,/select\(marker\.providerPlaceId,true,false\)/,'selecting a map marker must move the corresponding result into view without a redundant map jump');
+assert.match(experience,/data-places-map-fallback/,'the map must retain an honest bright fallback surface while tiles are unavailable');
+assert.match(experience,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back navigation must restore the embedded Plan Compass');
 assert.doesNotMatch(experience,/Math\.random|pin-a|pin-b|pin-c|pin-d|pin-e|map-land|map-sea/,'synthetic prototype pin placement may not enter the productive Experience');
 assert.doesNotMatch(experience,/center\s*:\s*\[\s*10\.7554\s*,\s*54\.0267\s*\]/,'hard-coded prototype destination center may not become Product Truth');
 assert.doesNotMatch(experience,/setLngLat\(\s*\[\s*\d+(?:\.\d+)?\s*,\s*\d+(?:\.\d+)?\s*\]\s*\)/,'literal demo marker coordinates may not enter the productive Experience');

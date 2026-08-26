@@ -13,8 +13,9 @@ const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5J-PLAN-COMPASS-PRODUCTIVE-ADOPTION.md');
 
 const shellScope=shell.slice(shell.indexOf('function planCompassBrandSource'),shell.indexOf('function navigationItems'));
-const actionScope=shell.slice(shell.indexOf('const planCompassRoutes'),shell.indexOf("window.addEventListener('luvia:dashboard-widget-refresh'"));
-const hubScope=hubs.slice(hubs.indexOf('const PLAN_FEATURES'),hubs.indexOf('function trip'));
+const actionScope=shell.slice(shell.indexOf('const compassContextForView'),shell.indexOf("window.addEventListener('luvia:dashboard-widget-refresh'"));
+const hubScope=hubs.slice(hubs.indexOf('const COMPASS_CONTEXTS'),hubs.indexOf('function tripHub'));
+const planScope=hubScope.slice(hubScope.indexOf("plan:Object.freeze"),hubScope.indexOf("trip:Object.freeze"));
 const cssScope=css.slice(css.indexOf('M16.5J'));
 
 for(const layer of ['face.svg','two-ended-needle.svg','hub.svg']){
@@ -24,9 +25,10 @@ assert.match(hubs,/window\.LuviaPlacesContractV1\?\.listPlaces/,'Plan projection
 assert.doesNotMatch(hubs,/LuviaPlaceCore/,'Plan projection may not read private Places owner truth');
 
 for(const direction of ['Places','Meine Orte','Timeline','Booking','Checklisten','Budget','Routen','Wetter']){
-  assert.ok(hubScope.includes(`title:'${direction}'`),`Plan direction missing: ${direction}`);
+  assert.ok(planScope.includes(`feature('${direction}'`),`Plan direction missing: ${direction}`);
 }
-assert.equal((hubScope.match(/title:'/g)||[]).length,8,'the accepted Plan constellation must keep exactly eight directions');
+assert.equal((planScope.match(/feature\('/g)||[]).length,10,'the accepted Plan constellation must keep eight directions and two visible horizons');
+for(const context of ['today','plan','trip','memories','profile'])assert.match(hubScope,new RegExp(`${context}:Object\\.freeze`),`Living Compass context missing: ${context}`);
 assert.match(hubs,/data-plan-compass-stage/);
 assert.match(hubs,/data-plan-compass-close/);
 assert.match(hubs,/data-plan-angle/);
@@ -39,7 +41,10 @@ assert.doesNotMatch(shellScope,/lv-nav-compass-mark/,'the navigation AI entry ma
 
 assert.match(actionScope,/leavePlanCompass\('today'\)/,'X must return to Today');
 assert.match(actionScope,/--lv-plan-selection-angle/,'feature choice must aim the native two-ended needle');
-assert.match(actionScope,/button\.classList\.add\('is-selected'\)/,'the chosen direction must remain visible during exit');
+assert.match(actionScope,/selected\.classList\.add\('is-selected'\)/,'the chosen direction must remain visible during exit');
+assert.match(actionScope,/openLivingCompassContext\(context\)/,'top-level navigation must switch the embedded Compass context instead of exiting it');
+assert.match(actionScope,/if\(e\.key==='Escape'\)/,'Escape must close the Compass to Today');
+assert.match(actionScope,/ArrowLeft.*ArrowRight.*ArrowUp.*ArrowDown/,'direction keyboard navigation must support all arrow keys');
 for(const route of ['places','places-lifecycle','timeline','bookings','routes']){
   assert.ok(actionScope.includes(`'${route}'`),`real feature route missing: ${route}`);
 }
@@ -58,6 +63,7 @@ assert.match(cssScope,/\.lv-plan-compass-footer p\{display:none\}/,'landscape ma
 assert.match(cssScope,/@media\(prefers-reduced-motion:reduce\)/,'reduced-motion fallback is missing');
 assert.match(cssScope,/\.lv-plan-compass-needle\{[^}]*transform:rotate\(var\(--lv-plan-selection-angle/,'only the official native needle must receive the selection angle');
 assert.doesNotMatch(cssScope,/\.is-navigating \.lv-plan-direction\{[^}]*scale:/,'unselected directions must fade in place instead of collapsing toward a shared point');
+assert.doesNotMatch(cssScope,/lv-plan-direction-float/,'direction buttons must keep immutable hit geometry instead of receiving a second independent transform animation');
 assert.doesNotMatch(cssScope,/\.lv-plan-compass-mark\{[^}]*animation:[^}]*rotate/,'the complete Compass mark may not rotate');
 assert.doesNotMatch(cssScope,/\.lv-plan-compass-core::before/,'a synthetic external needle may not be introduced');
 assert.equal(/!important/i.test(cssScope),false,'M16.5J may not add new !important debt');
