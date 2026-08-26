@@ -46,7 +46,9 @@ assert.match(shellScope,/returnPlanCompassHome/,'the Compass must return to its 
 assert.doesNotMatch(shellScope,/lv-nav-compass-mark/,'the navigation AI entry may not become the feature-flight source');
 
 assert.match(actionScope,/leavePlanCompass\('today'\)/,'X must return to Today');
-assert.match(actionScope,/--lv-plan-selection-angle/,'feature choice must aim the native two-ended needle');
+assert.match(shell,/--lv-plan-selection-angle/,'feature choice must aim the native two-ended needle');
+assert.match(actionScope,/playCompassSelectionNeedle/,'feature choice must preserve the rendered needle angle before its direct selection animation');
+assert.match(shell,/playCompassSelectionNeedle[\s\S]*cubic-bezier\(\.16,\.84,\.18,1\)/,'selection needle requires the accepted smooth shared-element easing');
 assert.match(actionScope,/selected\.classList\.add\('is-selected'\)/,'the chosen direction must remain visible during exit');
 assert.match(actionScope,/button\[data-compass-context\].*openLivingCompassContext\(compassNavigation\.dataset\.compassContext/s,'top-level navigation must switch the embedded Compass context instead of exiting it');
 assert.match(actionScope,/if\(e\.key==='Escape'\)/,'Escape must close the Compass to Today');
@@ -57,6 +59,9 @@ assert.match(contextScope,/playCompassContextNeedle/,'context switches require t
 assert.match(contextScope,/compassContextExitDuration/,'old context points must complete their exit before replacement');
 assert.match(contextScope,/compassContextEntryDuration/,'new context points must complete the shared entry sequence');
 assert.doesNotMatch(contextScope,/classList\.remove\('is-plan-compass-detached'\)/,'the top-left source Compass may not reappear during an open context switch');
+assert.match(hubScope,/feature\('Live-Momente'[^\n]*'capture','foundation'\)/,'Trip Live-Momente must retain the accepted capture intent instead of opening the gallery');
+assert.match(hubScope,/feature\('Moment bewahren'[^\n]*'capture','foundation'\)/,'Memory capture must remain distinct from the Media library');
+assert.match(hubScope,/feature\('Mediathek'[^\n]*'gallery'\)/,'only the Mediathek direction may open the gallery in the Memory context');
 for(const route of ['places','places-lifecycle','timeline','bookings','routes']){
   assert.ok(actionScope.includes(`'${route}'`),`real feature route missing: ${route}`);
 }
