@@ -14,29 +14,37 @@ const BROWSER=process.env.LUVIA_E2E_BROWSER||chromium.executablePath();
   const page=await context.newPage();page.setDefaultTimeout(30000);
   try{
     await page.goto(`${BASE_URL}/?qa=m16.5q-pwa`,{waitUntil:'domcontentloaded',timeout:60000});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&Boolean(window.LuviaPWA));
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.61'&&Boolean(window.LuviaPWA));
+    await page.evaluate(()=>window.LuviaPWA.register());
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.61'&&Boolean(navigator.serviceWorker.controller));
+
+    const documentToken=await page.evaluate(()=>window.__m165qPwaDocumentToken=`pwa-${Date.now()}-${Math.random()}`);
     await page.evaluate(async()=>{
       const stale=await caches.open('luvia-shell-v13.17.0');
       await stale.put(new Request(new URL('stale-cache-probe',location.href)),new Response('stale'));
       await window.LuviaPWA.register();
     });
-    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
-    await page.reload({waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&Boolean(navigator.serviceWorker.controller));
-
-    const cachesAfterUpdate=await page.evaluate(()=>caches.keys());
-    assert.ok(cachesAfterUpdate.includes('luvia-shell-v13.82.60'),'current release cache is missing');
-    assert.equal(cachesAfterUpdate.includes('luvia-shell-v13.17.0'),false,'stale fixed cache survived recovery');
+    await page.waitForTimeout(500);
+    const cachesAfterRegister=await page.evaluate(()=>caches.keys());
+    assert.ok(cachesAfterRegister.includes('luvia-shell-v13.82.61'),'current release cache is missing');
+    assert.ok(cachesAfterRegister.includes('luvia-shell-v13.17.0'),'registration must preserve caches while the current worker controls the live document');
+    assert.equal(await page.evaluate(()=>window.__m165qPwaDocumentToken),documentToken,'registration must not reload the live document');
+    await page.evaluate(()=>window.LuviaPWA.clearOldCaches());
+    const cachesAfterMaintenance=await page.evaluate(()=>caches.keys());
+    assert.ok(cachesAfterMaintenance.includes('luvia-shell-v13.82.61'),'explicit maintenance removed the active release cache');
+    assert.equal(cachesAfterMaintenance.includes('luvia-shell-v13.17.0'),false,'explicit maintenance did not prune the stale shell cache');
 
     await context.setOffline(true);
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.60'&&document.querySelector('#app')?.children.length>0);
-    const offlineCss=await page.evaluate(()=>fetch('app/module-hubs.css?v=13.82.60').then(response=>response.text()));
+    await page.waitForFunction(()=>window.LuviaKernelVersion?.build==='13.82.61'&&document.querySelector('#app')?.children.length>0);
+    const offlineCss=await page.evaluate(()=>fetch('app/module-hubs.css?v=13.82.61').then(response=>response.text()));
     assert.match(offlineCss,/\.lv-plan-compass-stage/,'offline active-cache recovery missed the Living Compass stylesheet');
     assert.equal(await page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL.endsWith('/sw.js')),true,'offline document lost the active worker controller');
 
     console.log('M16.5Q PWA cache / Service Worker real browser E2E: PASS');
-    console.log('Stale shell cache pruned after update; current cache and offline reload: PASS');
+    console.log('Live registration preserved the controller/cache; explicit maintenance and offline reload: PASS');
   }finally{
     await context.setOffline(false).catch(()=>{});
     await context.close();await browser.close();

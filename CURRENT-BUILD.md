@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.60**
-- Core: **4.82.60**
+- App: **13.82.61**
+- Core: **4.82.61**
 - Name: **M16.5 Living Compass Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
@@ -101,23 +101,23 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5Q Living Compass Recovery Candidate
 
-- Runtime target: **App 13.82.60 / Core 4.82.60 / Integration Preview only**.
-- Acceptance correction: **the earlier public M16.5P functional acceptance and the App 13.82.55–13.82.59 public runs are revoked; three unchanged user recordings, real-click delayed/non-routing reproduction, first-Back failure, authenticated delayed-Places overwrite and public console evidence are regression authorities**.
-- Compass interaction: **every desktop/mobile primary-navigation context enters the accepted Heute, Planen, Reise, Erinnern or Profil constellation directly, without a Plan-first precondition; a physical primary pointer latches its direction at press and executes that exact action once at release even if animation changes the browser hit target; the chosen point keeps its complete rectangle, receives the coral underlay, and the native two-ended needle uses the direct signed angle**.
-- Shared transition: **white carrier and official target Compass remain invisible during the first flight phase and materialize together only in the final handoff; heading and fixed orbital points then enter with the accepted stagger; the selected point holds calmly for 620 ms, and the return clone preserves the direct angle with no search/loop animation**.
-- Cleanup and access: **browser history commits before asynchronous module deactivation/activation, so the first Back gesture is authoritative during a slow Places mount; the visual exit lock ends before the owner mount settles and stale cleanup is scoped to the captured old stage; X/Escape, monotonic queued intent, current-stage ownership, keyboard arrows, 44 px touch targets, reduced motion and focus/inert/`aria-hidden` pairing remain covered**.
+- Runtime target: **App 13.82.61 / Core 4.82.61 / Integration Preview only**.
+- Acceptance correction: **the earlier public M16.5P functional acceptance and the App 13.82.55–13.82.60 public runs are revoked as complete visual acceptance; the unchanged human recordings and continued real pointer/touch review are regression authorities. App 13.82.60 fixed the dropped-click class but still exposed Profile bypass, source-Compass reappearance, disconnected carrier exit, overly fast constellation timing and live-tab update flicker**.
+- Compass interaction: **every desktop/mobile primary-navigation context and both visible Profile triggers enter the accepted Heute, Planen, Reise, Erinnern or Profil constellation directly; the physical hit rectangle remains immutable while only its inner visual surface lifts on hover; a selected point stays fixed, receives the coral underlay and aims the native two-ended needle by the direct signed angle**.
+- Shared transition: **white carrier and official target Compass materialize as one coupled visual; on exit the complete carrier/Compass reverses that handoff without a lingering white disc. During context changes the old constellation retracts in reverse radial order before the new points playfully pop upward in forward order; only this context-to-context phase uses bounded irregular needle motion, while concrete selection remains direct**.
+- Cleanup and access: **the top-left brand Compass remains detached for the entire open/context-switch lifecycle and returns only after a real Compass exit; history, monotonic intent, current-stage ownership, X/Escape, Keyboard, 44 px touch targets, reduced motion and focus/inert/`aria-hidden` pairing remain covered**.
 - Places/Map: **map/list selection is bidirectional, late MapLibre callbacks are render-fenced and an honest bright fallback preserves search, evidence, results and actions**.
-- Cache/PWA: **the expected cache derives from the release build, old shell caches are pruned only after registration/update, newly active workers reload an already controlled page once, and brand/static assets recover network-first from the current cache only**.
-- Local visible browser evidence: **real Edge physical pointer press/release through all eight directions at 1920 × 1020, a pre-ready press whose target is moved 96 px before release, unchanged hover geometry, direct context entry, touch at 390 × 844 / 360 × 740 / 320 × 673, keyboard, reload, reduced motion, stalled-flight routing, newer-intent ordering and the first Back during a 1.6-second Places mount PASS; timed frames prove joint carrier/Compass handoff and radial stagger; the coral selected point stays fixed; the stage and return flight retain direct `-90deg`; zero focused descendants exist below an outgoing `aria-hidden` host**.
-- Local PWA evidence: **real Edge Service Worker registration, stale `luvia-shell-v13.17.0` pruning, current `luvia-shell-v13.82.60` activation and offline document/CSS reload PASS**.
-- Candidate validation: **106 / 106 Safe Regression PASS; regenerated visual inventory 2,788 / 672 with 59 CSS files; NFR-0 3 / 3 PASS; cross-Core DB ownership guard PASS without debt growth**.
-- Public visible evidence: **PASS on the authenticated stable origin in a separate real in-app browser tab: pointer press/release during the pre-ready carrier window at 910 × 698 and 390 × 844, an immediate pre-ready click at 320 × 673, all five direct Compass contexts, all eight primary Plan directions, direct signed needle angles, stationary coral selection, first Browser Back after the early Places history commit, X, Escape, reload, Places search and map/list interaction; no outgoing `aria-hidden` host retained focus and no ARIA warning occurred**.
-- Public motion evidence: **frame sampling on the deployed stable origin kept carrier and target mark jointly invisible through the flight phase, materialized both together, started direction interaction only afterward and retained `animation-name: none` on the needle; the selected card rectangle remained pixel-identical while the coral underlay appeared**.
+- Cache/PWA: **the expected cache derives from the active script release; normal registration neither activates a waiting worker nor deletes the cache controlling the live tab. A newly deployed worker waits for a controlled activation or natural client close, preventing spontaneous takeover/reload; explicit update activation and maintenance cleanup remain available**.
+- Local visible browser evidence: **real Edge physical pointer/hover/keyboard/reload/Back plus all eight 1920 × 1020 directions, touch at 390 × 844 / 360 × 740 / 320 × 673, 44 px targets and reduced motion PASS on the assembled source; timed state sampling proves reverse-old/forward-new radial ordering, source-brand suppression, playful inner hover lift, direct selected needle, coupled carrier exit and permanent low-amplitude direction drift/idle-needle pendulum without moving the immutable outer hit rectangles**.
+- Local PWA evidence: **PASS on the versioned Integration assembly: normal registration preserved the controlling worker, current `.61` cache and live document without reload; explicit maintenance pruned only the deliberately stale cache; offline document and CSS reload remained available**.
+- Candidate validation: **106 / 106 Safe Regression PASS; visual inventory freshness 2,788 tracked / 672 visual / 59 CSS PASS; NFR-0 3 / 3 PASS; cross-Core DB ownership guard PASS at 363 tracked JS/TS without debt growth; release consistency, M16.5Q static gate, real Edge Compass E2E and real Edge PWA E2E PASS. Public visible E2E remains mandatory after deployment**.
+- Public visible evidence: **PENDING for App 13.82.61; App 13.82.60 is superseded because continued human review exposed the remaining choreography/Profile/source-visibility/update defects**.
+- Public motion evidence: **PENDING for the new stable and immutable Integration artifact**.
 - Public Places/Map evidence: **18 productive Scharbeutz results, six coordinate-qualified visible results and six map markers; search and a visible marker → corresponding-result selection passed; horizontal overflow remained zero at desktop and both measured mobile widths**.
-- Public artifact evidence: **all ten changed Cloudflare assets are byte-exact across clean commit export, stable origin and immutable version; private `tests`, `docs`, `.git` and `wrangler.jsonc` probes resolve only to the public SPA entry and expose no private bytes; immutable authentication remains correctly origin-scoped and no token was copied**.
-- Release status: **App 13.82.60 is deployed only to Integration at 100% traffic: version `a785c5b2-e4a2-4310-9b11-8d43c6fb129f`, deployment `1015592a-43f3-4aa6-ac2e-8fd5d1ecdf32`; Main and Production remain locked and unchanged**.
-- URLs: **stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://a785c5b2-integration-luvia.njwnrvwbv5.workers.dev/`**.
-- Rollback: **will target unaccepted App 13.82.59 version `599148c7-6783-416d-9988-12bb111ab898` on the Integration Worker only; no data rollback**.
+- Public artifact evidence: **PENDING for the new immutable version; immutable authentication remains correctly origin-scoped and no token will be copied**.
+- Release status: **App 13.82.61 Integration deployment PENDING; Main and Production remain locked and unchanged**.
+- URLs: **stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; new immutable URL PENDING**.
+- Rollback: **will target App 13.82.60 version `a785c5b2-e4a2-4310-9b11-8d43c6fb129f` on the Integration Worker only; no data rollback**.
 - Database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual Cloudflare configuration change: **NONE**.
 
 ## M16.5N–P Productive Places Spatial Experience
@@ -210,12 +210,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.60 / 4.82.60 Integration recovery candidate with the accepted Living Compass interaction and productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.61 / 4.82.61 Integration recovery candidate with the accepted Living Compass interaction and productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
 - Exhaustive manifest: **2,788 tracked files; 672 visual candidates; 264 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **59 files; 936,701 LF-normalized bytes; 8,337 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 44 focus-visible selectors**
+- Canonical CSS baseline: **59 files; 939,720 LF-normalized bytes; 8,345 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 45 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -224,9 +224,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **106 / 106 PASS on the Platform 13.82.60 / 4.82.60 Living Compass recovery candidate**
+- Safe Regression: **106 / 106 PASS on the Platform 13.82.61 / 4.82.61 Living Compass recovery candidate**
 - NFR-0: **3 / 3 PASS**
-- Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
+- Cross-Core DB guard: **363 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **UNCHANGED**

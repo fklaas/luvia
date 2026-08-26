@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.60 / Core 4.82.60
+Runtime: App 13.82.61 / Core 4.82.61
 
 Channel: Integration Preview only
 
@@ -25,10 +25,17 @@ Compass to settle, but unchanged human pointer testing reproduced the inert
 selection on both the integrated and external browsers; the first Browser Back
 during a still-mounting Places route was ineffective; and the accepted motion
 reference exposed a premature white carrier plus an incorrect needle handoff.
-13.82.60 is the corrective Integration candidate. It receives
-no functional acceptance until a new, uninterrupted, real-pointer public E2E
-run and console/accessibility check have visibly completed after deployment and
-Service Worker settlement.
+App 13.82.60 corrected the dropped-click class and passed the then-current
+automated/public sequence, but that acceptance is now explicitly revoked.
+Continued unchanged human review exposed five remaining defects: Profile still
+bypassed the Compass; the top-left source Compass reappeared during an open
+context switch; the white carrier outlived the departing Compass; constellation
+replacement was too fast and not a closed reverse/forward sequence; and normal
+Service Worker registration could take over a live tab, prune its cache and
+produce reload-like flicker. App 13.82.61 is the corrective Integration
+candidate. It receives no functional acceptance until a new, uninterrupted,
+real-pointer public E2E run and console/accessibility check have visibly
+completed after deployment and Service Worker settlement.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -81,6 +88,22 @@ Binding accepted-motion reference:
   a selected point stays in place with a coral underlay while all others fade;
   and the two-ended needle turns directly to that selected point without a
   search loop before the Compass returns to the brand source.
+
+Latest unchanged user review evidence:
+
+- file: `Luvia – Gemeinsam reisen. Für immer erinnern. - Persönlich – Microsoft​ Edge 2026-08-26 15-24-51.mp4`;
+- SHA-256: `1CEBD1FB4DBCD22C1087B6D09FAF365865579321F03303A177EA43138872E99C`;
+- unchanged duration/resolution evidence: 43.545633 seconds / 1920 × 1020;
+- decisive findings: the physical click-loss defect is visibly corrected, but
+  Profile still opens outside the accepted Compass; the carrier can linger
+  after the central Compass has left; new context points appear too quickly;
+  context replacement does not first retract the old constellation; and the
+  source Compass becomes visible at top left during Plan/Trip switching;
+- subsequent binding direction from the same review: direction surfaces may
+  float continuously by only a few pixels and the idle needle may pendulate
+  gently to retain a living quality. These ambient motions must pause during
+  selection/context/return motion, must never move the outer hit target and
+  must be disabled under Reduced Motion.
 
 ## 3. Proven root causes
 
@@ -164,6 +187,23 @@ Binding accepted-motion reference:
     forced invisible until `is-ready`, and the return-flight clone lost the
     inherited signed selection angle. This separated the white disc from the
     arriving mark and could reset the needle during a still-visible exit frame.
+23. The visible profile avatar and lower Profile navigation item carried only
+    `data-profile-open`; they bypassed the five-context Compass command path and
+    opened the legacy Profile surface directly.
+24. `openLivingCompassContext` removed the detached-source class during every
+    context replacement. This revealed the top-left brand Compass even though
+    the same central Compass was still open and had not begun its real return.
+25. Exit styling faded the mark but not the complete white carrier/core. The
+    carrier therefore remained as a disconnected white disc after the Compass
+    had visually left.
+26. Old and new direction sets shared an abrupt replacement boundary. The old
+    points did not retract in reverse radial order and the new set entered too
+    early to read as one closed, playful context transition.
+27. Normal PWA registration actively promoted a waiting worker while install
+    already called `skipWaiting`, then pruned old shell caches. A deployed update
+    could therefore replace the live controller/cache and trigger the guarded
+    controller-change reload while the user was interacting, perceived as
+    intermittent flashing or a spontaneous page reload.
 
 ## 4. Recovery implementation
 
@@ -215,8 +255,21 @@ Binding accepted-motion reference:
   the accepted stagger. The return clone inherits the exact signed selection
   angle and its needle animation is explicitly `none`.
 - Hover and selection never resize or translate the direction element; visual
-  feedback uses opacity only, preserving the full physical pointer/touch hit
-  rectangle from press through route commit.
+  feedback and hover lift are confined to nested visual surfaces, preserving
+  the full physical pointer/touch hit rectangle from press through route commit.
+- The old context retracts in reverse radial order before replacement. The new
+  points then pop upward in forward order with a soft overshoot. Only this
+  context-to-context interval gives the needle a bounded irregular playful
+  movement; a concrete direction selection still takes the direct signed angle
+  without a decorative search loop.
+- Every ready, idle constellation keeps a deliberately tiny, phase-offset
+  vertical float on its inner direction surfaces and a ±2-degree needle
+  pendulum. Selection, context exit/entry and Compass return pause those ambient
+  animations; Reduced Motion disables both. The outer button geometry remains
+  fixed throughout.
+- Both visible Profile triggers now carry explicit Profile Compass intent. The
+  source brand remains detached throughout all open context switches and is
+  restored only as part of a real reverse Compass exit.
 - The standalone Luvia Compass navigation control still opens the real
   Intelligence dialog directly.
 - Before an outgoing host becomes hidden, focus is released from any descendant;
@@ -240,11 +293,16 @@ Binding accepted-motion reference:
 
 ### Cache and Service Worker
 
-- The expected shell cache derives from `LuviaKernelVersion.build`.
-- Only older `luvia-shell-v*` caches are pruned, after worker registration,
-  update/activation and readiness.
-- An already controlled page reloads once after the new worker takes control;
-  the session guard prevents a reload loop.
+- The expected shell cache derives first from the active PWA service script's
+  `?v=` release and falls back to `LuviaKernelVersion.build`, keeping loader and
+  worker on the same immutable release key.
+- Normal registration observes a waiting update but neither activates it nor
+  prunes the cache controlling the live page. The installing worker no longer
+  calls `skipWaiting`; it activates naturally after old clients close or only
+  through the existing explicit update action.
+- Explicit update activation retains the guarded one-time controller-change
+  reload. Explicit maintenance removes only older `luvia-shell-v*` caches; the
+  active `.61` cache is preserved.
 - Versioned JS/CSS/JSON/manifest/HTML and brand assets use network-first
   recovery and fall back only to the active release cache.
 - `beforeinstallprompt` is retained for the real install action.
@@ -285,9 +343,17 @@ runtime:
 - timed entry-frame evidence proving the white target carrier and target Compass
   are both hidden before arrival, materialize together in the final
   shared-element phase, and precede the staggered direction sequence;
-- Service Worker registration, deliberate stale
-  `luvia-shell-v13.17.0` creation/pruning, active
-  `luvia-shell-v13.82.60` recovery and offline document/CSS reload.
+- idle sampling that proves visibly changing inner direction/needle transforms
+  while the outer pointer rectangle remains byte-for-byte stationary, plus
+  Reduced Motion evidence that both ambient animations are `none`;
+- reverse-old/forward-new context ordering, top-left source suppression across
+  Plan/Trip/Plan, Profile entry from both visible triggers, coupled effective
+  carrier/mark opacity on exit and absence of a document reload;
+- Service Worker registration with deliberate stale
+  `luvia-shell-v13.17.0` creation: normal registration preserves both live
+  controller/cache and document token without reload; explicit maintenance
+  removes only the stale cache, retains active `luvia-shell-v13.82.61`, and
+  offline document/CSS reload succeeds.
 
 Visual evidence is retained locally under
 `test-results/m16.5q/desktop-entry-before-arrival.png`,
@@ -303,7 +369,8 @@ Automated gates:
 - Active Trip Context regression: 2 / 2 PASS;
 - cross-Core DB ownership guard: PASS without debt growth;
 - release consistency, M16.5Q release lock and visual inventory freshness:
-  PASS;
+  PASS at 2,788 tracked files / 672 visual candidates / 59 CSS files;
+- cross-Core DB ownership guard: PASS at 363 tracked JS/TS without debt growth;
 - no database/schema/RPC/RLS/bucket migration;
 - no Supabase Edge Function, secret or manual Cloudflare configuration change.
 
@@ -327,7 +394,10 @@ acceptance. App 13.82.58 then passed the expanded local geometry/direct-entry
  the disconnected carrier/Compass and needle timing. App 13.82.59 is therefore
  also revoked and provides no functional acceptance.
 
-App 13.82.60 public stable-origin re-acceptance completed after deployment:
+The following App 13.82.60 stable-origin run is retained as historical
+diagnostic evidence only. Its former acceptance is revoked because its matrix
+did not yet cover the Profile/source-visibility/reverse-carrier/context-sequence
+and live-update defects later reproduced by the user:
 
 1. a separate authenticated in-app browser tab loaded only `.60`-keyed runtime
    scripts and retained the exact route after a real reload;
@@ -365,9 +435,14 @@ App 13.82.60 public stable-origin re-acceptance completed after deployment:
    `wrangler.jsonc` returned only the public SPA entry and exposed no private
    artifact bytes.
 
-Status after deployment: **LOCAL EDGE E2E/PWA PASS; AUTHENTICATED PUBLIC VISIBLE
-RECOVERY E2E PASS WITHIN THE M16.5Q MATRIX. This does not accept the remaining
-M16.5 visual-parity matrix or authorize Main/Production promotion.**
+Historical App 13.82.60 result: **the then-current local and public matrix
+passed, but the functional/visual acceptance based on that matrix is revoked.**
+
+App 13.82.61 status before publication: **LOCAL EDGE COMPASS E2E PASS; LOCAL
+EDGE PWA E2E PASS; 106 / 106 SAFE REGRESSION PASS; PUBLIC VISIBLE E2E PENDING.**
+No App 13.82.61 functional acceptance may be recorded until a real visible
+pointer sequence has passed on the newly deployed stable origin and the
+immutable artifact has been matched to that exact release.
 
 ## 7. Source and deployment provenance
 
@@ -392,6 +467,13 @@ Consumer source commits:
   carrier/selection/needle motion.
 - `4a07245` — retain the direct selected needle angle through the still-visible
   outgoing route handoff.
+- `8d9c48917ee65b1c9861815813fd01a50314e20f` — accepted closed context
+  choreography, Profile Compass entry, source-brand suppression, coupled
+  reverse carrier exit and live-tab-safe Service Worker activation.
+- `7794524acc24d1d89735faab58e0833a8513eb56` — subtle nested direction float
+  and idle-needle pendulum without moving hit geometry.
+- `c97efb0bb73f9fd883e615fe0916fc20b77ff74d` — robust coupled-handoff timing
+  sampling in the real-browser gate.
 
 Integration provenance:
 
@@ -406,6 +488,8 @@ Integration provenance:
 - App 13.82.59 intent-ordering assembly: `7637dcb`.
 - App 13.82.60 human-interaction/motion assembly: `9b4bbc4`; runtime release
   commit: `bc3549eeadbbb117469dd2340b1a022700ded644`.
+- App 13.82.61 choreography assembly: `59a0368`; release source commit:
+  **PENDING**.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -452,7 +536,7 @@ Superseded, unaccepted App 13.82.59 Integration:
   slow Places mount; stale exit cleanup could reset the restored Plan stage;
   and carrier/Compass/needle timing deviated from the binding reference.
 
-App 13.82.60 Cloudflare Integration evidence:
+Superseded, unaccepted App 13.82.60 Cloudflare Integration evidence:
 
 - source commit: `bc3549eeadbbb117469dd2340b1a022700ded644`;
 - version ID: `a785c5b2-e4a2-4310-9b11-8d43c6fb129f`;
@@ -461,8 +545,19 @@ App 13.82.60 Cloudflare Integration evidence:
 - stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
 - immutable URL:
   `https://a785c5b2-integration-luvia.njwnrvwbv5.workers.dev/`;
-- ten changed runtime assets byte-exact across clean commit export, stable and
-  immutable origins.
+- ten changed runtime assets were byte-exact across clean commit export, stable
+  and immutable origins, but that artifact is retained only as an operational
+  rollback because later human review revoked its visual/functional acceptance.
+
+App 13.82.61 Cloudflare Integration evidence:
+
+- source commit: **PENDING**;
+- version ID: **PENDING**;
+- deployment ID: **PENDING**;
+- traffic: **PENDING**;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- immutable URL: **PENDING**;
+- authenticated stable-origin visible E2E and immutable byte parity: **PENDING**.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -495,11 +590,11 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 599148c7-6783-416d-9988-12bb111ab898@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.59" --yes
+npx wrangler versions deploy a785c5b2-e4a2-4310-9b11-8d43c6fb129f@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.60" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`599148c7-6783-416d-9988-12bb111ab898` from deployment
-`aec7b747-5879-4973-bf81-5ef9d8e1fb0d`. It is an operational fallback only,
-not an accepted functional build. No data rollback is required because M16.5Q
-changed no database, storage schema, Edge Function or secret.
+`a785c5b2-e4a2-4310-9b11-8d43c6fb129f` from deployment
+`1015592a-43f3-4aa6-ac2e-8fd5d1ecdf32`. It is an operational fallback only,
+not an accepted functional/visual build. No data rollback is required because
+M16.5Q changed no database, storage schema, Edge Function or secret.

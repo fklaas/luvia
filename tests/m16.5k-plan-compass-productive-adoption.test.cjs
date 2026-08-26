@@ -37,6 +37,7 @@ assert.match(hubs,/data-plan-compass-close/);
 assert.match(hubs,/data-plan-angle/);
 assert.match(hubs,/--direction-exit-index/,'context exits require a reverse radial order');
 assert.match(hubs,/lv-plan-direction-motion/,'direction motion must live inside the immutable button hit geometry');
+assert.match(hubs,/lv-plan-direction-idle/,'idle dynamics must live inside the immutable button hit geometry');
 
 assert.match(shellScope,/\.lv-living-brand-compass/,'desktop Compass flight must originate at the top-left Luvia brand');
 assert.match(shellScope,/\.lv-living-mobile-compass/,'mobile Compass flight must originate at the mobile Luvia brand');
@@ -77,6 +78,9 @@ assert.doesNotMatch(cssScope,/\.is-navigating \.lv-plan-direction\{[^}]*scale:/,
 assert.doesNotMatch(cssScope,/lv-plan-direction-float/,'direction buttons must keep immutable hit geometry instead of receiving a second independent transform animation');
 assert.match(cssScope,/@keyframes lv-plan-direction-pop-in/,'the accepted playful upward direction pop is missing');
 assert.match(cssScope,/@keyframes lv-plan-direction-pop-out/,'context changes require the matching reverse direction exit');
+assert.match(cssScope,/@keyframes lv-plan-direction-idle-drift/,'settled direction visuals require their subtle idle drift');
+assert.match(cssScope,/@keyframes lv-plan-needle-idle/,'the unselected needle requires its subtle idle pendulum');
+assert.match(cssScope,/\.is-context-seeking[^\n]*\.lv-plan-direction-idle\{animation-play-state:paused\}/,'idle drift must pause during a context or destination transition');
 assert.match(cssScope,/\.lv-plan-direction:hover \.lv-plan-direction-surface[^\n]*\{transform:/,'hover motion must move only the visual surface inside the stable hit target');
 assert.match(cssScope,/\.is-returning \.lv-plan-compass-core\{opacity:0/,'the white carrier must leave with the returning Compass instead of lingering');
 assert.doesNotMatch(cssScope,/\.lv-plan-compass-mark\{[^}]*animation:[^}]*rotate/,'the complete Compass mark may not rotate');
