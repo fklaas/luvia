@@ -5411,8 +5411,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 18908,
-      "sha256": "ce4f97c5c920f8e8b98f1d6f2049a585f01a29ef9c611d400e633b55840a3b16"
+      "bytes": 19246,
+      "sha256": "48a90ae70c46bbdc618d9d446432fe191bae3117b3ad564c76dd21c9e6d6f3d2"
     },
     {
       "path": "tests/m16.5q-pwa-cache-recovery-e2e.cjs",

@@ -130,7 +130,8 @@ for(const file of ['tests/fixtures/m16.5q-living-compass-recovery-browser.html',
 assert.match(runner,/tests\/m16\.5q-living-compass-recovery-release\.test\.cjs/);
 assert.match(pcr,/earlier claim that the public M16\.5P Integration build had received\s+functional acceptance is revoked/i);
 assert.match(pcr,/18 CSS pixels[\s\S]*pointercancel/i,'the physical-handset root cause and measured reproduction must remain explicit');
-assert.match(pcr,/physical handset retest remains open/i,'automation may not be promoted to physical-handset acceptance');
+assert.match(pcr,/Automation is not presented as handset acceptance[\s\S]*real user-run[\s\S]*closes that gate for App 13\.82\.64/i,'physical-handset acceptance must be attributed to the explicit user-run retest, never to automation');
+assert.match(pcr,/The physical-handset gate for App 13\.82\.64 is closed[\s\S]*user independently[\s\S]*confirmed the previously failing flow works/i,'the user-confirmed stable-origin handset closeout must remain explicit');
 assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`/);
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 

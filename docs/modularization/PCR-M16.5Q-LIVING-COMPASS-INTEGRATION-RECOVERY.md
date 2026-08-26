@@ -49,8 +49,11 @@ then the delegated route handler reinterpreted the same bubbling click through
 the structural `.lv-view-host[data-view="places"]` ancestor, immediately routing
 back to Places. App 13.82.64 is the published combined moment-routing,
 selection-needle and route-host replay recovery. Its local and authenticated
-stable-origin browser matrices pass, but it receives no handset acceptance from
-automation; the physical handset retest remains open.
+stable-origin browser matrices pass. The user subsequently repeated the
+corrected flow on a physical handset against the stable Integration origin and
+explicitly confirmed that the last correction works without the prior routing
+failure. Automation is not presented as handset acceptance; the real user-run
+physical-handset retest closes that gate for App 13.82.64.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -616,8 +619,10 @@ PWA E2E PASS; PRODUCTIVE PLACES COMPASS RETURN / NO ROUTE-HOST REPLAY PASS;
 HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING / LIVE-MOMENTE / MOMENT
 BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE CONTINUITY / DIRECT PATH /
 SMOOTH PROGRESSION PASS; AUTHENTICATED STABLE-ORIGIN REAL-CUA E2E PASS; 8 / 8
-SOURCE / STABLE / IMMUTABLE RUNTIME ASSET PARITY PASS.** The physical handset
-retest remains open and is not replaced by automated hardware-path evidence.
+SOURCE / STABLE / IMMUTABLE RUNTIME ASSET PARITY PASS.** The user then completed
+the separate physical-handset retest on the stable Integration origin and
+reported the corrected flow as working without the prior failure. That user-run
+evidence, not automation, supplies the App 13.82.64 handset acceptance.
 
 ## 7. Source and deployment provenance
 
@@ -834,8 +839,12 @@ Production remained exactly on deployment
 
 ## 8. Explicitly still open
 
-- physical handset retest remains open on iOS/Android for App 13.82.64; local
-  hardware-path Edge touch evidence is necessary but is not handset acceptance;
+The physical-handset gate for App 13.82.64 is closed: after the automated
+hardware-path and public stable-origin evidence passed, the user independently
+retested the last correction on a real handset against the stable Integration
+origin and confirmed the previously failing flow works. The following broader
+gates remain open:
+
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
