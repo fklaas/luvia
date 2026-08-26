@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.71**
-- Core: **4.82.71**
+- App: **13.82.72**
+- Core: **4.82.72**
 - Name: **M16.5 Landing Auth Foundation**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
@@ -115,7 +115,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5S Public Landing / Real Authentication Scope Lock
 
-- Runtime target: **App 13.82.71 / Core 4.82.71 / Integration Preview only**.
+- Runtime target: **App 13.82.72 / Core 4.82.72 / Integration Preview only**.
 - Status: **cohesive Landing/Auth runtime candidate complete; public Integration publication and visible public E2E pending**.
 - Accepted Landing: **the complete `prototype-rq` composition is integrated from all five SHA-256-pinned HTML/CSS/JS/motion artifacts, including the full editorial journey below the hero; no hero-only, iframe or legacy-entry substitution**.
 - Journey-first entry: **the public first screen is now a bright, softly masked coastal memory surface instead of a form-first or dark full-bleed login. All primary start actions lead to a dedicated large Living Compass threshold; a deliberate click opens the two signposted paths “Weiterreisen” and “Meine Reise beginnen”, which then hand off to the single productive login/register owner**.
@@ -242,7 +242,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.71 / 4.82.71 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.72 / 4.82.72 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**

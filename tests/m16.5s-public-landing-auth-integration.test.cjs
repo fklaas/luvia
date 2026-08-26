@@ -17,10 +17,10 @@ const landingMotion = read('app/public-landing-motion.js');
 const demo = read('app/demo/living-compass-browser.html');
 const sw = read('sw.js');
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.71" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.71" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.71') < index.indexOf('app/public-entry.js?v=13.82.71'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.71') < index.indexOf('app/public-entry.js?v=13.82.71'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.72" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.72" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.72') < index.indexOf('app/public-entry.js?v=13.82.72'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.72') < index.indexOf('app/public-entry.js?v=13.82.72'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /link\[data-luvia-public-landing-style\]/);
@@ -80,7 +80,7 @@ for (const asset of [
   assert.match(sw, new RegExp(`assets/public-landing/${asset.replace('.', '\\.').replace('-', '\\-')}`));
 }
 
-assert.match(sw, /luvia-shell-v13\.82\.71/);
+assert.match(sw, /luvia-shell-v13\.82\.72/);
 assert.match(sw, /app\/public-landing\.html/);
 assert.match(sw, /app\/demo\/living-compass-browser\.html/);
 assert.match(sw, /app\/public-landing-motion\.js/);

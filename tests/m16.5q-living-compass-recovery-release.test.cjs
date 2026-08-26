@@ -19,15 +19,15 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.71'/);
-assert.match(version,/build:'13\.82\.71'/);
+assert.match(version,/core:'4\.82\.72'/);
+assert.match(version,/build:'13\.82\.72'/);
 assert.match(version,/name:'M16\.5 Landing Auth Foundation'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.71'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.72'/);
 assert.equal(index.includes('?v=13.82.61'),false,'active entry retains the handset-revoked cache key');
 assert.equal(index.includes('?v=13.82.62'),false,'active entry retains the superseded moment-routing/needle cache key');
 assert.equal(index.includes('?v=13.82.63'),false,'active entry retains the publicly superseded route-host click-replay cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.71`),`M16.5Q cache key missing for ${asset}`);
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.72`),`M16.5Q cache key missing for ${asset}`);
 
 assert.match(pwa,/const BUILD=SCRIPT_URL\.searchParams\.get\('v'\)[^\n]*globalThis\.LuviaKernelVersion/,'PWA cache identity must derive from the active release script and kernel fallback');
 assert.match(pwa,/const EXPECTED_CACHE=BUILD\?[^;]+:null/,'PWA cache identity must match the active release');
@@ -136,6 +136,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.71 / 4.82.71 / luvia-shell-v13.82.71');
+console.log('App / Core / shell cache: 13.82.72 / 4.82.72 / luvia-shell-v13.82.72');
 console.log('Compass contexts, physical touch routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

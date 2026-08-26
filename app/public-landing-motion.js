@@ -323,5 +323,5 @@
   };
   }
 
-  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.71', mount });
+  window.LuviaPublicLandingMotion = Object.freeze({ version: '13.82.72', mount });
 })();
