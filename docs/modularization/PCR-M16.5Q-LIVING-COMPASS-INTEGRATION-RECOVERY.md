@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.61 / Core 4.82.61
+Runtime: App 13.82.62 / Core 4.82.62
 
 Channel: Integration Preview only
 
@@ -32,10 +32,13 @@ bypassed the Compass; the top-left source Compass reappeared during an open
 context switch; the white carrier outlived the departing Compass; constellation
 replacement was too fast and not a closed reverse/forward sequence; and normal
 Service Worker registration could take over a live tab, prune its cache and
-produce reload-like flicker. App 13.82.61 is the corrective Integration
-candidate. It receives no functional acceptance until a new, uninterrupted,
-real-pointer public E2E run and console/accessibility check have visibly
-completed after deployment and Service Worker settlement.
+produce reload-like flicker. App 13.82.61 corrected that choreography and passed
+desktop CUA plus perfect automated mobile taps, but its mobile functional
+acceptance is now also explicitly revoked. Real physical-handset input still
+reproduced inert Places, Booking and Live-Momente directions after cache/cookie
+deletion and in incognito. App 13.82.62 is the physical-touch recovery candidate.
+It receives no handset acceptance from automation; the physical handset retest
+remains open after publication.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -204,6 +207,22 @@ Latest unchanged user review evidence:
     could therefore replace the live controller/cache and trigger the guarded
     controller-change reload while the user was interacting, perceived as
     intermittent flashing or a spontaneous page reload.
+28. The `.lv-plan-direction` hit owner had no `touch-action` contract. On the
+    unchanged App 13.82.61 assembly, hardware-path Edge touch input with only
+    18 CSS pixels of finger drift produced `pointerdown`, `pointermove`, then
+    `pointercancel`; no `pointerup` reached the latched Compass action and the URL
+    remained on Plan. F12 responsive mode and Playwright's perfect `.tap()` did
+    not reproduce this physical gesture path and therefore could not support a
+    handset acceptance claim.
+29. The pointer-release fallback used the same 20 px movement threshold for
+    mouse and touch. Normal finger contact can drift beyond that threshold while
+    remaining an intentional tap, so even a retained `pointerup` could be
+    rejected before exact destination routing.
+30. Compatibility-click suppression expired in the next zero-delay task. A real
+    mobile browser may dispatch its synthesized click later, after the Compass
+    stage has changed, allowing the stale coordinate to hit a replacement
+    control. The guard therefore had to span the route handoff while still being
+    cleared by the next genuine pointer gesture.
 
 ## 4. Recovery implementation
 
@@ -239,9 +258,13 @@ Latest unchanged user review evidence:
   is authoritative even while Places is still mounting.
 - Physical primary-pointer input latches the visible direction at
   `pointerdown`, captures that pointer and resolves the same action at
-  `pointerup` within the movement tolerance. The synthesized follow-up click is
-  suppressed, so a direction cannot be dropped or executed twice if animation
-  changes the browser hit target between press and release.
+  `pointerup`. The non-scrolling radial direction now declares
+  `touch-action:none`, preventing viewport panning from cancelling an intentional
+  finger tap. Touch receives a bounded 32 px movement tolerance while mouse
+  remains at 20 px. The synthesized follow-up click is suppressed for 900 ms
+  across the route handoff, and any new genuine pointerdown clears that guard,
+  so neither a stale delayed click nor an immediate second human gesture is
+  swallowed.
 - The shared-element flight is mounted in the persistent `.lv-living-shell`;
   every flight has a common cancellation owner and a bounded fallback. The
   destination action starts after the selection feedback without awaiting the
@@ -302,7 +325,7 @@ Latest unchanged user review evidence:
   through the existing explicit update action.
 - Explicit update activation retains the guarded one-time controller-change
   reload. Explicit maintenance removes only older `luvia-shell-v*` caches; the
-  active `.61` cache is preserved.
+  active `.62` cache is preserved.
 - Versioned JS/CSS/JSON/manifest/HTML and brand assets use network-first
   recovery and fall back only to the active release cache.
 - `beforeinstallprompt` is retained for the real install action.
@@ -319,8 +342,12 @@ runtime:
 - an explicit pre-ready physical press in which the Places element is moved 96
   px after `pointerdown` and before `pointerup`; the originally pressed Places
   action still executes exactly once;
-- touch at 390 × 844, 360 × 740 and 320 × 673 with all eight direction targets
-  inside the viewport and at least 44 px;
+- touch layouts at 390 × 844, 360 × 740 and 320 × 673 with all eight direction
+  targets inside the viewport and at least 44 px;
+- hardware-path Edge CDP `Input.dispatchTouchEvent` at 390 × 844 with an 18 px
+  finger drift through three independent reported routes: Plan → Places, Plan →
+  Booking and Reise → Live-Momente. Every case retained `pointerup`, emitted no
+  `pointercancel` and committed the exact `places`, `bookings` or `gallery` URL;
 - reduced-motion context switch and close-to-Today;
 - all five context constellations, including direct primary-navigation entry
   from ordinary Today/Plan/Trip/Memories/Profile views without a Plan-first
@@ -352,7 +379,7 @@ runtime:
 - Service Worker registration with deliberate stale
   `luvia-shell-v13.17.0` creation: normal registration preserves both live
   controller/cache and document token without reload; explicit maintenance
-  removes only the stale cache, retains active `luvia-shell-v13.82.61`, and
+  removes only the stale cache, retains active `luvia-shell-v13.82.62`, and
   offline document/CSS reload succeeds.
 
 Visual evidence is retained locally under
@@ -370,6 +397,8 @@ Automated gates:
 - cross-Core DB ownership guard: PASS without debt growth;
 - release consistency, M16.5Q release lock and visual inventory freshness:
   PASS at 2,788 tracked files / 672 visual candidates / 59 CSS files;
+- real Edge hardware-path touch drift through Places, Booking and Live-Momente:
+  PASS with retained `pointerup` and zero `pointercancel`;
 - cross-Core DB ownership guard: PASS at 363 tracked JS/TS without debt growth;
 - no database/schema/RPC/RLS/bucket migration;
 - no Supabase Edge Function, secret or manual Cloudflare configuration change.
@@ -440,7 +469,9 @@ passed, but the functional/visual acceptance based on that matrix is revoked.**
 
 App 13.82.61 public stable-origin recovery E2E completed after deployment in a
 separate authenticated in-app browser tab with coordinate-based CUA pointer
-input rather than DOM-dispatched clicks:
+input rather than DOM-dispatched clicks. The sequence is retained as desktop
+diagnostic evidence only; subsequent real handset testing revoked its mobile
+functional acceptance:
 
 1. the loaded `index.html`, kernel, PWA service and App Shell referenced only
    `13.82.61`; a real reload retained the exact
@@ -480,11 +511,17 @@ input rather than DOM-dispatched clicks:
    origin and immutable origin. The immutable hostname remains unauthenticated
    by design because session credentials are origin-scoped.
 
-Status after publication: **LOCAL EDGE COMPASS E2E PASS; LOCAL EDGE PWA E2E
-PASS; 106 / 106 SAFE REGRESSION PASS; AUTHENTICATED PUBLIC VISIBLE CUA RECOVERY
-E2E PASS; IMMUTABLE ASSET PARITY PASS.** This accepts only the corrected M16.5Q
-recovery matrix. It does not complete the overall M16.5 visual-parity matrix,
-the user's Design Freeze or any Main/Production promotion.
+Historical App 13.82.61 status: **LOCAL EDGE COMPASS E2E PASS; LOCAL EDGE PWA
+E2E PASS; 106 / 106 SAFE REGRESSION PASS; AUTHENTICATED PUBLIC DESKTOP CUA E2E
+PASS; IMMUTABLE ASSET PARITY PASS; PHYSICAL-HANDSET FUNCTIONAL ACCEPTANCE
+REVOKED.** Desktop emulation and perfect automated taps did not cover the later
+measured `pointercancel` path.
+
+App 13.82.62 local release evidence before publication: **REAL EDGE COMPASS E2E
+PASS; REAL EDGE PWA E2E PASS; HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING
+/ LIVE-MOMENTE PASS.** Public stable/immutable deployment evidence is recorded
+only after the new Integration version exists. The physical handset retest
+remains open and is not replaced by this automated hardware-path evidence.
 
 ## 7. Source and deployment provenance
 
@@ -516,6 +553,10 @@ Consumer source commits:
   and idle-needle pendulum without moving hit geometry.
 - `c97efb0bb73f9fd883e615fe0916fc20b77ff74d` — robust coupled-handoff timing
   sampling in the real-browser gate.
+- `2caeb6f` — retain physical touch ownership under normal finger drift, use a
+  touch-specific bounded slop, suppress delayed compatibility clicks across the
+  route handoff and cover Places, Booking and Live-Momente with real browser
+  touch input.
 
 Integration provenance:
 
@@ -532,6 +573,8 @@ Integration provenance:
   commit: `bc3549eeadbbb117469dd2340b1a022700ded644`.
 - App 13.82.61 choreography assembly: `59a0368`; release source commit:
   `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`.
+- App 13.82.62 physical-touch assembly: `f27f176`; versioned release source and
+  public deployment provenance are recorded after the release commit/deploy.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -591,7 +634,7 @@ Superseded, unaccepted App 13.82.60 Cloudflare Integration evidence:
   and immutable origins, but that artifact is retained only as an operational
   rollback because later human review revoked its visual/functional acceptance.
 
-App 13.82.61 Cloudflare Integration evidence:
+Superseded, handset-unaccepted App 13.82.61 Cloudflare Integration evidence:
 
 - source commit: `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`;
 - version ID: `65cc6c08-df40-424a-9658-9a643a26a0bd`;
@@ -600,7 +643,8 @@ App 13.82.61 Cloudflare Integration evidence:
 - stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
 - immutable URL:
   `https://65cc6c08-integration-luvia.njwnrvwbv5.workers.dev/`;
-- authenticated stable-origin visible CUA E2E and immutable byte parity: PASS;
+- authenticated stable-origin desktop visible CUA E2E and immutable byte parity:
+  PASS; physical-handset functional acceptance: REVOKED;
 - changed runtime asset parity: 11 / 11 exact on both stable and immutable.
 
 Three intermediate, never-routed upload versions created while proving the
@@ -617,7 +661,8 @@ Production remained exactly on deployment
 
 ## 8. Explicitly still open
 
-- physical iOS/Android handset visual/touch acceptance;
+- physical handset retest remains open on iOS/Android for App 13.82.62; local
+  hardware-path Edge touch evidence is necessary but is not handset acceptance;
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
@@ -634,11 +679,11 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy a785c5b2-e4a2-4310-9b11-8d43c6fb129f@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.60" --yes
+npx wrangler versions deploy 65cc6c08-df40-424a-9658-9a643a26a0bd@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.61" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`a785c5b2-e4a2-4310-9b11-8d43c6fb129f` from deployment
-`1015592a-43f3-4aa6-ac2e-8fd5d1ecdf32`. It is an operational fallback only,
-not an accepted functional/visual build. No data rollback is required because
-M16.5Q changed no database, storage schema, Edge Function or secret.
+`65cc6c08-df40-424a-9658-9a643a26a0bd` from deployment
+`bfae734c-fbf6-41bb-8264-9883118888c2`. It is an operational fallback only,
+not a handset-accepted functional/visual build. No data rollback is required
+because M16.5Q changed no database, storage schema, Edge Function or secret.

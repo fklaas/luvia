@@ -76,6 +76,7 @@ assert.match(cssScope,/@media\(prefers-reduced-motion:reduce\)/,'reduced-motion 
 assert.match(cssScope,/\.lv-plan-compass-needle\{[^}]*transform:rotate\(var\(--lv-plan-selection-angle/,'only the official native needle must receive the selection angle');
 assert.doesNotMatch(cssScope,/\.is-navigating \.lv-plan-direction\{[^}]*scale:/,'unselected directions must fade in place instead of collapsing toward a shared point');
 assert.doesNotMatch(cssScope,/lv-plan-direction-float/,'direction buttons must keep immutable hit geometry instead of receiving a second independent transform animation');
+assert.match(cssScope,/\.lv-plan-direction\{[^}]*touch-action:none/,'the non-scrolling radial stage must retain physical touch ownership');
 assert.match(cssScope,/@keyframes lv-plan-direction-pop-in/,'the accepted playful upward direction pop is missing');
 assert.match(cssScope,/@keyframes lv-plan-direction-pop-out/,'context changes require the matching reverse direction exit');
 assert.match(cssScope,/@keyframes lv-plan-direction-idle-drift/,'settled direction visuals require their subtle idle drift');
