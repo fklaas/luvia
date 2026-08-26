@@ -604,7 +604,7 @@
       if(superseded){cancelCompassFlights();stage.classList.remove('is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'));stage.style.removeProperty('--lv-plan-selection-angle')}
       else activeCompassContext=null;
     }
-    if(navigationTask){result=await navigationTask;superseded=intentSequence!==compassIntentSequence;if(!superseded&&stage.isConnected){stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'));stage.style.removeProperty('--lv-plan-selection-angle')}}
+    if(navigationTask){result=await navigationTask;superseded=intentSequence!==compassIntentSequence;if(!superseded&&stage.isConnected){stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'))}}
     const queuedContext=pendingCompassContext;pendingCompassContext=null;
     const queuedExit=pendingCompassExit;pendingCompassExit=null;
     if(queuedContext&&queuedContext.intentSequence===compassIntentSequence)return openLivingCompassContext(queuedContext.key,{focus:queuedContext.focus,intentSequence:queuedContext.intentSequence});
