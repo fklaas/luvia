@@ -105,6 +105,8 @@
   }
   const compassWait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const compassMotionReduced=()=>document.documentElement.classList.contains('reduce-motion')||document.body.classList.contains('reduce-motion')||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const compassFeedbackFrame=()=>compassMotionReduced()?Promise.resolve():Promise.race([new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))),compassWait(80)]);
+  const currentPlanCompassStage=()=>root?.querySelector('[data-stage] > .lv-view-host:not(.lv-route-previous) [data-plan-compass-stage]')||null;
   function cancelCompassFlights(){
     ++compassFlightSequence;
     activeCompassAnimations.forEach(animation=>{try{animation.cancel()}catch{}});activeCompassAnimations.clear();
@@ -136,7 +138,7 @@
     return sequence===compassFlightSequence;
   }
   async function revealPlanCompass(){
-    const stage=root?.querySelector('[data-plan-compass-stage]'),shell=root?.querySelector('.lv-living-shell');if(!stage||activeView!=='plan'||planCompassTransition)return;
+    const stage=currentPlanCompassStage(),shell=root?.querySelector('.lv-living-shell');if(!stage||activeView!=='plan'||planCompassTransition)return;
     stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     if(activeView!=='plan'||!stage.isConnected)return;
     const source=planCompassBrandSource(),target=stage.querySelector('.lv-plan-compass-mark');shell?.classList.add('is-plan-compass-detached');
@@ -165,12 +167,12 @@
   function dock(){
     return `<div class="lv-dock-wrap"><nav class="lv-dock" aria-label="Hauptnavigation">${navigationItems().map(item=>item.action==='assistant'
       ?`<button class="lv-nav lv-nav--compass lv-ai-global-trigger" type="button" data-ai-ask-open data-luvia-experience-component="commandSurface" data-luvia-experience-role="livingCompass" aria-label="Luvia Compass öffnen" aria-haspopup="dialog">${livingCompass('lv-nav-compass-mark')}<span class="lv-nav-label">${esc(item.label)}</span></button>`
-      :`<button class="lv-nav ${activeView===item.id?'on':''}" type="button" data-view="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-nav-icon">${navigationIcons[item.id]||''}</span><span class="lv-nav-label">${esc(item.label)}</span></button>`).join('')}</nav></div>`;
+      :`<button class="lv-nav ${activeView===item.id?'on':''}" type="button" data-view="${item.id}" data-compass-context="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-nav-icon">${navigationIcons[item.id]||''}</span><span class="lv-nav-label">${esc(item.label)}</span></button>`).join('')}</nav></div>`;
   }
   function sidebarNavigation(){
     return `<nav class="lv-living-primary-nav" aria-label="Luvia Bereiche">${navigationItems().map(item=>item.action==='assistant'
       ?`<button class="lv-living-nav-item lv-living-nav-ai lv-ai-global-trigger" type="button" data-ai-ask-open data-luvia-experience-component="commandSurface" data-luvia-experience-role="livingCompass" aria-label="Luvia Compass öffnen" aria-haspopup="dialog">${livingCompass('lv-living-nav-compass')}<span class="lvx-command-trigger-copy"><b>${esc(item.label)}</b><small>Fragen &amp; handeln</small></span></button>`
-      :`<button class="lv-living-nav-item ${activeView===item.id?'is-active':''}" type="button" data-view="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-living-nav-icon">${navigationIcons[item.id]||''}</span><span>${esc(item.label)}</span></button>`).join('')}<button class="lv-living-nav-item" type="button" data-profile-open="hub" data-compass-context="profile"><span class="lv-living-nav-icon">${navigationIcons.profile}</span><span>Profil</span></button></nav>`;
+      :`<button class="lv-living-nav-item ${activeView===item.id?'is-active':''}" type="button" data-view="${item.id}" data-compass-context="${item.id}" ${activeView===item.id?'aria-current="page"':''}><span class="lv-living-nav-icon">${navigationIcons[item.id]||''}</span><span>${esc(item.label)}</span></button>`).join('')}<button class="lv-living-nav-item" type="button" data-profile-open="hub" data-compass-context="profile"><span class="lv-living-nav-icon">${navigationIcons.profile}</span><span>Profil</span></button></nav>`;
   }
   function phaseRail(){
     const hour=new Date().getHours(),active=hour<11?0:hour<15?1:hour<18?2:hour<22?3:4;
@@ -185,7 +187,7 @@
     return `<span>Aktive Reise</span><strong>${esc(t.title||'Unsere Reise')}</strong><small>${esc(t.destination?.name||'Reiseziel offen')}${t.startDate||t.endDate?` · ${esc([t.startDate,t.endDate].filter(Boolean).join(' – '))}`:''}</small><div class="lv-living-trip-accent" aria-hidden="true"><i></i><i></i><i></i><i></i></div>`;
   }
   function refreshNavigationSelection(view=activeView){
-    const compassView=root?.querySelector('[data-plan-compass-stage]')&&activeCompassContext?({today:'today',plan:'plan',trip:'trip',memories:'memories'}[activeCompassContext]||null):null;
+    const compassView=currentPlanCompassStage()&&activeCompassContext?({today:'today',plan:'plan',trip:'trip',memories:'memories'}[activeCompassContext]||null):null;
     const selectedView=compassView||view;
     root?.querySelectorAll?.('.lv-living-nav-item[data-view],.lv-dock .lv-nav[data-view]').forEach(button=>{
       const selected=button.dataset.view===selectedView;button.classList.toggle(button.closest('.lv-living-primary-nav')?'is-active':'on',selected);
@@ -567,9 +569,9 @@
   }
   async function openLivingCompassContext(context='plan',{focus=true}={}){
     const key=['today','plan','trip','memories','profile'].includes(context)?context:'plan';
-    const currentStage=root?.querySelector('[data-plan-compass-stage]');
-    if(!currentStage)return show('plan',{compassContext:key,history:false,source:'living-compass-context'});
     if(planCompassTransition){if(activeCompassContext!==key)pendingCompassContext={key,focus};return}
+    const currentStage=currentPlanCompassStage();
+    if(!currentStage)return show('plan',{compassContext:key,history:false,source:'living-compass-context'});
     if(activeCompassContext===key)return;
     const token=++compassContextToken,host=currentStage.closest('.lv-view-host'),content=host?.querySelector('.lv-view-content');if(!content)return;
     planCompassTransition=true;cancelCompassFlights();root?.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached');lastCompassFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -585,15 +587,21 @@
     const queued=pendingCompassContext;pendingCompassContext=null;if(queued&&queued.key!==activeCompassContext)return openLivingCompassContext(queued.key,{focus:queued.focus});
   }
   async function leavePlanCompass(destination='today',selected=null){
-    const stage=root?.querySelector('[data-plan-compass-stage]');if(!stage)return;if(planCompassTransition){pendingCompassExit={destination,selected};return}
+    const stage=currentPlanCompassStage();if(!stage)return;if(planCompassTransition){pendingCompassExit={destination,selected};return}
     selected=selected?.isConnected?selected:[...stage.querySelectorAll('[data-hub-action]')].find(node=>node.dataset.hubAction===destination)||selected;
     const meta={label:selected?.dataset.compassLabel||selected?.textContent?.trim()||'',maturity:selected?.dataset.maturity||'active',context:activeCompassContext||'plan',fromCompass:true};
     planCompassTransition=true;pendingCompassContext=null;pendingCompassExit=null;clearTimeout(planCompassEntryTimer);++compassContextToken;cancelCompassFlights();
+    let result;
     try{
-      if(selected){const angle=Number(selected.dataset.planAngle||0),directAngle=((angle+180)%360+360)%360-180;selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${directAngle}deg`);stage.classList.add('is-navigating');await compassWait(compassMotionReduced()?0:720)}else stage.classList.add('is-navigating');
+      if(selected){const angle=Number(selected.dataset.planAngle||0),directAngle=((angle+180)%360+360)%360-180;selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${directAngle}deg`);stage.classList.add('is-navigating');await compassFeedbackFrame()}else stage.classList.add('is-navigating');
       void returnPlanCompassHome(stage).catch(error=>console.warn('[Luvia Plan Compass]',error));
-      return await Promise.resolve(handleHubAction(destination,meta));
+      result=await Promise.resolve(handleHubAction(destination,meta));
     }finally{planCompassTransition=false;activeCompassContext=null;clearPlanCompassVisuals({preserveFlights:true})}
+    const queuedContext=pendingCompassContext;pendingCompassContext=null;
+    const queuedExit=pendingCompassExit;pendingCompassExit=null;
+    if(queuedContext)return openLivingCompassContext(queuedContext.key,{focus:queuedContext.focus});
+    if(queuedExit&&currentPlanCompassStage())return leavePlanCompass(queuedExit.destination,queuedExit.selected);
+    return result;
   }
   function choosePlanCompassDirection(button){
     const action=button?.dataset.hubAction;if(!action)return;if(planCompassTransition){pendingCompassExit={destination:action,selected:button};return}
@@ -604,15 +612,16 @@
     const placeTarget=e.target.closest('[data-place-open]');if(placeTarget){e.preventDefault();return openPlace(placeOpenPayload(placeTarget)).catch(console.error)}
     if(e.target.closest('[data-retry]'))return bootstrap();if(e.target.closest('[data-create]'))return window.LuviaTripCreator.open();if(e.target.closest('[data-signout]'))return (window.LuviaAuth||window.ParisAuth).signOut();if(e.target.closest('[data-join-code]'))return window.LuviaJoinFlow?.openCodeEntry?.();if(e.target.closest('[data-invite]'))return openDialog('trip.invite',activeTrip());if(e.target.closest('[data-edit]'))return openDialog('trip.edit',activeTrip());
     const compassReturn=e.target.closest('[data-compass-return]');if(compassReturn){e.preventDefault();return openLivingCompassContext(compassReturn.dataset.compassReturn||'plan')}
-    const po=e.target.closest('[data-profile-open]');if(po){if(root.querySelector('[data-plan-compass-stage]')){e.preventDefault();e.stopPropagation();return openLivingCompassContext('profile')}return window.LuviaProfileFoundation.open(po.dataset.profileOpen||'hub')}
+    const compassNavigation=e.target.closest('button[data-compass-context]');if(compassNavigation){e.preventDefault();e.stopPropagation();return openLivingCompassContext(compassNavigation.dataset.compassContext||'plan')}
+    const po=e.target.closest('[data-profile-open]');if(po){if(currentPlanCompassStage()){e.preventDefault();e.stopPropagation();return openLivingCompassContext('profile')}return window.LuviaProfileFoundation.open(po.dataset.profileOpen||'hub')}
     const planClose=e.target.closest('[data-plan-compass-close]');if(planClose){e.preventDefault();e.stopPropagation();return leavePlanCompass('today')}
     const compassAI=e.target.closest('[data-compass-ai]');if(compassAI){e.preventDefault();e.stopPropagation();return leavePlanCompass('assistant',compassAI)}
     const planDirection=e.target.closest('[data-plan-compass-stage] [data-hub-action]');if(planDirection){e.preventDefault();e.stopPropagation();return choosePlanCompassDirection(planDirection)}
     const action=e.target.closest('[data-hub-action]')?.dataset.hubAction;if(action)return handleHubAction(action);
     const route=e.target.closest('[data-route-open]');if(route){const origin=root.querySelector('[data-route-origin]')?.value?.trim()||'',destination=root.querySelector('[data-route-destination]')?.value?.trim()||'';if(!destination)return toast('Bitte zuerst ein Ziel eingeben.');const params=new URLSearchParams({api:'1',destination,travelmode:'driving'});if(origin)params.set('origin',origin);window.LuviaPlatformPorts.require('ExternalNavigationPort').open(`https://www.google.com/maps/dir/?${params.toString()}`);return;}
-    const view=e.target.closest('[data-view]')?.dataset.view;if(view){e.preventDefault();e.stopPropagation();const context=compassContextForView(view);if(context&&root.querySelector('[data-plan-compass-stage]'))return openLivingCompassContext(context);if(root.querySelector('[data-plan-compass-stage]'))return leavePlanCompass(view);return show(view)}
+    const view=e.target.closest('[data-view]')?.dataset.view;if(view){e.preventDefault();e.stopPropagation();const context=compassContextForView(view),compassStage=currentPlanCompassStage();if(context&&compassStage)return openLivingCompassContext(context);if(compassStage)return leavePlanCompass(view);return show(view)}
   });root.addEventListener('keydown',e=>{
-    const stage=root.querySelector('[data-plan-compass-stage]');if(!stage)return;
+    const stage=currentPlanCompassStage();if(!stage)return;
     if(e.key==='Escape'){e.preventDefault();return leavePlanCompass('today')}
     if(planCompassTransition)return;
     if(!e.target.closest?.('[data-plan-compass-stage]'))return;
