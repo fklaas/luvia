@@ -673,6 +673,36 @@
   transition: opacity 420ms ease;
 }
 
+.lv-places-spatial__map-fallback {
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  background:
+    radial-gradient(circle at 73% 28%, rgba(255,255,255,.86) 0 6%, transparent 6.4%),
+    radial-gradient(ellipse at 78% 48%, rgba(140,202,219,.64) 0 24%, transparent 24.5%),
+    linear-gradient(128deg, transparent 0 27%, rgba(255,255,255,.88) 27.3% 29.2%, transparent 29.5% 47%, rgba(255,255,255,.78) 47.3% 48.4%, transparent 48.7%),
+    linear-gradient(145deg,#f5f4ee 0%,#e4efea 54%,#d8ebf0 100%);
+  transition: opacity 320ms ease,visibility 320ms linear;
+}
+
+.lv-places-spatial__map-fallback::before,
+.lv-places-spatial__map-fallback::after,
+.lv-places-spatial__map-fallback > i {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(78,113,125,.15);
+  border-radius: 48% 52% 58% 42%;
+  transform: rotate(-16deg);
+}
+
+.lv-places-spatial__map-fallback::before { inset: 11% 28% 39% 9%; }
+.lv-places-spatial__map-fallback::after { inset: 38% 8% 8% 34%; transform: rotate(21deg); }
+.lv-places-spatial__map-fallback > i:nth-child(1) { inset: 22% 15% 22% 18%; border-style: dashed; }
+.lv-places-spatial__map-fallback > i:nth-child(2) { inset: 50% 52% 17% 8%; transform: rotate(9deg); }
+.lv-places-spatial__map-fallback > i:nth-child(3) { inset: 9% 8% 58% 62%; transform: rotate(28deg); }
+.lv-places-spatial__map-fallback > span { position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 14px;border:1px solid rgba(185,204,211,.9);border-radius:999px;background:rgba(255,255,255,.94);color:var(--places-muted);box-shadow:0 14px 34px rgba(32,58,72,.11);font-size:10px;font-weight:820;transform:translate(-50%,-50%);white-space:nowrap; }
+.lv-places-spatial__map-fallback > span svg { width:18px;height:18px;fill:none;stroke:var(--places-accent-ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+
 .lv-places-spatial__map:is(.is-ready, [data-map-state="ready"]) .lv-places-spatial__map-engine {
   opacity: 1;
 }

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>M16.5Q Living Compass Recovery Browser</title>
+  <link rel="stylesheet" href="app/app-shell.css">
+  <link rel="stylesheet" href="app/module-hubs.css">
+  <style>
+    .lv-e2e-destination{min-height:calc(100dvh - 150px);display:grid;place-content:center;gap:14px;padding:32px;border:1px solid #dbe4e8;border-radius:32px;background:linear-gradient(145deg,#fff,#edf6f4);text-align:center}.lv-e2e-destination h1{margin:0;font-size:clamp(38px,7vw,74px)}
+    .lv-e2e-dialog{position:fixed;z-index:2147483000;inset:0;display:grid;place-items:center;padding:20px;background:rgba(20,42,56,.45)}.lv-e2e-dialog>section{width:min(520px,100%);padding:30px;border-radius:28px;background:#fff;text-align:center}.lv-e2e-dialog button{min-height:44px;padding:10px 16px}
+  </style>
+</head>
+<body>
+  <div id="app" class="lv-root"></div>
+  <script>
+  (()=>{
+    const trip={id:'m16-5q-trip',title:'Ostseeurlaub',destination:{name:'Scharbeutz',formattedAddress:'Scharbeutz, Deutschland'},startDate:'2026-08-24',endDate:'2026-08-30',members:[{displayName:'Fabian'}]};
+    const profile={displayName:'Fabian',email:'fixture@luvia.test',defaultView:'plan',activeTripId:trip.id,avatarColor:'#ee6f83'};
+    const auth={loading:false,authenticated:true,user:{id:'m16-5q-user'},session:{fixture:true}};
+    const stages=['idle','platform-ready','auth-ready','domain-context-ready','shell-ready','modules-ready'];let runtimeStage='idle',runtimeStatus='ready';
+    const stageIndex=name=>Math.max(0,stages.indexOf(name));
+    window.LuviaKernelVersion={build:'13.82.55',core:'4.82.55'};
+    window.LuviaCoreVersion=window.LuviaKernelVersion;
+    window.LuviaAppRuntime={
+      async run(name,fn){const value=await fn();runtimeStage=name;runtimeStatus='ready';return value},
+      complete(name){runtimeStage=name;runtimeStatus='ready';return this.snapshot()},
+      recover({to='idle'}={}){runtimeStage=to;runtimeStatus='ready';return this.snapshot()},
+      fail(){runtimeStatus='failed'},isAtLeast:name=>stageIndex(runtimeStage)>=stageIndex(name),
+      snapshot:()=>({status:runtimeStatus,lastStableStage:runtimeStage,pendingStage:null}),diagnostics:()=>({fixture:true,stage:runtimeStage})
+    };
+    window.LuviaAuth=window.ParisAuth={getState:()=>auth,signOut:()=>{}};
+    window.LuviaSupabaseService={start:async()=>({fixture:true})};
+    window.LuviaBootCoordinator={boot:async()=>{runtimeStage='domain-context-ready'},reveal:async()=>true,reset:()=>{}};
+    window.LuviaJoinFlow={start:async()=>true,pending:()=>false,renderIfPending:async()=>false};
+    window.LuviaPWA={register:async()=>({fixture:true})};
+    window.LuviaTripContractV1={listTrips:()=>[trip],getActiveTrip:()=>trip,getContext:()=>({tripId:trip.id}),snapshot:()=>({trips:[trip],activeTrip:trip,activeTripId:trip.id,context:{tripId:trip.id}}),subscribe:()=>()=>{}};
+    window.LuviaProfileService={snapshot:()=>({profile}),subscribe:()=>()=>{},setActiveTrip:async()=>true};
+    window.LuviaTheme={apply:()=>{}};window.LuviaRuntime={refresh:()=>{}};window.LuviaDestination={refresh:()=>{}};
+    window.LuviaCollaboration={start:async()=>true,watchTrip:async()=>true,heartbeat:()=>{},snapshot:()=>({tripId:trip.id}),subscribe:()=>()=>{}};
+    window.LuviaAppRuntimeSignalsV1={start:async()=>true,subscribe:()=>()=>{},authSnapshot:()=>auth,snapshot:()=>({online:true}),diagnostics:()=>({fixture:true})};
+    window.LuviaNavigationRegistry={normalize:view=>view,items:()=>[{id:'today',label:'Heute'},{id:'plan',label:'Planen'},{id:'trip',label:'Reise'},{id:'memories',label:'Erinnern'}]};
+    const routeFor=view=>({id:view,mount:view==='places'?{mode:'module',key:'places',targetId:'places-module'}:{mode:'inline',key:view}});
+    window.LuviaNavigationContractV1={normalize:view=>view,get:routeFor,createIntent:(route,options={})=>({route,source:options.source||'fixture',replace:Boolean(options.replace)}),resolve:(input,options={})=>typeof input==='string'?{route:input,...options}:{...input,...options}};
+    let current={route:new URL(location.href).searchParams.get('screen')||'plan',source:'fixture-load'};
+    window.LuviaNavigationHistoryV1={currentIntent:()=>current,project:(intent,options={})=>{current=intent;if(!options.restore){const url=new URL(location.href);url.searchParams.set('screen',intent.route);history[options.replace?'replaceState':'pushState']({route:intent.route},'',url)}return intent},back:()=>history.back(),forward:()=>history.forward(),diagnostics:()=>({fixture:true,current})};
+    addEventListener('popstate',event=>{const route=event.state?.route||new URL(location.href).searchParams.get('screen')||'plan';current={route,source:'fixture-popstate'};dispatchEvent(new CustomEvent('luvia:navigate-request',{detail:{view:route,historyAction:'restore'}}))});
+    window.LuviaModuleMountContractCoreV1={createRegistry:()=>{const mounts=new Map();let active=null;return{register:(id,value)=>mounts.set(id,value),activate:async(view,context)=>{active=mounts.get(view)||null;if(active)await active.mount({...context,target:context.resolveTarget(routeFor(view).mount.targetId)})},deactivate:async()=>{await active?.unmount?.();active=null},diagnostics:()=>({fixture:true})}}};
+    const destinationMarkup=title=>`<section class="lv-e2e-destination"><span>M16.5Q reale Zielfläche</span><h1>${title}</h1><p>Diese lokale Browser-Fixture verwendet den produktiven App-Shell- und Living-Compass-Controller.</p><button type="button" data-places-back-plan>Living Compass öffnen</button></section>`;
+    window.LuviaPlacesShell={mount:async target=>{target.innerHTML=destinationMarkup('Places')},unmount:()=>{},openPlace:async()=>true};
+    for(const [name,title] of [['LuviaPlaceLifecycleHub','Meine Orte'],['LuviaGalleryView','Galerie'],['LuviaAlbumsView','Alben'],['LuviaBookingsView','Buchungen'],['LuviaControlCenterHome','Control Center'],['LuviaIdentityCenter','Datenschutz'],['LuviaBookingControlCenter','Booking Control Center'],['LuviaBookingInbox','Booking Inbox']])window[name]={mount:target=>{target.innerHTML=destinationMarkup(title)},unmount:()=>{}};
+    window.LuviaTodayExperience={render:()=>destinationMarkup('Heute'),bind:()=>{},unbind:()=>{}};
+    window.LuviaPremiumMemoriesExperience={render:()=>'',bind:()=>{},unbind:()=>{}};
+    window.LuviaDashboardWidgets={render:()=>'',configured:()=>[]};window.LuviaJourneyDayComposer={bindCalendar:()=>{}};
+    window.LuviaPlacesContractV1={listPlaces:()=>[],reads:{listSaved:async()=>[]}};window.LuviaModuleRegistry={enabledForTrip:()=>[],isEnabled:()=>true};
+    const dialog=title=>{document.querySelector('.lv-e2e-dialog')?.remove();const node=document.createElement('div');node.className='lv-e2e-dialog';node.innerHTML=`<section role="dialog" aria-modal="true"><h1>${title}</h1><button type="button">Schließen</button></section>`;node.querySelector('button').onclick=()=>node.remove();document.body.appendChild(node);node.querySelector('button').focus()};
+    window.LuviaAIDashboard={openChat:()=>dialog('Luvia fragen')};window.LuviaProfileFoundation={open:view=>dialog(view==='preferences'?'Profilkompass':'Profil'),close:()=>{}};window.LuviaTripCreator={open:()=>dialog('Neue Reise')};
+    window.LuviaUI={has:()=>true,open:name=>dialog(name)};window.LuviaUIKit={toast:message=>{window.__lastToast=message}};
+    window.LuviaPlatformPorts={get:()=>null,require:()=>({open:()=>true})};
+    window.LuviaBookingAvailability={check:()=>{},readiness:()=>{}};window.LuviaBookingReservationCreate={create:()=>{},readiness:()=>{}};window.LuviaBookingReservationMutation={modify:()=>{},cancel:()=>{},readiness:()=>{}};window.LuviaBookingReservationMutationStatus={get:()=>{},history:()=>{}};window.LuviaBookingReservationRecovery={get:()=>{},list:()=>{},reconcile:()=>{},history:()=>{}};window.LuviaBookingEmailV2={readiness:()=>{},get:()=>{},history:()=>{},queue:()=>{},send:()=>{}};
+  })();
+  </script>
+  <script src="app/module-hubs.js"></script>
+  <script src="app/app-shell.js"></script>
+</body>
+</html>

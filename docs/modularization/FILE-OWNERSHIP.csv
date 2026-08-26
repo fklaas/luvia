@@ -2547,3 +2547,5 @@ docs/modularization/PCR-M16.5O-PRODUCTIVE-PLACES-SPATIAL-EXPERIENCE.md,Consumer/
 tests/m16.5n-productive-places-spatial-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,Productive Places composition coordinate map owner-boundary responsive accessibility and cache guard
 docs/modularization/PCR-M16.5P-PRODUCTIVE-PLACES-RUNTIME-RELEASE.md,Platform/Places/Experience,Documentation/Architecture,M16.5P Integration runtime release provenance Productive Places acceptance rollback and Main Production lock
 tests/m16.5p-productive-places-runtime-release.test.cjs,Platform/Places/Experience Shared Tests,Test/Release Guard,App Core cache MapLibre Places owner composition Safe Regression registration and visual parity lock
+tests/fixtures/m16.5q-living-compass-recovery-browser.html,Consumer/Shared Tests,Test/Fixture,Productive App Shell and Living Compass browser harness for real pointer touch keyboard reload and history recovery evidence
+tests/m16.5q-living-compass-recovery-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer touch hover keyboard reload browser history reduced motion and compact viewport recovery regression
