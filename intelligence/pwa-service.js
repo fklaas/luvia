@@ -14,8 +14,11 @@ const listeners=new Set();
 let registration=null,deferredPrompt=null,updateAvailable=false,lastUpdateCheck=null,lastError=null;
 let controlledUpgradeRecoveryStarted=false;
 let preserveCurrentBuildDocument=false;
-let controllerReloadGuard=sessionStorage.getItem('luvia-pwa-reloading')==='1';
-if(controllerReloadGuard)setTimeout(()=>{controllerReloadGuard=false;sessionStorage.removeItem('luvia-pwa-reloading')},2200);
+const readReloadGuard=()=>{try{return sessionStorage.getItem('luvia-pwa-reloading')==='1'}catch{return false}};
+const writeReloadGuard=()=>{try{sessionStorage.setItem('luvia-pwa-reloading','1')}catch{}};
+const clearReloadGuard=()=>{try{sessionStorage.removeItem('luvia-pwa-reloading')}catch{}};
+let controllerReloadGuard=readReloadGuard();
+if(controllerReloadGuard)setTimeout(()=>{controllerReloadGuard=false;clearReloadGuard()},2200);
 const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const ios=()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
 const emit=()=>{const s=snapshot();listeners.forEach(fn=>{try{fn(s)}catch{}});window.dispatchEvent(new CustomEvent('luvia:pwa-state',{detail:s}))};
@@ -51,10 +54,11 @@ async function recoverControlledUpgrade(){
 async function checkForUpdate(){lastUpdateCheck=new Date().toISOString();if(!registration)await register();try{await registration.update();activateExpectedWaiting(registration);lastError=null}catch(e){lastError=e.message||String(e)}emit();return snapshot()}
 async function activateUpdate(){return activateExpectedWaiting(registration)}
 async function install(){if(!deferredPrompt)return{available:false,reason:ios()?'ios-manual':'prompt-unavailable'};deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;deferredPrompt=null;emit();return{available:true,outcome:choice.outcome}}
+async function warmShell(){if(!workerContainer)return false;if(!registration)registration=await workerContainer.getRegistration();const worker=registration?.active||workerContainer.controller;if(!worker)return false;worker.postMessage({type:'WARM_APP_SHELL'});return true}
 async function cacheInfo(){if(!('caches'in window))return[];const keys=await caches.keys();return Promise.all(keys.map(async name=>{const cache=await caches.open(name),requests=await cache.keys();return{name,entries:requests.length}}))}
 function subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)}
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredPrompt=event;emit()});window.addEventListener('appinstalled',()=>{deferredPrompt=null;emit()});window.addEventListener('online',emit);window.addEventListener('offline',emit);
-if(workerContainer){const controlledAtLoad=Boolean(workerContainer.controller);workerContainer.addEventListener('controllerchange',()=>{if(preserveCurrentBuildDocument){preserveCurrentBuildDocument=false;scheduleRecoveredCacheCleanup();emit();return}if(controlledAtLoad&&!controllerReloadGuard){controllerReloadGuard=true;sessionStorage.setItem('luvia-pwa-reloading','1');location.reload();return}emit()})}
-window.LuviaPWA=Object.freeze({version:VERSION,register,checkForUpdate,activateUpdate,recoverControlledUpgrade,install,snapshot,cacheInfo,clearOldCaches,subscribe});
+if(workerContainer){const controlledAtLoad=Boolean(workerContainer.controller);workerContainer.addEventListener('controllerchange',()=>{if(preserveCurrentBuildDocument){preserveCurrentBuildDocument=false;scheduleRecoveredCacheCleanup();emit();return}if(controlledAtLoad&&!controllerReloadGuard){controllerReloadGuard=true;writeReloadGuard();location.reload();return}emit()})}
+window.LuviaPWA=Object.freeze({version:VERSION,register,checkForUpdate,activateUpdate,recoverControlledUpgrade,warmShell,install,snapshot,cacheInfo,clearOldCaches,subscribe});
 if(workerContainer?.controller&&!expectedWorker(workerContainer.controller))queueMicrotask(()=>recoverControlledUpgrade());
 })();

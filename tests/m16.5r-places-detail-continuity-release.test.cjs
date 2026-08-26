@@ -15,7 +15,7 @@ const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const runner=read('tests/run-m4.3-safe-regression.cjs');
 
-assert.match(version,/core:'4\.82\.79',build:'13\.82\.79'/);
+assert.match(version,/core:'4\.82\.80',build:'13\.82\.80'/);
 assert.match(version,/name:'M16\.5 Landing Auth Foundation'/);
 for(const asset of [
   'intelligence/kernel/version.js',
@@ -24,8 +24,8 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'app/places/places-spatial-experience.css',
   'modules/places-shell.js'
-])assert(index.includes(`${asset}?v=13.82.79`),`active M16.5R cache key missing for ${asset}`);
-assert(worker.includes("const CACHE='luvia-shell-v13.82.79'"));
+])assert(index.includes(`${asset}?v=13.82.80`),`active M16.5R cache key missing for ${asset}`);
+assert(worker.includes("const CACHE='luvia-shell-v13.82.80'"));
 
 assert.match(experience,/function renderDetail\(id\)/);
 const detailScope=experience.slice(experience.indexOf('async function loadDetails'),experience.indexOf('function openMaps'));
@@ -54,6 +54,6 @@ for(const file of [
 assert(runner.includes('tests/m16.5r-places-detail-continuity-release.test.cjs'));
 
 console.log('M16.5R Places Details/Evidence Continuity Release: PASS');
-console.log('App / Core / shell cache: 13.82.79 / 4.82.79 / luvia-shell-v13.82.79');
+console.log('App / Core / shell cache: 13.82.80 / 4.82.80 / luvia-shell-v13.82.80');
 console.log('Rail / selected Place / map / focus / async lifecycle continuity: LOCKED');
 console.log('Main / Production release lock: ACTIVE');
