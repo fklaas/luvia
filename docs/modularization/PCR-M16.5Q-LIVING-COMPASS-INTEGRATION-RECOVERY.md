@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.63 / Core 4.82.63
+Runtime: App 13.82.64 / Core 4.82.64
 
 Channel: Integration Preview only
 
@@ -42,9 +42,14 @@ physical-handset review exposed a semantic routing substitution: Reise →
 Live-Momente and Erinnern → Moment bewahren both opened the Fotogalerie instead
 of the accepted Media → Memory capture focus. The same review reported that the
 mobile needle appeared to turn rigidly rather than continuing smoothly to the
-chosen point. App 13.82.63 is the combined moment-routing and selection-needle
-recovery candidate. It receives no handset acceptance from automation; the
-physical handset retest remains open after publication.
+chosen point. App 13.82.63 corrected both defects and was published, but the
+mandatory visible public run deliberately withheld acceptance: clicking the
+productive Places-owned “Living Compass öffnen” control first mounted Plan and
+then the delegated route handler reinterpreted the same bubbling click through
+the structural `.lv-view-host[data-view="places"]` ancestor, immediately routing
+back to Places. App 13.82.64 is the combined moment-routing, selection-needle and
+route-host replay recovery candidate. It receives no handset acceptance from
+automation; the physical handset retest remains open after publication.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -260,6 +265,15 @@ Latest physical-handset evidence and direct user observation:
     that discontinuity: the needle jumped from its live idle angle to `-90deg`
     instead of interpolating. A simultaneous CSS transition and animation
     handoff also left Safari/mobile timing ambiguous.
+33. App Shell delegated route handling used
+    `event.target.closest('[data-view]')`. Every structural route host also owns
+    `data-view` for lifecycle and transition state. The productive Places button
+    handled its click first and opened Plan; bubbling then matched the surrounding
+    Places host as though the host itself were a navigation control. Depending on
+    microtask/event timing, the same human click therefore issued a second
+    `leavePlanCompass('places')`, producing the observed open-then-immediately-
+    return behavior. The `.63` public CUA run and a new local real-click fixture
+    reproduced the exact sequence.
 
 ## 4. Recovery implementation
 
@@ -309,6 +323,11 @@ Latest physical-handset evidence and direct user observation:
   across the route handoff, and any new genuine pointerdown clears that guard,
   so neither a stale delayed click nor an immediate second human gesture is
   swallowed.
+- Delegated `data-view` routing is now restricted to an actual interactive
+  `button`, `a` or `[role="button"]`. Structural `.lv-view-host[data-view]`
+  elements remain lifecycle metadata only and can no longer capture a child's
+  click. The productive Places-owned Compass control may therefore replace the
+  Places host with Plan without the same event being replayed as a Places route.
 - The shared-element flight is mounted in the persistent `.lv-living-shell`;
   every flight has a common cancellation owner and a bounded fallback. The
   destination action starts after the selection feedback without awaiting the
@@ -369,7 +388,7 @@ Latest physical-handset evidence and direct user observation:
   through the existing explicit update action.
 - Explicit update activation retains the guarded one-time controller-change
   reload. Explicit maintenance removes only older `luvia-shell-v*` caches; the
-  active `.63` cache is preserved.
+  active `.64` cache is preserved.
 - Versioned JS/CSS/JSON/manifest/HTML and brand assets use network-first
   recovery and fall back only to the active release cache.
 - `beforeinstallprompt` is retained for the real install action.
@@ -398,6 +417,10 @@ runtime:
 - all five context constellations, including direct primary-navigation entry
   from ordinary Today/Plan/Trip/Memories/Profile views without a Plan-first
   precondition and entry from Places while preserving `?screen=places`;
+- the productive Places-owned “Living Compass öffnen” button with a real pointer
+  click: Plan remains mounted, ready and interactive after the event fully
+  bubbles, while `?screen=places` is preserved and no structural route-host
+  ancestor replays Places over the restored Compass;
 - a deliberately never-finishing Web Animations `finished` promise; the real
   Places click still reached the destination inside the fixed routing budget;
 - a deliberately delayed Places module mount followed by a queued Plan click
@@ -429,7 +452,7 @@ runtime:
 - Service Worker registration with deliberate stale
   `luvia-shell-v13.17.0` creation: normal registration preserves both live
   controller/cache and document token without reload; explicit maintenance
-  removes only the stale cache, retains active `luvia-shell-v13.82.63`, and
+  removes only the stale cache, retains active `luvia-shell-v13.82.64`, and
   offline document/CSS reload succeeds.
 
 Visual evidence is retained locally under
@@ -577,9 +600,20 @@ and rigid needle motion. App 13.82.62 is therefore superseded and unaccepted;
 its passing click-ownership evidence does not accept its routing semantics or
 selection motion.
 
-App 13.82.63 local release evidence before publication: **REAL EDGE COMPASS E2E
-PASS; REAL EDGE PWA E2E PASS; HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING
-/ LIVE-MOMENTE / MOMENT BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE
+App 13.82.63 was published. Its visible stable-origin CUA sequence proved the
+corrected Moment routing and captured a continuous, monotonic selected-needle
+trace from the visible idle angle through intermediate frames to `-90deg`.
+Mandatory public testing nevertheless rejected the build: the productive
+Places-owned “Living Compass öffnen” click mounted Plan, after which the same
+bubbling click matched the structural `.lv-view-host[data-view="places"]` and
+immediately routed back to Places. App 13.82.63 is therefore superseded and
+unaccepted despite the narrower routing and needle evidence.
+
+App 13.82.64 combines the Moment/needle correction with the interactive-control
+route fence. Its local release evidence before publication is: **REAL EDGE
+COMPASS E2E PASS; REAL EDGE PWA E2E PASS; PRODUCTIVE PLACES COMPASS RETURN / NO
+ROUTE-HOST REPLAY PASS; HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING /
+LIVE-MOMENTE / MOMENT BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE
 CONTINUITY / DIRECT PATH / SMOOTH PROGRESSION PASS.** Public stable/immutable
 deployment evidence is recorded only after the new Integration version exists.
 The physical handset retest remains open and is not replaced by automated
@@ -623,6 +657,9 @@ Consumer source commits:
   bewahren, preserve Mediathek as the sole Gallery direction, and animate the
   selected needle continuously from its rendered idle frame along the shortest
   smooth path with frame-level mobile touch coverage.
+- `a7205fd` — restrict delegated route selection to interactive `data-view`
+  controls so a click inside a productive route host cannot replay that host
+  after an owner control opens the Compass.
 
 Integration provenance:
 
@@ -641,9 +678,10 @@ Integration provenance:
   `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`.
 - App 13.82.62 physical-touch assembly: `f27f176`; versioned release source and
   public release source: `be427121e4f2ac67dd7b549c6d0e57cd2ef98ee6`.
-- App 13.82.63 moment-routing/needle assembly: `4b38085`; versioned release
-  source and public deployment provenance are recorded after the release
-  commit/deploy.
+- App 13.82.63 moment-routing/needle assembly: `4b38085`; versioned/public
+  release source: `55faac3`.
+- App 13.82.64 route-host replay assembly: `73cfa30`; versioned release source
+  and public deployment provenance are recorded after the release commit/deploy.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -732,6 +770,23 @@ Superseded, unaccepted App 13.82.62 Cloudflare Integration evidence:
 - reason superseded: accepted `capture` and `library` semantics were conflated,
   and selection did not inherit the needle's currently rendered idle frame.
 
+Superseded, unaccepted App 13.82.63 Cloudflare Integration evidence:
+
+- source commit: `55faac3`;
+- version ID: `47b0bb06-2052-403a-a2ec-ec0d80e2e1cd`;
+- deployment ID: `cdd969db-a8f2-4bef-a8ca-ce667b022acb`;
+- traffic: 100%;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- immutable URL:
+  `https://47b0bb06-integration-luvia.njwnrvwbv5.workers.dev/`;
+- authenticated visible public selection sampling retained the corrected
+  Moment semantics and a smooth direct needle path: approximately `-0.58deg`
+  idle, `-78deg` at 392 ms, `-86.7deg` at 549 ms, `-89.7deg` at 696 ms and
+  `-90deg` at 922 ms;
+- reason superseded: the same real Places-owned Compass return click was
+  reinterpreted by the broad delegated `[data-view]` ancestor matcher after
+  Plan mounted, replaying the structural Places host over the restored Compass.
+
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
 API: `03361f62-7da8-4c9a-9aa8-f57c1fb07c33`,
@@ -746,7 +801,7 @@ Production remained exactly on deployment
 
 ## 8. Explicitly still open
 
-- physical handset retest remains open on iOS/Android for App 13.82.63; local
+- physical handset retest remains open on iOS/Android for App 13.82.64; local
   hardware-path Edge touch evidence is necessary but is not handset acceptance;
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
@@ -764,14 +819,14 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 40622ea5-73ba-415a-97f8-e42903d389a5@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.62" --yes
+npx wrangler versions deploy 47b0bb06-2052-403a-a2ec-ec0d80e2e1cd@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.63" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`40622ea5-73ba-415a-97f8-e42903d389a5` from deployment
-`05506b17-1229-44e0-9010-a007230dcc53`. It is an operational fallback only,
-not a functionally accepted build: it retains the Moment/Gallery substitution
-and the old selection-needle handoff. The older `.61` version remains available
-as a secondary operational fallback but is also handset-unaccepted. No data
-rollback is required because M16.5Q changed no database, storage schema, Edge
-Function or secret.
+`47b0bb06-2052-403a-a2ec-ec0d80e2e1cd` from deployment
+`cdd969db-a8f2-4bef-a8ca-ce667b022acb`. It is an operational fallback only,
+not a functionally accepted build: it retains the structural route-host click
+replay exposed by the public Places return sequence. The older `.62` and `.61`
+versions remain available as secondary operational fallbacks but are also
+unaccepted. No data rollback is required because M16.5Q changed no database,
+storage schema, Edge Function or secret.
