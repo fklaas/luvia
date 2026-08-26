@@ -5,198 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fffdfb">
   <title>Luvia — Reisen, die mit dir leben</title>
-  <link rel="icon" href="assets/luvia-compass-brand.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="landing.css?v=20260825-pinned-product-theater">
-  <link rel="stylesheet" href="experience-motion.css?v=20260825-native-clicks">
 </head>
 <body>
-  <div class="lv-public-landing" data-entry-root data-public-landing>
-  <a class="skip-link" href="#story">Zum Inhalt</a>
-  <header class="public-nav" data-public-nav>
-    <a class="public-brand" href="#top" aria-label="Luvia Startseite">
-      <img src="assets/public-landing/luvia-compass-brand.svg" alt="">
-      <span><strong>LUVIA</strong><small>Reisen, die mit dir leben.</small></span>
-    </a>
-    <nav aria-label="Öffentliche Navigation">
-      <a href="#product-demo">App live erleben</a>
-      <a href="#story">So lebt Luvia</a>
-      <a href="#compass-gate">Reise beginnen</a>
-    </nav>
-    <div class="public-actions"><a class="text-link" href="#compass-gate" data-gate-intent="login">Weiterreisen</a><a class="primary-link" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Reise beginnen</a></div>
-  </header>
+  <div class="lv-public-landing landing-v3" data-entry-root data-public-landing>
+    <a class="skip-link" href="#compass-gate">Zum Living Compass</a>
+    <header class="public-nav" data-public-nav>
+      <a class="public-brand" href="#compass-gate" aria-label="Luvia Startseite"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><span><strong>LUVIA</strong><small>Reisen, die mit dir leben.</small></span></a>
+      <nav aria-label="Öffentliche Navigation"><a href="#compass-gate" data-gate-intent="worlds">Luvia kennenlernen</a><a href="#compass-gate" data-gate-intent="login">Weiterreisen</a><a href="#compass-gate" data-gate-intent="register">Reise beginnen</a></nav>
+      <div class="public-actions"><a class="text-link" href="#compass-gate" data-gate-intent="login">Weiterreisen</a><a class="primary-link" href="#compass-gate" data-gate-intent="register" data-magnetic>Reise beginnen</a></div>
+    </header>
 
-  <aside class="journey-thread living-compass-thread" data-living-compass data-compass-stage="top" aria-label="Living Compass – Reiseverlauf dieser Seite">
-    <a class="compass-core" href="#story" data-compass-next aria-label="Mit dem Living Compass zur nächsten Reisewelt">
-      <span class="compass-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <img src="assets/public-landing/luvia-compass-brand.svg" alt="">
-      <span class="compass-needle" aria-hidden="true"></span>
-      <span class="compass-current"><small>Du bist bei</small><strong data-compass-current>Vorfreude</strong><em>Weiterreisen ↓</em></span>
-    </a>
-    <nav aria-label="Direkt zu einer Reisewelt springen">
-      <button class="is-active" data-thread-target="top" aria-label="Zur Vorfreude" aria-current="step"><i></i><span>Vorfreude</span></button>
-      <b></b>
-      <button data-thread-target="story" aria-label="Zur Reisewelt Planen"><i></i><span>Planen</span></button>
-      <b></b>
-      <button data-thread-target="live" aria-label="Zur Reisewelt Erleben"><i></i><span>Erleben</span></button>
-      <b></b>
-      <button data-thread-target="memory" aria-label="Zur Reisewelt Erinnern"><i></i><span>Erinnern</span></button>
-    </nav>
-  </aside>
-
-  <main id="top">
-    <section class="public-hero" aria-labelledby="public-hero-title">
-      <img class="public-hero-image" src="assets/public-landing/prototype-coast-morning.png" alt="Helle Ostseeküste am Morgen">
-      <div class="public-hero-shade"></div>
-      <div class="public-hero-copy" data-reveal>
-        <span class="kicker"><i></i> Eine Reise, ein lebendiger Zusammenhang</span>
-        <h1 id="public-hero-title">Deine Reise beginnt<br><em>nicht mit einem Formular.</em></h1>
-        <p>Luvia verbindet Wünsche, Orte, Wege und Erinnerungen zu einer Reise, die sich bewegt – geführt vom Living Compass und immer unter deiner Kontrolle.</p>
-        <div class="hero-actions"><a class="primary-link large" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Dem Compass folgen</a><a class="soft-link" href="#story">Erst Luvia entdecken <span>↓</span></a></div>
-      </div>
-      <aside class="hero-live-card" data-float data-reveal aria-label="Beispiel für einen lebendigen Reisetag">
-        <span class="live-label"><i></i> Gerade unterwegs</span>
-        <strong>Küstenroute nach Scharbeutz</strong>
-        <p>12 km · leichte Brise · gemeinsam mit Lea und Marie</p>
-        <div class="live-route"><i class="done"></i><b></b><i class="now"></i><b></b><i></i></div>
-      </aside>
-      <div class="hero-keepsake" data-float data-reveal><img src="assets/public-landing/prototype-memory-sunset.png" alt="Abendliche Erinnerung am Meer"><span><small>Bleibt bei euch</small><strong>Meeresrauschen · gestern</strong></span></div>
-      <div class="scroll-cue" aria-hidden="true"><span></span><small>Weiterreisen</small></div>
-    </section>
-
-    <section id="product-demo" class="product-demo-highlight motion-scene" data-motion-scene aria-labelledby="product-demo-title">
-      <div class="product-demo-copy" data-reveal data-motion="from-left">
-        <span class="kicker coral">Interaktive Produktdemo · Beispieldaten</span>
-        <h2 id="product-demo-title">Luvia nicht nur ansehen.<br><em>Im Handy direkt erleben.</em></h2>
-        <p>Diese Demo ist die echte responsive Luvia-Oberfläche im Geräte-Viewport. Öffne einen Hauptbereich, beobachte den Living Compass und wähle anschließend eine konkrete Funktion – mit einem beispielhaften Ostseeurlaub, echten Core-Grenzen und sichtbaren Zuständen.</p>
-        <ol class="product-demo-steps" aria-label="So funktioniert die interaktive Demo">
-          <li><span>01</span><div><strong>Bereich öffnen</strong><small>Heute, Planen, Reise oder Erinnern.</small></div></li>
-          <li><span>02</span><div><strong>Richtung wählen</strong><small>Die Nadel sucht und richtet die Funktion aus.</small></div></li>
-          <li><span>03</span><div><strong>Funktion erleben</strong><small>Der Compass kehrt zurück; nur das Ziel erscheint.</small></div></li>
-        </ol>
-        <div class="product-demo-actions">
-          <a class="primary-link large" href="app/demo/living-compass-browser.html?screen=today&amp;surface=landing" data-cinematic-link data-magnetic>Demo groß öffnen</a>
-          <span><i></i> Keine echten Buchungen · sicher gekennzeichnete Beispieldaten</span>
+    <main id="top" class="landing-v3-main">
+      <section id="compass-gate" class="landing-compass-home" data-compass-gate data-compass-level="closed" aria-labelledby="compass-gate-title">
+        <header class="landing-compass-heading">
+          <span class="kicker coral">Der Anfang gehört dir</span>
+          <h1 id="compass-gate-title">Wohin darf Luvia<br><em>dich zuerst führen?</em></h1>
+          <p data-compass-instruction>Manche Wege zeigen sich erst, wenn du den Kompass weckst.</p>
+        </header>
+        <div class="landing-compass-stage" data-compass-stage>
+          <span class="landing-compass-atmosphere atmosphere-one" aria-hidden="true"></span><span class="landing-compass-atmosphere atmosphere-two" aria-hidden="true"></span>
+          <span class="landing-compass-ring ring-one" aria-hidden="true"></span><span class="landing-compass-ring ring-two" aria-hidden="true"></span><span class="landing-compass-ring ring-three" aria-hidden="true"></span><span class="landing-compass-ring ring-four" aria-hidden="true"></span>
+          <button class="landing-compass-core" type="button" data-compass-gate-toggle aria-expanded="false" aria-controls="compassPrimaryPaths compassWorldPaths">
+            <span class="landing-compass-housing" aria-hidden="true">
+              <span class="landing-compass-lid"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""></span>
+              <span class="landing-compass-face"><img class="compass-face-art" src="assets/public-landing/luvia-compass-face.svg" alt=""><img class="compass-needle-art" src="assets/public-landing/luvia-compass-needle.svg" alt=""><img class="compass-hub-art" src="assets/public-landing/luvia-compass-hub.svg" alt=""></span>
+              <span class="compass-discovery-glint"></span><i class="compass-engraving e-one"></i><i class="compass-engraving e-two"></i><i class="compass-engraving e-three"></i>
+            </span>
+            <span class="landing-compass-open-label"><small>Living Compass</small><strong>Richtung finden</strong></span>
+          </button>
+          <nav id="compassPrimaryPaths" class="compass-primary-paths" aria-label="Wähle deinen ersten Weg" aria-hidden="true">
+            <a class="compass-choice choice-worlds" href="#luvia-welten" data-compass-choice="worlds" data-compass-angle="-28"><small>Was ist Luvia?</small><strong>Luvia kennenlernen</strong><span>↑</span></a>
+            <a class="compass-choice choice-login" href="#anmelden" data-public-auth="login" data-compass-choice="login" data-compass-angle="-112"><small>Ich bin schon dabei</small><strong>Weiterreisen</strong><span>↙</span></a>
+            <a class="compass-choice choice-register" href="#registrieren" data-public-auth="register" data-compass-choice="register" data-compass-angle="128"><small>Ich bin neu hier</small><strong>Meine Reise beginnen</strong><span>↘</span></a>
+          </nav>
+          <nav id="compassWorldPaths" class="compass-world-paths" aria-label="Luvia-Welt auswählen" aria-hidden="true">
+            <button class="world-choice world-begin" type="button" data-world-target="begin" data-compass-angle="-54"><small>Ein ruhiger Anfang</small><strong>Gefühl &amp; Farbe</strong></button>
+            <button class="world-choice world-horizons" type="button" data-world-target="horizons" data-compass-angle="6"><small>Reisehorizonte</small><strong>Wohin zieht es euch?</strong></button>
+            <button class="world-choice world-places" type="button" data-world-target="spatial" data-compass-angle="66"><small>Place Compass</small><strong>Orte, die zu euch passen</strong></button>
+            <button class="world-choice world-memory" type="button" data-world-target="memory" data-compass-angle="132"><small>Memory Worlds</small><strong>Wiederfühlen</strong></button>
+            <button class="world-choice world-journey" type="button" data-world-target="story" data-compass-angle="202"><small>Living Journey</small><strong>Eine Reise, ein Zusammenhang</strong></button>
+            <button class="world-choice world-demo" type="button" data-world-target="product-demo" data-compass-angle="266"><small>App live erleben</small><strong>Im Handy ausprobieren</strong></button>
+          </nav>
         </div>
-      </div>
+      </section>
 
-      <div class="product-phone-stage" data-product-phone-stage aria-label="Interaktive Luvia-App in einem Handyrahmen">
-        <div class="product-phone-glow" aria-hidden="true"></div>
-        <div class="product-phone-frame">
-          <div class="product-phone-speaker" aria-hidden="true"></div>
-          <iframe src="app/demo/living-compass-browser.html?screen=today&amp;surface=landing" title="Interaktive Luvia-App mit Beispieldaten" loading="eager"></iframe>
-          <div class="product-phone-home" aria-hidden="true"></div>
+      <section id="luvia-welten" class="story-world-canvas" data-story-world="horizons" hidden aria-labelledby="horizons-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <div class="travel-horizons-copy"><span class="kicker coral">Reisehorizonte</span><h2 id="horizons-title">Ein Gefühl kann euch<br><em>an viele Orte führen.</em></h2><p>Fünf echte Augenblicke, fünf mögliche Richtungen. Ihre Ränder lösen sich weich im Raum auf – wie eine Erinnerung, die gerade erst entsteht.</p><div class="horizon-dots" data-horizon-dots aria-label="Reiseziel auswählen"></div></div>
+        <div class="travel-horizons" data-travel-horizons aria-live="polite">
+          <figure class="horizon-slide is-active" data-horizon-slide><img src="assets/public-landing/travel-warnemuende.webp" alt="Dünen und Strandhafer an der Ostsee in Warnemünde"><figcaption><strong>Warnemünde · Deutschland</strong><a href="https://unsplash.com/photos/sand-dunes-and-beach-grass-face-the-ocean-TCzcX-9QoTk" target="_blank" rel="noreferrer">Foto · Maik Astheimer ↗</a></figcaption></figure>
+          <figure class="horizon-slide" data-horizon-slide><img src="assets/public-landing/travel-pragser-wildsee.webp" alt="Holzsteg am Pragser Wildsee in Südtirol"><figcaption><strong>Pragser Wildsee · Südtirol</strong><a href="https://unsplash.com/photos/a-wooden-dock-sitting-next-to-a-mountain-lake-ZCm7kd3YZRA" target="_blank" rel="noreferrer">Foto · Kevin Schmid ↗</a></figcaption></figure>
+          <figure class="horizon-slide" data-horizon-slide><img src="assets/public-landing/travel-lisbon.webp" alt="Gelbe Straßenbahn auf einer Kopfsteinpflasterstraße in Lissabon"><figcaption><strong>Lissabon · Portugal</strong><a href="https://unsplash.com/photos/a-yellow-tram-travels-down-a-cobblestone-street-aLXsw0n0Pyw" target="_blank" rel="noreferrer">Foto · Ivo Sousa Martins ↗</a></figcaption></figure>
+          <figure class="horizon-slide" data-horizon-slide><img src="assets/public-landing/travel-rural-japan.webp" alt="Regionalzug zwischen spiegelnden Reisfeldern in Japan"><figcaption><strong>Ländliches Japan</strong><a href="https://unsplash.com/photos/a-train-is-traveling-past-flooded-fields-gc5M34_j208" target="_blank" rel="noreferrer">Foto · Johnny ↗</a></figcaption></figure>
+          <figure class="horizon-slide" data-horizon-slide><img src="assets/public-landing/travel-copenhagen.webp" alt="Bunte Häuser, Kanal und Fahrräder in Kopenhagen"><figcaption><strong>Kopenhagen · Dänemark</strong><a href="https://unsplash.com/photos/colorful-buildings-line-a-canal-with-bicycles-in-copenhagen-s4PtYXbCr4U" target="_blank" rel="noreferrer">Foto · Mircea Solomiea ↗</a></figcaption></figure>
         </div>
-        <span class="product-demo-badge"><i></i> Live bedienbar · Ostseeurlaub als Beispieldatensatz</span>
-      </div>
-    </section>
+      </section>
 
-    <section id="story" class="story-intro open-section motion-scene" data-motion-scene>
-      <div data-reveal data-motion="from-left"><span class="kicker coral">Luvia Living Journey</span><h2>Die Oberfläche folgt nicht Modulen.<br><em>Sie folgt eurer Reise.</em></h2></div>
-      <div class="story-narrative" data-reveal data-motion="from-right">
-        <p>Aus einer ersten Idee wird ein gemeinsamer Plan: Luvia bringt Wünsche, echte Orte und freie Zeiten zusammen, macht Unterschiede sichtbar und hält Entscheidungen nachvollziehbar.</p>
-        <ol aria-label="Von der Planung zur Erinnerung">
-          <li><b>Planen</b><span>Places und Intelligence finden, vergleichen und erklären.</span></li>
-          <li><b>Entscheiden</b><span>Alle Mitreisenden sehen Optionen, Rollen und Zustimmung.</span></li>
-          <li><b>Buchen</b><span>Der Booking Core prüft Fähigkeiten, fragt vor Wirkungen nach und bewahrt Belege.</span></li>
-          <li><b>Erinnern</b><span>Aus gemeinsam Erlebtem entstehen Memory Cards, Alben und Geschichten.</span></li>
-        </ol>
-      </div>
-    </section>
-
-    <section id="spatial" class="spatial-story story-band motion-scene" data-story-band data-motion-scene>
-      <div class="spatial-copy band-copy" data-reveal data-motion="fade-zoom">
-        <span class="kicker coral">Vorfreude · Spatial Compass</span>
-        <h2>Aus „irgendwo schön essen“ wird ein Abend, der zu euch passt.</h2>
-        <p>Luvia versteht den Wunsch, zeigt echte Orte räumlich, erklärt die Auswahl und verbindet sie mit eurem Tagesbogen.</p>
-        <div class="capability-line"><span>Places</span><span>Intelligence</span><span>Journey</span><span>Booking</span></div>
-      </div>
-      <div class="spatial-scene" aria-label="Räumliche Reiseplanung" data-reveal data-motion="map-rise">
-        <div class="map-field" data-living-map-shell>
-          <div id="landing-living-map" class="living-map" role="img" aria-label="Gestaltete Karte von Scharbeutz mit Strand, Hafen und einem passenden Restaurant"></div>
-          <div class="map-fallback" aria-hidden="true"><i class="coast"></i><i class="route"></i><b class="pin p-one">Strand</b><b class="pin p-two">Hafen</b><b class="pin p-three">Abend</b></div>
-          <span class="map-prototype-note" data-map-status>Open Map wird vorbereitet</span>
+      <section id="begin" class="story-world-canvas begin-story" data-story-world="begin" hidden aria-labelledby="begin-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <header><span class="kicker coral">Hallo, wir sind Luvia</span><h2 id="begin-title">Eure Reise beginnt mit einem Gefühl – <em>nicht mit einem Formular.</em></h2><p>Wir bringen eure Wünsche, eure Menschen, eure Orte und all die kleinen Momente dazwischen zusammen. Der Living Compass hört zu, lernt mit und führt euch ruhig von der ersten Idee bis zu den Erinnerungen, die bleiben. Luvia ist keine Liste zum Abarbeiten, sondern eure Reise, die mit euch lebt.</p></header>
+        <div class="begin-flow living-begin-flow">
+          <article><span class="begin-mark">♡</span><small>Wie soll es sich anfühlen?</small><strong data-feeling-copy>Meer, Zeit füreinander und kein enger Takt.</strong></article>
+          <article><span class="begin-mark">⌖</span><small>Wohin zieht es euch?</small><strong data-destination-copy>Scharbeutz · Ostsee</strong><em>wechselt mit eurer Sehnsucht</em></article>
+          <article class="accent-choice"><span class="begin-mark">✦</span><small>Farben begleiten eure Reise</small><strong data-tone-copy>Coral begleitet eure Reise.</strong><div class="journey-tone-palette" data-tone-palette aria-label="Reisefarbe auswählen"></div></article>
         </div>
-        <article class="place-card main-place" data-float><img src="assets/public-landing/prototype-restaurant.png" alt="Temporäre Restaurant-Bildsprache für Diercksen"><span class="fit">94% passend</span><div><small>19:00 · Strandallee</small><strong>Diercksen</strong><p>Ruhig, am Wasser und passend nach der Fahrradtour.</p><button type="button">Zum Tag hinzufügen</button></div></article>
-        <article class="suggestion-card" data-float><span>✦</span><div><small>Luvia schlägt vor</small><strong>Vorher 20 Min. am Hafen</strong></div></article>
-      </div>
-    </section>
+        <a class="primary-link large" href="#registrieren" data-public-auth="register">Meine Reise beginnen</a>
+      </section>
 
-    <section id="live" class="live-story motion-scene" data-story-band data-motion-scene>
-      <div class="live-backdrop" aria-hidden="true"><img src="assets/public-landing/prototype-coast-bike.png" alt=""></div>
-      <div class="live-story-copy" data-reveal data-motion="horizontal-stage">
-        <span class="kicker light">Unterwegs · Living Day</span>
-        <h2>Euer Tag bleibt in Bewegung, ohne unruhig zu werden.</h2>
-        <p>Wetter, Wege, freie Zeit und die Gruppe verändern den nächsten sinnvollen Schritt. Bestätigte Aktionen bleiben transparent.</p>
-      </div>
-      <div class="day-ribbon" data-reveal data-motion="horizontal-stage" data-motion-delay="1" aria-label="Lebendiger Tagesverlauf">
-        <article class="complete"><span>08:30</span><i>✓</i><div><small>Erlebt</small><strong>Barfuß am Meer</strong></div></article>
-        <b></b>
-        <article class="active"><span>10:30</span><i>↝</i><div><small>Jetzt</small><strong>Küstenroute</strong></div></article>
-        <b></b>
-        <article><span>13:30</span><i>⌖</i><div><small>Als Nächstes</small><strong>Hafenmoment</strong></div></article>
-      </div>
-      <aside class="consent-receipt" data-float data-reveal data-motion="horizontal-stage" data-motion-delay="2"><span>Booking bestätigt</span><strong>Küstenküche · 19:00</strong><small>Status und Receipt bleiben nachvollziehbar.</small><button>Details ansehen</button></aside>
-    </section>
+      <section id="spatial" class="story-world-canvas spatial-story" data-story-world="spatial" hidden aria-labelledby="spatial-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <div class="spatial-copy band-copy"><span class="kicker coral">Place Compass · Beispieldaten</span><h2 id="spatial-title">Aus „irgendwo schön essen“ wird ein Abend, <em>der zu euch passt.</em></h2><p>Zwanzig internationale Beispielorte bewegen sich wie ein kleines Kartenrondell. Die Karte folgt dem Ort, der gerade vorne liegt.</p><div class="place-carousel-controls"><button type="button" data-place-prev aria-label="Vorheriger Ort">←</button><strong data-place-counter>01 / 20</strong><button type="button" data-place-next aria-label="Nächster Ort">→</button></div></div>
+        <div class="spatial-scene" aria-label="Räumliche Reiseplanung"><div class="map-field" data-living-map-shell><div id="landing-living-map" class="living-map" role="img" aria-label="Interaktive Open Map für internationale Beispielorte"></div><div class="map-fallback" aria-hidden="true"><i class="coast"></i><i class="route"></i><b class="pin p-one">Wunsch</b><b class="pin p-two">Ort</b><b class="pin p-three">Abend</b></div><span class="map-prototype-note" data-map-status>Open Map wird vorbereitet</span></div><div class="place-rondell" data-place-rondell aria-live="polite"><div class="place-card-stack" data-place-stack></div></div></div>
+      </section>
 
-    <section id="memory" class="memory-story story-band motion-scene" data-story-band data-motion-scene>
-      <div class="memory-collage" data-reveal data-motion="from-left">
-        <figure class="memory-large"><img src="assets/public-landing/prototype-memory-sunset.png" alt="Sonnenuntergang am Meer"><figcaption><small>14. Juni · Scharbeutz</small><strong>Ein Tag, der nach Meer klingt.</strong></figcaption></figure>
-        <figure class="memory-small first" data-float><img src="assets/public-landing/prototype-harbor-lunch.png" alt="Mittag am Hafen"><figcaption>13:34 · Hafen</figcaption></figure>
-        <figure class="memory-small second" data-float><img src="assets/public-landing/prototype-coast-bike.png" alt="Fahrradtour an der Küste"><figcaption>10:42 · Unterwegs</figcaption></figure>
-        <div class="memory-audio" data-float><button aria-label="Erinnerung abspielen">▶</button><span><small>Gespeicherte Atmosphäre</small><strong>Wellen, Räder und Leas Lachen · 02:16</strong></span></div>
-      </div>
-      <div class="band-copy memory-copy" data-reveal data-motion="from-right">
-        <span class="kicker coral">Danach · Memory Worlds</span>
-        <h2>Nicht bloß Fotos. Eine Reise, die ihr wiederfühlen könnt.</h2>
-        <p>Orte, Bilder, Töne und kleine Geschichten werden zu einer privaten Erinnerung mit Herkunft, Mitwirkenden und klarer Sichtbarkeit.</p>
-        <div class="privacy-note"><span>♡</span><p><strong>Gemeinsam entstanden.</strong><br>Nur für eure Mitreisenden sichtbar.</p></div>
-      </div>
-    </section>
+      <section id="memory" class="story-world-canvas memory-story" data-story-world="memory" hidden aria-labelledby="memory-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <div class="memory-collage"><figure class="memory-large"><img src="assets/public-landing/prototype-memory-sunset.png" alt="Sonnenuntergang am Meer"><figcaption><small>14. Juni · Scharbeutz</small><strong>Ein Tag, der nach Meer klingt.</strong></figcaption></figure><figure class="memory-small first"><img src="assets/public-landing/prototype-harbor-lunch.png" alt="Mittag am Hafen"><figcaption>13:34 · Hafen</figcaption></figure><figure class="memory-small second"><img src="assets/public-landing/prototype-coast-bike.png" alt="Fahrradtour an der Küste"><figcaption>10:42 · Unterwegs</figcaption></figure><div class="memory-audio"><button type="button" aria-label="Erinnerung abspielen">▶</button><span><small>Gespeicherte Atmosphäre</small><strong>Wellen, Räder und Leas Lachen · 02:16</strong></span></div></div>
+        <div class="band-copy memory-copy"><span class="kicker coral">Memory Worlds</span><h2 id="memory-title">Nicht bloß Fotos. Eine Reise, <em>die ihr wiederfühlen könnt.</em></h2><p>Orte, Bilder, Töne und kleine Geschichten werden zu einer privaten Erinnerung mit Herkunft, Mitwirkenden und klarer Sichtbarkeit.</p><div class="memory-future"><span>Ausblick</span><p>Später können freigegebene Stories aus Instagram &amp; Co. einfließen und aus einer Memory World direkt ein persönliches Fotobuch entstehen. Diese Funktionen sind noch nicht produktiv verfügbar.</p></div></div>
+      </section>
 
-    <section id="begin" class="begin-story open-section motion-scene" data-motion-scene>
-      <header data-reveal data-motion="fade-zoom"><span class="kicker coral">Ein ruhiger Anfang</span><h2>Eure erste Reise beginnt mit einem Gefühl – nicht mit einem Formular.</h2><p>Onboarding und Reiseanlage werden als eigener M16.5-Produktfluss gestaltet: klar, mobile-first und mit sichtbarem Nutzen nach jeder Entscheidung.</p></header>
-      <div class="begin-flow">
-        <article data-reveal data-motion="stagger-card" data-motion-delay="0"><span class="begin-mark">♡</span><small>Was soll sich diese Reise anfühlen?</small><strong>Meer, Zeit füreinander und kein enger Takt.</strong></article>
-        <i>→</i>
-        <article data-reveal data-motion="stagger-card" data-motion-delay="1"><span class="begin-mark">⌖</span><small>Wohin zieht es euch?</small><strong>Scharbeutz · Ostsee</strong><em>Ort geprüft</em></article>
-        <i>→</i>
-        <article class="accent-choice" data-reveal data-motion="stagger-card" data-motion-delay="2"><span class="begin-mark">✦</span><small>Was wird euer roter Faden?</small><strong>Coral begleitet diese Reise.</strong><div><b></b><b></b><b></b><b></b></div></article>
-      </div>
-      <a class="primary-link large" href="#compass-gate" data-gate-intent="register" data-magnetic data-haptic="navigate">Zum Living Compass</a>
-    </section>
+      <section id="story" class="story-world-canvas story-intro" data-story-world="story" hidden aria-labelledby="story-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <div class="journey-world-copy"><span class="kicker coral">Luvia Living Journey</span><h2 id="story-title">Die Oberfläche folgt nicht Modulen.<br><em>Sie folgt eurer Reise.</em></h2><p>Ein Wunsch wird zum Ort, eine Entscheidung zum gemeinsamen Tag und ein Augenblick zur Erinnerung. Der Compass hält den Zusammenhang.</p></div>
+        <div class="journey-orbit" aria-label="Von der Idee zur Erinnerung"><span class="journey-path" aria-hidden="true"></span><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><article class="journey-moment moment-one"><small>01 · Spüren</small><strong>Ein Wunsch entsteht</strong><p>Ruhig, am Wasser, ohne engen Takt.</p></article><article class="journey-moment moment-two"><small>02 · Entdecken</small><strong>Orte werden lebendig</strong><p>Places und Intelligence erklären, was passt.</p></article><article class="journey-moment moment-three"><small>03 · Entscheiden</small><strong>Alle reisen mit</strong><p>Rollen, Zustimmung und Wirkung bleiben sichtbar.</p></article><article class="journey-moment moment-four"><small>04 · Erinnern</small><strong>Der Moment bleibt</strong><p>Aus Spuren wächst eure Memory World.</p></article></div>
+      </section>
 
-    <section id="compass-gate" class="compass-gate motion-scene" data-motion-scene data-compass-gate aria-labelledby="compass-gate-title">
-      <header data-reveal data-motion="fade-zoom">
-        <span class="kicker coral">Der Anfang gehört dir</span>
-        <h2 id="compass-gate-title">Wohin darf Luvia<br><em>dich zuerst führen?</em></h2>
-        <p>Öffne den Living Compass. Erst dann zeigt er dir die zwei Wege in deine Reisewelt.</p>
-      </header>
-      <div class="compass-gate-stage" data-reveal>
-        <span class="compass-gate-halo halo-one" aria-hidden="true"></span>
-        <span class="compass-gate-halo halo-two" aria-hidden="true"></span>
-        <button class="compass-gate-core" type="button" data-compass-gate-toggle aria-expanded="false" aria-controls="compassGatePaths">
-          <span class="compass-gate-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span class="compass-gate-shell" aria-hidden="true"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><i></i></span>
-          <span class="compass-gate-label"><small>Living Compass</small><strong>Öffnen</strong></span>
-        </button>
-        <span class="compass-gate-hand" aria-hidden="true"><i>☝</i><b>Hier beginnt deine Richtung</b></span>
-        <nav id="compassGatePaths" class="compass-gate-paths" aria-label="Wähle deinen Weg zu Luvia" aria-hidden="true">
-          <a class="compass-path path-login" href="#anmelden" data-public-auth="login" data-cinematic-link>
-            <small>Ich bin schon dabei</small><strong>Weiterreisen</strong><span>→</span>
-          </a>
-          <a class="compass-path path-register" href="#registrieren" data-public-auth="register" data-cinematic-link data-haptic="navigate">
-            <small>Ich bin neu hier</small><strong>Meine Reise beginnen</strong><span>→</span>
-          </a>
-        </nav>
-      </div>
-    </section>
-  </main>
-
-  <footer class="public-footer"><a class="public-brand" href="#top"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><span><strong>LUVIA</strong><small>Reisen, die mit dir leben.</small></span></a><p>Private Reisen · klare Kontrolle · nachvollziehbare Wirkungen</p></footer>
+      <section id="product-demo" class="story-world-canvas product-demo-highlight" data-story-world="product-demo" hidden aria-labelledby="product-demo-title">
+        <button class="world-back" type="button" data-world-back><span>←</span> Zurück zum Living Compass</button>
+        <div class="product-demo-copy"><span class="kicker coral">Interaktive Produktdemo · Beispieldaten</span><h2 id="product-demo-title">Luvia nicht nur ansehen.<br><em>Im Handy direkt erleben.</em></h2><p>Der kleine Luvia-Kosmos ist direkt bedienbar. Öffne einen Bereich, lass den Living Compass einfliegen und wähle eine konkrete Funktion – mit sichtbaren Zuständen und echten Core-Grenzen.</p><div class="demo-play-notes"><span>① Bereich berühren</span><span>② Richtung wählen</span><span>③ Funktion erleben</span></div><a class="primary-link large" href="app/demo/living-compass-browser.html?screen=today&amp;surface=landing-v3" data-cinematic-link data-magnetic>Demo groß öffnen</a><small class="demo-safety">Keine echten Buchungen · sicher gekennzeichnete Beispieldaten</small></div>
+        <div class="product-phone-stage" data-product-phone-stage aria-label="Interaktive Luvia-App in einem Handyrahmen"><div class="product-phone-glow" aria-hidden="true"></div><div class="product-phone-frame"><div class="product-phone-speaker" aria-hidden="true"></div><iframe src="app/demo/living-compass-browser.html?screen=today&amp;surface=landing-v3" title="Interaktive Luvia-App mit Beispieldaten" loading="lazy"></iframe><div class="product-phone-home" aria-hidden="true"></div></div><span class="product-demo-badge"><i></i> Live bedienbar · Ostseeurlaub als Beispieldatensatz</span></div>
+      </section>
+    </main>
+    <footer class="public-footer"><a class="public-brand" href="#compass-gate"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><span><strong>LUVIA</strong><small>Reisen, die mit dir leben.</small></span></a><p>Private Reisen · klare Kontrolle · nachvollziehbare Wirkungen</p></footer>
   </div>
-  <script src="experience-motion.js?v=20260825-native-clicks"></script>
-  <script src="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.js"></script>
-  <script src="landing.js?v=20260825-pinned-product-theater"></script>
 </body>
 </html>

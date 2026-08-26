@@ -1,0 +1,36 @@
+{
+  "license": "https://unsplash.com/license",
+  "checked_at": "2026-08-26",
+  "photos": [
+    {
+      "asset": "travel-warnemuende.webp",
+      "place": "Warnemünde, Deutschland",
+      "photographer": "Maik Astheimer",
+      "source": "https://unsplash.com/photos/sand-dunes-and-beach-grass-face-the-ocean-TCzcX-9QoTk"
+    },
+    {
+      "asset": "travel-pragser-wildsee.webp",
+      "place": "Pragser Wildsee, Südtirol",
+      "photographer": "Kevin Schmid",
+      "source": "https://unsplash.com/photos/a-wooden-dock-sitting-next-to-a-mountain-lake-ZCm7kd3YZRA"
+    },
+    {
+      "asset": "travel-lisbon.webp",
+      "place": "Lissabon, Portugal",
+      "photographer": "Ivo Sousa Martins",
+      "source": "https://unsplash.com/photos/a-yellow-tram-travels-down-a-cobblestone-street-aLXsw0n0Pyw"
+    },
+    {
+      "asset": "travel-rural-japan.webp",
+      "place": "Ländliches Japan",
+      "photographer": "Johnny",
+      "source": "https://unsplash.com/photos/a-train-is-traveling-past-flooded-fields-gc5M34_j208"
+    },
+    {
+      "asset": "travel-copenhagen.webp",
+      "place": "Kopenhagen, Dänemark",
+      "photographer": "Mircea Solomiea",
+      "source": "https://unsplash.com/photos/colorful-buildings-line-a-canal-with-bicycles-in-copenhagen-s4PtYXbCr4U"
+    }
+  ]
+}
