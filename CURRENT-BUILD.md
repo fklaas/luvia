@@ -99,6 +99,18 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
 
+## M16.5R Places Details/Evidence Continuity Candidate
+
+- Runtime target: **App 13.82.65 / Core 4.82.65 / Integration Preview only**.
+- Release name / channel: **M16.5 Places Detail Continuity / `integration-preview`**.
+- Reproduced root cause: **`loadDetails(id)` globally rendered the complete Places root for loading and completion. The `innerHTML` replacement destroyed the horizontally scrolled result rail, focused detail button and active MapLibre instance, recreating the rail at result 1 even though a later Place's evidence was shown**.
+- Correction: **later-result evidence now selects the exact Place and patches only its stable live detail region. The rail, real pointer focus and existing map survive; the map follows the same owner-coordinate selection path. Pending-detail identity and lifecycle/root fences prevent close/reopen races and late unmounted mutations**.
+- Local real Edge evidence: **390 × 844 result 4 rail position `1060.0 → 1060.0 → 1060.0` across open, delayed completion and close; selected Place 4; map center `[10.78, 54.04]`; map instances/removals `1 / 0`; focus retained; one `places.v1` detail read; console 0**.
+- Candidate validation: **Consumer 99 / 99 PASS; Integration Safe Regression 108 / 108 PASS; real local Edge 390 × 844 later-result continuity E2E PASS with rail `1060.0 → 1060.0 → 1060.0`; public stable/immutable asset parity and authenticated stable-origin E2E remain required before PUBLIC VERIFIED**.
+- Product boundary: **this closes the bounded continuity defect only. The complete Places Golden Slice, remaining M16.5 Product Surface Matrix, user acceptance and Design Freeze remain open**.
+- Main / Production: **locked and unchanged**.
+- Rollback: **before release, code-only to Integration `8aea1aa`; after release, immediately previous Integration App 13.82.64 version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef`; no data rollback**.
+
 ## M16.5Q Living Compass Recovery Candidate
 
 - Runtime target: **App 13.82.64 / Core 4.82.64 / Integration Preview only**.
@@ -209,11 +221,11 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.64 / 4.82.64 Integration recovery candidate with corrected Media → Memory routing, smooth mobile selection-needle ownership, fenced interactive route controls, the accepted Living Compass interaction and productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.65 / 4.82.65 Integration Places continuity candidate carrying the accepted Living Compass, corrected Media → Memory routing, smooth mobile selection needle, fenced interactive route controls and owner-backed Places spatial experience; complete Places Golden Slice, visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,792 tracked files; 673 visual candidates; 264 active entry references; 0 unclassified entry references**
+- Exhaustive manifest: **2,796 tracked files; 676 visual candidates; 264 active entry references; 0 unclassified entry references**
 - Canonical CSS baseline: **59 files; 939,806 LF-normalized bytes; 8,345 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 45 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
@@ -223,7 +235,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **107 / 107 PASS after adding the binding M16.5 Productization Plan guard; the published Platform 13.82.64 / 4.82.64 runtime remains unchanged**
+- Safe Regression: **108 / 108 target with the M16.5R Places continuity guard; final candidate run remains required after versioned assembly**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **363 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**

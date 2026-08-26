@@ -82,6 +82,14 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   immutable Integration review candidate. Productive Places is the completed
   implementation slice; Browser acceptance remains required and Booking is the
   next visual feature migration. Main/Production stay locked.
+- M16.5Q closes the Living Compass recovery at App/Core 13.82.64 / 4.82.64
+  after local/public real-input matrices and the user's separate physical-
+  handset retest. The accepted Compass is frozen as navigation infrastructure.
+- M16.5R is the first Productization Plan correction: App/Core 13.82.65 /
+  4.82.65 preserves a later Places result's horizontal rail, exact selection,
+  map position and focus while asynchronous `Details & Evidenz` opens or
+  closes. Public Integration provenance and visible E2E remain its release gate;
+  the complete Places Golden Slice remains open.
 
 ## Completed architecture boundaries
 

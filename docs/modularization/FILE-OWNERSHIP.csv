@@ -2556,3 +2556,7 @@ docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md,
 docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv,Consumer/Experience/Domain Owners,Documentation/Architecture,Live M16.5 surface delivery evidence priority and acceptance ledger
 docs/modularization/M16.5-CORE-OWNER-MATRIX.csv,All Core Owner Streams,Documentation/Architecture,M16.5 productization ownership public-boundary and forbidden-shortcut ledger
 tests/m16.5-productization-plan.test.cjs,Consumer/Experience/Platform,Test/Guardrail,Static lock for the M16.5 vertical sequence surface statuses owner matrix and Main Production freeze
+tests/fixtures/m16.5r-places-continuity-browser.html,Consumer/Shared Tests,Test/Fixture,Owner-backed six-result horizontal Places rail map and delayed detail continuity browser fixture
+tests/m16.5r-places-detail-continuity-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer regression for later-result selection rail map focus async detail and close continuity
+tests/m16.5r-places-detail-continuity-release.test.cjs,Consumer/Places/Experience,Test/Guardrail,Static M16.5R runtime cache continuity evidence ownership release lock and rollback gate
+docs/modularization/PCR-M16.5R-PLACES-DETAIL-CONTINUITY.md,Consumer/Places/Experience,Documentation/Architecture,M16.5R reproduced rail reset root cause local correction evidence open public gates and rollback
