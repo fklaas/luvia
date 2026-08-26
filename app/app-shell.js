@@ -105,11 +105,29 @@
   }
   const compassWait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const compassMotionReduced=()=>document.documentElement.classList.contains('reduce-motion')||document.body.classList.contains('reduce-motion')||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-  const compassSelectionHold=()=>compassMotionReduced()?Promise.resolve():compassWait(620);
+  const compassSelectionDuration=()=>compassMotionReduced()?0:760;
+  const compassSelectionHold=()=>compassWait(compassSelectionDuration());
   const compassContextExitDuration=()=>compassMotionReduced()?0:720;
   const compassContextEntryDuration=()=>compassMotionReduced()?0:1650;
   const compassReturnHandoffDuration=()=>compassMotionReduced()?0:300;
   const currentPlanCompassStage=()=>root?.querySelector('[data-stage] > .lv-view-host:not(.lv-route-previous) [data-plan-compass-stage]')||null;
+  const normalizeCompassAngle=angle=>((Number(angle||0)+180)%360+360)%360-180;
+  function renderedCompassNeedleAngle(needle){
+    const transform=needle?getComputedStyle(needle).transform:'none';if(!transform||transform==='none')return 0;
+    try{const Matrix=window.DOMMatrixReadOnly||window.WebKitCSSMatrix;if(Matrix){const matrix=new Matrix(transform);return Math.atan2(matrix.b,matrix.a)*180/Math.PI}}catch{}
+    const values=transform.match(/^matrix\(([^)]+)\)$/)?.[1]?.split(',').map(Number);return values?.length>=2?Math.atan2(values[1],values[0])*180/Math.PI:0;
+  }
+  function clearCompassSelectionNeedle(stage){
+    const needle=stage?.querySelector('.lv-plan-compass-needle');needle?.style.removeProperty('transform');stage?.style.removeProperty('--lv-plan-selection-angle');if(stage?.dataset.compassNeedleMotion==='selection')delete stage.dataset.compassNeedleMotion;
+  }
+  function playCompassSelectionNeedle(stage,targetAngle){
+    const needle=stage?.querySelector('.lv-plan-compass-needle'),target=normalizeCompassAngle(targetAngle),from=needle?renderedCompassNeedleAngle(needle):0,end=from+normalizeCompassAngle(target-from);if(needle)needle.style.transform=`rotate(${from}deg)`;stage?.style.setProperty('--lv-plan-selection-angle',`${target}deg`);stage?.classList.add('is-navigating');
+    if(!needle)return{fromAngle:from,endAngle:end,targetAngle:target,finished:Promise.resolve()};
+    const duration=compassSelectionDuration();if(!duration||typeof needle.animate!=='function'){needle.style.transform=`rotate(${target}deg)`;return{fromAngle:from,endAngle:end,targetAngle:target,finished:Promise.resolve()}}
+    const animation=needle.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${end}deg)`}],{duration,easing:'cubic-bezier(.16,.84,.18,1)',fill:'forwards'});stage.dataset.compassNeedleMotion='selection';activeCompassAnimations.add(animation);let completed=false;
+    const finished=animation.finished.then(()=>{completed=true}).catch(()=>null).finally(()=>{activeCompassAnimations.delete(animation);if(completed&&stage.dataset.compassNeedleMotion==='selection'){needle.style.transform=`rotate(${target}deg)`;delete stage.dataset.compassNeedleMotion}try{animation.cancel()}catch{}});
+    return{fromAngle:from,endAngle:end,targetAngle:target,finished};
+  }
   function playCompassContextNeedle(stage,{entering=false,fromAngle=0,duration=entering?compassContextEntryDuration():compassContextExitDuration()}={}){
     const needle=stage?.querySelector('.lv-plan-compass-needle');
     if(!needle||!duration||compassMotionReduced())return{endAngle:0,finished:Promise.resolve()};
@@ -169,7 +187,7 @@
   }
   function clearPlanCompassVisuals({preserveFlights=false}={}){
     clearTimeout(planCompassEntryTimer);if(!preserveFlights){cancelCompassFlights();root?.querySelector('.lv-living-shell')?.classList.remove('is-plan-compass-detached')}
-    root?.querySelectorAll('[data-plan-compass-stage]').forEach(stage=>{stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning','is-context-leaving','is-context-entering','is-context-seeking','is-context-pulsing');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'))});
+    root?.querySelectorAll('[data-plan-compass-stage]').forEach(stage=>{stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning','is-context-leaving','is-context-entering','is-context-seeking','is-context-pulsing');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'));clearCompassSelectionNeedle(stage)});
   }
   async function returnPlanCompassHome(stage){
     const shell=root?.querySelector('.lv-living-shell'),source=stage?.querySelector('.lv-plan-compass-mark'),target=planCompassBrandSource();
@@ -559,13 +577,13 @@
   function toast(message){const old=document.querySelector('.lv-preview-toast');old?.remove();const el=document.createElement('div');el.className='lv-preview-toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2800)}
   const compassContextForView=view=>({today:'today',plan:'plan',trip:'trip',memories:'memories',profile:'profile'}[view]||null);
   const compassReservedCopy=Object.freeze({
-    attention:['Hinweise','Wetter, Konflikte und ruhige Reisehinweise werden hier gebündelt, sobald der zuständige Owner-Core die Projektion freigibt.'],wallet:['Wallet','Belege und Reisedokumente bleiben offline-fähig vorgesehen; die produktive Owner-Projektion ist noch reserviert.'],checklists:['Checklisten','Vorbereitung und Aufgaben sind im Living Compass fest verortet; der produktive Owner-Core ist noch reserviert.'],budget:['Budget','Gemeinsame Reiseausgaben sind als eigene Richtung reserviert und werden nicht durch eine Legacy-Kachel ersetzt.'],weather:['Wetterkontext','Wetter soll Entscheidungen erklären, nicht als isolierte Kachel enden. Die produktive Kontextprojektion folgt durch den Owner-Core.'],language:['Sprachhilfe','Die Sprachhilfe bleibt als Horizont sichtbar und ist noch nicht als produktiver Owner-Core freigegeben.'],community:['Community','Lokale Empfehlungen und Community-Evidenz bleiben als Horizont reserviert.'],['memory-map']:['Erinnerungskarte','Orte und Day Keys sind vorgesehen; Memory und Places müssen die produktive Projektion gemeinsam freigeben.'],reviews:['Reviews','Erlebt-, Verifiziert- und Reputationssignale bleiben sichtbar reserviert.'],['memory-export']:['Reisebuch exportieren','Der Export-Horizont bleibt sichtbar, bis Memory und Media die produktive Ausgabe freigeben.'],['social-drop']:['Experience Drop','Der geteilte Experience Drop ist sichtbar reserviert und noch nicht produktiv aktiviert.'],admin:['Administration','Administrative Rollen und Systemsteuerung bleiben strikt von persönlichen Profilrechten getrennt.'],devices:['Geräte','Geräte- und Sitzungssteuerung ist als eigener Sicherheitshorizont reserviert.']
+    attention:['Hinweise','Wetter, Konflikte und ruhige Reisehinweise werden hier gebündelt, sobald der zuständige Owner-Core die Projektion freigibt.'],wallet:['Wallet','Belege und Reisedokumente bleiben offline-fähig vorgesehen; die produktive Owner-Projektion ist noch reserviert.'],checklists:['Checklisten','Vorbereitung und Aufgaben sind im Living Compass fest verortet; der produktive Owner-Core ist noch reserviert.'],budget:['Budget','Gemeinsame Reiseausgaben sind als eigene Richtung reserviert und werden nicht durch eine Legacy-Kachel ersetzt.'],weather:['Wetterkontext','Wetter soll Entscheidungen erklären, nicht als isolierte Kachel enden. Die produktive Kontextprojektion folgt durch den Owner-Core.'],capture:['Diesen Moment bewusst bewahren.','Foto, Ton, Video oder Notiz werden zuerst als Media erfasst. Erst eure bewusste Auswahl erzeugt eine Memory Card, ein Album oder eine Geschichte.'],language:['Sprachhilfe','Die Sprachhilfe bleibt als Horizont sichtbar und ist noch nicht als produktiver Owner-Core freigegeben.'],community:['Community','Lokale Empfehlungen und Community-Evidenz bleiben als Horizont reserviert.'],['memory-map']:['Erinnerungskarte','Orte und Day Keys sind vorgesehen; Memory und Places müssen die produktive Projektion gemeinsam freigeben.'],reviews:['Reviews','Erlebt-, Verifiziert- und Reputationssignale bleiben sichtbar reserviert.'],['memory-export']:['Reisebuch exportieren','Der Export-Horizont bleibt sichtbar, bis Memory und Media die produktive Ausgabe freigeben.'],['social-drop']:['Experience Drop','Der geteilte Experience Drop ist sichtbar reserviert und noch nicht produktiv aktiviert.'],admin:['Administration','Administrative Rollen und Systemsteuerung bleiben strikt von persönlichen Profilrechten getrennt.'],devices:['Geräte','Geräte- und Sitzungssteuerung ist als eigener Sicherheitshorizont reserviert.']
   });
   function showCompassReserved(action,label,context='plan'){
     const stage=root?.querySelector('[data-stage]');if(!stage)return;
     const copy=compassReservedCopy[action]||[label||'Luvia Horizont','Diese Richtung ist im akzeptierten Living-Compass-Modell sichtbar reserviert und noch nicht produktiv aktiviert.'];
-    activeCompassContext=null;activeView='plan';stage.innerHTML=transitionHost('compass-reserved',`<section class="lv-compass-reserved-focus" data-compass-reserved-focus aria-labelledby="lv-compass-reserved-title"><div class="lv-compass-reserved-orbit" aria-hidden="true">${livingCompass('lv-compass-reserved-mark')}</div><span>Luvia Living Compass · ${esc(context)}</span><h1 id="lv-compass-reserved-title" tabindex="-1">${esc(copy[0])}</h1><p>${esc(copy[1])}</p><strong>Nicht vereinfacht, nicht durch Legacy ersetzt.</strong><button type="button" data-compass-return="${esc(context)}">Zurück zum Kompass</button></section>`).replace(' lv-route-entering','').replace(' aria-busy="true"','').replace('lv-view-host','lv-view-host is-ready');
-    const host=stage.querySelector('.lv-view-host');host?.setAttribute('data-view','plan');refreshNavigationSelection('plan');requestAnimationFrame(()=>stage.querySelector('h1')?.focus?.({preventScroll:true}));
+    const focusView={today:'today',plan:'plan',trip:'trip',memories:'memories',profile:'more'}[context]||'plan';activeCompassContext=null;activeView=focusView;stage.innerHTML=transitionHost('compass-reserved',`<section class="lv-compass-reserved-focus" data-compass-reserved-focus data-compass-focus="${esc(action)}" data-compass-focus-context="${esc(context)}" aria-labelledby="lv-compass-reserved-title"><div class="lv-compass-reserved-orbit" aria-hidden="true">${livingCompass('lv-compass-reserved-mark')}</div><span>Luvia Living Compass · ${esc(context)}</span><h1 id="lv-compass-reserved-title" tabindex="-1">${esc(copy[0])}</h1><p>${esc(copy[1])}</p><strong>Nicht vereinfacht, nicht durch Legacy ersetzt.</strong><button type="button" data-compass-return="${esc(context)}">Zurück zum Kompass</button></section>`).replace(' lv-route-entering','').replace(' aria-busy="true"','').replace('lv-view-host','lv-view-host is-ready');
+    const host=stage.querySelector('.lv-view-host');host?.setAttribute('data-view','compass-focus');refreshNavigationSelection(focusView);requestAnimationFrame(()=>stage.querySelector('h1')?.focus?.({preventScroll:true}));
   }
   function handleHubAction(action,meta={}){
     if(!action)return;
@@ -614,12 +632,12 @@
     planCompassTransition=true;pendingCompassContext=null;pendingCompassExit=null;clearTimeout(planCompassEntryTimer);++compassContextToken;cancelCompassFlights();
     let result,navigationTask=null,superseded=false;
     try{
-      if(selected){const angle=Number(selected.dataset.planAngle||0),directAngle=((angle+180)%360+360)%360-180;selected.classList.add('is-selected');stage.style.setProperty('--lv-plan-selection-angle',`${directAngle}deg`);stage.classList.add('is-navigating');await compassSelectionHold()}else stage.classList.add('is-navigating');
+      if(selected){const angle=Number(selected.dataset.planAngle||0),directAngle=normalizeCompassAngle(angle);selected.classList.add('is-selected');const needleMotion=playCompassSelectionNeedle(stage,directAngle);await Promise.all([compassSelectionHold(),needleMotion.finished])}else stage.classList.add('is-navigating');
       superseded=intentSequence!==compassIntentSequence;
       if(!superseded){void returnPlanCompassHome(stage).catch(error=>console.warn('[Luvia Plan Compass]',error));await compassWait(compassReturnHandoffDuration());superseded=intentSequence!==compassIntentSequence;if(!superseded)navigationTask=Promise.resolve(handleHubAction(destination,meta))}
     }finally{
       planCompassTransition=false;
-      if(superseded){cancelCompassFlights();stage.classList.remove('is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'));stage.style.removeProperty('--lv-plan-selection-angle')}
+      if(superseded){cancelCompassFlights();stage.classList.remove('is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'));clearCompassSelectionNeedle(stage)}
       else activeCompassContext=null;
     }
     if(navigationTask){result=await navigationTask;superseded=intentSequence!==compassIntentSequence;if(!superseded&&stage.isConnected){stage.classList.remove('is-ready','is-compass-arriving','is-navigating','is-returning');stage.querySelectorAll('.is-selected').forEach(node=>node.classList.remove('is-selected'))}}
