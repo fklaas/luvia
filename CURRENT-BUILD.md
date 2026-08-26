@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.66**
-- Core: **4.82.66**
+- App: **13.82.67**
+- Core: **4.82.67**
 - Name: **M16.5 Landing Auth Foundation**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
@@ -115,13 +115,14 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5S Public Landing / Real Authentication Scope Lock
 
-- Runtime target: **App 13.82.66 / Core 4.82.66 / Integration Preview only**.
+- Runtime target: **App 13.82.67 / Core 4.82.67 / Integration Preview only**.
 - Status: **cohesive Landing/Auth runtime candidate complete; public Integration publication and visible public E2E pending**.
 - Accepted Landing: **the complete `prototype-rq` composition is integrated from all five SHA-256-pinned HTML/CSS/JS/motion artifacts, including the full editorial journey below the hero; no hero-only, iframe or legacy-entry substitution**.
 - Productive Auth: **existing `auth/config.js`, `auth/session.js`, `auth/ui.js` and App Shell orchestration remain the single real Supabase password/OAuth/session owner path. Login and a deliberately minimal email/password/repeat registration are presented inside the accepted Landing; no duplicate Auth truth or fake account path was introduced**.
 - Recovery completion: **the existing `?auth=recovery` request contract now has a complete callback surface for valid, invalid and expired links and delegates the actual password mutation to the productive Auth UI owner. The final credential-changing submit was intentionally not executed during automated browser verification**.
 - History/lifecycle: **login/register/recovery states are reloadable and Browser-Back coherent; signed-in transition cleanup removes the public Landing runtime, motion and focus ownership before the Living Product mounts**.
 - Local visible evidence: **real left-click desktop and 390 x 844 responsive-browser CTA flows, minimal registration, Login/Register switching, Escape, Browser Back, reload, invalid and fixture-backed valid recovery states, Reduced Motion and a clean console PASS. Hardware `Input.dispatchTouchEvent` is unavailable in the integrated browser, so no physical-device touch claim is made for this slice**.
+- Rejected public evidence: **App 13.82.66 reached an immutable Integration version, but its visible Browser-Back sequence exposed a false legacy-login fallback. The mount watchdog incorrectly treated viewport intersection as mount health on the deliberately long Landing. App 13.82.66 receives no functional/public acceptance and is superseded by the `.67` connected-DOM/visibility correction**.
 - Candidate validation: **110 / 110 Safe Regression PASS; Landing/Auth contract, scope lock, release consistency, NFR-0 3 / 3, regenerated visual inventory and cross-Core DB ownership guard PASS**.
 - State lock: **23 mandatory Landing/login/register/recovery/OAuth/session/invite/offline states remain binding; later Profile onboarding and First-Trip onboarding are explicitly separate and still open**.
 - Binding document: **`docs/modularization/M16.5S-LANDING-AUTH-BASELINE-AND-SCOPE-LOCK.md`**.
@@ -238,7 +239,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.66 / 4.82.66 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.67 / 4.82.67 Integration Landing/Auth candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the accepted full public Landing; complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**

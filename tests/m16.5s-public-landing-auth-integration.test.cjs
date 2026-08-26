@@ -13,10 +13,10 @@ const authUi = read('auth/ui.js');
 const landing = read('app/public-landing.html');
 const sw = read('sw.js');
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.66" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.66" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.66') < index.indexOf('app/public-entry.js?v=13.82.66'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.66') < index.indexOf('app/public-entry.js?v=13.82.66'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.67" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.67" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.67') < index.indexOf('app/public-entry.js?v=13.82.67'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.67') < index.indexOf('app/public-entry.js?v=13.82.67'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /link\[data-luvia-public-landing-style\]/);
@@ -28,6 +28,8 @@ assert.match(entry, /window\.LuviaGuidedJourneyEntry = Object\.freeze/);
 assert.match(shell, /await window\.LuviaGuidedJourneyEntry\.render\(mountRoot,\{authMode\}\)/);
 assert.match(shell, /if\(recoveryRequested\(\)\)return signedOut\(\{authMode:'recovery'\}\)/);
 assert.match(shell, /window\.LuviaGuidedJourneyEntry\?\.deactivate\?\.\(\)/);
+assert.match(shell, /active\?\.isConnected&&marker\?\.isConnected/);
+assert.doesNotMatch(shell, /const inViewport=/);
 
 assert.doesNotMatch(authUi, /name="firstName"[^]*standardForm/);
 assert.match(authUi, /signUp\(\{email,password\}\)/);
@@ -48,7 +50,7 @@ for (const asset of [
   assert.match(sw, new RegExp(`assets/public-landing/${asset.replace('.', '\\.').replace('-', '\\-')}`));
 }
 
-assert.match(sw, /luvia-shell-v13\.82\.66/);
+assert.match(sw, /luvia-shell-v13\.82\.67/);
 assert.match(sw, /app\/public-landing\.html/);
 assert.match(sw, /app\/public-landing-motion\.js/);
 
