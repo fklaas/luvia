@@ -1,4 +1,4 @@
-const CACHE='luvia-shell-v13.82.54';
+const CACHE='luvia-shell-v13.82.55';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -60,18 +60,19 @@ self.addEventListener('fetch',event=>{
 
   if(request.mode==='navigate'){
     event.respondWith((async()=>{
+      const activeCache=await caches.open(CACHE);
       try{
         const response=await fetch(request,{cache:'no-store'});
         event.waitUntil(store(request,response));
         return response;
       }catch{
-        return await caches.match(request)||await caches.match(scoped('index.html'))||await caches.match(OFFLINE);
+        return await activeCache.match(request,{ignoreSearch:true})||await activeCache.match(scoped('index.html'))||await activeCache.match(OFFLINE);
       }
     })());
     return;
   }
 
-  if(/\.(?:js|css|json|webmanifest)$/i.test(url.pathname)){
+  if(/\.(?:js|css|json|webmanifest|svg|png|ico|html)$/i.test(url.pathname)){
     event.respondWith((async()=>{
       const activeCache=await caches.open(CACHE);
       const cached=await activeCache.match(request,{ignoreSearch:true});
@@ -84,5 +85,5 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  event.respondWith((async()=>{const hit=await caches.match(request);if(hit)return hit;try{const response=await fetch(request);event.waitUntil(store(request,response));return response}catch{return new Response('',{status:503,statusText:'Offline'})}})());
+  event.respondWith((async()=>{const activeCache=await caches.open(CACHE),hit=await activeCache.match(request,{ignoreSearch:true});if(hit)return hit;try{const response=await fetch(request);event.waitUntil(store(request,response));return response}catch{return new Response('',{status:503,statusText:'Offline'})}})());
 });

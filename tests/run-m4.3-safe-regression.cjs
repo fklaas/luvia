@@ -430,6 +430,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5p-productive-places-runtime-release.test.cjs'
   },
   {
+    category: 'M16.5 / Living Compass Recovery Release',
+    test: 'tests/m16.5q-living-compass-recovery-release.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

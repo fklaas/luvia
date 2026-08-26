@@ -2549,3 +2549,5 @@ docs/modularization/PCR-M16.5P-PRODUCTIVE-PLACES-RUNTIME-RELEASE.md,Platform/Pla
 tests/m16.5p-productive-places-runtime-release.test.cjs,Platform/Places/Experience Shared Tests,Test/Release Guard,App Core cache MapLibre Places owner composition Safe Regression registration and visual parity lock
 tests/fixtures/m16.5q-living-compass-recovery-browser.html,Consumer/Shared Tests,Test/Fixture,Productive App Shell and Living Compass browser harness for real pointer touch keyboard reload and history recovery evidence
 tests/m16.5q-living-compass-recovery-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer touch hover keyboard reload browser history reduced motion and compact viewport recovery regression
+tests/m16.5q-living-compass-recovery-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,Integration release cache Service Worker Compass contexts exact routing cleanup and Places map recovery lock
+tests/m16.5q-pwa-cache-recovery-e2e.cjs,Platform/Experience Shared Tests,Test/E2E,Real Edge stale cache pruning active Service Worker cache and offline reload recovery evidence

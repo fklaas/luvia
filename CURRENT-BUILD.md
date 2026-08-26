@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.54**
-- Core: **4.82.54**
-- Name: **M16.5 Productive Places Spatial Experience**
+- App: **13.82.55**
+- Core: **4.82.55**
+- Name: **M16.5 Living Compass Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -98,6 +98,20 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
   unchanged pending complete joint visual acceptance**.
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
+
+## M16.5Q Living Compass Recovery Candidate
+
+- Runtime target: **App 13.82.55 / Core 4.82.55 / Integration Preview only**.
+- Acceptance correction: **the earlier public M16.5P functional acceptance is revoked; the unchanged user recording is the regression authority for context switching, hit geometry and cleanup**.
+- Compass interaction: **Heute, Planen, Reise, Erinnern and Profil now switch constellations inside the embedded stage; direction selection keeps the chosen target stationary, aligns the native two-ended needle, returns the official Compass to the brand and then opens the exact target**.
+- Cleanup and access: **X and Escape close to Today; rapid context/exit input is queued; keyboard arrows, 44 px compact touch targets and reduced motion are explicitly covered**.
+- Places/Map: **map/list selection is bidirectional, late MapLibre callbacks are render-fenced and an honest bright fallback preserves search, evidence, results and actions**.
+- Cache/PWA: **the expected cache derives from the release build, old shell caches are pruned only after registration/update, newly active workers reload an already controlled page once, and brand/static assets recover network-first from the current cache only**.
+- Local visible browser evidence: **real Edge pointer, touch, keyboard, reload, browser Back and reduced-motion E2E PASS at desktop plus 390 × 844, 360 × 740 and 320 × 673**.
+- Local PWA evidence: **real Edge Service Worker registration, stale `luvia-shell-v13.17.0` pruning, current `luvia-shell-v13.82.55` activation and offline document/CSS reload PASS**.
+- Candidate validation: **106 / 106 Safe Regression PASS; regenerated visual inventory 2,787 / 672 with 59 CSS files; NFR-0 3 / 3 PASS; cross-Core DB ownership guard PASS without debt growth**.
+- Release status: **new immutable Integration version pending; Main and Production remain locked and unchanged**.
+- Database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual Cloudflare configuration change: **NONE**.
 
 ## M16.5N–P Productive Places Spatial Experience
 
@@ -189,12 +203,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.54 / 4.82.54 Integration candidate with productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.55 / 4.82.55 Integration recovery candidate with the accepted Living Compass interaction and productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,783 tracked files; 668 visual candidates; 264 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **59 files; 931,135 LF-normalized bytes; 8,305 lines; 3,228 `!important`; 2,920 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 39 focus-visible selectors**
+- Exhaustive manifest: **2,787 tracked files; 672 visual candidates; 264 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **59 files; 936,476 LF-normalized bytes; 8,339 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 44 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -203,7 +217,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **105 / 105 PASS on the Platform 13.82.54 / 4.82.54 productive Places release candidate**
+- Safe Regression: **106 / 106 PASS on the Platform 13.82.55 / 4.82.55 Living Compass recovery candidate**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
