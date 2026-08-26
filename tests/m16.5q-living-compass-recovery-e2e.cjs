@@ -24,6 +24,15 @@ async function expectCompass(page,title){
   });
   assert.equal(await stage.locator('.lv-plan-direction').count(),8,'every context must retain eight primary directions');
 }
+async function assertIdleDynamics(page){
+  const direction=page.locator('.lv-plan-direction').first(),idle=direction.locator('.lv-plan-direction-idle'),needle=page.locator('[data-plan-compass-stage] .lv-plan-compass-needle');
+  const beforeBox=await direction.boundingBox();assert.ok(beforeBox,'idle direction has no physical hit box');
+  const before=await page.evaluate(()=>{const idle=document.querySelector('.lv-plan-direction-idle'),needle=document.querySelector('[data-plan-compass-stage] .lv-plan-compass-needle');return{idleTransform:getComputedStyle(idle).transform,idleAnimation:getComputedStyle(idle).animationName,needleTransform:getComputedStyle(needle).transform,needleAnimation:getComputedStyle(needle).animationName}});
+  await page.waitForTimeout(720);
+  const afterBox=await direction.boundingBox(),after=await page.evaluate(()=>{const idle=document.querySelector('.lv-plan-direction-idle'),needle=document.querySelector('[data-plan-compass-stage] .lv-plan-compass-needle');return{idleTransform:getComputedStyle(idle).transform,needleTransform:getComputedStyle(needle).transform}});assert.ok(afterBox);
+  assert.equal(before.idleAnimation,'lv-plan-direction-idle-drift','settled direction visuals must retain their subtle idle drift');assert.equal(before.needleAnimation,'lv-plan-needle-idle','the unselected Compass needle must retain its subtle idle pendulum');assert.notEqual(after.idleTransform,before.idleTransform,'the direction visual must move gently while idle');assert.notEqual(after.needleTransform,before.needleTransform,'the unselected needle must visibly pendulate');
+  const a=center(beforeBox),b=center(afterBox);assert.ok(Math.abs(a.x-b.x)<=.25&&Math.abs(a.y-b.y)<=.25&&Math.abs(beforeBox.width-afterBox.width)<=.25&&Math.abs(beforeBox.height-afterBox.height)<=.25,'idle dynamics must not move or resize the physical direction hit target');
+}
 async function assertHitGeometry(page){
   const directions=page.locator('.lv-plan-direction');
   for(let index=0;index<await directions.count();index++){
@@ -53,7 +62,7 @@ async function assertInsideViewport(page){
     desktop.setDefaultTimeout(8000);
     await desktop.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');
     const documentToken=await desktop.evaluate(()=>window.__m165rDocumentToken||(window.__m165rDocumentToken=`document-${Date.now()}-${Math.random()}`));
-    await assertHitGeometry(desktop);await desktop.screenshot({path:path.join(OUTPUT,'desktop-plan.png'),fullPage:true});console.log('desktop hover geometry: PASS');
+    await assertIdleDynamics(desktop);await assertHitGeometry(desktop);await desktop.screenshot({path:path.join(OUTPUT,'desktop-plan.png'),fullPage:true});console.log('desktop idle dynamics and hover geometry: PASS');
 
     await desktop.getByRole('button',{name:'Heute',exact:true}).first().click();
     const leavingStage=desktop.locator('[data-plan-compass-stage].is-context-leaving');await leavingStage.waitFor({state:'attached'});await desktop.waitForFunction(()=>{const stage=document.querySelector('[data-plan-compass-stage].is-context-leaving'),motions=[...(stage?.querySelectorAll('.lv-plan-direction-motion')||[])].map(node=>Number(getComputedStyle(node).opacity));return motions.length===8&&motions[0]>motions.at(-1)+.2});
@@ -128,6 +137,7 @@ async function assertInsideViewport(page){
     const earlyBack=await browser.newPage({viewport:{width:1440,height:900}});earlyBack.setDefaultTimeout(8000);await earlyBack.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(earlyBack,'Welche Richtung soll die Planung nehmen?');await earlyBack.evaluate(()=>{window.__m165qPlacesMountDelay=1600});await earlyBack.getByRole('button',{name:/^Places:/}).click();await earlyBack.waitForFunction(()=>new URL(location.href).searchParams.get('screen')==='places');await earlyBack.goBack();await expectCompass(earlyBack,'Welche Richtung soll die Planung nehmen?');await earlyBack.waitForTimeout(1900);assert.equal(await earlyBack.getByRole('heading',{level:1,name:'Welche Richtung soll die Planung nehmen?'}).count(),1,'the first Back gesture must remain authoritative after a delayed Places mount settles');assert.equal(new URL(earlyBack.url()).searchParams.get('screen'),'plan','history must be committed before the asynchronous Places mount so the first Back gesture can restore Plan');await earlyBack.close();console.log('slow Places mount / first Browser Back ordering: PASS');
 
     const reduced=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});reduced.setDefaultTimeout(8000);await reduced.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(reduced,'Welche Richtung soll die Planung nehmen?');
+    const reducedAnimations=await reduced.evaluate(()=>({idle:getComputedStyle(document.querySelector('.lv-plan-direction-idle')).animationName,needle:getComputedStyle(document.querySelector('[data-plan-compass-stage] .lv-plan-compass-needle')).animationName}));assert.deepEqual(reducedAnimations,{idle:'none',needle:'none'},'reduced motion must disable idle direction drift and needle pendulum');
     await reduced.getByRole('button',{name:'Heute',exact:true}).first().click();await expectCompass(reduced,'Was braucht euer Tag gerade?');await reduced.getByRole('button',{name:'Kompass schließen und zu Heute zurückkehren'}).click();await heading(reduced,'Heute');
 
     for(const viewport of [{width:390,height:844},{width:360,height:740},{width:320,height:673}]){
