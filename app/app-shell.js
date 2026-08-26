@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,todayRenderTimer=0,todayLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false;
-  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressCompassPointerClick=0;
+  let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null;
   const activeCompassAnimations=new Set();
   const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.50',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
@@ -634,21 +634,23 @@
     return leavePlanCompass(action,button,intentSequence);
   }
   function rememberCompassPointer(event){
+    suppressedCompassClick=null;
     const stage=currentPlanCompassStage();let direction=event.target.closest?.('[data-plan-compass-stage] [data-hub-action]');
     if(!direction&&stage?.matches('.is-compass-arriving,.is-ready'))direction=[...stage.querySelectorAll('[data-hub-action]')].find(node=>{const box=node.getBoundingClientRect();return event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom});
     if(!direction||event.button!==0||event.isPrimary===false)return;
-    compassPointerGesture={pointerId:event.pointerId,action:direction.dataset.hubAction,x:event.clientX,y:event.clientY};
+    compassPointerGesture={pointerId:event.pointerId,pointerType:event.pointerType||'mouse',action:direction.dataset.hubAction,x:event.clientX,y:event.clientY};
     try{direction.setPointerCapture?.(event.pointerId)}catch{}
   }
   function releaseCompassPointer(event){
     const gesture=compassPointerGesture;compassPointerGesture=null;
-    if(!gesture||gesture.pointerId!==event.pointerId||Math.hypot(event.clientX-gesture.x,event.clientY-gesture.y)>20)return;
+    const tolerance=gesture?.pointerType==='touch'?32:20;
+    if(!gesture||gesture.pointerId!==event.pointerId||Math.hypot(event.clientX-gesture.x,event.clientY-gesture.y)>tolerance)return;
     const stage=currentPlanCompassStage(),direction=[...(stage?.querySelectorAll('[data-hub-action]')||[])].find(node=>node.dataset.hubAction===gesture.action);if(!direction)return;
-    event.preventDefault();event.stopPropagation();const suppression=++suppressCompassPointerClick;setTimeout(()=>{if(suppressCompassPointerClick===suppression)suppressCompassPointerClick=0},0);
+    event.preventDefault();event.stopPropagation();suppressedCompassClick={pointerType:gesture.pointerType,until:performance.now()+900};
     return choosePlanCompassDirection(direction);
   }
   function bind(){root.addEventListener('click',e=>{
-    if(suppressCompassPointerClick&&e.detail>0){e.preventDefault();e.stopPropagation();suppressCompassPointerClick=0;return}
+    if(suppressedCompassClick){const active=performance.now()<=suppressedCompassClick.until;if(!active)suppressedCompassClick=null;else if(e.detail>0){e.preventDefault();e.stopPropagation();suppressedCompassClick=null;return}}
     const suggestion=e.target.closest('[data-today-suggestion-add]');if(suggestion){e.preventDefault();e.stopPropagation();return addTodaySuggestion(suggestion)}
     const placeTarget=e.target.closest('[data-place-open]');if(placeTarget){e.preventDefault();return openPlace(placeOpenPayload(placeTarget)).catch(console.error)}
     if(e.target.closest('[data-retry]'))return bootstrap();if(e.target.closest('[data-create]'))return window.LuviaTripCreator.open();if(e.target.closest('[data-signout]'))return (window.LuviaAuth||window.ParisAuth).signOut();if(e.target.closest('[data-join-code]'))return window.LuviaJoinFlow?.openCodeEntry?.();if(e.target.closest('[data-invite]'))return openDialog('trip.invite',activeTrip());if(e.target.closest('[data-edit]'))return openDialog('trip.edit',activeTrip());
