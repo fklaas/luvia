@@ -43,7 +43,7 @@ assert.match(browserGuard,/consoleProblems,\[\]/);
 assert.match(pcr,/global `render\(\)` once for loading and again after the asynchronous `places\.v1`/);
 assert.match(pcr,/1060\.0 → 1060\.0 → 1060\.0/);
 assert.match(pcr,/does not claim that[\s\S]*complete Places Golden Slice/);
-assert.match(matrix,/places-continuity,[^\n]*,RESILIENCE COMPLETE,/);
+assert.match(matrix,/places-continuity,[^\n]*,PUBLIC VERIFIED,/);
 
 for(const file of [
   'tests/fixtures/m16.5r-places-continuity-browser.html',

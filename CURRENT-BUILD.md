@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.64**
-- Core: **4.82.64**
-- Name: **M16.5 Living Compass Recovery**
+- App: **13.82.65**
+- Core: **4.82.65**
+- Name: **M16.5 Places Detail Continuity**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -99,17 +99,19 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
 
-## M16.5R Places Details/Evidence Continuity Candidate
+## M16.5R Places Details/Evidence Continuity Release
 
 - Runtime target: **App 13.82.65 / Core 4.82.65 / Integration Preview only**.
 - Release name / channel: **M16.5 Places Detail Continuity / `integration-preview`**.
 - Reproduced root cause: **`loadDetails(id)` globally rendered the complete Places root for loading and completion. The `innerHTML` replacement destroyed the horizontally scrolled result rail, focused detail button and active MapLibre instance, recreating the rail at result 1 even though a later Place's evidence was shown**.
 - Correction: **later-result evidence now selects the exact Place and patches only its stable live detail region. The rail, real pointer focus and existing map survive; the map follows the same owner-coordinate selection path. Pending-detail identity and lifecycle/root fences prevent close/reopen races and late unmounted mutations**.
 - Local real Edge evidence: **390 × 844 result 4 rail position `1060.0 → 1060.0 → 1060.0` across open, delayed completion and close; selected Place 4; map center `[10.78, 54.04]`; map instances/removals `1 / 0`; focus retained; one `places.v1` detail read; console 0**.
-- Candidate validation: **Consumer 99 / 99 PASS; Integration Safe Regression 108 / 108 PASS; real local Edge 390 × 844 later-result continuity E2E PASS with rail `1060.0 → 1060.0 → 1060.0`; public stable/immutable asset parity and authenticated stable-origin E2E remain required before PUBLIC VERIFIED**.
+- Validation: **Consumer 99 / 99 PASS; Integration Safe Regression 108 / 108 PASS; real local Edge 390 × 844 later-result continuity E2E PASS with rail `1060.0 → 1060.0 → 1060.0`; 9 / 9 changed/version-critical assets are byte-identical across source, stable and immutable Integration**.
+- Public visible evidence: **authenticated stable-origin 390 × 844 real horizontal gestures reached productive result 4; a visible real left click opened `Details & Evidenz`; rail `1060.8 → 1060.8 → 1060.8`, exact result-4 selection, pointer focus, `aria-expanded`, the existing ready map and asynchronous detail completion all remained coherent through open/complete/close; reload restored the Places route; console warnings/errors 0**.
+- Public deployment: **100% Integration version `672b3a94-e25d-47bc-97d3-baf903d1c971`, deployment `30f7b880-e7b4-4bd2-874d-a0b834ac75b8`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://672b3a94-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Product boundary: **this closes the bounded continuity defect only. The complete Places Golden Slice, remaining M16.5 Product Surface Matrix, user acceptance and Design Freeze remain open**.
-- Main / Production: **locked and unchanged**.
-- Rollback: **before release, code-only to Integration `8aea1aa`; after release, immediately previous Integration App 13.82.64 version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef`; no data rollback**.
+- Main / Production: **locked and verified unchanged: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`**.
+- Rollback: **redeploy immediately previous Integration App 13.82.64 version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef` from deployment `c6878f00-0c18-457f-bd58-7c8b293e3736`; no data rollback**.
 
 ## M16.5Q Living Compass Recovery Candidate
 

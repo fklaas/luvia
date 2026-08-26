@@ -55,7 +55,9 @@ bucket, Edge Function, secret or Cloudflare configuration is changed.
 
 Consumer source commit: `b02956f`
 
-Integration assembly commit: `9b45905`
+Integration adoption commit: `9b45905`
+
+Integration release commit: `c616a8539e6288838dd70cc35285d2c55cab39b2`
 
 Focused static guard:
 
@@ -84,16 +86,32 @@ not a repository runtime asset).
 Consumer Safe Regression: 99 / 99 PASS after synchronizing two already-valid
 Q-era guard baselines with the current feature branch. Integration Safe
 Regression: 108 / 108 PASS, including NFR-0 3 / 3, Active Trip Context 2 / 2
-and the cross-core DB no-growth guard. Public asset parity and authenticated
-stable-origin E2E remain release gates for App 13.82.65 and must be recorded
-before public acceptance.
+and the cross-core DB no-growth guard.
+
+Public Integration evidence:
+
+- App 13.82.65 is deployed at 100% as Cloudflare version
+  `672b3a94-e25d-47bc-97d3-baf903d1c971` in deployment
+  `30f7b880-e7b4-4bd2-874d-a0b834ac75b8`;
+- all nine changed or version-critical assets are byte-identical between the
+  release commit, stable Integration and the immutable version origin;
+- an authenticated real visible 390 × 844 stable-origin run used actual
+  horizontal user gestures to reach productive result 4 and a visible left
+  click on `Details & Evidenz`;
+- rail position remained `1060.8 → 1060.8 → 1060.8` across loading,
+  asynchronous completion and close;
+- productive result 4 remained selected, the clicked control retained focus
+  and `aria-expanded`, and the same ready MapLibre surface remained mounted;
+- the returned productive evidence belonged to result 4, reload restored the
+  Places route, and console warning/error count remained `0`.
+
+Stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`
+
+Immutable URL:
+`https://672b3a94-integration-luvia.njwnrvwbv5.workers.dev/`
 
 ## 5. Explicitly still open
 
-- public stable/immutable Integration deployment and exact asset provenance for
-  App 13.82.65;
-- real visible authenticated stable-origin execution against productive Places
-  data;
 - explicit user acceptance of this Places continuity correction;
 - exhaustive Places discovery/filter/map/detail/favorite/planning/offline
   Golden Slice acceptance;
@@ -102,7 +120,11 @@ before public acceptance.
 
 ## 6. Rollback
 
-Before public release, rollback is code-only to Integration commit `8aea1aa`.
-After release, the immediately previous accepted Integration runtime remains App
-13.82.64, Cloudflare version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef`, deployment
+Redeploy the immediately previous accepted Integration runtime App 13.82.64,
+Cloudflare version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef`, from deployment
 `c6878f00-0c18-457f-bd58-7c8b293e3736`. No data compensation is required.
+
+Main and Production were verified unchanged after the Integration deployment:
+Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment
+`578f13fc-8193-4988-88cf-93c94362fcc3`, version
+`0d26706b-8b79-4e05-b3b6-6c6314cc597c`.

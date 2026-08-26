@@ -88,8 +88,9 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - M16.5R is the first Productization Plan correction: App/Core 13.82.65 /
   4.82.65 preserves a later Places result's horizontal rail, exact selection,
   map position and focus while asynchronous `Details & Evidenz` opens or
-  closes. Public Integration provenance and visible E2E remain its release gate;
-  the complete Places Golden Slice remains open.
+  closes. Source/stable/immutable provenance and the authenticated visible
+  Integration E2E are PASS; explicit user acceptance and the complete Places
+  Golden Slice remain open.
 
 ## Completed architecture boundaries
 

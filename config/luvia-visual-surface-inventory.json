@@ -5452,8 +5452,8 @@
       "classes": [
         "interaction-source"
       ],
-      "bytes": 3095,
-      "sha256": "54ebf7e976773e735f6fa843d0d692a8b5d6b31b3a828dbaa6a447f87e09c1b2"
+      "bytes": 3091,
+      "sha256": "25c9fa8ef4150316aa40c64b1b2f3b9cbf282787f9678d6968a631b0e1a693bf"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
