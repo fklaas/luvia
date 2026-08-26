@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.58 / Core 4.82.58
+Runtime: App 13.82.59 / Core 4.82.59
 
 Channel: Integration Preview only
 
@@ -17,7 +17,10 @@ then proved an outgoing focused direction was placed below `aria-hidden`.
 App 13.82.57 also remains unaccepted. A second unchanged user recording and
 parallel desktop/mobile testing proved intermittent stationary-page clicks,
 direct primary-navigation fallback to legacy views and dependence on opening
-Plan first. App 13.82.58 is the corrective Integration candidate. It receives
+Plan first. App 13.82.58 corrected those four narrow causes, but public
+authenticated testing and simultaneous user testing then reproduced an older
+delayed Places/Compass operation overwriting a newer navigation intent. App
+13.82.59 is the corrective Integration candidate. It receives
 no functional acceptance until a new, uninterrupted, real-pointer public E2E
 run and console/accessibility check have visibly completed after deployment and
 Service Worker settlement.
@@ -120,6 +123,13 @@ Additional unchanged user evidence:
 17. Broad stage lookup could select a `[data-plan-compass-stage]` below an
     outgoing `.lv-route-previous` host. Commands then updated the hidden old
     Compass while the visible current view remained unchanged.
+18. Productive module activation is asynchronous. App 13.82.58 did not order a
+    queued Compass context against a later route/navigation intent. A delayed
+    Places activation could therefore finish after Browser Back or another
+    click and replay its older pending Plan context over the newer visible
+    destination. The public authenticated sequence reproduced this under real
+    Places data load; parallel user testing reproduced it in both integrated
+    and external browsers.
 
 ## 4. Recovery implementation
 
@@ -146,6 +156,12 @@ Additional unchanged user evidence:
   route commits. Stage lookup is restricted to the current non-previous host,
   and detached selections are resolved against that live stage before the
   exact action is executed.
+- Every Compass/context/route command carries a monotonic user-intent sequence.
+  A delayed animation, module mount or queued context may finish cleanup, but
+  it cannot execute or replay after a newer click, Back/popstate or navigation
+  request. The requested `activeView` is committed before asynchronous module
+  deactivation so live owner refreshes also observe the destination rather
+  than the outgoing Plan stage.
 - The shared-element flight is mounted in the persistent `.lv-living-shell`;
   every flight has a common cancellation owner and a bounded fallback. The
   destination action starts after the selection feedback without awaiting the
@@ -204,6 +220,9 @@ runtime:
   precondition and entry from Places while preserving `?screen=places`;
 - a deliberately never-finishing Web Animations `finished` promise; the real
   Places click still reached the destination inside the fixed routing budget;
+- a deliberately delayed Places module mount followed by a queued Plan click
+  and a newer Routes navigation; after all delayed promises settle, Routes
+  remains visible and no stale Compass stage is replayed;
 - direct needle evidence (`Places` = `-90deg`, without `1080deg` addition);
 - outgoing-route focus/ARIA evidence: zero focused descendants below
   `aria-hidden`, with the previous host inert for the transition and restored
@@ -212,7 +231,7 @@ runtime:
   arrival and cross-fades only in the final shared-element phase;
 - Service Worker registration, deliberate stale
   `luvia-shell-v13.17.0` creation/pruning, active
-  `luvia-shell-v13.82.58` recovery and offline document/CSS reload.
+  `luvia-shell-v13.82.59` recovery and offline document/CSS reload.
 
 Visual evidence is retained locally under
 `test-results/m16.5q/desktop-entry-before-arrival.png`,
@@ -242,9 +261,13 @@ proved the focus/`aria-hidden` contract still failed. App 13.82.57 then cleared
 that narrow automated gate, but the second user recording proved its direct
 entry, live-stage ownership, hit-geometry and queued-context behavior still
 failed on desktop and compact mobile. None of these runs supports functional
-acceptance.
+acceptance. App 13.82.58 then passed the expanded local geometry/direct-entry
+suite, but the authenticated public run reproduced a delayed Places activation
+replaying Plan over a newer route. The user simultaneously reproduced the same
+failure in the integrated and external browsers, so App 13.82.58 is revoked as
+well.
 
-Mandatory App 13.82.58 public re-acceptance after deployment:
+Mandatory App 13.82.59 public re-acceptance after deployment:
 
 1. settle the new Service Worker and repeat from the settled controller;
 2. real left-click selection through all five Compass contexts and every Plan
@@ -279,6 +302,9 @@ Consumer source commits:
 - `1c4cf04` — deterministic direct context entry, live-stage ownership,
   stationary hover/selection geometry, queued-context replay and full-size
   physical pointer regression coverage.
+- `f7a7d44` — monotonic user-intent ordering across delayed module mounts,
+  Compass queues, route requests and Browser Back, plus deterministic slow
+  Places regression coverage.
 
 Integration provenance:
 
@@ -289,7 +315,8 @@ Integration provenance:
 - deterministic transition assembly: `57ee461`;
 - App 13.82.56 runtime release candidate: `a3f8614`.
 - route-transition focus integrity assembly: `570fa2e`.
-- App 13.82.58 deterministic Compass assembly: `04a6f3c`.
+- App 13.82.58 deterministic direct-entry assembly: `04a6f3c`.
+- App 13.82.59 intent-ordering assembly: `7637dcb`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -314,7 +341,17 @@ Superseded, unaccepted App 13.82.57 Integration:
   context, hit-geometry, live-stage and queued-context failures after the
   narrower focus/ARIA correction.
 
-App 13.82.58 Cloudflare Integration version/deployment: **PENDING**.
+Superseded, unaccepted App 13.82.58 Integration:
+
+- source commit: `b1c6f4fb13ac6d214c099f5a96934fd60998567e`;
+- version ID: `8e7f17d0-242a-4290-ab0b-106d4f8353c6`;
+- deployment ID: `a025dd9b-4495-4c53-bcf2-3aaa963c2366`;
+- immutable URL:
+  `https://8e7f17d0-integration-luvia.njwnrvwbv5.workers.dev/`;
+- reason superseded: authenticated public and parallel user testing proved a
+  delayed Places/Compass operation could replay over a newer route intent.
+
+App 13.82.59 Cloudflare Integration version/deployment: **PENDING**.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -334,7 +371,7 @@ Production remained exactly on deployment
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
-- App 13.82.58 public stable/immutable deployment and uninterrupted visible E2E
+- App 13.82.59 public stable/immutable deployment and uninterrupted visible E2E
   re-acceptance;
 - the remaining M16.5 visual-parity matrix, especially complete Booking and all
   other surfaces not included in this recovery;
@@ -346,11 +383,11 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 183d62af-5c49-43ce-a148-08ebc8813364@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.57" --yes
+npx wrangler versions deploy 8e7f17d0-242a-4290-ab0b-106d4f8353c6@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.58" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`183d62af-5c49-43ce-a148-08ebc8813364` from deployment
-`b06ef844-3b91-4de8-959b-03bab9fcfdb5`. It is an operational fallback only,
+`8e7f17d0-242a-4290-ab0b-106d4f8353c6` from deployment
+`a025dd9b-4495-4c53-bcf2-3aaa963c2366`. It is an operational fallback only,
 not an accepted functional build. No data rollback is required because M16.5Q
 changed no database, storage schema, Edge Function or secret.

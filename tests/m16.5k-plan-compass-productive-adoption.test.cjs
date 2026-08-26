@@ -42,7 +42,7 @@ assert.doesNotMatch(shellScope,/lv-nav-compass-mark/,'the navigation AI entry ma
 assert.match(actionScope,/leavePlanCompass\('today'\)/,'X must return to Today');
 assert.match(actionScope,/--lv-plan-selection-angle/,'feature choice must aim the native two-ended needle');
 assert.match(actionScope,/selected\.classList\.add\('is-selected'\)/,'the chosen direction must remain visible during exit');
-assert.match(actionScope,/openLivingCompassContext\(context\)/,'top-level navigation must switch the embedded Compass context instead of exiting it');
+assert.match(actionScope,/openLivingCompassContext\(context,\{intentSequence:compassIntentSequence\}\)/,'top-level navigation must switch the embedded Compass context instead of exiting it and preserve the current user-intent ordering');
 assert.match(actionScope,/if\(e\.key==='Escape'\)/,'Escape must close the Compass to Today');
 assert.match(actionScope,/ArrowLeft.*ArrowRight.*ArrowUp.*ArrowDown/,'direction keyboard navigation must support all arrow keys');
 for(const route of ['places','places-lifecycle','timeline','bookings','routes']){
