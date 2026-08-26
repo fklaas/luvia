@@ -4,7 +4,7 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.62 / Core 4.82.62
+Runtime: App 13.82.63 / Core 4.82.63
 
 Channel: Integration Preview only
 
@@ -36,9 +36,15 @@ produce reload-like flicker. App 13.82.61 corrected that choreography and passed
 desktop CUA plus perfect automated mobile taps, but its mobile functional
 acceptance is now also explicitly revoked. Real physical-handset input still
 reproduced inert Places, Booking and Live-Momente directions after cache/cookie
-deletion and in incognito. App 13.82.62 is the physical-touch recovery candidate.
-It receives no handset acceptance from automation; the physical handset retest
-remains open after publication.
+deletion and in incognito. App 13.82.62 corrected that physical touch ownership
+and is currently deployed, but it is also superseded and unaccepted. Continued
+physical-handset review exposed a semantic routing substitution: Reise →
+Live-Momente and Erinnern → Moment bewahren both opened the Fotogalerie instead
+of the accepted Media → Memory capture focus. The same review reported that the
+mobile needle appeared to turn rigidly rather than continuing smoothly to the
+chosen point. App 13.82.63 is the combined moment-routing and selection-needle
+recovery candidate. It receives no handset acceptance from automation; the
+physical handset retest remains open after publication.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -107,6 +113,23 @@ Latest unchanged user review evidence:
   gently to retain a living quality. These ambient motions must pause during
   selection/context/return motion, must never move the outer hit target and
   must be disabled under Reduced Motion.
+
+Latest physical-handset evidence and direct user observation:
+
+- file: `WhatsApp Video 2026-08-26 at 18.04.13.mp4`;
+- bytes / SHA-256: `7,815,407` /
+  `1837C30270DFC0D76B15E0C6A4129B55764B8590F9767E956BF993B4E63F9A5A`;
+- unchanged duration/resolution evidence: 36.725 seconds / 576 × 1248;
+- a complete 0.1-second frame audit (368 samples) found the recording visually
+  static on the Plan Budget focus. It therefore documents the exact physical
+  handset/runtime state but contains no visible direction-selection interval
+  from which needle timing could honestly be measured;
+- the accompanying live user observation is the defect report: Erinnern opens
+  the Fotogalerie where the accepted Moment/capture flow is expected, and the
+  selected needle feels rigid on the physical handset. The routing defect was
+  independently reproduced on the unchanged public `.62` runtime; the needle
+  handoff defect was independently reproduced by frame-level real-browser touch
+  instrumentation before correction.
 
 ## 3. Proven root causes
 
@@ -223,6 +246,20 @@ Latest unchanged user review evidence:
     stage has changed, allowing the stale coordinate to hit a replacement
     control. The guard therefore had to span the route handoff while still being
     cleared by the next genuine pointer gesture.
+31. The productive Compass table had collapsed two semantically different
+    Memories operations into the existing `gallery` route. Both Trip
+    `Live-Momente` and Memories `Moment bewahren` therefore opened the
+    Fotogalerie. The accepted reference distinguishes `action:capture` (Media
+    becomes Memory only after conscious selection) from `mode:library` /
+    Mediathek; mapping both to Gallery was a forbidden legacy substitution, not
+    a device, cache or touch failure.
+32. The idle needle keyframe animation owned `transform`. Selection wrote the
+    target custom property and added `.is-navigating` before sampling the
+    rendered transform, so disabling the idle animation could expose the target
+    immediately on the first selection frame. Real mobile touch tracing measured
+    that discontinuity: the needle jumped from its live idle angle to `-90deg`
+    instead of interpolating. A simultaneous CSS transition and animation
+    handoff also left Safari/mobile timing ambiguous.
 
 ## 4. Recovery implementation
 
@@ -238,11 +275,18 @@ Latest unchanged user review evidence:
 - Each context preserves eight primary directions plus the two accepted
   horizon targets and explicitly distinguishes active, foundation and reserved
   maturity without replacing an unfinished destination with legacy UI.
-- The selected direction remains stationary, the official two-ended needle
-  aligns by the shortest signed angle in `[-180deg, 180deg]`, and non-selected
-  directions fade at their orbital positions. The selected point receives the
-  accepted coral underlay and remains calmly visible for the bounded 620 ms
-  reference hold. No decorative revolution is added.
+- Trip `Live-Momente` and Memories `Moment bewahren` now preserve the accepted
+  `capture` intent and open the distinct “Diesen Moment bewusst bewahren.”
+  Media → Memory focus. Memories `Mediathek` alone opens `gallery`. The capture
+  focus records its semantic action and originating Trip/Memories context, uses
+  a separate route-host identity and returns to that exact Compass context.
+- The selected direction remains stationary. Before selection disables the idle
+  animation, the controller samples the needle's currently rendered matrix and
+  freezes that exact frame. Web Animations then interpolates for 760 ms with
+  `cubic-bezier(.16,.84,.18,1)` along the shortest signed path to the chosen
+  point. Non-selected directions fade at their orbital positions, the chosen
+  point receives the accepted coral underlay, and no decorative revolution or
+  competing CSS transform transition is added. Reduced Motion is immediate.
 - X and Escape return to Today. Arrow keys move direction focus. Compact
   targets remain at least 44 px. Reduced motion removes the flight/animation
   without removing state or action.
@@ -325,7 +369,7 @@ Latest unchanged user review evidence:
   through the existing explicit update action.
 - Explicit update activation retains the guarded one-time controller-change
   reload. Explicit maintenance removes only older `luvia-shell-v*` caches; the
-  active `.62` cache is preserved.
+  active `.63` cache is preserved.
 - Versioned JS/CSS/JSON/manifest/HTML and brand assets use network-first
   recovery and fall back only to the active release cache.
 - `beforeinstallprompt` is retained for the real install action.
@@ -345,9 +389,11 @@ runtime:
 - touch layouts at 390 × 844, 360 × 740 and 320 × 673 with all eight direction
   targets inside the viewport and at least 44 px;
 - hardware-path Edge CDP `Input.dispatchTouchEvent` at 390 × 844 with an 18 px
-  finger drift through three independent reported routes: Plan → Places, Plan →
-  Booking and Reise → Live-Momente. Every case retained `pointerup`, emitted no
-  `pointercancel` and committed the exact `places`, `bookings` or `gallery` URL;
+  finger drift through five independent routes: Plan → Places, Plan → Booking,
+  Reise → Live-Momente, Erinnern → Moment bewahren and Erinnern → Mediathek.
+  Every case retained `pointerup` and emitted no `pointercancel`; the first two
+  committed `places` / `bookings`, both Moment actions opened the distinct
+  `capture` focus with no gallery DOM, and Mediathek alone committed `gallery`;
 - reduced-motion context switch and close-to-Today;
 - all five context constellations, including direct primary-navigation entry
   from ordinary Today/Plan/Trip/Memories/Profile views without a Plan-first
@@ -360,7 +406,11 @@ runtime:
 - a separate 1.6-second delayed Places mount followed by the first Browser Back;
   Plan remains visible after the old mount settles and exactly one Plan stage
   owns `?screen=plan`;
-- direct needle evidence (`Places` = `-90deg`, without `1080deg` addition);
+- frame-level mobile selection-needle evidence sampled before, during and after
+  a real touch selection: the first selection frame remains continuous with the
+  last idle frame, multiple intermediate transforms follow a monotonic shortest
+  signed path, angular velocity stays bounded, and Places settles at `-90deg`
+  without a `1080deg` addition or first-frame snap;
 - exit evidence that the selected Places card retains its exact rectangle,
   receives a coral underlay, holds before flight, and the return-flight clone
   retains `-90deg` with `animation-name: none`;
@@ -379,7 +429,7 @@ runtime:
 - Service Worker registration with deliberate stale
   `luvia-shell-v13.17.0` creation: normal registration preserves both live
   controller/cache and document token without reload; explicit maintenance
-  removes only the stale cache, retains active `luvia-shell-v13.82.62`, and
+  removes only the stale cache, retains active `luvia-shell-v13.82.63`, and
   offline document/CSS reload succeeds.
 
 Visual evidence is retained locally under
@@ -397,7 +447,8 @@ Automated gates:
 - cross-Core DB ownership guard: PASS without debt growth;
 - release consistency, M16.5Q release lock and visual inventory freshness:
   PASS at 2,788 tracked files / 672 visual candidates / 59 CSS files;
-- real Edge hardware-path touch drift through Places, Booking and Live-Momente:
+- real Edge hardware-path touch drift through Places, Booking, Live-Momente,
+  Moment bewahren and Mediathek, plus measured mobile needle continuity:
   PASS with retained `pointerup` and zero `pointercancel`;
 - cross-Core DB ownership guard: PASS at 363 tracked JS/TS without debt growth;
 - no database/schema/RPC/RLS/bucket migration;
@@ -517,11 +568,22 @@ PASS; IMMUTABLE ASSET PARITY PASS; PHYSICAL-HANDSET FUNCTIONAL ACCEPTANCE
 REVOKED.** Desktop emulation and perfect automated taps did not cover the later
 measured `pointercancel` path.
 
-App 13.82.62 local release evidence before publication: **REAL EDGE COMPASS E2E
+App 13.82.62 was published and its public physical-touch correction routed Plan
+→ Places and Plan → Booking. The same visible stable-origin sequence then
+independently reproduced the semantic defect: Reise → Live-Momente committed
+`?screen=gallery` and displayed “Eure gemeinsamen Reisefotos”. The user's
+physical handset independently reported the equivalent Erinnern/Moment failure
+and rigid needle motion. App 13.82.62 is therefore superseded and unaccepted;
+its passing click-ownership evidence does not accept its routing semantics or
+selection motion.
+
+App 13.82.63 local release evidence before publication: **REAL EDGE COMPASS E2E
 PASS; REAL EDGE PWA E2E PASS; HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING
-/ LIVE-MOMENTE PASS.** Public stable/immutable deployment evidence is recorded
-only after the new Integration version exists. The physical handset retest
-remains open and is not replaced by this automated hardware-path evidence.
+/ LIVE-MOMENTE / MOMENT BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE
+CONTINUITY / DIRECT PATH / SMOOTH PROGRESSION PASS.** Public stable/immutable
+deployment evidence is recorded only after the new Integration version exists.
+The physical handset retest remains open and is not replaced by automated
+hardware-path evidence.
 
 ## 7. Source and deployment provenance
 
@@ -557,6 +619,10 @@ Consumer source commits:
   touch-specific bounded slop, suppress delayed compatibility clicks across the
   route handoff and cover Places, Booking and Live-Momente with real browser
   touch input.
+- `22f2e52` — restore distinct capture intent for Live-Momente and Moment
+  bewahren, preserve Mediathek as the sole Gallery direction, and animate the
+  selected needle continuously from its rendered idle frame along the shortest
+  smooth path with frame-level mobile touch coverage.
 
 Integration provenance:
 
@@ -574,7 +640,10 @@ Integration provenance:
 - App 13.82.61 choreography assembly: `59a0368`; release source commit:
   `5c3cf6c8dcb94bd190855961ee398d7644e4b6a5`.
 - App 13.82.62 physical-touch assembly: `f27f176`; versioned release source and
-  public deployment provenance are recorded after the release commit/deploy.
+  public release source: `be427121e4f2ac67dd7b549c6d0e57cd2ef98ee6`.
+- App 13.82.63 moment-routing/needle assembly: `4b38085`; versioned release
+  source and public deployment provenance are recorded after the release
+  commit/deploy.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -647,6 +716,22 @@ Superseded, handset-unaccepted App 13.82.61 Cloudflare Integration evidence:
   PASS; physical-handset functional acceptance: REVOKED;
 - changed runtime asset parity: 11 / 11 exact on both stable and immutable.
 
+Superseded, unaccepted App 13.82.62 Cloudflare Integration evidence:
+
+- source commit: `be427121e4f2ac67dd7b549c6d0e57cd2ef98ee6`;
+- version ID: `40622ea5-73ba-415a-97f8-e42903d389a5`;
+- deployment ID: `05506b17-1229-44e0-9010-a007230dcc53`;
+- traffic: 100%;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- immutable URL:
+  `https://40622ea5-integration-luvia.njwnrvwbv5.workers.dev/`;
+- public visible touch evidence retained the corrected physical hit ownership
+  for Places and Booking, then proved Live-Momente was incorrectly routed to
+  the Fotogalerie. Subsequent physical-handset review also reported the
+  Erinnern/Moment substitution and rigid selected-needle handoff;
+- reason superseded: accepted `capture` and `library` semantics were conflated,
+  and selection did not inherit the needle's currently rendered idle frame.
+
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
 API: `03361f62-7da8-4c9a-9aa8-f57c1fb07c33`,
@@ -661,7 +746,7 @@ Production remained exactly on deployment
 
 ## 8. Explicitly still open
 
-- physical handset retest remains open on iOS/Android for App 13.82.62; local
+- physical handset retest remains open on iOS/Android for App 13.82.63; local
   hardware-path Edge touch evidence is necessary but is not handset acceptance;
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
@@ -679,11 +764,14 @@ Production remained exactly on deployment
 Rollback affects only the dedicated Integration Worker:
 
 ```text
-npx wrangler versions deploy 65cc6c08-df40-424a-9658-9a643a26a0bd@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.61" --yes
+npx wrangler versions deploy 40622ea5-73ba-415a-97f8-e42903d389a5@100 --name integration-luvia --message "Operational rollback M16.5Q to App 13.82.62" --yes
 ```
 
 The rollback target is the immediately previous Integration version
-`65cc6c08-df40-424a-9658-9a643a26a0bd` from deployment
-`bfae734c-fbf6-41bb-8264-9883118888c2`. It is an operational fallback only,
-not a handset-accepted functional/visual build. No data rollback is required
-because M16.5Q changed no database, storage schema, Edge Function or secret.
+`40622ea5-73ba-415a-97f8-e42903d389a5` from deployment
+`05506b17-1229-44e0-9010-a007230dcc53`. It is an operational fallback only,
+not a functionally accepted build: it retains the Moment/Gallery substitution
+and the old selection-needle handoff. The older `.61` version remains available
+as a secondary operational fallback but is also handset-unaccepted. No data
+rollback is required because M16.5Q changed no database, storage schema, Edge
+Function or secret.

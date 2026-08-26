@@ -19,13 +19,14 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.62'/);
-assert.match(version,/build:'13\.82\.62'/);
+assert.match(version,/core:'4\.82\.63'/);
+assert.match(version,/build:'13\.82\.63'/);
 assert.match(version,/name:'M16\.5 Living Compass Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.62'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.63'/);
 assert.equal(index.includes('?v=13.82.61'),false,'active entry retains the handset-revoked cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.62`),`M16.5Q cache key missing for ${asset}`);
+assert.equal(index.includes('?v=13.82.62'),false,'active entry retains the superseded moment-routing/needle cache key');
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.63`),`M16.5Q cache key missing for ${asset}`);
 
 assert.match(pwa,/const BUILD=SCRIPT_URL\.searchParams\.get\('v'\)[^\n]*globalThis\.LuviaKernelVersion/,'PWA cache identity must derive from the active release script and kernel fallback');
 assert.match(pwa,/const EXPECTED_CACHE=BUILD\?[^;]+:null/,'PWA cache identity must match the active release');
@@ -54,12 +55,16 @@ assert.match(shell,/const compassNavigation=e\.target\.closest\('button\[data-co
 assert.match(shell,/currentPlanCompassStage=\(\)=>root\?\.querySelector\('\[data-stage\] > \.lv-view-host:not\(\.lv-route-previous\) \[data-plan-compass-stage\]'\)/,'Compass commands must never bind to a stale outgoing stage');
 assert.match(shell,/queuedContext&&queuedContext\.intentSequence===compassIntentSequence/,'only the latest queued context may replay after destination routing');
 assert.match(shell,/superseded=intentSequence!==compassIntentSequence/,'an older delayed Compass action must stop before executing over a newer intent');
-assert.match(shell,/compassSelectionHold=.*compassWait\(620\)/,'the accepted selected-point hold must remain bounded and match the reference exit timing');
+assert.match(shell,/compassSelectionDuration=\(\)=>compassMotionReduced\(\)\?0:760/,'the selected needle must retain a bounded mobile-visible motion duration');
+assert.match(shell,/renderedCompassNeedleAngle\(needle\)/,'selection must inherit the currently rendered idle needle angle before idle motion is disabled');
+assert.match(shell,/needle\.animate\(\[\{transform:`rotate\(\$\{from\}deg\)`\},\{transform:`rotate\(\$\{end\}deg\)`\}\],\{duration,easing:'cubic-bezier\(\.16,\.84,\.18,1\)'/,'selection must interpolate directly and smoothly from the visible angle to the shortest target');
+assert.match(shell,/playCompassSelectionNeedle\(stage,directAngle\)/,'direction routing must run the owned selection-needle motion');
 assert.doesNotMatch(shell,/compassWait\(compassMotionReduced\(\)\?0:720\)/,'direction routing must not restore the superseded decorative selection delay');
 assert.match(shell,/function cancelCompassFlights\(\)[\s\S]*animation\.cancel\(\)/,'in-flight Compass animations must be cancellable');
 assert.match(shell,/Promise\.race\(\[animation\.finished\.catch\(\(\)=>null\),compassWait\(duration\+180\)\]\)/,'decorative Compass flights must have a bounded lifetime');
 assert.doesNotMatch(shell,/await returnPlanCompassHome\(stage\)/,'decorative return flight must never gate destination routing');
-assert.match(shell,/directAngle=\(\(angle\+180\)%360\+360\)%360-180/,'the needle must take the direct signed angle to the selected direction');
+assert.match(shell,/normalizeCompassAngle=angle=>\(\(Number\(angle\|\|0\)\+180\)%360\+360\)%360-180/,'the needle angle normalizer must retain the direct signed range');
+assert.match(shell,/directAngle=normalizeCompassAngle\(angle\)/,'the needle must take the direct signed angle to the selected direction');
 assert.match(shell,/inheritedSelectionAngle=getComputedStyle\(source\)\.getPropertyValue\('--lv-plan-selection-angle'\)/,'the return flight must preserve the directly selected needle angle');
 assert.doesNotMatch(shell,/1080\+angle/,'direction selection must not force three decorative needle rotations');
 assert.match(shell,/function rememberCompassPointer\(event\)[\s\S]*setPointerCapture/,'a visible direction must own the physical pointer gesture from press through release');
@@ -92,6 +97,11 @@ assert.match(hubCss,/\.lv-plan-direction\{[^}]*touch-action:none/,'the non-scrol
 assert.match(hubCss,/\.is-returning \.lv-plan-compass-core\{opacity:0/,'the white carrier must leave with the returning Compass');
 assert.match(hubCss,/\.lv-plan-compass-flight \.lv-living-compass__needle,[^}]*animation:none/,'the flight needle must never inherit a searching or looping animation');
 assert.doesNotMatch(hubCss,/@keyframes lv-plan-context-seek/,'context changes must not spin the needle through decorative revolutions');
+assert.match(hubs,/feature\('Live-Momente','Foto, Ton oder Notiz','camera','capture','foundation'\)/,'Trip Live-Momente must retain the accepted Media to Memory capture intent');
+assert.match(hubs,/feature\('Moment bewahren','Foto, Ton, Video, Notiz','spark','capture','foundation'\)/,'Memories Moment bewahren must retain the accepted Media to Memory capture intent');
+assert.match(hubs,/feature\('Mediathek','Fotos, Videos, Upload Queue','camera','gallery'\)/,'only Mediathek may open the existing gallery destination');
+assert.match(shell,/capture:\['Diesen Moment bewusst bewahren\.'/,'capture intent must render its own accepted focus instead of substituting the gallery');
+assert.match(shell,/data-compass-focus="\$\{esc\(action\)\}" data-compass-focus-context="\$\{esc\(context\)\}"/,'the capture focus must preserve both semantic action and originating Compass context');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/stalled decorative Compass flight must never gate destination routing/,'real browser coverage must include a deliberately stalled flight');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/outgoing route host must never retain focused descendants while aria-hidden/,'real browser coverage must lock the focus/aria-hidden transition contract');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/direct Today\/Plan\/Trip\/Memories\/Profile context entry/,'real browser coverage must enter every context directly from primary navigation');
@@ -102,6 +112,8 @@ assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/visible pre-r
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/reference-timed carrier\/mark handoff, radial pop, coral selection, direct selection needle and coupled reverse exit/,'real browser coverage must lock the accepted reference motion and selection feedback');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/Input\.dispatchTouchEvent/,'real browser coverage must use the browser touch-input path instead of only perfect synthetic taps');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/physical mobile touch drift through Places \/ Booking \/ Live-Momente/,'real browser coverage must retain all three user-reported destinations under finger drift');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/Moment bewahren \/ Mediathek/,'real browser coverage must distinguish capture actions from the gallery on touch');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/mobile selection needle continuity \/ direct path \/ smooth frame progression/,'real browser coverage must measure the mobile needle path rather than only its final angle');
 
 assert.match(places,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late map callbacks must not mutate a replacement surface');
 assert.match(places,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'result selection must move the map using the public coordinate tuple');
@@ -119,6 +131,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.62 / 4.82.62 / luvia-shell-v13.82.62');
+console.log('App / Core / shell cache: 13.82.63 / 4.82.63 / luvia-shell-v13.82.63');
 console.log('Compass contexts, physical touch routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');
