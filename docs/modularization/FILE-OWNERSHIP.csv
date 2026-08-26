@@ -2532,3 +2532,8 @@ docs/modularization/M16.5-VISUAL-PARITY-AND-NO-SUBSTITUTION-GATE.md,Experience C
 tests/m16.5i-visual-parity-no-substitution-gate.test.cjs,Experience/Shared Tests,Test/Guardrail,Accepted reference hash matrix mandatory surface gate and no-substitution release-lock guard
 docs/modularization/PCR-M16.5J-PLAN-COMPASS-PRODUCTIVE-ADOPTION.md,Consumer/Experience,Documentation/Architecture,M16.5J productive embedded Plan Compass brand-source flight eight directions responsive evidence release gate and rollback
 tests/m16.5j-plan-compass-productive-adoption.test.cjs,Consumer/Shared Tests,Test/Guardrail,Official layered Plan Compass top-left brand flight native needle eight directions mobile no-scroll and public Places boundary guard
+app/places/places-spatial-composition-core.js,Consumer/Experience,Composition Core,Deterministic public places.v1 spatial result marker bounds and state projection without Domain Truth
+app/places/places-spatial-experience.js,Consumer/Experience,Adapter/Web,Productive light Places search map results actions and public owner-contract orchestration
+app/places/places-spatial-experience.css,Consumer/Experience,Presentation,Accepted light Corporate Places spatial stage responsive accessibility and reduced-motion styling
+docs/modularization/PCR-M16.5O-PRODUCTIVE-PLACES-SPATIAL-EXPERIENCE.md,Consumer/Places/Experience,Documentation/Architecture,M16.5O productive Places spatial composition ownership coordinate integrity accessibility and rollback lock
+tests/m16.5n-productive-places-spatial-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,Productive Places composition coordinate map owner-boundary responsive accessibility and cache guard
