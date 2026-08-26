@@ -19,13 +19,13 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.56'/);
-assert.match(version,/build:'13\.82\.56'/);
+assert.match(version,/core:'4\.82\.57'/);
+assert.match(version,/build:'13\.82\.57'/);
 assert.match(version,/name:'M16\.5 Living Compass Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.56'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.57'/);
 assert.equal(index.includes('?v=13.82.54'),false,'active entry retains the revoked candidate cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.56`),`M16.5Q cache key missing for ${asset}`);
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.57`),`M16.5Q cache key missing for ${asset}`);
 
 assert.match(pwa,/const EXPECTED_CACHE=`luvia-shell-v\$\{RELEASE_BUILD\}`/,'PWA cache identity must derive from the active release');
 assert.doesNotMatch(pwa,/luvia-shell-v13\.17\.0/,'stale fixed cache identity must be removed');
@@ -47,6 +47,8 @@ assert.match(shell,/Promise\.race\(\[animation\.finished\.catch\(\(\)=>null\),co
 assert.doesNotMatch(shell,/await returnPlanCompassHome\(stage\)/,'decorative return flight must never gate destination routing');
 assert.match(shell,/directAngle=\(\(angle\+180\)%360\+360\)%360-180/,'the needle must take the direct signed angle to the selected direction');
 assert.doesNotMatch(shell,/1080\+angle/,'direction selection must not force three decorative needle rotations');
+assert.match(shell,/function excludeRouteHost\(host,excluded=true\)[\s\S]*document\.activeElement\?\.blur\?\.\(\)[\s\S]*host\.inert=excluded/,'an outgoing route must release focus before it becomes inert and aria-hidden');
+assert.match(shell,/excludeRouteHost\(previousHost,false\)/,'a superseded route transition must restore the previous host accessibility state');
 assert.match(shell,/function settleRouteTransition\(stage\)[\s\S]*hosts\.forEach\(host=>host\.remove\(\)\)/,'rapid Back or route input must remove stale transition hosts');
 assert.match(shell,/if\(e\.key==='Escape'\)/,'Escape must close to Today');
 assert.match(shell,/ArrowLeft.*ArrowRight.*ArrowUp.*ArrowDown/,'Compass must expose arrow-key navigation');
@@ -55,6 +57,7 @@ assert.doesNotMatch(hubCss,/lv-plan-direction-float/,'Compass direction hit geom
 assert.match(hubCss,/not\(\.is-compass-arriving\):not\(\.is-ready\) \.lv-plan-compass-core\{opacity:0/,'the target Compass carrier must remain invisible before the shared element arrives');
 assert.doesNotMatch(hubCss,/@keyframes lv-plan-context-seek/,'context changes must not spin the needle through decorative revolutions');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/stalled decorative Compass flight must never gate destination routing/,'real browser coverage must include a deliberately stalled flight');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/outgoing route host must never retain focused descendants while aria-hidden/,'real browser coverage must lock the focus/aria-hidden transition contract');
 
 assert.match(places,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late map callbacks must not mutate a replacement surface');
 assert.match(places,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'result selection must move the map using the public coordinate tuple');
@@ -70,6 +73,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.56 / 4.82.56 / luvia-shell-v13.82.56');
+console.log('App / Core / shell cache: 13.82.57 / 4.82.57 / luvia-shell-v13.82.57');
 console.log('Compass contexts, exact routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

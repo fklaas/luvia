@@ -4,17 +4,20 @@
 
 Date: 2026-08-26
 
-Runtime: App 13.82.56 / Core 4.82.56
+Runtime: App 13.82.57 / Core 4.82.57
 
 Channel: Integration Preview only
 
 The earlier claim that the public M16.5P Integration build had received
 functional acceptance is revoked. The interim App 13.82.55 public run is also
 not accepted: parallel user testing reproduced a delayed Compass selection in
-which the selected item moved but the destination appeared not to open.
-App 13.82.56 is the corrective Integration candidate. It receives no
+which the selected item moved but the destination appeared not to open. App
+13.82.56 corrected that gate but remained unaccepted: public console evidence
+then proved an outgoing focused direction was placed below `aria-hidden`.
+App 13.82.57 is the corrective Integration candidate. It receives no
 functional acceptance until a new, uninterrupted, real-pointer public E2E run
-has visibly completed after deployment and Service Worker settlement.
+and console/accessibility check have visibly completed after deployment and
+Service Worker settlement.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -76,6 +79,11 @@ User evidence:
     small Compass was still travelling, and direction selection deliberately
     added `1080deg` before the target angle. That produced a disconnected
     shared-element handoff and three unnecessary needle revolutions.
+13. The route transition applied `aria-hidden="true"` to the outgoing Plan host
+    while the clicked `.lv-plan-direction.is-selected` still retained focus.
+    Chromium correctly blocked the ARIA change and emitted repeated accessibility
+    warnings. Superseded/Back transitions also removed `aria-hidden` without a
+    single owner for restoring the host's focusability.
 
 ## 4. Recovery implementation
 
@@ -110,6 +118,9 @@ User evidence:
   enter. Context switches no longer spin the needle.
 - The standalone Luvia Compass navigation control still opens the real
   Intelligence dialog directly.
+- Before an outgoing host becomes hidden, focus is released from any descendant;
+  the host is then both inert and `aria-hidden`. A superseded/Back transition
+  removes both states together, so no hidden subtree retains or regains focus.
 
 ### Places and map
 
@@ -148,11 +159,14 @@ runtime:
 - a deliberately never-finishing Web Animations `finished` promise; the real
   Places click still reached the destination inside the fixed routing budget;
 - direct needle evidence (`Places` = `-90deg`, without `1080deg` addition);
+- outgoing-route focus/ARIA evidence: zero focused descendants below
+  `aria-hidden`, with the previous host inert for the transition and restored
+  together on cancellation;
 - timed entry-frame evidence proving the white target carrier is hidden before
   arrival and cross-fades only in the final shared-element phase;
 - Service Worker registration, deliberate stale
   `luvia-shell-v13.17.0` creation/pruning, active
-  `luvia-shell-v13.82.56` recovery and offline document/CSS reload.
+  `luvia-shell-v13.82.57` recovery and offline document/CSS reload.
 
 Visual evidence is retained locally under
 `test-results/m16.5q/desktop-entry-before-arrival.png`,
@@ -175,11 +189,13 @@ Automated gates:
 ## 6. Public visible E2E
 
 The earlier App 13.82.55 stable-origin sequence is retained only as revoked
-diagnostic evidence. It did not cover the document-timeline throttling race
-reported during parallel user testing and therefore cannot support functional
-acceptance.
+diagnostic evidence. It did not cover the document-timeline throttling race.
+The App 13.82.56 public run proved deterministic routing after Service Worker
+settlement and all eight Plan destinations, but the user's console screenshot
+proved the focus/`aria-hidden` contract still failed. Neither run supports
+functional acceptance.
 
-Mandatory App 13.82.56 public re-acceptance after deployment:
+Mandatory App 13.82.57 public re-acceptance after deployment:
 
 1. settle the new Service Worker and repeat from the settled controller;
 2. real left-click selection through all five Compass contexts and every Plan
@@ -190,7 +206,9 @@ Mandatory App 13.82.56 public re-acceptance after deployment:
 4. prove exact Places routing, result ↔ marker selection, Places Back, X,
    Escape, reload and browser Back without duplicate stage or lingering flight;
 5. compare stable and immutable runtime bytes with the committed source and
-   probe private/local paths.
+   probe private/local paths;
+6. keep the browser console free of the `Blocked aria-hidden ... retained
+   focus` warning throughout the selection/route sequence.
 
 Status before deployment: **PENDING — no functional acceptance claimed**.
 
@@ -204,6 +222,8 @@ Consumer source commits:
   rapid transition/Back cleanup and deterministic E2E settling.
 - `1aefbd2` — cancellable and bounded decorative flights, non-blocking exact
   routing, timed target-carrier arrival and direct needle angle.
+- `873cfc3a6a2989d3ff40f56d842054bffd746fde` — outgoing-route focus release,
+  inert/ARIA pairing and browser regression coverage.
 
 Integration provenance:
 
@@ -213,6 +233,7 @@ Integration provenance:
   `82604fc1d0f25cd525db8866b9d35eeb3b3ff15f`.
 - deterministic transition assembly: `57ee461`;
 - App 13.82.56 runtime release candidate: `a3f8614`.
+- route-transition focus integrity assembly: `570fa2e`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -223,7 +244,13 @@ Superseded App 13.82.55 Cloudflare Integration evidence:
 - immutable URL:
   `https://c259ee5f-integration-luvia.njwnrvwbv5.workers.dev/`.
 
-App 13.82.56 Cloudflare Integration version/deployment: **PENDING**.
+Superseded, unaccepted App 13.82.56 Integration:
+
+- version ID: `4437fbf3-06d5-4658-bc5b-b692653e77b8`;
+- deployment ID: `9c407d98-aeba-4538-9a33-e11188ae54cf`;
+- reason superseded: public focus/`aria-hidden` console failure.
+
+App 13.82.57 Cloudflare Integration version/deployment: **PENDING**.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
@@ -243,7 +270,7 @@ Production remained exactly on deployment
 - authenticated functional execution on the immutable hostname (the session is
   correctly origin-scoped); stable authenticated execution plus immutable byte
   parity is the current evidence boundary;
-- App 13.82.56 public stable/immutable deployment and uninterrupted visible E2E
+- App 13.82.57 public stable/immutable deployment and uninterrupted visible E2E
   re-acceptance;
 - the remaining M16.5 visual-parity matrix, especially complete Booking and all
   other surfaces not included in this recovery;
