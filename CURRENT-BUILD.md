@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.53**
-- Core: **4.82.53**
-- Name: **M16.5 Plan Compass Navigation Alignment**
+- App: **13.82.54**
+- Core: **4.82.54**
+- Name: **M16.5 Productive Places Spatial Experience**
 - Channel: **integration-preview**
 - Datum: **2026-08-26**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -99,6 +99,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
 - Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
 
+## M16.5N–P Productive Places Spatial Experience
+
+- Runtime target: **App 13.82.54 / Core 4.82.54 / Integration Preview**.
+- Places owner hardening: **only complete finite WGS84 pairs inside latitude
+  `[-90, 90]` and longitude `[-180, 180]` are projected; provider `location`
+  is supported and all invalid or half pairs become `null`**.
+- Productive composition: **Plan → Places now opens the accepted light spatial
+  search with real owner-backed categories, six-to-eighteen result breadth,
+  exact markers, synchronized map/list selection, filters and explicit runtime
+  states**.
+- Corporate map: **MapLibre 5.12.0 with Luvia-light layer treatment; results
+  remain usable when the remote map library or style is unavailable**.
+- Owner boundaries: **Places, Booking and external navigation are called only
+  through their public contracts or Platform ports; Consumer owns no Place
+  Domain Truth and creates no synthetic coordinate**.
+- Compass correction: **non-selected directions fade at their orbital position
+  and no longer visually collapse toward a shared lower-right/central point**.
+- Step 5 status: **IN PROGRESS — productive Places implementation complete as
+  an Integration candidate; authenticated desktop/mobile acceptance and the
+  complete Booking visual migration continue next**.
+- Candidate validation target: **105 / 105 Safe Regression; regenerated visual
+  inventory 2,783 / 668 with 59 CSS files; NFR-0 3 / 3 and cross-Core DB guard
+  without debt growth**.
+- Release status: **Integration only; Main and Production remain locked and
+  unchanged pending complete joint visual acceptance and Design Freeze**.
+- Database/schema/RPC/RLS/bucket migration: **NONE**.
+- Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
+
 ## M16.5E–G Living Product Foundation Candidate
 
 - Experience foundation: **official Living Compass vector family, active-Trip
@@ -147,12 +175,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.53 / 4.82.53 Integration candidate with corrected mobile Plan Compass navigation alignment; complete visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.54 / 4.82.54 Integration candidate with productive owner-backed Places spatial experience; complete visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,774 tracked files; 662 visual candidates; 261 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **58 files; 881,854 LF-normalized bytes; 6,296 lines; 3,228 `!important`; 2,865 literal hex colours; 254 z-index declarations; 39 reduced-motion queries; 37 focus-visible selectors**
+- Exhaustive manifest: **2,783 tracked files; 668 visual candidates; 264 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **59 files; 927,644 LF-normalized bytes; 8,210 lines; 3,228 `!important`; 2,920 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 39 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -161,13 +189,13 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **102 / 102 PASS on the Platform 13.82.53 / 4.82.53 corrective release candidate**
+- Safe Regression: **105 / 105 PASS on the Platform 13.82.54 / 4.82.54 productive Places release candidate**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **361 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **UNCHANGED**
-- Runtime assets / Cloudflare / Preview / Production: **M16.5H–L are a productive Living Shell, binding no-substitution gate and embedded Plan Compass; M16.5M corrects the mobile navigation alignment before a new immutable Integration Preview, while Main and Production remain on 13.82.49 / 4.82.49**
+- Runtime assets / Cloudflare / Preview / Production: **M16.5H–M establish the productive Living Shell, no-substitution gate and corrected embedded Plan Compass; M16.5N–P add owner-backed productive Places before a new immutable Integration Preview, while Main and Production remain on 13.82.49 / 4.82.49**
 - Next design gate: **complete feature-by-feature parity in the accepted stage, including every desktop/mobile state and popup, followed by the user's explicit Design Freeze before Main/Production promotion**
 - M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
 - Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**

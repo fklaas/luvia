@@ -7,14 +7,14 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- Integration candidate App/Core target: 13.82.53 / 4.82.53.
+- Integration candidate App/Core target: 13.82.54 / 4.82.54.
 - Integration source before the M16.5J Platform release commit:
   `fee1cdbe02707f845fa6543d17b9c03718135c23`.
 - Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
   Preview acceptance.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Integration candidate Safe Regression: 102/102 PASS; regenerated visual
-  inventory freshness 2,774/662 PASS; NFR-0 3/3 PASS; cross-Core DB guard PASS
+- Integration candidate Safe Regression: 105/105 PASS; regenerated visual
+  inventory freshness 2,783/668 PASS; NFR-0 3/3 PASS; cross-Core DB guard PASS
   without debt growth.
 - Main/Production M16 baseline before visual promotion: 90/90 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
@@ -70,6 +70,18 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   or 40 × 40 px up to 390 px, without changing the accepted shared-element
   Plan flow. It is a new immutable Integration candidate; Main/Production stay
   locked and Places/Booking remain the active visual-migration work.
+- M16.5N Places owner hardening: Places source `2decd5e` accepts the public
+  provider `location` projection and emits only complete finite WGS84 pairs;
+  invalid or partial coordinates never become map markers.
+- M16.5O productive Places composition: Consumer source `8126c51` replaces the
+  default legacy guided Places screen with the accepted light search/map/result
+  stage, six-to-eighteen real results, public owner actions, explicit runtime
+  states and exact coordinate-only markers. The Plan exit correction keeps
+  unselected directions stationary while they fade.
+- M16.5P release target: App/Core 13.82.54 / 4.82.54 publishes N/O as a new
+  immutable Integration review candidate. Productive Places is the completed
+  implementation slice; Browser acceptance remains required and Booking is the
+  next visual feature migration. Main/Production stay locked.
 
 ## Completed architecture boundaries
 

@@ -116,8 +116,8 @@
     {
       "id": "plan-places-booking",
       "referenceEntry": "index.html#plan",
-      "status": "productive_adoption_in_progress",
-      "gates": {"referenceComposition":"plan_compass_local_candidate","realOwnerContracts":"plan_routes_wired_places_booking_visuals_pending","tripAccent":"wired","desktop":"local_candidate","mobile":"390x844_and_320x673_local_candidate","motion":"shared_element_candidate","states":"feature_surfaces_pending","accessibility":"partial","jointAcceptance":"pending"}
+      "status": "productive_places_candidate_booking_pending",
+      "gates": {"referenceComposition":"plan_and_places_local_candidate_booking_pending","realOwnerContracts":"plan_routes_and_places_public_contracts_wired_booking_visual_pending","tripAccent":"wired","desktop":"plan_and_places_local_candidate","mobile":"plan_compass_390x844_and_320x673_places_verification_pending","motion":"shared_element_corrected_and_places_state_transitions_candidate","states":"places_loading_empty_offline_error_implemented_booking_pending","accessibility":"places_contract_implemented_browser_verification_pending","jointAcceptance":"pending"}
     },
     {
       "id": "trip-journey-collaboration",

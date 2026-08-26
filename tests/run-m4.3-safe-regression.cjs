@@ -418,6 +418,18 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5m-plan-compass-navigation-alignment.test.cjs'
   },
   {
+    category: 'M16.5 / Places Coordinate Projection',
+    test: 'tests/m16.5n-places-coordinate-projection-hardening.test.cjs'
+  },
+  {
+    category: 'M16.5 / Productive Places Spatial Experience',
+    test: 'tests/m16.5n-productive-places-spatial-experience.test.cjs'
+  },
+  {
+    category: 'M16.5 / Productive Places Runtime Release',
+    test: 'tests/m16.5p-productive-places-runtime-release.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

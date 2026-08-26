@@ -4,19 +4,19 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2774,
-    "visualCandidates": 662,
-    "activeEntryReferences": 261,
+    "trackedFiles": 2783,
+    "visualCandidates": 668,
+    "activeEntryReferences": 264,
     "unclassifiedEntryReferences": 0,
     "css": {
-      "files": 58,
-      "bytes": 881854,
-      "lines": 6296,
+      "files": 59,
+      "bytes": 927644,
+      "lines": 8210,
       "important": 3228,
-      "literalHexColours": 2865,
-      "zIndexDeclarations": 254,
-      "reducedMotionQueries": 39,
-      "focusVisibleSelectors": 37
+      "literalHexColours": 2920,
+      "zIndexDeclarations": 274,
+      "reducedMotionQueries": 41,
+      "focusVisibleSelectors": 39
     }
   },
   "routes": {
@@ -88,6 +88,9 @@
     "app/module-hubs.css",
     "app/module-hubs.js",
     "app/navigation-registry.js",
+    "app/places/places-spatial-composition-core.js",
+    "app/places/places-spatial-experience.css",
+    "app/places/places-spatial-experience.js",
     "app/product-module-manifests.js",
     "app/public-entry.css",
     "app/public-entry.js",
@@ -534,7 +537,7 @@
         "active-entry-reference"
       ],
       "bytes": 71477,
-      "sha256": "a19a63fb611254e00825daa3a429c6671e9baac32f1f48fe00d6218401a7b3ff"
+      "sha256": "d73aa34ce8dca17b29e4302c78febe08545b7f4eca06e37f1996b800f573371b"
     },
     {
       "path": "app/bookings-view.css",
@@ -845,8 +848,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 19721,
-      "sha256": "77d08f9aa03e546138560c69a080ce525e0716cc9fdb81754c3b0b05fe049071"
+      "bytes": 19672,
+      "sha256": "290de0443aaf0368fca2323edda60d4a924f9ea221e805d587e6ead03bc76174"
     },
     {
       "path": "app/module-hubs.js",
@@ -867,6 +870,38 @@
       ],
       "bytes": 1035,
       "sha256": "fae640d2284354420b7b70b59cb556a4a43bcb41c9018e5522a31a5030ef59a4"
+    },
+    {
+      "path": "app/places/places-spatial-composition-core.js",
+      "classes": [
+        "visual-source-candidate",
+        "active-entry-reference"
+      ],
+      "bytes": 10175,
+      "sha256": "7d68204387cd3700bf725c0f0b8697e23f3a5e104ee18b4a9d6bbb53ef388085"
+    },
+    {
+      "path": "app/places/places-spatial-experience.css",
+      "classes": [
+        "stylesheet",
+        "active-entry-reference"
+      ],
+      "bytes": 45839,
+      "sha256": "2890789a9d05823e91efec40af118f3fe1700de3aac3fa0d839f4164fbf82514"
+    },
+    {
+      "path": "app/places/places-spatial-experience.js",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source",
+        "overlay-source",
+        "active-entry-reference"
+      ],
+      "bytes": 38104,
+      "sha256": "62ac1a3d26af665f765c81671dbdbaff0c5d09923f8bcb32350137269def26e2"
     },
     {
       "path": "app/product-module-manifests.js",
@@ -1722,7 +1757,7 @@
         "active-entry-reference"
       ],
       "bytes": 6971,
-      "sha256": "4077550fd0ba9ac52eb42790c1f2b24700b53f28e180ec4a26a9ec8e9bbf681a"
+      "sha256": "5aa2b66347ceab7c381bca0d191ed641410c86636d9b6f3055e35ed504d8e400"
     },
     {
       "path": "core/diagnostics/product-module-diagnostics.js",
@@ -2235,8 +2270,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 13467,
-      "sha256": "729309a711b361101134a3b40979418f40291eb9a08a42f6d2f43f90b44b64c2"
+      "bytes": 13889,
+      "sha256": "f11105b3cc7d1b1d1ede3aaf9d898b6ae283b66ed3aea61d23d84675f30e593d"
     },
     {
       "path": "core/places/places-final-foundation.css",
@@ -2915,7 +2950,7 @@
         "document-entry"
       ],
       "bytes": 1607,
-      "sha256": "4e5d98daf097d5585776979383fbe3b8b0d1e485a857144ad926353b3f90acd5"
+      "sha256": "560c5448a0bff5b9ecea8994a0fe270b0d6bbde32bf4c090618f60f7c253b2b5"
     },
     {
       "path": "fotospot-alexandre.webp",
@@ -3005,8 +3040,8 @@
       "classes": [
         "document-entry"
       ],
-      "bytes": 22841,
-      "sha256": "c719103891de49b9a2651520db9399b6f1e1c90b22c29afbdf33e6b9c2f69885"
+      "bytes": 23260,
+      "sha256": "ec5011073a2a9dcb19767d2150943c5f1c2dfd1d311b5b23036ed4f02bf99070"
     },
     {
       "path": "intelligence/backend-console.css",
@@ -3228,11 +3263,11 @@
     {
       "path": "intelligence/kernel/version.js",
       "classes": [
-        "navigation-source",
+        "visual-source-candidate",
         "active-entry-reference"
       ],
-      "bytes": 309,
-      "sha256": "a8fd0644bafe88e3f9b3c5edf4378614151de294eaea65b02a03ae105b1c6185"
+      "bytes": 312,
+      "sha256": "d7df6bf34d64e8c0bbc22bee751f7b1e308110942b5d890a672fee50474e7b08"
     },
     {
       "path": "intelligence/permission-test.js",
@@ -3541,7 +3576,7 @@
         "active-entry-reference"
       ],
       "bytes": 1761,
-      "sha256": "553e767d74dfcae944ae457585b84e254ea6bd5a44a80348e44ef87ef72f03c6"
+      "sha256": "c06cc030b9ab25ce0f1d245547a573e9b3e77791e03ba874a869bbb66ec92cb6"
     },
     {
       "path": "luvia-v7-enhancements.js",
@@ -4227,8 +4262,8 @@
         "motion-source",
         "active-entry-reference"
       ],
-      "bytes": 3801,
-      "sha256": "b2f92dac488ef307e6801d97b4c1ad735c5f71d38bf76f026c1552367d041062"
+      "bytes": 3912,
+      "sha256": "c5be8c63609b758125f9ca0f87fe1c08f04e39f799a7870757edbe9ea4ffe735"
     },
     {
       "path": "modules/restaurants-v2/restaurant-module.css",
@@ -4697,8 +4732,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 10774,
-      "sha256": "24a48c8ef07c78ea4648cb3ca2dbe7dd1e4c48e1e29e161227d1269c98d02772"
+      "bytes": 10907,
+      "sha256": "8fb034267a31e8e77e8b369f21d6fc9fa17aed96aa207752ca18f169fa865b9f"
     },
     {
       "path": "sync/budget.js",
@@ -5104,7 +5139,7 @@
         "motion-source"
       ],
       "bytes": 10774,
-      "sha256": "30cd41d256a94c7b9874167ac1dd17211a65f9d3f01c81dc7ed41bd755947077"
+      "sha256": "f7a4a3dbefc835a8ae871e03a63822134e8dca262f6729f8857f7bcc39af2c05"
     },
     {
       "path": "tests/m13.1-memory-core-contract-foundation.test.cjs",
@@ -5124,7 +5159,7 @@
         "overlay-source"
       ],
       "bytes": 5065,
-      "sha256": "859348ed260105097358bcdfde69b1b98b7cd0221baed8fc8b51801ad7c84b9a"
+      "sha256": "d2abe34662b1778a64c07355a860b0a6bda16bf065a68bfa04a69f2742f72954"
     },
     {
       "path": "tests/m14.1-app-shell-legacy-runtime-hardening.test.cjs",
@@ -5194,7 +5229,7 @@
         "dom-rendering-source"
       ],
       "bytes": 5544,
-      "sha256": "4e91c183a93d726bed7cc4453cb643e188a32504d851f9a87e8c636beae2612f"
+      "sha256": "009608ab245c02af4df6a5456b93d95751daffb5c950fa3a1b48c525083b28ab"
     },
     {
       "path": "tests/m15.4-intelligence-action-runtime.test.cjs",
@@ -5275,7 +5310,7 @@
         "navigation-source"
       ],
       "bytes": 5244,
-      "sha256": "964f832ece549ecc6546ca2e90bb50fca8daac997a8086737e72c20799843064"
+      "sha256": "e4f09e260f7cf6eaaa532980f12a1c34e61c248c277c7037eefe402f79ee3d27"
     },
     {
       "path": "tests/m16.5h-accepted-living-shell-adoption.test.cjs",
@@ -5304,8 +5339,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 4507,
-      "sha256": "70062a3c3e654f918348a921569a0757543acd8ed70195c080bda4e5ca2c8322"
+      "bytes": 4676,
+      "sha256": "f67d8cd46f41680d8a21396233c57c069d56dcfc6f93d385c17d9d001b15c822"
     },
     {
       "path": "tests/m16.5m-plan-compass-navigation-alignment.test.cjs",
@@ -5314,8 +5349,36 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 3701,
-      "sha256": "f4ecd5e011069768b08b50665f6006fd2b04f1aa6755ca03ce8ae09fc54b2433"
+      "bytes": 3704,
+      "sha256": "e42b7f6f73273f57f62918b8e8b19812993cc2db51c4773594f740c3674b4ca8"
+    },
+    {
+      "path": "tests/m16.5n-places-coordinate-projection-hardening.test.cjs",
+      "classes": [
+        "visual-source-candidate"
+      ],
+      "bytes": 4039,
+      "sha256": "b1fd1fad9ec6d83bc578f8b74d841135fcdf6e05973965b2a0dd927e05914136"
+    },
+    {
+      "path": "tests/m16.5n-productive-places-spatial-experience.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 18180,
+      "sha256": "e482257b07720e4a6addef04722b995baf0b2a723fddd3bfb772f0a134d05117"
+    },
+    {
+      "path": "tests/m16.5p-productive-places-runtime-release.test.cjs",
+      "classes": [
+        "visual-source-candidate"
+      ],
+      "bytes": 3731,
+      "sha256": "438aa4e4369ac1b3188fbe602178124abb0c1c59caa6dd6d44c4a26731672bf0"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
@@ -5414,7 +5477,7 @@
         "interaction-source"
       ],
       "bytes": 5744,
-      "sha256": "cf84c0182d82eea840c420a6100e1e411322ee38c5e95c624ab995c43df5de17"
+      "sha256": "1e5eb5e488023dc73f913412c690423dd5b2e569532648b6e2699a58b0e31be2"
     },
     {
       "path": "tests/m5.1b-gallery-view-trip-contract-adoption.test.cjs",
@@ -5486,7 +5549,7 @@
         "dom-rendering-source"
       ],
       "bytes": 8722,
-      "sha256": "43225c9b2d401636f6fff738062ed87f5ff9f7076b783c4da5e26dcfef1add53"
+      "sha256": "13ac5a564d126410dfc1e126c3959fe72401ad8118839e71c892c33787d2adff"
     },
     {
       "path": "tests/m5.4-final-web-compatibility-boundary.test.cjs",
@@ -5853,8 +5916,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 14743,
-      "sha256": "6fd472d6c03205724fd109318084551d4edb03f8e38c6c0bb52194a1c7a591a1"
+      "bytes": 15157,
+      "sha256": "5299f1fd585a1e319014a962be9104c441df142977816eed05db661aeaf8908b"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
