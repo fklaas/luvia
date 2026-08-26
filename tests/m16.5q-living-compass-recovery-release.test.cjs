@@ -19,17 +19,17 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.80'/);
-assert.match(version,/build:'13\.82\.80'/);
+assert.match(version,/core:'4\.82\.81'/);
+assert.match(version,/build:'13\.82\.81'/);
 assert.match(version,/name:'M16\.5 Landing Auth Foundation'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.80'/);
-assert.match(worker,/const BUILD='13\.82\.80'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.81'/);
+assert.match(worker,/const BUILD='13\.82\.81'/);
 assert.equal(index.includes('?v=13.82.61'),false,'active entry retains the handset-revoked cache key');
 assert.equal(index.includes('?v=13.82.62'),false,'active entry retains the superseded moment-routing/needle cache key');
 assert.equal(index.includes('?v=13.82.63'),false,'active entry retains the publicly superseded route-host click-replay cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.80`),`M16.5Q cache key missing for ${asset}`);
-const earlyPwaScript='intelligence/pwa-service.js?v=13.82.80';
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.81`),`M16.5Q cache key missing for ${asset}`);
+const earlyPwaScript='intelligence/pwa-service.js?v=13.82.81';
 assert.equal(index.split(earlyPwaScript).length-1,1,'the PWA recovery runtime must be loaded exactly once');
 assert.ok(index.indexOf(earlyPwaScript)<index.indexOf('<link rel="stylesheet"'),'stale-controller recovery must begin before any blocking stylesheet');
 
@@ -42,7 +42,9 @@ const registerScope=pwa.slice(pwa.indexOf('async function register'),pwa.indexOf
 assert.doesNotMatch(registerScope,/activateWaiting|clearOldCaches/,'registration must not activate a waiting worker or delete the controlling worker cache');
 assert.match(pwa,/beforeinstallprompt',event=>\{event\.preventDefault\(\);deferredPrompt=event/,'install prompt must be retained');
 assert.match(pwa,/controlledAtLoad&&!controllerReloadGuard[\s\S]*location\.reload\(\)/,'new active workers must reload an already controlled page exactly once');
-assert.match(pwa,/async function recoverControlledUpgrade\(\)[\s\S]*workerContainer\?\.controller[\s\S]*expectedWorker\(workerContainer\.controller\)[\s\S]*await register\(\)[\s\S]*activateExpectedWaiting\(registration,\{preserveDocument:true\}\)/,'a stale controlling worker must be recoverable before page load completes');
+assert.match(pwa,/async function recoverControlledUpgrade\(\)[\s\S]*workerContainer\?\.controller[\s\S]*expectedWorker\(workerContainer\.controller\)[\s\S]*await register\(\)[\s\S]*activateExpectedWaitingSoon\(registration,\{preserveDocument:true\}\)/,'a stale controlling worker must be recoverable before page load completes');
+assert.match(pwa,/async function activateExpectedWaitingSoon\(reg,[\s\S]*timeoutMs=12000[\s\S]*setTimeout\(resolve,80\)[\s\S]*Date\.now\(\)<deadline/,'waiting-worker publication races must be polled within a strict bound');
+assert.match(pwa,/await activateExpectedWaitingSoon\(registration,\{preserveDocument:true\}\)/,'controlled recovery must wait for and activate the exact worker even when the browser publishes waiting late');
 assert.match(pwa,/const watch=worker=>[\s\S]*worker\.addEventListener\('statechange'[\s\S]*watch\(reg\.installing\)/,'recovery must observe an update that was already installing before the PWA runtime bound its listeners');
 assert.match(pwa,/worker\.state==='installed'\)\{inspect\(\);setTimeout\(inspect,0\)\}/,'waiting-worker inspection must run after the browser publishes the installed worker on the registration');
 assert.match(pwa,/workerContainer\?\.controller&&!expectedWorker\(workerContainer\.controller\)\)queueMicrotask\(\(\)=>recoverControlledUpgrade\(\)\)/,'controlled stale clients must start bounded recovery from the early PWA runtime');
@@ -62,6 +64,9 @@ assert.doesNotMatch(installScope,/skipWaiting/,'a deployed worker must wait inst
 assert.match(worker,/const PRECACHE_CONCURRENCY=4/,'upgrade precaching must have a strict concurrency ceiling');
 assert.match(worker,/const shellCache=\(\)=>shellCachePromise\|\|\(shellCachePromise=caches\.open\(CACHE\)\)/,'parallel fetch handlers must reuse one opened shell cache');
 assert.match(worker,/const CRITICAL_SHELL=APP_SHELL\.filter\(url=>url===SCOPE\|\|CRITICAL_SHELL_PATTERN\.test\(new URL\(url\)\.pathname\)\)/,'upgrade installation must derive a deliberately small critical subset without duplicating shell assets');
+const criticalPatternScope=worker.slice(worker.indexOf('const CRITICAL_SHELL_PATTERN'),worker.indexOf('const CRITICAL_SHELL=',worker.indexOf('const CRITICAL_SHELL_PATTERN')));
+assert.match(criticalPatternScope,/pwa-service\|kernel\\\/version/,'the tiny install set must retain the recovery and build-identity runtimes');
+assert.doesNotMatch(criticalPatternScope,/app-shell|public-landing|luvia-compass/,'large visible surfaces must warm after load instead of blocking worker activation');
 assert.match(worker,/Promise\.all\(Array\.from\(\{length:Math\.min\(PRECACHE_CONCURRENCY,urls\.length\)\},fetchNext\)\)/,'upgrade precaching must use the bounded worker pool for the requested asset set');
 assert.match(installScope,/precacheShell\(cache,CRITICAL_SHELL\)/,'worker installation must wait only for the critical visible shell');
 assert.doesNotMatch(installScope,/precacheShell\(cache,APP_SHELL\)/,'worker installation must never wait for the entire application shell');
@@ -70,6 +75,8 @@ assert.doesNotMatch(worker,/Promise\.allSettled\(APP_SHELL\.map/,'a service-work
 assert.match(worker,/event\.data\?\.type==='SKIP_WAITING'/,'explicit controlled activation must remain available');
 assert.match(worker,/\(\?:js\|css\|json\|webmanifest\|svg\|png\|webp\|ico\|html\)/,'static, brand and photographic assets must remain inside the recovery policy');
 assert.match(worker,/activeCache\.match\(request,\{ignoreSearch:true\}\)/,'runtime fetches must read only the current shell cache');
+assert.match(worker,/const currentBuildAsset=url=>url\.searchParams\.get\('v'\)===BUILD/,'only assets explicitly pinned to the active build may use immutable cache-first delivery');
+assert.match(worker,/if\(cached&&currentBuildAsset\(url\)\)return cached/,'repeat loads must not redownload hundreds of exact-build assets');
 
 for(const context of ['today','plan','trip','memories','profile'])assert.match(hubs,new RegExp(`${context}:Object\\.freeze`),`Compass context missing: ${context}`);
 assert.match(shell,/openLivingCompassContext\(context\)/,'top-level navigation must switch embedded Compass context');
@@ -165,6 +172,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.80 / 4.82.80 / luvia-shell-v13.82.80');
+console.log('App / Core / shell cache: 13.82.81 / 4.82.81 / luvia-shell-v13.82.81');
 console.log('Compass contexts, physical touch routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

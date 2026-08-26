@@ -1,5 +1,5 @@
-const BUILD='13.82.80';
-const CACHE='luvia-shell-v13.82.80';
+const BUILD='13.82.81';
+const CACHE='luvia-shell-v13.82.81';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -27,7 +27,7 @@ const APP_SHELL=['','index.html','offline.html','manifest.webmanifest','icon-192
   'core/planning/planning-foundation.js','core/planning/planning-tool-registry.js','core/planning/planning-session.js','core/planning/planning-foundation.css','core/intelligence/intelligence-domain-contract-core.js','core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js','core/ai/ai-evidence-store.js','core/ai/ai-domain-registry.js','core/ai/ai-capability-registry.js','core/ai/ai-model-router.js','core/ai/ai-policy-service.js','core/ai/ai-output-validator.js','core/ai/ai-tool-registry.js','core/ai/ai-context-service.js','core/ai/providers/openai-provider.js','core/ai/ai-memory-service.js','core/ai/ai-command-proposal-service.js','core/ai/ai-core.js','core/platform/intelligence-contract-adapter.js','core/ai/ai-action-runtime.js','core/ai/ai-dashboard-service.js','core/preferences/preference-schema.js','core/preferences/user-preferences-service.js','core/preferences/discovery-contract-service.js','core/preferences/guided-discovery-sequence.js','core/preferences/guided-discovery-sequence.css','core/preferences/travel-preferences-service.js','core/recommendations/recommendation-service.js','core/recommendations/restaurant-recommendation-adapter.js','core/recommendations/schedule-intelligence-service.js','core/recommendations/restaurant-intelligence-service.js','core/profiles/profile-service.js','core/profiles/profile-foundation.js','core/profiles/profile-foundation.css','core/trips/join-flow.js','core/platform/trip-contract-adapter.js','core/platform/places-contract-adapter.js','core/platform/booking-contract-adapter.js','core/platform/media-contract-adapter.js','core/platform/memory-contract-adapter.js','core/platform/identity-contract-adapter.js','modules/restaurants-v2/restaurant-module.css','modules/restaurants-v2/restaurant-module.js','modules/accommodations/accommodation-module.css','modules/accommodations/accommodation-module.js','modules/attractions/attraction-module.css','modules/attractions/attraction-module.js','modules/photo-spots/photo-spot-module.css','modules/photo-spots/photo-spot-module.js','modules/shopping/shopping-module.css','modules/shopping/shopping-module.js','modules/nature/nature-module.css','modules/nature/nature-module.js','modules/mobility/mobility-module.css','modules/mobility/mobility-module.js','modules/move-shell.css','modules/move-shell.js','intelligence/environment.js','intelligence/destination-service.js','intelligence/destination-context.js','intelligence/backend-service.js','intelligence/places-service.js','core/places/place-domain.js','intelligence/place-entity-service.js','core/places/place-type-contract.js','core/places/place-type-definitions.js','core/places/global-place-contracts.js','core/places/place-registry.js','core/places/place-adapters.js','core/places/place-core.js','core/places/place-runtime-store.js','core/places/trip-place-data-service.js','core/places/place-collection-service.js','core/places/place-command-service.js','core/places/timeline-core.js','core/places/presence-visit-core.js','core/places/place-lifecycle-service.js','core/places/place-lifecycle-hub.js','core/places/place-lifecycle-hub.css','core/places/place-ui-contract.js','core/places/place-provider-fields.js','core/places/place-ui-actions.js','core/places/place-ui-states.js','core/places/place-ui.js','core/places/place-experience-shell.js','core/places/photo-spot-intelligence-service.js','core/places/shopping-intelligence-service.js','core/places/nature-intelligence-service.js','core/places/transport-intelligence-service.js','core/places/place-intelligence-service.js','core/places/place-detail-service.js','core/places/place-conformance-service.js','core/places/places-final-foundation.js','core/places/places-final-foundation.css','core/booking/booking-status-attribution-v2.js','core/booking/booking-availability.js','core/booking/booking-reservation-create.js','core/booking/booking-reservation-mutation.js','core/booking/booking-reservation-mutation-status.js','core/booking/booking-reservation-recovery.js','core/booking/booking-email-v2.js','modules/places-shell.js','modules/places-shell.css','core/places/place-ui.css','intelligence/restaurant-service.js','intelligence/pwa-service.js'].map(scoped);
 
 APP_SHELL.push(scoped('intelligence/kernel/version.js'));
-const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|luvia-logo\.svg|intelligence\/(?:pwa-service|kernel\/version)\.js|app\/(?:app-shell|public-entry)\.(?:css|js)|app\/public-landing(?:\.html|\.css|-motion\.js|-experience-motion\.(?:css|js))|assets\/public-landing\/luvia-compass-(?:brand|face|hub|needle)\.svg)$/;
+const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));
 let warmShellPromise=null;
 
@@ -68,6 +68,7 @@ self.addEventListener('message',event=>{
 function bypass(url){
   return url.origin!==self.location.origin||url.hostname.includes('supabase.co')||url.pathname.includes('/rest/v1/')||url.pathname.includes('/auth/v1/')||url.pathname.includes('/functions/v1/');
 }
+const currentBuildAsset=url=>url.searchParams.get('v')===BUILD;
 function canCache(request,response){return !request.headers.has('range')&&response.status===200&&response.type!=='opaque'}
 async function store(request,response){if(!canCache(request,response))return;const copy=response.clone();const cache=await shellCache();await cache.put(request,copy)}
 
@@ -95,6 +96,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith((async()=>{
       const activeCache=await shellCache();
       const cached=await activeCache.match(request,{ignoreSearch:true});
+      if(cached&&currentBuildAsset(url))return cached;
       try{
         const response=await fetch(request,{cache:'no-store'});
         if(response.ok){event.waitUntil(store(request,response));return response;}

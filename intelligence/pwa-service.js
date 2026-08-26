@@ -31,6 +31,7 @@ function scheduleRecoveredCacheCleanup(){const clear=()=>clearOldCaches().catch(
 async function register(){if(!workerContainer)return snapshot();try{await removeWrongRegistrations();registration=await workerContainer.register(SW_URL,{scope:SW_SCOPE,updateViaCache:'none'});bindRegistration(registration);await registration.update();await workerContainer.ready;lastError=null;emit();return snapshot()}catch(e){lastError=e.message||String(e);emit();throw e}}
 function activateWaiting(reg){if(!reg?.waiting)return false;updateAvailable=true;reg.waiting.postMessage({type:'SKIP_WAITING'});emit();return true}
 function activateExpectedWaiting(reg,{preserveDocument=false}={}){if(!expectedWorker(reg?.waiting))return false;if(preserveDocument)preserveCurrentBuildDocument=true;return activateWaiting(reg)}
+async function activateExpectedWaitingSoon(reg,{preserveDocument=false,timeoutMs=12000}={}){const deadline=Date.now()+timeoutMs;do{if(activateExpectedWaiting(reg,{preserveDocument}))return true;await new Promise(resolve=>setTimeout(resolve,80))}while(Date.now()<deadline);return false}
 function bindRegistration(reg){
   if(reg.__luviaBound)return;
   reg.__luviaBound=true;
@@ -49,7 +50,7 @@ function bindRegistration(reg){
 async function recoverControlledUpgrade(){
   if(controlledUpgradeRecoveryStarted||!BUILD||!workerContainer?.controller||expectedWorker(workerContainer.controller))return snapshot();
   controlledUpgradeRecoveryStarted=true;
-  try{await register();activateExpectedWaiting(registration,{preserveDocument:true});return snapshot()}catch{return snapshot()}
+  try{await register();await activateExpectedWaitingSoon(registration,{preserveDocument:true});return snapshot()}catch{return snapshot()}
 }
 async function checkForUpdate(){lastUpdateCheck=new Date().toISOString();if(!registration)await register();try{await registration.update();activateExpectedWaiting(registration);lastError=null}catch(e){lastError=e.message||String(e)}emit();return snapshot()}
 async function activateUpdate(){return activateExpectedWaiting(registration)}
