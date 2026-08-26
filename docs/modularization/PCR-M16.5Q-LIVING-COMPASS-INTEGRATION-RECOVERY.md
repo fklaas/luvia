@@ -37,7 +37,7 @@ desktop CUA plus perfect automated mobile taps, but its mobile functional
 acceptance is now also explicitly revoked. Real physical-handset input still
 reproduced inert Places, Booking and Live-Momente directions after cache/cookie
 deletion and in incognito. App 13.82.62 corrected that physical touch ownership
-and is currently deployed, but it is also superseded and unaccepted. Continued
+and was published, but it is also superseded and unaccepted. Continued
 physical-handset review exposed a semantic routing substitution: Reise →
 Live-Momente and Erinnern → Moment bewahren both opened the Fotogalerie instead
 of the accepted Media → Memory capture focus. The same review reported that the
@@ -47,9 +47,10 @@ mandatory visible public run deliberately withheld acceptance: clicking the
 productive Places-owned “Living Compass öffnen” control first mounted Plan and
 then the delegated route handler reinterpreted the same bubbling click through
 the structural `.lv-view-host[data-view="places"]` ancestor, immediately routing
-back to Places. App 13.82.64 is the combined moment-routing, selection-needle and
-route-host replay recovery candidate. It receives no handset acceptance from
-automation; the physical handset retest remains open after publication.
+back to Places. App 13.82.64 is the published combined moment-routing,
+selection-needle and route-host replay recovery. Its local and authenticated
+stable-origin browser matrices pass, but it receives no handset acceptance from
+automation; the physical handset retest remains open.
 
 M16.5Q does **not** complete the full M16.5 Design Freeze, does not accept the
 remaining Booking migration or other still-open visual-parity rows, and does
@@ -610,14 +611,13 @@ immediately routed back to Places. App 13.82.63 is therefore superseded and
 unaccepted despite the narrower routing and needle evidence.
 
 App 13.82.64 combines the Moment/needle correction with the interactive-control
-route fence. Its local release evidence before publication is: **REAL EDGE
-COMPASS E2E PASS; REAL EDGE PWA E2E PASS; PRODUCTIVE PLACES COMPASS RETURN / NO
-ROUTE-HOST REPLAY PASS; HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING /
-LIVE-MOMENTE / MOMENT BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE
-CONTINUITY / DIRECT PATH / SMOOTH PROGRESSION PASS.** Public stable/immutable
-deployment evidence is recorded only after the new Integration version exists.
-The physical handset retest remains open and is not replaced by automated
-hardware-path evidence.
+route fence. Its release evidence is: **REAL EDGE COMPASS E2E PASS; REAL EDGE
+PWA E2E PASS; PRODUCTIVE PLACES COMPASS RETURN / NO ROUTE-HOST REPLAY PASS;
+HARDWARE-PATH TOUCH DRIFT THROUGH PLACES / BOOKING / LIVE-MOMENTE / MOMENT
+BEWAHREN / MEDIATHEK PASS; FRAME-LEVEL MOBILE NEEDLE CONTINUITY / DIRECT PATH /
+SMOOTH PROGRESSION PASS; AUTHENTICATED STABLE-ORIGIN REAL-CUA E2E PASS; 8 / 8
+SOURCE / STABLE / IMMUTABLE RUNTIME ASSET PARITY PASS.** The physical handset
+retest remains open and is not replaced by automated hardware-path evidence.
 
 ## 7. Source and deployment provenance
 
@@ -680,8 +680,8 @@ Integration provenance:
   public release source: `be427121e4f2ac67dd7b549c6d0e57cd2ef98ee6`.
 - App 13.82.63 moment-routing/needle assembly: `4b38085`; versioned/public
   release source: `55faac3`.
-- App 13.82.64 route-host replay assembly: `73cfa30`; versioned release source
-  and public deployment provenance are recorded after the release commit/deploy.
+- App 13.82.64 route-host replay assembly: `73cfa30`; versioned/public release
+  source: `b410cab`.
 
 Superseded App 13.82.55 Cloudflare Integration evidence:
 
@@ -786,6 +786,39 @@ Superseded, unaccepted App 13.82.63 Cloudflare Integration evidence:
 - reason superseded: the same real Places-owned Compass return click was
   reinterpreted by the broad delegated `[data-view]` ancestor matcher after
   Plan mounted, replaying the structural Places host over the restored Compass.
+
+Current App 13.82.64 Cloudflare Integration evidence:
+
+- source commit: `b410cab`;
+- version ID: `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef`;
+- deployment ID: `c6878f00-0c18-457f-bd58-7c8b293e3736`;
+- traffic: 100%;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- immutable URL:
+  `https://20ad47c4-integration-luvia.njwnrvwbv5.workers.dev/`;
+- the authenticated stable-origin tab displayed `13.82.64 · Core 4.82.64` and
+  used coordinate CUA input, not DOM-dispatched clicks;
+- Plan → Places settled on the productive 18-result / six-marker surface. A
+  real click on its owner-rendered Compass control then retained one ready Plan
+  stage, all eight directions at opacity 1 and `pointer-events:auto`, zero old
+  route hosts and no Places surface after 4.5 seconds. The preserved
+  `?screen=places` context did not replay the surrounding structural host;
+- Reise → Live-Momente and Erinnern → Moment bewahren each displayed “Diesen
+  Moment bewusst bewahren.” with the accepted Media → Memory copy, their exact
+  originating context and no Gallery DOM. Erinnern → Mediathek alone displayed
+  “Eure gemeinsamen Reisefotos” and committed `?screen=gallery`;
+- the Live-Momente selection needle started from its sampled idle frame at
+  approximately `+1.48deg`, disabled idle animation and advanced continuously
+  through approximately `+83.79deg` at 387 ms, `+88.67deg` at 568 ms and
+  `+89.88deg` at 732 ms before settling at the direct `+90deg` target by 900 ms;
+- Browser Back restored productive Places. A real reload retained
+  `?screen=places`, rebuilt App/Core 13.82.64 without a stale host and produced
+  zero console warnings or errors;
+- all eight changed uploaded assets are byte-exact across source commit, stable
+  and immutable origins. The unauthenticated immutable public entry references
+  only `.64` versioned App Shell/runtime assets; authenticated immutable
+  execution remains outside the evidence boundary because credentials are
+  correctly origin-scoped.
 
 Three intermediate, never-routed upload versions created while proving the
 clean asset manifest were deleted through the authenticated Cloudflare Version
