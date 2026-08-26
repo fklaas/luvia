@@ -19,10 +19,10 @@ const demo = read('app/demo/living-compass-browser.html');
 const sw = read('sw.js');
 const photoSources = JSON.parse(read('assets/public-landing/travel-photo-sources.json'));
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.74" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.74" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.74') < index.indexOf('app/public-entry.js?v=13.82.74'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.74') < index.indexOf('app/public-entry.js?v=13.82.74'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.79" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.79" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.79') < index.indexOf('app/public-entry.js?v=13.82.79'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.79') < index.indexOf('app/public-entry.js?v=13.82.79'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /AUTH_HASHES = Object\.freeze\(\{ login: '#anmelden', register: '#registrieren' \}\)/);
@@ -117,7 +117,7 @@ for (const photo of photoSources.photos) {
   assert.match(sw, new RegExp(photo.asset.replace('.', '\\.')));
 }
 assert.equal((landing.match(/Foto ·/g) || []).length, 5);
-assert.match(sw, /luvia-shell-v13\.82\.74/);
+assert.match(sw, /luvia-shell-v13\.82\.79/);
 assert.match(sw, /svg\|png\|webp\|ico/);
 assert.match(sw, /travel-photo-sources\.json/);
 assert.match(sw, /const PRECACHE_CONCURRENCY=4/);

@@ -1,8 +1,11 @@
-const CACHE='luvia-shell-v13.82.74';
+const BUILD='13.82.79';
+const CACHE='luvia-shell-v13.82.79';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
 const PRECACHE_CONCURRENCY=4;
+let shellCachePromise=null;
+const shellCache=()=>shellCachePromise||(shellCachePromise=caches.open(CACHE));
 const APP_SHELL=['','index.html','offline.html','manifest.webmanifest','icon-192.png','icon-512.png','favicon.svg','favicon.ico','luvia-logo.svg','app/app-shell.css','app/app-shell.js','app/today/today-composition-core.js','app/today/today-experience.js','app/today/today-experience.css','app/places/places-spatial-composition-core.js','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css','core/design/product-module-foundation.css','app/demo/living-compass-browser.html','app/control-center/control-center-home.css','app/control-center/identity-center.css','app/control-center/booking-control-center.css','app/control-center/booking-inbox.css','app/control-center/control-center-shell.js','app/control-center/control-center-manifest.js','app/control-center/travel-identity-service.js','app/control-center/control-center-attention-service.js','app/control-center/control-center-home.js','app/control-center/identity-center.js','app/control-center/booking-control-center.js','app/control-center/booking-inbox.js','core/platform/global-contracts.js','app/adapters/event-contract-web-adapter.js','core/platform/capability-registry.js','core/platform/feature-flag-registry.js','core/platform/attention-contract.js','core/platform/product-module-registry.js','app/product-module-manifests.js','app/gallery-view.css','app/gallery-view.js','app/albums-view.css','app/albums-view.js','app/memory-worlds-v3.css','app/memory-render-engine.js','app/memory-export-engine.js','app/memory-worlds-v3.js','app/navigation-registry.js','app/module-hubs.js','app/module-hubs.css','app/public-entry.css','app/public-entry.js','app/public-landing.html','app/public-landing.css','app/public-landing-motion.js','app/public-landing-experience-motion.css','app/public-landing-experience-motion.js','assets/public-landing/luvia-compass-brand.svg','assets/public-landing/luvia-compass-face.svg','assets/public-landing/luvia-compass-hub.svg','assets/public-landing/luvia-compass-needle.svg','assets/public-landing/prototype-coast-bike.png','assets/public-landing/prototype-coast-morning.png','assets/public-landing/prototype-harbor-lunch.png','assets/public-landing/prototype-memory-sunset.png','assets/public-landing/prototype-restaurant.png','assets/public-landing/travel-warnemuende.webp','assets/public-landing/travel-pragser-wildsee.webp','assets/public-landing/travel-lisbon.webp','assets/public-landing/travel-rural-japan.webp','assets/public-landing/travel-copenhagen.webp','assets/public-landing/travel-photo-sources.json','core/design/design-system-v3.css','core/experience/experience-foundation.css','core/experience/experience-contract-core.js','app/adapters/experience-web-adapter.js','core/ui/ui-kit.js','app/adapters/identity-platform-web-adapter.js','auth/config.js','auth/session.js','auth/ui.js','core/services/supabase-service.js','core/services/theme-service.js','core/storage/storage.js','core/identity/identity-domain-contract-core.js','core/events/event-contract-core.js','core/media/media-domain-contract-core.js','core/memory/memory-domain-contract-core.js','core/platform/memory-runtime-context-adapter.js','core/media/media-metadata.js','core/media/media-core.js','core/media/memory-albums.js','core/media/memory-journeys.js','core/media/memory-cards.js','core/legacy/paris-migrator.js','legacy/paris/cloud-adapter.js','core/trips/trip-state-core.js','core/trips/trip-store.js','core/trips/active-trip-context.mjs','luvia-trip-context.js','core/trips/trip-creator.js','core/trips/trip-experience.js','core/runtime/runtime.js','core/modules/module-registry.js','core/dashboard/dashboard-widget-registry.js','core/collaboration/collaboration-service.js','core/context/travel-context-service.js','core/ai/ai-brain.css','core/planning/product-focus-reset.js','core/planning/planning-dialogue-service.js','core/planning/planning-candidate-research.js',
   'core/journey/journey-domain-contract-core.js',
   'core/platform/journey-contract-adapter.js',
@@ -38,7 +41,7 @@ async function precacheShell(cache){
 }
 
 self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE).then(precacheShell));
+  event.waitUntil(shellCache().then(precacheShell));
 });
 
 self.addEventListener('activate',event=>{
@@ -58,7 +61,7 @@ function bypass(url){
   return url.origin!==self.location.origin||url.hostname.includes('supabase.co')||url.pathname.includes('/rest/v1/')||url.pathname.includes('/auth/v1/')||url.pathname.includes('/functions/v1/');
 }
 function canCache(request,response){return !request.headers.has('range')&&response.status===200&&response.type!=='opaque'}
-async function store(request,response){if(!canCache(request,response))return;const copy=response.clone();const cache=await caches.open(CACHE);await cache.put(request,copy)}
+async function store(request,response){if(!canCache(request,response))return;const copy=response.clone();const cache=await shellCache();await cache.put(request,copy)}
 
 self.addEventListener('fetch',event=>{
   const request=event.request;
@@ -68,7 +71,7 @@ self.addEventListener('fetch',event=>{
 
   if(request.mode==='navigate'){
     event.respondWith((async()=>{
-      const activeCache=await caches.open(CACHE);
+      const activeCache=await shellCache();
       try{
         const response=await fetch(request,{cache:'no-store'});
         event.waitUntil(store(request,response));
@@ -82,7 +85,7 @@ self.addEventListener('fetch',event=>{
 
   if(/\.(?:js|css|json|webmanifest|svg|png|webp|ico|html)$/i.test(url.pathname)){
     event.respondWith((async()=>{
-      const activeCache=await caches.open(CACHE);
+      const activeCache=await shellCache();
       const cached=await activeCache.match(request,{ignoreSearch:true});
       try{
         const response=await fetch(request,{cache:'no-store'});
@@ -93,5 +96,5 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  event.respondWith((async()=>{const activeCache=await caches.open(CACHE),hit=await activeCache.match(request,{ignoreSearch:true});if(hit)return hit;try{const response=await fetch(request);event.waitUntil(store(request,response));return response}catch{return new Response('',{status:503,statusText:'Offline'})}})());
+  event.respondWith((async()=>{const activeCache=await shellCache(),hit=await activeCache.match(request,{ignoreSearch:true});if(hit)return hit;try{const response=await fetch(request);event.waitUntil(store(request,response));return response}catch{return new Response('',{status:503,statusText:'Offline'})}})());
 });
