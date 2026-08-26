@@ -51,6 +51,8 @@ assert.match(actionScope,/playCompassSelectionNeedle/,'feature choice must prese
 assert.match(shell,/playCompassSelectionNeedle[\s\S]*cubic-bezier\(\.16,\.84,\.18,1\)/,'selection needle requires the accepted smooth shared-element easing');
 assert.match(actionScope,/selected\.classList\.add\('is-selected'\)/,'the chosen direction must remain visible during exit');
 assert.match(actionScope,/button\[data-compass-context\].*openLivingCompassContext\(compassNavigation\.dataset\.compassContext/s,'top-level navigation must switch the embedded Compass context instead of exiting it');
+assert.match(actionScope,/closest\('button\[data-view\],a\[data-view\],\[role="button"\]\[data-view\]'\)/,'delegated route navigation must be owned by an interactive data-view control');
+assert.doesNotMatch(actionScope,/closest\('\[data-view\]'\)/,'a click inside a route host must never be reinterpreted as a click on that host route');
 assert.match(actionScope,/if\(e\.key==='Escape'\)/,'Escape must close the Compass to Today');
 assert.match(actionScope,/ArrowLeft.*ArrowRight.*ArrowUp.*ArrowDown/,'direction keyboard navigation must support all arrow keys');
 assert.match(shell,/lv-living-top-profile[^`]*data-compass-context="profile"/,'the header profile avatar must enter the Profile Compass');
