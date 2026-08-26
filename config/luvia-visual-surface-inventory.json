@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2787,
+    "trackedFiles": 2786,
     "visualCandidates": 672,
     "activeEntryReferences": 264,
     "unclassifiedEntryReferences": 0,
@@ -5407,8 +5407,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 5835,
-      "sha256": "a47fddaebe1493ce7e4a57284d3ca5877cb75774e763925a0143413f5afe7271"
+      "bytes": 5638,
+      "sha256": "6794a6d2730f4c09b005159889e9eee8876e8b02372a09d44adf4829983d72a7"
     },
     {
       "path": "tests/m16.5q-pwa-cache-recovery-e2e.cjs",
