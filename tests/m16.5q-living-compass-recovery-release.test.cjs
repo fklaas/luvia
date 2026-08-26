@@ -52,6 +52,8 @@ assert.match(shell,/if\(planCompassTransition\)\{pendingCompassExit=\{destinatio
 assert.match(shell,/activeView=view;const sequence=\+\+showSequence;commitScreenIntent\(intent,options\);await unmountCurrent/,'the requested browser-history route must be committed before asynchronous module deactivation');
 assert.match(shell,/data-view="\$\{item\.id\}" data-compass-context="\$\{item\.id\}"/,'desktop and mobile primary navigation must expose direct Compass context intent');
 assert.match(shell,/const compassNavigation=e\.target\.closest\('button\[data-compass-context\]'\)[\s\S]*openLivingCompassContext\(compassNavigation\.dataset\.compassContext\|\|'plan'\)/,'direct context navigation must enter the accepted Compass without a prior Plan detour');
+assert.match(shell,/closest\('button\[data-view\],a\[data-view\],\[role="button"\]\[data-view\]'\)/,'delegated route navigation must be owned by an interactive data-view control');
+assert.doesNotMatch(shell,/closest\('\[data-view\]'\)/,'a click inside a route host must never be reinterpreted as navigation back to that host route');
 assert.match(shell,/currentPlanCompassStage=\(\)=>root\?\.querySelector\('\[data-stage\] > \.lv-view-host:not\(\.lv-route-previous\) \[data-plan-compass-stage\]'\)/,'Compass commands must never bind to a stale outgoing stage');
 assert.match(shell,/queuedContext&&queuedContext\.intentSequence===compassIntentSequence/,'only the latest queued context may replay after destination routing');
 assert.match(shell,/superseded=intentSequence!==compassIntentSequence/,'an older delayed Compass action must stop before executing over a newer intent');
@@ -108,6 +110,7 @@ assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/direct Today\
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/1920x1020 physical pointer routing through all eight Plan directions/,'real browser coverage must reproduce full-size physical pointer routing');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/slow Places mount \/ newer navigation intent ordering/,'real browser coverage must prove that a delayed Places activation cannot overwrite a newer route');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/slow Places mount \/ first Browser Back ordering/,'real browser coverage must prove that the first Back gesture wins during a delayed Places activation');
+assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/productive Places Compass control must restore a fully interactive Plan constellation/,'real browser coverage must click the productive Places-owned Compass return control');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/visible pre-ready press \/ moving target pointer ownership/,'real browser coverage must press a direction before settlement and move it before release');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/reference-timed carrier\/mark handoff, radial pop, coral selection, direct selection needle and coupled reverse exit/,'real browser coverage must lock the accepted reference motion and selection feedback');
 assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/Input\.dispatchTouchEvent/,'real browser coverage must use the browser touch-input path instead of only perfect synthetic taps');
