@@ -29,7 +29,6 @@ self.addEventListener('install',event=>{
       const response=await fetch(url,{cache:'reload'});
       if(response.ok)await cache.put(url,response);
     }));
-    await self.skipWaiting();
   })());
 });
 
