@@ -5991,8 +5991,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 15567,
-      "sha256": "69d8b2a4e9fedf008943acd778792a6c1b52f5b13925c1f7dcb73028e386eae1"
+      "bytes": 15709,
+      "sha256": "be92f91ef25895dbdc23d34afd4a0b568dfa4b18b5040a8a2f1868f615d073bb"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

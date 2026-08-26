@@ -91,6 +91,13 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   closes. Source/stable/immutable provenance and the authenticated visible
   Integration E2E are PASS; explicit user acceptance and the complete Places
   Golden Slice remain open.
+- M16.5S begins the next vertical slice with a binding Public Landing / real
+  Authentication baseline. Five accepted Landing reference artifacts are
+  hash-pinned, the current productive entry and Supabase Auth owner are
+  measured, and 23 signed-out/auth/session states plus no-substitution and
+  no-second-session-store rules are locked before runtime adoption. The
+  complete Landing/Auth user outcome will receive its own Integration version;
+  Main and Production remain locked.
 
 ## Completed architecture boundaries
 

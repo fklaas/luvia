@@ -2560,3 +2560,5 @@ tests/fixtures/m16.5r-places-continuity-browser.html,Consumer/Shared Tests,Test/
 tests/m16.5r-places-detail-continuity-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer regression for later-result selection rail map focus async detail and close continuity
 tests/m16.5r-places-detail-continuity-release.test.cjs,Consumer/Places/Experience,Test/Guardrail,Static M16.5R runtime cache continuity evidence ownership release lock and rollback gate
 docs/modularization/PCR-M16.5R-PLACES-DETAIL-CONTINUITY.md,Consumer/Places/Experience,Documentation/Architecture,M16.5R reproduced rail reset root cause local correction evidence open public gates and rollback
+docs/modularization/M16.5S-LANDING-AUTH-BASELINE-AND-SCOPE-LOCK.md,Consumer/Identity/Experience/Platform,Documentation/Architecture,Binding accepted Landing reference productive Auth baseline 23-state matrix ownership implementation gates and rollback lock
+tests/m16.5s-landing-auth-scope-lock.test.cjs,Consumer/Identity/Experience/Platform Shared Tests,Test/Guardrail,Pinned Landing reference hashes real Auth owner capabilities mandatory states no-substitution and Main Production lock

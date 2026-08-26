@@ -113,6 +113,17 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Main / Production: **locked and verified unchanged: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`**.
 - Rollback: **redeploy immediately previous Integration App 13.82.64 version `20ad47c4-0a93-4d1b-ad91-9ff9f8c372ef` from deployment `c6878f00-0c18-457f-bd58-7c8b293e3736`; no data rollback**.
 
+## M16.5S Public Landing / Real Authentication Scope Lock
+
+- Status: **binding baseline complete; runtime implementation not started; no App/Core bump and no deployment**.
+- Accepted target: **complete `prototype-rq` Landing across five SHA-256-pinned HTML/CSS/JS/motion artifacts; hero-only, iframe and legacy-entry substitutions forbidden**.
+- Productive baseline: **existing `app/public-entry.*`, `auth/config.js`, `auth/session.js`, `auth/ui.js` and App Shell signed-out orchestration measured. Real Supabase password login, registration, OAuth, reset request, session refresh/subscription and logout remain the only Auth owner path**.
+- Measured gap: **the reset request emits `?auth=recovery`, but the productive signed-out composition lacks the complete accepted recovery-callback/password-update surface**.
+- State lock: **23 mandatory Landing/login/register/recovery/OAuth/session/invite/offline states; minimal account creation is separated from later Profile onboarding and First-Trip creation**.
+- Binding document: **`docs/modularization/M16.5S-LANDING-AUTH-BASELINE-AND-SCOPE-LOCK.md`**.
+- Release rule: **the next runtime may publish only as one cohesive Landing/Auth Integration outcome after local visible E2E and Safe Regression; no partial visual-only acceptance**.
+- Main / Production: **locked and unchanged**.
+
 ## M16.5Q Living Compass Recovery Candidate
 
 - Runtime target: **App 13.82.64 / Core 4.82.64 / Integration Preview only**.
