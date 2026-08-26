@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2788,
-    "visualCandidates": 672,
+    "trackedFiles": 2792,
+    "visualCandidates": 673,
     "activeEntryReferences": 264,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -5291,6 +5291,14 @@
       "sha256": "4b4ecbb57c99ef6dce2a7dbf55c110a6ab2bfcfd94adbce8702b733f4452f255"
     },
     {
+      "path": "tests/m16.5-productization-plan.test.cjs",
+      "classes": [
+        "interaction-source"
+      ],
+      "bytes": 4336,
+      "sha256": "ec01347e6cbb6379a4d4bb1e58baf42621826945ef4ae75f3fdfe5b361e301b0"
+    },
+    {
       "path": "tests/m16.5c-single-cycle-navigation-transition.test.cjs",
       "classes": [
         "accessibility-source",
@@ -5958,8 +5966,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 15289,
-      "sha256": "b3535dbe5cc26da757c32b18995578bd5e149d675167776b3e35befd7e3c2448"
+      "bytes": 15427,
+      "sha256": "458a9911b628ae2023449bed257bcfb9bda784280697589f0a035cc87f86f68a"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

@@ -213,7 +213,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,788 tracked files; 672 visual candidates; 264 active entry references; 0 unclassified entry references**
+- Exhaustive manifest: **2,792 tracked files; 673 visual candidates; 264 active entry references; 0 unclassified entry references**
 - Canonical CSS baseline: **59 files; 939,806 LF-normalized bytes; 8,345 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 45 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
@@ -223,14 +223,14 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **106 / 106 PASS on the Platform 13.82.64 / 4.82.64 moment-routing, selection-needle and route-host replay recovery candidate**
+- Safe Regression: **107 / 107 PASS after adding the binding M16.5 Productization Plan guard; the published Platform 13.82.64 / 4.82.64 runtime remains unchanged**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **363 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**
 - Database / schema / RPC / RLS / bucket migration: **NONE**
 - Supabase Edge Functions / secrets: **UNCHANGED**
 - Runtime assets / Cloudflare / Preview / Production: **M16.5H–M establish the productive Living Shell, no-substitution gate and corrected embedded Plan Compass; M16.5N–P add owner-backed productive Places before a new immutable Integration Preview, while Main and Production remain on 13.82.49 / 4.82.49**
-- Next design gate: **complete feature-by-feature parity in the accepted stage, including every desktop/mobile state and popup, followed by the user's explicit Design Freeze before Main/Production promotion**
+- Next design gate: **execute the binding `M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md` through rollback-capable vertical outcomes. The live Surface and Core/Owner matrices begin with the open Places Details/Evidenz rail-continuity defect, then public Landing/real Auth, Profile onboarding, First-Trip Composer, the complete Places Golden Slice, Booking, Today/Journey and Media/Memories before the user's explicit Design Freeze and any separate Main/Production decision**
 - M16.5C direction: **Q/R visual base plus B/D/E/F/G functional DNA; bright open canvas, travel warmth, mobile-first, active-Trip accent and one continuous public-entry/onboarding/product story**
 - Target primary navigation: **Heute / Planen / central Luvia / Reise / Erinnern; Wallet, Booking, Collaboration, Profile/Settings, Attention, Social and Admin remain contextual owner-backed flows**
 - Design-only prototype: **cinematic landing, complete first-Trip onboarding, desktop/mobile target navigation, reversible scroll reveals and reduced-motion parity; no production Trip write and no broad visual deployment**

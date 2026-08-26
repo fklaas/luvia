@@ -2552,3 +2552,7 @@ tests/m16.5q-living-compass-recovery-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real
 tests/m16.5q-living-compass-recovery-release.test.cjs,Platform/Experience Shared Tests,Test/Release Guard,Integration release cache Service Worker Compass contexts exact routing cleanup and Places map recovery lock
 tests/m16.5q-pwa-cache-recovery-e2e.cjs,Platform/Experience Shared Tests,Test/E2E,Real Edge stale cache pruning active Service Worker cache and offline reload recovery evidence
 docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md,Platform/Consumer/Places/Experience,Documentation/Architecture,M16.5Q revoked acceptance evidence root causes public visible E2E deployment provenance open scope and rollback
+docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md,Consumer/Experience/Platform,Documentation/Architecture,Binding M16.5 vertical productization sequence status vocabulary Definition of Done release gates and Design Freeze lock
+docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv,Consumer/Experience/Domain Owners,Documentation/Architecture,Live M16.5 surface delivery evidence priority and acceptance ledger
+docs/modularization/M16.5-CORE-OWNER-MATRIX.csv,All Core Owner Streams,Documentation/Architecture,M16.5 productization ownership public-boundary and forbidden-shortcut ledger
+tests/m16.5-productization-plan.test.cjs,Consumer/Experience/Platform,Test/Guardrail,Static lock for the M16.5 vertical sequence surface statuses owner matrix and Main Production freeze

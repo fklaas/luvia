@@ -1,0 +1,96 @@
+const assert = require('node:assert');
+const fs = require('node:fs');
+
+const read = file => fs.readFileSync(file, 'utf8').replace(/\r\n?/g, '\n');
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (quoted && character === '"' && text[index + 1] === '"') {
+      field += '"';
+      index += 1;
+    } else if (character === '"') {
+      quoted = !quoted;
+    } else if (!quoted && character === ',') {
+      row.push(field);
+      field = '';
+    } else if (!quoted && character === '\n') {
+      row.push(field);
+      if (row.some(value => value.length > 0)) rows.push(row);
+      row = [];
+      field = '';
+    } else {
+      field += character;
+    }
+  }
+  assert.strictEqual(quoted, false, 'CSV contains an unterminated quoted field');
+  if (field.length || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  const [header, ...values] = rows;
+  values.forEach((value, index) => {
+    assert.strictEqual(value.length, header.length, `CSV row ${index + 2} has the wrong column count`);
+  });
+  return values.map(value => Object.fromEntries(header.map((name, index) => [name, value[index]])));
+}
+
+const plan = read('docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md');
+const surfaces = parseCsv(read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv'));
+const owners = parseCsv(read('docs/modularization/M16.5-CORE-OWNER-MATRIX.csv'));
+const ownership = read('docs/modularization/FILE-OWNERSHIP.csv');
+const roadmap = read('ROADMAP-LUVIA-CURRENT.md');
+const current = read('CURRENT-BUILD.md');
+const runner = read('tests/run-m4.3-safe-regression.cjs');
+
+const allowedStatuses = new Set([
+  'NOT CONNECTED',
+  'SHELL-WIRED',
+  'VISUAL PARITY',
+  'FUNCTIONAL PARITY',
+  'RESILIENCE COMPLETE',
+  'PUBLIC VERIFIED',
+  'USER ACCEPTED'
+]);
+
+assert.match(plan, /Places continuity[\s\S]*Public Landing and real Authentication[\s\S]*Identity\/Profile onboarding[\s\S]*First-Trip Composer[\s\S]*Places Golden Slice/);
+assert.match(plan, /No functional acceptance is granted without a real visible E2E sequence/);
+assert.match(plan, /Main and Production remain locked until the complete M16\.5 parity matrix/);
+assert.match(plan, /accepted Living Compass interaction is frozen after M16\.5Q/);
+assert.match(plan, /selected Place, exact[\s\S]*rail position, map marker\/viewport, filters, query, focus origin/);
+
+assert.strictEqual(surfaces.length, 20, 'the Product Surface Matrix must retain all 20 controlled rows');
+assert.strictEqual(owners.length, 18, 'the Core Owner Matrix must retain all 18 controlled owner rows');
+surfaces.forEach(surface => assert(allowedStatuses.has(surface.current_status), `invalid surface status: ${surface.current_status}`));
+
+const compass = surfaces.find(surface => surface.surface_id === 'living-compass');
+const continuity = surfaces.find(surface => surface.surface_id === 'places-continuity');
+const landing = surfaces.find(surface => surface.surface_id === 'public-landing');
+const profile = surfaces.find(surface => surface.surface_id === 'profile-onboarding');
+const trip = surfaces.find(surface => surface.surface_id === 'first-trip-composer');
+assert.strictEqual(compass?.current_status, 'USER ACCEPTED');
+assert.strictEqual(continuity?.priority, 'P0');
+assert.strictEqual(landing?.priority, 'P0');
+assert.strictEqual(profile?.priority, 'P0');
+assert.strictEqual(trip?.priority, 'P0');
+
+for (const file of [
+  'docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md',
+  'docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv',
+  'docs/modularization/M16.5-CORE-OWNER-MATRIX.csv',
+  'tests/m16.5-productization-plan.test.cjs'
+]) {
+  assert(ownership.includes(file), `ownership registry missing ${file}`);
+}
+
+assert(roadmap.includes('M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md'));
+assert(current.includes('M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md'));
+assert(runner.includes('tests/m16.5-productization-plan.test.cjs'));
+
+console.log('M16.5 Design Integration and Feature Productization Plan: PASS');
+console.log(`Controlled surfaces / Core owners: ${surfaces.length} / ${owners.length}`);
+console.log('Main / Production Design Freeze lock: ACTIVE');

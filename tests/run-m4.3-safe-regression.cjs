@@ -434,6 +434,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5q-living-compass-recovery-release.test.cjs'
   },
   {
+    category: 'M16.5 / Design Integration and Feature Productization Plan',
+    test: 'tests/m16.5-productization-plan.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

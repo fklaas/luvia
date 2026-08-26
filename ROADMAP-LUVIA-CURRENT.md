@@ -112,6 +112,17 @@ interpretation or legacy substitution is allowed. The current visual design is
 replaced completely while the proven Domain architecture remains. Required
 outputs and release gates:
 
+The binding execution order, slice Definition of Done and live status/ownership
+ledgers are now defined in
+`docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md`,
+`docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv` and
+`docs/modularization/M16.5-CORE-OWNER-MATRIX.csv`. Work proceeds through closed
+vertical outcomes: Places continuity, public Landing/real Auth, Profile
+onboarding, First-Trip Composer, Places Golden Slice, Booking, Today/Journey and
+Media/Memories. The accepted Living Compass is frozen after the user-confirmed
+App 13.82.64 handset pass. Main and Production remain locked until the complete
+matrix and explicit Design Freeze are accepted.
+
 - Corporate Design and brand foundation;
 - two to three distinct creative territories;
 - exhaustive inventory of every active, hidden, empty, loading, error,
