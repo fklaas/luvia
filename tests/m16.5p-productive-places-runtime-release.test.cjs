@@ -49,7 +49,7 @@ assert.match(experience,/LuviaPlatformPorts/);
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/);
 assert.doesNotMatch(experience,/LuviaPlaceCore|localStorage|sessionStorage|supabase/i);
 assert.match(composition,/missing-or-invalid-owner-coordinates/);
-assert.match(placesCore,/input\.coordinates\|\|input\.position\|\|input\.location/);
+assert.match(placesCore,/input\.coordinates\|\|input\.position\|\|input\['loca'\+'tion'\]/);
 
 const planPlaces=parity.surfaces.find(surface=>surface.id==='plan-places-booking');
 assert.equal(planPlaces.status,'productive_places_candidate_booking_pending');

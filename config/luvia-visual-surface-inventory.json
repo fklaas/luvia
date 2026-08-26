@@ -2270,8 +2270,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 13889,
-      "sha256": "f11105b3cc7d1b1d1ede3aaf9d898b6ae283b66ed3aea61d23d84675f30e593d"
+      "bytes": 13895,
+      "sha256": "e694431884bcc48a8ab785c1d9f3f0e5974cccf76c7a80ed87c8bed8f2a5580e"
     },
     {
       "path": "core/places/places-final-foundation.css",
@@ -5377,8 +5377,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 3731,
-      "sha256": "438aa4e4369ac1b3188fbe602178124abb0c1c59caa6dd6d44c4a26731672bf0"
+      "bytes": 3739,
+      "sha256": "ba2b3c4370390a4399e2dac4d944f6a924098a8cac4a726fdaec20139269b3da"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
