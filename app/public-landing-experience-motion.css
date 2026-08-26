@@ -1,0 +1,14 @@
+:root{--motion-shift-x:0px;--motion-shift-y:0px}
+html{background:#fbfdfe}
+body{transition:opacity .34s cubic-bezier(.2,.78,.2,1),filter .34s cubic-bezier(.2,.78,.2,1),transform .48s cubic-bezier(.2,.78,.2,1)}
+body.is-cinematic-enter{animation:cinematic-page-enter .72s cubic-bezier(.2,.78,.2,1) both}
+body.is-cinematic-leaving{opacity:0;filter:blur(7px);transform:translateY(-8px) scale(.995);pointer-events:none}
+[data-magnetic]{--magnetic-x:0px;--magnetic-y:0px;touch-action:manipulation;transition:filter .18s linear,box-shadow .3s ease;will-change:filter}
+[data-magnetic].is-magnetic{filter:drop-shadow(var(--magnetic-x) var(--magnetic-y) 10px rgba(16,44,67,.18))}
+[data-magnetic]:active{filter:brightness(.97) drop-shadow(var(--magnetic-x) var(--magnetic-y) 7px rgba(16,44,67,.14))}
+a,button{touch-action:manipulation}
+.motion-ripple{position:fixed;z-index:2147483000;width:12px;height:12px;border:2px solid color-mix(in srgb,var(--trip-accent,var(--accent,#ec6555)) 68%,white);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(.2);animation:motion-ripple .58s cubic-bezier(.2,.78,.2,1) forwards}
+@keyframes cinematic-page-enter{from{opacity:0;filter:blur(7px);transform:translateY(12px) scale(.994)}to{opacity:1;filter:none;transform:none}}
+@keyframes motion-ripple{70%{opacity:.48}to{opacity:0;transform:translate(-50%,-50%) scale(5.5)}}
+@media(pointer:coarse){[data-magnetic]{filter:none!important}}
+@media(prefers-reduced-motion:reduce){body,[data-magnetic]{animation:none!important;transition-duration:.001ms!important;filter:none!important;transform:none!important;translate:none!important}.motion-ripple{display:none}}

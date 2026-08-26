@@ -1,314 +1,233 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.68.11';
-  const state = {
-    screen: 'home',
-    idea: null,
-    registration: { displayName: '', email: '', password: '', preferences: null }
-  };
+  const VERSION = '13.82.66';
+  const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
+  const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
+  let activeContainer = null;
+  let activeRoot = null;
+  let lifecycle = null;
+  let motionCleanup = null;
+  let experienceCleanup = null;
+  let previousFocus = null;
+  let templatePromise = null;
 
-  const ideas = [
-    ['place', 'Ein bestimmter Ort', '📍', 'rose'],
-    ['weekend', 'Ein freies Wochenende', '🗓️', 'violet'],
-    ['sun', 'Sonne und Meer', '☀️', 'peach'],
-    ['family', 'Eine Familienreise', '♡', 'mint'],
-    ['open', 'Noch ganz offen', '•••', 'blue']
-  ];
+  const authApi = () => window.LuviaAuth || window.ParisAuth;
+  const authUi = () => window.LuviaAuthUI || window.ParisAuthUI;
+  const recoveryRequested = () => new URLSearchParams(window.location.search).get('auth') === 'recovery';
 
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[char]));
-
-  function brand() {
-    return `<a class="lv-brand" href="/" data-go="home" aria-label="Luvia Startseite">
-      <img src="luvia-logo.svg" alt=""><strong>Luvia</strong>
-    </a>`;
+  function setLandingAssets(active) {
+    document.querySelectorAll('link[data-luvia-public-landing-style]').forEach(link => { link.disabled = !active; });
+    document.documentElement.classList.toggle('lv-public-entry-active', active);
+    document.body.classList.toggle('lv-public-entry-active', active);
+    if (!active) document.body.classList.remove('lv-public-auth-open', 'is-cinematic-enter', 'is-cinematic-leaving');
   }
 
-  function travelBackdrop(variant = 'home') {
-    return `<div class="lv-travel-backdrop lv-travel-${variant}" aria-hidden="true">
-      <span class="lv-sun"></span>
-      <span class="lv-hill lv-hill-one"></span><span class="lv-hill lv-hill-two"></span>
-      <span class="lv-route"><i></i><b>✈</b></span>
-      <span class="lv-balloon lv-balloon-one">◉</span><span class="lv-balloon lv-balloon-two">◉</span>
-      <span class="lv-star lv-star-one">✦</span><span class="lv-star lv-star-two">✧</span>
-    </div>`;
-  }
-
-  function header(back = null) {
-    return `<header class="lv-entry-header">${brand()}${back
-      ? `<button class="lv-round-back" data-go="${back}" aria-label="Zurück">←</button>`
-      : `<button class="lv-login-link" data-go="login">Anmelden</button>`}</header>`;
-  }
-
-  function homeScreen() {
-    return `<section class="lv-screen lv-screen-home" data-screen="home" aria-labelledby="lv-home-title">
-      ${travelBackdrop('home')}${header()}
-      <div class="lv-home-content">
-        <div class="lv-home-clouds" aria-hidden="true">
-          <span class="lv-soft-cloud lv-cloud-heart"><b>♡</b></span>
-          <span class="lv-soft-cloud lv-cloud-pin"><b>⌖</b></span>
-          <span class="lv-soft-cloud lv-cloud-palm"><b>♧</b></span>
-        </div>
-        <div class="lv-home-copy">
-          <span class="lv-eyebrow">Eure Reise beginnt hier</span>
-          <h1 id="lv-home-title">Aus einer Idee<br>wird <em>eure Reise.</em></h1>
-          <p>Gemeinsam planen, unterwegs alles im Blick behalten und Erinnerungen bewahren, die bleiben.</p>
-          <button class="lv-primary" data-go="idea"><span>Reise beginnen</span><b>→</b></button>
-          <button class="lv-secondary" data-go="invite">Ich wurde eingeladen</button>
-        </div>
-        <div class="lv-home-values" aria-label="Was Luvia verbindet">
-          <span>Gemeinsam planen</span><span>Unterwegs begleiten</span><span>Momente festhalten</span>
-        </div>
-      </div>
-    </section>`;
-  }
-
-  function ideaScreen() {
-    return `<section class="lv-screen lv-screen-idea" data-screen="idea" aria-labelledby="lv-idea-title">
-      ${travelBackdrop('idea')}${header('home')}
-      <div class="lv-idea-content">
-        <span class="lv-eyebrow">Der erste Gedanke</span>
-        <h2 id="lv-idea-title">Woran denkst du gerade?</h2>
-        <p>Wähle einfach das Gefühl, das deiner Reiseidee gerade am nächsten kommt.</p>
-        <div class="lv-thought-clouds">
-          ${ideas.map(([value, label, icon, tone], index) => `<button class="lv-thought-cloud tone-${tone} cloud-${index + 1}" data-idea="${value}" data-label="${esc(label)}"><span>${icon}</span><strong>${esc(label)}</strong></button>`).join('')}
-        </div>
-        <form class="lv-free-idea" data-free-idea>
-          <label for="lvIdeaInput">Oder schreib deinen Gedanken auf</label>
-          <div><input id="lvIdeaInput" name="idea" maxlength="120" autocomplete="off" placeholder="Zum Beispiel: Im Herbst nach Amsterdam"><button aria-label="Weiter">→</button></div>
-        </form>
-      </div>
-    </section>`;
-  }
-
-  function nameScreen() {
-    return stepScreen({
-      key: 'name', back: 'idea', step: '01 von 04', title: 'Wie dürfen wir dich nennen?',
-      text: 'Dein Name macht eure gemeinsame Reise persönlicher.',
-      field: `<label for="lvName">Dein Name</label><input id="lvName" name="displayName" autocomplete="name" maxlength="80" value="${esc(state.registration.displayName)}" placeholder="Zum Beispiel Fabian" required>`,
-      next: 'preferences', variant: 'name'
-    });
-  }
-
-  function preferencesScreen() {
-    return `<section class="lv-screen lv-screen-preferences" data-screen="preferences" aria-labelledby="lv-preferences-title">
-      <div class="lv-registration-preferences" data-registration-preferences></div>
-    </section>`;
-  }
-
-  function emailScreen() {
-    return stepScreen({
-      key: 'email', back: 'preferences', step: '03 von 04', title: 'Deine E-Mail',
-      text: 'Damit wir deine Reise sicher speichern und auf all deinen Geräten öffnen können.',
-      field: `<label for="lvEmail">E-Mail-Adresse</label><input id="lvEmail" name="email" type="email" inputmode="email" autocomplete="email" value="${esc(state.registration.email)}" placeholder="name@beispiel.de" required>`,
-      next: 'password', variant: 'email'
-    });
-  }
-
-  function passwordScreen() {
-    return stepScreen({
-      key: 'password', back: 'email', step: '04 von 04', title: 'Erstelle ein Passwort',
-      text: 'Mindestens acht Zeichen. Danach ist deine erste Reiseidee sicher bei Luvia aufgehoben.',
-      field: `<label for="lvPassword">Passwort</label><input id="lvPassword" name="password" type="password" autocomplete="new-password" placeholder="Mindestens 8 Zeichen" required><label for="lvPasswordRepeat">Passwort wiederholen</label><input id="lvPasswordRepeat" name="repeat" type="password" autocomplete="new-password" placeholder="Noch einmal eingeben" required>`,
-      submit: true, variant: 'password'
-    });
-  }
-
-  function stepScreen({ key, back, step, title, text, field, next, submit = false, variant }) {
-    return `<section class="lv-screen lv-screen-step lv-step-${variant}" data-screen="${key}" aria-labelledby="lv-${key}-title">
-      ${travelBackdrop(variant)}${header(back)}
-      <div class="lv-step-center">
-        <div class="lv-step-card">
-          <div class="lv-step-progress"><span>${step}</span><i></i></div>
-          <h2 id="lv-${key}-title">${title}</h2>
-          <p>${text}</p>
-          <form class="lv-step-form" data-step-form="${key}" ${submit ? 'data-register-form' : ''}>
-            <div class="lv-field-stack">${field}</div>
-            <button class="lv-primary lv-step-next" type="submit"><span>${submit ? 'Konto erstellen' : 'Weiter'}</span><b>→</b></button>
-            <div class="lv-form-message" data-form-message role="status"></div>
-          </form>
-          ${key === 'name' ? `<p class="lv-account-hint">Bereits ein Konto? <button data-go="login">Anmelden</button></p>` : ''}
-        </div>
-      </div>
-    </section>`;
-  }
-
-  function loginScreen() {
-    return `<section class="lv-screen lv-screen-login" data-screen="login" aria-labelledby="lv-login-title">
-      ${travelBackdrop('login')}${header('home')}
-      <div class="lv-step-center"><div class="lv-step-card lv-login-card">
-        <span class="lv-eyebrow">Willkommen zurück</span>
-        <h2 id="lv-login-title">Eure Reise wartet schon.</h2>
-        <p>Melde dich an und macht dort weiter, wo ihr aufgehört habt.</p>
-        <div class="lv-login-host" data-login-host></div>
-      </div></div>
-    </section>`;
-  }
-
-  function inviteScreen() {
-    return `<section class="lv-screen lv-screen-invite" data-screen="invite" aria-labelledby="lv-invite-title">
-      ${travelBackdrop('invite')}${header('home')}
-      <div class="lv-step-center"><div class="lv-step-card">
-        <span class="lv-eyebrow">Gemeinsam reisen</span>
-        <h2 id="lv-invite-title">Eine Reise wartet auf dich.</h2>
-        <p>Gib deinen Einladungscode ein und öffne eure gemeinsame Reise.</p>
-        <form class="lv-step-form" data-invite-form>
-          <div class="lv-field-stack"><label for="lvInviteCode">Einladungscode</label><input id="lvInviteCode" name="code" maxlength="12" autocomplete="one-time-code" placeholder="LUVIA-2026" required></div>
-          <button class="lv-primary lv-step-next"><span>Reise öffnen</span><b>→</b></button>
-          <div class="lv-form-message" data-invite-message role="status"></div>
-        </form>
-      </div></div>
-    </section>`;
-  }
-
-  function markup() {
-    return `<main class="lv-entry" data-entry-root>${homeScreen()}${ideaScreen()}${nameScreen()}${preferencesScreen()}${emailScreen()}${passwordScreen()}${loginScreen()}${inviteScreen()}</main>`;
-  }
-
-  function emit() {
-    document.dispatchEvent(new CustomEvent('luvia:guided-entry-state', { detail: { version: VERSION, ...state } }));
-  }
-
-  function show(root, next) {
-    state.screen = next;
-    root.querySelectorAll('[data-screen]').forEach(screen => {
-      const active = screen.dataset.screen === next;
-      screen.classList.toggle('is-active', active);
-      screen.setAttribute('aria-hidden', active ? 'false' : 'true');
-    });
-    if (next === 'login') {
-      const host = root.querySelector('[data-login-host]');
-      if (host) {
-        host.innerHTML = '';
-        (window.LuviaAuthUI||window.ParisAuthUI)?.renderAuthForm?.(host, 'login');
-      }
-    }
-    if (next === 'preferences') {
-      const host = root.querySelector('[data-registration-preferences]');
-      if (host && window.LuviaGuidedDiscovery) {
-        host.innerHTML = '';
-        window.LuviaGuidedDiscovery.mount(host, {
-          domain: 'onboarding',
-          initialPreferences: state.registration.preferences || {},
-          hideBrowse: true,
-          onCancel: () => show(root, 'name'),
-          onComplete: result => {
-            state.registration.preferences = result.preferences;
-            show(root, 'email');
-          }
+  async function landingMarkup() {
+    if (!templatePromise) {
+      templatePromise = fetch(TEMPLATE_URL, { cache: 'no-store', credentials: 'same-origin' })
+        .then(response => {
+          if (!response.ok) throw new Error(`LUVIA_PUBLIC_LANDING_HTTP_${response.status}`);
+          return response.text();
+        })
+        .then(source => {
+          const parsed = new DOMParser().parseFromString(source, 'text/html');
+          const entry = parsed.querySelector('[data-entry-root]');
+          if (!entry) throw new Error('LUVIA_PUBLIC_LANDING_TEMPLATE_INVALID');
+          entry.querySelectorAll('script').forEach(script => script.remove());
+          return entry.outerHTML;
+        })
+        .catch(error => {
+          templatePromise = null;
+          throw error;
         });
-      }
     }
-    requestAnimationFrame(() => root.querySelector(`[data-screen="${next}"] input, [data-screen="${next}"] button`)?.focus?.({ preventScroll: true }));
-    emit();
+    return templatePromise;
   }
 
-  function chooseIdea(root, value, label) {
-    state.idea = { value, label, createdAt: new Date().toISOString() };
-    show(root, 'name');
+  function authModeFromLocation() {
+    if (recoveryRequested()) return 'recovery';
+    if (window.location.hash === AUTH_HASHES.register) return 'register';
+    if (window.location.hash === AUTH_HASHES.login) return 'login';
+    return null;
+  }
+
+  function cleanRecoveryLocation() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('auth');
+    if (url.hash === AUTH_HASHES.login || url.hash === AUTH_HASHES.register) url.hash = '';
+    history.replaceState({ luviaPublicAuth: null }, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function authPanelMarkup() {
+    return `<section class="lv-public-auth-layer" data-public-auth-layer hidden aria-hidden="true">
+      <button class="lv-public-auth-backdrop" type="button" data-public-auth-close aria-label="Anmeldung schließen"></button>
+      <div class="lv-public-auth-panel" role="dialog" aria-modal="true" aria-labelledby="lvPublicAuthTitle" tabindex="-1">
+        <header class="lv-public-auth-head">
+          <a class="lv-public-auth-brand" href="#top" data-public-auth-close aria-label="Zurück zur Luvia Startseite"><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><span><b>LUVIA</b><small>Reisen, die mit dir leben.</small></span></a>
+          <button class="lv-public-auth-close" type="button" data-public-auth-close aria-label="Anmeldung schließen">×</button>
+        </header>
+        <div class="lv-public-auth-copy"><span data-public-auth-kicker>Willkommen zurück</span><h2 id="lvPublicAuthTitle" data-public-auth-title>Anmelden</h2><p data-public-auth-description>Öffne deine Reisen dort, wo du aufgehört hast.</p></div>
+        <div class="lv-public-auth-host" data-public-auth-host></div>
+        <p class="lv-public-auth-trust">Private Reisen · klare Kontrolle · nachvollziehbare Wirkungen</p>
+      </div>
+    </section>`;
+  }
+
+  function updateAuthCopy(layer, mode) {
+    const copy = {
+      login: ['Willkommen zurück', 'Anmelden', 'Öffne deine Reisen dort, wo du aufgehört hast.'],
+      register: ['Deine erste Reise beginnt', 'Luvia erleben', 'Erstelle nur dein sicheres Konto. Profil und Reise entstehen anschließend in Ruhe.'],
+      recovery: ['Sicher zurück zu deiner Reise', 'Neues Passwort festlegen', 'Lege ein neues Passwort für dein bestehendes Luvia-Konto fest.']
+    }[mode] || [];
+    layer.querySelector('[data-public-auth-kicker]').textContent = copy[0] || '';
+    layer.querySelector('[data-public-auth-title]').textContent = copy[1] || '';
+    layer.querySelector('[data-public-auth-description]').textContent = copy[2] || '';
+  }
+
+  function historyForAuth(mode, replace = false) {
+    if (mode === 'recovery') return;
+    const url = new URL(window.location.href);
+    url.hash = AUTH_HASHES[mode] || '';
+    history[replace ? 'replaceState' : 'pushState']({ luviaPublicAuth: mode }, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function closeAuth({ updateHistory = true, restoreFocus = true } = {}) {
+    const layer = activeRoot?.querySelector('[data-public-auth-layer]');
+    if (!layer || layer.hidden) return;
+    layer.hidden = true;
+    layer.setAttribute('aria-hidden', 'true');
+    layer.removeAttribute('data-auth-mode');
+    document.body.classList.remove('lv-public-auth-open');
+    if (updateHistory && !recoveryRequested() && Object.values(AUTH_HASHES).includes(window.location.hash)) {
+      const url = new URL(window.location.href);
+      url.hash = '';
+      if (history.state?.luviaPublicAuth) history.back();
+      else history.replaceState({ luviaPublicAuth: null }, '', `${url.pathname}${url.search}`);
+    }
+    if (restoreFocus && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    previousFocus = null;
+  }
+
+  function renderRecovery(host) {
+    const complete = async () => {
+      cleanRecoveryLocation();
+      document.dispatchEvent(new CustomEvent('reisezeit:login-success', { detail: authApi()?.getState?.() }));
+      window.LuviaOwnerFlowNavigationV1?.authLoginSuccess?.();
+      await window.LuviaApp?.render?.();
+    };
+    if (authUi()?.renderRecoveryForm) authUi().renderRecoveryForm(host, { onComplete: complete });
+    else host.innerHTML = '<div class="pa-status error">Der sichere Recovery-Dialog konnte nicht geladen werden.</div>';
+  }
+
+  function openAuth(mode = 'login', { updateHistory = true, replaceHistory = false, focus = true } = {}) {
+    const layer = activeRoot?.querySelector('[data-public-auth-layer]');
+    const host = layer?.querySelector('[data-public-auth-host]');
+    if (!layer || !host) return;
+    if (mode !== 'recovery' && !AUTH_HASHES[mode]) mode = 'login';
+    if (layer.hidden) previousFocus = document.activeElement;
+    updateAuthCopy(layer, mode);
+    layer.hidden = false;
+    layer.setAttribute('aria-hidden', 'false');
+    layer.dataset.authMode = mode;
+    document.body.classList.add('lv-public-auth-open');
+    if (mode === 'recovery') renderRecovery(host);
+    else authUi()?.renderAuthForm?.(host, mode);
+    if (updateHistory) historyForAuth(mode, replaceHistory);
+    if (focus) requestAnimationFrame(() => host.querySelector('input,button')?.focus?.({ preventScroll: true }) || layer.querySelector('.lv-public-auth-panel')?.focus?.({ preventScroll: true }));
+  }
+
+  function syncAuthToLocation() {
+    const mode = authModeFromLocation();
+    if (mode) openAuth(mode, { updateHistory: false, focus: false });
+    else closeAuth({ updateHistory: false, restoreFocus: false });
   }
 
   function bind(root) {
+    lifecycle?.abort();
+    lifecycle = new AbortController();
+    const options = { signal: lifecycle.signal };
+    root.insertAdjacentHTML('beforeend', authPanelMarkup());
     root.addEventListener('click', event => {
-      const go = event.target.closest('[data-go]');
-      if (go) { event.preventDefault(); show(root, go.dataset.go); return; }
-      const idea = event.target.closest('[data-idea]');
-      if (idea) chooseIdea(root, idea.dataset.idea, idea.dataset.label);
-    });
-
-    root.querySelector('[data-free-idea]')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const value = String(new FormData(event.currentTarget).get('idea') || '').trim();
-      if (!value) { event.currentTarget.querySelector('input')?.focus(); return; }
-      chooseIdea(root, 'custom', value);
-    });
-
-    root.querySelector('[data-step-form="name"]')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const value = String(new FormData(event.currentTarget).get('displayName') || '').trim();
-      if (value.length < 2) return setMessage(event.currentTarget, 'Bitte gib deinen Namen ein.');
-      state.registration.displayName = value; show(root, 'preferences');
-    });
-
-    root.querySelector('[data-step-form="email"]')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const value = String(new FormData(event.currentTarget).get('email') || '').trim();
-      if (!/^\S+@\S+\.\S+$/.test(value)) return setMessage(event.currentTarget, 'Bitte gib eine gültige E-Mail-Adresse ein.');
-      state.registration.email = value; show(root, 'password');
-    });
-
-    root.querySelector('[data-register-form]')?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const form = event.currentTarget;
-      const fd = new FormData(form);
-      const password = String(fd.get('password') || '');
-      const repeat = String(fd.get('repeat') || '');
-      if (password.length < 8) return setMessage(form, 'Das Passwort muss mindestens 8 Zeichen haben.');
-      if (password !== repeat) return setMessage(form, 'Die Passwörter stimmen nicht überein.');
-      const button = form.querySelector('button[type="submit"]');
-      button.disabled = true;
-      setMessage(form, 'Dein Konto wird erstellt …', 'working');
-      try {
-        state.registration.password = password;
-        const displayName = state.registration.displayName;
-        await (window.LuviaAuth||window.ParisAuth).signUp({
-          email: state.registration.email,
-          password,
-          displayName,
-          firstName: displayName,
-          lastName: '',
-          preferences: state.registration.preferences,
-          travelIdea: state.idea
-        });
-        setMessage(form, 'Fast geschafft: Bitte bestätige jetzt die E-Mail von Luvia.', 'success');
-      } catch (error) {
-        setMessage(form, error?.message || 'Das Konto konnte nicht erstellt werden.', 'error');
-        button.disabled = false;
+      const trigger = event.target.closest('[data-public-auth]');
+      if (trigger) {
+        event.preventDefault();
+        openAuth(trigger.dataset.publicAuth || 'login');
+        return;
       }
-    });
-
-    root.querySelector('[data-invite-form]')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const code = String(new FormData(event.currentTarget).get('code') || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
-      if (!code) return setMessage(event.currentTarget, 'Bitte gib deinen Einladungscode ein.');
-      const navigation = window.LuviaOwnerFlowNavigationV1;
-      if (!navigation?.openJoin) return setMessage(event.currentTarget, 'Die Einladungsnavigation ist noch nicht bereit.');
-      navigation.openJoin(code);
-    });
+      const close = event.target.closest('[data-public-auth-close]');
+      if (close) {
+        event.preventDefault();
+        closeAuth();
+      }
+    }, options);
+    root.addEventListener('luvia:auth-mode-rendered', event => {
+      const mode = event.detail?.mode;
+      const layer = root.querySelector('[data-public-auth-layer]');
+      if (!layer) return;
+      if (mode === 'recovery-request') {
+        layer.querySelector('[data-public-auth-kicker]').textContent = 'Sicher zurück zu Luvia';
+        layer.querySelector('[data-public-auth-title]').textContent = 'Passwort zurücksetzen';
+        layer.querySelector('[data-public-auth-description]').textContent = 'Fordere einen sicheren Link für dein bestehendes Konto an.';
+      } else if (mode === 'login' || mode === 'register') {
+        layer.dataset.authMode = mode;
+        updateAuthCopy(layer, mode);
+      }
+    }, options);
+    root.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !root.querySelector('[data-public-auth-layer]')?.hidden && !recoveryRequested()) {
+        event.preventDefault();
+        closeAuth();
+      }
+    }, options);
+    window.addEventListener('popstate', syncAuthToLocation, options);
+    window.addEventListener('hashchange', syncAuthToLocation, options);
+    motionCleanup?.();
+    experienceCleanup?.();
+    motionCleanup = window.LuviaPublicLandingMotion?.mount?.(root) || null;
+    experienceCleanup = window.LuviaPublicLandingExperience?.mount?.(root) || null;
+    syncAuthToLocation();
   }
 
-  function setMessage(form, text, type = 'error') {
-    const box = form.querySelector('[data-form-message], [data-invite-message]');
-    if (!box) return;
-    box.textContent = text; box.dataset.type = type;
-  }
-
-  function resolveContainer(container) {
+  async function render(container, options = {}) {
     const target = container || document.getElementById('app');
-    if (!target || typeof target.querySelector !== 'function') {
-      throw new Error('LUVIA_PUBLIC_ENTRY_CONTAINER_MISSING');
-    }
-    return target;
+    if (!target || typeof target.querySelector !== 'function') throw new Error('LUVIA_PUBLIC_ENTRY_TARGET_MISSING');
+    deactivate({ clear: false });
+    activeContainer = target;
+    setLandingAssets(true);
+    target.setAttribute('aria-busy', 'true');
+    target.innerHTML = '<main class="lv-public-entry-loading" data-entry-root><img src="assets/public-landing/luvia-compass-brand.svg" alt=""><strong>Luvia wird geöffnet …</strong></main>';
+    const markup = await landingMarkup();
+    if (activeContainer !== target) return null;
+    target.innerHTML = markup;
+    activeRoot = target.querySelector('[data-entry-root]');
+    if (!activeRoot) throw new Error('LUVIA_PUBLIC_ENTRY_MOUNT_FAILED');
+    bind(activeRoot);
+    target.setAttribute('aria-busy', 'false');
+    if (options.authMode) openAuth(options.authMode, { updateHistory: false });
+    document.dispatchEvent(new CustomEvent('luvia:guided-entry-state', { detail: { version: VERSION, screen: 'landing', authMode: authModeFromLocation() } }));
+    return activeRoot;
   }
 
-  function render(container) {
-    const target = resolveContainer(container);
-    target.innerHTML = markup();
-    const root = target.querySelector('[data-entry-root]');
-    if (!root) throw new Error('LUVIA_PUBLIC_ENTRY_MOUNT_FAILED');
-    document.documentElement.classList.add('lv-public-entry-active');
-    document.body.classList.add('lv-public-entry-active');
-    // Activate a visible screen before binding handlers. If a later handler throws,
-    // unauthenticated users still see a usable entry instead of a blank backdrop.
-    show(root, 'home');
-    try { bind(root); }
-    catch (error) {
-      console.error('[LuviaPublicEntry] Binding fehlgeschlagen', error);
-      window.dispatchEvent(new CustomEvent('luvia:public-entry-bind-failed', { detail: { message: error?.message || String(error) } }));
-    }
+  function deactivate({ clear = false } = {}) {
+    lifecycle?.abort();
+    lifecycle = null;
+    motionCleanup?.();
+    experienceCleanup?.();
+    motionCleanup = null;
+    experienceCleanup = null;
+    if (clear && activeContainer) activeContainer.innerHTML = '';
+    activeContainer = null;
+    activeRoot = null;
+    previousFocus = null;
+    setLandingAssets(false);
   }
 
-  window.LuviaGuidedJourneyEntry = Object.freeze({ version: VERSION, render, getState: () => ({ ...state }) });
+  window.LuviaGuidedJourneyEntry = Object.freeze({
+    version: VERSION,
+    render,
+    deactivate,
+    openAuth,
+    getState: () => ({ version: VERSION, screen: 'landing', authMode: authModeFromLocation(), active: Boolean(activeRoot?.isConnected) })
+  });
 })();

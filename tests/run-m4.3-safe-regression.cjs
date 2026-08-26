@@ -446,6 +446,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5s-landing-auth-scope-lock.test.cjs'
   },
   {
+    category: 'M16.5 / Public Landing and Real Authentication Integration',
+    test: 'tests/m16.5s-public-landing-auth-integration.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

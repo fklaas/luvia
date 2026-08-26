@@ -85,3 +85,26 @@ html.lv-public-entry-active,body.lv-public-entry-active{height:100%;overflow:hid
 
 /* Guided registration preferences · v13.17.0 */
 .lv-screen-preferences{background:#fff;overflow:auto}.lv-registration-preferences{min-height:100svh;width:100%}.lv-screen-preferences .gds-sequence{min-height:100svh;border-radius:0}.lv-public-entry-active.gds-overlay-open{overflow:hidden}
+
+/* M16.5S public landing/auth bridge. The accepted landing owns document scroll;
+   the earlier guided-entry rules remain available only for rollback. */
+html.lv-public-entry-active,body.lv-public-entry-active{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;background:#fffdfb}
+body.lv-public-entry-active{margin:0}body.lv-public-auth-open{overflow:hidden}
+.lv-public-entry-loading{min-height:100svh;display:grid;place-content:center;justify-items:center;gap:16px;background:#fffdfb;color:#173247;font:700 15px Manrope,system-ui,sans-serif;letter-spacing:.04em}
+.lv-public-entry-loading img{width:88px;height:88px;animation:lv-public-loading 1.5s ease-in-out infinite}
+.lv-public-auth-layer[hidden]{display:none!important}.lv-public-auth-layer{position:fixed;z-index:10000;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,560px);font-family:Manrope,system-ui,sans-serif}
+.lv-public-auth-backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:rgba(12,35,48,.42);backdrop-filter:blur(10px);cursor:pointer;animation:lv-public-auth-fade .32s ease both}
+.lv-public-auth-panel{position:relative;grid-column:2;min-height:100%;max-height:100svh;overflow:auto;padding:max(26px,env(safe-area-inset-top)) clamp(25px,5vw,58px) max(28px,env(safe-area-inset-bottom));background:rgba(255,253,251,.985);box-shadow:-34px 0 80px rgba(22,46,60,.18);outline:0;animation:lv-public-auth-in .48s cubic-bezier(.2,.8,.2,1) both}
+.lv-public-auth-head{display:flex;align-items:center;justify-content:space-between;gap:20px}.lv-public-auth-brand{display:flex;align-items:center;gap:11px;color:#143247;text-decoration:none}
+.lv-public-auth-brand img{width:46px;height:46px}.lv-public-auth-brand span{display:grid;gap:1px}.lv-public-auth-brand b{font-size:18px;letter-spacing:.24em}.lv-public-auth-brand small{font-size:10px;color:#6c8290}
+.lv-public-auth-close{width:43px;height:43px;display:grid;place-items:center;border:1px solid rgba(24,56,72,.12);border-radius:50%;background:#fff;color:#25465a;font:300 28px/1 system-ui;cursor:pointer;transition:transform .2s ease,background .2s ease}.lv-public-auth-close:hover{transform:rotate(7deg) scale(1.04);background:#fff5f3}
+.lv-public-auth-copy{margin:clamp(48px,9vh,88px) 0 26px}.lv-public-auth-copy>span{display:block;margin-bottom:10px;color:#c95c66;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.lv-public-auth-copy h2{margin:0;color:#153247;font:500 clamp(38px,5vw,58px)/.98 Georgia,serif;letter-spacing:-.045em}.lv-public-auth-copy p{max-width:430px;margin:16px 0 0;color:#68808e;font-size:15px;line-height:1.65}
+.lv-public-auth-host{min-height:350px}.lv-public-auth-host .pa-stack{gap:16px}.lv-public-auth-host .pa-stack>div:first-child h3,.lv-public-auth-host .pa-stack>div:first-child .pa-muted{display:none}
+.lv-public-auth-host .pa-field label{color:#456173;font-size:12px;letter-spacing:.025em}.lv-public-auth-host .pa-field input{min-height:52px;border-color:#dbe4e7;border-radius:16px;background:#fff;font-weight:550}
+.lv-public-auth-host .pc-btn.primary{min-height:52px;border:0;border-radius:999px;padding:0 24px;background:linear-gradient(100deg,#d15e72,#ef835d);color:#fff;font-weight:800;box-shadow:0 14px 28px rgba(207,83,105,.22);cursor:pointer}
+.lv-public-auth-host button:disabled{opacity:.58;cursor:wait}.lv-public-auth-host .pa-provider{min-height:50px;display:flex;align-items:center;justify-content:center;gap:10px}.lv-public-auth-host .provider-icon{display:grid;width:20px;height:20px}.lv-public-auth-host .provider-icon svg{width:20px;height:20px}
+.lv-public-auth-trust{margin:28px 0 0;padding-top:20px;border-top:1px solid rgba(38,74,90,.1);color:#8698a2;font-size:11px;text-align:center}.lv-public-auth-panel :focus-visible{outline:3px solid rgba(224,91,111,.34);outline-offset:3px}
+@keyframes lv-public-loading{50%{transform:translateY(-7px) rotate(2deg)}}@keyframes lv-public-auth-fade{from{opacity:0}to{opacity:1}}@keyframes lv-public-auth-in{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:none}}
+@media(max-width:760px){.lv-public-auth-layer{display:block}.lv-public-auth-panel{min-height:100svh;width:100%;max-width:none;padding-inline:clamp(20px,6vw,34px);box-sizing:border-box}.lv-public-auth-copy{margin-top:38px}.lv-public-auth-copy h2{font-size:42px}.lv-public-auth-host{min-height:0}.lv-public-auth-backdrop{display:none}}
+@media(prefers-reduced-motion:reduce){.lv-public-entry-loading img,.lv-public-auth-backdrop,.lv-public-auth-panel{animation:none!important}.lv-public-auth-close{transition:none}}
