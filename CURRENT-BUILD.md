@@ -116,16 +116,30 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
   Domain Truth and creates no synthetic coordinate**.
 - Compass correction: **non-selected directions fade at their orbital position
   and no longer visually collapse toward a shared lower-right/central point**.
-- Step 5 status: **IN PROGRESS — productive Places implementation complete as
-  an Integration candidate; authenticated desktop/mobile acceptance and the
+- Step 5 status: **PRODUCTIVE PLACES ACCEPTED ON INTEGRATION — authenticated
+  responsive-browser acceptance is complete; physical-handset review and the
   complete Booking visual migration continue next**.
-- Candidate validation target: **105 / 105 Safe Regression; regenerated visual
+- Candidate validation: **105 / 105 Safe Regression PASS; regenerated visual
   inventory 2,783 / 668 with 59 CSS files; NFR-0 3 / 3 and cross-Core DB guard
-  without debt growth**.
+  PASS without debt growth**.
+- Public Integration runtime: **version
+  `5d722f6f-60a0-4c4f-b728-3a1af9b5201e`, deployment
+  `5f8b9bd5-7ec4-4743-8f72-f3a8d9d8a1ca`, 100% traffic, 17 / 17 changed
+  assets byte-exact to runtime commit
+  `a51880d6547c3fe417316e1d705d204705338bfe`**.
+- Authenticated Browser proof: **Plan → Places transition, stationary fade for
+  non-selected directions, productive 18-result search, 6→8 progressive cards,
+  open-now filter, 8 / 8 coordinate-qualified markers, loaded detail evidence,
+  X → Today cleanup, standalone Luvia Compass → AI Chat and zero horizontal
+  document overflow at the measured mobile breakpoint PASS**.
 - Release status: **Integration only; Main and Production remain locked and
   unchanged pending complete joint visual acceptance and Design Freeze**.
 - Database/schema/RPC/RLS/bucket migration: **NONE**.
-- Supabase Edge Function / secret / manual Cloudflare change: **NONE**.
+- Supabase Edge Function / secret / manual Cloudflare configuration change:
+  **NONE**. The dedicated `integration-luvia` version/deployment changed;
+  Production Worker `luvia` remained exactly on deployment
+  `578f13fc-8193-4988-88cf-93c94362fcc3` and version
+  `0d26706b-8b79-4e05-b3b6-6c6314cc597c`.
 
 ## M16.5E–G Living Product Foundation Candidate
 

@@ -2,7 +2,7 @@
 
 Date: 2026-08-26
 
-Status: **INTEGRATION CANDIDATE / MAIN AND PRODUCTION LOCKED**
+Status: **INTEGRATION ACCEPTED / MAIN AND PRODUCTION LOCKED**
 
 Runtime target: **App 13.82.54 / Core 4.82.54**
 
@@ -85,9 +85,44 @@ before promotion.
   short-landscape Compass containment and the non-mutating five-pixel visual
   marker-tail offset are locked by regression guards.
 
-Authenticated desktop/mobile Browser acceptance and immutable Cloudflare
-Integration provenance are deliberately not claimed until the public candidate
-has been uploaded and measured. Main and Production remain unchanged.
+## Public Integration evidence
+
+- runtime commit: `a51880d6547c3fe417316e1d705d204705338bfe`;
+- Cloudflare version: `5d722f6f-60a0-4c4f-b728-3a1af9b5201e`;
+- Cloudflare deployment: `5f8b9bd5-7ec4-4743-8f72-f3a8d9d8a1ca`, **100%**;
+- immutable URL:
+  `https://5d722f6f-integration-luvia.njwnrvwbv5.workers.dev/`;
+- stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`;
+- changed runtime provenance: **17 / 17 assets byte-exact** against the
+  LF-clean Git checkout before and after traffic activation;
+- authenticated Plan → Places: **PASS**;
+- non-selected directions: **opacity/filter fade at their orbital positions,
+  with no shared lower-right collapse**;
+- productive query: **18 real Places results**, six initial cards and markers;
+- open-now filter: **eight owner results**, six initial cards, then eight after
+  progressive loading;
+- map: **MapLibre/OpenFreeMap loaded; eight of eight filtered cards projected
+  coordinate-qualified markers**;
+- detail/evidence expansion: **PASS**;
+- X close: **returns to Today with no detached Compass or flight remainder**;
+- standalone Luvia Compass navigation: **opens the AI dialog and does not mount
+  a feature Compass stage**;
+- measured responsive Browser viewport: **674 × 698 CSS pixels, no horizontal
+  document overflow**.
+
+The deterministic responsive guards additionally lock 390 × 844 and 320 × 673
+document containment, the 801–1080 px connected map/result reflow, 44 px touch
+targets and short mobile landscape. A physical-handset visual review remains a
+separate user acceptance step and is not replaced by those automated guards.
+
+Production Worker `luvia` remained on deployment
+`578f13fc-8193-4988-88cf-93c94362fcc3` and version
+`0d26706b-8b79-4e05-b3b6-6c6314cc597c`. Main and Production are unchanged.
+
+The repository currently has both the historical `luvia` branch-preview alias
+and the dedicated `integration-luvia` worker. M16.5P deliberately follows the
+already published dedicated-worker path; consolidation to one Preview truth is
+reserved as a separate infrastructure cleanup.
 
 ## Rollback
 
