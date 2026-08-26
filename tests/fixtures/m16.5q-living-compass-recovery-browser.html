@@ -41,7 +41,8 @@
     window.LuviaCollaboration={start:async()=>true,watchTrip:async()=>true,heartbeat:()=>{},snapshot:()=>({tripId:trip.id}),subscribe:()=>()=>{}};
     window.LuviaAppRuntimeSignalsV1={start:async()=>true,subscribe:()=>()=>{},authSnapshot:()=>auth,snapshot:()=>({online:true}),diagnostics:()=>({fixture:true})};
     window.LuviaNavigationRegistry={normalize:view=>view,items:()=>[{id:'today',label:'Heute'},{id:'plan',label:'Planen'},{id:'trip',label:'Reise'},{id:'memories',label:'Erinnern'}]};
-    const routeFor=view=>({id:view,mount:view==='places'?{mode:'module',key:'places',targetId:'places-module'}:{mode:'inline',key:view}});
+    const moduleTargets={places:'places-module','places-lifecycle':'places-lifecycle-module',gallery:'gallery-module',albums:'albums-module',bookings:'bookings-module','control-center':'control-center-module','control-center-identity':'control-center-identity-module','control-center-bookings':'control-center-bookings-module','control-center-inbox':'control-center-inbox-module'};
+    const routeFor=view=>({id:view,mount:moduleTargets[view]?{mode:'module',key:view,targetId:moduleTargets[view]}:{mode:'inline',key:view}});
     window.LuviaNavigationContractV1={normalize:view=>view,get:routeFor,createIntent:(route,options={})=>({route,source:options.source||'fixture',replace:Boolean(options.replace)}),resolve:(input,options={})=>typeof input==='string'?{route:input,...options}:{...input,...options}};
     let current={route:new URL(location.href).searchParams.get('screen')||'plan',source:'fixture-load'};
     window.LuviaNavigationHistoryV1={currentIntent:()=>current,project:(intent,options={})=>{current=intent;if(!options.restore){const url=new URL(location.href);url.searchParams.set('screen',intent.route);history[options.replace?'replaceState':'pushState']({route:intent.route},'',url)}return intent},back:()=>history.back(),forward:()=>history.forward(),diagnostics:()=>({fixture:true,current})};
