@@ -52,6 +52,21 @@ async function assertInsideViewport(page){
     assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,`mobile direction ${index+1} is clipped: ${JSON.stringify({box,viewport})}`);
   }
 }
+async function physicalTouchWithDrift(page,locator,{dx=0,dy=18}={}){
+  const box=await locator.boundingBox();assert.ok(box,'physical touch target has no hit box');
+  const x=box.x+box.width/2,y=box.y+box.height/2,client=await page.context().newCDPSession(page);
+  await page.evaluate(()=>{window.__m165qPhysicalTouch=[];const record=event=>window.__m165qPhysicalTouch.push({type:event.type,pointerType:event.pointerType||'',defaultPrevented:event.defaultPrevented});for(const type of ['pointerdown','pointermove','pointerup','pointercancel'])document.addEventListener(type,record,true);document.querySelector('#app').addEventListener('click',record,false)});
+  const point=(px,py)=>({x:px,y:py,id:1,radiusX:8,radiusY:8,rotationAngle:0,force:.5});
+  try{
+    await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point(x,y)]});
+    await page.waitForTimeout(70);
+    await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[point(x+dx,y+dy)]});
+    await page.waitForTimeout(70);
+    await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForTimeout(120);
+  }finally{await client.detach()}
+  return page.evaluate(()=>window.__m165qPhysicalTouch);
+}
 
 (async()=>{
   if(!BROWSER||!fs.existsSync(BROWSER))throw new Error(`LUVIA_E2E_BROWSER not found: ${BROWSER}`);
@@ -155,6 +170,17 @@ async function assertInsideViewport(page){
       if(viewport.width===390){await mobile.screenshot({path:path.join(OUTPUT,'mobile-390-plan.png'),fullPage:true});await mobile.getByRole('button',{name:'Kompass schließen und zu Heute zurückkehren'}).tap();await heading(mobile,'Heute');await mobile.getByRole('button',{name:'Reise',exact:true}).first().tap();await expectCompass(mobile,'Wo möchtet ihr eure Reise öffnen?');await mobile.getByRole('button',{name:'Planen',exact:true}).first().tap();await expectCompass(mobile,'Welche Richtung soll die Planung nehmen?');await mobile.getByRole('button',{name:/^Places:/}).tap();await heading(mobile,'Places')}
       await context.close();
     }
+    for(const touchCase of [
+      {context:'plan',label:/^Places:/,screen:'places'},
+      {context:'plan',label:/^Booking:/,screen:'bookings'},
+      {context:'trip',label:/^Live-Momente:/,screen:'gallery'}
+    ]){
+      const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const mobile=await context.newPage();mobile.setDefaultTimeout(8000);await mobile.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(mobile,'Welche Richtung soll die Planung nehmen?');
+      if(touchCase.context==='trip'){await mobile.getByRole('button',{name:'Reise',exact:true}).first().tap();await expectCompass(mobile,'Wo möchtet ihr eure Reise öffnen?')}
+      const touchLogPromise=physicalTouchWithDrift(mobile,mobile.getByRole('button',{name:touchCase.label}));await mobile.waitForFunction(screen=>new URL(location.href).searchParams.get('screen')===screen,touchCase.screen);const touchLog=await touchLogPromise;
+      assert.ok(touchLog.some(entry=>entry.type==='pointerup'),'a physical drifting touch must retain pointerup ownership');assert.equal(touchLog.some(entry=>entry.type==='pointercancel'),false,'a Compass tap must not be ceded to viewport scrolling');assert.equal(new URL(mobile.url()).searchParams.get('screen'),touchCase.screen,`${touchCase.label} physical touch must reach ${touchCase.screen}`);await context.close();
+    }
+    console.log('physical mobile touch drift through Places / Booking / Live-Momente: PASS');
     console.log('M16.5Q Living Compass real browser E2E: PASS');
     console.log('Desktop pointer / hover geometry / keyboard / reload / browser Back: PASS');
     console.log('Mobile touch 390x844 / 360x740 / 320x673 and 44px targets: PASS');
