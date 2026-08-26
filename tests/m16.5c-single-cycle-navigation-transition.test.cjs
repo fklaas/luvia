@@ -24,7 +24,7 @@ assert.match(transitionHost,/previousHost\?\.classList\.add\('is-exiting'\)/,'th
 const mountIndex=showBlock.indexOf("await appRuntime().run('modules-ready'");
 const commitIndex=showBlock.lastIndexOf('commitScreenIntent(intent,options)');
 const transitionIndex=showBlock.indexOf('completeTransition(stage,host,previousHost)');
-assert.ok(mountIndex>=0&&mountIndex<commitIndex&&commitIndex<transitionIndex,'mount, commit and visible transition must happen in one deterministic order');
+assert.ok(commitIndex>=0&&commitIndex<mountIndex&&mountIndex<transitionIndex,'history commit, asynchronous mount and visible transition must happen in one deterministic order');
 
 assert.match(css,/\.lv-route-previous\{position:absolute/,'the previous surface must not shift target layout');
 assert.match(css,/\.lv-route-entering\.is-ready \.lv-view-content/,'the fully mounted target needs one visible enter transition');

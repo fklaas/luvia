@@ -2539,3 +2539,5 @@ docs/modularization/PCR-M16.5O-PRODUCTIVE-PLACES-SPATIAL-EXPERIENCE.md,Consumer/
 tests/m16.5n-productive-places-spatial-experience.test.cjs,Consumer/Shared Tests,Test/Guardrail,Productive Places composition coordinate map owner-boundary responsive accessibility and cache guard
 tests/fixtures/m16.5q-living-compass-recovery-browser.html,Consumer/Shared Tests,Test/Fixture,Productive App Shell and Living Compass browser harness for real pointer touch keyboard reload and history recovery evidence
 tests/m16.5q-living-compass-recovery-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer touch hover keyboard reload browser history reduced motion and compact viewport recovery regression
+tests/fixtures/m16.5r-places-continuity-browser.html,Consumer/Shared Tests,Test/Fixture,Owner-backed six-result horizontal Places rail map and delayed detail continuity browser fixture
+tests/m16.5r-places-detail-continuity-e2e.cjs,Consumer/Shared Tests,Test/E2E,Real Edge pointer regression for later-result selection rail map focus async detail and close continuity

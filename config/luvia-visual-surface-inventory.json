@@ -4,19 +4,19 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2766,
-    "visualCandidates": 660,
-    "activeEntryReferences": 261,
+    "trackedFiles": 2777,
+    "visualCandidates": 669,
+    "activeEntryReferences": 264,
     "unclassifiedEntryReferences": 0,
     "css": {
-      "files": 58,
-      "bytes": 881869,
-      "lines": 6297,
+      "files": 59,
+      "bytes": 939821,
+      "lines": 8346,
       "important": 3228,
-      "literalHexColours": 2865,
-      "zIndexDeclarations": 254,
-      "reducedMotionQueries": 39,
-      "focusVisibleSelectors": 37
+      "literalHexColours": 2924,
+      "zIndexDeclarations": 274,
+      "reducedMotionQueries": 41,
+      "focusVisibleSelectors": 45
     }
   },
   "routes": {
@@ -88,6 +88,9 @@
     "app/module-hubs.css",
     "app/module-hubs.js",
     "app/navigation-registry.js",
+    "app/places/places-spatial-composition-core.js",
+    "app/places/places-spatial-experience.css",
+    "app/places/places-spatial-experience.js",
     "app/product-module-manifests.js",
     "app/public-entry.css",
     "app/public-entry.js",
@@ -533,8 +536,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 71477,
-      "sha256": "7951c631526ca83f71bdd4dacb1127f9b15fecac4c2bdcb3b460e00a2911e25a"
+      "bytes": 92365,
+      "sha256": "9728bde3e4bccb1897e7707707866fb6d28982ef7ee894fdebb9a5dfc2d31df7"
     },
     {
       "path": "app/bookings-view.css",
@@ -845,19 +848,20 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 19778,
-      "sha256": "06befd89d307d7ecadec8e4ce88570c335cb32134016a0d836fc05b0a5e0610e"
+      "bytes": 27929,
+      "sha256": "daa531e95e6b3bb92ac84e9eb99098d3acdee679a458a8f714b29d3c97437d03"
     },
     {
       "path": "app/module-hubs.js",
       "classes": [
         "accessibility-source",
         "dom-rendering-source",
+        "motion-source",
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 9007,
-      "sha256": "9614b8a1392683238bcfe169a3715b4b056a2ba39b56a9bcd4d6f3cdea105580"
+      "bytes": 15717,
+      "sha256": "48e091595a00b8de3e869224edb5dddd9aa86971498f1ddc75312bf04de7ce53"
     },
     {
       "path": "app/navigation-registry.js",
@@ -867,6 +871,38 @@
       ],
       "bytes": 1035,
       "sha256": "fae640d2284354420b7b70b59cb556a4a43bcb41c9018e5522a31a5030ef59a4"
+    },
+    {
+      "path": "app/places/places-spatial-composition-core.js",
+      "classes": [
+        "visual-source-candidate",
+        "active-entry-reference"
+      ],
+      "bytes": 10175,
+      "sha256": "7d68204387cd3700bf725c0f0b8697e23f3a5e104ee18b4a9d6bbb53ef388085"
+    },
+    {
+      "path": "app/places/places-spatial-experience.css",
+      "classes": [
+        "stylesheet",
+        "active-entry-reference"
+      ],
+      "bytes": 49801,
+      "sha256": "0d95d932c2d4e5dde7884598e6ad4d895ccf673aab99038f7f1900d12f252d51"
+    },
+    {
+      "path": "app/places/places-spatial-experience.js",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source",
+        "overlay-source",
+        "active-entry-reference"
+      ],
+      "bytes": 40216,
+      "sha256": "54821dd65e5cd8b82d92db4c82208fc50fc815c66e3cecd9122892aeb4e0cfc1"
     },
     {
       "path": "app/product-module-manifests.js",
@@ -3005,8 +3041,8 @@
       "classes": [
         "document-entry"
       ],
-      "bytes": 22841,
-      "sha256": "a43a8f3e4d9608349ca3f3d0907b0ef7f99a19fbeb6599c83a7938ed7cfdfb03"
+      "bytes": 23260,
+      "sha256": "4389da6a51e98728c9d4eb3f8aa90b40f93a252bd0fad1b79f9e0fdc3a0ea4a9"
     },
     {
       "path": "intelligence/backend-console.css",
@@ -3310,8 +3346,8 @@
         "visual-source-candidate",
         "active-entry-reference"
       ],
-      "bytes": 4333,
-      "sha256": "cf524655c66db25ad1934c5fa62105b87f08eef49c1c3c009959076330497c64"
+      "bytes": 4432,
+      "sha256": "ab3b60a873a9740faa9e85a7eb7b048cef37d5fa9a2c166d527470872d698139"
     },
     {
       "path": "intelligence/pwa-test.js",
@@ -4227,8 +4263,8 @@
         "motion-source",
         "active-entry-reference"
       ],
-      "bytes": 3801,
-      "sha256": "b2f92dac488ef307e6801d97b4c1ad735c5f71d38bf76f026c1552367d041062"
+      "bytes": 3912,
+      "sha256": "c5be8c63609b758125f9ca0f87fe1c08f04e39f799a7870757edbe9ea4ffe735"
     },
     {
       "path": "modules/restaurants-v2/restaurant-module.css",
@@ -4697,8 +4733,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 10774,
-      "sha256": "f9f1c3a2083683ffe7a8a6d31455be8062e01896c336d205ff48b8f8361d76b0"
+      "bytes": 10877,
+      "sha256": "d506e239aab717009be05a27d00d7087c4d63ee24c6ba8e555f46693f60cfb5a"
     },
     {
       "path": "sync/budget.js",
@@ -4932,6 +4968,22 @@
       ],
       "bytes": 5167,
       "sha256": "b04c88f0b24035d917efdfee99863653fbe287d0185ba4d181b5b4845932a15b"
+    },
+    {
+      "path": "tests/fixtures/m16.5q-living-compass-recovery-browser.html",
+      "classes": [
+        "document-entry"
+      ],
+      "bytes": 8776,
+      "sha256": "04afd8841b0ea7411a7a8d8c5f6b96ec1dae0bd9d32c32750db9f8311c883e26"
+    },
+    {
+      "path": "tests/fixtures/m16.5r-places-continuity-browser.html",
+      "classes": [
+        "document-entry"
+      ],
+      "bytes": 3611,
+      "sha256": "3a2e2c8d7129da96dcbaf654b7e0da3fae5858eb29b3431124f27bd9d912fffc"
     },
     {
       "path": "tests/gallery-experience-v13.28.3.test.cjs",
@@ -5254,8 +5306,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 2537,
-      "sha256": "ee5858a5486d1275ae20e1df8a0ff65c176a6657abcd524c75fdf7a03b018c26"
+      "bytes": 2558,
+      "sha256": "24b89618fcc40f7184cae2e2244bef8b44339973543cc8a210e0474e05bd69de"
     },
     {
       "path": "tests/m16.5e-living-design-compass-foundation.test.cjs",
@@ -5295,6 +5347,51 @@
       ],
       "bytes": 3549,
       "sha256": "5dbda781ed39b33c9581e25ade8c90c5e989917db47f0bb65e83829ddce9ab99"
+    },
+    {
+      "path": "tests/m16.5j-plan-compass-productive-adoption.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 11024,
+      "sha256": "99d13f0b1d839924ea0a2e67f0908ab53bd42ee8969a654e3567cf3a1fae39d2"
+    },
+    {
+      "path": "tests/m16.5n-productive-places-spatial-experience.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source"
+      ],
+      "bytes": 23624,
+      "sha256": "f27a30a71f132c3a99c0edd518207fbcc894369a34ec1f40c907b77eea08e728"
+    },
+    {
+      "path": "tests/m16.5q-living-compass-recovery-e2e.cjs",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "motion-source",
+        "navigation-source",
+        "overlay-source"
+      ],
+      "bytes": 37834,
+      "sha256": "7c9648fd49799878d30fe423bd6796e089205a7982fe05d12543405ad24d8dd2"
+    },
+    {
+      "path": "tests/m16.5r-places-detail-continuity-e2e.cjs",
+      "classes": [
+        "accessibility-source",
+        "interaction-source"
+      ],
+      "bytes": 6209,
+      "sha256": "811fc135852feb314534c2f409dd49e6b31479b1688ddf2d640b4646e3a2ec03"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",

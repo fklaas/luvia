@@ -193,7 +193,7 @@
       value.phone?`<span>Telefon ${esc(value.phone)}</span>`:'',
       value.businessStatus?`<span>Status ${esc(value.businessStatus)}</span>`:''
     ].filter(Boolean).join('');
-    return `<div class="lv-places-spatial__detail" id="place-detail-${esc(providerId(place))}"><strong>Details &amp; Evidenz</strong><p>${esc(value.description||place.description||'Die sichtbaren Angaben stammen aus der öffentlichen Places-Projektion.')}</p><div>${rows||'<span>Keine weiteren verifizierten Angaben verfügbar.</span>'}</div></div>`;
+    return `<div class="lv-places-spatial__detail"><strong>Details &amp; Evidenz</strong><p>${esc(value.description||place.description||'Die sichtbaren Angaben stammen aus der öffentlichen Places-Projektion.')}</p><div>${rows||'<span>Keine weiteren verifizierten Angaben verfügbar.</span>'}</div></div>`;
   }
   function resultCard(place,index){
     const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image;
@@ -215,7 +215,7 @@
           <button type="button" data-places-detail="${esc(id)}" aria-expanded="${state.details.has(id)}" aria-controls="place-detail-${esc(id)}">Details &amp; Evidenz</button>
           <button type="button" data-places-maps="${esc(id)}" ${place.coordinates||place.mapsUrl?'':'disabled'}>Auf Karte öffnen</button>
         </div>
-        ${detailMarkup(place)}
+        <div id="place-detail-${esc(id)}" data-places-detail-region="${esc(id)}" aria-live="polite">${detailMarkup(place)}</div>
         <div class="lv-places-spatial__result-actions">
           <button type="button" class="lv-places-spatial__result-secondary" data-places-favorite="${esc(id)}" aria-pressed="${saved?.isFavorite===true}">${saved?.isFavorite?'Favorit ✓':'Favorisieren'}</button>
           <button type="button" class="lv-places-spatial__result-secondary" data-places-booking="${esc(id)}">Booking prüfen</button>
@@ -366,14 +366,33 @@
     if(moveMap&&coordinates&&state.map){try{state.map.easeTo({center:coordinates.lngLat,zoom:Math.max(Number(state.map.getZoom?.()||13),14),duration:reducedMotion()?0:520})}catch{}}
   }
   function findPlace(id){return state.results.find(place=>providerId(place)===id)||null}
+  function detailControl(id){return[...(state.root?.querySelectorAll('[data-places-detail]')||[])].find(button=>button.dataset.placesDetail===id)||null}
+  function detailRegion(id){return[...(state.root?.querySelectorAll('[data-places-detail-region]')||[])].find(region=>region.dataset.placesDetailRegion===id)||null}
+  function renderDetail(id){
+    const place=findPlace(id),button=detailControl(id),region=detailRegion(id);
+    if(!place||!button||!region)return false;
+    button.setAttribute('aria-expanded',String(state.details.has(id)));
+    region.innerHTML=detailMarkup(place);
+    region.querySelectorAll('[data-places-external]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openExternal(link.dataset.placesExternal)}));
+    return true;
+  }
   async function loadDetails(id){
     const place=findPlace(id),contract=placesContract();
     if(!place||!contract?.reads?.getDetails)return;
-    if(state.details.has(id)){state.details.delete(id);render();return}
-    state.details.set(id,{loading:true});render();
-    try{state.details.set(id,{value:await contract.reads.getDetails(id,{regionCode:state.trip?.destination?.countryCode||'DE'})})}
-    catch{state.details.set(id,{error:true})}
-    render();
+    select(id,false,true);
+    if(state.details.has(id)){state.details.delete(id);renderDetail(id);return}
+    const pending={loading:true};
+    const lifecycleToken=state.lifecycleToken,root=state.root;
+    state.details.set(id,pending);renderDetail(id);
+    try{
+      const value=await contract.reads.getDetails(id,{regionCode:state.trip?.destination?.countryCode||'DE'});
+      if(lifecycleToken!==state.lifecycleToken||state.root!==root||state.details.get(id)!==pending)return;
+      state.details.set(id,{value});
+    }catch{
+      if(lifecycleToken!==state.lifecycleToken||state.root!==root||state.details.get(id)!==pending)return;
+      state.details.set(id,{error:true});
+    }
+    renderDetail(id);
   }
   function openMaps(place){
     const navigationPort=port('ExternalNavigationPort');
