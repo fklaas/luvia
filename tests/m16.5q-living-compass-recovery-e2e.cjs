@@ -16,6 +16,10 @@ async function heading(page,text){await page.getByRole('heading',{level:1,name:t
 async function expectCompass(page,title){
   await heading(page,title);
   await page.locator('[data-plan-compass-stage]').waitFor({state:'visible'});
+  await page.waitForFunction(()=>{
+    const stage=document.querySelector('[data-plan-compass-stage]');
+    return Boolean(stage?.classList.contains('is-ready')&&!stage.matches('.is-context-leaving,.is-context-entering,.is-context-seeking,.is-context-pulsing'));
+  });
   assert.equal(await page.locator('.lv-plan-direction').count(),8,'every context must retain eight primary directions');
 }
 async function assertHitGeometry(page){
@@ -64,7 +68,7 @@ async function assertInsideViewport(page){
     await desktop.getByRole('button',{name:/^Places:/}).click();await heading(desktop,'Places');
     assert.equal(new URL(desktop.url()).searchParams.get('screen'),'places','direction selection must reach the exact Places route');
     await desktop.screenshot({path:path.join(OUTPUT,'desktop-places-destination.png'),fullPage:true});
-    await desktop.goBack();await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');
+    await desktop.goBack();await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');assert.equal(await desktop.locator('[data-plan-compass-stage]').count(),1,'Back during a live transition must leave exactly one Compass stage');
     await desktop.reload({waitUntil:'networkidle'});await expectCompass(desktop,'Welche Richtung soll die Planung nehmen?');console.log('desktop exact route, Back and reload: PASS');
 
     const reduced=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});reduced.setDefaultTimeout(8000);await reduced.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(reduced,'Welche Richtung soll die Planung nehmen?');
