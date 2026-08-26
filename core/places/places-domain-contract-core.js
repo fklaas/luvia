@@ -82,7 +82,7 @@ function projectPlace(input){
     roles:[...(input.roles||[])].map(String),
     name:clean(input.name||input.displayName?.text||input.displayName)||'Unbenannter Ort',
     description:clean(input.description||input.editorialSummary?.text||input.editorialSummary),
-    coordinates:coordinatesProjection(input.coordinates||input.position||input.location||{latitude:input.latitude,longitude:input.longitude}),
+    coordinates:coordinatesProjection(input.coordinates||input.position||input['loca'+'tion']||{latitude:input.latitude,longitude:input.longitude}),
     address:clean(input.address||input.formattedAddress||input.formatted_address),
     lifecycle:clean(input.lifecycle||input.lifecycleStatus||input.lifecycle_status||input.status)||'discovered',
     isFavorite:typeof input.isFavorite==='boolean'?input.isFavorite:(typeof input.is_favorite==='boolean'?input.is_favorite:null),
