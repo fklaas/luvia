@@ -96,6 +96,10 @@ async function assertInsideViewport(page){
     }
     console.log('1920x1020 physical pointer routing through all eight Plan directions: PASS');
 
+    const superseded=await browser.newPage({viewport:{width:1440,height:900}});superseded.setDefaultTimeout(8000);await superseded.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(superseded,'Welche Richtung soll die Planung nehmen?');
+    await superseded.evaluate(()=>{window.__m165qPlacesMountDelay=1600});await superseded.getByRole('button',{name:/^Places:/}).click();await superseded.waitForTimeout(240);await superseded.getByRole('button',{name:'Planen',exact:true}).first().click();await superseded.waitForTimeout(120);await superseded.evaluate(()=>window.dispatchEvent(new CustomEvent('luvia:navigate-request',{detail:{view:'routes',source:'m16.5q-newer-route'}})));
+    await heading(superseded,'Route in Google Maps öffnen.');await superseded.waitForTimeout(1900);assert.equal(await superseded.getByRole('heading',{level:1,name:'Route in Google Maps öffnen.'}).count(),1,'an older delayed Compass route must never replay over a newer navigation intent');assert.equal(await superseded.locator('[data-plan-compass-stage]').count(),0,'a superseded queued Plan context must not replace the newer route');assert.equal(new URL(superseded.url()).searchParams.get('screen'),'routes','the newest route intent must remain committed after a delayed Places mount');await superseded.close();console.log('slow Places mount / newer navigation intent ordering: PASS');
+
     const reduced=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});reduced.setDefaultTimeout(8000);await reduced.goto(FIXTURE,{waitUntil:'networkidle'});await expectCompass(reduced,'Welche Richtung soll die Planung nehmen?');
     await reduced.getByRole('button',{name:'Heute',exact:true}).first().click();await expectCompass(reduced,'Was braucht euer Tag gerade?');await reduced.getByRole('button',{name:'Kompass schließen und zu Heute zurückkehren'}).click();await heading(reduced,'Heute');
 
