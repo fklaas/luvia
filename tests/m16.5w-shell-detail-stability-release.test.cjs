@@ -30,7 +30,8 @@ assert.doesNotMatch(shell, /\[t\.startDate,t\.endDate\]\.filter\(Boolean\)\.join
 assert.match(shellCss, /\.lv-living-sidebar \.lv-living-primary-nav \.lv-living-nav-item\.lv-living-nav-ai[^\n]+background:transparent;background-image:none;box-shadow:none;color:var\(--lv-text\)/);
 assert.match(shellCss, /\.lv-living-sidebar \.lv-living-primary-nav \.lv-living-nav-item\.lv-living-nav-ai::after[^\n]+display:none/);
 assert.match(shellCss, /\.lv-living-nav-item\.lv-living-nav-ai\.is-compass-context-active/);
-assert.match(aiCss, /\.lv-ai-global-trigger:not\(\.lv-living-nav-ai\)/, 'shared AI surface styling must exclude the navigation Compass');
+assert.match(aiCss, /\.lv-ai-global-trigger:not\(\.lv-living-nav-ai\):not\(\.lv-nav--compass\)/, 'shared AI surface styling must exclude both desktop and dock navigation Compasses');
+assert.match(shellCss, /\.lv-dock \.lv-nav--compass[^\n]+background:transparent;background-image:none;box-shadow:none/);
 
 // Only the separate needle layer receives randomized motion. Face, hub and housing stay still.
 assert.match(shell, /function mountNavigationCompassMotion\(\)/);

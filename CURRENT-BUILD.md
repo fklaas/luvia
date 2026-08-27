@@ -2346,7 +2346,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Public stable / immutable byte equality: **PASS**, but the public browser visual gate **FAIL** for the Compass tile surface.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
 
-# M16.5W2 Compass Surface Closure — Integration Candidate (2026-08-27)
+# M16.5W2 Compass Surface Closure — Public mobile gate failed / superseded (2026-08-27)
 
 ## Scope
 
@@ -2355,7 +2355,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5W2 Compass Surface Closure**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
-- Public deployment: **PENDING until the corrected cascade passes local and public visible E2E**.
+- Public deployment: version **`8dbd02d5-657b-4b46-94e2-722521f6b231`**, deployment **`3b6bb30d-cc28-49c4-9559-abe3f500b067`** reached Stable Integration, but is **not accepted**: public desktop passed while public 390×844 exposed the same inherited AI gradient/shadow on `.lv-nav--compass`.
 - Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
 
 ## Candidate changes
@@ -2371,5 +2371,33 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Controlled Safe Regression: **113/113 PASS**.
 - Visible local Desktop / Mobile / Keyboard / Reload / Back / reduced-motion E2E: **PASS**; 390×844 and 1440×900 both have zero horizontal overflow, the Compass surface computes to `background-image:none` / `box-shadow:none`, and only the needle changes transform.
 - Repeated identical Today status signal: **PASS**; the existing `.lvt-premium` DOM node remains connected, no replacement occurs and only one surface exists.
+- Public stable / immutable byte equality: **9/9 PASS**.
+- Public desktop visible E2E: **PASS**; public mobile visible E2E: **FAIL** for the dock Compass surface, therefore no acceptance.
+- Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
+
+# M16.5W3 Compass Surface Public Closure — Integration Candidate (2026-08-27)
+
+## Scope
+
+- App: **13.82.95**
+- Core: **4.82.95**
+- Release: **M16.5W3 Compass Surface Public Closure**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Public deployment: **PENDING until both public desktop and public 390×844 pass the visible gate**.
+- Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
+
+## Candidate changes
+
+- Retains all M16.5W and M16.5W2 shell-detail, Today-stability and randomized needle changes.
+- Extends the source-owned shared AI decoration exclusion to both real navigation classes: desktop `.lv-living-nav-ai` and mobile `.lv-nav--compass`.
+- Makes the dock Compass surface explicitly transparent with `background-image:none` and no shadow while retaining the official Compass logo and random needle-only motion.
+
+## Candidate evidence
+
+- Syntax / static release guard: **PASS**.
+- Controlled Safe Regression: **113/113 PASS**.
+- Visible local 390×844 with the exact public class combination `.lv-nav--compass.lv-ai-global-trigger`: **PASS**; `background-image:none`, `box-shadow:none`, zero horizontal overflow.
+- Prior Desktop / Keyboard / Reload / Back / reduced-motion and Today stability sequences remain covered by the unchanged runtime behavior and the full regression gate.
 - Public stable / immutable byte and browser evidence: **PENDING**.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
