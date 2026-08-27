@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n');
 const shell = read('app/app-shell.js');
 const shellCss = read('app/app-shell.css');
+const aiCss = read('core/ai/ai-brain.css');
 const today = read('app/today/today-experience.js');
 const todayCss = read('app/today/today-experience.css');
 
@@ -26,14 +27,19 @@ assert.match(shell, /const dates=germanTripDateRange\(t\)/);
 assert.doesNotMatch(shell, /\[t\.startDate,t\.endDate\]\.filter\(Boolean\)\.join\(' – '\)/);
 
 // The Compass navigation entry is never a coloured tile, including hover/focus/active states.
-assert.match(shellCss, /\.lv-living-primary-nav \.lv-living-nav-ai,\.lv-living-primary-nav \.lv-living-nav-ai:hover,\.lv-living-primary-nav \.lv-living-nav-ai:focus,\.lv-living-primary-nav \.lv-living-nav-ai\.is-active\{background:transparent;box-shadow:none\}/);
-assert.match(shellCss, /\.lv-living-primary-nav \.lv-living-nav-ai\.is-active::before\{display:none\}/);
+assert.match(shellCss, /\.lv-living-sidebar \.lv-living-primary-nav \.lv-living-nav-item\.lv-living-nav-ai[^\n]+background:transparent;background-image:none;box-shadow:none;color:var\(--lv-text\)/);
+assert.match(shellCss, /\.lv-living-sidebar \.lv-living-primary-nav \.lv-living-nav-item\.lv-living-nav-ai::after[^\n]+display:none/);
+assert.match(shellCss, /\.lv-living-nav-item\.lv-living-nav-ai\.is-compass-context-active/);
+assert.match(aiCss, /\.lv-ai-global-trigger:not\(\.lv-living-nav-ai\)/, 'shared AI surface styling must exclude the navigation Compass');
 
 // Only the separate needle layer receives randomized motion. Face, hub and housing stay still.
 assert.match(shell, /function mountNavigationCompassMotion\(\)/);
 assert.match(shell, /\.lv-living-nav-ai \.lv-living-compass__needle,\.lv-nav--compass \.lv-living-compass__needle/);
 assert.match(shell, /Math\.random\(\)/);
 assert.match(shell, /needle\.animate\(frames/);
+assert.match(shell, /typeof needle\.animate==='function'/);
+assert.match(shell, /needle\.style\.transition=`transform \$\{segment\}ms/);
+assert.match(shell, /needle\.style\.transform=frames\[index\]\.transform/);
 assert.match(shell, /compassMotionReduced\(\)/);
 assert.match(shellCss, /\.lv-living-nav-ai \.lv-living-compass__face[^\n]+animation:none;transform:none/);
 assert.doesNotMatch(shellCss, /lv-living-ai-needle-wander/);

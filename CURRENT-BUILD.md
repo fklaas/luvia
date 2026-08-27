@@ -2318,7 +2318,7 @@ Measured final result:
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provider change, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reported the automatically observed active version without a Git commit annotation; causation is not inferred. Rollback is code-only to synchronized M12 marker `b610b0fa8db5f34a631fe8c87b82f8266c3a5b75`. M14 begins with a fresh read-only legacy/runtime/CSS debt baseline and scope lock.
 <!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:END -->
-# M16.5W Shell Detail Stability — Integration Candidate (2026-08-27)
+# M16.5W Shell Detail Stability — Public visual gate failed / superseded (2026-08-27)
 
 ## Scope
 
@@ -2327,7 +2327,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5W Shell Detail Stability**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
-- Public deployment: **PENDING until local regression and visible browser E2E are complete**.
+- Public deployment: version **`7c344d3b-9dde-4817-8241-f7ef9fb8871e`**, deployment **`c9fbd320-7fbc-4609-b3d4-320912d4e6e5`** reached Stable Integration, but is **not accepted**: public visible E2E exposed the inherited `.lv-ai-global-trigger` gradient/shadow on the sidebar Compass entry.
 - Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
 
 ## Candidate changes
@@ -2338,10 +2338,38 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Projected active-trip dates in German calendar notation without UTC day drift.
 - Prevented unchanged Today status signals and unchanged Trip projections from remounting the premium `Vorfreude` surface; legitimate live changes update without replaying its entrance animation.
 
+## Evidence and disposition
+
+- Syntax / static release guard: **PASS**.
+- Controlled Safe Regression: **113/113 PASS**.
+- Visible local Desktop / Mobile / Keyboard / Reload / Back / reduced-motion E2E: **PASS**.
+- Public stable / immutable byte equality: **PASS**, but the public browser visual gate **FAIL** for the Compass tile surface.
+- Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
+
+# M16.5W2 Compass Surface Closure — Integration Candidate (2026-08-27)
+
+## Scope
+
+- App: **13.82.94**
+- Core: **4.82.94**
+- Release: **M16.5W2 Compass Surface Closure**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Public deployment: **PENDING until the corrected cascade passes local and public visible E2E**.
+- Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
+
+## Candidate changes
+
+- Retains all M16.5W shell-detail and Today-stability changes.
+- Closes the public-only Compass surface regression at its actual cause: the shared AI trigger rule used `!important` for a pink gradient, text colour and shadow after the ordinary navigation override.
+- The shared AI decoration now excludes `.lv-living-nav-ai` at its source; the sidebar Compass owns an explicit transparent surface, neutral navigation text colour and no inherited animated ring without adding new `!important` debt.
+- The randomized needle sequence retains its Web Animations path and adds a transition-driven fallback for browsers that do not expose `Element.animate`; only the needle layer moves in either path.
+
 ## Candidate evidence
 
-- Syntax / static release guard: **PENDING**.
-- Controlled Safe Regression: **PENDING**.
-- Visible local Desktop / Mobile / Keyboard / Reload / Back / reduced-motion E2E: **PENDING**.
+- Syntax / static release guard: **PASS**.
+- Controlled Safe Regression: **113/113 PASS**.
+- Visible local Desktop / Mobile / Keyboard / Reload / Back / reduced-motion E2E: **PASS**; 390×844 and 1440×900 both have zero horizontal overflow, the Compass surface computes to `background-image:none` / `box-shadow:none`, and only the needle changes transform.
+- Repeated identical Today status signal: **PASS**; the existing `.lvt-premium` DOM node remains connected, no replacement occurs and only one surface exists.
 - Public stable / immutable byte and browser evidence: **PENDING**.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.

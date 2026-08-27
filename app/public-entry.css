@@ -110,7 +110,7 @@ body.lv-public-entry-active{margin:0}body.lv-public-auth-open{overflow:hidden}
 @media(max-width:760px){.lv-public-auth-layer{display:block}.lv-public-auth-panel{min-height:100svh;width:100%;max-width:none;padding-inline:clamp(20px,6vw,34px);box-sizing:border-box}.lv-public-auth-compass-guide{grid-template-columns:78px minmax(0,1fr);padding:14px;gap:13px}.lv-public-auth-compass-character{width:74px;height:74px}.lv-public-auth-compass-character img{width:58px;height:58px}.lv-public-auth-compass-guide p{display:none}.lv-public-auth-layer[data-auth-mode="register"] .lv-public-auth-copy{margin-top:24px}.lv-public-auth-copy{margin-top:38px}.lv-public-auth-copy h2{font-size:42px}.lv-public-auth-host{min-height:0}.lv-public-auth-backdrop{display:none}}
 @media(prefers-reduced-motion:reduce){.lv-public-entry-loading img,.lv-public-auth-backdrop,.lv-public-auth-panel,.lv-public-auth-compass-character img{animation:none!important}.lv-public-auth-close{transition:none}}
 
-/* Build 13.82.93 · the chosen Compass direction owns the panel entrance. */
+/* Build 13.82.94 · the chosen Compass direction owns the panel entrance. */
 .lv-public-auth-layer[data-auth-mode="login"]{grid-template-columns:minmax(360px,560px) minmax(0,1fr)}
 .lv-public-auth-layer[data-auth-mode="login"] .lv-public-auth-panel{grid-column:1;box-shadow:34px 0 80px rgba(22,46,60,.18);animation-name:lv-public-auth-in-left}
 .lv-public-auth-layer[data-auth-mode="register"] .lv-public-auth-panel,
@@ -119,7 +119,7 @@ body.lv-public-entry-active{margin:0}body.lv-public-auth-open{overflow:hidden}
 @keyframes lv-public-auth-in-right{from{opacity:0;transform:translateX(100%) scale(.985)}to{opacity:1;transform:translateX(0) scale(1)}}
 @media(max-width:760px){.lv-public-auth-layer[data-auth-mode="login"],.lv-public-auth-layer[data-auth-mode="register"],.lv-public-auth-layer[data-auth-mode="recovery"]{display:block}.lv-public-auth-layer[data-auth-mode="login"] .lv-public-auth-panel,.lv-public-auth-layer[data-auth-mode="register"] .lv-public-auth-panel,.lv-public-auth-layer[data-auth-mode="recovery"] .lv-public-auth-panel{grid-column:auto}}
 
-/* Build 13.82.93 · close back into the already-open Compass without a page jump. */
+/* Build 13.82.94 · close back into the already-open Compass without a page jump. */
 .lv-public-auth-brand img,.lv-brand img{filter:none!important;box-shadow:none!important}
 .lv-public-auth-backdrop{transition:opacity .38s ease,backdrop-filter .38s ease}
 .lv-public-auth-panel{transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .3s ease}
