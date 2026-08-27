@@ -113,3 +113,31 @@
   .lv-plan-compass-stage[data-compass-context="profile"] .lv-plan-direction:nth-child(even){--lv-plan-item-radius:calc(var(--lv-plan-direction-radius) * 1.18)}
 }
 @media(max-width:390px){.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(102px,min(31vw,20vh),118px)}}
+
+/* M16.5X — one collision-free Compass orbit for every signed-in context. */
+@media(min-width:1181px){
+  .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(235px,min(27vw,31vh),335px);height:calc(100dvh - 102px)}
+}
+@media(min-width:801px) and (max-width:1180px){
+  .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(205px,min(26vw,30vh),280px);height:calc(100dvh - 102px)}
+}
+.lv-plan-compass-stage[data-compass-context] .lv-plan-direction:nth-child(n){--lv-plan-item-radius:var(--lv-plan-direction-radius)}
+.lv-plan-compass-heading h1:focus{outline:0}
+.lv-plan-compass-stage[data-compass-context="control-center"] .lv-plan-compass-footer>div:empty{display:none}
+@media(max-width:800px){
+  .lv-plan-compass-stage{--lv-plan-direction-radius:clamp(116px,min(33vw,21vh),138px)}
+  .lv-plan-compass-stage[data-compass-context] .lv-plan-direction{width:clamp(84px,24vw,100px)}
+  .lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(116px,min(33vw,21vh),138px)}
+  .lv-plan-compass-stage[data-compass-context="profile"] .lv-plan-direction{width:clamp(84px,24vw,100px)}
+  .lv-plan-compass-stage[data-compass-context="control-center"]{grid-template-rows:86px minmax(0,1fr) 44px}
+  .lv-plan-compass-stage[data-compass-context="control-center"] .lv-plan-compass-heading h1{font-size:clamp(20px,5.8vw,24px)}
+}
+@media(max-width:400px){
+  .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(122px,min(35vw,21vh),138px)}
+  .lv-plan-compass-stage[data-compass-context] .lv-plan-direction,.lv-plan-compass-stage[data-compass-context="profile"] .lv-plan-direction{width:86px}
+}
+@media(max-width:340px){
+  .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:110px}
+  .lv-plan-compass-stage[data-compass-context] .lv-plan-direction,.lv-plan-compass-stage[data-compass-context="profile"] .lv-plan-direction{width:76px}
+  .lv-plan-direction-copy strong{font-size:5.9px}
+}

@@ -462,6 +462,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5w-shell-detail-stability-release.test.cjs'
   },
   {
+    category: 'M16.5 / Shell Freeze Orbit and Control Course',
+    test: 'tests/m16.5x-shell-freeze-orbit-control-course.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

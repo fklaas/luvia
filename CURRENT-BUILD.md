@@ -2409,3 +2409,31 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Public console after the final Desktop/Mobile sequence: **0 entries**.
 - Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
+
+# M16.5X Shell Freeze Orbit and Control Course — Integration candidate (2026-08-27)
+
+## Scope
+
+- App: **13.82.96**
+- Core: **4.82.96**
+- Release: **M16.5X Shell Freeze Orbit and Control Course**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Deployment: **pending final public visible E2E**.
+- Rollback baseline: **App 13.82.95 / Core 4.82.95; Integration version `9ca4efbd-5794-41f6-8d0b-27d09791e83c`, deployment `769eb1bb-95bb-4346-8e81-1e8ba9b9046d`**.
+
+## Candidate changes
+
+- Moves Today, Plan, Trip, Memories, Profile and Control Center onto one collision-free Compass orbit at each responsive breakpoint; Profile no longer alternates inner and outer radii.
+- Retains the accepted Compass transition system while giving the eight-direction Desktop constellation materially more distance from the Compass.
+- Replaces the Control Center dashboard entry with its own Living Compass context: Identity & Privacy, Bookings, Travel Documents, Inbox, Trip Command and Wallet.
+- Replaces the generic `Morgen / Unterwegs / Vor Ort / Abend / Erinnern` header rail with one compact cartographic course cue; Mobile keeps the accepted minimal brand header.
+
+## Candidate evidence
+
+- Static release guard: **PASS**.
+- Local Desktop 1440×900: **PASS**; all six Compass contexts share one radius, no card overlap and no horizontal overflow.
+- Local Mobile 390×844 and 320×700: **PASS**; all cards remain visible, no overlap, no document scroll and no horizontal overflow.
+- Controlled Safe Regression: **114/114 PASS**.
+- Public immutable/Stable parity and public visible E2E: **pending**.
+- Physical handset acceptance remains **OPEN; not claimed by this candidate**.
