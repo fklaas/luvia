@@ -2375,7 +2375,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Public desktop visible E2E: **PASS**; public mobile visible E2E: **FAIL** for the dock Compass surface, therefore no acceptance.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
 
-# M16.5W3 Compass Surface Public Closure — Integration Candidate (2026-08-27)
+# M16.5W3 Compass Surface Public Closure — Stable Integration browser-verified (2026-08-27)
 
 ## Scope
 
@@ -2384,7 +2384,9 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5W3 Compass Surface Public Closure**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
-- Public deployment: **PENDING until both public desktop and public 390×844 pass the visible gate**.
+- Public deployment: version **`9ca4efbd-5794-41f6-8d0b-27d09791e83c`**, deployment **`769eb1bb-95bb-4346-8e81-1e8ba9b9046d`**, **100% Stable Integration traffic**.
+- Stable URL: **`https://integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Immutable URL: **`https://9ca4efbd-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
 
 ## Candidate changes
@@ -2399,5 +2401,11 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Controlled Safe Regression: **113/113 PASS**.
 - Visible local 390×844 with the exact public class combination `.lv-nav--compass.lv-ai-global-trigger`: **PASS**; `background-image:none`, `box-shadow:none`, zero horizontal overflow.
 - Prior Desktop / Keyboard / Reload / Back / reduced-motion and Today stability sequences remain covered by the unchanged runtime behavior and the full regression gate.
-- Public stable / immutable byte and browser evidence: **PENDING**.
+- Clean archive excludes all three untracked local Reel files: **PASS**.
+- Immutable and Stable Integration bytes: **9/9 exact SHA-256 PASS** for document, version, shell JS/CSS, Today JS/CSS, AI CSS, public entry and service worker.
+- Public Desktop 1440×900: **PASS**; App/Core **13.82.95 / 4.82.95**, German active-trip date, top-header assistant count 0, sidebar Compass `background-image:none` / `box-shadow:none`, zero horizontal overflow, random needle transforms while face and hub remain fixed.
+- Public Mobile 390×844: **PASS**; real class combination `.lv-nav--compass.lv-ai-global-trigger`, `background-image:none`, `box-shadow:none`, zero horizontal overflow and random needle-only motion.
+- Public Keyboard / Reduced Motion: **PASS**; focus-visible outline retained with a transparent surface, reduced motion keeps the needle at `transform:none`.
+- Public console after the final Desktop/Mobile sequence: **0 entries**.
+- Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
