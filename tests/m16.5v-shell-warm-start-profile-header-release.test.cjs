@@ -13,13 +13,17 @@ const shellCss = read('app/app-shell.css');
 const hubsCss = read('app/module-hubs.css');
 
 assert.match(index, /luvia:boot-intro-seen-at/);
-assert.match(index, /document\.documentElement\.classList\.add\('lv-boot-warm'\)/);
+assert.match(index, /navigation\?\.type==='reload'\|\|navigation\?\.type==='back_forward'/);
+assert.match(index, /if\(warm\)root\.classList\.add\('lv-boot-warm'\)/);
+assert.match(index, /window\.addEventListener\('pageshow',event=>\{if\(!event\.persisted\)return;root\.classList\.add\('lv-boot-warm'\);document\.getElementById\('luviaBootSplash'\)\?\.remove\(\)\}\)/);
 assert.match(boot, /const warmBoot=Boolean/);
 assert.doesNotMatch(boot, /localStorage|sessionStorage/, 'Domain boot coordinator must not own browser persistence');
 assert.match(boot, /if\(warmBoot\)\{node\?\.remove\(\);/);
 assert.match(shellCss, /\.lv-boot-warm \.lv-start-splash\{display:none\}/);
 assert.match(shellCss, /\.lv-boot-warm:not\(\[data-luvia-boot="ready"\]\) #app\{visibility:hidden/);
 assert.match(shellCss, /\.lv-boot-warm\[data-luvia-boot="ready"\] #app\{visibility:visible;animation:none\}/);
+assert.doesNotMatch(shellCss, /\.lv-primary,\.lv-nav\.on\{background:var\(--trip-accent\)!important/, 'legacy important nav fill must not override the accepted mobile dock');
+assert.match(shellCss, /\.lv-living-shell \.lv-dock \.lv-nav\.on\{background:transparent\}/);
 
 assert.equal(shell.includes('lv-living-trip-switcher'), false, 'top-right active-trip duplicate must stay removed');
 assert.match(shell, /data-living-companions/);

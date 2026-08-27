@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.91**
-- Core: **4.82.91**
+- App: **13.82.92**
+- Core: **4.82.92**
 - Name: **M16.5V Precision Memory Canvas + Accepted Living Shell**
 - Channel: **integration-preview**
 - Datum: **2026-08-27**
@@ -31,7 +31,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5V Precision Memory Canvas / Accepted Living Shell
 
 - Runtime source commit: **`76750aa2cc4da13b7bd76907824cfd254c5e4314`** on `integration`.
-- Runtime target: **App 13.82.91 / Core 4.82.91 / Integration Preview**.
+- Runtime target: **App 13.82.92 / Core 4.82.92 / Integration Preview**.
 - Public deployment: **100% Integration version `e64f96e9-aff8-49d6-9381-3c3904f947c5`, deployment `feb56eda-f035-4fe4-992b-a788b8970d7a`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://e64f96e9-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Responsive/product evidence: **mobile 390×844 and 360×740/320×673 E2E; complete Plan/Profile Compass constellations above the dock; profile/active-Trip/companion header; only the Luvia AI needle animates; Landing, authenticated App, auth and onboarding descendants hide native scrollbars while preserving scroll behavior**.
 - Touch ownership: **real Chromium CDP touch sequence solves the puzzle; the first curved Compass rotation changes document `scrollX/scrollY` by exactly 0 px; crown and lower latch remain usable**.
