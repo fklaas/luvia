@@ -118,6 +118,10 @@
 @media(min-width:1181px){
   .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(235px,min(27vw,31vh),335px);height:calc(100dvh - 102px)}
 }
+@media(min-width:1181px) and (max-height:950px){
+  .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(235px,min(27vw,28.5vh),300px)}
+  .lv-plan-constellation{transform:translateY(22px)}
+}
 @media(min-width:801px) and (max-width:1180px){
   .lv-plan-compass-stage,.lv-plan-compass-stage[data-compass-context="profile"]{--lv-plan-direction-radius:clamp(205px,min(26vw,30vh),280px);height:calc(100dvh - 102px)}
 }

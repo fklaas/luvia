@@ -2414,12 +2414,13 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 
 ## Scope
 
-- App: **13.82.96**
-- Core: **4.82.96**
+- App: **13.82.97**
+- Core: **4.82.97**
 - Release: **M16.5X Shell Freeze Orbit and Control Course**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
 - Deployment: **pending final public visible E2E**.
+- Superseded public candidate: **App 13.82.96 / Core 4.82.96, version `8a039e50-9c86-4688-a940-f708557157b1`, deployment `63399dac-07e8-4748-b58e-1d312f52751e`**; rejected before acceptance because the top eight-point node crossed the heading description at 1440×900.
 - Rollback baseline: **App 13.82.95 / Core 4.82.95; Integration version `9ca4efbd-5794-41f6-8d0b-27d09791e83c`, deployment `769eb1bb-95bb-4346-8e81-1e8ba9b9046d`**.
 
 ## Candidate changes
@@ -2432,7 +2433,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 ## Candidate evidence
 
 - Static release guard: **PASS**.
-- Local Desktop 1440×900: **PASS**; all six Compass contexts share one radius, no card overlap and no horizontal overflow.
+- Local Desktop 1440×900: **PASS**; all six Compass contexts share one radius, no card overlap, 14 px clearance between the heading description and the nearest node, and no horizontal overflow.
 - Local Mobile 390×844 and 320×700: **PASS**; all cards remain visible, no overlap, no document scroll and no horizontal overflow.
 - Controlled Safe Regression: **114/114 PASS**.
 - Public immutable/Stable parity and public visible E2E: **pending**.
