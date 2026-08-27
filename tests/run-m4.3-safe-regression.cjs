@@ -450,6 +450,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5s-public-landing-auth-integration.test.cjs'
   },
   {
+    category: 'M16.5 / Responsive Shell and Memory Book Studio',
+    test: 'tests/m16.5u-responsive-shell-memory-studio.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

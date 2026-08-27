@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "13.82.87";
+  const VERSION = "13.82.88";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",
@@ -351,6 +351,7 @@
 
     gateCore?.addEventListener("pointerdown", event => {
       if (gate?.dataset.compassLevel !== "closed" || !["turn-forward", "turn-back"].includes(puzzleStep)) return;
+      event.preventDefault();
       gateCore.setPointerCapture?.(event.pointerId);
       puzzleDrag = { pointerId: event.pointerId, lastAngle: pointerAngle(event), moved: false };
       gate.classList.add("is-puzzle-dragging", "is-awake");
@@ -959,13 +960,31 @@
       const bookToolNames = Object.freeze({ text: "Text", photos: "Fotobibliothek", style: "Seitenstil", decor: "Dekoration", travel: "Reisethema" });
       const bookSelectionState = workbench.querySelector("[data-book-selection-state]");
       const bookDeleteButton = workbench.querySelector("[data-book-delete-element]");
+      const bookObjectTools = workbench.querySelector("[data-book-object-tools]");
+      const bookTransformTools = workbench.querySelector("[data-book-transform-tools]");
+      const bookScaleControl = workbench.querySelector("[data-book-scale-control]");
+      const bookScaleOutput = workbench.querySelector("[data-book-scale-output]");
+      const bookRotationControl = workbench.querySelector("[data-book-rotation-control]");
+      const bookRotationOutput = workbench.querySelector("[data-book-rotation-output]");
       let selectedBookElement = null;
+      const syncBookTransformTools = () => {
+        const hasSelection = Boolean(selectedBookElement);
+        if (bookTransformTools) bookTransformTools.hidden = !hasSelection;
+        const scale = hasSelection ? Number(selectedBookElement.dataset.bookScale || 1) : 1;
+        const rotation = hasSelection ? Number(selectedBookElement.dataset.bookRotation || 0) : 0;
+        if (bookScaleControl) bookScaleControl.value = String(Math.round(scale * 100));
+        if (bookScaleOutput) bookScaleOutput.textContent = `${Math.round(scale * 100)} %`;
+        if (bookRotationControl) bookRotationControl.value = String(Math.round(rotation));
+        if (bookRotationOutput) bookRotationOutput.textContent = `${Math.round(rotation)}°`;
+      };
       const selectBookElement = element => {
         bookSpread?.querySelectorAll("[data-book-draggable].is-selected").forEach(item => item.classList.remove("is-selected"));
         selectedBookElement = element?.isConnected ? element : null;
         selectedBookElement?.classList.add("is-selected");
-        if (bookSelectionState) bookSelectionState.textContent = selectedBookElement ? `${selectedBookElement.dataset.bookElementType || "Element"} · ziehen oder mit Pfeiltasten bewegen` : "Nichts ausgewählt";
+        if (bookSelectionState) bookSelectionState.textContent = selectedBookElement ? `${selectedBookElement.dataset.bookElementType || "Element"} · ziehen · Ecke skalieren · Pfeiltasten feinjustieren` : "Nichts ausgewählt";
         if (bookDeleteButton) bookDeleteButton.disabled = !selectedBookElement?.matches("[data-book-removable]");
+        if (bookObjectTools) bookObjectTools.hidden = !selectedBookElement;
+        syncBookTransformTools();
       };
       const removeBookElement = element => {
         if (!element?.matches("[data-book-removable]")) return;
@@ -974,12 +993,52 @@
         selectBookElement(null);
       };
       bookDeleteButton?.addEventListener("click", () => removeBookElement(selectedBookElement), { signal });
+      workbench.querySelector("[data-book-layer-forward]")?.addEventListener("click", () => {
+        if (!selectedBookElement) return;
+        selectedBookElement.style.zIndex = String(Math.min(40, Number(getComputedStyle(selectedBookElement).zIndex) || 7) + 1);
+      }, { signal });
+      workbench.querySelector("[data-book-layer-back]")?.addEventListener("click", () => {
+        if (!selectedBookElement) return;
+        selectedBookElement.style.zIndex = String(Math.max(2, (Number(getComputedStyle(selectedBookElement).zIndex) || 7) - 1));
+      }, { signal });
+      workbench.querySelector("[data-book-duplicate-element]")?.addEventListener("click", () => {
+        if (!selectedBookElement) return;
+        const clone = selectedBookElement.cloneNode(true);
+        clone.removeAttribute("data-book-drag-ready");
+        clone.dataset.bookDynamic = "";
+        clone.dataset.bookX = String(Number(selectedBookElement.dataset.bookX || 0) + 18);
+        clone.dataset.bookY = String(Number(selectedBookElement.dataset.bookY || 0) + 18);
+        clone.hidden = false;
+        selectedBookElement.parentElement?.append(clone);
+        makeBookElementDraggable(clone);
+        moveBookElement(clone, Number(clone.dataset.bookX), Number(clone.dataset.bookY));
+        selectBookElement(clone);
+      }, { signal });
       const moveBookElement = (element, nextX, nextY) => {
-        element.dataset.bookX = String(Math.round(nextX));
-        element.dataset.bookY = String(Math.round(nextY));
-        element.style.setProperty("--book-drag-x", `${Math.round(nextX)}px`);
-        element.style.setProperty("--book-drag-y", `${Math.round(nextY)}px`);
+        const x = Math.round(nextX * 10) / 10;
+        const y = Math.round(nextY * 10) / 10;
+        element.dataset.bookX = String(x);
+        element.dataset.bookY = String(y);
+        element.style.setProperty("--book-drag-x", `${x}px`);
+        element.style.setProperty("--book-drag-y", `${y}px`);
       };
+      const transformBookElement = (element, nextScale, nextRotation) => {
+        if (!element) return;
+        const scale = Math.max(.38, Math.min(2.45, Number(nextScale) || 1));
+        const rotation = Math.max(-18, Math.min(18, Number(nextRotation) || 0));
+        element.dataset.bookScale = String(Math.round(scale * 1000) / 1000);
+        element.dataset.bookRotation = String(Math.round(rotation * 10) / 10);
+        element.style.setProperty("--book-object-scale", String(scale));
+        element.style.setProperty("--book-object-rotation", `${rotation}deg`);
+        syncBookTransformTools();
+      };
+      bookScaleControl?.addEventListener("input", event => transformBookElement(selectedBookElement, Number(event.currentTarget.value) / 100, Number(selectedBookElement?.dataset.bookRotation || 0)), { signal });
+      bookRotationControl?.addEventListener("input", event => transformBookElement(selectedBookElement, Number(selectedBookElement?.dataset.bookScale || 1), Number(event.currentTarget.value)), { signal });
+      workbench.querySelector("[data-book-transform-reset]")?.addEventListener("click", () => {
+        if (!selectedBookElement) return;
+        moveBookElement(selectedBookElement, 0, 0);
+        transformBookElement(selectedBookElement, 1, 0);
+      }, { signal });
       const nudgeBookElement = (element, deltaX, deltaY) => {
         const parentRect = element.parentElement?.getBoundingClientRect();
         const elementRect = element.getBoundingClientRect();
@@ -991,35 +1050,58 @@
       const makeBookElementDraggable = element => {
         if (!element || element.dataset.bookDragReady === "true") return;
         element.dataset.bookDragReady = "true";
-        let dragState = null;
+        let dragState = null, moveFrame = 0, pendingMove = null;
+        const flushMove = () => {
+          moveFrame = 0;
+          if (!pendingMove || !dragState) return;
+          if (dragState.mode === "resize") {
+            const distance = Math.max(24, Math.hypot(pendingMove.clientX - dragState.elementRect.left, pendingMove.clientY - dragState.elementRect.top));
+            const scale = Math.max(.38, Math.min(2.45, dragState.originScale * distance / dragState.startDistance));
+            transformBookElement(element, scale, Number(element.dataset.bookRotation || 0));
+            return;
+          }
+          const rawX = pendingMove.clientX - dragState.startX;
+          const rawY = pendingMove.clientY - dragState.startY;
+          const minX = dragState.originX + dragState.parentRect.left - dragState.elementRect.left;
+          const maxX = dragState.originX + dragState.parentRect.right - dragState.elementRect.right;
+          const minY = dragState.originY + dragState.parentRect.top - dragState.elementRect.top;
+          const maxY = dragState.originY + dragState.parentRect.bottom - dragState.elementRect.bottom;
+          moveBookElement(element, Math.max(minX, Math.min(dragState.originX + rawX, maxX)), Math.max(minY, Math.min(dragState.originY + rawY, maxY)));
+        };
         element.addEventListener("pointerdown", event => {
           if (event.button !== undefined && event.button !== 0) return;
           selectBookElement(element);
           const elementRect = element.getBoundingClientRect();
           const parentRect = element.parentElement?.getBoundingClientRect();
           if (!parentRect) return;
-          dragState = { startX: event.clientX, startY: event.clientY, originX: Number(element.dataset.bookX || 0), originY: Number(element.dataset.bookY || 0), elementRect, parentRect };
+          const handleSize = event.pointerType === "touch" ? 38 : 24;
+          const resize = event.clientX >= elementRect.right - handleSize && event.clientY >= elementRect.bottom - handleSize;
+          dragState = { mode: resize ? "resize" : "move", startX: event.clientX, startY: event.clientY, originX: Number(element.dataset.bookX || 0), originY: Number(element.dataset.bookY || 0), originScale: Number(element.dataset.bookScale || 1), startDistance: Math.max(24, Math.hypot(event.clientX - elementRect.left, event.clientY - elementRect.top)), elementRect, parentRect };
           element.setPointerCapture?.(event.pointerId);
+          element.classList.add("is-manipulating");
           event.preventDefault();
         }, { signal });
         element.addEventListener("pointermove", event => {
           if (!dragState) return;
-          const rawX = event.clientX - dragState.startX;
-          const rawY = event.clientY - dragState.startY;
-          const deltaX = Math.max(dragState.parentRect.left - dragState.elementRect.left, Math.min(rawX, dragState.parentRect.right - dragState.elementRect.right));
-          const deltaY = Math.max(dragState.parentRect.top - dragState.elementRect.top, Math.min(rawY, dragState.parentRect.bottom - dragState.elementRect.bottom));
-          moveBookElement(element, dragState.originX + deltaX, dragState.originY + deltaY);
+          pendingMove = { clientX: event.clientX, clientY: event.clientY };
+          if (!moveFrame) moveFrame = requestAnimationFrame(flushMove);
+          event.preventDefault();
         }, { signal });
         const finishDrag = event => {
           if (!dragState) return;
+          pendingMove = { clientX: event.clientX, clientY: event.clientY };
+          if (moveFrame) cancelAnimationFrame(moveFrame);
+          flushMove();
           element.releasePointerCapture?.(event.pointerId);
           dragState = null;
+          pendingMove = null;
+          element.classList.remove("is-manipulating");
         };
         element.addEventListener("pointerup", finishDrag, { signal });
         element.addEventListener("pointercancel", finishDrag, { signal });
         element.addEventListener("click", () => selectBookElement(element), { signal });
         element.addEventListener("keydown", event => {
-          const step = event.shiftKey ? 12 : 4;
+          const step = event.shiftKey ? 10 : 1;
           const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
           if (moves[event.key]) {
             event.preventDefault();
@@ -1049,23 +1131,31 @@
 
       const bookTextInput = workbench.querySelector("[data-book-text-input]");
       const bookAddedText = bookSpread?.querySelector("[data-book-added-text]");
+      const selectedBookText = () => selectedBookElement?.matches('[data-book-element-type="Titel"],[data-book-element-type="Text"],[data-book-element-type="Ort"]') ? selectedBookElement : null;
       const applyBookText = () => {
-        if (!bookAddedText || !bookTextInput) return;
-        bookAddedText.textContent = bookTextInput.value.trim() || "Unser Lieblingsmoment";
-        bookAddedText.hidden = false;
-        makeBookElementDraggable(bookAddedText);
-        selectBookElement(bookAddedText);
+        if (!bookTextInput) return;
+        const target = selectedBookText() || bookAddedText;
+        if (!target) return;
+        target.textContent = bookTextInput.value.trim() || "Unser Lieblingsmoment";
+        target.hidden = false;
+        makeBookElementDraggable(target);
+        selectBookElement(target);
       };
       workbench.querySelector("[data-book-add-text]")?.addEventListener("click", applyBookText, { signal });
       bookTextInput?.addEventListener("input", () => {
         if (bookAddedText && !bookAddedText.hidden) applyBookText();
       }, { signal });
       workbench.querySelector("select[data-book-font]")?.addEventListener("change", event => {
-        if (bookSpread) bookSpread.dataset.bookFont = event.currentTarget.value || "modern";
+        const value = event.currentTarget.value || "modern";
+        if (bookSpread) bookSpread.dataset.bookFont = value;
+        const target = selectedBookText();
+        if (target) target.dataset.bookOwnFont = value;
       }, { signal });
       workbench.querySelector("[data-book-size]")?.addEventListener("input", event => {
         const size = Number(event.currentTarget.value) || 18;
         bookSpread?.style.setProperty("--book-custom-size", `${size}px`);
+        const target = selectedBookText();
+        if (target) target.style.fontSize = `${size}px`;
         const output = workbench.querySelector("[data-book-size-output]");
         if (output) output.textContent = String(size);
       }, { signal });
@@ -1075,12 +1165,17 @@
           item.classList.toggle("is-active", active);
           item.setAttribute("aria-pressed", String(active));
         });
-        bookSpread?.style.setProperty("--book-custom-color", button.dataset.bookTextColor || "#163247");
+        const color = button.dataset.bookTextColor || "#163247";
+        bookSpread?.style.setProperty("--book-custom-color", color);
+        const target = selectedBookText();
+        if (target) target.style.color = color;
       }, { signal }));
       workbench.querySelector("[data-book-bold]")?.addEventListener("click", event => {
         const active = event.currentTarget.getAttribute("aria-pressed") !== "true";
         event.currentTarget.setAttribute("aria-pressed", String(active));
         if (bookSpread) bookSpread.dataset.bookTextWeight = active ? "bold" : "regular";
+        const target = selectedBookText();
+        if (target) target.style.fontWeight = active ? "800" : "500";
       }, { signal });
       workbench.querySelectorAll("[data-book-align]").forEach(button => button.addEventListener("click", () => {
         workbench.querySelectorAll("[data-book-align]").forEach(item => {
@@ -1089,6 +1184,8 @@
           item.setAttribute("aria-pressed", String(active));
         });
         if (bookSpread) bookSpread.dataset.bookAlign = button.dataset.bookAlign || "left";
+        const target = selectedBookText();
+        if (target) target.style.textAlign = button.dataset.bookAlign || "left";
       }, { signal }));
 
       const bindBookChoice = (selector, datasetKey, fallback) => {
@@ -1108,6 +1205,16 @@
       workbench.querySelectorAll("button[data-book-theme]").forEach(button => button.addEventListener("click", () => {
         const description = workbench.querySelector("[data-book-theme-description]");
         if (description) description.textContent = bookThemeDescriptions[button.dataset.bookTheme] || bookThemeDescriptions.magazine;
+        const presets = {
+          magazine: { layout: "journal", frame: "clean", font: "modern" }, coast: { layout: "mosaic", frame: "arch", font: "playful" }, golden: { layout: "postcards", frame: "soft", font: "editorial" }, postcard: { layout: "postcards", frame: "stamp", font: "playful" }, atlas: { layout: "journal", frame: "print", font: "modern" }, family: { layout: "mosaic", frame: "polaroid", font: "playful" }, adventure: { layout: "mosaic", frame: "torn", font: "modern" }, city: { layout: "journal", frame: "film", font: "modern" }, desert: { layout: "postcards", frame: "arch", font: "editorial" }, alpine: { layout: "journal", frame: "clean", font: "editorial" }
+        };
+        const preset = presets[button.dataset.bookTheme] || presets.magazine;
+        const layoutButton = workbench.querySelector(`[data-book-layout-choice="${preset.layout}"]`);
+        const frameButton = workbench.querySelector(`[data-book-frame="${preset.frame}"]`);
+        const fontSelect = workbench.querySelector("select[data-book-font]");
+        layoutButton?.click();
+        frameButton?.click();
+        if (fontSelect) { fontSelect.value = preset.font; fontSelect.dispatchEvent(new Event("change", { bubbles: true })); }
       }, { signal }));
       workbench.querySelector("[data-book-corners]")?.addEventListener("click", event => {
         const organic = event.currentTarget.getAttribute("aria-pressed") !== "true";
@@ -1116,7 +1223,7 @@
         if (label) label.textContent = organic ? "Organisch" : "Grafisch";
         if (bookSpread) bookSpread.dataset.bookCorners = organic ? "organic" : "graphic";
       }, { signal });
-      const stickerSymbols = Object.freeze({ spark: "✦", heart: "♡", pin: "⌖", none: "" });
+      const stickerSymbols = Object.freeze({ spark: "✦", heart: "♡", pin: "⌖", compass: "✥", sun: "☀", wave: "≈", route: "⌁", ticket: "▱", tape: "▰", stamp: "◎", leaf: "❧", quote: "“ ”", none: "" });
       workbench.querySelectorAll("[data-book-sticker]").forEach(button => button.addEventListener("click", () => {
         const sticker = button.dataset.bookSticker || "none";
         workbench.querySelectorAll("[data-book-sticker]").forEach(item => {
@@ -1164,11 +1271,9 @@
         if (symbol) symbol.textContent = bookThemeSymbols[theme] || "✦";
       }, { signal }));
 
-      let bookPhotoLayerIndex = 0;
-      workbench.querySelectorAll("button[data-book-photo-add]").forEach(button => button.addEventListener("click", () => {
-        const targetPage = bookSpread?.querySelector(".book-page-right");
-        const source = button.dataset.bookPhotoAdd;
-        if (!targetPage || !source) return;
+      let bookPhotoLayerIndex = 0, bookDecorLayerIndex = 0;
+      const addBookPhoto = (source, label, targetPage = bookSpread?.querySelector(".book-page-right"), point = null) => {
+        if (!targetPage || !source) return null;
         bookPhotoLayerIndex += 1;
         const layer = document.createElement("button");
         layer.type = "button";
@@ -1177,20 +1282,81 @@
         layer.dataset.bookRemovable = "";
         layer.dataset.bookDynamic = "";
         layer.dataset.bookElementType = "Foto";
-        layer.style.left = `${20 + (bookPhotoLayerIndex % 3) * 22}px`;
-        layer.style.top = `${86 + (bookPhotoLayerIndex % 3) * 18}px`;
+        const pageRect = targetPage.getBoundingClientRect();
+        layer.style.left = `${point ? Math.max(8, Math.min(pageRect.width - 128, point.x)) : 20 + (bookPhotoLayerIndex % 3) * 22}px`;
+        layer.style.top = `${point ? Math.max(8, Math.min(pageRect.height - 106, point.y)) : 86 + (bookPhotoLayerIndex % 3) * 18}px`;
         layer.style.setProperty("--book-photo-tilt", `${bookPhotoLayerIndex % 2 ? -3 : 3}deg`);
-        layer.setAttribute("aria-label", `${button.dataset.bookPhotoLabel || "Reisefoto"} auswählen und verschieben`);
+        layer.setAttribute("aria-label", `${label || "Reisefoto"} auswählen, verschieben oder skalieren`);
         const image = document.createElement("img");
         image.src = source;
-        image.alt = button.dataset.bookPhotoLabel || "Hinzugefügtes Reisefoto";
+        image.alt = label || "Hinzugefügtes Reisefoto";
         layer.append(image);
         targetPage.append(layer);
         makeBookElementDraggable(layer);
         selectBookElement(layer);
         const dynamicLayers = [...bookSpread.querySelectorAll("[data-book-dynamic]")];
-        if (dynamicLayers.length > 4) dynamicLayers[0].remove();
-      }, { signal }));
+        if (dynamicLayers.length > 12) dynamicLayers[0].remove();
+        return layer;
+      };
+      const replaceOrAddBookPhoto = (source, label, targetPage = null, point = null) => {
+        const selectedImage = selectedBookElement?.querySelector?.("img");
+        if (selectedBookElement?.dataset.bookElementType === "Foto" && selectedImage) {
+          selectedImage.src = source;
+          selectedImage.alt = label || "Ausgetauschtes Reisefoto";
+          selectedBookElement.hidden = false;
+          selectBookElement(selectedBookElement);
+          return selectedBookElement;
+        }
+        return addBookPhoto(source, label, targetPage || bookSpread?.querySelector(".book-page-right"), point);
+      };
+      const addBookDecor = (kind, label, targetPage = bookSpread?.querySelector(".book-page-left"), point = null) => {
+        if (!targetPage) return null;
+        bookDecorLayerIndex += 1;
+        const layer = document.createElement("button");
+        layer.type = "button";
+        layer.className = "book-decor-layer";
+        layer.dataset.bookDraggable = "";
+        layer.dataset.bookRemovable = "";
+        layer.dataset.bookDynamic = "";
+        layer.dataset.bookElementType = "Deko";
+        layer.dataset.bookDecorKind = kind;
+        layer.dataset.bookScale = "1";
+        const pageRect = targetPage.getBoundingClientRect();
+        layer.style.left = `${point ? Math.max(8, Math.min(pageRect.width - 58, point.x)) : 28 + (bookDecorLayerIndex % 4) * 36}px`;
+        layer.style.top = `${point ? Math.max(8, Math.min(pageRect.height - 58, point.y)) : 66 + (bookDecorLayerIndex % 3) * 34}px`;
+        layer.textContent = stickerSymbols[kind] || "✦";
+        layer.setAttribute("aria-label", `${label || "Dekoration"} auswählen, verschieben oder skalieren`);
+        targetPage.append(layer);
+        makeBookElementDraggable(layer);
+        selectBookElement(layer);
+        return layer;
+      };
+      workbench.querySelectorAll("button[data-book-photo-add]").forEach(button => {
+        button.addEventListener("click", () => replaceOrAddBookPhoto(button.dataset.bookPhotoAdd, button.dataset.bookPhotoLabel), { signal });
+        button.addEventListener("dragstart", event => event.dataTransfer?.setData("application/x-luvia-book", JSON.stringify({ type: "photo", source: button.dataset.bookPhotoAdd, label: button.dataset.bookPhotoLabel })), { signal });
+      });
+      workbench.querySelectorAll("button[data-book-decor-add]").forEach(button => {
+        button.addEventListener("click", () => addBookDecor(button.dataset.bookDecorAdd, button.dataset.bookDecorLabel), { signal });
+        button.addEventListener("dragstart", event => event.dataTransfer?.setData("application/x-luvia-book", JSON.stringify({ type: "decor", kind: button.dataset.bookDecorAdd, label: button.dataset.bookDecorLabel })), { signal });
+      });
+      bookSpread?.querySelectorAll(".book-page").forEach(page => {
+        page.addEventListener("dragover", event => { if (event.dataTransfer?.types?.includes("application/x-luvia-book")) event.preventDefault(); }, { signal });
+        page.addEventListener("drop", event => {
+          const raw = event.dataTransfer?.getData("application/x-luvia-book");
+          if (!raw) return;
+          event.preventDefault();
+          let payload;
+          try { payload = JSON.parse(raw); } catch { return; }
+          const rect = page.getBoundingClientRect();
+          const point = { x: event.clientX - rect.left - 56, y: event.clientY - rect.top - 44 };
+          const photoTarget = event.target.closest?.('[data-book-element-type="Foto"]');
+          if (payload.type === "photo" && photoTarget?.querySelector("img")) {
+            selectBookElement(photoTarget);
+            replaceOrAddBookPhoto(payload.source, payload.label);
+          } else if (payload.type === "photo") addBookPhoto(payload.source, payload.label, page, point);
+          else if (payload.type === "decor") addBookDecor(payload.kind, payload.label, page, point);
+        }, { signal });
+      });
       bookSpread?.querySelectorAll("[data-book-draggable]").forEach(makeBookElementDraggable);
 
       mountPhotoEditor(workbench);
@@ -1433,7 +1599,8 @@
         return;
       }
       try {
-        livingMap = new window.maplibregl.Map({ container, style: "https://tiles.openfreemap.org/styles/liberty", center: PLACES[0].point, zoom: 12.4, bearing: -7, pitch: 24, interactive: true, attributionControl: true, fadeDuration: noMotion() ? 0 : 450 });
+        const compactMap = window.matchMedia?.("(max-width: 760px)")?.matches;
+        livingMap = new window.maplibregl.Map({ container, style: "https://tiles.openfreemap.org/styles/liberty", center: PLACES[0].point, zoom: compactMap ? 11.8 : 12.4, bearing: compactMap ? 0 : -7, pitch: compactMap ? 0 : 24, interactive: true, attributionControl: true, fadeDuration: noMotion() || compactMap ? 0 : 450 });
         livingMap.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), "top-right");
         livingMap.on("load", () => {
           const marker = document.createElement("div");

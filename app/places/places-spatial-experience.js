@@ -320,7 +320,8 @@
     if(!globalThis.maplibregl){setMapMessage('Die geografische Karte ist gerade nicht verfügbar. Alle Orte bleiben in der Liste vollständig bedienbar.','unavailable');return}
     try{
       const first=view.markers[0];
-      const map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:0,interactive:true,attributionControl:true,fadeDuration:reducedMotion()?0:320});
+      const compactMap=globalThis.matchMedia?.('(max-width: 800px)')?.matches;
+      const map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:0,interactive:true,attributionControl:true,fadeDuration:reducedMotion()||compactMap?0:320});
       state.map=map;
       const current=()=>renderToken===state.renderToken&&container.isConnected&&state.map===map;
       map.addControl(new globalThis.maplibregl.NavigationControl({showCompass:false,showZoom:true}),'top-left');
@@ -331,8 +332,8 @@
           const instance=new globalThis.maplibregl.Marker({element:markerButton(marker),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);
           state.mapMarkers.set(marker.providerPlaceId,instance);
         }
-        if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:{top:72,right:72,bottom:170,left:72},maxZoom:15,duration:reducedMotion()?0:650});
-        else map.easeTo({center:first.lngLat,zoom:14,duration:reducedMotion()?0:500});
+        if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:compactMap?{top:42,right:34,bottom:104,left:34}:{top:72,right:72,bottom:170,left:72},maxZoom:15,duration:reducedMotion()?0:(compactMap?220:650)});
+        else map.easeTo({center:first.lngLat,zoom:14,duration:reducedMotion()?0:(compactMap?180:500)});
         setMapMessage(`${view.markers.length} koordinatenverifizierte Orte auf der Karte.`,`ready`);
         setTimeout(()=>{if(current())map.resize()},100);
       });

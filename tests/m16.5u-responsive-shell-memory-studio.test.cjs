@@ -1,0 +1,41 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const root = path.resolve(__dirname, '..');
+const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+const html = read('app/public-landing.html');
+const motion = read('app/public-landing-motion.js');
+const landingCss = read('app/public-landing.css');
+const publicEntryCss = read('app/public-entry.css');
+const shell = read('app/app-shell.js');
+const shellCss = read('app/app-shell.css');
+const hubsCss = read('app/module-hubs.css');
+const places = read('app/places/places-spatial-experience.js');
+const version = read('intelligence/kernel/version.js');
+
+assert.match(version, /core:'4\.82\.88',build:'13\.82\.88'/);
+assert.equal((html.match(/data-book-photo-add=/g) || []).length, 16, 'book studio must expose sixteen local travel photos');
+assert.equal((html.match(/data-book-decor-add=/g) || []).length, 12, 'book studio must expose twelve draggable decoration types');
+assert.ok((html.match(/data-book-base/g) || []).length >= 7, 'existing book content must be editable layers');
+for (const token of ['data-book-scale-control', 'data-book-rotation-control', 'data-book-transform-reset', 'data-book-layer-forward', 'data-book-layer-back', 'data-book-duplicate-element']) assert.ok(html.includes(token), `missing layer tool ${token}`);
+for (const token of ['setPointerCapture', 'requestAnimationFrame(flushMove)', 'transformBookElement', 'replaceOrAddBookPhoto', 'addBookDecor']) assert.ok(motion.includes(token), `missing precise book interaction ${token}`);
+assert.match(motion, /gateCore\?\.addEventListener\("pointerdown", event => \{[\s\S]{0,220}event\.preventDefault\(\)/, 'puzzle pointer down must suppress page scrolling');
+assert.match(landingCss, /\.landing-v3:has\(\.landing-compass-home\.is-puzzle-dragging\)\{overflow:hidden;touch-action:none\}/);
+assert.match(landingCss, /\.landing-v3 \*::\-webkit-scrollbar/, 'landing descendants must hide native WebKit scrollbars');
+assert.match(shellCss, /\.lv-root \*::\-webkit-scrollbar/, 'signed-in app descendants must hide native WebKit scrollbars');
+assert.match(publicEntryCss, /\.lv-public-entry \*::\-webkit-scrollbar/, 'auth and onboarding descendants must hide native WebKit scrollbars');
+assert.match(landingCss, /\.memory-mode-rail\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/, 'mobile memory tools must fit without horizontal scrolling');
+assert.match(landingCss, /\.memory-workbench\[data-memory-mode="editor"\] \.memory-preview-stack\{min-height:690px\}/, 'mobile photo editor needs compact height');
+assert.match(landingCss, /\.map-fallback \{ position: absolute; z-index: 3;/, 'local map fallback must stay above the remote renderer until ready');
+assert.match(motion, /const compactMap = window\.matchMedia/);
+assert.match(places, /const compactMap=globalThis\.matchMedia/);
+assert.match(shell, /profileColor/);
+assert.match(shell, /lv-living-ai-button/);
+assert.match(shellCss, /Only the needle wanders; face and hub stay completely still/);
+assert.match(shellCss, /\.lv-living-nav-ai \.lv-living-compass__face,[\s\S]*animation:none;transform:none/);
+assert.match(shellCss, /\.lv-living-shell \.lv-living-topbar \.lv-build-badge\{display:none\}/);
+assert.match(hubsCss, /keep the complete compass constellation above the dock/);
+assert.match(hubsCss, /--lv-plan-direction-radius:clamp\(78px,min\(28vw,18\.5vh\),112px\)/);
+
+console.log('M16.5U responsive signed-in shell, mobile Compass, smooth maps and Memory Book Studio: PASS');

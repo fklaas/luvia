@@ -146,8 +146,11 @@ async function touchCenter(page, locator) {
 
 async function unlockWithTouch(page) {
   const core = page.locator('[data-compass-gate-toggle]');
+  const scrollBeforeCompassTurn = await page.evaluate(() => ({ x: scrollX, y: scrollY }));
   await touchArc(page, core, -90, 5);
   await page.waitForFunction(() => document.querySelector('[data-compass-gate]')?.dataset.puzzleStep === 'crown');
+  await page.waitForTimeout(120);
+  assert.deepEqual(await page.evaluate(() => ({ x: scrollX, y: scrollY })), scrollBeforeCompassTurn, 'touch rotation on the puzzle Compass scrolled the page');
   await touchCenter(page, page.locator('[data-compass-crown]'));
   await page.waitForFunction(() => document.querySelector('[data-compass-gate]')?.dataset.puzzleStep === 'turn-back');
   await touchArc(page, core, 0, -112, 14);
@@ -436,7 +439,7 @@ async function unlockWithTouch(page) {
     assert.equal(await page.locator('[data-book-added-text]').isVisible(), true, 'added photo-book text is not visible');
     await page.locator('[data-book-added-text]').focus();
     await page.keyboard.press('Shift+ArrowRight');
-    assert.equal(await page.locator('[data-book-added-text]').getAttribute('data-book-x'), '12', 'keyboard movement did not reposition the selected text layer');
+    assert.equal(await page.locator('[data-book-added-text]').getAttribute('data-book-x'), '10', 'keyboard movement did not reposition the selected text layer by ten precise pixels');
     await page.locator('select[data-book-font]').selectOption('editorial');
     await page.locator('input[data-book-size]').focus();
     await page.locator('input[data-book-size]').press('End');
@@ -461,11 +464,12 @@ async function unlockWithTouch(page) {
     assert.equal(await page.locator('[data-book-spread]').getAttribute('data-book-corners'), 'graphic');
 
     await page.locator('[data-book-editor-tab="decor"]').click();
-    await page.locator('button[data-book-sticker="heart"]').click();
+    await page.locator('button[data-book-decor-add="heart"]').click();
     await page.locator('[data-book-shape-toggle]').click();
     await page.locator('[data-book-caption-toggle]').click();
-    assert.equal(await page.locator('[data-book-custom-sticker]').innerText(), '♡');
-    assert.match(await page.locator('[data-book-spread]').getAttribute('class'), /is-shape-hidden/);
+    assert.equal(await page.locator('[data-book-dynamic][data-book-decor-kind="heart"]').innerText(), '♡');
+    assert.equal(await page.locator('[data-book-dynamic][data-book-decor-kind="heart"]').isVisible(), true, 'decor layer was not placed visibly on the book page');
+    assert.doesNotMatch(await page.locator('[data-book-spread]').getAttribute('class'), /is-shape-hidden/);
     assert.equal(await page.locator('[data-book-left-caption]').evaluate(node => getComputedStyle(node).visibility), 'hidden');
 
     await page.locator('[data-book-editor-tab="travel"]').click();
@@ -476,7 +480,7 @@ async function unlockWithTouch(page) {
     assert.equal(await page.locator('button[data-book-travel-theme][aria-checked="true"]').count(), 1, 'travel-theme selection is not exclusive');
 
     await page.locator('[data-book-editor-tab="photos"]').click();
-    assert.equal(await page.locator('button[data-book-photo-add]').count(), 8, 'the locally bundled travel-photo library is incomplete');
+    assert.equal(await page.locator('button[data-book-photo-add]').count(), 16, 'the locally bundled travel-photo library is incomplete');
     await page.locator('button[data-book-photo-add="assets/public-landing/book-jungle-waterfall.jpg"]').click();
     const placedPhoto = page.locator('[data-book-dynamic]').last();
     assert.equal(await placedPhoto.isVisible(), true, 'a selected travel photo was not added as a visible book layer');
@@ -488,7 +492,7 @@ async function unlockWithTouch(page) {
     await page.mouse.up();
     assert.notEqual(await placedPhoto.getAttribute('data-book-x'), '0', 'mouse drag did not reposition the placed photo layer');
     await page.locator('[data-book-delete-element]').click();
-    assert.equal(await page.locator('[data-book-dynamic]').count(), 0, 'the selected photo layer was not removable');
+    assert.equal(await page.locator('[data-book-dynamic]').count(), 1, 'the selected photo layer was not removable without deleting the placed decoration');
 
     const firstBookImage = await page.locator('[data-book-image="left"]').getAttribute('src');
     await page.locator('[data-book-layout-choice="mosaic"]').click();
@@ -591,6 +595,18 @@ async function unlockWithTouch(page) {
     mobile.on('pageerror', error => pageErrors.push(`mobile: ${error.message}`));
     await waitReady(mobile, `${fixture}&input=touch`);
     await mobile.waitForTimeout(1250);
+    const hiddenScrollbar = await mobile.evaluate(() => {
+      const root = document.documentElement;
+      const landing = document.querySelector('.landing-v3');
+      return {
+        root: getComputedStyle(root).scrollbarWidth,
+        landing: getComputedStyle(landing).scrollbarWidth,
+        rootWebkit: getComputedStyle(root, '::-webkit-scrollbar').display
+      };
+    });
+    assert.equal(hiddenScrollbar.root, 'none', `root scrollbar is still visible: ${JSON.stringify(hiddenScrollbar)}`);
+    assert.equal(hiddenScrollbar.landing, 'none', `Landing scrollbar is still visible: ${JSON.stringify(hiddenScrollbar)}`);
+    assert.equal(hiddenScrollbar.rootWebkit, 'none', `WebKit scrollbar is still visible: ${JSON.stringify(hiddenScrollbar)}`);
     await unlockWithTouch(mobile);
     assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'mobile Landing has horizontal overflow');
     await touchCenter(mobile, mobile.locator('[data-compass-choice="worlds"]'));

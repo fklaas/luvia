@@ -77,3 +77,19 @@
 }
 @media(max-height:680px) and (min-width:801px){.lv-plan-compass-stage{--lv-plan-direction-radius:clamp(105px,min(17vw,20vh),135px);min-height:520px}.lv-plan-compass-heading{padding-top:12px}.lv-plan-compass-heading h1{font-size:clamp(28px,3.3vw,42px)}.lv-plan-compass-heading p{font-size:9px}.lv-plan-compass-core{width:118px;height:118px}.lv-plan-compass-mark{width:76px}.lv-plan-direction{width:120px;min-height:46px}.lv-plan-direction-surface{grid-template-columns:23px minmax(0,1fr);padding:6px}.lv-plan-direction-surface>i{width:23px;height:23px}.lv-plan-direction-copy small{display:none}}
 @media(prefers-reduced-motion:reduce){.lv-plan-compass-stage:not(.is-ready) :is(.lv-plan-compass-heading>div,.lv-plan-compass-close,.lv-plan-direction,.lv-plan-compass-footer),.lv-plan-compass-stage:not(.is-ready) .lv-plan-compass-core{opacity:1;filter:none;transform:none;pointer-events:auto}.lv-plan-compass-stage:not(.is-ready) .lv-plan-compass-core{transform:translate(-50%,-50%)}.lv-plan-compass-stage.is-ready :is(.lv-plan-compass-heading>div,.lv-plan-compass-close,.lv-plan-compass-footer),.lv-plan-direction-motion,.lv-plan-direction-idle,.lv-plan-direction-surface,.lv-plan-compass-mark,.lv-plan-compass-needle,.lv-plan-compass-home-arrival{animation:none;transition:none}.lv-plan-compass-stage.is-ready:not(.is-navigating):not(.is-context-seeking):not(.is-context-leaving):not(.is-returning) .lv-plan-compass-needle{animation:none;transition:none}.lv-plan-compass-flight{display:none}}
+
+/* M16.5U — accepted demo constellation: every direction name stays readable. */
+.lv-plan-direction{width:184px}.lv-plan-direction-surface{min-height:70px;padding:10px 12px}.lv-plan-direction-copy strong{overflow:visible;line-height:1.18;text-overflow:clip;white-space:normal}.lv-plan-direction-copy small{font-size:7.4px;line-height:1.35}
+@media(max-width:1180px){.lv-plan-direction{width:160px}.lv-plan-direction-surface{min-height:64px}}
+@media(max-width:800px){.lv-plan-direction{width:clamp(82px,25vw,104px)}.lv-plan-direction-surface{min-height:48px;padding:6px}.lv-plan-direction-copy strong{font-size:clamp(6.4px,1.9vw,7.7px);text-wrap:balance}}
+@media(max-width:390px){.lv-plan-direction{width:82px}.lv-plan-direction-copy strong{font-size:6.5px}}
+
+/* M16.5U handset evidence: keep the complete compass constellation above the dock. */
+@media(max-width:800px){
+  .lv-plan-compass-stage{--lv-plan-direction-radius:clamp(78px,min(28vw,18.5vh),112px);height:calc(100dvh - 158px);overflow:clip}
+  .lv-plan-compass-heading{padding:7px 48px 0}.lv-plan-compass-heading h1{max-width:78vw;font-size:clamp(21px,6.6vw,28px)}.lv-plan-compass-heading p{max-width:76vw;font-size:clamp(6.5px,1.85vw,8px)}
+  .lv-plan-compass-core{width:clamp(78px,24vw,98px);height:clamp(78px,24vw,98px)}.lv-plan-compass-mark{width:clamp(50px,15.5vw,64px)}
+  .lv-plan-direction{width:clamp(74px,22vw,92px);min-height:40px}.lv-plan-direction-surface{min-height:40px;padding:4px 5px}.lv-plan-direction-surface>i{width:18px;height:18px}.lv-plan-direction-copy strong{font-size:clamp(6px,1.75vw,7.1px)}
+  .lv-plan-compass-footer{padding-bottom:2px}.lv-plan-compass-footer button{min-height:36px}.lv-plan-compass-footer p{font-size:5.3px}
+}
+@media(max-width:390px){.lv-plan-compass-stage{--lv-plan-direction-radius:clamp(72px,min(27vw,18vh),102px)}.lv-plan-direction{width:74px}.lv-plan-direction-copy strong{font-size:6.1px}}
