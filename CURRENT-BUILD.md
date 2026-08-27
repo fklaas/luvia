@@ -30,17 +30,17 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5V Precision Memory Canvas / Accepted Living Shell
 
-- Runtime source commit: **`76750aa2cc4da13b7bd76907824cfd254c5e4314`** on `integration`.
+- Runtime source commit: **`e9481cf32a650c5d32095d244e5a58bfaaa8f724`** on `integration`.
 - Runtime target: **App 13.82.92 / Core 4.82.92 / Integration Preview**.
-- Public deployment: **100% Integration version `e64f96e9-aff8-49d6-9381-3c3904f947c5`, deployment `feb56eda-f035-4fe4-992b-a788b8970d7a`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://e64f96e9-integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Public deployment: **100% Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://225b4f19-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Responsive/product evidence: **mobile 390×844 and 360×740/320×673 E2E; complete Plan/Profile Compass constellations above the dock; profile/active-Trip/companion header; only the Luvia AI needle animates; Landing, authenticated App, auth and onboarding descendants hide native scrollbars while preserving scroll behavior**.
 - Touch ownership: **real Chromium CDP touch sequence solves the puzzle; the first curved Compass rotation changes document `scrollX/scrollY` by exactly 0 px; crown and lower latch remain usable**.
 - Memory Studio: **16 local travel photos, 12 draggable decorations, nine frame/mask choices, ten page-design worlds, sixteen journey themes, replacement/removal/layer ordering/duplication, decimal drag, corner scaling, rotation and keyboard nudge; mobile Photo Editor/Reel/Book surfaces remain reachable**.
 - Places/maps: **mobile map transitions use zero tile fade and compact motion; a local branded fallback remains above the remote renderer until ready; productive map camera movement is shortened on compact viewports**.
-- Validation: **111 / 111 Safe Regression PASS; M16.5T real Edge E2E PASS; M16.5Q desktop/mobile touch/keyboard/reload/Back/reduced-motion E2E PASS; M16.5R rail/detail/evidence continuity E2E PASS; PWA cache/Service Worker recovery E2E PASS; stable Integration visible route `Heute → Planen → Places` PASS**.
+- Validation: **112 / 112 Safe Regression PASS; real visible mobile dock at 390 px PASS; stable Integration real-click Profile Compass PASS (eight points, Plan inactive, zero overlaps); stable tab-switch and storage-independent reload PASS (no visible Splash); browser warnings/errors 0; stable/immutable byte parity 7 / 7 PASS; M16.5Q desktop/mobile touch/keyboard/reload/Back/reduced-motion and PWA recovery gates remain PASS**.
 - Main / Production: **locked and unchanged after publication: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`; no database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual non-versioned Cloudflare configuration change**.
-- Rollback: **redeploy the immediately previous Integration App 13.82.87 version `8a2ce6c8-96d4-473c-a8a9-0866ec471b9b` from deployment `b57da617-ec11-43f3-95ec-1c648567080b`; code/assets only, no data rollback**.
-- Acceptance boundary: **automated and visible browser evidence is complete; final physical-handset acceptance remains explicitly open until the user retests App 13.82.90 on the real device**.
+- Rollback: **redeploy the last accepted Integration App 13.82.88 version `e64f96e9-aff8-49d6-9381-3c3904f947c5` from deployment `feb56eda-f035-4fe4-992b-a788b8970d7a`; code/assets only, no data rollback. App 13.82.91 is explicitly rejected as a rollback target because its warm-state persistence still depended on browser storage**.
+- Acceptance boundary: **automated and visible browser evidence is complete for the repaired shell/navigation/tab-restore bundle; final physical-handset acceptance of App 13.82.92 and the broader M16.5 Design Freeze remain explicitly open**.
 
 ## M16.5H–J Accepted Living Shell / Visual Parity Candidate
 
