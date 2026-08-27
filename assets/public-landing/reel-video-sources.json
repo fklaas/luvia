@@ -1,0 +1,42 @@
+{
+  "license": {
+    "name": "Pexels License",
+    "url": "https://www.pexels.com/license/",
+    "retrieved": "2026-08-27",
+    "note": "Locally bundled, edited presentation inside the Luvia Reel prototype. Attribution is included in the visible preview even though the Pexels License does not require it."
+  },
+  "clips": [
+    {
+      "file": "reel-couple-market.mp4",
+      "poster": "reel-poster-couple-market.webp",
+      "title": "Young couple exploring a lively urban market on a sunny day",
+      "creator": "George Pak",
+      "source": "https://www.pexels.com/video/couple-on-travel-tour-7824469/",
+      "download": "https://videos.pexels.com/video-files/7824469/7824469-sd_360_640_30fps.mp4"
+    },
+    {
+      "file": "reel-family-planning.mp4",
+      "poster": "reel-poster-family-planning.webp",
+      "title": "Family sitting with map and suitcase, planning travel indoors",
+      "creator": "Gustavo Fring",
+      "source": "https://www.pexels.com/video/a-couple-looking-at-a-map-with-their-baby-girl-8779705/",
+      "download": "https://videos.pexels.com/video-files/8779705/8779705-hd_720_1366_25fps.mp4"
+    },
+    {
+      "file": "reel-friends-beach.mp4",
+      "poster": "reel-poster-friends-beach.webp",
+      "title": "Women enjoying music and sun on a scenic beach vacation",
+      "creator": "RDNE Stock project",
+      "source": "https://www.pexels.com/video/friends-bonding-at-the-beach-8760164/",
+      "download": "https://videos.pexels.com/video-files/8760164/8760164-sd_360_640_30fps.mp4"
+    },
+    {
+      "file": "reel-beach-sunrise.mp4",
+      "poster": "reel-poster-beach-sunrise.webp",
+      "title": "Silhouettes of two people walking on the beach at sunrise",
+      "creator": "Bùi Hoàng Long",
+      "source": "https://www.pexels.com/video/silhouettes-of-two-people-walking-on-the-beach-at-sunrise-15757393/",
+      "download": "https://videos.pexels.com/video-files/15757393/15757393-sd_360_640_30fps.mp4"
+    }
+  ]
+}

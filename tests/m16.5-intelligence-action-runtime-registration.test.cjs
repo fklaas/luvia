@@ -16,7 +16,7 @@ const actionRuntime='core/ai/ai-action-runtime.js';
 const dashboard='core/ai/ai-dashboard-service.js';
 
 for(const asset of [actionCore,ledgerCore,actionRuntime,dashboard]){
-  assert.ok(index.includes(`${asset}?v=13.82.83`),`index misses M16 runtime asset ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.87`),`index misses M16 runtime asset ${asset}`);
   assert.ok(worker.includes(`'${asset}'`),`service worker misses M16 runtime asset ${asset}`);
 }
 assert.ok(index.indexOf(actionCore)<index.indexOf(ledgerCore),'action contract must load before ledger');
@@ -36,8 +36,8 @@ for(const test of [
   'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
 ])assert.ok(runner.includes(test),`safe regression misses ${test}`);
 
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.83'"));
-assert.match(version,/core:'4\.82\.83',build:'13\.82\.83',name:'M16\.5T Interactive Public Journey Compass'/);
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.87'"));
+assert.match(version,/core:'4\.82\.87',build:'13\.82\.87',name:'M16\.5T Interactive Public Journey Compass'/);
 
 console.log('M16.5 Intelligence Action Runtime Registration: PASS');
 console.log('Action Contract -> Ledger -> Runtime -> Chat order: PASS');

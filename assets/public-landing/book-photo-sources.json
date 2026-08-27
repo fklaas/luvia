@@ -1,0 +1,58 @@
+{
+  "license": {
+    "name": "Pexels License",
+    "url": "https://www.pexels.com/license/",
+    "retrieved": "2026-08-27",
+    "note": "Locally bundled and resized for the interactive Luvia Memory Book prototype. The source inventory is retained even though attribution is not required by the Pexels License."
+  },
+  "photos": [
+    {
+      "file": "book-jungle-waterfall.jpg",
+      "title": "Scenic waterfall in lush tropical jungle",
+      "creator": "Davi Buthlan",
+      "source": "https://www.pexels.com/photo/lush-jungle-waterfall-in-tropical-forest-36924310/"
+    },
+    {
+      "file": "book-family-departure.jpg",
+      "title": "Family ready for travel outdoors",
+      "creator": "RDNE Stock project",
+      "source": "https://www.pexels.com/photo/vacation-travel-kids-outdoors-8298433/"
+    },
+    {
+      "file": "book-city-night.jpg",
+      "title": "European city street at night",
+      "creator": "Tokuo Nobuhiro",
+      "source": "https://www.pexels.com/photo/charming-night-street-scene-in-european-city-29515152/"
+    },
+    {
+      "file": "book-family-beach.jpg",
+      "title": "Family bonding on a sunny beach",
+      "creator": "Asad Photo Maldives",
+      "source": "https://www.pexels.com/photo/family-enjoying-a-beach-vacation-30225585/"
+    },
+    {
+      "file": "book-sahara-dunes.jpg",
+      "title": "Sahara Desert dunes in Algeria",
+      "creator": "Mostafa Ft.shots",
+      "source": "https://www.pexels.com/photo/scenic-sahara-desert-dunes-in-algeria-38041208/"
+    },
+    {
+      "file": "book-romantic-highlands.jpg",
+      "title": "Couple at a scenic mountain overlook",
+      "creator": "Vanessa Garcia",
+      "source": "https://www.pexels.com/photo/romantic-young-couple-cuddling-and-kissing-during-trip-in-highlands-6324132/"
+    },
+    {
+      "file": "book-roadtrip-car.jpg",
+      "title": "Vintage car on a sunny road trip",
+      "creator": "Nur Coşar",
+      "source": "https://www.pexels.com/photo/vintage-car-on-a-sunny-road-trip-32841200/"
+    },
+    {
+      "file": "book-alpine-hike.jpg",
+      "title": "Hiking in an alpine mountain landscape",
+      "creator": "Marius Mann",
+      "source": "https://www.pexels.com/photo/hiking-adventure-in-alpine-mountain-landscape-33021053/"
+    }
+  ]
+}

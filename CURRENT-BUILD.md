@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.83**
-- Core: **4.82.83**
+- App: **13.82.87**
+- Core: **4.82.87**
 - Name: **M16.5T Interactive Public Journey Compass**
 - Channel: **integration-preview**
 - Datum: **2026-08-27**
@@ -148,6 +148,22 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Main / Production: **locked and verified unchanged after publication: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`; no database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual Cloudflare configuration change**.
 - Rollback: **redeploy immediate operational predecessor App 13.82.80 version `e3f8a523-677a-4da8-8a5e-23d7d1fd3d45` from deployment `772221df-175f-4325-9be4-c455f327a287`; if a deeper accepted public baseline is required, redeploy App 13.82.72 version `9bdfd528-d5b2-4773-8a0f-949cc6e37fe0` from deployment `852438a1-1bc8-45f5-9875-f26e59db16c9`. Code/assets only; no data rollback**.
 
+## M16.5T Interactive Public Journey Compass / Memory Studio Candidate
+
+- Runtime target: **App 13.82.87 / Core 4.82.87 / Integration Preview only**.
+- Compass and access: **the layered hardware Compass remains the first public experience; crown, upper index and lower curved latch remain rigidly attached branded hardware. Real mouse/touch rotation, crown press and curved latch movement unlock it. “Animationen aus” opens it directly and persists without removing keyboard or screen-reader access**.
+- Public navigation: **the duplicated destination links were removed from the header. The Compass remains the single product-navigation character; the header keeps only brand, motion preference and the two bounded Auth entries**.
+- Memory tools: **the photo editor now applies eleven non-destructive, visibly measurable controls to one coherent image rather than a misaligned split comparison. The Reel Studio uses four locally bundled Pexels travel clips with matching scenes, functional 9:16/Story/Reel variants, exclusive soundtrack selection, hashtags and social interaction states**.
+- Modern Memory Book Studio: **the book remains the visual stage while its editor is a dedicated dock below it rather than an overlay on the pages. Text, font, size, weight, alignment, colour, image focus, frame, corners, captions, shapes, stickers, page layout, page turn and sixteen travel themes are directly interactive**.
+- Professional page design worlds: **ten distinct systems — Reisemagazin, Küstenliebe, Golden Hour, Postkarten, Atlas & Wege, Familienglück, Abenteuer, City Lights, Wüstenpoesie and Alpenruhe — replace flat colour fills. They use recurring chapter typography, controlled white space, full-image stages, map/topography motifs, paper/postmark details and photo-derived colour harmony based on current CEWE and Saal travel-book guidance**.
+- Movable layers and photography: **custom text, decoration and up to four added photo layers can be selected, dragged by mouse or touch, nudged by keyboard and removed. Eight additional locally bundled Pexels travel photographs cover jungle, family, city, beach, Sahara, romance, road trip and mountains; exact creator/source/license provenance is recorded in `assets/public-landing/book-photo-sources.json`**.
+- Responsive and motion evidence: **real Edge desktop mouse, hover, keyboard, Browser Back, reload, Reduced Motion, 390 × 844 and 320 × 673 CDP touch sequences pass without horizontal document overflow. The test performs actual layer movement/removal, format/theme switches, Compass hardware gestures and canvas return paths**.
+- Cache/PWA: **exact `.87` worker/cache registration, explicit stale-cache maintenance and an offline reload of the current Landing/Compass assembly PASS. All new bundled video, poster and book-photo assets are part of the versioned app shell**.
+- Candidate validation: **110 / 110 Safe Regression PASS; release consistency, Landing/Auth contract, M16.5Q recovery, M16.5R Places continuity, real Edge M16.5T E2E, PWA E2E, NFR-0 3 / 3, cross-Core DB ownership and regenerated visual inventory PASS**.
+- Explicitly still open: **physical-handset confirmation of this public Landing/Memory-Studio slice, persisted profile/preferences onboarding, first-trip onboarding, remaining M16.5 Product Surface Matrix, complete one-to-one visual parity and joint Design Freeze. The Memory editor/Reel/Fotobuch functions are an interactive public preview, not a claim that the full productive export/print pipeline already exists**.
+- Main / Production: **locked and unchanged; this candidate may be published only as a new immutable Integration version after visible E2E on the exact candidate bytes**.
+- Rollback target: **the currently accepted Integration App 13.82.81 version `bd31b237-5a5d-4028-b10c-3cd56bebfb65`, deployment `08372387-610f-4b8a-aa98-06be1f387acf`; code/assets only, no data rollback**.
+
 ## M16.5Q Living Compass Recovery Candidate
 
 - Runtime target: **App 13.82.64 / Core 4.82.64 / Integration Preview only**.
@@ -258,12 +274,12 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5 Complete Visual Redesign / Admin, Social and Core-stream Foundation
 
 - Scope: **complete visual, graphical and interactional redesign inventory plus mandatory Admin/Governance, strategic Social/Experience Graph ownership and Core-aligned GitHub streams**
-- Runtime App / Core: **13.82.83 / 4.82.83 Integration-only public Journey/Hardware Compass candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the expanded public Landing; physical handset confirmation, complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
+- Runtime App / Core: **13.82.87 / 4.82.87 Integration-only public Journey/Hardware Compass candidate carrying the accepted Living Compass, corrected Media → Memory routing, stable Places continuity and the expanded public Landing; physical handset confirmation, complete profile/trip onboarding, remaining Product Surface Matrix, visual parity and Design Freeze remain pending**
 - Architecture implementation chain: `6880e881fd433d28e75396502adee12af528fb8b` -> `3679a06fbaf45b132dac2238ba198d658b5ceb02` -> `f44036bf7e62e2557585142845f53ffa553ce4d7`
 - M16 runtime source before the M16.5C continuity release: `0d7468596dbdb42803738f427d4355bf31281c65`
 - M16.5 status: **BINDING VISUAL PARITY LOCK ACTIVE; the accepted Corporate Design is the required productive endpoint, the outer Signed-in shell is adopted, and the remaining feature stages are migrated without substitution before joint Design Freeze**
-- Exhaustive manifest: **2,796 tracked files; 676 visual candidates; 264 active entry references; 0 unclassified entry references**
-- Canonical CSS baseline: **59 files; 939,806 LF-normalized bytes; 8,345 lines; 3,228 `!important`; 2,924 literal hex colours; 274 z-index declarations; 41 reduced-motion queries; 45 focus-visible selectors**
+- Exhaustive manifest: **2,841 tracked files; 714 visual candidates; 268 active entry references; 0 unclassified entry references**
+- Canonical CSS baseline: **61 files; 1,170,835 LF-normalized bytes; 9,669 lines; 3,387 `!important`; 3,365 literal hex colours; 420 z-index declarations; 54 reduced-motion queries; 81 focus-visible selectors**
 - Design inventory includes: **all screens, routes, modules, deep links, overlays, cards, boxes, containers, forms, maps, media, chat/Rich Results, hidden and recovery states, Hover/Press/Focus/Drag/Scroll transitions, desktop/tablet/mobile Web and SwiftUI/Compose adaptations**
 - Administrative Experience: **a separate design surface; the Consumer Control Center is not renamed or treated as Admin**
 - Admin/Governance Core: **mandatory architecture reservation with default-deny, least privilege, server-side policy, roles/capabilities/scopes, grants, delegation, four-eyes approvals, step-up, break-glass, immutable audit and last-Superadmin protection**
@@ -272,7 +288,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Social runtime/schema/UI claim: **NOT IMPLEMENTED; planned for M18.6 after consent/threat model and the M16.5 Design Freeze**
 - Topology correction: **the synchronized 19-stream marker `3f0e135d8ea006fbd964e010854107d12aa13387` is retained as superseded intermediate evidence; the pre-existing Social branch/worktree is reactivated as the twentieth owner lane**
 - Active GitHub topology: **20/20 registry streams at `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`; Local = Tracking = live Remote; divergence 0/0; clean**
-- Safe Regression: **108 / 108 target with the M16.5R Places continuity guard; final candidate run remains required after versioned assembly**
+- Safe Regression: **110 / 110 PASS with the M16.5T public Journey/Memory Studio gate**
 - NFR-0: **3 / 3 PASS**
 - Cross-Core DB guard: **363 tracked JS/TS; static 310; mapped 30/30; unmapped 39/39; dynamic 27/27; no growth**
 - Rejected/superseded evidence: **the first Integration manifest comparison failed because identical Git text blobs were checked out with different LF/CRLF working-copy endings; Integration was not advanced until canonical LF text provenance was used. The later 19-stream closeout was technically valid but product evidence proved Social has separate Truth, so it is superseded by the 20-stream correction rather than rewritten as final**

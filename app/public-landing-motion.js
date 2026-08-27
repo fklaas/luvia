@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "13.82.83";
+  const VERSION = "13.82.87";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",
@@ -123,6 +123,7 @@
     let horizonTimer = 0;
     let destinationTimer = 0;
     let restartHorizonCycle = () => {};
+    let syncReelMotion = () => {};
 
     const noMotion = () => systemReduced || motionDisabled;
     const delay = ms => new Promise(resolve => window.setTimeout(resolve, noMotion() ? 0 : ms));
@@ -258,7 +259,7 @@
         toggle.disabled = systemReduced;
         const label = toggle.querySelector("[data-motion-toggle-label]");
         const compact = toggle.classList.contains("motion-toggle");
-        if (label) label.textContent = systemReduced ? (compact ? "System reduziert" : "Bewegung vom System reduziert") : disabled ? (compact ? "Animationen an" : "Animationen wieder einschalten") : (compact ? "Animationen aus" : "Ohne Rätsel & Animationen");
+        if (label) label.textContent = systemReduced ? (compact ? "System reduziert" : "Bewegung vom System reduziert") : disabled ? (compact ? "Animationen: aus" : "Animationen wieder einschalten") : (compact ? "Animationen: an" : "Ohne Rätsel & Animationen");
         toggle.setAttribute("aria-label", systemReduced ? "Systemeinstellung reduziert Bewegung; Kompass ist direkt geöffnet" : disabled ? "Animationen wieder aktivieren" : "Animationen deaktivieren und Kompassrätsel überspringen");
       });
       if (persist) {
@@ -274,6 +275,7 @@
         restartHorizonCycle();
         restartDestinationCycle();
       }
+      syncReelMotion();
     }
 
     function mountMotionPreference() {
@@ -666,39 +668,97 @@
       const controls = workbench.querySelector("[data-photo-controls]");
       if (!photo || !controls) return;
       const inputs = Object.fromEntries([...controls.querySelectorAll("[data-photo-control]")].map(input => [input.dataset.photoControl, input]));
-      const compare = photo.querySelector("[data-photo-compare]");
       const summary = controls.querySelector("[data-photo-summary]");
+      const liveState = controls.querySelector("[data-photo-live-state]");
+      const defaults = Object.freeze({ light: 22, contrast: 8, warmth: 6, saturation: 8, highlights: -8, shadows: 12, vignette: 8, horizon: 0 });
+      const presets = Object.freeze({
+        natural: defaults,
+        clear: Object.freeze({ light: 15, contrast: 22, warmth: -4, saturation: 14, highlights: -16, shadows: 8, vignette: 4, horizon: 0 }),
+        warm: Object.freeze({ light: 18, contrast: 9, warmth: 28, saturation: 16, highlights: -10, shadows: 18, vignette: 10, horizon: 0 }),
+        film: Object.freeze({ light: 8, contrast: 18, warmth: 14, saturation: -12, highlights: -22, shadows: 24, vignette: 24, horizon: 0 })
+      });
+      let cropRatio = "original";
       const signed = value => `${Number(value) > 0 ? "+" : ""}${Number(value)}`;
+      const setView = state => {
+        const nextState = state === "original" ? "original" : "edited";
+        photo.dataset.photoViewState = nextState;
+        photo.querySelectorAll("[data-photo-view]").forEach(button => {
+          const active = button.dataset.photoView === nextState;
+          button.classList.toggle("is-active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+        const label = photo.querySelector("[data-photo-view-label]");
+        if (label) label.textContent = nextState === "original" ? "Unverändertes Original" : "Bearbeitung aktiv";
+      };
       const paintTrack = input => {
         const span = Number(input.max) - Number(input.min) || 1;
         input.style.setProperty("--range-position", `${(Number(input.value) - Number(input.min)) / span * 100}%`);
       };
+      const selectPreset = name => {
+        controls.querySelectorAll("[data-photo-preset]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.photoPreset === name)));
+        if (liveState) liveState.textContent = name ? `${controls.querySelector(`[data-photo-preset="${name}"]`)?.textContent || name} · aktiv` : "Eigene Anpassung";
+      };
+      const setRatio = ratio => {
+        cropRatio = ratio;
+        photo.dataset.photoRatio = ratio;
+        controls.querySelectorAll("[data-photo-ratio]").forEach(button => {
+          const active = button.dataset.photoRatio === ratio;
+          button.classList.toggle("is-active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+      };
       const update = () => {
         const light = Number(inputs.light?.value || 0);
+        const contrast = Number(inputs.contrast?.value || 0);
         const warmth = Number(inputs.warmth?.value || 0);
+        const saturation = Number(inputs.saturation?.value || 0);
+        const highlights = Number(inputs.highlights?.value || 0);
+        const shadows = Number(inputs.shadows?.value || 0);
+        const vignette = Number(inputs.vignette?.value || 0);
         const horizon = Number(inputs.horizon?.value || 0);
         photo.style.setProperty("--editor-brightness", String(1 + light * .004));
+        photo.style.setProperty("--editor-contrast", String(Math.max(.7, 1 + contrast * .006 + highlights * .001 - shadows * .001)));
         photo.style.setProperty("--editor-sepia", String(Math.max(0, warmth) * .005));
-        photo.style.setProperty("--editor-saturation", String(1 + Math.abs(warmth) * .008));
+        photo.style.setProperty("--editor-saturation", String(Math.max(.55, 1 + Math.abs(warmth) * .005 + saturation * .007)));
         photo.style.setProperty("--editor-hue", `${warmth * -.22}deg`);
         photo.style.setProperty("--editor-rotate", `${horizon}deg`);
-        if (compare) photo.style.setProperty("--compare", `${compare.value}%`);
+        photo.style.setProperty("--editor-crop-scale", cropRatio === "4:5" ? "1.2" : cropRatio === "16:9" ? "1.11" : "1.055");
+        photo.style.setProperty("--editor-highlights", String(Math.max(0, highlights) * .009));
+        photo.style.setProperty("--editor-shadows", String(Math.max(0, shadows) * .008));
+        photo.style.setProperty("--editor-vignette", String(Math.max(0, vignette) * .012));
         for (const [name, input] of Object.entries(inputs)) {
           paintTrack(input);
           const output = controls.querySelector(`[data-photo-output="${name}"]`);
           if (output) output.textContent = name === "horizon" ? `${signed(input.value)}°` : signed(input.value);
         }
-        if (summary) summary.textContent = `Licht ${signed(light)} · Wärme ${signed(warmth)} · Horizont ${signed(horizon)}°`;
+        const activeCount = Object.values(inputs).filter(input => Number(input.value) !== 0).length;
+        if (summary) summary.textContent = activeCount ? `${activeCount} Korrekturen · Original bleibt erhalten` : "Originalansicht · jederzeit wiederherstellbar";
       };
-      Object.values(inputs).forEach(input => input.addEventListener("input", update, { signal }));
-      compare?.addEventListener("input", update, { signal });
-      controls.querySelector("[data-photo-reset]")?.addEventListener("click", () => {
-        if (inputs.light) inputs.light.value = "0";
-        if (inputs.warmth) inputs.warmth.value = "0";
-        if (inputs.horizon) inputs.horizon.value = "0";
-        if (compare) compare.value = "50";
+      Object.values(inputs).forEach(input => input.addEventListener("input", () => { selectPreset(""); update(); }, { signal }));
+      photo.querySelectorAll("[data-photo-view]").forEach(button => button.addEventListener("click", () => setView(button.dataset.photoView), { signal }));
+      controls.querySelectorAll("[data-photo-preset]").forEach(button => button.addEventListener("click", () => {
+        const preset = presets[button.dataset.photoPreset];
+        if (!preset) return;
+        Object.entries(preset).forEach(([name, value]) => { if (inputs[name]) inputs[name].value = String(value); });
+        selectPreset(button.dataset.photoPreset);
+        update();
+      }, { signal }));
+      controls.querySelectorAll("[data-photo-ratio]").forEach(button => button.addEventListener("click", () => { setRatio(button.dataset.photoRatio); update(); }, { signal }));
+      controls.querySelector("[data-photo-rotate]")?.addEventListener("click", () => {
+        if (!inputs.horizon) return;
+        inputs.horizon.value = String(Number(inputs.horizon.value) <= -3.5 ? 0 : Number(inputs.horizon.value) - .5);
+        selectPreset("");
         update();
       }, { signal });
+      controls.querySelector("[data-photo-reset]")?.addEventListener("click", () => {
+        Object.values(inputs).forEach(input => { input.value = "0"; });
+        setRatio("original");
+        selectPreset("");
+        setView("edited");
+        update();
+      }, { signal });
+      setRatio("original");
+      setView("edited");
       update();
     }
 
@@ -716,48 +776,422 @@
       }, { signal });
 
       const reelScenes = Object.freeze([
-        ["assets/public-landing/prototype-coast-bike.png", "Unser Weg ans Meer", "00:06", "Fahrradtour als Reel-Szene"],
-        ["assets/public-landing/prototype-harbor-lunch.png", "Mittag am Hafen", "00:11", "Hafenmoment als Reel-Szene"],
-        ["assets/public-landing/prototype-memory-sunset.png", "Das Licht bleibt", "00:18", "Sonnenuntergang als Reel-Szene"],
-        ["assets/public-landing/prototype-coast-morning.png", "Morgen an der Küste", "00:24", "Küstenmorgen als Reel-Szene"]
+        { video: "assets/public-landing/reel-couple-market.mp4", poster: "assets/public-landing/reel-poster-couple-market.webp", title: "Einfach treiben lassen", time: "00:06", alt: "Paar entdeckt gemeinsam einen lebendigen Stadtmarkt", place: "City Market · zu zweit", copy: "Keine Liste. Nur wir, eine Kamera und die nächste Gasse. 📍", credit: "Clip · George Pak / Pexels ↗", source: "https://www.pexels.com/video/couple-on-travel-tour-7824469/" },
+        { video: "assets/public-landing/reel-family-planning.mp4", poster: "assets/public-landing/reel-poster-family-planning.webp", title: "Der Aufbruch gehört uns", time: "00:11", alt: "Junge Familie plant mit Karte und Koffer ihre gemeinsame Reise", place: "Zuhause · gleich geht es los", copy: "Die erste Route entsteht zwischen Koffer, Karte und ganz viel Vorfreude. 🧳", credit: "Clip · Gustavo Fring / Pexels ↗", source: "https://www.pexels.com/video/a-couple-looking-at-a-map-with-their-baby-girl-8779705/" },
+        { video: "assets/public-landing/reel-friends-beach.mp4", poster: "assets/public-landing/reel-poster-friends-beach.webp", title: "Dieser Nachmittag bleibt", time: "00:18", alt: "Freundinnen genießen gemeinsam einen sonnigen Strandtag", place: "Küste · mit Freunden", copy: "Salz auf der Haut, Musik im Sand und niemand schaut auf die Uhr. ☀️", credit: "Clip · RDNE Stock project / Pexels ↗", source: "https://www.pexels.com/video/friends-bonding-at-the-beach-8760164/" },
+        { video: "assets/public-landing/reel-beach-sunrise.mp4", poster: "assets/public-landing/reel-poster-beach-sunrise.webp", title: "Nur noch wir und das Meer", time: "00:24", alt: "Zwei Menschen gehen bei Sonnenaufgang gemeinsam am Strand", place: "Strand · erster Morgen", copy: "Früh aufstehen war plötzlich gar nicht mehr wichtig. Nur dieser Horizont. 🌅", credit: "Clip · Bùi Hoàng Long / Pexels ↗", source: "https://www.pexels.com/video/silhouettes-of-two-people-walking-on-the-beach-at-sunrise-15757393/" }
       ]);
       const reel = workbench.querySelector("[data-reel-phone]");
-      workbench.querySelectorAll("[data-reel-scene]").forEach(button => button.addEventListener("click", () => {
-        const scene = reelScenes[Number(button.dataset.reelScene)] || reelScenes[0];
-        workbench.querySelectorAll("[data-reel-scene]").forEach(item => {
-          item.classList.toggle("is-active", item === button);
-          item.setAttribute("aria-pressed", String(item === button));
+      const reelVideo = reel?.querySelector("video");
+      const playReel = () => {
+        if (!reelVideo || noMotion()) return;
+        reelVideo.play().catch(() => {});
+        reel?.classList.add("is-playing");
+      };
+      syncReelMotion = () => {
+        if (!reelVideo) return;
+        if (noMotion() || workbench.dataset.memoryMode !== "reel") {
+          reelVideo.pause();
+          reel?.classList.remove("is-playing");
+        } else if (workbench.dataset.memoryMode === "reel") playReel();
+      };
+      const reelSceneButtons = [...workbench.querySelectorAll("[data-reel-scene]")];
+      const reelStorySegments = [...workbench.querySelectorAll("[data-reel-story-segment]")];
+      const selectReelScene = index => {
+        const sceneIndex = Math.max(0, Math.min(reelScenes.length - 1, Number(index) || 0));
+        const scene = reelScenes[sceneIndex];
+        reelSceneButtons.forEach(item => {
+          const active = Number(item.dataset.reelScene) === sceneIndex;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
         });
-        const image = reel?.querySelector("img");
-        if (image) { image.src = scene[0]; image.alt = scene[3]; }
+        reelStorySegments.forEach(item => item.classList.toggle("is-active", Number(item.dataset.reelStorySegment) === sceneIndex));
         const title = reel?.querySelector("[data-reel-title]");
         const time = reel?.querySelector("[data-reel-time]");
-        if (title) title.textContent = scene[1];
-        if (time) time.textContent = scene[2];
+        const place = reel?.querySelector("[data-reel-place]");
+        const copy = reel?.querySelector("[data-reel-copy]");
+        const credit = reel?.querySelector("[data-reel-credit]");
+        if (reelVideo) {
+          reelVideo.pause();
+          reelVideo.src = scene.video;
+          reelVideo.poster = scene.poster;
+          reelVideo.setAttribute("aria-label", scene.alt);
+          reelVideo.load();
+        }
+        if (title) title.textContent = scene.title;
+        if (time) time.textContent = scene.time;
+        if (place) place.textContent = scene.place;
+        if (copy) copy.textContent = scene.copy;
+        if (credit) { credit.textContent = scene.credit; credit.href = scene.source; }
         reel?.classList.remove("is-changing");
         void reel?.offsetWidth;
         reel?.classList.add("is-changing");
+        playReel();
+      };
+      reelSceneButtons.forEach(button => button.addEventListener("click", () => selectReelScene(button.dataset.reelScene), { signal }));
+      reelStorySegments.forEach(button => button.addEventListener("click", () => selectReelScene(button.dataset.reelStorySegment), { signal }));
+
+      const updateReelTags = () => {
+        const tags = [...workbench.querySelectorAll("[data-reel-tag][aria-pressed=\"true\"]")].map(button => button.dataset.reelTag);
+        const output = reel?.querySelector("[data-reel-tags]");
+        if (output) output.textContent = tags.join(" ") || "#eueremoment";
+      };
+      workbench.querySelectorAll("[data-reel-tag]").forEach(button => button.addEventListener("click", () => {
+        const active = button.getAttribute("aria-pressed") !== "true";
+        button.setAttribute("aria-pressed", String(active));
+        button.classList.toggle("is-active", active);
+        updateReelTags();
       }, { signal }));
+      const formatCopy = Object.freeze({
+        "9:16": { state: "9:16 · sauberer Export ohne Plattform-UI", badge: "9:16" },
+        story: { state: "Story · Antwortleiste und sichere Kopf-/Fußräume", badge: "STORY" },
+        reel: { state: "Reel · Caption, Reaktionen und sichere Textränder", badge: "REEL" }
+      });
+      workbench.querySelectorAll("[data-reel-format]").forEach(button => button.addEventListener("click", () => {
+        workbench.querySelectorAll("[data-reel-format]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        const format = button.dataset.reelFormat;
+        reel?.setAttribute("data-reel-format", format);
+        const detail = formatCopy[format] || formatCopy.reel;
+        const state = workbench.querySelector("[data-reel-format-state]");
+        const badge = reel?.querySelector("[data-reel-format-badge]");
+        if (state) state.textContent = detail.state;
+        if (badge) badge.textContent = detail.badge;
+      }, { signal }));
+      workbench.querySelector("[data-reel-react]")?.addEventListener("click", event => {
+        const button = event.currentTarget;
+        const active = button.getAttribute("aria-pressed") !== "true";
+        button.setAttribute("aria-pressed", String(active));
+        button.classList.toggle("is-active", active);
+        const icon = button.querySelector("span");
+        const likes = button.querySelector("[data-reel-likes]");
+        if (icon) icon.textContent = active ? "♥" : "♡";
+        if (likes) likes.textContent = active ? "2,5k" : "2,4k";
+      }, { signal });
+      workbench.querySelector("[data-reel-comment]")?.addEventListener("click", event => {
+        event.currentTarget.classList.toggle("is-active");
+        const count = event.currentTarget.querySelector("b");
+        if (count) count.textContent = count.textContent === "87" ? "88" : "87";
+      }, { signal });
+      workbench.querySelector("[data-reel-share]")?.addEventListener("click", event => {
+        event.currentTarget.classList.toggle("is-active");
+        const label = event.currentTarget.querySelector("b");
+        if (label) label.textContent = label.textContent === "Teilen" ? "Bereit ✓" : "Teilen";
+      }, { signal });
+      workbench.querySelectorAll("[data-reel-music]").forEach(button => button.addEventListener("click", () => {
+        workbench.querySelectorAll("[data-reel-music]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-checked", String(active));
+        });
+        const audio = reel?.querySelector("[data-reel-audio]");
+        if (audio) audio.textContent = button.dataset.reelMusicLabel || button.textContent.trim();
+        const state = workbench.querySelector("[data-reel-music-state]");
+        if (state) state.textContent = `${button.querySelector("b")?.textContent || "1 Soundtrack"} ausgewählt · Vorschau ohne Autoplay-Ton`;
+      }, { signal }));
+      workbench.querySelector("[data-reel-preview-action]")?.addEventListener("click", event => {
+        const playing = Boolean(reelVideo?.paused);
+        if (playing && !noMotion()) reelVideo?.play().catch(() => {});
+        else reelVideo?.pause();
+        reel?.classList.toggle("is-playing", playing);
+        event.currentTarget.textContent = playing ? "Vorschau pausieren Ⅱ" : "Vorschau abspielen ▶";
+      }, { signal });
 
       const bookPages = Object.freeze([
-        ["assets/public-landing/prototype-harbor-lunch.png", "assets/public-landing/prototype-memory-sunset.png", "Aus der Memory World gesetzt.<br>Von euch freigegeben."],
-        ["assets/public-landing/prototype-coast-bike.png", "assets/public-landing/prototype-coast-morning.png", "Unterwegs gesammelt.<br>Als Geschichte weitergetragen."]
+        { left: "assets/public-landing/prototype-harbor-lunch.png", right: "assets/public-landing/prototype-memory-sunset.png", detail: "assets/public-landing/prototype-coast-bike.png", kicker: "TAG 03 · HAFENLUFT", title: "Ein Tag,\nganz bei uns.", leftCaption: "13:34 · Das Essen kam später. Das Gespräch durfte bleiben.", rightCaption: "21:18 · Noch einmal barfuß ans Wasser.", note: "Genau so fühlt sich Zeit füreinander an.", copy: "Ein Abend, den wir nicht geplant hatten – und gerade deshalb behalten.", location: "OSTSEE · 21:18", leftPage: "06", rightPage: "07" },
+        { left: "assets/public-landing/prototype-coast-bike.png", right: "assets/public-landing/prototype-coast-morning.png", detail: "assets/public-landing/prototype-harbor-lunch.png", kicker: "TAG 04 · EINFACH LOS", title: "Rückenwind\nfür uns zwei.", leftCaption: "09:12 · Fahrräder, Rückenwind und die längere Abzweigung.", rightCaption: "11:46 · Der Horizont war unser einziger Termin.", note: "Bitte genau diesen Umweg noch einmal.", copy: "Aus einem freien Morgen wurde die Geschichte, die wir am häufigsten erzählen.", location: "KÜSTENWEG · 11:46", leftPage: "08", rightPage: "09" },
+        { left: "assets/public-landing/prototype-memory-sunset.png", right: "assets/public-landing/prototype-harbor-lunch.png", detail: "assets/public-landing/prototype-coast-morning.png", kicker: "TAG 05 · NOCH NICHT HEIM", title: "Das letzte Licht\nbleibt bei uns.", leftCaption: "20:51 · Das letzte Licht lag noch auf dem Wasser.", rightCaption: "22:07 · Einer bestellt Nachtisch. Alle bleiben.", note: "Kein großer Plan. Ein ziemlich großes Gefühl.", copy: "Fotos, Orte und eure kleinen Sätze bleiben als eine gemeinsame Erinnerung verbunden.", location: "HAFENABEND · 22:07", leftPage: "10", rightPage: "11" }
       ]);
       let bookPage = 0;
-      workbench.querySelector("[data-book-turn]")?.addEventListener("click", () => {
-        bookPage = (bookPage + 1) % bookPages.length;
+      const renderBookPage = nextPage => {
+        bookPage = (nextPage + bookPages.length) % bookPages.length;
         const spread = workbench.querySelector("[data-book-spread]");
         const page = bookPages[bookPage];
         const left = spread?.querySelector('[data-book-image="left"]');
         const right = spread?.querySelector('[data-book-image="right"]');
-        if (left) left.src = page[0];
-        if (right) right.src = page[1];
+        const detail = spread?.querySelector('[data-book-image="detail"]');
+        if (left) left.src = page.left;
+        if (right) right.src = page.right;
+        if (detail) detail.src = page.detail;
+        const fields = {
+          "[data-book-left-kicker]": page.kicker,
+          "[data-book-title]": page.title,
+          "[data-book-left-caption]": page.leftCaption,
+          "[data-book-right-caption]": page.rightCaption,
+          "[data-book-note]": page.note,
+          "[data-book-location]": page.location,
+          "[data-book-page-left]": page.leftPage,
+          "[data-book-page-right]": page.rightPage
+        };
+        Object.entries(fields).forEach(([selector, value]) => {
+          const node = spread?.querySelector(selector);
+          if (node) node.textContent = value;
+        });
         const copy = spread?.querySelector("[data-book-copy]");
-        if (copy) copy.innerHTML = page[2];
+        if (copy) copy.textContent = page.copy;
+        const progress = workbench.querySelector("[data-book-progress]");
+        if (progress) progress.textContent = `Doppelseite ${bookPage + 1} von ${bookPages.length}`;
         spread?.classList.remove("is-turning");
         void spread?.offsetWidth;
         spread?.classList.add("is-turning");
+      };
+      workbench.querySelector("[data-book-turn]")?.addEventListener("click", () => renderBookPage(bookPage + 1), { signal });
+      workbench.querySelector("[data-book-prev]")?.addEventListener("click", () => renderBookPage(bookPage - 1), { signal });
+      const bookLayoutNames = Object.freeze({ journal: "Editorial", postcards: "Postkarten", mosaic: "Collage" });
+      workbench.querySelectorAll("[data-book-layout-choice]").forEach(button => button.addEventListener("click", () => {
+        const layout = button.dataset.bookLayoutChoice || "journal";
+        const spread = workbench.querySelector("[data-book-spread]");
+        if (spread) spread.dataset.bookLayout = layout;
+        workbench.querySelectorAll("[data-book-layout-choice]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        const label = workbench.querySelector("[data-book-layout-label]");
+        if (label) label.textContent = bookLayoutNames[layout] || bookLayoutNames.journal;
+      }, { signal }));
+
+      const bookSpread = workbench.querySelector("[data-book-spread]");
+      const bookPreview = workbench.querySelector('[data-memory-preview="book"]');
+      const bookToolNames = Object.freeze({ text: "Text", photos: "Fotobibliothek", style: "Seitenstil", decor: "Dekoration", travel: "Reisethema" });
+      const bookSelectionState = workbench.querySelector("[data-book-selection-state]");
+      const bookDeleteButton = workbench.querySelector("[data-book-delete-element]");
+      let selectedBookElement = null;
+      const selectBookElement = element => {
+        bookSpread?.querySelectorAll("[data-book-draggable].is-selected").forEach(item => item.classList.remove("is-selected"));
+        selectedBookElement = element?.isConnected ? element : null;
+        selectedBookElement?.classList.add("is-selected");
+        if (bookSelectionState) bookSelectionState.textContent = selectedBookElement ? `${selectedBookElement.dataset.bookElementType || "Element"} · ziehen oder mit Pfeiltasten bewegen` : "Nichts ausgewählt";
+        if (bookDeleteButton) bookDeleteButton.disabled = !selectedBookElement?.matches("[data-book-removable]");
+      };
+      const removeBookElement = element => {
+        if (!element?.matches("[data-book-removable]")) return;
+        if (element.matches("[data-book-dynamic]")) element.remove();
+        else element.hidden = true;
+        selectBookElement(null);
+      };
+      bookDeleteButton?.addEventListener("click", () => removeBookElement(selectedBookElement), { signal });
+      const moveBookElement = (element, nextX, nextY) => {
+        element.dataset.bookX = String(Math.round(nextX));
+        element.dataset.bookY = String(Math.round(nextY));
+        element.style.setProperty("--book-drag-x", `${Math.round(nextX)}px`);
+        element.style.setProperty("--book-drag-y", `${Math.round(nextY)}px`);
+      };
+      const nudgeBookElement = (element, deltaX, deltaY) => {
+        const parentRect = element.parentElement?.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        if (!parentRect) return;
+        const allowedX = Math.max(parentRect.left - elementRect.left, Math.min(deltaX, parentRect.right - elementRect.right));
+        const allowedY = Math.max(parentRect.top - elementRect.top, Math.min(deltaY, parentRect.bottom - elementRect.bottom));
+        moveBookElement(element, Number(element.dataset.bookX || 0) + allowedX, Number(element.dataset.bookY || 0) + allowedY);
+      };
+      const makeBookElementDraggable = element => {
+        if (!element || element.dataset.bookDragReady === "true") return;
+        element.dataset.bookDragReady = "true";
+        let dragState = null;
+        element.addEventListener("pointerdown", event => {
+          if (event.button !== undefined && event.button !== 0) return;
+          selectBookElement(element);
+          const elementRect = element.getBoundingClientRect();
+          const parentRect = element.parentElement?.getBoundingClientRect();
+          if (!parentRect) return;
+          dragState = { startX: event.clientX, startY: event.clientY, originX: Number(element.dataset.bookX || 0), originY: Number(element.dataset.bookY || 0), elementRect, parentRect };
+          element.setPointerCapture?.(event.pointerId);
+          event.preventDefault();
+        }, { signal });
+        element.addEventListener("pointermove", event => {
+          if (!dragState) return;
+          const rawX = event.clientX - dragState.startX;
+          const rawY = event.clientY - dragState.startY;
+          const deltaX = Math.max(dragState.parentRect.left - dragState.elementRect.left, Math.min(rawX, dragState.parentRect.right - dragState.elementRect.right));
+          const deltaY = Math.max(dragState.parentRect.top - dragState.elementRect.top, Math.min(rawY, dragState.parentRect.bottom - dragState.elementRect.bottom));
+          moveBookElement(element, dragState.originX + deltaX, dragState.originY + deltaY);
+        }, { signal });
+        const finishDrag = event => {
+          if (!dragState) return;
+          element.releasePointerCapture?.(event.pointerId);
+          dragState = null;
+        };
+        element.addEventListener("pointerup", finishDrag, { signal });
+        element.addEventListener("pointercancel", finishDrag, { signal });
+        element.addEventListener("click", () => selectBookElement(element), { signal });
+        element.addEventListener("keydown", event => {
+          const step = event.shiftKey ? 12 : 4;
+          const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+          if (moves[event.key]) {
+            event.preventDefault();
+            selectBookElement(element);
+            nudgeBookElement(element, ...moves[event.key]);
+          } else if (event.key === "Delete" || event.key === "Backspace") {
+            event.preventDefault();
+            removeBookElement(element);
+          }
+        }, { signal });
+      };
+      workbench.querySelectorAll("[data-book-editor-tab]").forEach(button => button.addEventListener("click", () => {
+        const tool = button.dataset.bookEditorTab || "text";
+        workbench.querySelectorAll("[data-book-editor-tab]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-selected", String(active));
+        });
+        workbench.querySelectorAll("[data-book-editor-panel]").forEach(panel => {
+          const active = panel.dataset.bookEditorPanel === tool;
+          panel.hidden = !active;
+          panel.classList.toggle("is-active", active);
+        });
+        const state = workbench.querySelector("[data-book-tool-state]");
+        if (state) state.textContent = bookToolNames[tool] || bookToolNames.text;
+      }, { signal }));
+
+      const bookTextInput = workbench.querySelector("[data-book-text-input]");
+      const bookAddedText = bookSpread?.querySelector("[data-book-added-text]");
+      const applyBookText = () => {
+        if (!bookAddedText || !bookTextInput) return;
+        bookAddedText.textContent = bookTextInput.value.trim() || "Unser Lieblingsmoment";
+        bookAddedText.hidden = false;
+        makeBookElementDraggable(bookAddedText);
+        selectBookElement(bookAddedText);
+      };
+      workbench.querySelector("[data-book-add-text]")?.addEventListener("click", applyBookText, { signal });
+      bookTextInput?.addEventListener("input", () => {
+        if (bookAddedText && !bookAddedText.hidden) applyBookText();
       }, { signal });
+      workbench.querySelector("select[data-book-font]")?.addEventListener("change", event => {
+        if (bookSpread) bookSpread.dataset.bookFont = event.currentTarget.value || "modern";
+      }, { signal });
+      workbench.querySelector("[data-book-size]")?.addEventListener("input", event => {
+        const size = Number(event.currentTarget.value) || 18;
+        bookSpread?.style.setProperty("--book-custom-size", `${size}px`);
+        const output = workbench.querySelector("[data-book-size-output]");
+        if (output) output.textContent = String(size);
+      }, { signal });
+      workbench.querySelectorAll("[data-book-text-color]").forEach(button => button.addEventListener("click", () => {
+        workbench.querySelectorAll("[data-book-text-color]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        bookSpread?.style.setProperty("--book-custom-color", button.dataset.bookTextColor || "#163247");
+      }, { signal }));
+      workbench.querySelector("[data-book-bold]")?.addEventListener("click", event => {
+        const active = event.currentTarget.getAttribute("aria-pressed") !== "true";
+        event.currentTarget.setAttribute("aria-pressed", String(active));
+        if (bookSpread) bookSpread.dataset.bookTextWeight = active ? "bold" : "regular";
+      }, { signal });
+      workbench.querySelectorAll("[data-book-align]").forEach(button => button.addEventListener("click", () => {
+        workbench.querySelectorAll("[data-book-align]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        if (bookSpread) bookSpread.dataset.bookAlign = button.dataset.bookAlign || "left";
+      }, { signal }));
+
+      const bindBookChoice = (selector, datasetKey, fallback) => {
+        workbench.querySelectorAll(selector).forEach(button => button.addEventListener("click", () => {
+          workbench.querySelectorAll(selector).forEach(item => {
+            const active = item === button;
+            item.classList.toggle("is-active", active);
+            item.setAttribute("aria-pressed", String(active));
+          });
+          if (bookSpread) bookSpread.dataset[datasetKey] = button.dataset[datasetKey] || fallback;
+        }, { signal }));
+      };
+      bindBookChoice("button[data-book-theme]", "bookTheme", "magazine");
+      bindBookChoice("button[data-book-frame]", "bookFrame", "soft");
+      bindBookChoice("button[data-book-focus]", "bookFocus", "center");
+      const bookThemeDescriptions = Object.freeze({ magazine: "Großzügiger Weißraum, klare Kapiteltypografie und ruhige Bildbühnen.", coast: "Sanfte Wellenformen, Meeresfarben und ein warmer Sonnenakzent.", golden: "Lichtvolle Verläufe, warme Apricot-Töne und ein ruhiger Abendglanz.", postcard: "Papierlinien, Reisestempel und persönliche Postkartendetails.", atlas: "Kartenraster, Wegmarken und eine sichtbare Route durch die Doppelseite.", family: "Weiche Farbinseln, runde Formen und freundliche, lebendige Akzente.", adventure: "Topografische Linien, Naturtöne und ein robuster Expeditionscharakter.", city: "Architektonische Raster, klare Kontraste und urbane Farbsignale.", desert: "Geschichtete Dünenformen, Sandtöne und warme Terrakotta-Akzente.", alpine: "Luftige Bergsilhouetten, kühle Naturtöne und viel ruhige Fläche." });
+      workbench.querySelectorAll("button[data-book-theme]").forEach(button => button.addEventListener("click", () => {
+        const description = workbench.querySelector("[data-book-theme-description]");
+        if (description) description.textContent = bookThemeDescriptions[button.dataset.bookTheme] || bookThemeDescriptions.magazine;
+      }, { signal }));
+      workbench.querySelector("[data-book-corners]")?.addEventListener("click", event => {
+        const organic = event.currentTarget.getAttribute("aria-pressed") !== "true";
+        event.currentTarget.setAttribute("aria-pressed", String(organic));
+        const label = event.currentTarget.querySelector("strong");
+        if (label) label.textContent = organic ? "Organisch" : "Grafisch";
+        if (bookSpread) bookSpread.dataset.bookCorners = organic ? "organic" : "graphic";
+      }, { signal });
+      const stickerSymbols = Object.freeze({ spark: "✦", heart: "♡", pin: "⌖", none: "" });
+      workbench.querySelectorAll("[data-book-sticker]").forEach(button => button.addEventListener("click", () => {
+        const sticker = button.dataset.bookSticker || "none";
+        workbench.querySelectorAll("[data-book-sticker]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        const node = bookSpread?.querySelector("[data-book-custom-sticker]");
+        if (node) {
+          node.textContent = stickerSymbols[sticker] || "";
+          node.hidden = sticker === "none";
+          makeBookElementDraggable(node);
+          if (sticker === "none") selectBookElement(null);
+          else selectBookElement(node);
+        }
+        if (bookSpread) bookSpread.dataset.bookSticker = sticker;
+      }, { signal }));
+      workbench.querySelector("[data-book-shape-toggle]")?.addEventListener("click", event => {
+        const visible = event.currentTarget.getAttribute("aria-pressed") !== "true";
+        event.currentTarget.setAttribute("aria-pressed", String(visible));
+        event.currentTarget.querySelector("strong").textContent = visible ? "Sichtbar" : "Ausgeblendet";
+        bookSpread?.classList.toggle("is-shape-hidden", !visible);
+      }, { signal });
+      workbench.querySelector("[data-book-caption-toggle]")?.addEventListener("click", event => {
+        const visible = event.currentTarget.getAttribute("aria-pressed") !== "true";
+        event.currentTarget.setAttribute("aria-pressed", String(visible));
+        event.currentTarget.querySelector("strong").textContent = visible ? "Sichtbar" : "Ausgeblendet";
+        bookSpread?.classList.toggle("is-captions-hidden", !visible);
+      }, { signal });
+
+      const bookThemeSymbols = Object.freeze({ sea: "≈", beach: "☀", romance: "♡", family: "⌂", adventure: "△", action: "ϟ", jungle: "♧", sahara: "◒", city: "▥", mountains: "⌃", roadtrip: "→", winter: "❄", wellness: "○", food: "✣", friends: "✦", festival: "♫" });
+      workbench.querySelectorAll("button[data-book-travel-theme]").forEach(button => button.addEventListener("click", () => {
+        const theme = button.dataset.bookTravelTheme || "sea";
+        const label = button.dataset.bookTravelLabel || "Meer";
+        workbench.querySelectorAll("button[data-book-travel-theme]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-checked", String(active));
+        });
+        if (bookPreview) bookPreview.dataset.bookTravelTheme = theme;
+        if (bookSpread) bookSpread.dataset.bookTravelTheme = theme;
+        const coverLabel = workbench.querySelector("[data-book-cover-theme]");
+        if (coverLabel) coverLabel.textContent = `${label.toLocaleUpperCase("de-DE")} · 2027`;
+        const symbol = workbench.querySelector("[data-book-theme-symbol]");
+        if (symbol) symbol.textContent = bookThemeSymbols[theme] || "✦";
+      }, { signal }));
+
+      let bookPhotoLayerIndex = 0;
+      workbench.querySelectorAll("button[data-book-photo-add]").forEach(button => button.addEventListener("click", () => {
+        const targetPage = bookSpread?.querySelector(".book-page-right");
+        const source = button.dataset.bookPhotoAdd;
+        if (!targetPage || !source) return;
+        bookPhotoLayerIndex += 1;
+        const layer = document.createElement("button");
+        layer.type = "button";
+        layer.className = "book-placed-photo";
+        layer.dataset.bookDraggable = "";
+        layer.dataset.bookRemovable = "";
+        layer.dataset.bookDynamic = "";
+        layer.dataset.bookElementType = "Foto";
+        layer.style.left = `${20 + (bookPhotoLayerIndex % 3) * 22}px`;
+        layer.style.top = `${86 + (bookPhotoLayerIndex % 3) * 18}px`;
+        layer.style.setProperty("--book-photo-tilt", `${bookPhotoLayerIndex % 2 ? -3 : 3}deg`);
+        layer.setAttribute("aria-label", `${button.dataset.bookPhotoLabel || "Reisefoto"} auswählen und verschieben`);
+        const image = document.createElement("img");
+        image.src = source;
+        image.alt = button.dataset.bookPhotoLabel || "Hinzugefügtes Reisefoto";
+        layer.append(image);
+        targetPage.append(layer);
+        makeBookElementDraggable(layer);
+        selectBookElement(layer);
+        const dynamicLayers = [...bookSpread.querySelectorAll("[data-book-dynamic]")];
+        if (dynamicLayers.length > 4) dynamicLayers[0].remove();
+      }, { signal }));
+      bookSpread?.querySelectorAll("[data-book-draggable]").forEach(makeBookElementDraggable);
 
       mountPhotoEditor(workbench);
     }
@@ -765,21 +1199,44 @@
     function mountJourneySteps() {
       const orbit = root.querySelector(".journey-orbit");
       const output = root.querySelector("[data-journey-selected]");
+      const summary = root.querySelector("[data-journey-summary]");
+      const input = root.querySelector("[data-journey-input]");
+      const action = root.querySelector("[data-journey-action]");
+      const result = root.querySelector("[data-journey-result]");
+      const count = root.querySelector("[data-journey-count]");
+      const progress = root.querySelector("[data-journey-progress]");
       const steps = [...root.querySelectorAll("[data-journey-step]")];
-      const details = [
-        "Luvia nimmt zuerst Stimmung, Tempo und Bedürfnisse auf.",
-        "Der Place Compass verbindet passende Orte mit verständlicher Evidenz.",
-        "Gemeinsame Entscheidungen bleiben sichtbar und nachvollziehbar.",
-        "Fotos, Wege und Stimmen wachsen zu einer verbundenen Memory World."
-      ];
+      const details = Object.freeze([
+        { angle: -42, beam: -135, title: "Der Wunsch gibt die Richtung vor.", summary: "Luvia beginnt mit Stimmung, Tempo und Bedürfnissen – noch bevor ein Reiseziel feststeht.", input: "ruhig · Wasser · Zeit", action: "Bedürfnisse & Reisestil", result: "eine gemeinsame Richtung" },
+        { angle: 48, beam: -45, title: "Orte bekommen einen nachvollziehbaren Sinn.", summary: "Der Place Compass verbindet passende Orte mit Evidenz und erklärt, warum ein Vorschlag gerade zu euch passt.", input: "Richtung · Zeit · Gruppe", action: "Places & Evidenz", result: "passende echte Möglichkeiten" },
+        { angle: 136, beam: 45, title: "Entscheidungen werden gemeinsam tragfähig.", summary: "Rollen, Wünsche und Zustimmung bleiben sichtbar; niemand verschwindet hinter einem schnellen Mehrheitsklick.", input: "Stimmen · Rollen · Grenzen", action: "gemeinsame Entscheidungen", result: "ein Tag, den alle mittragen" },
+        { angle: 226, beam: 135, title: "Der Moment bleibt in seinem Zusammenhang.", summary: "Fotos, Wege, Stimmen und Mitwirkende wachsen zu einer Memory World, deren Herkunft erhalten bleibt.", input: "Bilder · Wege · Stimmen", action: "Momente & Herkunft", result: "eine lebendige Erinnerung" }
+      ]);
+      let needleAngle = details[0].angle;
       const activate = step => {
         const index = Number(step.dataset.journeyStep) || 0;
-        steps.forEach(item => item.classList.toggle("is-active", item === step));
+        const detail = details[index] || details[0];
+        steps.forEach(item => {
+          const active = item === step;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        const delta = ((detail.angle - needleAngle + 540) % 360) - 180;
+        needleAngle += delta;
         orbit?.style.setProperty("--journey-step", String(index));
-        orbit?.style.setProperty("--journey-turn", `${index * 88}deg`);
-        if (output) output.textContent = details[index];
+        orbit?.style.setProperty("--journey-needle-angle", `${needleAngle}deg`);
+        orbit?.style.setProperty("--journey-focus-angle", `${detail.beam}deg`);
+        if (orbit) orbit.dataset.journeyActive = String(index);
+        if (output) output.textContent = detail.title;
+        if (summary) summary.textContent = detail.summary;
+        if (input) input.textContent = detail.input;
+        if (action) action.textContent = detail.action;
+        if (result) result.textContent = detail.result;
+        if (count) count.textContent = `${String(index + 1).padStart(2, "0")} / ${String(details.length).padStart(2, "0")}`;
+        if (progress) progress.style.width = `${((index + 1) / details.length) * 100}%`;
       };
       steps.forEach(step => bindKeyboardActivation(step, () => activate(step)));
+      if (steps[0]) activate(steps[0]);
     }
 
     function mountMemoryTools() {
@@ -810,6 +1267,7 @@
         if (label) label.textContent = copy[0];
         if (title) title.textContent = copy[1];
         if (text) text.textContent = copy[2];
+        syncReelMotion();
       }, { signal }));
       mountMemoryInteractions(workbench);
     }
@@ -834,6 +1292,15 @@
     function mountHorizons() {
       const slides = [...root.querySelectorAll("[data-horizon-slide]")];
       const dots = root.querySelector("[data-horizon-dots]");
+      const indexOutput = root.querySelector("[data-horizon-index]");
+      const progress = root.querySelector("[data-horizon-progress]");
+      const place = root.querySelector("[data-horizon-eyebrow]");
+      const feeling = root.querySelector("[data-horizon-feeling]");
+      const pace = root.querySelector("[data-horizon-pace]");
+      const moment = root.querySelector("[data-horizon-moment]");
+      const sequence = root.querySelector(".horizon-sequence");
+      const save = root.querySelector("[data-horizon-save]");
+      const saved = new Set();
       if (!slides.length || !dots) return;
       const show = index => {
         activeHorizon = (index + slides.length) % slides.length;
@@ -843,6 +1310,20 @@
           slide.classList.toggle("is-next", i === (activeHorizon + 1) % slides.length);
         });
         dots.querySelectorAll("button").forEach((dot, i) => { dot.classList.toggle("is-active", i === activeHorizon); dot.setAttribute("aria-pressed", String(i === activeHorizon)); });
+        const active = slides[activeHorizon];
+        if (indexOutput) indexOutput.textContent = String(activeHorizon + 1).padStart(2, "0");
+        if (progress) progress.style.width = `${((activeHorizon + 1) / slides.length) * 100}%`;
+        if (place) place.textContent = active.dataset.horizonPlace || "Reisehorizont";
+        if (feeling) feeling.textContent = active.dataset.horizonFeeling || "Ein neuer Horizont";
+        if (pace) pace.textContent = active.dataset.horizonPace || "euer Rhythmus";
+        if (moment) moment.textContent = active.dataset.horizonMoment || "euer Moment";
+        if (sequence) sequence.setAttribute("aria-label", `Horizont ${activeHorizon + 1} von ${slides.length}`);
+        if (save) {
+          const isSaved = saved.has(activeHorizon);
+          save.classList.toggle("is-saved", isSaved);
+          save.setAttribute("aria-pressed", String(isSaved));
+          save.innerHTML = isSaved ? "Horizont gemerkt <span>✓</span>" : "Diesen Horizont merken <span>＋</span>";
+        }
       };
       slides.forEach((slide, index) => {
         const dot = document.createElement("button");
@@ -850,9 +1331,16 @@
         dot.setAttribute("aria-label", slide.querySelector("figcaption strong")?.textContent || `Motiv ${index + 1}`);
         dot.style.setProperty("--horizon-thumb", `url(\"${slide.querySelector("img")?.getAttribute("src") || ""}\")`);
         dot.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span>`;
-        dot.addEventListener("click", () => show(index), { signal });
+        dot.addEventListener("click", () => { show(index); restartHorizonCycle(); }, { signal });
         dots.append(dot);
       });
+      root.querySelector("[data-horizon-prev]")?.addEventListener("click", () => { show(activeHorizon - 1); restartHorizonCycle(); }, { signal });
+      root.querySelector("[data-horizon-next]")?.addEventListener("click", () => { show(activeHorizon + 1); restartHorizonCycle(); }, { signal });
+      save?.addEventListener("click", () => {
+        if (saved.has(activeHorizon)) saved.delete(activeHorizon);
+        else saved.add(activeHorizon);
+        show(activeHorizon);
+      }, { signal });
       show(0);
       restartHorizonCycle = () => {
         window.clearInterval(horizonTimer);
