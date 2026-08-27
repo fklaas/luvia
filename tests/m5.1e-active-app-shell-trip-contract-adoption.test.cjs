@@ -53,15 +53,21 @@ for (const required of [
   'window.LuviaJourneyContractV1?.commands?.hydrate?.(activeTripId)',
   'window.LuviaDestination?.refresh?.()',
   'window.LuviaCollaboration?.watchTrip?.(activeTripId)',
-  'lastTripRenderSignature=tripRenderSignature(active)',
+  'const nextSignature=tripRenderSignature(active)',
+  'lastTripRenderSignature=nextSignature',
   'refreshShellHeader()',
-  "await show(activeView,{force:true,animate:false})"
+  "if(requiresViewRender)await show(activeView,{force:true,animate:false})"
 ]) {
   assert(
     SOURCE.includes(required),
     `Trip-switch behavior must preserve: ${required}`
   );
 }
+
+assert(
+  SOURCE.includes('requiresViewRender=lastRenderedTripId!==activeTripId||nextSignature!==lastTripRenderSignature'),
+  'Unchanged Trip projections must not remount the active App Shell view'
+);
 
 assert(
   SOURCE.includes(

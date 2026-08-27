@@ -458,6 +458,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5v-shell-warm-start-profile-header-release.test.cjs'
   },
   {
+    category: 'M16.5 / Shell Detail and Today Stability',
+    test: 'tests/m16.5w-shell-detail-stability-release.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

@@ -14,7 +14,7 @@ const hubsCss = read('app/module-hubs.css');
 const places = read('app/places/places-spatial-experience.js');
 const version = read('intelligence/kernel/version.js');
 
-assert.match(version, /core:'4\.82\.92',build:'13\.82\.92'/);
+assert.match(version, /core:'4\.82\.93',build:'13\.82\.93'/);
 assert.equal((html.match(/data-book-photo-add=/g) || []).length, 16, 'book studio must expose sixteen local travel photos');
 assert.equal((html.match(/data-book-decor-add=/g) || []).length, 12, 'book studio must expose twelve draggable decoration types');
 assert.ok((html.match(/data-book-base/g) || []).length >= 7, 'existing book content must be editable layers');
@@ -31,8 +31,10 @@ assert.match(landingCss, /\.map-fallback \{ position: absolute; z-index: 3;/, 'l
 assert.match(motion, /const compactMap = window\.matchMedia/);
 assert.match(places, /const compactMap=globalThis\.matchMedia/);
 assert.match(shell, /profileColor/);
-assert.match(shell, /lv-living-ai-button/);
-assert.match(shellCss, /Only the needle wanders; face and hub stay completely still/);
+assert.doesNotMatch(shell.slice(shell.indexOf('function ready()'), shell.indexOf('async function render()')), /lv-living-ai-button/);
+assert.match(shell, /function mountNavigationCompassMotion\(\)/);
+assert.match(shell, /needle\.animate\(frames/);
+assert.match(shellCss, /Only the needle wanders through randomized Web Animations/);
 assert.match(shellCss, /\.lv-living-nav-ai \.lv-living-compass__face,[\s\S]*animation:none;transform:none/);
 assert.match(shellCss, /\.lv-living-shell \.lv-living-topbar \.lv-build-badge\{display:none\}/);
 assert.match(hubsCss, /keep the complete compass constellation above the dock/);

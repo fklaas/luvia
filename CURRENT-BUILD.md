@@ -2318,3 +2318,30 @@ Measured final result:
 
 No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provider change, manual Cloudflare configuration or manual Cloudflare upload/deploy occurred. Cloudflare reported the automatically observed active version without a Git commit annotation; causation is not inferred. Rollback is code-only to synchronized M12 marker `b610b0fa8db5f34a631fe8c87b82f8266c3a5b75`. M14 begins with a fresh read-only legacy/runtime/CSS debt baseline and scope lock.
 <!-- LUVIA:M13:MEMORY-CORE:CLOSEOUT:END -->
+# M16.5W Shell Detail Stability — Integration Candidate (2026-08-27)
+
+## Scope
+
+- App: **13.82.93**
+- Core: **4.82.93**
+- Release: **M16.5W Shell Detail Stability**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Public deployment: **PENDING until local regression and visible browser E2E are complete**.
+- Rollback baseline: **App 13.82.92 / Core 4.82.92; Integration version `225b4f19-da56-4a4f-830a-88c58fce9f08`, deployment `ca41ce95-6e21-4888-a71d-950eec1103e3`**.
+
+## Candidate changes
+
+- Removed the duplicate top-header `Luvia fragen` control while retaining the living Compass entry and the Today-owned assistant entry.
+- Removed the coloured tile treatment from the sidebar Living Compass entry in default, hover, focus and active states.
+- Replaced deterministic whole-logo motion with randomized Web Animations on the separate Compass needle layer only; face, hub and housing remain fixed, and reduced motion disables the sequence.
+- Projected active-trip dates in German calendar notation without UTC day drift.
+- Prevented unchanged Today status signals and unchanged Trip projections from remounting the premium `Vorfreude` surface; legitimate live changes update without replaying its entrance animation.
+
+## Candidate evidence
+
+- Syntax / static release guard: **PENDING**.
+- Controlled Safe Regression: **PENDING**.
+- Visible local Desktop / Mobile / Keyboard / Reload / Back / reduced-motion E2E: **PENDING**.
+- Public stable / immutable byte and browser evidence: **PENDING**.
+- Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.

@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.1.0';
+const VERSION='1.1.1';
 let cleanup=null,binding=null;
 const fallbackEsc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const core=()=>window.LuviaTodayCompositionCoreV1||(()=>{throw new Error('Today Composition Core v1 fehlt.')})();
@@ -35,6 +35,7 @@ function phaseMarkup(model,esc){
 function premiumMarkup(model,esc){
   return`<section class="lvt-premium" data-today-premium data-experience-state="${esc(model.state)}" aria-labelledby="lvt-title"><div class="lvt-travel-thread" aria-hidden="true"><i></i><i></i><i></i></div><div class="lvt-copy"><div class="lvt-eyebrow"><span>${esc(model.context.label)}</span><i class="${model.status.online?'is-online':'is-offline'}"></i><small>${model.status.online?'Live verbunden':'Offline'}</small></div><p class="lvt-greeting">${esc(model.greeting)}</p><h1 id="lvt-title">${esc(model.headline)}</h1><p class="lvt-summary"><strong>${esc(model.context.tripTitle)}</strong><span>${esc(model.context.destination)}</span><span>${esc(model.summary)}</span></p>${phaseMarkup(model,esc)}<div class="lvt-actions">${model.quickActions.map(action=>actionMarkup(action,esc)).join('')}</div><p class="lvt-live" data-today-live aria-live="polite">${esc(model.status.message)}</p></div><div class="lvt-context"><div class="lvt-compass-story" data-luvia-experience-component="livingCompass"><span class="lv-logo lvt-compass-mark" aria-hidden="true"></span><span>Der Living Compass</span><strong>Hält euren nächsten sinnvollen Schritt sichtbar.</strong><button type="button" data-ai-ask-open aria-label="Luvia Compass öffnen">Luvia fragen <b aria-hidden="true">↗</b></button></div><aside class="lvt-attention-stack" aria-label="Reise-Aufmerksamkeit">${attentionMarkup(model,esc)}</aside></div></section>`;
 }
+const premiumSignature=model=>JSON.stringify(model);
 function render({trip={},profile={},widgetsHtml='',esc=fallbackEsc}={}){
   const model=modelFor({trip,profile});
   return`<section class="lv-dashboard lvt-surface" data-today-experience data-today-contract="${core().contractId}">${premiumMarkup(model,esc)}<section class="lvt-journey" data-journey-projection="journey.v1-read-only"><div><span>Euer lebender Tagesbogen</span><h2>Geplant, erlebt und erinnert bleibt in Bewegung.</h2><p>Der Journey Day Graph verbindet nur freigegebene Projektionen. Zeiten, Orte, Menschen und Erinnerungen bleiben bei ihren jeweiligen Owner-Cores.</p></div><button type="button" data-view="plan">Reise weiterplanen <b aria-hidden="true">→</b></button></section><section class="lvt-chapters" aria-labelledby="lvt-chapters-title"><header><span>Eure Reise, jetzt</span><h2 id="lvt-chapters-title">Was diesen Moment trägt.</h2></header><div class="lv-grid" data-widget-grid>${widgetsHtml}</div></section></section>`;
@@ -43,15 +44,16 @@ function update(){
   const surface=binding?.container?.querySelector?.('[data-today-experience]');
   const current=surface?.querySelector?.('[data-today-premium]');
   if(!surface||!current)return false;
-  const model=modelFor(binding.context),template=document.createElement('template');
+  const model=modelFor(binding.context),signature=premiumSignature(model);if(signature===binding.signature)return false;
+  const template=document.createElement('template');
   template.innerHTML=premiumMarkup(model,binding.context.esc||fallbackEsc).trim();
-  current.replaceWith(template.content.firstElementChild);
+  const next=template.content.firstElementChild;next.classList.add('is-live-update');current.replaceWith(next);binding.signature=signature;
   return true;
 }
 function unbind(){if(typeof cleanup==='function')cleanup();cleanup=null;binding=null}
 function bind(container,context={}){
   unbind();
-  binding={container,context};
+  binding={container,context,signature:premiumSignature(modelFor(context))};
   const disposers=[];
   const listen=name=>{const handler=()=>update();window.addEventListener(name,handler);disposers.push(()=>window.removeEventListener(name,handler))};
   ['luvia:control-center-attention-changed','luvia:control-center-travel-identity-changed','luvia:travel-context-changed','luvia:trip.changed'].forEach(listen);
@@ -59,7 +61,6 @@ function bind(container,context={}){
   cleanup=()=>disposers.splice(0).forEach(dispose=>{try{dispose()}catch{}});
   window.LuviaControlCenterTravelIdentity?.refresh?.();
   window.LuviaControlCenterAttention?.refresh?.().catch?.(()=>{});
-  update();
   return unbind;
 }
 function diagnostics(){return Object.freeze({version:VERSION,contract:core().contractId,bound:Boolean(binding),domainTruth:false,journeyTimeline:'journey.v1-read-only-projection',ports:['NetworkPort']})}

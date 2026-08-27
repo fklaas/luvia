@@ -73,7 +73,7 @@ async function main() {
 
   assert.ok(
     binding.includes(
-      "./core/trips/active-trip-context.mjs?v=13.82.92"
+      "./core/trips/active-trip-context.mjs?v=13.82.93"
     ),
     'M5.3 Web Binding must import runtime-neutral Active Trip Context'
   );
@@ -123,7 +123,7 @@ async function main() {
   assert.strictEqual(
     count(
       index,
-      '<script type="module" src="luvia-trip-context.js?v=13.82.92"></script>'
+      '<script type="module" src="luvia-trip-context.js?v=13.82.93"></script>'
     ),
     1,
     'luvia-trip-context.js must be loaded as an ES module exactly once'
@@ -132,7 +132,7 @@ async function main() {
   assert.strictEqual(
     count(
       index,
-      '<script src="luvia-trip-context.js?v=13.82.92"></script>'
+      '<script src="luvia-trip-context.js?v=13.82.93"></script>'
     ),
     0,
     'legacy classic luvia-trip-context.js tag must be removed'
@@ -140,27 +140,27 @@ async function main() {
 
   const tripStoreIndex =
     index.indexOf(
-      'core/trips/trip-store.js?v=13.82.92'
+      'core/trips/trip-store.js?v=13.82.93'
     );
 
   const tripContextIndex =
     index.indexOf(
-      'luvia-trip-context.js?v=13.82.92'
+      'luvia-trip-context.js?v=13.82.93'
     );
 
   const travelContextIndex =
     index.indexOf(
-      'core/context/travel-context-service.js?v=13.82.92'
+      'core/context/travel-context-service.js?v=13.82.93'
     );
 
   const contractIndex =
     index.indexOf(
-      'core/platform/trip-contract-adapter.js?v=13.82.92'
+      'core/platform/trip-contract-adapter.js?v=13.82.93'
     );
 
   const bootIndex =
     index.indexOf(
-      'core/runtime/boot-coordinator.js?v=13.82.92'
+      'core/runtime/boot-coordinator.js?v=13.82.93'
     );
 
   assert.ok(
@@ -198,7 +198,7 @@ async function main() {
     Date.now();
 
   const importLiteral =
-    "'./core/trips/active-trip-context.mjs?v=13.82.92'";
+    "'./core/trips/active-trip-context.mjs?v=13.82.93'";
 
   assert.strictEqual(
     count(
