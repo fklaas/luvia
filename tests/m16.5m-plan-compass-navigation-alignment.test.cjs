@@ -15,14 +15,14 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5M-PLAN-COMPASS-NAVIGATION-ALIGNMENT.md');
 
-assert.match(version,/core:'4\.82\.88'/);
-assert.match(version,/build:'13\.82\.88'/);
-assert.match(version,/name:'M16\.5U Responsive Living Shell \+ Memory Book Studio'/);
+assert.match(version,/core:'4\.82\.91'/);
+assert.match(version,/build:'13\.82\.91'/);
+assert.match(version,/name:'M16\.5V Precision Memory Canvas \+ Accepted Living Shell'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.88'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.91'/);
 assert.equal(/\?v=13\.82\.52/.test(index),false,'active entry retains the prior cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
-  assert.ok(index.includes(`${asset}?v=13.82.88`),`active entry release key missing for ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.91`),`active entry release key missing for ${asset}`);
 }
 
 const mobileLivingShell=stringBetween(shellCss,'@media(max-width:800px){','@media(max-width:390px)');
@@ -32,9 +32,9 @@ assert.match(mobileLivingShell,/\.lv-living-shell \.lv-nav--compass \.lv-nav-lab
 assert.doesNotMatch(mobileLivingShell,/\.lv-living-shell \.lv-nav-compass-mark\{[^}]*position:absolute/);
 assert.doesNotMatch(mobileLivingShell,/\.lv-living-shell \.lv-nav-compass-mark\{[^}]*(?:top:-|translateX\(-50%\))/);
 
-const narrowLivingShell=stringBetweenLast(shellCss,'@media(max-width:390px){','@media(prefers-reduced-motion:reduce)');
-assert.match(narrowLivingShell,/\.lv-living-shell \.lv-nav-compass-mark\{width:48px;height:48px;top:auto\}/);
-assert.match(narrowLivingShell,/\.lv-living-shell \.lv-nav--compass \.lv-nav-label\{margin-top:0\}/);
+const narrowLivingShell=stringBetweenLast(shellCss,'@media(max-width:390px){','/* The compass is the control itself;');
+assert.match(narrowLivingShell,/\.lv-living-shell \.lv-nav-compass-mark\{width:56px;height:56px\}/);
+assert.match(narrowLivingShell,/\.lv-living-shell \.lv-nav-label\{font-size:7\.4px\}/);
 
 assert.equal(parity.binding,true);
 assert.equal(parity.releaseGate.mainAllowed,false);
@@ -49,7 +49,7 @@ assert.match(pcr,/Main and Production remain locked/);
 assert.match(pcr,/No database\/schema\/RPC\/RLS\/bucket migration/);
 
 console.log('M16.5M Plan Compass Navigation Alignment: PASS');
-console.log('App / Core: 13.82.88 / 4.82.88');
+console.log('App / Core: 13.82.91 / 4.82.91');
 console.log('Main / Production visual parity lock: ACTIVE');
 
 function stringBetween(source,start,end){

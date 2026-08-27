@@ -454,6 +454,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5u-responsive-shell-memory-studio.test.cjs'
   },
   {
+    category: 'M16.5 / Warm Start, Profile Routing and Accepted Header',
+    test: 'tests/m16.5v-shell-warm-start-profile-header-release.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

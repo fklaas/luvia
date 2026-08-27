@@ -15,8 +15,8 @@ const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const runner=read('tests/run-m4.3-safe-regression.cjs');
 
-assert.match(version,/core:'4\.82\.88',build:'13\.82\.88'/);
-assert.match(version,/name:'M16\.5U Responsive Living Shell \+ Memory Book Studio'/);
+assert.match(version,/core:'4\.82\.91',build:'13\.82\.91'/);
+assert.match(version,/name:'M16\.5V Precision Memory Canvas \+ Accepted Living Shell'/);
 for(const asset of [
   'intelligence/kernel/version.js',
   'app/app-shell.js',
@@ -24,8 +24,8 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'app/places/places-spatial-experience.css',
   'modules/places-shell.js'
-])assert(index.includes(`${asset}?v=13.82.88`),`active M16.5R cache key missing for ${asset}`);
-assert(worker.includes("const CACHE='luvia-shell-v13.82.88'"));
+])assert(index.includes(`${asset}?v=13.82.91`),`active M16.5R cache key missing for ${asset}`);
+assert(worker.includes("const CACHE='luvia-shell-v13.82.91'"));
 
 assert.match(experience,/function renderDetail\(id\)/);
 const detailScope=experience.slice(experience.indexOf('async function loadDetails'),experience.indexOf('function openMaps'));
@@ -54,6 +54,6 @@ for(const file of [
 assert(runner.includes('tests/m16.5r-places-detail-continuity-release.test.cjs'));
 
 console.log('M16.5R Places Details/Evidence Continuity Release: PASS');
-console.log('App / Core / shell cache: 13.82.88 / 4.82.88 / luvia-shell-v13.82.88');
+console.log('App / Core / shell cache: 13.82.91 / 4.82.91 / luvia-shell-v13.82.91');
 console.log('Rail / selected Place / map / focus / async lifecycle continuity: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

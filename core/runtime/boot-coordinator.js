@@ -4,6 +4,7 @@
   if(!appRuntimeCore?.createRuntime)throw new Error('LuviaBootCoordinator requires app-runtime.v1.');
   const appRuntime=window.LuviaAppRuntime||appRuntimeCore.createRuntime();
   window.LuviaAppRuntime=appRuntime;
+  const dom=globalThis.document;
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
   const tripRuntime=()=>{
     const runtime=tripContract()?.runtime;
@@ -16,12 +17,13 @@
     return commands;
   };
   const MIN_SPLASH_MS=1650;
+  const warmBoot=Boolean(globalThis.__LUVIA_BOOT_DONE__||dom.documentElement.classList.contains('lv-boot-warm'));
   let startedAt=0,phase=window.__LUVIA_BOOT_DONE__?'ready':'idle',bootPromise=null,snapshot=null;
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-  const emit=(next,detail={})=>{phase=next;document.documentElement.dataset.luviaBoot=next;window.dispatchEvent(new CustomEvent('luvia:boot-phase',{detail:{phase:next,...detail}}));};
-  function splash(){return document.getElementById('luviaBootSplash')}
-  function begin(){if(phase!=='idle')return;startedAt=performance.now();if(window.__LUVIA_BOOT_DONE__){emit('rehydrating');return}document.documentElement.classList.add('lv-booting');emit('splash');}
-  async function finish(){if(phase==='ready'||phase==='revealing')return;if(window.__LUVIA_BOOT_DONE__){emit('ready',{snapshot,rehydrated:true});return}const remaining=Math.max(0,MIN_SPLASH_MS-(performance.now()-startedAt));if(remaining)await delay(remaining);const node=splash();emit('revealing');document.documentElement.classList.add('lv-boot-revealing');node?.setAttribute('aria-hidden','true');await delay(620);node?.remove();window.__LUVIA_BOOT_DONE__=true;document.documentElement.classList.remove('lv-booting','lv-boot-revealing');emit('ready',{snapshot});}
+  const emit=(next,detail={})=>{phase=next;dom.documentElement.dataset.luviaBoot=next;window.dispatchEvent(new CustomEvent('luvia:boot-phase',{detail:{phase:next,...detail}}));};
+  function splash(){return dom.getElementById('luviaBootSplash')}
+  function begin(){if(phase!=='idle')return;startedAt=performance.now();dom.documentElement.classList.add('lv-booting');emit(warmBoot?'rehydrating':'splash');}
+  async function finish(){if(phase==='ready'||phase==='revealing')return;if(window.__LUVIA_BOOT_DONE__){emit('ready',{snapshot,rehydrated:true});return}const node=splash();if(warmBoot){node?.remove();window.__LUVIA_BOOT_DONE__=true;dom.documentElement.classList.remove('lv-booting','lv-boot-revealing');emit('ready',{snapshot,rehydrated:true});return}const remaining=Math.max(0,MIN_SPLASH_MS-(performance.now()-startedAt));if(remaining)await delay(remaining);emit('revealing');dom.documentElement.classList.add('lv-boot-revealing');node?.setAttribute('aria-hidden','true');await delay(620);node?.remove();window.__LUVIA_BOOT_DONE__=true;dom.documentElement.classList.remove('lv-booting','lv-boot-revealing');emit('ready',{snapshot});}
   function chooseActiveTrip(){
     const trips=tripRuntime().getState().trips;
     const profile=window.LuviaProfileService.snapshot().profile||{};
