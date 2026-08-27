@@ -15,14 +15,14 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5M-PLAN-COMPASS-NAVIGATION-ALIGNMENT.md');
 
-assert.match(version,/core:'4\.82\.81'/);
-assert.match(version,/build:'13\.82\.81'/);
-assert.match(version,/name:'M16\.5 Landing Auth Foundation'/);
+assert.match(version,/core:'4\.82\.83'/);
+assert.match(version,/build:'13\.82\.83'/);
+assert.match(version,/name:'M16\.5T Interactive Public Journey Compass'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.81'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.83'/);
 assert.equal(/\?v=13\.82\.52/.test(index),false,'active entry retains the prior cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
-  assert.ok(index.includes(`${asset}?v=13.82.81`),`active entry release key missing for ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.83`),`active entry release key missing for ${asset}`);
 }
 
 const mobileLivingShell=stringBetween(shellCss,'@media(max-width:800px){','@media(max-width:390px)');
@@ -49,7 +49,7 @@ assert.match(pcr,/Main and Production remain locked/);
 assert.match(pcr,/No database\/schema\/RPC\/RLS\/bucket migration/);
 
 console.log('M16.5M Plan Compass Navigation Alignment: PASS');
-console.log('App / Core: 13.82.81 / 4.82.81');
+console.log('App / Core: 13.82.83 / 4.82.83');
 console.log('Main / Production visual parity lock: ACTIVE');
 
 function stringBetween(source,start,end){

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.82.81';
+  const VERSION = '13.82.83';
   const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
   const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
   let activeContainer = null;
@@ -10,16 +10,25 @@
   let motionCleanup = null;
   let experienceCleanup = null;
   let previousFocus = null;
+  let authReturnSnapshot = null;
+  let authCloseTimer = 0;
   let templatePromise = null;
 
   const authApi = () => window.LuviaAuth || window.ParisAuth;
   const authUi = () => window.LuviaAuthUI || window.ParisAuthUI;
   const recoveryRequested = () => new URLSearchParams(window.location.search).get('auth') === 'recovery';
+  const landingMotionReduced = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+    try { return localStorage.getItem('luvia-public-motion') === 'reduced'; } catch (_) { return false; }
+  };
 
   function setLandingAssets(active) {
     document.querySelectorAll('link[data-luvia-public-landing-style]').forEach(link => { link.disabled = !active; });
     document.documentElement.classList.toggle('lv-public-entry-active', active);
     document.body.classList.toggle('lv-public-entry-active', active);
+    const reduceMotion = active && landingMotionReduced();
+    document.documentElement.classList.toggle('lv-public-motion-reduced', reduceMotion);
+    document.body.classList.toggle('lv-public-motion-reduced', reduceMotion);
     if (!active) document.body.classList.remove('lv-public-auth-open', 'is-cinematic-enter', 'is-cinematic-leaving');
   }
 
@@ -87,6 +96,13 @@
     layer.querySelector('[data-public-auth-kicker]').textContent = copy[0] || '';
     layer.querySelector('[data-public-auth-title]').textContent = copy[1] || '';
     layer.querySelector('[data-public-auth-description]').textContent = copy[2] || '';
+    const closeLabel = mode === 'register'
+      ? 'Registrierung schließen'
+      : mode === 'recovery'
+        ? 'Passwort-Dialog schließen'
+        : 'Anmeldung schließen';
+    layer.querySelector('.lv-public-auth-backdrop')?.setAttribute('aria-label', closeLabel);
+    layer.querySelector('.lv-public-auth-close')?.setAttribute('aria-label', closeLabel);
   }
 
   function historyForAuth(mode, replace = false) {
@@ -99,24 +115,26 @@
   function closeAuth({ updateHistory = true, restoreFocus = true } = {}) {
     const layer = activeRoot?.querySelector('[data-public-auth-layer]');
     if (!layer || layer.hidden) return;
-    layer.hidden = true;
-    layer.setAttribute('aria-hidden', 'true');
-    layer.removeAttribute('data-auth-mode');
-    document.body.classList.remove('lv-public-auth-open');
+    window.clearTimeout(authCloseTimer);
+    layer.classList.add('is-closing');
     if (updateHistory && !recoveryRequested() && Object.values(AUTH_HASHES).includes(window.location.hash)) {
-      const clearAuthHash = () => {
-        if (!Object.values(AUTH_HASHES).includes(window.location.hash)) return;
-        const url = new URL(window.location.href);
-        url.hash = '';
-        history.replaceState({ luviaPublicAuth: null }, '', `${url.pathname}${url.search}`);
-      };
-      if (history.state?.luviaPublicAuth) {
-        history.back();
-        setTimeout(clearAuthHash, 450);
-      } else clearAuthHash();
+      const url = new URL(window.location.href);
+      url.hash = '#compass-gate';
+      history.replaceState({ luviaPublicAuth: null, luviaCompassOpen: true }, '', `${url.pathname}${url.search}${url.hash}`);
     }
-    if (restoreFocus && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
-    previousFocus = null;
+    const focusTarget = restoreFocus && previousFocus?.isConnected ? previousFocus : null;
+    const snapshot = authReturnSnapshot;
+    authCloseTimer = window.setTimeout(() => {
+      layer.hidden = true;
+      layer.setAttribute('aria-hidden', 'true');
+      layer.removeAttribute('data-auth-mode');
+      layer.classList.remove('is-closing');
+      document.body.classList.remove('lv-public-auth-open');
+      window.LuviaPublicLandingMotion?.restoreAfterAuth?.(snapshot);
+      requestAnimationFrame(() => focusTarget?.focus?.({ preventScroll: true }));
+      previousFocus = null;
+      authReturnSnapshot = null;
+    }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 380);
   }
 
   function renderRecovery(host) {
@@ -135,7 +153,12 @@
     const host = layer?.querySelector('[data-public-auth-host]');
     if (!layer || !host) return;
     if (mode !== 'recovery' && !AUTH_HASHES[mode]) mode = 'login';
-    if (layer.hidden) previousFocus = document.activeElement;
+    window.clearTimeout(authCloseTimer);
+    layer.classList.remove('is-closing');
+    if (layer.hidden) {
+      previousFocus = document.activeElement;
+      authReturnSnapshot = window.LuviaPublicLandingMotion?.captureState?.() || null;
+    }
     updateAuthCopy(layer, mode);
     layer.hidden = false;
     layer.setAttribute('aria-hidden', 'false');
@@ -221,6 +244,8 @@
   }
 
   function deactivate({ clear = false } = {}) {
+    window.clearTimeout(authCloseTimer);
+    authCloseTimer = 0;
     lifecycle?.abort();
     lifecycle = null;
     motionCleanup?.();
@@ -231,6 +256,7 @@
     activeContainer = null;
     activeRoot = null;
     previousFocus = null;
+    authReturnSnapshot = null;
     setLandingAssets(false);
   }
 

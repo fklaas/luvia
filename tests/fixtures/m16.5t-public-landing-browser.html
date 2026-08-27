@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>M16.5T Public Landing Browser Fixture</title>
+  <script>document.documentElement.classList.add('lv-booting');</script>
+  <link rel="stylesheet" href="../../app/app-shell.css?v=13.82.83">
+  <link rel="stylesheet" href="../../app/public-entry.css?v=13.82.83">
+  <link rel="stylesheet" href="../../app/public-landing.css?v=13.82.83" data-luvia-public-landing-style disabled>
+  <link rel="stylesheet" href="../../app/public-landing-experience-motion.css?v=13.82.83" data-luvia-public-landing-style disabled>
+</head>
+<body>
+  <div id="luviaBootSplash" class="lv-start-splash" role="status" aria-live="polite"><div class="lv-start-splash__inner"><img src="../../luvia-logo.svg" alt="" class="lv-start-splash__logo"><strong>Luvia</strong><span>Gemeinsam reisen. Für immer erinnern.</span></div></div>
+  <div id="app" aria-busy="true"></div>
+  <script>
+    (() => {
+      'use strict';
+      const state = { loading: false, authenticated: false, session: null, user: null, anonymous: true, identities: [] };
+      const fixture = window.__m165tFixture = { ready: false, signIns: [], signUps: [], mapInstances: 0, mapFlyCalls: [], mapResizes: 0 };
+      window.LuviaAuth = Object.freeze({
+        getState: () => state,
+        signIn: async credentials => { fixture.signIns.push(credentials?.email || ''); },
+        signUp: async credentials => { fixture.signUps.push(credentials?.email || ''); },
+        resetPassword: async () => {},
+        signInWithProvider: async () => {}
+      });
+
+      class FixtureMap {
+        constructor(options) {
+          fixture.mapInstances += 1;
+          this.options = options;
+          this.handlers = new Map();
+          this.onceHandlers = new Map();
+          this.isLoaded = false;
+          options.container.innerHTML = '<div class="m165t-map-fixture" aria-label="Fixture Open Map"></div>';
+          window.setTimeout(() => {
+            this.isLoaded = true;
+            (this.handlers.get('load') || []).forEach(handler => handler());
+          }, 30);
+        }
+        addControl() { return this; }
+        on(type, handler) { this.handlers.set(type, [...(this.handlers.get(type) || []), handler]); return this; }
+        once(type, handler) { this.onceHandlers.set(type, handler); return this; }
+        loaded() { return this.isLoaded; }
+        flyTo(options) {
+          fixture.mapFlyCalls.push(options);
+          window.setTimeout(() => {
+            const handler = this.onceHandlers.get('idle');
+            this.onceHandlers.delete('idle');
+            handler?.();
+          }, 35);
+          return this;
+        }
+        resize() { fixture.mapResizes += 1; return this; }
+        remove() { return this; }
+      }
+      class FixtureMarker {
+        constructor(options = {}) { this.element = options.element || document.createElement('div'); }
+        setLngLat(point) { this.point = point; return this; }
+        addTo(map) { this.map = map; return this; }
+        getElement() { return this.element; }
+      }
+      window.maplibregl = { Map: FixtureMap, Marker: FixtureMarker, NavigationControl: class {} };
+    })();
+  </script>
+  <script src="../../auth/ui.js?v=13.82.83"></script>
+  <script src="../../app/public-landing-motion.js?v=13.82.83"></script>
+  <script src="../../app/public-landing-experience-motion.js?v=13.82.83"></script>
+  <script src="../../app/public-entry.js?v=13.82.83"></script>
+  <script>
+    window.addEventListener('load', async () => {
+      await window.LuviaGuidedJourneyEntry.render(document.getElementById('app'));
+      document.documentElement.classList.add('lv-boot-revealing');
+      document.getElementById('luviaBootSplash')?.setAttribute('aria-hidden', 'true');
+      window.__m165tFixture.ready = true;
+      window.setTimeout(() => {
+        document.getElementById('luviaBootSplash')?.remove();
+        document.documentElement.classList.remove('lv-booting', 'lv-boot-revealing');
+      }, 620);
+    });
+  </script>
+</body>
+</html>
