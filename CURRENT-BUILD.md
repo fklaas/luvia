@@ -2410,7 +2410,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Physical handset acceptance and the broader M16.5 design freeze: **OPEN; not claimed by this candidate**.
 
-# M16.5X Shell Freeze Orbit and Control Course — Integration candidate (2026-08-27)
+# M16.5X Shell Freeze Orbit and Control Course — Stable Integration browser-verified (2026-08-27)
 
 ## Scope
 
@@ -2419,7 +2419,10 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5X Shell Freeze Orbit and Control Course**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
-- Deployment: **pending final public visible E2E**.
+- Runtime implementation commit: **`270131a8e3aeb28a15dbb7912704220248a1e50b`**.
+- Public deployment: version **`a9309030-3045-4964-aa9e-4078a9ecc3cf`**, deployment **`793af37b-08f7-4b6e-88b7-edc12dd88b90`**, **100% Stable Integration traffic**.
+- Stable URL: **`https://integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Immutable URL: **`https://a9309030-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Superseded public candidate: **App 13.82.96 / Core 4.82.96, version `8a039e50-9c86-4688-a940-f708557157b1`, deployment `63399dac-07e8-4748-b58e-1d312f52751e`**; rejected before acceptance because the top eight-point node crossed the heading description at 1440×900.
 - Rollback baseline: **App 13.82.95 / Core 4.82.95; Integration version `9ca4efbd-5794-41f6-8d0b-27d09791e83c`, deployment `769eb1bb-95bb-4346-8e81-1e8ba9b9046d`**.
 
@@ -2430,11 +2433,18 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Replaces the Control Center dashboard entry with its own Living Compass context: Identity & Privacy, Bookings, Travel Documents, Inbox, Trip Command and Wallet.
 - Replaces the generic `Morgen / Unterwegs / Vor Ort / Abend / Erinnern` header rail with one compact cartographic course cue; Mobile keeps the accepted minimal brand header.
 
-## Candidate evidence
+## Public evidence and disposition
 
 - Static release guard: **PASS**.
 - Local Desktop 1440×900: **PASS**; all six Compass contexts share one radius, no card overlap, 14 px clearance between the heading description and the nearest node, and no horizontal overflow.
 - Local Mobile 390×844 and 320×700: **PASS**; all cards remain visible, no overlap, no document scroll and no horizontal overflow.
 - Controlled Safe Regression: **114/114 PASS**.
-- Public immutable/Stable parity and public visible E2E: **pending**.
-- Physical handset acceptance remains **OPEN; not claimed by this candidate**.
+- Clean deployment archive: **PASS**; the three pre-existing, untracked local Reel videos are absent from the archive and public deployment.
+- Immutable and Stable Integration bytes: **9/9 exact SHA-256 PASS** for `index.html`, version, shell JS/CSS, module hubs JS/CSS, public entry JS/CSS and service worker.
+- Public Desktop 1440×900: **PASS**; App/Core **13.82.97 / 4.82.97**, Plan uses a single approximately 256–257 px orbit for all eight entries, no card overlap, positive heading and viewport-bottom clearance, no document overflow, old five-stop rail count 0 and cartographic course cue count 1.
+- Public Mobile 390×844: **PASS**; Plan exposes all eight entries and Control Center all six entries without card overlap, clipping, document scroll or horizontal overflow.
+- Public real click routing: **PASS**; Control Center opens its dedicated Compass context, Identity & Privacy routes to `control-center-identity`, and browser Back returns to the Plan Compass context.
+- Settled public direct deep-link and settled Reload of `control-center-identity`: **PASS**; one main region, correct heading, ready runtime and console **0 entries**.
+- One deliberately immediate synthetic Reload issued about 900 ms into the route transition produced one transient runtime-stage error. It is not rewritten as PASS and does not recur after the route has settled; a completely race-free mid-transition Reload claim remains **OPEN**.
+- Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
+- Physical handset acceptance and the broader M16.5 design/App-Shell freeze remain **OPEN; not claimed by this release**.
