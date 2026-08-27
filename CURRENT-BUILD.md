@@ -28,6 +28,20 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
+## M16.5U Responsive Living Shell / Memory Book Studio
+
+- Runtime source commit: **`76750aa2cc4da13b7bd76907824cfd254c5e4314`** on `integration`.
+- Runtime target: **App 13.82.88 / Core 4.82.88 / Integration Preview**.
+- Public deployment: **100% Integration version `e64f96e9-aff8-49d6-9381-3c3904f947c5`, deployment `feb56eda-f035-4fe4-992b-a788b8970d7a`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://e64f96e9-integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Responsive/product evidence: **mobile 390×844 and 360×740/320×673 E2E; complete Plan/Profile Compass constellations above the dock; profile/active-Trip/companion header; only the Luvia AI needle animates; Landing, authenticated App, auth and onboarding descendants hide native scrollbars while preserving scroll behavior**.
+- Touch ownership: **real Chromium CDP touch sequence solves the puzzle; the first curved Compass rotation changes document `scrollX/scrollY` by exactly 0 px; crown and lower latch remain usable**.
+- Memory Studio: **16 local travel photos, 12 draggable decorations, nine frame/mask choices, ten page-design worlds, sixteen journey themes, replacement/removal/layer ordering/duplication, decimal drag, corner scaling, rotation and keyboard nudge; mobile Photo Editor/Reel/Book surfaces remain reachable**.
+- Places/maps: **mobile map transitions use zero tile fade and compact motion; a local branded fallback remains above the remote renderer until ready; productive map camera movement is shortened on compact viewports**.
+- Validation: **111 / 111 Safe Regression PASS; M16.5T real Edge E2E PASS; M16.5Q desktop/mobile touch/keyboard/reload/Back/reduced-motion E2E PASS; M16.5R rail/detail/evidence continuity E2E PASS; PWA cache/Service Worker recovery E2E PASS; stable Integration visible route `Heute → Planen → Places` PASS**.
+- Main / Production: **locked and unchanged after publication: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`; no database/schema/RPC/RLS/bucket migration, Edge Function, secret or manual non-versioned Cloudflare configuration change**.
+- Rollback: **redeploy the immediately previous Integration App 13.82.87 version `8a2ce6c8-96d4-473c-a8a9-0866ec471b9b` from deployment `b57da617-ec11-43f3-95ec-1c648567080b`; code/assets only, no data rollback**.
+- Acceptance boundary: **automated and visible browser evidence is complete; final physical-handset acceptance remains explicitly open until the user retests App 13.82.88 on the real device**.
+
 ## M16.5H–J Accepted Living Shell / Visual Parity Candidate
 
 - Consumer source: `fee1cdbe02707f845fa6543d17b9c03718135c23`.
