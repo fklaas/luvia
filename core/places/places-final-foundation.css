@@ -7,6 +7,10 @@
 
 .places-final-provider{font-size:.75rem;color:var(--lv-muted);margin:.35rem 0}.places-final-reasons{margin:.5rem 0 1rem;padding-left:1.2rem}.places-final-reasons li,.places-final-reasons p{margin:.25rem 0}
 
+.places-final-preference-context{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.3fr);gap:24px;margin:0 0 18px;padding:24px 28px;border:1px solid color-mix(in srgb,var(--trip-accent,#bd6b9f) 24%,rgba(99,126,146,.16));border-radius:28px;background:linear-gradient(135deg,rgba(255,255,255,.94),color-mix(in srgb,var(--trip-accent,#bd6b9f) 7%,#fff));box-shadow:0 16px 42px rgba(57,76,93,.08)}.places-final-preference-context h2{margin:.3rem 0 .55rem;font-size:clamp(24px,3vw,34px);line-height:1.08}.places-final-preference-context p{margin:0}.places-final-preference-groups{display:grid;gap:12px}.places-final-preference-groups section{display:grid;gap:7px}.places-final-preference-groups b{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#5e7285}.places-final-preference-groups section>div{display:flex;gap:7px;flex-wrap:wrap}.places-final-preference-groups span{display:inline-flex;padding:8px 11px;border:1px solid rgba(99,126,146,.15);border-radius:999px;background:rgba(255,255,255,.86);font-size:13px;font-weight:750;color:#334e63}.places-final-filter-note{grid-column:1/-1;padding-top:12px;border-top:1px solid rgba(99,126,146,.13);font-size:13px}.places-final-match{background:color-mix(in srgb,#f2b44b 14%,#fff)!important;color:#765114!important}.places-final-match.is-verified{background:color-mix(in srgb,#2e9677 13%,#fff)!important;color:#216c58!important}.places-final-reasons .is-warning{background:color-mix(in srgb,#f2b44b 10%,#fff);color:#765114}.places-final-reasons .is-warning:before{content:'i';color:#b67616}
+
+@media(max-width:760px){.places-final-preference-context{grid-template-columns:1fr;padding:20px}.places-final-preference-groups span{font-size:12px;padding:7px 9px}}
+
 /* v13.40.0 — AI result rhythm: visually even, but never clip text or actions. */
 @media (min-width:761px){
   .places-final-result{height:auto;min-height:372px;max-height:none;align-items:stretch}

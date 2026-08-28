@@ -34,6 +34,9 @@ function mixHex(from,to,amount){
   const right=hexChannels(to);
   return toHex(left.map((channel,index)=>channel+(right[index]-channel)*ratio));
 }
+function normalizeCompassAngle(value){
+  return ((Number(value||0)+180)%360+360)%360-180;
+}
 function luminance(value){
   const channels=hexChannels(value).map(channel=>channel/255).map(channel=>channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4);
   return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
@@ -77,6 +80,46 @@ const BRAND=immutable({
   mineral:'#f7f9f9',
   directions:{north:'#ef6254',east:'#f4b34c',south:'#2c93a9',west:'#2f8c73'}
 });
+
+function resolveCompassDirectionTone(angle){
+  const normalizedAngle=normalizeCompassAngle(angle);
+  // Navigation angles follow the actual needle artwork: 0deg points north,
+  // 90deg east, +/-180deg south and -90deg west. Keep the tone on that
+  // coordinate system so the selected surface samples the ring beneath the
+  // red needle tip instead of a colour shifted by one quadrant.
+  const offset=((normalizedAngle%360)+360)%360/360;
+  const stops=[
+    {offset:0,color:BRAND.directions.north},
+    {offset:.25,color:BRAND.directions.east},
+    {offset:.5,color:BRAND.directions.south},
+    {offset:.75,color:BRAND.directions.west},
+    {offset:1,color:BRAND.directions.north}
+  ];
+  const right=stops.findIndex(stop=>stop.offset>=offset);
+  const upper=stops[Math.max(1,right)];
+  const lower=stops[Math.max(0,Math.max(1,right)-1)];
+  const ratio=(offset-lower.offset)/Math.max(.0001,upper.offset-lower.offset);
+  const color=mixHex(lower.color,upper.color,ratio);
+  const onColor=contrastRatio(color,BRAND.ink)>=contrastRatio(color,'#ffffff')?BRAND.ink:'#ffffff';
+  return immutable({
+    contractId:CONTRACT_ID,
+    source:'official-compass-ring-angle',
+    angle:normalizedAngle,
+    offset:Number(offset.toFixed(6)),
+    color,
+    soft:mixHex('#ffffff',color,.13),
+    veil:mixHex('#ffffff',color,.07),
+    onColor,
+    cssVariables:{
+      '--lv-compass-direction-angle':`${normalizedAngle}deg`,
+      '--lv-compass-direction-color':color,
+      '--lv-compass-direction-soft':mixHex('#ffffff',color,.13),
+      '--lv-compass-direction-veil':mixHex('#ffffff',color,.07),
+      '--lv-compass-direction-on':onColor
+    },
+    domainTruth:false
+  });
+}
 
 const TOKENS=immutable({
   'color.surface.canvas':token('color','#fff8f7','#101820','--luvia-color-surface-canvas','LuviaColor.surfaceCanvas','LuviaTheme.colorScheme.surfaceCanvas'),
@@ -176,7 +219,7 @@ const COMPONENTS=immutable({
   toast:{role:'transient-feedback',variants:['info','success','warning','error'],native:{swiftUI:'LuviaToastHost',compose:'LuviaToastHost'}},
   banner:{role:'persistent-feedback',variants:['info','success','warning','error','offline'],native:{swiftUI:'LuviaBanner',compose:'LuviaBanner'}},
   commandSurface:{role:'assistant-command',variants:['global','contextual','confirmation'],hostContract:'overlay-host.v1',states:['idle','loading','success','error'],native:{swiftUI:'LuviaCommandSurface',compose:'LuviaCommandSurface'}},
-  livingCompass:{role:'spatial-navigation-and-intelligence-entry',variants:['brand','activeTrip','compact','expanded'],states:['dormant','inviting','expanded','seeking','settled'],layers:['face','needle','hub'],rotatableLayer:'needle',minimumTouchTarget:44,native:{swiftUI:'LuviaLivingCompass',compose:'LuviaLivingCompass'}}
+  livingCompass:{role:'spatial-navigation-and-intelligence-entry',variants:['brand','activeTrip','compact','expanded'],states:['dormant','inviting','expanded','seeking','directionSelected','settled'],layers:['face','needle','hub'],rotatableLayer:'needle',directionToneSource:'official-compass-ring-angle',minimumTouchTarget:44,native:{swiftUI:'LuviaLivingCompass',compose:'LuviaLivingCompass'}}
 });
 
 const STATES=immutable({
@@ -199,6 +242,7 @@ const MOTION=immutable({
   compassSharedElement:{duration:'motion.duration.story',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',layers:['face','needle','hub'],native:{swiftUI:'LuviaMotion.compassSharedElement',compose:'LuviaMotion.compassSharedElement'}},
   compassNodeReveal:{duration:'motion.duration.slow',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',staggerMilliseconds:42,native:{swiftUI:'LuviaMotion.compassNodeReveal',compose:'LuviaMotion.compassNodeReveal'}},
   compassNeedleSeek:{duration:'motion.duration.story',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',rotates:['needle'],fixed:['face','hub'],native:{swiftUI:'LuviaMotion.compassNeedleSeek',compose:'LuviaMotion.compassNeedleSeek'}},
+  compassDirectionSelection:{duration:'motion.duration.story',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',settleMilliseconds:620,synchronized:['selected-node','four-orbit-lines','ambient-veil'],native:{swiftUI:'LuviaMotion.compassDirectionSelection',compose:'LuviaMotion.compassDirectionSelection'}},
   compassAmbientInvite:{duration:'motion.duration.brandIntro',easing:'motion.easing.standard',reducedDuration:'motion.duration.instant',rotates:['needle'],fixed:['face','hub'],nonBlocking:true,native:{swiftUI:'LuviaMotion.compassAmbientInvite',compose:'LuviaMotion.compassAmbientInvite'}},
   compassBrandIntro:{duration:'motion.duration.brandIntro',easing:'motion.easing.enter',reducedDuration:'motion.duration.instant',playsOncePerLaunch:true,nonBlocking:true,native:{swiftUI:'LuviaMotion.compassBrandIntro',compose:'LuviaMotion.compassBrandIntro'}}
 });
@@ -309,8 +353,8 @@ function getSystemSnapshot(){
   return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,scope:'global',layers:['primitive','semantic','component','feature'],tokens:listTokens(),components:listComponents(),states:listStates(),motion:Object.entries(MOTION).map(([id,definition])=>({id,...copy(definition)})),haptics:listHaptics(),brand:copy(BRAND),compass:createCompassTheme(),accessibility:copy(ACCESSIBILITY),nativePlatforms:['swiftui','compose'],inheritsGlobalTheme:true,allowsProductForks:false,domainTruth:false});
 }
 function diagnostics(){
-  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,tokenCount:Object.keys(TOKENS).length,componentCount:Object.keys(COMPONENTS).length,stateCount:Object.keys(STATES).length,motionPatternCount:Object.keys(MOTION).length,hapticIntentCount:Object.keys(HAPTICS).length,activeTripPalette:'explicit-input-only',compassRotatableLayers:['needle'],nativePlatforms:['swiftui','compose'],overlayHost:'overlay-host.v1'});
+  return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,tokenCount:Object.keys(TOKENS).length,componentCount:Object.keys(COMPONENTS).length,stateCount:Object.keys(STATES).length,motionPatternCount:Object.keys(MOTION).length,hapticIntentCount:Object.keys(HAPTICS).length,activeTripPalette:'explicit-input-only',compassRotatableLayers:['needle'],compassDirectionTone:'official-compass-ring-angle',compassOrbitLines:4,nativePlatforms:['swiftui','compose'],overlayHost:'overlay-host.v1'});
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,getToken,listTokens,getComponent,listComponents,getState,listStates,getMotion,resolveMotion,getHaptic,listHaptics,deriveActiveTripPalette,createCompassTheme,createTheme,getSystemSnapshot,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,getToken,listTokens,getComponent,listComponents,getState,listStates,getMotion,resolveMotion,getHaptic,listHaptics,deriveActiveTripPalette,resolveCompassDirectionTone,createCompassTheme,createTheme,getSystemSnapshot,diagnostics});
 })();

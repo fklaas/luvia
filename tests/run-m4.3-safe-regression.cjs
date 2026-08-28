@@ -474,6 +474,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5z-first-trip-composer.test.cjs'
   },
   {
+    category: 'M16.5 / Preference Resolution + Places',
+    test: 'tests/m16.5aa-preference-resolution-places.test.cjs'
+  },
+  {
+    category: 'M16.5 / Shared Compass Direction Activation',
+    test: 'tests/m16.5aa-compass-direction-activation.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

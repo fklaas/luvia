@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>Luvia M16.5AA — Preference Resolution + Places</title>
+  <link rel="stylesheet" href="../../core/places/places-final-foundation.css">
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}body{font:16px Manrope,system-ui,sans-serif;background:radial-gradient(circle at 75% 10%,rgba(41,151,170,.13),transparent 36%),linear-gradient(145deg,#f4faf9,#fff7f5);--trip-accent:#bd6b9f}.fixture-bar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 22px;border-bottom:1px solid rgba(39,65,88,.12);background:rgba(255,255,255,.86);backdrop-filter:blur(16px)}.fixture-bar b{color:#274158}.fixture-bar span{font-size:13px;color:#677c8d}.fixture-note{width:min(1120px,calc(100% - 32px));margin:24px auto 0;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.75);color:#526a7b}@media(max-width:600px){.fixture-bar{padding:10px 12px}.fixture-bar span{display:none}.fixture-note{width:calc(100% - 20px);margin-top:14px;font-size:13px}}
+  </style>
+</head>
+<body>
+  <header class="fixture-bar"><b>LUVIA · Places</b><span>Profilbasis + Reisegefühl · öffentlicher Contract</span></header>
+  <p class="fixture-note">Testreise: Kultur nah erleben + Neugierig. Profil: vegetarisch, barrierearm, entspannt.</p>
+  <main id="app"></main>
+  <script src="../../core/places/places-domain-contract-core.js"></script>
+  <script src="../../core/intelligence/trip-preference-resolution-core.js"></script>
+  <script>
+    const resolver=LuviaTripPreferenceResolutionCoreV1;
+    const profile={dietaryPreferences:['vegetarian'],accessibilityNeeds:['wheelchair'],travelInterests:['culture','local'],travelPace:'relaxed'};
+    const trip={id:'trip-m165aa-visible',name:'Kopenhagen',destination:{name:'Kopenhagen'},composition:{feelings:['culture','curious']},participants:[]};
+    const candidates=[
+      {providerPlaceId:'culture-cafe',name:'Kulturhuset Café',formattedAddress:'Indre By · Kopenhagen',primaryType:'restaurant',types:['museum','cafe'],rating:4.8,userRatingCount:842,openNow:true,features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true},providerRefs:{google:'culture-cafe'}},
+      {providerPlaceId:'bike-garden',name:'Hafenrad & Gartencafé',formattedAddress:'Nordhavn · Kopenhagen',primaryType:'restaurant',types:['cafe','garden','bike'],rating:4.6,userRatingCount:391,openNow:true,features:{servesVegetarianFood:true,wheelchairAccessible:true,outdoorSeating:true},accessibilityOptions:{wheelchairAccessibleEntrance:true},providerRefs:{google:'bike-garden'}},
+      {providerPlaceId:'quiet-park',name:'Ruhiger Garten am Kanal',formattedAddress:'Frederiksberg · Kopenhagen',primaryType:'park',types:['park','garden'],rating:4.7,userRatingCount:128,features:{},providerRefs:{google:'quiet-park'}},
+      {providerPlaceId:'meat-only',name:'Meat Only Bar',formattedAddress:'Vesterbro · Kopenhagen',primaryType:'restaurant',types:['restaurant'],rating:4.9,userRatingCount:2400,features:{servesVegetarianFood:false,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true},providerRefs:{google:'meat-only'}}
+    ];
+    window.LuviaUserPreferences={snapshot:()=>profile};
+    window.LuviaIntelligenceContractV1={reads:{resolveTripPreferences:input=>resolver.resolve(input)}};
+    window.LuviaPlatformPorts={get:id=>id==='OfflineCachePort'?{read:(_key,fallback)=>fallback,write:(_key,value)=>value}:id==='ExternalNavigationPort'?{openMaps:()=>true}:null};
+    window.LuviaPlacesContractV1={
+      listSaved:async()=>[],
+      recommend:async options=>{
+        await new Promise(resolve=>setTimeout(resolve,280));
+        const resolution=options.preferenceResolution||resolver.resolve({profilePreferences:options.preferences,tripComposition:options.tripComposition,trip:options.trip});
+        const ranked=resolver.rankPlaces({resolution,candidates});
+        return {places:ranked.places.map(place=>({...place,recommendation:{owner:'intelligence',kind:'trip-preference-ranking',version:place.preferenceResolutionVersion,scoreDelta:place.preferenceScoreDelta,constraintState:place.preferenceConstraintState,matchedSignals:place.preferenceMatchedSignals,reasons:place.preferenceReasons,warnings:place.preferenceWarnings}})),preferenceResolution:resolution,preferenceMeta:ranked.meta,plan:{ai:null}};
+      }
+    };
+    window.LuviaPlaceDetails={prepare:async(_id,{seedPlace})=>({place:seedPlace,photos:[]})};
+    window.LuviaUIKit={toast:()=>{}};
+  </script>
+  <script src="../../core/places/places-final-foundation.js"></script>
+  <script>
+    LuviaPlacesFinal.mount(document.getElementById('app'),trip);
+  </script>
+</body>
+</html>

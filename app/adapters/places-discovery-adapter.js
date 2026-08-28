@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.0.1';
+const VERSION='1.1.0';
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const uniquePlaces=items=>{
@@ -9,6 +9,14 @@ const uniquePlaces=items=>{
   return result;
 };
 const route=input=>LuviaPlacesDomainContractCoreV1.routeDiscovery(input);
+const intelligence=()=>window.LuviaIntelligenceContractV1||window.LuviaIntelligenceContract||null;
+
+function preferenceResolution(options={}){
+  if(options.preferenceResolution?.kind==='derived-trip-preference-resolution')return options.preferenceResolution;
+  const resolver=intelligence()?.reads?.resolveTripPreferences||intelligence()?.resolveTripPreferences;
+  if(typeof resolver!=='function')return null;
+  return resolver({profilePreferences:options.preferences||options.profilePreferences||{},tripComposition:options.tripComposition||options.composition||{},trip:options.trip||{id:options.tripId||null}});
+}
 
 async function listSaved(options={}){
   const response=await window.LuviaPlaceEntities?.list?.(options,options.requestOptions||{});
@@ -49,10 +57,11 @@ function deterministicScore(place,options,discoveryRoute){
   if(place.formattedAddress||place.address)score+=5;
   const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
   place.aiReasons=[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[])])];
-  return score+Number(relevance.score||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0);
+  return score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0);
 }
 async function recommend(options={}){
   const discoveryRoute=route(options);
+  const resolvedPreferences=preferenceResolution(options);
   const goal={text:clean(options.text||options.query)||discoveryRoute.query,category:discoveryRoute.category};
   const deterministic=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,options.destination||'',options.preferences||{})||[`${goal.text} ${options.destination||''}`.trim()];
   const plan=await aiPlan(options,discoveryRoute,deterministic);
@@ -86,9 +95,15 @@ async function recommend(options={}){
   if(window.LuviaAI?.rankCandidates&&ranked.length){
     try{ranked=await window.LuviaAI.rankCandidates({domain:'places',contract:{query:goal.text,category:goal.category,destination:options.destination||'',profileContext:options.profileContext||{},semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(goal.text)||{},aiSearchPlan:plan.ai||null,positionContext:options.positionContext||null},candidates:ranked})}catch{}
   }
+  let preferenceMeta={candidateCount:ranked.length,eligibleCount:ranked.length,blockedCount:0,deterministic:true,providerFactsPreserved:true};
+  const ranker=intelligence()?.reads?.rankPlaceCandidates||intelligence()?.rankPlaceCandidates;
+  if(resolvedPreferences&&typeof ranker==='function'&&ranked.length){
+    const resolved=ranker({resolution:resolvedPreferences,candidates:ranked,query:goal.text,category:goal.category});
+    ranked=resolved.places||ranked;preferenceMeta=resolved.meta||preferenceMeta;
+  }
   ranked=ranked.filter(accepts).sort((left,right)=>deterministicScore(right,options,discoveryRoute)-deterministicScore(left,options,discoveryRoute));
-  return{places:ranked.slice(0,Math.min(20,Math.max(1,Number(options.limit||5)))).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute}};
+  return{places:ranked.slice(0,Math.min(20,Math.max(1,Number(options.limit||5)))).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute},preferenceResolution:resolvedPreferences,preferenceMeta};
 }
-function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),maxCandidateLimit:60,breadthUsesUniquePlaces:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}
+function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),maxCandidateLimit:60,breadthUsesUniquePlaces:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});
 })();

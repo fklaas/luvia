@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "13.82.99";
+  const VERSION = "13.82.100";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",
@@ -127,6 +127,17 @@
 
     const noMotion = () => systemReduced || motionDisabled;
     const delay = ms => new Promise(resolve => window.setTimeout(resolve, noMotion() ? 0 : ms));
+    const directionSettle = () => delay(620);
+    const applyCompassDirectionTone = (container, target, angle) => {
+      const tone = window.LuviaExperienceContractCoreV1?.resolveCompassDirectionTone?.(angle);
+      if (!container || !tone) return tone || null;
+      Object.entries(tone.cssVariables || {}).forEach(([name, value]) => container.style.setProperty(name, value));
+      container.dataset.compassDirectionTone = tone.color;
+      container.classList.add("has-direction-selection");
+      container.querySelectorAll(".is-direction-selected").forEach(node => node.classList.remove("is-direction-selected"));
+      target?.classList.add("is-direction-selected");
+      return tone;
+    };
     const setHidden = (node, hidden) => {
       if (!node) return;
       node.setAttribute("aria-hidden", String(hidden));
@@ -287,9 +298,10 @@
       applyMotionPreference({ persist: false });
     }
 
-    async function seekNeedle(target) {
+    async function seekNeedle(target, sourceButton) {
       if (!gate || seeking) return false;
       seeking = true;
+      applyCompassDirectionTone(gate, sourceButton, target);
       gate.style.setProperty("--needle-from", `${currentAngle}deg`);
       gate.style.setProperty("--needle-target", `${target}deg`);
       gate.classList.remove("is-seeking");
@@ -304,7 +316,8 @@
     }
 
     async function showWorld(worldId, sourceButton) {
-      if (!await seekNeedle(Number(sourceButton?.dataset.compassAngle || 0))) return;
+      if (!await seekNeedle(Number(sourceButton?.dataset.compassAngle || 0), sourceButton)) return;
+      await directionSettle();
       const canvas = worldCanvases.find(item => item.dataset.storyWorld === worldId);
       if (!canvas) return;
       gate.classList.add("is-departing");
@@ -487,7 +500,8 @@
       event.preventDefault();
       event.stopPropagation();
       const action = choice.dataset.compassChoice;
-      if (!await seekNeedle(Number(choice.dataset.compassAngle || 0))) return;
+      if (!await seekNeedle(Number(choice.dataset.compassAngle || 0), choice)) return;
+      await directionSettle();
       if (action === "worlds") setGateLevel("worlds");
       else openAuth(action);
     }, { signal }));
@@ -511,11 +525,13 @@
       }
       if (intent === "worlds") {
         const choice = root.querySelector('[data-compass-choice="worlds"]');
-        await seekNeedle(Number(choice?.dataset.compassAngle || -28));
+        await seekNeedle(Number(choice?.dataset.compassAngle || -28), choice);
+        await directionSettle();
         setGateLevel("worlds");
       } else {
         const choice = root.querySelector(`[data-compass-choice="${intent}"]`);
-        await seekNeedle(Number(choice?.dataset.compassAngle || 0));
+        await seekNeedle(Number(choice?.dataset.compassAngle || 0), choice);
+        await directionSettle();
         openAuth(intent);
       }
     }, { signal }));
@@ -1565,6 +1581,7 @@
         orbit?.style.setProperty("--journey-step", String(index));
         orbit?.style.setProperty("--journey-needle-angle", `${needleAngle}deg`);
         orbit?.style.setProperty("--journey-focus-angle", `${detail.beam}deg`);
+        applyCompassDirectionTone(orbit, step, detail.angle);
         if (orbit) orbit.dataset.journeyActive = String(index);
         if (output) output.textContent = detail.title;
         if (summary) summary.textContent = detail.summary;

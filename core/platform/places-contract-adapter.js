@@ -96,10 +96,15 @@
     return getPlace(query)?.lifecycle||null;
   }
   async function listSaved(filters={}){return freezeArray((await discovery().listSaved(filters||{})).map(domain().projectSaved).filter(Boolean))}
+  function recommendationProjection(input={}){
+    const reasons=[...(input.preferenceReasons||[])].map(String).filter(Boolean),warnings=[...(input.preferenceWarnings||[])].map(String).filter(Boolean);
+    if(!reasons.length&&!warnings.length&&!input.preferenceResolutionVersion)return null;
+    return Object.freeze({owner:'intelligence',kind:'trip-preference-ranking',version:clean(input.preferenceResolutionVersion)||null,scoreDelta:Number(input.preferenceScoreDelta||0),score:Number(input.preferenceScore||0),constraintState:clean(input.preferenceConstraintState)||'verify',matchedSignals:freezeArray([...(input.preferenceMatchedSignals||[])].map(String)),reasons:freezeArray(reasons),warnings:freezeArray(warnings)});
+  }
   async function recommend(options={}){
     const response=await discovery().recommend(options||{});
-    const places=freezeArray((response?.places||[]).map(detailsProjection).filter(Boolean));
-    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{})});
+    const places=freezeArray((response?.places||[]).map(source=>{const projected=detailsProjection(source);return projected?Object.freeze({...projected,recommendation:recommendationProjection(source)}):null}).filter(Boolean));
+    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null});
   }
   function categories(){return domain().categories()}
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}

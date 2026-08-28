@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.0.0';
+  const RUNTIME_VERSION = '1.1.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -62,6 +62,19 @@
 
   function getPolicy() {
     return domainCore().policySnapshot();
+  }
+
+  function preferenceResolver() {
+    return root.LuviaTripPreferenceResolutionCoreV1 ||
+      providerUnavailable('LuviaTripPreferenceResolutionCoreV1');
+  }
+
+  function resolveTripPreferences(input = {}) {
+    return immutable(preferenceResolver().resolve(input));
+  }
+
+  function rankPlaceCandidates(input = {}) {
+    return immutable(preferenceResolver().rankPlaces(input));
   }
 
   async function run(capability, input = {}, options = {}) {
@@ -162,6 +175,7 @@
       ready: Boolean(core && root.LuviaAI),
       providers: Object.freeze({
         domainCore: Boolean(core),
+        preferenceResolver: Boolean(root.LuviaTripPreferenceResolutionCoreV1),
         runtime: Boolean(root.LuviaAI),
         proposals: Boolean(root.LuviaAIProposals?.create),
         memory: Boolean(root.LuviaAIMemory?.snapshot)
@@ -185,6 +199,8 @@
       getTools,
       getModelTiers,
       getPolicy,
+      resolveTripPreferences,
+      rankPlaceCandidates,
       getMemorySnapshot,
       getSystemSnapshot,
       subscribe
@@ -197,6 +213,8 @@
     getTools,
     getModelTiers,
     getPolicy,
+    resolveTripPreferences,
+    rankPlaceCandidates,
     getMemorySnapshot,
     getSystemSnapshot,
     run,
