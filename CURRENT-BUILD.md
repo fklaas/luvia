@@ -20,11 +20,11 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.92**
-- Core: **4.82.92**
-- Name: **M16.5V Precision Memory Canvas + Accepted Living Shell**
+- App: **13.82.99**
+- Core: **4.82.99**
+- Name: **M16.5Z First Trip Composer**
 - Channel: **integration-preview**
-- Datum: **2026-08-27**
+- Datum: **2026-08-28**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
@@ -2484,7 +2484,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Public product state: **PUBLIC VERIFIED**; this is not a physical-handset or broader Design-Freeze acceptance claim.
 - First-Trip Composer, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.
 
-# M16.5Z First Trip Composer — Integration candidate (2026-08-28)
+# M16.5Z First Trip Composer — Stable Integration browser-verified (2026-08-28)
 
 ## Scope
 
@@ -2493,6 +2493,10 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5Z First Trip Composer**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
+- Runtime implementation commit: **`9f8d0dffeff12b9645444bc5878b91003040da43`**.
+- Public deployment: **100% Integration version `e9c1df5d-d172-459e-ab8a-93736988d65e`, deployment `ff560abc-6fe4-4258-be16-ea2280c18ff0`**.
+- Stable URL: **`https://integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Immutable URL: **`https://e9c1df5d-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Rollback baseline: **App 13.82.98 / Core 4.82.98; Integration version `31624f74-d281-43eb-81b7-8b994401c7df`, deployment `a0215087-ad1c-47a3-9345-e5fa3cd2eb83`**.
 
 ## Candidate changes
@@ -2511,5 +2515,10 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Reload/Back/Forward, one-step keyboard navigation and deterministic Reduced Motion: **PASS**.
 - Trip/Places/Navigation/static contract tests: **PASS**.
 - Safe Regression: **116/116 PASS**; regenerated visual inventory: **2,855 tracked files / 726 visual candidates / 0 unclassified**.
+- Clean-archive byte provenance: **10/10 exact SHA-256 PASS** across source archive, Stable and Immutable for entry, version, App Shell, Composer JS/CSS, Places/Trip adapters, Trip creator, Navigation Core and Service Worker.
+- Public Immutable Desktop 1440×900 and Stable Desktop 1440×900: **complete nine-stage real-left-click sequence to `trip.first.create · trip-m165z-public · required` PASS; 50 colours, canonical Kopenhagen Places result, complete three-layer Compass, overflow false, console warnings/errors 0**.
+- Public Immutable Mobile 390×844: **complete browser-emulated Touch/Pointer/Click event sequence to the same committed receipt PASS; flexible month, three Trip feelings, canonical Places, 50 colours, complete Compass, overflow false, console warnings/errors 0**. This is not a physical-handset claim.
+- Public keyboard and Reduced Motion: **one Alt+Right equals one step; media query true, zero root transition, no panel animation, no overflow**. Stable Reload and Browser Back/Forward retain App 13.82.99 assets with console warnings/errors 0.
+- Public test fixture boundary: **`tests/**` stays excluded from Worker assets. The public component path was exercised through a temporary isolated in-origin QA mount of the deployed real Composer assets; App-Shell gating/session recovery is separately covered by the local visible fixture and static/regression contracts. All temporary browser overrides and tabs were removed after testing.**
 - Collaboration invitation execution, downstream trip-feeling weighting, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.
-- Main and Production remain unchanged.
+- Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.

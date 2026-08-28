@@ -94,9 +94,46 @@ feature modules, active Trip colour and the complete Compass-backed result.
 
 ## Public Integration evidence
 
-Pending the clean runtime commit, Integration-only version upload and visible
-immutable/stable browser sequence. No public acceptance is claimed before that
-sequence passes.
+- Runtime implementation commit:
+  `9f8d0dffeff12b9645444bc5878b91003040da43`.
+- The deployment was built from a clean `git archive` of that commit. The three
+  pre-existing untracked local Reel videos were neither archived nor uploaded.
+- Cloudflare Integration version:
+  `e9c1df5d-d172-459e-ab8a-93736988d65e` (Worker version 47), 100% in deployment
+  `ff560abc-6fe4-4258-be16-ea2280c18ff0`.
+- Stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`.
+- Immutable URL:
+  `https://e9c1df5d-integration-luvia.njwnrvwbv5.workers.dev/`.
+- Clean commit archive, Stable and Immutable are SHA-256 byte-identical for
+  10/10 critical assets: entry document, version kernel, App Shell, Composer
+  JS/CSS, Places adapter, Trip adapter, Trip creator, Navigation Core and
+  Service Worker.
+- Immutable Desktop 1440 × 900: all nine stages were completed with real left
+  clicks, including three Trip feelings, canonical Kopenhagen confirmation,
+  fixed dates, invitation handoff, module selection, all 50 colours and `Ink`.
+  The visible receipt was
+  `trip.first.create · trip-m165z-public · required`; the complete Compass had
+  three SVG layers, horizontal overflow was false and console warnings/errors
+  were 0.
+- Stable Desktop 1440 × 900 repeated the complete nine-stage left-click
+  sequence through the same committed receipt; 50 colours were present,
+  horizontal overflow was false and console warnings/errors were 0.
+- Immutable Mobile 390 × 844 completed all nine stages through a browser-
+  emulated Touch/Pointer/Click event path, including canonical Places,
+  flexible month, invitation handoff, 50 colours and `Sea`. The committed
+  receipt was visible, the complete three-layer Compass was present,
+  horizontal overflow was false and console warnings/errors were 0. This is
+  browser touch-event evidence, not a physical-handset claim.
+- Public keyboard evidence advances exactly `identity` to `feeling` for one
+  `Alt+ArrowRight`. Reduced Motion reports a matching media query, zero root
+  transition, no panel animation and no overflow. Stable Reload plus Browser
+  Back/Forward retained App 13.82.99 assets without warnings/errors.
+- Public `tests/**` is intentionally excluded from the Worker artifact. The
+  visible public component E2E therefore used a temporary, isolated in-origin
+  QA mount of the actually deployed Composer and its real CSS/JS assets. The
+  temporary mount, emulation overrides and tabs were removed after testing.
+  App-Shell gating and session resume remain separately proven by the local
+  visible fixture plus the 116/116 contract/regression gate.
 
 ## Rollback
 

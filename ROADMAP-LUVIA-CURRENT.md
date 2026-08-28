@@ -7,10 +7,11 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- Integration candidate App/Core target: 13.82.99 / 4.82.99 (M16.5Z First
-  Trip Composer).
-- Stable Integration before M16.5Z remains App/Core 13.82.98 / 4.82.98,
-  version `31624f74-d281-43eb-81b7-8b994401c7df`, deployment
+- Stable Integration App/Core: 13.82.99 / 4.82.99 (M16.5Z First Trip
+  Composer), version `e9c1df5d-d172-459e-ab8a-93736988d65e`, deployment
+  `ff560abc-6fe4-4258-be16-ea2280c18ff0`.
+- Rollback Integration baseline remains App/Core 13.82.98 / 4.82.98, version
+  `31624f74-d281-43eb-81b7-8b994401c7df`, deployment
   `a0215087-ad1c-47a3-9345-e5fa3cd2eb83`.
 - Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
   Preview acceptance.
@@ -115,11 +116,13 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - M16.5Z implements Gate 4 as the Trip-owned First Trip Composer at App/Core
   13.82.99 / 4.82.99: nine stages, idempotent Trip owner commit, public
   Places-v1 destination confirmation, session-scoped recovery, all 50 Landing
-  colours and explicit Profile-versus-Trip preference semantics. Local
-  Desktop/Mobile/Keyboard/Reload/Back/Reduced Motion evidence is PASS. The
-  Collaboration invitation execution and downstream use of the stored
-  trip-feeling weights in Places/Planning/Journey remain intentionally open;
-  Main, Production and the broader Design Freeze stay locked.
+  colours and explicit Profile-versus-Trip preference semantics. Local and
+  public Stable/Immutable Desktop left-click, Immutable Mobile browser-touch,
+  keyboard, Reload/Back/Forward and Reduced Motion evidence plus 10/10 clean-
+  archive byte parity are PASS on version `e9c1df5d…`. Collaboration invitation
+  execution and downstream use of the stored trip-feeling weights in
+  Places/Planning/Journey remain intentionally open; physical-handset
+  acceptance, Main, Production and the broader Design Freeze stay locked.
 
 ## Completed architecture boundaries
 
