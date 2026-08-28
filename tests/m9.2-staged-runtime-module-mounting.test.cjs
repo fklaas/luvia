@@ -111,7 +111,7 @@ async function main(){
 
   assert.match(bootSource,/appRuntime\.run\('domain-context-ready'/);
   assert.match(bootSource,/timeoutMs:30000/);
-  assert.match(bootSource,/function reset\(\)\{bootPromise=null;snapshot=null;phase='idle';\}/,'auth changes must be able to rehydrate after the initial splash');
+  assert.match(bootSource,/function reset\(\)\{bootPromise=null;backgroundSync=null;snapshot=null;phase='idle';\}/,'auth changes must clear local and remote boot work before rehydration');
   assert.match(shellSource,/appRuntime\(\)\.run\('platform-ready'/);
   assert.match(shellSource,/appRuntime\(\)\.run\('auth-ready'/);
   assert.match(shellSource,/appRuntime\(\)\.run\('domain-context-ready'/);

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.2.0';
+  const VERSION='1.3.0';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -16,6 +16,7 @@
   const providerId=place=>clean(place?.providerPlaceId||place?.provider_place_id||place?.id).replace(/^places\//,'');
   const tripId=trip=>clean(trip?.id||trip?.tripId);
   const destination=trip=>clean(trip?.destination?.name||trip?.destination?.formattedAddress||trip?.destinationName||trip?.name)||'eurem Reiseziel';
+  const destinationContext=trip=>trip&&typeof trip==='object'?trip:{destinationName:destination(trip)};
   const reducedMotion=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true||document.documentElement.classList.contains('reduce-motion');
   const categoryMeta=Object.freeze({
     food:{icon:'heart',hint:'Restaurant · Café · Bar'},
@@ -53,7 +54,7 @@
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:INITIAL_VISIBLE_RESULTS,
     status:'loading',error:null,offline:false,selectedId:null,details:new Map(),images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:{openNow:false,rated:false},filterOpen:false,
-    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,planningHandle:null,lastSearchAt:null,preferenceResolution:null,planningDraft:null
+    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,planningHandle:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null
   };
 
   function cacheKey(){return `consumer:places-spatial:${tripId(state.trip)||'active'}`}
@@ -127,11 +128,13 @@
         query:state.query,
         category:state.category,
         destination:destination(state.trip),
+        destinationContext:destinationContext(context.trip||state.trip),
         candidateLimit:60,
         limit:MAX_RESULTS,
         profilePreferences:context.profilePreferences||{},
         tripComposition:context.tripComposition||{},
-        trip:context.trip||state.trip
+        trip:context.trip||state.trip,
+        momentContext:state.planningDraft||null
       });
       if(token!==state.requestToken)return false;
       const raw=(response?.places||[]).slice(0,MAX_RESULTS);
@@ -139,6 +142,7 @@
       if(token!==state.requestToken)return false;
       state.results=[...first,...raw.slice(INITIAL_VISIBLE_RESULTS)];
       state.preferenceResolution=response?.preferenceResolution||context.resolution||null;
+      state.aiDecision=response?.aiMeta||null;
       state.selectedId=providerId(state.results[0])||null;
       state.status=state.results.length?'ready':'empty';
       state.lastSearchAt=new Date().toISOString();
@@ -149,7 +153,7 @@
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
-      state.error={userMessage:error?.publicMessage||'Die Places-Suche konnte gerade nicht geladen werden.'};
+      state.error={userMessage:error?.publicMessage||'Die Places-Suche konnte gerade nicht geladen werden.',code:error?.code||'PLACES_SEARCH_FAILED'};
       state.status='error';
       render();
       return false;
@@ -175,8 +179,9 @@
     return map[normalized]||(/^€+$/.test(normalized)?normalized:'');
   }
   function reason(place,index){
-    const supplied=(place.preferenceReasons||place.aiReasons||place._luviaReasons||[]).map(clean).find(Boolean);
-    if(supplied)return supplied;
+    const ai=(place.aiReasons||[]).map(clean).find(Boolean),preference=(place.preferenceReasons||place._luviaReasons||[]).map(clean).find(Boolean);
+    if(ai&&preference&&ai!==preference)return`${ai} ${preference}`;
+    if(ai||preference)return ai||preference;
     const open=place.openNow===true?' und ist aktuell geöffnet':'';
     return index===0?`Passt am stärksten zu eurer Suche und dem aktuellen Reisekontext${open}.`:`Eine nachvollziehbare Alternative aus denselben geprüften Ortsdaten${open}.`;
   }
@@ -184,7 +189,8 @@
     const resolution=state.preferenceResolution;
     if(!resolution)return'';
     const profile=(resolution.profileSignals||[]).slice(0,2),trip=(resolution.tripSignals||[]).slice(0,3),constraints=(resolution.hardConstraints||[]).slice(0,3);
-    return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>Profil schützt. Diese Reise gewichtet.</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
+    const ai=state.aiDecision?.ranking,aiLabel=ai?.used&&!ai?.fallback?'Luvia-KI ordnet · Fakten sichern ab':ai?.fallback?'Regelbasiert abgesichert · KI gerade nicht verfügbar':'Profil schützt · diese Reise gewichtet';
+    return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>${esc(aiLabel)}</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
   }
   function evidenceMarkup(place){
     const entries=[];
@@ -509,7 +515,7 @@
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false};state.filterOpen=false;state.details.clear();state.images.clear();state.saved.clear();state.preferenceResolution=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false};state.filterOpen=false;state.details.clear();state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
     if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');

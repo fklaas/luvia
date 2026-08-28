@@ -1,0 +1,48 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const read=file=>fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n?/g,'\n');
+
+const boot=read('core/runtime/boot-coordinator.js');
+const profile=read('core/profiles/profile-service.js');
+const today=read('app/today/today-experience.js');
+const shellCss=read('app/app-shell.css');
+const appShell=read('app/app-shell.js');
+const placesContract=read('core/platform/places-contract-adapter.js');
+const index=read('index.html');
+
+assert.match(profile,/function hydrateLocal\(\)/,'Profile must expose a synchronous local-first hydration boundary');
+assert.match(profile,/Object\.freeze\(\{version:VERSION,hydrateLocal,load/,'local hydration must be part of the public profile owner surface');
+assert.match(boot,/win\.LuviaProfileService\.hydrateLocal\?\.\(\)/,'authenticated boot must hydrate the profile cache before remote work');
+assert.match(boot,/backgroundSync=synchronizeAuthenticated\(client\)/,'remote owner hydration must continue in the background');
+assert.match(boot,/progress\('cloud-snapshot'/,'post-paint cloud hydration must use a non-blocking progress channel');
+assert.doesNotMatch(boot,/emit\('cloud-snapshot'/,'post-paint cloud hydration must never replace the visible ready phase');
+assert.match(boot,/function exposeApp\(\)/,'boot coordinator must own one idempotent visible-app boundary');
+assert.match(boot,/dataset\.luviaBoot='ready'/,'visible-app boundary must keep warm-boot CSS in ready state');
+assert.match(boot,/setAttribute\('aria-busy','false'\)/,'visible-app boundary must clear root busy state');
+assert.match(boot,/if\(localTripId\)return snapshot/,'a complete local trip snapshot must never wait for the network');
+assert.match(boot,/Promise\.race\(\[backgroundSync,delay\(2800\)\]\)/,'first-session cloud waiting must be strictly time-boxed');
+assert.match(index,/<style>html,body\{[^}]*background:rgb\(246 250 251\)/,'neutral shell paint must exist before external styles or scripts');
+assert.match(index,/event\.persisted[\s\S]*dataset\.luviaBoot='ready'/,'bfcache restoration must not re-hide an already rendered app');
+assert.doesNotMatch(shellCss.slice(0,500),/--lv-bg:#fff8f7/,'legacy pastel shell background must not be the first CSS paint');
+
+assert.match(today,/data-today-countdown/,'Today must expose the precise travel countdown');
+assert.match(today,/setInterval\(paint,1000\)/,'the visible countdown must advance every second');
+assert.match(today,/data-weather-mode="current"/,'current destination weather switch is missing');
+assert.match(today,/data-weather-mode="trip"/,'trip-period weather switch is missing');
+assert.match(today,/dashboard\.brief/,'OpenAI dashboard orchestration must run after visible Today render');
+assert.match(today,/LuviaPlacesContractV1\?\.reads\?\.listPlaces/,'Today counts must read Places through places.v1');
+assert.match(today,/data-today-destination-image/,'Today must expose a replaceable destination hero image');
+assert.match(today,/reads\.getCard\(placeId,\{maxWidthPx:1800,maxHeightPx:1200\}\)/,'Today must request an exact destination photo through places.v1');
+assert.match(today,/semantic-fallback/,'Today must retain an explicit semantic fallback instead of a random travel image');
+assert.match(today,/data-today-photo-credit/,'destination photography must keep visible source attribution');
+assert.match(placesContract,/transient:true/,'Google Places photo projections must stay explicitly transient');
+assert.match(placesContract,/attributionUrl/,'Places photo projections must expose owner attribution links');
+assert.match(appShell,/class="lv-living-new-trip"[^>]*data-create/,'signed-in app header must expose one shared new-trip entry');
+assert.match(appShell,/returnTo:activeView\|\|'today'/,'new trip creation must return to the invoking app view');
+assert.doesNotMatch(today,/LuviaPlaceCore/,'Today must not bypass the Places owner contract');
+
+console.log('M16.5AB local-first boot and living Today one-pager: PASS');

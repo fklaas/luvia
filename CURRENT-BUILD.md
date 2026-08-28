@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.101**
-- Core: **4.82.101**
-- Name: **M16.5AB Today Plan Places Wave C**
+- App: **13.82.104**
+- Core: **4.82.104**
+- Name: **M16.5AB Today Places Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-08-28**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -31,15 +31,21 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5AB Today ↔ Planen ↔ Places / Wave C
 
 - Runtime source commit: **pending Integration commit**.
-- Runtime target: **App 13.82.101 / Core 4.82.101 / Integration Preview**.
-- Product slice: **the signed-in Today surface now renders the new image-led Living Day language from the real Journey day graph; Journey derives explicit open windows; Intelligence turns Identity-owned preferences and Trip-owned feelings into an explainable draft; Places receives those real public projections and remains the only visible commit path through `places.plan`**.
+- Runtime target: **App 13.82.104 / Core 4.82.104 / Integration Preview candidate**.
+- Rejected candidate: **App/Core 13.82.101 / 4.82.101, immutable version `8e422bca-586c-425f-9914-975048ab9272`, failed the real visible Today → Places provider completion and was removed from Stable Integration on 2026-08-28. It is not functionally or visually accepted.**
+- Restored stable baseline: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf` (App/Core 13.82.100 / 4.82.100); Main and Production remained unchanged.**
+- Product slice: **the signed-in Today surface now follows the accepted M16.5E image-led Living Day composition on the real Journey day graph; Journey derives explicit open windows; Intelligence turns Identity-owned preferences and Trip-owned feelings into an explainable draft; Places receives those public projections plus the canonical Trip destination and remains the only visible commit path through `places.plan`**.
+- Root-cause recovery: **the `.101` handoff sent only a display string to discovery and did not pass its canonical destination into each provider query; the cascade additionally waited for up to 60 unique candidates although only 18 are visible and one failed query variant could abort the whole run. `.102` carries the complete Trip destination, settles after the requested visible result count and preserves successful partial results across failed variants.**
 - Safety: **the AI suggestion persists nothing and requires explicit user confirmation; App Shell and Living Compass navigation are frozen; Main and Production remain unchanged**.
-- Validation / deployment / rollback: **pending final automated and visible E2E evidence before Integration publication**.
+- Today / appwide entry: **the signed-in Today surface is one non-scrolling, image-led day view with a second-accurate departure countdown, current/trip weather, companions, owner-safe planning counts and a compact explainable AI draft. The existing First Trip Composer is available from every signed-in header; Desktop uses a restrained labelled control, Mobile a 38x38 icon control with the accessible name `Neue Reise anlegen`, and cancel returns to the originating view**.
+- Destination-photo policy: **an exact transient Places photo derived from the canonical Trip `placeId` is preferred and visibly attributed; curated exact destination assets are second choice; any semantic fallback is explicitly labelled as a motif fallback rather than being presented as the destination**.
+- Boot recovery: **first paint is local-first; remote profile/Trip/Journey hydration continues as background progress and cannot overwrite the visible `ready` phase. Reload, bfcache restoration and tab return explicitly expose the already mounted app instead of reactivating the legacy warm-boot mask**.
+- Validation / deployment / rollback: **121/121 Safe Regression PASS; targeted Wave C, local-first boot, destination-discovery resilience, signed-in shell, Compass and visual-inventory gates PASS; real visible local Desktop and 390x844 Mobile Today/header/new-trip/reload checks PASS with zero console warnings/errors and zero page overflow. Public immutable validation remains pending; Stable Integration stays on `.100` until the complete public visible E2E passes**.
 
 ## M16.5AA Preference Resolution / Places / Shared Compass Activation
 
 - Runtime source commit: **`cc2850d4d6bd0e3dab1c52aa2ce480cd3e277f5b`** on `integration`.
-- Runtime target: **App 13.82.101 / Core 4.82.101 / Integration Preview**.
+- Runtime target: **App 13.82.104 / Core 4.82.104 / Integration Preview**.
 - Public deployment: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf`, deployment `d4f22fa1-de92-4c24-bab3-c646698ad096`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://0ad87340-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Preference resolution: **Identity-owned durable preferences and Trip-owned feelings are combined by one immutable Intelligence resolver; Places is the first visible consumer and explains hard Profile constraints, personal signals and per-Trip weighting without creating new truth**.
 - Compass activation: **actual needle coordinates sample the official four-part SVG ring; selected node, icon accent, four thin orbit lines and ambient field share that exact tone; the node stays predominantly white and remains visibly settled for 620 ms before the accepted reverse exit**.

@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION = '4.0.0';
+  const VERSION = '4.0.1';
   const KEY = 'luviaUserProfileCacheV3';
   const LEGACY_KEYS = ['luviaUserProfileCacheV2','luviaUserProfileCacheV1'];
   const listeners = new Set();
@@ -97,16 +97,21 @@
     };
   }
 
-  const durableFingerprint=p=>JSON.stringify({avatarColor:p?.avatarColor||null,dietaryPreferences:p?.dietaryPreferences||[],travelInterests:p?.travelInterests||[],travelStyles:p?.travelStyles||[],activityPreferences:p?.activityPreferences||[],entertainmentPreferences:p?.entertainmentPreferences||[],diningPreferences:p?.diningPreferences||[],mobilityPreferences:p?.mobilityPreferences||[],atmospherePreferences:p?.atmospherePreferences||[],travelPace:p?.travelPace||null,budgetPreference:p?.budgetPreference||null,familyPreferences:p?.familyPreferences||{},accessibilityPreferences:p?.accessibilityPreferences||{},preferencesCompletedAt:p?.preferencesCompletedAt||null});
+  const canonicalInstant=value=>{if(!value)return null;const time=Date.parse(value);return Number.isFinite(time)?new Date(time).toISOString():String(value)};
+  const canonicalValue=value=>{
+    if(Array.isArray(value))return value.map(canonicalValue).sort((left,right)=>JSON.stringify(left).localeCompare(JSON.stringify(right)));
+    if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonicalValue(value[key])]));
+    return value;
+  };
+  const durableFingerprint=p=>JSON.stringify(canonicalValue({avatarColor:String(p?.avatarColor||'').toLowerCase()||null,dietaryPreferences:p?.dietaryPreferences||[],travelInterests:p?.travelInterests||[],travelStyles:p?.travelStyles||[],activityPreferences:p?.activityPreferences||[],entertainmentPreferences:p?.entertainmentPreferences||[],diningPreferences:p?.diningPreferences||[],mobilityPreferences:p?.mobilityPreferences||[],atmospherePreferences:p?.atmospherePreferences||[],travelPace:p?.travelPace||null,budgetPreference:p?.budgetPreference||null,familyPreferences:p?.familyPreferences||{},accessibilityPreferences:p?.accessibilityPreferences||{},preferencesCompletedAt:canonicalInstant(p?.preferencesCompletedAt)}));
   async function fetchCloudProfile(client,user){const response=await client.rpc('luvia_get_my_profile');if(response.error)throw response.error;const row=Array.isArray(response.data)?response.data[0]:response.data;if(!row)throw new Error('PROFILE_CLOUD_ROW_MISSING');return mapRow(row,user);}
   function assertDurableRoundtrip(expected,actual){if(durableFingerprint(expected)!==durableFingerprint(actual)){const error=new Error('PROFILE_CLOUD_ROUNDTRIP_MISMATCH');error.expected=durableFingerprint(expected);error.actual=durableFingerprint(actual);throw error;}return true;}
 
   async function load(client) {
     const auth=root.ParisAuth.getState(),user=auth.user;
     if(!auth.authenticated||!user){replaceState({profile:null,loaded:true,syncing:false,error:null,lastSyncedAt:null});return emit('signed-out');}
-    const cached=read();
-    patchState({profile:mergeProfile(defaults(user),cached?.userId===user.id?cached:{}),syncing:true,error:null});
-    emit('cache-loaded');
+    hydrateLocal();
+    patchState({syncing:true,error:null});
     try {
       patchState({profile:await fetchCloudProfile(client,user),loaded:true,syncing:false,lastSyncedAt:new Date().toISOString()});write(current().profile);emit('cloud-loaded');
       const meta=normalizedPreferences(authPreferences(user));
@@ -124,6 +129,14 @@
       patchState({loaded:true,syncing:false,error});
       return emit('offline-cache');
     }
+  }
+
+  function hydrateLocal(){
+    const auth=root.ParisAuth.getState(),user=auth.user;
+    if(!auth.authenticated||!user){replaceState({profile:null,loaded:true,syncing:false,error:null,lastSyncedAt:null});return emit('signed-out-local');}
+    const cached=read(),profile=mergeProfile(defaults(user),cached?.userId===user.id?cached:{});
+    patchState({profile,loaded:true,syncing:false,error:null});
+    return emit(cached?.userId===user.id?'cache-loaded':'local-defaults-loaded');
   }
 
   async function save(patch) {
@@ -151,5 +164,5 @@
   async function setActiveTrip(id){const p=await save({activeTripId:id||null});return p.activeTripId;}
   async function archiveTrip(id,archived=true){const set=new Set(current().profile?.archivedTripIds||[]);archived?set.add(id):set.delete(id);return save({archivedTripIds:[...set]});}
   function completion(){const p=current().profile||{},prefs=normalizedPreferences(p);return identityCore.completion({...p,...prefs});}
-  root.LuviaProfileService=Object.freeze({version:VERSION,load,save,setActiveTrip,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
+  root.LuviaProfileService=Object.freeze({version:VERSION,hydrateLocal,load,save,setActiveTrip,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
 })();

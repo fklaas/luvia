@@ -73,11 +73,13 @@ const rendered=webWindow.LuviaTodayExperience.render({
   esc:value=>String(value)
 });
 assert.match(rendered,/data-today-contract="consumer\.today-composition\.v1"/);
-assert.match(rendered,/Paris gehört heute euch\./);
-assert.match(rendered,/Restaurant bestätigen/);
+assert.match(rendered,/Guten Abend, Fabian\. <em>Paris<\/em> rückt näher\./);
+assert.match(rendered,/data-experience-state="attention"/);
 assert.match(rendered,/data-ai-ask-open/);
 assert.match(rendered,/data-journey-projection="journey\.v1-read-only"/);
-assert.match(rendered,/data-widget-id="today">Journey calendar/);
+assert.match(rendered,/data-place-projection="places\.v1-read-only"/);
+assert.match(rendered,/data-today-destination-image/);
+assert.doesNotMatch(rendered,/data-widget-id="today">Journey calendar/,'focused Today stays a single non-scrolling hero instead of rendering legacy dashboard widgets');
 
 for(const token of ['LuviaTripStore','TripStore','LuviaPlaceCore','LuviaBooking','supabase','\\.from\\(','localStorage','sessionStorage']){
   assert.equal(new RegExp(token).test(adapterSource),false,`Today Web adapter contains private/domain shortcut: ${token}`);

@@ -31,16 +31,17 @@ assert.match(dockBlock,/registered=new Map\(\(window\.LuviaNavigationRegistry/,'
 for(const route of ['today','plan','trip','memories','more'])assert.match(navigation,new RegExp(`id:'${route}'.*topLevel:true`),`navigation.v1 route truth changed unexpectedly: ${route}`);
 assert.match(shell,/class="lv-(?:brand|living-brand)"[^>]*data-view="today"/,'official brand must return to Today');
 assert.match(shell,/class="lv-logo"/,'App Shell must retain the replaceable official logo mount');
-assert.match(shell,/version:'13\.82\.101'/,'Consumer candidate version is missing');
+assert.match(shell,/version:'13\.82\.104'/,'Consumer candidate version is missing');
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceStore','LuviaBookingStore','LuviaMemoryStore','supabase.from','.from(']){
   assert.equal(dockBlock.includes(forbidden),false,`Consumer navigation introduced a private owner shortcut: ${forbidden}`);
 }
-for(const required of ['LuviaControlCenterTravelIdentity','LuviaControlCenterAttention','LuviaPlatformPorts',"get?.('NetworkPort')",'data-journey-projection="journey.v1-read-only"','data-widget-grid','data-ai-ask-open'])assert.ok(today.includes(required),`real Today projection missing: ${required}`);
+for(const required of ['LuviaControlCenterTravelIdentity','LuviaControlCenterAttention','LuviaPlatformPorts',"get?.('NetworkPort')",'data-journey-projection="journey.v1-read-only"','data-place-projection="places.v1-read-only"','data-ai-projection="dashboard.brief-draft"','data-ai-ask-open'])assert.ok(today.includes(required),`real Today projection missing: ${required}`);
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaBooking','LuviaMemoryStore','supabase','localStorage','sessionStorage'])assert.equal(today.includes(forbidden),false,`Today introduced private/domain access: ${forbidden}`);
-assert.match(today,/class="lvt-phases"/,'Living Itinerary phases are missing');
-assert.match(today,/data-luvia-experience-component="livingCompass"/,'Today Living Compass composition is missing');
-assert.match(today,/Geplant, erlebt und erinnert bleibt in Bewegung\./,'continuous Journey story is missing');
+assert.match(today,/lvt-today-focus/,'single-screen Today focus is missing');
+assert.match(today,/data-today-weather/,'destination weather projection is missing');
+assert.match(today,/data-today-ai-card/,'OpenAI-orchestrated travel brief surface is missing');
+assert.match(today,/KI entwirft · Owner-Cores belegen · ihr bestätigt/,'the explicit AI/owner/confirmation boundary is missing');
 
 for(const token of ['--luvia-color-action-primary','--luvia-color-action-primary-soft','--luvia-color-action-on-primary','--luvia-color-trip-complement','--luvia-color-surface-canvas','--luvia-layout-touch-minimum'])assert.ok(`${m165fCss}\n${todayCss}`.includes(token),`Experience/Trip token missing: ${token}`);
 assert.ok(m165fCss.includes("url('../luvia-logo.svg')"),'central Compass must use the official replaceable root brand asset');

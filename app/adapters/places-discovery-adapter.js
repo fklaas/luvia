@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.1.0';
+const VERSION='1.3.0';
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const uniquePlaces=items=>{
@@ -22,7 +22,19 @@ async function listSaved(options={}){
   const response=await window.LuviaPlaceEntities?.list?.(options,options.requestOptions||{});
   return response?.data?.entities||[];
 }
-async function aiPlan(options,discoveryRoute,queries){
+function aiPreferenceContext(options,resolution){
+  const compact=list=>(list||[]).slice(0,12).map(item=>({key:item.key||item.id||null,label:item.label||item.value||'',weight:Number(item.weight||0)||0,kind:item.kind||null}));
+  return{
+    ...(options.profileContext||{}),
+    hardConstraints:compact(resolution?.hardConstraints),
+    globalProfileSignals:compact(resolution?.profileSignals),
+    tripSignals:compact(resolution?.tripSignals),
+    activeWeights:compact(resolution?.activeWeights),
+    tripFeelings:(resolution?.summary?.tripFeelings||[]).slice(0,6),
+    currentMoment:options.momentContext?{query:options.momentContext.query||'',targetDate:options.momentContext.targetDate||null,startAt:options.momentContext.startAt||null,reasons:(options.momentContext.reasons||[]).slice(0,4)}:null
+  };
+}
+async function aiPlan(options,discoveryRoute,queries,resolution){
   if(!window.LuviaAI?.interpretDiscovery)return{queries,ai:null};
   try{
     const response=await window.LuviaAI.interpretDiscovery({
@@ -35,7 +47,7 @@ async function aiPlan(options,discoveryRoute,queries){
         destination:options.destination||'',
         includedTypes:discoveryRoute.includedTypes,
         labels:{category:discoveryRoute.label},
-        profileContext:options.profileContext||{},
+        profileContext:aiPreferenceContext(options,resolution),
         semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(options.text||options.query)||{},
         positionContext:options.positionContext||null
       }
@@ -64,36 +76,55 @@ async function recommend(options={}){
   const resolvedPreferences=preferenceResolution(options);
   const goal={text:clean(options.text||options.query)||discoveryRoute.query,category:discoveryRoute.category};
   const deterministic=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,options.destination||'',options.preferences||{})||[`${goal.text} ${options.destination||''}`.trim()];
-  const plan=await aiPlan(options,discoveryRoute,deterministic);
+  const plan=await aiPlan(options,discoveryRoute,deterministic,resolvedPreferences);
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
   const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
   const queryLimit=candidateLimit>20?5:3;
-  const hasEnoughCandidates=()=>uniquePlaces(candidates).length>=candidateLimit;
+  const requestedLimit=Math.min(20,Math.max(1,Number(options.limit||5)));
+  const hasEnoughCandidates=()=>uniquePlaces(candidates).length>=requestedLimit;
+  const attempts=[];
+  let lastError=null;
   for(const query of plan.queries.slice(0,queryLimit)){
     for(const strictDestination of (intent.niche?[true,false]:[true])){
-      const response=await window.LuviaPlaceEntities.searchPlaces({
-        tripId:options.tripId,
-        type:discoveryRoute.primaryType,
-        includedType:intent.niche?'':discoveryRoute.includedType,
-        query,
-        maxResultCount:Math.min(20,Math.max(5,candidateLimit)),
-        strictDestination,
-        providers:options.providers||['google','foursquare'],
-        profileContext:options.profileContext||{},
-        intentContext:{text:goal.text,category:goal.category,niche:Boolean(intent.niche),variants:plan.queries,aiPlan:plan.ai||null},
-        positionContext:options.positionContext||null
-      });
-      candidates.push(...(response?.data?.places||[]).filter(place=>!rejected.has(providerId(place))));
+      try{
+        const response=await window.LuviaPlaceEntities.searchPlaces({
+          tripId:options.tripId,
+          type:discoveryRoute.primaryType,
+          includedType:intent.niche?'':discoveryRoute.includedType,
+          query,
+          destination:options.destinationContext||options.trip||options.destination||null,
+          maxResultCount:Math.min(20,Math.max(5,requestedLimit)),
+          strictDestination,
+          providers:options.providers||['google','foursquare'],
+          profileContext:options.profileContext||{},
+          intentContext:{text:goal.text,category:goal.category,niche:Boolean(intent.niche),variants:plan.queries,aiPlan:plan.ai||null},
+          positionContext:options.positionContext||null
+        });
+        const places=(response?.data?.places||[]).filter(place=>!rejected.has(providerId(place)));
+        candidates.push(...places);
+        attempts.push({query,strictDestination,ok:true,count:places.length});
+      }catch(error){
+        lastError=error;
+        attempts.push({query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED'});
+      }
       if(hasEnoughCandidates())break;
     }
     if(hasEnoughCandidates())break;
   }
+  if(!candidates.length&&lastError){
+    lastError.discoveryAttempts=attempts;
+    throw lastError;
+  }
   const accepts=place=>window.LuviaGlobalPlaceContracts?.accepts?.(place,discoveryRoute.category,goal.text,options.preferences||{})!==false;
   let ranked=uniquePlaces(candidates).filter(accepts);
+  let aiRanking={available:Boolean(window.LuviaAI?.rankCandidates),used:false,fallback:null,error:null};
   if(window.LuviaAI?.rankCandidates&&ranked.length){
-    try{ranked=await window.LuviaAI.rankCandidates({domain:'places',contract:{query:goal.text,category:goal.category,destination:options.destination||'',profileContext:options.profileContext||{},semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(goal.text)||{},aiSearchPlan:plan.ai||null,positionContext:options.positionContext||null},candidates:ranked})}catch{}
+    try{
+      ranked=await window.LuviaAI.rankCandidates({domain:'places',contract:{query:goal.text,category:goal.category,destination:options.destination||'',profileContext:aiPreferenceContext(options,resolvedPreferences),semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(goal.text)||{},aiSearchPlan:plan.ai||null,positionContext:options.positionContext||null},candidates:ranked});
+      aiRanking={available:true,used:ranked.some(place=>place.aiMatchScore!=null),fallback:ranked.some(place=>place.aiRankingFallback===true),error:null};
+    }catch(error){aiRanking={available:true,used:false,fallback:true,error:error?.code||'AI_RANKING_FAILED'}}
   }
   let preferenceMeta={candidateCount:ranked.length,eligibleCount:ranked.length,blockedCount:0,deterministic:true,providerFactsPreserved:true};
   const ranker=intelligence()?.reads?.rankPlaceCandidates||intelligence()?.rankPlaceCandidates;
@@ -102,7 +133,7 @@ async function recommend(options={}){
     ranked=resolved.places||ranked;preferenceMeta=resolved.meta||preferenceMeta;
   }
   ranked=ranked.filter(accepts).sort((left,right)=>deterministicScore(right,options,discoveryRoute)-deterministicScore(left,options,discoveryRoute));
-  return{places:ranked.slice(0,Math.min(20,Math.max(1,Number(options.limit||5)))).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute},preferenceResolution:resolvedPreferences,preferenceMeta};
+  return{places:ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta};
 }
 function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),maxCandidateLimit:60,breadthUsesUniquePlaces:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});

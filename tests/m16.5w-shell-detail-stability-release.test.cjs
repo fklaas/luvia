@@ -46,7 +46,7 @@ assert.match(shellCss, /\.lv-living-nav-ai \.lv-living-compass__face[^\n]+animat
 assert.doesNotMatch(shellCss, /lv-living-ai-needle-wander/);
 
 // Repeated identical runtime signals must not replace the Today hero or replay its entrance.
-assert.match(today, /const premiumSignature=model=>JSON\.stringify\(model\)/);
+assert.match(today, /const premiumSignature=model=>JSON\.stringify\(\{/);
 assert.match(today, /if\(signature===binding\.signature\)return false/);
 assert.match(today, /next\.classList\.add\('is-live-update'\)/);
 const bindBlock = today.slice(today.indexOf('function bind('), today.indexOf('function diagnostics()'));

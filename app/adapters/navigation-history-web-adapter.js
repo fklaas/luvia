@@ -1,8 +1,9 @@
 (()=>{
   'use strict';
-  const VERSION='1.0.0';
+  const VERSION='1.0.1';
   const STATE_KEY='luviaNavigationHistoryV1';
   const NAV_KEYS=Object.freeze(['screen','view','route','module']);
+  const LEGACY_AUTH_HASH_KEYS=Object.freeze(['anmelden','registrieren']);
   const root=window;
   const navigation=root.LuviaNavigationContractV1;
   const core=root.LuviaNavigationHistoryPolicyCoreV1;
@@ -22,11 +23,21 @@
     const hashParams=new URLSearchParams(url.hash.replace(/^#/,''));
     NAV_KEYS.forEach(key=>hashParams.delete(key));
     projectedKeys.forEach(key=>hashParams.delete(key));
+    LEGACY_AUTH_HASH_KEYS.forEach(key=>hashParams.delete(key));
     url.hash=hashParams.toString()?`#${hashParams}`:'';
     if(intent.route!==navigation.normalize())url.searchParams.set('screen',intent.route);
     Object.entries(intent.params||{}).forEach(([key,value])=>url.searchParams.set(key,String(value)));
     projectedKeys=new Set(Object.keys(intent.params||{}));
     return `${url.pathname}${url.search}${url.hash}`;
+  }
+  function stripLegacyAuthHash(){
+    const url=new URL(root.location.href),hashParams=new URLSearchParams(url.hash.replace(/^#/,''));
+    const changed=LEGACY_AUTH_HASH_KEYS.some(key=>hashParams.has(key));
+    if(!changed)return false;
+    LEGACY_AUTH_HASH_KEYS.forEach(key=>hashParams.delete(key));
+    url.hash=hashParams.toString()?`#${hashParams}`:'';
+    root.history.replaceState(root.history.state,'',`${url.pathname}${url.search}${url.hash}`);
+    return true;
   }
   function apply(effect){
     if(!effect?.entry||!['push','replace'].includes(effect.action))return effect;
@@ -53,6 +64,7 @@
     root.addEventListener('popstate',restoreFromPlatform);
     const saved=stored();
     if(saved?.intent){
+      stripLegacyAuthHash();
       projectedKeys=new Set(Object.keys(saved.intent.params||{}));
       policy.restore(saved.intent,{position:Number.isInteger(saved.position)?saved.position:0,key:saved.key,source:'history-state'});
       return saved.intent;

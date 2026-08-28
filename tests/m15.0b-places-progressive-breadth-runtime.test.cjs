@@ -28,9 +28,9 @@ vm.runInContext(source,vm.createContext(context),{filename:'places-discovery-ada
 
 (async()=>{
   const result=await window.LuviaPlacesDiscoveryService.recommend({text:'Restaurants',destination:'Scharbeutz',candidateLimit:60,limit:18});
-  assert.equal(calls.length,5,'the bounded cascade must keep searching until 60 unique candidates are available');
-  assert(calls.every(call=>call.maxResultCount===20));
-  assert.equal(new Set(calls.flatMap(call=>call.intentContext.variants)).size,5);
+  assert.equal(calls.length,1,'the bounded cascade must settle once the requested visible set is available');
+  assert(calls.every(call=>call.maxResultCount===18),'provider work is bounded to the visible owner request');
+  assert.equal(new Set(calls.flatMap(call=>call.intentContext.variants)).size,5,'fallback variants remain available when a provider query fails or is too small');
   assert.equal(result.places.length,18,'the owner adapter must expose the requested expanded ranked set');
   assert.equal(new Set(result.places.map(place=>place.providerPlaceId)).size,18,'visible results must stay deduplicated');
   assert.equal(window.LuviaPlacesDiscoveryService.diagnostics().breadthUsesUniquePlaces,true);

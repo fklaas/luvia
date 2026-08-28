@@ -486,6 +486,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-today-plan-places-wave-c.test.cjs'
   },
   {
+    category: 'M16.5 / Places Discovery Resilience',
+    test: 'tests/m16.5ab-places-discovery-resilience.test.cjs'
+  },
+  {
+    category: 'M16.5 / Local-first Boot + Living Today',
+    test: 'tests/m16.5ab-local-first-boot-today.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

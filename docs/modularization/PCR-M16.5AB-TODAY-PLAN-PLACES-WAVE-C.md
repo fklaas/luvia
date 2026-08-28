@@ -64,3 +64,47 @@ Living Compass navigation, Main and Production are outside the mutation scope.
 Rollout is a new immutable Integration version followed by the stable Integration
 alias. Main and Production stay byte-identical. Rollback restores the previous
 Integration deployment/version recorded in the release evidence.
+
+## Recovery addendum — rejected `.101`
+
+The first public candidate (`13.82.101` / `4.82.101`, immutable Worker version
+`8e422bca-586c-425f-9914-975048ab9272`) is explicitly rejected. Its visible
+Today-to-Places routing worked, but provider-backed completion did not. Stable
+Integration was restored to `13.82.100` before further work.
+
+Root cause: the consumer sent a destination label to discovery but discovery did
+not forward the canonical Trip destination into `LuviaPlaceEntities.searchPlaces`.
+The request therefore depended on stale or absent global destination state. The
+cascade also targeted 60 unique candidates for an 18-place surface and aborted
+on a single failed query variant. The recovery passes the full destination on
+every query, stops after the requested visible count, records every attempt and
+retains successful partial results. No owner boundary or persistence rule changes.
+
+## Recovery addendum — `.104` local release gate
+
+The final local candidate is App/Core `13.82.104` / `4.82.104`. It completes the
+Wave C consumer surface without changing owner truth:
+
+- Today is a single non-scrolling, destination-image-led surface. Countdown,
+  weather, companions, owner-safe planning counts and the explainable AI draft
+  share one compact composition instead of independent dashboard panels.
+- Destination photography resolves from the canonical Trip `placeId` through
+  the public Places card contract first. Provider attribution remains visible.
+  Curated exact assets are allowed; a semantic fallback is always identified as
+  a motif fallback and never masquerades as an exact destination image.
+- The existing First Trip Composer is exposed appwide in the signed-in header.
+  The mobile action is a 38 by 38 pixel icon control with the accessible name
+  `Neue Reise anlegen`; cancelling preserves the originating route.
+- Remote cloud hydration no longer changes the visible boot phase after first
+  paint. Reload, bfcache restore and tab return preserve `ready`, clear
+  `aria-busy` and never reapply the legacy warm-start mask.
+
+Local evidence: Safe Regression 121/121 PASS; Wave C, local-first boot,
+destination-discovery resilience, shell, Compass and visual-inventory targeted
+gates PASS. A real visible Desktop and 390x844 Mobile browser sequence covered
+the exact Scharbeutz image plus attribution, per-second countdown, weather
+toggle, Today to Places, the appwide new-trip action from Today and Places,
+cancel return, Reload and Back. Both viewports stayed within one page, and the
+browser console contained zero warnings/errors. Public Stable/Immutable
+evidence and the final Cloudflare deployment identifiers are deliberately not
+claimed before publication.

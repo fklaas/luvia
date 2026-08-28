@@ -77,14 +77,23 @@
     const place=detailsProjection(source);
     if(!place)return Object.freeze({place:null,image:null});
     const photo=Array.isArray(source?.photos)?source.photos[0]:null;
-    let url=clean(photo?.uri||photo?.url||photo?.photoUri),attribution=clean(photo?.attribution||photo?.authorAttributions?.[0]?.displayName);
+    const author=photo?.authorAttributions?.[0]||{};
+    let url=clean(photo?.uri||photo?.url||photo?.photoUri),attribution=clean(photo?.attribution||author.displayName);
     if(!url&&photo?.name&&typeof gateway().photo==='function'){
       try{
         const resolved=await gateway().photo(photo.name,{maxWidthPx:Number(options.maxWidthPx||960),maxHeightPx:Number(options.maxHeightPx||720)});
         url=clean(resolved?.data?.photoUri||resolved?.photoUri);
       }catch{}
     }
-    const image=url?Object.freeze({url,attribution:attribution||null,alt:place.name}):null;
+    const image=url?Object.freeze({
+      url,
+      attribution:attribution||null,
+      attributionUrl:clean(author.uri||photo?.googleMapsUri||source?.googleMapsUri)||null,
+      sourceUrl:clean(photo?.googleMapsUri||source?.googleMapsUri)||null,
+      provider:'Google Maps',
+      transient:true,
+      alt:place.name
+    }):null;
     return Object.freeze({place,image});
   }
   function getLifecycle(query){
