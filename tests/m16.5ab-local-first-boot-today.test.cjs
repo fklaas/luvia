@@ -46,6 +46,9 @@ assert.match(today,/data-trip-switch-open/,'Today must expose the app-wide activ
 assert.match(today,/lvt-ai-slider/,'multiple verified OpenAI planning ideas need a horizontal slider');
 assert.match(today,/LuviaAI\.run\('discovery\.plan'/,'Today planning cards must come from the OpenAI discovery planning capability');
 assert.match(today,/planning\?\.meta\?\.fallback\)ideas=ideas\.slice\(0,1\)/,'fallback guidance must never masquerade as multiple AI proposals');
+assert.match(today,/höchstens 48 Zeichen/,'OpenAI planning must be prompted for short natural card titles');
+assert.match(today,/function ideaTitle\(/,'Today must defensively turn provider search queries into readable card titles');
+assert.match(today,/lvt-guidance-mark/,'Today must quote the Living Compass without duplicating a full-size navigation Compass');
 assert.match(placesContract,/transient:true/,'Google Places photo projections must stay explicitly transient');
 assert.match(placesContract,/attributionUrl/,'Places photo projections must expose owner attribution links');
 assert.match(appShell,/class="lv-living-new-trip"[^>]*data-create/,'signed-in app header must expose one shared new-trip entry');
