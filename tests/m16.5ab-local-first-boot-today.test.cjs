@@ -42,10 +42,17 @@ assert.match(today,/--lvt-depth-x/,'Today must expose subtle pointer depth witho
 assert.match(today,/reads\.getCard\(placeId,\{maxWidthPx:1800,maxHeightPx:1200\}\)/,'Today must request an exact destination photo through places.v1');
 assert.match(today,/semantic-fallback/,'Today must retain an explicit semantic fallback instead of a random travel image');
 assert.match(today,/data-today-photo-credit/,'destination photography must keep visible source attribution');
+assert.match(today,/data-trip-switch-open/,'Today must expose the app-wide active-trip switcher');
+assert.match(today,/lvt-ai-slider/,'multiple verified OpenAI planning ideas need a horizontal slider');
+assert.match(today,/LuviaAI\.run\('discovery\.plan'/,'Today planning cards must come from the OpenAI discovery planning capability');
+assert.match(today,/planning\?\.meta\?\.fallback\)ideas=ideas\.slice\(0,1\)/,'fallback guidance must never masquerade as multiple AI proposals');
 assert.match(placesContract,/transient:true/,'Google Places photo projections must stay explicitly transient');
 assert.match(placesContract,/attributionUrl/,'Places photo projections must expose owner attribution links');
 assert.match(appShell,/class="lv-living-new-trip"[^>]*data-create/,'signed-in app header must expose one shared new-trip entry');
 assert.match(appShell,/returnTo:activeView\|\|'today'/,'new trip creation must return to the invoking app view');
+assert.match(appShell,/data-trip-switch/,'the signed-in header must expose an app-wide trip switcher');
+assert.match(appShell,/commands\?\.selectActiveTrip/,'trip switching must commit through the Trip Owner command');
+assert.match(appShell,/source:'app-shell\.trip-switcher'/,'trip switching must retain an attributable owner-command source');
 assert.doesNotMatch(today,/LuviaPlaceCore/,'Today must not bypass the Places owner contract');
 const todayCss=read('app/today/today-experience.css');
 assert.match(todayCss,/M16\.5AB\.3/,'Today needs the photo-first playful-depth design layer');

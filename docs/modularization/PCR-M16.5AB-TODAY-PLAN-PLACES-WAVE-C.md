@@ -80,9 +80,9 @@ on a single failed query variant. The recovery passes the full destination on
 every query, stops after the requested visible count, records every attempt and
 retains successful partial results. No owner boundary or persistence rule changes.
 
-## Photo-first depth addendum — `.105` local release gate
+## Photo-first depth addendum — `.106` local release gate
 
-App/Core `13.82.105` / `4.82.105` reduces Today’s visual obstruction without
+App/Core `13.82.106` / `4.82.106` reduces Today’s visual obstruction without
 removing any owner-backed information. The destination photograph is emitted
 with `loading=eager` and `fetchpriority=high` in the first visible markup and
 occupies its own depth plane; Places may replace it later with an exact,
@@ -92,6 +92,26 @@ movement produces restrained multi-plane depth, hover produces short lift and
 four ambient orbit details add quiet motion. Touch does not drive parallax and
 the complete depth/transition layer is neutral under Reduced Motion.
 
+The first public `.105` draft proved that the photograph was immediate and
+dominant, but it was not accepted: the middle felt empty and the lower overview
+felt grey. `.106` therefore adds one compact journey rail with `Reise anpassen`
+and contextual Luvia help, while the four owner-backed metrics become separate,
+softly coloured travel lenses instead of a single table-like strip. The same
+rail opens the appwide `Reise wechseln` control; its selection commits only via
+`trip.v1.commands.selectActiveTrip` and immediately reprojects Today. The header
+keeps the same compact control on desktop and as an accessible icon on mobile.
+No generated image is introduced; the active hero continues to prefer an exact,
+attributed Places photograph from a real contributor and stages it with a
+restrained destination-colour light field, depth shading and subtle contrast.
+
+Planning suggestions are not repurposed dashboard prose. `dashboard.brief`
+continues to describe the known Journey honestly; a separate OpenAI
+`discovery.plan` read derives concrete Places search plans from the canonical
+Trip destination and the assembled Identity/Trip/Travel context. Multiple
+non-fallback plans become a horizontal touch slider. A deterministic fallback
+is limited to one card and cannot visually masquerade as multiple AI ideas.
+Every card remains a draft until the user opens Places and explicitly confirms.
+
 Local gates: 121/121 Safe Regression PASS; Wave C, destination resilience,
 local-first boot, visual inventory and no-`!important` design debt PASS. The
 public version identifiers and visible Stable/Immutable evidence are appended
@@ -99,7 +119,7 @@ only after the committed archive is deployed.
 
 ## Recovery addendum — `.104` local release gate
 
-The final local candidate is App/Core `13.82.105` / `4.82.105`. It completes the
+The final local candidate is App/Core `13.82.106` / `4.82.106`. It completes the
 Wave C consumer surface without changing owner truth:
 
 - Today is a single non-scrolling, destination-image-led surface. Countdown,

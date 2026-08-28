@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.105**
-- Core: **4.82.105**
+- App: **13.82.106**
+- Core: **4.82.106**
 - Name: **M16.5AB Today Places Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-08-28**
@@ -30,24 +30,25 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 ## M16.5AB Today ↔ Planen ↔ Places / Wave C
 
-- Runtime source commit: **recorded after the immutable `.105` Integration archive is committed**.
-- Runtime target: **App 13.82.105 / Core 4.82.105 / Integration Preview**.
+- Runtime source commit: **recorded after the immutable `.106` Integration archive is committed**.
+- Runtime target: **App 13.82.106 / Core 4.82.106 / Integration Preview**.
 - Rejected candidate: **App/Core 13.82.101 / 4.82.101, immutable version `8e422bca-586c-425f-9914-975048ab9272`, failed the real visible Today → Places provider completion and was removed from Stable Integration on 2026-08-28. It is not functionally or visually accepted.**
 - Restored stable baseline: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf` (App/Core 13.82.100 / 4.82.100); Main and Production remained unchanged.**
 - Product slice: **the signed-in Today surface now follows the accepted M16.5E image-led Living Day composition on the real Journey day graph; Journey derives explicit open windows; Intelligence turns Identity-owned preferences and Trip-owned feelings into an explainable draft; Places receives those public projections plus the canonical Trip destination and remains the only visible commit path through `places.plan`**.
 - Root-cause recovery: **the `.101` handoff sent only a display string to discovery and did not pass its canonical destination into each provider query; the cascade additionally waited for up to 60 unique candidates although only 18 are visible and one failed query variant could abort the whole run. `.102` carries the complete Trip destination, settles after the requested visible result count and preserves successful partial results across failed variants.**
 - Safety: **the AI suggestion persists nothing and requires explicit user confirmation; App Shell and Living Compass navigation are frozen; Main and Production remain unchanged**.
-- Today / appwide entry: **the signed-in Today surface is one non-scrolling, photo-first day view with a second-accurate departure countdown, current/trip weather, companions, owner-safe planning counts and a compact explainable AI draft. The destination image is requested eagerly in the first markup and remains the visual canvas; information uses smaller translucent instruments. Pointer depth, restrained hover lift, four ambient orbits and independently moving planes add life without changing information hierarchy; Reduced Motion disables every new transform and animation. The existing First Trip Composer remains available appwide and cancel returns to the originating view**.
+- Today / appwide entry: **the signed-in Today surface is one non-scrolling, photo-first day view with a second-accurate departure countdown, current/trip weather, companions, owner-safe planning counts and a compact explainable AI draft. The destination image is requested eagerly in the first markup and remains the visual canvas; restrained saturation/contrast, a destination-colour light field and layered shade give it depth without replacing or hiding the real photograph. Pointer depth, restrained hover lift, four ambient orbits and independently moving planes add life without changing information hierarchy; Reduced Motion disables every new transform and animation. `Reise wechseln` is visible both in Today and appwide in the header and commits through `trip.v1.commands.selectActiveTrip`; the existing First Trip Composer remains appwide and cancel returns to the originating view**.
+- Planning intelligence: **Today retains `dashboard.brief` for an honest journey status, while concrete planning cards come separately from OpenAI `discovery.plan` with the current Trip destination plus Identity/Trip/Travel context. Multiple non-fallback search plans form a horizontal, touch-scrollable slider; a fallback may render only one clearly safeguarded proposal. Selecting a proposal only hands a draft to Places and never schedules or persists automatically**.
 - Destination-photo policy: **an exact transient Places photo derived from the canonical Trip `placeId` is preferred and visibly attributed; curated exact destination assets are second choice; any semantic fallback is explicitly labelled as a motif fallback rather than being presented as the destination**.
 - Boot recovery: **first paint is local-first; remote profile/Trip/Journey hydration continues as background progress and cannot overwrite the visible `ready` phase. Reload, bfcache restoration and tab return explicitly expose the already mounted app instead of reactivating the legacy warm-boot mask**.
-- Public deployment: **the previous accepted `.104` deployment remains live while the `.105` immutable candidate is committed and published; its new version/deployment identifiers are recorded only after the public bytes and visible Today sequence pass**.
+- Public deployment: **the `.105` photo-first draft was visible but explicitly not accepted because Today felt too empty and its lower instruments too grey. The bundled `.106` candidate adds a compact journey entry/help rail, appwide real Trip switching, individually coloured travel lenses, staged real photography and an OpenAI planning slider; its new version/deployment identifiers are recorded only after public bytes and the visible Today sequence pass**.
 - Validation / deployment / rollback: **121/121 Safe Regression PASS plus focused first-paint, depth-plane and Reduced-Motion guards. Local visible Today confirms a ready destination photo, zero page overflow and the compact responsive composition. Public Stable/Immutable byte parity, signed-in Desktop/Mobile/Reload/Reduced-Motion evidence and the exact rollback command are recorded after publication; no Main or Production action is authorized**.
 - Main / Production: **unchanged: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`; final physical-handset acceptance remains explicitly open**.
 
 ## M16.5AA Preference Resolution / Places / Shared Compass Activation
 
 - Runtime source commit: **`cc2850d4d6bd0e3dab1c52aa2ce480cd3e277f5b`** on `integration`.
-- Runtime target: **App 13.82.105 / Core 4.82.105 / Integration Preview**.
+- Runtime target: **App 13.82.106 / Core 4.82.106 / Integration Preview**.
 - Public deployment: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf`, deployment `d4f22fa1-de92-4c24-bab3-c646698ad096`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://0ad87340-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Preference resolution: **Identity-owned durable preferences and Trip-owned feelings are combined by one immutable Intelligence resolver; Places is the first visible consumer and explains hard Profile constraints, personal signals and per-Trip weighting without creating new truth**.
 - Compass activation: **actual needle coordinates sample the official four-part SVG ring; selected node, icon accent, four thin orbit lines and ambient field share that exact tone; the node stays predominantly white and remains visibly settled for 620 ms before the accepted reverse exit**.
