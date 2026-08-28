@@ -2449,7 +2449,7 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Physical handset acceptance and the broader M16.5 design/App-Shell freeze remain **OPEN; not claimed by this release**.
 
-# M16.5Y Identity Compass Onboarding — Local release candidate (2026-08-28)
+# M16.5Y Identity Compass Onboarding — Stable Integration browser-verified (2026-08-28)
 
 ## Scope
 
@@ -2458,6 +2458,10 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Release: **M16.5Y Identity Compass Onboarding**
 - Channel: **integration-preview**
 - Target: **Integration only**; Main and Production remain locked.
+- Runtime implementation commit: **`a70e7a340cdaa45b4b2ba06cf44354d57d0fa32f`**.
+- Public deployment: **100% Integration version `31624f74-d281-43eb-81b7-8b994401c7df`, deployment `a0215087-ad1c-47a3-9345-e5fa3cd2eb83`**.
+- Stable URL: **`https://integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Immutable URL: **`https://31624f74-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Rollback baseline: **App 13.82.97 / Core 4.82.97; Integration version `a9309030-3045-4964-aa9e-4078a9ecc3cf`, deployment `793af37b-08f7-4b6e-88b7-edc12dd88b90`**.
 
 ## Candidate changes
@@ -2473,5 +2477,9 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Responsive local browser evidence: **PASS** at 1440×900, 1702×683, 958×506 with eight selected values and 390×844; the two reported short-height clipping defects are closed and document horizontal overflow is 0 px.
 - Real reload/resume retains the selected canonical preferences; native-button keyboard reachability, Back/step history, hidden-scrollbar and Reduced Motion guards: **PASS**.
 - Controlled Safe Regression: **115/115 PASS**; NFR-0 **3/3 PASS**; visual inventory **2,850 tracked / 722 visual candidates / 0 unclassified PASS**.
-- Public Integration version/deployment and stable-origin E2E: **PENDING; no public acceptance claimed by this local candidate**.
+- Immutable and Stable Integration bytes: **9/9 exact SHA-256 PASS** for document, version kernel, App Shell JS/CSS, onboarding JS/CSS, Identity adapter, Navigation Core and Service Worker.
+- Public signed-in real-click sequence: **PASS** from welcome through Compass without committing the real account; eight selected values survive Reload, Browser Back reaches Control, Forward returns to Compass and console warnings/errors are **0**.
+- Public responsive clipping closure: **PASS** at 1702×683, 958×506 with eight selected values and 390×844; both reported clipped sections are visible, horizontal overflow is 0 px and Mobile preserves usable hidden-scrollbar scrolling.
+- Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
+- Public product state: **PUBLIC VERIFIED**; this is not a physical-handset or broader Design-Freeze acceptance claim.
 - First-Trip Composer, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.

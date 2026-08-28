@@ -103,11 +103,13 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 - M16.5X freezes the accepted Living Shell geometry on Stable Integration at
   App/Core 13.82.97 / 4.82.97 with collision-free Compass orbits and the
   dedicated Control Center Compass. Main and Production remain unchanged.
-- M16.5Y implements Gate 3 of the Productization Plan: one seven-stage,
+- M16.5Y implements and publicly verifies Gate 3 of the Productization Plan on
+  Stable Integration at App/Core 13.82.98 / 4.82.98: one seven-stage,
   post-auth Identity Compass onboarding with atomic Identity-owner commit,
   session-scoped resume/defer/edit and an explicit prohibition on Trip writes.
-  Local Desktop, short-height, landscape and Mobile evidence plus 115/115 Safe
-  Regression are PASS. The next independent gate is the Trip-owned First-Trip
+  Local and public Desktop, short-height, landscape and Mobile evidence,
+  stable/immutable 9/9 byte parity plus 115/115 Safe Regression are PASS. The
+  next independent gate is the Trip-owned First-Trip
   Composer; physical-handset acceptance and the broader Design Freeze remain
   open.
 
