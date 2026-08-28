@@ -117,6 +117,59 @@ local-first boot, visual inventory and no-`!important` design debt PASS. The
 public version identifiers and visible Stable/Immutable evidence are appended
 only after the committed archive is deployed.
 
+## Public Integration evidence — `.106`
+
+- Runtime commit: `0b2c2d5ca6afc8a0ef99e0e4b30699d0b6ab6e57` on
+  `integration`. The Worker was uploaded from a clean `git archive` of that
+  exact commit; the three pre-existing untracked Reel videos were not archived,
+  committed or uploaded.
+- Cloudflare version: `6d5c62f3-4eb0-4b17-b1d4-ea6428fb06a7`, 100% in
+  deployment `e2672a56-0e59-401b-a4b0-b15f86735162`.
+- Stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`.
+- Immutable URL:
+  `https://6d5c62f3-integration-luvia.njwnrvwbv5.workers.dev/`.
+- Stable and Immutable are byte-identical for `index.html`, App Shell JS/CSS,
+  Today JS/CSS and `sw.js`. All six responses expose the intended HTML,
+  JavaScript or CSS content type; no SPA-fallback response is counted as an
+  asset-parity success.
+- Safe Regression: 121/121 PASS. Focused first-paint, photo depth,
+  destination-discovery, Trip-switch, horizontal-planning-slider and Reduced
+  Motion guards PASS.
+- Real visible signed-in Stable Mobile 390×844: exact attributed
+  Places-contributor photograph loaded; document dimensions 390×844; no
+  horizontal or vertical page overflow; appwide picker, `Reise wechseln` and
+  `Anpassen` visible. Selecting `Ostseeurlaub` through the real native header
+  control updated the selected Trip id and Today journey rail. The Today action
+  focused that same appwide picker. `Anpassen` opened `screen=trip`; Browser Back
+  restored Today. Reload reached the visible journey rail in 3.306 seconds.
+- The live OpenAI `discovery.plan` response contained one meaningful plan and
+  therefore rendered one card. The product renders a horizontal touch slider
+  only when the provider returns multiple non-fallback plans; deterministic
+  fallback is deliberately limited to one card and is never multiplied to make
+  the surface appear more intelligent than the evidence.
+- Real visible signed-in Stable Desktop 1440×900: destination-led Today and the
+  accepted shell render in one viewport with zero document overflow. Reduced
+  Motion reports `prefers-reduced-motion: reduce`, keeps the ready surface and
+  introduces no overflow.
+- Immutable Mobile loads all 234 versioned `.106` scripts with no `.104`/`.105`
+  script reference and zero horizontal overflow. The immutable hostname is a
+  separate browser origin and correctly does not share the authenticated Stable
+  session; authenticated E2E is therefore performed on Stable, while immutable
+  integrity is proven by exact byte parity rather than copying credentials or
+  browser storage across origins.
+- Main remains `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`. Production
+  remains deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version
+  `0d26706b-8b79-4e05-b3b6-6c6314cc597c` at 100%.
+- Operational rollback: deploy
+  `d3e3c56c-7d80-43e6-b3b4-c5b2a18b36b7@100` to `integration-luvia` with
+  message `Rollback M16.5AB to App 13.82.104`. App 13.82.105 is intentionally
+  not the rollback target because its Today composition was visibly rejected.
+  This is a code/assets rollback only; no schema, data, RLS, bucket, Edge
+  Function, secret or manual non-versioned configuration rollback is required.
+- Acceptance boundary: automated, parity and visible in-app-browser evidence are
+  complete for this bounded Integration release. A physical-handset acceptance
+  by the user and the broader M16.5 Design Freeze remain explicitly open.
+
 ## Recovery addendum — `.104` local release gate
 
 The final local candidate is App/Core `13.82.106` / `4.82.106`. It completes the
