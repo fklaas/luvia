@@ -36,6 +36,9 @@ assert.match(today,/data-weather-mode="trip"/,'trip-period weather switch is mis
 assert.match(today,/dashboard\.brief/,'OpenAI dashboard orchestration must run after visible Today render');
 assert.match(today,/LuviaPlacesContractV1\?\.reads\?\.listPlaces/,'Today counts must read Places through places.v1');
 assert.match(today,/data-today-destination-image/,'Today must expose a replaceable destination hero image');
+assert.match(today,/loading="eager" decoding="async" fetchpriority="high"/,'the destination photograph must be requested directly on first paint');
+assert.match(today,/lvt-hero-depth/,'Today must keep the photograph on its own depth plane');
+assert.match(today,/--lvt-depth-x/,'Today must expose subtle pointer depth without changing owner data');
 assert.match(today,/reads\.getCard\(placeId,\{maxWidthPx:1800,maxHeightPx:1200\}\)/,'Today must request an exact destination photo through places.v1');
 assert.match(today,/semantic-fallback/,'Today must retain an explicit semantic fallback instead of a random travel image');
 assert.match(today,/data-today-photo-credit/,'destination photography must keep visible source attribution');
@@ -44,5 +47,8 @@ assert.match(placesContract,/attributionUrl/,'Places photo projections must expo
 assert.match(appShell,/class="lv-living-new-trip"[^>]*data-create/,'signed-in app header must expose one shared new-trip entry');
 assert.match(appShell,/returnTo:activeView\|\|'today'/,'new trip creation must return to the invoking app view');
 assert.doesNotMatch(today,/LuviaPlaceCore/,'Today must not bypass the Places owner contract');
+const todayCss=read('app/today/today-experience.css');
+assert.match(todayCss,/M16\.5AB\.3/,'Today needs the photo-first playful-depth design layer');
+assert.match(todayCss,/@media\(prefers-reduced-motion:reduce\)[^{]*\{[^}]*\.lvt-hero-depth/,'depth motion must have a reduced-motion boundary');
 
 console.log('M16.5AB local-first boot and living Today one-pager: PASS');

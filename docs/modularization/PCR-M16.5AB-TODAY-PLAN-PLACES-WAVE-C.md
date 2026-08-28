@@ -80,9 +80,26 @@ on a single failed query variant. The recovery passes the full destination on
 every query, stops after the requested visible count, records every attempt and
 retains successful partial results. No owner boundary or persistence rule changes.
 
+## Photo-first depth addendum — `.105` local release gate
+
+App/Core `13.82.105` / `4.82.105` reduces Today’s visual obstruction without
+removing any owner-backed information. The destination photograph is emitted
+with `loading=eager` and `fetchpriority=high` in the first visible markup and
+occupies its own depth plane; Places may replace it later with an exact,
+attributed transient destination photo. Weather, companions, counts and the AI
+draft remain complete but use smaller, lighter glass instruments. Pointer
+movement produces restrained multi-plane depth, hover produces short lift and
+four ambient orbit details add quiet motion. Touch does not drive parallax and
+the complete depth/transition layer is neutral under Reduced Motion.
+
+Local gates: 121/121 Safe Regression PASS; Wave C, destination resilience,
+local-first boot, visual inventory and no-`!important` design debt PASS. The
+public version identifiers and visible Stable/Immutable evidence are appended
+only after the committed archive is deployed.
+
 ## Recovery addendum — `.104` local release gate
 
-The final local candidate is App/Core `13.82.104` / `4.82.104`. It completes the
+The final local candidate is App/Core `13.82.105` / `4.82.105`. It completes the
 Wave C consumer surface without changing owner truth:
 
 - Today is a single non-scrolling, destination-image-led surface. Countdown,
