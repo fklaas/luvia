@@ -20,18 +20,26 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.100**
-- Core: **4.82.100**
-- Name: **M16.5AA Preference Resolution + Compass Activation**
+- App: **13.82.101**
+- Core: **4.82.101**
+- Name: **M16.5AB Today Plan Places Wave C**
 - Channel: **integration-preview**
 - Datum: **2026-08-28**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
+## M16.5AB Today ↔ Planen ↔ Places / Wave C
+
+- Runtime source commit: **pending Integration commit**.
+- Runtime target: **App 13.82.101 / Core 4.82.101 / Integration Preview**.
+- Product slice: **the signed-in Today surface now renders the new image-led Living Day language from the real Journey day graph; Journey derives explicit open windows; Intelligence turns Identity-owned preferences and Trip-owned feelings into an explainable draft; Places receives those real public projections and remains the only visible commit path through `places.plan`**.
+- Safety: **the AI suggestion persists nothing and requires explicit user confirmation; App Shell and Living Compass navigation are frozen; Main and Production remain unchanged**.
+- Validation / deployment / rollback: **pending final automated and visible E2E evidence before Integration publication**.
+
 ## M16.5AA Preference Resolution / Places / Shared Compass Activation
 
 - Runtime source commit: **`cc2850d4d6bd0e3dab1c52aa2ce480cd3e277f5b`** on `integration`.
-- Runtime target: **App 13.82.100 / Core 4.82.100 / Integration Preview**.
+- Runtime target: **App 13.82.101 / Core 4.82.101 / Integration Preview**.
 - Public deployment: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf`, deployment `d4f22fa1-de92-4c24-bab3-c646698ad096`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://0ad87340-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Preference resolution: **Identity-owned durable preferences and Trip-owned feelings are combined by one immutable Intelligence resolver; Places is the first visible consumer and explains hard Profile constraints, personal signals and per-Trip weighting without creating new truth**.
 - Compass activation: **actual needle coordinates sample the official four-part SVG ring; selected node, icon accent, four thin orbit lines and ambient field share that exact tone; the node stays predominantly white and remains visibly settled for 620 ms before the accepted reverse exit**.

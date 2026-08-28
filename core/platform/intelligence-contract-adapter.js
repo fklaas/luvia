@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.1.0';
+  const RUNTIME_VERSION = '1.2.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -75,6 +75,10 @@
 
   function rankPlaceCandidates(input = {}) {
     return immutable(preferenceResolver().rankPlaces(input));
+  }
+
+  function composeDayGuidance(input = {}) {
+    return immutable(preferenceResolver().composeDayGuidance(input));
   }
 
   async function run(capability, input = {}, options = {}) {
@@ -201,6 +205,7 @@
       getPolicy,
       resolveTripPreferences,
       rankPlaceCandidates,
+      composeDayGuidance,
       getMemorySnapshot,
       getSystemSnapshot,
       subscribe
@@ -215,6 +220,7 @@
     getPolicy,
     resolveTripPreferences,
     rankPlaceCandidates,
+    composeDayGuidance,
     getMemorySnapshot,
     getSystemSnapshot,
     run,

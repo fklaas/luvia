@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const TAGS=Object.freeze({
@@ -179,5 +179,24 @@ function rankPlaces(input={}){
   return immutable({version:VERSION,owner:'intelligence',resolution,places,meta:{candidateCount:evaluated.length,eligibleCount:places.length,blockedCount:blocked.length,blockedProviderPlaceIds:blocked.map(item=>idOf(item.place)).filter(Boolean),deterministic:true,providerFactsPreserved:true}});
 }
 
-return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,normalizeProfile});
+function composeDayGuidance(input={}){
+  const resolution=input.resolution?.kind==='derived-trip-preference-resolution'?input.resolution:resolve(input);
+  const graph=input.dayGraph||{},days=Array.isArray(graph.days)?graph.days:[];
+  const day=graph.currentDay||days.find(item=>Array.isArray(item.openGaps)&&item.openGaps.length)||days[0]||null;
+  const openGap=day?.openGaps?.slice?.().sort((a,b)=>Number(b.durationMinutes)-Number(a.durationMinutes))[0]||null;
+  const positives=(resolution.activeWeights||[]).filter(item=>item.weight>0).slice(0,3);
+  const labels=positives.map(item=>item.label);
+  const feelings=resolution.summary?.tripFeelings||[];
+  const query=[feelings[0],...labels].filter(Boolean).slice(0,3).join(' · ')||'Ein Ort, der zu dieser Reise passt';
+  const minimumGapMinutes=(resolution.weights?.quiet||0)>0?45:(resolution.weights?.active||0)>8?20:30;
+  return immutable({
+    version:VERSION,owner:'intelligence',kind:'derived-trip-day-guidance',persisted:false,
+    day:day?{date:day.date,status:day.status}:null,openGap,
+    policy:{minimumGapMinutes,pace:(resolution.weights?.quiet||0)>=(resolution.weights?.active||0)?'ruhig':'lebendig',maximumSuggestions:3},
+    suggestion:openGap?{kind:'draft-place-discovery',requiresConfirmation:true,route:'places',label:'Passenden Ort entdecken',query,targetDate:day.date,startAt:openGap.startAt,endAt:openGap.endAt,reasons:[feelings.length?`Das Reisegefühl „${feelings.join(' · ')}“ gewichtet diesen Vorschlag.`:'Eure globalen Vorlieben bilden die Basis.',labels.length?`Besonders berücksichtigt: ${labels.join(', ')}.`:'Der Vorschlag bleibt bewusst offen.',`Im Tagesbogen sind ${openGap.durationMinutes} Minuten frei.`]}:null,
+    provenance:{profile:'identity.v1',trip:'trip.v1',dayGraph:'journey.v1',mutation:false}
+  });
+}
+
+return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile});
 })();

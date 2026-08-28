@@ -1,0 +1,56 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const read=file=>fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n?/g,'\n');
+const sandbox={Object,Array,Map,Set,Date,Math,Number,String,Boolean,RegExp,JSON};
+vm.createContext(sandbox);
+vm.runInContext(read('core/journey/journey-domain-contract-core.js'),sandbox);
+vm.runInContext(read('core/intelligence/trip-preference-resolution-core.js'),sandbox);
+vm.runInContext(read('app/today/today-composition-core.js'),sandbox);
+
+const journey=sandbox.LuviaJourneyDomainContractCoreV1.compose({
+  now:'2027-06-13T09:00:00.000Z',
+  trip:{id:'trip-wave-c',title:'Ostseeurlaub',destination:{name:'Scharbeutz'},startDate:'2027-06-13',endDate:'2027-06-13'},
+  entries:[{id:'breakfast',title:'Frühstück am Meer',source:'place-data',entityType:'restaurant',startAt:'2027-06-13T09:00:00.000Z',endAt:'2027-06-13T10:00:00.000Z'}]
+});
+assert.equal(journey.days.length,1);
+assert.ok(journey.days[0].openGaps.some(item=>item.durationMinutes>=60),'Journey must derive usable open gaps without owning schedule truth');
+assert.equal(journey.days[0].openGaps[0].owner,'journey');
+
+const resolver=sandbox.LuviaTripPreferenceResolutionCoreV1;
+const resolution=resolver.resolve({trip:{id:'trip-wave-c'},profilePreferences:{dietaryPreferences:['vegetarian'],travelPace:'relaxed',travelInterests:['culture']},tripComposition:{feelings:['curious','together']}});
+const guidance=resolver.composeDayGuidance({resolution,dayGraph:journey});
+assert.equal(guidance.owner,'intelligence');
+assert.equal(guidance.persisted,false);
+assert.equal(guidance.suggestion.requiresConfirmation,true);
+assert.equal(guidance.suggestion.route,'places');
+assert.equal(guidance.suggestion.targetDate,'2027-06-13');
+assert.ok(guidance.suggestion.reasons.length>=2);
+
+const today=sandbox.LuviaTodayCompositionCoreV1.compose({trip:{title:'Ostseeurlaub',destination:'Scharbeutz'},viewer:{displayName:'Fabian'},travel:{phase:'during',tripDay:1},network:{online:true},clock:{hour:9},journey,preferenceGuidance:guidance});
+assert.equal(today.suggestion.requiresConfirmation,true);
+assert.equal(today.journey.day.date,'2027-06-13');
+assert.equal(today.provenance.domainTruth,false);
+
+const places=read('app/places/places-spatial-experience.js');
+const todayExperience=read('app/today/today-experience.js');
+const appShell=read('app/app-shell.js');
+const index=read('index.html');
+const sw=read('sw.js');
+assert.match(places,/profilePreferences:context\.profilePreferences/,'productive Places request must receive Identity preferences');
+assert.match(places,/tripComposition:context\.tripComposition/,'productive Places request must receive Trip composition');
+assert.match(places,/Profil schützt\. Diese Reise gewichtet/);
+assert.match(todayExperience,/prototype-coast-morning\.png/);
+assert.match(todayExperience,/data-today-suggestion-add/);
+assert.match(appShell,/setDraft\?\.\(draft\)/);
+assert.match(index,/app\/adapters\/trip-preference-context-adapter\.js\?v=/);
+assert.match(sw,/trip-preference-context-adapter\.js/);
+for(const source of [read('app/adapters/trip-preference-context-adapter.js'),read('core/intelligence/trip-preference-resolution-core.js')]){
+  for(const forbidden of ['localStorage','sessionStorage','.rpc(','supabase'])assert.equal(source.includes(forbidden),false,`derived Wave C context must stay browserless/read-only: ${forbidden}`);
+}
+
+console.log('M16.5AB Today ↔ Planen ↔ Places Wave C vertical flow and design migration: PASS');

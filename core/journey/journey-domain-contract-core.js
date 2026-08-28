@@ -3,7 +3,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -148,17 +148,35 @@ function dayStatus(day,nowKey){
   if(day.date===nowKey)return'live';
   return'planned';
 }
+function openGapsFor(date,entries=[],options={}){
+  const startHour=Math.max(0,Math.min(23,finite(options.dayStartHour,8)));
+  const endHour=Math.max(startHour+1,Math.min(24,finite(options.dayEndHour,22)));
+  const minimum=Math.max(15,finite(options.minimumOpenGapMinutes,45));
+  const boundary=hour=>Date.parse(`${date}T${String(hour).padStart(2,'0')}:00:00.000Z`);
+  let cursor=boundary(startHour);const end=boundary(endHour),gaps=[];
+  for(const entry of entries){
+    if(!entry.startAt||!entry.endAt)continue;
+    const entryStart=Math.max(boundary(startHour),Date.parse(entry.startAt));
+    const entryEnd=Math.min(end,Date.parse(entry.endAt));
+    if(entryStart>cursor&&Math.round((entryStart-cursor)/60000)>=minimum)gaps.push({startAt:new Date(cursor).toISOString(),endAt:new Date(entryStart).toISOString(),durationMinutes:Math.round((entryStart-cursor)/60000)});
+    cursor=Math.max(cursor,entryEnd);
+  }
+  if(end>cursor&&Math.round((end-cursor)/60000)>=minimum)gaps.push({startAt:new Date(cursor).toISOString(),endAt:new Date(end).toISOString(),durationMinutes:Math.round((end-cursor)/60000)});
+  return gaps.map((gap,index)=>immutable({id:`open-gap:${date}:${index+1}`,...gap,kind:'derived-open-gap',owner:'journey'}));
+}
 function createDay(date,entries,nowKey,options){
   const conflicts=conflictsFor(entries,options);
+  const openGaps=openGapsFor(date,entries,options);
   const plannedMinutes=entries.reduce((sum,entry)=>sum+entry.durationMinutes,0);
   const owners=[...new Set(entries.map(entry=>entry.provenance.owner))].sort();
   const day={
     id:`journey-day:${date}`,
     date,
     entries,
+    openGaps,
     conflicts,
     status:'open',
-    summary:Object.freeze({entryCount:entries.length,conflictCount:conflicts.length,plannedMinutes,owners}),
+    summary:Object.freeze({entryCount:entries.length,conflictCount:conflicts.length,plannedMinutes,openGapCount:openGaps.length,openMinutes:openGaps.reduce((sum,item)=>sum+item.durationMinutes,0),owners}),
     actions:Object.freeze([
       Object.freeze({id:'open-day',kind:'open-day',date,label:'Tag ansehen'}),
       Object.freeze({id:'ask-luvia',kind:'assistant',date,label:'Tag mit Luvia planen',requiresConfirmation:false})

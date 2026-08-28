@@ -23,7 +23,7 @@ const context=vm.createContext({Date,Object,Set,String,Number,Math,Array,JSON});
 vm.runInContext(coreSource,context,{filename:'today-composition-core.js'});
 const core=context.LuviaTodayCompositionCoreV1;
 assert.equal(core.contractId,'consumer.today-composition.v1');
-assert.deepEqual(JSON.parse(JSON.stringify(core.diagnostics())),{contractId:'consumer.today-composition.v1',version:'1',runtimeVersion:'1.0.0',browserless:true,domainTruth:false,journeyTimelineOwner:false,allowedNavigationRoutes:['plan','places','control-center','control-center-bookings','control-center-inbox','more']});
+assert.deepEqual(JSON.parse(JSON.stringify(core.diagnostics())),{contractId:'consumer.today-composition.v1',version:'1',runtimeVersion:'1.1.0',browserless:true,domainTruth:false,journeyTimelineOwner:false,allowedNavigationRoutes:['plan','places','control-center','control-center-bookings','control-center-inbox','more']});
 
 const model=core.compose({
   trip:{title:'Paris zu zweit',destination:'Paris',symbol:'♥',dateRange:'22.08.2026 – 29.08.2026'},

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.1.0';
+  const VERSION='1.2.0';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -9,6 +9,7 @@
   const COMPOSITION=()=>globalThis.LuviaPlacesSpatialCompositionCoreV1;
   const placesContract=()=>globalThis.LuviaPlacesContractV1||globalThis.LuviaPlacesContract;
   const bookingContract=()=>globalThis.LuviaBookingContractV1||globalThis.LuviaBookingPublicContract;
+  const preferenceContext=()=>globalThis.LuviaTripPreferenceContextV1;
   const port=id=>globalThis.LuviaPlatformPorts?.get?.(id)||null;
   const clean=value=>String(value??'').trim();
   const esc=value=>clean(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -52,7 +53,7 @@
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:INITIAL_VISIBLE_RESULTS,
     status:'loading',error:null,offline:false,selectedId:null,details:new Map(),images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:{openNow:false,rated:false},filterOpen:false,
-    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,planningHandle:null,lastSearchAt:null
+    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,planningHandle:null,lastSearchAt:null,preferenceResolution:null,planningDraft:null
   };
 
   function cacheKey(){return `consumer:places-spatial:${tripId(state.trip)||'active'}`}
@@ -119,6 +120,7 @@
     state.status='loading';render();
     try{
       if(!contract?.reads?.recommend)throw Object.assign(new Error('Places ist noch nicht vollständig geladen.'),{publicMessage:'Die Places-Suche ist noch nicht bereit. Bitte ladet die App neu.'});
+      const context=preferenceContext()?.snapshot?.()||{};
       const response=await contract.reads.recommend({
         tripId:tripId(state.trip),
         text:state.query,
@@ -126,13 +128,17 @@
         category:state.category,
         destination:destination(state.trip),
         candidateLimit:60,
-        limit:MAX_RESULTS
+        limit:MAX_RESULTS,
+        profilePreferences:context.profilePreferences||{},
+        tripComposition:context.tripComposition||{},
+        trip:context.trip||state.trip
       });
       if(token!==state.requestToken)return false;
       const raw=(response?.places||[]).slice(0,MAX_RESULTS);
       const first=await enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS));
       if(token!==state.requestToken)return false;
       state.results=[...first,...raw.slice(INITIAL_VISIBLE_RESULTS)];
+      state.preferenceResolution=response?.preferenceResolution||context.resolution||null;
       state.selectedId=providerId(state.results[0])||null;
       state.status=state.results.length?'ready':'empty';
       state.lastSearchAt=new Date().toISOString();
@@ -169,10 +175,16 @@
     return map[normalized]||(/^€+$/.test(normalized)?normalized:'');
   }
   function reason(place,index){
-    const supplied=(place.aiReasons||place._luviaReasons||[]).map(clean).find(Boolean);
+    const supplied=(place.preferenceReasons||place.aiReasons||place._luviaReasons||[]).map(clean).find(Boolean);
     if(supplied)return supplied;
     const open=place.openNow===true?' und ist aktuell geöffnet':'';
     return index===0?`Passt am stärksten zu eurer Suche und dem aktuellen Reisekontext${open}.`:`Eine nachvollziehbare Alternative aus denselben geprüften Ortsdaten${open}.`;
+  }
+  function preferenceMarkup(){
+    const resolution=state.preferenceResolution;
+    if(!resolution)return'';
+    const profile=(resolution.profileSignals||[]).slice(0,2),trip=(resolution.tripSignals||[]).slice(0,3),constraints=(resolution.hardConstraints||[]).slice(0,3);
+    return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>Profil schützt. Diese Reise gewichtet.</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
   }
   function evidenceMarkup(place){
     const entries=[];
@@ -249,6 +261,7 @@
         <button type="submit" class="lv-places-spatial__search-submit">Suchen</button>
       </form>
       <div id="places-filter-panel">${filterMarkup()}</div>
+      ${preferenceMarkup()}
       ${statusMarkup(view)}
       <nav class="lv-places-spatial__categories" aria-label="Kanonische Places-Kategorien aus places.v1">${categoryMarkup(view.categories)}</nav>
       <div class="lv-places-spatial__canvas">
@@ -496,7 +509,8 @@
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false};state.filterOpen=false;state.details.clear();state.images.clear();state.saved.clear();
+    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false};state.filterOpen=false;state.details.clear();state.images.clear();state.saved.clear();state.preferenceResolution=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
     state.categories=COMPOSITION().normalizeCategories(contract.reads.categories());

@@ -69,3 +69,19 @@ Allowed dependency direction is **Experience → Domain Contract → Domain impl
 - Control Center → `LuviaBookingIntegration || LuviaBooking`; target one Booking contract/facade.
 
 See `CROSS-CORE-ACCESS.md` and `GLOBAL-ACCESS-INVENTORY.csv` for the operational debt list.
+
+## M16.5AB Today / Journey / Places direction
+
+```text
+Identity preferences ─┐
+                     ├─→ Intelligence derived resolution ─→ Today proposal
+Trip composition ────┘                                  └─→ Places ranking input
+
+Trip + owner events ─→ Journey derived day graph/open gaps ─→ Today sequence
+                                                       └─→ explicit Places handoff
+```
+
+The shared web adapter reads public owner contracts and may retain only an
+ephemeral navigation proposal. It does not persist preferences, Trip
+composition, Journey entries, Places selections or AI output. Planning remains
+an explicit Places/Trip/Journey owner command after user confirmation.

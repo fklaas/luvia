@@ -482,6 +482,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5aa-compass-direction-activation.test.cjs'
   },
   {
+    category: 'M16.5 / Today Plan Places Wave C',
+    test: 'tests/m16.5ab-today-plan-places-wave-c.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

@@ -4,7 +4,7 @@ Date: 2026-08-28
 
 Target: Integration only
 
-App/Core candidate: 13.82.100 / 4.82.100
+App/Core candidate: 13.82.101 / 4.82.101
 
 Main and Production: locked and unchanged
 
@@ -141,7 +141,7 @@ Manual data migration: none.
   lines, subtle near-white selected surface and zero horizontal overflow.
 - Real Edge Service Worker E2E on Stable PASS: live registration preserves the
   controlled document, explicit maintenance prunes only stale caches and an
-  offline reload serves App 13.82.100 plus the Compass stylesheet.
+  offline reload serves App 13.82.101 plus the Compass stylesheet.
 
 ## Explicitly open
 

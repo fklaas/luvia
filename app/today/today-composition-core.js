@@ -3,7 +3,7 @@ var LuviaTodayCompositionCoreV1=(()=>{
 
 const CONTRACT_ID='consumer.today-composition.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const PHASES=Object.freeze({
   planning:Object.freeze({label:'Reise gestalten',tone:'planning'}),
   before:Object.freeze({label:'Vorfreude',tone:'upcoming'}),
@@ -79,6 +79,10 @@ function compose(input={}){
     ?`${actionRequired} ${actionRequired===1?'Punkt braucht':'Punkte brauchen'} eure Aufmerksamkeit.`
     :online?'Luvia hat eure wichtigsten Reisebereiche im Blick.':'Offline bereit – gespeicherte Reiseansichten bleiben verfügbar.';
   const phaseLabel=phase==='during'&&tripDay?`Reisetag ${tripDay}`:phaseDefinition.label;
+  const journey=input.journey&&typeof input.journey==='object'?input.journey:null;
+  const guidance=input.preferenceGuidance&&typeof input.preferenceGuidance==='object'?input.preferenceGuidance:null;
+  const sequence=(journey?.currentDay||journey?.days?.find?.(day=>day.entries?.length)||journey?.days?.[0])||null;
+  const suggestion=guidance?.suggestion?immutable({...guidance.suggestion,explainable:true,requiresConfirmation:true}):null;
   return immutable({
     contractId:CONTRACT_ID,
     version:VERSION,
@@ -90,8 +94,11 @@ function compose(input={}){
     context:Object.freeze({phase,tone:phaseDefinition.tone,label:phaseLabel,tripTitle:text(trip.title,'Unsere Reise'),destination:text(trip.destination,'Reiseziel offen'),symbol:text(trip.symbol,'✦')}),
     status:Object.freeze({online,actionRequired,totalAttention:attention.length,message:status}),
     attention,
+    journey:Object.freeze({day:sequence,nextEntry:journey?.nextEntry||null,summary:journey?.summary||null}),
+    preferenceGuidance:guidance,
+    suggestion,
     quickActions:quickActions(phase),
-    provenance:Object.freeze({trip:'trip.v1 read-only projection',attention:'consumer attention read model',journeyTimeline:'journey.v1 read-only projection outside this composition',domainTruth:false})
+    provenance:Object.freeze({trip:'trip.v1 read-only projection',attention:'consumer attention read model',journeyTimeline:'journey.v1 read-only projection',preferenceGuidance:'intelligence.v1 derived draft',domainTruth:false})
   });
 }
 function diagnostics(){return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,domainTruth:false,journeyTimelineOwner:false,allowedNavigationRoutes:[...ALLOWED_ROUTES]})}
