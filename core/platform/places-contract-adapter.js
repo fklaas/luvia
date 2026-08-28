@@ -45,6 +45,32 @@
     const response=await gateway().details(placeId,options||{});
     return detailsProjection(response?.data?.place||response?.data||response);
   }
+  async function suggestDestinations(query,options={}){
+    const api=gateway();
+    if(typeof api.autocomplete!=='function')unavailable('LuviaPlaces.autocomplete');
+    const response=await api.autocomplete(String(query||'').trim(),{...options,includedType:'(cities)'});
+    const rows=response?.data?.suggestions||response?.suggestions||[];
+    const suggestions=freezeArray(rows.map(item=>Object.freeze({
+      placeId:clean(item?.placeId||item?.providerPlaceId||item?.id),
+      text:clean(item?.text||item?.formattedAddress||item?.description||item?.name)
+    })).filter(item=>item.placeId&&item.text));
+    return Object.freeze({owner:'places',contractId:CONTRACT_ID,sessionToken:clean(response?.data?.sessionToken||response?.sessionToken),suggestions});
+  }
+  async function getDestination(placeId,options={}){
+    const response=await gateway().details(placeId,options||{}),source=response?.data?.place||response?.data||response||{},projected=detailsProjection(source)||{};
+    const components=source.addressComponents||source.raw?.addressComponents||[];
+    const country=components.find(item=>(item?.types||[]).includes('country'));
+    const locality=components.find(item=>(item?.types||[]).some(type=>['locality','postal_town','administrative_area_level_1'].includes(type)));
+    const address=clean(projected.address||source.formattedAddress||source.formatted_address)||'';
+    const coordinates=projected.coordinates||source.location||source.coordinates||{};
+    return Object.freeze({
+      owner:'places',contractId:CONTRACT_ID,placeId:clean(projected.providerPlaceId||placeId),
+      name:clean(locality?.longText||projected.name||String(address).split(',')[0])||'Reiseziel',formattedAddress:address,
+      country:clean(source.country||country?.longText||String(address).split(',').at(-1)?.trim())||'',
+      countryCode:String(source.countryCode||country?.shortText||'').toUpperCase(),
+      latitude:number(coordinates.latitude),longitude:number(coordinates.longitude)
+    });
+  }
   async function getCard(placeId,options={}){
     const response=await gateway().details(placeId,options||{});
     const source=response?.data?.place||response?.data||response;
@@ -191,10 +217,10 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
+    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
     commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,getPlace,listPlaces,getDetails,getCard,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
+    search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
     importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery,
     snapshot,
     diagnostics:()=>Object.freeze({

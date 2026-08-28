@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>Luvia M16.5Z — First Trip Composer</title>
+  <link rel="stylesheet" href="../../app/first-trip-composer.css">
+  <style>
+    html,body,#app{width:100%;height:100%;margin:0}body{overflow:hidden;background:#f5fafa}.fixture-result{min-height:100dvh;display:grid;place-items:center;padding:24px;font:16px Manrope,system-ui,sans-serif;color:#143247;background:linear-gradient(135deg,#f1faf8,#fff7f4)}.fixture-result article{width:min(620px,100%);padding:36px;border-radius:30px;background:white;box-shadow:0 30px 80px rgba(24,59,71,.14)}.fixture-result span{color:#2a947f;font-weight:850;letter-spacing:.12em}.fixture-result h1{font-size:clamp(38px,7vw,68px);line-height:.96;margin:10px 0}.fixture-result code{display:block;margin-top:20px;padding:14px;border-radius:14px;background:#edf5f5;word-break:break-all}
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+  <script>
+    const fixtureParams=new URLSearchParams(location.search);
+    const fixtureUserId=`m165z-${fixtureParams.get('qa')||'visible-user'}`;
+    const storagePrefix=`m165z-fixture:${fixtureUserId}:`;
+    const StoragePort={
+      get:(key,fallback)=>{const value=sessionStorage.getItem(`${storagePrefix}${key}`);return value===null?fallback:JSON.parse(value)},
+      set:(key,value)=>{sessionStorage.setItem(`${storagePrefix}${key}`,JSON.stringify(value));return value},
+      remove:key=>sessionStorage.removeItem(`${storagePrefix}${key}`)
+    };
+    window.LuviaPlatformPorts={get:name=>name==='StoragePort'?StoragePort:name==='AuthSessionPort'?{snapshot:()=>({user:{id:fixtureUserId},email:'fabian@example.test'})}:null};
+    window.LuviaIdentityContractV1={getViewerIdentity:()=>({userId:fixtureUserId})};
+    window.LuviaNavigationContractV1={createIntent:(route,options)=>({route,params:options?.params||{}})};
+    window.LuviaNavigationHistoryV1={project:(intent,options={})=>{const url=new URL(location.href);url.searchParams.set('step',intent.params.tripStep);history[options.replace?'replaceState':'pushState']({tripStep:intent.params.tripStep},'',url);return true}};
+    const destinations={
+      copenhagen:{name:'Kopenhagen',formattedAddress:'Kopenhagen, Dänemark',country:'Dänemark',countryCode:'DK',placeId:'fixture-copenhagen',location:{latitude:55.6761,longitude:12.5683}},
+      lisbon:{name:'Lissabon',formattedAddress:'Lissabon, Portugal',country:'Portugal',countryCode:'PT',placeId:'fixture-lisbon',location:{latitude:38.7223,longitude:-9.1393}},
+      scharbeutz:{name:'Scharbeutz',formattedAddress:'Scharbeutz, Deutschland',country:'Deutschland',countryCode:'DE',placeId:'fixture-scharbeutz',location:{latitude:54.0212,longitude:10.7504}}
+    };
+    window.LuviaPlacesContractV1={
+      contractId:'places.v1',
+      reads:{
+        suggestDestinations:async value=>({
+          owner:'places',
+          contractId:'places.v1',
+          sessionToken:'fixture-session',
+          suggestions:Object.values(destinations)
+            .filter(place=>`${place.name} ${place.country}`.toLowerCase().includes(String(value).toLowerCase()))
+            .map(place=>({placeId:place.placeId,text:place.formattedAddress}))
+        }),
+        getDestination:async placeId=>{
+        const place=Object.values(destinations).find(item=>item.placeId===placeId);
+        return {
+          owner:'places',
+          contractId:'places.v1',
+          placeId:place.placeId,
+          name:place.name,
+          formattedAddress:place.formattedAddress,
+          country:place.country,
+          countryCode:place.countryCode,
+          latitude:place.location.latitude,
+          longitude:place.location.longitude
+        };
+        }
+      }
+    };
+    const trips=[];
+    window.LuviaTripContractV1={
+      reads:{listTrips:()=>trips},
+      commands:{
+        createFirstTrip:async(input,options)=>{
+          await new Promise(resolve=>setTimeout(resolve,500));
+          const trip={id:'trip-m165z-visible',...input};
+          trips.push(trip);
+          return Object.freeze({
+            owner:'trip',
+            contractId:'trip.v1',
+            action:'trip.first.create',
+            status:'committed',
+            idempotencyKey:options.idempotencyKey,
+            tripId:trip.id,
+            activeTripId:trip.id,
+            committedAt:new Date().toISOString(),
+            trip,
+            collaborationHandoff:{
+              status:input.participantPlan==='invite-after-creation'?'required':'not-requested',
+              owner:'collaboration',
+              contractId:'collaboration.membership.v1',
+              availability:'reserved'
+            }
+          });
+        }
+      }
+    };
+  </script>
+  <script src="../../app/first-trip-composer.js"></script>
+  <script>
+    const mountComposer=()=>{
+      const params=new URLSearchParams(location.search),step=params.get('step')||'welcome';
+      window.LuviaFirstTripComposer.mount(document.getElementById('app'),{mode:'first-use',step,onCancel:()=>location.reload(),onComplete:receipt=>{document.getElementById('app').className='';document.getElementById('app').innerHTML=`<section class="fixture-result" data-ftc-complete><article><span>TRIP-COMMAND BESTÄTIGT</span><h1>Eure Reise ist aktiv.</h1><p>Der sichtbare E2E-Lauf hat denselben Composer, dieselben Validierungen und denselben Owner-Command durchlaufen.</p><code>${receipt.action} · ${receipt.tripId} · ${receipt.collaborationHandoff.availability}</code></article></section>`}});
+    };
+    addEventListener('popstate',mountComposer);
+    mountComposer();
+  </script>
+</body>
+</html>

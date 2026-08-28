@@ -48,7 +48,8 @@ const ROUTES=Object.freeze([
   {id:'control-center-identity',label:'Identität & Datenschutz',surface:'identity',mount:{mode:'module',key:'control-center-identity',targetId:'identity-center',owner:'identity'}},
   {id:'control-center-bookings',label:'Booking Control Center',surface:'booking',mount:{mode:'module',key:'control-center-bookings',targetId:'booking-control-center',owner:'booking'}},
   {id:'control-center-inbox',label:'Booking Inbox',surface:'booking',mount:{mode:'module',key:'control-center-inbox',targetId:'booking-inbox',owner:'booking'}},
-  {id:'profile-onboarding',label:'Dein Reisekompass',surface:'identity',mount:{mode:'fullscreen',key:'profile-onboarding',owner:'identity'}}
+  {id:'profile-onboarding',label:'Dein Reisekompass',surface:'identity',mount:{mode:'fullscreen',key:'profile-onboarding',owner:'identity'}},
+  {id:'first-trip-composer',label:'Erste Reise',surface:'trip',mount:{mode:'fullscreen',key:'first-trip-composer',owner:'trip'}}
 ].map(definition));
 
 const ROUTE_MAP=Object.freeze(Object.fromEntries(ROUTES.map(route=>[route.id,route])));

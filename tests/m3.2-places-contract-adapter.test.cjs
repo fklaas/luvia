@@ -44,7 +44,7 @@ const rawPlace={
   lifecycle:'favorite',capabilities:['reserve'],bookingDomains:['restaurant'],createdAt:'2026-08-01T00:00:00.000Z',
   updatedAt:'2026-08-02T00:00:00.000Z',storageSecret:'must-not-leak'
 };
-const calls={search:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],registered:[]};
+const calls={search:[],autocomplete:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],registered:[]};
 
 window.LuviaPlaceCore={
   getPlace(id){return id==='p1'?rawPlace:null},
@@ -55,7 +55,12 @@ window.LuviaPlaceCore={
   async recordVisit(placeId,patch){calls.visit.push({placeId,patch});return{id:'v1',tripId:'t1',placeId,state:'visited',arrivedAt:'2026-08-13T12:00:00.000Z',leftAt:null,durationSeconds:120,detectionSource:'manual',isAutomatic:false,isConfirmed:true,correction:{private:'must-not-leak'},participantId:'private-user'}}
 };
 window.LuviaPlaces={
-  async details(placeId,options){calls.details.push({placeId,options});return{data:{place:{...rawPlace,rating:4.7,userRatingCount:123,priceLevel:'PRICE_LEVEL_MODERATE',websiteUri:'https://example.test',internationalPhoneNumber:'+491234',googleMapsUri:'https://maps.example.test',currentOpeningHours:{openNow:true},types:['restaurant','food'],photos:[{name:'private-photo'}],providerRaw:{secret:true}}},requestId:'private'}}
+  async autocomplete(query,options){calls.autocomplete.push({query,options});return{data:{sessionToken:'places-session-1',suggestions:[{placeId:'places/copenhagen',text:'Kopenhagen, Dänemark'},{description:'ohne id'}]}}},
+  async details(placeId,options){
+    calls.details.push({placeId,options});
+    if(placeId==='places/copenhagen')return{data:{place:{id:'places/copenhagen',providerPlaceId:'places/copenhagen',displayName:'Kopenhagen',name:'Kopenhagen',formattedAddress:'Kopenhagen, Dänemark',location:{latitude:55.6761,longitude:12.5683},addressComponents:[{longText:'Kopenhagen',shortText:'København',types:['locality']},{longText:'Dänemark',shortText:'DK',types:['country']}]}}};
+    return{data:{place:{...rawPlace,rating:4.7,userRatingCount:123,priceLevel:'PRICE_LEVEL_MODERATE',websiteUri:'https://example.test',internationalPhoneNumber:'+491234',googleMapsUri:'https://maps.example.test',currentOpeningHours:{openNow:true},types:['restaurant','food'],photos:[{name:'private-photo'}],providerRaw:{secret:true}}},requestId:'private'};
+  }
 };
 const commandResponse=(isFavorite,status='favorite')=>({ok:true,data:{entity:{place:rawPlace,trip_place:{id:'tp1',trip_id:'t1',place_id:'p1',status,is_favorite:isFavorite},private_join:'hidden'}},debug:'private'});
 window.LuviaPlaceCommands={
@@ -86,7 +91,7 @@ assert.strictEqual(api.version,'1');
 assert.strictEqual(api.runtimeVersion,'1.0.0');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
 assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','openDiscovery']);
 
 const place=api.getPlace('p1');
@@ -119,6 +124,19 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(details.photos,undefined,'provider photo rows must not leak');
   assert.strictEqual(details.providerRaw,undefined,'raw provider detail payload must not leak');
   assert(Object.isFrozen(details.types));
+
+  const destinationSuggestions=await api.suggestDestinations('Kopenhagen',{languageCode:'de'});
+  assert(Object.isFrozen(destinationSuggestions));
+  assert(Object.isFrozen(destinationSuggestions.suggestions));
+  assert.strictEqual(destinationSuggestions.owner,'places');
+  assert.strictEqual(destinationSuggestions.contractId,'places.v1');
+  assert.strictEqual(destinationSuggestions.sessionToken,'places-session-1');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(destinationSuggestions.suggestions)),[{placeId:'places/copenhagen',text:'Kopenhagen, Dänemark'}]);
+  assert.strictEqual(calls.autocomplete[0].options.includedType,'(cities)');
+
+  const destination=await api.getDestination('places/copenhagen',{sessionToken:destinationSuggestions.sessionToken});
+  assert(Object.isFrozen(destination));
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(destination)),{owner:'places',contractId:'places.v1',placeId:'copenhagen',name:'Kopenhagen',formattedAddress:'Kopenhagen, Dänemark',country:'Dänemark',countryCode:'DK',latitude:55.6761,longitude:12.5683});
 
   const saved=await api.listSaved({tripId:'t1'});
   assert.strictEqual(saved.length,1);

@@ -33,7 +33,7 @@ assert.strictEqual(window.LuviaTripContract,api,'latest alias must reference v1 
 assert.strictEqual(api.contractId,'trip.v1');
 assert.strictEqual(api.version,'1');
 assert(Object.isFrozen(api));
-assert.deepStrictEqual([...api.events],['trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']);
+assert.deepStrictEqual([...api.events],['trip.created','trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']);
 
 const trips=api.listTrips();
 assert.strictEqual(trips.length,2);

@@ -39,9 +39,11 @@ assert.equal(core.get('unknown'),null);
 assert.equal(core.get('places').mount.targetId,'places-module');
 assert.equal(core.get('control-center-inbox').mount.owner,'booking');
 assert.equal(core.items().length,5);
-assert.equal(core.listRoutes().length,16);
+assert.equal(core.listRoutes().length,17);
 assert.equal(core.get('profile-onboarding').mount.owner,'identity');
 assert.equal(core.get('profile-onboarding').mount.mode,'fullscreen');
+assert.equal(core.get('first-trip-composer').mount.owner,'trip');
+assert.equal(core.get('first-trip-composer').mount.mode,'fullscreen');
 assert.equal(Object.isFrozen(core.items()),true);
 assert.equal(Object.isFrozen(core.get('places')),true);
 

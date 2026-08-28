@@ -2483,3 +2483,33 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Public product state: **PUBLIC VERIFIED**; this is not a physical-handset or broader Design-Freeze acceptance claim.
 - First-Trip Composer, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.
+
+# M16.5Z First Trip Composer — Integration candidate (2026-08-28)
+
+## Scope
+
+- App: **13.82.99**
+- Core: **4.82.99**
+- Release: **M16.5Z First Trip Composer**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Rollback baseline: **App 13.82.98 / Core 4.82.98; Integration version `31624f74-d281-43eb-81b7-8b994401c7df`, deployment `a0215087-ad1c-47a3-9345-e5fa3cd2eb83`**.
+
+## Candidate changes
+
+- Adds a nine-stage Trip-owned First Trip Composer after completed Profile onboarding.
+- Adds idempotent `trip.v1.commands.createFirstTrip` composition and receipt handling.
+- Extends public `places.v1` with canonical destination suggestion/detail reads; no direct Places gateway access remains in the Composer.
+- Separates durable Profile constraints from per-Trip feelings and states the not-yet-wired downstream weighting honestly.
+- Adds all 50 public Landing Trip colours, plain-language flexible dates and one unambiguous private/invite-after-creation decision.
+- Fixes duplicate keyboard-handler accumulation so one `Alt+ArrowRight` always means one step.
+
+## Candidate evidence and disposition
+
+- Local Desktop 1440×900 real-left-click nine-stage owner-command sequence: **PASS**; no horizontal overflow or console errors.
+- Local Mobile 390×844 touch-event nine-stage owner-command sequence: **PASS**; full layered Compass, no horizontal overflow or console errors.
+- Reload/Back/Forward, one-step keyboard navigation and deterministic Reduced Motion: **PASS**.
+- Trip/Places/Navigation/static contract tests: **PASS**.
+- Safe Regression: **116/116 PASS**; regenerated visual inventory: **2,855 tracked files / 726 visual candidates / 0 unclassified**.
+- Collaboration invitation execution, downstream trip-feeling weighting, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.
+- Main and Production remain unchanged.

@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.0.0';
+  const RUNTIME_VERSION='1.1.0';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -20,6 +20,8 @@
   const clean=value=>value==null?null:String(value);
   const coordinate=value=>value==null||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
   const freezeArray=items=>Object.freeze(items);
+  const firstTripInFlight=new Map();
+  const firstTripReceipts=new Map();
 
   function destinationProjection(input){
     if(!input||typeof input!=='object')return null;
@@ -43,6 +45,8 @@
     return Object.freeze({
       id,
       title:clean(input.title||input.tripName||input.trip_name)||'Unsere Reise',
+      subtitle:clean(input.subtitle)||'',
+      joinCode:clean(input.joinCode||input.join_code)||'',
       destination,
       destinationName:destination?.name||clean(input.destinationName)||'',
       symbol:clean(input.symbol)||'❤️',
@@ -54,6 +58,8 @@
       createdAt:clean(input.createdAt||input.created_at),
       updatedAt:clean(input.updatedAt||input.updated_at),
       lastOpenedAt:clean(input.lastOpenedAt||input.last_opened_at)
+      ,modules:freezeArray([...(input.modules||input.selectedModules||[])]),
+      composition:Object.freeze({...((input.moduleSettings||input.module_settings||{}).firstTripComposer||{})})
     });
   }
 
@@ -133,6 +139,45 @@
   async function createTrip(input){
     return tripProjection(await creator().save(input||{}));
   }
+  function firstTripInput(input={},idempotencyKey=''){
+    const destination=destinationProjection(input.destination);
+    const title=clean(input.title)?.slice(0,80)||'';
+    const modules=[...new Set((Array.isArray(input.modules)?input.modules:[]).map(clean).filter(Boolean))];
+    if(!idempotencyKey){const error=new Error('Trip Contract v1: Für die erste Reise ist ein Idempotency-Key erforderlich.');error.code='TRIP_FIRST_IDEMPOTENCY_REQUIRED';throw error;}
+    if(!title){const error=new Error('Bitte gib der Reise einen Namen.');error.code='TRIP_FIRST_TITLE_REQUIRED';throw error;}
+    if(!destination?.placeId){const error=new Error('Bitte bestätige ein kanonisches Reiseziel.');error.code='TRIP_FIRST_CANONICAL_DESTINATION_REQUIRED';throw error;}
+    if(!modules.length){const error=new Error('Bitte aktiviere mindestens einen Reisebaustein.');error.code='TRIP_FIRST_MODULE_REQUIRED';throw error;}
+    if(input.scheduleMode!=='flexible'&&input.startDate&&input.endDate&&input.endDate<input.startDate){const error=new Error('Das Rückreisedatum darf nicht vor der Anreise liegen.');error.code='TRIP_FIRST_DATE_RANGE_INVALID';throw error;}
+    return {
+      title,subtitle:clean(input.subtitle)?.slice(0,120)||'',destination,
+      symbol:clean(input.symbol)||'✦',accent:clean(input.accent)||'#ee6f83',
+      startDate:input.scheduleMode==='flexible'?null:clean(input.startDate),endDate:input.scheduleMode==='flexible'?null:clean(input.endDate),
+      scheduleMode:input.scheduleMode==='flexible'?'flexible':'fixed',flexibility:clean(input.flexibility)||'',
+      feelings:[...new Set((Array.isArray(input.feelings)?input.feelings:[]).map(clean).filter(Boolean))].slice(0,3),
+      privacy:['private','invite-only'].includes(input.privacy)?input.privacy:'private',participantPlan:input.participantPlan==='invite-after-creation'?'invite-after-creation':'solo-first',
+      modules,idempotencyKey
+    };
+  }
+  async function createFirstTrip(input={},options={}){
+    const idempotencyKey=clean(options.idempotencyKey||input.idempotencyKey)||'';
+    if(firstTripReceipts.has(idempotencyKey))return firstTripReceipts.get(idempotencyKey);
+    if(firstTripInFlight.has(idempotencyKey))return firstTripInFlight.get(idempotencyKey);
+    const task=(async()=>{
+      const prepared=firstTripInput(input,idempotencyKey);
+      const trip=tripProjection(await creator().save(prepared));
+      const active=getActiveTrip();
+      if(!trip?.id||active?.id!==trip.id){const error=new Error('Die Reise wurde angelegt, aber nicht als aktive Reise bestätigt.');error.code='TRIP_FIRST_ACTIVATION_UNCONFIRMED';throw error;}
+      const receipt=Object.freeze({
+        owner:'trip',contractId:CONTRACT_ID,action:'trip.first.create',status:'committed',idempotencyKey,tripId:trip.id,activeTripId:active.id,committedAt:new Date().toISOString(),trip,
+        collaborationHandoff:Object.freeze({status:prepared.participantPlan==='invite-after-creation'?'required':'not-requested',owner:'collaboration',contractId:'collaboration.membership.v1',availability:'reserved'})
+      });
+      firstTripReceipts.set(idempotencyKey,receipt);
+      publish('trip.created',{receipt,trip},{tripId:trip.id,entityId:trip.id,correlationId:idempotencyKey});
+      return receipt;
+    })();
+    firstTripInFlight.set(idempotencyKey,task);
+    try{return await task;}finally{firstTripInFlight.delete(idempotencyKey);}
+  }
   async function updateTrip(tripId,patch={}){
     const trip=ownedTrip(tripId);
     if(!trip){const error=new Error('Trip Contract v1: Reise nicht gefunden.');error.code='TRIP_CONTRACT_TRIP_NOT_FOUND';error.tripId=clean(tripId);throw error;}
@@ -202,10 +247,10 @@
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
     runtime:Object.freeze({getState:getRuntimeState,initialize:initializeRuntime,loadRemote:loadRemoteRuntime}),
-    commands:Object.freeze({selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip,commitTripSnapshot}),
-    events:Object.freeze(['trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
+    commands:Object.freeze({selectActiveTrip,createTrip,createFirstTrip,updateTrip,applyResolvedDestination,joinTrip,commitTripSnapshot}),
+    events:Object.freeze(['trip.created','trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
     listTrips,getTrip,getActiveTrip,getContext,subscribe,
-    selectActiveTrip,createTrip,updateTrip,applyResolvedDestination,joinTrip,
+    selectActiveTrip,createTrip,createFirstTrip,updateTrip,applyResolvedDestination,joinTrip,
     snapshot,
     diagnostics:()=>Object.freeze({
       contractId:CONTRACT_ID,

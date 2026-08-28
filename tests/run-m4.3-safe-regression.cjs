@@ -470,6 +470,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5y-identity-compass-onboarding.test.cjs'
   },
   {
+    category: 'M16.5 / First Trip Composer',
+    test: 'tests/m16.5z-first-trip-composer.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

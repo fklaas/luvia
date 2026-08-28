@@ -19,11 +19,11 @@ assert.strictEqual(actual.schemaVersion, 1);
 assert.strictEqual(actual.milestone, 'M16.5');
 assert(actual.summary.trackedFiles > 1000, 'Tracked-file inventory is unexpectedly small');
 assert(actual.summary.visualCandidates > 100, 'Visual candidate inventory is unexpectedly small');
-assert.strictEqual(actual.summary.css.files, 62, 'M16.5 CSS baseline file count changed unexpectedly');
-assert.strictEqual(actual.summary.css.bytes, 1258079, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
-assert.strictEqual(actual.summary.css.important, 3672, 'M16.5 !important baseline changed unexpectedly');
-assert.strictEqual(actual.summary.css.literalHexColours, 3565, 'M16.5 literal colour baseline changed unexpectedly');
-assert.strictEqual(actual.summary.css.zIndexDeclarations, 443, 'M16.5 z-index baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.files, 63, 'M16.5 CSS baseline file count changed unexpectedly');
+assert.strictEqual(actual.summary.css.bytes, 1281310, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
+assert.strictEqual(actual.summary.css.important, 3682, 'M16.5 !important baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.literalHexColours, 3601, 'M16.5 literal colour baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.zIndexDeclarations, 455, 'M16.5 z-index baseline changed unexpectedly');
 assert.strictEqual(actual.summary.unclassifiedEntryReferences, 0, 'Active index asset escaped visual classification');
 assert.deepStrictEqual(actual.routes.topLevel, ['today', 'plan', 'trip', 'memories', 'more']);
 
@@ -32,6 +32,7 @@ for (const requiredPath of [
   'app/app-shell.js',
   'app/public-landing.css',
   'app/public-landing-experience-motion.css',
+  'app/first-trip-composer.css',
   'app/places/places-spatial-experience.js',
   'app/places/places-spatial-experience.css',
   'core/experience/experience-contract-core.js',
