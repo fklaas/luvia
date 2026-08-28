@@ -111,6 +111,38 @@ Manual data migration: none.
 - Public functional acceptance requires the same visible sequence on Stable
   and Immutable Integration plus byte-parity evidence.
 
+## Public Integration evidence
+
+- Runtime implementation commit:
+  `cc2850d4d6bd0e3dab1c52aa2ce480cd3e277f5b`.
+- The Worker was built from a clean `git archive` of that commit. The three
+  pre-existing untracked local Reel videos were neither archived nor uploaded.
+- Cloudflare Integration version:
+  `0ad87340-4aa1-4d56-8048-d5c749d82adf`, 100% in deployment
+  `d4f22fa1-de92-4c24-bab3-c646698ad096`.
+- Stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`.
+- Immutable URL:
+  `https://0ad87340-integration-luvia.njwnrvwbv5.workers.dev/`.
+- Clean archive, Stable and Immutable are SHA-256 byte-identical for 14/14
+  critical assets: entry document, version kernel, App Shell, module hub
+  JS/CSS, Experience contract, preference resolver, Intelligence/Places
+  adapters, Places JS/CSS, public Landing motion/CSS and Service Worker.
+- Safe Regression: 118/118 PASS. Targeted Compass, preference resolution,
+  visual inventory, shell recovery, public Landing/Auth and shell-freeze tests
+  PASS; changed JavaScript syntax 35/35 PASS.
+- Signed-in Stable Desktop real-keyboard/left-click sequence: Plan Compass,
+  direct needle target, visibly settled selection, Back and Reload PASS.
+  Cardinal direction evidence is red/orange/blue/green at
+  `0°/90°/180°/-90°`; an intermediate `-45°` selection resolves to the exact
+  SVG-gradient value `#8f7764` across node and four orbit lines.
+- Immutable public Landing Desktop and 390x844 Mobile real-click sequence:
+  accessible puzzle bypass, animations re-enabled, `Luvia kennenlernen`,
+  `Living Journey`/`Place Compass` and a Journey point PASS; four synchronized
+  lines, subtle near-white selected surface and zero horizontal overflow.
+- Real Edge Service Worker E2E on Stable PASS: live registration preserves the
+  controlled document, explicit maintenance prunes only stale caches and an
+  offline reload serves App 13.82.100 plus the Compass stylesheet.
+
 ## Explicitly open
 
 - M16.5AA wires Places only. Planning, Journey/Today, Move, Trip summaries,
