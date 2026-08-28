@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>M16.5Y Identity Compass Onboarding</title>
+  <link rel="stylesheet" href="../../core/design/design-system-v3.css?v=13.82.98">
+  <link rel="stylesheet" href="../../app/profile-onboarding.css?v=13.82.98">
+  <style>html,body{margin:0;min-height:100%;overflow:hidden}</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    (() => {
+      'use strict';
+      if(new URLSearchParams(location.search).get('fresh')==='1')sessionStorage.clear();
+      const profile = {
+        userId:'fixture-profile',firstName:'Fabian',lastName:'',displayName:'Fabian',homeLocation:'Hamburg',
+        personalizedRecommendations:true,activityData:true,locationSharing:false,notifications:false
+      };
+      const preferences = {
+        dietaryPreferences:[],travelInterests:[],travelStyles:[],activityPreferences:[],entertainmentPreferences:[],
+        diningPreferences:[],mobilityPreferences:[],atmospherePreferences:[],travelPace:'balanced',budgetPreference:'medium',
+        familyPreferences:{needs:[]},accessibilityPreferences:{needs:[]},accessibilityNeeds:[],preferenceSchemaVersion:3,
+        preferencesCompletedAt:null,preferencesUpdatedAt:null
+      };
+      const fixture = window.__m165yFixture = { saves:[], history:[], completed:false, cancelled:false };
+      window.addEventListener('click',event=>fixture.clicks=(fixture.clicks||[]).concat({target:event.target.closest?.('button')?.textContent?.trim()||event.target.tagName,trusted:event.isTrusted,at:performance.now()}),true);
+      const storage = Object.freeze({
+        get:(key,fallback=null)=>{const value=sessionStorage.getItem(key);return value==null?fallback:JSON.parse(value)},
+        set:(key,value)=>{sessionStorage.setItem(key,JSON.stringify(value));return value},
+        remove:key=>{sessionStorage.removeItem(key);return true}
+      });
+      window.LuviaPlatformPorts = Object.freeze({get:id=>id==='StoragePort'?storage:id==='AuthSessionPort'?Object.freeze({snapshot:()=>({authenticated:true,user:{id:'fixture-profile',email:'fabian@example.test'}})}):null});
+      window.LuviaIdentityContractV1 = Object.freeze({
+        getViewerIdentity:()=>structuredClone(profile),getPreferences:()=>structuredClone(preferences),
+        commands:Object.freeze({completeOnboarding:async input=>{
+          fixture.saves.push(structuredClone(input));Object.assign(profile,input.profile);Object.assign(preferences,input.preferences);
+          fixture.completed=true;return {identity:structuredClone(profile),preferences:structuredClone(preferences),receipt:{owner:'identity',command:'completeOnboarding',status:'committed'}};
+        }})
+      });
+      window.LuviaNavigationContractV1 = Object.freeze({createIntent:(route,options={})=>Object.freeze({route,params:Object.freeze({...options.params}),source:options.source||'fixture'})});
+      window.LuviaNavigationHistoryV1 = Object.freeze({project:intent=>{fixture.history.push(structuredClone(intent));return intent}});
+      window.LuviaApp = Object.freeze({activeView:()=> 'today',show:()=>Promise.resolve()});
+    })();
+  </script>
+  <script src="../../core/preferences/preference-schema.js?v=13.82.98"></script>
+  <script src="../../app/profile-onboarding.js?v=13.82.98"></script>
+  <script>
+    window.addEventListener('load', () => {
+      const query = new URLSearchParams(location.search);
+      window.LuviaProfileOnboarding.mount(document.getElementById('app'), {
+        mode:query.get('mode')==='edit'?'edit':'first-use',step:query.has('step')?query.get('step'):undefined,returnTo:'today',resume:query.get('resume')!=='false',
+        onComplete:result=>{document.body.dataset.onboardingComplete='true';document.body.dataset.owner=result.receipt.owner;},
+        onCancel:()=>{window.__m165yFixture.cancelled=true;document.body.dataset.onboardingCancelled='true';}
+      });
+    });
+  </script>
+</body>
+</html>

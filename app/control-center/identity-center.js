@@ -48,7 +48,7 @@ function render(){
   </section>`;
 }
 async function onClick(event){
-  if(event.target.closest('[data-ic-preferences]'))return window.LuviaProfileFoundation?.open?.('preferences');
+  if(event.target.closest('[data-ic-preferences]'))return window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:'control-center-identity'});
   if(event.target.closest('[data-ic-notifications]')){await port('NotificationPort')?.requestPermission?.();render()}
 }
 function mount(element){

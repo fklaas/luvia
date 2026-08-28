@@ -2448,3 +2448,30 @@ No database/schema/RPC/RLS/bucket migration, Edge Function change, secret/provid
 - One deliberately immediate synthetic Reload issued about 900 ms into the route transition produced one transient runtime-stage error. It is not rewritten as PASS and does not recur after the route has settled; a completely race-free mid-transition Reload claim remains **OPEN**.
 - Main remains **`c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`**; Production remains deployment **`578f13fc-8193-4988-88cf-93c94362fcc3`**, version **`0d26706b-8b79-4e05-b3b6-6c6314cc597c`**, 100%.
 - Physical handset acceptance and the broader M16.5 design/App-Shell freeze remain **OPEN; not claimed by this release**.
+
+# M16.5Y Identity Compass Onboarding — Local release candidate (2026-08-28)
+
+## Scope
+
+- App: **13.82.98**
+- Core: **4.82.98**
+- Release: **M16.5Y Identity Compass Onboarding**
+- Channel: **integration-preview**
+- Target: **Integration only**; Main and Production remain locked.
+- Rollback baseline: **App 13.82.97 / Core 4.82.97; Integration version `a9309030-3045-4964-aa9e-4078a9ecc3cf`, deployment `793af37b-08f7-4b6e-88b7-edc12dd88b90`**.
+
+## Candidate changes
+
+- Adds the accepted seven-stage post-auth Profile/Reisekompass onboarding before First-Trip creation.
+- Adds one atomic `identity.v1.commands.completeOnboarding` owner command and rejects foreign/Trip fields.
+- Adds session-scoped draft, defer, reload/resume and edit-mode entry from Profile and Identity Center.
+- Adds a responsive full-screen travel composition with hidden scrollbars and Reduced Motion behavior.
+
+## Candidate evidence and disposition
+
+- Targeted architecture and visible seven-stage Desktop owner-save sequence: **PASS**; the receipt identifies `identity` as owner and no Trip write occurs.
+- Responsive local browser evidence: **PASS** at 1440×900, 1702×683, 958×506 with eight selected values and 390×844; the two reported short-height clipping defects are closed and document horizontal overflow is 0 px.
+- Real reload/resume retains the selected canonical preferences; native-button keyboard reachability, Back/step history, hidden-scrollbar and Reduced Motion guards: **PASS**.
+- Controlled Safe Regression: **115/115 PASS**; NFR-0 **3/3 PASS**; visual inventory **2,850 tracked / 722 visual candidates / 0 unclassified PASS**.
+- Public Integration version/deployment and stable-origin E2E: **PENDING; no public acceptance claimed by this local candidate**.
+- First-Trip Composer, physical-handset acceptance and broader M16.5 Design Freeze: **OPEN**.

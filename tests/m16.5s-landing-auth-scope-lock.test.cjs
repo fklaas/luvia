@@ -55,8 +55,8 @@ assert.match(shell,/renderIfPending/);
 assert.match(shell,/fallbackLogin/);
 assert.match(shell,/session\.deactivate/);
 
-assert.match(matrix,/public-landing,[^\n]*Scope-lock complete/);
-assert.match(matrix,/authentication,[^\n]*recovery callback is a measured gap/);
+assert.match(matrix,/public-landing,[^\n]*,PUBLIC VERIFIED,[^\n]*complete accepted Landing/);
+assert.match(matrix,/authentication,[^\n]*,PUBLIC VERIFIED,[^\n]*real Supabase/);
 for(const file of [
   'docs/modularization/M16.5S-LANDING-AUTH-BASELINE-AND-SCOPE-LOCK.md',
   'tests/m16.5s-landing-auth-scope-lock.test.cjs'

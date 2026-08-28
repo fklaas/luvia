@@ -466,6 +466,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5x-shell-freeze-orbit-control-course.test.cjs'
   },
   {
+    category: 'M16.5 / Identity Compass Profile Onboarding',
+    test: 'tests/m16.5y-identity-compass-onboarding.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

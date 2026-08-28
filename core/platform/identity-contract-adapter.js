@@ -267,6 +267,60 @@
     return projectPreferences(result || {});
   }
 
+  async function completeOnboarding(input = {}) {
+    const provider = profileProvider();
+
+    if (typeof provider.save !== 'function') {
+      throw providerUnavailable(
+        'LuviaProfileService.save'
+      );
+    }
+
+    const core = domainCore();
+    const requestedProfile = input.profile && typeof input.profile === 'object'
+      ? input.profile
+      : {};
+    const requestedPreferences = input.preferences && typeof input.preferences === 'object'
+      ? input.preferences
+      : {};
+    const profilePatch = Object.fromEntries(
+      core.profileWriteFields
+        .filter(field => requestedProfile[field] !== undefined)
+        .map(field => [field, clone(requestedProfile[field])])
+    );
+    const preferencePatch = Object.fromEntries(
+      core.preferenceFields
+        .filter(field => requestedPreferences[field] !== undefined)
+        .map(field => [field, clone(requestedPreferences[field])])
+    );
+    const now = new Date().toISOString();
+    const safeProfile = sanitizeProfilePatch(profilePatch);
+    const safePreferences = sanitizePreferencePatch({
+      ...preferencePatch,
+      preferenceSchemaVersion: Number(requestedPreferences.preferenceSchemaVersion || 3) || 3,
+      preferencesCompletedAt: requestedPreferences.preferencesCompletedAt || now,
+      preferencesUpdatedAt: now
+    });
+    const saved = await provider.save({
+      ...safeProfile,
+      ...safePreferences
+    });
+    const committed = saved || {};
+
+    return deepFreeze({
+      identity: projectViewer(committed),
+      preferences: projectPreferences(committed),
+      completedAt: committed.preferencesCompletedAt || safePreferences.preferencesCompletedAt,
+      receipt: {
+        owner: 'identity',
+        contractId: CONTRACT_ID,
+        command: 'completeOnboarding',
+        status: 'committed',
+        mode: input.mode === 'edit' ? 'edit' : 'first-use'
+      }
+    });
+  }
+
   function identityPayload(detail = {}) {
     const profile =
       detail.profile ||
@@ -463,7 +517,8 @@
 
     commands: Object.freeze({
       updateProfile,
-      updatePreferences
+      updatePreferences,
+      completeOnboarding
     }),
 
     diagnostics

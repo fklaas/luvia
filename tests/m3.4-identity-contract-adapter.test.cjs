@@ -215,7 +215,7 @@ assert.deepEqual(
 
 assert.deepEqual(
   Object.keys(api.commands).sort(),
-  ['updatePreferences', 'updateProfile']
+  ['completeOnboarding', 'updatePreferences', 'updateProfile']
 );
 
 for (const method of [
@@ -357,6 +357,39 @@ assert.throws(
     category: 'dietary',
     value: ['vegetarian', 'vegan']
   });
+
+  const completed = await api.commands.completeOnboarding({
+    profile: {
+      displayName: 'Compass Viewer',
+      homeLocation: 'Hamburg',
+      personalizedRecommendations: true
+    },
+    preferences: {
+      travelInterests: ['nature', 'culture'],
+      travelStyles: ['authentic'],
+      activityPreferences: ['outdoor'],
+      travelPace: 'relaxed',
+      budgetPreference: 'medium',
+      preferenceSchemaVersion: 3,
+      preferencesCompletedAt: '2026-08-28T06:00:00.000Z',
+      travelPreferences: { mustNotPersist: true }
+    },
+    mode: 'first-use'
+  });
+
+  assert.equal(savedProfilePatch.displayName, 'Compass Viewer');
+  assert.equal(savedProfilePatch.homeLocation, 'Hamburg');
+  assert.deepEqual(savedProfilePatch.travelInterests, ['nature', 'culture']);
+  assert.deepEqual(savedProfilePatch.travelStyles, ['authentic']);
+  assert.deepEqual(savedProfilePatch.activityPreferences, ['outdoor']);
+  assert.equal(savedProfilePatch.travelPace, 'relaxed');
+  assert.equal(savedProfilePatch.preferencesCompletedAt, '2026-08-28T06:00:00.000Z');
+  assert.match(savedProfilePatch.preferencesUpdatedAt, /^2026-/);
+  assert.equal('travelPreferences' in savedProfilePatch, false);
+  assert.equal('activeTripId' in savedProfilePatch, false);
+  assert.equal(completed.receipt.owner, 'identity');
+  assert.equal(completed.receipt.command, 'completeOnboarding');
+  assert.equal(completed.receipt.status, 'committed');
 
   let identityEvent = null;
 

@@ -1,20 +1,22 @@
 # Luvia Current Roadmap
 
-Date: 2026-08-26
+Date: 2026-08-28
 
 Source of truth: Git/runtime evidence first; the complete normative roadmap is
 the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
 
 ## Current verified product baseline
 
-- Integration candidate App/Core target: 13.82.54 / 4.82.54.
-- Integration source before the M16.5J Platform release commit:
-  `fee1cdbe02707f845fa6543d17b9c03718135c23`.
+- Integration candidate App/Core target: 13.82.98 / 4.82.98 (M16.5Y Identity
+  Compass Onboarding).
+- Stable Integration before M16.5Y remains App/Core 13.82.97 / 4.82.97,
+  version `a9309030-3045-4964-aa9e-4078a9ecc3cf`, deployment
+  `793af37b-08f7-4b6e-88b7-edc12dd88b90`.
 - Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
   Preview acceptance.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Integration candidate Safe Regression: 105/105 PASS; regenerated visual
-  inventory freshness 2,783/668 PASS; NFR-0 3/3 PASS; cross-Core DB guard PASS
+- Integration candidate Safe Regression: 115/115 PASS; regenerated visual
+  inventory freshness 2,850/722 with 0 unclassified PASS; NFR-0 3/3 PASS; cross-Core DB guard PASS
   without debt growth.
 - Main/Production M16 baseline before visual promotion: 90/90 PASS.
 - M16 action platform: 19 actions across Trip, Places, Booking, Journey,
@@ -98,6 +100,16 @@ the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
   no-second-session-store rules are locked before runtime adoption. The
   complete Landing/Auth user outcome will receive its own Integration version;
   Main and Production remain locked.
+- M16.5X freezes the accepted Living Shell geometry on Stable Integration at
+  App/Core 13.82.97 / 4.82.97 with collision-free Compass orbits and the
+  dedicated Control Center Compass. Main and Production remain unchanged.
+- M16.5Y implements Gate 3 of the Productization Plan: one seven-stage,
+  post-auth Identity Compass onboarding with atomic Identity-owner commit,
+  session-scoped resume/defer/edit and an explicit prohibition on Trip writes.
+  Local Desktop, short-height, landscape and Mobile evidence plus 115/115 Safe
+  Regression are PASS. The next independent gate is the Trip-owned First-Trip
+  Composer; physical-handset acceptance and the broader Design Freeze remain
+  open.
 
 ## Completed architecture boundaries
 

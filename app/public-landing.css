@@ -568,7 +568,7 @@ html.motion-linked [data-motion="stagger-card"] { transform-origin: center; }
   .compass-gate-core,.compass-gate-shell,.compass-gate-shell>i,.compass-gate-label,.compass-gate-hand,.compass-gate-paths,.compass-path { transition:none!important }
 }
 
-/* Build 13.82.97 · Compass-first public journey */
+/* Build 13.82.98 · Compass-first public journey */
 .landing-v3 {
   --needle-rest:-8deg;
   --needle-from:-8deg;
