@@ -108,3 +108,40 @@ cancel return, Reload and Back. Both viewports stayed within one page, and the
 browser console contained zero warnings/errors. Public Stable/Immutable
 evidence and the final Cloudflare deployment identifiers are deliberately not
 claimed before publication.
+
+## Public Integration evidence — `.104`
+
+- Runtime commit: `b0aec9eebe321a7c9aead786c864facb91a57669` on
+  `integration`; the Worker was uploaded from a clean `git archive` of exactly
+  that commit. The three pre-existing untracked Reel videos were neither
+  archived, committed nor uploaded.
+- Cloudflare version: `d3e3c56c-7d80-43e6-b3b4-c5b2a18b36b7`, 100% in
+  deployment `4cad525c-de83-4822-893f-110dd80d6610`.
+- Stable URL: `https://integration-luvia.njwnrvwbv5.workers.dev/`.
+- Immutable URL:
+  `https://d3e3c56c-integration-luvia.njwnrvwbv5.workers.dev/`.
+- Clean archive, Stable and Immutable are SHA-256 byte-identical for 14/14
+  critical entry, version, App Shell, Today, boot, Places, public entry,
+  Service Worker, force-update and Trip-context assets.
+- Safe Regression: 121/121 PASS. Targeted Wave C, local-first boot,
+  destination-discovery resilience, signed-in shell, Compass and exhaustive
+  visual-inventory gates PASS.
+- Real visible signed-in Stable Desktop and 390x844 Mobile: exact Scharbeutz
+  photo resolved as `places-exact-transient`; linked credit
+  `K. P. / Google Maps`; per-second countdown and both weather modes; appwide
+  38x38 mobile new-trip action; real left-click from Today and Places with
+  `returnTo=today` and `returnTo=places`; cancel return; Compass reverse exit;
+  Reload after background cloud synchronization; Reduced Motion. Today remains
+  exactly one viewport, horizontal overflow is zero and browser warnings/errors
+  are 0/0.
+- Main remains `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba` locally and
+  remotely. Production remains deployment
+  `578f13fc-8193-4988-88cf-93c94362fcc3`, version
+  `0d26706b-8b79-4e05-b3b6-6c6314cc597c` at 100%.
+- Operational rollback: deploy
+  `0ad87340-4aa1-4d56-8048-d5c749d82adf@100` to `integration-luvia`.
+  This is a code/assets rollback only; there is no schema, data, RLS, bucket,
+  Edge Function, secret or manual non-versioned configuration rollback.
+- Acceptance boundary: automated, byte-parity and visible in-app-browser
+  evidence are complete. A real physical-handset acceptance by the user and
+  the broader M16.5 Design Freeze remain explicitly open.
