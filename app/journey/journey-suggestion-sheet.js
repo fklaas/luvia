@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.2.0';
+const VERSION='1.3.0';
 const cache=new Map();
 let activeHandle=null;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -60,6 +60,56 @@ const ratings=place=>{
   const rating=Number(place?.rating||0),count=Number(place?.userRatingCount||place?.user_rating_count||0);
   return[rating?`${rating.toFixed(1).replace('.',',')} ★`:'',count?`${count.toLocaleString('de-DE')} Erfahrungen`:''].filter(Boolean).join(' · ');
 };
+const canonicalPlaceType=place=>{
+  const visual=visualCategory(place);
+  if(['food','cafe','nightlife'].includes(visual))return'restaurant';
+  if(['culture','sightseeing','activities','wellness'].includes(visual))return'attraction';
+  if(visual==='nature')return'nature';
+  if(visual==='shopping')return'shopping';
+  return'attraction';
+};
+const priceLabel=place=>({PRICE_LEVEL_FREE:'Kostenlos',PRICE_LEVEL_INEXPENSIVE:'€',PRICE_LEVEL_MODERATE:'€€',PRICE_LEVEL_EXPENSIVE:'€€€',PRICE_LEVEL_VERY_EXPENSIVE:'€€€€','0':'Kostenlos','1':'€','2':'€€','3':'€€€','4':'€€€€'}[clean(place?.priceLevel)]||'');
+const distanceLabel=place=>{
+  const meters=Number(place?.distanceMeters||0);
+  if(!Number.isFinite(meters)||meters<=0)return'';
+  return meters<1000?`${Math.round(meters)} m entfernt`:`${(meters/1000).toFixed(1).replace('.',',')} km entfernt`;
+};
+const placeFacts=place=>[visualLabel(visualCategory(place)),priceLabel(place),distanceLabel(place)].filter(Boolean);
+const preferenceLabels=value=>{
+  if(value==null)return[];
+  if(Array.isArray(value))return value.flatMap(preferenceLabels);
+  if(typeof value==='object')return Object.entries(value).flatMap(([key,item])=>{
+    if(item===false||item==null)return[];
+    if(item===true)return[key];
+    if(typeof item==='object'&&clean(item.label))return[clean(item.label)];
+    return preferenceLabels(item);
+  });
+  return clean(value)?[clean(value)]:[];
+};
+async function sharedPreferenceContext(input){
+  const projection=await contracts().context?.sharedGroup?.({trip:input.trip,profilePreferences:input.snapshot?.profilePreferences||{}});
+  if(projection?.travelers?.length)return projection;
+  const profile=globalThis.LuviaProfileService?.snapshot?.().profile||{},signals=[...new Set(preferenceLabels(input.snapshot?.profilePreferences||{}))].slice(0,24),travelers=[{id:clean(profile.userId||profile.id)||'self',name:clean(profile.displayName||profile.firstName)||'Du',role:'owner',signals}];
+  return{travelers,coveredTravelers:signals.length?1:0,totalTravelers:1,source:'identity-self-fallback'};
+}
+function travelerFit(place,group,input){
+  const text=[place.name,place.description,place.primaryType,...(place.types||[]),...(place.aiReasons||[])].join(' ').toLowerCase();
+  const rules=[[/vegetar|vegan|kulinar|genuss|essen|café|cafe/,/restaurant|cafe|bakery|food|meal|vegetar|vegan/,'Genuss'],[/natur|strand|meer|ruhig|entspann|draußen/,/park|beach|garden|nature|hiking|spa/,'Natur und Ruhe'],[/kultur|geschichte|museum|authent|neugier/,/museum|gallery|theater|historic|monument|culture/,'Kultur und lokaler Charakter'],[/famil|kind|abenteuer|aktiv|beweg/,/zoo|aquarium|activity|park|tourist|swimming|bowling/,'gemeinsames Erleben'],[/foto|aussicht|architektur/,/view|photo|landmark|architecture|panoram/,'besondere Perspektiven']];
+  const evidenceChecks=[[/vegan/,/vegan/,'vegane Eignung'],[/vegetar/,/vegetar|vegan/,'vegetarische Eignung'],[/barriere|rollstuhl|wheelchair|mobilitätshilfe/,/accessible|wheelchair|barriere|rollstuhl/,'Barrierefreiheit'],[/famil|kind|baby/,/family|famil|child|kind|zoo|aquarium|playground/,'Familieneignung']];
+  const matches=[],unresolved=[];
+  for(const traveler of group?.travelers||[]){
+    const signals=traveler.signals.join(' ').toLowerCase(),rule=rules.find(([preference,placeRule])=>preference.test(signals)&&placeRule.test(text));
+    if(rule)matches.push({name:traveler.name,reason:rule[2]});
+    const missing=evidenceChecks.find(([preference,evidence])=>preference.test(signals)&&!evidence.test(text));
+    if(missing)unresolved.push({name:traveler.name,reason:missing[2]});
+  }
+  const names=items=>items.slice(0,3).map(item=>item.name).join(items.length>2?', ':items.length===2?' und ':'');
+  if(matches.length&&unresolved.length)return`Passt besonders zu ${names(matches)}: ${matches[0].reason}. Für ${names(unresolved)} noch nicht sicher: ${unresolved[0].reason} nicht belegt.`;
+  if(matches.length)return`Passt besonders zu ${names(matches)}: ${matches[0].reason}.`;
+  if(unresolved.length)return`Für ${names(unresolved)} noch nicht sicher passend: ${unresolved[0].reason} ist nicht belegt.`;
+  const evidence=clean(place?.aiReasons?.[0]||place?.recommendation?.reasons?.[0]||input.reasons?.[0]);
+  return evidence||'Passt zu eurem gemeinsamen Reisemoment; die endgültige Wahl bleibt bei euch.';
+}
 function currentInput(input={}){
   const {context,journey}=contracts(),snapshot=context?.snapshot?.()||{},trip=snapshot.trip||{},graph=journey?.reads?.snapshot?.({trip})||journey?.reads?.snapshot?.()||{};
   const guidance=context?.dayGuidance?.(graph)?.suggestion||{};
@@ -76,7 +126,7 @@ function currentInput(input={}){
   };
 }
 function categoryPlan(input){
-  const resolution=input.snapshot?.resolution||{},labels=[...(resolution.summary?.tripFeelings||[]),...(resolution.summary?.profileHighlights||[]),...input.reasons].join(' ').toLowerCase();
+  const resolution=input.snapshot?.resolution||{},groupLabels=(input.groupContext?.travelers||[]).flatMap(item=>item.signals||[]),labels=[...(resolution.summary?.tripFeelings||[]),...(resolution.summary?.profileHighlights||[]),...groupLabels,...input.reasons].join(' ').toLowerCase();
   const scheduled=(input.day?.entries||[]).map(categoryGroup),weights={nature:1,culture:1,activities:1,food:1};
   const boost=(category,value)=>{weights[category]+=value};
   if(/ruhig|luft|entspann|natur|strand|meer/.test(labels))boost('nature',5);
@@ -120,12 +170,14 @@ async function load(rawInput={},options={}){
   if(existing&&!options.force&&Date.now()-existing.loadedAt<180000)return{...existing,input,cached:true};
   const api=contracts().places;
   if(!api?.reads?.recommend)throw Object.assign(new Error('Places ist noch nicht vollständig bereit.'),{code:'PLACES_CONTRACT_UNAVAILABLE'});
+  input.groupContext=await sharedPreferenceContext(input);
   const categories=categoryPlan(input),responses=await Promise.allSettled(categories.map(category=>api.reads.recommend({
     tripId:tripId(input.trip),
     text:queryFor(category,input),query:queryFor(category,input),category,
     destination:destinationOf(input.trip),destinationContext:destinationContext(input.trip),
     candidateLimit:24,limit:4,
     profilePreferences:input.snapshot.profilePreferences||{},
+    profileContext:{groupTravelers:input.groupContext.travelers.map(item=>({name:item.name,role:item.role,sharedSignals:item.signals})),groupCoverage:{covered:input.groupContext.coveredTravelers,total:input.groupContext.totalTravelers}},
     tripComposition:input.snapshot.tripComposition||{},trip:input.trip,
     momentContext:{kind:'timeline-open-window',targetDate:input.targetDate,startAt:input.startAt,endAt:input.endAt,query:input.query,reasons:input.reasons}
   })));
@@ -141,7 +193,8 @@ async function load(rawInput={},options={}){
     const failed=responses.find(item=>item.status==='rejected');
     throw Object.assign(new Error(`Luvia konnte gerade nur ${diversified.length} von 3 fachlich belegbaren Möglichkeiten zusammenstellen. Bitte versucht es erneut.`),{code:failed?.reason?.code||'JOURNEY_SUGGESTIONS_INCOMPLETE'});
   }
-  const choices=await Promise.all(diversified.map(enrich));
+  const enriched=await Promise.all(diversified.map(enrich));
+  const choices=enriched.map(place=>({...place,travelerFit:travelerFit(place,input.groupContext,input)}));
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
   const result={input,choices,ai,loadedAt:Date.now(),cached:false,stale:false,warning:'',attempts:responses.length,successfulAttempts:successful.length};
   cache.set(key,result);return result;
@@ -151,8 +204,8 @@ function reasonFor(place,input){
   return reasons[0]||'Passt als anderer Moment zu eurem bestätigten Tagesplan und bleibt bis zur Auswahl nur ein Entwurf.';
 }
 function cardMarkup(place,index,input){
-  const id=providerId(place),visual=visualCategory(place),image=place.image?.url||place.photoUri||place.imageUrl||'',meta=ratings(place),unknowns=[...(place.aiUnknowns||[])].map(clean).filter(Boolean).slice(0,2);
-  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="${index===0?'true':'false'}">${image?`<img src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="lazy" decoding="async">`:'<span class="lvjs-choice-placeholder" aria-hidden="true">✦</span>'}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(place.name||'Unbenannter Ort')}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em>${meta?`<b>${esc(meta)}</b>`:''}<span>${esc(reasonFor(place,input))}</span>${unknowns.length?`<i>Noch zu prüfen: ${esc(unknowns.join(' · '))}</i>`:''}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button></article>`;
+  const id=providerId(place),visual=visualCategory(place),image=place.image?.url||place.photoUri||place.imageUrl||'',meta=ratings(place),facts=placeFacts(place),unknowns=[...(place.aiUnknowns||[])].map(clean).filter(Boolean).slice(0,2);
+  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="${index===0?'true':'false'}">${image?`<img src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="lazy" decoding="async">`:'<span class="lvjs-choice-placeholder" aria-hidden="true">✦</span>'}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(place.name||'Unbenannter Ort')}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em><span class="lvjs-choice-facts">${facts.map(fact=>`<b>${esc(fact)}</b>`).join('')}${meta?`<b>${esc(meta)}</b>`:''}</span><span class="lvjs-traveler-fit">${esc(place.travelerFit||reasonFor(place,input))}</span>${unknowns.length?`<i>Noch zu prüfen: ${esc(unknowns.join(' · '))}</i>`:''}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button></article>`;
 }
 function shellMarkup(input){
   const destination=destinationOf(input.trip)||'eurem Reiseziel';
@@ -178,15 +231,19 @@ async function openBooking(place,button,form,handle,result){
   }finally{button.disabled=false;button.textContent=label}
 }
 async function commit(place,form,input){
-  const api=contracts().places,id=providerId(place),tid=tripId(input.trip);
+  const api=contracts().places,id=providerId(place),tid=tripId(input.trip),type=canonicalPlaceType(place);
   if(!tid||!id)throw new Error('Reise oder Place ist nicht eindeutig.');
   const data=new FormData(form),date=dateValue(data.get('date')),time=clean(data.get('time'))||timeValue(input.startAt),plannedAt=new Date(`${date}T${time}:00`).toISOString();
-  const entity=await api.commands.importPlace(id,{tripId:tid,type:place.primaryType||categoryGroup(place),providerPlace:place,tripPlace:{status:'planned'}});
+  let entity;
+  try{entity=await api.commands.importPlace(id,{tripId:tid,type,providerPlace:place,tripPlace:{status:'planned'}})}catch(error){throw Object.assign(new Error('Places konnte diesen belegten Ort gerade nicht mit eurer Reise verbinden.'),{code:error?.code||'PLACE_IMPORT_FAILED',cause:error})}
   if(!entity?.tripPlaceId)throw new Error('Places konnte den Ort nicht eindeutig mit der Reise verbinden.');
   const fields={planned_at:plannedAt,place_name:place.name,notes:'Von Luvia vorgeschlagen und ausdrücklich bestätigt.',metadata:{source:'journey-suggestion-sheet',suggestionVersion:VERSION}};
-  const receipt=await api.commands.plan({tripId:tid,placeType:place.primaryType||categoryGroup(place),tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:id,fields});
+  let receipt;
+  try{receipt=await api.commands.plan({tripId:tid,placeType:type,tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:id,fields})}catch(error){throw Object.assign(new Error('Der Places-Owner konnte den gewählten Zeitpunkt gerade nicht bestätigen.'),{code:error?.code||'PLACE_PLAN_FAILED',cause:error})}
   await api.commands.updateLifecycle?.(entity.tripPlaceId,'planned',{}, {tripId:tid});
-  globalThis.dispatchEvent(new CustomEvent('luvia:place-plan-changed',{detail:{tripId:tid,tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:id,lifecycle:'planned',plannedAt,fields,receipt}}));
+  await contracts().journey?.commands?.hydrate?.(tid);
+  const detail={tripId:tid,type,tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:id,lifecycle:'planned',plannedAt,fields,receipt};
+  ['luvia:place-plan-changed','luvia:places-lifecycle-changed','luvia:timeline-invalidated','luvia:in-window-data-changed','luvia:dashboard-widget-refresh'].forEach(name=>globalThis.dispatchEvent(new CustomEvent(name,{detail})));
   return{receipt,plannedAt,entity};
 }
 function paintResults(handle,result,selectedId=''){
@@ -216,5 +273,6 @@ function open(rawInput={}){
 }
 function diagnostics(){return Object.freeze({version:VERSION,owner:'consumer-orchestration',domainTruth:false,persistence:'ephemeral-cache-only',sources:['journey.v1','identity.v1','trip.v1','intelligence.v1','places.v1','booking.v1'],writeOwner:'places.v1',bookingOwner:'booking.v1',explicitConfirmation:true,cacheEntries:cache.size})}
 
+['luvia:user-preferences-changed','luvia:identity.preferences.changed','luvia:trip.changed','luvia:trip-changed'].forEach(name=>globalThis.addEventListener(name,()=>cache.clear()));
 globalThis.LuviaJourneySuggestions=Object.freeze({version:VERSION,load,open,diagnostics});
 })();
