@@ -75,6 +75,10 @@ assert.match(journeyComposer,/Luvia Day Pulse/);
 assert.match(journeyComposer,/LuviaJourneySuggestions\?\.open/,'Timeline gaps must open the structured suggestion sheet');
 assert.doesNotMatch(journeyComposer,/show\?\.\('places'/,'Timeline may no longer redirect a gap to the raw Places search');
 assert.match(suggestionSheet,/reads\?\.recommend|reads\.recommend/,'the suggestion sheet must ask Places for real provider candidates');
+for(const category of ['nature','culture','activities','food'])assert.match(suggestionSheet,new RegExp(`${category}:1`),`the shared suggestion owner must search the ${category} category instead of collapsing everything into restaurants`);
+assert.match(suggestionSheet,/if\(diversified\.length<3\)/,'a sheet promising three choices must reject an incomplete one-card result');
+assert.match(suggestionSheet,/diversified\.map\(enrich\)/,'exactly the diversified three candidates must be enriched and rendered');
+assert.match(suggestionSheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'only gastronomic proposals may expose the Booking Core handoff');
 assert.match(suggestionSheet,/commands\.importPlace/,'confirmed suggestions must cross the public Places import command');
 assert.match(suggestionSheet,/commands\.plan/,'confirmed suggestions must cross the public Places planning command');
 assert.match(suggestionSheet,/explicitConfirmation:true/,'the orchestration boundary must remain explicitly confirmable');
@@ -83,6 +87,7 @@ assert.doesNotMatch(suggestionSheet,/localStorage|sessionStorage|supabase|\.rpc\
 assert.doesNotMatch(moduleHubs,/Tagesübersicht/,'Today remains the separate start dashboard; Reise navigation must expose only the accepted Timeline');
 assert.match(moduleHubs,/feature\('Timeline','Alle Tage, Momente und offene Zeitfenster'/,'Reise Compass must expose the single accepted Timeline direction');
 assert.match(journeyCss,/\.lvjt-day-panel/);
+assert.match(journeyCss,/\.lvjs-sheet \.lvjs-header h2[^{]*\{[^}]*color:var\(--lvjs-ink\)/,'the signed-in theme must not wash out the suggestion sheet heading');
 assert.match(appShell,/view==='timeline'/,'App Shell must route to Timeline without treating Today as Timeline');
 assert.doesNotMatch(appShell,/action==='timeline'\)return show\('today'/,'Timeline may no longer route back into Today');
 assert.match(compassCss,/is-navigating \.lv-plan-direction\.is-selected \.lv-plan-direction-idle\{animation:none;transform:none\}/,'selected Compass nodes must not freeze mid-float');

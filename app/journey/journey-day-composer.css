@@ -66,3 +66,9 @@
 @keyframes lvjs-sheet-in{from{opacity:.25;transform:translate3d(0,105%,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @media(max-width:720px){.lvjs-confirm-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.lvjs-confirm-actions button{min-width:0;padding-inline:10px;font-size:11px}.lvjs-choice-main:hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.lvjs-overlay,.lvjs-sheet{animation:none!important}.lvjs-confirm-actions button{transition:none}}
+
+/* M16.5AB.1: the light suggestion canvas remains legible inside the signed-in dark theme. */
+.lvjs-sheet,.lvjs-sheet .lvjs-header h2,.lvjs-sheet .lvjs-choice-main,.lvjs-sheet .lvjs-confirm,.lvjs-sheet .lvjs-confirm input{color:var(--lvjs-ink)}
+.lvjs-sheet .lvjs-header p,.lvjs-sheet .lvjs-status small{color:#657e90}
+.lvjs-sheet .lvjs-status strong{color:var(--lvjs-ink)}
+@media(max-width:720px){.lvjs-sheet .lvjs-header h2{max-width:18ch;color:var(--lvjs-ink);font-size:clamp(1.55rem,6.6vw,2rem);line-height:1}.lvjs-results{grid-auto-columns:calc(100vw - 48px)}}

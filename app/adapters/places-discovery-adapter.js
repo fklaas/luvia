@@ -61,15 +61,17 @@ async function aiPlan(options,discoveryRoute,queries,resolution){
     return{queries,ai:{fallback:true,error:error?.code||error?.message||'AI_UNAVAILABLE'}};
   }
 }
-function deterministicScore(place,options,discoveryRoute){
+function deterministicAssessment(place,options,discoveryRoute){
   let score=Math.min(25,Number(place.rating||0)*5);
   const reviews=Number(place.userRatingCount||0);
   score+=Math.min(15,Math.log10(Math.max(1,reviews))*5);
   if(place.currentOpeningHours?.openNow===true||place.openNow===true)score+=10;
   if(place.formattedAddress||place.address)score+=5;
   const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
-  place.aiReasons=[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[])])];
-  return score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0);
+  return{
+    score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0),
+    reasons:[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[])])]
+  };
 }
 async function recommend(options={}){
   const discoveryRoute=route(options);
@@ -132,7 +134,10 @@ async function recommend(options={}){
     const resolved=ranker({resolution:resolvedPreferences,candidates:ranked,query:goal.text,category:goal.category});
     ranked=resolved.places||ranked;preferenceMeta=resolved.meta||preferenceMeta;
   }
-  ranked=ranked.filter(accepts).sort((left,right)=>deterministicScore(right,options,discoveryRoute)-deterministicScore(left,options,discoveryRoute));
+  ranked=ranked.filter(accepts).map(place=>{
+    const assessment=deterministicAssessment(place,options,discoveryRoute);
+    return{place:{...place,aiReasons:assessment.reasons},score:assessment.score};
+  }).sort((left,right)=>right.score-left.score).map(entry=>entry.place);
   return{places:ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null})),plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta};
 }
 function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),maxCandidateLimit:60,breadthUsesUniquePlaces:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}

@@ -24,7 +24,7 @@ const source=fs.readFileSync(path.join(root,'app/adapters/places-discovery-adapt
     return{data:{places:[{id:'place-1',name:'Küstenort',rating:4.7,userRatingCount:120,location:{latitude:54.02,longitude:10.75}}]}};
   }};
   const resolution={kind:'derived-trip-preference-resolution',hardConstraints:[{key:'vegetarian',label:'Vegetarisch',kind:'dietary'}],profileSignals:[{key:'culture',label:'Kultur',weight:8}],tripSignals:[{key:'quiet',label:'Ruhig',weight:12}],activeWeights:[{key:'quiet',label:'Ruhig',weight:12}],summary:{tripFeelings:['Viel Luft']}};
-  sandbox.LuviaIntelligenceContractV1={reads:{resolveTripPreferences:()=>resolution,rankPlaceCandidates:({candidates})=>({places:candidates,meta:{candidateCount:candidates.length,eligibleCount:candidates.length,blockedCount:0}})}};
+  sandbox.LuviaIntelligenceContractV1={reads:{resolveTripPreferences:()=>resolution,rankPlaceCandidates:({candidates})=>({places:candidates.map(place=>Object.freeze({...place})),meta:{candidateCount:candidates.length,eligibleCount:candidates.length,blockedCount:0}})}};
   sandbox.LuviaAI={
     interpretDiscovery:async input=>{aiPlans.push(input.contract);return{data:{searchPlans:[],reasoningSummary:'Kontext verstanden'},meta:{fallback:false}}},
     rankCandidates:async input=>{aiRanks.push(input.contract);return input.candidates.map(place=>({...place,aiMatchScore:92,aiReasons:['Passt zum ruhigen Reisemoment.'],aiRankingFallback:false}))}
@@ -45,5 +45,6 @@ const source=fs.readFileSync(path.join(root,'app/adapters/places-discovery-adapt
   assert.equal(result.aiMeta.ranking.used,true);
   assert.equal(result.aiMeta.ranking.fallback,false);
   assert.match(result.places[0].aiReasons[0],/ruhigen Reisemoment/);
+  assert.equal(Object.isFrozen(result.places[0]),false,'the consumer adapter must project a new display object instead of mutating the frozen owner projection');
   console.log('M16.5AB Places discovery destination and partial-failure resilience: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

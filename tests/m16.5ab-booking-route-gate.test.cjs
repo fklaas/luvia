@@ -23,6 +23,7 @@ assert.match(ui,/channel:'unavailable'/);
 assert.ok(ui.indexOf('const target=externalTarget(route)')<ui.indexOf("route.resolved&&route.channel==='email'"),'Provider gate must precede email canvas gate');
 
 assert.match(sheet,/Buchungsweg prüfen/);
+assert.match(sheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'museum, nature and activity suggestions must never be presented as bookable restaurants');
 assert.match(sheet,/reserveExternalWindow:true/);
 assert.match(sheet,/sheetHost=handle\.overlay\.querySelector\('\[data-journey-suggestion-sheet\]'\)/);
 assert.match(sheet,/host:sheetHost,onBack:restore/);

@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const cache=new Map();
 let activeHandle=null;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -77,14 +77,16 @@ function currentInput(input={}){
 }
 function categoryPlan(input){
   const resolution=input.snapshot?.resolution||{},labels=[...(resolution.summary?.tripFeelings||[]),...(resolution.summary?.profileHighlights||[]),...input.reasons].join(' ').toLowerCase();
-  const scheduled=(input.day?.entries||[]).map(categoryGroup),categories=[];
-  const add=value=>{if(value&&!categories.includes(value))categories.push(value)};
-  if(/ruhig|luft|entspann|natur|strand|meer/.test(labels))add('nature');
-  if(/kultur|geschichte|neugier|authent/.test(labels))add('culture');
-  if(/beweg|aktiv|famil|abenteuer|spann/.test(labels))add('activities');
-  if(!scheduled.includes('food')||/genuss|kulinar|vegetar|vegan/.test(labels))add('food');
-  ['nature','culture','activities','food'].forEach(add);
-  return categories.slice(0,3);
+  const scheduled=(input.day?.entries||[]).map(categoryGroup),weights={nature:1,culture:1,activities:1,food:1};
+  const boost=(category,value)=>{weights[category]+=value};
+  if(/ruhig|luft|entspann|natur|strand|meer/.test(labels))boost('nature',5);
+  if(/kultur|geschichte|neugier|authent/.test(labels))boost('culture',5);
+  if(/beweg|aktiv|famil|abenteuer|spann/.test(labels))boost('activities',5);
+  if(/genuss|kulinar|vegetar|vegan/.test(labels))boost('food',5);
+  if(!scheduled.includes('food'))boost('food',3);
+  const startHour=new Date(input.startAt||'').getHours(),endHour=input.endAt?new Date(input.endAt).getHours():23;
+  if(Number.isFinite(startHour)&&Number.isFinite(endHour)&&((startHour<14&&endHour>=11)||(startHour<21&&endHour>=18)))boost('food',3);
+  return Object.keys(weights).sort((left,right)=>weights[right]-weights[left]);
 }
 function queryFor(category,input){
   const destination=destinationOf(input.trip);
@@ -133,7 +135,12 @@ async function load(rawInput={},options={}){
     const failed=responses.find(item=>item.status==='rejected');
     throw Object.assign(new Error(failed?.reason?.publicMessage||failed?.reason?.message||'Luvia konnte gerade keine belegbaren Vorschläge laden.'),{code:failed?.reason?.code||'JOURNEY_SUGGESTIONS_UNAVAILABLE'});
   }
-  const choices=await Promise.all(diversify(rows).map(enrich));
+  const diversified=diversify(rows);
+  if(diversified.length<3){
+    const failed=responses.find(item=>item.status==='rejected');
+    throw Object.assign(new Error(`Luvia konnte gerade nur ${diversified.length} von 3 fachlich belegbaren Möglichkeiten zusammenstellen. Bitte versucht es erneut.`),{code:failed?.reason?.code||'JOURNEY_SUGGESTIONS_INCOMPLETE'});
+  }
+  const choices=await Promise.all(diversified.map(enrich));
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
   const result={input,choices,ai,loadedAt:Date.now(),cached:false,stale:false,warning:'',attempts:responses.length,successfulAttempts:successful.length};
   cache.set(key,result);return result;

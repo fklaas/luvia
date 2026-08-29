@@ -12,7 +12,7 @@ const hubs = read('app/module-hubs.js');
 const hubsCss = read('app/module-hubs.css');
 const version = read('intelligence/kernel/version.js');
 
-assert.match(version, /core:'4\.82\.111',build:'13\.82\.111',name:'M16\.5AB Verified Booking Route Gate'/);
+assert.match(version, /core:'4\.82\.112',build:'13\.82\.112',name:'M16\.5AB Journey Suggestion Integrity'/);
 
 // All signed-in Compass contexts share one real ring; Profile no longer staggers cards.
 assert.match(hubsCss, /M16\.5X — one collision-free Compass orbit for every signed-in context/);
