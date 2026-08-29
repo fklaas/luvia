@@ -2470,6 +2470,7 @@ core/journey/AGENTS.md,Journey,Repository Governance,Journey Day Graph ownership
 core/journey/journey-domain-contract-core.js,Journey,Domain/Contract Core,Browserless journey.v1 Day Graph ordering conflict policy and owner provenance without persistence
 core/platform/journey-contract-adapter.js,Journey/Platform,Adapter/Web,Public journey.v1 reads and commands over one legacy Web DB compatibility provider
 app/journey/journey-day-composer.js,Journey/Consumer,Experience/Web,Visible responsive Day Composer over immutable journey.v1 projections and Overlay Host
+app/journey/journey-suggestion-sheet.js,Consumer/Journey/Intelligence/Places/Trip,Adapter/Web,Owner-backed suggestion sheet with ephemeral cache and explicit Places confirmation
 app/journey/journey-day-composer.css,Journey/Experience,Experience/Web,Premium responsive accessible Day Composer styles using Experience tokens
 docs/modularization/contracts/journey.v1.json,Journey,Contract,Versioned public Journey reads commands events ownership and compatibility specification
 docs/modularization/PCR-M12-JOURNEY-CORE-DAY-COMPOSER.md,Journey/Platform,Documentation/Architecture,M12 measured Journey ownership lock implementation scope rollback and release gates

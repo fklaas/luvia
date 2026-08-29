@@ -13,9 +13,10 @@ const safeRunner=read('tests/run-m4.3-safe-regression.cjs');
 
 assert.match(bookingUi,/ui\.adopt\(node,/,'Place Booking dialog must use Overlay Host legacy adoption');
 assert(bookingUi.includes("name:'booking.place-request'"),'Place Booking owner name missing');
-assert.match(bookingUi,/content:node\.querySelector\('\.lv-booking-dialog'\)/,'Host must own dialog semantics without changing Booking DOM');
+assert.match(bookingUi,/content:dialog/,'Host must own the existing Booking dialog without a second overlay root');
 assert.match(bookingUi,/closeSelector:'\[data-booking-close\]'/,'Booking close buttons must delegate to the host');
-assert.match(bookingUi,/initialFocus:'\[data-booking-date\]'/,'Booking dialog needs a deterministic initial focus');
+assert.match(bookingUi,/initialFocus:'\[data-booking-name\]'/,'Booking dialog needs a deterministic initial focus on step one');
+assert.match(bookingUi,/inlineHost\.replaceChildren\(dialog\)/,'Journey suggestions must be able to host the verified email canvas in the same sheet');
 assert.match(bookingUi,/if\(!activeHandle\|\|activeHandle\.overlay!==node\)return false/,'First open and already-closed paths require a null-safe host guard');
 assert.doesNotMatch(bookingUi,/document\.body\.appendChild\(node\)|document\.querySelector\('\.lv-booking-backdrop'\)|node\?\.remove\(\)/,'Booking UI must not retain a private overlay root lifecycle');
 

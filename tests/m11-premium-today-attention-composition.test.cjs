@@ -74,7 +74,10 @@ const rendered=webWindow.LuviaTodayExperience.render({
 });
 assert.match(rendered,/data-today-contract="consumer\.today-composition\.v1"/);
 assert.match(rendered,/<p class="lvt-focus-greeting">(?:Guten Morgen|Guten Tag|Guten Abend|Gute Nacht), Fabian\.<\/p>/);
-assert.match(rendered,/Eure Erinnerungen beginnen hier<br><em>Paris im Blick\.<\/em>/);
+assert.match(rendered,/<p class="lvt-focus-greeting">(?:Guten Morgen|Guten Tag|Guten Abend|Gute Nacht), Fabian\.<\/p><h1 id="lvt-title">Was von <em>Paris<\/em> bleibt\.<\/h1>/);
+assert.match(rendered,/data-today-weather/);
+assert.match(rendered,/class="lvt-companions"/);
+assert.match(rendered,/data-view="timeline">Tag öffnen<\/button>/);
 assert.match(rendered,/data-experience-state="attention"/);
 assert.match(rendered,/data-ai-ask-open/);
 assert.match(rendered,/data-journey-projection="journey\.v1-read-only"/);

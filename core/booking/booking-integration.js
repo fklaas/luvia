@@ -67,6 +67,7 @@
       },
       request:{
         requesterName:clean(input.requesterName),
+        occasion:clean(input.occasion),
         note:clean(input.note),
         providerPlaceId:providerId(place),
         sourcePlaceType:placeType,
@@ -219,7 +220,7 @@
       p_venue_name:clean(place.name)||null,
       p_provider:clean(route.provider)||'official',
       p_destination_url:clean(route.value),
-      p_metadata:{source:'places_reserve_action',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null}
+      p_metadata:{source:'places_reserve_action',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null,bookingRequest:route.request||null}
     };
     const primary=await client.rpc('luvia_booking_prepare_monetized_handoff',args);
     if(!primary.error)return primary.data;
@@ -429,14 +430,14 @@
     return reply(id,{bodyText:text,action,intelligenceId});
   }
 
-  async function sendEmail(id,{requesterName,note,testRecipient,idempotencyKey}={}){
+  async function sendEmail(id,{requesterName,note,occasion,testRecipient,idempotencyKey}={}){
     await init();
     const booking=await get(id);
     if(!booking)throw new Error('Buchung wurde nicht gefunden.');
     if(!booking.contact?.email)throw new Error('Für diesen Ort ist noch keine bestätigte E-Mail-Adresse verfügbar.');
     let data;
-    if(window.LuviaBookingEmailV2?.send){data=await window.LuviaBookingEmailV2.send({bookingId:id,requesterName,note,testRecipient,idempotencyKey});}
-    else{const result=await client.functions.invoke('booking-email-send',{body:{bookingId:id,userApproved:true,requesterName:requesterName||undefined,note:note||undefined,testRecipient:testRecipient||undefined,idempotencyKey:idempotencyKey||undefined}});if(result.error)throw await functionError(result.error,'Versand der Buchungsanfrage ist fehlgeschlagen.');data=result.data;}
+    if(window.LuviaBookingEmailV2?.send){data=await window.LuviaBookingEmailV2.send({bookingId:id,requesterName,note,occasion,testRecipient,idempotencyKey});}
+    else{const legacyNote=clean(occasion)&&clean(occasion)!=='Kein besonderer Anlass'?[`Anlass: ${clean(occasion)}`,clean(note)].filter(Boolean).join('\n'):clean(note);const result=await client.functions.invoke('booking-email-send',{body:{bookingId:id,userApproved:true,requesterName:requesterName||undefined,note:legacyNote||undefined,occasion:occasion||undefined,testRecipient:testRecipient||undefined,idempotencyKey:idempotencyKey||undefined}});if(result.error)throw await functionError(result.error,'Versand der Buchungsanfrage ist fehlgeschlagen.');data=result.data;}
     if(data?.error&&!data?.expected)throw new Error(data.details||data.error);
     window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{bookingId:id,action:'email-sent',result:data}}));
     return data;

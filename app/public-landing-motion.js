@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "13.82.107";
+  const VERSION = "13.82.111";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",
@@ -1713,14 +1713,14 @@
         const card = document.createElement("article");
         card.className = "rondell-place-card";
         card.dataset.placeIndex = String(index);
-        card.innerHTML = `<span class="place-kind"><i>${KIND_ICONS[place.kind] || "⌖"}</i>${place.kind}</span><span class="place-fit">${place.fit}% passend</span><small>${place.city} · ${place.country}</small><strong>${place.name}</strong><p>${place.note}</p><button type="button" aria-pressed="false">Im Tagesbogen vormerken</button>`;
+        card.innerHTML = `<span class="place-kind"><i>${KIND_ICONS[place.kind] || "⌖"}</i>${place.kind}</span><span class="place-fit">${place.fit}% passend</span><small>${place.city} · ${place.country}</small><strong>${place.name}</strong><p>${place.note}</p><button type="button" aria-pressed="false">Für die Reise merken</button>`;
         card.addEventListener("click", () => { activePlace = index; updatePlaceRondell(); }, { signal });
         const save = card.querySelector("button");
         save?.addEventListener("click", event => {
           event.stopPropagation();
           const saved = save.getAttribute("aria-pressed") !== "true";
           save.setAttribute("aria-pressed", String(saved));
-          save.textContent = saved ? "Vorgemerkt ✓" : "Im Tagesbogen vormerken";
+          save.textContent = saved ? "Vorgemerkt ✓" : "Für die Reise merken";
           card.classList.toggle("is-saved", saved);
         }, { signal });
         stack.append(card);

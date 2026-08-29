@@ -15,7 +15,8 @@ function compose(booking,options={}){
  const b=window.LuviaBookingContract?.normalize?window.LuviaBookingContract.normalize(booking):booking;
  const locale=options.locale||'de-DE';const dt=formatDateTime(b.startAt||b.start_at,locale);
  const name=clean(options.requesterName||b.request?.requesterName||'Luvia Reisender');
- const note=clean(options.note||b.request?.note||b.request?.specialRequest);
+ const occasion=clean(options.occasion||b.request?.occasion);
+ const rawNote=clean(options.note||b.request?.note||b.request?.specialRequest);const legacyPrefix=occasion&&occasion!=='Kein besonderer Anlass'?`Anlass: ${occasion}`:'';const note=legacyPrefix&&rawNote.startsWith(legacyPrefix)?clean(rawNote.slice(legacyPrefix.length)):rawNote;
  const party=Number(b.partySize||b.party_size||1);
  const subject=clean(options.subject)||`Buchungsanfrage · ${b.title}`;
  let intro='ich möchte gerne eine Buchung anfragen.';
@@ -25,6 +26,7 @@ function compose(booking,options={}){
  if(dt.time)lines.push(`Uhrzeit: ${dt.time}`);
  if(b.type==='hotel'&&b.endAt){const end=formatDateTime(b.endAt,locale);lines.push(`Abreise: ${end.date}`);}
  lines.push(`Personen: ${party}`,`Name: ${name}`);
+ if(occasion&&occasion!=='Kein besonderer Anlass')lines.push(`Anlass: ${occasion}`);
  if(note)lines.push('',`Hinweis: ${note}`);
  lines.push('','Bitte bestätigen Sie uns kurz, ob die Buchung möglich ist.','','Vielen Dank und freundliche Grüße','',name,'Buchungsanfrage über Luvia');
  return Object.freeze({templateKey:`${b.type||'other'}.request.de.v1`,subject,bodyText:lines.join('\n')});

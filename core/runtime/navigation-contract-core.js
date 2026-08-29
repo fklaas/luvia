@@ -40,6 +40,7 @@ const ROUTES=Object.freeze([
   {id:'more',label:'Mehr',icon:'•••',description:'Profil, Reisekompass und Einstellungen.',surface:'more',topLevel:true,mount:{mode:'hub',key:'more'}},
   {id:'places',label:'Places',surface:'places',mount:{mode:'module',key:'places',targetId:'places-module',owner:'places'}},
   {id:'places-lifecycle',label:'Meine Orte',surface:'places',mount:{mode:'module',key:'places-lifecycle',targetId:'places-lifecycle-module',owner:'places'}},
+  {id:'timeline',label:'Timeline',surface:'journey',mount:{mode:'inline',key:'timeline',owner:'journey'}},
   {id:'routes',label:'Routen',surface:'routing',mount:{mode:'inline',key:'routes',owner:'consumer'}},
   {id:'gallery',label:'Fotogalerie',surface:'media',mount:{mode:'module',key:'gallery',targetId:'gallery-module',owner:'media'}},
   {id:'albums',label:'Memory Albums',surface:'memories',mount:{mode:'module',key:'albums',targetId:'albums-module',owner:'media'}},

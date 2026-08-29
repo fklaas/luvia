@@ -12,7 +12,8 @@ const ports=read('app/adapters/platform-port-adapters.mjs');
 const safe=read('tests/run-m4.3-safe-regression.cjs');
 
 assert.match(ui,/LuviaOwnerFlowNavigationV1\.reserveBookingHandoff\(\)/);
-assert.match(ui,/LuviaOwnerFlowNavigationV1\.openBooking\(target\.toString\(\),\{reserved:handoffWindow\}\)/);
+assert.match(ui,/LuviaOwnerFlowNavigationV1\.openBooking\(target,\{reserved\}\)/);
+assert.match(ui,/const target=externalTarget\(route\)/,'Only the route-gated, validated provider target may reach external navigation');
 assert.doesNotMatch(ui,/window\.open\s*\(|handoffWindow\.location\.replace/,'Booking UI must not own browser popup navigation');
 assert.match(ui,/recordPlaceHandoff/,'Booking attribution must remain before external navigation');
 

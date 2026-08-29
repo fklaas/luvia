@@ -258,7 +258,7 @@
       </header>
       <section class="lv-places-spatial__context" aria-label="Planen-Funktionskompass">
         <button type="button" class="lv-places-spatial__context-compass" data-places-back-plan aria-label="Alle Planen-Funktionen im Living Compass öffnen">${compassMarkup()}</button>
-        <div class="lv-places-spatial__context-copy"><small>Planen ist mehr als eine Suche</small><h2>Zehn Fähigkeiten, ein nachvollziehbarer Weg.</h2><p>Orte, gespeicherte Favoriten, Tagesbogen, Booking, Checklisten, Budget, Routen, Wetter, Sprachhilfe und Community erscheinen im Kontext – nicht als starre Kachelwand.</p></div>
+        <div class="lv-places-spatial__context-copy"><small>Eure Orte im Zusammenhang</small><h2>Entdecken, verstehen und bewusst einplanen.</h2><p>Places zeigt belegbare Orte, ihre Eigenschaften und warum sie zu eurer Reise passen. Erst eure Bestätigung macht aus einer Möglichkeit einen Teil der Timeline.</p></div>
         <div class="lv-places-spatial__capabilities"><span class="lv-places-spatial__capability">Places</span><span class="lv-places-spatial__capability">Booking</span><span class="lv-places-spatial__capability">Budget</span><span class="lv-places-spatial__capability">Route</span><span class="lv-places-spatial__capability lv-places-spatial__capability--more">+6</span><button type="button" class="lv-places-spatial__primary-action" data-view="bookings">Buchungen öffnen ${icon('arrow')}</button></div>
       </section>
       <form class="lv-places-spatial__search" data-places-search novalidate>
@@ -459,10 +459,10 @@
     const start=state.trip?.startDate||state.trip?.start_date||new Date().toISOString().slice(0,10);
     const modal=document.createElement('div');
     modal.className='lv-places-spatial__planning-overlay';
-    modal.innerHTML=`<form class="lv-places-spatial__planning"><button type="button" data-planning-close aria-label="Schließen">×</button><span>Zum Tagesbogen hinzufügen</span><h2>${esc(place.name)}</h2><label>Reisetag<input name="date" type="date" required value="${esc(start)}"></label><label>Uhrzeit<input name="time" type="time" value="19:00"></label><label>Notiz<textarea name="note" placeholder="Optional"></textarea></label><button type="submit" class="is-primary">Verbindlich einplanen</button></form>`;
+    modal.innerHTML=`<form class="lv-places-spatial__planning"><button type="button" data-planning-close aria-label="Schließen">×</button><span>Zur Timeline hinzufügen</span><h2>${esc(place.name)}</h2><label>Reisetag<input name="date" type="date" required value="${esc(start)}"></label><label>Uhrzeit<input name="time" type="time" value="19:00"></label><label>Notiz<textarea name="note" placeholder="Optional"></textarea></label><button type="submit" class="is-primary">Verbindlich einplanen</button></form>`;
     if(!globalThis.LuviaUI?.adopt){notify('Der Planungsdialog ist noch nicht bereit.','error');return}
     state.planningHandle?.close?.('replace');
-    const mounted=globalThis.LuviaUI.adopt(modal,{name:'consumer.places-spatial.plan',kind:'sheet',content:modal.querySelector('form'),closeSelector:'[data-planning-close]',initialFocus:'input[name="date"]',label:`${place.name} zum Tagesbogen hinzufügen`,onClose:()=>{if(state.planningHandle?.id===mounted.id)state.planningHandle=null}});
+    const mounted=globalThis.LuviaUI.adopt(modal,{name:'consumer.places-spatial.plan',kind:'sheet',content:modal.querySelector('form'),closeSelector:'[data-planning-close]',initialFocus:'input[name="date"]',label:`${place.name} zur Timeline hinzufügen`,onClose:()=>{if(state.planningHandle?.id===mounted.id)state.planningHandle=null}});
     state.planningHandle=mounted;
     modal.querySelector('form').addEventListener('submit',async event=>{
       event.preventDefault();
@@ -476,7 +476,7 @@
         await placesContract().commands.updateLifecycle(entity.tripPlaceId,'planned',{}, {tripId:tripId(state.trip)});
         globalThis.dispatchEvent(new CustomEvent('luvia:place-plan-changed',{detail:{tripId:tripId(state.trip),tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:providerId(place),lifecycle:'planned',plannedAt,fields}}));
         globalThis.dispatchEvent(new CustomEvent('luvia:places-lifecycle-changed',{detail:{tripId:tripId(state.trip),tripPlaceId:entity.tripPlaceId,providerPlaceId:providerId(place),lifecycle:'planned'}}));
-        mounted.close('saved');await loadSaved();render();notify('Zum Tagesbogen hinzugefügt.');
+        mounted.close('saved');await loadSaved();render();notify('Zur Timeline hinzugefügt.');
       }catch(error){notify(error?.message||'Der Ort konnte nicht eingeplant werden.','error')}
       finally{submit.disabled=false}
     });

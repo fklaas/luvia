@@ -20,9 +20,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.107**
-- Core: **4.82.107**
-- Name: **M16.5AB Today Places Recovery**
+- App: **13.82.111**
+- Core: **4.82.111**
+- Name: **M16.5AB Verified Booking Route Gate**
 - Channel: **integration-preview**
 - Datum: **2026-08-29**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
@@ -31,7 +31,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 ## M16.5AB Today ↔ Planen ↔ Places / Wave C
 
 - Runtime source commit: **`362460ae9470817a1d85b09c7997c7a05fb99aa7`** on `integration`; the Worker was uploaded from a clean `git archive` of exactly that commit.
-- Runtime target: **App 13.82.107 / Core 4.82.107 / Integration Preview**.
+- Runtime target: **App 13.82.110 / Core 4.82.110 / Integration Preview**.
 - Rejected candidate: **App/Core 13.82.101 / 4.82.101, immutable version `8e422bca-586c-425f-9914-975048ab9272`, failed the real visible Today → Places provider completion and was removed from Stable Integration on 2026-08-28. It is not functionally or visually accepted.**
 - Restored stable baseline: **100% Integration version `0ad87340-4aa1-4d56-8048-d5c749d82adf` (App/Core 13.82.100 / 4.82.100); Main and Production remained unchanged.**
 - Product slice: **the signed-in Today surface now follows the accepted M16.5E image-led Living Day composition on the real Journey day graph; Journey derives explicit open windows; Intelligence turns Identity-owned preferences and Trip-owned feelings into an explainable draft; Places receives those public projections plus the canonical Trip destination and remains the only visible commit path through `places.plan`**.
@@ -43,7 +43,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Boot recovery: **first paint is local-first; remote profile/Trip/Journey hydration continues as background progress and cannot overwrite the visible `ready` phase. Reload, bfcache restoration and tab return explicitly expose the already mounted app instead of reactivating the legacy warm-boot mask**.
 - Public deployment: **100% Integration version `859d3fc1-b808-4825-be3b-549adecd378d`, deployment `9f0077de-a335-44a6-beac-f2b26e29aaf6`; stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; immutable `https://859d3fc1-integration-luvia.njwnrvwbv5.workers.dev/`. The `.105` photo-first draft remains rejected, and `.106` is technically stable but visually superseded by `.107`**.
 - `.107` visual convergence: **Today adopts the calmer Profile/Trip-onboarding grammar instead of mixing independent dashboard-card styles. The title separates greeting, journey statement and destination; travel metrics share one coherent instrument with safer countdown padding; OpenAI is prompted for short natural card titles and the client defensively turns provider search queries into readable labels while preserving the original query for Places. A small four-colour needle signature, explicitly labelled `Luvia` on mobile, moves only its needle and makes Luvia present without duplicating the full navigation Compass**.
-- Validation / deployment / rollback: **121/121 Safe Regression PASS plus focused first-paint, live AI, real-click, Browser Back, Reload and Reduced-Motion evidence. Real visible signed-in Stable Mobile 390×844 confirms App 13.82.107, a complete non-scrolling frame with zero document overflow and four short OpenAI cards. A real left click on `Strandspaziergang mit Seebrückenblick` opens productive Places with that exact original provider query; Browser Back restores Today; cached Reload reaches ready in 2.494 s; Reduced Motion disables the Luvia needle animation. Stable and Immutable are SHA-256 byte-identical for `index.html`, version, Today JS/CSS, App Shell and Service Worker. Operational rollback is `npx wrangler versions deploy 6d5c62f3-4eb0-4b17-b1d4-ea6428fb06a7@100 --name integration-luvia --message \"Rollback M16.5AB to App 13.82.106\" --yes`; `.106` remains visually superseded and is only the immediate technical rollback. No Main or Production action is authorized**.
+- Validation / deployment / rollback: **121/121 Safe Regression PASS plus focused first-paint, live AI, real-click, Browser Back, Reload and Reduced-Motion evidence. Real visible signed-in Stable Mobile 390×844 confirms App 13.82.110, a complete non-scrolling frame with zero document overflow and four short OpenAI cards. A real left click on `Strandspaziergang mit Seebrückenblick` opens productive Places with that exact original provider query; Browser Back restores Today; cached Reload reaches ready in 2.494 s; Reduced Motion disables the Luvia needle animation. Stable and Immutable are SHA-256 byte-identical for `index.html`, version, Today JS/CSS, App Shell and Service Worker. Operational rollback is `npx wrangler versions deploy 6d5c62f3-4eb0-4b17-b1d4-ea6428fb06a7@100 --name integration-luvia --message \"Rollback M16.5AB to App 13.82.106\" --yes`; `.106` remains visually superseded and is only the immediate technical rollback. No Main or Production action is authorized**.
 - Main / Production: **unchanged: Main `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`; Production deployment `578f13fc-8193-4988-88cf-93c94362fcc3`, version `0d26706b-8b79-4e05-b3b6-6c6314cc597c`; final physical-handset acceptance remains explicitly open**.
 
 ## M16.5AA Preference Resolution / Places / Shared Compass Activation

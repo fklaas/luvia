@@ -6,7 +6,7 @@
     ['Luvia Rose','#e96f87'],['Lavendel','#8b72d8'],['Himmel','#668fd1'],['Lagune','#4e9fa2'],['Salbei','#6fa18a'],['Sonne','#d9a956'],['Koralle','#e98668'],['Abendrot','#b96f8f'],['Nacht','#596b80'],['Sand','#b99c7b']
   ];
   const defaults=['hero','today','live','weather','budget','memories','calendar','checklist','review','book'];
-  const widgetCatalog=[['hero','Reisekopf','Titel, Ziel, Zeitraum und Reisestimmung'],['today','Heute','Vorbereitung oder Tagesübersicht'],['live','Gemeinsam live','Teilnehmer und letzte Aktivität'],['weather','Wetter','Kompakte Wettervorschau'],['budget','Budget','Ausgaben und Spielraum'],['memories','Erinnerungen','Fotos, Momente und Abschlüsse'],['calendar','Reisekalender','Reisetage im Monatsüberblick'],['checklist','Checkliste','Fortschritt eurer Erinnerungen'],['review','Reise-Review','Direkter Einstieg in den Rückblick'],['book','Reisebuch','Direkter Einstieg ins Reisebuch']];
+  const widgetCatalog=[['hero','Reisekopf','Titel, Ziel, Zeitraum und Reisestimmung'],['today','Heute','Eigenständiger Start in den Reisekontext'],['live','Gemeinsam live','Teilnehmer und letzte Aktivität'],['weather','Wetter','Kompakte Wettervorschau'],['budget','Budget','Ausgaben und Spielraum'],['memories','Erinnerungen','Fotos, Momente und Abschlüsse'],['calendar','Reisekalender','Reisetage im Monatsüberblick'],['checklist','Checkliste','Fortschritt eurer Erinnerungen'],['review','Reise-Review','Direkter Einstieg in den Rückblick'],['book','Reisebuch','Direkter Einstieg ins Reisebuch']];
   let modal=null,modalHandle=null;
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
   const tripReads=()=>tripContract()?.reads||tripContract()||null;

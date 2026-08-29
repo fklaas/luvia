@@ -17,7 +17,7 @@ const fixture=read('tests/fixtures/m16.5y-profile-onboarding-browser.html');
 const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const version=read('intelligence/kernel/version.js');
 
-assert.match(version,/core:'4\.82\.107',build:'13\.82\.107',name:'M16\.5AB Today Places Recovery'/);
+assert.match(version,/core:'4\.82\.111',build:'13\.82\.111',name:'M16\.5AB Verified Booking Route Gate'/);
 
 assert.match(onboarding,/const STEPS = Object\.freeze\(\['welcome','account','heart','rhythm','care','control','ready'\]\)/);
 for(const group of ['interests','travelStyles','mobilityPreferences','activityPreferences','entertainmentPreferences','dietary','familyPreferences','accessibilityNeeds'])assert.ok(onboarding.includes(`${group}:`),`missing Profile vocabulary: ${group}`);

@@ -31,7 +31,7 @@ assert.match(dockBlock,/registered=new Map\(\(window\.LuviaNavigationRegistry/,'
 for(const route of ['today','plan','trip','memories','more'])assert.match(navigation,new RegExp(`id:'${route}'.*topLevel:true`),`navigation.v1 route truth changed unexpectedly: ${route}`);
 assert.match(shell,/class="lv-(?:brand|living-brand)"[^>]*data-view="today"/,'official brand must return to Today');
 assert.match(shell,/class="lv-logo"/,'App Shell must retain the replaceable official logo mount');
-assert.match(shell,/version:'13\.82\.107'/,'Consumer candidate version is missing');
+assert.match(shell,/version:'13\.82\.111'/,'Consumer candidate version is missing');
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceStore','LuviaBookingStore','LuviaMemoryStore','supabase.from','.from(']){
   assert.equal(dockBlock.includes(forbidden),false,`Consumer navigation introduced a private owner shortcut: ${forbidden}`);
@@ -41,7 +41,7 @@ for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaBooking','LuviaM
 assert.match(today,/lvt-today-focus/,'single-screen Today focus is missing');
 assert.match(today,/data-today-weather/,'destination weather projection is missing');
 assert.match(today,/data-today-ai-card/,'OpenAI-orchestrated travel brief surface is missing');
-assert.match(today,/KI entwirft · Owner-Cores belegen · ihr bestätigt/,'the explicit AI/owner/confirmation boundary is missing');
+assert.match(today,/Places belegt die Fakten · Luvia ordnet · ihr bestätigt/,'the explicit AI/owner/confirmation boundary is missing');
 
 for(const token of ['--luvia-color-action-primary','--luvia-color-action-primary-soft','--luvia-color-action-on-primary','--luvia-color-trip-complement','--luvia-color-surface-canvas','--luvia-layout-touch-minimum'])assert.ok(`${m165fCss}\n${todayCss}`.includes(token),`Experience/Trip token missing: ${token}`);
 assert.ok(m165fCss.includes("url('../luvia-logo.svg')"),'central Compass must use the official replaceable root brand asset');

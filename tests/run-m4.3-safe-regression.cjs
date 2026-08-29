@@ -494,6 +494,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-local-first-boot-today.test.cjs'
   },
   {
+    category: 'M16.5 / Verified Booking Route Gate',
+    test: 'tests/m16.5ab-booking-route-gate.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

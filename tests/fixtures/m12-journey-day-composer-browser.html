@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="../../">
   <title>M12 Journey Day Composer Browser Fixture</title>
   <link rel="stylesheet" href="../../core/experience/experience-foundation.css">
   <link rel="stylesheet" href="../../app/journey/journey-day-composer.css">
+  <link rel="stylesheet" href="../../core/booking/booking-ui.css">
   <style>
     :root{--lv-text:#263f54;--lv-muted:#687b8c;--lv-line:#dfe6ea}
     *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f6f3f1,#edf4f5);font-family:Manrope,system-ui,sans-serif;color:var(--lv-text)}
@@ -30,13 +32,44 @@
       globalThis.LuviaTripContractV1={getActiveTrip:()=>({id:'trip-paris',title:'Paris zu zweit',destination:{name:'Paris'},startDate:'2026-08-24',endDate:'2026-08-27'})};
       globalThis.LuviaExperienceContractV1={contractId:'experience.v1'};
       globalThis.LuviaGlobalContracts={register:()=>{}};
-      globalThis.LuviaUI={mount:options=>{const overlay=document.createElement('div');overlay.className='fixture-overlay '+(options.className||'');overlay.append(options.content);document.body.append(overlay);const handle={id:'fixture-overlay',overlay,close:()=>{overlay.remove();options.onClose?.();return true}};overlay.addEventListener('click',event=>{if(event.target===overlay)handle.close()});overlay.querySelector(options.closeSelector)?.addEventListener('click',()=>handle.close());return handle}};
+      const suggestions=[
+        {id:'fixture-garden',providerPlaceId:'fixture-garden',name:'Jardin du Luxembourg',primaryType:'park',formattedAddress:'75006 Paris, Frankreich',rating:4.7,userRatingCount:118000,aiReasons:['Ruhiger Außenmoment zwischen euren bestätigten Stationen.'],image:{url:'assets/public-landing/travel-lisbon.webp'}},
+        {id:'fixture-museum',providerPlaceId:'fixture-museum',name:'Musée de la Vie Romantique',primaryType:'museum',formattedAddress:'16 Rue Chaptal, Paris',rating:4.6,userRatingCount:5600,aiReasons:['Kultur und gemeinsame Zeit ergänzen euren Tag ohne Dopplung.'],image:{url:'assets/public-landing/book-city-night.jpg'}},
+        {id:'fixture-cafe',providerPlaceId:'fixture-cafe',name:'Café de Flore',primaryType:'cafe',formattedAddress:'172 Boulevard Saint-Germain, Paris',rating:4.1,userRatingCount:29000,aiReasons:['Ein Genussmoment, weil im gewählten Zeitfenster noch keine Mahlzeit liegt.'],image:{url:'assets/public-landing/prototype-harbor-lunch.png'}}
+      ];
+      globalThis.__journeySuggestionReceipts=[];
+      globalThis.__journeyBookingReceipts=[];
+      globalThis.__fixtureBookingRouteMode=new URL(location.href).searchParams.get('bookingRoute')||'email';
+      globalThis.LuviaOwnerFlowNavigationV1={
+        reserveBookingHandoff:()=>({closed:false,close(){this.closed=true}}),
+        openBooking:(url)=>{globalThis.__journeyBookingReceipts.push({kind:'provider-open',url});return true}
+      };
+      globalThis.LuviaBooking={
+        init:async()=>({ready:true}),
+        resolvePlaceRoute:async place=>{
+          globalThis.__journeyBookingReceipts.push({kind:'route-resolve',place});
+          if(globalThis.__fixtureBookingRouteMode==='provider')return{resolved:true,channel:'external_link',provider:'thefork',value:'https://www.thefork.de/',reason:'VERIFIED_BOOKING_ROUTE',resolverVersion:'fixture'};
+          if(globalThis.__fixtureBookingRouteMode==='email')return{resolved:true,channel:'email',provider:'official_website',value:'reservierung@cafe.example',reason:'VERIFIED_EMAIL_FALLBACK',resolverVersion:'fixture'};
+          return{resolved:false,channel:null,provider:null,value:null,reason:'NO_VERIFIED_ROUTE',resolverVersion:'fixture'};
+        },
+        recordPlaceHandoff:async(place,route)=>{globalThis.__journeyBookingReceipts.push({kind:'provider-handoff',place,route});return{ok:true}},
+        createForPlace:async input=>{globalThis.__journeyBookingReceipts.push({kind:'email-create',input});return{id:'fixture-booking',contact:{email:'reservierung@cafe.example'}}},
+        sendEmail:async(bookingId,input)=>{globalThis.__journeyBookingReceipts.push({kind:'email-send',bookingId,input});return{ok:true}}
+      };
+      globalThis.LuviaPlacesContractV1={reads:{recommend:async()=>({places:suggestions,plan:{ai:{fallback:false}}}),getCard:async id=>({place:suggestions.find(item=>item.providerPlaceId===id),image:suggestions.find(item=>item.providerPlaceId===id)?.image})},commands:{importPlace:async id=>({id,providerPlaceId:id,tripPlaceId:`trip-${id}`}),plan:async input=>{globalThis.__journeySuggestionReceipts.push(input);return{ok:true,action:'plan',...input}},updateLifecycle:async()=>({ok:true})}};
+      globalThis.LuviaTripPreferenceContextV1={snapshot:()=>({trip:globalThis.LuviaTripContractV1.getActiveTrip(),profilePreferences:{travelPace:'relaxed',travelInterests:['culture']},tripComposition:{feelings:['curious','together']},resolution:{summary:{tripFeelings:['Neugier','Zeit füreinander'],profileHighlights:['Kultur']}}}),dayGuidance:graph=>({suggestion:{kind:'draft-place-discovery',requiresConfirmation:true,targetDate:graph.currentDay?.date||graph.days?.[0]?.date,startAt:graph.currentDay?.openGaps?.[0]?.startAt||graph.days?.[0]?.openGaps?.[0]?.startAt,query:'Ein passender gemeinsamer Reisemoment',reasons:['Neugier','Zeit füreinander']}})};
+      globalThis.LuviaApp={show:view=>{globalThis.__lastFixtureView=view}};
     })();
   </script>
+  <script src="../../core/runtime/overlay-host-contract-core.js"></script>
+  <script src="../../core/ui/ui-manager.js"></script>
   <script src="../../core/platform/journey-contract-adapter.js"></script>
+  <script src="../../core/booking/booking-ui.js"></script>
+  <script src="../../core/platform/booking-contract-adapter.js"></script>
+  <script src="../../app/journey/journey-suggestion-sheet.js"></script>
   <script src="../../app/journey/journey-day-composer.js"></script>
   <script>
-    (()=>{const root=document.querySelector('[data-fixture-root]'),trip=globalThis.LuviaTripContractV1.getActiveTrip();root.innerHTML=globalThis.LuviaJourneyDayComposer.renderCalendar(trip);globalThis.LuviaJourneyDayComposer.bindCalendar(root)})();
+    (()=>{const root=document.querySelector('[data-fixture-root]'),trip=globalThis.LuviaTripContractV1.getActiveTrip(),surface=new URL(location.href).searchParams.get('surface');root.innerHTML=surface==='timeline'?globalThis.LuviaJourneyDayComposer.renderTimeline(trip):globalThis.LuviaJourneyDayComposer.renderCalendar(trip);surface==='timeline'?globalThis.LuviaJourneyDayComposer.bindTimeline(root):globalThis.LuviaJourneyDayComposer.bindCalendar(root)})();
   </script>
 </body>
 </html>

@@ -9,6 +9,8 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n?/g,'
 const boot=read('core/runtime/boot-coordinator.js');
 const profile=read('core/profiles/profile-service.js');
 const today=read('app/today/today-experience.js');
+const suggestions=read('app/journey/journey-suggestion-sheet.js');
+const placesDiscovery=read('app/adapters/places-discovery-adapter.js');
 const shellCss=read('app/app-shell.css');
 const appShell=read('app/app-shell.js');
 const placesContract=read('core/platform/places-contract-adapter.js');
@@ -44,11 +46,14 @@ assert.match(today,/semantic-fallback/,'Today must retain an explicit semantic f
 assert.match(today,/data-today-photo-credit/,'destination photography must keep visible source attribution');
 assert.match(today,/data-trip-switch-open/,'Today must expose the app-wide active-trip switcher');
 assert.match(today,/lvt-ai-slider/,'multiple verified OpenAI planning ideas need a horizontal slider');
-assert.match(today,/LuviaAI\.run\('discovery\.plan'/,'Today planning cards must come from the OpenAI discovery planning capability');
-assert.match(today,/planning\?\.meta\?\.fallback\)ideas=ideas\.slice\(0,1\)/,'fallback guidance must never masquerade as multiple AI proposals');
-assert.match(today,/höchstens 48 Zeichen/,'OpenAI planning must be prompted for short natural card titles');
+assert.match(today,/window\.LuviaJourneySuggestions/,'Today must consume the shared Journey suggestion owner instead of owning Places or AI directly');
+assert.match(suggestions,/api\?\.reads\?\.recommend/,'Journey suggestions must request factual candidates through places.v1');
+assert.match(suggestions,/successful\.some\(item=>item\?\.aiMeta\?\.ranking\?\.used\)/,'Journey suggestions must retain explicit AI-ranking provenance');
+assert.match(placesDiscovery,/window\.LuviaAI\.interpretDiscovery/,'Places discovery must use the OpenAI discovery planning capability');
+assert.match(placesDiscovery,/window\.LuviaAI\.rankCandidates/,'Places discovery must AI-rank only factual provider candidates');
+assert.match(suggestions,/fallback:successful\.every/,'fallback guidance must remain explicitly distinguishable from OpenAI-ranked proposals');
 assert.match(today,/function ideaTitle\(/,'Today must defensively turn provider search queries into readable card titles');
-assert.match(today,/lvt-guidance-mark/,'Today must quote the Living Compass without duplicating a full-size navigation Compass');
+assert.match(today,/todayCompass\('lvt-intelligence-compass'\)/,'Today must quote the Living Compass only inside Luvia intelligence without duplicating the navigation Compass');
 assert.match(placesContract,/transient:true/,'Google Places photo projections must stay explicitly transient');
 assert.match(placesContract,/attributionUrl/,'Places photo projections must expose owner attribution links');
 assert.match(appShell,/class="lv-living-new-trip"[^>]*data-create/,'signed-in app header must expose one shared new-trip entry');
