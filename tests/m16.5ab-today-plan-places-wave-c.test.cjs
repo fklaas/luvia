@@ -77,6 +77,7 @@ assert.doesNotMatch(journeyComposer,/show\?\.\('places'/,'Timeline may no longer
 assert.match(suggestionSheet,/reads\?\.recommend|reads\.recommend/,'the suggestion sheet must ask Places for real provider candidates');
 for(const category of ['nature','culture','activities','food'])assert.match(suggestionSheet,new RegExp(`${category}:1`),`the shared suggestion owner must search the ${category} category instead of collapsing everything into restaurants`);
 assert.match(suggestionSheet,/if\(diversified\.length<3\)/,'a sheet promising three choices must reject an incomplete one-card result');
+assert.match(suggestionSheet,/if\(selected\.length>=3\)return selected\.slice\(0,3\)/,'diverse category searches must still render exactly three choices');
 assert.match(suggestionSheet,/diversified\.map\(enrich\)/,'exactly the diversified three candidates must be enriched and rendered');
 assert.match(suggestionSheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'only gastronomic proposals may expose the Booking Core handoff');
 assert.match(suggestionSheet,/commands\.importPlace/,'confirmed suggestions must cross the public Places import command');

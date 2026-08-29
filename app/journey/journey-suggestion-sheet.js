@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const cache=new Map();
 let activeHandle=null;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -111,8 +111,9 @@ async function enrich(place){
 function diversify(rows=[]){
   const selected=[],groups=new Set(),seen=new Set();
   for(const row of rows){const id=providerId(row);if(!id||seen.has(id))continue;seen.add(id);const group=categoryGroup(row);if(groups.has(group))continue;groups.add(group);selected.push(row);if(selected.length===3)break}
-  for(const row of rows){const id=providerId(row);if(!id||selected.some(item=>providerId(item)===id))continue;selected.push(row);if(selected.length===3)break}
-  return selected;
+  if(selected.length>=3)return selected.slice(0,3);
+  for(const row of rows){const id=providerId(row);if(!id||selected.some(item=>providerId(item)===id))continue;selected.push(row);if(selected.length>=3)break}
+  return selected.slice(0,3);
 }
 async function load(rawInput={},options={}){
   const input=currentInput(rawInput),key=cacheKey(input),existing=cache.get(key);

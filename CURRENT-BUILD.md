@@ -20,8 +20,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.112**
-- Core: **4.82.112**
+- App: **13.82.113**
+- Core: **4.82.113**
 - Name: **M16.5AB Journey Suggestion Integrity**
 - Channel: **integration-preview**
 - Datum: **2026-08-29**
