@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.2.0';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -50,9 +50,10 @@ function contractError(code,message,extra={}){const error=new Error(message);err
 
 const ACTIONS=Object.freeze([
   {id:'places.restaurant.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Restaurants finden',description:'Findet und ordnet echte Restaurantkandidaten im aktiven Reisekontext.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort.'},
+  {id:'places.discovery.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Passende Orte finden',description:'Findet kategorienübergreifend echte Places-Kandidaten und lässt sie im Reisekontext persönlich ordnen.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort und löst keine Buchung aus.'},
   {id:'places.place.favorite',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.favorite',effect:'WRITE',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.unfavorite',permissions:['places.write'],label:'Als Favorit merken',description:'Delegiert das Merken eines Orts an den Places Owner.',consequence:'Der Ort erscheint als Favorit der aktiven Reise.'},
   {id:'places.place.unfavorite',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.unfavorite',effect:'WRITE',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.favorite',permissions:['places.write'],label:'Favorit entfernen',description:'Entfernt einen Favoriten ausschließlich über Places v1.',consequence:'Der Ort bleibt erhalten, wird aber nicht mehr als Favorit geführt.'},
-  {id:'places.place.plan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.plan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.unplan',permissions:['places.write','trip.member'],label:'Zur Reise planen',description:'Delegiert die Place-Planung an den Places Owner.',consequence:'Der Ort wird in die Planung der aktiven Reise aufgenommen.'},
+  {id:'places.place.plan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.plan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.unplan',permissions:['places.write','trip.member'],label:'Zur Timeline hinzufügen',description:'Delegiert die Place-Auswahl an den Places Owner und die Zeitplanung anschließend an Journey.',consequence:'Der bestätigte Ort wird als Reisemoment in die Timeline der aktiven Reise aufgenommen.'},
   {id:'places.place.unplan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.unplan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.plan',permissions:['places.write','trip.member'],label:'Aus Planung entfernen',description:'Entfernt die Place-Planung ausschließlich über Places v1.',consequence:'Der Ort bleibt gespeichert, wird aber aus der Reiseplanung entfernt.'},
   {id:'booking.restaurant.open',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.openPlaceBooking',effect:'EXTERNAL',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['booking.read'],label:'Reservieren',description:'Öffnet den bestehenden Booking-Owner-Flow für das Restaurant.',consequence:'Öffnet die Booking-Oberfläche; sendet noch keine Reservierung.'},
   {id:'booking.trip.read',owner:'booking',ownerContract:'booking.v1',ownerMethod:'reads.listForTrip',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'booking_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['booking.read'],label:'Buchungen zeigen',description:'Liest Buchungen der aktiven Reise ausschließlich über Booking v1.',consequence:'Zeigt Booking-Projektionen ohne Provideraktion.'},
@@ -207,17 +208,29 @@ function createCapabilitySnapshot(availability={}){
   });
   return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,count:actions.length,available:actions.filter(action=>action.available).length,actions});
 }
-function routeIntent(message=''){
+function routeIntents(message=''){
   const request=text(message);if(!request)return null;
-  if(/\b(buchung(?:en)?|reservierung(?:en)?|stornier\w*|umbuch\w*|booking)\b/i.test(request)&&!/\b(restaurant|restaurants|essen|abendessen|mittagessen|frühstück|café|cafe|bistro|pizzeria|pizza|sushi)\b/i.test(request))return immutable({actionId:'booking.trip.read',input:{query:request,intent:/stornier/i.test(request)?'cancel':/umbuch|änder/i.test(request)?'modify':'list'}});
-  if(/\b(meine\s+reisen|reisen\s+zeigen|reise\s+wechseln|wechs(?:le|eln?)\s+(?:die|zur)\s+reise|aktive\s+reise)\b/i.test(request))return immutable({actionId:'trip.active.list',input:{query:request}});
-  if(/\b(erinnerung(?:en)?|reisegeschicht(?:e|en)|story|stories|album|alben)\b/i.test(request))return immutable({actionId:'memory.library.read',input:{query:request}});
-  if(/\b(vorlieb(?:e|en)|präferenz(?:en)?|reisesti(?:l|le)|interessen)\b/i.test(request))return immutable({actionId:'identity.preferences.read',input:{query:request}});
-  if(/\b(restaurant|restaurants|essen|abendessen|mittagessen|frühstück|café|cafe|bistro|pizzeria|pizza|sushi|tisch|reservier\w*)\b/i.test(request))return immutable({actionId:'places.restaurant.recommend',input:{query:request,category:'food',limit:4}});
-  if(/\b(tagesplan|tag\s+planen|plan(?:e|t|en)?\b.{0,64}\btag|heute\s+(?:machen|unternehmen)|vorschl\w*\s+(?:für\s+)?(?:den\s+)?tag)\b/i.test(request))return immutable({actionId:'journey.day.read',input:{query:request}});
-  return null;
+  const routes=[],push=(actionId,input={})=>{if(!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:request,...input}})};
+  const food=/\b(restaurant|restaurants|essen|abendessen|mittagessen|frühstück|café|cafe|bistro|pizzeria|pizza|sushi|tisch|kulinar\w*|genuss)\b/i.test(request);
+  const categories=[];
+  if(food)categories.push('food');
+  if(/\b(strand|meer|natur|park|garten|wandern|erholung|draußen)\b/i.test(request))categories.push('nature');
+  if(/\b(museum|kultur|geschichte|galerie|theater|konzert|sehenswürdig\w*|attraktion)\b/i.test(request))categories.push('culture');
+  if(/\b(aktivität|aktivitaet|erlebnis|schwimmbad|zoo|aquarium|sport|abenteuer)\b/i.test(request))categories.push('activities');
+  if(/\b(shopping|einkaufen|markt|boutique|geschäft)\b/i.test(request))categories.push('shopping');
+  if(/\b(nachtleben|club|bar|tanzen|live.?musik)\b/i.test(request))categories.push('nightlife');
+  if(/\b(buchung(?:en)?|reservierung(?:en)?|stornier\w*|umbuch\w*|booking)\b/i.test(request))push('booking.trip.read',{intent:/stornier/i.test(request)?'cancel':/umbuch|änder/i.test(request)?'modify':'list'});
+  if(/\b(meine\s+reisen|reisen\s+zeigen|reise\s+wechseln|wechs(?:le|eln?)\s+(?:die|zur)\s+reise|aktive\s+reise)\b/i.test(request))push('trip.active.list');
+  if(/\b(erinnerung(?:en)?|reisegeschicht(?:e|en)|story|stories|album|alben)\b/i.test(request))push('memory.library.read');
+  if(/\b(vorlieb(?:e|en)|präferenz(?:en)?|reisesti(?:l|le)|interessen)\b/i.test(request))push('identity.preferences.read');
+  if(categories.length)push(categories.length===1&&categories[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:categories[0]||'places',categories:[...new Set(categories)],limit:Math.min(8,Math.max(4,categories.length*2))});
+  if(/\b(tagesplan|timeline|tag\s+planen|plan(?:e|t|en)?\b.{0,64}\btag|heute\s+(?:machen|unternehmen)|vorschl\w*\s+(?:für\s+)?(?:den\s+)?tag|\b(?:um|gegen)\s+\d{1,2}(?::\d{2})?\s*uhr)\b/i.test(request))push('journey.day.read');
+  return immutable(routes);
+}
+function routeIntent(message=''){
+  return routeIntents(message)?.[0]||null;
 }
 function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'risk-class-plus-direct-user-gesture-or-explicit-confirmation-plus-owner-command',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-r2-r3-owner-mutations',unknownExternalOutcome:'owner-reconciliation-before-retry',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizePlace,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,policySnapshot});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizePlace,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
 })();

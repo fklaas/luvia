@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const TAGS=Object.freeze({
@@ -154,7 +154,74 @@ function matchesTag(place,tag){
   if(tag==='accessible'&&(features.wheelchairAccessible===true||place.accessibilityOptions?.wheelchairAccessibleEntrance===true))return true;
   return Boolean(TAGS[tag]?.test(hay));
 }
-function rankCandidate(place,resolution,index=0){
+function clamp(value,min=0,max=1){return Math.max(min,Math.min(max,Number(value)||0))}
+function signalWeights(signals=[]){
+  const weights={};
+  for(const item of signals||[])for(const [key,value] of Object.entries(item?.weights||{}))addWeight(weights,key,value);
+  return weights;
+}
+function weightedMatch(place,weights={}){
+  const positive=Object.entries(weights).filter(([,weight])=>Number(weight)>0),maximum=positive.reduce((sum,[,weight])=>sum+Number(weight),0);
+  if(!maximum)return null;
+  let earned=0;
+  for(const [tag,weight] of positive)if(matchesTag(place,tag))earned+=Number(weight);
+  for(const [tag,weight] of Object.entries(weights).filter(([,value])=>Number(value)<0))if(matchesTag(place,tag))earned+=Number(weight);
+  return clamp(earned/maximum);
+}
+function hardConstraintMatch(place,constraints=[]){
+  let confirmed=0,unknown=0,applicable=0,conflict=false;
+  for(const constraint of constraints){
+    const proof=evidence(place,constraint);
+    if(proof.state==='not-applicable')continue;
+    applicable+=1;
+    if(proof.state==='confirmed')confirmed+=1;
+    else if(proof.state==='unknown')unknown+=1;
+    else if(proof.state==='conflict')conflict=true;
+  }
+  return{available:applicable>0,ratio:applicable?clamp((confirmed+unknown*.25)/applicable):null,confirmed,unknown,applicable,conflict};
+}
+function placeCategory(place={}){
+  const value=textOf(place);
+  if(FOOD.test(value))return'food';
+  if(TAGS.culture.test(value))return'culture';
+  if(TAGS.nature.test(value))return'nature';
+  if(TAGS.active.test(value))return'activities';
+  if(TAGS.nightlife.test(value))return'nightlife';
+  if(/shop|store|shopping|mall/.test(value))return'shopping';
+  return'places';
+}
+function contextMatch(place,input={}){
+  const moment=input?.momentContext||{},hour=new Date(moment.startAt||input?.startAt||'').getHours(),category=placeCategory(place),targetDate=String(moment.targetDate||moment.startAt||input?.startAt||'').slice(0,10),today=new Date().toISOString().slice(0,10),sameDay=targetDate===today,openNow=sameDay?(place?.openNow??place?.currentOpeningHours?.openNow):null,weather=sameDay?(moment.weather||input?.weather||{}):{},weatherCode=Number(weather.weatherCode??weather.code),rain=Number(weather.precipitationProbability??weather.rainProbability),outdoor=['nature','activities'].includes(category);
+  if(!Number.isFinite(hour))return null;
+  let ratio=category==='food'?(hour>=7&&hour<=22?1:.35):category==='nightlife'?(hour>=18||hour<3?1:.25):outdoor?(hour>=7&&hour<=19?1:.4):.8;
+  if(openNow===false)ratio*=.35;
+  if(outdoor&&((Number.isFinite(rain)&&rain>=65)||(Number.isFinite(weatherCode)&&weatherCode>=51)))ratio*=.45;
+  return clamp(ratio);
+}
+function distanceMatch(place){
+  const meters=Number(place?.distanceMeters);
+  if(!Number.isFinite(meters)||meters<0)return null;
+  if(meters<=1000)return 1;if(meters<=3000)return .82;if(meters<=7000)return .58;if(meters<=15000)return .3;return .08;
+}
+function dayComplementMatch(place,input={}){
+  const entries=input?.day?.entries||input?.dayEntries||input?.momentContext?.dayEntries;
+  if(!Array.isArray(entries))return null;
+  const category=placeCategory(place),used=entries.some(entry=>placeCategory(entry)===category);
+  return used ? .35 : 1;
+}
+function fitScore(place,resolution,input={}){
+  const dimensions=[],add=(id,label,weight,ratio,source)=>{if(ratio==null||!Number.isFinite(Number(ratio)))return;dimensions.push({id,label,weight,ratio:clamp(ratio),points:Math.round(weight*clamp(ratio)*10)/10,source})};
+  const hard=hardConstraintMatch(place,resolution.hardConstraints||[]);
+  add('interests','Profilvorlieben',30,weightedMatch(place,signalWeights(resolution.profileSignals)),'identity.v1 + places.v1');
+  if(hard.available)add('requirements','Verbindliche Anforderungen',25,hard.ratio,'identity.v1 + places.v1');
+  add('trip','Reisegefühl',15,weightedMatch(place,signalWeights(resolution.tripSignals)),'trip.v1 + places.v1');
+  add('day','Tagesbalance',12,dayComplementMatch(place,input),'journey.v1 + places.v1');
+  add('distance','Entfernung',10,distanceMatch(place),'places.v1');
+  add('context','Zeit und Öffnung',8,contextMatch(place,input),'journey.v1 + places.v1');
+  const availableWeight=dimensions.reduce((sum,item)=>sum+item.weight,0),earned=dimensions.reduce((sum,item)=>sum+item.points,0),coverage=Math.round(availableWeight),score=availableWeight>=25?Math.round(clamp(earned/availableWeight)*100):null;
+  return{score,coverage,earned:Math.round(earned*10)/10,availableWeight,eligible:!hard.conflict,dimensions,formula:'Profil 30 · Anforderungen 25 · Reisegefühl 15 · Tagesbalance 12 · Entfernung 10 · Zeit/Wetter/Öffnung 8',hardConstraints:hard,deterministic:true,aiScoreUsed:false};
+}
+function rankCandidate(place,resolution,index=0,input={}){
   const reasons=[],warnings=[],matched=[];let eligible=true,delta=0;
   for(const constraint of resolution.hardConstraints||[]){
     const proof=evidence(place,constraint);
@@ -168,12 +235,12 @@ function rankCandidate(place,resolution,index=0){
     if(weight>0)reasons.push(`Passt zu eurem Schwerpunkt auf ${LABELS[tag]||tag}.`);
   }
   delta=Math.max(-30,Math.min(40,Math.round(delta)));
-  const base=Number(place.aiMatchScore??place.discoveryScore??place.matchScore??0)||0;
-  return{place:{...clone(place),preferenceScore:base+delta,preferenceScoreDelta:delta,preferenceReasons:[...new Set(reasons)].slice(0,5),preferenceWarnings:[...new Set(warnings)].slice(0,4),preferenceConstraintState:eligible?(warnings.length?'verify':'satisfied'):'blocked',preferenceMatchedSignals:[...new Set(matched)],preferenceResolutionVersion:VERSION},eligible,index};
+  const fit=fitScore(place,resolution,input);eligible=eligible&&fit.eligible;
+  return{place:{...clone(place),preferenceScore:fit.score??delta,preferenceFit:fit,preferenceScoreDelta:delta,preferenceReasons:[...new Set(reasons)].slice(0,5),preferenceWarnings:[...new Set(warnings)].slice(0,4),preferenceConstraintState:eligible?(warnings.length?'verify':'satisfied'):'blocked',preferenceMatchedSignals:[...new Set(matched)],preferenceResolutionVersion:VERSION},eligible,index};
 }
 function rankPlaces(input={}){
   const resolution=input.resolution?.kind==='derived-trip-preference-resolution'?input.resolution:resolve(input);
-  const evaluated=(Array.isArray(input.candidates)?input.candidates:[]).map((place,index)=>rankCandidate(place,resolution,index));
+  const evaluated=(Array.isArray(input.candidates)?input.candidates:[]).map((place,index)=>rankCandidate(place,resolution,index,input));
   const blocked=evaluated.filter(item=>!item.eligible);
   const places=evaluated.filter(item=>item.eligible).sort((left,right)=>Number(right.place.preferenceScore)-Number(left.place.preferenceScore)||left.index-right.index).map(item=>item.place);
   return immutable({version:VERSION,owner:'intelligence',resolution,places,meta:{candidateCount:evaluated.length,eligibleCount:places.length,blockedCount:blocked.length,blockedProviderPlaceIds:blocked.map(item=>idOf(item.place)).filter(Boolean),deterministic:true,providerFactsPreserved:true}});
@@ -193,10 +260,10 @@ function composeDayGuidance(input={}){
     version:VERSION,owner:'intelligence',kind:'derived-trip-day-guidance',persisted:false,
     day:day?{date:day.date,status:day.status}:null,openGap,
     policy:{minimumGapMinutes,pace:(resolution.weights?.quiet||0)>=(resolution.weights?.active||0)?'ruhig':'lebendig',maximumSuggestions:3},
-    suggestion:openGap?{kind:'draft-place-discovery',requiresConfirmation:true,route:'places',label:'Passenden Ort entdecken',query,targetDate:day.date,startAt:openGap.startAt,endAt:openGap.endAt,reasons:[feelings.length?`Das Reisegefühl „${feelings.join(' · ')}“ gewichtet diesen Vorschlag.`:'Eure globalen Vorlieben bilden die Basis.',labels.length?`Besonders berücksichtigt: ${labels.join(', ')}.`:'Der Vorschlag bleibt bewusst offen.',`Im Tagesbogen sind ${openGap.durationMinutes} Minuten frei.`]}:null,
+    suggestion:openGap?{kind:'draft-place-discovery',requiresConfirmation:true,route:'places',label:'Passende Möglichkeiten entdecken',query,targetDate:day.date,startAt:openGap.startAt,endAt:openGap.endAt,reasons:[feelings.length?`Das Reisegefühl „${feelings.join(' · ')}“ gewichtet diesen Vorschlag.`:'Eure globalen Vorlieben bilden die Basis.',labels.length?`Besonders berücksichtigt: ${labels.join(', ')}.`:'Der Vorschlag bleibt bewusst offen.',`In der Timeline sind ${openGap.durationMinutes} Minuten frei.`]}:null,
     provenance:{profile:'identity.v1',trip:'trip.v1',dayGraph:'journey.v1',mutation:false}
   });
 }
 
-return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile});
+return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore});
 })();

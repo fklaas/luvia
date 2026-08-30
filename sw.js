@@ -1,5 +1,5 @@
-const BUILD='13.82.114';
-const CACHE='luvia-shell-v13.82.114';
+const BUILD='13.82.116';
+const CACHE='luvia-shell-v13.82.116';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -33,6 +33,10 @@ const APP_SHELL=['','index.html','offline.html','manifest.webmanifest','icon-192
 
 APP_SHELL.push(scoped('app/adapters/trip-preference-context-adapter.js'));
 APP_SHELL.push(scoped('intelligence/kernel/version.js'));
+APP_SHELL.push(scoped('app/booking/booking-management-sheet.css'));
+APP_SHELL.push(scoped('app/booking/booking-management-sheet.js'));
+APP_SHELL.push(scoped('app/journey/journey-offline-pack.js'));
+APP_SHELL.push(scoped('app/collaboration/journey-place-proposals.js'));
 const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));
 let warmShellPromise=null;

@@ -16,7 +16,7 @@ vm.createContext(context);vm.runInContext(source,context,{filename:path});
 const core=context.LuviaIntelligenceActionContractCoreV1;
 const actions=core.listActions();
 
-assert.equal(actions.length,19);
+assert.equal(actions.length,20);
 assert.deepEqual([...new Set(actions.map(action=>action.owner))].sort(),['booking','identity','journey','memory','places','trip']);
 for(const action of actions){
   assert.ok(/^R[0-3]$/.test(action.risk),`${action.id} risk must be R0-R3`);
@@ -48,7 +48,7 @@ assert.equal(confirmation.meta.requiresConfirmation,true);
 assert.equal('token' in confirmation.evidence.preview,false);
 
 const capability=core.createCapabilitySnapshot({'trip.v1':true,'places.v1':true,'booking.v1':{available:false,reason:'provider-offline'},'journey.v1':true,'memory.v1':true,'identity.v1':true});
-assert.equal(capability.count,19);
+assert.equal(capability.count,20);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').available,false);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').reason,'provider-offline');
 assert.equal(capability.actions.find(action=>action.actionId==='trip.active.list').available,true);
@@ -70,6 +70,6 @@ assert.equal(core.policySnapshot().explicitConfirmation,'natural-language-alone-
 assert.equal(core.policySnapshot().foreignDomainMutation,false);
 
 console.log('M16.2 Intelligence Action Capability Policy: PASS');
-console.log('Registered actions / owners: 19 / 6');
+console.log('Registered actions / owners: 20 / 6');
 console.log('R0-R3 confirmation and idempotency matrix: PASS');
 console.log('R4 authority / foreign Domain mutation: NONE');

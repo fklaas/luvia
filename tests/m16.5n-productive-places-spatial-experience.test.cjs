@@ -43,7 +43,7 @@ assert.equal(core.maxResults,18);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
-  runtimeVersion:'1.0.0',
+  runtimeVersion:'1.1.0',
   sourceContract:'places.v1',
   browserless:true,
   deterministic:true,
@@ -188,7 +188,7 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
   assert.ok(experience.includes(required),`productive Places Experience is missing public projection ${required}`);
 }
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
-assert.match(experience,/\.(?:getCard|getDetails)\(/,'place media/detail enrichment must use a public places.v1 read');
+assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
 for(const forbidden of [
   'LuviaPlaceCore','LuviaPlaceEntities','LuviaPlacesDomainContractCoreV1','LuviaPlaceDetails',
   'LuviaBookingUI','LuviaBookingCore','LuviaTripContext','LuviaTripStore','LuviaSupabaseService',
@@ -198,21 +198,12 @@ assert.match(experience,/LuviaPlatformPorts/);
 assert.match(experience,/NetworkPort/);
 assert.match(experience,/ExternalNavigationPort/);
 assert.doesNotMatch(experience,/href="\$\{esc\(value\.website\)\}"/,'external Place URLs may not become native navigation targets that bypass ExternalNavigationPort');
-assert.match(experience,/data-places-external="\$\{esc\(value\.website\)\}"/,'public Place website projections must remain data-only until the navigation port handles them');
 assert.match(experience,/navigationPort\.open\(url\)/,'external Place websites must be opened by ExternalNavigationPort');
-assert.match(experience,/link\.addEventListener\('click',event=>\{event\.preventDefault\(\);openExternal\(link\.dataset\.placesExternal\)\}\)/,'external Place links must suppress native navigation before delegating to the platform port');
-
-assert.match(experience,/data-places-detail-region="\$\{esc\(id\)\}" aria-live="polite"/,'each result must own a stable live detail region outside full-surface rendering');
-assert.match(experience,/function renderDetail\(id\)/,'detail state must have a card-local renderer');
-const detailStart=experience.indexOf('async function loadDetails');
-const detailEnd=experience.indexOf('function openMaps',detailStart);
-assert.notEqual(detailStart,-1,'Places detail loader missing');
-assert.notEqual(detailEnd,-1,'Places detail loader boundary missing');
-const detailScope=experience.slice(detailStart,detailEnd);
-assert.doesNotMatch(detailScope,/\brender\(\)/,'opening or resolving evidence must not rebuild the result rail and map');
-assert.match(detailScope,/select\(id,false,true\)/,'opening evidence must select the exact same Place and synchronize its map position');
-assert.match(detailScope,/state\.details\.get\(id\)!==pending/,'late detail completion must not reopen a closed or superseded detail');
-assert.match(detailScope,/lifecycleToken!==state\.lifecycleToken\|\|state\.root!==root/,'late detail completion must not mutate an unmounted Places surface');
+assert.match(experience,/data-compact-place-card/,'Places results must use the compact new-shell card contract');
+assert.match(experience,/function matchLabel\(place\)/,'compact cards must expose the personal ranking when available');
+assert.match(experience,/function distanceLabel\(value\)/,'compact cards must expose useful distance facts');
+assert.match(experience,/openResultSheet\(\[findPlace\(button\.dataset\.placesPlan\)\]/,'adding a search result must use the shared Journey result sheet');
+for(const removed of ['Details &amp; Evidenz','data-places-detail=','data-places-detail-region=','function detailMarkup','async function loadDetails'])assert.equal(experience.includes(removed),false,`old Places detail/evidence UI re-entered the new shell: ${removed}`);
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');

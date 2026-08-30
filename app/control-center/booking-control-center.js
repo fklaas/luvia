@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const VERSION='2.2.0';
-let target=null,selectedTripId=null,selectedBookingId=null,rows=[],timeline=[],loading=false,timelineLoading=false,error=null,unsubscribeTrip=null,actionMode=null,actionBusy=false,actionStatus='',actionBlocked=false,actionDraft=null,actionOverlay=null,actionOverlayKey='',actionOverlaySync=false;
+let target=null,selectedTripId=null,selectedBookingId=null,rows=[],timeline=[],loading=false,timelineLoading=false,error=null,unsubscribeTrip=null,actionMode=null,actionBusy=false,actionStatus='',actionBlocked=false,actionDraft=null,actionOverlay=null,actionOverlayKey='',actionOverlaySync=false,pendingOpen=null;
 const isMobile=()=>Boolean(window.matchMedia?.('(max-width: 780px)')?.matches);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=v=>String(v??'').trim();
@@ -62,7 +62,15 @@ function render(){
  syncActionOverlay(selected());
 }
 async function loadTimeline(){timeline=[];if(!selectedBookingId){render();return}timelineLoading=true;render();try{const api=window.LuviaBookingIntegration||window.LuviaBooking;if(api?.bookingTimeline){const data=await api.bookingTimeline(selectedBookingId);timeline=Array.isArray(data?.items)?data.items:[]}}catch(e){console.warn('[Booking Control Center] Timeline',e)}finally{timelineLoading=false;render()}}
-async function load(){if(!target)return;loading=true;error=null;render();try{const id=selectedTripId||activeTripId();selectedTripId=id;if(!id){rows=[];selectedBookingId=null;return}const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.listForTrip)throw new Error('Booking Capability ist nicht verfügbar.');await api.init?.();rows=(await api.listForTrip(id)||[]).map(normalize);if(selectedBookingId&&!rows.some(r=>String(r.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&rows.length&&!isMobile())selectedBookingId=rows.find(r=>r._needsAttention)?.id||rows[0].id;}catch(e){error=e;rows=[];selectedBookingId=null;}finally{loading=false;render();if(selectedBookingId)loadTimeline()}}
+async function load(){if(!target)return;loading=true;error=null;render();try{const id=pendingOpen?.tripId||selectedTripId||activeTripId();selectedTripId=id;if(!id){rows=[];selectedBookingId=null;return}const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.listForTrip)throw new Error('Booking Capability ist nicht verfügbar.');await api.init?.();rows=(await api.listForTrip(id)||[]).map(normalize);if(pendingOpen?.bookingId&&rows.some(r=>String(r.id)===String(pendingOpen.bookingId)))selectedBookingId=pendingOpen.bookingId;if(selectedBookingId&&!rows.some(r=>String(r.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&rows.length&&!isMobile())selectedBookingId=rows.find(r=>r._needsAttention)?.id||rows[0].id;if(selectedBookingId&&pendingOpen?.action==='modify'){actionMode='modify';actionStatus='';actionBlocked=false;actionDraft={mode:'modify',...actionDefaults(selected(),'modify')}}else if(selectedBookingId&&pendingOpen?.action==='cancel'){actionMode='cancel';actionStatus='';actionBlocked=false;actionDraft={mode:'cancel',...actionDefaults(selected(),'cancel')}}pendingOpen=null;}catch(e){error=e;rows=[];selectedBookingId=null;pendingOpen=null;}finally{loading=false;render();if(selectedBookingId)loadTimeline()}}
+
+async function openBooking(bookingId,{action=null,tripId:id=null}={}){
+ const value=clean(bookingId);if(!value)throw new Error('Booking-ID fehlt.');
+ pendingOpen={bookingId:value,action:clean(action).toLowerCase(),tripId:clean(id)||activeTripId()};
+ if(target){selectedTripId=pendingOpen.tripId||selectedTripId;await load();return true}
+ window.LuviaApp?.show?.('control-center-bookings',{source:'timeline-booking-action'});
+ return true;
+}
 
 function mutationErrorText(error,mode){
  const raw=clean(error?.code||error?.message||error?.error?.code||error?.error?.message||error?.error||error);
@@ -91,5 +99,5 @@ function submit(e){const form=e.target.closest?.('[data-bcc-action-form]');if(!f
 async function mount(el){if(!el)throw new Error('Booking Control Center target required');target=el;selectedTripId=activeTripId();window.LuviaProductModuleRegistry?.mount?.('control-center',el,{surface:'booking-control-center'});target.addEventListener('click',click);target.addEventListener('change',change);target.addEventListener('submit',submit);unsubscribeTrip=tripContract()?.subscribe?.(snap=>{if(!target)return;const id=tripId(snap?.activeTrip)||snap?.context?.tripId||null;if(id&&String(selectedTripId)===String(activeTripId())){selectedTripId=id;load()}})||null;await load();return diagnostics()}
 function unmount(){closeActionOverlay('unmount');globalThis.document?.body?.classList.remove('luvia-booking-action-open');globalThis.document?.body?.classList.remove('luvia-booking-mobile-mutation-open');if(target){target.removeEventListener('click',click);target.removeEventListener('change',change);target.removeEventListener('submit',submit);window.LuviaProductModuleRegistry?.unmount?.('control-center',target,{surface:'booking-control-center'})}try{unsubscribeTrip?.()}catch{}unsubscribeTrip=null;target=null;rows=[];timeline=[];selectedTripId=null;selectedBookingId=null;loading=false;timelineLoading=false;error=null;actionMode=null;actionBusy=false;actionStatus='';actionBlocked=false;actionDraft=null;actionOverlayKey=''}
 function diagnostics(){return {version:VERSION,mounted:Boolean(target),selectedTripId,selectedBookingId,count:rows.length,summary:summary(),timelineCount:timeline.length,timelineSource:'booking-core',modifyCancel:true,evidenceDrivenFinalStatus:true,emailFallback:true,mobileBookingsFirst:true,mobileDetailNavigation:true,explicitMutationClick:true,mutationStateFallback:true,mobileActionSafeArea:true,mutationActionGuard:true,globalNavSuppressedDuringMutation:true,mobileMutationFullscreenSurface:true,mobileMutationNavUnmountedVisually:true,mutationThreadBootstrapAware:true,ownsBookingTruth:false,source:'booking-core',providerIndependent:true,loading,timelineLoading,actionMode,actionBusy,error:error?.message||null}}
-window.LuviaBookingControlCenter=Object.freeze({version:VERSION,mount,unmount,load,render,diagnostics});
+window.LuviaBookingControlCenter=Object.freeze({version:VERSION,mount,unmount,load,render,openBooking,diagnostics});
 })();

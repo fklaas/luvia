@@ -435,7 +435,7 @@ async function unlockWithTouch(page) {
     assert.equal(await page.locator('button[data-book-travel-theme]').count(), 16, 'the travel-theme picker is incomplete');
     await page.locator('input[data-book-text-input]').fill('Unser schönster Umweg');
     await page.locator('button[data-book-add-text]').click();
-    assert.equal(await page.locator('[data-book-added-text]').innerText(), 'Unser schönster Umweg', 'custom photo-book text was not added to the page');
+    assert.equal(await page.locator('[data-book-added-text]').evaluate(node => node.childNodes[0]?.textContent?.trim()), 'Unser schönster Umweg', 'custom photo-book text was not added to the page');
     assert.equal(await page.locator('[data-book-added-text]').isVisible(), true, 'added photo-book text is not visible');
     await page.locator('[data-book-added-text]').focus();
     await page.keyboard.press('Shift+ArrowRight');
@@ -455,11 +455,13 @@ async function unlockWithTouch(page) {
     await page.locator('[data-book-editor-tab="style"]').click();
     assert.equal(await page.locator('button[data-book-theme]').count(), 10, 'the professional page-design worlds are incomplete');
     await page.locator('button[data-book-theme="golden"]').click();
-    await page.locator('button[data-book-frame="print"]').click();
+    const styledBookPhoto = page.locator('[data-book-element-type="Foto"]').first();
+    await clickAtCenter(page, styledBookPhoto);
+    await page.locator('button[data-book-object-frame="print"]').click();
     await page.locator('button[data-book-focus="bottom"]').click();
     await page.locator('button[data-book-corners]').click();
     assert.equal(await page.locator('[data-book-spread]').getAttribute('data-book-theme'), 'golden');
-    assert.equal(await page.locator('[data-book-spread]').getAttribute('data-book-frame'), 'print');
+    assert.equal(await styledBookPhoto.getAttribute('data-book-object-frame'), 'print');
     assert.equal(await page.locator('[data-book-spread]').getAttribute('data-book-focus'), 'bottom');
     assert.equal(await page.locator('[data-book-spread]').getAttribute('data-book-corners'), 'graphic');
 
@@ -467,7 +469,7 @@ async function unlockWithTouch(page) {
     await page.locator('button[data-book-decor-add="heart"]').click();
     await page.locator('[data-book-shape-toggle]').click();
     await page.locator('[data-book-caption-toggle]').click();
-    assert.equal(await page.locator('[data-book-dynamic][data-book-decor-kind="heart"]').innerText(), '♡');
+    assert.equal(await page.locator('[data-book-dynamic][data-book-decor-kind="heart"]').evaluate(node => node.childNodes[0]?.textContent?.trim()), '♡');
     assert.equal(await page.locator('[data-book-dynamic][data-book-decor-kind="heart"]').isVisible(), true, 'decor layer was not placed visibly on the book page');
     assert.doesNotMatch(await page.locator('[data-book-spread]').getAttribute('class'), /is-shape-hidden/);
     assert.equal(await page.locator('[data-book-left-caption]').evaluate(node => getComputedStyle(node).visibility), 'hidden');

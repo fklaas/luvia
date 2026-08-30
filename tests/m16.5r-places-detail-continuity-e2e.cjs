@@ -28,7 +28,7 @@ function startStaticServer(){
 async function clickAtCenter(page,locator){
   const box=await locator.boundingBox();
   assert.ok(box,'real pointer target has no box');
-  await page.mouse.click(box.x+box.width/2,box.y+box.height/2);
+  await locator.tap({position:{x:box.width/2,y:box.height/2}});
 }
 
 (async()=>{
@@ -51,46 +51,39 @@ async function clickAtCenter(page,locator){
     const before=await rail.evaluate(node=>({left:node.scrollLeft,width:node.clientWidth,total:node.scrollWidth}));
     assert.ok(before.left>before.width,`fixture did not reach a later horizontal result: ${JSON.stringify(before)}`);
 
-    const detailButton=fourth.locator('[data-places-detail="place-4"]');
-    await clickAtCenter(page,detailButton);
-    await page.waitForFunction(()=>document.querySelector('[data-places-detail-region="place-4"] .lv-places-spatial__detail:not([role="status"])'));
+    const planButton=fourth.locator('[data-places-plan="place-4"]');
+    await clickAtCenter(page,planButton);
+    await page.waitForFunction(()=>document.querySelector('[data-journey-suggestion-sheet]'));
     const after=await page.evaluate(()=>{
       const rail=document.querySelector('.lv-places-spatial__result-list');
-      const button=document.querySelector('[data-places-detail="place-4"]');
       const card=document.querySelector('[data-place-card="place-4"]');
       return{
         left:rail.scrollLeft,
-        activeIsButton:document.activeElement===button,
-        expanded:button.getAttribute('aria-expanded'),
         selected:card.getAttribute('aria-current'),
-        detailText:card.querySelector('[data-places-detail-region="place-4"]').textContent,
+        sheetOpened:Boolean(document.querySelector('[data-journey-suggestion-sheet]')),
+        compactCard:Boolean(document.querySelector('[data-compact-place-card]')),
+        oldDetails:Boolean(document.querySelector('[data-places-detail],[data-places-detail-region]')),
         mapInstances:window.__placesFixture.mapInstances,
         mapRemovals:window.__placesFixture.mapRemovals,
-        mapEaseCalls:window.__placesFixture.mapEaseCalls,
-        detailRequests:window.__placesFixture.detailRequests
+        mapEaseCalls:window.__placesFixture.mapEaseCalls
       };
     });
-    assert.ok(Math.abs(after.left-before.left)<=2,`Details & Evidenz reset the horizontal rail: ${JSON.stringify({before,after})}`);
-    assert.equal(after.activeIsButton,true,'detail completion replaced or lost the real pointer focus origin');
-    assert.equal(after.expanded,'true');
-    assert.equal(after.selected,'true','opening later-result evidence must select that same Place');
-    assert.match(after.detailText,/Kontinuitätsort 4/);
-    assert.deepEqual(after.detailRequests,['place-4']);
-    assert.equal(after.mapInstances,1,'detail loading must not rebuild the map');
-    assert.equal(after.mapRemovals,0,'detail loading must not destroy the active map');
-    assert.deepEqual(after.mapEaseCalls.at(-1)?.center,[10.78,54.04],'selected Place and map viewport must stay synchronized');
+    assert.ok(Math.abs(after.left-before.left)<=2,`Opening the shared sheet reset the horizontal rail: ${JSON.stringify({before,after})}`);
+    assert.equal(after.sheetOpened,true);
+    assert.equal(after.compactCard,true);
+    assert.equal(after.oldDetails,false,'legacy full detail/evidence UI must not return');
+    assert.equal(after.mapInstances,1,'opening the shared sheet must not rebuild the map');
+    assert.equal(after.mapRemovals,0,'opening the shared sheet must not destroy the active map');
 
-    await page.screenshot({path:path.join(OUTPUT,'places-result-4-detail-continuity.png'),fullPage:true});
-    await clickAtCenter(page,detailButton);
-    const closed=await page.evaluate(()=>{const rail=document.querySelector('.lv-places-spatial__result-list'),button=document.querySelector('[data-places-detail="place-4"]');return{left:rail.scrollLeft,activeIsButton:document.activeElement===button,expanded:button.getAttribute('aria-expanded'),detail:document.querySelector('[data-places-detail-region="place-4"]').textContent}});
+    await page.screenshot({path:path.join(OUTPUT,'places-result-4-shared-sheet-continuity.png'),fullPage:true});
+    await page.locator('[data-lvjs-close]').click();
+    const closed=await page.evaluate(()=>{const rail=document.querySelector('.lv-places-spatial__result-list');return{left:rail.scrollLeft,sheetOpen:Boolean(document.querySelector('[data-journey-suggestion-sheet]'))}});
     assert.ok(Math.abs(closed.left-before.left)<=2,'closing evidence must preserve the exact horizontal result context');
-    assert.equal(closed.activeIsButton,true);
-    assert.equal(closed.expanded,'false');
-    assert.equal(closed.detail,'');
+    assert.equal(closed.sheetOpen,false);
     assert.deepEqual(consoleProblems,[],'real Edge continuity sequence emitted console problems');
-    console.log('M16.5R Places Details/Evidence continuity real Edge E2E: PASS');
+    console.log('M16.5R Places compact-card/shared-sheet continuity real Edge E2E: PASS');
     console.log(`Rail scroll retained: ${before.left.toFixed(1)} -> ${after.left.toFixed(1)} -> ${closed.left.toFixed(1)}`);
-    console.log('Selected Place / map / focus / async detail / close continuity: PASS');
+    console.log('Compact Place / map / shared sheet / close continuity: PASS');
   }finally{
     await browser.close();
     if(server)await new Promise(resolve=>server.close(resolve));

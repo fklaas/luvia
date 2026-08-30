@@ -15,8 +15,8 @@ const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const runner=read('tests/run-m4.3-safe-regression.cjs');
 
-assert.match(version,/core:'4\.82\.114',build:'13\.82\.114'/);
-assert.match(version,/name:'M16\.5AB Journey Suggestion Contrast'/);
+assert.match(version,/core:'4\.82\.116',build:'13\.82\.116'/);
+assert.match(version,/name:'M16\.5AB Timeline, Places & Booking Continuity'/);
 for(const asset of [
   'intelligence/kernel/version.js',
   'app/app-shell.js',
@@ -24,20 +24,17 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'app/places/places-spatial-experience.css',
   'modules/places-shell.js'
-])assert(index.includes(`${asset}?v=13.82.114`),`active M16.5R cache key missing for ${asset}`);
-assert(worker.includes("const CACHE='luvia-shell-v13.82.114'"));
+])assert(index.includes(`${asset}?v=13.82.116`),`active M16.5R cache key missing for ${asset}`);
+assert(worker.includes("const CACHE='luvia-shell-v13.82.116'"));
 
-assert.match(experience,/function renderDetail\(id\)/);
-const detailScope=experience.slice(experience.indexOf('async function loadDetails'),experience.indexOf('function openMaps'));
-assert.doesNotMatch(detailScope,/\brender\(\)/,'detail continuity regressed to full Places rendering');
-assert.match(detailScope,/select\(id,false,true\)/);
-assert.match(detailScope,/state\.details\.get\(id\)!==pending/);
-assert.match(detailScope,/lifecycleToken!==state\.lifecycleToken\|\|state\.root!==root/);
+assert.match(experience,/data-compact-place-card/);
+assert.match(experience,/openResultSheet\(places=filteredResults\(\),selectedId=state\.selectedId\)/);
+assert.doesNotMatch(experience,/Details &amp; Evidenz|data-places-detail|function detailMarkup|async function loadDetails/);
 
-assert.match(staticGuard,/opening evidence must select the exact same Place/);
+assert.match(staticGuard,/old Places detail\/evidence UI re-entered the new shell/);
 assert.match(browserGuard,/Rail scroll retained/);
 assert.match(browserGuard,/mapInstances,1/);
-assert.match(browserGuard,/activeIsButton,true/);
+assert.match(browserGuard,/sheetOpened,true/);
 assert.match(browserGuard,/consoleProblems,\[\]/);
 
 assert.match(pcr,/global `render\(\)` once for loading and again after the asynchronous `places\.v1`/);
@@ -54,6 +51,6 @@ for(const file of [
 assert(runner.includes('tests/m16.5r-places-detail-continuity-release.test.cjs'));
 
 console.log('M16.5R Places Details/Evidence Continuity Release: PASS');
-console.log('App / Core / shell cache: 13.82.114 / 4.82.114 / luvia-shell-v13.82.114');
+console.log('App / Core / shell cache: 13.82.116 / 4.82.116 / luvia-shell-v13.82.116');
 console.log('Rail / selected Place / map / focus / async lifecycle continuity: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

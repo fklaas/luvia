@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../../">
+  <title>Luvia Today – sichtbare Abnahme</title>
+  <link rel="stylesheet" href="app/app-shell.css?v=13.82.116-today2">
+  <link rel="stylesheet" href="app/today/today-experience.css?v=13.82.116-today2">
+  <style>
+    html,body{margin:0;min-height:100%;overflow:hidden;background:#f6fafb}
+    #app{min-height:100dvh}
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+  <script>
+    const trip={id:'trip-scharbeutz',title:'Ostseeurlaub',startDate:'2027-06-12',endDate:'2027-06-19',accent:'#ef675a',destination:{name:'Scharbeutz, Deutschland',formattedAddress:'Scharbeutz, Deutschland',latitude:54.0268,longitude:10.7552}};
+    const profile={id:'fabian',displayName:'Fabian',avatarColor:'#ef675a'};
+    const todayStart=new Date('2027-06-12T09:30:00+02:00').toISOString();
+    window.LuviaPlatformPorts={get:id=>id==='NetworkPort'?{isOnline:()=>true,subscribe:listener=>{listener({online:true});return()=>{}}}:null};
+    window.LuviaControlCenterTravelIdentity={snapshot:()=>({phase:'before',tripDay:null})};
+    window.LuviaControlCenterAttention={snapshot:()=>({items:[]})};
+    window.LuviaJoinFlow={snapshot:()=>[
+      {user_id:'fabian',display_name:'Fabian',avatar_color:'#ef675a',role:'owner'},
+      {user_id:'lea',display_name:'Lea',avatar_color:'#efb43f',role:'member'},
+      {user_id:'marie',display_name:'Marie',avatar_color:'#2d9b93',role:'member'}
+    ]};
+    window.LuviaCollaboration={snapshot:()=>({presence:[{user_id:'fabian',status:'online'},{user_id:'marie',status:'online'}]})};
+    window.LuviaJourneyContractV1={reads:{snapshot:()=>({
+      currentDay:{date:'2027-06-12',entries:[{id:'breakfast',title:'Frühstück am Meer',startAt:todayStart,endAt:new Date('2027-06-12T10:30:00+02:00').toISOString()}],openGaps:[{id:'gap',startAt:new Date('2027-06-12T11:00:00+02:00').toISOString(),endAt:new Date('2027-06-12T16:00:00+02:00').toISOString()}]},
+      days:[],nextEntry:null,summary:{entries:1}
+    })}};
+    window.LuviaTripPreferenceContextV1={dayGuidance:()=>({suggestion:{query:'Leiser Küstenweg mit Zeit am Wasser',targetDate:'2027-06-12',startAt:'11:00',reasons:['Passt zu ruhigem Reisen, gemeinsamer Zeit und dem freien Abschnitt nach dem Frühstück.']}})};
+    window.LuviaPlacesContractV1={reads:{listPlaces:()=>[{id:'pier',lifecycle:'planned',plannedDate:'2027-06-12'}],getCard:async()=>null}};
+    window.LuviaMemoryAlbums={list:async()=>[{id:'album-1'}]};
+    window.LuviaMemoryJourneys={list:async()=>[{id:'journey-1'}]};
+    window.LuviaJourneySuggestions={load:async()=>({places:[]})};
+    window.LuviaAIDashboard={refreshBrief:async()=>({})};
+    window.addEventListener('click',event=>{const view=event.target.closest('[data-view]')?.dataset.view;if(view)document.body.dataset.lastView=view});
+  </script>
+  <script src="app/today/today-composition-core.js?v=13.82.116-today2"></script>
+  <script src="app/today/today-experience.js?v=13.82.116-today2"></script>
+  <script>
+    const app=document.getElementById('app');
+    app.innerHTML=window.LuviaTodayExperience.render({trip,profile});
+    window.LuviaTodayExperience.bind(app,{trip,profile});
+  </script>
+</body>
+</html>

@@ -71,8 +71,8 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 (async()=>{
   const runtime=context.LuviaAIActionRuntime;
   const diagnostics=runtime.diagnostics();
-  assert.equal(diagnostics.actions,19);
-  assert.equal(diagnostics.availableActions,19);
+  assert.equal(diagnostics.actions,20);
+  assert.equal(diagnostics.availableActions,20);
   assert.equal(diagnostics.connections.length,6);
   assert.equal(diagnostics.connections.every(connection=>connection.registered&&connection.operations===connection.totalOperations),true);
 
@@ -129,7 +129,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(diagnostics.ledger.storesForeignDomainTruth,false);
 
   console.log('M16.3 Confirmed Owner Action Runtime: PASS');
-  console.log('19 actions / 6 public owner contracts: AVAILABLE');
+console.log('20 actions / 6 public owner contracts: AVAILABLE');
   console.log('R2 confirmation + idempotent replay: PASS');
   console.log('R3 unknown external outcome blind retry: BLOCKED');
   console.log('Raw payload / foreign Domain Truth in ledger: NONE');

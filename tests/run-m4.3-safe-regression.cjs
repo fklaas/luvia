@@ -498,6 +498,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-booking-route-gate.test.cjs'
   },
   {
+    category: 'M16.5 / Unified Places Journey Living Sheet',
+    test: 'tests/m16.5ab-unified-places-journey-sheet.test.cjs'
+  },
+  {
+    category: 'M16.5 / Living Compass AI Owner Orchestration',
+    test: 'tests/m16.5ab-living-compass-ai-owner-orchestration.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

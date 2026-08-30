@@ -19,8 +19,8 @@ for(const needle of [
   'ledgerId:prepared.ledgerId,userGesture:true',
   "offer.actionId==='places.place.favorite'",
   'Owner-Aktion bestätigt; das Receipt steht im Verlauf.',
-  'Öffentliche Owner-Contracts',
-  'Sichere Leseaktionen laufen direkt.'
+  'Ein Satz darf mehrere Wünsche enthalten.',
+  'Lesen darf Luvia direkt.'
 ])assert.ok(source.includes(needle),`Actionable AI chat missing ${needle}`);
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingRepository','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){

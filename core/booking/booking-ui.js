@@ -77,7 +77,7 @@
     wrap.innerHTML=dialogHtml(place,route,options);
     const backdrop=wrap.firstElementChild,dialog=backdrop.firstElementChild;
     let node=backdrop,mounted=null;
-    if(inlineHost){inlineHost.replaceChildren(dialog);dialog.classList.add('is-inline');node=inlineHost}
+    if(inlineHost){inlineHost.classList.add('is-booking-inline-host');inlineHost.replaceChildren(dialog);dialog.classList.add('is-inline');node=inlineHost}
     else{const ui=LuviaUI;if(!ui?.adopt)throw new Error('Overlay Host v1 Legacy Adoption ist noch nicht bereit.');mounted=ui.adopt(node,{name:'booking.place-request',kind:'sheet',content:dialog,closeSelector:'[data-booking-close]',initialFocus:'[data-booking-name]',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted}
     const controls={steps:[],jumps:[],occasions:[]};
     node.querySelectorAll('[data-booking-step],[data-booking-step-jump],[data-booking-occasion],[data-booking-close],[data-booking-prev],[data-booking-next],[data-booking-create],[data-booking-result],[data-booking-name],[data-booking-party],[data-booking-date],[data-booking-time],[data-booking-end-date],[data-booking-email],[data-booking-occasion-value],[data-booking-note]').forEach(element=>{
@@ -99,18 +99,12 @@
       controls.prev.hidden=step===1;controls.next.hidden=step===3;controls.create.hidden=step!==3;
       controls.steps.find(panel=>Number(panel.dataset.bookingStep)===step)?.querySelector('input,textarea')?.focus?.();
     };
-    node.addEventListener('click',async e=>{
-      if(e.target===node)return;
-      if(e.target.closest('[data-booking-close]')){if(inlineHost)backToSuggestions();return}
-      const occasion=e.target.closest('[data-booking-occasion]');
-      if(occasion){controls.occasions.forEach(button=>button.setAttribute('aria-pressed',String(button===occasion)));controls.occasionValue.value=occasion.dataset.bookingOccasion;return}
-      if(e.target.closest('[data-booking-prev]')){showStep(step-1);return}
-      if(e.target.closest('[data-booking-next]')){
-        const panel=controls.steps.find(candidate=>Number(candidate.dataset.bookingStep)===step),invalid=panel.querySelector(':invalid');if(invalid){invalid.reportValidity();return}showStep(step+1);return;
-      }
-      const create=e.target.closest('[data-booking-create]');
-      if(!create)return;
-      e.preventDefault();
+    let submitting=false;
+    const submitRequest=async e=>{
+      e?.preventDefault?.();
+      if(submitting)return;
+      submitting=true;
+      const create=controls.create;
       create.disabled=true;
       const result=controls.result;
       try{
@@ -129,7 +123,22 @@
         result.hidden=false;
         result.textContent=error?.message||'Die Buchungsanfrage konnte nicht angelegt werden.';
         create.disabled=false;
+      }finally{submitting=false}
+    };
+    const bookingCanvas=node.querySelector('[data-booking-canvas]');
+    if(bookingCanvas)bookingCanvas.onsubmit=submitRequest;
+    node.addEventListener('click',async e=>{
+      if(e.target===node)return;
+      if(e.target.closest('[data-booking-close]')){if(inlineHost)backToSuggestions();return}
+      const occasion=e.target.closest('[data-booking-occasion]');
+      if(occasion){controls.occasions.forEach(button=>button.setAttribute('aria-pressed',String(button===occasion)));controls.occasionValue.value=occasion.dataset.bookingOccasion;return}
+      if(e.target.closest('[data-booking-prev]')){showStep(step-1);return}
+      if(e.target.closest('[data-booking-next]')){
+        const panel=controls.steps.find(candidate=>Number(candidate.dataset.bookingStep)===step),invalid=panel.querySelector(':invalid');if(invalid){invalid.reportValidity();return}showStep(step+1);return;
       }
+      const create=e.target.closest('[data-booking-create]');
+      if(!create)return;
+      await submitRequest(e);
     });
     showStep(1);
     controls.name?.focus?.();

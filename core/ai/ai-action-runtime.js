@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.1.0';
+const VERSION='1.2.0';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -46,11 +46,11 @@ function capabilitySnapshot(){
 }
 
 function placeActions(place,trip){
-  const id=providerId(place),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:'restaurant',name:place.name,address:place.address,website:place.website,reservationUrl:place.reservationUrl};
+  const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),bookable=/restaurant|cafe|bakery|bar|food|meal/.test(primary),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',name:place.name,address:place.address,website:place.website,reservationUrl:place.reservationUrl};
   return[
     {actionId:place.isFavorite?'places.place.unfavorite':'places.place.favorite',label:place.isFavorite?'Favorit entfernen':'Als Favorit merken',payload},
-    {actionId:'booking.restaurant.open',label:'Reservieren',payload:{...payload,type:'restaurant'}},
-    {actionId:'places.place.plan',label:'Zur Reise planen',payload}
+    ...(bookable?[{actionId:'booking.restaurant.open',label:'Jetzt reservieren',payload:{...payload,type:'restaurant'}}]:[]),
+    {actionId:'places.place.plan',label:'Zur Timeline hinzufügen',payload}
   ];
 }
 async function resolveCard(place,trip){
@@ -59,12 +59,15 @@ async function resolveCard(place,trip){
   const item={...place,...(card.place||{}),providerPlaceId:id||providerId(card.place),image:card.image||place.image||null,reasons:place.aiReasons||place.reasons||[],unknowns:place.aiUnknowns||place.unknowns||[]};
   item.actions=placeActions(item,trip);return item;
 }
-async function restaurantResult(request,options={}){
+async function placeDiscoveryResult(request,options={}){
   const trip=tripContract().getActiveTrip?.()||{};const input=request.input||{};
-  const result=await placesContract().reads.recommend({tripId:tripId(trip),text:input.query,query:input.query,category:'food',destination:destination(trip),limit:Number(input.limit||4),candidateLimit:24,profileContext:options.profileContext||{}});
-  const cards=await Promise.all((result?.places||[]).slice(0,6).map(place=>resolveCard(place,trip)));
-  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} Restaurants, die zu eurer Reise passen`:'Noch kein belastbarer Restauranttreffer',message:cards.length?'Luvia hat echte Places-Ergebnisse geprüft. Speichern, Planen und Booking bleiben Owner-Aktionen.':'Passe Küche, Stimmung, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,query:input.query,destination:destination(trip),tripId:tripId(trip),count:cards.length,route:result?.route||result?.plan?.route||null},meta:{actionId:request.actionId}});
+  const categories=Array.isArray(input.categories)&&input.categories.length?input.categories:[input.category||'places'];
+  const responses=await Promise.allSettled(categories.map(category=>placesContract().reads.recommend({tripId:tripId(trip),text:input.query,query:input.query,category,destination:destination(trip),limit:Number(input.limit||6),candidateLimit:32,profileContext:options.profileContext||{}})));
+  const seen=new Set(),raw=[];for(const response of responses){if(response.status!=='fulfilled')continue;const ownerCategory=clean(response.value?.route?.category||categories[0]||'place').toLowerCase();for(const place of response.value?.places||[]){const id=providerId(place);if(id&&!seen.has(id)){seen.add(id);raw.push({...place,primaryType:place.primaryType||place.primary_type||ownerCategory})}}}
+  const cards=await Promise.all(raw.slice(0,Math.min(8,Number(input.limit||6))).map(place=>resolveCard(place,trip))),noun=categories.length>1?'Orte':'Möglichkeiten';
+  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} passende ${noun}`:'Noch kein belastbarer Places-Treffer',message:cards.length?'Places belegt die Orte; Luvia ordnet sie im freigegebenen Reise- und Profilkontext. Speichern, Timeline und Booking bleiben Owner-Aktionen.':'Passe Wunsch, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,aiReasonsNonAuthoritative:true,query:input.query,categories,destination:destination(trip),tripId:tripId(trip),count:cards.length},meta:{actionId:request.actionId}});
 }
+const restaurantResult=(request,options={})=>placeDiscoveryResult({...request,input:{...(request.input||{}),category:'food',categories:['food']}},options);
 async function dayResult(request){
   const trip=tripContract().getActiveTrip?.()||{};const projection=await journeyContract().reads.snapshot({trip});const today=new Date().toISOString().slice(0,10);
   const days=[...(projection?.days||[])].sort((left,right)=>left.date===today?-1:right.date===today?1:String(left.date).localeCompare(String(right.date))).slice(0,4);
@@ -96,21 +99,14 @@ async function preferenceResult(request){
   const contract=identityContract();const direct=contract.getPreferences?.('self');const preferences=await Promise.resolve(direct??contract.reads?.getPreferences?.('self')??{});
   return actionCore().normalizeResult({kind:'preference_summary',owner:'identity',contractId:'identity.v1',title:'Deine bestätigten Vorlieben',message:'Luvia zeigt nur die Self-only-Projektion aus Identity v1. Beobachtete Signale werden nicht als bestätigte Präferenz ausgegeben.',summary:preferences,actions:[],evidence:{scope:'self',explicitPreferences:true,inferredSignals:false},meta:{actionId:request.actionId}});
 }
-const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult,'journey.day.read':dayResult,'trip.active.list':tripResult,'booking.trip.read':bookingResult,'memory.library.read':memoryResult,'identity.preferences.read':preferenceResult});
+const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult,'places.discovery.recommend':placeDiscoveryResult,'journey.day.read':dayResult,'trip.active.list':tripResult,'booking.trip.read':bookingResult,'memory.library.read':memoryResult,'identity.preferences.read':preferenceResult});
 
 async function runMessage(message,options={}){
-  const route=actionCore().routeIntent(message);if(!route)return actionCore().immutable({handled:false,results:[],route:null});
-  const request=actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'});
-  if(!actionCore().canAutoRun(request.actionId))return actionCore().immutable({handled:false,results:[],route:request});
-  emit('read-started',{actionId:request.actionId});
-  try{
-    const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;
-    if(!result)return actionCore().immutable({handled:false,results:[],route:request});
-    emit('read-completed',{actionId:request.actionId,resultKind:result.kind});return actionCore().immutable({handled:true,results:[result],route:request});
-  }catch(error){
-    const result=actionCore().normalizeResult({kind:'error',owner:'intelligence',title:'Diese Aktion ist gerade nicht verfügbar',message:error?.message||'Der zuständige Luvia Core konnte die Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:error?.code||'AI_ACTION_FAILED'},meta:{retryable:true}});
-    emit('read-failed',{actionId:request.actionId,code:error?.code||'AI_ACTION_FAILED'});return actionCore().immutable({handled:true,results:[result],route:request,error:true});
-  }
+  const routes=(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean));if(!routes.length)return actionCore().immutable({handled:false,results:[],routes:[]});
+  const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:false,results:[],routes});
+  const results=[];let error=false;
+  for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'intelligence',title:'Eine Teilaufgabe ist gerade nicht verfügbar',message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'},meta:{retryable:true}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
+  return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1});
 }
 
 function prepare(actionId,payload={},options={}){

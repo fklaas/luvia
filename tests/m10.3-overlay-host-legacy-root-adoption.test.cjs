@@ -9,7 +9,7 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const host=read('core/ui/ui-manager.js');
 const safeRunner=read('tests/run-m4.3-safe-regression.cjs');
 
-assert.match(host,/const VERSION='2\.1\.0'/);
+assert.match(host,/const VERSION='2\.2\.0'/);
 assert.match(host,/function adopt\(overlay,options=\{\}\)/);
 assert.match(host,/overlayRoot instanceof HTMLElement\?overlayRoot:document\.createElement\('div'\)/,'Host must accept an existing legacy root');
 assert.match(host,/overlay\.firstElementChild\|\|overlay/,'Legacy root must derive its semantic content without a wrapper rewrite');

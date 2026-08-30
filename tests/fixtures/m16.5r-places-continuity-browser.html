@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <base href="../../">
   <title>M16.5R Places Continuity</title>
-  <link rel="stylesheet" href="app/places/places-spatial-experience.css">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?qa=m165ab-final-places">
+  <link rel="stylesheet" href="app/journey/journey-day-composer.css?qa=m165ab-final-places">
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: #f7faf9; font-family: Arial, sans-serif; }
+    html, body { margin: 0; min-height: 100%; background: #f7faf9; font-family: Arial, sans-serif; scrollbar-width:none; -ms-overflow-style:none; }
+    html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
     #app { min-height: 100vh; }
   </style>
 </head>
@@ -16,18 +18,33 @@
   <main id="app"></main>
   <script>
   (()=>{
-    const places=Array.from({length:6},(_,index)=>({
+    const fixtureTypes=[
+      {type:'restaurant',category:'food',name:'Hafenküche',image:'assets/public-landing/prototype-harbor-lunch.png',reason:'Für Fabian und Lea passend: lokaler Genuss mit gemeinsamem Zeitfenster.'},
+      {type:'cafe',category:'cafe',name:'Strandcafé',image:'assets/public-landing/reel-poster-couple-market.webp',reason:'Für Lea passend: ruhiger Genussmoment mit vegetarisch belegter Auswahl.'},
+      {type:'museum',category:'culture',name:'Museum für Küstengeschichte',image:'assets/public-landing/travel-lisbon.webp',reason:'Für Lea besonders passend: Kultur und lokaler Charakter.'},
+      {type:'tourist_attraction',category:'sightseeing',name:'Seebrückenblick',image:'assets/public-landing/travel-warnemuende.webp',reason:'Für Fabian und Lea passend: kurzer Weg, Aussicht und gemeinsame Zeit.'},
+      {type:'park',category:'nature',name:'Dünenpfad',image:'assets/public-landing/prototype-coast-bike.png',reason:'Für Fabian passend: Bewegung am Wasser ohne engen Takt.'},
+      {type:'store',category:'shopping',name:'Küstenmanufaktur',image:'assets/public-landing/reel-poster-family-planning.webp',reason:'Für die Gruppe passend: regional, wetterunabhängig und nah am Tagesweg.'}
+    ];
+    const places=fixtureTypes.map((fixture,index)=>({
       id:`place-${index+1}`,
       providerPlaceId:`place-${index+1}`,
-      name:`Kontinuitätsort ${index+1}`,
+      name:fixture.name,
       address:`Uferweg ${index+1}, Scharbeutz`,
-      description:`Evidenz für Kontinuitätsort ${index+1}`,
-      rating:4.1+index/10,
-      userRatingCount:100+index,
-      openNow:true,
-      priceLevel:'PRICE_LEVEL_MODERATE',
+      description:fixture.reason,
+      aiReasons:[fixture.reason],
+      primaryType:fixture.type,
+      category:fixture.category,
+      types:[fixture.type],
+      rating:4.6-index/20,
+      userRatingCount:5180-index*337,
+      distanceMeters:350+index*430,
+      openNow:index!==4,
+      priceLevel:index===2||index===3?'PRICE_LEVEL_FREE':'PRICE_LEVEL_MODERATE',
+      features:{reservable:index<2,servesVegetarianFood:index<2,goodForChildren:index===3},
       coordinates:{latitude:54.01+index/100,longitude:10.75+index/100},
-      bookingDomains:['restaurant']
+      bookingDomains:index<2?['restaurant']:[],
+      image:{url:fixture.image,alt:`${fixture.name} in Scharbeutz`}
     }));
     window.__placesFixture={mapInstances:0,mapRemovals:0,mapEaseCalls:[],detailRequests:[]};
     class FixtureMap{
@@ -50,12 +67,20 @@
       remove(){this.element.remove()}
     }
     window.maplibregl={Map:FixtureMap,Marker:FixtureMarker,NavigationControl:class{}};
+    window.__placesTimelineReceipts=[];
     window.LuviaPlacesContractV1={reads:{
       categories:()=>({food:{key:'food',label:'Essen & Trinken',primaryType:'restaurant',query:'Restaurants'}}),
       recommend:async()=>({places}),
       listSaved:async()=>[],
-      getDetails:async id=>{window.__placesFixture.detailRequests.push(id);await new Promise(resolve=>setTimeout(resolve,180));const place=places.find(item=>item.providerPlaceId===id);return{...place,website:`https://example.test/${id}`,phone:'+49 4503 000'}}
+      getCard:async id=>{const place=places.find(item=>item.providerPlaceId===id);return{place,image:place?.image||null}}
+    },commands:{
+      importPlace:async id=>({id,providerPlaceId:id,tripPlaceId:`trip-${id}`}),
+      plan:async input=>{window.__placesTimelineReceipts.push(input);return{ok:true,...input}},
+      updateLifecycle:async()=>({ok:true})
     }};
+    window.LuviaJourneyContractV1={commands:{hydrate:async()=>true,removeEntry:async()=>true},reads:{snapshot:()=>({entries:[]})}};
+    window.LuviaTripPreferenceContextV1={snapshot:()=>({profilePreferences:{travelInterests:['Genuss','Kultur'],diet:['vegetarisch']},tripComposition:{feelings:['gemeinsam','ruhig']}}),sharedGroup:async()=>({travelers:[{id:'fabian',name:'Fabian',role:'owner',signals:['Genuss','Bewegung am Wasser']},{id:'lea',name:'Lea',role:'traveler',signals:['vegetarisch','Kultur','ruhig']}],coveredTravelers:2,totalTravelers:2})};
+    window.LuviaAI={rankCandidates:async({profileContext,candidates})=>candidates.map((place,index)=>({...place,aiMatchScore:Math.max(72,96-index*3-(profileContext?.traveler?.name==='Lea'&&place.category==='culture'?-5:0)),aiReasons:[place.aiReasons?.[0]||place.description]}))};
     window.LuviaBookingContractV1={commands:{openPlaceBooking:async()=>({opened:false})}};
     const network={isOnline:()=>true,subscribe:()=>()=>{}};
     window.LuviaPlatformPorts={get:id=>id==='NetworkPort'?network:id==='OfflineCachePort'?{read:()=>null,write:()=>true}:id==='ExternalNavigationPort'?{open:()=>true,openMaps:()=>true}:null};
@@ -63,8 +88,12 @@
     window.LuviaApp={openCompass:()=>true,show:()=>true};
   })();
   </script>
+  <script src="core/runtime/overlay-host-contract-core.js"></script>
+  <script src="core/ui/ui-manager.js"></script>
+  <script src="core/intelligence/trip-preference-resolution-core.js"></script>
+  <script src="app/journey/journey-suggestion-sheet.js?qa=m165ab-final-places"></script>
   <script src="app/places/places-spatial-composition-core.js"></script>
-  <script src="app/places/places-spatial-experience.js"></script>
+  <script src="app/places/places-spatial-experience.js?qa=m165ab-final-places"></script>
   <script>
   addEventListener('DOMContentLoaded',async()=>{
     await window.LuviaPlacesSpatialExperience.mount(document.querySelector('#app'),{id:'trip-continuity',destination:{name:'Scharbeutz',countryCode:'DE'},startDate:'2026-08-26'});

@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='2.1.0';
+  const VERSION='2.2.0';
   const CONTRACT_ID='overlay-host.v1';
   const core=window.LuviaOverlayHostContractCoreV1;
   if(!core?.createStack)throw new Error('Luvia UI Host benötigt overlay-host.v1.');
@@ -66,6 +66,7 @@
     const {id}=effect.entry;
     const overlay=overlayRoot instanceof HTMLElement?overlayRoot:document.createElement('div');
     overlay.classList.add('luvia-ui-overlay');
+    if(effect.entry.kind==='sheet')overlay.classList.add('luvia-living-sheet-overlay');
     String(className||'').split(/\s+/).filter(Boolean).forEach(token=>overlay.classList.add(token));
     overlay.dataset.luviaUiOverlay=id;
     overlay.dataset.luviaUiName=effect.entry.name;
@@ -129,7 +130,7 @@
   window.addEventListener('luvia:runtime-action',event=>{if(event.detail?.type==='session.deactivate')closeAll('session')});
   window.addEventListener('luvia:logout',()=>closeAll('session'));
   const style=document.createElement('style');
-  style.textContent=`:where(.luvia-ui-overlay){position:fixed;inset:0;z-index:var(--luvia-overlay-z,2147483000);display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));background:rgba(31,43,54,.56);backdrop-filter:blur(12px);overscroll-behavior:contain}.luvia-ui-overlay[data-luvia-ui-layer="underlay"]{pointer-events:none}html.luvia-ui-open,body.luvia-ui-open{overflow:hidden;overscroll-behavior:none}@media(max-width:760px){:where(.luvia-ui-overlay){padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));place-items:stretch}}@media(prefers-reduced-motion:reduce){.luvia-ui-overlay,.luvia-ui-overlay *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}`;
+  style.textContent=`:where(.luvia-ui-overlay){position:fixed;inset:0;z-index:var(--luvia-overlay-z,2147483000);display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));background:rgba(31,43,54,.56);backdrop-filter:blur(12px);overscroll-behavior:contain}.luvia-ui-overlay[data-luvia-ui-layer="underlay"]{pointer-events:none}html.luvia-ui-open,body.luvia-ui-open{overflow:hidden;overscroll-behavior:none}.luvia-living-sheet-overlay{place-items:end center;padding:max(24px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(17,42,57,.18),rgba(17,42,57,.62));backdrop-filter:blur(14px) saturate(1.08)}.luvia-living-sheet-overlay>:first-child{width:min(1180px,100%);max-height:min(88dvh,920px);overflow:auto;overscroll-behavior:contain;scrollbar-width:none;border-radius:32px 32px 0 0;box-shadow:0 -24px 80px rgba(14,48,64,.2);animation:luvia-living-sheet-enter .62s cubic-bezier(.16,1,.3,1) both;transform-origin:50% 100%}.luvia-living-sheet-overlay>:first-child::-webkit-scrollbar{display:none}@keyframes luvia-living-sheet-enter{from{opacity:0;transform:translate3d(0,44px,0) scale(.985)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}@media(max-width:760px){:where(.luvia-ui-overlay){padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));place-items:stretch}.luvia-living-sheet-overlay{place-items:end stretch;padding:max(8px,env(safe-area-inset-top)) 0 0}.luvia-living-sheet-overlay>:first-child{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-radius:26px 26px 0 0}}@media(prefers-reduced-motion:reduce){.luvia-ui-overlay,.luvia-ui-overlay *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}`;
   document.head.appendChild(style);
   window.LuviaUI=Object.freeze({version:VERSION,contractId:CONTRACT_ID,register,has,open,mount,adopt,closeTop,closeAll,handleBack,diagnostics});
   window.dispatchEvent(new CustomEvent('luvia:ui-ready',{detail:window.LuviaUI}));

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.3.0';
+  const VERSION='1.5.0';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -53,7 +53,7 @@
 
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:INITIAL_VISIBLE_RESULTS,
-    status:'loading',error:null,offline:false,selectedId:null,details:new Map(),images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:{openNow:false,rated:false},filterOpen:false,
+    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:{openNow:false,rated:false,rating45:false,nearby:false},sort:'fit',filterOpen:false,
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,planningHandle:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null
   };
 
@@ -73,7 +73,12 @@
   function saveCached(){
     try{port('OfflineCachePort')?.write(cacheKey(),{query:state.query,category:state.category,results:state.results.slice(0,MAX_RESULTS),savedAt:new Date().toISOString()})}catch{}
   }
-  function filteredResults(){return state.results.filter(place=>(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0))}
+  function verifiedFitScore(place){
+    const fit=place?.groupFit,method=clean(fit?.method),score=Number(fit?.score),coverage=Number(fit?.coverage);
+    if(method!=='median-of-evidence-weighted-traveler-scores'||!Number.isFinite(score)||score<=0||score>100||!Number.isFinite(coverage)||coverage<=0)return null;
+    return score;
+  }
+  function filteredResults(){const rows=state.results.filter(place=>(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||Number(place.distanceMeters)<=5000));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?Number(left.distanceMeters??Infinity)-Number(right.distanceMeters??Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function publicRuntime(filteredCount=filteredResults().length){
     const filteredEmpty=state.status==='ready'&&state.results.length>0&&filteredCount===0;
     return{status:state.offline?'offline':filteredEmpty?'empty':state.status,loading:state.status==='loading',offline:state.offline,error:state.error,settled:['ready','empty','error','offline'].includes(state.status)};
@@ -148,8 +153,8 @@
       state.lastSearchAt=new Date().toISOString();
       saveCached();
       await loadSaved();
-      render();
-      if(focus)state.root?.querySelector('.lv-places-spatial__canvas')?.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'start'});
+       render();
+       if(focus)openResultSheet();
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
@@ -171,19 +176,37 @@
   }
   function filterMarkup(){
     if(!state.filterOpen)return'';
-    return `<aside class="lv-places-spatial__filter-panel" aria-label="Places filtern"><div><span>Ergebnisse eingrenzen</span><strong>Nur nachvollziehbare Filter</strong></div><button type="button" data-places-filter-option="openNow" aria-pressed="${state.filters.openNow}">${icon('check')} Jetzt geöffnet</button><button type="button" data-places-filter-option="rated" aria-pressed="${state.filters.rated}">${icon('star')} Mit Bewertung</button><button type="button" data-places-filter-reset ${state.filters.openNow||state.filters.rated?'':'disabled'}>Zurücksetzen</button></aside>`;
+    return `<aside class="lv-places-spatial__filter-panel" aria-label="Places filtern"><div><span>Ergebnisse eingrenzen</span><strong>Nur belegbare Provider-Fakten filtern</strong></div><button type="button" data-places-filter-option="openNow" aria-pressed="${state.filters.openNow}">${icon('check')} Jetzt geöffnet</button><button type="button" data-places-filter-option="rated" aria-pressed="${state.filters.rated}">${icon('star')} Mit Bewertung</button><button type="button" data-places-filter-option="rating45" aria-pressed="${state.filters.rating45}">${icon('star')} Ab 4,5</button><button type="button" data-places-filter-option="nearby" aria-pressed="${state.filters.nearby}">${icon('route')} Bis 5 km</button><button type="button" data-places-sort="fit" aria-pressed="${state.sort==='fit'}">${icon('compass')} Persönliche Passung</button><button type="button" data-places-sort="rating" aria-pressed="${state.sort==='rating'}">${icon('star')} Beste Bewertung</button><button type="button" data-places-sort="distance" aria-pressed="${state.sort==='distance'}">${icon('route')} Kürzeste Entfernung</button><button type="button" data-places-filter-reset ${Object.values(state.filters).some(Boolean)||state.sort!=='fit'?'':'disabled'}>Zurücksetzen</button></aside>`;
   }
   function priceLabel(value){
     const normalized=clean(value).toUpperCase();
     const map={PRICE_LEVEL_FREE:'Kostenlos',PRICE_LEVEL_INEXPENSIVE:'€',PRICE_LEVEL_MODERATE:'€€',PRICE_LEVEL_EXPENSIVE:'€€€',PRICE_LEVEL_VERY_EXPENSIVE:'€€€€'};
     return map[normalized]||(/^€+$/.test(normalized)?normalized:'');
   }
+  function distanceLabel(value){
+    const meters=Number(value);
+    if(!Number.isFinite(meters)||meters<=0)return'';
+    return meters<1000?`${Math.round(meters)} m entfernt`:`${(meters/1000).toFixed(1).replace('.',',')} km entfernt`;
+  }
+  function matchLabel(place){
+    const score=verifiedFitScore(place);
+    return Number.isFinite(score)&&score>0?`${Math.round(score)}% persönlich passend`:'';
+  }
+  function placeCategoryLabel(place){
+    const type=clean(place?.primaryType||place?.primary_type||place?.category).toLowerCase();
+    if(/restaurant|cafe|bar|bakery|food/.test(type))return'Essen & Trinken';
+    if(/museum|culture|gallery|historic/.test(type))return'Kultur';
+    if(/park|nature|beach|garden/.test(type))return'Natur & Erholung';
+    if(/attraction|landmark|sight/.test(type))return'Sehenswürdigkeit';
+    if(/store|shop|market/.test(type))return'Shopping';
+    if(/night|club/.test(type))return'Nachtleben';
+    return categoryDefinition().label;
+  }
   function reason(place,index){
     const ai=(place.aiReasons||[]).map(clean).find(Boolean),preference=(place.preferenceReasons||place._luviaReasons||[]).map(clean).find(Boolean);
     if(ai&&preference&&ai!==preference)return`${ai} ${preference}`;
     if(ai||preference)return ai||preference;
-    const open=place.openNow===true?' und ist aktuell geöffnet':'';
-    return index===0?`Passt am stärksten zu eurer Suche und dem aktuellen Reisekontext${open}.`:`Eine nachvollziehbare Alternative aus denselben geprüften Ortsdaten${open}.`;
+    return index===0?'Noch ohne persönliche KI-Begründung: Provider-Fakten sind belegt, die Passung wird im Ergebnis-Sheet für alle Reisenden eingeordnet.':'Die Fakten sind belegt; eine persönliche Begründung wird erst nach der gemeinsamen Reisenden-Einordnung gezeigt.';
   }
   function preferenceMarkup(){
     const resolution=state.preferenceResolution;
@@ -192,52 +215,28 @@
     const ai=state.aiDecision?.ranking,aiLabel=ai?.used&&!ai?.fallback?'Luvia-KI ordnet · Fakten sichern ab':ai?.fallback?'Regelbasiert abgesichert · KI gerade nicht verfügbar':'Profil schützt · diese Reise gewichtet';
     return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>${esc(aiLabel)}</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
   }
-  function evidenceMarkup(place){
-    const entries=[];
-    if(place.coordinates)entries.push(`<span class="lv-places-spatial__evidence is-coordinate">${icon('pin')} Koordinate verifiziert</span>`);
-    else entries.push(`<span class="lv-places-spatial__evidence is-unknown">${icon('pin')} Keine Kartenposition</span>`);
-    if(place.rating!=null)entries.push(`<span class="lv-places-spatial__evidence">${icon('star')} Bewertungsdaten vorhanden</span>`);
-    if(place.bookingDomains?.length)entries.push(`<span class="lv-places-spatial__evidence is-booking">${icon('ticket')} Booking-Fähigkeit</span>`);
-    return entries.join('');
-  }
-  function detailMarkup(place){
-    const detail=state.details.get(providerId(place));
-    if(!detail)return'';
-    if(detail.loading)return`<div class="lv-places-spatial__detail" role="status">Details und Evidenz werden über places.v1 geladen …</div>`;
-    if(detail.error)return`<div class="lv-places-spatial__detail" role="alert">Details konnten gerade nicht ergänzt werden.</div>`;
-    const value=detail.value||place;
-    const rows=[
-      value.website?`<a href="#" data-places-external="${esc(value.website)}">Website öffnen</a>`:'',
-      value.phone?`<span>Telefon ${esc(value.phone)}</span>`:'',
-      value.businessStatus?`<span>Status ${esc(value.businessStatus)}</span>`:''
-    ].filter(Boolean).join('');
-    return `<div class="lv-places-spatial__detail"><strong>Details &amp; Evidenz</strong><p>${esc(value.description||place.description||'Die sichtbaren Angaben stammen aus der öffentlichen Places-Projektion.')}</p><div>${rows||'<span>Keine weiteren verifizierten Angaben verfügbar.</span>'}</div></div>`;
-  }
   function resultCard(place,index){
     const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image;
     const opening=place.openNow===true?{className:'is-open',label:'Geöffnet'}:place.openNow===false?{className:'is-closed',label:'Geschlossen'}:{className:'is-unknown',label:'Öffnung prüfen'};
     const rating=place.rating!=null?`<strong class="lv-places-spatial__fact">${Number(place.rating).toFixed(1).replace('.',',')}</strong><span class="lv-places-spatial__fact">${place.userRatingCount?`${Number(place.userRatingCount).toLocaleString('de-DE')} Bewertungen`:'Bewertung'}</span>`:'';
-    const price=priceLabel(place.priceLevel);
-    return `<article class="lv-places-spatial__result-card ${selected?'is-selected':''}" id="place-result-${index+1}" data-place-card="${esc(id)}" aria-current="${selected}">
+    const price=priceLabel(place.priceLevel),distance=distanceLabel(place.distanceMeters),match=matchLabel(place);
+    return `<article class="lv-places-spatial__result-card ${selected?'is-selected':''}" id="place-result-${index+1}" data-place-card="${esc(id)}" aria-current="${selected}" data-compact-place-card>
       <button type="button" class="lv-places-spatial__result-media" data-places-select="${esc(id)}" aria-label="${esc(place.name)} auf der Karte auswählen">
         ${image?.url?`<img src="${esc(image.url)}" alt="${esc(image.alt||place.name)}" loading="lazy">`:`<span class="lv-places-spatial__image-fallback">${icon(categoryMeta[state.category]?.icon||'pin')}</span>`}
         <b class="lv-places-spatial__result-rank">${index+1}</b>
       </button>
       <div class="lv-places-spatial__result-body">
-        <div class="lv-places-spatial__result-topline"><span>${esc(categoryDefinition().label)} · ${esc(place.address||destination(state.trip))}</span><span class="lv-places-spatial__result-status ${opening.className}">${opening.label}</span></div>
+        <div class="lv-places-spatial__result-topline"><span>${esc(placeCategoryLabel(place))} · ${esc(place.address||destination(state.trip))}</span><span class="lv-places-spatial__result-status ${opening.className}">${opening.label}</span></div>
         <h3>${esc(place.name)}</h3>
         <p class="lv-places-spatial__reason">${esc(reason(place,index))}</p>
-        <div class="lv-places-spatial__result-facts">${rating}${price?`<span class="lv-places-spatial__fact">${esc(price)}</span>`:''}${saved?`<span class="lv-places-spatial__fact is-saved">${esc(saved.lifecycle==='planned'?'Geplant':'Gespeichert')}</span>`:''}</div>
-        <div class="lv-places-spatial__result-evidence">${evidenceMarkup(place)}</div>
+        <div class="lv-places-spatial__result-facts">${match?`<strong class="lv-places-spatial__fact is-match">${esc(match)}</strong>`:''}${rating}${price?`<span class="lv-places-spatial__fact">${esc(price)}</span>`:''}${distance?`<span class="lv-places-spatial__fact">${esc(distance)}</span>`:''}${saved?`<span class="lv-places-spatial__fact is-saved">${esc(saved.lifecycle==='planned'?'Geplant':'Gespeichert')}</span>`:''}</div>
         <div class="lv-places-spatial__result-secondary-actions">
-          <button type="button" data-places-detail="${esc(id)}" aria-expanded="${state.details.has(id)}" aria-controls="place-detail-${esc(id)}">Details &amp; Evidenz</button>
-          <button type="button" data-places-maps="${esc(id)}" ${place.coordinates||place.mapsUrl?'':'disabled'}>Auf Karte öffnen</button>
+          <button type="button" data-places-maps="${esc(id)}" ${place.coordinates||place.mapsUrl?'':'disabled'}>Route</button>
         </div>
-        <div id="place-detail-${esc(id)}" data-places-detail-region="${esc(id)}" aria-live="polite">${detailMarkup(place)}</div>
         <div class="lv-places-spatial__result-actions">
           <button type="button" class="lv-places-spatial__result-secondary" data-places-favorite="${esc(id)}" aria-pressed="${saved?.isFavorite===true}">${saved?.isFavorite?'Favorit ✓':'Favorisieren'}</button>
-          <button type="button" class="lv-places-spatial__result-secondary" data-places-booking="${esc(id)}">Booking prüfen</button>
-          <button type="button" class="lv-places-spatial__result-primary" data-places-plan="${esc(id)}">Zum Tag planen</button>
+          ${isBookablePlace(place)?`<button type="button" class="lv-places-spatial__result-secondary" data-places-booking="${esc(id)}">Jetzt reservieren</button>`:''}
+          <button type="button" class="lv-places-spatial__result-primary" data-places-plan="${esc(id)}">Zur Timeline hinzufügen</button>
         </div>
       </div>
     </article>`;
@@ -250,7 +249,7 @@
     if(!state.root)return;
     const renderToken=++state.renderToken;
     destroyMap();
-    const view=model(),visible=view.visibleResults,remaining=view.counts.remaining,filterCount=Number(state.filters.openNow)+Number(state.filters.rated);
+    const view=model(),visible=view.visibleResults,remaining=view.counts.remaining,filterCount=Object.values(state.filters).filter(Boolean).length;
     state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="Luvia Places" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
       <header class="lv-places-spatial__heading">
         <div class="lv-places-spatial__heading-copy"><span class="lv-places-spatial__kicker">Spatial Compass Light</span><h1>Was möchtet ihr heute entdecken?</h1><p>Viele Möglichkeiten, ein klarer räumlicher Zusammenhang.</p></div>
@@ -386,34 +385,6 @@
     if(moveMap&&coordinates&&state.map){try{state.map.easeTo({center:coordinates.lngLat,zoom:Math.max(Number(state.map.getZoom?.()||13),14),duration:reducedMotion()?0:520})}catch{}}
   }
   function findPlace(id){return state.results.find(place=>providerId(place)===id)||null}
-  function detailControl(id){return[...(state.root?.querySelectorAll('[data-places-detail]')||[])].find(button=>button.dataset.placesDetail===id)||null}
-  function detailRegion(id){return[...(state.root?.querySelectorAll('[data-places-detail-region]')||[])].find(region=>region.dataset.placesDetailRegion===id)||null}
-  function renderDetail(id){
-    const place=findPlace(id),button=detailControl(id),region=detailRegion(id);
-    if(!place||!button||!region)return false;
-    button.setAttribute('aria-expanded',String(state.details.has(id)));
-    region.innerHTML=detailMarkup(place);
-    region.querySelectorAll('[data-places-external]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openExternal(link.dataset.placesExternal)}));
-    return true;
-  }
-  async function loadDetails(id){
-    const place=findPlace(id),contract=placesContract();
-    if(!place||!contract?.reads?.getDetails)return;
-    select(id,false,true);
-    if(state.details.has(id)){state.details.delete(id);renderDetail(id);return}
-    const pending={loading:true};
-    const lifecycleToken=state.lifecycleToken,root=state.root;
-    state.details.set(id,pending);renderDetail(id);
-    try{
-      const value=await contract.reads.getDetails(id,{regionCode:state.trip?.destination?.countryCode||'DE'});
-      if(lifecycleToken!==state.lifecycleToken||state.root!==root||state.details.get(id)!==pending)return;
-      state.details.set(id,{value});
-    }catch{
-      if(lifecycleToken!==state.lifecycleToken||state.root!==root||state.details.get(id)!==pending)return;
-      state.details.set(id,{error:true});
-    }
-    renderDetail(id);
-  }
   function openMaps(place){
     const navigationPort=port('ExternalNavigationPort');
     if(place?.mapsUrl)return navigationPort?.open(place.mapsUrl);
@@ -455,31 +426,16 @@
     }catch(error){notify(error?.message||'Booking konnte nicht geöffnet werden.','error')}
     finally{button.disabled=false}
   }
-  function planningDialog(place){
-    const start=state.trip?.startDate||state.trip?.start_date||new Date().toISOString().slice(0,10);
-    const modal=document.createElement('div');
-    modal.className='lv-places-spatial__planning-overlay';
-    modal.innerHTML=`<form class="lv-places-spatial__planning"><button type="button" data-planning-close aria-label="Schließen">×</button><span>Zur Timeline hinzufügen</span><h2>${esc(place.name)}</h2><label>Reisetag<input name="date" type="date" required value="${esc(start)}"></label><label>Uhrzeit<input name="time" type="time" value="19:00"></label><label>Notiz<textarea name="note" placeholder="Optional"></textarea></label><button type="submit" class="is-primary">Verbindlich einplanen</button></form>`;
-    if(!globalThis.LuviaUI?.adopt){notify('Der Planungsdialog ist noch nicht bereit.','error');return}
-    state.planningHandle?.close?.('replace');
-    const mounted=globalThis.LuviaUI.adopt(modal,{name:'consumer.places-spatial.plan',kind:'sheet',content:modal.querySelector('form'),closeSelector:'[data-planning-close]',initialFocus:'input[name="date"]',label:`${place.name} zur Timeline hinzufügen`,onClose:()=>{if(state.planningHandle?.id===mounted.id)state.planningHandle=null}});
-    state.planningHandle=mounted;
-    modal.querySelector('form').addEventListener('submit',async event=>{
-      event.preventDefault();
-      const submit=event.submitter;submit.disabled=true;
-      try{
-        const form=new FormData(event.currentTarget),date=form.get('date'),time=form.get('time')||'19:00',plannedAt=new Date(`${date}T${time}:00`).toISOString();
-        const entity=await importPlace(place,'planned');
-        if(!entity?.tripPlaceId)throw new Error('Die Place-Verknüpfung konnte nicht erstellt werden.');
-        const fields={planned_at:plannedAt,notes:clean(form.get('note')),place_name:place.name};
-        await placesContract().commands.plan({tripId:tripId(state.trip),placeType:categoryDefinition().primaryType,tripPlaceId:entity.tripPlaceId,placeId:entity.id,fields});
-        await placesContract().commands.updateLifecycle(entity.tripPlaceId,'planned',{}, {tripId:tripId(state.trip)});
-        globalThis.dispatchEvent(new CustomEvent('luvia:place-plan-changed',{detail:{tripId:tripId(state.trip),tripPlaceId:entity.tripPlaceId,placeId:entity.id,providerPlaceId:providerId(place),lifecycle:'planned',plannedAt,fields}}));
-        globalThis.dispatchEvent(new CustomEvent('luvia:places-lifecycle-changed',{detail:{tripId:tripId(state.trip),tripPlaceId:entity.tripPlaceId,providerPlaceId:providerId(place),lifecycle:'planned'}}));
-        mounted.close('saved');await loadSaved();render();notify('Zur Timeline hinzugefügt.');
-      }catch(error){notify(error?.message||'Der Ort konnte nicht eingeplant werden.','error')}
-      finally{submit.disabled=false}
-    });
+  function isBookablePlace(place){const tokens=[place?.primaryType,place?.canonicalType,place?.category,...(place?.types||[])].map(value=>clean(value).toLowerCase());return tokens.some(value=>/restaurant|cafe|café|bakery|food|meal|bar/.test(value))}
+  function planningDate(){
+    const today=new Date().toISOString().slice(0,10),start=clean(state.trip?.startDate||state.trip?.start_date).slice(0,10),end=clean(state.trip?.endDate||state.trip?.end_date).slice(0,10);
+    return start&&today<start?start:end&&today>end?start||today:today;
+  }
+  function openResultSheet(places=filteredResults(),selectedId=state.selectedId){
+    if(!places.length)return null;
+    const opener=globalThis.LuviaJourneySuggestions?.openResults;
+    if(typeof opener!=='function'){notify('Die einheitliche Ergebnisansicht ist noch nicht bereit.','error');return null}
+    return opener({places,selectedId,trip:state.trip,query:state.query,source:'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],onSelectionChange:id=>select(id,false,true)});
   }
   async function showMore(){
     const previous=state.visibleLimit;
@@ -497,25 +453,25 @@
     root.querySelector('[data-places-search]')?.addEventListener('submit',event=>{event.preventDefault();search({query:new FormData(event.currentTarget).get('query'),category:state.category})});
     root.querySelectorAll('[data-places-category]').forEach(button=>button.addEventListener('click',()=>{const def=categoryDefinition(button.dataset.placesCategory);search({query:def.query,category:def.key})}));
     root.querySelectorAll('[data-places-select]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.placesSelect)));
-    root.querySelectorAll('[data-places-detail]').forEach(button=>button.addEventListener('click',()=>loadDetails(button.dataset.placesDetail)));
     root.querySelectorAll('[data-places-external]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openExternal(link.dataset.placesExternal)}));
     root.querySelectorAll('[data-places-maps]').forEach(button=>button.addEventListener('click',()=>openMaps(findPlace(button.dataset.placesMaps))));
     root.querySelectorAll('[data-places-favorite]').forEach(button=>button.addEventListener('click',()=>favorite(findPlace(button.dataset.placesFavorite),button)));
     root.querySelectorAll('[data-places-booking]').forEach(button=>button.addEventListener('click',()=>openBooking(findPlace(button.dataset.placesBooking),button)));
-    root.querySelectorAll('[data-places-plan]').forEach(button=>button.addEventListener('click',()=>planningDialog(findPlace(button.dataset.placesPlan))));
+    root.querySelectorAll('[data-places-plan]').forEach(button=>button.addEventListener('click',()=>openResultSheet([findPlace(button.dataset.placesPlan)],button.dataset.placesPlan)));
     root.querySelectorAll('[data-places-retry]').forEach(button=>button.addEventListener('click',()=>search({focus:false})));
     root.querySelector('[data-places-more]')?.addEventListener('click',()=>showMore());
     root.querySelector('[data-places-back-plan]')?.addEventListener('click',()=>globalThis.LuviaApp?.openCompass?.('plan')||globalThis.LuviaApp?.show?.('plan'));
     root.querySelectorAll('[data-places-filter]').forEach(button=>button.addEventListener('click',()=>{state.filterOpen=!state.filterOpen;render();if(state.filterOpen)state.root?.querySelector('[data-places-filter-option]')?.focus()}));
     root.querySelectorAll('[data-places-filter-option]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.placesFilterOption;state.filters[key]=!state.filters[key];state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()}));
-    root.querySelector('[data-places-filter-reset]')?.addEventListener('click',()=>{state.filters={openNow:false,rated:false};state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()});
+    root.querySelectorAll('[data-places-sort]').forEach(button=>button.addEventListener('click',()=>{state.sort=button.dataset.placesSort;state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()}));
+    root.querySelector('[data-places-filter-reset]')?.addEventListener('click',()=>{state.filters={openNow:false,rated:false,rating45:false,nearby:false};state.sort='fit';state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()});
   }
 
   async function mount(root,trip){
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false};state.filterOpen=false;state.details.clear();state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.root=root;state.trip=trip;state.visibleLimit=INITIAL_VISIBLE_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false,rating45:false,nearby:false};state.sort='fit';state.filterOpen=false;state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
     if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
@@ -543,9 +499,9 @@
     state.networkUnsubscribe?.();state.networkUnsubscribe=null;
     state.planningHandle?.close?.('unmount');state.planningHandle=null;
     if(state.root)state.root.innerHTML='';
-    state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.details.clear();state.images.clear();state.saved.clear();
+    state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.saved.clear();
   }
   function diagnostics(){return{version:VERSION,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,openResultSheet,diagnostics});
 })();

@@ -116,7 +116,7 @@ const index=read('index.html');
 const order=[corePath,'core/places/timeline-core.js',adapterPath,composerPath,'app/app-shell.js'].map(file=>index.indexOf(file));
 assert.ok(order.every(index=>index>=0),'M12 runtime files must all be loaded');
 assert.deepEqual(order,[...order].sort((a,b)=>a-b),'Journey Core, compatibility runtime, contract, composer and App Shell load order is invalid');
-assert.ok(index.includes(`${composerCssPath}?v=13.82.114`));
+assert.ok(index.includes(`${composerCssPath}?v=13.82.116`));
 
 for(const token of ['LuviaJourneyContractV1','contractId:CONTRACT_ID','composeProjection','const reads=Object.freeze','const commands=Object.freeze','legacyCompatibility:true'])assert.ok(adapterSource.includes(token),`Journey adapter missing ${token}`);
 assert.equal((adapterSource.match(/LuviaTimelineCore/g)||[]).length<=2,true,'Journey adapter must contain one compatibility-provider boundary, not scattered private access');
@@ -140,6 +140,7 @@ assert.equal(widgets.includes('LuviaTimelineCore?.renderCalendar'),false);
 
 const composer=read(composerPath),css=read(composerCssPath),legacy=read('core/places/timeline-core.js');
 for(const token of ['journey.day-composer','journey.day-detail','LuviaJourneyContractV1','LuviaExperienceContractV1','LuviaUI','data-journey-date'])assert.ok(composer.includes(token),`Day Composer missing ${token}`);
+for(const token of ['link(links.mapsUrl,\'Route\',\'route\')','link(links.menuUrl,\'Speisekarte\',\'menu\')','link(links.website,\'Website\',\'website\')','data-journey-entry-delete','bookingForEntry','LuviaBookingManagementSheet.open','Nur dieser bestätigte Timeline-Zeitpunkt wird entfernt. Der Place bleibt in eurer Reise erhalten.'])assert.ok(composer.includes(token),`Day Composer missing safe rich Timeline behavior: ${token}`);
 assert.ok(css.includes('min-height:48px'));
 assert.match(css,/\.lvj-entry-actions button\{min-height:48px/);
 assert.ok(css.includes('prefers-reduced-motion'));

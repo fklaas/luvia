@@ -2029,6 +2029,21 @@
   .lv-places-spatial__map.is-ready .lv-places-spatial__map-message { transition: none; }
 }
 
+/* Scrolling remains available by wheel, touch and keyboard, but Luvia never
+   exposes browser-native scroll tracks inside the product surface. */
+.lv-places-spatial,
+.lv-places-spatial * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.lv-places-spatial::-webkit-scrollbar,
+.lv-places-spatial *::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
 .lv-places-spatial__preference{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(0,1.8fr);gap:20px;align-items:center;margin:8px 0 22px;padding:18px 20px;border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 18%,var(--luvia-color-border-subtle));border-radius:22px;background:linear-gradient(110deg,color-mix(in srgb,var(--luvia-color-action-primary-soft) 52%,#fff),rgba(255,255,255,.94));box-shadow:0 16px 44px rgba(24,58,75,.08)}
 .lv-places-spatial__preference>div{display:grid;gap:4px}.lv-places-spatial__preference>div small{color:var(--luvia-color-action-primary);font-size:9px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.lv-places-spatial__preference>div strong{font-family:var(--luvia-font-family-display);font-size:clamp(1.1rem,2vw,1.45rem)}
 .lv-places-spatial__preference ul{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}.lv-places-spatial__preference li{display:flex;align-items:center;gap:8px;min-height:50px;padding:7px 12px;border:1px solid rgba(70,105,122,.14);border-radius:16px;background:rgba(255,255,255,.82)}.lv-places-spatial__preference li svg{width:20px;height:20px;padding:4px;border-radius:8px;background:#eaf5f4;color:#278f83}.lv-places-spatial__preference li.is-trip svg{background:#fff0ed;color:#ed6659}.lv-places-spatial__preference li.is-constraint svg{background:#eef4fb;color:#4f82b2}.lv-places-spatial__preference li span{display:grid}.lv-places-spatial__preference li b{font-size:10px}.lv-places-spatial__preference li small{color:var(--luvia-color-text-muted);font-size:8px}

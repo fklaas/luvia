@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.2.1';
+  const VERSION='1.3.0';
   const listeners=new Set();
   let client=null,tripId=null,activityChannel=null,presenceChannel=null,heartbeatTimer=null,refreshTimer=null,started=false,watchPromise=null,watchToken=0;
   let unavailableUntil=0,heartbeatInFlight=false,heartbeatReadyAfter=0,sessionEpoch=0;
@@ -21,7 +21,7 @@
     if(!networkReady()||!await sessionReady()){state.syncing=false;state.availability=navigator.onLine===false?'offline':'auth-wait';return emit('refresh-skipped')}
     if(!silent){state.syncing=true;emit('refreshing')}
     try{
-      const [activities,presence]=await Promise.all([rpc('luvia_list_trip_activity',{p_trip_id:tripId,p_limit:40}),rpc('luvia_list_trip_presence',{p_trip_id:tripId})]);
+      const [activities,presence]=await Promise.all([rpc('luvia_list_trip_activity',{p_trip_id:tripId,p_limit:100}),rpc('luvia_list_trip_presence',{p_trip_id:tripId})]);
       if(activities.skipped||presence.skipped){state.syncing=false;return emit('refresh-skipped')}
       state.activities=activities.data||[];state.presence=presence.data||[];state.loaded=true;state.syncing=false;state.error=null;state.availability='online';state.lastUpdatedAt=new Date().toISOString();return emit('refreshed');
     }catch(error){state.loaded=true;state.syncing=false;markUnavailable(error);return emit('refresh-deferred')}

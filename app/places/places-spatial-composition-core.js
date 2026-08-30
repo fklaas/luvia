@@ -3,7 +3,7 @@ var LuviaPlacesSpatialCompositionCoreV1=(()=>{
 
 const CONTRACT_ID='consumer.places-spatial-composition.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const SOURCE_CONTRACT='places.v1';
 const INITIAL_VISIBLE_RESULTS=6;
 const MAX_RESULTS=18;
@@ -88,12 +88,16 @@ function normalizePlace(input){
     providerPlaceId:externalId,
     tripPlaceId:clean(input.tripPlaceId||input.trip_place_id)||null,
     primaryType:clean(input.primaryType||input.primary_type)||'custom',
+    category:clean(input.category)||null,
+    types:stringArray(input.types),
     name:clean(input.name||input.displayName?.text||input.displayName)||'Unbenannter Ort',
     description:clean(input.description),
     address:clean(input.address||input.formattedAddress||input.formatted_address),
     coordinates,
     rating:finiteNumber(input.rating),
     userRatingCount:finiteNumber(input.userRatingCount??input.user_rating_count),
+    distanceMeters:finiteNumber(input.distanceMeters??input.distance_meters),
+    aiMatchScore:finiteNumber(input.aiMatchScore??input.ai_match_score??input.discoveryScore),
     priceLevel:clean(input.priceLevel||input.price_level)||null,
     openNow:typeof input.openNow==='boolean'?input.openNow:(typeof input.currentOpeningHours?.openNow==='boolean'?input.currentOpeningHours.openNow:null),
     lifecycle:clean(input.lifecycle||input.lifecycleStatus||input.lifecycle_status||input.status)||'discovered',
@@ -104,6 +108,13 @@ function normalizePlace(input){
     providerRefs:stringMap(input.providerRefs),
     capabilities:stringArray(input.capabilities),
     bookingDomains:stringArray(input.bookingDomains),
+    features:immutable({
+      reservable:input.features?.reservable===true,
+      servesVegetarianFood:input.features?.servesVegetarianFood===true,
+      servesVeganFood:input.features?.servesVeganFood===true,
+      goodForChildren:input.features?.goodForChildren===true
+    }),
+    accessibilityOptions:immutable({wheelchairAccessibleEntrance:input.accessibilityOptions?.wheelchairAccessibleEntrance===true}),
     aiReasons:stringArray(input.aiReasons||input._luviaReasons),
     aiUnknowns:stringArray(input.aiUnknowns),
     businessStatus:clean(input.businessStatus||input.business_status)||null,
