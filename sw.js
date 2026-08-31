@@ -1,5 +1,5 @@
-const BUILD='13.82.125';
-const CACHE='luvia-shell-v13.82.125';
+const BUILD='13.82.126';
+const CACHE='luvia-shell-v13.82.126';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -40,8 +40,8 @@ APP_SHELL.push(scoped('app/collaboration/journey-place-proposals.js'));
 APP_SHELL.push(scoped('vendor/supabase/supabase-2.112.4.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.css'));
-APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.125.bundle.js'));
-APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.125.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.126.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.126.bundle.js'));
 APP_SHELL.push(scoped('app/luvia-runtime-loader.mjs'));
 const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));
@@ -84,7 +84,10 @@ self.addEventListener('message',event=>{
 function bypass(url){
   return url.origin!==self.location.origin||url.hostname.includes('supabase.co')||url.pathname.includes('/rest/v1/')||url.pathname.includes('/auth/v1/')||url.pathname.includes('/functions/v1/');
 }
-const currentBuildAsset=url=>url.searchParams.get('v')===BUILD;
+const currentBuildAsset=url=>{
+  const token=url.searchParams.get('v')||'';
+  return token===BUILD||token.startsWith(`${BUILD}-`);
+};
 function canCache(request,response){return !request.headers.has('range')&&response.status===200&&response.type!=='opaque'}
 async function store(request,response){if(!canCache(request,response))return;const copy=response.clone();const cache=await shellCache();await cache.put(request,copy)}
 
@@ -108,7 +111,7 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  if(/\.(?:js|css|json|webmanifest|svg|png|webp|ico|html)$/i.test(url.pathname)){
+  if(/\.(?:m?js|css|json|webmanifest|svg|png|webp|ico|html)$/i.test(url.pathname)){
     event.respondWith((async()=>{
       const activeCache=await shellCache();
       const cached=await activeCache.match(request,{ignoreSearch:true});

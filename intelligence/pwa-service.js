@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='4.28.9-controlled-upgrade-recovery';
+const VERSION='4.28.10-coherent-runtime-upgrade';
 const SCRIPT_URL=new URL(document.currentScript?.src||'intelligence/pwa-service.js',document.baseURI);
 const APP_ROOT_URL=new URL('../',SCRIPT_URL);
 const BUILD=SCRIPT_URL.searchParams.get('v')||String(globalThis.LuviaKernelVersion?.build||'').trim()||null;
@@ -35,7 +35,7 @@ async function activateExpectedWaitingSoon(reg,{preserveDocument=false,timeoutMs
 function bindRegistration(reg){
   if(reg.__luviaBound)return;
   reg.__luviaBound=true;
-  const inspect=()=>{updateAvailable=Boolean(reg.waiting);if(controlledUpgradeRecoveryStarted&&activateExpectedWaiting(reg,{preserveDocument:true}))return;emit()};
+  const inspect=()=>{updateAvailable=Boolean(reg.waiting);if(controlledUpgradeRecoveryStarted&&activateExpectedWaiting(reg,{preserveDocument:false}))return;emit()};
   const watch=worker=>{
     if(!worker||worker.__luviaBound)return;
     worker.__luviaBound=true;
@@ -50,7 +50,7 @@ function bindRegistration(reg){
 async function recoverControlledUpgrade(){
   if(controlledUpgradeRecoveryStarted||!BUILD||!workerContainer?.controller||expectedWorker(workerContainer.controller))return snapshot();
   controlledUpgradeRecoveryStarted=true;
-  try{await register();await activateExpectedWaitingSoon(registration,{preserveDocument:true});return snapshot()}catch{return snapshot()}
+  try{await register();await activateExpectedWaitingSoon(registration,{preserveDocument:false});return snapshot()}catch{return snapshot()}
 }
 async function checkForUpdate(){lastUpdateCheck=new Date().toISOString();if(!registration)await register();try{await registration.update();activateExpectedWaiting(registration);lastError=null}catch(e){lastError=e.message||String(e)}emit();return snapshot()}
 async function activateUpdate(){return activateExpectedWaiting(registration)}
