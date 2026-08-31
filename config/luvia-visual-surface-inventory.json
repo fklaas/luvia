@@ -3979,8 +3979,8 @@
         "dom-rendering-source",
         "active-entry-reference"
       ],
-      "bytes": 7270,
-      "sha256": "681be8a67e262e5ee557fe7c16beae8d25ed13a067d9b65f15adff2437052bdc"
+      "bytes": 7268,
+      "sha256": "c81cd51fd63f010461525ae4f4c2471e9485ec14ee6a59f56a1acd9d0bac2de0"
     },
     {
       "path": "intelligence/pwa-test.js",
