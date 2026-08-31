@@ -28,7 +28,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Spatial AI Places + Runtime Recovery — Integration Candidate 13.82.124
+## M16.5 Spatial AI Places + Runtime Recovery — Stable Integration Release 13.82.124
 
 - Runtime target: **App 13.82.124 / Core 4.82.124 / cache `luvia-shell-v13.82.124` / Integration only**.
 - Single owner path: **`App Shell → LuviaAIDashboard → LuviaAIActionRuntime → public owner contracts`; no second Intelligence, Places, Booking or Journey owner exists**.
@@ -41,7 +41,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Mutation protocol: **all owner mutations remain Preview → explicit confirmation → public Owner Command → Receipt → Recovery; exact owner-supported Undo is a separately confirmed compensation. Provider facts, events and coordinates are never invented**.
 - Step 16 boundary: **the owner-first USP/Event backlog remains a decomposition contract, not an implementation or provider-inventory claim. The current candidate does not silently productize reserved Collaboration, CRDT or Verified Event owners**.
 - Local visible evidence: **real pointer and keyboard input sent `Restaurant in Scharbeutz, eher im Zentrum statt am Strand`. The first run showed three controlled, location-confirmed centre candidates; the second identical request in the same chat excluded those IDs and showed three different centre candidates. Every image carried explicit fixture attribution, every card showed the bounded location evidence, and real pointer hover caused no horizontal pin movement**.
-- Release state: **the complete Safe Regression targets 135/135 (including NFR-0 3/3 and the new upgrade-bridge gate); the visual inventory is regenerated only after the final documentation bytes. Immutable deployment, public old-worker recovery, Stable/Immutable E2E, byte provenance and the final rollback record remain pending**.
+- Release state: **complete Safe Regression 135/135 PASS, including NFR-0 3/3, fresh visual inventory and the new upgrade-bridge gate. The real Stable browser that failed on `.123` under its controlling `.121` Worker boots on `.124` without cache deletion and survives real `Ctrl+R`; public logs contain no new error. Clean archive, Stable and Immutable are SHA-256-identical for 20/20 release-critical assets**.
+- Public deployment: **source commit `787e084a77f3752a96ff7ad9312bbf470660c0c4`; Integration version `7e1068dd-dc21-4a82-8973-7d13c7105c80`; deployment `e74bb62b-a2a3-40a8-98cf-2873f0cba704`; Stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; Immutable `https://7e1068dd-integration-luvia.njwnrvwbv5.workers.dev/`**.
+- Exact rollback: **`npx wrangler versions deploy 846a60cc-ad58-4a6d-9a41-db020259b6e4@100 --name integration-luvia --message "Rollback M16.5 App 13.82.124 to App 13.82.122" --yes`; code/assets only, no data rollback**.
 - Scope lock: **Main, Production, DB/RLS, Secrets and Edge Functions unchanged and unauthorized**.
 
 ## M16.5 Spatially Precise AI Places — REJECTED Stable Release 13.82.123
