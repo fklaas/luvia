@@ -522,6 +522,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-step15-places-spatial-diversity-media.test.cjs'
   },
   {
+    category: 'M16.5 / Runtime Bundle Upgrade Bridge',
+    test: 'tests/m16.5-step18-runtime-bundle-upgrade-bridge.test.cjs'
+  },
+  {
     category: 'M16.5 / Provider-first Preference Paint',
     test: 'tests/m16.5ab-fast-preference-provider-first-paint.test.cjs'
   },

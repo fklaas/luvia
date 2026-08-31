@@ -20,35 +20,43 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.123**
-- Core: **4.82.123**
-- Name: **M16.5 Spatially Precise AI Places**
+- App: **13.82.124**
+- Core: **4.82.124**
+- Name: **M16.5 Spatial AI Places + Runtime Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-08-31**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Spatially Precise AI Places — Integration Candidate 13.82.123
+## M16.5 Spatial AI Places + Runtime Recovery — Integration Candidate 13.82.124
 
-- Runtime target: **App 13.82.123 / Core 4.82.123 / cache `luvia-shell-v13.82.123` / Integration only**.
+- Runtime target: **App 13.82.124 / Core 4.82.124 / cache `luvia-shell-v13.82.124` / Integration only**.
 - Single owner path: **`App Shell → LuviaAIDashboard → LuviaAIActionRuntime → public owner contracts`; no second Intelligence, Places, Booking or Journey owner exists**.
 - Intent behavior: **the existing OpenAI `planning.dialogue` capability may classify multilingual meaning, while a deterministic compiler maps every goal back to fixed owner contracts, blocks confirmation bypasses and sequences compound wishes one owner-safe step at a time. Natural language never authorizes execution**.
 - Places experience: **each Place-related wish renders at most three Places-v1 results, but deep discovery builds a wider deduplicated candidate pool from at least three semantic queries. Already exposed provider IDs are excluded for the current chat session; a repeat is allowed only as a visibly explained pool-exhaustion fallback. Valid owner coordinates survive the read projection into one reusable MapLibre projection; absent/invalid coordinates create no pin**.
 - Spatial and media evidence: **the bounded compiler preserves positive and negative area constraints in DE/EN/ES/FR/IT/PT/NL. Provider-confirmed contradictions are rejected, while unknown location evidence stays honestly unknown. The exact first Google Places photo may be resolved only through the Places gateway and remains transient; missing evidence renders `Kein Provider-Foto belegt`, and controlled fixture images identify themselves as non-provider evidence**.
 - Marker behavior: **MapLibre owns the outer marker anchor so hover cannot overwrite its placement transform. Only the inner pin may float vertically by 3 px; hover/focus pauses it and Reduced Motion disables it**.
+- Runtime upgrade bridge: **the current loader executes only `.124`, while exact `.121`, `.122` and `.123` pre-/post-context bundles remain network-addressable without entering the current precache. This lets an older controlling Service Worker finish its cached boot, activate the new worker and recover on real reload instead of receiving SPA HTML for a missing JavaScript asset**.
 - Compass map language: **base map and pins use the exact outer-ring palette coral `#ef6254`, sun `#f4b34c`, sea `#2c93a9` and grove `#2f8c73`, with restrained tints for water, parks, buildings and land. List-only fallback remains available when MapLibre, tiles or coordinates are unavailable**.
 - Mutation protocol: **all owner mutations remain Preview → explicit confirmation → public Owner Command → Receipt → Recovery; exact owner-supported Undo is a separately confirmed compensation. Provider facts, events and coordinates are never invented**.
 - Step 16 boundary: **the owner-first USP/Event backlog remains a decomposition contract, not an implementation or provider-inventory claim. The current candidate does not silently productize reserved Collaboration, CRDT or Verified Event owners**.
 - Local visible evidence: **real pointer and keyboard input sent `Restaurant in Scharbeutz, eher im Zentrum statt am Strand`. The first run showed three controlled, location-confirmed centre candidates; the second identical request in the same chat excluded those IDs and showed three different centre candidates. Every image carried explicit fixture attribution, every card showed the bounded location evidence, and real pointer hover caused no horizontal pin movement**.
-- Release state: **the complete Safe Regression targets 134/134 (including NFR-0 3/3); the visual inventory is regenerated only after the final documentation bytes. Immutable deployment, public Stable/Immutable E2E, byte provenance and the final rollback record remain pending**.
+- Release state: **the complete Safe Regression targets 135/135 (including NFR-0 3/3 and the new upgrade-bridge gate); the visual inventory is regenerated only after the final documentation bytes. Immutable deployment, public old-worker recovery, Stable/Immutable E2E, byte provenance and the final rollback record remain pending**.
 - Scope lock: **Main, Production, DB/RLS, Secrets and Edge Functions unchanged and unauthorized**.
+
+## M16.5 Spatially Precise AI Places — REJECTED Stable Release 13.82.123
+
+- Runtime/source: **App 13.82.123 / Core 4.82.123 / commit `71dbe44ecc782110d3e3b2c137df7d46860b090b` / version `52d68377-600f-4c17-92b3-18eae96a22fd` / deployment `39e2803a-2c8f-4086-9ba2-dd42ba7ed6cb`**.
+- Positive evidence: **the immutable origin cold-started and reported the correct kernel; spatial intent, provider-media policy, session diversity and marker stability passed 134/134 locally**.
+- Rejecting counterevidence: **a real Stable client still controlled by the `.121` Service Worker requested `luvia-runtime-precontext-13.82.121.bundle.js`; the asset had been removed, Cloudflare returned SPA HTML, the browser raised `Unexpected token '<'`, `LuviaTripStateReaderV1` never initialized and the visible Splash remained stuck across reload**.
+- Disposition: **not an accepted release and not a rollback target. `.124` is the forward recovery with explicit three-build split-bundle retention. Main, Production and data plane were never changed**.
 
 ## M16.5 Functional Multilingual AI & Compass Map — Stable Integration Release 13.82.122
 
 - Runtime: **App 13.82.122 / Core 4.82.122 / cache `luvia-shell-v13.82.122` / source commit `60de9c6acf46f938f98b6b8db2065a7a9ea532c6`**.
 - Public deployment: **100% Integration version `846a60cc-ad58-4a6d-9a41-db020259b6e4`, deployment `e5f884fb-ae60-4f70-863a-12720db80f92`; Stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; Immutable `https://846a60cc-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Scope: **multilingual Structured Intent plus deterministic owner/confirmation safety, sequential multi-goal chat, up to three owner-backed Places per goal, shared Compass-coloured MapLibre projection, nested Place sheets and confirmed Owner Receipt/Undo continuation. It does not claim provider-photo diversity or precise centre-versus-waterfront enforcement now added in `.123`**.
-- Rollback from `.123`: **`npx wrangler versions deploy 846a60cc-ad58-4a6d-9a41-db020259b6e4@100 --name integration-luvia --message "Rollback M16.5 App 13.82.123 to App 13.82.122" --yes`; code/assets only, no data rollback**.
+- Rollback from `.124`: **`npx wrangler versions deploy 846a60cc-ad58-4a6d-9a41-db020259b6e4@100 --name integration-luvia --message "Rollback M16.5 App 13.82.124 to App 13.82.122" --yes`; code/assets only, no data rollback**.
 - Main / Production / data plane: **unchanged; no DB/RLS, Secret or Edge Function action**.
 
 ## M16.5 Steps 15–18 Global AI & Owner-first Productization — Stable Integration Release 13.82.121

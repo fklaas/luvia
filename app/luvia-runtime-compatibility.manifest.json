@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Static upgrade bridge for clients still controlled by an earlier Luvia service worker; these bundles are not loaded by the current runtime.",
+  "currentBuild": "13.82.124",
+  "retainedBuilds": [
+    {
+      "build": "13.82.121",
+      "sourceCommit": "c1bf77cfcc8fcd1cd2cd32378ad5d8bd77f8b11d",
+      "preContext": "app/luvia-runtime-precontext-13.82.121.bundle.js",
+      "postContext": "app/luvia-runtime-postcontext-13.82.121.bundle.js"
+    },
+    {
+      "build": "13.82.122",
+      "sourceCommit": "60de9c6acf46f938f98b6b8db2065a7a9ea532c6",
+      "preContext": "app/luvia-runtime-precontext-13.82.122.bundle.js",
+      "postContext": "app/luvia-runtime-postcontext-13.82.122.bundle.js"
+    },
+    {
+      "build": "13.82.123",
+      "sourceCommit": "71dbe44ecc782110d3e3b2c137df7d46860b090b",
+      "preContext": "app/luvia-runtime-precontext-13.82.123.bundle.js",
+      "postContext": "app/luvia-runtime-postcontext-13.82.123.bundle.js"
+    }
+  ],
+  "policy": {
+    "minimumRetainedBuilds": 3,
+    "currentLoaderUsesCompatibilityBundle": false,
+    "precacheCompatibilityBundles": false,
+    "reason": "An old controlling worker may serve its cached loader before the new worker activates. Its exact split bundles must remain network-addressable long enough to finish boot and activate the current worker."
+  }
+}
