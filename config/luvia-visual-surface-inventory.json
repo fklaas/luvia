@@ -5920,8 +5920,8 @@
         "interaction-source",
         "overlay-source"
       ],
-      "bytes": 6754,
-      "sha256": "1908686d952f828923dd02b6154f397e3c4e51ac655d4818b0a50fbeb198bdf8"
+      "bytes": 7246,
+      "sha256": "4761e3545d277f1f49c1b1d7f809283e1fd9148ca95102cbc3f0c0d075c1a5d9"
     },
     {
       "path": "tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs",

@@ -12,8 +12,10 @@ node_modules/**
 wrangler.jsonc
 
 # Source / development directories
-supabase
-supabase/**
+/supabase
+/supabase/**
+!vendor/supabase
+!vendor/supabase/**
 tests
 tests/**
 docs
