@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.2.0';
+  const RUNTIME_VERSION = '1.3.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -79,6 +79,23 @@
 
   function composeDayGuidance(input = {}) {
     return immutable(preferenceResolver().composeDayGuidance(input));
+  }
+
+  function travelOrchestration() {
+    return root.LuviaTravelOrchestrationCoreV1 ||
+      providerUnavailable('LuviaTravelOrchestrationCoreV1');
+  }
+
+  function planningTrace(input = {}) {
+    return immutable(travelOrchestration().planningTrace(input));
+  }
+
+  function gateContext(input = {}) {
+    return immutable(travelOrchestration().gateContext(input));
+  }
+
+  function causalFeedback(input = {}) {
+    return immutable(travelOrchestration().causalFeedback(input));
   }
 
   async function run(capability, input = {}, options = {}) {
@@ -179,6 +196,7 @@
       ready: Boolean(core && root.LuviaAI),
       providers: Object.freeze({
         domainCore: Boolean(core),
+        travelOrchestration: Boolean(root.LuviaTravelOrchestrationCoreV1),
         preferenceResolver: Boolean(root.LuviaTripPreferenceResolutionCoreV1),
         runtime: Boolean(root.LuviaAI),
         proposals: Boolean(root.LuviaAIProposals?.create),
@@ -206,6 +224,9 @@
       resolveTripPreferences,
       rankPlaceCandidates,
       composeDayGuidance,
+      planningTrace,
+      gateContext,
+      causalFeedback,
       getMemorySnapshot,
       getSystemSnapshot,
       subscribe
@@ -221,6 +242,9 @@
     resolveTripPreferences,
     rankPlaceCandidates,
     composeDayGuidance,
+    planningTrace,
+    gateContext,
+    causalFeedback,
     getMemorySnapshot,
     getSystemSnapshot,
     run,
@@ -236,6 +260,16 @@
 
   root.LuviaIntelligenceContractV1 = api;
   root.LuviaIntelligenceContract = api;
+
+  root.LuviaFeatureFlagRegistry?.register?.({
+    id: 'intelligence.s16-01-explainable-planning-trace',
+    owner: 'intelligence',
+    description: 'Shows the owner-routed evidence and decision trace without storing raw private context.',
+    defaultEnabled: true,
+    temporary: true
+  });
+  root.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-02-on-device-context-gate',owner:'intelligence',description:'Purpose-bound, deny-by-default context gate over an explicit LocationPort grant.',defaultEnabled:true,temporary:true});
+  root.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-06-causal-feedback-learning',owner:'intelligence',description:'Explicit confirmed-outcome feedback may prepare a bounded Identity-owned preference change.',defaultEnabled:true,temporary:true});
 
   root.LuviaGlobalContracts?.register?.({
     id: CONTRACT_ID,

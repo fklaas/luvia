@@ -20,13 +20,24 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.124**
-- Core: **4.82.124**
-- Name: **M16.5 Spatial AI Places + Runtime Recovery**
+- App: **13.82.125**
+- Core: **4.82.125**
+- Name: **M16.5 Owner-first Intelligence USP Slices**
 - Channel: **integration-preview**
 - Datum: **2026-08-31**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Owner-first Intelligence USP Slices — Integration Candidate 13.82.125
+
+- Runtime target: **App 13.82.125 / Core 4.82.125 / cache `luvia-shell-v13.82.125` / Integration only**.
+- Scope: **S16.01 Explainable Planning Trace, S16.02 On-Device Context Gate, S16.03 Route Uncertainty, S16.04 Day Rehearsal, S16.05 Live Disruption Recovery, S16.06 Causal Feedback, S16.08 Destination Digital Twin and the S16.09–S16.12 Verified Event Intelligence family**.
+- Owner boundary: **the existing `intelligence.v1` remains the single orchestrator. Facts and mutations remain with Places, Booking, Journey, Trip, Identity, Memory and their public owner contracts. S16.07 CRDT and Collaboration writes remain reserved/disabled**.
+- Event truth: **only strict source-backed Verified Event Claims may enter the timeline; a MapLibre pin additionally requires Places-provenanced coordinates. Missing public source gateway returns an empty `provider-unavailable` result, never fixture or invented events**.
+- Mutation protocol: **Preview → explicit confirmation → public Owner Command → Owner Receipt → Recovery → separately confirmed Undo/compensation; natural language alone never executes a mutation**.
+- Candidate state: **local implementation and targeted Evals are present; full Safe Regression, public Step-17 CUA, commit, immutable deployment and byte provenance are not claimed by this paragraph and must be recorded before release**.
+- Planned rollback after deployment: **return Integration 100% to immutable `.124` version `7e1068dd-dc21-4a82-8973-7d13c7105c80`; code/assets only, no data rollback**.
+- Scope lock: **Main, Production, DB/RLS, Secrets and Edge Functions unchanged and unauthorized**.
 
 ## M16.5 Spatial AI Places + Runtime Recovery — Stable Integration Release 13.82.124
 

@@ -1,14 +1,13 @@
-(()=>{
+((root)=>{
 'use strict';
 
-const VERSION='1.5.0';
+const VERSION='1.7.0';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
 const receipts=new Map();
 const completedInputs=new Map();
 const compensationOrigins=new Map();
-const root=globalThis;
 let sequence=0;
 const actionCore=()=>root.LuviaIntelligenceActionContractCoreV1||missing('LuviaIntelligenceActionContractCoreV1');
 const ledgerCore=()=>root.LuviaIntelligenceActionLedgerCoreV1||missing('LuviaIntelligenceActionLedgerCoreV1');
@@ -18,6 +17,8 @@ const bookingContract=()=>root.LuviaBookingContractV1||missing('booking.v1');
 const journeyContract=()=>root.LuviaJourneyContractV1||missing('journey.v1');
 const memoryContract=()=>root.LuviaMemoryContractV1||root.LuviaMemoryContract||missing('memory.v1');
 const identityContract=()=>root.LuviaIdentityContractV1||root.LuviaIdentityContract||missing('identity.v1');
+const intelligenceContract=()=>root.LuviaIntelligenceContractV1||root.LuviaIntelligenceContract||missing('intelligence.v1');
+const verifiedEventContract=()=>root.LuviaVerifiedEventIntelligenceContractV1||missing('intelligence.verified-events.v1');
 const ledger=ledgerCore().createActionLedger({idFactory:value=>`ledger-${value}-${newId('entry')}`,maxEntries:240});
 
 function missing(provider){const error=new Error(`Luvia Action Runtime: ${provider} ist nicht verfügbar.`);error.code='AI_ACTION_OWNER_CONTRACT_UNAVAILABLE';error.provider=provider;throw error}
@@ -28,13 +29,13 @@ const destination=trip=>clean(trip?.destination?.name||trip?.destination?.format
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 function newId(prefix){return`${prefix}-${root.crypto?.randomUUID?.()||`${Date.now()}-${++sequence}`}`}
 function emit(reason,detail={}){const event=actionCore().immutable({reason,...detail});for(const listener of listeners){try{listener(event)}catch{}}root.dispatchEvent?.(new CustomEvent('luvia:ai-action-changed',{detail:event}));return event}
-function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():missing(owner)}
+function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
 function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null}}
 function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function connectionSnapshot(){
-  const owners=['trip','places','booking','journey','memory','identity'];
+  const owners=['trip','places','booking','journey','memory','identity','intelligence'];
   return actionCore().immutable(owners.map(owner=>{
     const definitions=actionCore().listActions().filter(action=>action.owner===owner);let contract=null,diagnostics={};
     try{contract=ownerContract(owner);diagnostics=contract?.diagnostics?.()||{}}catch(error){return{owner,contractId:definitions[0]?.ownerContract||null,registered:false,ready:false,operations:0,totalOperations:definitions.length,reason:error?.code||'unavailable'}}
@@ -82,7 +83,13 @@ async function dayResult(request){
   const trip=tripContract().getActiveTrip?.()||{};const projection=await journeyContract().reads.snapshot({trip});const today=new Date().toISOString().slice(0,10);
   const days=[...(projection?.days||[])].sort((left,right)=>left.date===today?-1:right.date===today?1:String(left.date).localeCompare(String(right.date))).slice(0,4);
   const entries=days.reduce((count,day)=>count+(day.entries?.length||0),0);
-  return actionCore().normalizeResult({kind:'day_plan',owner:'journey',contractId:'journey.v1',title:days.length?'Euer aktueller Reiseplan':'Euer Reisetag ist noch offen',message:days.length?`${entries} Reisemomente aus dem Journey Day Graph. Konflikte und Reihenfolge bleiben Journey-owned.`:'Luvia kann gemeinsam mit euch erste Reisemomente strukturieren.',items:days,actions:[{actionId:'journey.day.open',label:days.length?'Tag bearbeiten':'Tag planen',payload:{tripId:tripId(trip),date:days[0]?.date||today,mode:'schedule'}}],evidence:{journeyOwner:true,tripId:tripId(trip),summary:projection?.summary||{}},meta:{actionId:request.actionId,query:request.input?.query||''}});
+  const reads=journeyContract().reads||{},routeEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('journey.s16-03-route-uncertainty')!==false,rehearsalEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('journey.s16-04-day-rehearsal')!==false,recoveryEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('journey.s16-05-live-disruption-recovery')!==false,twinEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('journey.s16-08-destination-digital-twin')!==false;
+  const routeUncertainty=routeEnabled&&typeof reads.routeUncertainty==='function'?days.flatMap(day=>(day.entries||[]).slice(1).map((entry,index)=>{const previous=day.entries[index],projection=reads.routeUncertainty({baseMinutes:entry.transferMinutes||previous?.transferMinutes||20,travelSpeed:'balanced',providerConfidence:entry.routeConfidence,evidence:entry.routeEvidence||[]});return{date:day.date,from:previous?.id||null,to:entry.id||null,...projection}})):[];
+  const rehearsals=rehearsalEnabled&&typeof reads.rehearseDay==='function'?days.map(day=>({date:day.date,...reads.rehearseDay({entries:day.entries||[],travelSpeed:'balanced'})})):[];
+  const allEntries=days.flatMap(day=>day.entries||[]),disruptionRecovery=recoveryEnabled&&typeof reads.disruptionRecovery==='function'?reads.disruptionRecovery({entries:allEntries,disruptions:projection?.disruptions||[]}):null;
+  let savedPlaces=[];if(twinEnabled&&typeof placesContract().reads?.listSaved==='function')try{const saved=await placesContract().reads.listSaved({tripId:tripId(trip)});savedPlaces=Array.isArray(saved)?saved:saved?.places||[]}catch{}
+  const destinationTwin=twinEnabled&&typeof reads.destinationTwin==='function'?reads.destinationTwin({places:savedPlaces,entries:allEntries,generatedAt:new Date().toISOString()}):null;
+  return actionCore().normalizeResult({kind:'day_plan',owner:'journey',contractId:'journey.v1',title:days.length?'Euer aktueller Reiseplan':'Euer Reisetag ist noch offen',message:days.length?`${entries} Reisemomente aus dem Journey Day Graph. Konflikte und Reihenfolge bleiben Journey-owned.`:'Luvia kann gemeinsam mit euch erste Reisemomente strukturieren.',items:days,actions:[{actionId:'journey.day.open',label:days.length?'Tag bearbeiten':'Tag planen',payload:{tripId:tripId(trip),date:days[0]?.date||today,mode:'schedule'}}],evidence:{journeyOwner:true,tripId:tripId(trip),summary:projection?.summary||{},routeUncertainty,rehearsals,disruptionRecovery,destinationTwin,offlineCrdt:{enabled:root.LuviaFeatureFlagRegistry?.isEnabled?.('journey.s16-07-offline-crdt-plan')===true,reserved:true,owner:'journey',ownerSyncRequired:true},probabilityClaim:false,automaticMutation:false},meta:{actionId:request.actionId,query:request.input?.query||'',slices:['S16.03','S16.04','S16.05','S16.08']}});
 }
 async function tripResult(request){
   const contract=tripContract(),active=contract.getActiveTrip?.()||contract.reads?.getActiveTrip?.()||null;const trips=contract.listTrips?.()||contract.reads?.listTrips?.()||[];
@@ -109,7 +116,13 @@ async function preferenceResult(request){
   const contract=identityContract();const direct=contract.getPreferences?.('self');const preferences=await Promise.resolve(direct??contract.reads?.getPreferences?.('self')??{});
   return actionCore().normalizeResult({kind:'preference_summary',owner:'identity',contractId:'identity.v1',title:'Deine bestätigten Vorlieben',message:'Luvia zeigt nur die Self-only-Projektion aus Identity v1. Beobachtete Signale werden nicht als bestätigte Präferenz ausgegeben.',summary:preferences,actions:[],evidence:{scope:'self',explicitPreferences:true,inferredSignals:false},meta:{actionId:request.actionId}});
 }
-const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult,'places.discovery.recommend':placeDiscoveryResult,'journey.day.read':dayResult,'trip.active.list':tripResult,'booking.trip.read':bookingResult,'memory.library.read':memoryResult,'identity.preferences.read':preferenceResult});
+async function verifiedEventResult(request,options={}){
+  const trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},contract=verifiedEventContract(),collection=await contract.reads.listVerified({query:request.input?.query||'',destination:destination(trip),tripId:tripId(trip),limit:request.input?.limit||12,now:options.now});
+  if(collection?.status==='provider-unavailable')throw runtimeError('VERIFIED_EVENT_PROVIDER_UNAVAILABLE','Es ist gerade keine verifizierte Event-Quelle erreichbar. Luvia zeigt deshalb keine erfundenen Events.');
+  const items=(collection?.visible||[]).map(event=>({...event,actions:[]})),graph=contract.reads.buildGraph({claims:items,tripId:tripId(trip),generatedAt:options.now||new Date().toISOString()}),brush=contract.reads.brushGraph(graph,{from:request.input?.from,to:request.input?.to,bounds:request.input?.bounds}),culturalContext=items.map(event=>contract.reads.culturalContext({event,documents:options.culturalDocuments||[],locale:options.locale||'de-DE'})),serendipity=contract.reads.serendipityWindow({events:items,openWindow:options.serendipityWindow||{},routeUncertainty:options.eventRouteUncertainty||[]}),groupTaste=contract.reads.groupTasteDivergence(options.groupEventContext||{}),weatherSafe=contract.reads.weatherSafeSubstitution({weather:options.weatherEvidence||{},originalEvent:items[0],alternatives:items.slice(1),now:options.now}),scheduleReconciliation=contract.reads.reconcileSchedule({claims:items,entries:options.eventJourneyEntries||[],bookings:options.eventBookings||[]});
+  return actionCore().normalizeResult({kind:'event_collection',owner:'intelligence',contractId:'intelligence.verified-events.v1',title:items.length?`${items.length} verifizierte Events`:'Keine aktuell verifizierten Events',message:items.length?'Zeit, Status und Quelle sind frisch belegt. Venue-Koordinaten stammen ausschließlich aus Places- oder Source-Provenienz. Übernahme in Journey, Booking oder Memory bleibt ein getrennter Owner-Flow.':'Die Event-Quelle lieferte keine Claims, die den vollständigen Verifikations- und Freshness-Gate bestehen.',items,evidence:{actionId:request.actionId,counts:collection?.counts||{},sourceFailures:collection?.sourceFailures||[],sourceGateway:collection?.sourceGateway||false,graph,brush,culturalContext,serendipity,groupTaste,weatherSafe,scheduleReconciliation,syntheticEventCount:0,automaticMutation:false,slices:['S16.09','S16.10','S16.11','S16.12']},meta:{actionId:request.actionId,uspKind:'verified-events'}});
+}
+const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult,'places.discovery.recommend':placeDiscoveryResult,'events.verified.read':verifiedEventResult,'journey.day.read':dayResult,'trip.active.list':tripResult,'booking.trip.read':bookingResult,'memory.library.read':memoryResult,'identity.preferences.read':preferenceResult});
 
 function compiledRoutes(message,compiled){
   if(compiled?.contractId!=='intelligence.travel-orchestration.v1'||!Array.isArray(compiled.intents))return null;
@@ -117,6 +130,7 @@ function compiledRoutes(message,compiled){
   for(const intent of compiled.intents){
     const query=intent.clause||message;
     if(intent.domain==='places')push(intent.categoryHints?.length===1&&intent.categoryHints[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:intent.categoryHints?.[0]||'places',categories:intent.categoryHints?.length?intent.categoryHints:['places'],limit:3,explicitPreferencePatch:intent.entityHints?.preferencePatch||{},spatialConstraints:root.LuviaGlobalPlaceContracts?.spatialIntent?.(query)||null},query);
+    else if(intent.domain==='events')push('events.verified.read',{limit:12,from:intent.temporalHint?.date?`${intent.temporalHint.date}T00:00:00Z`:null,to:intent.temporalHint?.date?`${intent.temporalHint.date}T23:59:59Z`:null},query);
     else if(intent.domain==='booking')push('booking.trip.read',{intent:intent.mode==='propose-write'?'prerequisite-read':'list'},query);
     else if(intent.domain==='journey')push('journey.day.read',{},query);
     else if(intent.domain==='trip')push('trip.active.list',{},query);
@@ -125,14 +139,42 @@ function compiledRoutes(message,compiled){
   }
   return routes;
 }
+function planningTraceResult(compiled,requests,results){
+  if(root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-01-explainable-planning-trace')===false)return null;
+  const contract=root.LuviaIntelligenceContractV1||root.LuviaIntelligenceContract;if(typeof contract?.reads?.planningTrace!=='function')return null;
+  const now=new Date().toISOString(),evidence=[],decisions=[];
+  for(const request of requests){
+    const result=results.find(item=>(item.evidence?.actionId||item.meta?.actionId)===request.actionId),failed=result?.kind==='error',evidenceId=`owner:${request.actionId}`;
+    if(result&&!failed)evidence.push({id:evidenceId,source:request.ownerContract,kind:result.kind,observedAt:result.evidence?.observedAt||now,supports:[request.actionId],verified:true});
+    decisions.push({id:`decision:${request.actionId}`,owner:request.owner,action:request.actionId,reasonCodes:failed?['owner-read-failed',result.evidence?.code||'unknown-owner-read-failure']:['owner-read-projection'],evidenceIds:[evidenceId],requiresConfirmation:false,status:failed?'failed':'completed'});
+  }
+  const trace=contract.reads.planningTrace({compiled,evidence,decisions,now});
+  return actionCore().normalizeResult({kind:'message',owner:'intelligence',contractId:'intelligence.v1',title:'Warum Luvia so plant',message:'Owner-Routen, verwendete Evidenz und offene Belege sind nachvollziehbar. Die Erklärung selbst verändert nichts.',evidence:{planningTrace:trace},meta:{traceOnly:true,slice:'S16.01'}});
+}
+function contextGateResult(compiled,options={}){
+  const intents=compiled?.intents||[];if(!intents.some(intent=>['privacy','device-position'].includes(intent.domain))||root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-02-on-device-context-gate')===false)return null;
+  const purpose=clean(options.contextPurpose)||(/\broute|weg|transfer|ankunft\b/i.test(intents.map(intent=>intent.clause).join(' '))?'route-planning':'places-ranking'),contract=root.LuviaIntelligenceContractV1||root.LuviaIntelligenceContract;if(typeof contract?.reads?.gateContext!=='function')return null;
+  const gate=contract.reads.gateContext({purpose,grant:options.contextGrant||{},context:options.positionContext||{},background:options.background===true,now:options.now||new Date().toISOString()});
+  return actionCore().normalizeResult({kind:'message',owner:'intelligence',contractId:'intelligence.context-gate.v1',title:gate.allowed?'Kontext für diesen Wunsch freigegeben':'Standort bleibt gesperrt',message:gate.allowed?`Luvia darf für ${purpose} einmalig ${gate.precision==='precise'?'präzisen':'groben'} Gerätekontext verwenden.`:'Ohne gültige, zweckgebundene Freigabe verwendet Luvia keine Geräteposition. Du kannst den Ort immer manuell nennen.',evidence:{contextGate:{allowed:gate.allowed,purpose:gate.purpose,precision:gate.precision||gate.decisionReceipt?.precision||'coarse',expiresAt:gate.expiresAt||gate.decisionReceipt?.expiresAt||null,reason:gate.reason||null,persist:false,coordinatesIncluded:false}},meta:{uspKind:'context-gate',slice:'S16.02'}});
+}
+async function causalFeedbackResults(message,compiled,options={}){
+  if(!(compiled?.intents||[]).some(intent=>intent.domain==='feedback')||root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-06-causal-feedback-learning')===false)return[];
+  const contract=root.LuviaIntelligenceContractV1||root.LuviaIntelligenceContract;if(typeof contract?.reads?.causalFeedback!=='function')return[];
+  const negative=/nicht\s+gefallen|schlecht|enttäuschend|enttaeuschend/i.test(message),feedback=options.feedbackContext||{},value=clean(feedback.value),projection=contract.reads.causalFeedback({explicit:true,confirmedOutcome:feedback.confirmedOutcome===true,outcome:negative?'disliked':'liked',signals:value&&feedback.evidenceId?[{feature:'travelInterests',value,effect:negative?-.05:.05,basis:'explicit-chat-feedback',evidenceId:feedback.evidenceId}]:[]});
+  const results=[actionCore().normalizeResult({kind:'message',owner:'intelligence',contractId:'intelligence.causal-feedback.v1',title:projection.accepted?'Explizites Feedback verstanden':'Feedback noch nicht lernfähig',message:projection.accepted?'Luvia hat einen kleinen, belegten Profilhinweis vorbereitet. Erst eine separate Identity-Bestätigung darf deine bestätigten Vorlieben ändern.':'Es fehlt ein bestätigtes Owner-Ergebnis mit Evidenz. Aus einer bloßen Äußerung entsteht keine Profiländerung.',evidence:{causalFeedback:projection},meta:{uspKind:'causal-feedback',slice:'S16.06'}})];
+  if(!projection.accepted)return results;
+  const current=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),existing=Array.isArray(current.travelInterests)?current.travelInterests:[],next=negative?existing.filter(item=>clean(item)!==value):[...new Set([...existing,value])];if(JSON.stringify(existing)===JSON.stringify(next))return results;
+  results.push(prepare('identity.preferences.update',{patch:{travelInterests:next},source:'explicit-confirmed-outcome-feedback',evidenceId:feedback.evidenceId},{userGesture:true,surface:options.surface||'global-chat'}).result);return results;
+}
 async function runMessage(message,options={}){
   const compiled=options.compiledIntent||null;
   if(compiled&&['blocked','conflicted'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
-  const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean));if(!routes.length)return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled?.status||null});
-  const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:false,results:[],routes});
-  const results=[];let error=false;
-  for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'intelligence',title:'Eine Teilaufgabe ist gerade nicht verfügbar',message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'},meta:{retryable:true}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
+  const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean)),contextResult=contextGateResult(compiled,options),feedbackResults=await causalFeedbackResults(message,compiled,options),preResults=[...(contextResult?[contextResult]:[]),...feedbackResults];if(!routes.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes:[],compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
+  const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes});
+  const results=[...preResults];let error=false;
+  for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:request.owner,title:`${request.owner} ist gerade nicht erreichbar`,message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED',ownerContract:request.ownerContract,automaticMutation:false},meta:{retryable:false,readRecovery:{kind:'owner-read',actionId:request.actionId,owner:request.owner,ownerContract:request.ownerContract,query:request.input?.query||message,canRetry:true,canRefine:true,noMutation:true}}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
   const preferenceIntents=compiled?.status==='compiled'?(compiled.intents||[]).filter(intent=>intent.domain==='identity'&&intent.mode==='propose-write'&&!intent.missingInputs?.length&&Object.keys(intent.entityHints?.preferencePatch||{}).length):[];if(preferenceIntents.length){try{const current=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),patch={};for(const intent of preferenceIntents)for(const [field,value] of Object.entries(intent.entityHints.preferencePatch)){patch[field]=Array.isArray(value)?[...new Set([...(Array.isArray(current?.[field])?current[field]:[]),...(Array.isArray(patch[field])?patch[field]:[]),...value])]:value}const prepared=prepare('identity.preferences.update',{patch,source:'explicit-chat-request'},{userGesture:true,surface:options.surface||'global-chat'});results.push(prepared.result)}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'identity',title:'Vorlieben konnten nicht vorbereitet werden',message:cause?.message||'Identity konnte die bestätigbare Änderung nicht vorbereiten.',evidence:{actionId:'identity.preferences.update',code:cause?.code||'AI_ACTION_PREPARE_FAILED'},meta:{retryable:true}}))}}
+  const traceResult=planningTraceResult(compiled,requests,results);if(traceResult)results.push(traceResult);
   return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1,compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
 }
 
@@ -256,4 +298,4 @@ function diagnostics(){
 }
 
 root.LuviaAIActionRuntime=Object.freeze({version:VERSION,runMessage,prepare,execute,cancel,retry,prepareUndo,recoveryPlan,getActionState,capabilitySnapshot,connectionSnapshot,subscribe,diagnostics});
-})();
+})(this);

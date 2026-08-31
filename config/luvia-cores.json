@@ -120,6 +120,12 @@
       "actionLedgerContract": "intelligence.action-ledger.v1",
       "browserlessActionLedger": "core/intelligence/intelligence-action-ledger-core.js",
       "webActionRuntime": "core/ai/ai-action-runtime.js",
+      "travelOrchestrationContract": "intelligence.travel-orchestration.v1",
+      "browserlessTravelOrchestrationCore": "core/intelligence/travel-orchestration-core.js",
+      "verifiedEventProjectionContract": "intelligence.verified-events.v1",
+      "browserlessVerifiedEventCore": "core/intelligence/verified-event-intelligence-core.js",
+      "verifiedEventContractAdapter": "core/platform/verified-event-intelligence-contract-adapter.js",
+      "verifiedEventTruthBoundary": "read-only source-verified claims; Places owns venue facts; Journey Booking Memory Collaboration and Weather keep their facts and mutations",
       "excludedTruth": [
         "trip",
         "places",

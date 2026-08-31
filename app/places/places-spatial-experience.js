@@ -362,10 +362,10 @@
   }
 
   function projectionState(container,stateName,message){
-    const shell=container?.closest?.('[data-place-map-shell]');
+    const shell=container?.closest?.('[data-place-map-shell],[data-event-map-shell]');
     if(container)container.dataset.mapState=stateName;
     if(shell)shell.dataset.mapState=stateName;
-    const status=shell?.querySelector?.('[data-place-map-status]');
+    const status=shell?.querySelector?.('[data-place-map-status],[data-event-map-status]');
     if(status)status.textContent=message;
   }
   function projectionMarkerButton(marker,{selectedId=null,onSelect=null}={}){

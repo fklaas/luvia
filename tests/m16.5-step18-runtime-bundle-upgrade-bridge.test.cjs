@@ -13,9 +13,9 @@ const worker=read('sw.js');
 const ignore=read('.assetsignore');
 
 assert.equal(manifest.schemaVersion,1);
-assert.equal(manifest.currentBuild,'13.82.124');
+assert.equal(manifest.currentBuild,'13.82.125');
 assert.equal(manifest.policy.minimumRetainedBuilds,3);
-assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123']);
+assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123','13.82.124']);
 assert.equal(manifest.policy.currentLoaderUsesCompatibilityBundle,false);
 assert.equal(manifest.policy.precacheCompatibilityBundles,false,'compatibility bundles must be addressable without adding multi-megabyte precache debt');
 
@@ -31,12 +31,12 @@ for(const release of manifest.retainedBuilds){
   }
 }
 
-assert.match(loader,/luvia-runtime-precontext-13\.82\.124\.bundle\.js/);
-assert.match(loader,/luvia-runtime-postcontext-13\.82\.124\.bundle\.js/);
-assert.doesNotMatch(loader,/13\.82\.12[123]\.bundle\.js/,'the current loader may not execute a compatibility bundle');
-assert.match(worker,/luvia-runtime-precontext-13\.82\.124\.bundle\.js/);
-assert.doesNotMatch(worker,/APP_SHELL\.push\(scoped\('app\/luvia-runtime-(?:precontext|postcontext)-13\.82\.12[123]/,'compatibility bundles must not inflate the current service-worker precache');
+assert.match(loader,/luvia-runtime-precontext-13\.82\.125\.bundle\.js/);
+assert.match(loader,/luvia-runtime-postcontext-13\.82\.125\.bundle\.js/);
+assert.doesNotMatch(loader,/13\.82\.12[1-4]\.bundle\.js/,'the current loader may not execute a compatibility bundle');
+assert.match(worker,/luvia-runtime-precontext-13\.82\.125\.bundle\.js/);
+assert.doesNotMatch(worker,/APP_SHELL\.push\(scoped\('app\/luvia-runtime-(?:precontext|postcontext)-13\.82\.12[1-4]/,'compatibility bundles must not inflate the current service-worker precache');
 assert.doesNotMatch(ignore,/^\/?app(?:\/|$)/m,'the Cloudflare asset boundary may not exclude the runtime upgrade bridge');
 
 console.log('M16.5 Step 18 runtime bundle upgrade bridge: PASS');
-console.log('Retained split builds: 13.82.121 / 13.82.122 / 13.82.123');
+console.log('Retained split builds: 13.82.121 / 13.82.122 / 13.82.123 / 13.82.124');

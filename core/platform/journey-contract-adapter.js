@@ -3,13 +3,14 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
 function unavailable(name){const error=new Error(`Journey Contract v1: ${name} ist nicht verfügbar.`);error.code='JOURNEY_CONTRACT_PROVIDER_UNAVAILABLE';throw error}
 function domain(){const api=globalThis.LuviaJourneyDomainContractCoreV1;if(!api)unavailable('LuviaJourneyDomainContractCoreV1');return api}
 function provider(){const api=globalThis.LuviaTimelineCore;if(!api)unavailable('Journey Web Compatibility Provider');return api}
+function resilience(){const api=globalThis.LuviaJourneyResilienceCoreV1;if(!api)unavailable('LuviaJourneyResilienceCoreV1');return api}
 function tripContract(){return globalThis.LuviaTripContractV1||globalThis.LuviaTripContract||null}
 function activeTrip(){const api=tripContract();return api?.getActiveTrip?.()||null}
 function tripProjection(input){
@@ -53,6 +54,10 @@ function list(filters={}){return snapshot(filters).entries.filter(entry=>(!filte
 function getDay(date,options={}){return listDays(options).find(day=>day.date===String(date||'').slice(0,10))||null}
 function entriesForDate(date,options={}){return getDay(date,options)?.entries||Object.freeze([])}
 function listConflicts(options={}){return snapshot(options).conflicts}
+function routeUncertainty(input={}){return resilience().routeUncertainty(input)}
+function rehearseDay(input={}){return resilience().rehearseDay(input)}
+function disruptionRecovery(input={}){return resilience().disruptionRecovery(input)}
+function destinationTwin(input={}){return resilience().destinationTwin(input)}
 function subscribe(listener){if(typeof listener!=='function')throw new TypeError('Journey subscriber must be a function.');ensureBridge();listeners.add(listener);return()=>listeners.delete(listener)}
 function resolveSourceEntry(identity){
   const id=typeof identity==='string'?identity:identity?.id;
@@ -69,7 +74,7 @@ function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(reso
 function editEntry(identity,onDone){return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)})}
 function openPlanningEditor(options,onDone){return provider().openPlanningEditor?.(options,onDone)}
 
-const reads=Object.freeze({snapshot,list,listDays,getDay,entriesForDate,listConflicts,subscribe,composeProjection});
+const reads=Object.freeze({snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
 const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
@@ -78,7 +83,7 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getDay,entriesForDate,listConflicts,subscribe,composeProjection,
+  snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
   init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
@@ -86,6 +91,7 @@ const api=Object.freeze({
     runtimeVersion:RUNTIME_VERSION,
     ready:Boolean(domain()&&provider()),
     browserlessDomainCore:true,
+    resilienceCore:Boolean(globalThis.LuviaJourneyResilienceCoreV1),
     legacyCompatibility:true,
     lastReason,
     subscribers:listeners.size,
@@ -101,6 +107,11 @@ const api=Object.freeze({
 
 globalThis.LuviaJourneyContractV1=api;
 globalThis.LuviaJourneyContract=api;
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-03-route-uncertainty',owner:'journey',description:'Evidence-bounded route uncertainty without probability claims.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-04-day-rehearsal',owner:'journey',description:'Read-only day rehearsal derived from the Journey Day Graph.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-05-live-disruption-recovery',owner:'journey',description:'Owner-originated disruption recovery proposals without automatic Journey or Booking mutation.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-07-offline-crdt-plan',owner:'journey',description:'Reserved Journey-owned CRDT sync adapter; disabled until owner authorization and migrations are accepted.',defaultEnabled:false,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-08-destination-digital-twin',owner:'journey',description:'Expiring derived destination graph built only from owner projections.',defaultEnabled:true,temporary:true});
 globalThis.LuviaGlobalContracts?.register?.({
   id:CONTRACT_ID,
   version:VERSION,

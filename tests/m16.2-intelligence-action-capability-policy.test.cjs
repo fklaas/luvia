@@ -16,8 +16,8 @@ vm.createContext(context);vm.runInContext(source,context,{filename:path});
 const core=context.LuviaIntelligenceActionContractCoreV1;
 const actions=core.listActions();
 
-assert.equal(actions.length,20);
-assert.deepEqual([...new Set(actions.map(action=>action.owner))].sort(),['booking','identity','journey','memory','places','trip']);
+assert.equal(actions.length,21);
+assert.deepEqual([...new Set(actions.map(action=>action.owner))].sort(),['booking','identity','intelligence','journey','memory','places','trip']);
 for(const action of actions){
   assert.ok(/^R[0-3]$/.test(action.risk),`${action.id} risk must be R0-R3`);
   assert.ok(action.ownerContract.endsWith('.v1'));
@@ -33,6 +33,8 @@ assert.equal(core.getAction('booking.reservation.cancel').risk,'R3');
 assert.equal(core.getAction('trip.update.details').confirmation,'EXPLICIT');
 assert.equal(core.getAction('memory.story.save').ownerContract,'memory.v1');
 assert.equal(core.getAction('identity.preferences.update').ownerContract,'identity.v1');
+assert.equal(core.getAction('events.verified.read').ownerContract,'intelligence.verified-events.v1');
+assert.equal(core.getAction('events.verified.read').effect,'READ');
 
 assert.throws(()=>core.createExecutionEnvelope('trip.update.details',{tripId:'trip-1'},{surface:'chat'},{correlationId:'corr-1'}),error=>error?.code==='INTELLIGENCE_ACTION_IDEMPOTENCY_REQUIRED');
 const envelope=core.createExecutionEnvelope('booking.reservation.cancel',{bookingId:'booking-1',token:'hidden'},{surface:'chat',authorization:'hidden'},{idempotencyKey:'idem-1',correlationId:'corr-1',requestedAt:'2026-08-24T12:00:00.000Z'});
@@ -48,7 +50,7 @@ assert.equal(confirmation.meta.requiresConfirmation,true);
 assert.equal('token' in confirmation.evidence.preview,false);
 
 const capability=core.createCapabilitySnapshot({'trip.v1':true,'places.v1':true,'booking.v1':{available:false,reason:'provider-offline'},'journey.v1':true,'memory.v1':true,'identity.v1':true});
-assert.equal(capability.count,20);
+assert.equal(capability.count,21);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').available,false);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').reason,'provider-offline');
 assert.equal(capability.actions.find(action=>action.actionId==='trip.active.list').available,true);
@@ -70,6 +72,6 @@ assert.equal(core.policySnapshot().explicitConfirmation,'natural-language-alone-
 assert.equal(core.policySnapshot().foreignDomainMutation,false);
 
 console.log('M16.2 Intelligence Action Capability Policy: PASS');
-console.log('Registered actions / owners: 20 / 6');
+console.log('Registered actions / owners: 21 / 7');
 console.log('R0-R3 confirmation and idempotency matrix: PASS');
 console.log('R4 authority / foreign Domain mutation: NONE');

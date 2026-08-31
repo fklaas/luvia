@@ -514,6 +514,18 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-intelligence-travel-orchestration.test.cjs'
   },
   {
+    category: 'M16.5 / S16 Planning Trace + Route Uncertainty + Day Rehearsal',
+    test: 'tests/m16.5-step16-trace-route-rehearsal-product-slices.test.cjs'
+  },
+  {
+    category: 'M16.5 / Complete AI Mutation Coverage Matrix',
+    test: 'tests/m16.5-step16-ai-mutation-coverage-matrix.test.cjs'
+  },
+  {
+    category: 'M16.5 / S16.09-S16.12 Verified Event Intelligence',
+    test: 'tests/m16.5-step16-verified-event-intelligence.test.cjs'
+  },
+  {
     category: 'M16.5 / Global AI Chat + Owner-first USP Backlog',
     test: 'tests/m16.5-step15-global-ai-chat-and-step16-backlog.test.cjs'
   },

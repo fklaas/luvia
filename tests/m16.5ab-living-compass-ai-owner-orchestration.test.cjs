@@ -46,6 +46,13 @@ assert.match(dashboard,/compileDialogue/,'model output must be recompiled throug
 assert.match(dashboard,/sliceIntentGraph/,'multi-wish conversations must execute one owner-safe sequence at a time');
 assert.match(dashboard,/Ohne Übernahme mit Wunsch/,'read-only results must not silently skip to the next wish');
 assert.match(dashboard,/Der vorherige Schritt ist bestätigt/,'a successful Owner Receipt must visibly continue the next wish');
+assert.match(dashboard,/data-ai-planning-trace/,'S16.01 must expose a visible planning trace');
+assert.match(dashboard,/data-ai-read-retry/,'failed owner reads need an explicit read-only retry');
+assert.match(dashboard,/data-ai-read-refine/,'failed owner reads need a manual refinement path');
+assert.match(dashboard,/Luvia erfindet keine Provider-Treffer/,'provider failure must never become invented evidence');
+assert.match(dashboard,/renderJourneyResilience/,'Journey day results must consume the S16.03 and S16.04 read projections');
+assert.match(runtimeSource,/readRecovery:\{kind:'owner-read'/,'read failure recovery must be distinct from mutation retry');
+assert.match(runtimeSource,/traceOnly:true,slice:'S16\.01'/,'S16.01 must be emitted as its own flaggable product result');
 assert.match(runtimeSource,/prepare\('identity\.preferences\.update'/,'a complete explicit preference intent must prepare a real Identity owner confirmation');
 assert.match(css,/\.luv-ai-proposal-overlay\.luvia-living-sheet-overlay/);
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);

@@ -309,7 +309,7 @@
     },
     "core/ai/ai-dashboard-service.js": {
       "area": "OTHER-CORE",
-      "total": 27,
+      "total": 34,
       "tokens": {
         "WINDOW": 16,
         "DOCUMENT": 3,
@@ -330,7 +330,7 @@
         "ONLINE_STATE": 0,
         "VISIBILITY": 0,
         "DOM_EVENTS": 3,
-        "DOM_QUERY": 5,
+        "DOM_QUERY": 12,
         "REQUEST_ANIMATION_FRAME": 0,
         "FILE_READER": 0,
         "BROADCAST_CHANNEL": 0,
