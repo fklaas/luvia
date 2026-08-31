@@ -107,11 +107,11 @@ const api=Object.freeze({
 
 globalThis.LuviaJourneyContractV1=api;
 globalThis.LuviaJourneyContract=api;
-globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-03-route-uncertainty',owner:'journey',description:'Evidence-bounded route uncertainty without probability claims.',defaultEnabled:true,temporary:true});
-globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-04-day-rehearsal',owner:'journey',description:'Read-only day rehearsal derived from the Journey Day Graph.',defaultEnabled:true,temporary:true});
-globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-05-live-disruption-recovery',owner:'journey',description:'Owner-originated disruption recovery proposals without automatic Journey or Booking mutation.',defaultEnabled:true,temporary:true});
-globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-07-offline-crdt-plan',owner:'journey',description:'Reserved Journey-owned CRDT sync adapter; disabled until owner authorization and migrations are accepted.',defaultEnabled:false,temporary:true});
-globalThis.LuviaFeatureFlagRegistry?.register?.({id:'journey.s16-08-destination-digital-twin',owner:'journey',description:'Expiring derived destination graph built only from owner projections.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-03-route-uncertainty',owner:'intelligence',description:'Evidence-bounded route uncertainty without probability claims.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-04-day-rehearsal',owner:'intelligence',description:'Read-only day rehearsal derived from the Journey Day Graph.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-05-live-disruption-recovery',owner:'intelligence',description:'Owner-originated disruption recovery proposals without automatic Journey or Booking mutation.',defaultEnabled:true,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-07-offline-crdt-plan',owner:'intelligence',description:'Reserved Journey-owned CRDT sync adapter; disabled until owner authorization and migrations are accepted.',defaultEnabled:false,temporary:true});
+globalThis.LuviaFeatureFlagRegistry?.register?.({id:'intelligence.s16-08-destination-digital-twin',owner:'intelligence',description:'Expiring derived destination graph built only from owner projections.',defaultEnabled:true,temporary:true});
 globalThis.LuviaGlobalContracts?.register?.({
   id:CONTRACT_ID,
   version:VERSION,

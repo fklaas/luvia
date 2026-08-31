@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2923,
+    "trackedFiles": 2925,
     "visualCandidates": 777,
     "activeEntryReferences": 284,
     "unclassifiedEntryReferences": 0,
@@ -901,8 +901,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 2464001,
-      "sha256": "cb995fce8248258585cbd91332bb7cf9c6462a452d56c8c378d75a5778821e34"
+      "bytes": 2464076,
+      "sha256": "2e7940b191a292caba48c62fd1afdd8caad36da9af6d6ec9c4ab9706eae3c1f7"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -1668,8 +1668,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 50614,
-      "sha256": "fd773858cea72a1c606b06e3ae0f7d8ad8f9105f3c3dc0b9b6b19b8470852f4a"
+      "bytes": 50639,
+      "sha256": "722929b038470f6e0ac0f4e8212b14e27bedddf78e6cad534b9bf652f7ef4b10"
     },
     {
       "path": "core/ai/ai-brain.css",
@@ -3079,8 +3079,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 7971,
-      "sha256": "b10c7d908dd934dd5193f98cc2c7ad1c9243dc67bf8929a5985bae8d673d269e"
+      "bytes": 8021,
+      "sha256": "d110aca98025d0cf1c28c2331f15032267e4442c3c0bccc05b1e2d3c335162d9"
     },
     {
       "path": "core/platform/media-contract-adapter.js",
@@ -6010,8 +6010,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 8414,
-      "sha256": "69aa9a13336f317cdb80dea7201db1e353c50e28d2aeed9f98c5b8b4acc5c5e7"
+      "bytes": 8652,
+      "sha256": "963ec84988b0162ed3aad72f34870d77c2096576e47a6f04f5e523fe50a856aa"
     },
     {
       "path": "tests/m16.5-step16-verified-event-intelligence.test.cjs",

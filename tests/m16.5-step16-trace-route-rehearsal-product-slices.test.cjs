@@ -9,7 +9,7 @@ const context={
   console,Object,Array,Map,Set,WeakSet,Error,TypeError,String,Boolean,Number,Math,JSON,Date,RegExp,Promise,
   CustomEvent:function(name,options){this.type=name;this.detail=options?.detail},
   dispatchEvent(){},
-  LuviaFeatureFlagRegistry:{isEnabled(id){return id!=='journey.s16-07-offline-crdt-plan'}},
+  LuviaFeatureFlagRegistry:{isEnabled(id){return id!=='intelligence.s16-07-offline-crdt-plan'}},
   LuviaTripContractV1:{getActiveTrip(){return{id:'trip-1',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}}}},
   LuviaIdentityContractV1:{getPreferences(){return{travelPace:'balanced'}},commands:{async updatePreferences(){return{ok:true}}}},
   LuviaBookingContractV1:{reads:{async listForTrip(){return[]}},commands:{}},
@@ -114,8 +114,9 @@ vm.runInContext(read('core/ai/ai-action-runtime.js'),context,{filename:'core/ai/
   const intelligenceAdapter=read('core/platform/intelligence-contract-adapter.js');
   const journeyAdapter=read('core/platform/journey-contract-adapter.js');
   assert.match(intelligenceAdapter,/intelligence\.s16-01-explainable-planning-trace/);
-  assert.match(journeyAdapter,/journey\.s16-03-route-uncertainty/);
-  assert.match(journeyAdapter,/journey\.s16-04-day-rehearsal/);
+  assert.match(journeyAdapter,/id:'intelligence\.s16-03-route-uncertainty',owner:'intelligence'/);
+  assert.match(journeyAdapter,/id:'intelligence\.s16-04-day-rehearsal',owner:'intelligence'/);
+  assert.doesNotMatch(journeyAdapter,/owner:'journey'/,'Journey facts remain Journey-owned, but the derived USP feature flags belong to the existing Intelligence owner');
   assert.match(dashboard,/Owner-Read Recovery · keine Mutation/);
   assert.match(css,/\.lvx-planning-trace/);
   assert.match(css,/\.lvx-journey-rehearsal/);
