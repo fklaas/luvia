@@ -31,6 +31,6 @@ for(const requiredGap of [
 
 assert.match(matrix,/Google Places quota failure, no invented cards/);
 assert.match(matrix,/Main, Production, DB\/RLS, Secrets and Edge Functions are outside/);
-assert.match(matrix,/\.125.*→.*\.124/);
+assert.match(matrix,/\.126.*→.*\.124/);
 
 console.log('M16.5 Step16 complete AI mutation coverage matrix: PASS');

@@ -6017,8 +6017,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 7692,
-      "sha256": "9f21172d6061aa99a58058edfd502dfe1d9c0e849daab5e8db72541f090a277b"
+      "bytes": 7674,
+      "sha256": "e874f20c5614d299b471e833fdc211140128c57d6b83c4304d5ac68ddcd818e2"
     },
     {
       "path": "tests/m16.5-step15-places-spatial-diversity-media.test.cjs",

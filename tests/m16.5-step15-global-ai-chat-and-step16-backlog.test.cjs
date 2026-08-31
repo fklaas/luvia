@@ -74,7 +74,7 @@ for(const usp of ['Route-Uncertainty Simulation','Live Disruption Recovery','Exp
 for(const eventFeature of ['Dynamic Map-Time Brushing','Event-to-Memory Thread','Cultural Context Layer','Serendipity Window','Group Taste Divergence','Weather-Safe Event Substitution','Cancellation & Venue Drift Detection','Live Schedule Reconciliation','Spatio-Temporal Event Graph'])assert.ok(backlog.includes(eventFeature),`Step 16 event feature missing: ${eventFeature}`);
 for(const dimension of ['Inputs:','Output:','Freshness:','Privacy:','Failures:','Receipts:','Evals:','Rollback:'])assert.ok(backlog.includes(dimension),`Step 16 owner-first dimension missing: ${dimension}`);
 assert.match(backlog,/No event is product-visible unless the minimum evidence gate passes/);
-assert.match(backlog,/implementation tranche is locally implemented and under Step-17\/18 acceptance/);
+assert.match(backlog,/released on Integration in `\.126`; S16\.07 remains reserved/);
 assert.match(backlog,/S16\.07 remains deliberately \*\*reserved and disabled\*\*/);
 assert.match(backlog,/Controlled\s+fixture events are acceptance data only/);
 assert.match(backlog,/Main, Production, DB\/RLS, Secrets and Edge Functions are not authorized/);
