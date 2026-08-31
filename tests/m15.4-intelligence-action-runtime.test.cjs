@@ -27,7 +27,7 @@ const context={
       async recommend(input){calls.push(['recommend',input]);return{places:[{id:'places/place-1',name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440,website:'https://restaurant.example',aiReasons:['Passt zur Reise']}],route:{category:'food'}}},
       async getCard(id){calls.push(['card',id]);return{place:{id,providerPlaceId:id,name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440,website:'https://restaurant.example'},image:{url:'https://images.example/dunes.jpg',attribution:'Provider'}}}
     },
-    commands:{async favorite(payload){calls.push(['favorite',payload]);return{ok:true,tripPlaceId:'tp-1'}}}
+    commands:{async favorite(payload){calls.push(['favorite',payload]);return{ok:true,tripPlaceId:'tp-1'}},async unfavorite(payload){calls.push(['unfavorite',payload]);return{ok:true,tripPlaceId:'tp-1'}}}
   },
   LuviaBookingContractV1:{commands:{async openPlaceBooking(payload,options){calls.push(['booking',payload,options]);return{opened:true,channel:'owner_dialog',provider:'official'}}}},
   LuviaJourneyContractV1:{
@@ -64,10 +64,19 @@ vm.runInContext(source,context,{filename:runtimePath});
   const generic=await runtime.runMessage('Erkläre mir die Reise');
   assert.equal(generic.handled,false);
 
-  const favorite=await runtime.execute('places.place.favorite',{tripId:'trip-1',providerPlaceId:'place-1',placeType:'restaurant'},{userGesture:true});
+  const favoritePreview=runtime.prepare('places.place.favorite',{tripId:'trip-1',providerPlaceId:'place-1',placeType:'restaurant'},{userGesture:true});
+  assert.equal(favoritePreview.requiresConfirmation,true);
+  assert.equal(favoritePreview.result.kind,'confirmation');
+  const favorite=await runtime.execute('places.place.favorite',{}, {ledgerId:favoritePreview.ledgerId,userGesture:true,confirmed:true});
   assert.equal(favorite.kind,'receipt');
   assert.equal(favorite.owner,'places');
   assert.equal(favorite.evidence.status,'completed');
+  assert.equal(runtime.recoveryPlan(favorite.evidence.ledgerId).kind,'undo');
+  const undoPreview=runtime.prepareUndo(favorite.evidence.ledgerId,{userGesture:true});
+  assert.equal(undoPreview.requiresConfirmation,true);
+  const undone=await runtime.execute(undoPreview.result.evidence.actionId,{}, {ledgerId:undoPreview.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(undone.evidence.status,'compensated');
+  assert.equal(calls.some(call=>call[0]==='unfavorite'),true);
 
   const booking=await runtime.execute('booking.restaurant.open',{tripId:'trip-1',providerPlaceId:'place-1',name:'Dünenküche'},{userGesture:true});
   assert.equal(booking.evidence.status,'opened');

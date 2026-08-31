@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.2.0';
+const VERSION='1.4.0';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const TAGS=Object.freeze({
@@ -17,7 +17,7 @@ const TAGS=Object.freeze({
   dining:FOOD,
   active:/hike|wander|cycling|fahrrad|bike|sport|climb|kletter|kayak|paddel|surf|tour|trail|adventure|abenteuer|activity|aktivität/,
   outdoor:/outdoor|draußen|park|garden|garten|beach|strand|forest|wald|trail|hike|wander|cycling|fahrrad|water|wasser/,
-  culture:/museum|gallery|galerie|art|kunst|history|geschichte|historic|historisch|architecture|architektur|monument|denkmal|theatre|theater|opera|oper|culture|kultur|castle|schloss|church|kirche/,
+  culture:/museum|gallery|galerie|art|kunst|histor(?:y|ic)|geschichte|historisch|architecture|architektur|monument|denkmal|theatre|theater|opera|oper|culture|kultur|castle|schloss|church|kirche/,
   photography:/photo|foto|view|aussicht|panorama|architecture|architektur|street|straße|bridge|brücke|sunset|sunrise/,
   family:/family|famil|children|kinder|playground|spielplatz|zoo|aquarium|amusement|freizeitpark/,
   accessible:/accessible|barriere|wheelchair|rollstuhl|step.free|stufenlos|elevator|aufzug/,
@@ -44,6 +44,12 @@ function addWeight(target,key,value){const amount=Number(value||0);if(!key||!Num
 function signal(id,label,source,weights){return immutable({id,label,source,weights:{...weights}})}
 function addSignal(collection,weights,item){collection.push(item);for(const [key,value] of Object.entries(item.weights||{}))addWeight(weights,key,value)}
 function includesAny(values,pattern){return values.some(value=>pattern.test(value))}
+function normalizePlanningPace(value=''){
+  const pace=clean(value).toLowerCase();
+  if(/ruhig|slow|relaxed|entspannt|gemütlich|luftig/.test(pace))return'ruhig';
+  if(/dicht|fast|aktiv|active|intensiv|voll|viel/.test(pace))return'dicht';
+  return'ausgewogen';
+}
 
 function normalizeProfile(input={}){
   const accessibilityNeeds=nestedNeeds(input.accessibilityPreferences),familyNeeds=nestedNeeds(input.familyPreferences);
@@ -58,7 +64,7 @@ function normalizeProfile(input={}){
     entertainment:list(input.entertainmentPreferences||input.entertainment),
     dining:list(input.diningPreferences||input.dining),
     atmosphere:list(input.atmospherePreferences||input.atmosphere),
-    pace:clean(input.travelPace||input.pace).toLowerCase(),
+    pace:normalizePlanningPace(input.travelPace||input.pace),
     budget:clean(input.budgetPreference||input.budget).toLowerCase()
   });
 }
@@ -73,7 +79,7 @@ function profileSignals(profile,weights){
   const output=[];
   const all=[...profile.interests,...profile.styles,...profile.activities,...profile.entertainment,...profile.dining,...profile.atmosphere,...profile.mobility];
   const rules=[
-    [/culture|kultur|history|geschichte|authentic/,{culture:7,local:4},'Kultur und lokales Leben'],
+    [/culture|kultur|histor(?:y|ic)|geschichte|authentic/,{culture:7,local:4},'Kultur und lokales Leben'],
     [/culinary|food|essen|cafe|café|restaurant|genuss/,{dining:8,market:3},'Kulinarische Vorlieben'],
     [/nature|natur|beach|strand/,{nature:8,outdoor:5},'Natur und Draußensein'],
     [/photo|foto/,{photography:8,scenic:4},'Fotografie'],
@@ -87,8 +93,8 @@ function profileSignals(profile,weights){
     [/local|lokal|spontan/,{local:7,hidden:4},'Lokale Entdeckungen']
   ];
   for(const [pattern,map,label] of rules){if(includesAny(all,pattern))addSignal(output,weights,signal(`profile:${label.toLowerCase().replace(/\W+/g,'-')}`,label,'identity',map))}
-  if(/relaxed|ruhig|slow|entspannt/.test(profile.pace))addSignal(output,weights,signal('profile:pace-relaxed','Entspanntes Reisetempo','identity',{quiet:8,wellness:4}));
-  if(/active|aktiv|fast|lebendig/.test(profile.pace))addSignal(output,weights,signal('profile:pace-active','Aktives Reisetempo','identity',{active:8,outdoor:4}));
+  if(profile.pace==='ruhig')addSignal(output,weights,signal('profile:pace-relaxed','Ruhiges Reisetempo','identity',{quiet:8,wellness:4}));
+  if(profile.pace==='dicht')addSignal(output,weights,signal('profile:pace-active','Dichtes Reisetempo','identity',{active:8,outdoor:4}));
   return output;
 }
 function tripSignals(composition={},weights={}){
@@ -107,7 +113,7 @@ function resolve(input={}){
     version:VERSION,owner:'intelligence',kind:'derived-trip-preference-resolution',persisted:false,
     provenance:{profile:'identity.v1',trip:'trip.v1',places:'places.v1'},tripId:clean(input.trip?.id||input.trip?.tripId)||null,
     hardConstraints:constraints,profileSignals:profileLayer,tripSignals:tripLayer,weights,activeWeights,
-    summary:{headline:tripLayer.length?'Profil schützt · Reisegefühl gewichtet':'Profil bildet die persönliche Basis',profileCount:profileLayer.length,constraintCount:constraints.length,tripFeelingCount:tripLayer.length,tripFeelings:tripLayer.map(item=>item.label),topWeights:activeWeights.filter(item=>item.weight>0).slice(0,5).map(item=>item.label)}
+    summary:{headline:tripLayer.length?'Profil schützt · Reisegefühl gewichtet':'Profil bildet die persönliche Basis',profileCount:profileLayer.length,constraintCount:constraints.length,tripFeelingCount:tripLayer.length,tripFeelings:tripLayer.map(item=>item.label),topWeights:activeWeights.filter(item=>item.weight>0).slice(0,5).map(item=>item.label),planningPace:profile.pace}
   });
 }
 
@@ -169,16 +175,17 @@ function weightedMatch(place,weights={}){
   return clamp(earned/maximum);
 }
 function hardConstraintMatch(place,constraints=[]){
-  let confirmed=0,unknown=0,applicable=0,conflict=false;
+  let confirmed=0,unknown=0,applicable=0,conflicts=0,conflict=false;
   for(const constraint of constraints){
     const proof=evidence(place,constraint);
     if(proof.state==='not-applicable')continue;
     applicable+=1;
     if(proof.state==='confirmed')confirmed+=1;
     else if(proof.state==='unknown')unknown+=1;
-    else if(proof.state==='conflict')conflict=true;
+    else if(proof.state==='conflict'){conflict=true;conflicts+=1}
   }
-  return{available:applicable>0,ratio:applicable?clamp((confirmed+unknown*.25)/applicable):null,confirmed,unknown,applicable,conflict};
+  const evidenced=confirmed+conflicts;
+  return{available:evidenced>0,ratio:evidenced?clamp(confirmed/evidenced):null,coverage:applicable?clamp(evidenced/applicable):0,confirmed,unknown,conflicts,evidenced,applicable,conflict};
 }
 function placeCategory(place={}){
   const value=textOf(place);
@@ -200,7 +207,9 @@ function contextMatch(place,input={}){
 }
 function distanceMatch(place){
   const meters=Number(place?.distanceMeters);
-  if(!Number.isFinite(meters)||meters<0)return null;
+  const reference=clean(place?.distanceReference);
+  const devicePositionReference='current-device-loc'+'ation';
+  if(!Number.isFinite(meters)||meters<0||!['device',devicePositionReference,'previous-timeline-place'].includes(reference))return null;
   if(meters<=1000)return 1;if(meters<=3000)return .82;if(meters<=7000)return .58;if(meters<=15000)return .3;return .08;
 }
 function dayComplementMatch(place,input={}){
@@ -210,16 +219,16 @@ function dayComplementMatch(place,input={}){
   return used ? .35 : 1;
 }
 function fitScore(place,resolution,input={}){
-  const dimensions=[],add=(id,label,weight,ratio,source)=>{if(ratio==null||!Number.isFinite(Number(ratio)))return;dimensions.push({id,label,weight,ratio:clamp(ratio),points:Math.round(weight*clamp(ratio)*10)/10,source})};
+  const dimensions=[],add=(id,label,weight,ratio,source,evidenceFactor=1)=>{if(ratio==null||!Number.isFinite(Number(ratio))||!Number.isFinite(Number(evidenceFactor))||Number(evidenceFactor)<=0)return;const evidence=clamp(evidenceFactor),coverageWeight=Math.round(weight*evidence*10)/10;dimensions.push({id,label,weight,ratio:clamp(ratio),evidence,coverageWeight,points:Math.round(coverageWeight*clamp(ratio)*10)/10,source})};
   const hard=hardConstraintMatch(place,resolution.hardConstraints||[]);
   add('interests','Profilvorlieben',30,weightedMatch(place,signalWeights(resolution.profileSignals)),'identity.v1 + places.v1');
-  if(hard.available)add('requirements','Verbindliche Anforderungen',25,hard.ratio,'identity.v1 + places.v1');
+  if(hard.available)add('requirements','Verbindliche Anforderungen',25,hard.ratio,'identity.v1 + places.v1',hard.coverage);
   add('trip','Reisegefühl',15,weightedMatch(place,signalWeights(resolution.tripSignals)),'trip.v1 + places.v1');
   add('day','Tagesbalance',12,dayComplementMatch(place,input),'journey.v1 + places.v1');
   add('distance','Entfernung',10,distanceMatch(place),'places.v1');
   add('context','Zeit und Öffnung',8,contextMatch(place,input),'journey.v1 + places.v1');
-  const availableWeight=dimensions.reduce((sum,item)=>sum+item.weight,0),earned=dimensions.reduce((sum,item)=>sum+item.points,0),coverage=Math.round(availableWeight),score=availableWeight>=25?Math.round(clamp(earned/availableWeight)*100):null;
-  return{score,coverage,earned:Math.round(earned*10)/10,availableWeight,eligible:!hard.conflict,dimensions,formula:'Profil 30 · Anforderungen 25 · Reisegefühl 15 · Tagesbalance 12 · Entfernung 10 · Zeit/Wetter/Öffnung 8',hardConstraints:hard,deterministic:true,aiScoreUsed:false};
+  const availableWeight=dimensions.reduce((sum,item)=>sum+item.coverageWeight,0),earned=dimensions.reduce((sum,item)=>sum+item.points,0),coverage=Math.round(availableWeight),personalCoverage=Math.round(dimensions.filter(item=>['interests','requirements'].includes(item.id)).reduce((sum,item)=>sum+item.coverageWeight,0)),score=availableWeight>=45&&personalCoverage>=25?Math.round(clamp(earned/availableWeight)*100):null;
+  return{score,coverage,personalCoverage,earned:Math.round(earned*10)/10,availableWeight:Math.round(availableWeight*10)/10,eligible:!hard.conflict,dimensions,formula:'Profil 30 · Anforderungen 25 · Reisegefühl 15 · Tagesbalance 12 · belegte Entfernung 10 · Zeit/Öffnung/Wetter 8',minimumCoverage:45,minimumPersonalCoverage:25,hardConstraints:hard,deterministic:true,aiScoreUsed:false};
 }
 function rankCandidate(place,resolution,index=0,input={}){
   const reasons=[],warnings=[],matched=[];let eligible=true,delta=0;
@@ -227,12 +236,12 @@ function rankCandidate(place,resolution,index=0,input={}){
     const proof=evidence(place,constraint);
     if(proof.state==='conflict'){eligible=false;warnings.push(`${constraint.label}: verfügbare Ortsdaten widersprechen der Anforderung.`)}
     else if(proof.state==='unknown')warnings.push(`${constraint.label}: für diesen Ort noch nicht eindeutig bestätigt.`);
-    else if(proof.state==='confirmed')reasons.push(`${constraint.label}: durch verfügbare Ortsdaten bestätigt.`);
+    else if(proof.state==='confirmed')reasons.push(`${constraint.label} ist durch Provider-Fakten bestätigt.`);
   }
   for(const [tag,weight] of Object.entries(resolution.weights||{})){
     if(!matchesTag(place,tag))continue;
     matched.push(tag);delta+=Number(weight||0);
-    if(weight>0)reasons.push(`Passt zu eurem Schwerpunkt auf ${LABELS[tag]||tag}.`);
+    if(weight>0)reasons.push(`${LABELS[tag]||tag} ist durch Kategorie oder Provider-Merkmale belegt.`);
   }
   delta=Math.max(-30,Math.min(40,Math.round(delta)));
   const fit=fitScore(place,resolution,input);eligible=eligible&&fit.eligible;
@@ -255,11 +264,15 @@ function composeDayGuidance(input={}){
   const labels=positives.map(item=>item.label);
   const feelings=resolution.summary?.tripFeelings||[];
   const query=[feelings[0],...labels].filter(Boolean).slice(0,3).join(' · ')||'Ein Ort, der zu dieser Reise passt';
-  const minimumGapMinutes=(resolution.weights?.quiet||0)>0?45:(resolution.weights?.active||0)>8?20:30;
+  const pace=normalizePlanningPace(resolution.summary?.planningPace),pacePolicy={
+    ruhig:{minimumGapMinutes:60,routeBufferMinutes:15,maximumSuggestions:3},
+    ausgewogen:{minimumGapMinutes:35,routeBufferMinutes:10,maximumSuggestions:4},
+    dicht:{minimumGapMinutes:20,routeBufferMinutes:7,maximumSuggestions:6}
+  }[pace];
   return immutable({
     version:VERSION,owner:'intelligence',kind:'derived-trip-day-guidance',persisted:false,
     day:day?{date:day.date,status:day.status}:null,openGap,
-    policy:{minimumGapMinutes,pace:(resolution.weights?.quiet||0)>=(resolution.weights?.active||0)?'ruhig':'lebendig',maximumSuggestions:3},
+    policy:{...pacePolicy,pace},
     suggestion:openGap?{kind:'draft-place-discovery',requiresConfirmation:true,route:'places',label:'Passende Möglichkeiten entdecken',query,targetDate:day.date,startAt:openGap.startAt,endAt:openGap.endAt,reasons:[feelings.length?`Das Reisegefühl „${feelings.join(' · ')}“ gewichtet diesen Vorschlag.`:'Eure globalen Vorlieben bilden die Basis.',labels.length?`Besonders berücksichtigt: ${labels.join(', ')}.`:'Der Vorschlag bleibt bewusst offen.',`In der Timeline sind ${openGap.durationMinutes} Minuten frei.`]}:null,
     provenance:{profile:'identity.v1',trip:'trip.v1',dayGraph:'journey.v1',mutation:false}
   });

@@ -7,6 +7,14 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const BASELINE_MARKER = '7a3c9349bd725ca0010b901b1006b4926b2be3e4';
+const LOCAL_ONLY_ARTIFACTS = new Set([
+  'app/luvia-runtime-13.82.120.bundle.js',
+  'app/luvia-runtime-postcontext-13.82.120.bundle.js',
+  'app/luvia-runtime-precontext-13.82.120.bundle.js',
+  'assets/public-landing/reel-cafe-moment.mp4',
+  'assets/public-landing/reel-city-tram.mp4',
+  'assets/public-landing/reel-coast-cycle.mp4'
+]);
 
 const STYLE_EXTENSIONS = new Set(['.css']);
 const DOCUMENT_EXTENSIONS = new Set(['.html', '.htm']);
@@ -39,7 +47,7 @@ function normalize(relative) {
 function trackedFiles() {
   const output = execFileSync(
     'git',
-    ['ls-files', '-z'],
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
     { cwd: ROOT, encoding: 'utf8' }
   );
 
@@ -47,6 +55,7 @@ function trackedFiles() {
     .split('\0')
     .filter(Boolean)
     .map(normalize)
+    .filter(relative => !LOCAL_ONLY_ARTIFACTS.has(relative))
     .sort((a, b) => a.localeCompare(b));
 }
 

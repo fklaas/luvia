@@ -63,6 +63,7 @@ const files={
   cards:read('core/media/memory-cards.js'),
   journeys:read('core/media/memory-journeys.js'),
   index:read('index.html'),
+  loader:read('app/luvia-runtime-loader.mjs'),
   paris:read('paris-official.html'),
   intelligence:read('intelligence/test.html'),
   sw:read('sw.js')
@@ -98,8 +99,9 @@ for(const token of ['browserlessMediaDomainCore','mediaStoragePort','networkTran
 }
 
 for(const surface of ['index','paris','intelligence']){
-  assert(files[surface].includes('core/media/media-domain-contract-core.js')||files[surface].includes('../core/media/media-domain-contract-core.js'),`${surface} missing Media Domain Core`);
-  assert(files[surface].includes('media-storage-web-adapter.mjs'),`${surface} missing Web MediaStoragePort adapter`);
+  const source=surface==='index'?`${files.index}\n${files.loader}`:files[surface];
+  assert(source.includes('core/media/media-domain-contract-core.js')||source.includes('../core/media/media-domain-contract-core.js'),`${surface} missing Media Domain Core`);
+  assert(source.includes('media-storage-web-adapter.mjs'),`${surface} missing Web MediaStoragePort adapter`);
 }
 for(const asset of ['core/media/media-domain-contract-core.js','app/adapters/media-storage-web-adapter.mjs'])assert(files.sw.includes(asset),`Service Worker missing ${asset}`);
 assert(files.index.indexOf('media-domain-contract-core.js')<files.index.indexOf('media-core.js'));

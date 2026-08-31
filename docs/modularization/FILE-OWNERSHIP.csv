@@ -2580,3 +2580,32 @@ docs/modularization/PCR-M16.5AA-PREFERENCE-RESOLUTION-PLACES.md,Intelligence/Ide
 app/adapters/trip-preference-context-adapter.js,Consumer/Identity/Trip/Journey/Intelligence/Platform,Adapter/Web,Read-only shared preference and active-Trip context plus ephemeral Today-to-Places proposal handoff without copied Domain Truth
 tests/m16.5ab-today-plan-places-wave-c.test.cjs,Consumer/Journey/Intelligence/Places/Trip Shared Tests,Test/Guardrail,Journey open-gap derivation Today explainable proposal explicit confirmation productive Places weighting cache and release guard
 docs/modularization/PCR-M16.5AB-TODAY-PLAN-PLACES-WAVE-C.md,Consumer/Journey/Intelligence/Places/Trip/Experience/Platform,Documentation/Architecture,M16.5AB owner boundaries visible Today Journey Places flow confirmation rule evidence rollout and rollback ledger
+app/luvia-runtime-loader.mjs,Platform Runtime,Adapter/Web,Physical split-runtime loader with Trip Context ordering boundary and immutable build query
+app/luvia-runtime-precontext-13.82.121.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle generated from the committed manifest
+app/luvia-runtime-postcontext-13.82.121.bundle.js,Platform Runtime,Generated Runtime,Immutable post-Trip-Context runtime bundle generated from the committed manifest
+app/luvia-runtime.bundle.manifest.json,Platform Runtime,Generated Manifest,Ordered source provenance for the immutable split runtime
+scripts/build-runtime-bundle.cjs,Platform Runtime,Build Tool,Deterministic split-runtime builder and source manifest generator
+scripts/luvia-local-server.cjs,Platform Runtime,Development Tool,Local static server with explicit module MIME and SPA fallback boundary
+vendor/maplibre/maplibre-gl-5.12.0.css,Platform/Places,Vendor Asset,Pinned MapLibre presentation runtime for productive Places geographic projection
+vendor/maplibre/maplibre-gl-5.12.0.js,Platform/Places,Vendor Asset,Pinned MapLibre browser runtime for owner-projected finite WGS84 coordinates
+vendor/supabase/supabase-2.112.4.js,Platform/Identity,Vendor Asset,Pinned existing Supabase browser client kept outside the generated runtime split
+assets/place-evidence/ATTRIBUTIONS.md,Places/Consumer,Asset Provenance,Source attribution ledger for the finite accepted Place evidence photographs
+assets/place-evidence/cafe-de-flore-arnaud25.jpg,Places/Consumer,Verified Asset,Attributed Place evidence image; no provider fact or event truth
+assets/place-evidence/jardin-du-luxembourg-aconcagua.jpg,Places/Consumer,Verified Asset,Attributed Place evidence image; no provider fact or event truth
+assets/place-evidence/musee-vie-romantique-discoa340.jpg,Places/Consumer,Verified Asset,Attributed Place evidence image; no provider fact or event truth
+core/intelligence/travel-orchestration-core.js,Intelligence Domain,Domain/Orchestration Contract,Browserless multi-intent compiler with owner routing conflict missing-input offline privacy and no-mutation policies
+core/journey/journey-resilience-core.js,Journey Domain,Domain/Resilience Contract,Browserless owner-first disruption uncertainty planning-trace offline-pack and group-decision policy foundation
+docs/modularization/M16.5-STEP16-OWNER-FIRST-USP-AND-EVENT-BACKLOG.md,All Core Owner Streams,Documentation/Architecture,Owner-first USP and Verified Event Intelligence contracts I/O freshness privacy failures receipts evals and rollback slices without implementation claim
+docs/modularization/M16.5-STEP17-E2E-MATRIX.md,Consumer/Experience/Platform Shared Evidence,Documentation/Acceptance,Visible Desktop Mobile pointer keyboard reload Back motion offline GPS group provider and byte-evidence matrix with honest open gates
+docs/modularization/M16.5AB-RECOVERY-TRUTH-LEDGER.md,All Core Owner Streams,Documentation/Truth Ledger,Stable eighteen-step Recovery status counterevidence public proof and release boundary ledger
+tests/m16.5-step15-global-ai-chat-and-step16-backlog.test.cjs,Intelligence/Experience/All Owners Shared Tests,Test/Guardrail,Accepted global AI surface multi-intent owner protocol no-substitution and complete USP backlog decomposition guard
+tests/m16.5ab-auth-first-paint-background-user-refresh.test.cjs,Identity/Platform Shared Tests,Test/Guardrail,Stable signed-in first paint with background owner refresh and no shell substitution
+tests/m16.5ab-fast-preference-provider-first-paint.test.cjs,Identity/Trip/Places/Platform Shared Tests,Test/Guardrail,Fast local preference projection provider refresh and first-paint continuity
+tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs,Journey/Places/Platform Shared Tests,Test/Guardrail,Explicit GPS-derived presence confirmation denial reload distance-reference and raw-position privacy boundary
+tests/m16.5ab-intelligence-travel-orchestration.test.cjs,Intelligence/All Owners Shared Tests,Test/Guardrail,Complex German multi-intent conflict missing-input offline forbidden-command and no-owner-mutation eval
+tests/m16.5ab-journey-offline-day-pack.test.cjs,Journey/Platform Shared Tests,Test/Guardrail,Explicit offline day-pack create reload remove receipt and non-fabricated map/provider boundary
+tests/m16.5ab-journey-place-group-decision-policy.test.cjs,Journey/Collaboration/Places Shared Tests,Test/Guardrail,Multi-participant proposal majority deadline and unavailable-Collaboration-owner blocking policy
+tests/m16.5ab-journey-resilience-foundation.test.cjs,Journey/All Owners Shared Tests,Test/Guardrail,Owner-first uncertainty disruption planning-trace feedback context and recovery foundation
+tests/m16.5ab-local-server-module-mime.test.cjs,Platform Runtime Shared Tests,Test/Guardrail,Local JavaScript-module MIME and runtime-loader delivery boundary
+tests/m16.5ab-place-intelligence-evidence-boundary.test.cjs,Places/Intelligence Shared Tests,Test/Guardrail,Verified finite provider evidence personal scoring coverage and no-fabrication boundary
+tests/m16.5ab-today-stable-first-paint.test.cjs,Consumer/Journey/Platform Shared Tests,Test/Guardrail,Stable Today hero weather memory and Trip projection across first paint and owner refresh

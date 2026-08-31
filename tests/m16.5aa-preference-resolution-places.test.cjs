@@ -46,12 +46,24 @@ assert.equal(cultureResolution.persisted,false,'derived resolution must never be
 assert.equal(cultureResolution.provenance.profile,'identity.v1');
 assert.equal(cultureResolution.provenance.trip,'trip.v1');
 assert.deepEqual(Array.from(cultureResolution.summary.tripFeelings),['Kultur nah erleben','Neugierig']);
+assert.equal(cultureResolution.summary.planningPace,'ruhig','the profile pace must become an explicit planning policy, not decorative copy');
 assert.equal(cultureRanked.places[0].id,'culture-cafe','trip culture feeling should lift the cultural candidate');
 assert.equal(cultureRanked.meta.blockedCount,1,'explicit hard-constraint conflict must be removed');
 assert.ok(Array.from(cultureRanked.meta.blockedProviderPlaceIds).includes('meat-only'));
 const unknown=cultureRanked.places.find(place=>place.id==='unknown-park');
 assert.equal(unknown.preferenceConstraintState,'verify','unknown evidence must remain visible but marked for verification');
 assert.ok(Array.from(unknown.preferenceWarnings).some(item=>/nicht eindeutig bestätigt/.test(item)));
+const fit=cultureRanked.places[0].preferenceFit;
+assert.equal(fit.deterministic,true);
+assert.equal(fit.aiScoreUsed,false,'OpenAI may explain evidence but must never invent the match percentage');
+assert.equal(fit.formula,'Profil 30 · Anforderungen 25 · Reisegefühl 15 · Tagesbalance 12 · belegte Entfernung 10 · Zeit/Öffnung/Wetter 8');
+assert.ok(fit.coverage>=25&&fit.coverage<=100,'the shown score must expose how much of the weighted formula has actual evidence');
+assert.ok(fit.personalCoverage>=25,'a visible personal percentage must include a real Profile or hard-requirement basis');
+assert.equal(fit.minimumCoverage,45,'thin evidence must suppress a percentage instead of manufacturing confidence');
+const guidance=resolver.composeDayGuidance({resolution:cultureResolution,dayGraph:{days:[{date:'2027-06-12',status:'planned',openGaps:[{startAt:'2027-06-12T10:00:00',endAt:'2027-06-12T14:00:00',durationMinutes:240}]}]}});
+assert.equal(guidance.policy.pace,'ruhig');
+assert.equal(guidance.policy.routeBufferMinutes,15);
+assert.equal(guidance.policy.maximumSuggestions,3);
 
 const activeResolution=resolver.resolve({profilePreferences:profile,tripComposition:activeTrip,trip:{id:'trip-2'}});
 const activeRanked=resolver.rankPlaces({resolution:activeResolution,candidates});

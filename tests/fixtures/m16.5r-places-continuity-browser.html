@@ -63,13 +63,30 @@
     class FixtureMarker{
       constructor({element}){this.element=element}
       setLngLat(value){this.lngLat=value;return this}
-      addTo(map){map.container.appendChild(this.element);return this}
+      addTo(map){
+        const longitude=Number(this.lngLat?.[0]||10.75),latitude=Number(this.lngLat?.[1]||54.01);
+        this.element.style.left=`${18+Math.round((longitude-10.75)*900)}%`;
+        this.element.style.top=`${66-Math.round((latitude-54.01)*420)}%`;
+        this.element.style.transform='translate(-50%,-100%)';
+        map.container.appendChild(this.element);return this
+      }
       remove(){this.element.remove()}
     }
     window.maplibregl={Map:FixtureMap,Marker:FixtureMarker,NavigationControl:class{}};
     window.__placesTimelineReceipts=[];
     window.LuviaPlacesContractV1={reads:{
-      categories:()=>({food:{key:'food',label:'Essen & Trinken',primaryType:'restaurant',query:'Restaurants'}}),
+      categories:()=>({
+        food:{key:'food',label:'Essen & Trinken',primaryType:'restaurant',query:'Restaurants Cafés Bars Essen'},
+        accommodation:{key:'accommodation',label:'Unterkünfte',primaryType:'accommodation',query:'Hotels Unterkünfte Hostels Apartments'},
+        activities:{key:'activities',label:'Aktivitäten',primaryType:'activity',query:'Aktivitäten Erlebnisse Freizeit Familie Wellness'},
+        sights:{key:'sights',label:'Sehenswürdigkeiten',primaryType:'attraction',query:'Sehenswürdigkeiten Wahrzeichen besondere Orte'},
+        photo:{key:'photo',label:'Fotospots',primaryType:'photo_spot',query:'Fotospots besondere Perspektiven Aussicht Architektur'},
+        culture:{key:'culture',label:'Kultur',primaryType:'attraction',query:'Museen Kino Theater Kultur'},
+        nature:{key:'nature',label:'Natur & Erholung',primaryType:'nature',query:'Parks Gärten Natur Erholung'},
+        shopping:{key:'shopping',label:'Shopping',primaryType:'shopping',query:'Shopping Märkte besondere Geschäfte'},
+        nightlife:{key:'nightlife',label:'Nachtleben',primaryType:'custom',query:'Bars Clubs Rooftops Nachtleben Live Musik'},
+        practical:{key:'practical',label:'Praktisch unterwegs',primaryType:'custom',query:'Apotheke Supermarkt Parkplatz Toilette Ladestation'}
+      }),
       recommend:async()=>({places}),
       listSaved:async()=>[],
       getCard:async id=>{const place=places.find(item=>item.providerPlaceId===id);return{place,image:place?.image||null}}

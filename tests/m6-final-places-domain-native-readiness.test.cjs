@@ -52,6 +52,7 @@ const files={
   lifecycleService:read('core/places/place-lifecycle-service.js'),
   entityService:read('intelligence/place-entity-service.js'),
   ports:read('app/adapters/platform-port-adapters.mjs'),
+  loader:read('app/luvia-runtime-loader.mjs'),
   index:read('index.html'),
   sw:read('sw.js'),
   intelligenceHarness:read('intelligence/test.html')
@@ -96,7 +97,7 @@ for(const name of ['listSaved','recommend','categories','routeDiscovery','create
 }
 
 for(const asset of ['app/adapters/platform-port-adapters.mjs','core/places/places-domain-contract-core.js','app/adapters/places-discovery-adapter.js']){
-  assert.ok(files.index.includes(asset),`index.html missing ${asset}`);
+  assert.ok(files.index.includes(asset)||files.loader.includes(asset.replace(/^app\//,'')),`active runtime entry missing ${asset}`);
   assert.ok(files.sw.includes(asset),`sw.js missing ${asset}`);
 }
 assert.ok(files.intelligenceHarness.includes('../core/places/places-domain-contract-core.js'));

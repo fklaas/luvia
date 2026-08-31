@@ -36,6 +36,12 @@ const activeCore =
 const index =
   load('index.html');
 
+const runtimeLoader =
+  load('app/luvia-runtime-loader.mjs');
+
+const runtimeManifest =
+  JSON.parse(load('app/luvia-runtime.bundle.manifest.json'));
+
 
 assert(
   store.includes(
@@ -184,26 +190,31 @@ for (const token of [
 }
 
 
-const storeIndex =
-  index.indexOf(
-    'core/trips/trip-store.js'
-  );
+const runtimeSources =
+  runtimeManifest.map(entry => entry.source);
 
-const contextIndex =
-  index.indexOf(
-    'luvia-trip-context.js'
-  );
+const storeIndex =
+  runtimeSources.indexOf('core/trips/trip-store.js');
 
 const adapterIndex =
-  index.indexOf(
-    'core/platform/trip-contract-adapter.js'
-  );
+  runtimeSources.indexOf('core/platform/trip-contract-adapter.js');
+
+const precontextIndex =
+  runtimeLoader.indexOf('luvia-runtime-precontext-13.82.121.bundle.js');
+
+const contextIndex =
+  runtimeLoader.indexOf('../luvia-trip-context.js');
+
+const postcontextIndex =
+  runtimeLoader.indexOf('luvia-runtime-postcontext-13.82.121.bundle.js');
 
 assert(
   storeIndex >= 0 &&
-  contextIndex > storeIndex &&
-  adapterIndex > contextIndex,
-  'Web load order must remain TripStore -> TripContext -> Trip owner adapter'
+  adapterIndex > storeIndex &&
+  precontextIndex >= 0 &&
+  contextIndex > precontextIndex &&
+  postcontextIndex > contextIndex,
+  'Physical web load order must remain TripStore (pre-context) -> TripContext -> Trip owner adapter (post-context)'
 );
 
 

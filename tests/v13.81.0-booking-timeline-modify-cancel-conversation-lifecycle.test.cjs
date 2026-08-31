@@ -6,7 +6,7 @@ const control=read('app/control-center/booking-control-center.js');
 const inbox=read('app/control-center/booking-inbox.js');
 const migration=read('supabase/migrations/20260812115500_core_v4_81_0_booking_timeline_modify_cancel_conversation_lifecycle.sql');
 const caps=read('core/platform/capability-registry.js');
-assert(integration.includes("const VERSION='1.17.0'"));
+assert(/const VERSION='1\.(?:1[7-9]|[2-9]\d)\.\d+'/.test(integration),'booking integration must be at least the lifecycle-contract release');
 for(const api of ['bookingTimeline','conversationPreferences','setConversationPreference','modifyBooking','cancelBooking'])assert(integration.includes(api),`missing ${api}`);
 assert(!integration.includes("return transition(id,'cancelled'"),'legacy cancel must not directly force cancelled');
 assert(integration.includes("bookingStatusChanged:false"),'email fallback must not claim final status');

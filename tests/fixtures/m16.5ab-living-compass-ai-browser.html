@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.116-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.116-ai2">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.116-ai">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.121-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.121-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.121-ai2">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
@@ -21,7 +21,7 @@
     <section>
       <small>Luvia · sichere Owner-Orchestrierung</small>
       <h1>Ein Satz.<br>Mehrere sichere Schritte.</h1>
-      <p>Diese Abnahme öffnet die echte, appweit verwendete Luvia-Compass-Oberfläche. Sie bleibt ein weiches Bottom-Sheet und führt Änderungen nur über die zuständigen Owner-Contracts aus.</p>
+      <p>Diese Abnahme öffnet die echte, appweit verwendete Luvia-Compass-Oberfläche als helles Living Sheet. Sie führt Änderungen nur über die zuständigen Owner-Contracts aus.</p>
       <button type="button" data-ai-ask-open>Luvia Compass öffnen</button>
     </section>
   </main>
@@ -34,17 +34,15 @@
     };
     window.LuviaAIActionRuntime={
       runMessage:async request=>({handled:false,request,results:[]}),
-      prepare:()=>({requiresConfirmation:false}),execute:async()=>({}),cancel:()=>({}),retry:async()=>({}),diagnostics:()=>({ready:true})
+      prepare:()=>({requiresConfirmation:false}),execute:async()=>({}),cancel:()=>({}),retry:async()=>({}),
+      prepareUndo:()=>({requiresConfirmation:true}),recoveryPlan:()=>({mode:'owner-recovery'}),diagnostics:()=>({ready:true})
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.116-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.116-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.116-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.116-ai"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.116-ai"></script>
-  <script>
-    document.addEventListener('click',event=>{if(event.target.closest('[data-ai-ask-open]'))window.LuviaAIDashboard.openChat()});
-    window.LuviaAIDashboard.openChat();
-  </script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.121-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.121-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.121-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.121-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.121-ai"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.121-ai"></script>
 </body>
 </html>

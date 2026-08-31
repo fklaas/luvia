@@ -31,6 +31,7 @@ const bodyAppendInventory=[...sources]
 assert.deepEqual(bodyAppendInventory,[
   {file:'app/app-shell.js',count:1},
   {file:'app/gallery-view.js',count:1},
+  {file:'app/journey/journey-day-composer.js',count:1},
   {file:'app/memory-export-engine.js',count:1},
   {file:'core/places/places-final-foundation.js',count:1},
   {file:'core/ui/ui-manager.js',count:1},
@@ -39,6 +40,7 @@ assert.deepEqual(bodyAppendInventory,[
 
 assert.match(sources.get('app/app-shell.js'),/function toast\(message\).*lv-preview-toast/,'App Shell body append must remain a transient toast fallback');
 assert.match(sources.get('app/gallery-view.js'),/function triggerDownload\(source,name\).*a\.download=name/,'Gallery body append must remain a transient download anchor');
+assert.match(sources.get('app/journey/journey-day-composer.js'),/function showUndo\(message,undo,durationMs=8000\).*lvjt-undo-toast/,'Journey body append must remain the transient bounded Undo offer');
 assert.match(sources.get('app/memory-export-engine.js'),/function dl\(blob, name\).*a\.download = name/,'Memory Export body append must remain a transient download anchor');
 assert.match(sources.get('core/places/places-final-foundation.js'),/function toast\(message,error=false\).*places-final-toast/,'Places body append must remain a transient toast fallback');
 

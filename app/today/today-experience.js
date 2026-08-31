@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.6.0';
+const VERSION='1.7.1';
 let cleanup=null,binding=null;
 const fallbackEsc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const core=()=>window.LuviaTodayCompositionCoreV1||(()=>{throw new Error('Today Composition Core v1 fehlt.')})();
@@ -10,6 +10,38 @@ function dateRange(trip={}){const start=dateLabel(trip.startDate||trip.start_dat
 function networkOnline(){try{return window.LuviaPlatformPorts?.get?.('NetworkPort')?.isOnline?.()!==false}catch{return true}}
 const clean=value=>String(value??'').trim();
 const tripId=trip=>clean(trip?.id||trip?.tripId);
+const DISPLAY_CACHE_KEY='luvia.today.first-paint.v1';
+const WEATHER_CACHE_MS=10*60*1000;
+const MEMORY_CACHE_MS=6*60*60*1000;
+let displayCache=null,displayCacheLoaded=false;
+const displayPort=()=>window.LuviaPlatformPorts?.get?.('OfflineCachePort')||null;
+function readDisplayCache(){
+  if(displayCacheLoaded)return displayCache||{};
+  const port=displayPort();if(!port)return displayCache||{};
+  try{displayCache={...(port.read?.(DISPLAY_CACHE_KEY,{})||{}),...(displayCache||{})};displayCacheLoaded=true}catch{displayCache=displayCache||{}}
+  return displayCache;
+}
+function cachedDisplay(trip={}){return readDisplayCache()[tripId(trip)]||{}}
+function cacheDisplay(trip={},patch={}){
+  const id=tripId(trip);if(!id)return{};
+  const all=readDisplayCache(),next={...(all[id]||{}),...patch};all[id]=next;displayCache=all;
+  try{displayPort()?.write?.(DISPLAY_CACHE_KEY,all)}catch{}
+  return next;
+}
+function freshCachedWeather(trip={},coordinates=null){
+  const cached=cachedDisplay(trip).weather;if(!cached||!coordinates)return null;
+  if(Math.abs(Number(cached.latitude)-coordinates.latitude)>.0001||Math.abs(Number(cached.longitude)-coordinates.longitude)>.0001)return null;
+  const age=Date.now()-new Date(cached.observedAt||0).getTime();return Number.isFinite(age)&&age>=0&&age<WEATHER_CACHE_MS?cached:null;
+}
+function freshCachedMemoryCount(trip={}){
+  const cached=cachedDisplay(trip).memories,age=Date.now()-new Date(cached?.observedAt||0).getTime();
+  return cached&&Number.isFinite(Number(cached.count))&&Number.isFinite(age)&&age>=0&&age<MEMORY_CACHE_MS?Math.max(0,Math.trunc(Number(cached.count))):null;
+}
+function invalidateCachedMemories(trip={}){
+  const id=tripId(trip);if(!id)return;
+  const all=readDisplayCache(),next={...(all[id]||{})};delete next.memories;all[id]=next;displayCache=all;
+  try{displayPort()?.write?.(DISPLAY_CACHE_KEY,all)}catch{}
+}
 const escapePattern=value=>clean(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 function ideaTitle(value,destination=''){
   let title=clean(value).replace(/[|·]+/g,' · ').replace(/\s+/g,' ');
@@ -135,12 +167,16 @@ function avatarMarkup(model,esc){
   return `<div class="lvt-companions" aria-label="${esc(`${people.length} Mitreisende, ${model.dashboard.onlineCount} online`)}">${people.slice(0,5).map(person=>`<span style="--person-color:${esc(person.color)}" title="${esc(`${person.name} · ${person.online?'online':'offline'}`)}"><b>${esc(person.initials)}</b><i class="${person.online?'is-online':''}" aria-hidden="true"></i></span>`).join('')}${people.length>5?`<span class="is-more">+${people.length-5}</span>`:''}<small>${model.dashboard.onlineCount} online</small></div>`;
 }
 function weatherMarkup(model,esc){
-  const coords=model.dashboard.coordinates,destination=model.context.destination||'am Reiseziel';
-  return `<article class="lvt-glass lvt-weather" data-today-weather data-latitude="${coords?esc(coords.latitude):''}" data-longitude="${coords?esc(coords.longitude):''}" data-destination="${esc(destination)}" data-trip-start="${esc(model.trip.startDate||model.trip.start_date||'')}"><header><span>${todayIcon('sun')}<span><small>Wetter · ${esc(destination)}</small><strong data-weather-title>${coords?'Live-Wetter wird geladen':'Zielkoordinaten fehlen'}</strong></span></span><div role="group" aria-label="Wetterzeitraum"><button class="is-active" type="button" data-weather-mode="current" aria-pressed="true">Jetzt</button><button type="button" data-weather-mode="trip" aria-pressed="false">Reise</button></div></header><div class="lvt-weather-body" data-weather-current><b data-weather-temperature>–°</b><span><strong data-weather-condition>Aktuelle Prognose</strong><small data-weather-detail>${coords?'Wetterdaten werden im Hintergrund geladen.':'Öffne das Reiseziel, um Koordinaten zu ergänzen.'}</small></span></div><div class="lvt-weather-body" data-weather-trip hidden><b>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days<=16?'↗':'◎'}</b><span><strong>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days<=16?'Reiseprognose verfügbar':'Noch keine belastbare Prognose'}</strong><small>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days>16?'Eine echte Vorhersage erscheint spätestens 16 Tage vor Abreise. Keine erfundene Langfrist-Prognose.':'Die Wettertage eures Reisezeitraums werden live geladen.'}</small></span></div><footer>Open-Meteo · Zielkoordinaten · zuletzt live geladen</footer></article>`;
+  const coords=model.dashboard.coordinates,destination=model.context.destination||'am Reiseziel',cached=freshCachedWeather(model.trip,coords);
+  const title=cached?`${cached.condition} · ${Math.round(Number(cached.windSpeed)||0)} km/h Wind`:coords?'Live-Wetter wird geladen':'Zielkoordinaten fehlen';
+  const temperature=cached?`${Math.round(Number(cached.temperature))}°`:'–°';
+  const condition=cached?cached.condition:'Aktuelle Prognose';
+  const detail=cached?`Gefühlt ${Math.round(Number(cached.apparentTemperature))}° · heute ${Math.round(Number(cached.minimum))}–${Math.round(Number(cached.maximum))}° · Regen ${Math.round(Number(cached.rain)||0)} %`:coords?'Wetterdaten werden im Hintergrund geladen.':'Öffne das Reiseziel, um Koordinaten zu ergänzen.';
+  return `<article class="lvt-glass lvt-weather${cached?' is-hydrated':' is-pending'}" data-today-weather data-weather-cache="${cached?'fresh':'pending'}" data-latitude="${coords?esc(coords.latitude):''}" data-longitude="${coords?esc(coords.longitude):''}" data-destination="${esc(destination)}" data-trip-start="${esc(model.trip.startDate||model.trip.start_date||'')}"><header><span>${todayIcon('sun')}<span><small>Wetter · ${esc(destination)}</small><strong data-weather-title>${esc(title)}</strong></span></span><div role="group" aria-label="Wetterzeitraum"><button class="is-active" type="button" data-weather-mode="current" aria-pressed="true">Jetzt</button><button type="button" data-weather-mode="trip" aria-pressed="false">Reise</button></div></header><div class="lvt-weather-body" data-weather-current><b data-weather-temperature>${esc(temperature)}</b><span><strong data-weather-condition>${esc(condition)}</strong><small data-weather-detail>${esc(detail)}</small></span></div><div class="lvt-weather-body" data-weather-trip hidden><b>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days<=16?'↗':'◎'}</b><span><strong>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days<=16?'Reiseprognose verfügbar':'Noch keine belastbare Prognose'}</strong><small>${model.dashboard.countdown.days!=null&&model.dashboard.countdown.days>16?'Eine echte Vorhersage erscheint spätestens 16 Tage vor Abreise. Keine erfundene Langfrist-Prognose.':'Die Wettertage eures Reisezeitraums werden live geladen.'}</small></span></div><footer>Open-Meteo · Zielkoordinaten · ${cached?'stabiler letzter Live-Stand':'wird einmalig geladen'}</footer></article>`;
 }
 function metricMarkup(model,esc){
-  const d=model.dashboard;
-  return `<section class="lvt-metrics" aria-label="Reise auf einen Blick"><button type="button" data-view="trip" data-today-countdown data-countdown-at="${esc(d.countdown.targetAt||'')}"><small>Bis zur Reise</small><strong data-countdown-days>${esc(d.countdown.label)}</strong><span data-countdown-clock>${esc(d.countdown.detail)}</span></button><button type="button" data-view="plan"><small>Geplant</small><strong>${d.entries.length}</strong><span>${d.entries.length===1?'Reisemoment':'Reisemomente'}</span></button><button type="button" data-view="places-lifecycle"><small>Places</small><strong>${d.plannedPlaces.length}</strong><span>für diese Reise</span></button><button type="button" data-view="memory"><small>Erinnerungen</small><strong data-today-memory-count>…</strong><span>bewusste Momente</span></button></section>`;
+  const d=model.dashboard,cachedMemories=freshCachedMemoryCount(model.trip);
+  return `<section class="lvt-metrics" aria-label="Reise auf einen Blick"><button type="button" data-view="trip" data-today-countdown data-countdown-at="${esc(d.countdown.targetAt||'')}"><small>Bis zur Reise</small><strong data-countdown-days>${esc(d.countdown.label)}</strong><span data-countdown-clock>${esc(d.countdown.detail)}</span></button><button type="button" data-view="plan"><small>Geplant</small><strong>${d.entries.length}</strong><span>${d.entries.length===1?'Reisemoment':'Reisemomente'}</span></button><button type="button" data-view="places-lifecycle"><small>Places</small><strong>${d.plannedPlaces.length}</strong><span>für diese Reise</span></button><button type="button" data-view="memory"><small>Erinnerungen</small><strong data-today-memory-count data-memory-cache="${cachedMemories==null?'pending':'fresh'}">${cachedMemories==null?'…':esc(cachedMemories)}</strong><span>bewusste Momente</span></button></section>`;
 }
 function intelligenceMarkup(model,esc){
   const suggestion=model.suggestion;
@@ -160,7 +196,9 @@ const destinationPhotoCatalog=Object.freeze([
   Object.freeze({match:/\b(japan)\b/i,url:'assets/public-landing/travel-rural-japan.webp',place:'Ländliches Japan',creator:'Johnny',source:'https://unsplash.com/photos/a-train-is-traveling-past-flooded-fields-gc5M34_j208'})
 ]);
 function destinationPhotoSeed(trip={}){
-  const destination=trip.destination||{},name=clean(destination.formattedAddress||destination.name||trip.destinationName),exact=destinationPhotoCatalog.find(item=>item.match.test(name));
+  const destination=trip.destination||{},name=clean(destination.formattedAddress||destination.name||trip.destinationName),cached=cachedDisplay(trip).photo;
+  if(cached?.url&&cached.destination===name)return{...cached,exact:true,kind:'places-exact-cached',alt:cached.alt||`${name||'Reiseziel'} · Reisefotografie`,credit:cached.credit||'Foto · Places'};
+  const exact=destinationPhotoCatalog.find(item=>item.match.test(name));
   if(exact)return{...exact,exact:true,kind:'curated-exact',alt:`Reisefotografie aus ${exact.place}`,credit:`Foto · ${exact.creator} / Unsplash`};
   const coastal=/\b(scharbeutz|ostsee|nordsee|küste|kueste|strand|meer|see|insel|coast|beach|ocean|island)\b/i.test(name);
   const mountain=/\b(alpen|berge|gebirge|mountain|dolom|tirol|bayern|schweiz|austria)\b/i.test(name);
@@ -177,7 +215,7 @@ function focusedTodayMarkup(model,esc){
       :model.context.phase==='before'
         ?['',' rückt näher.']
         :['Eure Reise nach ',' nimmt Form an.'];
-  return `<section class="lvt-premium lvt-premium--living-day lvt-today-focus" data-today-premium data-experience-state="${esc(model.state)}" data-journey-projection="journey.v1-read-only" data-place-projection="places.v1-read-only" data-ai-projection="dashboard.brief-draft" data-photo-resolution="${esc(photo.kind)}" aria-labelledby="lvt-title"><div class="lvt-hero-depth"><img class="lvt-hero-image" data-today-destination-image src="${esc(photo.url)}" alt="${esc(photo.alt)}" loading="eager" decoding="async" fetchpriority="high"></div><a class="lvt-photo-credit" data-today-photo-credit href="${esc(photo.source)}" target="_blank" rel="noreferrer">${esc(photo.credit)} ↗</a><div class="lvt-hero-shade" aria-hidden="true"></div><div class="lvt-play-orbits" aria-hidden="true"><i></i><i></i><i></i><i></i></div><header class="lvt-focus-heading"><span>Heute · ${esc(model.context.label)}</span><p class="lvt-focus-greeting">${esc(model.greeting)}</p><h1 id="lvt-title">${esc(headline[0])}<em>${esc(destination)}</em>${esc(headline[1])}</h1><p>${esc(model.context.tripTitle)} · ${esc(model.summary)}</p></header><div class="lvt-focus-top">${weatherMarkup(model,esc)}${avatarMarkup(model,esc)}</div><section class="lvt-briefing-deck" aria-label="Deine Reise heute">${journeyEntryMarkup(model,esc)}${metricMarkup(model,esc)}${intelligenceMarkup(model,esc)}</section></section>`;
+  return `<section class="lvt-premium lvt-premium--living-day lvt-today-focus" data-today-premium data-today-trip-id="${esc(tripId(model.trip))}" data-experience-state="${esc(model.state)}" data-journey-projection="journey.v1-read-only" data-place-projection="places.v1-read-only" data-ai-projection="dashboard.brief-draft" data-photo-resolution="${esc(photo.kind)}" aria-labelledby="lvt-title"><div class="lvt-hero-depth"><img class="lvt-hero-image" data-today-destination-image src="${esc(photo.url)}" alt="${esc(photo.alt)}" loading="eager" decoding="async" fetchpriority="high"></div><a class="lvt-photo-credit" data-today-photo-credit href="${esc(photo.source)}" target="_blank" rel="noreferrer">${esc(photo.credit)} ↗</a><div class="lvt-hero-shade" aria-hidden="true"></div><div class="lvt-play-orbits" aria-hidden="true"><i></i><i></i><i></i><i></i></div><header class="lvt-focus-heading"><span>Heute · ${esc(model.context.label)}</span><p class="lvt-focus-greeting">${esc(model.greeting)}</p><h1 id="lvt-title">${esc(headline[0])}<em>${esc(destination)}</em>${esc(headline[1])}</h1><p>${esc(model.context.tripTitle)} · ${esc(model.summary)}</p></header><div class="lvt-focus-top">${weatherMarkup(model,esc)}${avatarMarkup(model,esc)}</div><section class="lvt-briefing-deck" aria-label="Deine Reise heute">${journeyEntryMarkup(model,esc)}${metricMarkup(model,esc)}${intelligenceMarkup(model,esc)}</section></section>`;
 }
 function premiumMarkup(model,esc){
   if(model.journey)return`<section class="lvt-premium lvt-premium--living-day" data-today-premium data-experience-state="${esc(model.state)}" aria-labelledby="lvt-title"><img class="lvt-hero-image" src="assets/public-landing/prototype-coast-morning.png" alt="Ruhiger Morgen an der Küste"><div class="lvt-hero-shade" aria-hidden="true"></div><div class="lvt-hero-copy"><div class="lvt-weather-line">${todayIcon('sun')}<span>${esc(model.context.label)}</span><span>${model.status.online?'Reisekontext live':'Offline bereit'}</span></div><p class="lvt-hero-date">${esc(model.journey?.day?.date?dateLabel(model.journey.day.date):model.summary)}</p><h1 id="lvt-title">${esc(model.greeting)}<br><em>${esc(model.headline)}</em></h1><p>${esc(model.context.tripTitle)} · ${esc(model.context.destination)} · ${esc(model.summary)}</p></div>${liveMapMarkup(model,esc)}${nextMomentMarkup(model,esc)}${worldDockMarkup(model,esc)}</section>`;
@@ -206,6 +244,24 @@ function render({trip={},profile={},widgetsHtml='',esc=fallbackEsc}={}){
   const model=modelFor({trip,profile});
   return`<section class="lv-dashboard lvt-surface lvt-surface--focused" data-today-experience data-today-contract="${core().contractId}">${focusedTodayMarkup(model,esc)}</section>`;
 }
+function preserveStableFirstPaint(current,next){
+  if(!current||!next||clean(current.dataset.todayTripId)!==clean(next.dataset.todayTripId))return;
+  const oldWeather=current.querySelector('[data-today-weather]'),newWeather=next.querySelector('[data-today-weather]');
+  const sameDestination=clean(oldWeather?.dataset.destination)===clean(newWeather?.dataset.destination);
+  if(sameDestination){
+    const oldImage=current.querySelector('[data-today-destination-image]'),newImage=next.querySelector('[data-today-destination-image]');
+    const oldCredit=current.querySelector('[data-today-photo-credit]'),newCredit=next.querySelector('[data-today-photo-credit]');
+    if(oldImage?.getAttribute('src')&&newImage){newImage.replaceWith(oldImage);next.dataset.photoResolution=current.dataset.photoResolution||next.dataset.photoResolution}
+    if(oldCredit&&newCredit)newCredit.replaceWith(oldCredit);
+    if(oldWeather&&newWeather){
+      newWeather.replaceWith(oldWeather);
+    }
+  }
+  const oldMemories=current.querySelector('[data-today-memory-count]'),newMemories=next.querySelector('[data-today-memory-count]');
+  if(oldMemories&&newMemories&&clean(oldMemories.textContent)!=='…'){newMemories.textContent=oldMemories.textContent;newMemories.dataset.memoryCache=oldMemories.dataset.memoryCache||'fresh'}
+  const oldAi=current.querySelector('[data-ai-slider]'),newAi=next.querySelector('[data-ai-slider]'),oldAiStatus=current.querySelector('[data-ai-status]'),newAiStatus=next.querySelector('[data-ai-status]');
+  if(oldAi&&newAi&&oldAi.classList.contains('is-hydrated')){newAi.innerHTML=oldAi.innerHTML;newAi.className=oldAi.className;if(oldAiStatus&&newAiStatus)newAiStatus.textContent=oldAiStatus.textContent}
+}
 function update(){
   const surface=binding?.container?.querySelector?.('[data-today-experience]');
   const current=surface?.querySelector?.('[data-today-premium]');
@@ -214,7 +270,7 @@ function update(){
   const template=document.createElement('template');
   template.innerHTML=focusedTodayMarkup(model,binding.context.esc||fallbackEsc).trim();
   const next=template.content.firstElementChild,container=binding.container,context=binding.context;
-  next.classList.add('is-live-update');current.replaceWith(next);binding.signature=signature;
+  preserveStableFirstPaint(current,next);next.classList.add('is-live-update');current.replaceWith(next);binding.signature=signature;
   bind(container,context);
   return true;
 }
@@ -223,8 +279,53 @@ function bind(container,context={}){
   unbind();
   binding={container,context,signature:premiumSignature(modelFor(context))};
   const disposers=[];
+  const applyWeather=(card,weather)=>{
+    if(!card||!weather)return;
+    card.querySelector('[data-weather-temperature]').textContent=`${Math.round(Number(weather.temperature))}°`;
+    card.querySelector('[data-weather-condition]').textContent=weather.condition;
+    card.querySelector('[data-weather-title]').textContent=`${weather.condition} · ${Math.round(Number(weather.windSpeed)||0)} km/h Wind`;
+    card.querySelector('[data-weather-detail]').textContent=`Gefühlt ${Math.round(Number(weather.apparentTemperature))}° · heute ${Math.round(Number(weather.minimum))}–${Math.round(Number(weather.maximum))}° · Regen ${Math.round(Number(weather.rain)||0)} %`;
+    card.dataset.weatherCache='fresh';card.classList.remove('is-pending');card.classList.add('is-hydrated');
+    const footer=card.querySelector('footer');if(footer)footer.textContent='Open-Meteo · Zielkoordinaten · stabiler letzter Live-Stand';
+  };
+  const hydrateStableWeather=async()=>{
+    const card=container.querySelector('[data-today-weather]');if(!card)return;
+    const latitude=Number(card.dataset.latitude),longitude=Number(card.dataset.longitude),coordinates={latitude,longitude};
+    if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;
+    const cached=freshCachedWeather(context.trip,coordinates);if(cached){applyWeather(card,cached);return}
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+    try{
+      const url=new URL('https://api.open-meteo.com/v1/forecast');url.search=new URLSearchParams({latitude:String(latitude),longitude:String(longitude),current:'temperature_2m,apparent_temperature,weather_code,wind_speed_10m',daily:'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',timezone:'auto',forecast_days:'7'});
+      const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw new Error(`WEATHER_${response.status}`);
+      const data=await response.json(),code=Number(data.current?.weather_code),condition=code===0?'Klar':code<=3?'Leicht bewölkt':code<=48?'Nebel':code<=67?'Regen':code<=77?'Schnee':code<=82?'Schauer':'Gewitter';
+      const weather={observedAt:new Date().toISOString(),latitude,longitude,weatherCode:code,condition,temperature:Number(data.current?.temperature_2m),apparentTemperature:Number(data.current?.apparent_temperature),windSpeed:Number(data.current?.wind_speed_10m),minimum:Number(data.daily?.temperature_2m_min?.[0]),maximum:Number(data.daily?.temperature_2m_max?.[0]),rain:Math.round(Number(data.daily?.precipitation_probability_max?.[0])||0)};
+      cacheDisplay(context.trip,{weather});
+      globalThis.LuviaWeatherContextV1=Object.freeze({version:'1.0.0',source:'open-meteo',observedAt:weather.observedAt,latitude,longitude,current:Object.freeze({...weather})});
+      globalThis.dispatchEvent(new CustomEvent('luvia:weather-context-changed',{detail:globalThis.LuviaWeatherContextV1}));
+      const liveCard=container.querySelector(`[data-today-premium][data-today-trip-id="${CSS.escape(tripId(context.trip))}"] [data-today-weather]`);applyWeather(liveCard,weather);
+    }catch{
+      const liveCard=container.querySelector('[data-today-weather]');if(liveCard&&liveCard.dataset.weatherCache!=='fresh'){liveCard.querySelector('[data-weather-title]').textContent='Wetter gerade nicht erreichbar';liveCard.querySelector('[data-weather-detail]').textContent='Die Reiseansicht bleibt stabil; Wetter wird beim nächsten Öffnen erneut geladen.'}
+    }finally{clearTimeout(timer)}
+  };
+  const hydrateStableMemories=async()=>{
+    const cached=freshCachedMemoryCount(context.trip);if(cached!=null)return;
+    const results=await Promise.allSettled([window.LuviaMemoryAlbums?.list?.()||[],window.LuviaMemoryJourneys?.list?.()||[]]),ids=new Set();
+    results.forEach(result=>{if(result.status==='fulfilled'&&Array.isArray(result.value))result.value.forEach(item=>ids.add(clean(item?.id)||JSON.stringify(item)))});
+    const count=ids.size;cacheDisplay(context.trip,{memories:{count,observedAt:new Date().toISOString()}});
+    const target=container.querySelector(`[data-today-premium][data-today-trip-id="${CSS.escape(tripId(context.trip))}"] [data-today-memory-count]`);if(target){target.textContent=String(count);target.dataset.memoryCache='fresh'}
+  };
+  const discoverStableDestinationPhoto=async()=>{
+    const destination=context.trip?.destination||{},placeId=clean(destination.placeId||destination.providerPlaceId||context.trip?.destinationPlaceId),name=clean(destination.formattedAddress||destination.name||context.trip?.destinationName);
+    if(!placeId||typeof window.LuviaPlacesContractV1?.reads?.getCard!=='function'||cachedDisplay(context.trip).photo?.destination===name)return;
+    try{
+      const card=await window.LuviaPlacesContractV1.reads.getCard(placeId,{maxWidthPx:1800,maxHeightPx:1200}),resolved=card?.image;if(!resolved?.url)return;
+      cacheDisplay(context.trip,{photo:{destination:name,url:resolved.url,alt:`${clean(card?.place?.name||destination.name||'Reiseziel')} · Reisefotografie`,credit:`Foto · ${clean(resolved.attribution)||'Google Maps'} / ${clean(resolved.provider)||'Places'}`,source:resolved.attributionUrl||resolved.sourceUrl||'#',observedAt:new Date().toISOString()}});
+    }catch(error){console.warn('[Luvia Today] Exaktes Zielfoto wird erst für den nächsten stabilen Paint vorgemerkt.',error?.message||error)}
+  };
   const listen=name=>{const handler=()=>update();window.addEventListener(name,handler);disposers.push(()=>window.removeEventListener(name,handler))};
   ['luvia:control-center-attention-changed','luvia:control-center-travel-identity-changed','luvia:travel-context-changed','luvia:trip.changed','luvia:journey.changed','luvia:identity.preferences.changed','luvia:profile-changed','luvia:places-lifecycle-changed','luvia:trip-place-data-changed'].forEach(listen);
+  const listenMemory=name=>{const handler=()=>{invalidateCachedMemories(context.trip);hydrateStableMemories()};window.addEventListener(name,handler);disposers.push(()=>window.removeEventListener(name,handler))};
+  ['luvia:memory-album-updated','luvia:memory-journey-updated'].forEach(listenMemory);
   try{const unsubscribe=window.LuviaPlatformPorts?.get?.('NetworkPort')?.subscribe?.(()=>update());if(typeof unsubscribe==='function')disposers.push(unsubscribe)}catch{}
   const weatherMode=mode=>{const card=container.querySelector('[data-today-weather]');if(!card)return;card.querySelectorAll('[data-weather-mode]').forEach(button=>{const active=button.dataset.weatherMode===mode;button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active))});const current=card.querySelector('[data-weather-current]'),trip=card.querySelector('[data-weather-trip]');if(current)current.hidden=mode!=='current';if(trip)trip.hidden=mode!=='trip'};
   container.querySelectorAll('[data-weather-mode]').forEach(button=>{const handler=()=>weatherMode(button.dataset.weatherMode);button.addEventListener('click',handler);disposers.push(()=>button.removeEventListener('click',handler))});
@@ -236,13 +337,13 @@ function bind(container,context={}){
   const refresh=container.querySelector('[data-ai-brief-refresh]');if(refresh){const handler=()=>hydrateAi(true);refresh.addEventListener('click',handler);disposers.push(()=>refresh.removeEventListener('click',handler))}
   const depthSurface=container.querySelector('[data-today-premium]');
   if(depthSurface&&!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){let frame=0;const move=event=>{if(event.pointerType==='touch')return;cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{const rect=depthSurface.getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width-.5,y=(event.clientY-rect.top)/rect.height-.5;depthSurface.style.setProperty('--lvt-depth-x',`${(x*12).toFixed(2)}px`);depthSurface.style.setProperty('--lvt-depth-y',`${(y*9).toFixed(2)}px`)})};const reset=()=>{depthSurface.style.setProperty('--lvt-depth-x','0px');depthSurface.style.setProperty('--lvt-depth-y','0px')};depthSurface.addEventListener('pointermove',move,{passive:true});depthSurface.addEventListener('pointerleave',reset,{passive:true});disposers.push(()=>{cancelAnimationFrame(frame);depthSurface.removeEventListener('pointermove',move);depthSurface.removeEventListener('pointerleave',reset)})}
-  queueMicrotask(()=>{hydrateCountdown();hydrateWeather();hydrateMemories();hydrateAi(false);hydrateDestinationPhoto()});
+  queueMicrotask(()=>{hydrateCountdown();hydrateStableWeather();hydrateStableMemories();hydrateAi(false);discoverStableDestinationPhoto()});
   cleanup=()=>disposers.splice(0).forEach(dispose=>{try{dispose()}catch{}});
   window.LuviaControlCenterTravelIdentity?.refresh?.();
   window.LuviaControlCenterAttention?.refresh?.().catch?.(()=>{});
   return unbind;
 }
-function diagnostics(){return Object.freeze({version:VERSION,contract:core().contractId,bound:Boolean(binding),domainTruth:false,journeyTimeline:'journey.v1-read-only-projection',weather:'open-meteo-read-only',aiBrief:'dashboard.brief-background',destinationPhoto:'places-exact-transient-with-curated-semantic-fallback',ports:['NetworkPort']})}
+function diagnostics(){return Object.freeze({version:VERSION,contract:core().contractId,bound:Boolean(binding),domainTruth:false,journeyTimeline:'journey.v1-read-only-projection',weather:'open-meteo-session-first-paint-cache',memoryCount:'owner-read-session-first-paint-cache',aiBrief:'dashboard.brief-background',destinationPhoto:'stable-first-paint-with-next-mount-provider-upgrade',ports:['NetworkPort']})}
 
 window.LuviaTodayExperience=Object.freeze({version:VERSION,render,bind,unbind,update,diagnostics});
 })();

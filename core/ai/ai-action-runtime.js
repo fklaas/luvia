@@ -1,11 +1,13 @@
 (()=>{
 'use strict';
 
-const VERSION='1.2.0';
+const VERSION='1.3.0';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
 const receipts=new Map();
+const completedInputs=new Map();
+const compensationOrigins=new Map();
 const root=globalThis;
 let sequence=0;
 const actionCore=()=>root.LuviaIntelligenceActionContractCoreV1||missing('LuviaIntelligenceActionContractCoreV1');
@@ -29,7 +31,7 @@ function emit(reason,detail={}){const event=actionCore().immutable({reason,...de
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
-function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null}}
+function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null}}
 function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function connectionSnapshot(){
   const owners=['trip','places','booking','journey','memory','identity'];
@@ -101,20 +103,36 @@ async function preferenceResult(request){
 }
 const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult,'places.discovery.recommend':placeDiscoveryResult,'journey.day.read':dayResult,'trip.active.list':tripResult,'booking.trip.read':bookingResult,'memory.library.read':memoryResult,'identity.preferences.read':preferenceResult});
 
+function compiledRoutes(message,compiled){
+  if(compiled?.contractId!=='intelligence.travel-orchestration.v1'||!Array.isArray(compiled.intents))return null;
+  const routes=[],push=(actionId,input={})=>{if(actionId&&!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:message,...input}})};
+  for(const intent of compiled.intents){
+    if(intent.domain==='places')push(intent.categoryHints?.length===1&&intent.categoryHints[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:intent.categoryHints?.[0]||'places',categories:intent.categoryHints?.length?intent.categoryHints:['places'],limit:Math.min(8,Math.max(4,(intent.categoryHints?.length||1)*2))});
+    else if(intent.domain==='booking')push('booking.trip.read',{intent:intent.mode==='propose-write'?'prerequisite-read':'list'});
+    else if(intent.domain==='journey')push('journey.day.read');
+    else if(intent.domain==='trip')push('trip.active.list');
+    else if(intent.domain==='memory')push('memory.library.read');
+    else if(intent.domain==='identity'||intent.domain==='privacy')push('identity.preferences.read');
+  }
+  return routes;
+}
 async function runMessage(message,options={}){
-  const routes=(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean));if(!routes.length)return actionCore().immutable({handled:false,results:[],routes:[]});
+  const compiled=options.compiledIntent||null;
+  if(compiled&&['blocked','conflicted','needs-clarification'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
+  const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean));if(!routes.length)return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled?.status||null});
   const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:false,results:[],routes});
   const results=[];let error=false;
   for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'intelligence',title:'Eine Teilaufgabe ist gerade nicht verfügbar',message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'},meta:{retryable:true}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
-  return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1});
+  return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1,compiledStatus:compiled?.status||null});
 }
 
 function prepare(actionId,payload={},options={}){
   const definition=actionCore().getAction(actionId);if(!definition)missing(actionId);
   if(definition.effect!=='READ'&&options.userGesture!==true)throw runtimeError('INTELLIGENCE_USER_GESTURE_REQUIRED','Die Aktion muss durch eine direkte Nutzerauswahl vorbereitet werden.',{actionId});
   if(!operationAvailable(definition))throw runtimeError('AI_ACTION_BINDING_UNAVAILABLE',`Für ${actionId} ist kein erreichbares Owner Binding registriert.`,{actionId,owner:definition.owner});
+  const preparedPayload=definition.id==='trip.active.select'&&!payload.previousTripId?{...payload,previousTripId:tripId(tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{})}:payload;
   const correlationId=clean(options.correlationId)||newId('corr');const idempotencyKey=clean(options.idempotencyKey)||newId(`idem-${actionId.replace(/[^a-z0-9]+/gi,'-')}`);const requestedAt=new Date().toISOString();
-  const envelope=actionCore().createExecutionEnvelope(actionId,payload,{surface:options.surface||'global-chat'},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
+  const envelope=actionCore().createExecutionEnvelope(actionId,preparedPayload,{surface:options.surface||'global-chat'},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
   const entry=ledger.create({actionId,owner:definition.owner,ownerContract:definition.ownerContract,effect:definition.effect,risk:definition.risk,confirmation:definition.confirmation,reversible:definition.reversible,idempotencyKey,correlationId,payload:envelope.input,reference:previewPayload(envelope.input)});
   const expiresAt=new Date(Date.now()+CONFIRMATION_TTL_MS).toISOString();pending.set(entry.id,{definition,envelope,expiresAt});
   if(definition.confirmation==='EXPLICIT'){
@@ -162,9 +180,11 @@ async function execute(actionId,payload={},options={}){
   emit('command-started',{actionId,owner:definition.owner,risk:definition.risk,ledgerId});let ownerInvoked=false;
   try{
     ownerInvoked=true;const outcome=await invokeOwner(definition,staged.envelope.input,staged.envelope.idempotencyKey);
-    const receipt=actionCore().createReceipt({actionId,status:outcome.status,message:outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,reference:receiptReference(staged.envelope.input,outcome.result)});
+    const compensationOrigin=compensationOrigins.get(ledgerId)||null,receipt=actionCore().createReceipt({actionId,status:compensationOrigin?'compensated':outcome.status,message:compensationOrigin?`Die vorherige Aktion wurde über ${definition.ownerContract} nachvollziehbar rückgängig gemacht.`:outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,compensationStatus:compensationOrigin?'completed':null,reference:receiptReference(staged.envelope.input,outcome.result),meta:compensationOrigin?{compensatesLedgerId:compensationOrigin}: {}});
     if(outcome.status==='failed')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_DECLINED',retryable:true,receipt});else ledger.succeed(ledgerId,receipt);
-    receipts.set(ledgerId,receipt);pending.delete(ledgerId);emit(outcome.status==='failed'?'command-failed':'command-completed',{actionId,owner:definition.owner,status:outcome.status,ledgerId});return receipt;
+    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:staged.envelope.input});pending.delete(ledgerId);
+    if(compensationOrigin&&outcome.status!=='failed'){ledger.startCompensation(compensationOrigin);ledger.finishCompensation(compensationOrigin,receipt);compensationOrigins.delete(ledgerId);emit('command-compensated',{actionId,owner:definition.owner,ledgerId,compensatesLedgerId:compensationOrigin})}
+    emit(outcome.status==='failed'?'command-failed':'command-completed',{actionId,owner:definition.owner,status:compensationOrigin?'compensated':outcome.status,ledgerId});return receipt;
   }catch(error){
     const outcomeUnknown=ownerInvoked&&definition.risk==='R3';const retryable=!outcomeUnknown&&definition.risk!=='R4';ledger.fail(ledgerId,{code:error?.code||'AI_ACTION_FAILED',retryable,outcomeUnknown});
     const receipt=actionCore().createReceipt({actionId,status:outcomeUnknown?'outcome_unknown':'failed',message:outcomeUnknown?'Der externe Ausgang ist unklar. Luvia führt keinen Blind-Retry aus und wartet auf Booking-Reconciliation.':error?.message||'Die Owner-Aktion ist fehlgeschlagen.',ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,retryable,outcomeUnknown,reference:{...receiptReference(staged.envelope.input),code:error?.code||'AI_ACTION_FAILED'}});
@@ -184,6 +204,27 @@ async function retry(ledgerId,options={}){
   receipts.delete(ledgerId);
   return execute(state.actionId,{}, {...options,ledgerId,userGesture:true,confirmed:true});
 }
+function compensationPayload(definition,payload={}){
+  if(['places.place.favorite','places.place.unfavorite','places.place.plan','places.place.unplan'].includes(definition.id))return{...payload};
+  if(definition.id==='trip.active.select'&&payload.previousTripId)return{tripId:payload.previousTripId,previousTripId:payload.tripId};
+  return null;
+}
+function recoveryPlan(ledgerId){
+  const state=ledger.get(ledgerId),completed=completedInputs.get(ledgerId),definition=completed?.definition||actionCore().getAction(state?.actionId);
+  if(!state||!definition)return actionCore().immutable({kind:'unavailable',available:false,reason:'ledger-not-found'});
+  if(state.status==='failed')return actionCore().immutable({kind:'retry',available:true,blindRetry:false,owner:definition.owner,ownerContract:definition.ownerContract});
+  if(state.status==='outcome_unknown')return actionCore().immutable({kind:'owner-reconciliation',available:true,blindRetry:false,owner:definition.owner,ownerContract:definition.ownerContract});
+  const compensation=actionCore().getAction(definition.compensation),payload=compensationPayload(definition,completed?.payload||{});
+  if(state.status==='succeeded'&&definition.reversible&&compensation&&payload)return actionCore().immutable({kind:'undo',available:true,actionId:compensation.id,owner:compensation.owner,ownerContract:compensation.ownerContract,requiresConfirmation:true});
+  if(state.status==='succeeded'&&definition.reversible)return actionCore().immutable({kind:'owner-recovery',available:true,automatic:false,owner:definition.owner,ownerContract:definition.ownerContract,reason:'registered-owner-recovery-required'});
+  return actionCore().immutable({kind:'none',available:false,reason:'not-reversible'});
+}
+function prepareUndo(ledgerId,options={}){
+  const state=ledger.get(ledgerId),completed=completedInputs.get(ledgerId);if(!state||!completed)throw runtimeError('INTELLIGENCE_ACTION_UNDO_NOT_AVAILABLE','Für dieses Receipt ist kein rückgängig machbarer Owner-Vorgang verfügbar.',{ledgerId});
+  if(state.status!=='succeeded')throw runtimeError('INTELLIGENCE_ACTION_UNDO_NOT_AVAILABLE','Nur erfolgreich abgeschlossene, noch nicht rückgängig gemachte Aktionen können zurückgenommen werden.',{ledgerId,status:state.status});
+  const compensation=actionCore().getAction(completed.definition.compensation),payload=compensationPayload(completed.definition,completed.payload);if(!compensation||!payload)throw runtimeError('INTELLIGENCE_ACTION_OWNER_RECOVERY_REQUIRED','Diese Aktion benötigt einen eigenen Recovery-Flow des zuständigen Owners.',{ledgerId,actionId:state.actionId,owner:state.owner});
+  const prepared=prepare(compensation.id,payload,{...options,userGesture:true,surface:options.surface||'global-chat-undo',correlationId:state.correlationId});compensationOrigins.set(prepared.ledgerId,ledgerId);emit('compensation-confirmation-required',{actionId:compensation.id,owner:compensation.owner,ledgerId:prepared.ledgerId,compensatesLedgerId:ledgerId});return actionCore().immutable({...prepared,compensatesLedgerId:ledgerId});
+}
 function getActionState(ledgerId){return ledger.get(ledgerId)}
 function subscribe(listener){if(typeof listener!=='function')throw new TypeError('Action Runtime subscriber must be a function.');listeners.add(listener);return()=>listeners.delete(listener)}
 function diagnostics(){
@@ -192,5 +233,5 @@ function diagnostics(){
   return actionCore().immutable({version:VERSION,contractId:actionCore().contractId,ledgerContractId:ledger.contractId,actions:actionCore().listActions().length,availableActions:capabilities.available,owners,connections,capabilities,ledger:ledger.diagnostics(),policy:actionCore().policySnapshot()});
 }
 
-root.LuviaAIActionRuntime=Object.freeze({version:VERSION,runMessage,prepare,execute,cancel,retry,getActionState,capabilitySnapshot,connectionSnapshot,subscribe,diagnostics});
+root.LuviaAIActionRuntime=Object.freeze({version:VERSION,runMessage,prepare,execute,cancel,retry,prepareUndo,recoveryPlan,getActionState,capabilitySnapshot,connectionSnapshot,subscribe,diagnostics});
 })();

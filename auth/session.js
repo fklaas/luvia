@@ -118,20 +118,29 @@
     initPromise = (async () => {
       const initial = await client.auth.getSession();
       if (initial.error) throw initial.error;
-      let initialSession = initial.data.session;
-      // getSession kann direkt nach einer E-Mail-Bestätigung noch ein älteres User-Objekt
-      // enthalten. getUser holt den aktuellen Status vom Auth-Server.
-      if (initialSession) {
-        const fresh = await client.auth.getUser();
-        if (!fresh.error && fresh.data.user) {
-          initialSession = { ...initialSession, user: fresh.data.user };
-        }
-      }
-      await setFromSession(initialSession, 'INITIAL_SESSION');
+      const initialSession = initial.data.session || null;
       const listener = client.auth.onAuthStateChange((event, nextSession) => {
         Promise.resolve().then(() => setFromSession(nextSession, event));
       });
       authSubscription = listener?.data?.subscription || null;
+      // Eine lokal gespeicherte, signierte Sitzung darf den ersten sichtbaren App-Frame
+      // nicht von einem Netzwerk-Roundtrip abhängig machen. Supabase/RLS bleibt für alle
+      // Datenzugriffe maßgeblich; nur das aktuelle User-Objekt wird im Hintergrund erneuert.
+      await setFromSession(initialSession, 'INITIAL_SESSION');
+      if (initialSession && typeof client.auth.getUser === 'function') {
+        const expectedUserId = initialSession.user?.id || null;
+        Promise.resolve().then(async () => {
+          let fresh;
+          try { fresh = await client.auth.getUser(); }
+          catch (error) {
+            console.warn('LuviaAuth background user refresh', error);
+            return;
+          }
+          if (fresh?.error || !fresh?.data?.user || !state.session) return;
+          if (expectedUserId && state.user?.id !== expectedUserId) return;
+          await setFromSession({ ...state.session, user: fresh.data.user }, 'USER_REFRESHED');
+        }).catch(error => console.warn('LuviaAuth background user refresh', error));
+      }
       return getState();
     })();
     try {

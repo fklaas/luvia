@@ -37,7 +37,8 @@ assert.match(finalUi,/zeigt zuerst die sechs stärksten Treffer/,'the UI must ex
 assert.doesNotMatch(finalUi,/höchstens fünf echte Treffer/,'the former five-result promise must be removed');
 assert.match(discoveryAdapter,/candidateLimit=Math\.min\(60,Math\.max\(20,/,'candidate breadth must remain bounded');
 assert.match(discoveryAdapter,/hasEnoughCandidates=\(\)=>uniquePlaces\(candidates\)\.length>=requestedLimit/,'the provider cascade must settle as soon as the requested visible set is complete');
-assert.match(discoveryAdapter,/catch\(error\)[\s\S]*attempts\.push\(\{query,strictDestination,ok:false/,'one failing provider query must not discard successful fallback results');
+assert.match(discoveryAdapter,/catch\(error\)\{return\{places:\[\],error,attempt:\{query,strictDestination,ok:false/,'one failing provider query must be represented as an empty failed attempt instead of rejecting the complete provider batch');
+assert.match(discoveryAdapter,/Promise\.all\(selectedQueries\.map\(query=>providerRequest\(query,true\)\)\)/,'bounded provider variants must complete independently so one failure cannot discard successful sibling results');
 assert.match(discoveryAdapter,/plan\.queries\.slice\(0,queryLimit\)/,'query expansion must remain latency-bounded');
 
 console.log('LUVIA_M15_0_PLACES_VERIFIED_DIETARY_FILTER_REGRESSION_OK');

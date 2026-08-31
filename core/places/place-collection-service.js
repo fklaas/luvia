@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='4.19.1';
+const VERSION='4.20.0';
 const CANONICAL=new Set(['idea','discovered','saved','favorite','planned','reserved','selected','booked','checked_in','checked_out','visited','rated','rejected','archived']);
 const MAP={favorited:'favorite',dismissed:'rejected',memory:'visited',travel_book:'visited'};
 const pending=new Map();
@@ -76,7 +76,11 @@ async function clearFavorites(placeType,{tripId:id=activeTripId(),tripPlaceIds=[
  const failed=results.filter(r=>r.status==='rejected');if(failed.length)throw failed[0].reason||new Error('Favoriten konnten nicht vollständig entfernt werden.');
  await refresh(id,placeType,{action:'favorites-cleared',clearedTripPlaceIds:ids,providerPlaceIds:targets.map(r=>r.providerPlaceId).filter(Boolean),isFavorite:false});return ids.length;
 }
-async function saveDateFields({tripId:id=activeTripId(),placeType,tripPlaceId,placeId,fields}={}){const result=await window.LuviaTripPlaceData.upsert({tripId:id,tripPlaceId,placeId,placeType,fields});await refresh(id,placeType);return result;}
+async function saveDateFields({tripId:id=activeTripId(),placeType,tripPlaceId,placeId,fields}={}){
+ const result=await window.LuviaTripPlaceData.upsert({tripId:id,tripPlaceId,placeId,placeType,fields});
+ queueMicrotask(()=>refresh(id,placeType,{action:'timeline-fields-reconciled',tripPlaceId,placeId}).catch(()=>{}));
+ return result;
+}
 function favoritePanel({items=[],title='Lieblingsorte',empty='Noch keine Favoriten',renderCard,placeType='',clearAttr='',open=false}={}){
  remember(placeType,items);const cards=items.map(renderCard).join('');const tripPlaceIds=[...new Set(items.map(e=>clean(entityLink(e).id||e?.tripPlaceId)).filter(Boolean))];
  return `<details class="rv2-library-panel rv2-library-favorites"${open?' open':''}><summary><span><i>♥</i><span><strong>${title}</strong><small>${items.length?`${items.length} für eure Reise`:empty}</small></span></span><span class="rv2-library-summary-actions">${items.length?`<button type="button" class="rv2-clear-all" data-place-clear-favorites="${clean(placeType)}" data-place-favorite-trip-ids="${tripPlaceIds.join(',')}" ${clearAttr}>Alle entfernen</button>`:''}<b>${items.length}</b></span></summary><div class="rv2-library-content">${items.length?`<div class="rv2-grid rv2-saved-grid">${cards}</div>`:`<div class="rv2-library-empty">${empty}</div>`}</div></details>`;

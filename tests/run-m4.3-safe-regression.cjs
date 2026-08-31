@@ -506,6 +506,42 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-living-compass-ai-owner-orchestration.test.cjs'
   },
   {
+    category: 'M16.5 / Journey Resilience Foundation',
+    test: 'tests/m16.5ab-journey-resilience-foundation.test.cjs'
+  },
+  {
+    category: 'M16.5 / Intelligence Travel Orchestration',
+    test: 'tests/m16.5ab-intelligence-travel-orchestration.test.cjs'
+  },
+  {
+    category: 'M16.5 / Global AI Chat + Owner-first USP Backlog',
+    test: 'tests/m16.5-step15-global-ai-chat-and-step16-backlog.test.cjs'
+  },
+  {
+    category: 'M16.5 / Provider-first Preference Paint',
+    test: 'tests/m16.5ab-fast-preference-provider-first-paint.test.cjs'
+  },
+  {
+    category: 'M16.5 / GPS Confirmation Timeline Boundary',
+    test: 'tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs'
+  },
+  {
+    category: 'M16.5 / Journey Offline Day Pack',
+    test: 'tests/m16.5ab-journey-offline-day-pack.test.cjs'
+  },
+  {
+    category: 'M16.5 / Journey Group Decision Policy',
+    test: 'tests/m16.5ab-journey-place-group-decision-policy.test.cjs'
+  },
+  {
+    category: 'M16.5 / Place Intelligence Evidence Boundary',
+    test: 'tests/m16.5ab-place-intelligence-evidence-boundary.test.cjs'
+  },
+  {
+    category: 'M16.5 / Local ES-module Server MIME Boundary',
+    test: 'tests/m16.5ab-local-server-module-mime.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

@@ -201,8 +201,9 @@ assert.doesNotMatch(experience,/href="\$\{esc\(value\.website\)\}"/,'external Pl
 assert.match(experience,/navigationPort\.open\(url\)/,'external Place websites must be opened by ExternalNavigationPort');
 assert.match(experience,/data-compact-place-card/,'Places results must use the compact new-shell card contract');
 assert.match(experience,/function matchLabel\(place\)/,'compact cards must expose the personal ranking when available');
-assert.match(experience,/function distanceLabel\(value\)/,'compact cards must expose useful distance facts');
-assert.match(experience,/openResultSheet\(\[findPlace\(button\.dataset\.placesPlan\)\]/,'adding a search result must use the shared Journey result sheet');
+assert.match(experience,/function distanceLabel\(place\)/,'compact cards must expose useful distance facts');
+assert.match(experience,/place\?\.distanceReference==='device'/,'distance facts must only be labeled as device distance when a real device-position reference exists');
+assert.match(experience,/await openResultSheet\(filteredResults\(\),id\)/,'adding a search result must use the shared Journey result sheet while retaining the filtered alternatives');
 for(const removed of ['Details &amp; Evidenz','data-places-detail=','data-places-detail-region=','function detailMarkup','async function loadDetails'])assert.equal(experience.includes(removed),false,`old Places detail/evidence UI re-entered the new shell: ${removed}`);
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
@@ -229,6 +230,7 @@ assert.doesNotMatch(experience,/data-places-map[^>]+role="img"/,'the map contain
 assert.match(experience,/data-places-map[^>]+role="group"/,'the interactive map must expose its marker controls as an accessible group');
 assert.match(experience,/marker\.setAttribute\('aria-pressed',String\(selected\)\)/,'marker selection changes must update their programmatic pressed state');
 assert.match(experience,/card\.setAttribute\('aria-current',String\(selected\)\)/,'result selection changes must update their programmatic current state');
+assert.match(experience,/card\.querySelector\('\[data-places-select\]'\)\?\.setAttribute\('aria-pressed',String\(selected\)\)/,'marker selection must expose the corresponding result-card control as pressed');
 assert.doesNotMatch(experience,/<article[^>]+role=["']button["'][^>]*>[\s\S]*?<button/,'result articles may not contain nested interactive button roles');
 
 assert.match(css,/--places-accent\s*:\s*var\(--trip-accent\)/);
@@ -317,6 +319,8 @@ assert.ok(index.indexOf('app/places/places-spatial-experience.js')<index.indexOf
         return null;
       }
     },
+    setTimeout,
+    clearTimeout,
     requestAnimationFrame(callback){runtimeFrames.push(callback);return runtimeFrames.length},
     matchMedia:()=>({matches:true}),
     document:{documentElement:{classList:{contains:()=>false}}}

@@ -1,12 +1,13 @@
 (() => {
 'use strict';
-const VERSION='4.27.3';
+const VERSION='4.28.0';
 let state={tripId:null,loading:false,records:[],lastUpdatedAt:null,lastError:null};
 let channel=null; const listeners=new Set();
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const canonicalUuid=v=>UUID_RE.test(String(v||'').trim())?String(v).trim():null;
 const db=()=>window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;
+const runtime=()=>window.LuviaPlaceRuntime;
 const tripId=()=>(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.tripId||(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()?.id||null;
 const emit=()=>{const snap=snapshot();listeners.forEach(fn=>{try{fn(snap)}catch{}});window.dispatchEvent(new CustomEvent('luvia:trip-place-data-changed',{detail:snap}))};
 function snapshot(){return clone(state)}
@@ -19,7 +20,7 @@ async function hydrate(id=tripId()){
  try{
   const {data,error}=await c.from('trip_place_data').select('*,place:places(*),trip_place:trip_places(*)').eq('trip_id',id);
   if(error)throw error;
-  state.records=(data||[]).map(normalize);for(const rec of state.records)window.LuviaPlaceRuntime?.setData?.({tripId:id,placeType:rec.place_type,tripPlaceId:rec.trip_place_id,data:rec});state.lastUpdatedAt=new Date().toISOString();emit();return snapshot()
+  state.records=(data||[]).map(normalize);for(const rec of state.records)runtime()?.setData?.({tripId:id,placeType:rec.place_type,tripPlaceId:rec.trip_place_id,data:rec});state.lastUpdatedAt=new Date().toISOString();emit();return snapshot()
  }catch(error){state.lastError=error.message;emit();throw error}
  finally{state.loading=false}
 }
@@ -32,9 +33,35 @@ async function upsert({tripId:id=tripId(),tripPlaceId,placeId,placeType,fields={
  if(!placeType)throw new Error('Der Place-Typ ist erforderlich.');
  const c=db(); if(!c?.rpc)throw new Error('Supabase ist nicht verfügbar.');
  const canonicalPlaceId=canonicalUuid(placeId);
- const {data,error}=await c.rpc('luvia_upsert_trip_place_fields',{p_trip_id:canonicalTripId,p_trip_place_id:canonicalTripPlaceId,p_place_id:canonicalPlaceId,p_place_type:placeType,p_fields:fields||{}});
- if(error)throw error;
- await hydrate(canonicalTripId); return data;
+ const previous=recordForTripPlace(canonicalTripPlaceId),previousIndex=state.records.findIndex(row=>String(row.trip_place_id)===canonicalTripPlaceId);
+ const staged=normalize({
+  ...(previous||{}),
+  trip_id:canonicalTripId,
+  trip_place_id:canonicalTripPlaceId,
+  place_id:canonicalPlaceId||previous?.place_id||null,
+  place_type:placeType,
+  fields:{...(previous?.fields||{}),...(fields||{})},
+  updated_at:new Date().toISOString(),
+  _local_projection:'pending'
+ });
+ state.tripId=canonicalTripId;state.lastError=null;
+ if(previousIndex>=0)state.records.splice(previousIndex,1,staged);else state.records.push(staged);
+ runtime()?.setData?.({tripId:canonicalTripId,placeType,tripPlaceId:canonicalTripPlaceId,data:staged});
+ emit();
+ try{
+  const {data,error}=await c.rpc('luvia_upsert_trip_place_fields',{p_trip_id:canonicalTripId,p_trip_place_id:canonicalTripPlaceId,p_place_id:canonicalPlaceId,p_place_type:placeType,p_fields:fields||{}});
+  if(error)throw error;
+  const committedIndex=state.records.findIndex(row=>String(row.trip_place_id)===canonicalTripPlaceId);
+  if(committedIndex>=0){const committed={...state.records[committedIndex]};delete committed._local_projection;state.records.splice(committedIndex,1,committed);emit()}
+  queueMicrotask(()=>hydrate(canonicalTripId).catch(error=>{state.lastError=error?.message||String(error);emit()}));
+  return data;
+ }catch(error){
+  const currentIndex=state.records.findIndex(row=>String(row.trip_place_id)===canonicalTripPlaceId);
+  if(currentIndex>=0)state.records.splice(currentIndex,1);
+  if(previous){const restoreAt=previousIndex>=0?Math.min(previousIndex,state.records.length):state.records.length;state.records.splice(restoreAt,0,previous)}
+  state.lastError=error?.message||String(error);emit();
+  throw error;
+ }
 }
 async function replaceFields({tripId:id=tripId(),tripPlaceId,placeId,placeType,fields={}}={}){
  const c=db(); const payload={trip_id:id,trip_place_id:tripPlaceId,place_id:placeId||null,place_type:placeType,fields,updated_at:new Date().toISOString()};

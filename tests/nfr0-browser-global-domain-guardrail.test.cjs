@@ -26,7 +26,10 @@ const patterns = [
   ['INDEXED_DB', /(?<![A-Za-z0-9_$])indexedDB\b/g],
   ['CACHE_STORAGE', /(?<![A-Za-z0-9_$])caches\b/g],
   ['SERVICE_WORKER', /\bserviceWorker\b/g],
-  ['LOCATION', /(?<![A-Za-z0-9_$])(?:window\.)?location\b/g],
+  // Treat the browser global `location` and `window.location` as debt, but do
+  // not mistake an ordinary domain value such as `place.location` for a
+  // browser dependency.
+  ['LOCATION', /(?<![A-Za-z0-9_$.'"])(?:window\.)?location\b/g],
   ['HISTORY', /(?<![A-Za-z0-9_$])(?:window\.)?history\.(?:pushState|replaceState|back|forward|go|state|length|scrollRestoration)\b/g],
   ['MATCH_MEDIA', /\bmatchMedia\s*\(/g],
   ['GEOLOCATION', /\bgeolocation\b/g],

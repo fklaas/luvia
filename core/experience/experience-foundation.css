@@ -92,3 +92,81 @@ html[data-theme="dark"]{
 @media(max-height:780px){.lvx-command-hero{padding:16px 22px}.lvx-command-brand{margin-bottom:8px}.lvx-command-lead{display:none}.lvx-command-context{margin-top:8px}.lvx-command-scroll{padding-block:12px}.luv-ai-chat.lvx-command-surface .lvx-command-input{min-height:68px;resize:none}.lvx-command-keyboard,.lvx-command-safety{font-size:9px}}
 @media(max-height:520px){.lvx-command-hero{display:none}.lvx-command-scroll{padding-block:10px}.lvx-command-composer-panel{gap:8px;padding-top:9px}}
 @media(prefers-reduced-motion:reduce){.lvx-command-trigger,.lvx-command-trigger::after,.lvx-command-prompt,.lvx-button,.lvx-command-surface,.lvx-rich-result,.lvx-command-receipt,.lvx-place-card figure img,.lvx-rich-action,.lvx-command-confirmation{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.lvx-command-trigger:hover,.lvx-command-prompt:hover,.lvx-place-card:hover figure img,.lvx-rich-action:hover{transform:none}}
+
+/* M16.5 Step 15 — global Luvia Intelligence conversation sheet.
+   The productive projection uses the same bottom-up Living Sheet geometry and
+   motion as the owner-backed Places suggestions in the Timeline. */
+.luv-ai-proposal-overlay.luvia-living-sheet-overlay{
+  place-items:end center;
+  padding:0;
+  background:rgba(10,31,45,.3);
+  backdrop-filter:blur(12px);
+  animation:lvx-command-backdrop-in .24s ease-out both;
+}
+.luv-ai-proposal-overlay.luvia-living-sheet-overlay>.luv-ai-proposal.lvx-command-surface{
+  align-self:end;
+  justify-self:center;
+  width:min(100%,1280px);
+  height:min(94dvh,820px);
+  max-height:min(94dvh,820px);
+  margin:0 auto;
+  padding:0;
+  border:1px solid rgba(17,47,68,.12);
+  border-bottom:0;
+  border-radius:34px 34px 0 0;
+  background:linear-gradient(145deg,rgba(255,255,255,.99),rgba(244,250,250,.99));
+  box-shadow:0 -26px 80px rgba(13,45,60,.2);
+  animation:lvx-command-sheet-in .45s cubic-bezier(.22,.75,.25,1) both;
+  transform-origin:50% 100%;
+}
+.lvx-command-surface .lvx-command-hero{
+  position:relative;
+  flex:0 0 auto;
+  min-height:97px;
+  box-sizing:border-box;
+  padding:27px 72px 17px 24px;
+  overflow:visible;
+  border-bottom:1px solid var(--luvia-color-border-subtle);
+  background:#fff;
+}
+.lvx-command-surface .lvx-command-hero::after{display:none}
+.lvx-command-eyebrow{display:block;margin:0 0 5px;color:var(--luvia-color-text-muted);font-size:10px;font-weight:850;letter-spacing:.15em;text-transform:uppercase}
+.lvx-command-surface .lvx-command-hero h2{max-width:none;margin:0;color:#102d3f;font-family:var(--luvia-font-family-display);font-size:29px;line-height:1;letter-spacing:-.045em}
+.lvx-command-surface .lvx-command-close{top:23px;right:24px;width:40px;height:40px;border-color:var(--luvia-color-border-subtle);background:#fff;color:#102d3f;font-size:24px;font-weight:350;line-height:1;box-shadow:0 6px 18px rgba(16,44,67,.04)}
+.lvx-command-surface .lvx-command-body{display:grid;grid-template-rows:minmax(0,1fr) auto;flex:1 1 auto;min-height:0;background:#fff}
+.lvx-command-surface .lvx-command-scroll{display:block;min-height:0;padding:20px 20px 30px;overflow-y:auto;overscroll-behavior:contain;background:#fff}
+.lvx-command-answer{display:grid;align-content:start;gap:18px;min-height:100%}
+.lvx-command-message{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:start;gap:10px;color:#40576a}
+.lvx-command-message>div{min-width:0}.lvx-command-message p{margin:0;color:inherit;font-size:13px;line-height:1.58}.lvx-command-speaker{display:block;margin-bottom:4px;color:var(--luvia-color-action-primary);font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.lvx-command-message-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--luvia-color-action-primary-soft);color:var(--luvia-color-action-primary);font-size:17px;box-shadow:0 7px 18px color-mix(in srgb,var(--luvia-color-action-primary) 13%,transparent)}
+.lvx-command-message.is-user{grid-template-columns:minmax(0,1fr);justify-self:end;width:min(80%,390px);box-sizing:border-box;padding:12px 14px;border-radius:14px 14px 3px 14px;background:var(--luvia-color-action-primary);color:var(--luvia-color-action-on-primary)}
+.lvx-command-message.is-user .lvx-command-speaker{color:rgba(255,255,255,.8)}.lvx-command-message.is-error{color:var(--luvia-color-status-danger)}
+.lvx-command-message .lvx-command-prompts{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.lvx-command-message .lvx-command-prompt{min-width:0;min-height:32px;padding:7px 10px;border:1px solid var(--luvia-color-border-subtle);border-radius:999px;background:#fff;color:#40576a;font-size:10px;font-weight:600;white-space:nowrap}
+.lvx-command-message .lvx-command-prompt:hover{transform:none;border-color:var(--luvia-color-action-primary);color:var(--luvia-color-action-primary)}
+.lvx-command-surface .lvx-command-composer-panel{position:relative;z-index:2;display:grid;gap:7px;padding:14px 18px max(14px,env(safe-area-inset-bottom));border-top:1px solid var(--luvia-color-border-subtle);background:#fff;box-shadow:none}
+.lvx-command-surface .lvx-command-status{min-height:0;color:var(--luvia-color-text-muted);font-size:10px;line-height:1.4}.lvx-command-surface .lvx-command-status:empty{display:none}.lvx-command-surface .lvx-command-status[data-state="error"]{color:var(--luvia-color-status-danger)}.lvx-command-surface .lvx-command-status[data-state="attention"]{color:var(--luvia-color-status-warning)}
+.lvx-command-surface .lvx-command-label{display:block;margin:0;color:#102d3f;font-size:10px;font-weight:750}
+.lvx-command-surface .lvx-command-composer{display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:end;gap:8px}
+.luv-ai-chat.lvx-command-surface .lvx-command-input{width:100%;height:44px;min-height:44px;max-height:120px;box-sizing:border-box;margin:0;padding:11px 12px;border:1px solid var(--luvia-color-border-subtle);border-radius:12px;background:#fff;color:#102d3f;font:inherit;font-size:13px;line-height:20px;resize:none;overflow-y:auto}
+.lvx-command-surface .lvx-button-primary[data-ai-send]{display:grid;width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;background:var(--luvia-color-action-primary);box-shadow:0 8px 22px color-mix(in srgb,var(--luvia-color-action-primary) 28%,transparent)}
+.lvx-command-surface [data-ai-send-label]{position:absolute;width:1px;height:1px;margin:-1px;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap}.lvx-command-surface .lvx-button-send-mark{width:auto;height:auto;border-radius:0;background:transparent;font-size:19px}
+.lvx-command-surface .lvx-command-keyboard{font-size:8px;line-height:1.4}.lvx-command-surface .lvx-command-safety{position:absolute;width:1px;height:1px;margin:-1px;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+.lvx-intent-graph{display:grid;gap:12px;padding:14px;border:1px solid var(--luvia-color-border-subtle);border-radius:15px;background:linear-gradient(145deg,#f8fbfb,#fff);box-shadow:0 8px 24px rgba(16,44,67,.055)}
+.lvx-intent-graph>header{display:grid;gap:3px}.lvx-intent-graph>header>span{color:var(--luvia-color-action-primary);font-size:8px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.lvx-intent-graph>header>strong{color:#102d3f;font-size:14px}.lvx-intent-graph>header>small,.lvx-intent-graph>footer{color:var(--luvia-color-text-muted);font-size:8px;line-height:1.45}
+.lvx-intent-graph ol{display:grid;gap:6px;margin:0;padding:0;list-style:none}.lvx-intent-graph li{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:8px}.lvx-intent-graph li>i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--luvia-color-action-primary-soft);color:var(--luvia-color-action-primary);font-size:9px;font-style:normal;font-weight:850}.lvx-intent-graph li>div{display:grid;gap:1px}.lvx-intent-graph li strong{font-size:10px}.lvx-intent-graph li small{color:var(--luvia-color-text-muted);font-size:8px}.lvx-intent-graph li.is-needs-input>i,.lvx-intent-graph.is-conflicted li>i{background:color-mix(in srgb,var(--luvia-color-status-warning) 12%,#fff);color:var(--luvia-color-status-warning)}
+.lvx-intent-issues{display:grid;gap:5px;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,var(--luvia-color-status-warning) 8%,#fff)}.lvx-intent-issues p{margin:0;color:#73531f;font-size:8px;line-height:1.4}.lvx-intent-graph.is-blocked .lvx-intent-issues{background:color-mix(in srgb,var(--luvia-color-status-danger) 8%,#fff)}.lvx-intent-graph.is-blocked .lvx-intent-issues p{color:var(--luvia-color-status-danger)}
+.lvx-command-surface .lvx-rich-result{padding:14px;border-radius:15px}.lvx-command-surface .lvx-place-grid,.lvx-command-surface .lvx-entity-grid{grid-template-columns:1fr}.lvx-command-surface .lvx-command-confirmation,.lvx-command-surface .lvx-command-receipt{width:100%}.lvx-command-receipt.is-compensated{border-color:color-mix(in srgb,var(--luvia-color-action-primary) 35%,var(--luvia-color-border-subtle));background:var(--luvia-color-action-primary-soft)}.lvx-recovery-note{display:block;margin-top:6px;color:var(--luvia-color-text-muted);font-size:8px;line-height:1.4}
+@keyframes lvx-command-backdrop-in{from{background:rgba(16,44,67,0)}}
+@keyframes lvx-command-sheet-in{from{opacity:.72;transform:translateY(105%)}to{opacity:1;transform:none}}
+@media(max-width:560px){
+  .luv-ai-proposal-overlay.luvia-living-sheet-overlay{place-items:end center;padding:0}
+  .luv-ai-proposal-overlay.luvia-living-sheet-overlay>.luv-ai-proposal.lvx-command-surface{width:100%;height:min(92dvh,780px);max-height:min(92dvh,780px);border-radius:26px 26px 0 0;box-shadow:0 -18px 56px rgba(13,45,60,.18)}
+  .lvx-command-surface .lvx-command-hero{min-height:125px;padding:27px 72px 18px 24px}.lvx-command-surface .lvx-command-hero h2{max-width:290px;font-size:30px;line-height:.96}.lvx-command-surface .lvx-command-close{top:21px;right:24px}
+  .lvx-command-surface .lvx-command-scroll{padding:20px 20px 24px}.lvx-command-message{gap:9px}.lvx-command-message .lvx-command-prompts{margin-top:12px}.lvx-command-message .lvx-command-prompt{min-height:32px}
+  .lvx-command-surface .lvx-command-composer-panel{padding:14px 18px max(12px,env(safe-area-inset-bottom))}.lvx-command-surface .lvx-command-label{font-size:9px}.luv-ai-chat.lvx-command-surface .lvx-command-input{font-size:13px}
+  .lvx-command-surface .lvx-place-grid{display:grid;margin:0;padding:0;overflow:visible}.lvx-command-surface .lvx-place-card{width:100%;flex:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .luv-ai-proposal-overlay.luvia-living-sheet-overlay,.luv-ai-proposal-overlay.luvia-living-sheet-overlay>.luv-ai-proposal.lvx-command-surface,.lvx-intent-graph{animation:none;transition:none}
+}

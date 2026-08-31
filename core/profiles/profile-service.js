@@ -106,6 +106,22 @@
   const durableFingerprint=p=>JSON.stringify(canonicalValue({avatarColor:String(p?.avatarColor||'').toLowerCase()||null,dietaryPreferences:p?.dietaryPreferences||[],travelInterests:p?.travelInterests||[],travelStyles:p?.travelStyles||[],activityPreferences:p?.activityPreferences||[],entertainmentPreferences:p?.entertainmentPreferences||[],diningPreferences:p?.diningPreferences||[],mobilityPreferences:p?.mobilityPreferences||[],atmospherePreferences:p?.atmospherePreferences||[],travelPace:p?.travelPace||null,budgetPreference:p?.budgetPreference||null,familyPreferences:p?.familyPreferences||{},accessibilityPreferences:p?.accessibilityPreferences||{},preferencesCompletedAt:canonicalInstant(p?.preferencesCompletedAt)}));
   async function fetchCloudProfile(client,user){const response=await client.rpc('luvia_get_my_profile');if(response.error)throw response.error;const row=Array.isArray(response.data)?response.data[0]:response.data;if(!row)throw new Error('PROFILE_CLOUD_ROW_MISSING');return mapRow(row,user);}
   function assertDurableRoundtrip(expected,actual){if(durableFingerprint(expected)!==durableFingerprint(actual)){const error=new Error('PROFILE_CLOUD_ROUNDTRIP_MISMATCH');error.expected=durableFingerprint(expected);error.actual=durableFingerprint(actual);throw error;}return true;}
+  const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
+  async function verifyDurableRoundtrip(client,user,expected,{attempts=4}={}){
+    let lastError=null;
+    for(let attempt=0;attempt<attempts;attempt+=1){
+      try{
+        const verified=await fetchCloudProfile(client,user);
+        assertDurableRoundtrip(expected,verified);
+        return verified;
+      }catch(error){
+        lastError=error;
+        if(error?.message!=='PROFILE_CLOUD_ROUNDTRIP_MISMATCH'||attempt===attempts-1)throw error;
+        await wait([120,240,480][attempt]||480);
+      }
+    }
+    throw lastError||new Error('PROFILE_CLOUD_ROUNDTRIP_MISMATCH');
+  }
 
   async function load(client) {
     const auth=root.ParisAuth.getState(),user=auth.user;
@@ -153,7 +169,12 @@
       const response=await client.rpc('luvia_upsert_my_profile_v2',rowPayload(next));
       if(response.error)throw response.error;
       const row=Array.isArray(response.data)?response.data[0]:response.data;
-      const rpcProfile=mapRow(row,auth.user);const verified=await fetchCloudProfile(client,auth.user);assertDurableRoundtrip(next,verified);patchState({profile:verified,syncing:false,error:null,lastSyncedAt:new Date().toISOString()});write(current().profile);emit('saved-cloud-verified');
+      const rpcProfile=mapRow(row,auth.user);
+      // The write receipt must be exact immediately. The independent read may
+      // briefly lag behind the primary, so it receives one bounded retry window.
+      assertDurableRoundtrip(next,rpcProfile);
+      const verified=await verifyDurableRoundtrip(client,auth.user,next);
+      patchState({profile:verified,syncing:false,error:null,lastSyncedAt:new Date().toISOString()});write(current().profile);emit('saved-cloud-verified');
       return clone(current().profile);
     } catch(error) {
       patchState({profile:previous,syncing:false,error});write(previous);emit('save-failed');

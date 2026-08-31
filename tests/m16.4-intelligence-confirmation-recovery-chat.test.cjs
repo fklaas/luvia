@@ -32,7 +32,7 @@ for(const forbidden of ['confirm(', 'window.confirm','naturalLanguageConfirmatio
   assert.equal(source.includes(forbidden),false,`M16 chat contains unsafe confirmation/retry shortcut: ${forbidden}`);
 }
 
-assert.match(source,/if\(failed&&result\.evidence\?\.retryable&&result\.evidence\?\.ledgerId\)/,'retry must require an explicitly retryable failed receipt');
+assert.match(source,/const failed=result\.evidence\?\.status==='failed'[\s\S]*if\(failed&&result\.evidence\?\.retryable&&ledgerId\)/,'retry must require an explicitly retryable failed receipt');
 assert.match(source,/confirmButton\?await actionRuntime\(\)\.execute/,'confirmation control must be the execution branch');
 assert.match(source,/cancelButton&&entry\.sourceButton/,'cancel must restore the originating owner action');
 

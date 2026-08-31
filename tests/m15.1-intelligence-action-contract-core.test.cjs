@@ -35,13 +35,18 @@ assert.equal(core.canAutoRun('places.place.favorite'),false);
 
 assert.throws(
   ()=>core.assertExecution('places.place.favorite',{ownerCommand:true}),
-  error=>error?.code==='INTELLIGENCE_USER_GESTURE_REQUIRED'
+  error=>error?.code==='INTELLIGENCE_CONFIRMATION_REQUIRED'
 );
 assert.throws(
-  ()=>core.assertExecution('places.place.favorite',{userGesture:true}),
+  ()=>core.assertExecution('places.place.favorite',{userGesture:true,ownerCommand:true}),
+  error=>error?.code==='INTELLIGENCE_CONFIRMATION_REQUIRED'
+);
+assert.throws(
+  ()=>core.assertExecution('places.place.favorite',{userGesture:true,confirmed:true}),
   error=>error?.code==='INTELLIGENCE_OWNER_COMMAND_REQUIRED'
 );
-assert.equal(core.assertExecution('places.place.favorite',{userGesture:true,ownerCommand:true}).owner,'places');
+assert.equal(core.assertExecution('places.place.favorite',{userGesture:true,confirmed:true,ownerCommand:true}).owner,'places');
+assert.equal(core.getAction('places.place.favorite').confirmation,'EXPLICIT');
 
 const restaurantIntent=core.routeIntent('Finde uns heute ein ruhiges Restaurant am Wasser');
 assert.equal(restaurantIntent.actionId,'places.restaurant.recommend');

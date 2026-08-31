@@ -269,6 +269,16 @@ const trackedFiles = trackedOutput
   ? trackedOutput.split(/\r?\n/).filter(Boolean)
   : [];
 
+// Release bundles are byte-derived copies of the individually scanned source
+// modules; the vendored Supabase client is third-party runtime code. Counting
+// either as an architecture source would duplicate known calls or classify
+// minified SDK internals as Luvia owner access. Exact bundle/source provenance
+// remains guarded by the runtime manifest and release consistency tests.
+const analysisFiles = trackedFiles.filter(relativePath =>
+  !/^app\/luvia-runtime(?:-(?:precontext|postcontext))?-\d+\.\d+\.\d+\.bundle\.js$/.test(relativePath) &&
+  !relativePath.startsWith('vendor/')
+);
+
 const staticCalls = [];
 const dynamicCalls = [];
 
@@ -277,7 +287,7 @@ const LITERAL_RE = /^\s*(['"`])([^'"`]+)\1/;
 const DYNAMIC_EXPRESSION_RE =
   /^\s*([A-Za-z_$][A-Za-z0-9_$]*(?:\[[^\]]+\])?)/;
 
-for (const relativePath of trackedFiles) {
+for (const relativePath of analysisFiles) {
   const absolutePath = path.join(ROOT, ...relativePath.split('/'));
   if (!fs.existsSync(absolutePath)) continue;
 

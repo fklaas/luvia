@@ -9,7 +9,6 @@ const safeRunner=fs.readFileSync('tests/run-m4.3-safe-regression.cjs','utf8');
 
 for(const needle of [
   'data-ai-command-form',
-  'data-ai-composer-footer',
   'class="lvx-command-scroll"',
   'class="lvx-command-composer-panel"',
   'role="log" aria-live="polite" aria-relevant="additions text"',
@@ -19,8 +18,7 @@ for(const needle of [
   'type="submit" data-ai-send',
   'aria-label="Anfrage an Luvia senden"',
   'aria-keyshortcuts="Enter"',
-  '<kbd>Enter</kbd> sendet',
-  '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
+  'Enter sendet · Shift+Enter fügt eine Zeile ein',
   'form.onsubmit=',
   "overlay.addEventListener('keydown'",
   "event.target!==input||event.key!=='Enter'||event.shiftKey||event.isComposing||event.keyCode===229",

@@ -20,13 +20,32 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.116**
-- Core: **4.82.116**
-- Name: **M16.5AB Timeline, Places & Booking Continuity**
+- App: **13.82.121**
+- Core: **4.82.121**
+- Name: **M16.5 Steps 15–18 Global AI & Owner-first Productization**
 - Channel: **integration-preview**
-- Datum: **2026-08-30**
+- Datum: **2026-08-31**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Steps 15–18 Global AI & Owner-first Productization — Candidate 13.82.121
+
+- Runtime target: **App 13.82.121 / Core 4.82.121 / cache `luvia-shell-v13.82.121` / Integration Preview only**.
+- Step 15: **the existing global Intelligence path remains the single orchestrator. The central Compass opens a bright bottom-up Living Sheet using the same geometry and motion language as the owner-backed Places suggestions in the Timeline; mobile uses the corresponding bottom-anchored compact sheet. The deterministic German multi-intent compiler separates Places, Booking, Journey, Trip, Identity/Privacy, Location, Collaboration and Memory, exposes conflicts/missing data/offline/forbidden commands, persists no raw prompt and performs no direct owner mutation**.
+- Mutation protocol: **every write is Preview → explicit confirmation → public Owner Command → Receipt → Recovery. Exact owner-supported compensation is itself a new explicitly confirmed command and produces an Undo Receipt; unknown external outcomes never receive a blind retry**.
+- Step 16: **`docs/modularization/M16.5-STEP16-OWNER-FIRST-USP-AND-EVENT-BACKLOG.md` decomposes all required USP/Event families into owners, contracts, I/O, freshness, privacy, failures, receipts, evals, rollback flags and source gates. It is backlog decomposition, not a provider/feature completion claim; source-less events and pins are forbidden**.
+- Local visible evidence: **the initial right-rail projection was explicitly rejected by the owner and replaced before release with the Timeline/Places-style bottom-up Living Sheet. Fresh real-pointer runs visibly prove the corrected bottom-anchored projection at 1440×900 and 390×844. A subsequently reproduced double overlay came from a second Fixture click bridge beside the productive Dashboard handler; that bridge was removed and the existing chat mount made idempotent. A fresh real-pointer run now exposes exactly one named dialog and one close action removes it completely. The keyboard flow submitted a seven-route German compound request and visibly exposed the contradictory GPS instruction, missing provider evidence and blocked Collaboration foundation instead of mutating**.
+- Validation/deployment: **the complete Safe Regression passes 133/133, including NFR-0 3/3 and the fresh visual inventory. The local visible Step-17 evidence matrix is recorded in `docs/modularization/M16.5-STEP17-E2E-MATRIX.md`; public immutable repetition, commit, deployment, byte proof and rollback remain pending and must be filled only from evidence**.
+- Main / Production / data plane: **unchanged and unauthorized; no DB/RLS, Secret or Edge Function action**.
+
+## M16.5AB Recovery Candidate 13.82.120 — LOCAL / NOT ACCEPTED / NOT DEPLOYED
+
+- Runtime target: **App 13.82.120 / Core 4.82.120 / cache `luvia-shell-v13.82.120` / local Integration candidate only**.
+- Purpose: **separate the recovery bytes from the previously cached `13.82.116` shell and audit Timeline, Places, Booking, preference, owner and hydration boundaries without changing Main or Production**.
+- Visible evidence so far: **the preceding `13.82.118` audit proved the new cache boundary in the real local signed-in Places surface; category results opened provider-first in about 0.87–1.45 seconds and displayed real provider facts. `13.82.120` additionally invalidates stale preference/group projections when Identity or Trip context changes. Full signed-in cold start last measured about 5.1 seconds and therefore remains above the requested 4–5 second ceiling**.
+- Regression state: **132/132 PASS on the complete safe-regression allowlist, including NFR-0 3/3, visual-inventory freshness, Core boundaries, owner contracts, Places resilience, Booking routes, GPS confirmation, offline day pack and group-decision policy. This is architecture and regression evidence only; the open visible/productive counterevidence below remains binding, so no release or functional acceptance may be inferred from this candidate**.
+- Deployment: **none**. Stable Integration remains on its previously published version; immutable candidate, commit, deployment URL and rollback do not exist yet.
+- Acceptance boundary: **no acceptance before the complete visible Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion E2E sequence and stable/immutable byte proof**.
 
 ## M16.5AB Timeline / Places / Booking Continuity — Integration Release 13.82.116
 
