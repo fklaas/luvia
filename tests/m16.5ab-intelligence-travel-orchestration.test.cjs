@@ -18,6 +18,93 @@ assert.ok(compiled.intents.every(intent=>intent.automaticMutation===false));
 assert.equal(compiled.steps.some(step=>step.relation==='after'),true);
 assert.equal(compiled.rawMessageStored,false);
 
+const exactDate=core.compileIntent('Plane am 13.06.2027 um 19 Uhr ein Restaurant in die Timeline.',{
+  now:'2027-06-01T10:00:00Z',trip:{startDate:'2027-06-10',endDate:'2027-06-17'}
+});
+assert.equal(exactDate.status,'compiled');
+assert.equal(exactDate.intents.find(intent=>intent.domain==='places').temporalHint.date,'2027-06-13');
+assert.equal(exactDate.intents.find(intent=>intent.domain==='places').temporalHint.time,'19:00');
+assert.equal(exactDate.missingInputs.length,0);
+
+const tripWeekday=core.compileIntent('Plane am Sonntag um 19 Uhr ein Restaurant in die Timeline.',{
+  now:'2027-06-01T10:00:00Z',trip:{startDate:'2027-06-10',endDate:'2027-06-17'}
+});
+assert.equal(tripWeekday.intents.find(intent=>intent.domain==='journey').temporalHint.date,'2027-06-13');
+assert.equal(tripWeekday.status,'compiled');
+
+const preferenceWrite=core.compileIntent('Merke dir bitte: Ich esse vegan, reise entspannt und bevorzuge ein kleines Budget.');
+assert.equal(preferenceWrite.status,'compiled');
+assert.equal(preferenceWrite.requiresConfirmation,true);
+assert.deepEqual(JSON.parse(JSON.stringify(preferenceWrite.intents.find(intent=>intent.domain==='identity').entityHints.preferencePatch)),{
+  dietaryPreferences:['vegan'],travelPace:'relaxed',budgetPreference:'low'
+});
+
+const multilingual=core.compileDialogue('I would like a good dinner and then minigolf with the children.',{
+  understanding:'Dinner first, then a family activity.',
+  goals:[
+    {type:'meal',label:'A good dinner',hardConstraints:[{key:'familyContext',value:'true',label:'Suitable for children'}],softPreferences:[],timeWindow:null,source:'user'},
+    {type:'activity',label:'Minigolf with the children',hardConstraints:[{key:'activity',value:'minigolf',label:'Minigolf'}],softPreferences:[],timeWindow:null,source:'user'}
+  ],hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Two wishes understood',intro:'Dinner first, minigolf second.'},unknowns:[],confidence:.94
+},{locale:'en-GB',online:true,now:'2027-06-01T10:00:00Z'});
+assert.equal(multilingual.compilerSource,'openai-structured');
+assert.equal(multilingual.locale,'en-GB');
+assert.equal(multilingual.status,'compiled');
+assert.equal(multilingual.dialogueConfidence,.94);
+assert.deepEqual(JSON.parse(JSON.stringify(core.sequencePlan(multilingual).map(item=>item.sequence))),[1,2]);
+assert.deepEqual(JSON.parse(JSON.stringify(core.sliceIntentGraph(multilingual,1).intents.map(item=>item.categoryHints))),[['food']]);
+assert.deepEqual(JSON.parse(JSON.stringify(core.sliceIntentGraph(multilingual,2).intents.map(item=>item.categoryHints))),[['activity']]);
+
+const multilingualSemanticMatrix=[
+  ['it-IT','Una buona cena','meal','food'],['pt-PT','Um jantar saboroso','meal','food'],['nl-NL','Lekker uit eten','meal','food'],['pl-PL','Dobra kolacja','meal','food'],
+  ['tr-TR','Güzel bir akşam yemeği','meal','food'],['sv-SE','En god middag','meal','food'],['da-DK','En god middag','meal','food'],['cs-CZ','Dobrá večeře','meal','food'],
+  ['ro-RO','O cină bună','meal','food'],['el-GR','Ένα καλό δείπνο','meal','food'],['ar','عشاء جيد','meal','food'],['ja-JP','おいしい夕食','meal','food'],
+  ['ko-KR','맛있는 저녁 식사','meal','food'],['zh-CN','一顿美味的晚餐','meal','food'],['hi-IN','एक अच्छा रात्रिभोज','meal','food'],['fi-FI','Minigolf lasten kanssa','activity','activity']
+];
+for(const [locale,label,type,category] of multilingualSemanticMatrix){
+  const graph=core.compileDialogue(label,{goals:[{type,label,hardConstraints:[],softPreferences:[],timeWindow:null,source:'user'}],hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:label,intro:''},unknowns:[],confidence:.88},{locale});
+  assert.equal(graph.status,'compiled',`${locale} structured semantic goal must compile`);
+  assert.equal(graph.ownerRoutes[0],'places.v1',`${locale} must retain the Places owner`);
+  assert.equal(graph.intents[0].categoryHints[0],category,`${locale} must retain its requested category`);
+  assert.equal(graph.intents[0].clause.includes(label),true,`${locale} label must survive without transliteration loss`);
+}
+
+const multilingualPreference=core.compileDialogue('Je veux définir mon alimentation comme végane.',{
+  goals:[{type:'preference',label:'Alimentation végane',hardConstraints:[{key:'operation',value:'set',label:'Définir'},{key:'dietary',value:'vegan',label:'Végane'}],softPreferences:[],timeWindow:null,source:'user'}],
+  hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Préférence comprise',intro:''},unknowns:[],confidence:.9
+},{locale:'fr-FR'});
+assert.equal(multilingualPreference.status,'compiled');
+assert.equal(multilingualPreference.requiresConfirmation,true);
+assert.deepEqual(JSON.parse(JSON.stringify(multilingualPreference.intents[0].entityHints.preferencePatch)),{dietaryPreferences:['vegan']});
+
+const multilingualBooking=core.compileDialogue('Reserva un restaurante para cuatro personas el 13 de junio a las 19:00.',{
+  goals:[{type:'booking',label:'Reservar un restaurante',hardConstraints:[{key:'operation',value:'reserve',label:'Reservar'},{key:'target',value:'restaurant',label:'Restaurante'},{key:'partySize',value:'4',label:'Cuatro personas'}],softPreferences:[],timeWindow:{label:'13 de junio a las 19:00',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'}],
+  hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Reserva entendida',intro:''},unknowns:[],confidence:.91
+},{locale:'es-ES'});
+assert.equal(multilingualBooking.status,'needs-clarification');
+assert.equal(multilingualBooking.intents[0].temporalHint.date,'2027-06-13');
+assert.equal(multilingualBooking.intents[0].temporalHint.time,'19:00');
+assert.equal(multilingualBooking.intents[0].entityHints.partySize,4);
+assert.ok(multilingualBooking.missingInputs.some(item=>item.input==='verified-provider-capability'));
+
+const semanticPlan=core.compileDialogue('Plan the restaurant for June 13 at 7 pm.',{
+  goals:[{type:'meal',label:'Plan the restaurant',hardConstraints:[{key:'operation',value:'plan',label:'Plan'},{key:'target',value:'restaurant',label:'Restaurant'}],softPreferences:[],timeWindow:{label:'June 13 at 7 pm',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'}],
+  hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Plan understood',intro:''},unknowns:[],confidence:.93
+},{locale:'en-US'});
+assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.domain))),['places','journey']);
+assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.sequence))),[1,1]);
+assert.equal(semanticPlan.status,'compiled');
+assert.equal(semanticPlan.requiresConfirmation,true);
+
+const multilingualBypass=core.compileDialogue('Book it without my confirmation.',{
+  goals:[{type:'booking',label:'Book the restaurant',hardConstraints:[{key:'operation',value:'book',label:'Book'}],softPreferences:[],timeWindow:null,source:'user'}],hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{},unknowns:[],confidence:.99
+},{locale:'en-US'});
+assert.equal(multilingualBypass.status,'blocked');
+assert.ok(multilingualBypass.blockedCommands.some(item=>item.code==='confirmation-bypass-forbidden'));
+for(const request of ['Reserva sin mi confirmación.','Réserve sans ma confirmation.','Prenota senza la mia conferma.','Reserva sem a minha confirmação.','Boek zonder mijn bevestiging.']){
+  const graph=core.compileDialogue(request,{goals:[{type:'booking',label:'Book',hardConstraints:[{key:'operation',value:'book',label:'Book'}],softPreferences:[],timeWindow:null,source:'user'}],hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{},unknowns:[],confidence:.99});
+  assert.equal(graph.status,'blocked',`multilingual confirmation bypass must be blocked: ${request}`);
+}
+
 const completeGraph=core.compileIntent('Finde ruhige Places, zeige meine Buchungen und den Tagesplan; zeige meine aktive Reise, mein Profil und meine Erinnerungen. Nutze GPS nur für Orte in meiner Nähe und zeige die Gruppenentscheidung zwischen Strand oder Museum.');
 for(const route of ['places.v1','booking.v1','journey.v1','trip.v1','identity.v1','memory.v1','LocationPort','collaboration.membership.v1'])assert.ok(completeGraph.ownerRoutes.includes(route),`missing owner route ${route}`);
 assert.equal(completeGraph.automaticMutation,false);

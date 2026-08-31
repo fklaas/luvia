@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.121-ai">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.121-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.121-ai2">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.122-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.122-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.122-ai2">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.122-ai">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.122-ai">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
     main>section{width:min(760px,100%);padding:clamp(24px,6vw,68px);border:1px solid rgba(16,45,63,.1);border-radius:36px;background:rgba(255,255,255,.76);box-shadow:0 30px 90px rgba(18,56,77,.12)}
     main h1{font-size:clamp(2.5rem,8vw,5.5rem);line-height:.94;letter-spacing:-.055em;margin:0 0 18px}main p{max-width:58ch;color:#667f91;line-height:1.6}
     main button{min-height:52px;margin-top:16px;padding:0 22px;border:0;border-radius:999px;background:#ef675a;color:white;font:inherit;font-weight:800}
+    .fixture-place-sheet{display:grid;gap:18px;padding:clamp(22px,5vw,42px);background:#fff}.fixture-place-sheet>span{color:#4d9fa3;font-size:.75rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.fixture-place-sheet h2{margin:0;font-size:clamp(2rem,6vw,4rem);letter-spacing:-.045em}.fixture-place-sheet p{margin:0;color:#667f91}.fixture-place-sheet .fixture-actions{display:flex;flex-wrap:wrap;gap:10px}.fixture-place-sheet button{min-height:48px;padding:0 18px;border:1px solid #b9dadd;border-radius:999px;background:#fff;color:#153449;font:inherit;font-weight:800}.fixture-place-sheet button:first-child{border-color:#54a2a6;background:#54a2a6;color:#fff}
   </style>
 </head>
 <body>
@@ -26,23 +29,80 @@
     </section>
   </main>
   <script>
-    window.LuviaTripContractV1={getActiveTrip:()=>({id:'trip-scharbeutz',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}})};
-    window.LuviaApp={activeView:()=> 'timeline'};
+    window.__ownerCalls=[];
+    window.__fixturePlaces={
+      food:[
+        {id:'places/fixture-restaurant',providerPlaceId:'fixture-restaurant',name:'Dünenküche',address:'Strandallee 1, Scharbeutz',primaryType:'restaurant',rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
+        {id:'places/fixture-bistro',providerPlaceId:'fixture-bistro',name:'Kompass Bistro',address:'Seestraße 4, Scharbeutz',primaryType:'restaurant',rating:4.6,userRatingCount:318,coordinates:{latitude:54.02810,longitude:10.75591}},
+        {id:'places/fixture-cafe',providerPlaceId:'fixture-cafe',name:'Wellen Café',address:'Am Kurpark 3, Scharbeutz',primaryType:'cafe',rating:4.5,userRatingCount:226,coordinates:{latitude:54.02789,longitude:10.75725}}
+      ],
+      activity:[
+        {id:'places/fixture-minigolf',providerPlaceId:'fixture-minigolf',name:'Ostsee Minigolf',address:'Strandallee 1, Scharbeutz',primaryType:'miniature_golf_course',rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
+        {id:'places/fixture-adventure-golf',providerPlaceId:'fixture-adventure-golf',name:'Küsten Adventure Golf',address:'Kurpromenade 8, Scharbeutz',primaryType:'miniature_golf_course',rating:4.6,userRatingCount:311,coordinates:{latitude:54.02810,longitude:10.75591}},
+        {id:'places/fixture-family-park',providerPlaceId:'fixture-family-park',name:'Familienpark am Meer',address:'Seebrückenweg 2, Scharbeutz',primaryType:'amusement_center',rating:4.5,userRatingCount:205,coordinates:{latitude:54.02789,longitude:10.75725}}
+      ]
+    };
+    window.LuviaTripContractV1={
+      getActiveTrip:()=>({id:'trip-scharbeutz',title:'Ostseeurlaub',startDate:'2027-06-10',endDate:'2027-06-17',destination:{name:'Scharbeutz'}}),
+      listTrips:()=>[{id:'trip-scharbeutz',title:'Ostseeurlaub',startDate:'2027-06-10',endDate:'2027-06-17',destination:{name:'Scharbeutz'}}],
+      reads:{listTrips:()=>[{id:'trip-scharbeutz',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}}]},
+      commands:{selectActiveTrip:()=>({ok:true}),updateTrip:async()=>({ok:true})}
+    };
+    window.LuviaPlacesContractV1={
+      reads:{
+        recommend:async input=>{const category=input?.category==='activity'?'activity':'food';window.__ownerCalls.push(['recommend',input]);return{places:window.__fixturePlaces[category].slice(0,Math.min(3,Number(input?.limit||3))),route:{category:input?.category||'food'}}},
+        getCard:async id=>{const key=String(id).replace(/^places\//,''),place=Object.values(window.__fixturePlaces).flat().find(item=>item.providerPlaceId===key);return{place:place||null,image:null}}
+      },
+      commands:{
+        favorite:async payload=>(window.__ownerCalls.push(['favorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        unfavorite:async payload=>(window.__ownerCalls.push(['unfavorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        importPlace:async(providerPlaceId,options)=>(window.__ownerCalls.push(['importPlace',providerPlaceId,options]),{id:'fixture-place',placeId:'fixture-place',tripPlaceId:'fixture-trip-place',providerPlaceId}),
+        plan:async payload=>(window.__ownerCalls.push(['plan',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        unplan:async payload=>(window.__ownerCalls.push(['unplan',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        updateLifecycle:async(tripPlaceId,status,patch,options)=>(window.__ownerCalls.push(['updateLifecycle',tripPlaceId,status,patch,options]),{ok:true,tripPlaceId,status})
+      }
+    };
+    window.LuviaJourneyContractV1={reads:{snapshot:()=>({days:[{date:'2027-06-13',label:'Sonntag',entries:[]}],summary:{entryCount:0}})},commands:{openPlanningEditor:async()=>({opened:true})}};
+    window.LuviaBookingContractV1={reads:{listForTrip:async()=>[]},commands:{openPlaceBooking:async()=>({opened:true}),createForPlace:async()=>({ok:true}),modifyBooking:async()=>({ok:true}),cancelBooking:async()=>({ok:true})}};
+    window.LuviaMemoryContractV1={reads:{listStories:async()=>[]},commands:{stories:{save:async()=>({ok:true})}}};
+    window.LuviaIdentityContractV1={getPreferences:()=>({dietaryPreferences:['vegetarian'],travelPace:'relaxed'}),commands:{updatePreferences:async payload=>(window.__ownerCalls.push(['updatePreferences',payload]),{ok:true})}};
+    window.LuviaApp={
+      activeView:()=> 'timeline',
+      openPlace:options=>{
+        window.__ownerCalls.push(['openPlace',options]);
+        const place=options?.seedPlace||{},content=document.createElement('section');
+        content.className='fixture-place-sheet';content.dataset.fixturePlaceSheet=place.providerPlaceId||place.id||'place';
+        content.innerHTML=`<span>Places Owner · verifizierter Fixture-Datensatz</span><h2>${place.name||options?.title||'Place'}</h2><p>${place.address||'Adresse nicht verfügbar'}</p><div class="fixture-actions"><button type="button">Zur Timeline hinzufügen</button><button type="button">Jetzt reservieren</button><button type="button" data-fixture-place-close>Schließen</button></div>`;
+        return window.LuviaUI.mount({name:`fixture.place.${place.providerPlaceId||place.id||'detail'}`,kind:'sheet',content,className:'fixture-place-overlay',closeSelector:'[data-fixture-place-close]',initialFocus:'[data-fixture-place-close]',label:`Details zu ${place.name||'Place'}`}).overlay;
+      }
+    };
     window.LuviaIntelligenceContractV1={
       ask:async request=>({data:{answer:`Ich habe verstanden: „${request}“. Places, Timeline und Booking werden getrennt geprüft; ändern darf ich erst nach deiner Bestätigung.`}}),
-      run:async()=>({data:{headline:'Luvia ist bereit.',message:'Die Cores bleiben Owner ihrer Daten.',highlights:[]},meta:{fallback:false}})
-    };
-    window.LuviaAIActionRuntime={
-      runMessage:async request=>({handled:false,request,results:[]}),
-      prepare:()=>({requiresConfirmation:false}),execute:async()=>({}),cancel:()=>({}),retry:async()=>({}),
-      prepareUndo:()=>({requiresConfirmation:true}),recoveryPlan:()=>({mode:'owner-recovery'}),diagnostics:()=>({ready:true})
+      run:async(capability,input={})=>{
+        if(capability!=='planning.dialogue')return{data:{headline:'Luvia ist bereit.',message:'Die Cores bleiben Owner ihrer Daten.',highlights:[]},meta:{fallback:false}};
+        const request=String(input.userGoal||''),english=/\bI\b|dinner|children/i.test(request),concrete=/13\.06\.2027|2027-06-13/.test(request);
+        const goals=english?[
+          {type:'meal',label:'A good dinner',hardConstraints:[{key:'familyContext',value:'true',label:'Suitable for children'}],softPreferences:[],timeWindow:null,source:'user'},
+          {type:'activity',label:'Minigolf with the children',hardConstraints:[{key:'activity',value:'minigolf',label:'Minigolf'}],softPreferences:[],timeWindow:null,source:'user'}
+        ]:concrete?[
+          {type:'meal',label:'Restaurant in Scharbeutz einplanen',hardConstraints:[{key:'operation',value:'plan',label:'Einplanen'},{key:'target',value:'restaurant',label:'Restaurant'}],softPreferences:[],timeWindow:{label:'13. Juni um 19 Uhr',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'},
+          ...(/minigolf/i.test(request)?[{type:'activity',label:'Danach Minigolf spielen',hardConstraints:[{key:'activity',value:'minigolf',label:'Minigolf'}],softPreferences:[],timeWindow:null,source:'user'}]:[])
+        ]:[{type:'place',label:request||'Orte entdecken',hardConstraints:[],softPreferences:[],timeWindow:null,source:'user'}];
+        return{data:{understanding:english?'Dinner first, then minigolf with the children.':request,goals,hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Wünsche erkannt',intro:'Die Schritte bleiben Owner-sicher.',goalLabels:goals.map(goal=>goal.label),hardLabels:[],softLabels:[]},unknowns:[],confidence:.94},meta:{fallback:false}};
+      }
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.121-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.121-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.121-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.121-ai"></script>
-  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.121-ai"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.121-ai"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.122-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.122-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.122-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.122-ai"></script>
+  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.122-ai"></script>
+  <script src="app/places/places-spatial-composition-core.js?v=13.82.122-ai"></script>
+  <script src="app/places/places-spatial-experience.js?v=13.82.122-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.122-ai"></script>
+  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.122-ai-map"></script>
+  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.122-ai"></script>
+  <script src="core/ai/ai-action-runtime.js?v=13.82.122-ai"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.122-ai"></script>
 </body>
 </html>

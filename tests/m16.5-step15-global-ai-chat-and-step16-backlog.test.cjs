@@ -10,12 +10,17 @@ const runtime=read('core/ai/ai-action-runtime.js');
 const actionContract=read('core/intelligence/intelligence-action-contract-core.js');
 const compiler=read('core/intelligence/travel-orchestration-core.js');
 const css=read('core/experience/experience-foundation.css');
+const placesSpatial=read('app/places/places-spatial-experience.js');
+const placesSpatialCss=read('app/places/places-spatial-experience.css');
 const fixture=read('tests/fixtures/m16.5ab-living-compass-ai-browser.html');
 const backlog=read('docs/modularization/M16.5-STEP16-OWNER-FIRST-USP-AND-EVENT-BACKLOG.md');
 const e2eMatrix=read('docs/modularization/M16.5-STEP17-E2E-MATRIX.md');
 
 assert.match(shell,/\{id:'compass',label:'Luvia Compass',action:'assistant'\}/);
 assert.match(shell,/data-ai-ask-open[^>]+aria-label="Luvia Compass öffnen"[^>]+aria-haspopup="dialog"/);
+assert.match(shell,/if\(payload\.overlayOnly\)\{/,'AI-selected Places must retain an overlay detail path even when the typed module is not enabled for the trip');
+assert.match(shell,/if\(enabled&&await openTypedPlaceOverlay\(payload\)\)return true/,'enabled typed Place modules must remain the first detail owner');
+assert.ok(!shell.includes('if(payload.overlayOnly&&enabled){'),'overlayOnly may not silently fall through just because a module is disabled');
 assert.match(dashboard,/document\.addEventListener\('click'.*\[data-ai-brief-refresh\],\[data-ai-ask-open\]/s);
 assert.match(dashboard,/window\.LuviaAIDashboard=Object\.freeze\([^)]*openChat:askModal/s);
 
@@ -29,8 +34,26 @@ assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*animation:none;t
 
 assert.ok(!fixture.includes('window.LuviaAIDashboard.openChat();'),'the visible fixture must require a real user pointer/keyboard open action');
 assert.ok(fixture.indexOf('core/ai/ai-brain.css')<fixture.indexOf('core/experience/experience-foundation.css'),'fixture must use productive stylesheet order');
+assert.ok(fixture.indexOf('vendor/maplibre/maplibre-gl-5.12.0.js')<fixture.indexOf('core/ai/ai-dashboard-service.js'),'visible fixture must use the vendored MapLibre runtime before the productive chat');
 
-assert.match(dashboard,/LuviaTravelOrchestrationCoreV1\?\.compileIntent/);
+assert.match(dashboard,/core\?\.compileIntent\?\./);
+assert.match(dashboard,/intelligence\(\)\.run\('planning\.dialogue'/);
+assert.match(dashboard,/core\?\.compileDialogue\?\./);
+assert.match(dashboard,/core\?\.sequencePlan\?\./);
+assert.match(dashboard,/core\?\.sliceIntentGraph\?\./);
+assert.match(dashboard,/data-ai-sequence-continue/);
+assert.match(dashboard,/advanceConversation\('owner-receipt'/);
+assert.match(dashboard,/mountProjection\(container,items/,'inline AI maps must reuse the Places-owned MapLibre projection');
+assert.match(dashboard,/\(result\.items\|\|\[\]\)\.slice\(0,3\)/,'a chat wish may expose at most three Places suggestions');
+assert.match(dashboard,/openPlaceSubject\(subject\)/,'map pins and Place cards must enter the same detail-sheet path');
+assert.match(runtime,/limit:3/,'per-wish Places reads must ask for at most three results');
+assert.match(placesSpatial,/function mountProjection\(/);
+assert.match(placesSpatial,/!view\.markers\.length/,'the map projection must refuse invented coordinates');
+for(const colour of ['#ef6254','#f4b34c','#2c93a9','#2f8c73']){
+  assert.ok(placesSpatial.includes(colour),`Compass map palette missing in MapLibre projection: ${colour}`);
+  assert.ok(placesSpatialCss.includes(colour),`Compass pin palette missing in Places CSS: ${colour}`);
+  assert.ok(css.includes(colour),`Compass palette missing in inline chat map: ${colour}`);
+}
 assert.match(dashboard,/appendIntentGraph\(compiled\)/);
 assert.match(dashboard,/actionRuntime\(\)\.prepare\(/);
 assert.match(dashboard,/actionRuntime\(\)\.prepareUndo\(/);

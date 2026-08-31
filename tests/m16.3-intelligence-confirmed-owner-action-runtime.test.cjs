@@ -36,8 +36,10 @@ const context={
     commands:{
       async favorite(payload){calls.push(['favorite',payload]);return{ok:true,tripPlaceId:'tp-1'}},
       async unfavorite(payload){calls.push(['unfavorite',payload]);return{ok:true,tripPlaceId:'tp-1'}},
+      async importPlace(providerPlaceId,options){calls.push(['import-place',providerPlaceId,options]);return{id:'place-1',placeId:'place-1',tripPlaceId:'tp-1',providerPlaceId}},
       async plan(payload){calls.push(['plan',payload]);return{ok:true,tripPlaceId:'tp-1'}},
-      async unplan(payload){calls.push(['unplan',payload]);return{ok:true,tripPlaceId:'tp-1'}}
+      async unplan(payload){calls.push(['unplan',payload]);return{ok:true,tripPlaceId:'tp-1'}},
+      async updateLifecycle(tripPlaceId,status,patch,options){calls.push(['lifecycle',tripPlaceId,status,patch,options]);return{ok:true,tripPlaceId,status}}
     }
   },
   LuviaBookingContractV1:{
@@ -58,7 +60,7 @@ const context={
     commands:{stories:{async save(payload){calls.push(['memory-save',payload]);return{storyId:'story-1'}}}}
   },
   LuviaIdentityContractV1:{
-    getPreferences(){return{food:['vegetarisch'],pace:'entspannt'}},
+    getPreferences(){return{dietaryPreferences:['vegetarian'],travelPace:'balanced'}},
     commands:{async updatePreferences(patch){calls.push(['preferences-update',patch]);return{ok:true}}}
   }
 };
@@ -94,6 +96,37 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(preferences.results[0].summary.scope,'self');
   assert.ok(preferences.results[0].summary.configuredCount>=1);
 
+  const profiledPlaces=await runtime.runMessage('Find a restaurant for us.',{compiledIntent:{
+    contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'read',clause:'A suitable restaurant',categoryHints:['food'],temporalHint:{},entityHints:{},missingInputs:[]}]
+  }});
+  assert.equal(profiledPlaces.results[0].kind,'place_collection');
+  assert.equal(profiledPlaces.results[0].evidence.preferenceOwner,'identity.v1');
+  assert.equal(profiledPlaces.results[0].evidence.confirmedProfileFields,2);
+  assert.equal(profiledPlaces.results[0].evidence.profileFallbackUsed,true);
+  const profiledRecommend=calls.find(call=>call[0]==='recommend');
+  assert.equal(profiledRecommend[1].limit,3,'one chat wish may request at most three inline Places suggestions');
+  assert.deepEqual(JSON.parse(JSON.stringify(profiledRecommend[1].profileContext)),{dietaryPreferences:['vegetarian'],travelPace:'balanced'});
+  assert.deepEqual(JSON.parse(JSON.stringify(profiledRecommend[1].preferences)),{dietaryPreferences:['vegetarian'],travelPace:'balanced'});
+  assert.equal(profiledRecommend[1].query,'A suitable restaurant');
+
+  const explicitPlaces=await runtime.runMessage('Find a vegan restaurant.',{compiledIntent:{
+    contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'read',clause:'A vegan restaurant',categoryHints:['food'],temporalHint:{},entityHints:{preferencePatch:{dietaryPreferences:['vegan']}},missingInputs:[]}]
+  }});
+  assert.equal(explicitPlaces.results[0].evidence.profileFallbackUsed,false);
+  assert.deepEqual(JSON.parse(JSON.stringify(explicitPlaces.results[0].evidence.explicitRequestPreferenceFields)),['dietaryPreferences']);
+  const explicitRecommend=calls.filter(call=>call[0]==='recommend').at(-1);
+  assert.deepEqual(JSON.parse(JSON.stringify(explicitRecommend[1].preferences)),{dietaryPreferences:['vegan'],travelPace:'balanced'});
+  assert.equal(explicitRecommend[1].preferenceMode,'explicit-request-over-confirmed-profile');
+
+  const preferenceProposal=await runtime.runMessage('Merke dir bitte, dass ich vegan esse und entspannt reise.',{compiledIntent:{
+    contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'identity',mode:'propose-write',missingInputs:[],entityHints:{preferencePatch:{dietaryPreferences:['vegan'],travelPace:'relaxed'}}}]
+  }});
+  const preferenceConfirmation=preferenceProposal.results.find(result=>result.kind==='confirmation');
+  assert.ok(preferenceConfirmation,'a complete explicit preference write must produce a confirmation preview');
+  const preferenceReceipt=await runtime.execute('identity.preferences.update',{}, {ledgerId:preferenceConfirmation.evidence.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(preferenceReceipt.evidence.status,'completed');
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.find(call=>call[0]==='preferences-update')[1])),{dietaryPreferences:['vegetarian','vegan'],travelPace:'relaxed'});
+
   const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',providerPlaceId:'place-1'},{userGesture:true});
   assert.equal(cancelled.requiresConfirmation,true);
   assert.equal(runtime.getActionState(cancelled.ledgerId).status,'confirmation_required');
@@ -101,14 +134,33 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(cancelReceipt.evidence.status,'cancelled');
   assert.equal(calls.filter(call=>call[0]==='unplan').length,0);
 
-  const prepared=runtime.prepare('places.place.plan',{tripId:'trip-1',providerPlaceId:'place-1'},{userGesture:true,idempotencyKey:'plan-once'});
+  assert.throws(
+    ()=>runtime.prepare('places.place.plan',{tripId:'trip-1',providerPlaceId:'place-1'},{userGesture:true}),
+    error=>error.code==='AI_ACTION_INPUT_REQUIRED'&&error.missingInputs.includes('date')
+  );
+
+  const prepared=runtime.prepare('places.place.plan',{
+    tripId:'trip-1',providerPlaceId:'place-1',placeType:'restaurant',date:'2026-08-26',time:'19:00',
+    fields:{planned_at:'2026-08-26T17:00:00.000Z',place_name:'Dünenküche',notes:'Expliziter Chat-Wunsch'}
+  },{userGesture:true,idempotencyKey:'plan-once'});
   assert.equal(prepared.result.kind,'confirmation');
   const first=await runtime.execute('places.place.plan',{}, {ledgerId:prepared.ledgerId,userGesture:true,confirmed:true});
   const repeated=await runtime.execute('places.place.plan',{}, {ledgerId:prepared.ledgerId,userGesture:true,confirmed:true});
   assert.equal(first.evidence.status,'completed');
   assert.equal(repeated.evidence.idempotencyKey,'plan-once');
   assert.equal(calls.filter(call=>call[0]==='plan').length,1);
+  assert.equal(calls.filter(call=>call[0]==='import-place').length,1);
+  assert.equal(calls.find(call=>call[0]==='plan')[1].tripPlaceId,'tp-1');
+  assert.equal(calls.some(call=>call[0]==='lifecycle'&&call[1]==='tp-1'&&call[2]==='planned'),true);
   assert.equal(runtime.getActionState(prepared.ledgerId).attempts,1);
+
+  const undoPrepared=runtime.prepareUndo(prepared.ledgerId,{userGesture:true});
+  assert.equal(undoPrepared.result.kind,'confirmation');
+  assert.equal(undoPrepared.result.evidence.actionId,'places.place.unplan');
+  const undone=await runtime.execute('places.place.unplan',{}, {ledgerId:undoPrepared.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(undone.evidence.status,'compensated');
+  assert.deepEqual(calls.find(call=>call[0]==='unplan')[1].fields,['planned_at','place_name','notes']);
+  assert.equal(calls.some(call=>call[0]==='lifecycle'&&call[1]==='tp-1'&&call[2]==='saved'),true);
 
   const create=runtime.prepare('booking.reservation.create',{tripId:'trip-1',providerPlaceId:'place-1',date:'2026-08-26',time:'19:00',partySize:2},{userGesture:true,idempotencyKey:'booking-create-once'});
   const created=await runtime.execute('booking.reservation.create',{}, {ledgerId:create.ledgerId,userGesture:true,confirmed:true});

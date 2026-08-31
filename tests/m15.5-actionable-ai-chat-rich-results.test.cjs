@@ -7,8 +7,9 @@ const source=fs.readFileSync('core/ai/ai-dashboard-service.js','utf8');
 
 for(const needle of [
   'LuviaAIActionRuntime',
-  'actionRuntime().runMessage(request,{surface,compiledIntent:compiled||null})',
-  'LuviaTravelOrchestrationCoreV1?.compileIntent?.(request',
+  'actionRuntime().runMessage(step.label,{surface,compiledIntent:scoped})',
+  'core?.compileIntent?.(request,context)',
+  'core?.compileDialogue?.(request,dialogue,context)',
   'actionResponse.results.forEach(appendRichResult)',
   'class="lvx-rich-result is-',
   'class="lvx-place-card"',
@@ -21,6 +22,7 @@ for(const needle of [
   'actionRuntime().prepareUndo(ledgerId',
   'data-ai-action-undo=',
   'appendIntentGraph(compiled)',
+  'sequencePlan?.(compiled)',
   'Owner-Aktion bestätigt; das Receipt steht im Verlauf.',
   'Ein Satz darf mehrere Wünsche enthalten.',
   'Lesen darf Luvia direkt.'

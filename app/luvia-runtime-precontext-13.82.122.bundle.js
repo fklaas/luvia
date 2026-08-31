@@ -1,7 +1,7 @@
 /* Generated before LuviaTripContext by scripts/build-runtime-bundle.cjs. Domain ownership remains in the original source files. */
 
 /* ===== intelligence/kernel/version.js ===== */
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.121',build:'13.82.121',name:'M16.5 Steps 15–18 Global AI & Owner-first Productization',channel:'integration-preview',builtAt:'2026-08-31T00:00:00.000Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.122',build:'13.82.122',name:'M16.5 Functional Multilingual AI & Compass Map',channel:'integration-preview',builtAt:'2026-08-31T17:44:12.498Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
 
 ;
 

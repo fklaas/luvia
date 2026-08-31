@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.3.0';
+const VERSION='1.4.0';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -47,27 +47,34 @@ function capabilitySnapshot(){
   return actionCore().createCapabilitySnapshot(availability);
 }
 
-function placeActions(place,trip){
+function plannedAt(hint={}){if(!hint.date||!hint.time)return null;const parsed=new Date(`${hint.date}T${hint.time}:00`);return Number.isNaN(parsed.getTime())?null:parsed.toISOString()}
+function mutationHints(compiled){
+  const intents=compiled?.intents||[],writes=intents.filter(intent=>intent.mode==='propose-write'),plan=writes.find(intent=>intent.domain==='journey'&&/\b(?:plane|planen|einplan\w*|hinzufueg\w*|hinzufüg\w*|timeline|reiseplan|tagesplan|plan|schedule|add)\b/i.test(intent.clause))||writes.find(intent=>intent.domain==='places'&&/\b(?:plane|planen|einplan\w*|hinzufueg\w*|hinzufüg\w*|timeline|plan|schedule|add)\b/i.test(intent.clause)),favorite=writes.find(intent=>intent.domain==='places'&&/\b(?:merk|speicher|favorit)\w*\b/i.test(intent.clause)),booking=writes.find(intent=>intent.domain==='booking');
+  return actionCore().immutable({plan:plan?{clause:plan.clause,date:plan.temporalHint?.date||null,time:plan.temporalHint?.time||null,plannedAt:plannedAt(plan.temporalHint)}:null,favorite:Boolean(favorite),booking:booking?{clause:booking.clause,date:booking.temporalHint?.date||null,time:booking.temporalHint?.time||null,partySize:booking.entityHints?.partySize||null}:null});
+}
+function placeActions(place,trip,hints={}){
   const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),bookable=/restaurant|cafe|bakery|bar|food|meal/.test(primary),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',name:place.name,address:place.address,website:place.website,reservationUrl:place.reservationUrl};
+  const planPayload=hints.plan?.plannedAt?{...payload,date:hints.plan.date,time:hints.plan.time,fields:{planned_at:hints.plan.plannedAt,place_name:place.name,notes:hints.plan.clause},requestedBy:'intelligence.travel-orchestration.v1'}:payload;
   return[
     {actionId:place.isFavorite?'places.place.unfavorite':'places.place.favorite',label:place.isFavorite?'Favorit entfernen':'Als Favorit merken',payload},
     ...(bookable?[{actionId:'booking.restaurant.open',label:'Jetzt reservieren',payload:{...payload,type:'restaurant'}}]:[]),
-    {actionId:'places.place.plan',label:'Zur Timeline hinzufügen',payload}
+    {actionId:'places.place.plan',label:hints.plan?.plannedAt?`${hints.plan.date} · ${hints.plan.time} einplanen`:'Zur Timeline hinzufügen',payload:planPayload}
   ];
 }
-async function resolveCard(place,trip){
+async function resolveCard(place,trip,hints={}){
   const contract=placesContract();const id=providerId(place);let card={place,image:null};
   if(id&&typeof contract.reads?.getCard==='function'){try{card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720})||card}catch{}}
   const item={...place,...(card.place||{}),providerPlaceId:id||providerId(card.place),image:card.image||place.image||null,reasons:place.aiReasons||place.reasons||[],unknowns:place.aiUnknowns||place.unknowns||[]};
-  item.actions=placeActions(item,trip);return item;
+  item.actions=placeActions(item,trip,hints);return item;
 }
 async function placeDiscoveryResult(request,options={}){
-  const trip=tripContract().getActiveTrip?.()||{};const input=request.input||{};
+  const trip=tripContract().getActiveTrip?.()||{};const input=request.input||{},hints=input.mutationHints||{},confirmedPreferences=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),requestPreferences=input.explicitPreferencePatch||{},profileFallbackUsed=!Object.keys(requestPreferences).length,effectivePreferences={...confirmedPreferences,...requestPreferences},profileContext=options.profileContext||effectivePreferences;
   const categories=Array.isArray(input.categories)&&input.categories.length?input.categories:[input.category||'places'];
-  const responses=await Promise.allSettled(categories.map(category=>placesContract().reads.recommend({tripId:tripId(trip),text:input.query,query:input.query,category,destination:destination(trip),limit:Number(input.limit||6),candidateLimit:32,profileContext:options.profileContext||{}})));
+  const responses=await Promise.allSettled(categories.map(category=>placesContract().reads.recommend({tripId:tripId(trip),text:input.query,query:input.query,category,destination:destination(trip),limit:Math.min(3,Math.max(1,Number(input.limit||3))),candidateLimit:32,preferences:effectivePreferences,profileContext,preferenceMode:profileFallbackUsed?'confirmed-profile-fallback':'explicit-request-over-confirmed-profile'})));
+  const successful=responses.filter(response=>response.status==='fulfilled');if(!successful.length){const cause=responses.find(response=>response.status==='rejected')?.reason||runtimeError('PLACES_OWNER_READ_FAILED','Places konnte die verifizierte Suche gerade nicht ausführen.');cause.code=cause.code||'PLACES_OWNER_READ_FAILED';throw cause}
   const seen=new Set(),raw=[];for(const response of responses){if(response.status!=='fulfilled')continue;const ownerCategory=clean(response.value?.route?.category||categories[0]||'place').toLowerCase();for(const place of response.value?.places||[]){const id=providerId(place);if(id&&!seen.has(id)){seen.add(id);raw.push({...place,primaryType:place.primaryType||place.primary_type||ownerCategory})}}}
-  const cards=await Promise.all(raw.slice(0,Math.min(8,Number(input.limit||6))).map(place=>resolveCard(place,trip))),noun=categories.length>1?'Orte':'Möglichkeiten';
-  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} passende ${noun}`:'Noch kein belastbarer Places-Treffer',message:cards.length?'Places belegt die Orte; Luvia ordnet sie im freigegebenen Reise- und Profilkontext. Speichern, Timeline und Booking bleiben Owner-Aktionen.':'Passe Wunsch, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,aiReasonsNonAuthoritative:true,query:input.query,categories,destination:destination(trip),tripId:tripId(trip),count:cards.length},meta:{actionId:request.actionId}});
+  const cards=await Promise.all(raw.slice(0,Math.min(3,Math.max(1,Number(input.limit||3)))).map(place=>resolveCard(place,trip,hints))),noun=categories.length>1?'Orte':'Möglichkeiten',planCopy=hints.plan?.plannedAt?` Die angeforderte Zeit ${hints.plan.date} · ${hints.plan.time} ist an jeder Timeline-Aktion sichtbar und wird erst nach deiner Bestätigung geschrieben.`:'',profileFields=Object.entries(confirmedPreferences||{}).filter(([key,value])=>!/(?:updated|completed|schema|version)/i.test(key)&&(Array.isArray(value)?value.length:Boolean(value))).length,profileCopy=profileFallbackUsed?(profileFields?` Im Satz fehlten konkrete Vorlieben; deshalb wurden ${profileFields} bestätigte Profilbereiche aus Identity v1 berücksichtigt.`:' Es sind noch keine bestätigten Profilvorlieben für diese Auswahl hinterlegt.'):` Explizite Vorlieben aus diesem Wunsch haben Vorrang; nicht angesprochene Profilbereiche bleiben Identity-owned.`;
+  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} passende ${noun}`:'Noch kein belastbarer Places-Treffer',message:cards.length?`Places belegt die Orte; Luvia ordnet sie im freigegebenen Reise- und Profilkontext.${profileCopy} Speichern, Timeline und Booking bleiben Owner-Aktionen.${planCopy}`:'Passe Wunsch, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,aiReasonsNonAuthoritative:true,preferenceOwner:'identity.v1',confirmedProfileFields:profileFields,profileFallbackUsed,explicitRequestPreferenceFields:Object.keys(requestPreferences),query:input.query,categories,destination:destination(trip),tripId:tripId(trip),count:cards.length,mutationHints:hints},meta:{actionId:request.actionId}});
 }
 const restaurantResult=(request,options={})=>placeDiscoveryResult({...request,input:{...(request.input||{}),category:'food',categories:['food']}},options);
 async function dayResult(request){
@@ -105,31 +112,40 @@ const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult
 
 function compiledRoutes(message,compiled){
   if(compiled?.contractId!=='intelligence.travel-orchestration.v1'||!Array.isArray(compiled.intents))return null;
-  const routes=[],push=(actionId,input={})=>{if(actionId&&!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:message,...input}})};
+  const routes=[],hints=mutationHints(compiled),push=(actionId,input={},query=message)=>{if(actionId&&!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:query||message,mutationHints:hints,...input}})};
   for(const intent of compiled.intents){
-    if(intent.domain==='places')push(intent.categoryHints?.length===1&&intent.categoryHints[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:intent.categoryHints?.[0]||'places',categories:intent.categoryHints?.length?intent.categoryHints:['places'],limit:Math.min(8,Math.max(4,(intent.categoryHints?.length||1)*2))});
-    else if(intent.domain==='booking')push('booking.trip.read',{intent:intent.mode==='propose-write'?'prerequisite-read':'list'});
-    else if(intent.domain==='journey')push('journey.day.read');
-    else if(intent.domain==='trip')push('trip.active.list');
-    else if(intent.domain==='memory')push('memory.library.read');
-    else if(intent.domain==='identity'||intent.domain==='privacy')push('identity.preferences.read');
+    const query=intent.clause||message;
+    if(intent.domain==='places')push(intent.categoryHints?.length===1&&intent.categoryHints[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:intent.categoryHints?.[0]||'places',categories:intent.categoryHints?.length?intent.categoryHints:['places'],limit:3,explicitPreferencePatch:intent.entityHints?.preferencePatch||{}},query);
+    else if(intent.domain==='booking')push('booking.trip.read',{intent:intent.mode==='propose-write'?'prerequisite-read':'list'},query);
+    else if(intent.domain==='journey')push('journey.day.read',{},query);
+    else if(intent.domain==='trip')push('trip.active.list',{},query);
+    else if(intent.domain==='memory')push('memory.library.read',{},query);
+    else if(intent.domain==='identity'||intent.domain==='privacy')push('identity.preferences.read',{},query);
   }
   return routes;
 }
 async function runMessage(message,options={}){
   const compiled=options.compiledIntent||null;
-  if(compiled&&['blocked','conflicted','needs-clarification'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
+  if(compiled&&['blocked','conflicted'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
   const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean));if(!routes.length)return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled?.status||null});
   const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:false,results:[],routes});
   const results=[];let error=false;
   for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=readHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'intelligence',title:'Eine Teilaufgabe ist gerade nicht verfügbar',message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'},meta:{retryable:true}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
-  return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1,compiledStatus:compiled?.status||null});
+  const preferenceIntents=compiled?.status==='compiled'?(compiled.intents||[]).filter(intent=>intent.domain==='identity'&&intent.mode==='propose-write'&&!intent.missingInputs?.length&&Object.keys(intent.entityHints?.preferencePatch||{}).length):[];if(preferenceIntents.length){try{const current=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),patch={};for(const intent of preferenceIntents)for(const [field,value] of Object.entries(intent.entityHints.preferencePatch)){patch[field]=Array.isArray(value)?[...new Set([...(Array.isArray(current?.[field])?current[field]:[]),...(Array.isArray(patch[field])?patch[field]:[]),...value])]:value}const prepared=prepare('identity.preferences.update',{patch,source:'explicit-chat-request'},{userGesture:true,surface:options.surface||'global-chat'});results.push(prepared.result)}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:'identity',title:'Vorlieben konnten nicht vorbereitet werden',message:cause?.message||'Identity konnte die bestätigbare Änderung nicht vorbereiten.',evidence:{actionId:'identity.preferences.update',code:cause?.code||'AI_ACTION_PREPARE_FAILED'},meta:{retryable:true}}))}}
+  return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1,compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
+}
+
+function validatePreparedInput(definition,payload={}){
+  if(definition.id==='places.place.plan'&&!payload.fields?.planned_at)throw runtimeError('AI_ACTION_INPUT_REQUIRED','Für die Timeline fehlen ein eindeutiges Datum und eine Uhrzeit. Bitte nenne beides im Chat oder öffne den Journey-Planungsdialog.',{actionId:definition.id,missingInputs:['date','time']});
+  if(definition.id==='places.place.plan'&&!payload.providerPlaceId&&!payload.tripPlaceId)throw runtimeError('AI_ACTION_INPUT_REQUIRED','Der zu planende Place besitzt keine verifizierte Owner-ID.',{actionId:definition.id,missingInputs:['providerPlaceId']});
+  return payload;
 }
 
 function prepare(actionId,payload={},options={}){
   const definition=actionCore().getAction(actionId);if(!definition)missing(actionId);
   if(definition.effect!=='READ'&&options.userGesture!==true)throw runtimeError('INTELLIGENCE_USER_GESTURE_REQUIRED','Die Aktion muss durch eine direkte Nutzerauswahl vorbereitet werden.',{actionId});
   if(!operationAvailable(definition))throw runtimeError('AI_ACTION_BINDING_UNAVAILABLE',`Für ${actionId} ist kein erreichbares Owner Binding registriert.`,{actionId,owner:definition.owner});
+  validatePreparedInput(definition,payload);
   const preparedPayload=definition.id==='trip.active.select'&&!payload.previousTripId?{...payload,previousTripId:tripId(tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{})}:payload;
   const correlationId=clean(options.correlationId)||newId('corr');const idempotencyKey=clean(options.idempotencyKey)||newId(`idem-${actionId.replace(/[^a-z0-9]+/gi,'-')}`);const requestedAt=new Date().toISOString();
   const envelope=actionCore().createExecutionEnvelope(actionId,preparedPayload,{surface:options.surface||'global-chat'},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
@@ -147,8 +163,13 @@ async function invokeOwner(definition,payload,idempotencyKey){
   let result=null,message='Aktion wurde ausgeführt.',status='completed';
   if(definition.id==='places.place.favorite'){result=await placesContract().commands.favorite({...payload,placeType:payload.placeType||'restaurant'});message='Der Ort wurde über Places v1 als Favorit gespeichert.'}
   else if(definition.id==='places.place.unfavorite'){result=await placesContract().commands.unfavorite({...payload,placeType:payload.placeType||'restaurant'});message='Der Favorit wurde über Places v1 entfernt.'}
-  else if(definition.id==='places.place.plan'){result=await placesContract().commands.plan(payload);message='Der Ort wurde über Places v1 in die Reiseplanung aufgenommen.'}
-  else if(definition.id==='places.place.unplan'){result=await placesContract().commands.unplan(payload);message='Der Ort wurde über Places v1 aus der Reiseplanung entfernt.'}
+  else if(definition.id==='places.place.plan'){
+    const linked=payload.tripPlaceId?payload:await placesContract().commands.importPlace(payload.providerPlaceId,{tripId:payload.tripId,type:payload.placeType,tripPlace:{status:'planned',isFavorite:false}}),resolved={...payload,placeId:linked.placeId||linked.id||payload.placeId,tripPlaceId:linked.tripPlaceId||payload.tripPlaceId};
+    result=await placesContract().commands.plan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'planned',{}, {tripId:resolved.tripId});result={...(result||{}),placeId:resolved.placeId,tripPlaceId:resolved.tripPlaceId,providerPlaceId:resolved.providerPlaceId};message='Der Ort wurde über Places v1 zur bestätigten Zeit in die Reiseplanung aufgenommen.';return{result,message,status,resolvedPayload:resolved};
+  }
+  else if(definition.id==='places.place.unplan'){
+    const resolved={...payload,fields:Array.isArray(payload.fields)?payload.fields:Object.keys(payload.fields||{}).length?Object.keys(payload.fields):['planned_at']};result=await placesContract().commands.unplan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'saved',{}, {tripId:resolved.tripId});message='Der Ort wurde über Places v1 aus der Reiseplanung entfernt.';return{result,message,status,resolvedPayload:{...payload,tripPlaceId:resolved.tripPlaceId,placeId:resolved.placeId}};
+  }
   else if(definition.id==='booking.restaurant.open'){result=await bookingContract().commands.openPlaceBooking(payload,{reserveExternalWindow:true});message=result?.opened?'Der Booking-Owner-Flow ist geöffnet.':'Der Booking-Owner-Flow konnte nicht geöffnet werden.';status=result?.opened?'opened':'failed'}
   else if(definition.id==='booking.reservation.create'){result=await bookingContract().commands.createForPlace({...payload,idempotencyKey});message='Die bestätigte Reservierungsanfrage wurde an Booking v1 übergeben.'}
   else if(definition.id==='booking.reservation.modify'){result=await bookingContract().commands.modifyBooking(payload.bookingId,{...(payload.patch||payload.input||payload),idempotencyKey});message='Die bestätigte Buchungsänderung wurde an Booking v1 übergeben.'}
@@ -182,7 +203,7 @@ async function execute(actionId,payload={},options={}){
     ownerInvoked=true;const outcome=await invokeOwner(definition,staged.envelope.input,staged.envelope.idempotencyKey);
     const compensationOrigin=compensationOrigins.get(ledgerId)||null,receipt=actionCore().createReceipt({actionId,status:compensationOrigin?'compensated':outcome.status,message:compensationOrigin?`Die vorherige Aktion wurde über ${definition.ownerContract} nachvollziehbar rückgängig gemacht.`:outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,compensationStatus:compensationOrigin?'completed':null,reference:receiptReference(staged.envelope.input,outcome.result),meta:compensationOrigin?{compensatesLedgerId:compensationOrigin}: {}});
     if(outcome.status==='failed')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_DECLINED',retryable:true,receipt});else ledger.succeed(ledgerId,receipt);
-    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:staged.envelope.input});pending.delete(ledgerId);
+    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:outcome.resolvedPayload||staged.envelope.input});pending.delete(ledgerId);
     if(compensationOrigin&&outcome.status!=='failed'){ledger.startCompensation(compensationOrigin);ledger.finishCompensation(compensationOrigin,receipt);compensationOrigins.delete(ledgerId);emit('command-compensated',{actionId,owner:definition.owner,ledgerId,compensatesLedgerId:compensationOrigin})}
     emit(outcome.status==='failed'?'command-failed':'command-completed',{actionId,owner:definition.owner,status:compensationOrigin?'compensated':outcome.status,ledgerId});return receipt;
   }catch(error){

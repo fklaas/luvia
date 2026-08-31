@@ -22,6 +22,7 @@ const context={
   CustomEvent:function(name,options){this.type=name;this.detail=options?.detail},
   dispatchEvent(event){events.push(event)},
   LuviaTripContractV1:{getActiveTrip(){return{id:'trip-1',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}}}},
+  LuviaIdentityContractV1:{getPreferences(){calls.push(['preferences']);return{}}},
   LuviaPlacesContractV1:{
     reads:{
       async recommend(input){calls.push(['recommend',input]);return{places:[{id:'places/place-1',name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440,website:'https://restaurant.example',aiReasons:['Passt zur Reise']}],route:{category:'food'}}},
@@ -50,9 +51,9 @@ vm.runInContext(source,context,{filename:runtimePath});
   assert.equal(restaurants.results[0].items[0].image.url,'https://images.example/dunes.jpg');
   assert.equal(restaurants.results[0].items[0].actions[0].actionId,'places.place.favorite');
   assert.equal(restaurants.results[0].items[0].actions[1].actionId,'booking.restaurant.open');
-  assert.equal(calls[0][0],'recommend');
-  assert.equal(calls[0][1].destination,'Scharbeutz');
-  assert.equal(calls[0][1].tripId,'trip-1');
+  const recommendation=calls.find(call=>call[0]==='recommend');
+  assert.equal(recommendation[1].destination,'Scharbeutz');
+  assert.equal(recommendation[1].tripId,'trip-1');
 
   const day=await runtime.runMessage('Plane uns einen schönen Tag');
   assert.equal(day.handled,true);

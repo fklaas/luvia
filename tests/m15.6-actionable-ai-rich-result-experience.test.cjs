@@ -21,7 +21,7 @@ for(const needle of [
   'scroll-snap-type:x mandatory',
   '.lvx-rich-action{min-height:48px}',
   '@media(prefers-reduced-motion:reduce)',
-  '.lvx-rich-result,.lvx-command-receipt,.lvx-place-card figure img,.lvx-rich-action'
+  '.lvx-rich-result,.lvx-command-receipt,.lvx-sequence-continuation'
 ])assert.ok(css.includes(needle),`Rich Result Experience missing ${needle}`);
 
 assert.equal((css.match(/!important/g)||[]).length,27,'M15 rich results may not grow important-declaration debt');

@@ -123,6 +123,11 @@ function normalizeImage(value={}){
   const url=text(value.url||value.uri||value.imageUrl);
   return url?immutable({url,attribution:text(value.attribution)||null,alt:text(value.alt)||null}):null;
 }
+function normalizeCoordinates(value={}){
+  const source=value?.coordinates||value?.location||value||{},latitude=Number(source.latitude??source.lat),longitude=Number(source.longitude??source.lng);
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
+  return immutable({latitude,longitude});
+}
 function normalizePlace(value={}){
   const providerPlaceId=text(value.providerPlaceId||value.provider_place_id||value.id).replace(/^places\//,'');
   if(!providerPlaceId)return null;
@@ -130,7 +135,7 @@ function normalizePlace(value={}){
   return immutable({
     id:text(value.id,providerPlaceId),providerPlaceId,name:text(value.name,'Unbenannter Ort'),description:text(value.description),address:text(value.address||value.formattedAddress),
     primaryType:text(value.primaryType||value.primary_type,'restaurant'),rating:finite(value.rating,0,5),userRatingCount:finite(value.userRatingCount||value.user_rating_count,0,Number.MAX_SAFE_INTEGER,0),
-    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,image:normalizeImage(value.image||{}),
+    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),
     reasons:unique(value.reasons||value.aiReasons,4),unknowns:unique(value.unknowns||value.aiUnknowns,3),actions
   });
 }
@@ -232,5 +237,5 @@ function routeIntent(message=''){
 }
 function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizePlace,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
 })();

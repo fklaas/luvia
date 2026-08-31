@@ -781,7 +781,7 @@
   padding: 0;
   border: 2px solid #ffffff;
   border-radius: 50%;
-  background: var(--places-info);
+  background: var(--places-info, #2c93a9);
   color: #ffffff;
   box-shadow: 0 10px 22px rgba(31, 65, 86, 0.2);
   font-size: 14px;
@@ -790,6 +790,12 @@
   transform-origin: 50% 100%;
   transition: scale 180ms var(--places-ease), background-color 180ms ease, box-shadow 180ms ease;
 }
+
+/* Exact cardinal colours from the Living Compass outer ring. */
+.lv-places-spatial__marker[data-compass-tone="0"] { background: #ef6254; }
+.lv-places-spatial__marker[data-compass-tone="1"] { background: #f4b34c; color: #17384d; }
+.lv-places-spatial__marker[data-compass-tone="2"] { background: #2c93a9; }
+.lv-places-spatial__marker[data-compass-tone="3"] { background: #2f8c73; }
 
 .lv-places-spatial__marker::after {
   content: "";
@@ -812,10 +818,9 @@
 
 .lv-places-spatial__marker:is(.is-selected, [aria-pressed="true"]) {
   z-index: 7;
-  background: var(--places-accent);
-  color: var(--places-accent-contrast);
+  color: var(--places-accent-contrast, #ffffff);
   scale: 1.12;
-  box-shadow: 0 0 0 7px var(--places-accent-soft), 0 15px 30px rgba(31, 65, 86, 0.24);
+  box-shadow: 0 0 0 7px var(--places-accent-soft, rgba(239, 98, 84, 0.16)), 0 15px 30px rgba(31, 65, 86, 0.24);
 }
 
 .lv-places-spatial__map-story {
