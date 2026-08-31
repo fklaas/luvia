@@ -7,7 +7,7 @@ const source=fs.readFileSync('core/ai/ai-dashboard-service.js','utf8');
 
 for(const needle of [
   'LuviaAIActionRuntime',
-  'actionRuntime().runMessage(step.label,{surface,compiledIntent:scoped})',
+  'actionRuntime().runMessage(step.label,{surface,compiledIntent:scoped,sourceMessage:conversation.request,excludedProviderPlaceIds:[...shownPlaceIds]})',
   'core?.compileIntent?.(request,context)',
   'core?.compileDialogue?.(request,dialogue,context)',
   'actionResponse.results.forEach(appendRichResult)',

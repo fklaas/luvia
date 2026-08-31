@@ -16,7 +16,7 @@ const actionRuntime='core/ai/ai-action-runtime.js';
 const dashboard='core/ai/ai-dashboard-service.js';
 
 for(const asset of [actionCore,ledgerCore,actionRuntime,dashboard]){
-  assert.ok(index.includes(`${asset}?v=13.82.122`),`index misses M16 runtime asset ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.123`),`index misses M16 runtime asset ${asset}`);
   assert.ok(worker.includes(`'${asset}'`),`service worker misses M16 runtime asset ${asset}`);
 }
 assert.ok(index.indexOf(actionCore)<index.indexOf(ledgerCore),'action contract must load before ledger');
@@ -36,8 +36,8 @@ for(const test of [
   'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
 ])assert.ok(runner.includes(test),`safe regression misses ${test}`);
 
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.122'"));
-assert.match(version,/core:'4\.82\.122',build:'13\.82\.122',name:'M16\.5 Functional Multilingual AI & Compass Map'/);
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.123'"));
+assert.match(version,/core:'4\.82\.123',build:'13\.82\.123',name:'M16\.5 Spatially Precise AI Places'/);
 
 console.log('M16.5 Intelligence Action Runtime Registration: PASS');
 console.log('Action Contract -> Ledger -> Runtime -> Chat order: PASS');

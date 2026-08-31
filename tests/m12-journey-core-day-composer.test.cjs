@@ -116,7 +116,7 @@ const index=read('index.html');
 const order=[corePath,'core/places/timeline-core.js',adapterPath,composerPath,'app/app-shell.js'].map(file=>index.indexOf(file));
 assert.ok(order.every(index=>index>=0),'M12 runtime files must all be loaded');
 assert.deepEqual(order,[...order].sort((a,b)=>a-b),'Journey Core, compatibility runtime, contract, composer and App Shell load order is invalid');
-assert.ok(index.includes(`${composerCssPath}?v=13.82.122`));
+assert.ok(index.includes(`${composerCssPath}?v=13.82.123`));
 
 for(const token of ['LuviaJourneyContractV1','contractId:CONTRACT_ID','composeProjection','const reads=Object.freeze','const commands=Object.freeze','legacyCompatibility:true'])assert.ok(adapterSource.includes(token),`Journey adapter missing ${token}`);
 assert.equal((adapterSource.match(/LuviaTimelineCore/g)||[]).length<=2,true,'Journey adapter must contain one compatibility-provider boundary, not scattered private access');

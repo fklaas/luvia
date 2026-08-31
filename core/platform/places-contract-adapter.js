@@ -113,7 +113,7 @@
   async function recommend(options={}){
     const response=await discovery().recommend(options||{});
     const places=freezeArray((response?.places||[]).map(source=>{const projected=detailsProjection(source);return projected?Object.freeze({...projected,recommendation:recommendationProjection(source)}):null}).filter(Boolean));
-    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null});
+    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null,diversityMeta:response?.diversityMeta?Object.freeze(response.diversityMeta):null});
   }
   function categories(){return domain().categories()}
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}

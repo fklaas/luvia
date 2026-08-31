@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.6.0';
+  const VERSION='1.7.0';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -339,6 +339,13 @@
       }catch{}
     }
   }
+  function markerAnchor(marker,button){
+    const anchor=document.createElement('div');
+    anchor.className='lv-places-spatial__marker-anchor';
+    anchor.style.setProperty('--places-marker-float-delay',`${-((Math.max(1,Number(marker.rank)||1)-1)*.47).toFixed(2)}s`);
+    anchor.append(button);
+    return anchor;
+  }
   function markerButton(marker){
     const button=document.createElement('button');
     button.type='button';
@@ -351,7 +358,7 @@
     button.innerHTML=`<span>${marker.rank}</span>`;
     button.classList.toggle('is-selected',marker.providerPlaceId===state.selectedId);
     button.addEventListener('click',()=>select(marker.providerPlaceId,true,false));
-    return button;
+    return markerAnchor(marker,button);
   }
 
   function projectionState(container,stateName,message){
@@ -372,7 +379,7 @@
     button.innerHTML=`<span>${marker.rank}</span>`;
     button.classList.toggle('is-selected',marker.providerPlaceId===selectedId);
     button.addEventListener('click',()=>onSelect?.(marker.providerPlaceId,marker));
-    return button;
+    return markerAnchor(marker,button);
   }
   function mountProjection(container,places,{selectedId=null,onSelect=null,label='Places v1 · verifizierte Geodaten'}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');

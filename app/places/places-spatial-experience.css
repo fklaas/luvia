@@ -771,9 +771,18 @@
   top: 18px;
 }
 
-.lv-places-spatial__marker {
+.lv-places-spatial__marker-anchor {
   position: absolute;
   z-index: 6;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+}
+
+.lv-places-spatial__marker {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: grid;
   place-items: center;
   width: 44px;
@@ -787,7 +796,9 @@
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
+  pointer-events: auto;
   transform-origin: 50% 100%;
+  animation: lv-places-spatial-marker-float 3.4s ease-in-out var(--places-marker-float-delay, 0s) infinite;
   transition: scale 180ms var(--places-ease), background-color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -821,6 +832,11 @@
   color: var(--places-accent-contrast, #ffffff);
   scale: 1.12;
   box-shadow: 0 0 0 7px var(--places-accent-soft, rgba(239, 98, 84, 0.16)), 0 15px 30px rgba(31, 65, 86, 0.24);
+}
+
+@keyframes lv-places-spatial-marker-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -3px; }
 }
 
 .lv-places-spatial__map-story {
@@ -1256,8 +1272,9 @@
     transform: scale(1.025);
   }
 
-  .lv-places-spatial__marker:hover {
-    scale: 1.08;
+  .lv-places-spatial__marker:hover,
+  .lv-places-spatial__marker:focus-visible {
+    animation-play-state: paused;
   }
 }
 
@@ -2032,6 +2049,7 @@
 @media (prefers-reduced-motion: reduce) {
   .lv-places-spatial__status > i { animation: none; }
   .lv-places-spatial__map.is-ready .lv-places-spatial__map-message { transition: none; }
+  .lv-places-spatial__marker { animation: none; translate: none; }
 }
 
 /* Scrolling remains available by wheel, touch and keyboard, but Luvia never

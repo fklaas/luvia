@@ -128,6 +128,11 @@ function normalizeCoordinates(value={}){
   if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
   return immutable({latitude,longitude});
 }
+function normalizeSpatialConstraint(value={}){
+  const state=['not-requested','confirmed','contradicted','unknown'].includes(text(value.state))?text(value.state):'not-requested',requested=value.requested&&typeof value.requested==='object'?{explicit:value.requested.explicit===true,prefer:unique(value.requested.prefer,4),avoid:unique(value.requested.avoid,4),source:text(value.requested.source)||null,verifiedBy:text(value.requested.verifiedBy)||null}:null;
+  if(state==='not-requested'&&!requested?.explicit)return null;
+  return immutable({state,requested,evidence:unique(value.evidence,6),scoreDelta:finite(value.scoreDelta,-200,200,0),reasons:unique(value.reasons,3)});
+}
 function normalizePlace(value={}){
   const providerPlaceId=text(value.providerPlaceId||value.provider_place_id||value.id).replace(/^places\//,'');
   if(!providerPlaceId)return null;
@@ -135,7 +140,7 @@ function normalizePlace(value={}){
   return immutable({
     id:text(value.id,providerPlaceId),providerPlaceId,name:text(value.name,'Unbenannter Ort'),description:text(value.description),address:text(value.address||value.formattedAddress),
     primaryType:text(value.primaryType||value.primary_type,'restaurant'),rating:finite(value.rating,0,5),userRatingCount:finite(value.userRatingCount||value.user_rating_count,0,Number.MAX_SAFE_INTEGER,0),
-    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),
+    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),spatialConstraint:normalizeSpatialConstraint(value.spatialConstraint||{}),
     reasons:unique(value.reasons||value.aiReasons,4),unknowns:unique(value.unknowns||value.aiUnknowns,3),actions
   });
 }

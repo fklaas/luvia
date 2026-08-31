@@ -114,6 +114,10 @@ function projectDetails(input){
     features:source.features&&typeof source.features==='object'?source.features:{},
     accessibilityOptions:source.accessibilityOptions&&typeof source.accessibilityOptions==='object'?source.accessibilityOptions:{},
     providerRefs:source.providerRefs&&typeof source.providerRefs==='object'?source.providerRefs:{},
+    providerObservedAt:clean(source.providerObservedAt)||null,
+    providerFactsCached:source.providerFactsCached===true,
+    discoveryQueries:[...(source.discoveryQueries||[])].map(String),
+    spatialConstraint:source.spatialConstraint&&typeof source.spatialConstraint==='object'?source.spatialConstraint:null,
     aiMatchScore:number(source.aiMatchScore),
     aiReasons:[...(source.aiReasons||source._luviaReasons||[])].map(String),
     aiUnknowns:[...(source.aiUnknowns||[])].map(String)
