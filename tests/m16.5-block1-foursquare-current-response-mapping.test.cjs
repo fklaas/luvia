@@ -85,7 +85,7 @@ test('legacy cached coordinates remain readable but missing provider facts are n
   assert.equal(missing.userRatingCount,0);
 });
 
-test('public diagnostics are bounded and gateway owns a Pro-field fallback',async()=>{
+test('public diagnostics are bounded and gateway owns a layered Pro-field fallback',async()=>{
   const {boundedFoursquareError}=await mapping();
   const diagnostic=boundedFoursquareError({error:{code:'INVALID_FIELD',message:'Field not available'},token:'must-not-leak',payload:{large:'must-not-leak'}});
   assert.deepEqual(diagnostic,{code:'INVALID_FIELD',message:'Field not available'});
@@ -94,9 +94,14 @@ test('public diagnostics are bounded and gateway owns a Pro-field fallback',asyn
   assert.match(source,/foursquareWithFieldFallback/);
   assert.match(source,/fieldFallbacks\+\+/);
   assert.match(source,/coordinateSchema:'top-level-latitude-longitude'/);
-  assert.match(source,/version:'4\.29\.0'/);
+  assert.match(source,/version:'4\.29\.1'/);
   assert.match(source,/params\.fsq_category_ids=categoryFilter/);
-  assert.match(source,/strictTypeFiltering===true&&String\(options\?\.includedType\|\|''\)\.toLowerCase\(\)==='restaurant'\?FOURSQUARE_RESTAURANT_CATEGORY_ID/);
+  assert.match(source,/categoryFilteredSearch:'explicit-reviewed-taxonomy-only'/);
+  assert.match(source,/postRetrievalCategoryEvidence:true/);
+  assert.match(source,/return safe\.length\?safe\.join\(','\):undefined/);
+  assert.doesNotMatch(source,/strictTypeFiltering===true&&String\(options\?\.includedType/);
+  assert.match(source,/const \{fields:_retiredFields,\.\.\.providerDefaults\}=params/);
+  assert.match(source,/return foursquare\(path,providerDefaults\)/);
   assert.match(source,/destination\?\.searchRadiusMeters/);
   assert.match(source,/Math\.min\(50,Math\.max\(1,Number\(options\?\.maxResultCount\|\|10\)\)\)/);
   assert.doesNotMatch(source,/fields:'[^']*(?:geocodes|timezone)/);

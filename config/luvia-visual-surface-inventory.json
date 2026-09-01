@@ -5446,8 +5446,8 @@
       "classes": [
         "dom-rendering-source"
       ],
-      "bytes": 30940,
-      "sha256": "da5238aa524c2bfbf119d39a76279d4a742f151b872ca0939d9c1a051c334a00"
+      "bytes": 31489,
+      "sha256": "3a3d19da2860dde37ab12473251c7b0c34980a2234e9b898a601445ccc2f7928"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
