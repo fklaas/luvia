@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 2956,
+    "trackedFiles": 2954,
     "visualCandidates": 802,
     "activeEntryReferences": 284,
     "unclassifiedEntryReferences": 0,
@@ -5306,8 +5306,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 9156,
-      "sha256": "28a4e7a8b38d244b388d886f09800226fce8a2d9291c7bdee74f692557d77fcb"
+      "bytes": 9194,
+      "sha256": "9215c5f67dc6e14f97e3c959fb75c9507673712c659371dbf438fc5bab99a217"
     },
     {
       "path": "smart-photo-moments.css",
