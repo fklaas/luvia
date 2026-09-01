@@ -94,7 +94,15 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/foursquareWithFieldFallback/);
   assert.match(source,/fieldFallbacks\+\+/);
   assert.match(source,/coordinateSchema:'top-level-latitude-longitude'/);
-  assert.match(source,/version:'4\.29\.1'/);
+  assert.match(source,/version:'4\.30\.0'/);
+  assert.match(source,/HEALTH_PROBES=Object\.freeze/);
+  assert.match(source,/'minigolf-scharbeutz'/);
+  assert.match(source,/'minigolf-chat-scharbeutz'/);
+  assert.match(source,/'beach-supplies-scharbeutz'/);
+  assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
+  assert.match(source,/provider:tasks\[index\]\?\.provider\|\|'unknown'/);
+  assert.match(source,/Promise\.allSettled\(tasks\.map\(task=>task\.promise\)\)/);
+  assert.match(source,/query:foursquareQuery\(query,destination\)/);
   assert.match(source,/params\.fsq_category_ids=categoryFilter/);
   assert.match(source,/categoryFilteredSearch:'explicit-reviewed-taxonomy-only'/);
   assert.match(source,/postRetrievalCategoryEvidence:true/);
@@ -106,4 +114,13 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/Math\.min\(50,Math\.max\(1,Number\(options\?\.maxResultCount\|\|10\)\)\)/);
   assert.doesNotMatch(source,/fields:'[^']*(?:geocodes|timezone)/);
   assert.doesNotMatch(source,/lastError=\{provider:'foursquare',status:response\.status,body\}/);
+});
+
+test('Foursquare receives the subject without a duplicated geographic destination',async()=>{
+  const {foursquareQuery}=await import(`${pathToFileURL(placesPath).href}?query-test=${Date.now()}`);
+  const destination={name:'Scharbeutz',displayName:'Scharbeutz',canonicalCity:{name:'Scharbeutz'}};
+  assert.equal(foursquareQuery('Minigolf in Scharbeutz Scharbeutz',destination),'Minigolf');
+  assert.equal(foursquareQuery('Restaurant am Wasser in Scharbeutz',destination),'Restaurant am Wasser');
+  assert.equal(foursquareQuery('Surf Shop Scharbeutz',destination),'Surf Shop');
+  assert.equal(foursquareQuery('Scharbeutz',destination),'Scharbeutz','a destination-only query must not collapse below the provider minimum');
 });

@@ -20,13 +20,25 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.131**
-- Core: **4.82.131**
-- Name: **M16.5 Specific Subject Evidence Gate**
+- App: **13.82.132**
+- Core: **4.82.132**
+- Name: **M16.5 Provider Query and Exact-Type Ranking Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Provider Query and Exact-Type Ranking Recovery — Integration Candidate 13.82.132
+
+- Runtime target: **App 13.82.132 / Core 4.82.132 / cache `luvia-shell-v13.82.132` / Integration only**.
+- Reproduced public cause: **the existing Google provider is configured but its daily `SearchTextRequest` quota is exhausted. The same bounded public diagnostic proved that the existing Foursquare provider is reachable and returns source-backed Minigolf places, provider-native Mini Golf Course categories, coordinates and exact Place photos**.
+- Provider query repair: **when Trip has already supplied a canonical destination, the existing `luvia-gateway` removes duplicate destination tokens before calling Foursquare. The chat request `Minigolf in Scharbeutz` no longer becomes the relevance-diluting provider query `Minigolf in Scharbeutz Scharbeutz`; it becomes the subject-only query `Minigolf` around the owner-supplied Scharbeutz anchor**.
+- Exact-type contract: **a name-only occurrence of “Minigolf” can no longer override contradictory provider categories. A restaurant named `Imbiss da Gino Pizzeria Minigolf` is rejected, while provider-native `Mini Golf Course` evidence remains accepted**.
+- Destination-first ranking: **among otherwise eligible candidates, source-backed distance to the Trip-owned destination now contributes a bounded deterministic score. The real near-Scharbeutz course is therefore not displaced solely by farther Timmendorfer results**.
+- Media truth: **exact provider media remains photo-first. If neither provider search nor the existing bounded owner-detail hydration supplies a trustworthy photo, the consumer renders the compact map-first card; fixture and Landing imagery are never substituted for a Place photo**.
+- Edge evidence: **the authorized existing `luvia-gateway` is ACTIVE as v120, function id `ae8f0801-2325-4125-b1a9-4c57f81770ce`, bundle SHA-256 `2b33580693d4f1363eb38835f9e27f4d659e405d92883056c6be6d28e8319590`. Health reports Places gateway 4.30.0 / gateway 4.63.0 and bounded named probes only. No second owner or public arbitrary query proxy was added**.
+- Acceptance state: **full Safe Regression 147/147 PASS and NFR foundation 3/3 PASS, including exact-type, provider-query normalization, current Foursquare response/media mapping and destination-distance ranking. Immutable Worker deployment, Stable/Immutable byte provenance and visible public pointer/keyboard acceptance are still required before `.132` may be accepted**.
+- Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
 
 ## M16.5 Specific Subject Evidence Gate — Integration Candidate 13.82.131
 
@@ -37,7 +49,7 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Media boundary: **a search result without a projected image now performs one bounded owner-detail hydration before rendering. Provider photos retain their source attribution. If no trustworthy image exists after that read, the large decorative pseudo-photo is omitted and the card/detail use a compact map-first treatment; no invented image is shown**.
 - Reported regression: **the exact compound request `Super, und wenn ich noch Minigolf spielen will oder die Kinder Luftmatratzen wollen?` remains two independently sequenced owner reads. Petersen's Landhaus/Hotel Pool is a mandatory negative counterexample for Minigolf; a provider-native Miniature Golf Course is positive evidence**.
 - Ownership and writes: **OpenAI remains orchestrator only, Places remains owner of provider facts, Identity remains owner of confirmed profile preferences and no mutation is added. Existing write actions continue to require Preview, explicit confirmation, public Owner Command, Receipt and separately confirmed Undo/Recovery**.
-- Acceptance state: **full Safe Regression 147/147 PASS and NFR foundation 3/3 PASS. A local visible real-pointer/keyboard run of the exact reported compound request showed three evidence-matched Minigolf cards with loaded, explicitly fixture-attributed images, continued by real click to two plausible Shopping sources with loaded images and explicit stock-unverified copy; the unrelated fashion-store counterexample stayed absent. Public visible CUA, commit, immutable deployment, byte comparison and final rollback record remain required before this candidate can be accepted**.
+- Acceptance state: **full Safe Regression 147/147 PASS and NFR foundation 3/3 PASS. A local visible real-pointer/keyboard run of the exact reported compound request showed three evidence-matched Minigolf cards, continued by real click to two plausible Shopping sources with explicit stock-unverified copy; the unrelated fashion-store counterexample stayed absent. Because the deterministic fixture has no exact provider photos, all five cards use the compact no-photo treatment with no media block and no approximate substitute. Public visible CUA, immutable deployment, byte comparison and final rollback record remain required before this candidate can be accepted**.
 - Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
 
 ## M16.5 Places Evidence Breadth Repair — Stable Integration Release 13.82.130 / rejected after specific-subject counterevidence

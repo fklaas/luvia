@@ -3,7 +3,7 @@
 const VERSION='4.56.0-open-vocabulary-evidence-gate';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
-  mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
+  mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
   beach_supplies:{category:'shopping',label:'mögliche Einkaufsorte für Strand- und Badesachen',patterns:[/luftmatrat/i,/pool[ -]?float/i,/inflatable/i,/schwimmring/i,/badespielzeug/i,/strandspielzeug/i,/beach suppl/i],queries:['Strandbedarf Geschäft','Badespielzeug Geschäft','Beach supplies shop','Surf shop','Sporting goods store'],match:/strandbedarf|badespielzeug|strandspielzeug|beach[ _-]?(?:suppl|shop)|surf[ _-]?shop|sporting[ _-]?goods|outdoor[ _-]?(?:shop|store)|camping[ _-]?(?:shop|store)|spielwaren|toy[ _-]?store|department[ _-]?store|supermarket|hypermarket/i,exclude:/hotel|lodging|unterkunft|restaurant|cafe|bakery|bäckerei/i,niche:true,specificEvidence:true,fulfillmentMode:'retail',requiresInventoryVerification:true},
   skydiving:{category:'activities',label:'Fallschirmspringen',patterns:[/fallschirm/i,/skydiv/i,/tandemsprung/i,/parachut/i,/bodyflying/i,/windtunnel/i],queries:['Fallschirmspringen','Tandemsprung','Skydiving','Fallschirmsprung','Indoor Skydiving','Bodyflying'],match:/fallschirm|skydiv|tandemsprung|parachut|bodyflying|windtunnel|freefall/i,exclude:/tierpark|zoo|museum|trampolin|superfly(?!.*skydiv)/i,niche:true},
   swimming:{category:'activities',label:'Schwimmen',patterns:[/schwimm/i,/baden/i,/badesee/i,/pool/i,/wasserpark/i],queries:['Schwimmbad','Hallenbad','Freibad','Badesee','Therme','Wasserpark','Aquatic Center'],match:/schwimm|hallenbad|freibad|therme|badesee|wasserpark|aquatic|pool/i,niche:false},
@@ -33,6 +33,7 @@ function evidenceContract(goalText='',categoryKey='',plan={},destination=''){
 }
 function matchesEvidenceContract(place={},contract={},intent={}){
   const hay=providerEvidenceText(place),normalized=fold(hay),hayTokens=new Set(words(hay).flatMap(token=>[token,stem(token)]));
+  if(intent.typeMatch){const typeEvidence=[place?.primaryType,place?.primary_type,place?.primaryTypeLabel,place?.primary_type_label,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(clean).filter(Boolean).join(' ');return intent.typeMatch.test(typeEvidence)}
   if(intent.match)return intent.match.test(hay);
   if(!contract.strict)return true;
   const strong=(contract.expandedTerms||[]).filter(term=>term.length>=4&&!BROAD_EVIDENCE_TERMS.has(term));

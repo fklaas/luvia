@@ -24,11 +24,13 @@ const contracts=sandbox.LuviaGlobalPlaceContracts;
 const petersens={id:'hotel-pool',providerPlaceId:'hotel-pool',name:"Petersen's Landhaus Scharbeutz",types:['Hotel','Lodging Business','Swimming Pool'],providerNativeTypes:['Hotel','Hotel Pool and Swimming Pool']};
 const miniatureGolf={id:'mini-golf',providerPlaceId:'mini-golf',name:'Küsten Adventure Golf',types:['tourist_attraction','Miniature Golf Course'],providerNativeTypes:['Miniature Golf Course']};
 const hotelWithRealCourse={id:'resort-golf',providerPlaceId:'resort-golf',name:'Resort Adventure Golf',types:['hotel','tourist_attraction','Miniature Golf Course'],providerNativeTypes:['Hotel','Miniature Golf Course']};
+const restaurantNameOnly={id:'restaurant-name-only',providerPlaceId:'restaurant-name-only',name:'Imbiss da Gino Pizzeria Minigolf',types:['restaurant','Dining and Drinking'],providerNativeTypes:['Dining and Drinking']};
 
 assert.equal(contracts.intentFor('Minigolf in Scharbeutz finden · Optionen ansehen','activities').key,'mini_golf');
 assert.equal(contracts.accepts(petersens,'activities','Minigolf in Scharbeutz finden · Optionen ansehen',{}),false,'a hotel pool must never satisfy a concrete mini-golf wish');
 assert.equal(contracts.accepts(miniatureGolf,'activities','Minigolf in Scharbeutz finden · Optionen ansehen',{}),true,'provider-native miniature-golf evidence must satisfy the concrete wish');
 assert.equal(contracts.accepts(hotelWithRealCourse,'activities','Minigolf in Scharbeutz finden',{}),true,'a mixed-use property remains eligible when the concrete requested amenity is actually evidenced');
+assert.equal(contracts.accepts(restaurantNameOnly,'activities','Minigolf in Scharbeutz finden',{}),false,'a name-only mention must not override a contradictory provider category');
 
 const openVocabularyPlan={searchPlans:[{query:'Climbing park high ropes course',includedTypes:['amusement_park'],weight:1}]};
 const climbingContract=contracts.evidenceContract('Kletterpark für Kinder finden','activities',openVocabularyPlan,'Scharbeutz');
@@ -82,6 +84,13 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
   assert.equal(retail.plan.route.category,'shopping','the fulfillment route must change from generic activity to relevant retail discovery');
   assert.equal(retail.evidenceContract.requiresInventoryVerification,true);
   assert.equal(calls.some(call=>call.type==='shopping'),true,'the public owner adapter must route product-source discovery to the shopping provider route');
+
+  sandbox.LuviaPlaceEntities={searchPlaces:async options=>({data:{places:[
+    {...miniatureGolf,id:'near',providerPlaceId:'near',name:'Mini Golf',distanceMeters:280},
+    {...miniatureGolf,id:'far',providerPlaceId:'far',name:'Minigolf Timmendorfer Strand',distanceMeters:3900}
+  ],providers:{requested:['foursquare'],used:['foursquare'],errors:[]}}})};
+  const distanceRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf direkt in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:2,queryVariantLimit:1,fastPath:true});
+  assert.deepEqual(Array.from(distanceRanked.places,place=>place.providerPlaceId),['near','far'],'owner distance must outrank a farther otherwise-equivalent candidate');
 
   assert.match(actionSource,/Die Quelle belegt den passenden Geschäftstyp, aber keinen aktuellen Warenbestand/);
   assert.match(actionSource,/inventoryVerificationRequired:requiresInventoryVerification/);

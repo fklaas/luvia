@@ -97,9 +97,8 @@ assert.equal(projectedPlace.spatialConstraint.requested.avoid.includes('waterfro
   assert.match(platformAdapter,/transient:true/);
   assert.doesNotMatch(dashboard,/Für diesen Ort ist noch kein verlässliches Foto verfügbar/,'missing media must not consume the card with a decorative pseudo-photo');
   assert.match(dashboard,/data-ai-place-media=/,'a provider result without trustworthy media must use the compact card and map treatment');
-  assert.match(fixture,/Kontrollierte E2E-Bildreferenz · kein Provider-Foto/,'fixture media must never be represented as provider evidence');
-  assert.match(fixture,/'fixture-surf-shop':/,'the visible shopping continuation must exercise a real media surface instead of a placeholder');
-  assert.match(fixture,/'fixture-beach-store':/,'every accepted shopping fixture result must have truthful visible media');
+  assert.doesNotMatch(fixture,/Kontrollierte E2E-Bildreferenz|prototype-coast-bike|book-family-beach/,'the product fixture must not substitute approximate Landing imagery for an exact Place photo');
+  assert.match(fixture,/window\.__fixtureImages=\{\}/,'the deterministic fixture must exercise the compact no-photo treatment when no exact provider image exists');
   assert.match(fixture,/rejectedProviderPlaceIds/,'visible fixture must exercise session diversity input');
 
   console.log('M16.5 Step 15 Places spatial intent, diversity, provider media and stable markers: PASS');

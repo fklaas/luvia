@@ -113,9 +113,14 @@ function deterministicAssessment(place,options,discoveryRoute){
   if(place.currentOpeningHours?.openNow===true||place.openNow===true)score+=10;
   if(place.formattedAddress||place.address)score+=5;
   const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
+  const distance=Number(place.distanceMeters),distanceReasons=[];
+  if(Number.isFinite(distance)&&distance>=0){
+    score+=distance<=500?28:distance<=1500?22:distance<=5000?13:distance<=12000?4:-Math.min(24,Math.round((distance-12000)/2500));
+    if(distance<=1500)distanceReasons.push(`Der Ort liegt mit ${Math.max(1,Math.round(distance))} Metern besonders nah am gewählten Reiseziel.`);
+  }
   return{
     score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0),
-    reasons:[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[])])],
+    reasons:[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[]),...distanceReasons])],
     spatial:relevance.spatial||null
   };
 }
