@@ -26,10 +26,14 @@
 (()=>{'use strict';
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   try{
-    const route=LuviaTravelOrchestrationCoreV1.compileIntent('ich will eine andere reise auswählen',{online:false}),intent=route.intents[0];
-    if(intent?.ownerContract!=='trip.v1'||route.ownerRoutes.includes('places.v1'))throw new Error('Der Satz wurde nicht eindeutig zu Trip geroutet.');
+    const route=LuviaTravelOrchestrationCoreV1.compileDialogue('ich will eine andere reise auswählen',{
+      confidence:.97,
+      goals:[{type:'journey',label:'Andere Reise auswählen',hardConstraints:[{key:'operation',value:'switch',label:'Reise wechseln'},{key:'tripRef',value:'another',label:'andere Reise'}]}],
+      followUpQuestion:{text:'Bitte ergänze Datum und Uhrzeit.',reason:'kontrolliertes falsches Modellfeld'}
+    },{online:true}),intent=route.intents[0];
+    if(route.status!=='compiled'||intent?.ownerContract!=='trip.v1'||intent?.mode!=='read'||intent?.missingInputs?.length||route.ownerRoutes.includes('places.v1')||route.ownerRoutes.includes('journey.v1'))throw new Error('Der Satz wurde nicht sicher zur Reiseauswahl geroutet.');
     document.getElementById('semantic-owner').textContent='Reisen';
-    document.getElementById('semantic-detail').textContent='trip.v1 liest die verfügbaren Reisen · Places wird nicht aufgerufen';
+    document.getElementById('semantic-detail').textContent='trip.v1 liest die verfügbaren Reisen · kein Datum nötig · Places und Journey werden nicht aufgerufen';
     const examples=[
       {label:'Restaurant',name:'Seeblick',primaryType:'restaurant',reservable:true},
       {label:'Kultur',name:'Küstenmuseum',primaryType:'museum',ticketRequired:true,ticketUrl:'https://museum.example/tickets'},

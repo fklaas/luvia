@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "13.82.136";
+  const VERSION = "13.82.137";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",

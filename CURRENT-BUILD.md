@@ -20,13 +20,22 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.136**
-- Core: **4.82.136**
-- Name: **M16.5 Block 1 Semantic AI Universal Admission**
+- App: **13.82.137**
+- Core: **4.82.137**
+- Name: **M16.5 Block 1 Trip Selection Semantic Repair**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Trip Selection Semantic Repair — Local Integration Candidate 13.82.137
+
+- Runtime target: **App 13.82.137 / Core 4.82.137 / cache `luvia-shell-v13.82.137` / Integration only**.
+- Public counterevidence on `.136`: **`Ich will eine andere Reise auswählen.` reached the Trip wording but a structured model misclassified the control as a Journey task and the consumer incorrectly asked for date and time. No mutation occurred**.
+- Repair: **structured `switch/select trip` operations are now constrained to the Trip owner even when a model labels the goal generically as `journey`; generic references such as `another` remain reads that list the available trips rather than pretending to identify or mutate one**.
+- Visible local evidence: **the semantic/admission fixture injects that exact high-confidence wrong model shape and proves `trip.v1`, read mode, zero missing date/time fields, no Places/Journey call, zero console errors and no horizontal overflow at 390×844**.
+- Release state: **candidate only. Commit, clean archive, immutable URL, Stable bytes, real public reread and exact `.136` rollback will be recorded only after the full regression and public acceptance pass**.
+- Scope lock: **no DB, RLS, Secret, Provider, Booking Edge, Main or Production change belongs to this repair slice**.
 
 ## M16.5 Block 1 Semantic AI / Universal Admission / Hotel Live Price — Stable Integration Slice 13.82.136
 
