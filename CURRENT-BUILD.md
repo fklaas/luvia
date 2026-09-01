@@ -20,13 +20,24 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.126**
-- Core: **4.82.126**
+- App: **13.82.127**
+- Core: **4.82.127**
 - Name: **M16.5 Owner-first Intelligence USP Slices**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Places Provider Truth — Integration Candidate 13.82.127
+
+- Runtime target: **App 13.82.127 / Core 4.82.127 / cache `luvia-shell-v13.82.127` / Integration only**.
+- Block-1 scope: **P02 Places Provider Readiness and P03 positive public AI Places search: Google/Foursquare fallback truth, provider-specific attribution, real freshness/cache/distance projection, spatial and privacy constraints, fair bounded multi-category results and honest all-provider failure**.
+- Owner boundary: **the existing `intelligence.v1` remains the single orchestrator; `places.v1` remains owner of Places facts and mutations. No second Intelligence or Places owner is introduced**.
+- Mutation boundary: **this candidate changes no owner mutation protocol. Favorite/Unfavorite and Plan/Unplan remain the next Block-1 slices and must still use Preview → explicit confirmation → public Owner Command → Receipt → Recovery → separately confirmed Undo/compensation**.
+- Provider truth: **an empty owner response with provider errors becomes a visible provider-unavailable failure, never a false zero-result success. Provider payloads and secrets are not exposed; exact position reaches a provider only after an explicit provider-share grant**.
+- Candidate evidence: **full Safe Regression 140/140 PASS including NFR-0 3/3. Public positive Provider CUA, immutable deployment, Stable/Immutable byte provenance and release IDs are not claimed until separately verified**.
+- Planned rollback: **return Integration 100% to immutable `.126` version `df05650e-7776-4282-ac27-78efea65792c`; code/assets only, no data rollback**.
+- Scope lock: **Main, Production, DB/RLS, Secrets and Edge Functions unchanged and unauthorized**.
 
 ## M16.5 Owner-first Intelligence USP Slices — Stable Integration Release 13.82.126
 

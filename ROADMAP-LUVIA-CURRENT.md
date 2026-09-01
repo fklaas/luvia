@@ -156,8 +156,11 @@ outputs and release gates:
 The binding execution order, slice Definition of Done and live status/ownership
 ledgers are now defined in
 `docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md`,
+`docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md`,
 `docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv` and
-`docs/modularization/M16.5-CORE-OWNER-MATRIX.csv`. Work proceeds through closed
+`docs/modularization/M16.5-CORE-OWNER-MATRIX.csv`. The subordinate fifty-point
+plan preserves the stable 18-step numbering and groups its work as `B1`–`B5`.
+Work proceeds through closed
 vertical outcomes: Places continuity, public Landing/real Auth, Profile
 onboarding, First-Trip Composer, Places Golden Slice, Booking, Today/Journey and
 Media/Memories. The accepted Living Compass is frozen after the user-confirmed

@@ -12,6 +12,10 @@ const coordinateNumber=value=>{
   return Number.isFinite(normalized)?normalized:null;
 };
 const providerId=value=>clean(value).replace(/^places\//,'');
+const httpsUrl=value=>{const url=clean(value);return /^https:\/\//i.test(url)?url:null};
+const providerRefsProjection=value=>Object.freeze(Object.fromEntries(Object.entries(value&&typeof value==='object'?value:{}).slice(0,6).map(([key,id])=>[clean(key).toLowerCase().slice(0,40),providerId(id).slice(0,180)]).filter(([key,id])=>key&&id)));
+const evidenceProjection=value=>Object.freeze((Array.isArray(value)?value:[]).slice(0,8).map(item=>Object.freeze({provider:clean(item?.provider).toLowerCase().slice(0,40)||'unknown',kind:clean(item?.kind).toLowerCase().slice(0,80)||'place-fact'})));
+const photoProjection=value=>Object.freeze((Array.isArray(value)?value:[]).slice(0,3).map(item=>{const author=item?.authorAttributions?.[0]||{};return Object.freeze({name:clean(item?.name).slice(0,240)||null,uri:httpsUrl(item?.uri||item?.url||item?.photoUri),widthPx:number(item?.widthPx||item?.width),heightPx:number(item?.heightPx||item?.height),attribution:clean(item?.attribution||author?.displayName).slice(0,180)||null,attributionUrl:httpsUrl(item?.attributionUrl||author?.uri),sourceUrl:httpsUrl(item?.sourceUrl||item?.googleMapsUri)});}));
 const immutable=value=>{
   if(value==null||typeof value!=='object')return value;
   if(Array.isArray(value))return Object.freeze(value.map(immutable));
@@ -113,9 +117,18 @@ function projectDetails(input){
     businessStatus:clean(source.businessStatus||source.business_status)||null,
     features:source.features&&typeof source.features==='object'?source.features:{},
     accessibilityOptions:source.accessibilityOptions&&typeof source.accessibilityOptions==='object'?source.accessibilityOptions:{},
-    providerRefs:source.providerRefs&&typeof source.providerRefs==='object'?source.providerRefs:{},
+    provider:clean(source.provider||source.source).toLowerCase()||null,
+    source:clean(source.source).toLowerCase()||null,
+    providerRefs:providerRefsProjection(source.providerRefs),
+    providerEvidence:evidenceProjection(source.evidence||source.providerEvidence),
+    providerNativeTypes:[...(source.providerNativeTypes||[])].map(String).slice(0,50),
     providerObservedAt:clean(source.providerObservedAt)||null,
+    ownerObservedAt:clean(source.ownerObservedAt)||null,
     providerFactsCached:source.providerFactsCached===true,
+    providerReadiness:clean(source.providerReadiness)||null,
+    distanceMeters:number(source.distanceMeters),
+    distanceSource:clean(source.distanceSource)||null,
+    photos:photoProjection(source.photos),
     discoveryQueries:[...(source.discoveryQueries||[])].map(String),
     spatialConstraint:source.spatialConstraint&&typeof source.spatialConstraint==='object'?source.spatialConstraint:null,
     aiMatchScore:number(source.aiMatchScore),

@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.0.0';
+  const RUNTIME_VERSION='1.1.0-provider-truth';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -22,6 +22,14 @@
   function command(name){const api=commands(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPlaceCommands.${name}`);return fn.bind(api)}
   function visit(){const api=window.LuviaPresenceVisitCore;if(typeof api?.confirmVisit!=='function')unavailable('LuviaPresenceVisitCore.confirmVisit');return api}
   const clean=value=>value==null?null:String(value);
+  const httpsUrl=value=>{const url=clean(value)?.trim()||'';return /^https:\/\//i.test(url)?url:null};
+  function photoProvider(source={},photo={}){
+    const signature=`${photo?.name||''} ${photo?.uri||photo?.url||''} ${source?.provider||''} ${source?.source||''}`.toLowerCase();
+    if(/foursquare|4sqi|fsq:/.test(signature))return'Foursquare';
+    if(/google|places\/.+\/photos\//.test(signature))return'Google Maps';
+    if(String(source?.provider||'').toLowerCase()==='multi')return'Mehrere Places-Provider';
+    return'Places Provider';
+  }
   const freezeArray=items=>Object.freeze(items);
   const number=value=>value==null||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
   const placeProjection=input=>domain().projectPlace(input);
@@ -72,25 +80,27 @@
     });
   }
   async function getCard(placeId,options={}){
-    const response=await gateway().details(placeId,options||{});
-    const source=response?.data?.place||response?.data||response;
+    const seeded=options?.source||options?.place||null,seedId=clean(seeded?.providerPlaceId||seeded?.id)?.replace(/^places\//,''),requestedId=clean(placeId)?.replace(/^places\//,'');
+    const {source:_source,place:_place,...detailOptions}=options||{},response=seeded&&seedId===requestedId?null:await gateway().details(placeId,detailOptions);
+    const source=response?.data?.place||response?.data||response||seeded;
     const place=detailsProjection(source);
     if(!place)return Object.freeze({place:null,image:null});
     const photo=Array.isArray(source?.photos)?source.photos[0]:null;
     const author=photo?.authorAttributions?.[0]||{};
-    let url=clean(photo?.uri||photo?.url||photo?.photoUri),attribution=clean(photo?.attribution||author.displayName);
+    const provider=photoProvider(source,photo),providerSource=httpsUrl(photo?.sourceUrl||photo?.googleMapsUri||source?.mapsUrl||source?.googleMapsUri);
+    let url=httpsUrl(photo?.uri||photo?.url||photo?.photoUri),attribution=clean(photo?.attribution||author.displayName);
     if(!url&&photo?.name&&typeof gateway().photo==='function'){
       try{
         const resolved=await gateway().photo(photo.name,{maxWidthPx:Number(options.maxWidthPx||960),maxHeightPx:Number(options.maxHeightPx||720)});
-        url=clean(resolved?.data?.photoUri||resolved?.photoUri);
+        url=httpsUrl(resolved?.data?.photoUri||resolved?.photoUri);
       }catch{}
     }
     const image=url?Object.freeze({
       url,
-      attribution:attribution||null,
-      attributionUrl:clean(author.uri||photo?.googleMapsUri||source?.googleMapsUri)||null,
-      sourceUrl:clean(photo?.googleMapsUri||source?.googleMapsUri)||null,
-      provider:'Google Maps',
+      attribution:attribution||provider,
+      attributionUrl:httpsUrl(photo?.attributionUrl||author.uri),
+      sourceUrl:providerSource,
+      provider,
       transient:true,
       alt:place.name
     }):null;
@@ -113,7 +123,7 @@
   async function recommend(options={}){
     const response=await discovery().recommend(options||{});
     const places=freezeArray((response?.places||[]).map(source=>{const projected=detailsProjection(source);return projected?Object.freeze({...projected,recommendation:recommendationProjection(source)}):null}).filter(Boolean));
-    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null,diversityMeta:response?.diversityMeta?Object.freeze(response.diversityMeta):null});
+    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null,diversityMeta:response?.diversityMeta?Object.freeze(response.diversityMeta):null,providerDiagnostics:response?.providerDiagnostics?Object.freeze(response.providerDiagnostics):null});
   }
   function categories(){return domain().categories()}
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}

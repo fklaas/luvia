@@ -1,10 +1,23 @@
 (()=>{
 'use strict';
-const VERSION='1.7.0';
+const VERSION='1.8.0-provider-truth';
 const PROVIDER_CACHE_MS=180000;
 const providerCache=new Map();
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
+const providerName=value=>{const name=clean(value).toLowerCase();return name.startsWith('google')?'google':name.startsWith('foursquare')?'foursquare':name==='multi'?'multi':name||'unknown'};
+const safeProviderMeta=(value={},places=[])=>{
+  const requested=[...new Set((value.requested||[]).map(providerName).filter(name=>name!=='unknown'))],used=[...new Set((value.used||places.flatMap(place=>Object.keys(place.providerRefs||{}))).map(providerName).filter(name=>name!=='unknown'))],errors=(value.errors||[]).slice(0,4).map(error=>({provider:providerName(error?.provider),code:clean(error?.code||'PROVIDER_ERROR').slice(0,80)})),status=clean(value.status)||(places.length?(errors.length?'partial':'ready'):(errors.length?'unavailable':'empty'));
+  return{requested,used,errors,status,degraded:errors.length>0};
+};
+const destinationFingerprint=value=>{const source=value&&typeof value==='object'?value:{name:value},coordinates=source?.center||source?.location||source?.coordinates||{};return{id:clean(source?.id||source?.placeId),name:clean(source?.name||source?.displayName),countryCode:clean(source?.countryCode),latitude:Number.isFinite(Number(coordinates.latitude??coordinates.lat))?Number(coordinates.latitude??coordinates.lat):null,longitude:Number.isFinite(Number(coordinates.longitude??coordinates.lng))?Number(coordinates.longitude??coordinates.lng):null}};
+const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,query,destination:destinationFingerprint(options.destinationContext||options.trip||options.destination),strictDestination,providers:(options.providers||['google','foursquare']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+function aggregateProviderDiagnostics(attempts=[]){
+  const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
+  for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
+  const uniqueErrors=[...new Map(errors.map(error=>[`${error.provider}:${error.code}`,error])).values()].slice(0,8),status=used.size?(uniqueErrors.length?'partial':'ready'):(uniqueErrors.length?'unavailable':successfulAttempts?'empty':'unknown');
+  return{requested:[...requested],used:[...used],errors:uniqueErrors,status,degraded:uniqueErrors.length>0,successfulAttempts,cachedAttempts,attemptCount:attempts.length};
+}
 const uniquePlaces=items=>{
   const byId=new Map(),result=[];
   for(const place of items||[]){
@@ -106,18 +119,18 @@ async function recommend(options={}){
   const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
-  const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):(candidateLimit>20?5:3);
+  const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
   const requestedLimit=Math.min(20,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
   const hasEnoughCandidates=()=>uniquePlaces(candidates).length>=diversityTarget;
   const attempts=[];
   let lastError=null;
   const providerRequest=async(query,strictDestination)=>{
-    const cacheKey=[discoveryRoute.primaryType,discoveryRoute.includedType,query,clean(options.destination),strictDestination,(options.providers||['google','foursquare']).join(',')].join('|');
+    const cacheKey=cacheFingerprint(options,discoveryRoute,query,strictDestination);
     const cached=providerCache.get(cacheKey);
-    if(options.fastPath===true&&cached&&Date.now()-cached.loadedAt<PROVIDER_CACHE_MS){
-      const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],providerObservedAt:place.providerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true}));
-      return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,observedAt:new Date(cached.loadedAt).toISOString()}};
+    if(cached&&Date.now()-cached.loadedAt<PROVIDER_CACHE_MS){
+      const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],ownerObservedAt:place.ownerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true}));
+      return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers:cached.providers}};
     }
     try{
       const response=await window.LuviaPlaceEntities.searchPlaces({
@@ -129,18 +142,25 @@ async function recommend(options={}){
         maxResultCount:Math.min(20,Math.max(5,requestedLimit)),
         strictDestination,
         providers:options.providers||['google','foursquare'],
+        languageCode:options.languageCode||globalThis.document?.documentElement?.lang||'de',
+        regionCode:options.regionCode||'',
+        openNow:options.openNow===true,
+        minRating:options.minRating,
+        maxDistanceMeters:options.maxDistanceMeters,
+        sortBy:options.sortBy||'relevance',
         profileContext:options.profileContext||{},
         intentContext:{text:goal.text,category:goal.category,niche:Boolean(intent.niche),variants:plan.queries,aiPlan:plan.ai||null},
         spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,
         positionContext:options.positionContext||null,
         requestOptions:{timeoutMs:Number(options.providerTimeoutMs)||(options.fastPath===true?2400:12000)}
       });
-      const observedAt=new Date().toISOString();
-      const rawPlaces=(response?.data?.places||[]).map(place=>({...place,providerObservedAt:place.providerObservedAt||observedAt,providerFactsCached:false}));
-      providerCache.set(cacheKey,{places:rawPlaces,loadedAt:Date.now()});
+      const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
+      if(!(response?.data?.places||[]).length&&providers.errors.length)throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während mindestens ein Provider nicht erreichbar war.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
+      const rawPlaces=(response?.data?.places||[]).map(place=>({...place,ownerObservedAt,providerObservedAt:place.providerObservedAt||null,providerFactsCached:backendCached,providerReadiness:providers.status}));
+      if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now()});
       const places=rawPlaces.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query]}));
-      return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:false,observedAt}};
-    }catch(error){return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED'}}}
+      return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:backendCached,ownerObservedAt,providers}};
+    }catch(error){return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED',cached:false,providers:safeProviderMeta(error?.providerDiagnostics||{})}}}
   };
   const selectedQueries=plan.queries.slice(0,queryLimit);
   if(options.fastPath===true&&options.parallelFastQueries===true){
@@ -180,9 +200,9 @@ async function recommend(options={}){
     return{place:{...place,aiReasons:assessment.reasons,spatialConstraint:assessment.spatial},score:assessment.score};
   }).sort((left,right)=>right.score-left.score).map(entry=>entry.place);
   ranked=diverseOrder(ranked,selectedQueries,diversity.rotateAcrossQueries!==false);
-  const places=ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null}));
-  return{places,plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta,diversityMeta:{candidateCount:ranked.length,returnedCount:places.length,minimumQueryVariants,queriedVariants:attempts.filter(attempt=>attempt.ok).length,rotationAcrossQueries:diversity.rotateAcrossQueries!==false,rejectedProviderPlaceIds:rejected.size}};
+  const places=ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null})),providerDiagnostics=aggregateProviderDiagnostics(attempts);
+  return{places,plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta,providerDiagnostics,diversityMeta:{candidateCount:ranked.length,returnedCount:places.length,minimumQueryVariants,queriedVariants:attempts.filter(attempt=>attempt.ok).length,rotationAcrossQueries:diversity.rotateAcrossQueries!==false,rejectedProviderPlaceIds:rejected.size,providerStatus:providerDiagnostics.status}};
 }
-function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:3,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:60,breadthUsesUniquePlaces:true,minDeepQueryVariants:3,rotatesAcrossQueryVariants:true,spatialConstraints:true,maxQueryVariants:5,deviceLocationSource:'injected-context-only'}}
+function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:3,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:60,breadthUsesUniquePlaces:true,minDeepQueryVariants:3,chatQueryVariants:3,rotatesAcrossQueryVariants:true,spatialConstraints:true,maxQueryVariants:5,providerTruth:true,providerFailureCache:false,deviceLocationSource:'explicit-provider-share-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});
 })();

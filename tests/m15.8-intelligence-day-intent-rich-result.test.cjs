@@ -9,7 +9,7 @@ vm.createContext(sandbox);
 vm.runInContext(source,sandbox);
 const contract=sandbox.LuviaIntelligenceActionContractCoreV1;
 
-assert.equal(contract.runtimeVersion,'1.4.0');
+assert.equal(contract.runtimeVersion,'1.5.0-provider-truth');
 for(const prompt of [
   'Plane einen entspannten Tag für mich',
   'Plane uns einen ruhigen Tag am Meer',

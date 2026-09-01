@@ -88,7 +88,7 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.0.0');
+assert.strictEqual(api.runtimeVersion,'1.1.0-provider-truth');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
 assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
@@ -121,7 +121,8 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(details.userRatingCount,123);
   assert.strictEqual(details.website,'https://example.test');
   assert.strictEqual(details.openNow,true);
-  assert.strictEqual(details.photos,undefined,'provider photo rows must not leak');
+  assert(Object.isFrozen(details.photos),'bounded provider photo projections must be immutable');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(details.photos)),[{name:'private-photo',uri:null,widthPx:null,heightPx:null,attribution:null,attributionUrl:null,sourceUrl:null}]);
   assert.strictEqual(details.providerRaw,undefined,'raw provider detail payload must not leak');
   assert(Object.isFrozen(details.types));
 

@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.4.0';
+const RUNTIME_VERSION='1.5.0-provider-truth';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -121,9 +121,11 @@ function normalizeActionOffer(value={}){
   });
 }
 function normalizeImage(value={}){
-  const url=text(value.url||value.uri||value.imageUrl);
-  return url?immutable({url,attribution:text(value.attribution)||null,alt:text(value.alt)||null}):null;
+  const safeUrl=input=>{const url=text(input);return /^https:\/\//i.test(url)?url:null},url=safeUrl(value.url||value.uri||value.imageUrl);
+  return url?immutable({url,attribution:text(value.attribution)||null,alt:text(value.alt)||null,provider:text(value.provider)||null,sourceUrl:safeUrl(value.sourceUrl),attributionUrl:safeUrl(value.attributionUrl),transient:value.transient===true}):null;
 }
+function normalizeProviderRefs(value={}){return Object.fromEntries(Object.entries(value&&typeof value==='object'?value:{}).slice(0,6).map(([provider,id])=>[text(provider).toLowerCase().slice(0,40),text(id).replace(/^places\//,'').slice(0,180)]).filter(([provider,id])=>provider&&id))}
+function normalizeProviderEvidence(value=[]){return(Array.isArray(value)?value:[]).slice(0,8).map(item=>({provider:text(item?.provider,'unknown').toLowerCase().slice(0,40),kind:text(item?.kind,'place-fact').toLowerCase().slice(0,80)}))}
 function normalizeCoordinates(value={}){
   const source=value?.coordinates||value?.location||value||{},latitude=Number(source.latitude??source.lat),longitude=Number(source.longitude??source.lng);
   if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
@@ -142,6 +144,7 @@ function normalizePlace(value={}){
     id:text(value.id,providerPlaceId),providerPlaceId,name:text(value.name,'Unbenannter Ort'),description:text(value.description),address:text(value.address||value.formattedAddress),
     primaryType:text(value.primaryType||value.primary_type,'restaurant'),rating:finite(value.rating,0,5),userRatingCount:finite(value.userRatingCount||value.user_rating_count,0,Number.MAX_SAFE_INTEGER,0),
     priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),spatialConstraint:normalizeSpatialConstraint(value.spatialConstraint||{}),
+    provider:text(value.provider||value.source).toLowerCase()||null,providerRefs:normalizeProviderRefs(value.providerRefs),providerEvidence:normalizeProviderEvidence(value.providerEvidence||value.evidence),providerObservedAt:text(value.providerObservedAt)||null,ownerObservedAt:text(value.ownerObservedAt)||null,providerFactsCached:value.providerFactsCached===true,providerReadiness:text(value.providerReadiness)||null,distanceMeters:finite(value.distanceMeters,0,1000000),distanceSource:text(value.distanceSource)||null,types:unique(value.types,50),providerNativeTypes:unique(value.providerNativeTypes,50),requestCategory:text(value.requestCategory)||null,
     reasons:unique(value.reasons||value.aiReasons,4),unknowns:unique(value.unknowns||value.aiUnknowns,3),actions
   });
 }

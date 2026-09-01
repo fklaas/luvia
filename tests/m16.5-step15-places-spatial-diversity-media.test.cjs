@@ -90,7 +90,10 @@ assert.equal(projectedPlace.spatialConstraint.requested.avoid.includes('waterfro
   assert.doesNotMatch(markerBlock,/(?:^|;)\s*transform\s*:/m,'the animated child marker may not overwrite MapLibre positioning');
 
   assert.match(platformAdapter,/Array\.isArray\(source\?\.photos\)\?source\.photos\[0\]/,'Places cards must resolve the exact first provider photo only through places.v1');
-  assert.match(platformAdapter,/provider:'Google Maps'/);
+  assert.match(platformAdapter,/function photoProvider\(/);
+  assert.match(platformAdapter,/return'Foursquare'/,'Foursquare media must retain its real provider attribution');
+  assert.match(platformAdapter,/return'Google Maps'/,'Google media must retain its real provider attribution');
+  assert.doesNotMatch(platformAdapter,/provider:'Google Maps'/,'media attribution may not be hard-coded to Google for every provider');
   assert.match(platformAdapter,/transient:true/);
   assert.match(dashboard,/Kein Provider-Foto belegt/,'missing image evidence must be visible rather than replaced by an invented photo');
   assert.match(fixture,/Kontrollierte E2E-Bildreferenz · kein Provider-Foto/,'fixture media must never be represented as provider evidence');
