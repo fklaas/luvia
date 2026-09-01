@@ -68,9 +68,9 @@ vm.runInContext(preferenceSource,sandbox,{filename:'trip-preference-context-adap
   assert.match(assetsIgnoreSource,/^\/supabase$/m,'only the root backend source directory may be excluded from Worker assets');
   assert.match(assetsIgnoreSource,/^!vendor\/supabase\/\*\*$/m,'the runtime Supabase vendor bundle must be explicitly included in Worker assets');
   assert.doesNotMatch(assetsIgnoreSource,/^supabase$/m,'an unanchored Supabase ignore would also remove the required vendor runtime');
-  assert.match(runtimeLoaderSource,/identity-platform-web-adapter\.js[\s\S]*platform-port-adapters\.mjs[\s\S]*media-storage-web-adapter\.mjs[\s\S]*supabase-2\.112\.4\.js[\s\S]*luvia-runtime-precontext-13\.82\.127\.bundle\.js[\s\S]*luvia-trip-context\.js[\s\S]*luvia-runtime-postcontext-13\.82\.127\.bundle\.js/,'the physical ports and vendor boundary must be ready before Trip state, its web binding, and all product consumers execute in contract order');
+  assert.match(runtimeLoaderSource,/identity-platform-web-adapter\.js[\s\S]*platform-port-adapters\.mjs[\s\S]*media-storage-web-adapter\.mjs[\s\S]*supabase-2\.112\.4\.js[\s\S]*luvia-runtime-precontext-13\.82\.128\.bundle\.js[\s\S]*luvia-trip-context\.js[\s\S]*luvia-runtime-postcontext-13\.82\.128\.bundle\.js/,'the physical ports and vendor boundary must be ready before Trip state, its web binding, and all product consumers execute in contract order');
   assert.match(indexSource,/exifr@7\.1\.3\/dist\/full\.umd\.js" async/,'optional photo metadata parsing must not delay DOMContentLoaded or Today');
-  assert.match(indexSource,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.127" defer/,'the same-origin map renderer must preserve execution order without blocking HTML parsing');
+  assert.match(indexSource,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.128" defer/,'the same-origin map renderer must preserve execution order without blocking HTML parsing');
   const blockingLocalScripts=[...indexSource.matchAll(/<script\b([^>]*)\bsrc=["'](?!https?:\/\/)([^"']+)["']([^>]*)>/g)]
     .filter(match=>!/(?:^|\s)(?:async|defer)(?:\s|=|$)/.test(`${match[1]} ${match[3]}`)&&!/\btype=["']module["']/.test(`${match[1]} ${match[3]}`));
   assert.equal(blockingLocalScripts.length,0,'the shell must not serialize hundreds of same-origin scripts before first paint');

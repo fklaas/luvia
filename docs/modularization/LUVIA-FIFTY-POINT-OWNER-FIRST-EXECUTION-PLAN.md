@@ -32,6 +32,26 @@ Every mutation remains:
 
 `Preview → explicit confirmation → public Owner Command → Owner Receipt → Recovery → separately confirmed Undo/compensation`
 
+Consumer-ready acceptance is binding from **Block 1 onward**, including every
+later P- and S16-slice. Internal contract names, Owner identifiers, action IDs,
+ledger terminology, slice numbers, source counters and raw provider errors stay
+available to diagnostics and evals but are not normal product copy. The bright
+consumer must instead show:
+
+- the user goal and the next understandable step;
+- source-backed results, relevant freshness and uncertainty in plain language;
+- a concrete retry, refinement or manual alternative when a read fails;
+- preview, consequence, confirmation, completion and `Rückgängig machen` in
+  ordinary product language for mutations;
+- optional `Warum passt das zu dir?` explanations rather than an open technical
+  trace occupying the conversation;
+- no visible placeholder, reservation or “foundation-only” capability that the
+  user cannot already operate.
+
+A technically green Core, adapter, fixture or eval is therefore necessary but
+not sufficient. A slice is complete only after its real consumer is visibly
+operable and its failure mode is equally understandable.
+
 The following remain forbidden without separate explicit authorization:
 
 - Main or Production changes;
@@ -50,6 +70,26 @@ blocks are `B1`–`B5`. They are distinct from the stable Redesign/Recovery Step
 ### B1 — Productive AI Chat and first real agency (P01–P10)
 
 Status: **ACTIVE**
+
+Current truthful position on 2026-09-01:
+
+- P02/P03 remain **OPEN** until the `.128` consumer is publicly operated. The
+  explicitly authorized `luvia-gateway` v114 now requests current Foursquare
+  fields and maps top-level `latitude`/`longitude`; a temporary, bounded,
+  fixed read-only probe proved one live Foursquare result and was removed before
+  the final v114 deployment. Google Places still reports exhausted daily quota.
+  The local AI owner path additionally reuses Trip-owned resolved geography so
+  that it does not spend a failing Google geocode before reaching Foursquare.
+- The `.128` client candidate has a user-gesture GPS gate: boot and reload
+  perform zero device reads and zero watches; one real visible click starts
+  exactly one owner watch. It is bundled and tested locally but not yet
+  committed or published.
+- The normal AI consumer now projects intent steps, read errors, planning
+  explanations, confirmations and receipts in product language. A real local
+  Pointer/Keyboard run proves the positive Trip read, optional explanation and
+  actionable Places failure state. The updated owner/destination path and real
+  positive public Places result still require the `.128` Integration release;
+  no public Block-1 completion is claimed yet.
 
 1. **P01 — Public `.126` baseline lock.** Retain App/Core/cache/SW versions, Stable,
    Immutable, byte provenance, rollback, known counterevidence and the untouched

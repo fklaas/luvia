@@ -20,13 +20,25 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.127**
-- Core: **4.82.127**
-- Name: **M16.5 Owner-first Intelligence USP Slices**
+- App: **13.82.128**
+- Core: **4.82.128**
+- Name: **M16.5 Block 1 Consumer-ready AI Places**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Consumer-ready AI Places — Integration Candidate 13.82.128
+
+- Runtime target: **App 13.82.128 / Core 4.82.128 / cache `luvia-shell-v13.82.128` / Integration only**.
+- Consumer language: **normal chat output explains the goal, results, next step, retry and optional rationale in product language. Owner IDs, slice numbers, ledger terms, raw provider errors and source counters remain in diagnostics and evals instead of occupying the customer conversation**.
+- Device-location boundary: **boot and reload do not start a browser geolocation read or watch. Only a visible user gesture starts one existing Location-owner watch; no second Location owner is introduced**.
+- Provider correction: **the authorized `luvia-gateway` v114 requests current Foursquare Places fields, maps top-level `latitude`/`longitude`, preserves a read-only legacy-coordinate fallback and bounds public diagnostics. A temporary fixed read-only diagnostic proved a live source-backed Foursquare result and was removed before v114**.
+- AI/Places continuity: **the existing Intelligence owner forwards Trip-owned destination context into the public Places discovery adapter. The adapter reuses an already resolved active destination before provider search, avoiding an unnecessary Google geocoding request and allowing the Foursquare fallback to run without inventing geography**.
+- Owner and mutation boundary: **`intelligence.v1` remains the sole orchestrator and `places.v1` remains owner of Places facts and mutations. No new mutation is added; writes still require Preview → explicit confirmation → public Owner Command → Receipt → Recovery → separately confirmed Undo/compensation**.
+- Current evidence: **focused browserless mapping and owner-continuity tests 6/6 PASS. Full Safe Regression, public pointer/keyboard acceptance, immutable deployment, Stable/Immutable byte provenance and release identifiers are still required before this candidate can be called complete**.
+- Edge rollback source: **redeploy the complete `supabase/functions/luvia-gateway` tree from source commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653` to return from v114 to the byte-equivalent pre-change v111 source; no Secret, DB or RLS rollback is involved**.
+- Scope lock: **Main, Production, Secrets and DB/RLS unchanged. The only authorized data-plane change is the Integration-used `luvia-gateway` function described above**.
 
 ## M16.5 Block 1 Places Provider Truth — Integration Candidate 13.82.127
 

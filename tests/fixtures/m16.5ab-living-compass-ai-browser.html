@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.127-ai">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.127-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.127-ai2">
-  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.127-ai">
-  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.127-ai">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.128-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.128-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.128-ai2">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.128-ai">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.128-ai">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
@@ -22,9 +22,9 @@
 <body>
   <main>
     <section>
-      <small>Luvia · sichere Owner-Orchestrierung</small>
+      <small>Luvia · sichtbarer Produkttest</small>
       <h1>Ein Satz.<br>Mehrere sichere Schritte.</h1>
-      <p>Diese Abnahme öffnet die echte, appweit verwendete Luvia-Compass-Oberfläche als helles Living Sheet. Sie führt Änderungen nur über die zuständigen Owner-Contracts aus.</p>
+      <p>Diese Abnahme öffnet die echte, appweit verwendete Luvia-Oberfläche als helles Living Sheet. Du kannst Wünsche ausprobieren, Vorschläge öffnen und Änderungen vor der Bestätigung prüfen.</p>
       <button type="button" data-ai-ask-open>Luvia Compass öffnen</button>
     </section>
   </main>
@@ -95,15 +95,15 @@
         window.__ownerCalls.push(['openPlace',options]);
         const place=options?.seedPlace||{},content=document.createElement('section');
         content.className='fixture-place-sheet';content.dataset.fixturePlaceSheet=place.providerPlaceId||place.id||'place';
-        content.innerHTML=`<span>Places Owner · verifizierter Fixture-Datensatz</span><h2>${place.name||options?.title||'Place'}</h2><p>${place.address||'Adresse nicht verfügbar'}</p><div class="fixture-actions"><button type="button">Zur Timeline hinzufügen</button><button type="button">Jetzt reservieren</button><button type="button" data-fixture-place-close>Schließen</button></div>`;
+        content.innerHTML=`<span>Geprüfter Ort</span><h2>${place.name||options?.title||'Ort'}</h2><p>${place.address||'Adresse nicht verfügbar'}</p><div class="fixture-actions"><button type="button">Zum Tag hinzufügen</button><button type="button">Jetzt reservieren</button><button type="button" data-fixture-place-close>Schließen</button></div>`;
         return window.LuviaUI.mount({name:`fixture.place.${place.providerPlaceId||place.id||'detail'}`,kind:'sheet',content,className:'fixture-place-overlay',closeSelector:'[data-fixture-place-close]',initialFocus:'[data-fixture-place-close]',label:`Details zu ${place.name||'Place'}`}).overlay;
       }
     };
     window.LuviaIntelligenceContractV1={
       reads:{planningTrace:input=>window.LuviaTravelOrchestrationCoreV1.planningTrace(input)},
-      ask:async request=>({data:{answer:`Ich habe verstanden: „${request}“. Places, Timeline und Booking werden getrennt geprüft; ändern darf ich erst nach deiner Bestätigung.`}}),
+      ask:async request=>({data:{answer:`Ich habe verstanden: „${request}“. Ich prüfe passende Orte, deinen Tagesplan und vorhandene Buchungen. Bevor ich etwas ändere, entscheidest du selbst.`}}),
       run:async(capability,input={})=>{
-        if(capability!=='planning.dialogue')return{data:{headline:'Luvia ist bereit.',message:'Die Cores bleiben Owner ihrer Daten.',highlights:[]},meta:{fallback:false}};
+        if(capability!=='planning.dialogue')return{data:{headline:'Luvia ist bereit.',message:'Deine Reiseinformationen bleiben geschützt und Änderungen brauchen deine Bestätigung.',highlights:[]},meta:{fallback:false}};
         const request=String(input.userGoal||''),english=/\bI\b|dinner|children/i.test(request),concrete=/13\.06\.2027|2027-06-13/.test(request);
         const goals=english?[
           {type:'meal',label:'A good dinner',hardConstraints:[{key:'familyContext',value:'true',label:'Suitable for children'}],softPreferences:[],timeWindow:null,source:'user'},
@@ -112,26 +112,26 @@
           {type:'meal',label:'Restaurant in Scharbeutz einplanen',hardConstraints:[{key:'operation',value:'plan',label:'Einplanen'},{key:'target',value:'restaurant',label:'Restaurant'}],softPreferences:[],timeWindow:{label:'13. Juni um 19 Uhr',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'},
           ...(/minigolf/i.test(request)?[{type:'activity',label:'Danach Minigolf spielen',hardConstraints:[{key:'activity',value:'minigolf',label:'Minigolf'}],softPreferences:[],timeWindow:null,source:'user'}]:[])
         ]:[{type:'place',label:request||'Orte entdecken',hardConstraints:[],softPreferences:[],timeWindow:null,source:'user'}];
-        return{data:{understanding:english?'Dinner first, then minigolf with the children.':request,goals,hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Wünsche erkannt',intro:'Die Schritte bleiben Owner-sicher.',goalLabels:goals.map(goal=>goal.label),hardLabels:[],softLabels:[]},unknowns:[],confidence:.94},meta:{fallback:false}};
+        return{data:{understanding:english?'Dinner first, then minigolf with the children.':request,goals,hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Wünsche erkannt',intro:'Du kannst jeden Schritt einzeln prüfen.',goalLabels:goals.map(goal=>goal.label),hardLabels:[],softLabels:[]},unknowns:[],confidence:.94},meta:{fallback:false}};
       }
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.127-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.127-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.127-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.127-ai"></script>
-  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.127-ai"></script>
-  <script src="core/places/places-domain-contract-core.js?v=13.82.127-ai"></script>
-  <script src="core/places/global-place-contracts.js?v=13.82.127-ai"></script>
-  <script src="app/places/places-spatial-composition-core.js?v=13.82.127-ai"></script>
-  <script src="app/places/places-spatial-experience.js?v=13.82.127-ai-event-map-state"></script>
-  <script src="core/journey/journey-resilience-core.js?v=13.82.127-ai"></script>
-  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.127-ai"></script>
-  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.127-ai"></script>
-  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.127-ai"></script>
-  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.127-ai-map"></script>
-  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.127-ai"></script>
-  <script src="core/ai/ai-action-runtime.js?v=13.82.127-ai"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.127-ai"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.128-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.128-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.128-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.128-ai"></script>
+  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.128-ai"></script>
+  <script src="core/places/places-domain-contract-core.js?v=13.82.128-ai"></script>
+  <script src="core/places/global-place-contracts.js?v=13.82.128-ai"></script>
+  <script src="app/places/places-spatial-composition-core.js?v=13.82.128-ai"></script>
+  <script src="app/places/places-spatial-experience.js?v=13.82.128-ai-event-map-state"></script>
+  <script src="core/journey/journey-resilience-core.js?v=13.82.128-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.128-ai"></script>
+  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.128-ai"></script>
+  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.128-ai"></script>
+  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.128-ai-map"></script>
+  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.128-ai"></script>
+  <script src="core/ai/ai-action-runtime.js?v=13.82.128-ai-product-language"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.128-ai-product-language"></script>
 </body>
 </html>

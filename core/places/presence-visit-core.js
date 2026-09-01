@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.3.0';
+const VERSION='4.3.1-user-gesture-gate';
 const CONFIG={nearbyMeters:150,arrivalMeters:80,minStaySeconds:300,minSamples:3,leaveMeters:180,maxAccuracyMeters:100,maximumAge:15000,timeout:20000};
 const platformPort=id=>globalThis.LuviaPlatformPorts?.get?.(id)||null;
 const sessions=new Map();let visits=[],watchId=null,enabled=false,permission='unknown',lastPosition=null;
@@ -39,7 +39,7 @@ async function confirmVisit(placeId,patch={}){const place=window.LuviaPlaceCore?
 async function rejectVisit(visitId,reason='Nicht als Besuch übernehmen'){const pending=visits.find(item=>item.id===visitId&&item.state==='pending_confirmation');if(!pending)throw new Error('Der bestätigungspflichtige Besuch wurde nicht gefunden.');metrics.rejected++;const visit={...pending,state:'rejected',isConfirmed:false,correction:{...(pending.correction||{}),confirmationRequired:false,rejectedAt:now(),reason}};visits=visits.filter(item=>item.id!==visit.id).concat(visit);await persistVisit(visit);await emit('luvia:place-visit-rejected',{visit:clone(visit),placeId:visit.placeId});return visit}
 function pendingVisits(){return visits.filter(item=>item.state==='pending_confirmation').map(clone)}
 async function flush(){for(const visit of visits){try{await persistVisit(visit)}catch(e){metrics.errors++;metrics.lastError=e.message}}return diagnostics()}
-async function init(){await hydrateVisits().catch(e=>{metrics.errors++;metrics.lastError=e.message;visits=[];});try{permission=await platformPort('PermissionPort')?.query?.('geolocation')||'unknown'}catch{permission='unknown'}if(profileSetting()&&permission!=='denied')setTimeout(()=>start().catch(()=>{}),500);return diagnostics()}
-function diagnostics(){return{version:VERSION,cloudAuthoritative:true,localPersistence:false,status:'ready',global:true,preferenceEnabled:profileSetting(),enabled,permission,config:CONFIG,lastPosition,activeSessions:[...sessions.values()].map(clone),visits:visits.slice(-20),metrics:{...metrics},trackedPlaces:places().length,placeTypes:[...new Set(places().map(p=>p.primaryType))]}}
+async function init(){await hydrateVisits().catch(e=>{metrics.errors++;metrics.lastError=e.message;visits=[];});try{permission=await platformPort('PermissionPort')?.query?.('geolocation')||'unknown'}catch{permission='unknown'}if(profileSetting()&&permission!=='denied')await emit('luvia:gps-resume-required',{enabled:false,preferenceEnabled:true,permission,userGestureRequired:true});return diagnostics()}
+function diagnostics(){return{version:VERSION,cloudAuthoritative:true,localPersistence:false,status:'ready',global:true,preferenceEnabled:profileSetting(),enabled,permission,resumeRequired:profileSetting()&&!enabled&&permission!=='denied',userGestureRequired:!enabled,config:CONFIG,lastPosition,activeSessions:[...sessions.values()].map(clone),visits:visits.slice(-20),metrics:{...metrics},trackedPlaces:places().length,placeTypes:[...new Set(places().map(p=>p.primaryType))]}}
 window.LuviaPresenceVisitCore=Object.freeze({version:VERSION,init,hydrateVisits,start,stop,setGlobalEnabled,refreshLocation,flush,ingestPosition,pendingVisits,confirmVisit,rejectVisit,diagnostics,config:CONFIG});
 })();

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Luvia Block 1 · GPS User-Gesture Gate</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#153047;background:#eef7f6}
+    *{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 85% 10%,#f4ced7 0 8%,transparent 27%),linear-gradient(145deg,#eef8f6,#fff 54%,#fdf3ed)}
+    main{width:min(720px,100%);background:rgba(255,255,255,.94);border:1px solid #c9dddd;border-radius:32px;box-shadow:0 24px 70px rgba(21,48,71,.14);overflow:hidden}
+    header{padding:32px 34px 24px;border-bottom:1px solid #d9e7e7}.eyebrow{margin:0 0 8px;color:#3d9aa0;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}h1{margin:0;font-size:clamp(30px,5vw,48px);line-height:1.02;letter-spacing:-.045em}section{padding:28px 34px}.gate{display:grid;grid-template-columns:auto 1fr;gap:14px 16px;align-items:center;padding:20px;border:1px solid #c8dede;border-radius:22px;background:#f7fbfb}.lamp{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#dff3f0;color:#278b91;font-weight:900}.gate strong{display:block;font-size:20px}.gate p{margin:5px 0 0;color:#617487;line-height:1.5}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.fact{padding:16px;border-radius:18px;background:#f4f7f8}.fact span{display:block;color:#6a7d8d;font-size:12px}.fact b{display:block;margin-top:5px;font-size:20px}.pass{color:#18745f}.pending{color:#ae6c27}button{width:100%;border:0;border-radius:18px;padding:17px 20px;background:#4fa5a8;color:white;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 12px 30px rgba(79,165,168,.24)}button:focus-visible{outline:4px solid #f1b8c5;outline-offset:3px}button[disabled]{opacity:.55}.receipt{margin:16px 0 0;padding:15px 17px;border-radius:16px;background:#edf5f6;color:#425d70;font-size:14px;line-height:1.5}.receipt[data-state="pass"]{background:#e7f5ed;color:#17654f}@media(max-width:560px){body{padding:12px}main{border-radius:24px}header,section{padding-left:22px;padding-right:22px}.facts{grid-template-columns:1fr}.fact{display:flex;justify-content:space-between;align-items:center}.fact b{margin:0}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <main aria-labelledby="title">
+    <header>
+      <p class="eyebrow">Block 1 · sichtbarer lokaler Contract-Test</p>
+      <h1 id="title">GPS startet erst nach deiner Geste.</h1>
+    </header>
+    <section>
+      <div class="gate" role="status" aria-live="polite">
+        <div class="lamp" id="lamp">✓</div>
+        <div><strong id="gate-title">Boot-Gate bestanden</strong><p id="gate-copy">Reload, Auth, Reisewechsel und Sichtbarkeit haben keinen Standortzugriff ausgelöst.</p></div>
+      </div>
+      <div class="facts" aria-label="Messwerte">
+        <div class="fact"><span>Automatische Reads</span><b id="reads" class="pass">0</b></div>
+        <div class="fact"><span>Automatische Watches</span><b id="watches" class="pass">0</b></div>
+        <div class="fact"><span>Resume-Status</span><b id="resume" class="pending">sichtbar</b></div>
+      </div>
+      <button id="start" type="button">Standort ausdrücklich freigeben</button>
+      <p class="receipt" id="receipt">Noch keine Geräteaktion. Die gespeicherte Präferenz allein reicht nicht aus.</p>
+    </section>
+  </main>
+  <script>
+    (()=>{
+      const measurements={reads:0,watches:0,settingWrites:0,events:[]};
+      window.__LUVIA_GPS_GATE_EVIDENCE__=measurements;
+      const nativeDispatch=window.dispatchEvent.bind(window);
+      window.dispatchEvent=event=>{measurements.events.push(event.type);return nativeDispatch(event)};
+      window.LuviaProfileService={snapshot:()=>({profile:{locationSharing:true}}),save:async()=>{measurements.settingWrites++}};
+      window.LuviaTripContractV1={getActiveTrip:()=>null};
+      window.LuviaKernelEvents={emit:async()=>{}};
+      window.LuviaPlaceCore={getPlaces:()=>[]};
+      window.LuviaPlatformPorts={get:id=>id==='PermissionPort'?{query:async()=> 'granted'}:id==='NetworkPort'?{isOnline:()=>true}:id==='LocationPort'?{isSupported:()=>true,getCurrent:async()=>{measurements.reads++;return{latitude:54,longitude:10,accuracy:5}},watch:()=>{measurements.watches++;return 17},clearWatch:()=>{}}:null};
+      window.ParisAuth={getState:()=>({authenticated:true,user:{id:'visible-test'}})};
+    })();
+  </script>
+  <script src="../../core/places/presence-visit-core.js"></script>
+  <script src="../../core/location/global-location-bootstrap.js"></script>
+  <script>
+    (async()=>{
+      const evidence=window.__LUVIA_GPS_GATE_EVIDENCE__,reads=document.getElementById('reads'),watches=document.getElementById('watches'),resume=document.getElementById('resume'),receipt=document.getElementById('receipt'),button=document.getElementById('start');
+      const render=()=>{reads.textContent=String(evidence.reads);watches.textContent=String(evidence.watches)};
+      const initial=await window.LuviaPresenceVisitCore.init();render();
+      const passed=evidence.reads===0&&evidence.watches===0&&initial.resumeRequired===true;
+      document.body.dataset.bootGate=passed?'pass':'fail';
+      if(!passed){document.getElementById('lamp').textContent='!';document.getElementById('gate-title').textContent='Boot-Gate fehlgeschlagen';document.getElementById('gate-copy').textContent='Ein automatischer Standortzugriff wurde erkannt.';button.disabled=true}
+      button.addEventListener('click',async()=>{
+        button.disabled=true;button.textContent='Freigabe wird angewendet …';
+        const result=await window.LuviaGlobalLocationBootstrap.start({userGesture:true});render();
+        const explicit=result.ok===true&&evidence.reads===0&&evidence.watches===1;
+        document.body.dataset.explicitGate=explicit?'pass':'fail';
+        receipt.dataset.state=explicit?'pass':'fail';
+        receipt.textContent=explicit?'PASS · Erst die sichtbare Benutzeraktion startete exakt einen Owner-Watch. Keine automatische Mutation, kein doppelter Geräte-Read.':'FAIL · Der ausdrückliche Gerätepfad entspricht nicht dem Vertrag.';
+        resume.textContent=explicit?'gestartet':'Fehler';resume.className=explicit?'pass':'pending';button.textContent=explicit?'Ausdrückliche Freigabe geprüft':'Prüfung fehlgeschlagen';
+      });
+    })();
+  </script>
+</body>
+</html>

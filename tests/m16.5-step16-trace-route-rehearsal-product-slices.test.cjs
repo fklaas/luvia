@@ -117,7 +117,7 @@ vm.runInContext(read('core/ai/ai-action-runtime.js'),context,{filename:'core/ai/
   assert.match(journeyAdapter,/id:'intelligence\.s16-03-route-uncertainty',owner:'intelligence'/);
   assert.match(journeyAdapter,/id:'intelligence\.s16-04-day-rehearsal',owner:'intelligence'/);
   assert.doesNotMatch(journeyAdapter,/owner:'journey'/,'Journey facts remain Journey-owned, but the derived USP feature flags belong to the existing Intelligence owner');
-  assert.match(dashboard,/Owner-Read Recovery · keine Mutation/);
+  assert.match(dashboard,/Erneuter Versuch · nichts wurde verändert/);
   assert.match(css,/\.lvx-planning-trace/);
   assert.match(css,/\.lvx-journey-rehearsal/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);

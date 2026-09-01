@@ -24,7 +24,7 @@ assert.ok(!shell.includes('if(payload.overlayOnly&&enabled){'),'overlayOnly may 
 assert.match(dashboard,/document\.addEventListener\('click'.*\[data-ai-brief-refresh\],\[data-ai-ask-open\]/s);
 assert.match(dashboard,/window\.LuviaAIDashboard=Object\.freeze\([^)]*openChat:askModal/s);
 
-for(const copy of ['Luvia Intelligence','Was möchtest du erleben?','Ich kann Orte finden, vergleichen, zum Tag hinzufügen und nach deiner Bestätigung reservieren.','Ruhig am Wasser','Abend planen','Freien Moment füllen','Nachricht an Luvia','Restaurant, Tagesplan oder nächste Entscheidung'])assert.ok(dashboard.includes(copy),`accepted AI copy missing: ${copy}`);
+for(const copy of ['lvx-command-eyebrow">Luvia','Was möchtest du erleben?','Ich kann Orte finden, vergleichen, zum Tag hinzufügen und nach deiner Bestätigung reservieren.','Ruhig am Wasser','Abend planen','Freien Moment füllen','Nachricht an Luvia','Restaurant, Tagesplan oder nächste Entscheidung'])assert.ok(dashboard.includes(copy),`accepted AI copy missing: ${copy}`);
 assert.match(css,/place-items:end center/);
 assert.match(css,/width:min\(100%,1280px\)/);
 assert.match(css,/height:min\(94dvh,820px\)/);
@@ -59,7 +59,7 @@ for(const colour of ['#ef6254','#f4b34c','#2c93a9','#2f8c73']){
 assert.match(dashboard,/appendIntentGraph\(compiled\)/);
 assert.match(dashboard,/actionRuntime\(\)\.prepare\(/);
 assert.match(dashboard,/actionRuntime\(\)\.prepareUndo\(/);
-assert.match(dashboard,/Vorschau → Bestätigung → Owner Command/);
+assert.match(dashboard,/Du siehst zuerst eine Vorschau und bestätigst selbst/);
 assert.match(runtime,/ledger\.create\(\{actionId,owner:definition\.owner,ownerContract:definition\.ownerContract,effect:definition\.effect,risk:definition\.risk,confirmation:definition\.confirmation/);
 assert.match(runtime,/function prepareUndo\(/);
 assert.match(runtime,/ledger\.startCompensation\(compensationOrigin\);ledger\.finishCompensation\(compensationOrigin,receipt\)/);

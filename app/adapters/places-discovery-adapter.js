@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.8.0-provider-truth';
+const VERSION='1.8.1-active-destination-continuity';
 const PROVIDER_CACHE_MS=180000;
 const providerCache=new Map();
 const clean=value=>String(value??'').trim();
@@ -11,7 +11,16 @@ const safeProviderMeta=(value={},places=[])=>{
   return{requested,used,errors,status,degraded:errors.length>0};
 };
 const destinationFingerprint=value=>{const source=value&&typeof value==='object'?value:{name:value},coordinates=source?.center||source?.location||source?.coordinates||{};return{id:clean(source?.id||source?.placeId),name:clean(source?.name||source?.displayName),countryCode:clean(source?.countryCode),latitude:Number.isFinite(Number(coordinates.latitude??coordinates.lat))?Number(coordinates.latitude??coordinates.lat):null,longitude:Number.isFinite(Number(coordinates.longitude??coordinates.lng))?Number(coordinates.longitude??coordinates.lng):null}};
-const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,query,destination:destinationFingerprint(options.destinationContext||options.trip||options.destination),strictDestination,providers:(options.providers||['google','foursquare']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+const hasGeography=value=>{if(!value||typeof value!=='object')return false;const source=value.center||value.location||value.coordinates||{},latitude=Number(source.latitude??source.lat),longitude=Number(source.longitude??source.lng),viewport=value.viewport;return Number.isFinite(latitude)&&Number.isFinite(longitude)||Boolean(viewport&&[viewport.south,viewport.west,viewport.north,viewport.east].every(item=>Number.isFinite(Number(item))))};
+const hasDestinationIdentity=value=>Boolean(value&&typeof value==='object'&&clean(value.id||value.placeId||value.name||value.displayName||value.destinationName||value.city||value.countryCode));
+function providerDestination(options={}){
+  const tripDestination=options.trip?.destination&&typeof options.trip.destination==='object'?options.trip.destination:null;
+  const explicitDestination=options.destination&&typeof options.destination==='object'?options.destination:null;
+  const active=window.LuviaPlaces?.activeDestination?.()||null;
+  const candidates=[options.destinationContext,tripDestination,options.trip,explicitDestination,active];
+  return candidates.find(hasGeography)||candidates.find(hasDestinationIdentity)||options.destination||active||null;
+}
+const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,query,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['google','foursquare']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
 function aggregateProviderDiagnostics(attempts=[]){
   const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
   for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
@@ -138,7 +147,7 @@ async function recommend(options={}){
         type:discoveryRoute.primaryType,
         includedType:intent.niche?'':discoveryRoute.includedType,
         query,
-        destination:options.destinationContext||options.trip||options.destination||null,
+        destination:providerDestination(options),
         maxResultCount:Math.min(20,Math.max(5,requestedLimit)),
         strictDestination,
         providers:options.providers||['google','foursquare'],

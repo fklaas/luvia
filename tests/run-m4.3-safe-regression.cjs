@@ -506,6 +506,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-living-compass-ai-owner-orchestration.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Consumer-ready AI Language',
+    test: 'tests/m16.5-block1-consumer-ready-ai-language.test.cjs'
+  },
+  {
     category: 'M16.5 / Journey Resilience Foundation',
     test: 'tests/m16.5ab-journey-resilience-foundation.test.cjs'
   },
@@ -552,6 +556,18 @@ const SUITE = Object.freeze([
   {
     category: 'M16.5 / GPS Confirmation Timeline Boundary',
     test: 'tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 GPS User-Gesture Gate',
+    test: 'tests/m16.5-block1-gps-user-gesture-gate.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Foursquare Current Response Mapping',
+    test: 'tests/m16.5-block1-foursquare-current-response-mapping.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 AI Places Destination Continuity',
+    test: 'tests/m16.5-block1-ai-places-destination-continuity.test.cjs'
   },
   {
     category: 'M16.5 / Journey Offline Day Pack',

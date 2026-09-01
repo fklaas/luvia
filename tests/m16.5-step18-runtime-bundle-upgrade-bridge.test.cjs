@@ -14,9 +14,9 @@ const pwa=read('intelligence/pwa-service.js');
 const ignore=read('.assetsignore');
 
 assert.equal(manifest.schemaVersion,1);
-assert.equal(manifest.currentBuild,'13.82.127');
+assert.equal(manifest.currentBuild,'13.82.128');
 assert.equal(manifest.policy.minimumRetainedBuilds,3);
-assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123','13.82.124','13.82.125','13.82.126']);
+assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123','13.82.124','13.82.125','13.82.126','13.82.127']);
 assert.equal(manifest.policy.currentLoaderUsesCompatibilityBundle,false);
 assert.equal(manifest.policy.precacheCompatibilityBundles,false,'compatibility bundles must be addressable without adding multi-megabyte precache debt');
 
@@ -32,11 +32,11 @@ for(const release of manifest.retainedBuilds){
   }
 }
 
-assert.match(loader,/luvia-runtime-precontext-13\.82\.127\.bundle\.js/);
-assert.match(loader,/luvia-runtime-postcontext-13\.82\.127\.bundle\.js/);
-assert.doesNotMatch(loader,/13\.82\.12[1-6]\.bundle\.js/,'the current loader may not execute a compatibility bundle');
-assert.match(worker,/luvia-runtime-precontext-13\.82\.127\.bundle\.js/);
-assert.doesNotMatch(worker,/APP_SHELL\.push\(scoped\('app\/luvia-runtime-(?:precontext|postcontext)-13\.82\.12[1-6]/,'compatibility bundles must not inflate the current service-worker precache');
+assert.match(loader,/luvia-runtime-precontext-13\.82\.128\.bundle\.js/);
+assert.match(loader,/luvia-runtime-postcontext-13\.82\.128\.bundle\.js/);
+assert.doesNotMatch(loader,/13\.82\.12[1-7]\.bundle\.js/,'the current loader may not execute a compatibility bundle');
+assert.match(worker,/luvia-runtime-precontext-13\.82\.128\.bundle\.js/);
+assert.doesNotMatch(worker,/APP_SHELL\.push\(scoped\('app\/luvia-runtime-(?:precontext|postcontext)-13\.82\.12[1-7]/,'compatibility bundles must not inflate the current service-worker precache');
 assert.ok(worker.includes("if(/\\.(?:m?js|css|json"),'the version-aware static-asset branch must include .mjs runtime loaders');
 assert.match(worker,/token===BUILD\|\|token\.startsWith\(`\$\{BUILD\}-`\)/,'build-suffixed runtime URLs must resolve to the current immutable cache identity');
 assert.match(pwa,/activateExpectedWaitingSoon\(registration,\{preserveDocument:false\}\)/,'a controlled build upgrade must reload under the new controller instead of preserving a mixed-build document');
@@ -44,4 +44,4 @@ assert.doesNotMatch(pwa,/controlledUpgradeRecoveryStarted&&activateExpectedWaiti
 assert.doesNotMatch(ignore,/^\/?app(?:\/|$)/m,'the Cloudflare asset boundary may not exclude the runtime upgrade bridge');
 
 console.log('M16.5 Step 18 runtime bundle upgrade bridge: PASS');
-console.log('Retained split builds: 13.82.121 / 13.82.122 / 13.82.123 / 13.82.124 / 13.82.125 / 13.82.126');
+console.log('Retained split builds: 13.82.121 / 13.82.122 / 13.82.123 / 13.82.124 / 13.82.125 / 13.82.126 / 13.82.127');

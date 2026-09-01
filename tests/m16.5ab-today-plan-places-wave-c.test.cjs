@@ -54,7 +54,7 @@ assert.match(places,/destinationContext:destinationContext\(context\.trip\|\|sta
 assert.match(places,/Luvia-KI ordnet · Fakten sichern ab/,'Places must disclose successful semantic AI ranking');
 assert.match(places,/Regelbasiert abgesichert · KI gerade nicht verfügbar/,'Places must disclose the safe fallback instead of pretending AI ran');
 const discovery=read('app/adapters/places-discovery-adapter.js');
-assert.match(discovery,/destination:options\.destinationContext\|\|options\.trip\|\|options\.destination\|\|null/,'every provider query must receive an explicit destination context');
+assert.match(discovery,/destination:providerDestination\(options\)/,'every provider query must receive one resolved destination context');
 assert.match(discovery,/catch\(error\)[\s\S]*attempts\.push/,'a failed query variant must not abort the complete discovery cascade');
 assert.match(discovery,/globalProfileSignals:compact\(resolution\?\.profileSignals\)/,'AI ranking must receive the resolved global profile layer');
 assert.match(discovery,/tripSignals:compact\(resolution\?\.tripSignals\)/,'AI ranking must receive the trip-only preference layer');

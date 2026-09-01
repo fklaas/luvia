@@ -1,0 +1,81 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+
+const root=path.resolve(__dirname,'..');
+const mappingPath=path.join(root,'supabase/functions/luvia-gateway/_shared/foursquare-place-mapping.ts');
+const placesPath=path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts');
+
+async function mapping(){
+  return import(`${pathToFileURL(mappingPath).href}?test=${Date.now()}`);
+}
+
+test('current Foursquare 2025 response fields use top-level coordinates and no retired requests',async()=>{
+  const module=await mapping();
+  assert.equal(module.FOURSQUARE_API_VERSION,'2025-06-17');
+  assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('latitude'));
+  assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('longitude'));
+  assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('photos'));
+  assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('distance'));
+  assert.equal(module.FOURSQUARE_DETAILS_FIELDS.includes('distance'),false);
+  for(const retired of ['geocodes','timezone']){
+    assert.equal(module.FOURSQUARE_SEARCH_FIELDS.includes(retired),false,`${retired} must not be requested by search`);
+    assert.equal(module.FOURSQUARE_DETAILS_FIELDS.includes(retired),false,`${retired} must not be requested by details`);
+  }
+});
+
+test('current top-level response becomes a source-backed Luvia place with provider photo',async()=>{
+  const {normalizeFoursquarePlace}=await mapping();
+  const result=normalizeFoursquarePlace({
+    fsq_place_id:'fsq-current-1',
+    name:'Scharbeutz Mitte',
+    latitude:54.0261,
+    longitude:10.7564,
+    geocodes:{main:{latitude:1,longitude:2}},
+    location:{address:'Strandallee 1',locality:'Scharbeutz',postcode:'23683',country:'DE'},
+    categories:[{id:13065,name:'Restaurant'}],
+    photos:[{id:'photo-1',prefix:'https://images.example/',suffix:'.jpg',width:1200,height:800}],
+    rating:8.7,
+    stats:{total_ratings:213},
+    hours:{open_now:true},
+    veracity_rating:4
+  });
+  assert.deepEqual(result.location,{latitude:54.0261,longitude:10.7564});
+  assert.equal(result.evidence[0].coordinateSchema,'top-level');
+  assert.equal(result.formattedAddress,'Strandallee 1, Scharbeutz, 23683, DE');
+  assert.equal(result.primaryTypeLabel,'Restaurant');
+  assert.equal(result.rating,8.7);
+  assert.equal(result.userRatingCount,213);
+  assert.equal(result.photos[0].uri,'https://images.example/900x900.jpg');
+  assert.equal(result.veracityRating,4);
+});
+
+test('legacy cached coordinates remain readable but missing provider facts are never invented',async()=>{
+  const {normalizeFoursquarePlace}=await mapping();
+  const legacy=normalizeFoursquarePlace({fsq_place_id:'legacy',name:'Alt',geocodes:{roof:{latitude:53.1,longitude:10.2}}});
+  const missing=normalizeFoursquarePlace({fsq_place_id:'missing',name:'Ohne Beleg',photos:[{}]});
+  assert.deepEqual(legacy.location,{latitude:53.1,longitude:10.2});
+  assert.equal(legacy.evidence[0].coordinateSchema,'legacy-geocodes');
+  assert.equal(missing.location,null);
+  assert.deepEqual(missing.photos,[]);
+  assert.equal(missing.rating,null);
+  assert.equal(missing.userRatingCount,0);
+});
+
+test('public diagnostics are bounded and gateway owns a Pro-field fallback',async()=>{
+  const {boundedFoursquareError}=await mapping();
+  const diagnostic=boundedFoursquareError({error:{code:'INVALID_FIELD',message:'Field not available'},token:'must-not-leak',payload:{large:'must-not-leak'}});
+  assert.deepEqual(diagnostic,{code:'INVALID_FIELD',message:'Field not available'});
+
+  const source=fs.readFileSync(placesPath,'utf8');
+  assert.match(source,/foursquareWithFieldFallback/);
+  assert.match(source,/fieldFallbacks\+\+/);
+  assert.match(source,/coordinateSchema:'top-level-latitude-longitude'/);
+  assert.match(source,/version:'4\.28\.8'/);
+  assert.doesNotMatch(source,/fields:'[^']*(?:geocodes|timezone)/);
+  assert.doesNotMatch(source,/lastError=\{provider:'foursquare',status:response\.status,body\}/);
+});

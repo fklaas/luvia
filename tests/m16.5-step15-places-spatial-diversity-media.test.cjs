@@ -95,7 +95,7 @@ assert.equal(projectedPlace.spatialConstraint.requested.avoid.includes('waterfro
   assert.match(platformAdapter,/return'Google Maps'/,'Google media must retain its real provider attribution');
   assert.doesNotMatch(platformAdapter,/provider:'Google Maps'/,'media attribution may not be hard-coded to Google for every provider');
   assert.match(platformAdapter,/transient:true/);
-  assert.match(dashboard,/Kein Provider-Foto belegt/,'missing image evidence must be visible rather than replaced by an invented photo');
+  assert.match(dashboard,/Für diesen Ort ist noch kein verlässliches Foto verfügbar/,'missing image evidence must be visible rather than replaced by an invented photo');
   assert.match(fixture,/Kontrollierte E2E-Bildreferenz · kein Provider-Foto/,'fixture media must never be represented as provider evidence');
   assert.match(fixture,/rejectedProviderPlaceIds/,'visible fixture must exercise session diversity input');
 

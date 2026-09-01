@@ -1,5 +1,5 @@
-const BUILD='13.82.127';
-const CACHE='luvia-shell-v13.82.127';
+const BUILD='13.82.128';
+const CACHE='luvia-shell-v13.82.128';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -40,8 +40,8 @@ APP_SHELL.push(scoped('app/collaboration/journey-place-proposals.js'));
 APP_SHELL.push(scoped('vendor/supabase/supabase-2.112.4.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.css'));
-APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.127.bundle.js'));
-APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.127.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.128.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.128.bundle.js'));
 APP_SHELL.push(scoped('app/luvia-runtime-loader.mjs'));
 const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));

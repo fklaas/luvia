@@ -23,9 +23,9 @@ for(const needle of [
   'data-ai-action-undo=',
   'appendIntentGraph(compiled)',
   'sequencePlan?.(compiled)',
-  'Owner-Aktion bestätigt; das Receipt steht im Verlauf.',
+  'Die Änderung ist abgeschlossen.',
   'Ein Satz darf mehrere Wünsche enthalten.',
-  'Lesen darf Luvia direkt.'
+  'Passende Informationen liest Luvia direkt.'
 ])assert.ok(source.includes(needle),`Actionable AI chat missing ${needle}`);
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingRepository','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){

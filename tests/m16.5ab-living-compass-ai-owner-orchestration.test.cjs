@@ -15,7 +15,7 @@ const fixture=read('tests/fixtures/m16.5ab-living-compass-ai-browser.html');
 
 assert.match(dashboard,/kind:'sheet'/,'Luvia Compass must use the universal Living Sheet host');
 assert.match(dashboard,/Was möchtest du erleben\?/);
-assert.match(dashboard,/Luvia Intelligence/);
+assert.match(dashboard,/lvx-command-eyebrow">Luvia/);
 assert.match(dashboard,/Ein Satz darf mehrere Wünsche enthalten/);
 assert.match(dashboard,/actionResponse\.results\.forEach\(appendRichResult\)/,'every routed owner result must be rendered');
 assert.match(dashboard,/LuviaJourneySuggestions\.openResults/,'AI Places must enter the shared Journey/Places result sheet');
@@ -34,12 +34,13 @@ assert.match(runtimeSource,/commands\.updateLifecycle/,'a confirmed plan/unplan 
 assert.match(runtimeSource,/preferenceOwner:'identity\.v1'/,'Places discovery must record the confirmed Identity preference owner');
 assert.match(dashboard,/data-ai-place-open/,'each inline Place result must expose the shared typed detail sheet');
 assert.match(dashboard,/data-ai-place-map/,'each Places response must expose a shared MapLibre projection');
-assert.match(dashboard,/Places v1 · MapLibre · Compass-Farben/,'the inline map must visibly identify owner, renderer and palette');
+assert.match(dashboard,/data-map-renderer="maplibre"/,'the inline map must retain an inspectable renderer contract without technical consumer copy');
+assert.match(dashboard,/Luvia Karte · Compass-Farben/,'the inline map must visibly use the shared Luvia palette');
 assert.match(dashboard,/\.slice\(0,3\)/,'each wish must render no more than three Places cards');
 assert.match(dashboard,/overlayOnly:true/,'AI Place selection must preserve the chat and open a second Living Sheet');
 assert.match(dashboard,/LuviaApp\?\.openPlace/,'AI must reuse the app-owned typed Place detail path');
-assert.match(dashboard,/OpenAI live · freigegebener Reisekontext/,'live provider output must be visibly labelled');
-assert.match(dashboard,/Regelbasierter Sicherheitsmodus · OpenAI nicht verfügbar/,'provider fallback must be visibly distinguishable from live output');
+assert.match(dashboard,/Mit deinen freigegebenen Reiseinformationen/,'live output must be explained in consumer language');
+assert.match(dashboard,/Ohne Live-Antwort – bitte wichtige Angaben prüfen/,'fallback output must remain visibly distinguishable without implementation jargon');
 assert.match(dashboard,/actionResponse\.clarificationRequired/,'safe owner reads must survive a partial multi-intent that still needs mutation inputs');
 assert.match(dashboard,/planning\.dialogue/,'the global chat must reuse the existing OpenAI planning capability for multilingual semantic decomposition');
 assert.match(dashboard,/compileDialogue/,'model output must be recompiled through the browserless owner-safe validator');
@@ -49,7 +50,7 @@ assert.match(dashboard,/Der vorherige Schritt ist bestätigt/,'a successful Owne
 assert.match(dashboard,/data-ai-planning-trace/,'S16.01 must expose a visible planning trace');
 assert.match(dashboard,/data-ai-read-retry/,'failed owner reads need an explicit read-only retry');
 assert.match(dashboard,/data-ai-read-refine/,'failed owner reads need a manual refinement path');
-assert.match(dashboard,/Luvia erfindet keine Provider-Treffer/,'provider failure must never become invented evidence');
+assert.match(dashboard,/ich zeige keine erfundenen Treffer/,'provider failure must never become invented evidence');
 assert.match(dashboard,/renderJourneyResilience/,'Journey day results must consume the S16.03 and S16.04 read projections');
 assert.match(runtimeSource,/readRecovery:\{kind:'owner-read'/,'read failure recovery must be distinct from mutation retry');
 assert.match(runtimeSource,/traceOnly:true,slice:'S16\.01'/,'S16.01 must be emitted as its own flaggable product result');
