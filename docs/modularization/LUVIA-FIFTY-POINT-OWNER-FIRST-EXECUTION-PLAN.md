@@ -72,7 +72,7 @@ execution blocks are `B1`–`B5`. The inserted parity packages are
 
 ### B0 — Complete Human ↔ AI action-parity control plane (B0.01–B0.10)
 
-Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.135 — 327-ACTION REGISTER, 243 PUBLIC OWNER PATHS, 21/21 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, CAPABILITY, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PUBLIC RELEASE AND E2E CLOSURE IN PROGRESS**
+Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON APP 13.82.135 / 327-ACTION REGISTER, 243 PUBLIC OWNER PATHS, 21/21 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PRODUCT PARITY CONTINUES THROUGH B1–B5**
 
 Current truthful position on 2026-09-01:
 
@@ -251,10 +251,12 @@ Current truthful position on 2026-09-01:
   twelve-dimension detail and failure expectations without executing an Owner.
   This closes the **local B0.09 control-plane package**; public evidence and
   release closure remain B0.10.
-- Integration App `13.82.133` is published but **not accepted**: a confirmed
-  `14:00` Place plan was rendered as `12:00` in the owner readback. The local
-  correction and compact-consumer work remain uncommitted and unpublished.
-  Therefore neither Block 0 nor Block 1 is complete.
+- Integration Apps `.133` and `.134` remain explicit counterevidence: `.133`
+  rendered the confirmed `14:00` plan as `12:00`, while `.134` wrote the correct
+  Owner moment but left the selected-day header and metrics on 12 June after the
+  user opened 14 June. App `.135` fixes both boundaries and is the accepted
+  public control-plane release. This closes B0's control-plane exit only; the
+  316 product-action parity rows continue through B1–B5.
 
 1. **B0.01 — Version the canonical semantic action registry.** Convert the
    reviewed workbook into a repository-owned, machine-readable register with
@@ -340,15 +342,15 @@ Current truthful position on 2026-09-01:
     Step-17 operation, focused commit, new immutable Integration version,
     Stable/Immutable byte proof and exact rollback before its registry row can
     become `PUBLIC-E2E-PASS`.
-    **Release candidate prepared (2026-09-01):** App/Core `13.82.135 / 4.82.135`
-    freezes the B0.01–B0.09 control plane after 179/179 Safe Regression and
-    3/3 NFR-0. The signed-in public `.133` baseline still returns three exact,
-    source-backed Minigolf results while one provider is quota-restricted. The
-    remaining B0.10 gate is the clean commit/archive, immutable Integration
-    upload, Stable/Immutable byte proof and real public plan/readback/Undo plus
-    Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion and console evidence.
-    This closes only the control-plane exit; product-parity remains scheduled
-    and evidence-gated row by row through B1–B5.
+    **Public control-plane release complete (2026-09-01):** App/Core
+    `13.82.135 / 4.82.135` passes 179/179 Safe Regression and NFR-0 3/3. The
+    signed-in public run proved three exact source-backed Minigolf results,
+    exact `14.06.2027 · 14:00 Uhr` Preview, explicit confirmation, Owner
+    receipt, separately confirmed Undo, empty Timeline readback and the repaired
+    selected-day heading/metrics. Stable and immutable version
+    `d4efd8ac-969c-426c-b312-7ea686740ac1` match the clean source archive for
+    20/20 files / 4,119,803 bytes. This closes only the control-plane exit;
+    product parity remains evidence-gated row by row through B1–B5.
 
 Block-0 exit has two binding levels:
 
@@ -572,9 +574,7 @@ coherent slice in every block must independently include:
 
 ## 4. Active next slice
 
-The immediate active slice is **B0.10 public parity closure and coherent release after the locally closed B0.09 generated parity/failure matrix**,
-including the corrective `.133` successor acceptance before any
-new Block-1 capability is called done:
+The immediate active slice is now **B1's first still-open productive Owner bundle after the publicly closed B0.10 control-plane release**:
 
 - retain the now-versioned 327-action semantic registry and 896-marker source
   audit as the canonical B0.01 baseline;
@@ -587,11 +587,10 @@ new Block-1 capability is called done:
   lifecycle, capability, bright-consumer and 327-row parity/failure gates;
 - retain the visible local register gate as an always-operable progress surface;
   it must continue to load the canonical register rather than a copied demo list;
-- keep the current `.133` timezone/readback and compact-consumer corrections
-  isolated, then run their focused tests and visible local operation;
-- release the correction only as one coherent immutable Integration slice and
-  accept it only after real public plan/readback/Undo, console, Step-17,
-  Stable/Immutable byte and rollback evidence pass.
+- retain `.135` as the accepted B0 control-plane baseline and `.126` as the
+  exact conservative rollback target;
+- continue with the coherent Places Favorite/Unfavorite/Plan/Unplan bundle,
+  then Booking reads and mutations, without upgrading unrelated registry rows.
 
 After that gate, B1 resumes at the first still-open P02–P05 acceptance row and
 then P06–P10. A documentation entry, a green fixture or a successful Owner call
@@ -638,8 +637,7 @@ Still open before P02/P03 completion:
 
 ### 4.2 Current B0/B1 handoff ledger — 2026-09-01
 
-Status: **B0 CONTROL-PLANE INSERTION ACTIVE / `.133` CORRECTION LOCAL / PUBLIC
-ACCEPTANCE OPEN**
+Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY DELIVERY RESUMED**
 
 - B0 inventory/review and the local B0.01 machine-readable repository insertion
   are complete. B0.02 has locally bound all 243 audited public Owner paths: 20 Navigation/History,
@@ -662,15 +660,18 @@ ACCEPTANCE OPEN**
   actions through 15 honest capability states, with 59 currently routed rows
   and 288 truthful manual Owner fallbacks. B0.08 now projects all 327 actions
   into the compact local Chat; B0.09 now closes the local parity/failure matrix
-  and CI drift package. B0.10 public release closure is next.
+  and CI drift package. B0.10 is publicly released and closed as a control-plane
+  exit; product parity remains open and is now delivered through B1–B5.
 - P02/P03 have positive public Foursquare/provider-photo evidence and extensive
   negative counterevidence. They remain partial until one corrected coherent
   public build passes the complete consumer and release chain.
-- P05 reached a real owner mutation on `.133`, but the visible time-zone readback
-  was wrong; `.133` is therefore rejected as acceptance evidence.
-- The correction for time-zone-aware readback, compact Timeline/day output,
-  duplicate simple-intent removal, concrete explanation copy and tighter Places
-  relevance exists only in the dirty local working tree. It is neither committed
-  nor deployed and must not be described as shipped.
+- P05 now has one real positive `.135` Plan/Undo path with exact date/time and
+  correct Timeline readback. Favorite/Unfavorite and the full Plan/Unplan row
+  set remain the next coherent public B1 bundle; a later freely worded Unplan
+  command still duplicated the wish and performed no mutation. The same `.135`
+  session misrouted `ich will eine andere reise auswählen` to Places instead
+  of Trip. Both are binding B1 semantic-router counterevidence, not phrases to
+  patch individually. This single positive receipt-Undo proof is not a
+  completion claim for all four actions or for general language parity.
 - The next accepted public build must expose a visible test the user can operate.
   No block or row becomes complete from automated tests alone.

@@ -844,7 +844,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-01\n\n` +
-    `Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.135 / PUBLIC E2E AND RELEASE PROOF IN PROGRESS / NO PRODUCT-PARITY COMPLETION CLAIM**\n\n` +
+    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -898,7 +898,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all 21 typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated 327-row, 12-dimension and 2,711-failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Close the B0.10 control-plane candidate only after the real Step-17 plan/readback/Undo operation, focused commit, new immutable Integration version, Stable/Immutable byte proof and exact Step-18 rollback; continue product parity row by row through B1–B5.\n`;
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; it does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes.\n`;
 }
 
 function main() {
