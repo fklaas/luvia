@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.8.2-strict-restaurant-evidence';
+const VERSION='1.9.0-evidence-first-provider-breadth';
 const PROVIDER_CACHE_MS=180000;
 const providerCache=new Map();
 const clean=value=>String(value??'').trim();
@@ -132,7 +132,10 @@ async function recommend(options={}){
   const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
   const requestedLimit=Math.min(20,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
-  const hasEnoughCandidates=()=>uniquePlaces(candidates).length>=diversityTarget;
+  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||{})!==false};
+  const eligibleCandidates=()=>uniquePlaces(candidates).filter(accepts);
+  const hasEnoughCandidates=()=>eligibleCandidates().length>=diversityTarget;
+  const providerCandidateWindow=requestedLimit>=12?requestedLimit:Math.min(20,Math.max(options.strictPlaceType==='restaurant'?20:12,requestedLimit*4));
   const attempts=[];
   let lastError=null;
   const providerRequest=async(query,strictDestination)=>{
@@ -150,7 +153,7 @@ async function recommend(options={}){
         strictTypeFiltering:options.strictPlaceType==='restaurant',
         query,
         destination:providerDestination(options),
-        maxResultCount:Math.min(20,Math.max(5,requestedLimit)),
+        maxResultCount:providerCandidateWindow,
         strictDestination,
         providers:options.providers||['google','foursquare'],
         languageCode:options.languageCode||globalThis.document?.documentElement?.lang||'de',
@@ -191,7 +194,6 @@ async function recommend(options={}){
     lastError.discoveryAttempts=attempts;
     throw lastError;
   }
-  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||{})!==false};
   let ranked=uniquePlaces(candidates).filter(accepts);
   let aiRanking={available:Boolean(window.LuviaAI?.rankCandidates),used:false,fallback:null,error:null};
   if(options.fastPath!==true&&window.LuviaAI?.rankCandidates&&ranked.length){
@@ -212,8 +214,8 @@ async function recommend(options={}){
   }).sort((left,right)=>right.score-left.score).map(entry=>entry.place);
   ranked=diverseOrder(ranked,selectedQueries,diversity.rotateAcrossQueries!==false);
   const places=ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null})),providerDiagnostics=aggregateProviderDiagnostics(attempts);
-  return{places,plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta,providerDiagnostics,diversityMeta:{candidateCount:ranked.length,returnedCount:places.length,minimumQueryVariants,queriedVariants:attempts.filter(attempt=>attempt.ok).length,rotationAcrossQueries:diversity.rotateAcrossQueries!==false,rejectedProviderPlaceIds:rejected.size,providerStatus:providerDiagnostics.status}};
+  return{places,plan:{...plan,route:discoveryRoute,attempts},aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta,providerDiagnostics,diversityMeta:{candidateCount:ranked.length,eligibleCandidateCount:eligibleCandidates().length,returnedCount:places.length,providerCandidateWindow,minimumQueryVariants,queriedVariants:attempts.filter(attempt=>attempt.ok).length,rotationAcrossQueries:diversity.rotateAcrossQueries!==false,rejectedProviderPlaceIds:rejected.size,providerStatus:providerDiagnostics.status}};
 }
-  function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:3,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:60,breadthUsesUniquePlaces:true,minDeepQueryVariants:3,chatQueryVariants:3,rotatesAcrossQueryVariants:true,spatialConstraints:true,maxQueryVariants:5,providerTruth:true,strictRestaurantEvidence:true,providerFailureCache:false,deviceLocationSource:'explicit-provider-share-only'}}
+  function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:3,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:60,providerCandidateWindow:'12-20',breadthUsesUniquePlaces:true,breadthUsesEligiblePlaces:true,minDeepQueryVariants:3,chatQueryVariants:3,rotatesAcrossQueryVariants:true,spatialConstraints:true,maxQueryVariants:5,providerTruth:true,strictRestaurantEvidence:true,providerFailureCache:false,deviceLocationSource:'explicit-provider-share-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});
 })();

@@ -17,6 +17,7 @@ async function mapping(){
 test('current Foursquare 2025 response fields use top-level coordinates and no retired requests',async()=>{
   const module=await mapping();
   assert.equal(module.FOURSQUARE_API_VERSION,'2025-06-17');
+  assert.equal(module.FOURSQUARE_RESTAURANT_CATEGORY_ID,'13065');
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('latitude'));
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('longitude'));
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('photos'));
@@ -48,6 +49,9 @@ test('current top-level response becomes a source-backed Luvia place with provid
   assert.equal(result.evidence[0].coordinateSchema,'top-level');
   assert.equal(result.formattedAddress,'Strandallee 1, Scharbeutz, 23683, DE');
   assert.equal(result.primaryTypeLabel,'Restaurant');
+  assert.equal(result.primaryType,'restaurant');
+  assert.ok(result.types.includes('restaurant'));
+  assert.ok(result.providerNativeTypes.includes('13065'));
   assert.equal(result.rating,4.35);
   assert.equal(result.ratingScale,5);
   assert.equal(result.providerRatingRaw,8.7);
@@ -57,6 +61,15 @@ test('current top-level response becomes a source-backed Luvia place with provid
   assert.equal(result.userRatingCount,213);
   assert.equal(result.photos[0].uri,'https://images.example/900x900.jpg');
   assert.equal(result.veracityRating,4);
+});
+
+test('provider category labels become bounded Luvia discovery types without losing native evidence',async()=>{
+  const {normalizeFoursquarePlace}=await mapping();
+  const miniGolf=normalizeFoursquarePlace({fsq_place_id:'mini-golf',name:'Küsten Adventure Golf',latitude:54.02,longitude:10.75,categories:[{id:10054,name:'Arts and Entertainment > Miniature Golf Course'}]});
+  const museum=normalizeFoursquarePlace({fsq_place_id:'museum',name:'Museum am Meer',latitude:54.03,longitude:10.76,categories:[{id:10027,name:'Arts and Entertainment > Museum'}]});
+  assert.ok(miniGolf.types.includes('tourist_attraction'));
+  assert.ok(museum.types.includes('museum'));
+  assert.ok(miniGolf.providerNativeTypes.includes('Arts and Entertainment > Miniature Golf Course'));
 });
 
 test('legacy cached coordinates remain readable but missing provider facts are never invented',async()=>{
@@ -81,7 +94,11 @@ test('public diagnostics are bounded and gateway owns a Pro-field fallback',asyn
   assert.match(source,/foursquareWithFieldFallback/);
   assert.match(source,/fieldFallbacks\+\+/);
   assert.match(source,/coordinateSchema:'top-level-latitude-longitude'/);
-  assert.match(source,/version:'4\.28\.8'/);
+  assert.match(source,/version:'4\.29\.0'/);
+  assert.match(source,/params\.fsq_category_ids=categoryFilter/);
+  assert.match(source,/strictTypeFiltering===true&&String\(options\?\.includedType\|\|''\)\.toLowerCase\(\)==='restaurant'\?FOURSQUARE_RESTAURANT_CATEGORY_ID/);
+  assert.match(source,/destination\?\.searchRadiusMeters/);
+  assert.match(source,/Math\.min\(50,Math\.max\(1,Number\(options\?\.maxResultCount\|\|10\)\)\)/);
   assert.doesNotMatch(source,/fields:'[^']*(?:geocodes|timezone)/);
   assert.doesNotMatch(source,/lastError=\{provider:'foursquare',status:response\.status,body\}/);
 });

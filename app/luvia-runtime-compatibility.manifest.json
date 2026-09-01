@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "purpose": "Static upgrade bridge for clients still controlled by an earlier Luvia service worker; these bundles are not loaded by the current runtime.",
-  "currentBuild": "13.82.129",
+  "currentBuild": "13.82.130",
   "retainedBuilds": [
     {
       "build": "13.82.121",
@@ -50,6 +50,12 @@
       "sourceCommit": "beea4bef32820a9051d7f022b636120608a06155",
       "preContext": "app/luvia-runtime-precontext-13.82.128.bundle.js",
       "postContext": "app/luvia-runtime-postcontext-13.82.128.bundle.js"
+    },
+    {
+      "build": "13.82.129",
+      "sourceCommit": "67630e0796c426253f5de1d4ecb89f470fd934cd",
+      "preContext": "app/luvia-runtime-precontext-13.82.129.bundle.js",
+      "postContext": "app/luvia-runtime-postcontext-13.82.129.bundle.js"
     }
   ],
   "policy": {

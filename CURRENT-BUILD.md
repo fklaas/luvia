@@ -20,15 +20,28 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.129**
-- Core: **4.82.129**
-- Name: **M16.5 Block 1 Consumer Truth Repair**
+- App: **13.82.130**
+- Core: **4.82.130**
+- Name: **M16.5 Places Evidence Breadth Repair**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Consumer Truth Repair — Integration Candidate 13.82.129
+## M16.5 Places Evidence Breadth Repair — Integration Candidate 13.82.130
+
+- Runtime target: **App 13.82.130 / Core 4.82.130 / cache `luvia-shell-v13.82.130` / Integration only**.
+- Evidence-first breadth: **the Places owner now requests a 12–20 item provider window for every visible 1–3 card selection. Its progressive search stop counts only category-eligible, non-rejected places instead of treating cafés, bakeries, shops or other unusable rows as a full result pool**.
+- Cross-provider categories: **current Foursquare category labels are projected into a bounded Luvia discovery taxonomy while every native provider category ID and label remains preserved as evidence. This makes source-backed Foursquare places usable across Restaurants, Activities, Culture, Nature, Shopping and Practical without inventing a category**.
+- Restaurant correctness: **strict restaurant reads add Foursquare's current Restaurant category filter `13065`, retain Google strict type filtering, search within an adaptive destination radius and still post-filter every merged result. Spatial wishes such as waterfront remain ranking/search preferences unless the provider facts actually confirm the requested location**.
+- Consumer truth: **missing provider ratings no longer render as `0,0`; a single review renders as `1 Bewertung`. When the current message adds no preference but the Profile Compass is populated, chat copy now explicitly says that saved profile preferences were used instead of making the profile sound empty**.
+- Existing ownership: **the existing Intelligence orchestrator, Places owner, Identity owner and provider gateway remain unchanged; no second owner and no new mutation path is introduced**.
+- Edge candidate: **the authorized existing `luvia-gateway` is ACTIVE as v116, function id `ae8f0801-2325-4125-b1a9-4c57f81770ce`, bundle SHA-256 `b9215c0c8d187d07cc9cd98255a4a9ba009516d21c518f4aef9f6eaf6fefda9a`. Public health reports Places gateway 4.29.0, current Foursquare API 2025-06-17, category-filtered search and adaptive destination radius**.
+- Current evidence: **full Safe Regression 146/146 PASS and NFR foundation 3/3 PASS. A real local pointer/keyboard run returned three strict waterfront restaurants while controlled café and bakery rows stayed excluded, showed the corrected Profile-Compass sentence, opened the light chat-native Place detail from a real MapLibre pin and closed only that nested detail with Escape while preserving the chat and all three results. Immutable Integration deployment, Stable/Immutable byte provenance and fresh public provider acceptance remain required before this candidate can be called complete**.
+- Planned rollback: **Integration returns directly to immutable App 13.82.127 version `87f30057-c93a-462e-94a2-3e067c694cfe`; rejected `.128` and `.129` are deliberately not rollback targets. Edge rollback remains a source redeploy of the complete `luvia-gateway` tree from commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653`**.
+- Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
+
+## M16.5 Block 1 Consumer Truth Repair — Publicly deployed, rejected after visible breadth counterevidence 13.82.129
 
 - Runtime target: **App 13.82.129 / Core 4.82.129 / cache `luvia-shell-v13.82.129` / Integration only**.
 - Provider-rating truth: **Foursquare's source rating remains preserved as a 0–10 provider fact and is explicitly normalized to Luvia's 0–5 product scale before ranking or presentation. A source value such as 7.7 is therefore shown consistently as 3.85/5 instead of being clamped to a false 5.0**.
@@ -37,7 +50,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Strict restaurant evidence: **an explicit restaurant intent remains `restaurant` through Intelligence and the public Places read. Google receives strict type filtering; Foursquare and merged results are post-filtered against source category evidence. Café, bakery and other adjacent food categories never backfill an explicit restaurant result, while spatial constraints such as waterfront remain attached to every query variant**.
 - Chat-native Place detail: **MapLibre pins and result cards open a second light Living Sheet inside the existing Luvia chat instead of the legacy `rv2` Place surface. Places remains owner of details and photos; owner actions return to the chat and still require Preview and explicit confirmation. Escape closes exactly the nested Place detail first and preserves the conversation**.
 - Existing ownership: **the existing Intelligence orchestrator, Places owner, Journey owner and Location owner remain unchanged. No second owner and no new mutation path is introduced**.
-- Current evidence: **full Safe Regression 146/146 PASS; NFR foundation 3/3 PASS; the local visible pointer/keyboard acceptance showed three strict waterfront restaurants while controlled café and bakery counterexamples were excluded, opened the new light Place detail from a real MapLibre pin and returned to the intact chat with Escape. Immutable deployment, Stable/Immutable byte provenance and fresh public pointer/keyboard/provider acceptance remain required before this candidate can be called complete**.
+- Public disposition: **full Safe Regression 146/146 PASS and local pointer/keyboard acceptance passed, but the real public Scharbeutz waterfront search returned only Strand Creperie and Reetkate Scharbeutz. It also rendered a missing rating as `0,0` and used confusing Profile-Compass copy. `.129` is therefore rejected: excluding bakery/café was correct but the provider pool was still too narrow and stopped on ineligible raw rows**.
+- Public deployment: **runtime source commit `67630e0796c426253f5de1d4ecb89f470fd934cd`; Integration version `468eb444-517c-4c8c-8f5d-a5ae1694e305`; deployment `316db7e4-39fb-47b2-9e8f-afd43feaf688`; Stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; Immutable `https://468eb444-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Planned rollback: **Integration returns directly to immutable App 13.82.127 version `87f30057-c93a-462e-94a2-3e067c694cfe`; rejected `.128` is deliberately not a rollback target. Edge rollback remains a source redeploy of `luvia-gateway` from commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653`**.
 - Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
 

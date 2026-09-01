@@ -16,7 +16,7 @@ const actionRuntime='core/ai/ai-action-runtime.js';
 const dashboard='core/ai/ai-dashboard-service.js';
 
 for(const asset of [actionCore,ledgerCore,actionRuntime,dashboard]){
-  assert.ok(index.includes(`${asset}?v=13.82.129`),`index misses M16 runtime asset ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.130`),`index misses M16 runtime asset ${asset}`);
   assert.ok(worker.includes(`'${asset}'`),`service worker misses M16 runtime asset ${asset}`);
 }
 assert.ok(index.indexOf(actionCore)<index.indexOf(ledgerCore),'action contract must load before ledger');
@@ -36,8 +36,8 @@ for(const test of [
   'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
 ])assert.ok(runner.includes(test),`safe regression misses ${test}`);
 
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.129'"));
-assert.match(version,/core:'4\.82\.129',build:'13\.82\.129',name:'M16\.5 Block 1 Consumer Truth Repair'/);
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.130'"));
+assert.match(version,/core:'4\.82\.130',build:'13\.82\.130',name:'M16\.5 Places Evidence Breadth Repair'/);
 
 console.log('M16.5 Intelligence Action Runtime Registration: PASS');
 console.log('Action Contract -> Ledger -> Runtime -> Chat order: PASS');

@@ -1,5 +1,6 @@
 export const FOURSQUARE_API_VERSION='2025-06-17';
-export const FOURSQUARE_MAPPING_VERSION='2026-09-01.top-level-coordinates-rating-scale.v2';
+export const FOURSQUARE_MAPPING_VERSION='2026-09-01.category-breadth-rating-scale.v3';
+export const FOURSQUARE_RESTAURANT_CATEGORY_ID='13065';
 
 const PRO_FIELDS=[
   'fsq_place_id',
@@ -75,6 +76,46 @@ function addressText(location:any){
     .join(', ');
 }
 
+function canonicalCategoryTypes(labels:string[]){
+  const values=labels.map(value=>String(value||'').toLowerCase()),types:string[]=[];
+  const add=(type:string,pattern:RegExp)=>{if(values.some(value=>pattern.test(value)))types.push(type);};
+  add('restaurant',/\brestaurant\b|ristorante|restaurante|restaurang|restauracja|restoran|restaurace|ресторан|مطعم|餐厅|餐館|レストラン/);
+  add('cafe',/\bcaf[eé]\b|coffee|tea house/);
+  add('bakery',/bakery|boulangerie|b[äa]ckerei/);
+  add('bar',/\bbar\b|pub|cocktail/);
+  add('lodging',/hotel|hostel|motel|lodging|resort|bed and breakfast|guest house|campground/);
+  add('amusement_park',/amusement park|theme park/);
+  add('bowling_alley',/bowling/);
+  add('escape_room',/escape room/);
+  add('aquarium',/aquarium/);
+  add('zoo',/\bzoo\b|animal park/);
+  add('water_park',/water park/);
+  add('stadium',/stadium/);
+  add('swimming_pool',/swimming pool|aquatic center/);
+  add('tourist_attraction',/attraction|landmark|monument|observation deck|miniature golf|mini golf/);
+  add('museum',/museum/);
+  add('movie_theater',/movie theater|cinema/);
+  add('art_gallery',/art gallery/);
+  add('performing_arts_theater',/performing arts|theater|theatre/);
+  add('concert_hall',/concert hall|music venue/);
+  add('park',/\bpark\b/);
+  add('garden',/garden|botanical/);
+  add('beach',/beach|strand/);
+  add('hiking_area',/hiking|trail/);
+  add('spa',/\bspa\b|wellness/);
+  add('shopping_mall',/shopping mall/);
+  add('market',/\bmarket\b/);
+  add('store',/\bstore\b|\bshop\b|boutique/);
+  add('pharmacy',/pharmacy|apotheke/);
+  add('supermarket',/supermarket|grocery/);
+  add('parking',/parking/);
+  add('electric_vehicle_charging_station',/charging station/);
+  add('gas_station',/gas station|petrol station/);
+  add('atm',/\batm\b/);
+  add('laundry',/laundry|laundromat/);
+  return [...new Set(types)];
+}
+
 export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}:any={}){
   const p=place&&typeof place==='object'?place:{};
   const location=p.location&&typeof p.location==='object'?p.location:{};
@@ -82,6 +123,7 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
   const categories=(Array.isArray(p.categories)?p.categories:[]);
   const categoryLabels=categories.map((category:any)=>category?.name||category?.short_name).filter(Boolean).map(String);
   const categoryIds=categories.map((category:any)=>String(category?.id||'')).filter(Boolean);
+  const canonicalTypes=canonicalCategoryTypes(categoryLabels);
   const id=String(p.fsq_place_id||p.id||'');
   const country=String(location.country||'');
   const rating=normalizedRating(p.rating);
@@ -103,9 +145,10 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
     country,
     countryCode:/^[a-z]{2}$/i.test(country)?country.toUpperCase():'',
     location:coordinates?{latitude:coordinates.latitude,longitude:coordinates.longitude}:null,
-    primaryType:categoryIds[0]||'',
+    primaryType:canonicalTypes[0]||categoryIds[0]||'',
     primaryTypeLabel:categoryLabels[0]||'',
-    types:[...categoryIds,...categoryLabels],
+    types:[...canonicalTypes,...categoryIds,...categoryLabels],
+    providerNativeTypes:[...categoryIds,...categoryLabels],
     rating:rating.rating,
     ratingScale:5,
     providerRatingRaw:rating.providerRatingRaw,

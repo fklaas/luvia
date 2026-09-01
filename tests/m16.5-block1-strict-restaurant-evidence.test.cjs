@@ -58,9 +58,33 @@ assert.match(browserFixtureSource,/providerPlaceId:'fixture-bakery'.*providerNat
   });
   assert.equal(calls.length>=3,true,'strict restaurant discovery must retain the diversified provider search');
   assert.equal(calls.every(call=>call.includedType==='restaurant'&&call.strictTypeFiltering===true),true,'Google must receive strict restaurant type filtering on every variant');
+  assert.equal(calls.every(call=>call.maxResultCount===20),true,'a three-card restaurant result must be selected from a materially wider provider window');
   assert.deepEqual(Array.from(strict.places,place=>place.providerPlaceId).sort(),['restaurant-1','restaurant-2']);
   assert.equal(strict.places.some(place=>/bakery|cafe/.test((place.types||[]).join(' ').toLowerCase())),false,'adjacent food categories must never backfill an explicit restaurant result');
   assert.equal(sandbox.LuviaPlacesDiscoveryService.diagnostics().strictRestaurantEvidence,true);
+
+  const breadthCalls=[];
+  sandbox.LuviaPlaceEntities={searchPlaces:async options=>{
+    breadthCalls.push(options);const index=breadthCalls.length,places=[
+      {id:`bakery-${index}`,providerPlaceId:`bakery-${index}`,name:`Bäckerei ${index}`,types:['bakery'],rating:4.8},
+      {id:`cafe-${index}`,providerPlaceId:`cafe-${index}`,name:`Café ${index}`,types:['cafe'],rating:4.7},
+      {id:`shop-${index}`,providerPlaceId:`shop-${index}`,name:`Küstenladen ${index}`,types:['store'],rating:4.6}
+    ];
+    if(index>=4)places.push(
+      {id:`meal-${index}-1`,providerPlaceId:`meal-${index}-1`,name:`Küstenküche ${index}`,types:['restaurant'],rating:4.6,userRatingCount:190},
+      {id:`meal-${index}-2`,providerPlaceId:`meal-${index}-2`,name:`Fischertisch ${index}`,types:['Seafood Restaurant'],provider:'foursquare',rating:4.4,userRatingCount:130},
+      {id:`meal-${index}-3`,providerPlaceId:`meal-${index}-3`,name:`Dünenrestaurant ${index}`,primaryTypeLabel:'German Restaurant',types:['13065'],provider:'foursquare',rating:4.3,userRatingCount:110}
+    );
+    return{data:{places,providers:{requested:['google','foursquare'],used:['google','foursquare'],errors:[]}}};
+  }};
+  const broadened=await sandbox.LuviaPlacesDiscoveryService.recommend({
+    text:'Finde ein ruhiges Restaurant direkt an der Küste',category:'food',destination:'Timmendorfer Strand',strictPlaceType:'restaurant',limit:3,queryVariantLimit:5,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}
+  });
+  assert.ok(breadthCalls.length>=4,'non-restaurant raw rows must not make the owner stop before enough eligible restaurants exist');
+  assert.equal(broadened.places.length,3);
+  assert.equal(broadened.places.every(place=>/restaurant/i.test([place.primaryTypeLabel,...(place.types||[])].join(' '))),true);
+  assert.equal(broadened.diversityMeta.providerCandidateWindow,20);
+  assert.ok(broadened.diversityMeta.eligibleCandidateCount>=3);
 
   console.log('M16.5 Block 1 strict restaurant evidence: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
