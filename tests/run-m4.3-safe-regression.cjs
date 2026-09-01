@@ -574,6 +574,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-strict-restaurant-evidence.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Specific Subject Evidence Gate',
+    test: 'tests/m16.5-block1-specific-subject-evidence-gate.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 AI Places Destination Continuity',
     test: 'tests/m16.5-block1-ai-places-destination-continuity.test.cjs'
   },

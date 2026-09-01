@@ -20,7 +20,7 @@ const LOCATION_ALLOW=/\b(standort|gps|position|ortung)\b.{0,40}\b(nutzen|teilen|
 const LOCATION_DENY=/\b(standort|gps|position|ortung)\b.{0,40}\b(nicht|nie|sperren|deaktivieren|widerrufen)\b|\b(kein|keinen|deaktiviere|sperre|widerrufe)\b.{0,40}\b(standort|gps|position|ortung)\b/i;
 const DOMAINS=Object.freeze([
   {id:'events',owner:'intelligence',contract:'intelligence.verified-events.v1',availability:'read-only',pattern:/\b(event|events|veranstaltung(?:en)?|festival|konzert(?:e)?|live[- ]?musik|wochenmarkt|aufführung|auffuehrung|spielplan|eventkalender)\b/i},
-  {id:'places',owner:'places',contract:'places.v1',availability:'active',pattern:/\b(place|places|restaurant|café|cafe|essen|strand|meer|museum|kultur|aktivitaet|aktivität|ausflug|fotospot|shopping|nachtleben|natur|sehenswuerdig|sehenswürdig|ort(?:e|en)?)\b/i},
+  {id:'places',owner:'places',contract:'places.v1',availability:'active',pattern:/\b(place|places|restaurant|café|cafe|essen|strand|meer|museum|kultur|aktivitaet|aktivität|ausflug|fotospot|shopping|nachtleben|natur|sehenswuerdig|sehenswürdig|ort(?:e|en)?|mini[ -]?golf|golf|luftmatratze(?:n)?|schwimmring|badespielzeug|geschäft|geschaeft|laden|shop|kaufen|besorgen)\b/i},
   {id:'booking',owner:'booking',contract:'booking.v1',availability:'active',pattern:/\b(buchung(?:en)?|buche|buchen|reservier\w*|stornier\w*|umbuch\w*|tisch|ticket|hotel|provider)\b/i},
   {id:'journey',owner:'journey',contract:'journey.v1',availability:'active',pattern:/\b(timeline|tagesbogen|tagesplan|reiseplan|route|danach|davor|verschieb|plane|planen|hinzufueg|hinzufüg|moment)\b/i},
   {id:'trip',owner:'trip',contract:'trip.v1',availability:'active',pattern:/\b(aktive\s+reise|meine\s+reisen|reisen\s+(?:anzeigen|zeigen)|zeig(?:e|t)?\s+(?:mir\s+)?(?:meine\s+)?reisen|wechs(?:le|eln?)\s+(?:die|zur)\s+reise|reise\s+wechseln|reisedaten|reiseziel|reisezeitraum|trip|my\s+trips?|show\s+(?:my\s+)?trips?|switch\s+(?:the\s+)?trip|mis\s+viajes|mes\s+voyages|i\s+miei\s+viaggi|mijn\s+reizen|minhas\s+viagens|urlaub\s+(?:umbenennen|ändern|aendern))\b/i},
@@ -48,8 +48,8 @@ function stable(value){if(value==null||typeof value!=='object')return JSON.strin
 function digest(value){const source=stable(value);let hash=2166136261;for(let index=0;index<source.length;index++){hash^=source.charCodeAt(index);hash=Math.imul(hash,16777619)}return`fnv1a-${(hash>>>0).toString(16).padStart(8,'0')}`}
 
 function clausesFor(message){
-  const parts=clean(message).split(/\s+(und\s+danach|danach|anschließend|anschliessend|außerdem|ausserdem|sowie)\s+|[;\n]+/i),clauses=[];let relation='parallel';
-  for(const part of parts){const value=clean(part);if(!value)continue;if(/^(?:und\s+danach|danach|anschließend|anschliessend)$/i.test(value)){relation='after';continue}if(/^(?:außerdem|ausserdem|sowie)$/i.test(value)){relation='parallel';continue}clauses.push({text:value,relation:clauses.length?relation:'root'});relation='parallel'}
+  const parts=clean(message).split(/\s+(und\s+danach|danach|anschließend|anschliessend|außerdem|ausserdem|sowie|oder)\s+|[;\n]+/i),clauses=[];let relation='parallel';
+  for(const part of parts){const value=clean(part);if(!value)continue;if(/^(?:und\s+danach|danach|anschließend|anschliessend)$/i.test(value)){relation='after';continue}if(/^(?:außerdem|ausserdem|sowie|oder)$/i.test(value)){relation='parallel';continue}clauses.push({text:value,relation:clauses.length?relation:'root'});relation='parallel'}
   return clauses;
 }
 const DAY_INDEX=Object.freeze({sonntag:0,montag:1,dienstag:2,mittwoch:3,donnerstag:4,freitag:5,samstag:6});
@@ -67,7 +67,7 @@ function timeHint(source,context={}){const time=source.match(TIME_PATTERN),day=s
 function allTimes(source){const times=[];for(const match of source.matchAll(ALL_TIME_PATTERN))times.push(normalizedTime(match));return unique(times)}
 function categoryHints(source){const hints=[];for(const [id,pattern] of [
   ['food',/\b(restaurant|café|cafe|essen|vegetar|vegan|genuss)\b/i],['culture',/\b(museum|kultur|geschichte|galerie|theater|konzert|event)\b/i],['nature',/\b(natur|strand|meer|wald|park|ruhe|erholung)\b/i],
-  ['activity',/\b(aktivitaet|aktivität|ausflug|sport|schwimm|rad|wander)\b/i],['photo',/\b(foto|fotospot|aussicht)\b/i],['nightlife',/\b(nachtleben|club|bar|abend)\b/i],['shopping',/\b(shopping|einkauf|markt)\b/i]
+  ['activity',/\b(aktivitaet|aktivität|ausflug|sport|schwimm|rad|wander|mini[ -]?golf|golf|kletter|reiten|spielen)\b/i],['photo',/\b(foto|fotospot|aussicht)\b/i],['nightlife',/\b(nachtleben|club|bar|abend)\b/i],['shopping',/\b(shopping|einkauf|markt|kaufen|besorgen|geschäft|geschaeft|laden|shop|luftmatratze(?:n)?|schwimmring|badespielzeug)\b/i]
 ])if(pattern.test(source))hints.push(id);return hints}
 function preferencePatch(source){
   const patch={},negativeDiet=/\b(?:nicht|kein(?:e|en)?|ohne)\s+(?:mehr\s+)?(?:vegan|vegetar)\w*\b/i.test(source),dietary=[];
@@ -111,7 +111,7 @@ function graphFromIntents(text,intents,context={},meta={}){
 function compileIntent(message,context={}){
   const text=clean(message),empty={contractId:CONTRACT_ID,kind:'intent-graph',messageHash:digest(''),intents:[],ownerRoutes:[],requiresConfirmation:false,status:'empty',automaticMutation:false,rawMessageStored:false};if(!text)return immutable(empty);
   const clauses=clausesFor(text),intents=[],offline=context.offline===true||context.online===false;
-  clauses.forEach((entry,index)=>{const matched=DOMAINS.filter(domain=>domain.pattern.test(entry.text)),domains=matched.length?matched:(clauses.length===1?DOMAINS.filter(domain=>domain.pattern.test(text)):[]);for(const domain of domains){const write=WRITE_VERBS.test(entry.text),hint=timeHint(entry.text,context),entities=entityHints(entry.text),missing=requiredInputs(domain,write?'propose-write':'read',entry.text,hint,entities);intents.push({id:`intent-${index+1}-${domain.id}`,sequence:index+1,domain:domain.id,owner:domain.owner,ownerContract:domain.contract,ownerAvailability:domain.availability,mode:write?'propose-write':'read',requiresConfirmation:write,clause:entry.text,relation:entry.relation,categoryHints:domain.id==='places'?categoryHints(entry.text):[],temporalHint:hint,entityHints:entities,missingInputs:missing,dependencies:index&&entry.relation==='after'?[`clause-${index}`]:[],automaticMutation:false})}});
+  clauses.forEach((entry,index)=>{const matched=DOMAINS.filter(domain=>domain.pattern.test(entry.text)),whole=clauses.length===1?DOMAINS.filter(domain=>domain.pattern.test(text)):[],openPlaceWish=/\b(?:möchte|moechte|will|suche|finde|finden|spielen|machen|unternehmen|erleben|kaufen|brauche|besorgen)\b/i.test(entry.text),domains=matched.length?matched:whole.length?whole:openPlaceWish?[DOMAINS.find(domain=>domain.id==='places')]:[];for(const domain of domains){const write=WRITE_VERBS.test(entry.text),hint=timeHint(entry.text,context),entities=entityHints(entry.text),missing=requiredInputs(domain,write?'propose-write':'read',entry.text,hint,entities);intents.push({id:`intent-${index+1}-${domain.id}`,sequence:index+1,domain:domain.id,owner:domain.owner,ownerContract:domain.contract,ownerAvailability:domain.availability,mode:write?'propose-write':'read',requiresConfirmation:write,clause:entry.text,relation:entry.relation,categoryHints:domain.id==='places'?categoryHints(entry.text):[],temporalHint:hint,entityHints:entities,missingInputs:missing,dependencies:index&&entry.relation==='after'?[`clause-${index}`]:[],automaticMutation:false})}});
   return graphFromIntents(text,intents,{...context,offline},{compilerSource:'deterministic'});
 }
 

@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.1.0-provider-truth';
+  const RUNTIME_VERSION='1.2.0-provider-media-hydration';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -23,6 +23,7 @@
   function visit(){const api=window.LuviaPresenceVisitCore;if(typeof api?.confirmVisit!=='function')unavailable('LuviaPresenceVisitCore.confirmVisit');return api}
   const clean=value=>value==null?null:String(value);
   const httpsUrl=value=>{const url=clean(value)?.trim()||'';return /^https:\/\//i.test(url)?url:null};
+  const usablePhoto=photo=>Boolean(photo&&(httpsUrl(photo.uri||photo.url||photo.photoUri)||clean(photo.name)));
   function photoProvider(source={},photo={}){
     const signature=`${photo?.name||''} ${photo?.uri||photo?.url||''} ${source?.provider||''} ${source?.source||''}`.toLowerCase();
     if(/foursquare|4sqi|fsq:/.test(signature))return'Foursquare';
@@ -81,8 +82,11 @@
   }
   async function getCard(placeId,options={}){
     const seeded=options?.source||options?.place||null,seedId=clean(seeded?.providerPlaceId||seeded?.id)?.replace(/^places\//,''),requestedId=clean(placeId)?.replace(/^places\//,'');
-    const {source:_source,place:_place,...detailOptions}=options||{},response=seeded&&seedId===requestedId?null:await gateway().details(placeId,detailOptions);
-    const source=response?.data?.place||response?.data||response||seeded;
+    const {source:_source,place:_place,...detailOptions}=options||{},seedMatches=Boolean(seeded&&seedId===requestedId),seedHasPhoto=Array.isArray(seeded?.photos)&&seeded.photos.some(usablePhoto);
+    let response=null;
+    if(!seedMatches||!seedHasPhoto){try{response=await gateway().details(placeId,detailOptions)}catch(error){if(!seedMatches)throw error}}
+    const detailed=response?.data?.place||response?.data||response||null;
+    const source=detailed?{...(seeded||{}),...detailed,photos:Array.isArray(detailed.photos)&&detailed.photos.length?detailed.photos:(seeded?.photos||[])}:seeded;
     const place=detailsProjection(source);
     if(!place)return Object.freeze({place:null,image:null});
     const photo=Array.isArray(source?.photos)?source.photos[0]:null;

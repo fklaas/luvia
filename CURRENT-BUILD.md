@@ -20,15 +20,27 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.130**
-- Core: **4.82.130**
-- Name: **M16.5 Places Evidence Breadth Repair**
+- App: **13.82.131**
+- Core: **4.82.131**
+- Name: **M16.5 Specific Subject Evidence Gate**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Places Evidence Breadth Repair — Stable Integration Release 13.82.130 / Block-1 read slice accepted
+## M16.5 Specific Subject Evidence Gate — Integration Candidate 13.82.131
+
+- Runtime target: **App 13.82.131 / Core 4.82.131 / cache `luvia-shell-v13.82.131` / Integration only**.
+- Systemic correction: **every concrete Places wish is compiled into a provider-evidence requirement. OpenAI may contribute precise multilingual search variants, but a visible candidate must still match the requested subject through its provider name, description, canonical type or preserved provider-native category. A broad parent class such as Activity, Store, Hotel or Swimming Pool cannot satisfy an unrelated concrete request**.
+- Open vocabulary: **the evidence gate also derives discriminating terms from unfamiliar user subjects and OpenAI search plans. It is therefore not limited to a growing list of hard-coded one-off phrases; a Kletterpark/Climbing-Park counterexample exercises the same contract without a dedicated intent entry**.
+- Fulfilment boundary: **product wishes route to plausible Shopping sources rather than Activities. Place metadata may establish a relevant business type, never current inventory; the consumer receives an explicit stock-unverified message and arbitrary shops are rejected**.
+- Media boundary: **a search result without a projected image now performs one bounded owner-detail hydration before rendering. Provider photos retain their source attribution. If no trustworthy image exists after that read, the large decorative pseudo-photo is omitted and the card/detail use a compact map-first treatment; no invented image is shown**.
+- Reported regression: **the exact compound request `Super, und wenn ich noch Minigolf spielen will oder die Kinder Luftmatratzen wollen?` remains two independently sequenced owner reads. Petersen's Landhaus/Hotel Pool is a mandatory negative counterexample for Minigolf; a provider-native Miniature Golf Course is positive evidence**.
+- Ownership and writes: **OpenAI remains orchestrator only, Places remains owner of provider facts, Identity remains owner of confirmed profile preferences and no mutation is added. Existing write actions continue to require Preview, explicit confirmation, public Owner Command, Receipt and separately confirmed Undo/Recovery**.
+- Acceptance state: **full Safe Regression 147/147 PASS and NFR foundation 3/3 PASS. A local visible real-pointer/keyboard run of the exact reported compound request showed three evidence-matched Minigolf cards with loaded, explicitly fixture-attributed images, continued by real click to two plausible Shopping sources with loaded images and explicit stock-unverified copy; the unrelated fashion-store counterexample stayed absent. Public visible CUA, commit, immutable deployment, byte comparison and final rollback record remain required before this candidate can be accepted**.
+- Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
+
+## M16.5 Places Evidence Breadth Repair — Stable Integration Release 13.82.130 / rejected after specific-subject counterevidence
 
 - Runtime target: **App 13.82.130 / Core 4.82.130 / cache `luvia-shell-v13.82.130` / Integration only**.
 - Evidence-first breadth: **the Places owner now requests a 12–20 item provider window for every visible 1–3 card selection. Its progressive search stop counts only category-eligible, non-rejected places instead of treating cafés, bakeries, shops or other unusable rows as a full result pool**.
@@ -37,9 +49,9 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Consumer truth: **missing provider ratings no longer render as `0,0`; a single review renders as `1 Bewertung`. When the current message adds no preference but the Profile Compass is populated, chat copy now explicitly says that saved profile preferences were used instead of making the profile sound empty**.
 - Existing ownership: **the existing Intelligence orchestrator, Places owner, Identity owner and provider gateway remain unchanged; no second owner and no new mutation path is introduced**.
 - Edge release: **the authorized existing `luvia-gateway` is ACTIVE as v117, function id `ae8f0801-2325-4125-b1a9-4c57f81770ce`, bundle SHA-256 `16032f10c18b85c25a9586df835772d645083bcaf0071c9da6fc724f933b3d81`. Public health reports Places gateway 4.29.1, current Foursquare API 2025-06-17, explicit-reviewed-taxonomy-only category filtering, post-retrieval category evidence and adaptive destination radius. v116 is rejected because its automatic broad Restaurant-node filter caused a reproducible public all-owner-read failure while Google was restricted**.
-- Public acceptance: **full Safe Regression 146/146 PASS and NFR foundation 3/3 PASS. A fresh signed-in Stable run used real pointer, keyboard and scroll input for `Finde uns ein ruhiges Restaurant nah am Wasser in Scharbeutz` and returned three verified Foursquare options with 3/3 MapLibre pins: Grande Beach Café, Reetkate Scharbeutz and Stranddüne. The visible consumer copy says that no additional preferences were provided in this message and that saved Profile-Compass preferences were therefore used. A real pin opened Stranddüne in the new light chat-native detail with source, map, rating, contact and owner actions; Escape closed only the nested detail, left the composer and all three results intact, and no legacy `RESTAURANT-LEBENSZYKLUS` surface remained**.
+- Public disposition: **full Safe Regression 146/146 PASS and the public restaurant-breadth run passed, but the next real compound wish exposed a broader contract defect: `Minigolf` returned Petersen's Landhaus because a Hotel Pool satisfied the parent category Activities although the candidate's own evidence explicitly contradicted Minigolf. `.130` is therefore rejected as a full Places/AI acceptance target; its restaurant breadth result remains evidence for that narrower query only**.
 - Release provenance: **runtime source commit `99f283b6e6554a776513454729ba79b46853ebfd`; Edge breadth-recovery commit `2b73c61cd6ebb14129a74cc10de704999700f1fe`; Integration version `ba6f1391-3851-4616-bc34-54509c264202`; deployment `9fd733bc-23f2-406e-98b3-561a32578c59`; Stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; Immutable `https://ba6f1391-integration-luvia.njwnrvwbv5.workers.dev/`. The clean runtime archive has SHA-256 `95d7c9f7f37a0aaf8830a5f4a24cbb2e4021b2c1b833577719f2c64f8b177fea`; 21/21 changed runtime assets matched the clean archive on Immutable and Stable matched Immutable for 21/21 assets**.
-- Remaining Block-1 scope: **this accepts the provider-read, result-truth, Profile-Compass projection and chat-native detail slice only. Places Favorite/Unfavorite, Plan/Unplan and the remaining AI mutation-coverage rows are still explicitly open and prevent a claim that all of Block 1 is complete**.
+- Remaining Block-1 scope: **Places Favorite/Unfavorite, Plan/Unplan and the remaining AI mutation-coverage rows are still explicitly open. The specific-subject defect additionally prevents a claim that the read slice or all of Block 1 is complete**.
 - Planned rollback: **Integration returns directly to immutable App 13.82.127 version `87f30057-c93a-462e-94a2-3e067c694cfe`; rejected `.128` and `.129` are deliberately not rollback targets. Edge rollback remains a source redeploy of the complete `luvia-gateway` tree from commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653`**.
 - Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
 

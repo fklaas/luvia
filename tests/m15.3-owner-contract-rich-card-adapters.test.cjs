@@ -18,13 +18,13 @@ for(const forbidden of ['LuviaBookingRepository','.from(','.rpc(','functions.inv
 assert.ok(placesSource.includes('async function getCard(placeId,options={})'));
 assert.ok(placesSource.includes("cardMedia:'owner-adapter-projection'"));
 const order=[
-  'core/intelligence/intelligence-action-contract-core.js?v=13.82.130',
-  'core/platform/booking-contract-adapter.js?v=13.82.130',
-  'core/platform/journey-contract-adapter.js?v=13.82.130',
-  'core/platform/trip-contract-adapter.js?v=13.82.130',
-  'core/platform/places-contract-adapter.js?v=13.82.130',
-  'core/ai/ai-action-runtime.js?v=13.82.130',
-  'core/ai/ai-dashboard-service.js?v=13.82.130'
+  'core/intelligence/intelligence-action-contract-core.js?v=13.82.131',
+  'core/platform/booking-contract-adapter.js?v=13.82.131',
+  'core/platform/journey-contract-adapter.js?v=13.82.131',
+  'core/platform/trip-contract-adapter.js?v=13.82.131',
+  'core/platform/places-contract-adapter.js?v=13.82.131',
+  'core/ai/ai-action-runtime.js?v=13.82.131',
+  'core/ai/ai-dashboard-service.js?v=13.82.131'
 ];
 for(const asset of order)assert.ok(index.includes(asset),`M15 runtime asset missing: ${asset}`);
 const actionCoreIndex=index.indexOf(order[0]);
@@ -33,15 +33,16 @@ assert.ok(actionCoreIndex<actionRuntimeIndex,'browserless action policy must loa
 for(const ownerAsset of order.slice(1,5))assert.ok(index.indexOf(ownerAsset)<actionRuntimeIndex,`${ownerAsset} must load before the Web action runtime`);
 assert.ok(actionRuntimeIndex<index.indexOf(order[6]),'the chat must load only after its action runtime');
 for(const asset of ['core/intelligence/intelligence-action-contract-core.js','core/ai/ai-action-runtime.js'])assert.ok(serviceWorker.includes(`'${asset}'`),`Service Worker misses ${asset}`);
-assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.130'"));
+assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.131'"));
 
 const registrations=[];
+let detailCalls=0;
 const window={
   addEventListener(){},
   dispatchEvent(){},
   LuviaPlaceCore:{search:async()=>({places:[]}),getPlace:()=>null,getPlaces:()=>[]},
   LuviaPlaces:{
-    async details(){return{data:{place:{id:'places/place-1',displayName:{text:'Luvia Table'},formattedAddress:'Am Wasser 1',rating:4.8,userRatingCount:312,photos:[{name:'photos/hero',authorAttributions:[{displayName:'Provider'}]}]}}}},
+    async details(){detailCalls+=1;return{data:{place:{id:'places/place-1',displayName:{text:'Luvia Table'},formattedAddress:'Am Wasser 1',rating:4.8,userRatingCount:312,photos:[{name:'photos/hero',authorAttributions:[{displayName:'Provider'}]}]}}}},
     async photo(){return{data:{photoUri:'https://images.example/hero.jpg'}}}
   },
   LuviaPlaceCommands:{},
@@ -76,6 +77,10 @@ vm.runInContext(bookingSource,context,{filename:bookingPath});
   assert.equal(card.image.url,'https://images.example/hero.jpg');
   assert.equal(card.image.attribution,'Provider');
   assert.equal(Object.isFrozen(card),true);
+
+  const hydrated=await window.LuviaPlacesContractV1.reads.getCard('place-1',{source:{id:'places/place-1',providerPlaceId:'place-1',name:'Luvia Table',photos:[]}});
+  assert.equal(hydrated.image.url,'https://images.example/hero.jpg','a search result without media must hydrate the provider detail before rendering a placeholder');
+  assert.equal(detailCalls,2,'provider detail media hydration must run exactly once for an unpictured seeded card');
 
   const booking=context.LuviaBookingContractV1;
   assert.ok(booking,'booking.v1 adapter missing');
