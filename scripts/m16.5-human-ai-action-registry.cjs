@@ -844,7 +844,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-01\n\n` +
-    `Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.134 / PUBLIC E2E AND RELEASE PROOF IN PROGRESS / NO PRODUCT-PARITY COMPLETION CLAIM**\n\n` +
+    `Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.135 / PUBLIC E2E AND RELEASE PROOF IN PROGRESS / NO PRODUCT-PARITY COMPLETION CLAIM**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +

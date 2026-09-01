@@ -206,6 +206,19 @@ function bindCalendar(root=document){
   if(!root||boundRoots.has(root))return;boundRoots.add(root);
   root.addEventListener('click',event=>{const button=event.target.closest?.('[data-journey-date]');if(!button||!root.contains(button))return;event.preventDefault();event.stopPropagation();openDay(button.dataset.journeyDate)});
 }
+function syncTimelineSelection(root,date){
+  const snapshot=contract().reads.snapshot(),day=contract().reads.getDay?.(date)||snapshot.days?.find(item=>item.date===date);
+  if(!day)return;
+  const selectedLabel=root.querySelector('.lvjt-intro > span');
+  if(selectedLabel)selectedLabel.textContent=`Timeline · ${fmtLongDate(day.date)}`;
+  const contextValues=root.querySelectorAll('.lvjt-context > span > strong');
+  if(contextValues[0])contextValues[0].textContent=fmtLongDate(day.date);
+  if(contextValues[1])contextValues[1].textContent=`${day.summary?.entryCount||0} ${day.summary?.entryCount===1?'Moment':'Momente'}`;
+  if(contextValues[2])contextValues[2].textContent=`${Math.round((day.summary?.openMinutes||0)/60*10)/10} Stunden`;
+  if(contextValues[3])contextValues[3].textContent=day.conflicts?.length?`${day.conflicts.length} prüfen`:'Alles klar';
+  const discoverButton=root.querySelector('.lvjt-banner-actions [data-journey-discover]');
+  if(discoverButton){discoverButton.dataset.journeyDiscover=day.date;discoverButton.dataset.journeyStart=day.openGaps?.[0]?.startAt||''}
+}
 function bindTimeline(root=document){
   if(!root)return;
   activeTimelineRoot=root;if(!presenceEventsBound){presenceEventsBound=true;['luvia:place-visit-confirmation-required','luvia:place-visit-rejected'].forEach(name=>globalThis.addEventListener(name,()=>{if(activeTimelineRoot?.isConnected)hydratePendingVisits(activeTimelineRoot)}))}
@@ -213,6 +226,7 @@ function bindTimeline(root=document){
     const date=button.dataset.timelineDate;
     root.querySelectorAll('[data-timeline-date]').forEach(item=>{const active=item===button;item.classList.toggle('is-active',active);item.setAttribute('aria-pressed',String(active))});
     root.querySelectorAll('[data-timeline-day]').forEach(panel=>{const active=panel.dataset.timelineDay===date;panel.hidden=!active;panel.classList.toggle('is-active',active)});
+    syncTimelineSelection(root,date);
     const offlineButton=root.querySelector('[data-journey-offline]'),trip=globalThis.LuviaTripContractV1?.getActiveTrip?.()||{};if(offlineButton){const state=globalThis.LuviaJourneyOfflinePack?.status?.(trip,date);offlineButton.dataset.journeyOffline=date;offlineButton.textContent=state?.saved?'Offline gesichert ✓':'Tag offline sichern';offlineButton.disabled=!state?.available}
   }));
   root.querySelectorAll('[data-journey-entry-open]').forEach(button=>button.addEventListener('click',()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyEntryOpen);if(entry)openEntry(entry,null)}));

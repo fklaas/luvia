@@ -20,17 +20,17 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.134**
-- Core: **4.82.134**
+- App: **13.82.135**
+- Core: **4.82.135**
 - Name: **M16.5 Block 0 Human-AI Parity Control Plane**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 0 Human-AI Parity Control Plane — Integration Candidate 13.82.134
+## M16.5 Block 0 Human-AI Parity Control Plane — Integration Candidate 13.82.135
 
-- Runtime target: **App 13.82.134 / Core 4.82.134 / cache `luvia-shell-v13.82.134` / Integration only**.
+- Runtime target: **App 13.82.135 / Core 4.82.135 / cache `luvia-shell-v13.82.135` / Integration only**.
 - Complete inventory: **327 semantic user actions across 13 product categories are versioned; 316 are executable or conditional product actions and 11 are explicit Landing/demo interactions. The source audit reconciles 896 active `data-*` markers instead of counting markup as product capability**.
 - Owner boundary: **all 243 audited public Owner paths have an explicit contract and method decision. Intelligence still owns orchestration only; Trip, Places, Booking, Journey, Identity, Auth, Collaboration, Media, Memory and Platform retain their own reads and mutations**.
 - Runtime enforcement: **21/21 current AI runtime actions reject missing or contradictory typed input before Action Ledger creation or Owner invocation. Protected writes keep preview, explicit confirmation, idempotency, Owner receipt, readback/recovery and separately confirmed Undo where the Owner truthfully supports it**.
@@ -38,8 +38,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Honest capability and bright consumer: **all 327 actions have a current capability decision and consumer projection. The bright Chat shows understandable actions, questions, results, previews, confirmations, errors, receipts, recovery and Undo; technical Owner IDs, ledger vocabulary and raw provider errors remain diagnostics rather than normal user copy**.
 - Generated release gate: **the 327-row parity matrix evaluates twelve dimensions per action and materializes 2,711 failure evals. Its six canonical source contracts are hashed, regenerated deterministically and byte-compared by CI so a changed UI action cannot silently bypass its registry, confirmation, idempotency or public-evidence decision**.
 - Local release evidence: **Safe Regression 179/179 PASS, NFR-0 3/3 PASS, ownership guardrail unchanged and visual inventory 3,034 tracked files / 851 visual candidates / 65 CSS files. Visible local action-register, language, safety, lifecycle, capability, bright Chat and parity/failure fixtures are green**.
-- Public pre-release evidence: **the signed-in `.133` baseline returned three source-backed Foursquare Minigolf places with exact categories, coordinates, MapLibre pins, saved Profile Compass preferences and owner actions. The Google Places source remained quota-restricted; Luvia stated that limitation and used no invented fallback evidence**.
-- B0.10 closure gate: **clean focused source commit, immutable Worker upload, 100% Integration deployment, Stable/Immutable/archive byte proof, public Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion operation, real Place-plan receipt/readback/Undo and console check are still required before this candidate becomes the Block-0 control-plane release**.
+- Public pre-release evidence: **the signed-in `.134` run returned three source-backed Foursquare Minigolf places, compiled the typo-tolerant natural-language plan command into one exact `14.06.2027 · 14:00 Uhr` preview, required explicit confirmation and wrote the correct Owner-backed Timeline moment. The test then exposed a stale selected-day header/summary after switching from 12 to 14 June; `.134` is therefore immutable counterevidence, not the accepted Block-0 release. The temporary test moment was removed again through the visible Journey Owner surface**.
+- B0.10 closure gate: **the `.135` selected-day context repair must pass the full freeze, a new clean commit/immutable Worker upload/100% Integration deployment, Stable/Immutable/archive byte proof, public Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion operation, real Place-plan receipt/readback/immediate Undo and console check before this candidate becomes the Block-0 control-plane release**.
 - Product-parity boundary: **this release closes the Block-0 control plane, not all 316 product actions. Each row becomes `PUBLIC_E2E_PASS` only through its coherent B1–B5 Owner slice with the same complete release chain; missing AI routes and reserved providers remain honestly open**.
 - Exact rollback baseline: **return Integration 100% to the last accepted Owner-first USP release `.126`, version `df05650e-7776-4282-ac27-78efea65792c`; rejected `.128`–`.133` are not rollback targets. Code/assets only; no data rollback. The authorized `luvia-gateway` v120 remains unchanged by this App rollback**.
 - Scope lock: **Main, Production, Secrets, DB/RLS and Edge Functions unchanged**.

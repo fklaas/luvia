@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 RELEASE CANDIDATE 13.82.134 / BLOCK 1 STARTED BUT NOT ACCEPTED**
+Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 RELEASE CANDIDATE 13.82.135 / BLOCK 1 STARTED BUT NOT ACCEPTED**
 
 Plan position: B0.01–B0.10 are the newly inserted, cross-cutting Human ↔ AI
 action-parity control plane. They do not renumber P01–P50. P01–P39 are
@@ -72,7 +72,7 @@ execution blocks are `B1`–`B5`. The inserted parity packages are
 
 ### B0 — Complete Human ↔ AI action-parity control plane (B0.01–B0.10)
 
-Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.134 — 327-ACTION REGISTER, 243 PUBLIC OWNER PATHS, 21/21 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, CAPABILITY, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PUBLIC RELEASE AND E2E CLOSURE IN PROGRESS**
+Status: **B0.01–B0.09 LOCAL COMPLETE / B0.10 RELEASE CANDIDATE 13.82.135 — 327-ACTION REGISTER, 243 PUBLIC OWNER PATHS, 21/21 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, CAPABILITY, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PUBLIC RELEASE AND E2E CLOSURE IN PROGRESS**
 
 Current truthful position on 2026-09-01:
 
@@ -340,7 +340,7 @@ Current truthful position on 2026-09-01:
     Step-17 operation, focused commit, new immutable Integration version,
     Stable/Immutable byte proof and exact rollback before its registry row can
     become `PUBLIC-E2E-PASS`.
-    **Release candidate prepared (2026-09-01):** App/Core `13.82.134 / 4.82.134`
+    **Release candidate prepared (2026-09-01):** App/Core `13.82.135 / 4.82.135`
     freezes the B0.01–B0.09 control plane after 179/179 Safe Regression and
     3/3 NFR-0. The signed-in public `.133` baseline still returns three exact,
     source-backed Minigolf results while one provider is quota-restricted. The
