@@ -83,7 +83,7 @@ function entityHints(source){const party=source.match(PARTY_PATTERN),partyWord=s
 function requiredInputs(domain,mode,clause,hint,entities){
   if(mode!=='propose-write')return domain.id==='device-position'&&!/\b(?:in\s+meiner\s+nähe|in\s+meiner\s+naehe|hier)\b/i.test(clause)?['purpose']:[];
   if(domain.id==='booking')return[!entities.hasNamedTarget&&!/\b(?:restaurant|hotel|ticket|tisch)\b/i.test(clause)?'bookable-target':null,!hint.date?'date':null,!hint.time?'time':null,!entities.partySize?'party-size':null,'verified-provider-capability'].filter(Boolean);
-  if(domain.id==='journey')return[!hint.date?'date':null,!hint.time?'time-or-open-period':null,!/\b(?:restaurant|ort|place|museum|strand|route|moment|tagesplan)\b/i.test(clause)?'journey-target':null].filter(Boolean);
+  if(domain.id==='journey')return[!hint.date?'date':null,!hint.time?'time-or-open-period':null,!/\b(?:restaurant|ort|place|museum|strand|route|moment|tagesplan|abend|evening|morgen|morning|nachmittag|afternoon|tag|day)\b/i.test(clause)?'journey-target':null].filter(Boolean);
   if(domain.id==='trip')return[/\bwechsel/i.test(clause)&&!entities.hasNamedTarget?'target-trip':null].filter(Boolean);
   if(domain.id==='identity')return[Object.keys(entities.preferencePatch||{}).length?null:'preference-change'].filter(Boolean);
   if(domain.id==='privacy')return[/\b(?:teile|teilen|freigebe|freigeben|aktiviere|aktivieren|deaktiviere|deaktivieren|widerrufe|widerrufen)\b/i.test(clause)?null:'privacy-setting',/\b(?:standort|gps|position|ortung)\b/i.test(clause)?'position-purpose':null].filter(Boolean);

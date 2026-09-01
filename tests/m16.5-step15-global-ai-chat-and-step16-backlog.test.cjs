@@ -48,6 +48,10 @@ assert.match(runtime,/function fairCategorySelection\(/,'a multi-category chat w
 assert.match(runtime,/perCategoryLimit=Math\.min\(3,/,'each requested Place category may expose at most three suggestions');
 assert.doesNotMatch(dashboard,/\(result\.items\|\|\[\]\)\.slice\(0,3\)/,'the consumer may not silently hide all but the first category');
 assert.match(dashboard,/openPlaceSubject\(subject\)/,'map pins and Place cards must enter the same detail-sheet path');
+assert.match(dashboard,/LuviaPlaceDetails\.prepare\(providerPlaceId/,'the shared detail-sheet path must load facts and photos through the Places owner');
+assert.match(dashboard,/data-ai-place-detail-map/,'the chat-native detail sheet must retain the MapLibre spatial consumer');
+assert.doesNotMatch(dashboard,/LuviaApp\?\.openPlace/,'the AI chat must not route its map pins into the legacy universal Place renderer');
+assert.match(css,/\.lvx-ai-place-detail-sheet/,'the AI Place detail must use the nested Living Sheet language');
 assert.match(runtime,/limit:3/,'per-wish Places reads must ask for at most three results');
 assert.match(placesSpatial,/function mountProjection\(/);
 assert.match(placesSpatial,/!view\.markers\.length/,'the map projection must refuse invented coordinates');

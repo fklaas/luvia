@@ -1,5 +1,5 @@
 export const FOURSQUARE_API_VERSION='2025-06-17';
-export const FOURSQUARE_MAPPING_VERSION='2026-09-01.top-level-coordinates.v1';
+export const FOURSQUARE_MAPPING_VERSION='2026-09-01.top-level-coordinates-rating-scale.v2';
 
 const PRO_FIELDS=[
   'fsq_place_id',
@@ -37,6 +37,13 @@ export const FOURSQUARE_DETAILS_FIELDS=Object.freeze([...PRO_FIELDS,...PREMIUM_F
 function finiteCoordinate(value:any){
   const number=Number(value);
   return Number.isFinite(number)?number:null;
+}
+
+function normalizedRating(value:any){
+  if(value===null||value===undefined||value==='')return{rating:null,providerRatingRaw:null};
+  const providerRatingRaw=Number(value);
+  if(!Number.isFinite(providerRatingRaw)||providerRatingRaw<0||providerRatingRaw>10)return{rating:null,providerRatingRaw:null};
+  return{rating:Math.round((providerRatingRaw/2)*100)/100,providerRatingRaw};
 }
 
 function coordinatePair(place:any){
@@ -77,6 +84,7 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
   const categoryIds=categories.map((category:any)=>String(category?.id||'')).filter(Boolean);
   const id=String(p.fsq_place_id||p.id||'');
   const country=String(location.country||'');
+  const rating=normalizedRating(p.rating);
   const photos=(Array.isArray(p.photos)?p.photos:[]).map((photo:any)=>{
     const uri=photoUri(photo);
     return uri?{name:`foursquare/${id}/photos/${String(photo.id||'primary')}`,uri,widthPx:photo.width??null,heightPx:photo.height??null,authorAttributions:[]}:null;
@@ -98,7 +106,10 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
     primaryType:categoryIds[0]||'',
     primaryTypeLabel:categoryLabels[0]||'',
     types:[...categoryIds,...categoryLabels],
-    rating:p.rating??null,
+    rating:rating.rating,
+    ratingScale:5,
+    providerRatingRaw:rating.providerRatingRaw,
+    providerRatingScale:10,
     userRatingCount:p.stats?.total_ratings??0,
     priceLevel:p.price??null,
     businessStatus:p.date_closed?'CLOSED_PERMANENTLY':'OPERATIONAL',
@@ -124,6 +135,8 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
       kind:evidenceKind,
       categories:categoryLabels,
       coordinateSchema:coordinates?.source||'missing',
+      providerRating:rating.providerRatingRaw===null?null:{value:rating.providerRatingRaw,scale:10},
+      normalizedRating:rating.rating===null?null:{value:rating.rating,scale:5},
       veracityRating:p.veracity_rating??null
     }],
     raw:p

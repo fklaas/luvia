@@ -11,6 +11,7 @@ const dashboard=read('core/ai/ai-dashboard-service.js');
 const runtimeSource=read('core/ai/ai-action-runtime.js');
 const actionCoreSource=read('core/intelligence/intelligence-action-contract-core.js');
 const css=read('core/ai/ai-brain.css');
+const experienceCss=read('core/experience/experience-foundation.css');
 const fixture=read('tests/fixtures/m16.5ab-living-compass-ai-browser.html');
 
 assert.match(dashboard,/kind:'sheet'/,'Luvia Compass must use the universal Living Sheet host');
@@ -37,8 +38,13 @@ assert.match(dashboard,/data-ai-place-map/,'each Places response must expose a s
 assert.match(dashboard,/data-map-renderer="maplibre"/,'the inline map must retain an inspectable renderer contract without technical consumer copy');
 assert.match(dashboard,/Luvia Karte · Compass-Farben/,'the inline map must visibly use the shared Luvia palette');
 assert.match(dashboard,/\.slice\(0,3\)/,'each wish must render no more than three Places cards');
-assert.match(dashboard,/overlayOnly:true/,'AI Place selection must preserve the chat and open a second Living Sheet');
-assert.match(dashboard,/LuviaApp\?\.openPlace/,'AI must reuse the app-owned typed Place detail path');
+assert.match(dashboard,/data-ai-place-detail-layer/,'AI Place selection must preserve the chat and open a second Living Sheet');
+assert.match(dashboard,/LuviaPlaceDetails\.prepare/,'AI Place details must keep consuming the Places-owned detail read');
+assert.doesNotMatch(dashboard,/LuviaApp\?\.openPlace/,'AI Place selection must not fall back into the legacy typed rv2 detail surface');
+assert.doesNotMatch(dashboard,/rv2-/,'the AI-native Place detail consumer must not emit legacy rv2 markup');
+assert.match(dashboard,/closeOnEscape:false/,'the chat host must defer Escape while its nested Place detail is active');
+assert.match(dashboard,/if\(activePlaceDetail\)closePlaceSubject\(\);else LuviaUI\?\.closeTop\?\.\('escape'\)/,'Escape must close exactly one visible layer: detail first, chat second');
+assert.match(experienceCss,/\.lvx-ai-place-detail-sheet/,'the nested Place detail Living Sheet must have its own accepted light consumer styling');
 assert.match(dashboard,/Mit deinen freigegebenen Reiseinformationen/,'live output must be explained in consumer language');
 assert.match(dashboard,/Ohne Live-Antwort – bitte wichtige Angaben prüfen/,'fallback output must remain visibly distinguishable without implementation jargon');
 assert.match(dashboard,/actionResponse\.clarificationRequired/,'safe owner reads must survive a partial multi-intent that still needs mutation inputs');

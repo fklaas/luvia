@@ -20,15 +20,28 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.128**
-- Core: **4.82.128**
-- Name: **M16.5 Block 1 Consumer-ready AI Places**
+- App: **13.82.129**
+- Core: **4.82.129**
+- Name: **M16.5 Block 1 Consumer Truth Repair**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Consumer-ready AI Places — Integration Candidate 13.82.128
+## M16.5 Block 1 Consumer Truth Repair — Integration Candidate 13.82.129
+
+- Runtime target: **App 13.82.129 / Core 4.82.129 / cache `luvia-shell-v13.82.129` / Integration only**.
+- Provider-rating truth: **Foursquare's source rating remains preserved as a 0–10 provider fact and is explicitly normalized to Luvia's 0–5 product scale before ranking or presentation. A source value such as 7.7 is therefore shown consistently as 3.85/5 instead of being clamped to a false 5.0**.
+- Device-location truth: **legacy exact-coordinate cache is removed at boot. Exact device coordinates remain session-only and are read or watched only after a current visible user gesture; Place detail may say “von deinem Standort” only with explicit GPS provenance**.
+- Chat projection: **missing date/time information is requested before unrelated Journey results render; internal trip-place IDs and field names never become route labels; only populated days are expanded when a real plan exists; repeated compiler fragments and raw `time-or-open-period` tokens are projected as normal language**.
+- Strict restaurant evidence: **an explicit restaurant intent remains `restaurant` through Intelligence and the public Places read. Google receives strict type filtering; Foursquare and merged results are post-filtered against source category evidence. Café, bakery and other adjacent food categories never backfill an explicit restaurant result, while spatial constraints such as waterfront remain attached to every query variant**.
+- Chat-native Place detail: **MapLibre pins and result cards open a second light Living Sheet inside the existing Luvia chat instead of the legacy `rv2` Place surface. Places remains owner of details and photos; owner actions return to the chat and still require Preview and explicit confirmation. Escape closes exactly the nested Place detail first and preserves the conversation**.
+- Existing ownership: **the existing Intelligence orchestrator, Places owner, Journey owner and Location owner remain unchanged. No second owner and no new mutation path is introduced**.
+- Current evidence: **full Safe Regression 146/146 PASS; NFR foundation 3/3 PASS; the local visible pointer/keyboard acceptance showed three strict waterfront restaurants while controlled café and bakery counterexamples were excluded, opened the new light Place detail from a real MapLibre pin and returned to the intact chat with Escape. Immutable deployment, Stable/Immutable byte provenance and fresh public pointer/keyboard/provider acceptance remain required before this candidate can be called complete**.
+- Planned rollback: **Integration returns directly to immutable App 13.82.127 version `87f30057-c93a-462e-94a2-3e067c694cfe`; rejected `.128` is deliberately not a rollback target. Edge rollback remains a source redeploy of `luvia-gateway` from commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653`**.
+- Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
+
+## M16.5 Block 1 Consumer-ready AI Places — Publicly deployed, rejected after visible counterevidence 13.82.128
 
 - Runtime target: **App 13.82.128 / Core 4.82.128 / cache `luvia-shell-v13.82.128` / Integration only**.
 - Consumer language: **normal chat output explains the goal, results, next step, retry and optional rationale in product language. Owner IDs, slice numbers, ledger terms, raw provider errors and source counters remain in diagnostics and evals instead of occupying the customer conversation**.
@@ -36,7 +49,8 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 - Provider correction: **the authorized `luvia-gateway` v114 requests current Foursquare Places fields, maps top-level `latitude`/`longitude`, preserves a read-only legacy-coordinate fallback and bounds public diagnostics. A temporary fixed read-only diagnostic proved a live source-backed Foursquare result and was removed before v114**.
 - AI/Places continuity: **the existing Intelligence owner forwards Trip-owned destination context into the public Places discovery adapter. The adapter reuses an already resolved active destination before provider search, avoiding an unnecessary Google geocoding request and allowing the Foursquare fallback to run without inventing geography**.
 - Owner and mutation boundary: **`intelligence.v1` remains the sole orchestrator and `places.v1` remains owner of Places facts and mutations. No new mutation is added; writes still require Preview → explicit confirmation → public Owner Command → Receipt → Recovery → separately confirmed Undo/compensation**.
-- Current evidence: **focused browserless mapping and owner-continuity tests 6/6 PASS. Full Safe Regression, public pointer/keyboard acceptance, immutable deployment, Stable/Immutable byte provenance and release identifiers are still required before this candidate can be called complete**.
+- Public disposition: **Safe Regression 144/144 PASS and the positive public Foursquare search, provider photos and Place-detail opening worked. Visible acceptance then exposed two truth defects: the card showed a clamped 5.0 while the source detail exposed Foursquare 7.7/10, and Place detail rendered `0 m von deinem Standort` from stale cached exact coordinates without a current gesture. `.128` is therefore not accepted and is not a rollback target**.
+- Public deployment: **runtime source commit `beea4bef32820a9051d7f022b636120608a06155`; Integration version `8f06010b-9fba-46fd-8920-c6a2a023af8e`; deployment `8d485943-3cfb-4be2-a507-d665eba0b478`; Stable `https://integration-luvia.njwnrvwbv5.workers.dev/`; Immutable `https://8f06010b-integration-luvia.njwnrvwbv5.workers.dev/`**.
 - Edge rollback source: **redeploy the complete `supabase/functions/luvia-gateway` tree from source commit `b2ee087d9388ab7839ab5923c34c1f7a5f96b653` to return from v114 to the byte-equivalent pre-change v111 source; no Secret, DB or RLS rollback is involved**.
 - Scope lock: **Main, Production, Secrets and DB/RLS unchanged. The only authorized data-plane change is the Integration-used `luvia-gateway` function described above**.
 

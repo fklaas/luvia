@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.128-ai">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.128-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.128-ai2">
-  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.128-ai">
-  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.128-ai">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.129-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.129-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.129-ai2">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.129-ai">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.129-ai">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
@@ -32,9 +32,11 @@
     window.__ownerCalls=[];
     window.__fixturePlaces={
       food:[
-        {id:'places/fixture-restaurant',providerPlaceId:'fixture-restaurant',name:'Dünenküche',address:'Strandallee 1, Scharbeutz',primaryType:'restaurant',rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
-        {id:'places/fixture-bistro',providerPlaceId:'fixture-bistro',name:'Kompass Bistro',address:'Seestraße 4, Scharbeutz',primaryType:'restaurant',rating:4.6,userRatingCount:318,coordinates:{latitude:54.02810,longitude:10.75591}},
-        {id:'places/fixture-cafe',providerPlaceId:'fixture-cafe',name:'Wellen Café',address:'Am Kurpark 3, Scharbeutz',primaryType:'cafe',rating:4.5,userRatingCount:226,coordinates:{latitude:54.02789,longitude:10.75725}},
+        {id:'places/fixture-restaurant',providerPlaceId:'fixture-restaurant',name:'Dünenküche',address:'Strandallee 1, Scharbeutz',primaryType:'restaurant',providerNativeTypes:['restaurant'],waterfrontEvidence:true,rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
+        {id:'places/fixture-bistro',providerPlaceId:'fixture-bistro',name:'Kompass Bistro',address:'Seestraße 4, Scharbeutz',primaryType:'restaurant',providerNativeTypes:['restaurant'],waterfrontEvidence:true,rating:4.6,userRatingCount:318,coordinates:{latitude:54.02810,longitude:10.75591}},
+        {id:'places/fixture-cafe',providerPlaceId:'fixture-cafe',name:'Wellen Café',address:'Am Kurpark 3, Scharbeutz',primaryType:'cafe',providerNativeTypes:['cafe'],waterfrontEvidence:true,rating:4.5,userRatingCount:226,coordinates:{latitude:54.02789,longitude:10.75725}},
+        {id:'places/fixture-bakery',providerPlaceId:'fixture-bakery',name:'Strandbäckerei',address:'Promenade 2, Scharbeutz',primaryType:'bakery',providerNativeTypes:['bakery'],waterfrontEvidence:true,rating:4.6,userRatingCount:201,coordinates:{latitude:54.02751,longitude:10.75802}},
+        {id:'places/fixture-seesteg',providerPlaceId:'fixture-seesteg',name:'Seesteg Restaurant',address:'Strandpromenade 6, Scharbeutz',primaryType:'restaurant',providerNativeTypes:['seafood_restaurant','restaurant'],waterfrontEvidence:true,rating:4.5,userRatingCount:196,coordinates:{latitude:54.02762,longitude:10.75783}},
         {id:'places/fixture-market-kitchen',providerPlaceId:'fixture-market-kitchen',name:'Marktküche',address:'Am Markt 7, Scharbeutz Zentrum',primaryType:'restaurant',rating:4.4,userRatingCount:184,coordinates:{latitude:54.02574,longitude:10.75091}},
         {id:'places/fixture-garden-table',providerPlaceId:'fixture-garden-table',name:'Gartenstube',address:'Lindenstraße 12, Scharbeutz Zentrum',primaryType:'restaurant',rating:4.6,userRatingCount:152,coordinates:{latitude:54.02492,longitude:10.74940}},
         {id:'places/fixture-town-cafe',providerPlaceId:'fixture-town-cafe',name:'Ortskern Café',address:'Bahnhofstraße 5, Scharbeutz Zentrum',primaryType:'cafe',rating:4.3,userRatingCount:129,coordinates:{latitude:54.02398,longitude:10.74852}},
@@ -55,7 +57,7 @@
       ]
     };
     window.__fixtureImages={
-      'fixture-restaurant':'/assets/public-landing/prototype-restaurant.png','fixture-bistro':'/assets/public-landing/prototype-harbor-lunch.png','fixture-cafe':'/assets/place-evidence/cafe-de-flore-arnaud25.jpg','fixture-market-kitchen':'/assets/public-landing/book-family-departure.jpg','fixture-garden-table':'/assets/public-landing/book-romantic-highlands.jpg','fixture-town-cafe':'/assets/public-landing/travel-copenhagen.webp','fixture-courtyard':'/assets/public-landing/book-city-night.jpg','fixture-linden-cafe':'/assets/public-landing/reel-poster-couple-market.webp','fixture-station-table':'/assets/public-landing/travel-lisbon.webp',
+      'fixture-restaurant':'/assets/public-landing/prototype-restaurant.png','fixture-bistro':'/assets/public-landing/prototype-harbor-lunch.png','fixture-cafe':'/assets/place-evidence/cafe-de-flore-arnaud25.jpg','fixture-bakery':'/assets/public-landing/reel-poster-family-planning.webp','fixture-seesteg':'/assets/public-landing/book-family-beach.jpg','fixture-market-kitchen':'/assets/public-landing/book-family-departure.jpg','fixture-garden-table':'/assets/public-landing/book-romantic-highlands.jpg','fixture-town-cafe':'/assets/public-landing/travel-copenhagen.webp','fixture-courtyard':'/assets/public-landing/book-city-night.jpg','fixture-linden-cafe':'/assets/public-landing/reel-poster-couple-market.webp','fixture-station-table':'/assets/public-landing/travel-lisbon.webp',
       'fixture-minigolf':'/assets/public-landing/book-family-beach.jpg','fixture-adventure-golf':'/assets/public-landing/prototype-coast-bike.png','fixture-family-park':'/assets/public-landing/prototype-coast-morning.png','fixture-town-golf':'/assets/public-landing/reel-poster-family-planning.webp','fixture-family-workshop':'/assets/public-landing/reel-poster-couple-market.webp','fixture-play-house':'/assets/public-landing/book-city-night.jpg','fixture-craft-lab':'/assets/public-landing/book-jungle-waterfall.jpg','fixture-town-games':'/assets/public-landing/reel-poster-friends-beach.webp','fixture-family-club':'/assets/public-landing/book-family-departure.jpg'
     };
     window.LuviaTripContractV1={
@@ -66,7 +68,20 @@
     };
     window.LuviaPlacesContractV1={
       reads:{
-        recommend:async input=>{if(/Providerausfall/i.test(String(input?.query||input?.text||''))){const error=new Error('Der kontrollierte Places-Provider ist vorübergehend nicht erreichbar.');error.code='PLACES_PROVIDER_UNAVAILABLE';throw error}const category=input?.category==='activity'?'activity':'food',rejected=new Set(input?.rejectedProviderPlaceIds||[]),spatial=input?.spatialConstraints||{},centerOnly=spatial.prefer?.includes('center')||spatial.avoid?.includes('waterfront');window.__ownerCalls.push(['recommend',input]);const places=window.__fixturePlaces[category].filter(item=>!rejected.has(item.providerPlaceId)).filter(item=>!centerOnly||/Zentrum|Am Markt|Lindenstraße|Bahnhofstraße/.test(item.address)).map(item=>({...item,spatialConstraint:centerOnly?{state:'confirmed',requested:spatial,evidence:['center'],scoreDelta:28,reasons:['Kontrollierte Fixture-Lage erfüllt die räumliche Bedingung.']}:null}));return{places:places.slice(0,Math.min(3,Number(input?.limit||3))),route:{category:input?.category||'food'},diversityMeta:{candidateCount:places.length,returnedCount:Math.min(3,places.length),minimumQueryVariants:3,queriedVariants:3,rotationAcrossQueries:true,rejectedProviderPlaceIds:rejected.size}}},
+        recommend:async input=>{
+          if(/Providerausfall/i.test(String(input?.query||input?.text||''))){const error=new Error('Der kontrollierte Places-Provider ist vorübergehend nicht erreichbar.');error.code='PLACES_PROVIDER_UNAVAILABLE';throw error}
+          const category=input?.category==='activity'?'activity':'food',rejected=new Set(input?.rejectedProviderPlaceIds||[]),spatial=input?.spatialConstraints||{},centerOnly=spatial.prefer?.includes('center')||spatial.avoid?.includes('waterfront'),waterfrontOnly=spatial.prefer?.includes('waterfront')&&!centerOnly,strictRestaurant=input?.strictPlaceType==='restaurant';
+          window.__ownerCalls.push(['recommend',input]);
+          const isRestaurant=item=>(item.providerNativeTypes||[]).some(type=>/(?:^|_)restaurant(?:$|_)/.test(type));
+          const places=window.__fixturePlaces[category]
+            .filter(item=>!rejected.has(item.providerPlaceId))
+            .filter(item=>!strictRestaurant||isRestaurant(item))
+            .filter(item=>!centerOnly||/Zentrum|Am Markt|Lindenstraße|Bahnhofstraße/.test(item.address))
+            .filter(item=>!waterfrontOnly||item.waterfrontEvidence===true)
+            .map(item=>({...item,spatialConstraint:centerOnly||waterfrontOnly?{state:'confirmed',requested:spatial,evidence:[centerOnly?'center':'waterfront'],scoreDelta:28,reasons:['Kontrollierte Fixture-Lage erfüllt die räumliche Bedingung.']}:null}));
+          const limit=Math.min(3,Number(input?.limit||3));
+          return{places:places.slice(0,limit),route:{category:input?.category||'food'},diversityMeta:{candidateCount:places.length,returnedCount:Math.min(limit,places.length),minimumQueryVariants:3,queriedVariants:3,rotationAcrossQueries:true,rejectedProviderPlaceIds:rejected.size,strictRestaurantEvidence:strictRestaurant}};
+        },
         getCard:async id=>{const key=String(id).replace(/^places\//,''),place=Object.values(window.__fixturePlaces).flat().find(item=>item.providerPlaceId===key),url=window.__fixtureImages[key];return{place:place||null,image:url?{url,alt:`Kontrolliertes Layoutbild für ${place?.name||'Place'}`,attribution:'Kontrollierte E2E-Bildreferenz · kein Provider-Foto',provider:'fixture'}:null}}
       },
       commands:{
@@ -116,22 +131,22 @@
       }
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.128-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.128-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.128-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.128-ai"></script>
-  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.128-ai"></script>
-  <script src="core/places/places-domain-contract-core.js?v=13.82.128-ai"></script>
-  <script src="core/places/global-place-contracts.js?v=13.82.128-ai"></script>
-  <script src="app/places/places-spatial-composition-core.js?v=13.82.128-ai"></script>
-  <script src="app/places/places-spatial-experience.js?v=13.82.128-ai-event-map-state"></script>
-  <script src="core/journey/journey-resilience-core.js?v=13.82.128-ai"></script>
-  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.128-ai"></script>
-  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.128-ai"></script>
-  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.128-ai"></script>
-  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.128-ai-map"></script>
-  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.128-ai"></script>
-  <script src="core/ai/ai-action-runtime.js?v=13.82.128-ai-product-language"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.128-ai-product-language"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.129-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.129-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.129-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.129-ai"></script>
+  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.129-ai"></script>
+  <script src="core/places/places-domain-contract-core.js?v=13.82.129-ai"></script>
+  <script src="core/places/global-place-contracts.js?v=13.82.129-ai"></script>
+  <script src="app/places/places-spatial-composition-core.js?v=13.82.129-ai"></script>
+  <script src="app/places/places-spatial-experience.js?v=13.82.129-ai-event-map-state"></script>
+  <script src="core/journey/journey-resilience-core.js?v=13.82.129-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.129-ai"></script>
+  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.129-ai"></script>
+  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.129-ai"></script>
+  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.129-ai-map"></script>
+  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.129-ai"></script>
+  <script src="core/ai/ai-action-runtime.js?v=13.82.129-ai-product-language"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.129-ai-product-language"></script>
 </body>
 </html>

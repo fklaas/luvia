@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>M16.5Q Living Compass Recovery Browser</title>
-  <link rel="stylesheet" href="app/app-shell.css?v=13.82.128">
-  <link rel="stylesheet" href="app/module-hubs.css?v=13.82.128-compass-visibility-recovery">
+  <link rel="stylesheet" href="app/app-shell.css?v=13.82.129">
+  <link rel="stylesheet" href="app/module-hubs.css?v=13.82.129-compass-visibility-recovery">
   <style>
     :root{--luvia-color-action-primary:#eb6257;--luvia-color-action-on-primary:#fff;--luvia-color-action-primary-soft:#fff0ed;--luvia-color-status-success:#2f9b72;--luvia-color-status-info:#2c93a9;--luvia-color-surface-elevated:#fff;--luvia-color-surface-subtle:#f3f7f8;--luvia-color-text-primary:#102a3c;--luvia-color-text-muted:#667b8d;--luvia-color-border-subtle:#d9e3e7;--luvia-color-border-strong:#b9c8cf;--luvia-radius-md:15px;--luvia-radius-pill:999px;--luvia-motion-fast:160ms;--luvia-motion-base:260ms;--luvia-ease-standard:ease;--luvia-ease-enter:cubic-bezier(.16,.84,.18,1)}
     .lv-e2e-destination{min-height:calc(100dvh - 150px);display:grid;place-content:center;gap:14px;padding:32px;border:1px solid #dbe4e8;border-radius:32px;background:linear-gradient(145deg,#fff,#edf6f4);text-align:center}.lv-e2e-destination h1{margin:0;font-size:clamp(38px,7vw,74px)}
@@ -22,7 +22,7 @@
     const auth={loading:false,authenticated:true,user:{id:'m16-5q-user'},session:{fixture:true}};
     const stages=['idle','platform-ready','auth-ready','domain-context-ready','shell-ready','modules-ready'];let runtimeStage='idle',runtimeStatus='ready';
     const stageIndex=name=>Math.max(0,stages.indexOf(name));
-    window.LuviaKernelVersion={build:'13.82.128',core:'4.82.128'};
+    window.LuviaKernelVersion={build:'13.82.129',core:'4.82.129'};
     window.LuviaCoreVersion=window.LuviaKernelVersion;
     window.LuviaAppRuntime={
       async run(name,fn){const value=await fn();runtimeStage=name;runtimeStatus='ready';return value},
@@ -64,8 +64,8 @@
     window.LuviaBookingAvailability={check:()=>{},readiness:()=>{}};window.LuviaBookingReservationCreate={create:()=>{},readiness:()=>{}};window.LuviaBookingReservationMutation={modify:()=>{},cancel:()=>{},readiness:()=>{}};window.LuviaBookingReservationMutationStatus={get:()=>{},history:()=>{}};window.LuviaBookingReservationRecovery={get:()=>{},list:()=>{},reconcile:()=>{},history:()=>{}};window.LuviaBookingEmailV2={readiness:()=>{},get:()=>{},history:()=>{},queue:()=>{},send:()=>{}};
   })();
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.128"></script>
-  <script src="app/module-hubs.js?v=13.82.128"></script>
-  <script src="app/app-shell.js?v=13.82.128"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.129"></script>
+  <script src="app/module-hubs.js?v=13.82.129"></script>
+  <script src="app/app-shell.js?v=13.82.129"></script>
 </body>
 </html>

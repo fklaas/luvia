@@ -209,6 +209,70 @@ html[data-theme="dark"]{
 @media(max-width:560px){.lvx-place-map{min-height:200px;border-radius:15px}.lvx-place-map-status{left:9px;right:auto;bottom:9px;max-width:calc(100% - 18px)}}
 @media(prefers-reduced-motion:reduce){.lvx-command-surface .lvx-place-card-media>img,.lv-places-spatial .lv-places-spatial__marker{animation:none;transition:none}.lvx-place-card:hover .lvx-place-card-media>img{transform:none}}
 
+/* AI Place detail is a second, chat-native Living Sheet. It consumes the
+   existing Places owner projection and never enters the legacy rv2 surface. */
+.lvx-ai-place-detail-layer{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:grid;
+  place-items:end center;
+  overflow:hidden;
+  pointer-events:none;
+}
+.lvx-ai-place-detail-scrim{
+  position:absolute;
+  inset:0;
+  border:0;
+  background:linear-gradient(180deg,rgba(16,44,67,.035),rgba(16,44,67,.14));
+  opacity:0;
+  transition:opacity .24s ease-out;
+}
+.lvx-ai-place-detail-sheet{
+  position:relative;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  width:min(100%,1120px);
+  max-height:min(88dvh,760px);
+  box-sizing:border-box;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 24%,var(--luvia-color-border-subtle));
+  border-bottom:0;
+  border-radius:30px 30px 0 0;
+  background:#fff;
+  box-shadow:0 -24px 72px rgba(13,45,60,.2);
+  transform:translateY(105%);
+  transition:transform .42s cubic-bezier(.22,.75,.25,1);
+}
+.lvx-ai-place-detail-layer.is-open{pointer-events:auto}
+.lvx-ai-place-detail-layer.is-open .lvx-ai-place-detail-scrim{opacity:1}
+.lvx-ai-place-detail-layer.is-open .lvx-ai-place-detail-sheet{transform:none}
+.lvx-ai-place-detail-handle{position:absolute;z-index:3;top:9px;left:50%;width:42px;height:4px;border-radius:999px;background:#d7e2e7;transform:translateX(-50%)}
+.lvx-ai-place-detail-close{position:absolute;z-index:5;top:18px;left:18px;display:grid;place-items:center;width:42px;height:42px;padding:0;border:1px solid rgba(191,208,216,.92);border-radius:50%;background:rgba(255,255,255,.96);color:#102d3f;box-shadow:0 8px 22px rgba(16,44,67,.1);font:inherit;font-size:20px;cursor:pointer}
+.lvx-ai-place-detail-close:hover,.lvx-ai-place-detail-close:focus-visible{border-color:var(--luvia-color-action-primary);color:var(--luvia-color-action-primary);box-shadow:var(--luvia-focus-ring)}
+.lvx-ai-place-detail-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c4d5db transparent}
+.lvx-ai-place-detail-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);min-height:270px;background:#edf5f5}
+.lvx-ai-place-detail-visual{position:relative;min-height:270px;overflow:hidden;background:linear-gradient(145deg,#fbe7e4,#fff6dd 52%,#e4f3f0)}
+.lvx-ai-place-detail-visual img{display:block;width:100%;height:100%;min-height:270px;object-fit:cover}
+.lvx-ai-place-detail-visual>small{position:absolute;right:10px;bottom:9px;max-width:75%;padding:4px 8px;overflow:hidden;border-radius:999px;background:rgba(7,31,45,.7);color:#fff;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.lvx-ai-place-detail-visual.is-placeholder{display:grid;place-items:center;align-content:center;gap:8px;padding:32px;color:#607483;text-align:center}.lvx-ai-place-detail-visual.is-placeholder>span{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#ef6254;color:#fff;font-size:24px;box-shadow:0 0 0 9px rgba(244,179,76,.16)}.lvx-ai-place-detail-visual.is-placeholder>p{max-width:30ch;margin:0;font-size:11px;line-height:1.5}
+.lvx-ai-place-detail-map{position:relative;min-height:270px;overflow:hidden;border-left:1px solid rgba(191,208,216,.9);background:radial-gradient(circle at 20% 15%,rgba(244,179,76,.22),transparent 34%),radial-gradient(circle at 84% 78%,rgba(44,147,169,.2),transparent 40%),#f7f3ed}
+.lvx-ai-place-detail-map .maplibregl-map{position:absolute;inset:0;width:100%;height:100%}.lvx-ai-place-detail-map .maplibregl-canvas{filter:saturate(.86) contrast(.95) brightness(1.035)}.lvx-ai-place-detail-map .maplibregl-ctrl-group{overflow:hidden;border:1px solid #c5d6dc;border-radius:12px;background:rgba(255,255,255,.95);box-shadow:0 8px 22px rgba(16,44,67,.12)}
+.lvx-ai-place-detail-body{display:grid;gap:15px;padding:26px clamp(22px,4vw,42px) max(28px,env(safe-area-inset-bottom));background:#fff;color:#102d3f}
+.lvx-ai-place-detail-kicker,.lvx-ai-place-detail-source>span,.lvx-ai-place-detail-reasons>span{color:var(--luvia-color-action-primary);font-size:9px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+.lvx-ai-place-detail-body h3{margin:-7px 0 0;color:#102d3f;font-family:var(--luvia-font-family-display);font-size:clamp(1.8rem,4vw,3rem);line-height:1;letter-spacing:-.045em}
+.lvx-ai-place-detail-address{margin:-5px 0 0;color:#516879;font-size:13px;line-height:1.5}
+.lvx-ai-place-detail-loading,.lvx-ai-place-detail-error{padding:10px 12px;border:1px solid #d6e4e8;border-radius:12px;background:#f5fafb;color:#516879;font-size:10px}.lvx-ai-place-detail-error{border-color:color-mix(in srgb,var(--luvia-color-status-warning) 30%,#d6e4e8);background:#fffaf1;color:#73531f}
+.lvx-ai-place-detail-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.lvx-ai-place-detail-facts article{display:grid;gap:4px;min-width:0;padding:11px 12px;border:1px solid #dce7eb;border-radius:14px;background:#f8fbfc}.lvx-ai-place-detail-facts span{color:#718594;font-size:8px;font-weight:750}.lvx-ai-place-detail-facts strong{overflow-wrap:anywhere;color:#102d3f;font-size:10px;line-height:1.4}
+.lvx-ai-place-detail-source{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:13px 14px;border:1px solid color-mix(in srgb,var(--luvia-color-action-primary) 22%,#dce7eb);border-radius:14px;background:linear-gradient(135deg,#f3faf9,#fff)}.lvx-ai-place-detail-source>strong{justify-self:end;font-size:10px}.lvx-ai-place-detail-source>small{grid-column:1/-1;color:#718594;font-size:8px}
+.lvx-ai-place-detail-links{display:flex;flex-wrap:wrap;gap:8px}.lvx-ai-place-detail-links a{display:inline-flex;align-items:center;min-height:40px;box-sizing:border-box;padding:9px 13px;border:1px solid #ccdde2;border-radius:999px;background:#fff;color:#23475c;font-size:10px;font-weight:750;text-decoration:none}.lvx-ai-place-detail-links a:hover,.lvx-ai-place-detail-links a:focus-visible{border-color:var(--luvia-color-action-primary);color:var(--luvia-color-action-primary)}
+.lvx-ai-place-detail-reasons{display:grid;gap:9px;padding:14px;border:1px solid #dce7eb;border-radius:16px;background:#f8fbfc}.lvx-ai-place-detail-reasons ul{display:grid;gap:7px;margin:0;padding-left:17px;color:#40576a;font-size:10px;line-height:1.5}.lvx-ai-place-detail-reasons li::marker{color:#ef6254}
+.lvx-ai-place-detail-actions{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;padding:12px 0 0;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 20%)}.lvx-ai-place-detail-actions .lvx-rich-action{min-height:44px;padding-inline:16px}.lvx-ai-place-detail-actions .lvx-rich-action:first-child{background:var(--luvia-color-action-primary);color:var(--luvia-color-action-on-primary)}
+.lvx-ai-place-detail-body>footer{padding-top:2px;color:#718594;font-size:8px;line-height:1.5}
+@media(max-width:720px){.lvx-ai-place-detail-layer{position:fixed}.lvx-ai-place-detail-sheet{width:100%;max-height:91dvh;border-radius:26px 26px 0 0}.lvx-ai-place-detail-layout{grid-template-columns:1fr;min-height:0}.lvx-ai-place-detail-visual,.lvx-ai-place-detail-visual img{min-height:210px;height:210px}.lvx-ai-place-detail-map{min-height:170px;border-top:1px solid rgba(191,208,216,.9);border-left:0}.lvx-ai-place-detail-body{gap:13px;padding:22px 18px max(24px,env(safe-area-inset-bottom))}.lvx-ai-place-detail-body h3{font-size:2rem}.lvx-ai-place-detail-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.lvx-ai-place-detail-links{display:grid;grid-template-columns:1fr 1fr}.lvx-ai-place-detail-links a{justify-content:center}.lvx-ai-place-detail-actions{display:grid;grid-template-columns:1fr}.lvx-ai-place-detail-actions .lvx-rich-action{width:100%}}
+@media(max-width:400px){.lvx-ai-place-detail-visual,.lvx-ai-place-detail-visual img{min-height:180px;height:180px}.lvx-ai-place-detail-map{min-height:150px}.lvx-ai-place-detail-links{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.lvx-ai-place-detail-scrim,.lvx-ai-place-detail-sheet{transition:none}.lvx-ai-place-detail-sheet{transform:none}.lvx-ai-place-detail-layer:not(.is-open){visibility:hidden}}
+
 /* S16 owner evidence surfaces: read recovery, planning trace and Journey rehearsal. */
 .lvx-owner-read-failure{display:grid;gap:8px;width:100%;box-sizing:border-box;padding:15px;border:1px solid color-mix(in srgb,var(--luvia-color-status-danger) 30%,var(--luvia-color-border-subtle));border-radius:15px;background:linear-gradient(145deg,color-mix(in srgb,var(--luvia-color-status-danger) 5%,#fff),#fff);box-shadow:0 10px 28px rgba(24,56,77,.07)}
 .lvx-owner-read-failure>span{color:var(--luvia-color-status-danger);font-size:9px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}.lvx-owner-read-failure>strong{color:var(--luvia-color-text-primary);font-size:14px}.lvx-owner-read-failure>p{margin:0;color:var(--luvia-color-text-secondary);font-size:11px;line-height:1.5}.lvx-owner-read-failure>small{color:var(--luvia-color-text-muted);font-size:8px;line-height:1.45}

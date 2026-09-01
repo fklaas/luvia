@@ -566,6 +566,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-foursquare-current-response-mapping.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Consumer Truth Projection',
+    test: 'tests/m16.5-block1-consumer-truth-projection.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Strict Restaurant Evidence',
+    test: 'tests/m16.5-block1-strict-restaurant-evidence.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 AI Places Destination Continuity',
     test: 'tests/m16.5-block1-ai-places-destination-continuity.test.cjs'
   },

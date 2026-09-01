@@ -48,7 +48,12 @@ test('current top-level response becomes a source-backed Luvia place with provid
   assert.equal(result.evidence[0].coordinateSchema,'top-level');
   assert.equal(result.formattedAddress,'Strandallee 1, Scharbeutz, 23683, DE');
   assert.equal(result.primaryTypeLabel,'Restaurant');
-  assert.equal(result.rating,8.7);
+  assert.equal(result.rating,4.35);
+  assert.equal(result.ratingScale,5);
+  assert.equal(result.providerRatingRaw,8.7);
+  assert.equal(result.providerRatingScale,10);
+  assert.deepEqual(result.evidence[0].providerRating,{value:8.7,scale:10});
+  assert.deepEqual(result.evidence[0].normalizedRating,{value:4.35,scale:5});
   assert.equal(result.userRatingCount,213);
   assert.equal(result.photos[0].uri,'https://images.example/900x900.jpg');
   assert.equal(result.veracityRating,4);
@@ -63,6 +68,7 @@ test('legacy cached coordinates remain readable but missing provider facts are n
   assert.equal(missing.location,null);
   assert.deepEqual(missing.photos,[]);
   assert.equal(missing.rating,null);
+  assert.equal(missing.providerRatingRaw,null);
   assert.equal(missing.userRatingCount,0);
 });
 

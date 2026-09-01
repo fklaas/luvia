@@ -32,6 +32,10 @@ const tripWeekday=core.compileIntent('Plane am Sonntag um 19 Uhr ein Restaurant 
 assert.equal(tripWeekday.intents.find(intent=>intent.domain==='journey').temporalHint.date,'2027-06-13');
 assert.equal(tripWeekday.status,'compiled');
 
+const relaxedEvening=core.compileIntent('Plane uns einen entspannten Abend in Scharbeutz.');
+assert.equal(relaxedEvening.status,'needs-clarification');
+assert.deepEqual(JSON.parse(JSON.stringify(relaxedEvening.missingInputs.map(item=>item.input))),['date','time-or-open-period']);
+
 const preferenceWrite=core.compileIntent('Merke dir bitte: Ich esse vegan, reise entspannt und bevorzuge ein kleines Budget.');
 assert.equal(preferenceWrite.status,'compiled');
 assert.equal(preferenceWrite.requiresConfirmation,true);
