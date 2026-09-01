@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL LIVE-PRICE TARGETS 13.82.136, NOT YET PUBLICLY ACCEPTED**
+Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL FOUNDATION PUBLIC ON 13.82.136, BLOCK STILL ACTIVE**
 
 Current canonical counts on 2026-09-02 are **329 semantic actions, 245 public
 Owner bindings, 23/23 typed runtime actions, 124 protected state changes, 898
@@ -399,29 +399,29 @@ Current truthful B1 position on 2026-09-02:
   `places.place.plan` path and created the owner-backed Timeline entry, but the
   public readback rendered confirmed `14:00` as `12:00`. The timezone-aware
   readback, compact day projection, duplicate-intent suppression and concrete
-  explanation corrections are local only until committed and released.
+  explanation corrections are committed and publicly released on `.136`.
 - P06–P09 remain **OPEN** beyond partial contracts/evals. P10 and the S16
   planning projections have meaningful partial coverage but do not constitute
   Block-1 completion.
 - A reproduced `.135` counterexample (`ich will eine andere reise auswählen`
   → Places travel agencies) opened one semantic-first B1 correction. The local
-  candidate now lets sufficiently confident structured whole-sentence meaning
+  `.136` now lets sufficiently confident structured whole-sentence meaning
   select the owner route, sends low-confidence meaning to a clarification and
-  no longer silently treats an unknown generic wish as a Places search. This is
-  code/eval evidence only until the visible fixture and public Step-17 run pass.
+  no longer silently treats an unknown generic wish as a Places search. The
+  signed-in public Hotel sentence proves this semantic read path on Stable.
 - P06–P08 now include the **universal admission and booking provider family**.
   The Booking Owner, not Places/Journey/Chat, decides whether a place is dining,
   lodging, attraction, culture, activity, event, transport or rental; whether
   free/not-required/recommended/required/timed entry is explicitly evidenced;
   and which safe route is available. `reservable=true`, a category or a ticket
-  URL never becomes an invented requirement. The local candidate supports an
+  URL never becomes an invented requirement. The public foundation supports an
   official ticket/reservation link and a source-backed verified public booking
   email immediately. Tiqets and Viator receive partner-gated API adapter
   counterparts; GetYourGuide, FareHarbor, Bókun, Regiondo, bookingkit, Xola and
   Checkfront are recognized handoff/partner candidates; EVENTIM, Reservix and
   Ticketmaster are recognized event-ticket handoffs. None is called connected
   without real partner access and runtime health.
-- The coherent local B1 bundle now contains the browserless
+- The coherent public B1 foundation now contains the browserless
   `booking.admission.v1` decision, additive `booking.v1` reads, a canonical
   `booking.place.open` action with the old restaurant ID retained only as a
   compatibility alias, admission notices in Chat/Place detail, Places and
@@ -433,15 +433,15 @@ Current truthful B1 position on 2026-09-02:
   action-runtime, consumer and registry suites are green. The visible local
   fixture is operated successfully at the default and 390 × 844 viewport:
   `pass`, 4 admission states, 11 provider tiers, no horizontal overflow and no
-  browser warning/error. The public immutable Step-17 release chain remains
-  acceptance work rather than an implementation claim. The separate visible
+  browser warning/error. The immutable `.136` release chain is complete for
+  this fail-closed foundation. The separate visible
   Hotel live-price fixture is also green at default and 390×844: one property,
   two controlled comparable tariffs, `TT.MM.JJJJ`, no market-best claim,
   truthful no-provider fallback, no overflow and no console warning/error.
-- Consequently Block 1 is started, not finished. Its next public candidate must
-  pass the corrected Place plan/readback/Undo path plus the applicable
-  Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion matrix with no console
-  regression before work advances as complete.
+- Consequently Block 1 is started, not finished. P04/P05 mutations, positive
+  provider activation, P09/P10 and the applicable remaining Desktop/Mobile/
+  Keyboard/Reload/Back/Reduced-Motion rows must still pass before the Block may
+  advance as complete.
 
 1. **P01 — Public `.126` baseline lock.** Retain App/Core/cache/SW versions, Stable,
    Immutable, byte provenance, rollback, known counterevidence and the untouched
@@ -751,7 +751,7 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY 
   lane. They do not replace KAYAK's cross-provider breadth and do not inherit an
   affiliate revenue claim. Without at least one live price response, Hotel UI
   is fit-only; without two live sources it cannot claim cross-source comparison.
-- The local candidate now contains the authenticated
+- The public `.136` foundation contains the authenticated
   `booking-hotel-offer-search` gateway, separate fail-closed Amadeus and
   Hotelbeds adapters, service-only search/snapshot evidence and the public
   `booking.v1.reads.searchStayOffers` route. Only `live=true` provider API
@@ -759,7 +759,9 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY 
   destination identifiers, taxes or current responses stays `fit_only`.
 - The visible local Hotel acceptance passes at default and 390×844 for both
   two-controlled-source and no-source states, with no overflow or console
-  warning/error. It remains local evidence, not a real-provider/public pass.
+  warning/error. Stable additionally proves the signed-in semantic Hotel read,
+  truthful no-provider state and 390×844 no-overflow path. It remains no proof
+  of a positive live-provider price.
 - Viator, Tiqets, Expedia Creator, Hostelworld, Omio and Klook form the first
   commercial application wave. The owner must submit contracts and payout/tax
   data; credentials remain outside the repository.

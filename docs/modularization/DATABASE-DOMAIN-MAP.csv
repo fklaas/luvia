@@ -46,6 +46,7 @@ booking_provider_capabilities,Booking,canonical,migration-created
 booking_provider_connection_events,Booking,canonical,migration-created
 booking_provider_connections,Booking,canonical,migration-created
 booking_provider_links,Booking,canonical,migration-created
+booking_provider_operation_contracts,Booking,canonical,migration-created
 booking_provider_probe_runs,Booking,canonical,migration-created
 booking_provider_references,Booking,canonical,migration-created
 booking_provider_status_contracts,Booking,canonical,migration-created
@@ -63,6 +64,9 @@ booking_route_failover_events,Booking,canonical,migration-created
 booking_route_state,Booking,canonical,migration-created
 booking_status_signals,Booking,canonical,migration-created
 booking_status_updates,Booking,canonical,migration-created
+booking_stay_offer_readiness_v1,Booking,canonical read model,migration-created
+booking_stay_offer_searches,Booking,canonical,migration-created
+booking_stay_offer_snapshots,Booking,canonical,migration-created
 bookings,Booking,canonical,migration-created
 budget_entries,Legacy/Paris,legacy,M0 remote/base referenced
 co_selection_aggregates,Intelligence,canonical/transitional,migration-created

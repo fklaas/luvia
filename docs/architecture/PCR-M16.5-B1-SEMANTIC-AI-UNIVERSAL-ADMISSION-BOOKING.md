@@ -93,11 +93,17 @@ The AI could route a complete sentence such as “Ich will eine andere Reise aus
 
 ## Rollout and rollback
 
-Publish one immutable Integration version containing this coherent slice.
-Stable may point to it only after public verification. Code rollback restores
-accepted App `13.82.135` / Worker version
-`d4efd8ac-969c-426c-b312-7ea686740ac1`. If the new Hotel evidence schema was
-applied and must also be removed, execute
-`docs/rollback/M16.5-B1-CORE-4.82.136-HOTEL-LIVE-OFFER-GATEWAY-ROLLBACK.sql`
-after restoring the Worker. This rollback does not delete existing Booking,
-message, provider, reservation or conversion evidence.
+The coherent Integration slice is public from commit
+`090c8009bb63e52a45f91b4d4fdbb640e91f51c9`, clean archive SHA-256
+`9B9DA25879BA41757FBB01662EE56E60A4C435758382ECD3C390D2DD5C6E77B2`,
+Worker version `caf3e8bd-7f98-47fc-991c-135062732dad` and deployment
+`b5c1f33e-dbda-4e09-901e-952b7cc47207`. Stable and Immutable match the archive
+for 24/24 selected files and 6,003,200 bytes. The public signed-in Chat proves
+the typed Berlin/date/occupancy Hotel read and truthful provider-unavailable
+state at desktop and 390×844; it is not a positive live-provider proof.
+
+Code rollback restores accepted App `13.82.135` / Worker version
+`d4efd8ac-969c-426c-b312-7ea686740ac1`. Full additive backend compensation then
+runs the Hotel live-offer rollback followed by the universal Booking rollback.
+Neither rollback deletes existing Booking, message, reservation or conversion
+evidence.
