@@ -16,11 +16,11 @@
     "blockedCapabilityPresentedAsAvailable": false
   },
   "summary": {
-    "catalogActions": 327,
-    "projectedActions": 327,
+    "catalogActions": 329,
+    "projectedActions": 329,
     "consumerViews": {
-      "ACTION": 18,
-      "HANDOFF": 282,
+      "ACTION": 39,
+      "HANDOFF": 263,
       "PREVIEW": 27
     },
     "capabilityStates": 15,
@@ -32,19 +32,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.today.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Heute öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -55,19 +58,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.plan.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Planen/Living Compass öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -78,19 +84,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.trip.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Reise öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -101,19 +110,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.memories.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Erinnerungen öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -124,19 +136,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.more.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Mehr/Control Center öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -147,19 +162,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.places.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Places öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -170,19 +188,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.places-lifecycle.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Orte-Lebenszyklus öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -193,19 +214,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.timeline.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Timeline öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -216,19 +240,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.routes.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Routenansicht öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -239,19 +266,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.gallery.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Galerie öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -262,19 +292,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.albums.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Alben/Stories öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -285,19 +318,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.bookings.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Buchungen öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -308,19 +344,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.control-center.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Control Center öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -331,19 +370,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.identity-center.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Identity Center öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -354,19 +396,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.booking-center.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Booking Control Center öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -377,19 +422,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.booking-inbox.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Booking Inbox öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -400,19 +448,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.profile-onboarding.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Profil-Onboarding öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -423,19 +474,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "navigation.first-trip-composer.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Reise-Composer öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -5939,19 +5993,22 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "media.photo.timeline.open",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
-      "tone": "attention",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
       "hidden": false,
       "title": "Zeit-/Reisekontext des Fotos öffnen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
         "kind": "OPEN"
       },
-      "secondaryAction": null,
       "requiresConfirmation": false,
       "actionMode": "OPEN",
       "manualFlow": {
@@ -7651,6 +7708,58 @@
       "requiresConfirmation": false,
       "actionMode": "ACTION",
       "manualFlow": null
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "navigation.hotels.open",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
+      "hidden": false,
+      "title": "Hotels & Unterkünfte öffnen",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
+      "details": [],
+      "primaryAction": {
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
+        "kind": "OPEN"
+      },
+      "requiresConfirmation": false,
+      "actionMode": "OPEN",
+      "manualFlow": {
+        "label": "Hotels & Unterkünfte öffnen selbst öffnen",
+        "surface": "Planen / Living Compass / Globaler Luvia Chat"
+      }
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "booking.stay.search",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
+      "hidden": false,
+      "title": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
+      "details": [],
+      "primaryAction": {
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
+        "kind": "OPEN"
+      },
+      "requiresConfirmation": false,
+      "actionMode": "READ",
+      "manualFlow": {
+        "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen selbst öffnen",
+        "surface": "Hotels & Unterkünfte / Globaler Luvia Chat"
+      }
     }
   ]
 }

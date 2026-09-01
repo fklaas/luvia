@@ -9,27 +9,27 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "2B189E55AFA9F05285CC467D389CA9233EBAF0104F9E89656420F4E291951F15"
+        "sha256": "9FE37D9D20A73395FE393C6032D173F12C72CCCB1043C92B2689F49265F450DB"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
-        "sha256": "8524C269462B52739AEB1979BE3E2F60FD8FCEC4BB8D088B848496030E25E990"
+        "sha256": "92B0AB0E7EACF1EF78A2964C6D9DAF2BDAFD029E1E7BAF3C5E4C059D23C92378"
       },
       "safety": {
         "file": "config/luvia-human-ai-safety-policy.v1.json",
-        "sha256": "7008A2783190F4A53D8B7B946975EB9C0EE7F7980083E8CCD78DDC22A67AC397"
+        "sha256": "BBA10CFD133A63129C4D969511781FDB0636618F5236C33B5C01DD5E20CC11F0"
       },
       "lifecycle": {
         "file": "config/luvia-human-ai-action-lifecycles.v1.json",
-        "sha256": "33D23849B6419D8701E6DB0F4D5DC9C5704BE5EE75C071FF72D5981964BF066D"
+        "sha256": "7BF4506ACD5E0D92E490C7B13E943605267F084135566A7CBABEE76810CA5B11"
       },
       "capability": {
         "file": "config/luvia-human-ai-capability-matrix.v1.json",
-        "sha256": "947B7A19E5F29A6D0C20015D873612DF8A0D49D9F11125EC0A1F8C2A88068596"
+        "sha256": "2CB3B1D0F60D5DB1E46B26245A75DC85BE2F663705A6281E2198571FFCFE4D8A"
       },
       "consumer": {
         "file": "config/luvia-human-ai-consumer-projections.v1.json",
-        "sha256": "6EFF1C8B033FAC49EB4D676B7B94F55BBBEC1601809C123282A292D4536FDD9E"
+        "sha256": "BD4BC69E9DEB815AB3BFAF97F13A543AACAE8C39950DCB2B0E6A394457CB227E"
       }
     }
   },
@@ -58,21 +58,21 @@
     "denial"
   ],
   "summary": {
-    "catalogActions": 327,
-    "matrixRows": 327,
+    "catalogActions": 329,
+    "matrixRows": 329,
     "dimensions": 12,
     "releaseStatus": {
-      "MANUAL_OWNER_PATH": 242,
+      "LOCAL_AI_PATH": 78,
+      "MANUAL_OWNER_PATH": 223,
       "BLOCKED": 14,
-      "LOCAL_AI_PATH": 57,
       "PUBLIC_E2E_PROVEN": 3,
       "NOT_APPLICABLE": 11
     },
     "publicE2eProven": 3,
-    "localAiPaths": 57,
-    "manualOwnerPaths": 242,
+    "localAiPaths": 78,
+    "manualOwnerPaths": 223,
     "protectedChanges": 124,
-    "generatedFailureCases": 2711,
+    "generatedFailureCases": 2725,
     "driftGuard": true,
     "ownerExecution": false
   },
@@ -93,18 +93,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -112,7 +110,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -160,8 +158,8 @@
           "expected": "Tippfehler sicher als navigation.today.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -219,18 +217,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -238,7 +234,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -286,8 +282,8 @@
           "expected": "Tippfehler sicher als navigation.plan.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -345,18 +341,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -364,7 +358,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -412,8 +406,8 @@
           "expected": "Tippfehler sicher als navigation.trip.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -471,18 +465,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -490,7 +482,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -538,8 +530,8 @@
           "expected": "Tippfehler sicher als navigation.memories.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -597,18 +589,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -617,7 +607,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -665,8 +655,8 @@
           "expected": "Tippfehler sicher als navigation.more.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -729,18 +719,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -748,7 +736,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -796,8 +784,8 @@
           "expected": "Tippfehler sicher als navigation.places.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -855,18 +843,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -875,7 +861,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -923,8 +909,8 @@
           "expected": "Tippfehler sicher als navigation.places-lifecycle.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -987,18 +973,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -1006,7 +990,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -1054,8 +1038,8 @@
           "expected": "Tippfehler sicher als navigation.timeline.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1113,18 +1097,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -1133,7 +1115,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -1181,8 +1163,8 @@
           "expected": "Tippfehler sicher als navigation.routes.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1245,18 +1227,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -1264,7 +1244,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -1312,8 +1292,8 @@
           "expected": "Tippfehler sicher als navigation.gallery.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1371,18 +1351,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -1391,7 +1369,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -1439,8 +1417,8 @@
           "expected": "Tippfehler sicher als navigation.albums.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1503,18 +1481,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -1522,7 +1498,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -1570,8 +1546,8 @@
           "expected": "Tippfehler sicher als navigation.bookings.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1629,18 +1605,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -1648,7 +1622,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -1696,8 +1670,8 @@
           "expected": "Tippfehler sicher als navigation.control-center.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1755,18 +1729,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -1775,7 +1747,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -1823,8 +1795,8 @@
           "expected": "Tippfehler sicher als navigation.identity-center.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -1887,18 +1859,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -1907,7 +1877,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -1955,8 +1925,8 @@
           "expected": "Tippfehler sicher als navigation.booking-center.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -2019,18 +1989,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -2039,7 +2007,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -2087,8 +2055,8 @@
           "expected": "Tippfehler sicher als navigation.booking-inbox.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -2151,18 +2119,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -2171,7 +2137,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -2219,8 +2185,8 @@
           "expected": "Tippfehler sicher als navigation.profile-onboarding.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -2283,18 +2249,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -2303,7 +2267,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -2351,8 +2315,8 @@
           "expected": "Tippfehler sicher als navigation.first-trip-composer.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -34967,18 +34931,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
-        "consumerView": "HANDOFF"
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -34987,7 +34949,7 @@
           "status": "PASS",
           "evidence": "navigation.v1 · createIntent",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -35035,8 +34997,8 @@
           "expected": "Tippfehler sicher als media.photo.timeline.open erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -45007,6 +44969,266 @@
           "id": "multi_intent",
           "given": "Interaktive Demo zurücksetzen und danach einen zweiten Wunsch bearbeiten",
           "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 328,
+      "actionId": "navigation.hotels.open",
+      "label": "Hotels & Unterkünfte öffnen",
+      "category": "Navigation & Oberfläche",
+      "area": "Hauptnavigation",
+      "surface": "Planen / Living Compass / Globaler Luvia Chat",
+      "effect": "NAVIGATION",
+      "risk": "R0",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "navigation.v1",
+        "method": "createIntent",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "navigation.v1 · createIntent",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Hotels & Unterkünfte öffnen“ eindeutig navigation.hotels.open zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "NAVIGATION_OPEN · SELF",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Keine Änderung",
+          "expected": "Direkt lesen oder öffnen"
+        },
+        "idempotency": {
+          "status": "NOT_REQUIRED",
+          "evidence": "NONE",
+          "expected": "Keine Mutations-ID erforderlich"
+        },
+        "receipt": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Kein Schreib-Receipt erforderlich",
+          "expected": "Lesergebnis normal darstellen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Erneut öffnen / zur vorherigen Ansicht zurück",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Nicht automatisch zugesagt",
+          "expected": "Manuellen Wiederherstellungsweg nennen"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Hotels & Unterkünfte offnen",
+          "expected": "Tippfehler sicher als navigation.hotels.open erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "1 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Hotels & Unterkünfte offnen",
+          "expected": "Weiterhin navigation.hotels.open erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Hotels & Unterkünfte öffnen und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung SELF fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 329,
+      "actionId": "booking.stay.search",
+      "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "category": "Buchung & Anbieterkommunikation",
+      "area": "Hotels finden und vergleichen",
+      "surface": "Hotels & Unterkünfte / Globaler Luvia Chat",
+      "effect": "READ",
+      "risk": "R0",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "booking.v1",
+        "method": "reads.searchStayOffers",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "booking.v1 · reads.searchStayOffers",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen“ eindeutig booking.stay.search zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "READ_PRESENTATION · TRIP_MEMBER",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Keine Änderung",
+          "expected": "Direkt lesen oder öffnen"
+        },
+        "idempotency": {
+          "status": "NOT_REQUIRED",
+          "evidence": "NONE",
+          "expected": "Keine Mutations-ID erforderlich"
+        },
+        "receipt": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Kein Schreib-Receipt erforderlich",
+          "expected": "Lesergebnis normal darstellen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Providerstatus anzeigen / Suche mit vollständigen Reisedaten erneut ausführen",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Nicht automatisch zugesagt",
+          "expected": "Manuellen Wiederherstellungsweg nennen"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Hotels fur identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+          "expected": "Tippfehler sicher als booking.stay.search erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "1 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Hotels fur identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+          "expected": "Weiterhin booking.stay.search erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung TRIP_MEMBER fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
         },
         {
           "id": "multilingual_unproven",

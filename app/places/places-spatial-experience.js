@@ -238,6 +238,7 @@
   }
   function resultCard(place,index){
     const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image;
+    const admission=admissionFor(place);
     const opening=place.openNow===true?{className:'is-open',label:'Geöffnet'}:place.openNow===false?{className:'is-closed',label:'Geschlossen'}:{className:'is-unknown',label:'Öffnung prüfen'};
     const rating=place.rating!=null?`<strong class="lv-places-spatial__fact">${Number(place.rating).toFixed(1).replace('.',',')}</strong><span class="lv-places-spatial__fact">${place.userRatingCount?`${Number(place.userRatingCount).toLocaleString('de-DE')} Bewertungen`:'Bewertung'}</span>`:'';
     const price=priceLabel(place.priceLevel),distance=distanceLabel(place),match=matchLabel(place);
@@ -251,12 +252,13 @@
         <h3>${esc(place.name)}</h3>
         <p class="lv-places-spatial__reason">${esc(reason(place,index))}</p>
         <div class="lv-places-spatial__result-facts">${match?`<strong class="lv-places-spatial__fact is-match">${esc(match)}</strong>`:''}${rating}${price?`<span class="lv-places-spatial__fact">${esc(price)}</span>`:''}${distance?`<span class="lv-places-spatial__fact">${esc(distance)}</span>`:''}${saved?`<span class="lv-places-spatial__fact is-saved">${esc(saved.lifecycle==='planned'?'Geplant':'Gespeichert')}</span>`:''}</div>
+        ${admission?.relevant?`<div class="lv-places-spatial__admission is-${esc(admission.notice.tone)}"><span>${esc(admission.notice.label)}</span><small>${esc(admission.notice.detail)}</small></div>`:''}
         <div class="lv-places-spatial__result-secondary-actions">
           <button type="button" data-places-maps="${esc(id)}" ${place.coordinates||place.mapsUrl?'':'disabled'}>Route</button>
         </div>
         <div class="lv-places-spatial__result-actions">
           <button type="button" class="lv-places-spatial__result-secondary" data-places-favorite="${esc(id)}" aria-pressed="${saved?.isFavorite===true}">${saved?.isFavorite?'Favorit ✓':'Favorisieren'}</button>
-          ${isBookablePlace(place)?`<button type="button" class="lv-places-spatial__result-secondary" data-places-booking="${esc(id)}">Jetzt reservieren</button>`:''}
+          ${admission?.action?.available?`<button type="button" class="lv-places-spatial__result-secondary" data-places-booking="${esc(id)}">${esc(admission.action.label)}</button>`:''}
           <button type="button" class="lv-places-spatial__result-primary" data-places-plan="${esc(id)}">Zur Timeline hinzufügen</button>
         </div>
       </div>
@@ -507,7 +509,7 @@
     }catch(error){notify(error?.message||'Booking konnte nicht geöffnet werden.','error')}
     finally{button.disabled=false}
   }
-  function isBookablePlace(place){const tokens=[place?.primaryType,place?.canonicalType,place?.category,...(place?.types||[])].map(value=>clean(value).toLowerCase());return tokens.some(value=>/restaurant|cafe|café|bakery|food|meal|bar/.test(value))}
+  function admissionFor(place){try{return bookingContract()?.reads?.resolveAdmission?.(place)||globalThis.LuviaBookingAdmissionCore?.resolve?.(place)||null}catch{return null}}
   function planningDate(){
     const today=new Date().toISOString().slice(0,10),start=clean(state.trip?.startDate||state.trip?.start_date).slice(0,10),end=clean(state.trip?.endDate||state.trip?.end_date).slice(0,10);
     return start&&today<start?start:end&&today>end?start||today:today;

@@ -23,8 +23,9 @@ assert.doesNotMatch(ui,/owner_canvas_fallback/);
 assert.match(ui,/channel:'unavailable'/);
 assert.ok(ui.indexOf('const target=externalTarget(route)')<ui.indexOf("route.resolved&&route.channel==='email'"),'Provider gate must precede email canvas gate');
 
-assert.match(sheet,/Tisch reservieren/);
-assert.match(sheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'museum, nature and activity suggestions must never be presented as bookable restaurants');
+assert.match(sheet,/admission\.action\.label/);
+assert.match(sheet,/const admissionFor=/,'all admission notices must come from the Booking Owner');
+assert.doesNotMatch(sheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'the consumer must not keep restaurant-only booking policy');
 assert.match(sheet,/reserveExternalWindow:true/);
 assert.match(sheet,/sheetHost=handle\.overlay\.querySelector\('\[data-journey-suggestion-sheet\]'\)/);
 assert.match(sheet,/host:sheetHost,onBack:restore/);

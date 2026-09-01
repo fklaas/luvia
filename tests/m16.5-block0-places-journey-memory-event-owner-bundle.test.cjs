@@ -42,9 +42,9 @@ const {
   assert.deepEqual(Array.from(selected.ids),['media-1']);
   assert.equal((await memory.reads.getStory('story-1')).id,'story-1');
 
-  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,243);
+  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,245);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
-  assert.equal(registry.summary.aiCoverage.MISSING,248,'Owner binding must not be mislabeled as AI parity');
+  assert.equal(registry.summary.aiCoverage.MISSING,229,'Owner binding must not be mislabeled as AI parity');
   console.log('M16.5 Block 0 Places/Journey/Memory/Event public Owner bundle: PASS');
   console.log('60 additional actions -> 22 Places + 12 Journey + 26 Memory public methods: PASS');
   console.log('Presence enable/refresh/confirm/reject and Memory selection/read paths execute: PASS');

@@ -15,8 +15,8 @@
     "summary": { "type": "object" },
     "actions": {
       "type": "array",
-      "minItems": 327,
-      "maxItems": 327,
+      "minItems": 329,
+      "maxItems": 329,
       "items": {
         "type": "object",
         "additionalProperties": false,

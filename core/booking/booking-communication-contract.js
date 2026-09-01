@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='0.4.0';
+const VERSION='0.5.0-universal-booking';
 const MODES=Object.freeze(['test','staging','production']);
 const DIRECTIONS=Object.freeze(['outbound','inbound','system']);
 const DELIVERY_STATUSES=Object.freeze(['queued','sent','delivered','received','failed']);
@@ -18,17 +18,20 @@ function compose(booking,options={}){
  const occasion=clean(options.occasion||b.request?.occasion);
  const rawNote=clean(options.note||b.request?.note||b.request?.specialRequest);const legacyPrefix=occasion&&occasion!=='Kein besonderer Anlass'?`Anlass: ${occasion}`:'';const note=legacyPrefix&&rawNote.startsWith(legacyPrefix)?clean(rawNote.slice(legacyPrefix.length)):rawNote;
  const party=Number(b.partySize||b.party_size||1);
- const subject=clean(options.subject)||`Buchungsanfrage · ${b.title}`;
+ const bookingType=clean(b.type||b.bookingType||b.booking_type).toLowerCase(),hotel=['hotel','accommodation','lodging'].includes(bookingType),admission=['activity','attraction','culture','event'].includes(bookingType),request=b.request||{};
+ const subject=clean(options.subject)||`${hotel?'Aufenthaltsanfrage':admission?'Ticket-/Reservierungsanfrage':'Buchungsanfrage'} · ${b.title}`;
  let intro='ich möchte gerne eine Buchung anfragen.';
- if(b.type==='restaurant')intro='ich möchte gerne einen Tisch in Ihrem Restaurant reservieren.';
- if(b.type==='hotel')intro='ich möchte gerne die Verfügbarkeit für einen Aufenthalt anfragen.';
- const lines=['Guten Tag,','',intro,'',`Datum: ${dt.date||'noch offen'}`];
- if(dt.time)lines.push(`Uhrzeit: ${dt.time}`);
- if(b.type==='hotel'&&b.endAt){const end=formatDateTime(b.endAt,locale);lines.push(`Abreise: ${end.date}`);}
- lines.push(`Personen: ${party}`,`Name: ${name}`);
+ if(bookingType==='restaurant')intro='ich möchte gerne einen Tisch in Ihrem Restaurant reservieren.';
+ if(hotel)intro='ich möchte gerne die Verfügbarkeit und den Gesamtpreis für einen Aufenthalt anfragen.';
+ if(admission)intro='ich möchte gerne Verfügbarkeit, Einlassbedingungen und Preise für den gewünschten Besuch anfragen.';
+ const lines=['Guten Tag,','',intro,'',`${hotel?'Anreise':'Datum'}: ${dt.date||'noch offen'}`];
+ if(dt.time&&!hotel)lines.push(`Uhrzeit: ${dt.time}`);
+ if(hotel&&(b.endAt||b.end_at)){const end=formatDateTime(b.endAt||b.end_at,locale);lines.push(`Abreise: ${end.date}`);}
+ if(hotel){lines.push(`Zimmer: ${request.rooms||request.roomCount||1}`,`Erwachsene: ${request.adults||party}`);if(Number(request.children||0)>0)lines.push(`Kinder: ${request.children}${Array.isArray(request.childAges)&&request.childAges.length?` (Alter: ${request.childAges.join(', ')})`:''}`);if(request.roomType)lines.push(`Zimmertyp: ${clean(request.roomType)}`);if(request.board)lines.push(`Verpflegung: ${clean(request.board)}`)}else lines.push(`Personen: ${party}`);
+ lines.push(`Name: ${name}`);
  if(occasion&&occasion!=='Kein besonderer Anlass')lines.push(`Anlass: ${occasion}`);
  if(note)lines.push('',`Hinweis: ${note}`);
- lines.push('','Bitte bestätigen Sie uns kurz, ob die Buchung möglich ist.','','Vielen Dank und freundliche Grüße','',name,'Buchungsanfrage über Luvia');
+ lines.push('',hotel?'Bitte nennen Sie Verfügbarkeit, Gesamtpreis, Zahlungs- und Stornobedingungen.':admission?'Bitte nennen Sie Verfügbarkeit, Ticket-/Reservierungspflicht, Gesamtpreis und Stornobedingungen.':'Bitte bestätigen Sie uns kurz, ob die Buchung möglich ist.','','Vielen Dank und freundliche Grüße','',name,'Buchungsanfrage über Luvia');
  return Object.freeze({templateKey:`${b.type||'other'}.request.de.v1`,subject,bodyText:lines.join('\n')});
 }
 function routeRecipient({mode:rawMode,intendedRecipient,testRecipient}){

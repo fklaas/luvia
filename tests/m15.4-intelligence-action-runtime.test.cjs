@@ -50,7 +50,7 @@ vm.runInContext(source,context,{filename:runtimePath});
   assert.equal(restaurants.results[0].items.length,1);
   assert.equal(restaurants.results[0].items[0].image.url,'https://images.example/dunes.jpg');
   assert.equal(restaurants.results[0].items[0].actions[0].actionId,'places.place.favorite');
-  assert.equal(restaurants.results[0].items[0].actions[1].actionId,'booking.restaurant.open');
+  assert.equal(restaurants.results[0].items[0].actions[1].actionId,'booking.place.open');
   const recommendation=calls.find(call=>call[0]==='recommend');
   assert.equal(recommendation[1].destination,'Scharbeutz');
   assert.equal(recommendation[1].tripId,'trip-1');

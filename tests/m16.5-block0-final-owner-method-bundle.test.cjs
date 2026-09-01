@@ -22,9 +22,9 @@ const {
     assert.equal(action.owner.bindingStatus,'PUBLIC_CONTRACT_BOUND');
     for(const [key,value] of Object.entries(decision))assert.equal(action.owner[key],value,`${id} ${key} drift`);
   }
-  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,243);
+  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,245);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
-  assert.equal(registry.summary.aiCoverage.MISSING,248,'Owner binding must not be mislabeled as chat/E2E parity');
+  assert.equal(registry.summary.aiCoverage.MISSING,229,'Owner binding must not be mislabeled as chat/E2E parity');
 
   const platform=loadPlatformActionOwnerContract();
   assert.deepEqual({...platform.composition.retryIntent({target:'places.search'})},{kind:'retry',target:'places.search',reason:null,stateChanging:false});
@@ -66,5 +66,5 @@ const {
   for(const file of ['platform.actions.v1.json','journey.v1.json','places.v1.json','media.v1.json','memory.v1.json'])JSON.parse(fs.readFileSync(`docs/modularization/contracts/${file}`,'utf8'));
 
   console.log('M16.5 Block 0 final 34-action Owner-method bundle: PASS');
-  console.log('243 public Owner paths bound · 0 Owner-method audits open · AI/E2E coverage still reported separately');
+  console.log('245 public Owner paths bound · 0 Owner-method audits open · AI/E2E coverage still reported separately');
 })().catch(error=>{console.error(error);process.exitCode=1});

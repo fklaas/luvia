@@ -706,6 +706,46 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-specific-subject-evidence-gate.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Semantic-first Owner Routing',
+    test: 'tests/m16.5-block1-semantic-first-ai-routing.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Universal Admission Booking Core',
+    test: 'tests/m16.5-block1-universal-admission-booking.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Universal Accommodation + Affiliate Foundation',
+    test: 'tests/m16.5-block1-universal-accommodation-affiliate-foundation.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Hotel Decision + Affiliate Activation',
+    test: 'tests/m16.5-block1-hotel-decision-and-affiliate-activation.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Hotel Live-Price Gateway',
+    test: 'tests/m16.5-block1-hotel-live-price-gateway.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Visible Hotel Live-Price Decision',
+    test: 'tests/m16.5-block1-hotel-live-price-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Chat Navigation Parity',
+    test: 'tests/m16.5-block1-chat-navigation-parity.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Booking Lifecycle Policy',
+    test: 'tests/m16.5-block1-booking-lifecycle-policy.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Booking Lifecycle Consumer',
+    test: 'tests/m16.5-block1-booking-lifecycle-consumer.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Admission Consumers',
+    test: 'tests/m16.5-block1-admission-consumers.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 AI Places Destination Continuity',
     test: 'tests/m16.5-block1-ai-places-destination-continuity.test.cjs'
   },

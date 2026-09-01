@@ -9,7 +9,7 @@ vm.createContext(sandbox);
 vm.runInContext(source,sandbox);
 const contract=sandbox.LuviaIntelligenceActionContractCoreV1;
 
-assert.equal(contract.runtimeVersion,'1.9.0-complete-input-enforcement');
+assert.equal(contract.runtimeVersion,'1.12.0-live-stay-search');
 for(const prompt of [
   'Plane einen entspannten Tag für mich',
   'Plane uns einen ruhigen Tag am Meer',
@@ -20,6 +20,6 @@ for(const prompt of [
 
 assert.equal(contract.routeIntent('Finde ein Restaurant für heute')?.actionId,'places.restaurant.recommend');
 assert.equal(contract.routeIntent('Erkläre mir die Reiseversicherung'),null);
-assert.match(fs.readFileSync(path.resolve(__dirname,'../core/ai/ai-action-runtime.js'),'utf8'),/const VERSION='1\.13\.0-complete-input-enforcement'/);
+assert.match(fs.readFileSync(path.resolve(__dirname,'../core/ai/ai-action-runtime.js'),'utf8'),/const VERSION='1\.15\.0-live-stay-search'/);
 
 console.log('M15.8 Intelligence day intent rich result: PASS');

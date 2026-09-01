@@ -39,6 +39,7 @@ const ROUTES=Object.freeze([
   {id:'memories',label:'Erinnerungen',icon:'📸',description:'Fotos, Alben, Reisebuch und Revue.',surface:'memories',topLevel:true,mount:{mode:'hub',key:'memories'}},
   {id:'more',label:'Mehr',icon:'•••',description:'Profil, Reisekompass und Einstellungen.',surface:'more',topLevel:true,mount:{mode:'hub',key:'more'}},
   {id:'places',label:'Places',surface:'places',mount:{mode:'module',key:'places',targetId:'places-module',owner:'places'}},
+  {id:'hotels',label:'Hotels & Unterkünfte',surface:'accommodations',mount:{mode:'module',key:'hotels',targetId:'accommodations-module',owner:'booking'}},
   {id:'places-lifecycle',label:'Meine Orte',surface:'places',mount:{mode:'module',key:'places-lifecycle',targetId:'places-lifecycle-module',owner:'places'}},
   {id:'timeline',label:'Timeline',surface:'journey',mount:{mode:'inline',key:'timeline',owner:'journey'}},
   {id:'routes',label:'Routen',surface:'routing',mount:{mode:'inline',key:'routes',owner:'consumer'}},
@@ -55,7 +56,7 @@ const ROUTES=Object.freeze([
 
 const ROUTE_MAP=Object.freeze(Object.fromEntries(ROUTES.map(route=>[route.id,route])));
 const ALIASES=Object.freeze({
-  dashboard:'today',home:'today',move:'plan',mobility:'plan',journey:'trip',photos:'gallery',
+  dashboard:'today',home:'today',move:'plan',mobility:'plan',journey:'trip',photos:'gallery',hotel:'hotels',accommodation:'hotels',accommodations:'hotels',unterkuenfte:'hotels',
   identity:'control-center-identity','booking-control':'control-center-bookings','booking-inbox':'control-center-inbox'
 });
 

@@ -48,3 +48,12 @@ verify_jwt = false
 
 [functions.booking-email-reply]
 verify_jwt = true
+
+[functions.booking-hotel-offer-search]
+verify_jwt = true
+
+[functions.booking-provider-amadeus-hotels]
+verify_jwt = true
+
+[functions.booking-provider-hotelbeds]
+verify_jwt = true

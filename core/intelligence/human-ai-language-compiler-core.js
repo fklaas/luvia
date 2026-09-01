@@ -87,7 +87,7 @@ const RULES=Object.freeze([
 
   // Trips and collaboration
   rule('trip.list','trip-read',/\b(?:meine reisen|reisen auflisten|list (?:my )?trips|show (?:my )?trips)\b/),
-  rule('trip.active.select','trip-select',/\b(?:reise wechseln|andere reise aktivieren|switch trip|select trip)\b/,{entityHints:['tripRef']}),
+  rule('trip.active.select','trip-select',/\b(?:(?:eine |die |meine )?(?:andere|nächste|naechste) reise (?:auswählen|auswaehlen|aktivieren|öffnen|oeffnen)|reise (?:wechseln|auswählen|auswaehlen|aktivieren)|switch (?:the )?trip|select (?:another |the )?trip)\b/,{entityHints:['tripRef']}),
   rule('trip.create','trip-write',/\b(?:reise|trip)(?:\s+(?:erstellen|anlegen|create|start))\b/,{entityHints:['destination','dateRange','participants']}),
   rule('trip.details.title.update','trip-write',/\b(?:reisename|reisetitel|trip name|trip title)(?:\s+(?:andern|ändern|umbenennen|set|change|rename))\b/,{entityHints:['value']}),
   rule('trip.details.destination.update','trip-write',/\b(?:reiseziel|destination)(?:\s+(?:andern|ändern|setzen|change|update))\b/,{entityHints:['destination']}),

@@ -19,12 +19,12 @@
   "summary": {
     "contractId": "intelligence.human-ai-action-lifecycle.v1",
     "version": "1",
-    "catalogActions": 327,
-    "lifecycleActions": 327,
+    "catalogActions": 329,
+    "lifecycleActions": 329,
     "modes": {
-      "OPEN_ONLY": 26,
+      "OPEN_ONLY": 27,
       "PRESENTATION_ONLY": 21,
-      "READ_ONLY": 80,
+      "READ_ONLY": 81,
       "DRAFT_ONLY": 53,
       "CONTROL_MUTATION": 3,
       "MUTATION": 121,
@@ -18998,6 +18998,118 @@
       "stages": [
         "PRESENTATION",
         "DISMISS"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "navigation.hotels.open",
+      "label": "Hotels & Unterkünfte öffnen",
+      "mode": "OPEN_ONLY",
+      "effect": "NAVIGATION",
+      "risk": "R0",
+      "stateChanging": false,
+      "owner": {
+        "contract": "navigation.v1",
+        "method": "createIntent",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": false,
+        "title": "Hotels & Unterkünfte öffnen prüfen",
+        "consequence": "Hotels sind ein eigenständiger Planen-Bereich; Suche und Buchungsweg bleiben Places- beziehungsweise Booking-owned."
+      },
+      "confirmation": {
+        "required": false,
+        "separateVisibleControl": false,
+        "naturalLanguageAccepted": false,
+        "policy": "NEVER"
+      },
+      "idempotency": {
+        "required": false,
+        "policy": "NONE"
+      },
+      "receipt": {
+        "required": false,
+        "ownerAttributed": false,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": false,
+        "policy": "NONE"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "OWNER_GUIDED",
+        "blindRetry": false,
+        "description": "Erneut öffnen / zur vorherigen Ansicht zurück"
+      },
+      "undo": {
+        "supported": false,
+        "requiresNewPreview": false,
+        "requiresSeparateConfirmation": false,
+        "compensationActionId": null
+      },
+      "stages": [
+        "AUTHORITY_GATE",
+        "DIRECT_USER_GESTURE",
+        "OWNER_OPEN",
+        "OPENED_OR_FAILED"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "booking.stay.search",
+      "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "mode": "READ_ONLY",
+      "effect": "READ",
+      "risk": "R0",
+      "stateChanging": false,
+      "owner": {
+        "contract": "booking.v1",
+        "method": "reads.searchStayOffers",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": false,
+        "title": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen prüfen",
+        "consequence": "Affiliate-Links liefern keine Preise. Ohne mindestens eine verbundene Live-Providerantwort bleibt das Produkt im Fit-only-Modus und behauptet weder Preisranking noch Marktbestpreis."
+      },
+      "confirmation": {
+        "required": false,
+        "separateVisibleControl": false,
+        "naturalLanguageAccepted": false,
+        "policy": "NEVER"
+      },
+      "idempotency": {
+        "required": false,
+        "policy": "NONE"
+      },
+      "receipt": {
+        "required": false,
+        "ownerAttributed": false,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": false,
+        "policy": "NONE"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "OWNER_GUIDED",
+        "blindRetry": false,
+        "description": "Providerstatus anzeigen / Suche mit vollständigen Reisedaten erneut ausführen"
+      },
+      "undo": {
+        "supported": false,
+        "requiresNewPreview": false,
+        "requiresSeparateConfirmation": false,
+        "compensationActionId": null
+      },
+      "stages": [
+        "AUTHORITY_GATE",
+        "OWNER_READ",
+        "RESULT_OR_EMPTY",
+        "RETRY_OR_REFINE"
       ],
       "naturalLanguageConfirmsMutation": false,
       "ownerExecution": false

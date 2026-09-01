@@ -27,10 +27,10 @@ for(const layer of ['face.svg','two-ended-needle.svg','hub.svg']){
 assert.match(hubs,/window\.LuviaPlacesContractV1\?\.listPlaces/,'Plan projection must use the public Places contract');
 assert.doesNotMatch(hubs,/LuviaPlaceCore/,'Plan projection may not read private Places owner truth');
 
-for(const direction of ['Places','Meine Orte','Timeline','Booking','Checklisten','Budget','Routen','Wetter']){
+for(const direction of ['Places','Meine Orte','Timeline','Booking','Hotels','Checklisten','Budget','Routen','Wetter']){
   assert.ok(planScope.includes(`feature('${direction}'`),`Plan direction missing: ${direction}`);
 }
-assert.equal((planScope.match(/feature\('/g)||[]).length,10,'the accepted Plan constellation must keep eight directions and two visible horizons');
+assert.equal((planScope.match(/feature\('/g)||[]).length,11,'the accepted Plan constellation must keep nine directions and two visible horizons');
 for(const context of ['today','plan','trip','memories','profile'])assert.match(hubScope,new RegExp(`${context}:Object\\.freeze`),`Living Compass context missing: ${context}`);
 assert.match(hubs,/data-plan-compass-stage/);
 assert.match(hubs,/data-plan-compass-close/);

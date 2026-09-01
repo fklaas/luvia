@@ -1,12 +1,17 @@
 (() => {
   'use strict';
-  const VERSION='1.18.0';
+  const VERSION='1.20.0-universal-lifecycle';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
     restaurant:'restaurant',
+    dining:'restaurant',
     accommodation:'hotel',
+    lodging:'hotel',
     attraction:'activity',
+    culture:'activity',
+    activity:'activity',
+    event:'event',
     mobility:'transport'
   }[String(type||'').toLowerCase()]||'other');
 
@@ -21,6 +26,15 @@
   function internalUuid(value){
     const v=clean(value);
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v)?v:null;
+  }
+
+  function safeHttps(value){
+    try{const url=new URL(clean(value));return url.protocol==='https:'?url.toString():null}catch{return null}
+  }
+
+  function channel(value,fallback='manual'){
+    const normalized=clean(value).toLowerCase();
+    return ['email','api','affiliate','external_link','manual'].includes(normalized)?normalized:fallback;
   }
 
   async function init(){
@@ -49,13 +63,16 @@
     const contactEmail=clean(input.email||place.email||place.contactEmail||place.contact_email);
     const contactPhone=clean(place.phone||place.phoneNumber||place.internationalPhoneNumber);
     const website=clean(place.website||place.websiteUri||place.website_uri);
+    const explicitChannel=channel(input.channel||input.route?.channel,contactEmail?'email':'manual');
+    const explicitProvider=clean(input.provider||input.route?.provider)||null;
     const row=await window.LuviaBookingCore.create({
       tripId,
       tripPlaceId:internalUuid(input.tripPlaceId||place.tripPlaceId||place.trip_place_id),
       placeId:internalUuid(input.placeId||place.internalPlaceId||place.place_id),
       type:mapType(placeType),
       status:'draft',
-      channel:contactEmail?'email':'manual',
+      channel:explicitChannel,
+      provider:explicitProvider,
       title:clean(input.title||place.name)||'Buchungsanfrage',
       startAt,
       endAt,
@@ -73,17 +90,19 @@
         sourcePlaceType:placeType,
         source:'luvia_places',
         website:website||null,
-        reservationUrl:clean(place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url)||null
+        reservationUrl:clean(input.reservationUrl||input.route?.value||place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url)||null
       },
       metadata:{
         integrationVersion:VERSION,
-        destination:activeTrip()?.destination||null
+        destination:activeTrip()?.destination||null,
+        ...(input.emailVerified===true?{verifiedContact:{email:true,source:clean(input.emailVerificationSource)||'booking_owner_route'}}:{}),
+        ...(input.metadata&&typeof input.metadata==='object'?input.metadata:{})
       }
     });
     let ready=await window.LuviaBookingCore.transition(row.id,'ready',{metadata:{createdFrom:'places'}});
     try{await linkRecentPlaceHandoff(ready.id,place)}catch(error){console.warn('[Luvia Booking] Korrelation des vorherigen Handoffs übersprungen.',error)}
     window.dispatchEvent(new CustomEvent('luvia:booking-changed',{detail:{booking:ready,action:'created'}}));
-    if(!ready?.contact?.email){
+    if(!ready?.contact?.email&&input.skipRouteResolution!==true){
       try{await resolveRoute(ready.id);ready=await get(ready.id)||ready}catch(error){console.warn('[Luvia Booking] automatische Buchungskanal-Ermittlung nicht verfügbar',error)}
     }
     return ready;
@@ -230,6 +249,36 @@
     const legacy=await client.rpc('luvia_booking_record_place_handoff',args);
     if(legacy.error)throw legacy.error;
     return {handoffId:legacy.data,legacyFallback:true,bookingStatusChanged:false};
+  }
+
+  async function trackExternalHandoffForPlace({place={},route={},startAt=null,endAt=null,partySize=1,tripId=null}={}){
+    await init();
+    const target=safeHttps(route?.value||route?.url);
+    if(!target)throw Object.assign(new Error('Der externe Buchungsweg ist nicht als sichere HTTPS-Adresse belegt.'),{code:'BOOKING_EXTERNAL_URL_INVALID'});
+    const resolvedTripId=tripId||activeTripId();
+    if(!resolvedTripId)throw new Error('Keine aktive Reise verfügbar.');
+    const placeReference=providerId(place);
+    const provider=clean(route.provider)||'official';
+    const now=Date.now();
+    let booking=null;
+    try{
+      const existing=await listForTrip(resolvedTripId);
+      booking=existing.find(row=>{
+        const rowPlace=clean(row?.request?.providerPlaceId||row?.request?.provider_place_id);
+        const rowUrl=safeHttps(row?.metadata?.handoff?.url||row?.metadata?.handoff?.externalUrl||row?.metadata?.handoff?.external_url||row?.request?.reservationUrl||row?.request?.reservation_url);
+        const created=Date.parse(row?.created_at||row?.createdAt||'');
+        return rowPlace&&rowPlace===placeReference&&rowUrl===target&&Number.isFinite(created)&&(now-created)<7200000&&!['cancelled','declined','completed'].includes(clean(row?.status).toLowerCase());
+      })||null;
+    }catch(error){console.warn('[Luvia Booking] bestehender externer Vorgang konnte nicht dedupliziert werden.',error)}
+    if(!booking){
+      booking=await createForPlace({tripId:resolvedTripId,place,placeType:place.type||place.primaryType,startAt,endAt,partySize,channel:route.channel==='affiliate'?'affiliate':'external_link',provider,reservationUrl:target,route:{...route,value:target},skipRouteResolution:true,metadata:{externalHandoff:{trackedAt:new Date().toISOString(),provider,url:target,source:'places_owner_flow'}}});
+      const handoff=await recordHandoff(booking.id,{provider,url:target,providerReference:route.providerReference||null,metadata:{source:'places_owner_flow',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null}});
+      booking=await get(booking.id)||booking;
+      try{await recordPlaceHandoff(place,{...route,value:target})}catch(error){console.warn('[Luvia Booking] Handoff-Attribution konnte nicht zusätzlich protokolliert werden.',error)}
+      return {ok:true,tracked:true,deduplicated:false,bookingId:booking.id,booking,handoff,url:target,provider};
+    }
+    try{await recordPlaceHandoff(place,{...route,value:target})}catch(error){console.warn('[Luvia Booking] wiederholte Handoff-Attribution konnte nicht protokolliert werden.',error)}
+    return {ok:true,tracked:true,deduplicated:true,bookingId:booking.id,booking,url:target,provider};
   }
 
   async function linkRecentPlaceHandoff(bookingId,place={}){
@@ -602,7 +651,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,bookingTimeline,conversationPreferences,setConversationPreference,modifyBooking,cancelBooking,cancel,mapType,
+    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,trackExternalHandoffForPlace,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,bookingTimeline,conversationPreferences,setConversationPreference,modifyBooking,cancelBooking,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;

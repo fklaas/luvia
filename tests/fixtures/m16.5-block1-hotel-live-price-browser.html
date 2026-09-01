@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Luvia · Hotel-Livepreis-Abnahme</title>
+  <style>
+    :root{color-scheme:light;--ink:#17344b;--muted:#698194;--line:#d6e4e8;--sea:#4fa3a6;--wash:#f3f8f8;--ok:#16755e;--soft:#e8f4f2}*{box-sizing:border-box}body{margin:0;background:#eef4f5;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.shell{width:min(760px,100%);min-height:100vh;margin:auto;background:#fff;padding:24px 20px 48px}.brand{font-size:12px;letter-spacing:.18em;color:var(--sea);text-transform:uppercase}.top h1{font-size:clamp(28px,6vw,42px);letter-spacing:-.04em;line-height:1.04;margin:10px 0 8px}.top p{margin:0;color:var(--muted);line-height:1.5}.proof{margin-top:20px;padding:12px 14px;border-radius:14px;background:var(--soft);color:var(--ok);font-weight:750}.chat{display:flex;justify-content:flex-end;margin:26px 0 18px}.bubble{max-width:82%;padding:14px 16px;border-radius:18px 18px 4px 18px;background:var(--sea);color:white;line-height:1.45}.answer{padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--wash)}.answer small,.eyebrow{display:block;color:var(--sea);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.answer h2{font-size:24px;margin:6px 0}.answer p{margin:0;color:var(--muted);line-height:1.45}.cards{display:grid;gap:12px;margin-top:14px}.card{padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}.card:first-child{border-color:#78babd;box-shadow:0 8px 22px rgba(34,92,101,.08)}.card-head{display:flex;justify-content:space-between;gap:16px;align-items:start}.card h3{font-size:19px;margin:0}.price{text-align:right;white-space:nowrap;font-size:22px;font-weight:850}.price span{display:block;font-size:11px;font-weight:600;color:var(--muted)}.facts{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.fact{padding:6px 9px;border-radius:999px;background:var(--wash);font-size:12px;font-weight:700}.source{margin-top:11px;color:var(--muted);font-size:12px}.warning{margin-top:14px;padding:12px 14px;border-left:3px solid #d89a2b;background:#fff8e9;color:#765411;border-radius:4px 12px 12px 4px;font-size:13px;line-height:1.45}.controls{display:flex;gap:8px;margin-top:18px}.controls button{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:white;color:var(--ink);font:inherit;font-weight:750;cursor:pointer}.controls button.active{border-color:var(--sea);background:var(--soft)}.empty{padding:20px;border:1px dashed var(--line);border-radius:16px;background:#fff}.foot{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.5}@media(max-width:520px){.shell{padding:18px 14px 38px}.card-head{display:block}.price{text-align:left;margin-top:8px}.bubble{max-width:92%}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><span class="brand">Luvia · Block 1</span><h1>Hotelpreise, die man einordnen kann.</h1><p>Kontrollierter lokaler Abnahmetest. Es wird nichts gebucht und kein Preis als Marktbestpreis bezeichnet.</p></header>
+    <div class="proof" id="proof">Prüfung läuft …</div>
+    <section class="chat"><div class="bubble">Finde für unsere Berlin-Reise vom 12.06.2027 bis 14.06.2027 ein gutes Hotel für zwei Erwachsene.</div></section>
+    <section class="answer" id="answer" aria-live="polite"></section>
+    <div class="controls"><button id="live" class="active" type="button">2 Live-Testquellen</button><button id="closed" type="button">Noch keine Quelle verbunden</button></div>
+    <p class="foot">Die Testdaten sind ausdrücklich kontrollierte E2E-Evidenz. Im Produkt dürfen dieselben Aussagen erst erscheinen, wenn Amadeus oder Hotelbeds authentifiziert, aktiv geschaltet und aktuell erreichbar sind.</p>
+  </main>
+  <script src="../../core/booking/booking-accommodation-core.js"></script>
+  <script src="../../core/booking/booking-stay-decision-core.js"></script>
+  <script src="../../core/booking/booking-live-stay-search-core.js"></script>
+  <script>
+    const query={destination:'Berlin',cityCode:'BER',checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,childAges:[],rooms:1,currency:'EUR',providers:['amadeus_hotels','hotelbeds']};
+    const base={propertyName:'Seehotel Berlin',latitude:52.52,longitude:13.405,roomCode:'double',board:'Frühstück',checkIn:query.checkIn,checkOut:query.checkOut,adults:2,children:0,rooms:1,currency:'EUR',totalIncludesMandatoryCharges:true,available:true,isLive:true,source:'provider_api',freshnessMinutes:0};
+    const liveResults=[{providerId:'amadeus_hotels',ok:true,source:'provider_api',live:true,observedAt:'2026-09-02T08:00:00Z',offers:[{...base,offerId:'ama-1',totalPrice:310,refundable:false}]},{providerId:'hotelbeds',ok:true,source:'provider_api',live:true,observedAt:'2026-09-02T08:00:01Z',offers:[{...base,offerId:'hbx-1',totalPrice:295,refundable:true,freeCancellationUntil:'2027-06-10',prepaymentRequired:false}]}];
+    const closedResults=[{providerId:'amadeus_hotels',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]},{providerId:'hotelbeds',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]}];
+    const liveButton=document.getElementById('live'),closedButton=document.getElementById('closed'),answer=document.getElementById('answer'),proof=document.getElementById('proof');
+    const money=(value,currency)=>new Intl.NumberFormat('de-DE',{style:'currency',currency}).format(value);
+    function render(results){
+      const decision=window.LuviaBookingLiveStaySearchCore.buildResult(query,results),live=decision.claims.priceRankingAvailable;
+      if(!live){answer.innerHTML='<span class="eyebrow">Hotels & Unterkünfte</span><h2>Noch kein belegter Livepreis</h2><div class="empty">Die Hotelsuche bleibt im Passungsmodus. Sobald mindestens ein Preis-Provider verbunden ist, erscheinen hier vollständige Gesamtpreise.</div><div class="warning">Affiliate-Links werden nicht als Preisquelle verwendet. Luvia behauptet deshalb weder „am günstigsten“ noch „bester Marktpreis“.</div>';proof.textContent='✓ Fail-closed: 0 erfundene Preise · 0 falsche Marktbehauptungen';return;}
+      answer.innerHTML='<span class="eyebrow">Hotels & Unterkünfte</span><h2>1 passende Unterkunft</h2><p>Vollständige Gesamtpreise für 12.06.2027–14.06.2027 · 2 Erwachsene · 1 Zimmer.</p><div class="cards">'+decision.hotels.map(hotel=>{const best=hotel.bestAvailableTotal,flex=hotel.bestFlexibleOffer;return `<article class="card"><div class="card-head"><div><h3>${hotel.propertyName}</h3><div class="facts"><span class="fact">2 Nächte</span><span class="fact">Frühstück</span><span class="fact">${flex?.cancellation?.refundable?'Stornierbar':'Tarif prüfen'}</span></div></div><div class="price">${money(best.price.total,best.price.currency)}<span>Gesamtpreis</span></div></div><div class="source">Günstigster belegter Testtarif: Hotelbeds · Alternative: Amadeus ${money(310,'EUR')}</div></article>`}).join('')+'</div><div class="warning">Günstigster Preis der 2 aktuell abgefragten Testquellen – kein Marktbestpreis. Provisionen beeinflussen die Reihenfolge nicht.</div>';
+      proof.textContent='✓ 2/2 Providerantworten geprüft · 1 Hotelkarte · 2 vergleichbare Tarife';
+    }
+    liveButton.addEventListener('click',()=>{liveButton.classList.add('active');closedButton.classList.remove('active');render(liveResults)});closedButton.addEventListener('click',()=>{closedButton.classList.add('active');liveButton.classList.remove('active');render(closedResults)});render(liveResults);
+  </script>
+</body>
+</html>

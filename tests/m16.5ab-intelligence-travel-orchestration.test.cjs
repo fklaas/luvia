@@ -147,6 +147,29 @@ const tripList=core.compileIntent('Zeige meine Reisen.');
 assert.equal(tripList.status,'compiled');
 assert.deepEqual(JSON.parse(JSON.stringify(tripList.ownerRoutes)),['trip.v1']);
 assert.equal(tripList.intents[0].mode,'read');
+const naturalTripChoice=core.compileIntent('ich will eine andere reise auswählen');
+assert.equal(naturalTripChoice.status,'compiled');
+assert.deepEqual(JSON.parse(JSON.stringify(naturalTripChoice.ownerRoutes)),['trip.v1']);
+assert.equal(naturalTripChoice.intents[0].mode,'read','choosing from available trips must open the Trip list before any confirmed switch');
+assert.equal(naturalTripChoice.ownerRoutes.includes('places.v1'),false,'the noun Reise must never trigger a Places fallback');
+const unknownWish=core.compileIntent('Ich will etwas ganz anderes.');
+assert.equal(unknownWish.status,'unresolved');
+assert.equal(unknownWish.intents.length,0);
+assert.equal(unknownWish.ownerRoutes.includes('places.v1'),false,'an unresolved wish must not silently become Places search');
+const semanticTripChoice=core.compileDialogue('Ich würde gern mit einer anderen meiner Reisen weitermachen.',{
+  goals:[{type:'trip',label:'Eine andere Reise auswählen',hardConstraints:[{key:'operation',value:'switch',label:'Reise wechseln'}],softPreferences:[],timeWindow:null,source:'user'}],
+  hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Reise auswählen',intro:'Zeige die verfügbaren Reisen.'},unknowns:[],confidence:.96
+},{locale:'de-DE',online:true});
+assert.equal(semanticTripChoice.status,'compiled');
+assert.deepEqual(JSON.parse(JSON.stringify(semanticTripChoice.ownerRoutes)),['trip.v1']);
+assert.equal(semanticTripChoice.intents[0].mode,'read');
+assert.equal(semanticTripChoice.intents[0].requiresConfirmation,false);
+const lowConfidenceSemantic=core.compileDialogue('Mach das andere auf.',{
+  goals:[{type:'open',label:'Das andere öffnen',hardConstraints:[],softPreferences:[],timeWindow:null,source:'user'}],
+  hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Noch unklar',intro:''},unknowns:['referent'],confidence:.41
+},{locale:'de-DE',online:true});
+assert.equal(lowConfidenceSemantic.status,'needs-clarification');
+assert.match(lowConfidenceSemantic.followUpQuestion.text,/finden, öffnen oder verändern/);
 const namedTrip=core.compileIntent('Wechsle zur Reise Ostseeurlaub.');
 assert.equal(namedTrip.ownerRoutes.includes('trip.v1'),true);
 assert.equal(namedTrip.intents[0].entityHints.hasNamedTarget,true);

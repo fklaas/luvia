@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.0",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 896,
+  "markerCount": 898,
   "markers": [
     {
       "marker": "data-accent",
@@ -816,6 +816,15 @@
         "app/control-center/booking-inbox.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-book-accommodation",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch als allgemeiner Booking-Owner-Einstieg für Unterkünfte inventarisiert; der Chat nutzt denselben booking.place.open-Ownerweg."
     },
     {
       "marker": "data-book-add-text",
@@ -4182,6 +4191,15 @@
         "app/booking/booking-management-sheet.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvbm-external",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/booking/booking-management-sheet.js"
+      ],
+      "assessment": "Bereits als semantische Aktion zum Öffnen beziehungsweise Verwalten eines belegten externen Booking-Providerwegs inventarisiert; kein neuer eigenständiger Produkt-Outcome."
     },
     {
       "marker": "data-lvbm-form",

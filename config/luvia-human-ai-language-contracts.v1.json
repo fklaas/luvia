@@ -18,8 +18,8 @@
     "orderingPreserved": true
   },
   "summary": {
-    "semanticActions": 327,
-    "canonicalGermanActions": 327,
+    "semanticActions": 329,
+    "canonicalGermanActions": 329,
     "curatedActionIds": 142,
     "curatedRules": 142,
     "supportedLocales": [
@@ -43,7 +43,7 @@
     ],
     "coverage": {
       "MULTILINGUAL_CURATED": 142,
-      "CANONICAL_DE": 185
+      "CANONICAL_DE": 187
     }
   },
   "actions": [
@@ -8772,6 +8772,56 @@
         "contract": null,
         "method": null,
         "bindingStatus": "NOT_APPLICABLE"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "navigation.hotels.open",
+      "category": "Navigation & Oberfläche",
+      "label": "Hotels & Unterkünfte öffnen",
+      "effect": "NAVIGATION",
+      "stateChanging": false,
+      "canonical": {
+        "de": [
+          "Hotels & Unterkünfte öffnen"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "navigation.v1",
+        "method": "createIntent",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "booking.stay.search",
+      "category": "Buchung & Anbieterkommunikation",
+      "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "effect": "READ",
+      "stateChanging": false,
+      "canonical": {
+        "de": [
+          "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "booking.v1",
+        "method": "reads.searchStayOffers",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "guard": {
         "naturalLanguageConfirmsMutation": false,

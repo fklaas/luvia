@@ -48,8 +48,9 @@ Deno.serve(async(req)=>{
   const resendKey=Deno.env.get('RESEND_API_KEY');if(!resendKey)return json({error:'RESEND_API_KEY_MISSING'},500);
   const {data:lastMessage}=await admin.from('booking_messages').select('*').eq('booking_id',bookingId).order('created_at',{ascending:false}).limit(1).maybeSingle();
   const mutationThreadBootstrap=Boolean(['modify','cancel'].includes(action)&&!clean(thread.last_outbound_message_id));
-  const bootstrapSubject=action==='cancel'?`Stornierungsanfrage · ${clean(booking.title)||'Reservierung'}`:`Änderungsanfrage · ${clean(booking.title)||'Reservierung'}`;
-  const baseSubject=mutationThreadBootstrap?bootstrapSubject:(clean(lastMessage?.subject)||`Reservierung · ${clean(booking.title)||'Luvia'}`);
+  const objectLabel=['hotel','accommodation','lodging'].includes(clean(booking.booking_type).toLowerCase())?'Aufenthalt':'Buchung';
+  const bootstrapSubject=action==='cancel'?`Stornierungsanfrage · ${clean(booking.title)||objectLabel}`:`Änderungsanfrage · ${clean(booking.title)||objectLabel}`;
+  const baseSubject=mutationThreadBootstrap?bootstrapSubject:(clean(lastMessage?.subject)||`${objectLabel} · ${clean(booking.title)||'Luvia'}`);
   const subject=mutationThreadBootstrap?baseSubject:(/^re:/i.test(baseSubject)?baseSubject:`Re: ${baseSubject}`);
   const fingerprint=await sha(JSON.stringify({bookingId,bodyText,action,intelligenceId,threadId:thread.id}));
   const idempotencyKey=clean(body.idempotencyKey||`email-reply-v1:${bookingId}:${fingerprint.slice(0,40)}`);

@@ -7,7 +7,7 @@
     "workbook": "Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx",
     "workbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
     "snapshotDate": "2026-09-01",
-    "integrationBuild": "13.82.135",
+    "integrationBuild": "13.82.136",
     "scope": "Aktuell servierte öffentliche und angemeldete Web-App einschließlich konditionaler Provider- und Geräteaktionen; nicht ausführbare Outcomes separat."
   },
   "invariants": {
@@ -18,19 +18,19 @@
     "newUiActionRequiresRegistryDecision": true
   },
   "summary": {
-    "semanticActions": 327,
-    "availableOrConditional": 316,
+    "semanticActions": 329,
+    "availableOrConditional": 318,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 896,
-    "runtimeRegisteredActions": 21,
+    "auditedDataMarkers": 898,
+    "runtimeRegisteredActions": 23,
     "categories": {
-      "Buchung & Anbieterkommunikation": 38,
+      "Buchung & Anbieterkommunikation": 39,
       "Erinnerungen & Geschichten": 35,
       "Gerät, System & Offline": 10,
       "Journey, Timeline & Tagesplan": 30,
       "Luvia AI Chat": 16,
       "Medien & Galerie": 22,
-      "Navigation & Oberfläche": 29,
+      "Navigation & Oberfläche": 30,
       "Öffentliche Landing-Demos": 11,
       "Places & Ortsentdeckung": 38,
       "Profil, Vorlieben & Privatsphäre": 34,
@@ -42,14 +42,14 @@
       "DEMO": 11,
       "DRAFT": 53,
       "EXTERNAL": 43,
-      "NAVIGATION": 26,
+      "NAVIGATION": 27,
       "PERMISSION": 10,
       "PRESENTATION": 10,
-      "READ": 80,
+      "READ": 81,
       "WRITE": 94
     },
     "risks": {
-      "R0": 135,
+      "R0": 137,
       "R1": 73,
       "R1–R2": 1,
       "R1–R4": 1,
@@ -58,32 +58,33 @@
       "R4": 2
     },
     "aiCoverage": {
-      "MISSING": 248,
+      "MISSING": 229,
       "NATIVE_CHAT": 14,
       "NOT_APPLICABLE": 11,
       "NOT_REQUIRED": 10,
       "PARTIAL": 1,
       "PUBLIC_E2E_PASS": 3,
-      "REGISTERED_PARTIAL": 40
+      "REGISTERED_PARTIAL": 61
     },
     "ownerBinding": {
       "NOT_APPLICABLE": 39,
-      "PUBLIC_CONTRACT_BOUND": 243,
+      "PUBLIC_CONTRACT_BOUND": 245,
       "PUBLIC_E2E_PROVEN": 3,
       "RUNTIME_REGISTERED": 42
     },
     "inputContracts": {
       "NATIVE_CHAT_CONTROL": 14,
       "NOT_APPLICABLE": 25,
-      "OPEN": 243,
-      "READY": 45
+      "OPEN": 224,
+      "READY": 66
     }
   },
   "runtimeActionIds": [
+    "booking.place.open",
     "booking.reservation.cancel",
     "booking.reservation.create",
     "booking.reservation.modify",
-    "booking.restaurant.open",
+    "booking.stay.search",
     "booking.trip.read",
     "events.verified.read",
     "identity.preferences.read",
@@ -92,6 +93,7 @@
     "journey.day.read",
     "memory.library.read",
     "memory.story.save",
+    "navigation.route.open",
     "places.discovery.recommend",
     "places.place.favorite",
     "places.place.plan",
@@ -128,17 +130,25 @@
         "operationKey": "today"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -152,7 +162,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -186,17 +196,25 @@
         "operationKey": "plan"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -210,7 +228,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -244,17 +262,25 @@
         "operationKey": "trip"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -268,7 +294,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -302,17 +328,25 @@
         "operationKey": "memories"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -326,7 +360,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -360,17 +394,25 @@
         "operationKey": "more"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -384,7 +426,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -418,17 +460,25 @@
         "operationKey": "places"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -442,7 +492,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -476,17 +526,25 @@
         "operationKey": "places-lifecycle"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -500,7 +558,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -534,17 +592,25 @@
         "operationKey": "timeline"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -558,7 +624,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -592,17 +658,25 @@
         "operationKey": "routes"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -616,7 +690,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -650,17 +724,25 @@
         "operationKey": "gallery"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -674,7 +756,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -708,17 +790,25 @@
         "operationKey": "albums"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -732,7 +822,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -766,17 +856,25 @@
         "operationKey": "bookings"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -790,7 +888,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -824,17 +922,25 @@
         "operationKey": "control-center"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -848,7 +954,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -882,17 +988,25 @@
         "operationKey": "control-center-identity"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -906,7 +1020,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -940,17 +1054,25 @@
         "operationKey": "control-center-bookings"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -964,7 +1086,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -998,17 +1120,25 @@
         "operationKey": "control-center-inbox"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -1022,7 +1152,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -1056,17 +1186,25 @@
         "operationKey": "profile-onboarding"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -1080,7 +1218,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -1114,17 +1252,25 @@
         "operationKey": "first-trip-composer"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -1138,7 +1284,7 @@
       },
       "delivery": {
         "block": "B0.02-NAVIGATION",
-        "publicEvidence": "OPEN"
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/runtime/navigation-contract-core.js",
@@ -12130,12 +12276,12 @@
       "ai": {
         "coverage": "REGISTERED_PARTIAL",
         "sourceCoverage": "REGISTRIERT/PARTIELL",
-        "actionId": "booking.restaurant.open",
+        "actionId": "booking.place.open",
         "runtimeRegistered": true
       },
       "inputContract": {
         "status": "READY",
-        "schemaId": "luvia.ai-input.booking.restaurant.open.v1",
+        "schemaId": "luvia.ai-input.booking.place.open.v1",
         "requiredFields": [
           "providerPlaceId"
         ],
@@ -15091,17 +15237,25 @@
         "operationKey": "timeline"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
       },
       "lifecycle": {
         "stateChanging": false,
@@ -15114,8 +15268,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "B0.02-NAVIGATION",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/gallery-view.js",
@@ -19509,6 +19663,157 @@
         "app/public-landing-experience-motion.js"
       ],
       "note": "Keine produktive Domain-Mutation; deshalb nicht Teil der angemeldeten Human↔AI-Owner-Parität"
+    },
+    {
+      "sequence": 328,
+      "id": "navigation.hotels.open",
+      "category": "Navigation & Oberfläche",
+      "area": "Hauptnavigation",
+      "label": "Hotels & Unterkünfte öffnen",
+      "surface": "Planen / Living Compass / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR"
+      },
+      "effect": "NAVIGATION",
+      "risk": "R0",
+      "owner": {
+        "label": "Platform",
+        "domains": [
+          "platform",
+          "booking"
+        ],
+        "primaryDomain": "platform",
+        "contract": "navigation.v1",
+        "method": "createIntent",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "hotels"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "navigation.route.open",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.navigation.route.open.v1",
+        "requiredFields": [
+          "route"
+        ],
+        "optionalFields": [
+          "source",
+          "query"
+        ],
+        "contextFields": [
+          "surface",
+          "locale"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": false,
+        "confirmationPolicy": "NEVER",
+        "confirmationDescription": "Direkter Navigationswunsch im Chat oder Auswahl in Planen",
+        "idempotency": "NONE",
+        "reversible": null,
+        "compensationActionId": null,
+        "recoveryDescription": "Erneut öffnen / zur vorherigen Ansicht zurück",
+        "lifecycleAuditStatus": "OPEN"
+      },
+      "delivery": {
+        "block": "B0.02-NAVIGATION",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/runtime/navigation-contract-core.js",
+        "app/module-hubs.js",
+        "app/app-shell.js",
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "note": "Hotels sind ein eigenständiger Planen-Bereich; Suche und Buchungsweg bleiben Places- beziehungsweise Booking-owned."
+    },
+    {
+      "sequence": 329,
+      "id": "booking.stay.search",
+      "category": "Buchung & Anbieterkommunikation",
+      "area": "Hotels finden und vergleichen",
+      "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "surface": "Hotels & Unterkünfte / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR · LIVEPREISE PROVIDERABHÄNGIG"
+      },
+      "effect": "READ",
+      "risk": "R0",
+      "owner": {
+        "label": "Booking",
+        "domains": [
+          "booking"
+        ],
+        "primaryDomain": "booking",
+        "contract": "booking.v1",
+        "method": "reads.searchStayOffers",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "tripId|checkIn|checkOut|occupancy|destination|providers"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · LOKALER E2E · PROVIDERZUGÄNGE NOCH OFFEN",
+        "actionId": "booking.stay.search",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.booking.stay.search.v1",
+        "requiredFields": [
+          "checkIn",
+          "checkOut",
+          "adults",
+          "children",
+          "childAges",
+          "rooms",
+          "currency"
+        ],
+        "optionalFields": [
+          "query",
+          "tripId",
+          "destination",
+          "cityCode",
+          "latitude",
+          "longitude",
+          "providerDestinationIds",
+          "providerHotelIds",
+          "providers"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": false,
+        "confirmationPolicy": "NEVER",
+        "confirmationDescription": "Keine; reine Booking-Owner-Leseaktion",
+        "idempotency": "NONE",
+        "reversible": null,
+        "compensationActionId": null,
+        "recoveryDescription": "Providerstatus anzeigen / Suche mit vollständigen Reisedaten erneut ausführen",
+        "lifecycleAuditStatus": "READY"
+      },
+      "delivery": {
+        "block": "B1.02-HOTEL-LIVE-PRICE",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/booking/booking-live-stay-search-core.js",
+        "core/platform/booking-contract-adapter.js",
+        "app/adapters/booking-stay-search-web-adapter.js",
+        "supabase/functions/booking-hotel-offer-search/index.ts",
+        "core/ai/ai-action-runtime.js"
+      ],
+      "note": "Affiliate-Links liefern keine Preise. Ohne mindestens eine verbundene Live-Providerantwort bleibt das Produkt im Fit-only-Modus und behauptet weder Preisranking noch Marktbestpreis."
     }
   ],
   "unavailableOutcomes": [
@@ -19746,16 +20051,16 @@
     }
   ],
   "markerAudit": {
-    "count": 896,
+    "count": 898,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "F62C6DC4A3C2C2D08630DBCF2C5B2F76A876E1A1431B84B3B590A848CBD85BCD",
+    "registrySha256": "42F52FC347B509E40FAA396A0953B5E4A782EC195E61F42D5A8CF6F2DCF32BFA",
     "classifications": {
-      "AKTIONSKANDIDAT": 380,
+      "AKTIONSKANDIDAT": 382,
       "INTERAKTIONSPRIMITIVE": 290,
       "STATUS/EINGABE/PROJEKTION": 226
     },
     "categories": {
-      "Buchung & Anbieterkommunikation": 70,
+      "Buchung & Anbieterkommunikation": 72,
       "Erinnerungen & Geschichten": 53,
       "Journey, Timeline & Tagesplan": 41,
       "Luvia AI Chat": 55,

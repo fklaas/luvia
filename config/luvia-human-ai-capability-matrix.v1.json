@@ -18,10 +18,10 @@
   "summary": {
     "contractId": "intelligence.human-ai-capability-discovery.v1",
     "version": "1",
-    "catalogActions": 327,
-    "aiRouted": 59,
-    "manualOwnerFallbacks": 288,
-    "inputContractReady": 84,
+    "catalogActions": 329,
+    "aiRouted": 80,
+    "manualOwnerFallbacks": 290,
+    "inputContractReady": 105,
     "honestBlockingStates": 15,
     "offersBlockedActions": false,
     "ownerExecution": false
@@ -33,9 +33,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -44,9 +44,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -55,9 +55,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -66,9 +66,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -77,9 +77,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -88,9 +88,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -99,9 +99,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -110,9 +110,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -121,9 +121,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -132,9 +132,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -143,9 +143,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -154,9 +154,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -165,9 +165,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -176,9 +176,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -187,9 +187,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -198,9 +198,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -209,9 +209,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -220,9 +220,9 @@
       "category": "Navigation & Oberfläche",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2805,9 +2805,9 @@
       "category": "Medien & Galerie",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -3623,6 +3623,28 @@
       "aiRouted": false,
       "inputContractStatus": "NOT_APPLICABLE",
       "manualOwnerFlowAvailable": false
+    },
+    {
+      "actionId": "navigation.hotels.open",
+      "label": "Hotels & Unterkünfte öffnen",
+      "category": "Navigation & Oberfläche",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
+    },
+    {
+      "actionId": "booking.stay.search",
+      "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "category": "Buchung & Anbieterkommunikation",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
     }
   ]
 }

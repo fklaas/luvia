@@ -14,8 +14,8 @@
     "summary": { "type": "object", "required": ["catalogActions", "policyActions", "classifications", "scopes"] },
     "policies": {
       "type": "array",
-      "minItems": 327,
-      "maxItems": 327,
+      "minItems": 329,
+      "maxItems": 329,
       "items": {
         "type": "object",
         "required": ["actionId", "classification", "requiredScope", "reauthRequired", "consentRequirements", "networkPolicy", "userGestureRequired", "confirmationPolicy"],

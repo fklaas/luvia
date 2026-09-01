@@ -8,5 +8,5 @@ vm.createContext(context);vm.runInContext(read('core/intelligence/human-ai-langu
 const api=context.LuviaIntelligenceContractV1,search=registry.actions.find(item=>item.id==='places.restaurant.search');
 assert.equal(api.runtimeVersion,'1.10.0');assert.equal(typeof api.reads.evaluateHumanActionAuthority,'function');assert.equal(typeof api.reads.getHumanActionSafetyCoverage,'function');
 const decision=api.reads.evaluateHumanActionAuthority({action:search,actor:{authenticated:true,tripRole:'MEMBER',online:true,providers:{PLACES_PROVIDER:true}}});assert.equal(decision.decision,'ALLOW');assert.equal(decision.ownerExecution,false);
-const coverage=api.reads.getHumanActionSafetyCoverage(registry.actions);assert.equal(coverage.policyActions,327);assert.equal(Object.keys(coverage.classifications).length,6);assert.equal(api.diagnostics().providers.humanActionSafetyPolicy,true);
+const coverage=api.reads.getHumanActionSafetyCoverage(registry.actions);assert.equal(coverage.policyActions,329);assert.equal(Object.keys(coverage.classifications).length,6);assert.equal(api.diagnostics().providers.humanActionSafetyPolicy,true);
 console.log('M16.5 Block 0 Human-AI safety public Intelligence adapter: PASS');

@@ -117,7 +117,7 @@ async function main(){
   assert.match(shellSource,/appRuntime\(\)\.run\('domain-context-ready'/);
   assert.match(shellSource,/completeRuntimeStage\('shell-ready'/);
   assert.match(shellSource,/appRuntime\(\)\.run\('modules-ready'/);
-  assert.equal((shellSource.match(/moduleMountRegistry\.register\('/g)||[]).length,9,'all nine canonical module routes need concrete Consumer adapters');
+  assert.equal((shellSource.match(/moduleMountRegistry\.register\('/g)||[]).length,10,'all ten canonical module routes need concrete Consumer adapters');
   assert.match(shellSource,/if\(mount\.mode==='module'\)content=`<div id="\$\{esc\(mount\.targetId\)\}"><\/div>`/,'module targets must come from navigation.v1 descriptors');
   assert.doesNotMatch(shellSource,/\.mount\(stage\.querySelector\(/,'App Shell must not retain direct route-specific target mounting');
   assert.doesNotMatch(shellSource,/\bmounted(?:Places|Move|Lifecycle|Gallery|Albums)\b/,'manual module-mounted flags must be removed');

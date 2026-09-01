@@ -5,7 +5,7 @@
   "enforcement": "BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE",
   "runtimeEnforcement": {
     "policyCore": "intelligence.actions.v1",
-    "runtimeEnforcedActionIds": ["places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.restaurant.open", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
+    "runtimeEnforcedActionIds": ["navigation.route.open", "places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.place.open", "booking.stay.search", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
     "metadataValidatedOpenActionIds": 0,
     "rejectsBeforeLedgerAndOwnerInvocation": true
   },
@@ -28,6 +28,22 @@
     "patch": { "type": "object", "minProperties": 1, "maxProperties": 40 }
   },
   "contracts": {
+    "navigation.route.open": {
+      "schemaId": "luvia.ai-input.navigation.route.open.v1",
+      "required": ["route"],
+      "optional": ["source", "query"],
+      "context": ["surface", "locale"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["route"],
+        "properties": {
+          "route": { "enum": ["today", "plan", "trip", "memories", "more", "places", "hotels", "places-lifecycle", "timeline", "routes", "gallery", "albums", "bookings", "control-center", "control-center-identity", "control-center-bookings", "control-center-inbox", "profile-onboarding", "first-trip-composer"] },
+          "source": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "query": { "$ref": "#/$defs/query" }
+        }
+      }
+    },
     "places.restaurant.recommend": {
       "schemaId": "luvia.ai-input.places.restaurant.recommend.v1",
       "required": ["query"],
@@ -149,12 +165,41 @@
         }
       }
     },
-    "booking.restaurant.open": {
-      "schemaId": "luvia.ai-input.booking.restaurant.open.v1",
+    "booking.place.open": {
+      "schemaId": "luvia.ai-input.booking.place.open.v1",
       "required": ["providerPlaceId"],
       "optional": ["tripId", "placeId", "placeType", "type", "name", "address", "website", "reservationUrl"],
       "context": ["surface", "tripId", "locale", "timeZone"],
       "input": { "$ref": "#/$defsExpanded/placeOpen" }
+    },
+    "booking.stay.search": {
+      "schemaId": "luvia.ai-input.booking.stay.search.v1",
+      "required": ["checkIn", "checkOut", "adults", "children", "childAges", "rooms", "currency"],
+      "optional": ["query", "tripId", "destination", "cityCode", "latitude", "longitude", "providerDestinationIds", "providerHotelIds", "providers"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["checkIn", "checkOut", "adults", "children", "childAges", "rooms", "currency"],
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "tripId": { "$ref": "#/$defs/id" },
+          "destination": { "type": ["string", "null"], "maxLength": 240 },
+          "cityCode": { "type": ["string", "null"], "pattern": "^[A-Za-z]{3}$" },
+          "latitude": { "type": ["number", "null"], "minimum": -90, "maximum": 90 },
+          "longitude": { "type": ["number", "null"], "minimum": -180, "maximum": 180 },
+          "providerDestinationIds": { "type": "object", "maxProperties": 8, "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 120 } },
+          "providerHotelIds": { "type": "object", "maxProperties": 8 },
+          "checkIn": { "$ref": "#/$defs/date" },
+          "checkOut": { "$ref": "#/$defs/date" },
+          "adults": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "children": { "type": "integer", "minimum": 0, "maximum": 30 },
+          "childAges": { "type": "array", "maxItems": 30, "items": { "type": "integer", "minimum": 0, "maximum": 17 } },
+          "rooms": { "type": "integer", "minimum": 1, "maximum": 30 },
+          "currency": { "type": "string", "pattern": "^[A-Za-z]{3}$" },
+          "providers": { "type": "array", "maxItems": 2, "uniqueItems": true, "items": { "enum": ["amadeus_hotels", "hotelbeds"] } }
+        }
+      }
     },
     "booking.trip.read": {
       "schemaId": "luvia.ai-input.booking.trip.read.v1",

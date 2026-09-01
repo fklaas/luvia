@@ -38,6 +38,7 @@ const MEMORY_ADAPTER_PATH = path.join(ROOT, 'core', 'platform', 'memory-contract
 const PLATFORM_ACTION_CORE_PATH = path.join(ROOT, 'core', 'runtime', 'platform-action-contract-core.js');
 const PLATFORM_ACTION_ADAPTER_PATH = path.join(ROOT, 'app', 'adapters', 'platform-action-web-adapter.js');
 const VISUAL_INVENTORY_PATH = path.join(ROOT, 'config', 'luvia-visual-surface-inventory.json');
+const FAILURE_MATRIX_PATH = path.join(ROOT, 'config', 'luvia-human-ai-parity-failure-matrix.v1.json');
 const DEFAULT_REPORT_PATH = path.join(ROOT, 'docs', 'modularization', 'M16.5-HUMAN-AI-ACTION-PARITY-REPORT.md');
 const SOURCE_WORKBOOK_SHA256 = '42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46';
 
@@ -572,6 +573,67 @@ function materializeOwnerBindingDecisions() {
   fs.writeFileSync(REGISTRY_PATH, `${JSON.stringify(registry, null, 2)}\n`, 'utf8');
 }
 
+function registrySummary(registry, sourceAudit, runtimeActions) {
+  return {
+    semanticActions: registry.actions.length,
+    availableOrConditional: registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length,
+    unavailableOrReservedOutcomes: registry.unavailableOutcomes.length,
+    auditedDataMarkers: sourceAudit.markers.length,
+    runtimeRegisteredActions: runtimeActions.length,
+    categories: countBy(registry.actions, action => action.category),
+    effects: countBy(registry.actions, action => action.effect),
+    risks: countBy(registry.actions, action => action.risk),
+    aiCoverage: countBy(registry.actions, action => action.ai.coverage),
+    ownerBinding: countBy(registry.actions, action => action.owner.bindingStatus),
+    inputContracts: countBy(registry.actions, action => action.inputContract.status),
+  };
+}
+
+function materializeNavigationAIParity() {
+  const registry = readJson(REGISTRY_PATH);
+  const inputContracts = readJson(INPUT_CONTRACTS_PATH);
+  const auditText = fs.readFileSync(SOURCE_AUDIT_PATH, 'utf8').replace(/\r\n?/g, '\n');
+  const sourceAudit = JSON.parse(auditText);
+  const runtimeActions = loadRuntimeActions();
+  if (!registry.actions.some(action => action.id === 'navigation.hotels.open')) {
+    registry.actions.push({
+      sequence: registry.actions.length + 1,
+      id: 'navigation.hotels.open',
+      category: 'Navigation & Oberfläche',
+      area: 'Hauptnavigation',
+      label: 'Hotels & Unterkünfte öffnen',
+      surface: 'Planen / Living Compass / Globaler Luvia Chat',
+      human: { status: 'AVAILABLE', sourceStatus: 'VERFÜGBAR' },
+      effect: 'NAVIGATION',
+      risk: 'R0',
+      owner: { label: 'Platform', domains: ['platform', 'booking'], primaryDomain: 'platform', contract: 'navigation.v1', method: 'createIntent', bindingStatus: 'PUBLIC_CONTRACT_BOUND', operationKey: 'hotels' },
+      ai: { coverage: 'MISSING', sourceCoverage: 'FEHLT', actionId: null, runtimeRegistered: false },
+      inputContract: { status: 'OPEN', schemaId: null, requiredFields: [], optionalFields: [], contextFields: [] },
+      lifecycle: { stateChanging: false, confirmationPolicy: 'NEVER', confirmationDescription: 'Direkter Navigationswunsch im Chat oder Auswahl in Planen', idempotency: 'NONE', reversible: null, compensationActionId: null, recoveryDescription: 'Erneut öffnen / zur vorherigen Ansicht zurück', lifecycleAuditStatus: 'OPEN' },
+      delivery: { block: 'B0.02-NAVIGATION', publicEvidence: 'LOCAL_E2E_PENDING' },
+      sources: ['core/runtime/navigation-contract-core.js', 'app/module-hubs.js', 'app/app-shell.js', 'modules/accommodations/accommodation-module.js'],
+      note: 'Hotels sind ein eigenständiger Planen-Bereich; Suche und Buchungsweg bleiben Places- beziehungsweise Booking-owned.',
+    });
+  }
+  const contract = inputContracts.contracts['navigation.route.open'];
+  for (const action of registry.actions.filter(action => action.owner.contract === 'navigation.v1' && action.owner.method === 'createIntent')) {
+    action.ai = { coverage: 'REGISTERED_PARTIAL', sourceCoverage: 'RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN', actionId: 'navigation.route.open', runtimeRegistered: true };
+    action.inputContract = { status: 'READY', schemaId: contract.schemaId, requiredFields: contract.required, optionalFields: contract.optional, contextFields: contract.context };
+    action.delivery.block = 'B0.02-NAVIGATION';
+    if (action.delivery.publicEvidence === 'OPEN') action.delivery.publicEvidence = 'LOCAL_E2E_PENDING';
+  }
+  registry.runtimeActionIds = runtimeActions.map(action => action.id).sort();
+  registry.markerAudit = {
+    ...registry.markerAudit,
+    count: sourceAudit.markers.length,
+    registrySha256: sha256(auditText),
+    classifications: countBy(sourceAudit.markers, marker => marker.classification),
+    categories: countBy(sourceAudit.markers, marker => marker.category),
+  };
+  registry.summary = registrySummary(registry, sourceAudit, runtimeActions);
+  fs.writeFileSync(REGISTRY_PATH, `${JSON.stringify(registry, null, 2)}\n`, 'utf8');
+}
+
 function currentSourceMarkers() {
   const inventory = readJson(VISUAL_INVENTORY_PATH);
   const activeFiles = inventory.activeEntryReferences
@@ -618,7 +680,7 @@ function validateRegistry() {
   assert.equal(inputContracts.contractId, 'luvia.ai-action-input-contracts.v1');
   assert.equal(inputContracts.actionContractId, 'intelligence.actions.v1');
   assert.equal(inputContracts.enforcement, 'BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE');
-  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.restaurant.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
+  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
   assert.equal(inputContracts.runtimeEnforcement.metadataValidatedOpenActionIds, 0);
   assert.equal(inputContracts.runtimeEnforcement.rejectsBeforeLedgerAndOwnerInvocation, true);
   assert.deepEqual(Array.from(actionCore.policySnapshot().inputEnforcement.runtimeEnforced), inputContracts.runtimeEnforcement.runtimeEnforcedActionIds);
@@ -639,11 +701,11 @@ function validateRegistry() {
   assert.equal(registry.invariants.publicE2eRequiredForPass, true);
   assert.equal(registry.invariants.newUiActionRequiresRegistryDecision, true);
 
-  assert.equal(registry.actions.length, 327, 'semantic action count changed without deliberate registry revision');
-  assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 316);
+  assert.equal(registry.actions.length, 329, 'semantic action count changed without deliberate registry revision');
+  assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 318);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 896);
-  assert.equal(sourceAudit.markerCount, 896);
+  assert.equal(sourceAudit.markers.length, 898);
+  assert.equal(sourceAudit.markerCount, 898);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');
@@ -658,7 +720,7 @@ function validateRegistry() {
     assert.equal(action.owner.bindingStatus, 'PUBLIC_CONTRACT_BOUND', `${id} owner decision was not materialized`);
     for (const [key, value] of Object.entries(decision)) assert.equal(action.owner[key], value, `${id} owner ${key} drift`);
   }
-  assert.deepEqual(registry.actions.map(action => action.sequence), Array.from({ length: 327 }, (_, index) => index + 1), 'semantic action sequence must stay contiguous');
+  assert.deepEqual(registry.actions.map(action => action.sequence), Array.from({ length: 329 }, (_, index) => index + 1), 'semantic action sequence must stay contiguous');
   for (const action of registry.actions) {
     assert.match(action.id, /^[a-z0-9]+(?:[.-][a-z0-9]+)+$/, `invalid action id ${action.id}`);
     assert.ok(action.category && action.area && action.label && action.surface, `${action.id} misses human-facing identity`);
@@ -764,7 +826,7 @@ function validateRegistry() {
   }
 
   const runtimeIds = runtimeActions.map(action => action.id).sort();
-  assert.equal(runtimeIds.length, 21, 'existing runtime registry count changed; update the parity registry deliberately');
+  assert.equal(runtimeIds.length, 23, 'runtime registry count changed; update the parity registry deliberately');
   assert.deepEqual(registry.runtimeActionIds, runtimeIds, 'runtime action registry and parity control plane diverged');
   assert.deepEqual(Object.keys(inputContracts.contracts).sort(), runtimeIds, 'every runtime action needs exactly one typed input contract');
   const schemaIds = new Set();
@@ -796,19 +858,7 @@ function validateRegistry() {
   };
   visit(inputContracts.contracts);
 
-  const derivedSummary = {
-    semanticActions: registry.actions.length,
-    availableOrConditional: registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length,
-    unavailableOrReservedOutcomes: registry.unavailableOutcomes.length,
-    auditedDataMarkers: sourceAudit.markers.length,
-    runtimeRegisteredActions: runtimeActions.length,
-    categories: countBy(registry.actions, action => action.category),
-    effects: countBy(registry.actions, action => action.effect),
-    risks: countBy(registry.actions, action => action.risk),
-    aiCoverage: countBy(registry.actions, action => action.ai.coverage),
-    ownerBinding: countBy(registry.actions, action => action.owner.bindingStatus),
-    inputContracts: countBy(registry.actions, action => action.inputContract.status)
-  };
+  const derivedSummary = registrySummary(registry, sourceAudit, runtimeActions);
   assert.deepEqual(registry.summary, derivedSummary, 'registry summary is stale');
 
   const expectedMarkers = new Map(sourceAudit.markers.map(record => [record.marker, [...record.sources].sort()]));
@@ -831,6 +881,8 @@ function buildReport(validated = validateRegistry()) {
   const coverage = registry.summary.aiCoverage;
   const owner = registry.summary.ownerBinding;
   const input = registry.summary.inputContracts;
+  const failure = readJson(FAILURE_MATRIX_PATH).summary;
+  const release = failure.releaseStatus || {};
   const categories = Object.entries(registry.summary.categories).map(([category, total]) => {
     const actions = registry.actions.filter(action => action.category === category);
     return [
@@ -843,8 +895,8 @@ function buildReport(validated = validateRegistry()) {
     ];
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
-    `Date: 2026-09-01\n\n` +
-    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
+    `Date: 2026-09-02\n\n` +
+    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / BLOCK 1 INTEGRATION CANDIDATE 13.82.136 / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -876,16 +928,16 @@ function buildReport(validated = validateRegistry()) {
     `- Runtime owner binding present but public proof open: **${owner.RUNTIME_REGISTERED || 0}** action rows.\n` +
     `- Public owner path proven: **${owner.PUBLIC_E2E_PROVEN || 0}** action rows.\n` +
     `- Typed action input contract open: **${input.OPEN || 0}** actions.\n` +
-    `- Typed metadata contract ready for the existing 21 runtime actions: **${input.READY || 0}** mapped human-action rows.\n` +
-    `- Bounded runtime enforcement is active for **21/21** runtime actions. Places, Events, Booking, Journey, Trip, Memory and Identity reject missing or contradictory input before ledger creation or Owner invocation. Writes retain visible confirmation and receipts; Booking R3 commands retain unknown-outcome reconciliation. Raw Story text and concrete preference values are passed ephemerally to their Owner but omitted from the Action Ledger.\n\n` +
+    `- Typed metadata contract ready for the existing ${registry.summary.runtimeRegisteredActions} runtime actions: **${input.READY || 0}** mapped human-action rows.\n` +
+    `- Bounded runtime enforcement is active for **${registry.summary.runtimeRegisteredActions}/${registry.summary.runtimeRegisteredActions}** runtime actions. Navigation, Places, Events, Booking, Journey, Trip, Memory and Identity reject missing or contradictory input before Ledger creation or Owner invocation. Navigation is restricted to registered routes; writes retain visible confirmation and receipts; Booking R3 commands retain unknown-outcome reconciliation. Raw prompts, Story text and concrete preference values are omitted from the Action Ledger where only bounded references are required.\n\n` +
     `## Generated parity and failure evidence\n\n` +
-    `- Matrix rows: **327/327** semantic actions.\n` +
+    `- Matrix rows: **${registry.summary.semanticActions}/${registry.summary.semanticActions}** semantic actions after deterministic regeneration.\n` +
     `- Required dimensions per row: **12** — contract, compiler, permission,\n` +
     `  confirmation, idempotency, receipt, recovery, Undo, multilingual, typo,\n` +
     `  multi-intent and denial.\n` +
-    `- Generated explicit failure evals: **2,711**.\n` +
-    `- Current evidence states: **3** public E2E proofs, **57** local AI paths,\n` +
-    `  **242** truthful manual Owner paths, **14** blocked rows and **11**\n` +
+    `- Generated explicit failure evals: **${failure.generatedFailureCases}**.\n` +
+    `- Current evidence states: **${failure.publicE2eProven}** public E2E proofs, **${failure.localAiPaths}** local AI paths,\n` +
+    `  **${failure.manualOwnerPaths}** truthful manual Owner paths, **${release.BLOCKED || 0}** blocked rows and **${release.NOT_APPLICABLE || 0}**\n` +
     `  non-product rows.\n` +
     `- CI drift protection hashes the six source contracts and compares the checked-in\n` +
     `  matrix byte-for-byte with a fresh deterministic generation. Changed or new\n` +
@@ -895,14 +947,24 @@ function buildReport(validated = validateRegistry()) {
     `A new or changed active \`data-*\` marker makes the registry test fail until the source audit and semantic-action decision are deliberately revised. Every state-changing row requires a separate explicit confirmation and idempotency decision. A row can become \`PUBLIC_E2E_PASS\` only when the existing runtime action, public Owner contract/method and visible Integration evidence agree.\n\n` +
     `## Immediate continuation\n\n` +
     `1. ${owner.OWNER_METHOD_AUDIT_OPEN ? `Audit the ${owner.OWNER_METHOD_AUDIT_OPEN} open Owner methods by coherent domain slice.` : 'Owner-method inventory is locally complete; bind the remaining human actions into typed AI routes and visible confirmations.'}\n` +
-    `2. Keep all 21 typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
-    `3. Keep the generated 327-row, 12-dimension and 2,711-failure-eval matrix green while action routes are completed domain by domain.\n` +
+    `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
+    `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; it does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes.\n`;
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; candidate \`13.82.136\` does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes before public acceptance.\n\n` +
+    `## Local B1 registry delta regenerated, awaiting visible/public release evidence\n\n` +
+    `The universal Booking candidate replaces the restaurant-specific runtime\n` +
+    `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
+    `alias and adds bounded \`navigation.route.open\` plus \`booking.stay.search\` runtime actions. All 20\n` +
+    `human navigation outcomes, including the new Hotels area, now map to that\n` +
+    `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. The source runtime action set is **23**.\n` +
+    `The deterministic registry and input-contract artifact are regenerated and\n` +
+    `locally green; the 329-row parity/failure matrix and public Integration evidence still require the coherent release\n` +
+    `gate. No public-pass count is raised by this note.\n`;
 }
 
 function main() {
   if (process.argv.includes('--write-owner-bindings')) materializeOwnerBindingDecisions();
+  if (process.argv.includes('--write-navigation-ai')) materializeNavigationAIParity();
   const validated = validateRegistry();
   const reportIndex = process.argv.indexOf('--write-report');
   if (reportIndex >= 0) {
@@ -938,6 +1000,7 @@ module.exports = {
   loadPlacesOwnerContract,
   loadTripOwnerContract,
   materializeOwnerBindingDecisions,
+  materializeNavigationAIParity,
   methodAt,
   validateRegistry,
 };

@@ -55,9 +55,9 @@ const {
   assert.equal((await intelligence.commands.confirmLearningSignal({id:'signal-1'})).status,'confirmed');
   assert.equal((await intelligence.commands.dismissLearningSignal({id:'signal-1'})).status,'dismissed');
 
-  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,243);
+  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,245);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
-  assert.equal(registry.summary.aiCoverage.MISSING,248,'Owner binding must not be mislabeled as AI parity');
+  assert.equal(registry.summary.aiCoverage.MISSING,229,'Owner binding must not be mislabeled as AI parity');
   console.log('M16.5 Block 0 Trip/Media/Identity public Owner bundle: PASS');
   console.log('39 additional actions -> 15 Trip + 2 Places + 15 Media + 2 Intelligence + 5 Identity methods: PASS');
   console.log('Owner methods open after subsequent bundles: 34; AI coverage remains honest');

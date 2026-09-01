@@ -109,7 +109,8 @@ assert.match(suggestionSheet,/imageUrl:clean\(place\.image\?\.url\|\|place\.phot
 assert.match(suggestionSheet,/const canonicalPlaceType=place/,'provider primary types must be mapped into a registered Places owner type before import');
 assert.match(suggestionSheet,/receipt=await api\.commands\.plan/,'a confirmed suggestion must commit through the Places owner; its local-first Timeline projection is emitted by that owner');
 assert.doesNotMatch(suggestionSheet,/await journey\?\.commands\?\.hydrate/,'the visible confirmation may not wait for a second full cloud hydrate after the Places owner has staged the Timeline projection');
-assert.match(suggestionSheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'only gastronomic proposals may expose the Booking Core handoff');
+assert.match(suggestionSheet,/const admissionFor=/,'Booking Owner admission decides whether a proposal exposes a handoff');
+assert.doesNotMatch(suggestionSheet,/const isBookable=place=>\['food','cafe'\]\.includes/,'the Journey consumer must not own a restaurant-only booking gate');
 assert.match(suggestionSheet,/commands\.importPlace/,'confirmed suggestions must cross the public Places import command');
 assert.match(suggestionSheet,/commands\.plan/,'confirmed suggestions must cross the public Places planning command');
 assert.match(suggestionSheet,/explicitConfirmation:true/,'the orchestration boundary must remain explicitly confirmable');

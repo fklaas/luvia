@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-const VERSION='4.0.0';
+const VERSION='4.2.0-affiliate-portfolio';
 const PROBE_FRESH_MS=10*60*1000;
 const cors={'Access-Control-Allow-Origin':'https://myluvia.app','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Vary':'Origin'};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:cors});
@@ -18,7 +18,26 @@ const KNOWN:Record<string,Manifest>={
  opentable:{secretKeys:['OPENTABLE_CLIENT_ID','OPENTABLE_CLIENT_SECRET','OPENTABLE_PARTNER_CONTRACT_VERSION'],configKeys:[],probeStrategy:'contract_required',autoActivation:false},
  sevenrooms:{secretKeys:[],configKeys:[],probeStrategy:'contract_required',autoActivation:false},
  resy:{secretKeys:[],configKeys:[],probeStrategy:'contract_required',autoActivation:false},
- tock:{secretKeys:[],configKeys:[],probeStrategy:'contract_required',autoActivation:false}
+ tock:{secretKeys:[],configKeys:[],probeStrategy:'contract_required',autoActivation:false},
+ tiqets:{secretKeys:['TIQETS_API_KEY'],configKeys:['TIQETS_DISTRIBUTOR_ID'],probeStrategy:'contract_required',autoActivation:false},
+ tiqets_affiliate:{secretKeys:['TIQETS_AFFILIATE_API_TOKEN'],configKeys:['TIQETS_SITEBRAND_ID'],probeStrategy:'contract_required',autoActivation:false,publicContract:'tiqets-affiliate-api'},
+ viator:{secretKeys:['VIATOR_API_KEY'],configKeys:[],probeStrategy:'contract_required',autoActivation:false},
+ viator_affiliate:{secretKeys:['VIATOR_API_KEY'],configKeys:['VIATOR_AFFILIATE_ID'],probeStrategy:'contract_required',autoActivation:false,publicContract:'viator-affiliate-api'},
+ klook_affiliate:{secretKeys:['KLOOK_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'klook-affiliate'},
+ bookingcom_demand:{secretKeys:['BOOKINGCOM_DEMAND_API_KEY'],configKeys:['BOOKINGCOM_AFFILIATE_ID'],probeStrategy:'contract_required',autoActivation:false,publicContract:'bookingcom-demand-api'},
+ bookingcom_affiliate:{secretKeys:['BOOKINGCOM_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'bookingcom-affiliate'},
+ expedia_rapid:{secretKeys:['EXPEDIA_RAPID_API_KEY','EXPEDIA_RAPID_SHARED_SECRET'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-rapid-lodging'},
+ amadeus_hotels:{secretKeys:['AMADEUS_CLIENT_ID','AMADEUS_CLIENT_SECRET'],configKeys:['AMADEUS_ENVIRONMENT'],probeStrategy:'contract_required',autoActivation:false,publicContract:'amadeus-self-service-hotels'},
+ hotelbeds:{secretKeys:['HOTELBEDS_API_KEY','HOTELBEDS_API_SECRET'],configKeys:['HOTELBEDS_ENVIRONMENT'],probeStrategy:'contract_required',autoActivation:false,publicContract:'hotelbeds-booking-api'},
+ expedia_affiliate:{secretKeys:['EXPEDIA_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-travel-creator'},
+ hotelscom_affiliate:{secretKeys:['EXPEDIA_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-travel-creator'},
+ vrbo_affiliate:{secretKeys:['EXPEDIA_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-travel-creator'},
+ agoda_affiliate:{secretKeys:['AGODA_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'agoda-affiliate'},
+ tripcom_affiliate:{secretKeys:['TRIPCOM_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'tripcom-affiliate'},
+ hostelworld_affiliate:{secretKeys:['HOSTELWORLD_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'hostelworld-partner-api'},
+ kayak_affiliate:{secretKeys:['KAYAK_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'kayak-affiliate-network'},
+ skyscanner_affiliate:{secretKeys:['SKYSCANNER_IMPACT_PARTNER_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'skyscanner-affiliate'},
+ omio_affiliate:{secretKeys:['OMIO_IMPACT_PARTNER_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'omio-affiliate'}
 };
 function countConfigured(keys:string[]){return keys.filter(k=>Boolean(Deno.env.get(k)?.trim())).length;}
 function secretState(provider:string,keys:string[]){if(provider==='email')return {state:'not_applicable',completeness:'not_applicable',required:0,configured:0};if(!keys.length)return {state:'unknown',completeness:'schema_unknown',required:0,configured:0};const configured=countConfigured(keys);return {state:configured===0?'missing':configured===keys.length?'configured':'partial',completeness:configured===0?'missing':configured===keys.length?'complete':'partial',required:keys.length,configured};}

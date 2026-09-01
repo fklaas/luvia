@@ -20,13 +20,27 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.135**
-- Core: **4.82.135**
-- Name: **M16.5 Block 0 Human-AI Parity Control Plane**
+- App: **13.82.136**
+- Core: **4.82.136**
+- Name: **M16.5 Block 1 Semantic AI Universal Admission**
 - Channel: **integration-preview**
-- Datum: **2026-09-01**
+- Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Semantic AI / Universal Admission / Hotel Live Price — Integration Candidate 13.82.136
+
+- Runtime target: **App 13.82.136 / Core 4.82.136 / cache `luvia-shell-v13.82.136` / Integration only**.
+- Whole-sentence routing: **the Chat combines the browserless compiler with the existing structured OpenAI dialogue result. A sufficiently evidenced semantic result wins; unresolved or low-confidence language asks a concise question instead of silently falling into Places. `ich will eine andere reise auswählen` routes to the Trip owner rather than searching for travel agencies**.
+- Universal admission: **Booking now resolves dining, lodging, attractions, culture, activities, events, transport and rentals through one public `booking.admission.v1` decision. Category alone never proves that a ticket or reservation is required. The consumer shows only an evidenced ticket/reservation notice and only offers an action when a usable route exists**.
+- Route order: **connected provider API → official HTTPS booking page → known provider handoff → explicitly verified public booking email. Raw Place email fields and unverified links are rejected; no email is sent and no external purchase is completed during acceptance**.
+- Provider foundation: **Tiqets and Viator have real partner-gated adapter boundaries; GetYourGuide, FareHarbor, Bókun, Regiondo, bookingkit, Xola, Checkfront, Eventim, Reservix and Ticketmaster are classified in the capability/detection layer. None is claimed connected without partner access or a verified Place-specific route**.
+- Consumers: **Chat Place cards/details, Places results and Journey/Timeline suggestions use the same light admission projection and category-appropriate action label. The canonical AI action is `booking.place.open`; `booking.restaurant.open` remains an input alias only**.
+- Hotel live-price boundary: **`booking.stay.search` reaches `booking.v1.reads.searchStayOffers`; the authenticated gateway invokes only readiness-approved Amadeus/Hotelbeds adapters. Only current `provider_api` evidence with complete mandatory totals can rank. Partner/credential/destination/tax failures remain `fit_only`; affiliate links never become rate evidence or ranking input**.
+- Local evidence: **the 189-test Safe Regression allowlist, NFR-0 3/3 and unchanged ownership guardrail cover 329 action rows, 23/23 typed runtime actions, 245 public Owner paths and 2,725 generated failure evals. The semantic/admission fixture and the Hotel default plus 390×844 fixture pass with zero horizontal overflow and no browser warnings/errors; the Hotel consumer visibly proves both two controlled live-shaped sources and the no-source/zero-invented-price state**.
+- Remaining release gate: **clean source commit, immutable Integration upload, Stable/Immutable byte comparison and real public browser acceptance are still required before this candidate may be called accepted**.
+- Exact rollback: **restore accepted App 13.82.135 with `npx wrangler versions deploy d4efd8ac-969c-426c-b312-7ea686740ac1@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.136 to accepted App 13.82.135" --yes`. If the additive Hotel schema has been applied, then execute `docs/rollback/M16.5-B1-CORE-4.82.136-HOTEL-LIVE-OFFER-GATEWAY-ROLLBACK.sql`; existing Booking/provider/message/conversion evidence remains intact**.
+- Scope lock: **Main, Production and Secrets remain unchanged. Additive service-only Hotel offer evidence/RLS and three fail-closed Integration Edge functions are authorized candidate changes; no Provider is connected without separate approval and credentials**.
 
 ## M16.5 Block 0 Human-AI Parity Control Plane — Stable Integration Release 13.82.135
 

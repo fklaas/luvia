@@ -20,8 +20,8 @@
     },
     "rows": {
       "type": "array",
-      "minItems": 327,
-      "maxItems": 327,
+      "minItems": 329,
+      "maxItems": 329,
       "items": {
         "type": "object",
         "required": ["sequence", "actionId", "label", "category", "effect", "risk", "owner", "ai", "release", "dimensions", "failures"],

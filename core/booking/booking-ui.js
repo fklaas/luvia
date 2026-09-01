@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.7.0';
+  const VERSION='1.9.0-universal-lifecycle';
   let activeHandle=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const canonicalType=raw=>{
@@ -15,23 +15,26 @@
     if(canonical==='accommodation')return false;
     return Boolean(window.LuviaPlaceTypeContracts?.capability?.(canonical,'reservation')||window.LuviaPlaceTypeContracts?.capability?.(canonical,'booking'));
   };
+  const admissionFor=place=>window.LuviaBookingAdmissionCore?.resolve?.(place)||null;
 
   function actionButton({placeType,place}={}){
     const type=canonicalType(placeType||place?.primaryType||place?.primary_type||'');
-    if(!capable(type))return '';
-    const label=type==='accommodation'?'Buchen':'Reservieren';
+    const admission=admissionFor({...place,type});
+    if(!(admission?.action?.available||capable(type)))return '';
+    const label=admission?.action?.label||(type==='accommodation'?'Buchen':'Reservieren');
     const pid=place?.providerPlaceId||place?.provider_place_id||place?.id||'';
     const name=place?.name||'';
-    const email=place?.email||place?.contactEmail||'';
+    const email=(place?.bookingEmailVerified===true&&place?.bookingEmailPublic===true)?place?.bookingEmail||'':'';
     const website=place?.website||place?.websiteUri||place?.website_uri||'';
-    const reservationUrl=place?.reservationUrl||place?.reservation_url||place?.bookingUrl||place?.booking_url||'';
+    const reservationUrl=place?.reservationUrl||place?.reservation_url||place?.bookingUrl||place?.booking_url||place?.ticketUrl||place?.ticket_url||'';
     const address=place?.formattedAddress||place?.address||place?.shortAddress||'';
     return `<button type="button" class="luv-place-primary-action" data-luvia-booking-place data-booking-place-type="${esc(type)}" data-booking-place-id="${esc(pid)}" data-booking-place-name="${esc(name)}" data-booking-place-email="${esc(email)}" data-booking-place-website="${esc(website)}" data-booking-place-reservation-url="${esc(reservationUrl)}" data-booking-place-address="${esc(address)}">◇ ${label}</button>`;
   }
 
   function dialogHtml(place={},route={},options={}){
     const type=String(place.type||'other');
-    const isHotel=type==='accommodation'||type==='hotel';
+    const admission=admissionFor(place),kind=admission?.kind||'other',isHotel=kind==='lodging'||type==='accommodation'||type==='hotel',isDining=kind==='dining'||type==='restaurant';
+    const subject=isDining?'Tisch':isHotel?'Aufenthalt':'Besuch';
     const trip=window.LuviaTripContractV1?.getActiveTrip?.()||{};
     const defaultDate=(options.date||trip.startDate||trip.start_date||new Date().toISOString().slice(0,10));
     const defaultTime=options.time||'19:00';
@@ -41,16 +44,16 @@
       <section class="lv-booking-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingDialogTitle">
         <button type="button" class="lv-booking-close" data-booking-close aria-label="Schließen">×</button>
         <span class="lv-booking-kicker">Luvia Booking</span>
-        <h2 id="bookingDialogTitle">${isHotel?'Euren Aufenthalt anfragen.':'Euren Tisch anfragen.'}</h2>
+        <h2 id="bookingDialogTitle">${isDining?'Euren Tisch anfragen.':isHotel?'Euren Aufenthalt anfragen.':'Euren Besuch anfragen.'}</h2>
         <p><strong>${esc(place.name||'Ausgewählter Ort')}</strong><span>Drei kurze Schritte. Erst am Ende wird etwas übergeben.</span></p>
         <nav class="lv-booking-progress" aria-label="Buchungsschritte"><button type="button" data-booking-step-jump="1" aria-current="step"><b>1</b><span>Wer</span></button><i></i><button type="button" data-booking-step-jump="2"><b>2</b><span>Wann</span></button><i></i><button type="button" data-booking-step-jump="3"><b>3</b><span>Wunsch</span></button></nav>
         <form class="lv-booking-canvas" data-booking-canvas>
           <section class="lv-booking-step is-active" data-booking-step="1">
-            <span>Schritt 1 · Eure Anfrage</span><h3>Auf welchen Namen?</h3><p>Damit Restaurant und Booking eure Anfrage eindeutig zuordnen können.</p>
-            <div class="lv-booking-fields"><label><span>Name</span><input type="text" autocomplete="name" data-booking-name required placeholder="Vor- und Nachname"></label><label><span>${isHotel?'Gäste':'Personen'}</span><input type="number" min="1" max="50" value="2" data-booking-party required></label></div>
+            <span>Schritt 1 · Eure Anfrage</span><h3>Auf welchen Namen?</h3><p>Damit Anbieter und Booking eure Anfrage eindeutig zuordnen können.</p>
+            <div class="lv-booking-fields"><label><span>Name</span><input type="text" autocomplete="name" data-booking-name required placeholder="Vor- und Nachname"></label><label><span>${isHotel?'Gäste':isDining?'Personen':'Teilnehmende'}</span><input type="number" min="1" max="50" value="2" data-booking-party required></label></div>
           </section>
           <section class="lv-booking-step" data-booking-step="2" hidden>
-            <span>Schritt 2 · Euer Zeitpunkt</span><h3>${isHotel?'Wann möchtet ihr bleiben?':'Wann möchtet ihr kommen?'}</h3><p>Datum und Uhrzeit werden verbindlich erst mit eurem letzten Klick übergeben.</p>
+            <span>Schritt 2 · Euer Zeitpunkt</span><h3>${isHotel?'Wann möchtet ihr bleiben?':`Wann soll euer ${subject} sein?`}</h3><p>Datum und Uhrzeit werden verbindlich erst mit eurem letzten Klick übergeben.</p>
             <div class="lv-booking-fields"><label><span>${isHotel?'Check-in':'Datum'}</span><input type="date" data-booking-date required value="${esc(defaultDate)}"></label>${isHotel?`<label><span>Check-out</span><input type="date" data-booking-end-date required value="${esc(defaultDate)}"></label>`:`<label><span>Uhrzeit</span><input type="time" data-booking-time required value="${esc(defaultTime)}"></label>`}</div>
           </section>
           <section class="lv-booking-step" data-booking-step="3" hidden>
@@ -58,7 +61,7 @@
             <div class="lv-booking-occasions" role="group" aria-label="Anlass"><button type="button" data-booking-occasion="Kein besonderer Anlass" aria-pressed="true">Einfach so</button><button type="button" data-booking-occasion="Geburtstag" aria-pressed="false">Geburtstag</button><button type="button" data-booking-occasion="Jahrestag" aria-pressed="false">Jahrestag</button><button type="button" data-booking-occasion="Familienzeit" aria-pressed="false">Familienzeit</button><button type="button" data-booking-occasion="Besonderer Abend" aria-pressed="false">Besonderer Abend</button></div>
             <label class="lv-booking-note"><span>Anmerkungen</span><textarea data-booking-note rows="3" placeholder="z. B. ruhiger Tisch, Kinderstuhl oder Allergie …"></textarea></label>
             <input type="hidden" data-booking-email value="${esc(email)}"><input type="hidden" data-booking-occasion-value value="Kein besonderer Anlass">
-            <div class="lv-booking-route"><strong>${email?'Verifizierter E-Mail-Weg':'Noch kein sicherer Weg gefunden'}</strong><small>${email?'Der Booking Core hat vorher keinen belastbaren Providerweg gefunden und diese öffentlich belegte Restaurant-Adresse geprüft. Eine E-Mail wird nur nach eurem letzten Klick versendet.':'Luvia rät keine Adresse und sendet nichts.'}</small></div>
+            <div class="lv-booking-route"><strong>${email?'Verifizierter E-Mail-Weg':'Noch kein sicherer Weg gefunden'}</strong><small>${email?'Der Booking Core hat keinen belastbareren Providerweg gefunden und diese öffentlich belegte Buchungsadresse geprüft. Eine E-Mail wird nur nach eurem letzten Klick versendet.':'Luvia rät keine Adresse und sendet nichts.'}</small></div>
           </section>
           <div class="lv-booking-actions"><button type="button" data-booking-prev hidden>← Zurück</button><span></span><button type="button" class="is-primary" data-booking-next>Weiter →</button><button type="submit" class="is-primary" data-booking-create hidden ${email?'':'disabled'}>${esc(routeLabel)}</button></div>
         </form>
@@ -115,7 +118,7 @@
         const endAt=endDate?new Date(`${endDate}T11:00:00`).toISOString():null;
         const request={requesterName:controls.name?.value||'',partySize:Number(controls.party?.value||1),startAt,endAt,occasion:controls.occasionValue?.value||'',note:controls.note?.value||''};
         const email=controls.email?.value||'';if(!email)throw new Error('Für diesen Ort wurde keine verifizierte Buchungs-E-Mail gefunden.');
-        const booking=await window.LuviaBooking.createForPlace({placeType:place.type,place:{...place,email},...request});
+        const booking=await window.LuviaBooking.createForPlace({placeType:place.type,place:{...place,email},channel:'email',provider:route.provider||'official',emailVerified:true,emailVerificationSource:route.source||route.reason||'verified_booking_owner_route',route,...request});
         await window.LuviaBooking.sendEmail(booking.id,{requesterName:request.requesterName,note:request.note,occasion:request.occasion});
         result.hidden=false;result.innerHTML=`<strong>Anfrage versendet.</strong><p>Luvia hat Anlass und Anmerkungen an ${esc(booking.contact.email)} übergeben. Der Status bleibt „Angefragt“, bis eine belastbare Antwort vorliegt.</p>`;
         create.hidden=true;
@@ -146,20 +149,19 @@
   }
 
   const routeCache=new Map();
-  const cacheKey=place=>[place?.providerPlaceId||place?.id||'',place?.name||'',place?.website||'',place?.reservationUrl||''].join('|');
+  const cacheKey=place=>[place?.providerPlaceId||place?.id||'',place?.name||'',place?.website||'',place?.reservationUrl||place?.ticketUrl||'',place?.bookingEmailVerified?place?.bookingEmail||'':''].join('|');
 
   async function enrichPlace(place){
     let enriched={...place};
     const providerId=String(enriched.providerPlaceId||'').replace(/^places\//,'');
-    if(providerId&&window.LuviaPlaceDetails?.prepare&&(!enriched.website||!enriched.reservationUrl)){
+    if(providerId&&window.LuviaPlaceDetails?.prepare&&(!enriched.website||!(enriched.reservationUrl||enriched.ticketUrl))){
       try{
         const prepared=await window.LuviaPlaceDetails.prepare(providerId,{regionCode:'DE',photoLimit:1,seedPlace:{name:enriched.name,primaryType:enriched.type}});
         const detail=prepared?.place||{};
         enriched={...enriched,
           name:enriched.name||detail.name||detail.displayName?.text||'',
           website:enriched.website||detail.website||detail.websiteUri||detail.website_uri||'',
-          reservationUrl:enriched.reservationUrl||detail.reservationUrl||detail.reservation_url||detail.bookingUrl||detail.booking_url||'',
-          email:enriched.email||detail.email||detail.contactEmail||'',
+          reservationUrl:enriched.reservationUrl||enriched.ticketUrl||detail.reservationUrl||detail.reservation_url||detail.bookingUrl||detail.booking_url||detail.ticketUrl||detail.ticket_url||'',
           address:enriched.address||detail.formattedAddress||detail.address||''
         };
       }catch(error){console.debug('[Luvia Booking] Place-Details für Provider-Routing konnten nicht nachgeladen werden.',error?.message||error)}
@@ -174,7 +176,8 @@
       const enriched=await enrichPlace(place);
       const enrichedKey=cacheKey(enriched);
       if(enrichedKey!==firstKey&&routeCache.has(enrichedKey))return routeCache.get(enrichedKey);
-      const route=await window.LuviaBooking.resolvePlaceRoute(enriched);
+      const admission=admissionFor(enriched),local=admission?.routes?.find(candidate=>['official_link','provider_link','email'].includes(candidate.kind));
+      const route=local?{resolved:true,channel:local.kind==='email'?'email':'external_link',value:local.value,provider:local.provider||'official',reason:'VERIFIED_ADMISSION_OWNER_ROUTE',source:local.source}:await window.LuviaBooking.resolvePlaceRoute(enriched);
       const resolved={place:enriched,route};
       if(enrichedKey!==firstKey)routeCache.set(enrichedKey,Promise.resolve(resolved));
       return resolved;
@@ -239,7 +242,7 @@
   }
 
   async function openForPlace(input={},options={}){
-    let place={...input,type:canonicalType(input.type||input.primaryType||input.primary_type||'restaurant')};
+    let place={...input,type:canonicalType(input.type||input.primaryType||input.primary_type||'other')};
     let reserved=null;
     if(options.reserveExternalWindow!==false){try{reserved=LuviaOwnerFlowNavigationV1.reserveBookingHandoff()}catch{}}
     let resolved;
@@ -258,11 +261,17 @@
 
     const target=externalTarget(route);
     if(target){
-      await window.LuviaBooking.recordPlaceHandoff?.(place,{...route,value:target});
+      let tracking=null,trackingError=null;
+      try{
+        if(typeof window.LuviaBooking.trackExternalHandoffForPlace==='function')tracking=await window.LuviaBooking.trackExternalHandoffForPlace({place,route:{...route,value:target},startAt:options.startAt||null,endAt:options.endAt||null,partySize:options.partySize||1});
+        else{await window.LuviaBooking.recordPlaceHandoff?.(place,{...route,value:target});tracking={tracked:true,legacyAttributionOnly:true}}
+      }
+      catch(error){trackingError=error;console.warn('[Luvia Booking] Der externe Weg wurde geöffnet, konnte aber nicht im Booking Center gespeichert werden.',error)}
       const didOpen=LuviaOwnerFlowNavigationV1.openBooking(target,{reserved});
       if(!didOpen){closeReserved(reserved);throw new Error('Der Browser hat das Buchungsfenster blockiert.')}
-      options.onExternal?.({place,route:{...route,value:target}});
-      return Object.freeze({opened:true,channel:'external_link',resolvedChannel:route.channel,provider:route.provider||null,reason:route.reason||null,requiresOwnerFlow:false});
+      const tracked=tracking?.tracked===true;
+      options.onExternal?.({place,route:{...route,value:target},tracked,bookingId:tracking?.bookingId||null,trackingError});
+      return Object.freeze({opened:true,channel:'external_link',resolvedChannel:route.channel,provider:route.provider||null,reason:route.reason||null,requiresOwnerFlow:false,tracked,bookingId:tracking?.bookingId||null,trackingError:trackingError?.message||null});
     }
 
     closeReserved(reserved);

@@ -101,9 +101,9 @@ assert.equal(receipt.evidence.actionId,'places.place.favorite');
 const policy=core.policySnapshot();
 assert.equal(policy.foreignDomainMutation,false);
 assert.equal(policy.journeyTimelineOwner,false);
-assert.equal(policy.autoRun,'registered-read-only');
+assert.equal(policy.autoRun,'registered-read-or-user-navigation-only');
 
 console.log('M15.1 Intelligence Action Contract Core: PASS');
 console.log('Browserless rich-result/action policy: PASS');
-console.log('Automatic execution: READ-only');
+console.log('Automatic execution: READ or explicit user navigation only');
 console.log('Foreign Domain mutation ownership: NONE');

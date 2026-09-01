@@ -43,7 +43,10 @@ const context={
     }
   },
   LuviaBookingContractV1:{
-    reads:{async listForTrip(id){calls.push(['booking-list',id]);return[{id:'booking-1',tripId:id,title:'Dünenküche',status:'confirmed',date:'2026-08-26',time:'19:00',partySize:2}]}},
+    reads:{
+      async listForTrip(id){calls.push(['booking-list',id]);return[{id:'booking-1',tripId:id,title:'Dünenküche',status:'confirmed',date:'2026-08-26',time:'19:00',partySize:2}]},
+      async searchStayOffers(input){calls.push(['stay-search',input]);return{productMode:'fit_only',hotels:[],claims:{priceRankingAvailable:false,liveProviderCount:0},coverage:{fulfilledProviders:0,expectedProviders:2},search:{checkIn:input.checkIn,checkOut:input.checkOut}}}
+    },
     commands:{
       async openPlaceBooking(payload,options){calls.push(['booking-open',payload,options]);return{opened:true,channel:'owner_dialog'}},
       async createForPlace(payload){calls.push(['booking-create',payload]);return{bookingId:'booking-2',status:'requested'}},
@@ -62,6 +65,9 @@ const context={
   LuviaIdentityContractV1:{
     getPreferences(){return{dietaryPreferences:['vegetarian'],travelPace:'balanced'}},
     commands:{async updatePreferences(patch){calls.push(['preferences-update',patch]);return{ok:true}}}
+  },
+  LuviaNavigationContractV1:{
+    createIntent(route,options){calls.push(['navigation-open',route,options]);return{kind:'screen.navigate',route,label:route}}
   }
 };
 context.globalThis=context;
@@ -73,9 +79,9 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 (async()=>{
   const runtime=context.LuviaAIActionRuntime;
   const diagnostics=runtime.diagnostics();
-  assert.equal(diagnostics.actions,21);
-  assert.equal(diagnostics.availableActions,20);
-  assert.equal(diagnostics.connections.length,7);
+  assert.equal(diagnostics.actions,23);
+  assert.equal(diagnostics.availableActions,22);
+  assert.equal(diagnostics.connections.length,8);
   assert.equal(diagnostics.connections.filter(connection=>connection.owner!=='intelligence').every(connection=>connection.registered&&connection.operations===connection.totalOperations),true);
   assert.equal(diagnostics.connections.find(connection=>connection.owner==='intelligence').registered,false);
 
@@ -182,7 +188,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(diagnostics.ledger.storesForeignDomainTruth,false);
 
   console.log('M16.3 Confirmed Owner Action Runtime: PASS');
-console.log('20 owner commands plus 1 optional verified-event read: POLICY-COVERED');
+console.log('22 available Owner actions plus 1 optional verified-event read: POLICY-COVERED');
   console.log('R2 confirmation + idempotent replay: PASS');
   console.log('R3 unknown external outcome blind retry: BLOCKED');
   console.log('Raw payload / foreign Domain Truth in ledger: NONE');

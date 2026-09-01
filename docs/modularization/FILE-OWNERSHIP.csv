@@ -2613,3 +2613,23 @@ tests/m16.5ab-journey-resilience-foundation.test.cjs,Journey/All Owners Shared T
 tests/m16.5ab-local-server-module-mime.test.cjs,Platform Runtime Shared Tests,Test/Guardrail,Local JavaScript-module MIME and runtime-loader delivery boundary
 tests/m16.5ab-place-intelligence-evidence-boundary.test.cjs,Places/Intelligence Shared Tests,Test/Guardrail,Verified finite provider evidence personal scoring coverage and no-fabrication boundary
 tests/m16.5ab-today-stable-first-paint.test.cjs,Consumer/Journey/Platform Shared Tests,Test/Guardrail,Stable Today hero weather memory and Trip projection across first paint and owner refresh
+core/booking/booking-admission-core.js,Booking,Domain/Contract,Browserless universal admission requirement evidence and route decision without consumer-owned booking truth
+core/booking/booking-lifecycle-policy-core.js,Booking,Domain/Contract,Browserless API thread verified-contact external-handoff and terminal lifecycle capability policy
+core/booking/providers/admission-partner-adapter-factory.js,Booking,Provider Adapter,Fail-closed partner adapter factory with explicit operation and connection gates
+core/booking/providers/tiqets-adapter.js,Booking,Provider Adapter,Partner-gated Tiqets distributor operation surface without credentials or transport claims
+core/booking/providers/viator-adapter.js,Booking,Provider Adapter,Partner-gated Viator commerce operation surface without supplier-capability borrowing
+docs/architecture/PCR-M16.5-B1-SEMANTIC-AI-UNIVERSAL-ADMISSION-BOOKING.md,Booking/Intelligence/Platform,Documentation/Architecture,B1 semantic routing admission lifecycle owner decision and rollback boundary
+docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md,All Core Owner Streams,Documentation/Execution,Operational B0 plus five ten-item block sequence and mandatory release chain
+docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md,Booking/Intelligence/Consumer,Documentation/Acceptance,B1 provider activation lifecycle truth public acceptance and rollback handout
+tests/fixtures/m16.5-block1-semantic-admission-browser.html,Booking/Intelligence/Consumer Shared Tests,Test/Visible Fixture,Visible semantic owner admission provider and lifecycle policy acceptance surface
+tests/m16.5-block1-admission-consumers.test.cjs,Booking/AI/Places/Journey Shared Tests,Test/Guardrail,Universal admission public adapter and light consumer projection boundary
+tests/m16.5-block1-semantic-first-ai-routing.test.cjs,Intelligence/All Owners Shared Tests,Test/Guardrail,Whole-sentence owner routing confidence clarification and trip-selection counterevidence
+tests/m16.5-block1-universal-admission-booking.test.cjs,Booking/Platform Shared Tests,Test/Guardrail,Universal admission evidence provider partner gate and public owner projection
+tests/m16.5-block1-booking-lifecycle-policy.test.cjs,Booking Shared Tests,Test/Guardrail,API verified thread contact resolution external handoff and terminal lifecycle matrix
+tests/m16.5-block1-booking-lifecycle-consumer.test.cjs,Booking/Platform/Consumer Shared Tests,Test/Guardrail,Tracked handoff public lifecycle gating management sheet and provider adapter operations
+core/booking/booking-accommodation-core.js,Booking,Domain/Contract,Browserless validated stay profile route and verified hotel contact fallback
+core/booking/booking-stay-decision-core.js,Booking,Domain/Decision Contract,Browserless hotel deduplication equivalent-rate comparison total-price freshness flexibility fit and provider coverage decision
+core/booking/booking-affiliate-activation-core.js,Booking/Commercial Operations,Domain/Activation Contract,Evidence-ranked fail-closed affiliate application waves status vocabulary owner checklist and no-ranking-influence policy
+docs/modularization/M16.5-AFFILIATE-ACTIVATION-AND-HOTEL-DECISION-PLAN.md,Booking/Commercial Operations/Consumer,Documentation/Execution,Provider activation ranking hotel supply strategy user decision model application pack acceptance gates and rollback boundaries
+tests/m16.5-block1-hotel-decision-and-affiliate-activation.test.cjs,Booking/Platform/Commercial Operations Shared Tests,Test/Guardrail,Hotel offer equivalence total-price freshness deduplication commission exclusion activation ranking and owner-adapter gate
+tests/m16.5-block1-chat-navigation-parity.test.cjs,Intelligence/Navigation/Booking Shared Tests,Test/Guardrail,Natural and typo-tolerant Hotel navigation allow-list user-gesture and foreign-route rejection

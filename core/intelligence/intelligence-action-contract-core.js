@@ -3,8 +3,8 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.9.0-complete-input-enforcement';
-const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
+const RUNTIME_VERSION='1.12.0-live-stay-search';
+const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL',NAVIGATION:'NAVIGATION'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
 const RESULT_KINDS=Object.freeze({
@@ -14,12 +14,15 @@ const RESULT_KINDS=Object.freeze({
 const RECEIPT_STATUSES=Object.freeze(['prepared','confirmed','completed','opened','cancelled','failed','outcome_unknown','compensated']);
 const BLOCKED_KEYS=/^(email|phone|telephone|password|token|access_token|refresh_token|authorization|apikey|api_key|booking_number|reservation_number|payment|card|iban|address_exact)$/i;
 const LIMITS=Object.freeze({maxDepth:7,maxArray:40,maxString:1000,maxItems:12,maxActions:6,maxPermissions:8});
+const ACTION_ALIASES=Object.freeze({'booking.restaurant.open':'booking.place.open'});
 const INPUT_CONTRACTS=Object.freeze({
+  'navigation.route.open':Object.freeze({schemaId:'luvia.ai-input.navigation.route.open.v1',enforcement:'RUNTIME_ENFORCED'}),
   'places.place.favorite':Object.freeze({schemaId:'luvia.ai-input.places.place.favorite.v1',enforcement:'RUNTIME_ENFORCED'}),
   'places.place.unfavorite':Object.freeze({schemaId:'luvia.ai-input.places.place.unfavorite.v1',enforcement:'RUNTIME_ENFORCED'}),
   'places.place.plan':Object.freeze({schemaId:'luvia.ai-input.places.place.plan.v1',enforcement:'RUNTIME_ENFORCED'}),
   'places.place.unplan':Object.freeze({schemaId:'luvia.ai-input.places.place.unplan.v1',enforcement:'RUNTIME_ENFORCED'}),
-  'booking.restaurant.open':Object.freeze({schemaId:'luvia.ai-input.booking.restaurant.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.place.open':Object.freeze({schemaId:'luvia.ai-input.booking.place.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.stay.search':Object.freeze({schemaId:'luvia.ai-input.booking.stay.search.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.trip.read':Object.freeze({schemaId:'luvia.ai-input.booking.trip.read.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.reservation.create':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.create.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.reservation.modify':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.modify.v1',enforcement:'RUNTIME_ENFORCED'}),
@@ -106,10 +109,32 @@ function validateActionInput(actionId,input={},context={}){
   const issues=[],value=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
   const issue=(code,path,message)=>issues.push({code,path,message});
   const finish=normalized=>immutable({valid:issues.length===0,enforced:true,actionId:action.id,schemaId:contract.schemaId,enforcement:contract.enforcement,issues,normalized:issues.length?null:normalized});
-  if(action.id==='booking.restaurant.open'){
-    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Restaurants fehlt.');
+  if(action.id==='navigation.route.open'){
+    const allowed=['today','plan','trip','memories','more','places','hotels','places-lifecycle','timeline','routes','gallery','albums','bookings','control-center','control-center-identity','control-center-bookings','control-center-inbox','profile-onboarding','first-trip-composer'],route=text(value.route);
+    if(!route)issue('required','route','Der zu öffnende Bereich fehlt.');else if(!allowed.includes(route))issue('enum','route','Dieser App-Bereich ist nicht als sichere Route registriert.');
+    if(value.source!=null&&(!text(value.source)||text(value.source).length>120))issue('format','source','Die Navigationsquelle ist ungültig.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Der Navigationswunsch ist zu lang.');
+    return finish({route,source:text(value.source)||'global-chat'});
+  }
+  if(['booking.place.open','booking.restaurant.open'].includes(action.id)){
+    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Orts fehlt.');
     if(value.tripId!=null&&!text(value.tripId))issue('format','tripId','Die Reise-ID ist ungültig.');
     return finish({tripId:text(value.tripId)||text(context.tripId)||null,providerPlaceId:text(value.providerPlaceId),placeId:text(value.placeId)||null});
+  }
+  if(action.id==='booking.stay.search'){
+    if(!validCalendarDate(value.checkIn))issue('required','checkIn','Ein gültiges Check-in-Datum fehlt.');
+    if(!validCalendarDate(value.checkOut))issue('required','checkOut','Ein gültiges Check-out-Datum fehlt.');
+    if(validCalendarDate(value.checkIn)&&validCalendarDate(value.checkOut)&&value.checkOut<=value.checkIn)issue('conflict','checkOut','Check-out muss nach dem Check-in liegen.');
+    const adults=Number(value.adults??1),children=Number(value.children??0),rooms=Number(value.rooms??1),childAges=Array.isArray(value.childAges)?value.childAges.map(Number):[];
+    if(!Number.isInteger(adults)||adults<1||adults>100)issue('range','adults','Die Zahl der Erwachsenen ist ungültig.');
+    if(!Number.isInteger(children)||children<0||children>30)issue('range','children','Die Zahl der Kinder ist ungültig.');
+    if(children!==childAges.length||childAges.some(age=>!Number.isInteger(age)||age<0||age>17))issue('required','childAges','Für jedes Kind wird ein gültiges Alter benötigt.');
+    if(!Number.isInteger(rooms)||rooms<1||rooms>30)issue('range','rooms','Die Zimmerzahl ist ungültig.');
+    const latitude=Number(value.latitude??value.location?.latitude),longitude=Number(value.longitude??value.location?.longitude),providerDestinationIds=plainObject(value.providerDestinationIds)?value.providerDestinationIds:{};
+    const hasDestination=Boolean(text(value.cityCode)||text(providerDestinationIds.hotelbeds)||(Number.isFinite(latitude)&&latitude>=-90&&latitude<=90&&Number.isFinite(longitude)&&longitude>=-180&&longitude<=180)||(plainObject(value.providerHotelIds)&&Object.keys(value.providerHotelIds).length));
+    if(!hasDestination)issue('required','destination','Für Livepreise fehlt eine belegte Zielkoordinate oder Provider-Zielkennung.');
+    if(value.currency!=null&&!/^[A-Za-z]{3}$/.test(text(value.currency)))issue('format','currency','Der Währungscode ist ungültig.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,destination:text(value.destination)||null,cityCode:text(value.cityCode).toUpperCase()||null,latitude:Number.isFinite(latitude)?latitude:null,longitude:Number.isFinite(longitude)?longitude:null,providerDestinationIds:clone(providerDestinationIds),providerHotelIds:plainObject(value.providerHotelIds)?clone(value.providerHotelIds):{},checkIn:text(value.checkIn),checkOut:text(value.checkOut),adults,children,childAges,rooms,currency:text(value.currency).toUpperCase()||'EUR',providers:Array.isArray(value.providers)?unique(value.providers,4):[]});
   }
   if(action.id==='booking.trip.read'){
     const activeTripId=text(context.tripId);
@@ -265,6 +290,7 @@ function validateActionInput(actionId,input={},context={}){
 }
 
 const ACTIONS=Object.freeze([
+  {id:'navigation.route.open',owner:'navigation',ownerContract:'navigation.v1',ownerMethod:'createIntent',effect:'NAVIGATION',risk:'R0',confirmation:'USER_GESTURE',resultKind:'receipt',autoRun:true,reversible:false,idempotency:'OPTIONAL',permissions:['navigation.read'],label:'Bereich öffnen',description:'Öffnet ausschließlich eine im Navigation Owner registrierte Luvia-Route.',consequence:'Wechselt die sichtbare App-Ansicht; verändert keine Reise-, Profil-, Places- oder Buchungsdaten.'},
   {id:'places.restaurant.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Restaurants finden',description:'Findet und ordnet echte Restaurantkandidaten im aktiven Reisekontext.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort.'},
   {id:'places.discovery.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Passende Orte finden',description:'Findet kategorienübergreifend echte Places-Kandidaten und lässt sie im Reisekontext persönlich ordnen.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort und löst keine Buchung aus.'},
   {id:'events.verified.read',owner:'intelligence',ownerContract:'intelligence.verified-events.v1',ownerMethod:'reads.listVerified',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'event_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['events.read'],label:'Verifizierte Events zeigen',description:'Liest ausschließlich quellverifizierte, frische Event Claims und ihre Places-eigenen Venue-Projektionen.',consequence:'Zeigt belegte Events auf Zeitstrahl und Karte; verändert weder Journey, Booking, Places noch Memory.'},
@@ -272,7 +298,8 @@ const ACTIONS=Object.freeze([
   {id:'places.place.unfavorite',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.unfavorite',effect:'WRITE',risk:'R1',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.favorite',permissions:['places.write'],label:'Favorit entfernen',description:'Entfernt einen Favoriten ausschließlich über Places v1.',consequence:'Der Ort bleibt erhalten und wird nach einer sichtbaren Vorschau und deiner ausdrücklichen Bestätigung nicht mehr als Favorit geführt.'},
   {id:'places.place.plan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.plan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.unplan',permissions:['places.write','trip.member'],label:'Zur Timeline hinzufügen',description:'Delegiert die Place-Auswahl an den Places Owner und die Zeitplanung anschließend an Journey.',consequence:'Der bestätigte Ort wird als Reisemoment in die Timeline der aktiven Reise aufgenommen.'},
   {id:'places.place.unplan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.unplan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.plan',permissions:['places.write','trip.member'],label:'Aus Planung entfernen',description:'Entfernt die Place-Planung ausschließlich über Places v1.',consequence:'Der Ort bleibt gespeichert, wird aber aus der Reiseplanung entfernt.'},
-  {id:'booking.restaurant.open',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.openPlaceBooking',effect:'EXTERNAL',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['booking.read'],label:'Reservieren',description:'Öffnet den bestehenden Booking-Owner-Flow für das Restaurant.',consequence:'Öffnet die Booking-Oberfläche; sendet noch keine Reservierung.'},
+  {id:'booking.place.open',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.openPlaceBooking',effect:'EXTERNAL',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['booking.read'],label:'Buchungsweg prüfen',description:'Öffnet den allgemeinen Booking-Owner-Flow für Restaurant, Aktivität, Kultur, Sehenswürdigkeit, Attraktion oder Event.',consequence:'Prüft und öffnet einen belegten Ticket-, Reservierungs- oder Anfrageweg; kauft, reserviert und sendet noch nichts.'},
+  {id:'booking.stay.search',owner:'booking',ownerContract:'booking.v1',ownerMethod:'reads.searchStayOffers',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'booking_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['booking.read'],label:'Hotels mit Livepreisen vergleichen',description:'Liest Hotelangebote ausschließlich über verbundene Booking-Provider und vergleicht nur vollständige, frische Gesamtpreise für identische Reisedaten.',consequence:'Zeigt belegte Hoteloptionen; verändert keine Reise und löst keine Buchung aus.'},
   {id:'booking.trip.read',owner:'booking',ownerContract:'booking.v1',ownerMethod:'reads.listForTrip',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'booking_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['booking.read'],label:'Buchungen zeigen',description:'Liest Buchungen der aktiven Reise ausschließlich über Booking v1.',consequence:'Zeigt Booking-Projektionen ohne Provideraktion.'},
   {id:'booking.reservation.create',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.createForPlace',effect:'EXTERNAL',risk:'R3',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',compensation:'booking.owner-recovery',permissions:['booking.write','trip.member'],label:'Reservierungsanfrage bestätigen',description:'Erstellt eine Booking-eigene Reservierungsanfrage nach expliziter Bestätigung.',consequence:'Kann eine externe Reservierungsanfrage oder Providerkommunikation auslösen.'},
   {id:'booking.reservation.modify',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.modifyBooking',effect:'EXTERNAL',risk:'R3',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',compensation:'booking.owner-recovery',permissions:['booking.write','trip.member'],label:'Buchungsänderung bestätigen',description:'Delegiert eine bestätigte Änderung an den Booking Owner.',consequence:'Kann eine bestehende Reservierung bei einem externen Provider ändern.'},
@@ -299,7 +326,7 @@ function normalizeAction(definition={}){
   const idempotency=['NONE','OPTIONAL','REQUIRED'].includes(definition.idempotency)?definition.idempotency:(effect===EFFECTS.READ?'NONE':'REQUIRED');
   return immutable({
     id,owner:text(definition.owner),ownerContract:text(definition.ownerContract),ownerMethod:text(definition.ownerMethod),effect,risk,confirmation,resultKind,
-    autoRun:definition.autoRun===true&&effect===EFFECTS.READ&&risk===RISK.R0&&confirmation===CONFIRMATION.NEVER,
+    autoRun:definition.autoRun===true&&risk===RISK.R0&&((effect===EFFECTS.READ&&confirmation===CONFIRMATION.NEVER)||(effect===EFFECTS.NAVIGATION&&confirmation===CONFIRMATION.USER_GESTURE)),
     reversible:definition.reversible===true,idempotency,compensation:text(definition.compensation)||null,permissions,
     label:text(definition.label,id),description:text(definition.description),consequence:text(definition.consequence)
   });
@@ -314,9 +341,9 @@ function createActionRegistry(initial=ACTIONS){
   return Object.freeze({register,get,list,diagnostics});
 }
 const registry=createActionRegistry();
-function getAction(id){return registry.get(id)}
+function getAction(id){const requested=text(id);return registry.get(ACTION_ALIASES[requested]||requested)}
 function listActions(){return registry.list()}
-function canAutoRun(action){const definition=typeof action==='string'?getAction(action):normalizeAction(action);return Boolean(definition?.autoRun&&definition.effect===EFFECTS.READ&&definition.confirmation===CONFIRMATION.NEVER)}
+function canAutoRun(action){const definition=typeof action==='string'?getAction(action):normalizeAction(action);return Boolean(definition?.autoRun&&definition.risk===RISK.R0&&((definition.effect===EFFECTS.READ&&definition.confirmation===CONFIRMATION.NEVER)||(definition.effect===EFFECTS.NAVIGATION&&definition.confirmation===CONFIRMATION.USER_GESTURE)))}
 function assertExecution(action,{userGesture=false,confirmed=false,ownerCommand=false}={}){
   const definition=typeof action==='string'?getAction(action):normalizeAction(action);
   if(!definition)throw contractError('INTELLIGENCE_ACTION_UNKNOWN','Action is not registered.',{actionId:text(action)});
@@ -352,6 +379,15 @@ function normalizeSpatialConstraint(value={}){
   if(state==='not-requested'&&!requested?.explicit)return null;
   return immutable({state,requested,evidence:unique(value.evidence,6),scoreDelta:finite(value.scoreDelta,-200,200,0),reasons:unique(value.reasons,3)});
 }
+function normalizeAdmission(value={}){
+  if(!value||typeof value!=='object'||value.relevant!==true)return null;
+  const notice=value.notice&&typeof value.notice==='object'?value.notice:{},action=value.action&&typeof value.action==='object'?value.action:{};
+  return immutable({
+    kind:text(value.kind)||'other',requirement:text(value.requirement)||'unknown',certainty:text(value.certainty)||'unknown',
+    notice:{label:text(notice.label)||'Buchungsweg noch ungeklärt',tone:text(notice.tone)||'quiet',detail:text(notice.detail)||null},
+    action:{available:action.available===true,label:text(action.label)||null}
+  });
+}
 function normalizePlace(value={}){
   const providerPlaceId=text(value.providerPlaceId||value.provider_place_id||value.id).replace(/^places\//,'');
   if(!providerPlaceId)return null;
@@ -359,7 +395,7 @@ function normalizePlace(value={}){
   return immutable({
     id:text(value.id,providerPlaceId),providerPlaceId,name:text(value.name,'Unbenannter Ort'),description:text(value.description),address:text(value.address||value.formattedAddress),
     primaryType:text(value.primaryType||value.primary_type,'restaurant'),rating:finite(value.rating,0,5),userRatingCount:finite(value.userRatingCount||value.user_rating_count,0,Number.MAX_SAFE_INTEGER,0),
-    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),spatialConstraint:normalizeSpatialConstraint(value.spatialConstraint||{}),
+    priceLevel:text(value.priceLevel||value.price_level)||null,openNow:typeof value.openNow==='boolean'?value.openNow:null,coordinates:normalizeCoordinates(value),image:normalizeImage(value.image||{}),spatialConstraint:normalizeSpatialConstraint(value.spatialConstraint||{}),admission:normalizeAdmission(value.admission||{}),
     provider:text(value.provider||value.source).toLowerCase()||null,providerRefs:normalizeProviderRefs(value.providerRefs),providerEvidence:normalizeProviderEvidence(value.providerEvidence||value.evidence),providerObservedAt:text(value.providerObservedAt)||null,ownerObservedAt:text(value.ownerObservedAt)||null,providerFactsCached:value.providerFactsCached===true,providerReadiness:text(value.providerReadiness)||null,distanceMeters:finite(value.distanceMeters,0,1000000),distanceSource:text(value.distanceSource)||null,types:unique(value.types,50),providerNativeTypes:unique(value.providerNativeTypes,50),requestCategory:text(value.requestCategory)||null,
     reasons:unique(value.reasons||value.aiReasons,4),unknowns:unique(value.unknowns||value.aiUnknowns,3),actions
   });
@@ -392,6 +428,7 @@ function normalizeBooking(value={}){
     id,tripId:text(value.tripId||value.trip_id)||null,title:text(value.title||value.venueName||value.restaurantName||place.name,'Buchung'),status:text(value.status||value.bookingStatus,'unknown'),
     date:text(value.date||value.reservationDate||value.reservation_date)||null,time:text(value.time||value.reservationTime||value.reservation_time)||null,partySize:finite(value.partySize||value.party_size,1,100),
     provider:text(value.provider||value.providerId||value.provider_id)||null,channel:text(value.channel)||null,
+    propertyKey:text(value.propertyKey||value.canonicalPropertyId)||null,offerCount:finite(value.offerCount,0,1000,0),totalPrice:finite(value.totalPrice??value.bestAvailableTotal?.price?.total,0,100000000),currency:text(value.currency||value.bestAvailableTotal?.price?.currency).toUpperCase()||null,refundable:value.refundable===true||value.bestFlexibleOffer?.cancellation?.refundable===true,priceSource:text(value.priceSource||value.bestAvailableTotal?.source)||null,
     actions:(Array.isArray(value.actions)?value.actions:[]).slice(0,LIMITS.maxActions).map(normalizeActionOffer).filter(Boolean)
   });
 }
@@ -450,9 +487,13 @@ function createCapabilitySnapshot(availability={}){
 function routeIntents(message=''){
   const request=text(message);if(!request)return null;
   const routes=[],push=(actionId,input={})=>{if(!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:request,...input}})};
+  const navigation=(()=>{if(/\b(?:meine|unsere)\s+reise\s+wechseln\b/i.test(request))return null;if(!/(?:^|[\s,.;!?])(?:öffne|oeffne|offne|gehe?|wechsel|navigier|zeige\s+(?:mir\s+)?(?:den|die|das)\s+(?:bereich|seite|ansicht))\w*(?:\s|$)/i.test(request))return null;const patterns=[['hotels',/\b(?:hotels?|unterk[uü]nfte?|accommodations?)\b/i],['control-center-bookings',/\b(?:booking\s*control\s*center|buchungszentrale)\b/i],['control-center-inbox',/\b(?:booking\s*inbox|buchungsnachrichten|anbieter(?:nachrichten|chat))\b/i],['bookings',/\b(?:buchungen?|reservierungen?)\b/i],['timeline',/\b(?:timeline|tagesplan|reiseplan)\b/i],['places-lifecycle',/\b(?:meine\s+orte|orteleben|places?\s*lebenszyklus)\b/i],['places',/\b(?:places?|orte|entdecken)\b/i],['gallery',/\b(?:galerie|fotos?)\b/i],['albums',/\b(?:alben|albums?|stories)\b/i],['memories',/\b(?:erinnerungen?|memories)\b/i],['trip',/\b(?:reise(?:ansicht|bereich)?)\b/i],['routes',/\b(?:routen?|wege)\b/i],['plan',/\b(?:planen|planung)\b/i],['today',/\b(?:heute|dashboard|startseite)\b/i],['more',/\b(?:mehr|einstellungen)\b/i],['control-center-identity',/\b(?:identit[aä]t|datenschutz)\b/i],['profile-onboarding',/\b(?:profilkompass|reisekompass|profil\s*onboarding)\b/i],['first-trip-composer',/\b(?:reise\s+erstellen|neue\s+reise)\b/i],['control-center',/\b(?:control\s*center|kontrollzentrum)\b/i]];return patterns.find(([,pattern])=>pattern.test(request))?.[0]||null})();
+  if(navigation){push('navigation.route.open',{route:navigation,source:'global-chat'});return immutable(routes)}
   const food=/\b(restaurant|restaurants|essen|abendessen|mittagessen|frühstück|café|cafe|bistro|pizzeria|pizza|sushi|tisch|kulinar\w*|genuss)\b/i.test(request);
   const categories=[];
   const eventRequest=/\b(event|events|veranstaltung(?:en)?|festival|konzert(?:e)?|live[- ]?musik|wochenmarkt|aufführung|auffuehrung|spielplan|eventkalender)\b/i.test(request);
+  const staySearch=/\b(hotel|hotels|unterkunft|unterkünfte|unterkuenfte|hostel|pension|resort|übernachten|uebernachten)\b/i.test(request)&&/\b(find\w*|such\w*|vergleich\w*|preis\w*|günstig\w*|guenstig\w*|buchbar\w*|verfügbar\w*|verfuegbar\w*|empfiehl\w*|zeig\w*)\b/i.test(request);
+  if(staySearch)push('booking.stay.search');
   if(eventRequest)push('events.verified.read',{limit:12});
   if(food)categories.push('food');
   if(/\b(strand|meer|natur|park|garten|wandern|erholung|draußen)\b/i.test(request))categories.push('nature');
@@ -460,7 +501,7 @@ function routeIntents(message=''){
   if(/\b(aktivität|aktivitaet|erlebnis|schwimmbad|zoo|aquarium|sport|abenteuer)\b/i.test(request))categories.push('activities');
   if(/\b(shopping|einkaufen|markt|boutique|geschäft)\b/i.test(request))categories.push('shopping');
   if(/\b(nachtleben|club|bar|tanzen|live.?musik)\b/i.test(request))categories.push('nightlife');
-  if(/\b(buchung(?:en)?|reservierung(?:en)?|stornier\w*|umbuch\w*|booking)\b/i.test(request))push('booking.trip.read',{intent:/stornier/i.test(request)?'cancel':/umbuch|änder/i.test(request)?'modify':'list'});
+  if(!staySearch&&/\b(buchung(?:en)?|reservierung(?:en)?|stornier\w*|umbuch\w*|booking)\b/i.test(request))push('booking.trip.read',{intent:/stornier/i.test(request)?'cancel':/umbuch|änder/i.test(request)?'modify':'list'});
   if(/\b(meine\s+reisen|reisen\s+zeigen|reise\s+wechseln|wechs(?:le|eln?)\s+(?:die|zur)\s+reise|aktive\s+reise)\b/i.test(request))push('trip.active.list');
   if(/\b(erinnerung(?:en)?|reisegeschicht(?:e|en)|story|stories|album|alben)\b/i.test(request))push('memory.library.read');
   if(/\b(vorlieb(?:e|en)|präferenz(?:en)?|reisesti(?:l|le)|interessen)\b/i.test(request))push('identity.preferences.read');
@@ -471,7 +512,7 @@ function routeIntents(message=''){
 function routeIntent(message=''){
   return routeIntents(message)?.[0]||null;
 }
-function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',inputEnforcement:{runtimeEnforced:Object.keys(INPUT_CONTRACTS),remaining:ACTIONS.length-Object.keys(INPUT_CONTRACTS).length},unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
+function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-or-user-navigation-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',inputEnforcement:{runtimeEnforced:Object.keys(INPUT_CONTRACTS),remaining:ACTIONS.length-Object.keys(INPUT_CONTRACTS).length},unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
 
 return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,validateActionInput,zonedDateTimeToIso,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeEvent,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
 })();

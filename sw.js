@@ -1,5 +1,5 @@
-const BUILD='13.82.135';
-const CACHE='luvia-shell-v13.82.135';
+const BUILD='13.82.136';
+const CACHE='luvia-shell-v13.82.136';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -15,6 +15,8 @@ const APP_SHELL=['','index.html','offline.html','manifest.webmanifest','icon-192
   'core/platform/journey-contract-adapter.js',
   'app/journey/journey-day-composer.js',
   'app/journey/journey-suggestion-sheet.js',
+  'core/booking/booking-admission-core.js',
+  'core/booking/booking-lifecycle-policy-core.js',
   'app/journey/journey-day-composer.css',
   'app/memories/premium-memories-experience.js',
   'app/memories/premium-memories-experience.css',
@@ -42,6 +44,9 @@ APP_SHELL.push(scoped('app/adapters/trip-preference-context-adapter.js'));
 APP_SHELL.push(scoped('intelligence/kernel/version.js'));
 APP_SHELL.push(scoped('app/booking/booking-management-sheet.css'));
 APP_SHELL.push(scoped('app/booking/booking-management-sheet.js'));
+APP_SHELL.push(scoped('core/booking/providers/admission-partner-adapter-factory.js'));
+APP_SHELL.push(scoped('core/booking/providers/tiqets-adapter.js'));
+APP_SHELL.push(scoped('core/booking/providers/viator-adapter.js'));
 APP_SHELL.push(scoped('app/journey/journey-offline-pack.js'));
 APP_SHELL.push(scoped('app/collaboration/journey-place-proposals.js'));
 APP_SHELL.push(scoped('core/runtime/auth-command-contract-core.js'));
@@ -54,8 +59,8 @@ APP_SHELL.push(scoped('app/adapters/platform-action-web-adapter.js'));
 APP_SHELL.push(scoped('vendor/supabase/supabase-2.112.4.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.js'));
 APP_SHELL.push(scoped('vendor/maplibre/maplibre-gl-5.12.0.css'));
-APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.135.bundle.js'));
-APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.135.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-precontext-13.82.136.bundle.js'));
+APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.136.bundle.js'));
 APP_SHELL.push(scoped('app/luvia-runtime-loader.mjs'));
 const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));

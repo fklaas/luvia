@@ -10,7 +10,7 @@
     "invariants": { "type": "object", "required": ["rawPayloadStored", "naturalLanguageAloneConfirmsMutation", "separateVisibleConfirmation", "unknownExternalBlindRetry"] },
     "summary": { "type": "object", "required": ["catalogActions", "lifecycleActions", "stateChanging", "truthfulUndo", "modes"] },
     "lifecycles": {
-      "type": "array", "minItems": 327, "maxItems": 327,
+      "type": "array", "minItems": 329, "maxItems": 329,
       "items": {
         "type": "object",
         "required": ["actionId", "mode", "stateChanging", "preview", "confirmation", "idempotency", "receipt", "readback", "recovery", "undo", "stages"],

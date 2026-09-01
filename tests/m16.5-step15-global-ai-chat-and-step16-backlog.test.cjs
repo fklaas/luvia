@@ -39,7 +39,7 @@ assert.ok(fixture.indexOf('vendor/maplibre/maplibre-gl-5.12.0.js')<fixture.index
 assert.match(dashboard,/core\?\.compileIntent\?\./);
 assert.match(dashboard,/intelligence\(\)\.run\('planning\.dialogue'/);
 assert.match(dashboard,/core\?\.compileDialogue\?\./);
-assert.match(dashboard,/core\?\.sequencePlan\?\./);
+assert.match(dashboard,/(?:core|globalThis\.LuviaTravelOrchestrationCoreV1)\?\.sequencePlan\?\./);
 assert.match(dashboard,/core\?\.sliceIntentGraph\?\./);
 assert.match(dashboard,/data-ai-sequence-continue/);
 assert.match(dashboard,/advanceConversation\('owner-receipt'/);

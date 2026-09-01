@@ -2,7 +2,13 @@
 
 Date: 2026-09-01
 
-Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 RELEASE CANDIDATE 13.82.135 / BLOCK 1 STARTED BUT NOT ACCEPTED**
+Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL LIVE-PRICE TARGETS 13.82.136, NOT YET PUBLICLY ACCEPTED**
+
+Current canonical counts on 2026-09-02 are **329 semantic actions, 245 public
+Owner bindings, 23/23 typed runtime actions, 124 protected state changes, 898
+audited source markers and 2,725 generated failure evals**. Lower figures in
+the dated B0 construction ledger below are retained only as historical progress
+evidence; they do not describe the current control plane.
 
 Plan position: B0.01–B0.10 are the newly inserted, cross-cutting Human ↔ AI
 action-parity control plane. They do not renumber P01–P50. P01–P39 are
@@ -57,11 +63,15 @@ operable and its failure mode is equally understandable.
 The following remain forbidden without separate explicit authorization:
 
 - Main or Production changes;
-- DB/RLS migrations or policy changes;
 - Secret changes;
-- Edge Function deployment or mutation;
 - invented provider evidence, availability, events, coordinates or success;
 - silent mutation, hidden retry or dark Legacy substitution.
+
+For the current Hotel slice only, the user separately authorized additive
+Integration DB/RLS and Edge Function changes. That authorization covers the
+deny-default search/snapshot schema, gateway and provider adapters; it does not
+create partner approval, credentials, Main/Production authority or permission
+to label a provider connected before live health and public E2E pass.
 
 ## 2. Block 0 and five canonical execution blocks
 
@@ -72,44 +82,44 @@ execution blocks are `B1`–`B5`. The inserted parity packages are
 
 ### B0 — Complete Human ↔ AI action-parity control plane (B0.01–B0.10)
 
-Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON APP 13.82.135 / 327-ACTION REGISTER, 243 PUBLIC OWNER PATHS, 21/21 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PRODUCT PARITY CONTINUES THROUGH B1–B5**
+Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON APP 13.82.135 / CURRENT 329-ACTION REGISTER, 245 PUBLIC OWNER PATHS, 23/23 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PRODUCT PARITY CONTINUES THROUGH B1–B5**
 
-Current truthful position on 2026-09-01:
+Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts above:
 
-- The verified inventory contains **327 semantic user actions** across 13
-  product categories. **316** are executable or conditionally executable
+- The verified inventory contains **329 semantic user actions** across 13
+  product categories. **318** are executable or conditionally executable
   product actions; **11** are explicitly labelled Landing/demo interactions.
   The audit also records **24 unavailable or reserved outcomes** and reconciles
-  **896 `data-*` markers** so that markup is not mistaken for a semantic action.
+  **898 `data-*` markers** so that markup is not mistaken for a semantic action.
 - The workbook
   `Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx` is the reviewed
   source artifact for this insertion. Its SHA-256 is
   `42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46`.
-- The current executable AI action registry contains only **21** actions. The full
-  inventory audit classified **3** actions as publicly E2E-proven, **40** as
-  registered/partial, **248** as missing from productive AI parity, **14** as
+- The current executable AI action registry contains **23** typed actions. The full
+  inventory audit classifies **3** actions as publicly E2E-proven, **61** as
+  registered/partial, **229** as missing from productive AI parity, **14** as
   native chat controls, **10** as presentation-only/not required and **11** as
   demo/not-applicable actions. The Chat category contains 16 rows in total;
   two of those are presentation mechanics rather than native AI actions.
   These figures are a baseline, not a completion claim.
 - B0.01 now exists locally as
   `config/luvia-human-ai-action-registry.v1.json` plus its JSON Schema and the
-  complete 896-marker source audit. The validator proves unique contiguous IDs,
+  complete 898-marker source audit. The validator proves unique contiguous IDs,
   workbook provenance, all 21 runtime-action mappings, honest open Owner/input
   states and explicit confirmation plus idempotency for all 124 classified
   state changes. The first B0.09 CI/source-drift gate is green locally. These
   artifacts are not yet a committed or public product slice.
 - The read-only visible local gate
   `tests/fixtures/m16.5-block0-human-ai-action-parity-browser.html` now loads
-  the versioned register directly. It visibly proves 327/327 actions, 21 typed
-  runtime paths, 124 explicitly confirmed/idempotent state changes and 896
+  the versioned register directly. It visibly proves 329/329 actions, 23 typed
+  runtime paths, 124 explicitly confirmed/idempotent state changes and 898
   audited source markers. Search, category/status filters, Desktop and 390 × 844
   responsive layout passed with no horizontal overflow and no browser console
   warning/error. This is local evidence only, not public Integration acceptance.
 - `config/luvia-ai-action-input-contracts.v1.json` now defines one typed input
   contract for every existing runtime action: 21 unique schema IDs projected to
   45 matching human-action rows. Required, optional and allowed context fields
-  are machine-checked. Bounded runtime enforcement is active for all 21/21 actions:
+  are machine-checked. Bounded runtime enforcement is active for all 23/23 actions:
   `places.place.favorite`, `places.place.unfavorite`, `places.place.plan` and
   `places.place.unplan` reject missing Owner IDs; Plan also rejects a missing or
   contradictory date/time/time-zone and shifted Owner instant before ledger
@@ -180,7 +190,7 @@ Current truthful position on 2026-09-01:
   bindings still do not claim that the 51 actions are already callable by Chat
   or publicly E2E-proven.
 - B0.04 now has a local browserless language compiler and a versioned language
-  contract for all **327** semantic actions. Every action has its canonical
+  contract for all **329** semantic actions. Every action has its canonical
   German utterance; **142** high-frequency actions across all product domains
   additionally have curated German/English, colloquial and mixed-language
   rules. The compiler preserves source text, correction, intent order,
@@ -193,7 +203,7 @@ Current truthful position on 2026-09-01:
   it never executes an Owner or treats natural language as confirmation. This
   closes the **local B0.04 control-plane package**, not Chat insertion or public
   product parity.
-- B0.05 now compiles all **327/327** semantic actions through one versioned,
+- B0.05 now compiles all **329/329** semantic actions through one versioned,
   browserless safety policy. The generated register contains six primary
   safety classes, 30 public, 111 self, 173 Trip-member and 13 Trip-admin
   authority decisions, four fresh-login gates, 21 purpose-bound consent gates,
@@ -203,7 +213,7 @@ Current truthful position on 2026-09-01:
   confirmation, offline blocking, location consent, Trip-role denial and
   re-authentication. This closes the **local B0.05 control-plane package**;
   Chat insertion and public Integration E2E evidence remain open.
-- B0.06 now compiles **327/327** action lifecycles and runs them through a
+- B0.06 now compiles **329/329** action lifecycles and runs them through a
   browserless state machine. All **124** state-changing control/Owner actions
   require bounded Preview, a separate visible confirmation and idempotency;
   **121** durable Owner mutations require an Owner receipt plus readback or
@@ -215,17 +225,17 @@ Current truthful position on 2026-09-01:
   flows without sending any real Owner/provider request. This closes the
   **local B0.06 control-plane package**; productive Chat and public E2E
   insertion remain open.
-- B0.07 now evaluates all **327** actions against the acting user, Trip role,
+- B0.07 now evaluates all **329** actions against the acting user, Trip role,
   required input, connectivity, provider health, Owner binding, AI-route state
-  and lifecycle before the Chat may offer them. The matrix records **59**
-  currently AI-routed semantic rows, **288** truthful human-operable Owner
+  and lifecycle before the Chat may offer them. The matrix records **80**
+  currently AI-routed semantic rows, **290** truthful human-operable Owner
   fallbacks and **15** explicit available/prerequisite/unavailable states.
   The visible local test distinguishes ready search, confirmed writes, missing
   input, offline/provider failure, consent, role denial and a not-yet-routed
   Chat action with a manual product path. Blocked actions are never included in
   the offer-only result. This closes the **local B0.07 control-plane package**;
   its decisions now feed the local B0.08 consumer projector.
-- B0.08 now projects all **327/327** actions and all **15** capability states
+- B0.08 now projects all **329/329** actions and all **15** capability states
   through one browserless bright-consumer contract. The real AI dashboard uses
   it for compact multi-intent summaries, result headers, clarification,
   previews, confirmations, read failures, receipts, recovery and Undo. A
@@ -238,12 +248,12 @@ Current truthful position on 2026-09-01:
   package**; public Integration E2E evidence remains open until B0.10.
 - B0.09 now joins the canonical registry, language contracts, safety policy,
   lifecycle, capability discovery and consumer projection into one generated
-  **327-row, 12-dimension parity and failure matrix**. It derives **2,711**
+  **329-row, 12-dimension parity and failure matrix**. It derives **2,725**
   explicit failure evals for compiler ambiguity, Owner failure, typo,
   multi-intent, missing input, authority, consent, re-auth, connectivity,
   provider, confirmation, duplicate command, unknown outcome and truthful Undo
   limits wherever applicable. The current release evidence remains explicit:
-  **3** public E2E proofs, **57** local AI paths, **242** manual Owner paths,
+  **3** public E2E proofs, **78** local AI paths, **223** manual Owner paths,
   **14** blocked rows and **11** non-product rows. Source hashes plus exact
   generated-file comparison form the CI drift gate; a new or changed action
   cannot pass without a reviewed matrix decision. The visible local gate loads
@@ -256,7 +266,7 @@ Current truthful position on 2026-09-01:
   Owner moment but left the selected-day header and metrics on 12 June after the
   user opened 14 June. App `.135` fixes both boundaries and is the accepted
   public control-plane release. This closes B0's control-plane exit only; the
-  316 product-action parity rows continue through B1–B5.
+  318 product-action parity rows continue through B1–B5.
 
 1. **B0.01 — Version the canonical semantic action registry.** Convert the
    reviewed workbook into a repository-owned, machine-readable register with
@@ -282,7 +292,7 @@ Current truthful position on 2026-09-01:
    or high-risk/destructive action; bind self/member/admin scopes, re-auth,
    privacy/consent, provider and offline gates. The AI receives exactly the
    acting user's authority and never a broader shadow permission.
-   **Local implementation complete (2026-09-01):** all 327 registry actions
+   **Local implementation complete (updated 2026-09-02):** all 329 registry actions
    now compile through one browserless, deny-by-default policy into six safety
    classes. Public/self/Trip-member/Trip-admin authority, fresh-login,
    purpose-bound consent, online/provider readiness, direct gesture and
@@ -298,7 +308,7 @@ Current truthful position on 2026-09-01:
    recovery and a separately confirmed Undo/compensation where the owner can
    truthfully provide it. Reads and owner-surface opens use their corresponding
    non-mutating lifecycle.
-   **Local implementation complete (2026-09-01):** 327 generated lifecycle
+   **Local implementation complete (updated 2026-09-02):** 329 generated lifecycle
    definitions, 124 protected state changes, 121 Owner receipt/readback paths,
    three scoped Intelligence-control receipt paths, 20 truthful compensation
    paths and zero blind retries for unknown external outcomes are green in the
@@ -308,16 +318,16 @@ Current truthful position on 2026-09-01:
    provider state. Offer only operable actions; otherwise explain the concrete
    missing prerequisite and expose a safe retry, refinement, manual owner flow
    or clearly unavailable result.
-   **Local implementation complete (2026-09-01):** 327 actions are evaluated
-   through 15 honest capability states; 59 semantic rows have current AI routes,
-   288 have a truthful manual Owner fallback, and offer-only queries exclude
+   **Local implementation complete (updated 2026-09-02):** 329 actions are evaluated
+   through 15 honest capability states; 80 semantic rows have current AI routes,
+   290 have a truthful manual Owner fallback, and offer-only queries exclude
    every blocked action. The real bright Chat consumer remains B0.08 scope.
 8. **B0.08 — Project every action into the bright consumer.** Standardize compact
    in-chat reads, cards, MapLibre/Timeline continuity, owner sheets, previews,
    confirmations, receipts, errors and Undo. Technical traces remain optional
    diagnostics; duplicate intent summaries, internal IDs, raw owner vocabulary
    and oversized day dumps are not normal product copy.
-   **Local implementation complete (2026-09-01):** all 327 semantic actions
+   **Local implementation complete (updated 2026-09-02):** all 329 semantic actions
    compile to consumer-safe action, handoff or preview views, while the runtime
    also projects clarification, result, confirmation, error, receipt, recovery
    and Undo states. The public `intelligence.v1` adapter exposes the additive
@@ -328,14 +338,14 @@ Current truthful position on 2026-09-01:
    multilingual, typo, multi-intent and denial evals from the registry. Add a CI
    parity guard: a new or changed authenticated UI action cannot pass release
    gates without a registry decision and the applicable AI/owner evidence.
-   **Local implementation complete (2026-09-01):** 327 rows retain all twelve
-   required dimensions and 2,711 generated failure evals. The deterministic
+   **Local implementation complete (updated 2026-09-02):** 329 rows retain all twelve
+   required dimensions and 2,725 generated failure evals. The deterministic
    generator hashes all six source contracts; CI compares the stored artifact
    byte-for-byte with a fresh build and rejects missing or changed action IDs,
    confirmation/idempotency gaps and unsupported public-pass claims. The public
    `intelligence.v1` adapter exposes additive compile, query, projection and
    coverage reads. The responsive visible matrix is local evidence only.
-10. **B0.10 — Close and release parity in coherent owner slices.** Sort the 316
+10. **B0.10 — Close and release parity in coherent owner slices.** Sort the 318
     executable/conditional actions by dependency and risk, then deliver them
     through the B1–B5 owner slices rather than one unsafe mega-release. Every
     slice must finish the full Owner-first chain, a visible local test, real
@@ -354,10 +364,10 @@ Current truthful position on 2026-09-01:
 
 Block-0 exit has two binding levels:
 
-1. **Control-plane exit:** all 327 actions are versioned, owned, classified,
+1. **Control-plane exit:** all 329 actions are versioned, owned, classified,
    scheduled and protected by generated parity/release gates; no action is
    hidden or ambiguously counted.
-2. **Product-parity exit:** every one of the 316 executable/conditional actions
+2. **Product-parity exit:** every one of the 318 executable/conditional actions
    is either operable through the AI via the same public Owner boundary as the
    human UI, or is equally unavailable to both because the product/owner itself
    does not support it. Every positive claim has visible public evidence.
@@ -369,9 +379,9 @@ multi-month mega-release while preserving the no-exception parity requirement.
 
 ### B1 — Productive AI Chat and first real agency (P01–P10)
 
-Status: **STARTED / NOT ACCEPTED / NEW FEATURE ADVANCE HELD BEHIND B0 CONTROL-PLANE INSERTION**
+Status: **STARTED / LOCAL SEMANTIC-AI + UNIVERSAL-ADMISSION + HOTEL LIVE-PRICE OWNER BUNDLE IMPLEMENTED / VISIBLE LOCAL HOTEL ACCEPTANCE GREEN / PUBLIC PROVIDER ACCEPTANCE OPEN**
 
-Current truthful position on 2026-09-01:
+Current truthful B1 position on 2026-09-02:
 
 - P01 is represented by the last accepted Owner-first baseline `.126`, which
   remains the exact rollback target. Later `.128`–`.133` builds are evidence and
@@ -393,6 +403,41 @@ Current truthful position on 2026-09-01:
 - P06–P09 remain **OPEN** beyond partial contracts/evals. P10 and the S16
   planning projections have meaningful partial coverage but do not constitute
   Block-1 completion.
+- A reproduced `.135` counterexample (`ich will eine andere reise auswählen`
+  → Places travel agencies) opened one semantic-first B1 correction. The local
+  candidate now lets sufficiently confident structured whole-sentence meaning
+  select the owner route, sends low-confidence meaning to a clarification and
+  no longer silently treats an unknown generic wish as a Places search. This is
+  code/eval evidence only until the visible fixture and public Step-17 run pass.
+- P06–P08 now include the **universal admission and booking provider family**.
+  The Booking Owner, not Places/Journey/Chat, decides whether a place is dining,
+  lodging, attraction, culture, activity, event, transport or rental; whether
+  free/not-required/recommended/required/timed entry is explicitly evidenced;
+  and which safe route is available. `reservable=true`, a category or a ticket
+  URL never becomes an invented requirement. The local candidate supports an
+  official ticket/reservation link and a source-backed verified public booking
+  email immediately. Tiqets and Viator receive partner-gated API adapter
+  counterparts; GetYourGuide, FareHarbor, Bókun, Regiondo, bookingkit, Xola and
+  Checkfront are recognized handoff/partner candidates; EVENTIM, Reservix and
+  Ticketmaster are recognized event-ticket handoffs. None is called connected
+  without real partner access and runtime health.
+- The coherent local B1 bundle now contains the browserless
+  `booking.admission.v1` decision, additive `booking.v1` reads, a canonical
+  `booking.place.open` action with the old restaurant ID retained only as a
+  compatibility alias, admission notices in Chat/Place detail, Places and
+  Journey suggestions, plus fail-closed Tiqets and Viator adapters. The
+  executable registry contains **23** actions, including
+  `navigation.route.open`, universal `booking.place.open` and the typed
+  `booking.stay.search` Owner read.
+- Focused syntax, semantic-routing, admission/provider, Booking-owner,
+  action-runtime, consumer and registry suites are green. The visible local
+  fixture is operated successfully at the default and 390 × 844 viewport:
+  `pass`, 4 admission states, 11 provider tiers, no horizontal overflow and no
+  browser warning/error. The public immutable Step-17 release chain remains
+  acceptance work rather than an implementation claim. The separate visible
+  Hotel live-price fixture is also green at default and 390×844: one property,
+  two controlled comparable tariffs, `TT.MM.JJJJ`, no market-best claim,
+  truthful no-provider fallback, no overflow and no console warning/error.
 - Consequently Block 1 is started, not finished. Its next public candidate must
   pass the corrected Place plan/readback/Undo path plus the applicable
   Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion matrix with no console
@@ -413,12 +458,15 @@ Current truthful position on 2026-09-01:
    Undo.
 5. **P05 — Places Plan/Unplan.** Close trip/day/time selection, conflict preview,
    `places.v1` command, Timeline projection, Receipt, recovery and Undo.
-6. **P06 — Booking Read/Open.** Show owner/provider status, evidence, price and terms;
-   open only an official provider handoff and never infer availability.
-7. **P07 — Booking Create.** Execute only supported provider-backed creation with
+6. **P06 — Universal Booking Read/Open.** Classify the visit through the Booking
+   Owner; show a compact admission/reservation notice in Places, AI Chat and
+   Journey/Timeline suggestions; show owner/provider status, evidence, price
+   and terms; open only a verified official/provider/email route and never infer
+   requirement, availability or partner connectivity.
+7. **P07 — Booking/Ticket Create.** Execute only supported provider-backed creation with
    idempotency, refreshed terms, explicit confirmation and provider/owner
    receipts.
-8. **P08 — Booking Modify/Cancel.** Expose consequences and fees before confirmation;
+8. **P08 — Booking/Ticket Modify/Cancel.** Expose consequences and fees before confirmation;
    reconcile unknown provider outcomes and compensate only where supported.
 9. **P09 — Granular Journey commands.** Add, edit, move, reorder, connect, delete and
    restore Journey moments through `journey.v1`, preserving all owner truth.
@@ -576,21 +624,30 @@ coherent slice in every block must independently include:
 
 The immediate active slice is now **B1's first still-open productive Owner bundle after the publicly closed B0.10 control-plane release**:
 
-- retain the now-versioned 327-action semantic registry and 896-marker source
+- retain the now-versioned 329-action semantic registry and 898-marker source
   audit as the canonical B0.01 baseline;
-- preserve the 243 public Owner bindings and zero remaining
+- preserve the 245 public Owner bindings and zero remaining
   `OWNER_METHOD_AUDIT_OPEN` rows rather than inventing global methods;
-- retain the now-green 21/21 runtime input enforcement across Places, Events,
+- retain the now-green 23/23 runtime input enforcement across Places, Events,
   Booking, Journey, Trip, Memory and Identity, then expand typed contracts to
   missing actions domain by domain;
-- retain the now-green registry/source-drift, language, 327/327 authority,
-  lifecycle, capability, bright-consumer and 327-row parity/failure gates;
+- retain the now-green registry/source-drift, language, 329/329 authority,
+  lifecycle, capability, bright-consumer and 329-row parity/failure gates;
 - retain the visible local register gate as an always-operable progress surface;
   it must continue to load the canonical register rather than a copied demo list;
 - retain `.135` as the accepted B0 control-plane baseline and `.126` as the
   exact conservative rollback target;
-- continue with the coherent Places Favorite/Unfavorite/Plan/Unplan bundle,
-  then Booking reads and mutations, without upgrading unrelated registry rows.
+- finish the visible local and public operation of the semantic-first owner
+  router and universal admission Read/Open slice, then continue the coherent
+  Places Favorite/Unfavorite/Plan/Unplan bundle;
+- retain the now-regenerated canonical `booking.place.open` registry and typed
+  input contract while `booking.restaurant.open` remains only a migration
+  alias, and retain `booking.stay.search` as a semantic read through
+  `booking.v1.reads.searchStayOffers`. The runtime count is 23; public evidence
+  does not rise until the visible Integration run passes;
+- activate Booking/Ticket Create/Modify/Cancel only after real partner access,
+  Edge transport authorization, health, idempotency and provider-positive E2E,
+  without upgrading unrelated registry rows.
 
 After that gate, B1 resumes at the first still-open P02–P05 acceptance row and
 then P06–P10. A documentation entry, a green fixture or a successful Owner call
@@ -640,7 +697,8 @@ Still open before P02/P03 completion:
 Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY DELIVERY RESUMED**
 
 - B0 inventory/review and the local B0.01 machine-readable repository insertion
-  are complete. B0.02 has locally bound all 243 audited public Owner paths: 20 Navigation/History,
+  are complete. The current control plane has 245 audited public Owner paths;
+  the dated B0.02 bundles below explain how the pre-B1 set was assembled: 20 Navigation/History,
   16 Identity profile/settings, 10 initial Journey reads/deletes, 13 Booking
   actions, a 60-action Places/Journey/Memory/Event bundle and a 39-action
   Trip/Media/Identity/Intelligence bundle, a 51-action Auth/Collaboration/
@@ -648,17 +706,17 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY 
   bundle. No Owner-method audit row remains open. This does not mean complete
   AI parity: typed chat routes, visible confirmation/receipt/Undo and public
   E2E evidence are still required. B0.03 typed metadata contracts and
-  bounded pre-Owner enforcement now cover all 21/21 current runtime actions;
+  bounded pre-Owner enforcement now cover all 23/23 current runtime actions;
   schemas for the still-missing AI actions remain open. The generated B0.09
-  structure, provenance, 12-dimension evidence, 2,711 failure evals,
+  structure, provenance, 12-dimension evidence, 2,725 failure evals,
   typed-contract and source-marker gates are green locally. B0.04
-  additionally covers 327 canonical German actions and 142 curated multilingual
-  action rules. B0.05 covers all 327 actions with the shared authority,
-  re-auth, privacy, provider and offline policy. B0.06 covers all 327 actions
+  additionally covers 329 canonical German actions and 142 curated multilingual
+  action rules. B0.05 covers all 329 actions with the shared authority,
+  re-auth, privacy, provider and offline policy. B0.06 covers all 329 actions
   with read/open/draft/permission/external/mutation lifecycles, including all
-  124 protected changes and 20 truthful Undo paths. B0.07 evaluates all 327
-  actions through 15 honest capability states, with 59 currently routed rows
-  and 288 truthful manual Owner fallbacks. B0.08 now projects all 327 actions
+  124 protected changes and 20 truthful Undo paths. B0.07 evaluates all 329
+  actions through 15 honest capability states, with 80 currently routed rows
+  and 290 truthful manual Owner fallbacks. B0.08 now projects all 329 actions
   into the compact local Chat; B0.09 now closes the local parity/failure matrix
   and CI drift package. B0.10 is publicly released and closed as a control-plane
   exit; product parity remains open and is now delivered through B1–B5.
@@ -675,3 +733,42 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 PRODUCT-PARITY 
   completion claim for all four actions or for general language parity.
 - The next accepted public build must expose a visible test the user can operate.
   No block or row becomes complete from automated tests alone.
+
+### 4.3 Hotel decision and affiliate activation lane — 2026-09-02
+
+- Hotels are a dedicated Planning product, not a generic Places result and not
+  a restaurant reservation variant. Luvia first chooses a property and then a
+  provider route for an equivalent offer.
+- One property may contain offers from multiple approved sources. Provider
+  price comparison requires the same dates, party/rooms, currency, room/board/
+  bed signature, complete mandatory charges and a fresh quote.
+- The visible choices are cheapest comparable total, best flexible option and
+  best personal fit. Commission/revenue never contributes to user ranking.
+- KAYAK is the strategic hotel breadth application; Expedia Group Travel
+  Creator is the earliest broad tracked-handoff application; Booking.com
+  Demand and Expedia Rapid stay separately gated deep-booking contracts.
+- Amadeus Self-Service and Hotelbeds evaluation are the fast live-price proof
+  lane. They do not replace KAYAK's cross-provider breadth and do not inherit an
+  affiliate revenue claim. Without at least one live price response, Hotel UI
+  is fit-only; without two live sources it cannot claim cross-source comparison.
+- The local candidate now contains the authenticated
+  `booking-hotel-offer-search` gateway, separate fail-closed Amadeus and
+  Hotelbeds adapters, service-only search/snapshot evidence and the public
+  `booking.v1.reads.searchStayOffers` route. Only `live=true` provider API
+  evidence may enter a price decision; missing partner status, credentials,
+  destination identifiers, taxes or current responses stays `fit_only`.
+- The visible local Hotel acceptance passes at default and 390×844 for both
+  two-controlled-source and no-source states, with no overflow or console
+  warning/error. It remains local evidence, not a real-provider/public pass.
+- Viator, Tiqets, Expedia Creator, Hostelworld, Omio and Klook form the first
+  commercial application wave. The owner must submit contracts and payout/tax
+  data; credentials remain outside the repository.
+- Binding activation/ranking evidence is in
+  `M16.5-AFFILIATE-ACTIVATION-AND-HOTEL-DECISION-PLAN.md`. No provider becomes
+  active without real approval, Edge transport, health, reconciliation,
+  visible public E2E and the complete immutable release/rollback chain.
+
+The binding provider order is Amadeus proof → Hotelbeds second-source proof →
+KAYAK breadth application → Expedia Rapid qualification → Booking.com Demand
+qualification. Affiliate applications may proceed in parallel, but their links
+never become price evidence or ranking input.

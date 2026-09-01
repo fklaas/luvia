@@ -11,10 +11,10 @@ const context={Object,Array,String,Number,Boolean,Date,Math,RegExp,JSON,Set,Map,
 vm.createContext(context);vm.runInContext(actionSource,context);
 
 const actions=Array.from(context.LuviaIntelligenceActionContractCoreV1.listActions());
-assert.equal(actions.length,21,'registered action count changed; the coverage matrix must be deliberately revised');
+assert.equal(actions.length,23,'registered action count changed; the coverage matrix must be deliberately revised');
 const inventory=matrix.slice(matrix.indexOf('## Registered action inventory'),matrix.indexOf('## Product-surface gaps'));
 const documented=[...inventory.matchAll(/^\| `([^`]+)` \|/gm)].map(match=>match[1]);
-assert.equal(documented.length,21,'the registry table must contain exactly the 21 registered actions');
+assert.equal(documented.length,23,'the registry table must contain exactly the 23 registered actions');
 assert.equal(new Set(documented).size,documented.length,'the registry table contains duplicate actions');
 assert.deepEqual([...documented].sort(),actions.map(action=>action.id).sort(),'coverage matrix and executable action registry diverged');
 
@@ -31,7 +31,8 @@ for(const requiredGap of [
 ])assert.ok(matrix.includes(requiredGap),`open owner-first coverage gap missing: ${requiredGap}`);
 
 assert.match(matrix,/Google Places quota failure, no invented cards/);
-assert.match(matrix,/Main, Production, DB\/RLS, Secrets and Edge Functions are outside/);
+assert.match(matrix,/Main, Production and secret creation remain outside/);
+assert.match(matrix,/additive Hotel provider schema\/RLS and Integration Edge gateway/);
 assert.match(matrix,/Human ↔ AI action parity has no product exception/);
 assert.match(matrix,/Adding a public UI command without adding its AI route/);
 const intelligenceRow=productSurfaces.split('\n').find(row=>row.startsWith('luvia-intelligence,'));
