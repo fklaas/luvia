@@ -20,7 +20,7 @@ const context={
   CustomEvent:function(name,options){this.type=name;this.detail=options?.detail},
   dispatchEvent(event){events.push(event)},
   LuviaTripContractV1:{
-    getActiveTrip(){return{id:'trip-1',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}}},
+    getActiveTrip(){return{id:'trip-1',title:'Ostseeurlaub',timeZone:'Europe/Berlin',destination:{name:'Scharbeutz',timeZone:'Europe/Berlin'}}},
     listTrips(){return[{id:'trip-1',title:'Ostseeurlaub',destination:{name:'Scharbeutz'}},{id:'trip-2',title:'Paris',destination:{name:'Paris'}}]},
     reads:{listTrips(){return this.listTrips?.()||[]}},
     commands:{
@@ -128,7 +128,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(preferenceReceipt.evidence.status,'completed');
   assert.deepEqual(JSON.parse(JSON.stringify(calls.find(call=>call[0]==='preferences-update')[1])),{dietaryPreferences:['vegetarian','vegan'],travelPace:'relaxed'});
 
-  const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',providerPlaceId:'place-1'},{userGesture:true});
+  const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',tripPlaceId:'tp-1',providerPlaceId:'place-1'},{userGesture:true});
   assert.equal(cancelled.requiresConfirmation,true);
   assert.equal(runtime.getActionState(cancelled.ledgerId).status,'confirmation_required');
   const cancelReceipt=runtime.cancel(cancelled.ledgerId);
@@ -163,7 +163,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.deepEqual(calls.find(call=>call[0]==='unplan')[1].fields,['planned_at','place_name','notes']);
   assert.equal(calls.some(call=>call[0]==='lifecycle'&&call[1]==='tp-1'&&call[2]==='saved'),true);
 
-  const create=runtime.prepare('booking.reservation.create',{tripId:'trip-1',providerPlaceId:'place-1',date:'2026-08-26',time:'19:00',partySize:2},{userGesture:true,idempotencyKey:'booking-create-once'});
+  const create=runtime.prepare('booking.reservation.create',{tripId:'trip-1',place:{providerPlaceId:'place-1',name:'Restaurant am Wasser'},startAt:'2026-08-26T17:00:00.000Z',partySize:2},{userGesture:true,idempotencyKey:'booking-create-once'});
   const created=await runtime.execute('booking.reservation.create',{}, {ledgerId:create.ledgerId,userGesture:true,confirmed:true});
   assert.equal(created.evidence.status,'completed');
   assert.equal(calls.find(call=>call[0]==='booking-create')[1].idempotencyKey,'booking-create-once');

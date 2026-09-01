@@ -7,6 +7,8 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const dashboard=fs.readFileSync(path.join(root,'core/ai/ai-dashboard-service.js'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'core/ai/ai-action-runtime.js'),'utf8');
+const consumer=fs.readFileSync(path.join(root,'core/intelligence/human-ai-consumer-projection-core.js'),'utf8');
+const consumerSurface=`${dashboard}\n${consumer}`;
 
 for(const phrase of [
   'Explainable Planning Trace · S16.01',
@@ -20,12 +22,16 @@ for(const phrase of [
   'Recovery-Receipt steht im Verlauf'
 ])assert.equal(dashboard.includes(phrase),false,`technical implementation copy leaked into the normal AI consumer surface: ${phrase}`);
 
-assert.match(dashboard,/So kam der Vorschlag zustande/);
-assert.match(dashboard,/Warum passt das zu dir\?/);
+assert.match(dashboard,/Nachvollziehbar ausgewählt/);
+assert.match(dashboard,/Warum diese Treffer\?/);
+assert.doesNotMatch(dashboard,/Mit den verfügbaren Reiseinformationen abgeglichen/);
+assert.doesNotMatch(dashboard,/Die verwendeten Informationen sind ausreichend aktuell/);
+assert.match(dashboard,/simpleResolved=.*compiled\.intents\.length===1/,'a single resolved wish must not receive a duplicate intent card');
+assert.doesNotMatch(dashboard,/\$\{item\.reasons\?\.length\?`<ul>/,'raw ranking prose must not be repeated below every compact Place card');
 assert.match(dashboard,/Ein Teil deiner Anfrage konnte gerade nicht geladen werden/);
-assert.match(dashboard,/Erneut versuchen/);
-assert.match(dashboard,/Wunsch anpassen/);
-assert.match(dashboard,/Rückgängig machen/);
+assert.match(consumerSurface,/Erneut versuchen/);
+assert.match(consumerSurface,/Wunsch anpassen/);
+assert.match(consumerSurface,/Rückgängig machen/);
 assert.match(dashboard,/data-ai-receipt-status/,'machine-verifiable receipts must remain inspectable without exposing internal jargon');
 assert.match(dashboard,/data-ai-compiler/,'the compiler provenance must remain inspectable for evals');
 assert.doesNotMatch(dashboard,/<details class="lvx-planning-trace" open/,'planning rationale must be optional instead of blocking the conversation');

@@ -1,0 +1,28 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const read=file=>fs.readFileSync(file,'utf8');
+const registry=JSON.parse(read('config/luvia-human-ai-action-registry.v1.json'));
+const context={console,globalThis:null};context.globalThis=context;
+context.LuviaIntelligenceDomainContractCoreV1={immutable:value=>value,listCapabilities:()=>[],getCapability:()=>null,listDomains:()=>[],listTools:()=>[],listModelTiers:()=>[],policySnapshot:()=>({}),sanitize:value=>value};
+context.LuviaAI={diagnostics:()=>({version:'test'}),run:async()=>({}),ask:async()=>({}),rank:async()=>({}),recommend:async()=>({}),explain:async()=>({}),summarize:async()=>({})};
+vm.createContext(context);
+vm.runInContext(read('core/intelligence/human-ai-language-compiler-core.js'),context,{filename:'human-ai-language-compiler-core.js'});
+vm.runInContext(read('core/intelligence/human-ai-safety-policy-core.js'),context,{filename:'human-ai-safety-policy-core.js'});
+vm.runInContext(read('core/platform/intelligence-contract-adapter.js'),context,{filename:'intelligence-contract-adapter.js'});
+const api=context.LuviaIntelligenceContractV1;
+assert.equal(api.runtimeVersion,'1.10.0');
+assert.equal(typeof api.reads.compileHumanActions,'function');
+assert.equal(typeof api.reads.getHumanActionLanguageCoverage,'function');
+const result=api.reads.compileHumanActions({utterance:'Finde Minigolf in Scharbeutz',catalog:registry.actions});
+assert.ok(result.candidates.some(candidate=>candidate.actionId==='places.discovery.search'));
+assert.equal(result.executed,false);
+const coverage=api.reads.getHumanActionLanguageCoverage(registry.actions);
+assert.equal(coverage.catalogActions,327);
+assert.equal(coverage.canonicalLabelCoverage,327);
+assert.ok(coverage.curatedActionCount>=140);
+assert.equal(coverage.executesOwnerActions,false);
+assert.equal(api.diagnostics().providers.humanActionLanguageCompiler,true);
+console.log('M16.5 Block 0 Human-AI language public Intelligence adapter: PASS');

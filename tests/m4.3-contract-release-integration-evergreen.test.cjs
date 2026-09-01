@@ -84,8 +84,14 @@ const tripAdapterIndex = requireIndexAsset(
   build
 );
 
+const tripDraftCoreIndex = requireIndexAsset(
+  index,
+  'core/trips/trip-draft-core.js',
+  build
+);
+
 assert(
-  tripProviderIndex < tripAdapterIndex,
+  tripProviderIndex < tripAdapterIndex && tripDraftCoreIndex < tripAdapterIndex,
   'Trip adapter must load after Trip-owned use-case providers'
 );
 
@@ -102,6 +108,7 @@ requireSwAsset(
   sw,
   'core/platform/trip-contract-adapter.js'
 );
+requireSwAsset(sw, 'core/trips/trip-draft-core.js');
 
 /* -------------------------------------------------------------------------- */
 /* Places contract integration                                                 */
@@ -388,6 +395,7 @@ assert.deepEqual(
     'getViewerIdentity',
     'getPublicIdentity',
     'getPreferences(self)',
+    'exportData(self)',
     'subscribe'
   ]
 );
@@ -396,7 +404,11 @@ assert.deepEqual(
   identityContract.commands,
   [
     'updateProfile',
-    'updatePreferences'
+    'updatePreferences',
+    'completeOnboarding',
+    'updateDashboardLayout',
+    'setTripArchived',
+    'requestNotificationPermission(explicit platform gesture)'
   ]
 );
 

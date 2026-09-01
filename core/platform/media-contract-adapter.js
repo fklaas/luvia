@@ -898,6 +898,16 @@
     );
   }
 
+  function suggestTitles(input={}){
+    const item=input.media||input,placeName=text(input.location||item.locationName||item.metadata?.resolvedLocation?.name),day=text(input.day||item.dayKey),base=text(item.displayName||item.title||item.filename||'Moment').replace(/\.[a-z0-9]{2,5}$/i,'');
+    const candidates=[base,placeName?`${base} in ${placeName}`:'',day?`${base} · ${day}`:''].filter(Boolean);
+    return Object.freeze({titles:freezeArray([...new Set(candidates)].slice(0,3)),source:'media-evidence',inventedFacts:false});
+  }
+  const acquisitionCommands=Object.freeze({
+    capture(input={}){const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.captureMedia)throw providerError('LuviaPlatformActionContractV1.commands.captureMedia');return api.commands.captureMedia(input)},
+    pick(input={}){const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.pickFiles)throw providerError('LuviaPlatformActionContractV1.commands.pickFiles');return api.commands.pickFiles(input)}
+  });
+
   const reads=Object.freeze({
     listMedia,
     getMedia,
@@ -914,6 +924,7 @@
 
   const commands=Object.freeze({
     media:mediaCommands,
+    acquisition:acquisitionCommands,
     albums:albumCommands,
     cards:cardCommands,
     journeys:journeyCommands
@@ -965,6 +976,7 @@
 
     reads,
     commands,
+    composition:Object.freeze({suggestTitles}),
     events,
 
     listMedia,

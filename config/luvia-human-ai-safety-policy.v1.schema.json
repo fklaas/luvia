@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luvia.local/contracts/luvia-human-ai-safety-policy.v1.schema.json",
+  "title": "Luvia Human-AI Safety Policy v1",
+  "type": "object",
+  "required": ["contractId", "version", "invariants", "summary", "policies"],
+  "properties": {
+    "contractId": { "const": "luvia.human-ai-safety-policy.v1" },
+    "version": { "const": "1.0.0" },
+    "invariants": {
+      "type": "object",
+      "required": ["sameAuthorityAsActingUser", "shadowPermission", "naturalLanguageAloneConfirmsMutation", "denyByDefault"]
+    },
+    "summary": { "type": "object", "required": ["catalogActions", "policyActions", "classifications", "scopes"] },
+    "policies": {
+      "type": "array",
+      "minItems": 327,
+      "maxItems": 327,
+      "items": {
+        "type": "object",
+        "required": ["actionId", "classification", "requiredScope", "reauthRequired", "consentRequirements", "networkPolicy", "userGestureRequired", "confirmationPolicy"],
+        "properties": {
+          "actionId": { "type": "string", "minLength": 3 },
+          "classification": { "enum": ["READ_PRESENTATION", "NAVIGATION_OPEN", "DRAFT", "INTERNAL_WRITE", "EXTERNAL_TRANSACTION", "HIGH_RISK_OR_PERMISSION"] },
+          "requiredScope": { "enum": ["PUBLIC", "SELF", "TRIP_MEMBER", "TRIP_ADMIN", "SYSTEM_ADMIN"] },
+          "reauthRequired": { "type": "boolean" },
+          "consentRequirements": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "providerGate": { "type": ["string", "null"] },
+          "networkPolicy": { "enum": ["OFFLINE_CAPABLE", "ONLINE_REQUIRED"] },
+          "userGestureRequired": { "type": "boolean" },
+          "confirmationPolicy": { "enum": ["NEVER", "USER_GESTURE", "EXPLICIT"] }
+        }
+      }
+    }
+  }
+}

@@ -15,11 +15,16 @@
     "getViewerIdentity",
     "getPublicIdentity",
     "getPreferences(self)",
+    "exportData(self)",
     "subscribe"
   ],
   "commands": [
     "updateProfile",
-    "updatePreferences"
+    "updatePreferences",
+    "completeOnboarding",
+    "updateDashboardLayout",
+    "setTripArchived",
+    "requestNotificationPermission(explicit platform gesture)"
   ],
   "events": [
     "identity.changed",

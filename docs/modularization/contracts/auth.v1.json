@@ -1,0 +1,32 @@
+{
+  "contractId": "auth.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "owner": "Platform/Auth",
+  "status": "local-foundation",
+  "browserlessCore": "LuviaAuthCommandContractCoreV1",
+  "publicAdapter": "LuviaAuthContractV1",
+  "composition": ["selectMode"],
+  "reads": ["getState", "checkAnonymousUpgrade"],
+  "commands": [
+    "signInWithPassword",
+    "signUpWithPassword",
+    "signInWithProvider",
+    "requestPasswordReset",
+    "completePasswordReset",
+    "linkProvider",
+    "updatePassword",
+    "signOut",
+    "requestAnonymousEmail",
+    "checkAnonymousUpgrade",
+    "resendAnonymousEmail",
+    "changeAnonymousEmail",
+    "completeAnonymousUpgrade"
+  ],
+  "privacy": {
+    "tokensExposed": false,
+    "passwordsExposed": false,
+    "rawSessionExposed": false
+  },
+  "internal": ["Supabase auth client", "session token", "pending-upgrade secure storage"]
+}

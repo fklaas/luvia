@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Luvia B0.08 · Benutzbarer AI-Chat</title>
+  <style>
+    :root{color-scheme:light;--ink:#17324a;--muted:#687f91;--line:#d5e3e5;--paper:#fff;--soft:#f3f8f8;--teal:#4ea4a7;--teal-dark:#247c80;--mint:#dff2ef;--rose:#ef6482;--sand:#f3ae48;--shadow:0 20px 60px rgba(23,50,74,.14)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 7%,#e8f6f3 0,transparent 30%),radial-gradient(circle at 90% 10%,#fff0f4 0,transparent 28%),#edf3f3;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+    button{font:inherit}.stage{min-height:100vh;padding:22px}.sheet{width:min(780px,100%);height:calc(100vh - 44px);min-height:680px;margin:auto;background:var(--paper);border:1px solid var(--line);border-radius:32px;box-shadow:var(--shadow);display:grid;grid-template-rows:auto auto 1fr auto;overflow:hidden}
+    .top{padding:24px 26px 19px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.brand{display:block;color:var(--teal-dark);font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;margin-bottom:7px}.top h1{margin:0;font-size:clamp(1.65rem,4vw,2.45rem);line-height:1.08}.test-badge{padding:8px 11px;border-radius:999px;background:var(--mint);color:var(--teal-dark);font-size:.72rem;font-weight:850;white-space:nowrap}
+    .scenarios{display:flex;gap:8px;padding:13px 20px;overflow-x:auto;border-bottom:1px solid var(--line);background:#fbfdfd}.scenarios button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 11px;border-radius:999px;white-space:nowrap;cursor:pointer;font-weight:750;font-size:.8rem}.scenarios button[aria-pressed=true],.scenarios button:hover,.scenarios button:focus-visible{outline:none;border-color:var(--teal);background:var(--mint)}
+    .chat{overflow:auto;padding:22px 22px 34px;scrollbar-gutter:stable}.bubble{width:min(82%,590px);padding:15px 17px;border-radius:21px;margin-bottom:15px;line-height:1.48}.bubble.user{margin-left:auto;background:var(--teal);color:#fff;border-bottom-right-radius:7px}.bubble.assistant{display:grid;grid-template-columns:34px 1fr;gap:10px;background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:7px}.mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--teal-dark);font-weight:900}.speaker{display:block;font-size:.67rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:4px}.bubble p{margin:0}
+    .card{margin:0 0 16px;border:1px solid var(--line);border-radius:22px;padding:18px;background:#fff;box-shadow:0 9px 30px rgba(23,50,74,.06)}.card[data-tone=attention]{border-color:#ebd5ae;background:#fffdf9}.card[data-tone=blocked]{border-color:#f0c6cf;background:#fffafb}.eyebrow{display:block;color:var(--teal-dark);font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}.card[data-tone=attention] .eyebrow{color:#a36b12}.card[data-tone=blocked] .eyebrow{color:#b63852}.card h2{font-size:1.18rem;margin:0 0 6px}.card>p{color:var(--muted);margin:0;line-height:1.45}.facts{display:grid;gap:8px;margin:14px 0}.facts div{display:flex;justify-content:space-between;gap:14px;padding:10px 12px;border-radius:13px;background:var(--soft)}.facts dt{color:var(--muted)}.facts dd{margin:0;font-weight:800;text-align:right}.actions{display:flex;gap:8px;margin-top:15px}.actions button{flex:1;border:1px solid var(--teal);border-radius:14px;padding:11px 13px;background:var(--teal);color:#fff;font-weight:850;cursor:pointer}.actions button.secondary{background:#fff;color:var(--ink);border-color:var(--line)}
+    .result-list{display:grid;gap:10px;margin-top:13px}.place{border:1px solid var(--line);border-radius:16px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:9px}.place strong{display:block}.place small{color:var(--muted)}.place button{align-self:center;border:0;border-radius:12px;padding:9px 11px;background:var(--mint);color:var(--teal-dark);font-weight:800}.intent-list{display:grid;gap:8px;margin-top:12px}.intent{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:var(--soft)}.intent i{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--teal-dark);font-style:normal;font-weight:900}.note{display:block;color:var(--muted);font-size:.76rem;margin-top:12px}
+    .composer{padding:15px 18px 17px;border-top:1px solid var(--line);background:#fff}.composer label{display:block;font-size:.72rem;font-weight:850;margin:0 0 7px}.compose-row{display:grid;grid-template-columns:1fr 48px;gap:8px}.compose-row input{width:100%;border:1px solid var(--line);border-radius:999px;padding:13px 16px;color:var(--muted);background:#fbfdfd;font:inherit}.send{border:0;border-radius:50%;background:#9bcfd1;color:#fff;font-size:1.25rem}.composer small{display:block;color:var(--muted);font-size:.66rem;margin-top:6px}
+    @media(max-width:620px){.stage{padding:0}.sheet{height:100vh;min-height:620px;border:0;border-radius:0}.top{padding:19px 17px 15px}.test-badge{display:none}.chat{padding:17px 13px 28px}.bubble{width:91%}.actions{flex-direction:column}.facts div{align-items:flex-start}.scenarios{padding-inline:13px}.composer{padding-inline:12px}}
+  </style>
+</head>
+<body data-load-state="loading" data-test-state="loading">
+  <main class="stage">
+    <section class="sheet" aria-label="Luvia AI Chat">
+      <header class="top"><div><span class="brand">Luvia</span><h1>Was möchtest du erleben?</h1></div><span class="test-badge">Lokaler Test · B0.08</span></header>
+      <nav class="scenarios" id="scenarios" aria-label="Chat-Situationen"></nav>
+      <div class="chat" id="chat" role="log" aria-live="polite"></div>
+      <div class="composer"><label for="message">Nachricht an Luvia</label><div class="compose-row"><input id="message" value="Restaurant, Tagesplan oder nächste Entscheidung" readonly><button class="send" aria-label="Senden" disabled>→</button></div><small>Enter sendet · Shift+Enter fügt eine Zeile ein</small></div>
+    </section>
+  </main>
+  <script src="../../core/intelligence/human-ai-safety-policy-core.js"></script>
+  <script src="../../core/intelligence/human-ai-action-lifecycle-core.js"></script>
+  <script src="../../core/intelligence/human-ai-capability-discovery-core.js"></script>
+  <script src="../../core/intelligence/human-ai-consumer-projection-core.js"></script>
+  <script>
+  (()=>{'use strict';
+    const chat=document.getElementById('chat'),nav=document.getElementById('scenarios'),C=globalThis.LuviaHumanAIConsumerProjectionCoreV1,D=globalThis.LuviaHumanAICapabilityDiscoveryCoreV1;
+    const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const base={authenticated:true,tripRole:'MEMBER',online:true,providers:{PLACES_PROVIDER:true,BOOKING_PROVIDER:true,AI_RUNTIME:true},consents:['GEOLOCATION','PERSONALIZATION'],userGesture:true,confirmed:false,nowEpochSeconds:2000,reauthenticatedAtEpochSeconds:1950};
+    let registry=null,current=0,receiptState='preview';
+    const scenarios=[
+      {label:'Orte finden',user:'Finde uns heute ein ruhiges Restaurant am Wasser.',kind:'search'},
+      {label:'Timeline',user:'Trag die Strandperle am 14.06.2027 um 14 ur in meine Timline ein.',kind:'preview'},
+      {label:'Angabe fehlt',user:'Reserviere dort einen Tisch.',kind:'missing'},
+      {label:'Ohne Internet',user:'Zeig mir Restaurants in der Nähe.',kind:'offline'},
+      {label:'Zwei Wünsche',user:'Finde Minigolf in Scharbeutz und danach etwas mit Luftmatratzen für die Kinder.',kind:'multi'}
+    ];
+    function bubble(role,text){return`<article class="bubble ${role}">${role==='assistant'?'<span class="mark">✦</span>':''}<div>${role==='assistant'?'<span class="speaker">Luvia</span>':''}<p>${esc(text)}</p></div></article>`}
+    function actions(projected,{confirm=false,undo=false}={}){const primary=projected.primaryAction,secondary=projected.secondaryAction;if(!primary&&!secondary)return'';return`<div class="actions">${secondary?`<button type="button" class="secondary" data-cancel>${esc(secondary.label)}</button>`:''}${primary?`<button type="button" ${confirm?'data-confirm':''} ${undo?'data-undo':''}>${esc(primary.label)}</button>`:''}</div>`}
+    function card(projected,options={}){return`<article class="card" data-consumer-view="${esc(projected.view)}" data-tone="${esc(projected.tone)}"><span class="eyebrow">${esc(projected.eyebrow)}</span><h2>${esc(projected.title)}</h2>${projected.message?`<p>${esc(projected.message)}</p>`:''}${projected.details?.length?`<dl class="facts">${projected.details.map(item=>`<div><dt>${esc(item.label)}</dt><dd>${esc(item.value)}</dd></div>`).join('')}</dl>`:''}${projected.note?`<small class="note">${esc(projected.note)}</small>`:''}${actions(projected,options)}</article>`}
+    function capability(id,actor,inputs){return D.discover({catalog:registry.actions,actionIds:[id],actor,inputsByAction:{[id]:inputs}}).capabilities[0]}
+    function render(index){current=index;receiptState='preview';const sample=scenarios[index];[...nav.children].forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));let html=bubble('user',sample.user);
+      if(sample.kind==='search'){
+        const action=registry.actions.find(item=>item.id==='places.restaurant.search'),projected=C.projectCapability({action,capability:capability(action.id,base,{query:'ruhiges Restaurant am Wasser'})});
+        html+=bubble('assistant','Ich habe drei ruhige Restaurants mit bestätigter Lage am Wasser gefunden.');
+        html+=`<article class="card" data-consumer-view="${projected.view}" data-tone="ready"><span class="eyebrow">3 passende Orte</span><h2>Ruhig essen am Wasser</h2><p>Deine gespeicherten Vorlieben und die gewünschte Lage sind berücksichtigt.</p><div class="result-list"><div class="place"><div><strong>Strandperle</strong><small>4,6 · 640 m · Lage am Wasser bestätigt</small></div><button>Details</button></div><div class="place"><div><strong>Hamptons Scharbeutz</strong><small>4,5 · 1,1 km · ruhige Sitzplätze</small></div><button>Details</button></div><div class="place"><div><strong>Bayside Coast</strong><small>4,4 · 1,4 km · Blick auf die Ostsee</small></div><button>Details</button></div></div></article>`;
+      }else if(sample.kind==='preview'){
+        const projected=C.projectPreview({result:{title:'Zur Timeline hinzufügen',message:'Strandperle wird als Reisemoment eingeplant.'},preview:{name:'Strandperle',date:'2027-06-14',time:'14:00'}});
+        html+=bubble('assistant','Gern. Prüfe bitte kurz Ort und Zeitpunkt.');
+        html+=card(projected,{confirm:true});
+      }else if(sample.kind==='missing'){
+        const action=registry.actions.find(item=>item.id==='booking.reservation.create'),cap=capability(action.id,base,{}),projected=C.projectCapability({action,capability:cap});
+        html+=card(projected);
+      }else if(sample.kind==='offline'){
+        const action=registry.actions.find(item=>item.id==='places.restaurant.search'),cap=capability(action.id,{...base,online:false},{query:'Restaurants in der Nähe'}),projected=C.projectCapability({action,capability:cap});
+        html+=bubble('assistant','Sobald die Verbindung wieder da ist, kann ich aktuelle Orte laden.');
+        html+=card(projected);
+      }else{
+        const projected=C.projectIntentSummary({status:'compiled',intents:[{clause:'Minigolf in Scharbeutz finden',mode:'read'},{clause:'Luftmatratzen für die Kinder finden',mode:'read'}],steps:[{sequence:1},{sequence:2}],missingInputs:[],conflicts:[],blockedCommands:[]});
+        html+=`<article class="card" data-consumer-view="INTENT_SUMMARY" data-tone="ready"><span class="eyebrow">Schritt für Schritt</span><h2>${esc(projected.title)}</h2><div class="intent-list">${projected.items.map(item=>`<div class="intent"><i>${item.sequence}</i><strong>${esc(item.label)}</strong></div>`).join('')}</div></article>`;
+      }
+      chat.innerHTML=html;chat.scrollTop=chat.scrollHeight;document.body.dataset.testState=sample.kind;
+    }
+    function renderReceipt(status='completed'){
+      const recoveryKind=status==='completed'?'undo':'',projected=C.projectReceipt({result:{title:status==='completed'?'Strandperle ist eingeplant':'Timeline-Eintrag entfernt',message:status==='completed'?'14.06.2027 · 14:00 Uhr':'Der Reisemoment wurde aus deinem Tag entfernt.',evidence:{status}},recoveryKind});
+      chat.insertAdjacentHTML('beforeend',bubble('assistant',status==='completed'?'Erledigt – der Reisemoment steht jetzt in deinem Tag.':'Erledigt – die Änderung wurde zurückgenommen.')+card(projected,{undo:status==='completed'}));chat.scrollTop=chat.scrollHeight;receiptState=status;
+    }
+    chat.addEventListener('click',event=>{if(event.target.closest('[data-confirm]'))renderReceipt(receiptState==='undo-preview'?'compensated':'completed');else if(event.target.closest('[data-undo]')){const preview=C.projectPreview({undo:true,result:{title:'Änderung rückgängig machen?',message:'Der Timeline-Eintrag wird entfernt.'},preview:{name:'Strandperle',date:'2027-06-14',time:'14:00'}});chat.insertAdjacentHTML('beforeend',card(preview,{confirm:true}));receiptState='undo-preview';chat.scrollTop=chat.scrollHeight}else if(event.target.closest('[data-cancel]'))render(current)});
+    scenarios.forEach((sample,index)=>{const button=document.createElement('button');button.type='button';button.textContent=sample.label;button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>render(index));nav.append(button)});
+    fetch('../../config/luvia-human-ai-action-registry.v1.json',{cache:'no-store'}).then(response=>response.ok?response.json():Promise.reject(new Error('Aktionsliste konnte nicht geladen werden.'))).then(actionRegistry=>{registry=actionRegistry;if(registry.actions.length!==327)throw new Error('Aktionsliste ist unvollständig.');document.body.dataset.loadState='pass';render(0)}).catch(error=>{document.body.dataset.loadState='fail';chat.innerHTML=bubble('assistant',error.message)});
+  })();
+  </script>
+</body>
+</html>

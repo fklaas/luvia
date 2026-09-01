@@ -63,7 +63,7 @@ for(const colour of ['#ef6254','#f4b34c','#2c93a9','#2f8c73']){
 assert.match(dashboard,/appendIntentGraph\(compiled\)/);
 assert.match(dashboard,/actionRuntime\(\)\.prepare\(/);
 assert.match(dashboard,/actionRuntime\(\)\.prepareUndo\(/);
-assert.match(dashboard,/Du siehst zuerst eine Vorschau und bestätigst selbst/);
+assert.match(dashboard,/Bevor etwas geändert wird, siehst du eine Vorschau und bestätigst selbst/);
 assert.match(runtime,/ledger\.create\(\{actionId,owner:definition\.owner,ownerContract:definition\.ownerContract,effect:definition\.effect,risk:definition\.risk,confirmation:definition\.confirmation/);
 assert.match(runtime,/function prepareUndo\(/);
 assert.match(runtime,/ledger\.startCompensation\(compensationOrigin\);ledger\.finishCompensation\(compensationOrigin,receipt\)/);

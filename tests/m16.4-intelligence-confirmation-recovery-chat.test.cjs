@@ -10,7 +10,7 @@ for(const token of [
   'data-ai-confirmation-card=',
   'data-ai-confirm=',
   'data-ai-cancel-confirmation=',
-  'Verbindlich bestätigen',
+  'consumer().projectPreview({result,preview,compensatesLedgerId})',
   'actionRuntime().prepare(offer.actionId,offer.payload,{userGesture:true,surface})',
   'prepared.requiresConfirmation',
   'ledgerId:entry.ledgerId,userGesture:true,confirmed:true',
@@ -27,6 +27,8 @@ for(const token of [
   'lvx-memory-card',
   'class="lvx-preference-grid"'
 ])assert.ok(source.includes(token),`M16 confirmed action chat missing ${token}`);
+
+assert.equal(source.includes('Verbindlich bestätigen'),false,'confirmation copy must stay concise for consumers');
 
 for(const forbidden of ['confirm(', 'window.confirm','naturalLanguageConfirmation','autoConfirm','blindRetry']){
   assert.equal(source.includes(forbidden),false,`M16 chat contains unsafe confirmation/retry shortcut: ${forbidden}`);

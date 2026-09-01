@@ -114,6 +114,6 @@ activeId='t1';
 
   const diag=api.diagnostics();
   assert.strictEqual(diag.ready,true);
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(diag.providers)),{store:true,context:true,create:true,update:true,join:true});
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(diag.providers)),{draftCore:false,store:true,context:true,create:true,update:true,join:true});
   console.log('M3.1 Trip Contract Adapter: OK');
 })().catch(error=>{console.error(error);process.exitCode=1});

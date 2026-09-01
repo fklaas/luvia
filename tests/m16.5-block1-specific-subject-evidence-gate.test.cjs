@@ -92,6 +92,11 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
   const distanceRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf direkt in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:2,queryVariantLimit:1,fastPath:true});
   assert.deepEqual(Array.from(distanceRanked.places,place=>place.providerPlaceId),['near','far'],'owner distance must outrank a farther otherwise-equivalent candidate');
 
+  sandbox.LuviaAI.rankCandidates=async input=>input.candidates.map(place=>({...place,aiMatchScore:place.providerPlaceId==='far'?100:0,aiReasons:['Nicht autoritative Modellwertung']}));
+  const boundedAiRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:2,queryVariantLimit:1});
+  assert.deepEqual(Array.from(boundedAiRanked.places,place=>place.providerPlaceId),['near','far'],'a non-authoritative AI score must not displace a materially nearer otherwise-equivalent provider result');
+  sandbox.LuviaAI.rankCandidates=async input=>input.candidates;
+
   let breadthCall=0;
   sandbox.LuviaPlaceEntities={searchPlaces:async options=>{
     breadthCall++;
@@ -103,11 +108,11 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
       :[{...miniatureGolf,id:'near-second-query',providerPlaceId:'near-second-query',name:'Mini Golf',distanceMeters:358}];
     return{data:{places:candidates,providers:{requested:['foursquare'],used:['foursquare'],errors:[]}}};
   }};
-  const diverseRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:3,fastPath:true,fastQueryLimit:3});
+  const diverseRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Abwechslungsreiche Minigolf-Anlagen in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:3,fastPath:true,fastQueryLimit:3});
   assert.equal(breadthCall,2,'the breadth scenario must exercise independent provider-query variants');
   assert.equal(diverseRanked.places[0].providerPlaceId,'near-second-query','query diversity may fan out the remaining cards but must never displace the best ranked result');
 
-  assert.match(actionSource,/Die Quelle belegt den passenden Geschäftstyp, aber keinen aktuellen Warenbestand/);
+  assert.match(actionSource,/Bestand bitte direkt beim Anbieter prüfen/);
   assert.match(actionSource,/inventoryVerificationRequired:requiresInventoryVerification/);
   assert.doesNotMatch(actionSource,/Luftmatratzen oder der gewünschte Artikel/,'consumer truth copy must be generic rather than another item-specific patch');
   assert.equal(contracts.diagnostics().openVocabularyEvidenceGate,true);

@@ -9,6 +9,7 @@
   const fmt=v=>{if(!v)return'';const d=new Date(v);return Number.isNaN(d.getTime())?'':new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(d)};
   const msg=(id,text,type='info')=>{feedback.set(id,{text,type});};
   const providerName=v=>PROVIDER[String(v||'').toLowerCase()]||String(v||'').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const bookingContract=()=>window.LuviaBookingContractV1||(()=>{throw new Error('Booking Contract v1 fehlt.')})();
   const bookingUrl=b=>b?.contact?.bookingUrl||b?.contact?.booking_url||'';
   function routeLabel(b){
     if(b.channel==='external_link'&&bookingUrl(b))return `${providerName(b.provider)||'Reservierung'} · Direkt reservieren`;
@@ -42,8 +43,8 @@
     root.innerHTML='<section class="lv-bookings-view"><div class="lv-booking-empty">Buchungen werden geladen …</div></section>';
     try{
       const tripId=trip.id||trip.tripId;
-      await window.LuviaBooking.reconcileTripReturns?.(tripId);
-      const rows=await window.LuviaBooking.listForTrip(tripId);
+      await bookingContract().commands.reconcileTripReturns?.(tripId);
+      const rows=await bookingContract().reads.listForTrip(tripId);
       root.innerHTML=`<section class="lv-bookings-view"><header class="lv-bookings-head"><span>Booking Core</span><h1>Buchungen & Reservierungen</h1><p>Luvia bevorzugt direkte Buchungsanbieter und offizielle Reservierungswege. E-Mail ist nur der Fallback.</p></header>${rows.length?`<div class="lv-booking-list">${rows.map(card).join('')}</div>`:`<div class="lv-booking-empty"><strong>Noch keine Buchungsanfragen.</strong><p>Öffne ein reservierbares Restaurant oder eine Unterkunft in Places und wähle „Reservieren“ bzw. „Buchen“.</p></div>`}</section>`;
     }catch(error){
       root.innerHTML=`<section class="lv-bookings-view"><div class="lv-booking-empty"><strong>Buchungen konnten nicht geladen werden.</strong><p>${esc(error?.message||'Unbekannter Fehler')}</p></div></section>`;
@@ -65,7 +66,7 @@
     const resolve=e.target.closest?.('[data-booking-resolve]');
     if(resolve){e.preventDefault();e.stopPropagation();const id=resolve.dataset.bookingResolve;try{const result=await run(id,'Bester belegbarer Buchungskanal wird gesucht …',()=>window.LuviaBooking.resolveRoute(id));const label=result?.resolved?(result.channel==='external_link'?`${providerName(result.provider)||'Direkter Buchungsweg'} gefunden.`:'Sicherer Buchungskanal gefunden.'):'Kein sicherer automatischer Buchungskanal gefunden.';msg(id,label,result?.resolved?'success':'info');await load()}catch{}return;}
     const contact=e.target.closest?.('[data-booking-contact]');
-    if(contact){e.preventDefault();e.stopPropagation();const id=contact.dataset.bookingContact;const email=prompt('Öffentliche bzw. verifizierte Kontakt-E-Mail des Anbieters:','');if(!email)return;try{await run(id,'Kontakt wird gespeichert …',()=>window.LuviaBooking.updateContact(id,email));msg(id,'Kontakt gespeichert.','success');await load()}catch{}return;}
+    if(contact){e.preventDefault();e.stopPropagation();const id=contact.dataset.bookingContact;const email=prompt('Öffentliche bzw. verifizierte Kontakt-E-Mail des Anbieters:','');if(!email)return;try{await run(id,'Kontakt wird gespeichert …',()=>bookingContract().commands.updateContact(id,email));msg(id,'Kontakt gespeichert.','success');await load()}catch{}return;}
   }
   function globalClick(e){
     if(!root?.isConnected)return;
@@ -75,7 +76,7 @@
     handleClick(e).catch(error=>console.error('[Luvia Booking] action handler',error));
   }
   document.addEventListener('click',globalClick,true);
-  async function mount(node,activeTrip){root=node;trip=activeTrip;await window.LuviaBooking.init();await load();}
+  async function mount(node,activeTrip){root=node;trip=activeTrip;await bookingContract().init();await load();}
   function unmount(){root=null;trip=null;busy.clear();feedback.clear();}
   window.addEventListener('luvia:booking-changed',()=>{if(root?.isConnected)load().catch(console.warn)});
   window.LuviaBookingsView=Object.freeze({version:VERSION,mount,unmount,load});

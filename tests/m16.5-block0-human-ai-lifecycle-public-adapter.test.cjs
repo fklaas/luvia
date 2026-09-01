@@ -1,0 +1,20 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const read=file=>fs.readFileSync(file,'utf8');
+const registry=JSON.parse(read('config/luvia-human-ai-action-registry.v1.json'));
+const context={console,globalThis:null};context.globalThis=context;
+context.LuviaIntelligenceDomainContractCoreV1={immutable:value=>value,listCapabilities:()=>[],getCapability:()=>null,listDomains:()=>[],listTools:()=>[],listModelTiers:()=>[],policySnapshot:()=>({}),sanitize:value=>value};
+context.LuviaAI={diagnostics:()=>({version:'test'}),run:async()=>({}),ask:async()=>({}),rank:async()=>({}),recommend:async()=>({}),explain:async()=>({}),summarize:async()=>({})};
+vm.createContext(context);
+for(const file of ['core/intelligence/human-ai-language-compiler-core.js','core/intelligence/human-ai-safety-policy-core.js','core/intelligence/human-ai-action-lifecycle-core.js','core/platform/intelligence-contract-adapter.js'])vm.runInContext(read(file),context,{filename:file});
+const api=context.LuviaIntelligenceContractV1,action=registry.actions.find(item=>item.id==='places.favorite');
+assert.equal(api.runtimeVersion,'1.10.0');
+for(const method of ['compileHumanActionLifecycle','createHumanActionLifecycle','advanceHumanActionLifecycle','getHumanActionLifecycleCoverage'])assert.equal(typeof api.reads[method],'function');
+const definition=api.reads.compileHumanActionLifecycle(action);assert.equal(definition.mode,'MUTATION');
+const instance=api.reads.createHumanActionLifecycle({action,authorityDecision:'ALLOW',inputRef:'place-1'});assert.equal(instance.status,'PREVIEW_REQUIRED');
+assert.equal(api.reads.advanceHumanActionLifecycle(instance,{type:'SHOW_PREVIEW',previewRef:'preview-1'}).status,'CONFIRMATION_REQUIRED');
+assert.equal(api.reads.getHumanActionLifecycleCoverage(registry.actions).lifecycleActions,327);assert.equal(api.diagnostics().providers.humanActionLifecycle,true);
+console.log('M16.5 Block 0 Human-AI lifecycle public Intelligence adapter: PASS');

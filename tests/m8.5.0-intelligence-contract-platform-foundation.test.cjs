@@ -57,14 +57,14 @@ assert.ok(api, 'LuviaIntelligenceContractV1 missing');
 assert.equal(context.LuviaIntelligenceContract, api);
 assert.equal(api.contractId, 'intelligence.v1');
 assert.equal(api.version, '1');
-assert.equal(api.runtimeVersion, '1.3.0');
+assert.equal(api.runtimeVersion, '1.10.0');
 assert.equal(Object.isFrozen(api), true);
 assert.deepEqual([...api.events], [
   'ai.changed',
   'ai.proposal.changed',
   'ai.memory.changed'
 ]);
-assert.deepEqual(Object.keys(api.commands), ['createProposal']);
+assert.deepEqual(Object.keys(api.commands), ['createProposal', 'confirmLearningSignal', 'dismissLearningSignal']);
 
 for (const method of [
   'getCapabilities',
@@ -77,6 +77,8 @@ for (const method of [
   'planningTrace',
   'gateContext',
   'causalFeedback',
+  'compileHumanActions',
+  'getHumanActionLanguageCoverage',
   'run',
   'ask',
   'rank',

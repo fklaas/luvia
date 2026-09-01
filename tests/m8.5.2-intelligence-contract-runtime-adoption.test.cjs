@@ -32,7 +32,7 @@ for(const token of [
   'So denkt Luvia',
   'getSystemSnapshot',
   'getMemorySnapshot',
-  'Journey/Timeline bleibt',
+  'Reise, Orte, Tagesplan',
   'openTransparency:transparencyModal'
 ])assert.ok(dashboard.includes(token),`Intelligence Transparency missing ${token}`);
 

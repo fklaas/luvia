@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'identity.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.1.0';
+  const RUNTIME_VERSION = '1.2.0';
   const root = window;
 
   const EVENTS = Object.freeze([
@@ -215,6 +215,22 @@
     );
   }
 
+  function exportData(scope = 'self') {
+    if (scope !== 'self') throw selfOnly();
+    return deepFreeze({
+      contractId: CONTRACT_ID,
+      version: VERSION,
+      exportedAt: new Date().toISOString(),
+      viewer: clone(getViewerIdentity()),
+      preferences: clone(getPreferences('self')),
+      excludes: Object.freeze([
+        'auth-tokens',
+        'passwords',
+        'other-users-private-data'
+      ])
+    });
+  }
+
   async function updateProfile(patch = {}) {
     const provider = profileProvider();
 
@@ -318,6 +334,57 @@
         status: 'committed',
         mode: input.mode === 'edit' ? 'edit' : 'first-use'
       }
+    });
+  }
+
+  async function setTripArchived(tripId, archived = true) {
+    const provider = profileProvider();
+    if (typeof provider.archiveTrip !== 'function') {
+      throw providerUnavailable('LuviaProfileService.archiveTrip');
+    }
+    const normalizedTripId = String(tripId || '').trim();
+    if (!normalizedTripId) {
+      throw contractError('IDENTITY_CONTRACT_TRIP_ID_REQUIRED', 'Trip id is required.');
+    }
+    const saved = await provider.archiveTrip(normalizedTripId, Boolean(archived));
+    return deepFreeze({
+      tripId: normalizedTripId,
+      archived: Boolean(archived),
+      identity: projectViewer(saved || currentProfile()),
+      receipt: { owner: 'identity', contractId: CONTRACT_ID, command: 'setTripArchived', status: 'committed' }
+    });
+  }
+
+  async function updateDashboardLayout(items = []) {
+    const provider = profileProvider();
+    if (typeof provider.saveDashboardLayout !== 'function') {
+      throw providerUnavailable('LuviaProfileService.saveDashboardLayout');
+    }
+    const layout = domainCore().normalizeDashboardLayout(items);
+    await provider.saveDashboardLayout(layout);
+    return deepFreeze({
+      count: layout.length,
+      layout,
+      receipt: { owner: 'identity', contractId: CONTRACT_ID, command: 'updateDashboardLayout', status: 'committed' }
+    });
+  }
+
+  function notificationPort() {
+    return root.LuviaPlatformPorts?.get?.('NotificationPort') ||
+      root.LuviaIdentityPlatformWebPorts?.NotificationPort ||
+      null;
+  }
+
+  async function requestNotificationPermission() {
+    const port = notificationPort();
+    if (typeof port?.requestPermission !== 'function') {
+      throw providerUnavailable('NotificationPort.requestPermission');
+    }
+    const permission = await port.requestPermission();
+    return deepFreeze({
+      permission: String(permission || 'unsupported'),
+      status: typeof port.status === 'function' ? port.status() : null,
+      receipt: { owner: 'platform', contractId: CONTRACT_ID, command: 'requestNotificationPermission', status: 'completed' }
     });
   }
 
@@ -513,12 +580,23 @@
     getViewerIdentity,
     getPublicIdentity,
     getPreferences,
+    exportData,
     subscribe,
+
+    reads: Object.freeze({
+      getViewerIdentity,
+      getPublicIdentity,
+      getPreferences,
+      exportData
+    }),
 
     commands: Object.freeze({
       updateProfile,
       updatePreferences,
-      completeOnboarding
+      completeOnboarding,
+      updateDashboardLayout,
+      setTripArchived,
+      requestNotificationPermission
     }),
 
     diagnostics

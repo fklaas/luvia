@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.1.0';
+  const RUNTIME_VERSION='1.2.0';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -17,6 +17,7 @@
   function creator(){const api=window.LuviaTripCreator;if(!api?.save)unavailable('LuviaTripCreator.save');return api}
   function experience(){const api=window.LuviaTripExperience;if(!api?.update)unavailable('LuviaTripExperience.update');return api}
   function joinFlow(){const api=window.LuviaJoinFlow;if(!api?.join)unavailable('LuviaJoinFlow.join');return api}
+  function draftCore(){return globalThis.LuviaTripDraftCoreV1||unavailable('LuviaTripDraftCoreV1')}
   const clean=value=>value==null?null:String(value);
   const coordinate=value=>value==null||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
   const freezeArray=items=>Object.freeze(items);
@@ -197,6 +198,14 @@
     const tripId=clean(result?.trip_id||result?.tripId||result?.id); return Object.freeze({joined:Boolean(tripId),tripId});
   }
 
+  const composition=Object.freeze({
+    createDraft(input={}){return draftCore().createDraft(input)},
+    updateDraft(draft={},patch={}){return draftCore().updateDraft(draft,patch)},
+    deferDraft(draft={}){return draftCore().deferDraft(draft)},
+    resumeDraft(draft={}){return draftCore().resumeDraft(draft)},
+    validateDraft(draft={}){return draftCore().validateDraft(draft)}
+  });
+
   function envelope(name,payload={},options={}){
     return Object.freeze({
       name,
@@ -246,6 +255,7 @@
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
+    composition,
     runtime:Object.freeze({getState:getRuntimeState,initialize:initializeRuntime,loadRemote:loadRemoteRuntime}),
     commands:Object.freeze({selectActiveTrip,createTrip,createFirstTrip,updateTrip,applyResolvedDestination,joinTrip,commitTripSnapshot}),
     events:Object.freeze(['trip.created','trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
@@ -258,6 +268,7 @@
       runtimeVersion:RUNTIME_VERSION,
       ready:Boolean(window.LuviaTripStateReaderV1&&window.LuviaTripContext),
       providers:Object.freeze({
+        draftCore:Boolean(globalThis.LuviaTripDraftCoreV1),
         store:Boolean(window.LuviaTripStateReaderV1),
         context:Boolean(window.LuviaTripContext),
         create:Boolean(window.LuviaTripCreator?.save),

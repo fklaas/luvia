@@ -15,18 +15,33 @@
     "conversation",
     "messages",
     "bookingTimeline",
-    "statusSummary",
-    "capabilitySummary"
+    "providerCapabilities",
+    "conversationPreferences",
+    "checkAvailability",
+    "resolveChannel",
+    "reconcileUnknownOutcome"
+  ],
+  "composition": [
+    "createDraft",
+    "updateDraft",
+    "validateDraft",
+    "selectRoute",
+    "composeMessageDraft"
   ],
   "commands": [
     "createForPlace",
     "reply",
     "performIntelligenceAction",
-    "resolveIntelligence",
     "modifyBooking",
     "cancelBooking",
     "setConversationPreference",
-    "openPlaceBooking"
+    "updateContact",
+    "reconcileTripReturns",
+    "openPlaceBooking",
+    "openRoute",
+    "openExternalHandoff",
+    "retryRecovery",
+    "resolveThread"
   ],
   "events": [
     "booking.changed",

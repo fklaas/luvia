@@ -44,7 +44,7 @@ const rawPlace={
   lifecycle:'favorite',capabilities:['reserve'],bookingDomains:['restaurant'],createdAt:'2026-08-01T00:00:00.000Z',
   updatedAt:'2026-08-02T00:00:00.000Z',storageSecret:'must-not-leak'
 };
-const calls={search:[],autocomplete:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],registered:[]};
+const calls={search:[],autocomplete:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],presence:[],registered:[]};
 
 window.LuviaPlaceCore={
   getPlace(id){return id==='p1'?rawPlace:null},
@@ -71,7 +71,13 @@ window.LuviaPlaceCommands={
   async plan(options){calls.plan.push(options);return{trip_id:options.tripId,trip_place_id:options.tripPlaceId,fields:{private:'raw-rpc'}}},
   async unplan(options){calls.unplan.push(options);return{trip_id:options.tripId,trip_place_id:options.tripPlaceId,fields:{private:'raw-rpc'}}}
 };
-window.LuviaPresenceVisitCore={confirmVisit(){}};
+window.LuviaPresenceVisitCore={
+  confirmVisit(){},
+  pendingVisits(){return[{id:'pending-1',tripId:'t1',placeId:'p1',state:'pending_confirmation',isConfirmed:false}]},
+  async rejectVisit(id,reason){calls.presence.push(['rejectVisit',id,reason]);return{id,tripId:'t1',placeId:'p1',state:'rejected',isConfirmed:false}},
+  async setGlobalEnabled(enabled){calls.presence.push(['setGlobalEnabled',enabled]);return{enabled}},
+  async refreshLocation(){calls.presence.push(['refreshLocation']);return{permission:'granted'}}
+};
 window.LuviaPlacesDiscoveryService={
   async listSaved(){return[{place:rawPlace,tripPlace:{id:'tp-saved',trip_id:'t1',status:'favorite',is_favorite:true}}]},
   async recommend(){return{places:[{...rawPlace,id:'recommend-1',providerPlaceId:'places/google-recommend',rating:4.8}],plan:{ai:{fallback:false}}}}
@@ -88,11 +94,12 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.2.0-provider-media-hydration');
+assert.strictEqual(api.runtimeVersion,'1.4.0-owner-interaction-bundle');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink']);
-assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','openDiscovery']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
+assert.deepStrictEqual(Object.keys(api.composition),['selectView']);
+assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','rejectVisit','setLocationEnabled','refreshLocation','openDiscovery','openWebsite','openPhone','openMaps']);
 
 const place=api.getPlace('p1');
 assert(Object.isFrozen(place));
@@ -200,6 +207,11 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(visit)),{id:'v1',tripId:'t1',placeId:'p1',state:'visited',arrivedAt:'2026-08-13T12:00:00.000Z',leftAt:null,durationSeconds:120,detectionSource:'manual',automatic:false,confirmed:true});
   assert.strictEqual(visit.correction,undefined,'visit correction payload must not leak');
   assert.strictEqual(visit.participantId,undefined,'visit participant internals must not leak');
+  assert.strictEqual(api.pendingVisits()[0].state,'pending_confirmation');
+  assert.strictEqual((await api.rejectVisit('pending-1','Nicht dort gewesen')).state,'rejected');
+  assert.strictEqual((await api.setLocationEnabled(true)).enabled,true);
+  assert.strictEqual((await api.refreshLocation()).permission,'granted');
+  assert.deepStrictEqual(calls.presence,[['rejectVisit','pending-1','Nicht dort gewesen'],['setGlobalEnabled',true],['refreshLocation']]);
 
   assert.strictEqual(calls.registered.length,1);
   assert.strictEqual(calls.registered[0].id,'places.v1');

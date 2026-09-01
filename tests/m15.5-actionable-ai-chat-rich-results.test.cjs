@@ -42,9 +42,11 @@ assert.ok(/safeImage\(item\.image\?\.url\)/.test(source),'provider image URL mus
 assert.ok(/role="log" aria-live="polite"/.test(source),'conversation log semantics must remain active');
 assert.ok(/class="lvx-command-receipt[^`]*role="status"/.test(source),'receipts must announce status');
 assert.match(source,/const displayDate=value=>/,'chat must own one visible DD.MM.YYYY formatter');
+assert.match(source,/const zonedDateTime=value=>/,'absolute owner timestamps must be projected through the active trip or profile timezone');
+assert.match(source,/time=value=>zonedDateTime\(value\)\?\.time/,'Journey readback must not display the raw UTC clock from an ISO timestamp');
 assert.match(source,/result\.meta\?\.planningDetailsIncluded\?renderJourneyResilience/,'journey diagnostics must not flood an ordinary day-plan answer');
 assert.match(source,/displayDate\(day\.date\)/,'day cards must render their date in user format');
-assert.match(source,/previewWhen=\[displayDate\(preview\.date\)/,'mutation previews must render dates in user format');
+assert.match(source,/consumer\(\)\.projectPreview\(\{result,preview,compensatesLedgerId\}\)/,'mutation previews must use the shared consumer projection with user-formatted dates');
 
 console.log('M15.5 Actionable AI Chat Rich Results: PASS');
 console.log('Restaurant cards / Day Plan / Receipts: PASS');

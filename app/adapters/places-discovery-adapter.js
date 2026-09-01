@@ -115,11 +115,11 @@ function deterministicAssessment(place,options,discoveryRoute){
   const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
   const distance=Number(place.distanceMeters),distanceReasons=[];
   if(Number.isFinite(distance)&&distance>=0){
-    score+=distance<=500?28:distance<=1500?22:distance<=5000?13:distance<=12000?4:-Math.min(24,Math.round((distance-12000)/2500));
+    score+=distance<=500?38:distance<=1500?30:distance<=5000?12:distance<=12000?3:-Math.min(24,Math.round((distance-12000)/2500));
     if(distance<=1500)distanceReasons.push(`Der Ort liegt mit ${Math.max(1,Math.round(distance))} Metern besonders nah am gewählten Reiseziel.`);
   }
   return{
-    score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0),
+    score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-8,Math.min(10,(Number(place.aiMatchScore)-50)/4)):0),
     reasons:[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[]),...distanceReasons])],
     spatial:relevance.spatial||null
   };

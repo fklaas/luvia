@@ -526,6 +526,134 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-step16-ai-mutation-coverage-matrix.test.cjs'
   },
   {
+    category: 'M16.5 / Human-AI Action Registry + Parity Gate',
+    test: 'tests/m16.5-human-ai-action-registry.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Language Compiler',
+    test: 'tests/m16.5-block0-human-ai-language-compiler.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Language Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-language-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Human-AI Language Browser',
+    test: 'tests/m16.5-block0-human-ai-language-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Shared Human-AI Safety Policy',
+    test: 'tests/m16.5-block0-human-ai-safety-policy.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Safety Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-safety-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Human-AI Safety Browser',
+    test: 'tests/m16.5-block0-human-ai-safety-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Complete Human-AI Action Lifecycle',
+    test: 'tests/m16.5-block0-human-ai-action-lifecycle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Lifecycle Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-lifecycle-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Human-AI Lifecycle Browser',
+    test: 'tests/m16.5-block0-human-ai-lifecycle-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Honest Human-AI Capability Discovery',
+    test: 'tests/m16.5-block0-human-ai-capability-discovery.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Capability Discovery Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-capability-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Capability Discovery Browser',
+    test: 'tests/m16.5-block0-human-ai-capability-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Complete Human-AI Consumer Projection',
+    test: 'tests/m16.5-block0-human-ai-consumer-projection.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Consumer Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-consumer-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Bright Human-AI Consumer Chat',
+    test: 'tests/m16.5-block0-human-ai-consumer-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Complete Human-AI Parity Failure Matrix',
+    test: 'tests/m16.5-block0-human-ai-parity-failure-matrix.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Parity Failure CI Drift Gate',
+    test: 'tests/m16.5-block0-human-ai-parity-failure-drift.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Human-AI Parity Failure Public Adapter',
+    test: 'tests/m16.5-block0-human-ai-parity-failure-public-adapter.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Human-AI Parity Failure Matrix',
+    test: 'tests/m16.5-block0-human-ai-parity-failure-browser.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Places Mutation Input Enforcement',
+    test: 'tests/m16.5-block0-place-plan-input-enforcement.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Booking Input Enforcement',
+    test: 'tests/m16.5-block0-booking-input-enforcement.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Journey + Trip Input Enforcement',
+    test: 'tests/m16.5-block0-journey-trip-input-enforcement.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Places + Events + Memory + Identity Input Enforcement',
+    test: 'tests/m16.5-block0-remaining-input-enforcement.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Identity Profile Public Owner Binding',
+    test: 'tests/m16.5-block0-identity-profile-owner-binding.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Journey Public Owner Read/Write Bundle',
+    test: 'tests/m16.5-block0-journey-owner-read-write-binding.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Booking Public Owner Surface',
+    test: 'tests/m16.5-block0-booking-owner-surface-binding.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Places + Journey + Memory + Event Public Owner Bundle',
+    test: 'tests/m16.5-block0-places-journey-memory-event-owner-bundle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Trip + Media + Identity Public Owner Bundle',
+    test: 'tests/m16.5-block0-trip-media-identity-owner-bundle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Auth + Collaboration + Booking Public Owner Bundle',
+    test: 'tests/m16.5-block0-auth-collaboration-booking-owner-bundle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Final Platform + Places + Journey + Media + Memory Owner Bundle',
+    test: 'tests/m16.5-block0-final-owner-method-bundle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 0 Visible Human-AI Action Parity',
+    test: 'tests/m16.5-block0-visible-action-parity-browser.test.cjs'
+  },
+  {
     category: 'M16.5 / S16.09-S16.12 Verified Event Intelligence',
     test: 'tests/m16.5-step16-verified-event-intelligence.test.cjs'
   },

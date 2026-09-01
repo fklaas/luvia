@@ -17,9 +17,17 @@
     "getContext",
     "subscribe"
   ],
+  "composition": [
+    "createDraft",
+    "updateDraft",
+    "deferDraft",
+    "resumeDraft",
+    "validateDraft"
+  ],
   "commands": [
     "selectActiveTrip",
     "createTrip(use-case)",
+    "createFirstTrip(idempotent use-case)",
     "updateTrip(use-case)",
     "joinTrip(use-case)"
   ],

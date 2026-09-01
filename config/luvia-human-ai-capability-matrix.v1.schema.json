@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://luvia.local/contracts/luvia-human-ai-capability-matrix.v1.schema.json", "title": "Luvia Human-AI Capability Matrix v1", "type": "object",
+  "required": ["contractId", "version", "invariants", "summary", "actions"],
+  "properties": {"contractId": {"const": "luvia.human-ai-capability-matrix.v1"}, "version": {"const": "1.0.0"}, "invariants": {"type": "object", "required": ["offersBlockedActions", "missingPrerequisiteVisible", "manualOwnerFallbackWhenTruthful"]}, "summary": {"type": "object", "required": ["catalogActions", "aiRouted", "manualOwnerFallbacks", "honestBlockingStates"]}, "actions": {"type": "array", "minItems": 327, "maxItems": 327, "items": {"type": "object", "required": ["actionId", "humanStatus", "ownerBinding", "aiCoverage", "aiRouted", "inputContractStatus", "manualOwnerFlowAvailable"]}}}
+}

@@ -24,7 +24,7 @@ const bookings={
 };
 const context={console,Intl,Date,setTimeout,clearTimeout,window:{
  LuviaTripContractV1:{listTrips:()=>trips,getActiveTrip:()=>trips[0],subscribe:()=>()=>{}},
- LuviaBooking:{init:async()=>{},listForTrip:async id=>bookings[id]||[]},
+ LuviaBookingContractV1:{init:async()=>{},reads:{listForTrip:async id=>bookings[id]||[],bookingTimeline:async()=>({items:[]})},commands:{}},
  LuviaProductModuleRegistry:{mount:()=>{},unmount:()=>{},state:()=>({enabled:true,active:true,mounted:true})}
 }};
 context.global=context;vm.createContext(context);vm.runInContext(code,context);

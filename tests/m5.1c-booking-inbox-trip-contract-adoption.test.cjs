@@ -108,7 +108,19 @@ function evaluateInbox() {
 
   const sandbox = {
     window: {
-      LuviaBookingIntegration: bookingApi,
+      LuviaBookingContractV1: {
+        init: bookingApi.init,
+        reads: {
+          listForTrip: bookingApi.listForTrip,
+          conversation: bookingApi.conversation,
+          conversationPreferences: bookingApi.conversationPreferences
+        },
+        commands: {
+          setConversationPreference: bookingApi.setConversationPreference,
+          performIntelligenceAction: bookingApi.performIntelligenceAction,
+          reply: bookingApi.reply
+        }
+      },
       LuviaProductModuleRegistry: {
         mount: () => {},
         unmount: () => {}
@@ -261,9 +273,9 @@ test('Booking Inbox has no direct Trip truth, DB or legacy-event access', () => 
   );
 
   const bookingOwnerSeams = [
-    /\bapi\.conversation\s*\(/,
-    /\bapi\.conversationPreferences\b/,
-    /\bapi\.setConversationPreference\b/,
+    /\bbookingContract\(\)\.reads\.conversation\s*\(/,
+    /\bapi\.reads\.conversationPreferences\b/,
+    /\bapi\.commands\.setConversationPreference\b/,
     /\bapi\.performIntelligenceAction\s*\(/,
     /\bapi\.reply\s*\(/
   ];
@@ -272,7 +284,7 @@ test('Booking Inbox has no direct Trip truth, DB or legacy-event access', () => 
     assert.match(
       SOURCE,
       seam,
-      `Booking owner seam must remain behind the Booking API: ${seam}`
+      `Booking owner seam must remain behind booking.v1: ${seam}`
     );
   }
 });

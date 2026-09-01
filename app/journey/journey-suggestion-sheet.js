@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.16.0-visible-timeline-action';
+const VERSION='1.17.0-journey-owner-reads';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -224,7 +224,7 @@ function currentInput(input={}){
     grant:input.contextGrant||{granted:Boolean(input.positionContext||travelSnapshot.permission==='granted'),precision:'precise'}
   }),positionContext=contextGate?(contextGate.allowed?{latitude:contextGate.context?.coordinates?.lat,longitude:contextGate.context?.coordinates?.lng,observedAt:contextGate.context?.observedAt,source:contextGate.context?.source}:null):rawPosition;
   return{
-    trip,graph,day,targetDate,disruptionRecovery:globalThis.LuviaJourneyResilienceCoreV1?.disruptionRecovery?.({entries:day?.entries||[],disruptions:input.disruptions||snapshot.disruptions||[]})||null,
+    trip,graph,day,targetDate,disruptionRecovery:contracts().journey?.reads?.disruptionRecovery?.({entries:day?.entries||[],disruptions:input.disruptions||snapshot.disruptions||[]})||null,
     startAt:input.startAt||guidance.startAt||gap?.startAt||`${targetDate}T10:00:00`,
     endAt:input.endAt||guidance.endAt||gap?.endAt||null,
     query:clean(input.query||guidance.query||'Ein passender gemeinsamer Reisemoment'),
@@ -350,7 +350,7 @@ async function load(rawInput={},options={}){
    const personallyRanked=await rankForTravelers(enriched,input.groupContext,input,{useAI:!fast});
    const choices=diversify(personallyRanked,count);
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
-   const digitalTwin=globalThis.LuviaJourneyResilienceCoreV1?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
+   const digitalTwin=contracts().journey?.reads?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
    const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:'',attempts:responses.length,successfulAttempts:successful.length};
   cache.set(key,result);return result;
 }
@@ -421,7 +421,7 @@ function routeBuffer(input={}){return Math.max(5,Math.min(20,Number(input.planni
 function transferBetween(left,right,input={},reference='timeline'){
   const meters=distanceBetween(left,right),fallbackBuffer=routeBuffer(input),origin=clean(left?.name||left?.title),distanceReference=reference==='selection'?'previous-selected-place':'previous-timeline-place',prefix=origin?`Von „${origin}“`:(reference==='selection'?'Vom zuvor gewählten Ort':'Vom vorherigen Timeline-Ort');
   const travelMinutes=Number.isFinite(meters)?Math.max(8,Math.ceil((meters/1000)/4.5*60/5)*5):20,weatherRisk=Number(input.weather?.precipitationProbability??input.weather?.rainProbability??0)/100;
-  const uncertainty=globalThis.LuviaJourneyResilienceCoreV1?.routeUncertainty?.({baseMinutes:travelMinutes,travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence:Number.isFinite(meters)?[{source:'places.coordinates',kind:'air-distance',observedAt:new Date().toISOString()}]:[]})||null;
+  const uncertainty=contracts().journey?.reads?.routeUncertainty?.({baseMinutes:travelMinutes,travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence:Number.isFinite(meters)?[{source:'places.coordinates',kind:'air-distance',observedAt:new Date().toISOString()}]:[]})||null;
   const rawBuffer=Math.max(fallbackBuffer,uncertainty?.recommendedBufferMinutes||0),buffer=Math.min(20,rawBuffer),minutes=travelMinutes+buffer;
   if(!Number.isFinite(meters))return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:null,distanceReference,label:`${prefix}: Weg noch zu prüfen · ${buffer} Min. realistischer Ankunfts-/Orientierungspuffer`,verified:false,uncertainty};
   const km=meters/1000;return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:Math.round(meters),distanceReference,label:`${prefix}: ${km.toFixed(1).replace('.',',')} km Luftlinie · ${travelMinutes} Min. Wegeansatz + ${buffer} Min. belastbarer Puffer`,verified:true,uncertainty};
@@ -494,7 +494,7 @@ function liveDayBalance(schedule,input){
   if(food>2)return`Tagesbalance: ${food} Genussmomente – Luvia würde höchstens einen davon durch Abwechslung ersetzen.`;
   if(active>360&&rest<90)return'Tagesbalance: mehr als sechs aktive Stunden – ein einziger ruhiger Moment würde den Tag ausgleichen.';
   if(planned>600)return`Tagesbalance: ${Math.round(planned/60*10)/10} Stunden Programm – der Tag ist für ein entspanntes Reisetempo zu dicht.`;
-  const rehearsal=globalThis.LuviaJourneyResilienceCoreV1?.rehearseDay?.({travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',weatherRisk:Number(input.weather?.precipitationProbability??0)/100,entries:[...existing,...schedule.map(item=>({id:providerId(item.place),startAt:item.plannedAt,endAt:item.endsAt,durationMinutes:item.durationMinutes,transferMinutes:item.transferMinutes,routeConfidence:item.routeUncertainty?.confidence!=null?item.routeUncertainty.confidence/100:null,routeEvidence:item.routeUncertainty?.evidence||[]}))]});
+  const rehearsal=contracts().journey?.reads?.rehearseDay?.({travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',weatherRisk:Number(input.weather?.precipitationProbability??0)/100,entries:[...existing,...schedule.map(item=>({id:providerId(item.place),startAt:item.plannedAt,endAt:item.endsAt,durationMinutes:item.durationMinutes,transferMinutes:item.transferMinutes,routeConfidence:item.routeUncertainty?.confidence!=null?item.routeUncertainty.confidence/100:null,routeEvidence:item.routeUncertainty?.evidence||[]}))]});
   if(rehearsal?.status==='blocked')return'Tagesbalance: Die Generalprobe erkennt einen Zeit- oder Wegkonflikt – zuerst diesen einen Engpass lösen.';
   return'';
 }

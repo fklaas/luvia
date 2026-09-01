@@ -16,9 +16,15 @@
     "snapshot",
     "list",
     "listDays",
+    "getEntry",
     "getDay",
     "entriesForDate",
     "listConflicts",
+    "planTrust",
+    "routeUncertainty",
+    "rehearseDay",
+    "disruptionRecovery",
+    "destinationTwin",
     "subscribe",
     "composeProjection"
   ],
@@ -31,7 +37,11 @@
     "removePhotoMemoryByCluster",
     "openPhotoMemory",
     "editEntry",
-    "openPlanningEditor"
+    "openPlanningEditor",
+    "openExternalLink",
+    "saveOfflinePack",
+    "removeOfflinePack",
+    "undo"
   ],
   "events": [
     "journey.changed"

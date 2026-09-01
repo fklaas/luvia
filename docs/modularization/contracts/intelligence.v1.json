@@ -7,6 +7,12 @@
   "status": "active",
   "currentImplementation": [
     "core/intelligence/intelligence-domain-contract-core.js",
+    "core/intelligence/human-ai-language-compiler-core.js",
+    "core/intelligence/human-ai-safety-policy-core.js",
+    "core/intelligence/human-ai-action-lifecycle-core.js",
+    "core/intelligence/human-ai-capability-discovery-core.js",
+    "core/intelligence/human-ai-consumer-projection-core.js",
+    "core/intelligence/human-ai-parity-failure-matrix-core.js",
     "LuviaIntelligenceContractV1",
     "LuviaAI compatibility runtime"
   ],
@@ -17,6 +23,25 @@
     "recommend",
     "explain",
     "summarize",
+    "compileHumanActions",
+    "getHumanActionLanguageCoverage",
+    "evaluateHumanActionAuthority",
+    "getHumanActionSafetyCoverage",
+    "compileHumanActionLifecycle",
+    "createHumanActionLifecycle",
+    "advanceHumanActionLifecycle",
+    "getHumanActionLifecycleCoverage",
+    "discoverHumanActionCapabilities",
+    "getHumanActionCapabilityCoverage",
+    "projectHumanActionConsumer",
+    "projectHumanActionConversation",
+    "projectHumanActionPreview",
+    "projectHumanActionReceipt",
+    "getHumanActionConsumerCoverage",
+    "compileHumanActionParityMatrix",
+    "queryHumanActionParityMatrix",
+    "projectHumanActionParityRow",
+    "getHumanActionParityCoverage",
     "getCapabilities",
     "getDomains",
     "getTools",
@@ -27,7 +52,9 @@
     "subscribe"
   ],
   "commands": [
-    "createProposal only; foreign-domain mutation delegated"
+    "createProposal; foreign-domain mutation delegated",
+    "confirmLearningSignal(explicitly confirmed Identity handoff)",
+    "dismissLearningSignal"
   ],
   "events": [
     "ai.changed",

@@ -60,6 +60,14 @@ function projectPublic(input={}){return project(input,PUBLIC_FIELDS)}
 function projectPreferences(input={}){return project(input,PREFERENCE_FIELDS)}
 function sanitizeProfilePatch(patch={}){return sanitize(patch,PROFILE_WRITE_FIELDS,'PROFILE')}
 function sanitizePreferencePatch(patch={}){return sanitize(patch,PREFERENCE_FIELDS,'PREFERENCE')}
+function normalizeDashboardLayout(items=[]){
+  if(!Array.isArray(items))throw contractError('IDENTITY_CONTRACT_DASHBOARD_LAYOUT_REQUIRED','Dashboard layout must be an array.');
+  return immutable(items.map((item,index)=>{
+    const id=String(item?.id||'').trim();
+    if(!id)throw contractError('IDENTITY_CONTRACT_DASHBOARD_LAYOUT_ID_REQUIRED','Dashboard item id is required.');
+    return {id,enabled:item?.enabled!==false,position:Number.isInteger(item?.position)?item.position:index};
+  }).sort((left,right)=>left.position-right.position).map((item,position)=>({...item,position})));
+}
 function classifyPreferenceLayer(input={}){
   const source=String(input.source||input.provenance||'').toLowerCase();
   const status=String(input.status||'').toLowerCase();
@@ -91,7 +99,7 @@ function createIdentityState(initial={}){
 return Object.freeze({
   version:VERSION,runtimeVersion:RUNTIME_VERSION,viewerFields:VIEWER_FIELDS,publicFields:PUBLIC_FIELDS,
   profileWriteFields:PROFILE_WRITE_FIELDS,preferenceFields:PREFERENCE_FIELDS,preferenceLayers:PREFERENCE_LAYERS,
-  projectViewer,projectPublic,projectPreferences,sanitizeProfilePatch,sanitizePreferencePatch,
+  projectViewer,projectPublic,projectPreferences,sanitizeProfilePatch,sanitizePreferencePatch,normalizeDashboardLayout,
   classifyPreferenceLayer,preferenceSummary,completion,createIdentityState
 });
 })();

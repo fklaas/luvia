@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.2.0-provider-media-hydration';
+  const RUNTIME_VERSION='1.4.0-owner-interaction-bundle';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -21,6 +21,7 @@
   function coreCommand(name){const api=core(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPlaceCore.${name}`);return fn.bind(api)}
   function command(name){const api=commands(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPlaceCommands.${name}`);return fn.bind(api)}
   function visit(){const api=window.LuviaPresenceVisitCore;if(typeof api?.confirmVisit!=='function')unavailable('LuviaPresenceVisitCore.confirmVisit');return api}
+  function presenceCommand(name){const api=visit(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPresenceVisitCore.${name}`);return fn.bind(api)}
   const clean=value=>value==null?null:String(value);
   const httpsUrl=value=>{const url=clean(value)?.trim()||'';return /^https:\/\//i.test(url)?url:null};
   const usablePhoto=photo=>Boolean(photo&&(httpsUrl(photo.uri||photo.url||photo.photoUri)||clean(photo.name)));
@@ -133,6 +134,27 @@
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}
   function createDeepLink(options={}){return domain().createDeepLink(options)}
   function openDiscovery(options={}){return platformPort('DeepLinkPort').open(createDeepLink(options))}
+  function selectView(input={}){
+    const view=String(typeof input==='string'?input:input.view||'').toLowerCase();
+    if(!['map','list'].includes(view))throw new Error('PLACES_VIEW_INVALID');
+    return Object.freeze({view,stateChanging:false});
+  }
+  function openWebsite(input={}){
+    if(input.userGesture!==true)throw new Error('PLACES_USER_GESTURE_REQUIRED');
+    const url=httpsUrl(input.url||input.website||input.place?.website||input.place?.websiteUri);
+    if(!url)throw new Error('PLACES_WEBSITE_REQUIRED');
+    return Object.freeze({opened:Boolean(platformPort('ExternalNavigationPort').open(url)),url,providerPlaceId:clean(input.providerPlaceId||input.place?.providerPlaceId)});
+  }
+  function openPhone(input={}){
+    const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.openTelephone)unavailable('LuviaPlatformActionContractV1.commands.openTelephone');
+    return api.commands.openTelephone({phone:input.phone||input.place?.phone||input.place?.internationalPhoneNumber,userGesture:input.userGesture});
+  }
+  function openMaps(input={}){
+    if(input.userGesture!==true)throw new Error('PLACES_USER_GESTURE_REQUIRED');
+    const place=input.place||{},coordinates=input.coordinates||place.coordinates||place.location||{};
+    const opened=platformPort('ExternalNavigationPort').openMaps({latitude:number(input.latitude??coordinates.latitude),longitude:number(input.longitude??coordinates.longitude),label:clean(input.label||place.name||place.address),providerPlaceId:clean(input.providerPlaceId||place.providerPlaceId)});
+    return Object.freeze({opened:Boolean(opened),providerPlaceId:clean(input.providerPlaceId||place.providerPlaceId)});
+  }
 
   async function importPlace(providerPlaceId,options={}){
     const response=await coreCommand('importProviderPlace')(providerPlaceId,options||{});
@@ -185,6 +207,10 @@
   async function unplan(options={}){const result=await command('unplan')(options||{});return commandProjection('unplan',result,options||{})}
   async function updateLifecycle(tripPlaceId,value,patch={},options={}){const result=await coreCommand('updateLifecycleCloud')(tripPlaceId,value,patch||{},options||{});return commandProjection('updateLifecycle',result,{...options,tripPlaceId,lifecycle:value,isFavorite:typeof patch?.isFavorite==='boolean'?patch.isFavorite:undefined})}
   async function confirmVisit(placeId,patch={}){visit();return visitProjection(await coreCommand('recordVisit')(placeId,patch||{}))}
+  async function rejectVisit(visitId,reason){return visitProjection(await presenceCommand('rejectVisit')(clean(visitId),clean(reason)||'Nicht als Besuch übernehmen'))}
+  async function setLocationEnabled(value){return Object.freeze({enabled:Boolean(value),diagnostics:Object.freeze(await presenceCommand('setGlobalEnabled')(Boolean(value)))})}
+  async function refreshLocation(){return Object.freeze(await presenceCommand('refreshLocation')())}
+  function pendingVisits(){return freezeArray((visit().pendingVisits?.()||[]).map(visitProjection).filter(Boolean))}
 
   function snapshot(){
     const places=listPlaces();
@@ -245,11 +271,12 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
-    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery}),
+    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
+    composition:Object.freeze({selectView}),
+    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
-    importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery,
+    search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,
+    selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
     snapshot,
     diagnostics:()=>Object.freeze({
       contractId:CONTRACT_ID,

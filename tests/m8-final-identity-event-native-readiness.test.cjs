@@ -74,7 +74,7 @@ assert(files.profile.includes("get?.('StoragePort')"),'Profile cache must use St
 assert(!files.profile.includes('client.auth.'),'Profile persistence must not bypass AuthSessionPort');
 assert(files.auth.includes("get?.('SecureStoragePort')"),'Auth metadata must use SecureStoragePort');
 assert(files.auth.includes("get?.('StoragePort')"),'Auth transient cleanup must use StoragePort');
-assert(files.identityAdapter.includes("const RUNTIME_VERSION = '1.1.0'"));
+assert(files.identityAdapter.includes("const RUNTIME_VERSION = '1.2.0'"));
 for(const token of ['domainCore().projectViewer','domainCore().projectPublic','domainCore().projectPreferences','LuviaEventContractV1?.publish'])assert(files.identityAdapter.includes(token),`Identity adapter missing M8 delegation: ${token}`);
 for(const id of ['StoragePort','SecureStoragePort','AuthSessionPort','NotificationPort']){
   assert(files.platformWeb.includes(`${id}:`),`Web Identity adapter missing ${id}`);

@@ -454,6 +454,7 @@ assert.deepStrictEqual(
   Object.keys(api.commands),
   [
     'media',
+    'acquisition',
     'albums',
     'cards',
     'journeys'

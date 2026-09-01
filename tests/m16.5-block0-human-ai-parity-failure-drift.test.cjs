@@ -1,0 +1,6 @@
+'use strict';
+const assert=require('node:assert/strict');const fs=require('node:fs');const {buildParityFailureMatrix,validateParityFailureMatrix,serialize}=require('../scripts/m16.5-human-ai-parity-failure-matrix.cjs');
+const generated=buildParityFailureMatrix(),stored=fs.readFileSync('config/luvia-human-ai-parity-failure-matrix.v1.json','utf8').replace(/\r\n?/g,'\n');validateParityFailureMatrix(generated);assert.equal(stored,serialize(generated),'B0.09 matrix drift: regenerate and review every changed action/evidence decision');
+const registry=JSON.parse(fs.readFileSync('config/luvia-human-ai-action-registry.v1.json','utf8'));assert.deepEqual(generated.rows.map(row=>row.actionId),registry.actions.map(action=>action.id),'registry and matrix action order diverged');assert.ok(generated.rows.every(row=>row.release.status!=='PUBLIC_E2E_PROVEN'||row.release.publicEvidence==='PUBLIC_E2E_PASS'),'no public pass without matching public evidence');assert.ok(generated.rows.filter(row=>row.dimensions.confirmation.status==='PASS').every(row=>row.dimensions.idempotency.status==='PASS'),'every confirmed mutation needs idempotency');
+console.log('M16.5 Block 0 Human-AI parity/failure CI drift gate: PASS');
+console.log('New or changed action without reviewed matrix evidence: BLOCKED');

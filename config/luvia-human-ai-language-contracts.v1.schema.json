@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.luvia.app/human-ai-language-contracts.v1.schema.json",
+  "title": "Luvia Human AI Language Contracts v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractId", "version", "generatedAt", "source", "invariants", "summary", "actions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "contractId": { "const": "luvia.human-ai-language-contracts.v1" },
+    "version": { "const": "1.0.0" },
+    "generatedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "source": { "type": "object" },
+    "invariants": { "type": "object" },
+    "summary": { "type": "object" },
+    "actions": {
+      "type": "array",
+      "minItems": 327,
+      "maxItems": 327,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actionId", "category", "label", "effect", "stateChanging", "canonical", "curatedRuleCount", "curatedLocales", "entityHints", "coverage", "owner", "guard"],
+        "properties": {
+          "actionId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$" },
+          "category": { "type": "string" },
+          "label": { "type": "string" },
+          "effect": { "type": "string" },
+          "stateChanging": { "type": "boolean" },
+          "canonical": { "type": "object", "required": ["de"], "properties": { "de": { "type": "array", "minItems": 1, "items": { "type": "string" } } } },
+          "curatedRuleCount": { "type": "integer", "minimum": 0 },
+          "curatedLocales": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "entityHints": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "coverage": { "enum": ["MULTILINGUAL_CURATED", "CANONICAL_DE"] },
+          "owner": { "type": "object" },
+          "guard": { "type": "object" }
+        }
+      }
+    }
+  }
+}

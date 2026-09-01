@@ -19,7 +19,11 @@
     "getCard",
     "listSaved",
     "recommend",
-    "getLifecycle"
+    "getLifecycle",
+    "categories",
+    "routeDiscovery",
+    "createDeepLink",
+    "pendingVisits"
   ],
   "commands": [
     "importPlace",
@@ -30,7 +34,17 @@
     "plan",
     "unplan",
     "updateLifecycle",
-    "confirmVisit"
+    "confirmVisit",
+    "rejectVisit",
+    "setLocationEnabled",
+    "refreshLocation",
+    "openDiscovery",
+    "openWebsite",
+    "openPhone",
+    "openMaps"
+  ],
+  "composition": [
+    "selectView"
   ],
   "events": [
     "places.changed",

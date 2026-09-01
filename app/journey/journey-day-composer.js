@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.11.3';
+const VERSION='1.12.0-owner-read-bundle';
 const boundRoots=new WeakSet();
 let dayHandle=null;
 let activeTimelineRoot=null;
@@ -28,7 +28,7 @@ function openExternal(button){
  return true;
 }
 function bindExternalActions(root){root?.querySelectorAll?.('[data-journey-entry-external]').forEach(button=>button.addEventListener('click',()=>{try{openExternal(button)}catch(error){globalThis.LuviaUIKit?.toast?.(error?.message||'Der Link konnte nicht sicher geöffnet werden.',{type:'error'})}}))}
-function trustForEntry(entry={},offline=false){const metadata=entry.metadata||{},raw=String(metadata.planTrust||metadata.bookingStatus||entry.status||entry.lifecycle||'').toLowerCase();let label='bestätigt',kind='confirmed';if(/wait|pending|requested|angefragt/.test(raw)){label='wartet auf Antwort';kind='waiting'}else if(/vote|proposal|abstimmung/.test(raw)){label='Abstimmung läuft';kind='vote'}else if(/suggest|draft|vorschlag/.test(raw)){label='nur vorgeschlagen';kind='suggested'}if(offline)return{label:`${label} · offline verfügbar`,kind,offline:true};return{label,kind,offline:false}}
+function trustForEntry(entry={},offline=false){const value=contract().reads.planTrust(entry)||{label:'bestätigt',kind:'confirmed'};if(offline)return{...value,label:`${value.label} · offline verfügbar`,offline:true};return{...value,offline:false}}
 function planningTraceMarkup(entry={}){
  const metadata=entry.metadata||{},trace=metadata.planningTrace,trust=trustForEntry(entry,false),facts=metadata.providerFacts||{};
  if(!trace?.traceId){

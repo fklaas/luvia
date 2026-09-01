@@ -51,12 +51,13 @@ assert.match(dashboard,/actionResponse\.clarificationRequired/,'safe owner reads
 assert.match(dashboard,/planning\.dialogue/,'the global chat must reuse the existing OpenAI planning capability for multilingual semantic decomposition');
 assert.match(dashboard,/compileDialogue/,'model output must be recompiled through the browserless owner-safe validator');
 assert.match(dashboard,/sliceIntentGraph/,'multi-wish conversations must execute one owner-safe sequence at a time');
-assert.match(dashboard,/Ohne Übernahme mit Wunsch/,'read-only results must not silently skip to the next wish');
-assert.match(dashboard,/Der vorherige Schritt ist bestätigt/,'a successful Owner Receipt must visibly continue the next wish');
+assert.match(dashboard,/data-ai-sequence-continue/,'read-only results must require a visible explicit control before continuing to the next wish');
+assert.match(dashboard,/successfulReceipt\(receipt\)\)await advanceConversation\('owner-receipt',entry\)/,'a successful confirmed result must continue the next wish through the guarded sequence');
+assert.match(dashboard,/projectSequenceTransition\(\{nextLabel:next\.label\}\)/,'the next wish must be announced through concise consumer copy');
 assert.match(dashboard,/data-ai-planning-trace/,'S16.01 must expose a visible planning trace');
 assert.match(dashboard,/data-ai-read-retry/,'failed owner reads need an explicit read-only retry');
 assert.match(dashboard,/data-ai-read-refine/,'failed owner reads need a manual refinement path');
-assert.match(dashboard,/ich zeige keine erfundenen Treffer/,'provider failure must never become invented evidence');
+assert.match(dashboard,/consumer\(\)\.projectReadFailure\(\{result,area:areaLabel\(result\.owner\)\}\)/,'provider failure must use the fail-closed consumer error projection instead of invented evidence');
 assert.match(dashboard,/renderJourneyResilience/,'Journey day results must consume the S16.03 and S16.04 read projections');
 assert.match(runtimeSource,/readRecovery:\{kind:'owner-read'/,'read failure recovery must be distinct from mutation retry');
 assert.match(runtimeSource,/traceOnly:true,slice:'S16\.01'/,'S16.01 must be emitted as its own flaggable product result');

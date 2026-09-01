@@ -183,7 +183,8 @@
   }
 
   async function setActiveTrip(id){const p=await save({activeTripId:id||null});return p.activeTripId;}
+  async function saveDashboardLayout(layout){return save({dashboardWidgets:layout});}
   async function archiveTrip(id,archived=true){const set=new Set(current().profile?.archivedTripIds||[]);archived?set.add(id):set.delete(id);return save({archivedTripIds:[...set]});}
   function completion(){const p=current().profile||{},prefs=normalizedPreferences(p);return identityCore.completion({...p,...prefs});}
-  root.LuviaProfileService=Object.freeze({version:VERSION,hydrateLocal,load,save,setActiveTrip,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
+  root.LuviaProfileService=Object.freeze({version:VERSION,hydrateLocal,load,save,setActiveTrip,saveDashboardLayout,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
 })();

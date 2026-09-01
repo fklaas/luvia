@@ -75,6 +75,196 @@ window.LuviaGlobalContracts=Object.freeze({version:VERSION,register,get,list,pro
 
 ;
 
+/* ===== core/runtime/platform-action-contract-core.js ===== */
+(()=>{
+'use strict';
+
+const CONTRACT_ID='platform.actions.v1';
+const VERSION='1';
+const MODES=Object.freeze(['once','watch']);
+const clean=value=>String(value??'').trim();
+const immutable=value=>{
+  if(value==null||typeof value!=='object')return value;
+  if(Array.isArray(value))return Object.freeze(value.map(immutable));
+  return Object.freeze(Object.fromEntries(Object.entries(value).map(([key,item])=>[key,immutable(item)])));
+};
+function boundedIntent(kind,input={}){
+  const target=clean(input.target||input.operation||input.route||input.id);
+  if(!target)throw new Error('PLATFORM_ACTION_TARGET_REQUIRED');
+  return immutable({kind,target,reason:clean(input.reason)||null,stateChanging:false});
+}
+function retryIntent(input={}){return boundedIntent('retry',input)}
+function refreshIntent(input={}){return boundedIntent('refresh',input)}
+function locationRequest(input={}){
+  const mode=MODES.includes(input.mode)?input.mode:'once';
+  if(input.userGesture!==true)throw new Error('PLATFORM_USER_GESTURE_REQUIRED');
+  return immutable({mode,accuracy:input.accuracy==='high'?'high':'balanced',timeoutMs:Math.max(1000,Math.min(60000,Number(input.timeoutMs)||15000)),userGesture:true});
+}
+function sharePayload(input={}){
+  const payload={title:clean(input.title),text:clean(input.text),url:clean(input.url)};
+  if(payload.url&&!/^https?:\/\//i.test(payload.url))throw new Error('PLATFORM_SHARE_URL_INVALID');
+  if(!payload.title&&!payload.text&&!payload.url)throw new Error('PLATFORM_SHARE_PAYLOAD_REQUIRED');
+  return immutable(payload);
+}
+function phoneTarget(value){
+  const phone=clean(value?.phone||value).replace(/[^+0-9#*(),. -]/g,'');
+  if(!/[0-9]/.test(phone))throw new Error('PLATFORM_PHONE_REQUIRED');
+  return phone;
+}
+function filename(value='download'){
+  const name=clean(value).replace(/[\\/:*?"<>|\u0000-\u001f]/g,'-').slice(0,160);
+  return name||'download';
+}
+
+globalThis.LuviaPlatformActionContractCoreV1=Object.freeze({contractId:CONTRACT_ID,version:VERSION,retryIntent,refreshIntent,locationRequest,sharePayload,phoneTarget,filename});
+})();
+
+;
+
+/* ===== app/adapters/platform-action-web-adapter.js ===== */
+(()=>{
+'use strict';
+
+const CONTRACT_ID='platform.actions.v1';
+const VERSION='1';
+const RUNTIME_VERSION='1.0.0';
+const core=globalThis.LuviaPlatformActionContractCoreV1;
+if(!core)throw new Error('Platform Action Contract Core v1 fehlt.');
+const port=id=>{const value=globalThis.LuviaPlatformPorts?.get?.(id);if(!value)throw new Error(`PLATFORM_PORT_UNAVAILABLE:${id}`);return value};
+const requireGesture=input=>{if(input?.userGesture!==true)throw new Error('PLATFORM_USER_GESTURE_REQUIRED');return input};
+
+async function requestLocation(input={}){
+  const request=core.locationRequest(input),location=port('LocationPort');
+  if(request.mode==='watch'){
+    const positions=[];
+    const watchId=location.watch(value=>positions.push(value),()=>{},request);
+    return Object.freeze({mode:'watch',watchId,positions});
+  }
+  return Object.freeze({mode:'once',position:await location.getCurrent(request)});
+}
+function clearLocation(input={}){
+  requireGesture(input);
+  if(input.watchId==null)throw new Error('PLATFORM_LOCATION_WATCH_ID_REQUIRED');
+  port('LocationPort').clearWatch(input.watchId);
+  return Object.freeze({cleared:true,watchId:input.watchId});
+}
+async function captureMedia(input={}){requireGesture(input);return port('MediaCapturePort').captureImage({facingMode:input.facingMode==='user'?'user':'environment'})}
+async function pickFiles(input={}){requireGesture(input);return port('MediaPickerPort').pickImages({multiple:input.multiple!==false,accept:input.accept||undefined})}
+async function share(input={}){requireGesture(input);return port('SharingPort').share(core.sharePayload(input))}
+async function copyText(input={}){requireGesture(input);const value=String(input.text??'');if(!value)throw new Error('PLATFORM_COPY_TEXT_REQUIRED');return port('SharingPort').copyText(value)}
+function openTelephone(input={}){
+  requireGesture(input);const phone=core.phoneTarget(input),document=globalThis.document;
+  if(!document?.createElement)throw new Error('PLATFORM_TELEPHONE_UNSUPPORTED');
+  const anchor=document.createElement('a');anchor.href=`tel:${phone}`;anchor.hidden=true;document.body?.appendChild(anchor);anchor.click();anchor.remove();
+  return Object.freeze({opened:true,protocol:'tel:',phone});
+}
+function download(input={}){
+  requireGesture(input);const asset=input.asset||input.url,document=globalThis.document;
+  if(!asset||!document?.createElement)throw new Error('PLATFORM_DOWNLOAD_ASSET_REQUIRED');
+  let href='',revoke=false;
+  if(typeof asset==='string'){
+    const parsed=new URL(asset,globalThis.location?.href);if(!['http:','https:','blob:'].includes(parsed.protocol))throw new Error('PLATFORM_DOWNLOAD_URL_INVALID');href=parsed.href;
+  }else if(globalThis.Blob&&asset instanceof globalThis.Blob){href=URL.createObjectURL(asset);revoke=true}else throw new Error('PLATFORM_DOWNLOAD_ASSET_INVALID');
+  const anchor=document.createElement('a');anchor.href=href;anchor.download=core.filename(input.filename);anchor.hidden=true;document.body?.appendChild(anchor);anchor.click();anchor.remove();if(revoke)setTimeout(()=>URL.revokeObjectURL(href),0);
+  return Object.freeze({started:true,filename:anchor.download});
+}
+
+const composition=Object.freeze({retryIntent:core.retryIntent,refreshIntent:core.refreshIntent});
+const commands=Object.freeze({requestLocation,clearLocation,captureMedia,pickFiles,share,copyText,openTelephone,download});
+const api=Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,composition,commands,diagnostics:()=>Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserlessCore:true,ports:Object.freeze(['LocationPort','MediaCapturePort','MediaPickerPort','SharingPort'])})});
+globalThis.LuviaPlatformActionContractV1=api;
+globalThis.LuviaGlobalContracts?.register?.({id:CONTRACT_ID,version:VERSION,owner:'Platform',api,probe:()=>({available:Boolean(globalThis.LuviaPlatformPorts),detail:'Bounded device and web actions'})});
+})();
+
+;
+
+/* ===== core/platform/auth-contract-adapter.js ===== */
+(()=>{
+'use strict';
+
+const core=globalThis.LuviaAuthCommandContractCoreV1;
+if(!core)throw new Error('Auth Contract v1: Browserless Core fehlt.');
+const CONTRACT_ID=core.contractId;
+const VERSION=core.version;
+const RUNTIME_VERSION='1.0.0-owner-adapter';
+
+function unavailable(){throw Object.assign(new Error('Auth Contract v1: Auth-Owner ist noch nicht bereit.'),{code:'AUTH_OWNER_UNAVAILABLE'})}
+function runtime(){const api=globalThis.LuviaAuth;if(!api)unavailable();return api}
+function state(){return core.projectState(runtime().getState?.()||{})}
+function done(action,details={}){return core.receipt(action,runtime().getState?.()||{},details)}
+function selectMode(value){return core.createModeIntent(value)}
+function getState(){return state()}
+
+async function signInWithPassword(input={}){
+  await runtime().signIn(core.email(input.email),core.password(input.password));
+  return done('sign-in-with-password');
+}
+async function signUpWithPassword(input={}){
+  const userProfile=core.profile(input.profile||input);
+  await runtime().signUp({...userProfile,email:core.email(input.email),password:core.password(input.password)});
+  return done('sign-up-with-password');
+}
+async function signInWithProvider(input={}){
+  const provider=core.provider(input.provider);
+  await runtime().signInWithProvider(provider);
+  return done('sign-in-with-provider',{provider,redirectStarted:true});
+}
+async function requestPasswordReset(input={}){
+  const email=core.email(input.email);
+  await runtime().resetPassword(email);
+  return done('request-password-reset',{email,delivery:'email'});
+}
+async function completePasswordReset(input={}){
+  await runtime().updatePassword(core.password(input.password));
+  return done('complete-password-reset');
+}
+async function linkProvider(input={}){
+  const provider=core.provider(input.provider);
+  await runtime().linkProvider(provider);
+  return done('link-provider',{provider,redirectStarted:true});
+}
+async function updatePassword(input={}){
+  await runtime().updatePassword(core.password(input.password));
+  return done('update-password');
+}
+async function signOut(){await runtime().signOut();return done('sign-out')}
+async function requestAnonymousEmail(input={}){
+  const person=core.profile(input);
+  await runtime().requestAnonymousEmail({...person,email:core.email(input.email)});
+  return done('request-anonymous-email',{delivery:'email'});
+}
+async function checkAnonymousUpgrade(){
+  const result=await runtime().checkUpgradeConfirmation();
+  return done('check-anonymous-upgrade',{confirmed:Boolean(result?.confirmed)});
+}
+async function resendAnonymousEmail(){
+  const pending=runtime().getState?.()?.pendingUpgrade;
+  if(!pending?.email)throw Object.assign(new Error('Es gibt keine laufende Kontosicherung.'),{code:'AUTH_PENDING_UPGRADE_REQUIRED'});
+  await runtime().requestAnonymousEmail({...pending,email:core.email(pending.email)});
+  return done('resend-anonymous-email',{delivery:'email'});
+}
+async function changeAnonymousEmail(input={}){
+  const current=runtime().getState?.()?.pendingUpgrade||{};
+  runtime().cancelPendingUpgrade();
+  await runtime().requestAnonymousEmail({...current,...core.profile(input),email:core.email(input.email)});
+  return done('change-anonymous-email',{delivery:'email'});
+}
+async function completeAnonymousUpgrade(input={}){
+  await runtime().completeAnonymousUpgrade(core.password(input.password));
+  return done('complete-anonymous-upgrade');
+}
+
+const reads=Object.freeze({getState,checkAnonymousUpgrade});
+const composition=Object.freeze({selectMode});
+const commands=Object.freeze({signInWithPassword,signUpWithPassword,signInWithProvider,requestPasswordReset,completePasswordReset,linkProvider,updatePassword,signOut,requestAnonymousEmail,checkAnonymousUpgrade,resendAnonymousEmail,changeAnonymousEmail,completeAnonymousUpgrade});
+const api=Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,composition,commands,getState,selectMode,diagnostics:()=>Object.freeze({...core.diagnostics(),runtimeVersion:RUNTIME_VERSION,ready:Boolean(globalThis.LuviaAuth),owner:'platform-auth',tokenExposure:false,passwordExposure:false})});
+
+globalThis.LuviaAuthContractV1=api;
+globalThis.LuviaGlobalContracts?.register?.({id:CONTRACT_ID,version:VERSION,required:false,probe:()=>({available:Boolean(globalThis.LuviaAuth),detail:'Auth v1 public owner adapter'})});
+})();
+
+;
+
 /* ===== app/adapters/event-contract-web-adapter.js ===== */
 (()=>{
 'use strict';
@@ -716,6 +906,7 @@ const CLOSED=new Set(['cancelled','declined','failed','completed']);
 const fmt=v=>{if(!v)return'Zeit offen';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(d)};
 const fmtShort=v=>{if(!v)return'';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
 const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const bookingContract=()=>window.LuviaBookingContractV1||(()=>{throw new Error('Booking Contract v1 fehlt.')})();
 const tripList=()=>{const trips=tripContract()?.listTrips?.();return Array.isArray(trips)?trips:[]};
 const activeTrip=()=>tripContract()?.getActiveTrip?.()||null;
 function tripId(t){return t?.id||t?.tripId||null}
@@ -764,8 +955,8 @@ function render(){
  const trips=tripList();const currentTrip=trips.find(t=>String(tripId(t))===String(selectedTripId))||activeTrip()||null;const s=summary();target.innerHTML=`<section class="bcc ${isMobile()&&selectedBookingId?'is-mobile-detail':''}" aria-label="Booking Control Center"><header class="bcc-hero"><div><span class="bcc-kicker">Control Center · Buchungen</span><h1>Buchungen steuern und nachvollziehen.</h1><p>Status, Kommunikation, Timeline, Änderungen und Stornierungen aus einer Booking-Core-Wahrheit.</p></div><button type="button" data-view="control-center" class="bcc-back">← Control Center</button></header><section class="bcc-toolbar"><label><span>Reise</span><select data-bcc-trip>${trips.length?trips.map(t=>`<option value="${esc(tripId(t))}" ${String(tripId(t))===String(selectedTripId)?'selected':''}>${esc(tripTitle(t))}</option>`).join(''):`<option value="${esc(selectedTripId||'')}">${esc(currentTrip?.title||'Aktive Reise')}</option>`}</select></label><button type="button" data-bcc-refresh ${loading?'disabled':''}>${loading?'Lädt …':'Aktualisieren'}</button></section><section class="bcc-status-center"><article class="is-attention"><small>Aufmerksamkeit</small><strong>${s.attention}</strong><span>brauchen eine Entscheidung oder Prüfung</span></article><article><small>In Bearbeitung</small><strong>${s.active}</strong><span>Anfragen und laufende Vorgänge</span></article><article class="is-confirmed"><small>Bestätigt</small><strong>${s.confirmed}</strong><span>verbindlich bestätigt</span></article><article><small>Abgeschlossen</small><strong>${s.closed}</strong><span>beendet, abgelehnt oder storniert</span></article></section>${error?`<div class="bcc-error"><strong>Buchungen konnten nicht geladen werden.</strong><span>${esc(error.message||error)}</span><button data-bcc-refresh>Erneut versuchen</button></div>`:loading?'<div class="bcc-loading">Booking Core wird geladen …</div>':`<div class="bcc-layout"><section class="bcc-list"><div class="bcc-list-head"><div><small>${esc(currentTrip?.title||'Aktive Reise')}</small><h2>${s.total} Buchung${s.total===1?'':'en'}</h2></div></div>${rows.length?rows.map(card).join(''):'<div class="bcc-empty"><strong>Noch keine Buchungen für diese Reise.</strong><p>Neue Reservierungen entstehen weiterhin über die bestehenden Luvia-Buchungswege.</p><button type="button" data-view="places">Places öffnen</button></div>'}</section>${detail(selected())}</div>`}<footer class="bcc-foundation">Booking Control Center v13.81 · Timeline · Modify · Cancel · Evidence-driven Lifecycle</footer></section>`;
  syncActionOverlay(selected());
 }
-async function loadTimeline(){timeline=[];if(!selectedBookingId){render();return}timelineLoading=true;render();try{const api=window.LuviaBookingIntegration||window.LuviaBooking;if(api?.bookingTimeline){const data=await api.bookingTimeline(selectedBookingId);timeline=Array.isArray(data?.items)?data.items:[]}}catch(e){console.warn('[Booking Control Center] Timeline',e)}finally{timelineLoading=false;render()}}
-async function load(){if(!target)return;loading=true;error=null;render();try{const id=pendingOpen?.tripId||selectedTripId||activeTripId();selectedTripId=id;if(!id){rows=[];selectedBookingId=null;return}const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.listForTrip)throw new Error('Booking Capability ist nicht verfügbar.');await api.init?.();rows=(await api.listForTrip(id)||[]).map(normalize);if(pendingOpen?.bookingId&&rows.some(r=>String(r.id)===String(pendingOpen.bookingId)))selectedBookingId=pendingOpen.bookingId;if(selectedBookingId&&!rows.some(r=>String(r.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&rows.length&&!isMobile())selectedBookingId=rows.find(r=>r._needsAttention)?.id||rows[0].id;if(selectedBookingId&&pendingOpen?.action==='modify'){actionMode='modify';actionStatus='';actionBlocked=false;actionDraft={mode:'modify',...actionDefaults(selected(),'modify')}}else if(selectedBookingId&&pendingOpen?.action==='cancel'){actionMode='cancel';actionStatus='';actionBlocked=false;actionDraft={mode:'cancel',...actionDefaults(selected(),'cancel')}}pendingOpen=null;}catch(e){error=e;rows=[];selectedBookingId=null;pendingOpen=null;}finally{loading=false;render();if(selectedBookingId)loadTimeline()}}
+async function loadTimeline(){timeline=[];if(!selectedBookingId){render();return}timelineLoading=true;render();try{const data=await bookingContract().reads.bookingTimeline(selectedBookingId);timeline=Array.isArray(data?.items)?data.items:[]}catch(e){console.warn('[Booking Control Center] Timeline',e)}finally{timelineLoading=false;render()}}
+async function load(){if(!target)return;loading=true;error=null;render();try{const id=pendingOpen?.tripId||selectedTripId||activeTripId();selectedTripId=id;if(!id){rows=[];selectedBookingId=null;return}const api=bookingContract();await api.init?.();rows=(await api.reads.listForTrip(id)||[]).map(normalize);if(pendingOpen?.bookingId&&rows.some(r=>String(r.id)===String(pendingOpen.bookingId)))selectedBookingId=pendingOpen.bookingId;if(selectedBookingId&&!rows.some(r=>String(r.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&rows.length&&!isMobile())selectedBookingId=rows.find(r=>r._needsAttention)?.id||rows[0].id;if(selectedBookingId&&pendingOpen?.action==='modify'){actionMode='modify';actionStatus='';actionBlocked=false;actionDraft={mode:'modify',...actionDefaults(selected(),'modify')}}else if(selectedBookingId&&pendingOpen?.action==='cancel'){actionMode='cancel';actionStatus='';actionBlocked=false;actionDraft={mode:'cancel',...actionDefaults(selected(),'cancel')}}pendingOpen=null;}catch(e){error=e;rows=[];selectedBookingId=null;pendingOpen=null;}finally{loading=false;render();if(selectedBookingId)loadTimeline()}}
 
 async function openBooking(bookingId,{action=null,tripId:id=null}={}){
  const value=clean(bookingId);if(!value)throw new Error('Booking-ID fehlt.');
@@ -795,7 +986,7 @@ function mutationErrorText(error,mode){
 }
 
 function mutationPayload(mode,form){const fd=new FormData(form);const payload=mode==='modify'?{date:clean(fd.get('date')),time:clean(fd.get('time')),partySize:Number(fd.get('partySize')||0)||null,notes:clean(fd.get('notes'))}:{reason:clean(fd.get('reason'))};actionDraft={mode,...payload};return payload}
-async function runMutation(mode,form){const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!selectedBookingId)throw new Error('Buchung fehlt.');if(!form)throw new Error('Aktionsformular fehlt.');const payload=mutationPayload(mode,form);actionBusy=true;actionStatus=mode==='modify'?'Änderung wird sicher verarbeitet …':'Stornierung wird sicher verarbeitet …';render();try{let result;if(mode==='modify')result=await api.modifyBooking(selectedBookingId,payload);else result=await api.cancelBooking(selectedBookingId,payload);actionStatus=result?.transport==='provider_api'?'Anfrage wurde direkt an den Anbieter übermittelt. Der finale Status folgt aus Anbieter-Evidence.':result?.transport==='email_thread_bootstrap'?'Sicherer Anbieterkanal wurde eröffnet und die Anfrage gesendet. Wir warten auf Bestätigung.':'Anfrage wurde an den Anbieter gesendet. Wir warten auf Bestätigung.';window.LuviaUIKit?.toast?.(mode==='modify'?'Änderung wurde angefragt.':'Stornierung wurde angefragt.',{type:'success'});await new Promise(r=>setTimeout(r,450));actionMode=null;actionStatus='';actionDraft=null;await load();}catch(e){actionStatus=mutationErrorText(e,mode);window.LuviaUIKit?.toast?.(actionStatus,{type:'error'});render()}finally{actionBusy=false;render()}}
+async function runMutation(mode,form){const api=bookingContract().commands;if(!selectedBookingId)throw new Error('Buchung fehlt.');if(!form)throw new Error('Aktionsformular fehlt.');const payload=mutationPayload(mode,form);actionBusy=true;actionStatus=mode==='modify'?'Änderung wird sicher verarbeitet …':'Stornierung wird sicher verarbeitet …';render();try{let result;if(mode==='modify')result=await api.modifyBooking(selectedBookingId,payload);else result=await api.cancelBooking(selectedBookingId,payload);actionStatus=result?.transport==='provider_api'?'Anfrage wurde direkt an den Anbieter übermittelt. Der finale Status folgt aus Anbieter-Evidence.':result?.transport==='email_thread_bootstrap'?'Sicherer Anbieterkanal wurde eröffnet und die Anfrage gesendet. Wir warten auf Bestätigung.':'Anfrage wurde an den Anbieter gesendet. Wir warten auf Bestätigung.';window.LuviaUIKit?.toast?.(mode==='modify'?'Änderung wurde angefragt.':'Stornierung wurde angefragt.',{type:'success'});await new Promise(r=>setTimeout(r,450));actionMode=null;actionStatus='';actionDraft=null;await load();}catch(e){actionStatus=mutationErrorText(e,mode);window.LuviaUIKit?.toast?.(actionStatus,{type:'error'});render()}finally{actionBusy=false;render()}}
 function click(e){const actionOwned=node=>Boolean(node&&(target?.contains(node)||actionOverlay?.overlay?.contains(node)));const execute=e.target.closest?.('[data-bcc-action-execute]');if(execute&&actionOwned(execute)){e.preventDefault();if(actionBusy)return;const form=execute.closest('[data-bcc-action-form]');runMutation(execute.dataset.bccActionExecute,form);return}if(e.target.matches?.('.bcc-action-sheet')&&!actionBusy){resetActionState();render();return}const back=e.target.closest?.('[data-bcc-bookings-back]');if(back&&target?.contains(back)){selectedBookingId=null;timeline=[];resetActionState();render();return}const b=e.target.closest?.('[data-bcc-booking]');if(b&&target?.contains(b)){selectedBookingId=b.dataset.bccBooking;resetActionState();render();loadTimeline();return}if(e.target.closest?.('[data-bcc-refresh]')){load();return}if(e.target.closest?.('[data-bcc-modify]')){actionMode='modify';actionStatus='';actionBlocked=false;actionDraft={mode:'modify',...actionDefaults(selected(),'modify')};render();return}if(e.target.closest?.('[data-bcc-cancel]')){actionMode='cancel';actionStatus='';actionBlocked=false;actionDraft={mode:'cancel',...actionDefaults(selected(),'cancel')};render();return}if(e.target.closest?.('[data-bcc-action-close]')){if(!actionBusy){resetActionState();render()}return}}
 function change(e){const s=e.target.closest?.('[data-bcc-trip]');if(s&&target?.contains(s)){selectedTripId=s.value;selectedBookingId=null;timeline=[];load()}}
 function submit(e){const form=e.target.closest?.('[data-bcc-action-form]');if(!form||!(target?.contains(form)||actionOverlay?.overlay?.contains(form)))return;e.preventDefault();if(actionBusy)return;runMutation(form.dataset.bccActionForm,form)}
@@ -820,6 +1011,7 @@ const TYPE_ICON={restaurant:'🍽',hotel:'▦',activity:'◇',event:'◇',transp
 const clean=v=>String(v??'').trim();
 const fmt=v=>{if(!v)return'';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
 const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
+const bookingContract=()=>window.LuviaBookingContractV1||(()=>{throw new Error('Booking Contract v1 fehlt.')})();
 const tripList=()=>{const trips=tripContract()?.listTrips?.();return Array.isArray(trips)?trips:[]};
 const tripId=t=>t?.id||t?.tripId||null;const tripTitle=t=>t?.title||t?.name||t?.destination?.name||'Reise';
 const activeTripId=()=>tripId(tripContract()?.getActiveTrip?.())||null;
@@ -830,9 +1022,9 @@ function isUnread(t){if(!t.lastInboundAt)return false;const seen=t.preference?.l
 function intelligenceLabel(i){const intent=String(i?.intent||'').toLowerCase();return({confirmed:'Bestätigung erkannt',declined:'Absage erkannt',alternative_proposed:'Alternative erkannt',needs_action:'Rückfrage erkannt',informational:'Information erkannt',unknown:'Antwort prüfen'}[intent]||'Luvia Intelligence')}
 function normalizeBooking(b){return {...b,id:b.id||b.booking_id,booking_type:b.booking_type||'other',status:clean(b.status||'draft').toLowerCase()}}
 function isOpenIntel(i){return Boolean(i&&(i.review_state==='open'||((i.review_state==null||i.review_state==='')&&(i.review_required||i.requires_user_action))))}
-async function loadThreadSummary(b){const api=window.LuviaBookingIntegration||window.LuviaBooking;const c=await api.conversation(b.id);const msgs=c.messages||[];const inbound=msgs.filter(m=>m.direction==='inbound');const last=msgs[msgs.length-1]||null;const intel=(c.intelligence||[]).find(isOpenIntel)||(c.intelligence||[])[0]||null;const preference=preferences.get(String(b.id))||null;const t={id:b.id,booking:b,messageCount:msgs.length,lastMessage:last,lastInboundAt:inbound[inbound.length-1]?.received_at||inbound[inbound.length-1]?.created_at||null,intelligence:intel,thread:c.thread||null,preference,archived:Boolean(preference?.archived_at||preference?.archivedAt),deleted:Boolean(preference?.deleted_at||preference?.deletedAt)};t.unread=isUnread(t);t.attention=ATTENTION.has(b.status)||Boolean(isOpenIntel(intel));return t}
-async function load(){if(!target)return;loading=true;error=null;render();try{const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.listForTrip||!api?.conversation)throw new Error('Booking Message Capability ist nicht verfügbar.');await api.init?.();selectedTripId=selectedTripId||activeTripId();bookings=(selectedTripId?await api.listForTrip(selectedTripId):[]).map(normalizeBooking);preferences=new Map();if(api.conversationPreferences&&bookings.length){const prefRows=await api.conversationPreferences(bookings.map(b=>b.id));for(const p of prefRows||[])preferences.set(String(p.booking_id||p.bookingId),p)}threads=await Promise.all(bookings.map(loadThreadSummary));threads.sort((a,b)=>Number(b.attention)-Number(a.attention)||Number(b.unread)-Number(a.unread)||new Date(b.lastMessage?.created_at||b.booking.updated_at||0)-new Date(a.lastMessage?.created_at||a.booking.updated_at||0));if(selectedBookingId&&!threads.some(t=>String(t.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&threads.length&&!isMobile()){const visible=threads.filter(t=>!t.deleted&&!t.archived);selectedBookingId=(visible.find(t=>t.attention)||visible.find(t=>t.unread)||visible[0]||{}).id||null;}if(selectedBookingId)await openConversation(selectedBookingId,false);else conversation=null;}catch(e){error=e;threads=[];conversation=null;}finally{loading=false;render();}}
-async function openConversation(id,rerender=true){selectedBookingId=id;const api=window.LuviaBookingIntegration||window.LuviaBooking;conversation=await api.conversation(id);const th=threads.find(t=>String(t.id)===String(id));if(th){const at=th.lastInboundAt||new Date().toISOString();markSeen(id,at);th.unread=false;try{if(api.setConversationPreference){const pref=await api.setConversationPreference(id,'read',at);th.preference={...(th.preference||{}),last_read_at:pref?.lastReadAt||at};preferences.set(String(id),th.preference)}}catch(e){console.warn('[Booking Inbox] read state',e)}}if(rerender)render();setTimeout(()=>target?.querySelector('.bi-messages')?.scrollTo?.({top:999999,behavior:'smooth'}),0)}
+async function loadThreadSummary(b){const c=await bookingContract().reads.conversation(b.id);const msgs=c.messages||[];const inbound=msgs.filter(m=>m.direction==='inbound');const last=msgs[msgs.length-1]||null;const intel=(c.intelligence||[]).find(isOpenIntel)||(c.intelligence||[])[0]||null;const preference=preferences.get(String(b.id))||null;const t={id:b.id,booking:b,messageCount:msgs.length,lastMessage:last,lastInboundAt:inbound[inbound.length-1]?.received_at||inbound[inbound.length-1]?.created_at||null,intelligence:intel,thread:c.thread||null,preference,archived:Boolean(preference?.archived_at||preference?.archivedAt),deleted:Boolean(preference?.deleted_at||preference?.deletedAt)};t.unread=isUnread(t);t.attention=ATTENTION.has(b.status)||Boolean(isOpenIntel(intel));return t}
+async function load(){if(!target)return;loading=true;error=null;render();try{const api=bookingContract();await api.init?.();selectedTripId=selectedTripId||activeTripId();bookings=(selectedTripId?await api.reads.listForTrip(selectedTripId):[]).map(normalizeBooking);preferences=new Map();if(api.reads.conversationPreferences&&bookings.length){const prefRows=await api.reads.conversationPreferences(bookings.map(b=>b.id));for(const p of prefRows||[])preferences.set(String(p.booking_id||p.bookingId),p)}threads=await Promise.all(bookings.map(loadThreadSummary));threads.sort((a,b)=>Number(b.attention)-Number(a.attention)||Number(b.unread)-Number(a.unread)||new Date(b.lastMessage?.created_at||b.booking.updated_at||0)-new Date(a.lastMessage?.created_at||a.booking.updated_at||0));if(selectedBookingId&&!threads.some(t=>String(t.id)===String(selectedBookingId)))selectedBookingId=null;if(!selectedBookingId&&threads.length&&!isMobile()){const visible=threads.filter(t=>!t.deleted&&!t.archived);selectedBookingId=(visible.find(t=>t.attention)||visible.find(t=>t.unread)||visible[0]||{}).id||null;}if(selectedBookingId)await openConversation(selectedBookingId,false);else conversation=null;}catch(e){error=e;threads=[];conversation=null;}finally{loading=false;render();}}
+async function openConversation(id,rerender=true){selectedBookingId=id;const api=bookingContract();conversation=await api.reads.conversation(id);const th=threads.find(t=>String(t.id)===String(id));if(th){const at=th.lastInboundAt||new Date().toISOString();markSeen(id,at);th.unread=false;try{if(api.commands.setConversationPreference){const pref=await api.commands.setConversationPreference(id,'read',at);th.preference={...(th.preference||{}),last_read_at:pref?.lastReadAt||at};preferences.set(String(id),th.preference)}}catch(e){console.warn('[Booking Inbox] read state',e)}}if(rerender)render();setTimeout(()=>target?.querySelector('.bi-messages')?.scrollTo?.({top:999999,behavior:'smooth'}),0)}
 function filteredThreads(){return threads.filter(t=>{if(t.deleted)return false;if(filter==='archive')return t.archived;if(t.archived)return false;return filter==='all'||(filter==='unread'&&t.unread)||(filter==='attention'&&t.attention)})}
 function preview(t){const body=clean(t.lastMessage?.body_text);if(body)return body;const intel=t.intelligence;if(intel)return intelligenceLabel(intel);return t.messageCount?'Nachrichtenverlauf verfügbar':'Noch keine Nachricht'}
 function threadCard(t){const b=t.booking;return `<button class="bi-thread ${t.archived?'is-archived':''}" data-bi-thread="${esc(t.id)}" aria-current="${String(t.id)===String(selectedBookingId)}"><span class="bi-avatar">${TYPE_ICON[b.booking_type]||TYPE_ICON.other}</span><span class="bi-thread-main"><span class="bi-thread-top"><strong>${esc(b.title||'Buchung')}</strong><small>${esc(fmt(t.lastMessage?.created_at||b.updated_at))}</small></span><p>${esc(preview(t))}</p><span class="bi-thread-meta"><span class="bi-badge">${esc(STATUS_LABEL[b.status]||b.status)}</span>${t.attention?'<span class="bi-badge attn">Aktion nötig</span>':''}${t.messageCount?`<span class="bi-badge">${t.messageCount} Nachricht${t.messageCount===1?'':'en'}</span>`:''}</span></span>${t.unread?'<span class="bi-dot" title="Ungelesen"></span>':'<span></span>'}</button>`}
@@ -841,12 +1033,12 @@ function intelActions(i){if(!isOpenIntel(i))return i.review_state==='resolved'?'
 function intelligenceCard(i){const ex=i.extracted||{};const recognized=ex.proposedTime?`Vorgeschlagene Zeit: ${esc(ex.proposedTime)} Uhr`:Object.keys(ex).length?esc(JSON.stringify(ex)):'';return `<aside class="bi-intel" data-intel-card="${esc(i.id)}"><small>✦ Luvia Intelligence</small><strong>${esc(intelligenceLabel(i))}</strong><p>${esc(i.visible_reply||((i.review_required||i.requires_user_action)?'Diese Antwort braucht deine Entscheidung.':'Luvia hat diese Nachricht strukturiert eingeordnet.'))}</p>${recognized?`<p><b>Erkannt:</b> ${recognized}</p>`:''}${intelActions(i)}</aside>`}
 function conversationView(){if(!selectedBookingId||!conversation)return `<section class="bi-conversation"><div class="bi-empty"><strong>Unterhaltung auswählen</strong><p>Nachrichten von Restaurants, Hotels und später weiteren Anbietern erscheinen hier in einem einheitlichen Verlauf.</p></div></section>`;const b=conversation.booking||bookings.find(x=>String(x.id)===String(selectedBookingId))||{};const intelByMessage=new Map((conversation.intelligence||[]).map(i=>[String(i.message_id),i]));const content=[];(conversation.messages||[]).forEach(m=>{content.push(message(m));const i=intelByMessage.get(String(m.id));if(i)content.push(intelligenceCard(i))});return `<section class="bi-conversation"><header class="bi-conv-head"><button class="bi-mobile-inbox-back" type="button" data-bi-inbox-back aria-label="Zurück zur Inbox">← Inbox</button><div><small>${esc((b.booking_type||'Buchung').toUpperCase())} · ${esc(tripTitle(tripList().find(t=>String(tripId(t))===String(selectedTripId))||{}))}</small><h2>${esc(b.title||'Buchung')}</h2><p>${b.start_at?esc(fmt(b.start_at)):''}${b.party_size?` · ${esc(b.party_size)} Personen`:''}</p></div><div class="bi-conv-tools"><span class="bi-status">${esc(STATUS_LABEL[b.status]||b.status||'Status')}</span><button type="button" class="bi-more" data-bi-conv-menu aria-label="Conversation verwalten">•••</button><div class="bi-conv-menu"><button type="button" data-bi-pref="${threads.find(t=>String(t.id)===String(selectedBookingId))?.archived?'unarchive':'archive'}">${threads.find(t=>String(t.id)===String(selectedBookingId))?.archived?'Aus Archiv holen':'Archivieren'}</button><button type="button" class="is-danger" data-bi-pref="delete">Chat löschen</button></div></div></header><div class="bi-messages">${content.length?content.join(''):'<div class="bi-empty"><strong>Noch keine Nachrichten.</strong><p>Sobald über den Booking Core eine Nachricht gesendet oder empfangen wird, erscheint sie hier.</p></div>'}</div><form class="bi-composer" data-bi-composer><textarea placeholder="Nachricht schreiben …" aria-label="Nachricht schreiben" ${actionBusy?'disabled':''}></textarea><input type="hidden" data-bi-intel-context><button class="bi-send" type="submit" data-bi-send ${actionBusy?'disabled':''}>${actionBusy?'Wird gesendet …':'Senden'}</button><span class="bi-composer-note">Antworten werden über den bestehenden Booking-Thread versendet und erst nach bestätigtem Transport im Verlauf angezeigt.</span>${composerStatus?`<div class="bi-composer-status" role="status">${esc(composerStatus)}</div>`:''}</form></section>`}
 function render(){if(!target)return;const trips=tripList();const list=filteredThreads();const activeThreads=threads.filter(t=>!t.deleted&&!t.archived);const unread=activeThreads.filter(t=>t.unread).length,attn=activeThreads.filter(t=>t.attention).length;target.innerHTML=`<section class="booking-inbox" aria-label="Booking Inbox"><header class="bi-hero"><div><span class="bi-kicker">Control Center · Booking Inbox</span><h1>Deine Gespräche mit Anbietern.</h1><p>Restaurant, Hotel oder später Aktivität: Luvia zeigt Nachrichten, Entscheidungen und Antworten in einem einheitlichen, providerunabhängigen Verlauf.</p></div><button class="bi-back" type="button" data-view="control-center">← Control Center</button></header><section class="bi-toolbar"><label><span>Reise</span><select data-bi-trip>${trips.map(t=>`<option value="${esc(tripId(t))}" ${String(tripId(t))===String(selectedTripId)?'selected':''}>${esc(tripTitle(t))}</option>`).join('')}</select></label><div class="bi-chips"><button class="bi-chip ${filter==='all'?'is-active':''}" data-bi-filter="all">Alle · ${activeThreads.length}</button><button class="bi-chip ${filter==='unread'?'is-active':''}" data-bi-filter="unread">Ungelesen · ${unread}</button><button class="bi-chip ${filter==='attention'?'is-active':''}" data-bi-filter="attention">Aktion nötig · ${attn}</button><button class="bi-chip ${filter==='archive'?'is-active':''}" data-bi-filter="archive">Archiv · ${threads.filter(t=>t.archived&&!t.deleted).length}</button></div><button class="bi-refresh" data-bi-refresh>${loading?'Lädt …':'Aktualisieren'}</button></section>${error?`<div class="bi-state"><strong>Inbox konnte nicht geladen werden.</strong><p>${esc(error.message||error)}</p></div>`:`<div class="bi-layout"><section class="bi-list ${selectedBookingId?'is-thread-open':''}"><header class="bi-list-head"><small>Konversationen</small><h2>${list.length} Gespräch${list.length===1?'':'e'}</h2></header>${loading?'<div class="bi-state">Nachrichten werden geladen …</div>':list.length?list.map(threadCard).join(''):'<div class="bi-empty"><strong>Keine passenden Gespräche.</strong><p>Die Inbox zeigt nur echte Nachrichten aus dem bestehenden Booking Core.</p></div>'}</section>${conversationView()}</div>`}<footer class="bi-footer">Booking Inbox v13.81 · Archive/Delete sind nur persönliche Sichtzustände · Message & Booking Truth bleiben im Booking Core</footer></section>`}
-async function refreshConversation(){if(!selectedBookingId)return;await openConversation(selectedBookingId,false);bookings=(selectedTripId?await (window.LuviaBookingIntegration||window.LuviaBooking).listForTrip(selectedTripId):[]).map(normalizeBooking);threads=await Promise.all(bookings.map(loadThreadSummary));render();setTimeout(()=>target?.querySelector('.bi-messages')?.scrollTo?.({top:999999,behavior:'smooth'}),0)}
-async function runAction(action,intelId,bodyText=''){if(actionBusy)return;const api=window.LuviaBookingIntegration||window.LuviaBooking;const intel=(conversation?.intelligence||[]).find(i=>String(i.id)===String(intelId));if(!intel)throw new Error('Die Luvia-Entscheidung konnte nicht gefunden werden.');actionBusy=true;render();try{await api.performIntelligenceAction(selectedBookingId,{intelligence:intel,action,bodyText});window.LuviaUIKit?.toast?.(action==='accept_alternative'?'Alternative wurde beantwortet.':action==='decline_alternative'?'Alternative wurde abgelehnt und beantwortet.':action==='mark_reviewed'?'Als geprüft markiert.':'Antwort wurde versendet.',{type:'success'});await refreshConversation()}finally{actionBusy=false;render()}}
-async function applyPreference(action){if(!selectedBookingId)return;const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.setConversationPreference)throw new Error('Conversation Lifecycle ist nicht verfügbar.');if(action==='delete'&&!window.confirm('Chat wirklich aus deiner Inbox löschen? Die Booking- und Audit-Historie bleibt aus Sicherheitsgründen erhalten.'))return;actionBusy=true;render();try{await api.setConversationPreference(selectedBookingId,action);window.LuviaUIKit?.toast?.(action==='archive'?'Chat archiviert.':action==='unarchive'?'Chat aus Archiv geholt.':'Chat aus deiner Inbox entfernt.',{type:'success'});if(action==='delete'||action==='archive'){selectedBookingId=null;conversation=null}await load()}finally{actionBusy=false;render()}}
+async function refreshConversation(){if(!selectedBookingId)return;await openConversation(selectedBookingId,false);bookings=(selectedTripId?await bookingContract().reads.listForTrip(selectedTripId):[]).map(normalizeBooking);threads=await Promise.all(bookings.map(loadThreadSummary));render();setTimeout(()=>target?.querySelector('.bi-messages')?.scrollTo?.({top:999999,behavior:'smooth'}),0)}
+async function runAction(action,intelId,bodyText=''){if(actionBusy)return;const api=bookingContract().commands;const intel=(conversation?.intelligence||[]).find(i=>String(i.id)===String(intelId));if(!intel)throw new Error('Die Luvia-Entscheidung konnte nicht gefunden werden.');actionBusy=true;render();try{await api.performIntelligenceAction(selectedBookingId,{intelligence:intel,action,bodyText});window.LuviaUIKit?.toast?.(action==='accept_alternative'?'Alternative wurde beantwortet.':action==='decline_alternative'?'Alternative wurde abgelehnt und beantwortet.':action==='mark_reviewed'?'Als geprüft markiert.':'Antwort wurde versendet.',{type:'success'});await refreshConversation()}finally{actionBusy=false;render()}}
+async function applyPreference(action){if(!selectedBookingId)return;const api=bookingContract().commands;if(!api?.setConversationPreference)throw new Error('Conversation Lifecycle ist nicht verfügbar.');if(action==='delete'&&!window.confirm('Chat wirklich aus deiner Inbox löschen? Die Booking- und Audit-Historie bleibt aus Sicherheitsgründen erhalten.'))return;actionBusy=true;render();try{await api.setConversationPreference(selectedBookingId,action);window.LuviaUIKit?.toast?.(action==='archive'?'Chat archiviert.':action==='unarchive'?'Chat aus Archiv geholt.':'Chat aus deiner Inbox entfernt.',{type:'success'});if(action==='delete'||action==='archive'){selectedBookingId=null;conversation=null}await load()}finally{actionBusy=false;render()}}
 function click(e){const menu=e.target.closest?.('[data-bi-conv-menu]');if(menu&&target?.contains(menu)){menu.parentElement?.classList.toggle('is-open');return}const pref=e.target.closest?.('[data-bi-pref]');if(pref&&target?.contains(pref)){applyPreference(pref.dataset.biPref).catch(err=>{composerStatus=err.message||'Conversation konnte nicht geändert werden.';render()});return}const back=e.target.closest?.('[data-bi-inbox-back]');if(back&&target?.contains(back)){selectedBookingId=null;conversation=null;composerStatus='';render();return}const send=e.target.closest?.('[data-bi-send]');if(send&&target?.contains(send)){e.preventDefault();const form=send.closest('[data-bi-composer]');return sendFromForm(form)}const th=e.target.closest?.('[data-bi-thread]');if(th&&target?.contains(th)){openConversation(th.dataset.biThread).catch(err=>{error=err;render()});return}const f=e.target.closest?.('[data-bi-filter]');if(f&&target?.contains(f)){filter=f.dataset.biFilter;render();return}if(e.target.closest?.('[data-bi-refresh]')){load();return}const focus=e.target.closest?.('[data-bi-intel-focus]');if(focus){const form=target.querySelector('[data-bi-composer]');const input=form?.querySelector('[data-bi-intel-context]');if(input)input.value=focus.dataset.biIntelFocus||'';form?.querySelector('textarea')?.focus();composerStatus='Deine Antwort wird dieser Rückfrage zugeordnet.';render();return}const act=e.target.closest?.('[data-bi-intel-action]');if(act){runAction(act.dataset.biIntelAction,act.dataset.intelId).catch(err=>{actionBusy=false;composerStatus=err.message||'Aktion fehlgeschlagen.';window.LuviaUIKit?.toast?.(composerStatus,{type:'error'});render()});}}
 function change(e){const s=e.target.closest?.('[data-bi-trip]');if(s&&target?.contains(s)){selectedTripId=s.value;selectedBookingId=null;conversation=null;load()}}
-async function sendFromForm(form){if(!form||!target?.contains(form)||actionBusy)return;const text=clean(form.querySelector('textarea')?.value);if(!text){composerStatus='Bitte zuerst eine Nachricht eingeben.';window.LuviaUIKit?.toast?.(composerStatus,{type:'info'});render();return}const intelId=clean(form.querySelector('[data-bi-intel-context]')?.value);const api=window.LuviaBookingIntegration||window.LuviaBooking;if(!api?.reply){composerStatus='Der Booking-Reply-Transport ist nicht verfügbar.';render();return}actionBusy=true;composerStatus='Antwort wird versendet …';render();try{if(intelId){const intel=(conversation?.intelligence||[]).find(i=>String(i.id)===String(intelId));if(!api.performIntelligenceAction)throw new Error('Booking Intelligence Actions sind nicht verfügbar.');await api.performIntelligenceAction(selectedBookingId,{intelligence:intel,action:'answer',bodyText:text})}else await api.reply(selectedBookingId,{bodyText:text});composerStatus='Antwort wurde erfolgreich versendet.';window.LuviaUIKit?.toast?.('Antwort wurde über den bestehenden Booking-Thread versendet.',{type:'success'});await refreshConversation()}catch(err){composerStatus=err?.message||'Antwort konnte nicht versendet werden.';window.LuviaUIKit?.toast?.(composerStatus,{type:'error'})}finally{actionBusy=false;render()}}
+async function sendFromForm(form){if(!form||!target?.contains(form)||actionBusy)return;const text=clean(form.querySelector('textarea')?.value);if(!text){composerStatus='Bitte zuerst eine Nachricht eingeben.';window.LuviaUIKit?.toast?.(composerStatus,{type:'info'});render();return}const intelId=clean(form.querySelector('[data-bi-intel-context]')?.value);const api=bookingContract().commands;if(!api?.reply){composerStatus='Der Booking-Reply-Transport ist nicht verfügbar.';render();return}actionBusy=true;composerStatus='Antwort wird versendet …';render();try{if(intelId){const intel=(conversation?.intelligence||[]).find(i=>String(i.id)===String(intelId));if(!api.performIntelligenceAction)throw new Error('Booking Intelligence Actions sind nicht verfügbar.');await api.performIntelligenceAction(selectedBookingId,{intelligence:intel,action:'answer',bodyText:text})}else await api.reply(selectedBookingId,{bodyText:text});composerStatus='Antwort wurde erfolgreich versendet.';window.LuviaUIKit?.toast?.('Antwort wurde über den bestehenden Booking-Thread versendet.',{type:'success'});await refreshConversation()}catch(err){composerStatus=err?.message||'Antwort konnte nicht versendet werden.';window.LuviaUIKit?.toast?.(composerStatus,{type:'error'})}finally{actionBusy=false;render()}}
 async function submit(e){const form=e.target.closest?.('[data-bi-composer]');if(!form||!target?.contains(form))return;e.preventDefault();return sendFromForm(form)}
 async function mount(el,options={}){if(!el)throw new Error('Booking Inbox target required');target=el;selectedTripId=options.tripId||activeTripId();selectedBookingId=options.bookingId||null;window.LuviaProductModuleRegistry?.mount?.('control-center',el,{surface:'booking-inbox'});target.addEventListener('click',click);target.addEventListener('change',change);target.addEventListener('submit',submit);await load();return diagnostics()}
 function unmount(){if(target){target.removeEventListener('click',click);target.removeEventListener('change',change);target.removeEventListener('submit',submit);window.LuviaProductModuleRegistry?.unmount?.('control-center',target,{surface:'booking-inbox'})}target=null;selectedTripId=null;selectedBookingId=null;bookings=[];threads=[];preferences=new Map();conversation=null;loading=false;error=null;actionBusy=false;composerStatus=''}
@@ -1188,9 +1380,10 @@ window.LuviaNetworkGuard=Object.freeze({version:VERSION,snapshot,canRequest,expe
   }
 
   async function setActiveTrip(id){const p=await save({activeTripId:id||null});return p.activeTripId;}
+  async function saveDashboardLayout(layout){return save({dashboardWidgets:layout});}
   async function archiveTrip(id,archived=true){const set=new Set(current().profile?.archivedTripIds||[]);archived?set.add(id):set.delete(id);return save({archivedTripIds:[...set]});}
   function completion(){const p=current().profile||{},prefs=normalizedPreferences(p);return identityCore.completion({...p,...prefs});}
-  root.LuviaProfileService=Object.freeze({version:VERSION,hydrateLocal,load,save,setActiveTrip,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
+  root.LuviaProfileService=Object.freeze({version:VERSION,hydrateLocal,load,save,setActiveTrip,saveDashboardLayout,archiveTrip,completion,snapshot:snap,subscribe(fn){listeners.add(fn);fn(snap());return()=>listeners.delete(fn)}});
 })();
 
 ;
@@ -4251,11 +4444,11 @@ function deterministicAssessment(place,options,discoveryRoute){
   const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
   const distance=Number(place.distanceMeters),distanceReasons=[];
   if(Number.isFinite(distance)&&distance>=0){
-    score+=distance<=500?28:distance<=1500?22:distance<=5000?13:distance<=12000?4:-Math.min(24,Math.round((distance-12000)/2500));
+    score+=distance<=500?38:distance<=1500?30:distance<=5000?12:distance<=12000?3:-Math.min(24,Math.round((distance-12000)/2500));
     if(distance<=1500)distanceReasons.push(`Der Ort liegt mit ${Math.max(1,Math.round(distance))} Metern besonders nah am gewählten Reiseziel.`);
   }
   return{
-    score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2)):0),
+    score:score+Number(relevance.score||0)+Number(place.preferenceScoreDelta||0)+(Number.isFinite(Number(place.aiMatchScore))?Math.max(-8,Math.min(10,(Number(place.aiMatchScore)-50)/4)):0),
     reasons:[...new Set([...(place.aiReasons||[]),...(relevance.reasons||[]),...distanceReasons])],
     spatial:relevance.spatial||null
   };
@@ -5280,7 +5473,7 @@ window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,remo
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.3.0-owner-action-bundle';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -5328,9 +5521,20 @@ function snapshot(options={}){
 }
 function listDays(options={}){return snapshot(options).days}
 function list(filters={}){return snapshot(filters).entries.filter(entry=>(!filters.tripId||entry.tripId===String(filters.tripId))&&(!filters.entityType||entry.entityType===filters.entityType))}
+function getEntry(identity,options={}){const id=typeof identity==='string'?identity:identity?.id;return list(options).find(entry=>String(entry.id)===String(id))||null}
 function getDay(date,options={}){return listDays(options).find(day=>day.date===String(date||'').slice(0,10))||null}
 function entriesForDate(date,options={}){return getDay(date,options)?.entries||Object.freeze([])}
 function listConflicts(options={}){return snapshot(options).conflicts}
+function planTrust(identity,options={}){
+  const entry=typeof identity==='object'&&identity?.id?identity:getEntry(identity,options);
+  if(!entry)return null;
+  const metadata=entry.metadata||{},raw=String(metadata.planTrust||metadata.bookingStatus||entry.status||entry.lifecycle||'').toLowerCase();
+  let label='bestätigt',kind='confirmed';
+  if(/wait|pending|requested|angefragt/.test(raw)){label='wartet auf Antwort';kind='waiting'}
+  else if(/vote|proposal|abstimmung/.test(raw)){label='Abstimmung läuft';kind='vote'}
+  else if(/suggest|draft|vorschlag/.test(raw)){label='nur vorgeschlagen';kind='suggested'}
+  return Object.freeze({entryId:String(entry.id||''),label,kind,planningTrace:metadata.planningTrace||null,providerObservedAt:metadata.providerFacts?.observedAt||null});
+}
 function routeUncertainty(input={}){return resilience().routeUncertainty(input)}
 function rehearseDay(input={}){return resilience().rehearseDay(input)}
 function disruptionRecovery(input={}){return resilience().disruptionRecovery(input)}
@@ -5350,9 +5554,36 @@ async function removePhotoMemoryByCluster(clusterId,options={}){const result=awa
 function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(resolveSourceEntry(identity),node)}
 function editEntry(identity,onDone){return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)})}
 function openPlanningEditor(options,onDone){return provider().openPlanningEditor?.(options,onDone)}
+function offlineProvider(){const api=globalThis.LuviaJourneyOfflinePack;if(!api?.save||!api?.remove)unavailable('LuviaJourneyOfflinePack');return api}
+function externalNavigation(){const api=globalThis.LuviaPlatformPorts?.get?.('ExternalNavigationPort');if(!api?.open)unavailable('ExternalNavigationPort');return api}
+function resolveDayInput(input={}){
+  const trip=input.trip||activeTrip();if(!trip?.id&&!trip?.tripId)throw new Error('JOURNEY_TRIP_REQUIRED');
+  const date=String(input.date||input.day?.date||'').slice(0,10),day=input.day||getDay(date,{trip});
+  if(!date||!day)throw new Error('JOURNEY_DAY_REQUIRED');
+  return{trip,day,date};
+}
+function openExternalLink(input={}){
+  if(input.userGesture!==true)throw new Error('JOURNEY_USER_GESTURE_REQUIRED');
+  const url=String(input.url||'').trim();if(!/^https?:\/\//i.test(url))throw new Error('JOURNEY_EXTERNAL_URL_INVALID');
+  return Object.freeze({opened:Boolean(externalNavigation().open(url)),url,entryId:String(input.entryId||'')||null});
+}
+function saveOfflinePack(input={}){const value=resolveDayInput(input);return offlineProvider().save(value.trip,value.day)}
+function removeOfflinePack(input={}){const value=resolveDayInput(input);return Object.freeze({removed:Boolean(offlineProvider().remove(value.trip,value.date)),tripId:String(value.trip.id||value.trip.tripId),date:value.date})}
+async function undo(input={}){
+  const operation=String(input.operation||input.receipt?.operation||'');
+  if(operation==='restore-entry'){
+    const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
+    return Object.freeze({operation,restored:true,result:await recordEvent(entry)});
+  }
+  if(operation==='remove-entry'){
+    const entryId=input.entryId||input.receipt?.entryId;if(!entryId)throw new Error('JOURNEY_UNDO_ENTRY_ID_REQUIRED');
+    return Object.freeze({operation,removed:Boolean(await removeEntry(entryId,{reason:'undo'}))});
+  }
+  throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
+}
 
-const reads=Object.freeze({snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
-const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
+const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
   version:VERSION,
@@ -5360,8 +5591,8 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
-  init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
+  init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
     version:VERSION,
@@ -5403,7 +5634,7 @@ globalThis.LuviaGlobalContracts?.register?.({
 (()=>{
 'use strict';
 
-const VERSION='1.11.3';
+const VERSION='1.12.0-owner-read-bundle';
 const boundRoots=new WeakSet();
 let dayHandle=null;
 let activeTimelineRoot=null;
@@ -5430,7 +5661,7 @@ function openExternal(button){
  return true;
 }
 function bindExternalActions(root){root?.querySelectorAll?.('[data-journey-entry-external]').forEach(button=>button.addEventListener('click',()=>{try{openExternal(button)}catch(error){globalThis.LuviaUIKit?.toast?.(error?.message||'Der Link konnte nicht sicher geöffnet werden.',{type:'error'})}}))}
-function trustForEntry(entry={},offline=false){const metadata=entry.metadata||{},raw=String(metadata.planTrust||metadata.bookingStatus||entry.status||entry.lifecycle||'').toLowerCase();let label='bestätigt',kind='confirmed';if(/wait|pending|requested|angefragt/.test(raw)){label='wartet auf Antwort';kind='waiting'}else if(/vote|proposal|abstimmung/.test(raw)){label='Abstimmung läuft';kind='vote'}else if(/suggest|draft|vorschlag/.test(raw)){label='nur vorgeschlagen';kind='suggested'}if(offline)return{label:`${label} · offline verfügbar`,kind,offline:true};return{label,kind,offline:false}}
+function trustForEntry(entry={},offline=false){const value=contract().reads.planTrust(entry)||{label:'bestätigt',kind:'confirmed'};if(offline)return{...value,label:`${value.label} · offline verfügbar`,offline:true};return{...value,offline:false}}
 function planningTraceMarkup(entry={}){
  const metadata=entry.metadata||{},trace=metadata.planningTrace,trust=trustForEntry(entry,false),facts=metadata.providerFacts||{};
  if(!trace?.traceId){
@@ -6040,16 +6271,16 @@ function derive(id,memberRows=[]){
       proposals.set(pid,{id:pid,trip_id:clean(row.trip_id||id),proposed_by:clean(row.actor_user_id),place_snapshot:clone(meta.placeSnapshot||{}),planned_at:meta.plannedAt,duration_minutes:Number(meta.durationMinutes)||75,transfer_minutes:Number(meta.transferMinutes)||0,decision_mode:clean(meta.policy?.mode)||'vote',expires_at:meta.expiresAt,created_at:row.created_at,application_status:'idle',trip_place_id:null,_events:[row],_votes:new Map(),member_count:Number(meta.memberCount)||memberRows.length||1,policy:meta.policy||null});continue;
     }
     const proposal=proposals.get(pid);if(!proposal)continue;proposal._events.push(row);
-    if(row.event_type===EVENT.vote)proposal._votes.set(clean(row.actor_user_id),{user_id:clean(row.actor_user_id),vote:meta.vote===true,updated_at:row.created_at,actor_name:row.actor_name});
+    if(row.event_type===EVENT.vote)proposal._votes.set(clean(row.actor_user_id),{user_id:clean(row.actor_user_id),vote:meta.vote===null?null:meta.vote===true,updated_at:row.created_at,actor_name:row.actor_name});
     if(row.event_type===EVENT.applying)proposal.application_status='applying';
     if(row.event_type===EVENT.applied){proposal.application_status='applied';proposal.trip_place_id=clean(meta.tripPlaceId)||null}
     if(row.event_type===EVENT.failed)proposal.application_status='failed';
     if(row.event_type===EVENT.cancelled)proposal.cancelled=true;
   }
   return [...proposals.values()].map(proposal=>{
-    const votes=[...proposal._votes.values()],yes=votes.filter(row=>row.vote).length,no=votes.filter(row=>!row.vote).length,total=Math.max(1,proposal.member_count,memberRows.length),majority=Math.floor(total/2)+1,expiresAt=new Date(proposal.expires_at).getTime(),expired=Number.isFinite(expiresAt)&&Date.now()>=expiresAt;
+    const votes=[...proposal._votes.values()],yes=votes.filter(row=>row.vote===true).length,no=votes.filter(row=>row.vote===false).length,abstain=votes.filter(row=>row.vote===null).length,total=Math.max(1,proposal.member_count,memberRows.length),majority=Math.floor(total/2)+1,expiresAt=new Date(proposal.expires_at).getTime(),expired=Number.isFinite(expiresAt)&&Date.now()>=expiresAt;
     const status=proposal.cancelled?'cancelled':proposal.application_status==='applied'?'applied':proposal.decision_mode==='owner_decides'||yes>=majority?'approved':no>=majority||expired?'rejected':'pending';
-    return Object.freeze({...proposal,status,journey_place_proposal_votes:votes,yes_votes:yes,no_votes:no,required_votes:majority,member_count:total,expired,placeSnapshot:proposal.place_snapshot,plannedAt:proposal.planned_at,durationMinutes:proposal.duration_minutes,transferMinutes:proposal.transfer_minutes});
+    return Object.freeze({...proposal,status,journey_place_proposal_votes:votes,yes_votes:yes,no_votes:no,abstain_votes:abstain,required_votes:majority,member_count:total,expired,placeSnapshot:proposal.place_snapshot,plannedAt:proposal.planned_at,durationMinutes:proposal.duration_minutes,transferMinutes:proposal.transfer_minutes});
   }).sort((left,right)=>String(left.planned_at).localeCompare(String(right.planned_at)));
 }
 async function list(id=tripId(),options={}){
@@ -6069,7 +6300,8 @@ async function create(input={}){
 }
 async function vote(pid,value,id=tripId()){
   const proposal=(await list(id,{openOnly:false})).find(row=>row.id===pid);if(!proposal)throw new Error('Diese Abstimmung ist nicht mehr verfügbar.');
-  await record(id,EVENT.vote,value?'Für den Place gestimmt':'Gegen den Place gestimmt',{proposalId:pid,vote:Boolean(value)});const next=(await list(id,{openOnly:false})).find(row=>row.id===pid);emit('voted',next);return next;
+  const normalized=value==null?null:Boolean(value),title=normalized===null?'Bei der Abstimmung enthalten':normalized?'Für den Place gestimmt':'Gegen den Place gestimmt';
+  await record(id,EVENT.vote,title,{proposalId:pid,vote:normalized});const next=(await list(id,{openOnly:false})).find(row=>row.id===pid);emit('voted',next);return next;
 }
 async function claim(pid){
   const id=tripId(),uid=await currentUserId(),proposal=(await list(id,{openOnly:false})).find(row=>row.id===pid);
@@ -6095,7 +6327,7 @@ globalThis.LuviaJourneyPlaceProposals=Object.freeze({version:VERSION,decisionPol
 (()=>{
 'use strict';
 
-const VERSION='1.16.0-visible-timeline-action';
+const VERSION='1.17.0-journey-owner-reads';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -6318,7 +6550,7 @@ function currentInput(input={}){
     grant:input.contextGrant||{granted:Boolean(input.positionContext||travelSnapshot.permission==='granted'),precision:'precise'}
   }),positionContext=contextGate?(contextGate.allowed?{latitude:contextGate.context?.coordinates?.lat,longitude:contextGate.context?.coordinates?.lng,observedAt:contextGate.context?.observedAt,source:contextGate.context?.source}:null):rawPosition;
   return{
-    trip,graph,day,targetDate,disruptionRecovery:globalThis.LuviaJourneyResilienceCoreV1?.disruptionRecovery?.({entries:day?.entries||[],disruptions:input.disruptions||snapshot.disruptions||[]})||null,
+    trip,graph,day,targetDate,disruptionRecovery:contracts().journey?.reads?.disruptionRecovery?.({entries:day?.entries||[],disruptions:input.disruptions||snapshot.disruptions||[]})||null,
     startAt:input.startAt||guidance.startAt||gap?.startAt||`${targetDate}T10:00:00`,
     endAt:input.endAt||guidance.endAt||gap?.endAt||null,
     query:clean(input.query||guidance.query||'Ein passender gemeinsamer Reisemoment'),
@@ -6444,7 +6676,7 @@ async function load(rawInput={},options={}){
    const personallyRanked=await rankForTravelers(enriched,input.groupContext,input,{useAI:!fast});
    const choices=diversify(personallyRanked,count);
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
-   const digitalTwin=globalThis.LuviaJourneyResilienceCoreV1?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
+   const digitalTwin=contracts().journey?.reads?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
    const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:'',attempts:responses.length,successfulAttempts:successful.length};
   cache.set(key,result);return result;
 }
@@ -6515,7 +6747,7 @@ function routeBuffer(input={}){return Math.max(5,Math.min(20,Number(input.planni
 function transferBetween(left,right,input={},reference='timeline'){
   const meters=distanceBetween(left,right),fallbackBuffer=routeBuffer(input),origin=clean(left?.name||left?.title),distanceReference=reference==='selection'?'previous-selected-place':'previous-timeline-place',prefix=origin?`Von „${origin}“`:(reference==='selection'?'Vom zuvor gewählten Ort':'Vom vorherigen Timeline-Ort');
   const travelMinutes=Number.isFinite(meters)?Math.max(8,Math.ceil((meters/1000)/4.5*60/5)*5):20,weatherRisk=Number(input.weather?.precipitationProbability??input.weather?.rainProbability??0)/100;
-  const uncertainty=globalThis.LuviaJourneyResilienceCoreV1?.routeUncertainty?.({baseMinutes:travelMinutes,travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence:Number.isFinite(meters)?[{source:'places.coordinates',kind:'air-distance',observedAt:new Date().toISOString()}]:[]})||null;
+  const uncertainty=contracts().journey?.reads?.routeUncertainty?.({baseMinutes:travelMinutes,travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence:Number.isFinite(meters)?[{source:'places.coordinates',kind:'air-distance',observedAt:new Date().toISOString()}]:[]})||null;
   const rawBuffer=Math.max(fallbackBuffer,uncertainty?.recommendedBufferMinutes||0),buffer=Math.min(20,rawBuffer),minutes=travelMinutes+buffer;
   if(!Number.isFinite(meters))return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:null,distanceReference,label:`${prefix}: Weg noch zu prüfen · ${buffer} Min. realistischer Ankunfts-/Orientierungspuffer`,verified:false,uncertainty};
   const km=meters/1000;return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:Math.round(meters),distanceReference,label:`${prefix}: ${km.toFixed(1).replace('.',',')} km Luftlinie · ${travelMinutes} Min. Wegeansatz + ${buffer} Min. belastbarer Puffer`,verified:true,uncertainty};
@@ -6588,7 +6820,7 @@ function liveDayBalance(schedule,input){
   if(food>2)return`Tagesbalance: ${food} Genussmomente – Luvia würde höchstens einen davon durch Abwechslung ersetzen.`;
   if(active>360&&rest<90)return'Tagesbalance: mehr als sechs aktive Stunden – ein einziger ruhiger Moment würde den Tag ausgleichen.';
   if(planned>600)return`Tagesbalance: ${Math.round(planned/60*10)/10} Stunden Programm – der Tag ist für ein entspanntes Reisetempo zu dicht.`;
-  const rehearsal=globalThis.LuviaJourneyResilienceCoreV1?.rehearseDay?.({travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',weatherRisk:Number(input.weather?.precipitationProbability??0)/100,entries:[...existing,...schedule.map(item=>({id:providerId(item.place),startAt:item.plannedAt,endAt:item.endsAt,durationMinutes:item.durationMinutes,transferMinutes:item.transferMinutes,routeConfidence:item.routeUncertainty?.confidence!=null?item.routeUncertainty.confidence/100:null,routeEvidence:item.routeUncertainty?.evidence||[]}))]});
+  const rehearsal=contracts().journey?.reads?.rehearseDay?.({travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',weatherRisk:Number(input.weather?.precipitationProbability??0)/100,entries:[...existing,...schedule.map(item=>({id:providerId(item.place),startAt:item.plannedAt,endAt:item.endsAt,durationMinutes:item.durationMinutes,transferMinutes:item.transferMinutes,routeConfidence:item.routeUncertainty?.confidence!=null?item.routeUncertainty.confidence/100:null,routeEvidence:item.routeUncertainty?.evidence||[]}))]});
   if(rehearsal?.status==='blocked')return'Tagesbalance: Die Generalprobe erkennt einen Zeit- oder Wegkonflikt – zuerst diesen einen Engpass lösen.';
   return'';
 }
@@ -7145,6 +7377,82 @@ async function readiness(providerId=null){
   const {data,error}=await q;if(error)throw error;return data||[];
 }
 window.LuviaBookingAvailability=Object.freeze({version:VERSION,check,readiness,normalizeInput});
+})();
+
+;
+
+/* ===== core/booking/booking-draft-core.js ===== */
+var LuviaBookingDraftCoreV1=(()=>{
+'use strict';
+
+const VERSION='1.0.0';
+const FIELDS=Object.freeze(['date','time','partySize','occasion','note','contact','route']);
+const clean=value=>String(value??'').trim();
+function immutable(value){
+  if(value==null||typeof value!=='object')return value;
+  if(Array.isArray(value))return Object.freeze(value.map(immutable));
+  return Object.freeze(Object.fromEntries(Object.entries(value).map(([key,item])=>[key,immutable(item)])));
+}
+function fail(code,message){throw Object.assign(new Error(message),{code})}
+function date(value){const result=clean(value);if(result&&!/^\d{4}-\d{2}-\d{2}$/.test(result))fail('BOOKING_DRAFT_DATE_INVALID','Datum muss im Format JJJJ-MM-TT vorliegen.');return result||null}
+function time(value){const result=clean(value);if(result&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(result))fail('BOOKING_DRAFT_TIME_INVALID','Uhrzeit muss im Format HH:MM vorliegen.');return result||null}
+function partySize(value){if(value==null||value==='')return null;const result=Number(value);if(!Number.isInteger(result)||result<1||result>1000)fail('BOOKING_DRAFT_PARTY_SIZE_INVALID','Personenzahl muss zwischen 1 und 1000 liegen.');return result}
+function shortText(value,max,code,label){const result=clean(value);if(result.length>max)fail(code,`${label} ist zu lang.`);return result||null}
+function contact(value){
+  if(value==null||value==='')return null;
+  const input=typeof value==='string'?{email:value}:value;
+  if(!input||typeof input!=='object'||Array.isArray(input))fail('BOOKING_DRAFT_CONTACT_INVALID','Kontaktdaten sind ungültig.');
+  const email=clean(input.email).toLowerCase(),phone=clean(input.phone),name=clean(input.name);
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail('BOOKING_DRAFT_CONTACT_INVALID','E-Mail-Adresse ist ungültig.');
+  if(!email&&!phone)fail('BOOKING_DRAFT_CONTACT_REQUIRED','E-Mail-Adresse oder Telefonnummer fehlt.');
+  return immutable({name:name.slice(0,120),email,phone:phone.slice(0,60)});
+}
+function route(value){
+  if(value==null||value==='')return null;
+  const input=typeof value==='string'?{channel:value}:value;
+  if(!input||typeof input!=='object'||Array.isArray(input))fail('BOOKING_DRAFT_ROUTE_INVALID','Buchungsweg ist ungültig.');
+  const channel=clean(input.channel||input.type),provider=clean(input.provider),url=clean(input.url||input.value);
+  if(!channel&&!provider&&!url)fail('BOOKING_DRAFT_ROUTE_REQUIRED','Ein konkreter Buchungsweg fehlt.');
+  if(url&&!/^https?:\/\//i.test(url))fail('BOOKING_DRAFT_ROUTE_URL_INVALID','Externer Buchungsweg muss eine sichere Webadresse sein.');
+  return immutable({channel:channel.slice(0,80),provider:provider.slice(0,80),url:url.slice(0,2000),providerReference:clean(input.providerReference).slice(0,200)});
+}
+function normalizeField(field,value){
+  if(field==='date')return date(value);
+  if(field==='time')return time(value);
+  if(field==='partySize')return partySize(value);
+  if(field==='occasion')return shortText(value,160,'BOOKING_DRAFT_OCCASION_INVALID','Anlass');
+  if(field==='note')return shortText(value,2000,'BOOKING_DRAFT_NOTE_INVALID','Notiz');
+  if(field==='contact')return contact(value);
+  if(field==='route')return route(value);
+  fail('BOOKING_DRAFT_FIELD_INVALID',`Unbekanntes Buchungsfeld: ${field}`);
+}
+function createDraft(input={}){
+  const result={};
+  for(const field of FIELDS)result[field]=normalizeField(field,input[field]);
+  return immutable(result);
+}
+function updateDraft(current={},patch={}){
+  if(!patch||typeof patch!=='object'||Array.isArray(patch))fail('BOOKING_DRAFT_PATCH_INVALID','Buchungsänderung ist ungültig.');
+  const unknown=Object.keys(patch).filter(field=>!FIELDS.includes(field));
+  if(unknown.length)fail('BOOKING_DRAFT_FIELD_INVALID',`Unbekannte Buchungsfelder: ${unknown.join(', ')}`);
+  const next={...createDraft(current)};
+  for(const [field,value] of Object.entries(patch))next[field]=normalizeField(field,value);
+  return immutable(next);
+}
+function validateDraft(input={},required=['date','time','partySize']){
+  const draft=createDraft(input),missing=(required||[]).filter(field=>FIELDS.includes(field)&&draft[field]==null);
+  return immutable({valid:missing.length===0,missing,draft});
+}
+function selectRoute(current={},value){return updateDraft(current,{route:value})}
+function composeMessageDraft(input={}){
+  const bookingId=clean(input.bookingId||input.id),bodyText=clean(input.bodyText||input.message);
+  if(!bookingId)fail('BOOKING_MESSAGE_BOOKING_REQUIRED','Booking-ID fehlt.');
+  if(!bodyText)fail('BOOKING_MESSAGE_BODY_REQUIRED','Nachricht darf nicht leer sein.');
+  if(bodyText.length>4000)fail('BOOKING_MESSAGE_BODY_INVALID','Nachricht ist zu lang.');
+  return immutable({bookingId,bodyText,action:clean(input.action)||null,intelligenceId:clean(input.intelligenceId)||null,state:'draft',stateChanging:false});
+}
+function diagnostics(){return immutable({version:VERSION,browserless:true,fields:FIELDS,messageSending:false});}
+return Object.freeze({version:VERSION,fields:FIELDS,createDraft,updateDraft,validateDraft,selectRoute,composeMessageDraft,diagnostics});
 })();
 
 ;
@@ -9247,11 +9555,15 @@ const api=Object.freeze({version:VERSION,service,configure,create,listForTrip,tr
 
 const CONTRACT_ID='booking.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.2.0-owner-action-bundle';
 
 function unavailable(provider){const error=new Error(`Booking Contract v1: ${provider} ist nicht verfügbar.`);error.code='BOOKING_CONTRACT_PROVIDER_UNAVAILABLE';error.provider=provider;throw error}
 function runtime(){const api=globalThis.LuviaBooking;if(!api)unavailable('LuviaBooking');return api}
 function ui(){const api=globalThis.LuviaBookingUI;if(typeof api?.openForPlace!=='function')unavailable('LuviaBookingUI.openForPlace');return api}
+function draftCore(){const api=globalThis.LuviaBookingDraftCoreV1;if(!api)unavailable('LuviaBookingDraftCoreV1');return api}
+function availability(){const api=globalThis.LuviaBookingAvailability;if(typeof api?.check!=='function')unavailable('LuviaBookingAvailability');return api}
+function recovery(){const api=globalThis.LuviaBookingReservationRecovery;if(typeof api?.reconcile!=='function')unavailable('LuviaBookingReservationRecovery');return api}
+function externalNavigation(){const api=globalThis.LuviaPlatformPorts?.get?.('ExternalNavigationPort');if(typeof api?.open!=='function')unavailable('ExternalNavigationPort');return api}
 function immutable(value){
   if(value==null||typeof value!=='object')return value;
   if(Array.isArray(value))return Object.freeze(value.map(immutable));
@@ -9279,6 +9591,13 @@ async function conversation(bookingId){return immutable(await runtime().conversa
 async function messages(bookingId){return immutable(await runtime().messages(clean(bookingId)))}
 async function bookingTimeline(bookingId){return immutable(await runtime().bookingTimeline(clean(bookingId)))}
 async function providerCapabilities(){return immutable(await runtime().providerCapabilities())}
+async function conversationPreferences(bookingIds=[]){return immutable(await runtime().conversationPreferences((bookingIds||[]).map(clean).filter(Boolean)))}
+async function checkAvailability(input={}){return immutable(await availability().check(input))}
+async function resolveChannel(input={}){
+  const bookingId=clean(input.bookingId||input.id);
+  return immutable(bookingId?await runtime().resolveRoute(bookingId):await runtime().resolvePlaceRoute(input.place||input));
+}
+async function reconcileUnknownOutcome(input={}){return immutable(await recovery().reconcile(input))}
 
 async function createForPlace(input={}){return immutable(await runtime().createForPlace(input))}
 async function reply(bookingId,input={}){return immutable(await runtime().reply(clean(bookingId),input))}
@@ -9286,18 +9605,48 @@ async function performIntelligenceAction(bookingId,input={}){return immutable(aw
 async function modifyBooking(bookingId,input={}){return immutable(await runtime().modifyBooking(clean(bookingId),input))}
 async function cancelBooking(bookingId,input={}){return immutable(await runtime().cancelBooking(clean(bookingId),input))}
 async function setConversationPreference(bookingId,action,value){return immutable(await runtime().setConversationPreference(clean(bookingId),clean(action),value))}
+async function updateContact(bookingId,email){return immutable(await runtime().updateContact(clean(bookingId),clean(email)))}
+async function reconcileTripReturns(tripId){return immutable(await runtime().reconcileTripReturns(clean(tripId)))}
 async function openPlaceBooking(place={},options={}){
   const result=await ui().openForPlace(placeProjection(place),{...options,reserveExternalWindow:options.reserveExternalWindow!==false});
   return immutable({opened:result?.opened===true,channel:clean(result?.channel)||'owner_dialog',provider:clean(result?.provider)||null,owner:'booking',contractId:CONTRACT_ID});
 }
+function createDraft(input={}){return draftCore().createDraft(input)}
+function updateDraft(current={},patch={}){return draftCore().updateDraft(current,patch)}
+function validateDraft(input={},required){return draftCore().validateDraft(input,required)}
+function selectRoute(current={},route){return draftCore().selectRoute(current,route)}
+function composeMessageDraft(input={}){return draftCore().composeMessageDraft(input)}
+async function openRoute(input={}){
+  const bookingId=clean(input.bookingId||input.id),route=input.route||await resolveChannel(input),url=clean(route?.url||route?.value||input.url);
+  if(!url)throw Object.assign(new Error('Booking Contract v1: kein verifizierter Buchungsweg verfügbar.'),{code:'BOOKING_ROUTE_UNAVAILABLE'});
+  const opened=await externalNavigation().open(url);
+  if(bookingId&&typeof runtime().recordHandoff==='function')await runtime().recordHandoff(bookingId,{provider:route?.provider||route?.channel||'official',url,providerReference:route?.providerReference||null,metadata:{source:'booking.v1.openRoute'}});
+  return immutable({opened:opened!==false,url,bookingId:bookingId||null,provider:clean(route?.provider||route?.channel)||null,owner:'booking',contractId:CONTRACT_ID});
+}
+async function openExternalHandoff(input={}){
+  const place=placeProjection(input.place||input),route=input.route||await runtime().resolvePlaceRoute(place),result=await openRoute({route,place});
+  if(typeof runtime().recordPlaceHandoff==='function')await runtime().recordPlaceHandoff(place,route);
+  return immutable({...result,providerPlaceId:place.providerPlaceId});
+}
+async function retryRecovery(input={}){
+  const action=clean(input.action).toLowerCase(),bookingId=clean(input.bookingId||input.booking_id),idempotencyKey=clean(input.idempotencyKey||input.idempotency_key);
+  if(!bookingId||!idempotencyKey||!['modify','cancel'].includes(action))throw Object.assign(new Error('Booking Contract v1: Booking-ID, Aktion und Idempotency-Key fehlen.'),{code:'BOOKING_RETRY_INPUT_INVALID'});
+  const payload={...input,idempotencyKey};
+  return immutable(action==='cancel'?await runtime().cancelBooking(bookingId,payload):await runtime().modifyBooking(bookingId,payload));
+}
+async function resolveThread(input={}){
+  const bookingId=clean(input.bookingId||input.id);if(!bookingId)throw Object.assign(new Error('Booking Contract v1: Booking-ID fehlt.'),{code:'BOOKING_ID_REQUIRED'});
+  return immutable(await runtime().setConversationPreference(bookingId,'resolved',input.resolved===false?null:(input.at||new Date().toISOString())));
+}
 
-const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities});
-const commands=Object.freeze({createForPlace,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,openPlaceBooking});
+const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,checkAvailability,resolveChannel,reconcileUnknownOutcome});
+const composition=Object.freeze({createDraft,updateDraft,validateDraft,selectRoute,composeMessageDraft});
+const commands=Object.freeze({createForPlace,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,retryRecovery,resolveThread});
 const api=Object.freeze({
-  contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,commands,
+  contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,composition,commands,
   events:Object.freeze(['booking.changed','booking.created','booking.status.changed','booking.message.changed','booking.provider.selected']),
-  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,createForPlace,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,openPlaceBooking,placeProjection,
-  diagnostics:()=>Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,ready:Boolean(globalThis.LuviaBooking&&globalThis.LuviaBookingUI?.openForPlace),providers:Object.freeze({runtime:Boolean(globalThis.LuviaBooking),ownerFlow:Boolean(globalThis.LuviaBookingUI?.openForPlace)}),ownership:Object.freeze({bookingTruth:true,intelligenceTruth:false,foreignDomainMutation:false})})
+  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,createForPlace,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,placeProjection,
+  diagnostics:()=>Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,ready:Boolean(globalThis.LuviaBooking&&globalThis.LuviaBookingUI?.openForPlace&&globalThis.LuviaBookingDraftCoreV1),providers:Object.freeze({runtime:Boolean(globalThis.LuviaBooking),ownerFlow:Boolean(globalThis.LuviaBookingUI?.openForPlace),draftCore:Boolean(globalThis.LuviaBookingDraftCoreV1),availability:Boolean(globalThis.LuviaBookingAvailability),recovery:Boolean(globalThis.LuviaBookingReservationRecovery)}),ownership:Object.freeze({bookingTruth:true,intelligenceTruth:false,foreignDomainMutation:false})})
 });
 
 globalThis.LuviaBookingContractV1=api;
@@ -11863,6 +12212,792 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 
 ;
 
+/* ===== core/intelligence/human-ai-language-compiler-core.js ===== */
+var LuviaHumanAILanguageCompilerCoreV1=(()=>{
+'use strict';
+
+const VERSION='1.0.0';
+const CONTRACT_ID='intelligence.human-ai-language-compiler.v1';
+const TYPO_WORDS=Object.freeze({
+  timline:'timeline',timelinee:'timeline',zeitliene:'timeline',resturant:'restaurant',resteraunt:'restaurant',
+  etaurant:'restaurant',buhcen:'buchen',buchn:'buchen',resavieren:'reservieren',reserviern:'reservieren',
+  eintragn:'eintragen',eintagen:'eintragen',hinzufugen:'hinzufügen',loschen:'löschen',andern:'ändern',
+  offnen:'öffnen',schliesen:'schließen',zuruck:'zurück',favoritn:'favoriten',favourit:'favorite',
+  preferenzen:'präferenzen',benachrichtigungn:'benachrichtigungen',ur:'uhr',uhrzeit:'uhr'
+});
+const NUMBER_WORDS=Object.freeze({
+  ein:1,eine:1,einen:1,einer:1,eins:1,one:1,zwei:2,two:2,drei:3,three:3,vier:4,four:4,
+  fünf:5,fuenf:5,five:5,sechs:6,six:6,sieben:7,seven:7,acht:8,eight:8,neun:9,nine:9,
+  zehn:10,ten:10,elf:11,eleven:11,zwölf:12,zwoelf:12,twelve:12
+});
+const ACTION_ID=/^[a-z0-9]+(?:[.-][a-z0-9]+)+$/;
+const CATALOG_CACHE=new WeakMap();
+
+function immutable(value){if(value==null||typeof value!=='object')return value;if(Array.isArray(value))return Object.freeze(value.map(immutable));return Object.freeze(Object.fromEntries(Object.entries(value).map(([key,item])=>[key,immutable(item)])))}
+function clean(value){return String(value??'').trim()}
+function escapeRegExp(value){return String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+function stripMarks(value){return String(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'')}
+function normalize(value){
+  return stripMarks(clean(value).toLowerCase())
+    .replace(/[’`´]/g,"'")
+    .replace(/[^a-z0-9äöüß:'/.+\-\s]/gi,' ')
+    .replace(/\b[\p{L}]+\b/gu,word=>TYPO_WORDS[word]||word)
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function rule(actionId,group,pattern,options={}){
+  if(!ACTION_ID.test(actionId))throw new TypeError(`Invalid semantic action id: ${actionId}`);
+  return Object.freeze({actionId,group,pattern,priority:Number(options.priority||60),locales:Object.freeze(options.locales||['de','en']),entityHints:Object.freeze(options.entityHints||[])});
+}
+
+const RULES=Object.freeze([
+  // Navigation and chat controls
+  rule('navigation.today.open','navigation',/\b(?:heute|today)(?:\s+(?:offnen|anzeigen|zeigen|open|show))?\b/,{priority:66}),
+  rule('navigation.plan.open','navigation',/\b(?:planung|planen|living compass|planner)(?:\s+(?:offnen|anzeigen|open|show))?\b/),
+  rule('navigation.trip.open','navigation',/\b(?:reise|trip)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.memories.open','navigation',/\b(?:erinnerungen|memories)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.places.open','navigation',/\b(?:places|orte|entdeckungen)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.timeline.open','navigation',/\b(?:timeline|tagesplan)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.gallery.open','navigation',/\b(?:galerie|gallery)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.bookings.open','navigation',/\b(?:buchungen|reservierungen|bookings)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.control-center.open','navigation',/\b(?:control center|kontrollzentrum)(?:\s+(?:offnen|anzeigen|open|show))\b/),
+  rule('navigation.hist'+'ory.back','navigation-history',/\b(?:zuruck|zurück|back|vorherige seite)\b/),
+  rule('navigation.hist'+'ory.forward','navigation-history',/\b(?:vorwarts|vorwärts|forward|nachste seite|nächste seite)\b/),
+  rule('ui.sheet.close','presentation',/\b(?:sheet|fenster|dialog|detail)(?:\s+(?:schliessen|schließen|zumachen|close))\b/),
+  rule('ui.section.expand','presentation',/\b(?:mehr details|begrundung anzeigen|begründung anzeigen|aufklappen|expand)\b/),
+  rule('ui.section.collapse','presentation',/\b(?:weniger details|zuklappen|collapse)\b/),
+  rule('ui.list.more','presentation',/\b(?:mehr|weitere)(?:\s+(?:ergebnisse|optionen|results|options))(?:\s+(?:laden|anzeigen|load|show))?\b/),
+  rule('ui.retry','retry',/\b(?:noch einmal versuchen|erneut versuchen|retry|try again)\b/),
+  rule('ui.refresh','refresh',/\b(?:aktualisieren|refresh|reload|neu laden)\b/),
+  rule('ai.chat.action.preview','chat-action',/\b(?:vorschau|preview)(?:\s+(?:anzeigen|offnen|open|show))?\b/),
+  rule('ai.chat.action.confirm','chat-action',/\b(?:bestatigen|bestätigen|ja ausfuhren|ja ausführen|confirm|go ahead)\b/),
+  rule('ai.chat.action.cancel','chat-action',/\b(?:aktion abbrechen|verwerfen|cancel action|discard)\b/),
+  rule('ai.chat.action.undo','undo',/\b(?:ruckgangig|rückgängig|undo|mach das zuruck|mach das zurück)\b/),
+
+  // Access and account
+  rule('auth.mode.login','auth-mode',/\b(?:anmelden|einloggen|log ?in|sign ?in)\b/),
+  rule('auth.mode.register','auth-mode',/\b(?:registrieren|konto erstellen|sign ?up|register)\b/),
+  rule('auth.oauth.google.sign-in','auth-provider',/\b(?:mit google anmelden|google log ?in|sign in with google)\b/,{priority:80}),
+  rule('auth.oauth.apple.sign-in','auth-provider',/\b(?:mit apple anmelden|apple log ?in|sign in with apple)\b/,{priority:80}),
+  rule('auth.password.reset.request','auth-password',/\b(?:passwort vergessen|passwort zurucksetzen|passwort zurücksetzen|forgot password|reset password)\b/),
+  rule('auth.password.update','auth-password',/\b(?:passwort andern|passwort ändern|change password|update password)\b/),
+  rule('auth.session.sign-out','auth-session',/\b(?:abmelden|ausloggen|log ?out|sign ?out)\b/),
+
+  // Identity and settings
+  rule('identity.preferences.read','identity-preferences',/\b(?:(?:meine|gespeicherte) (?:vorlieben|praferenzen|präferenzen)|my preferences)(?:\s+(?:anzeigen|zeigen|show))?\b/),
+  rule('identity.preferences.diet.update','identity-preference-write',/\b(?:ernahrung|ernährung|vegetarisch|vegan|allergie|diet(?:ary)?)(?:\s+(?:andern|ändern|setzen|update|change))?\b/,{entityHints:['preferenceValues']}),
+  rule('identity.preferences.interests.update','identity-preference-write',/\b(?:interessen|interests)(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['preferenceValues']}),
+  rule('identity.preferences.pace.update','identity-preference-write',/\b(?:reisetempo|tempo|travel pace)(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['preferenceValues']}),
+  rule('identity.preferences.budget.update','identity-preference-write',/\b(?:budget|preisniveau)(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['preferenceValues']}),
+  rule('identity.preferences.accessibility.update','identity-preference-write',/\b(?:barrierefreiheit|rollstuhl|accessibility|wheelchair)(?:\s+(?:andern|ändern|setzen|update|change))?\b/,{entityHints:['preferenceValues']}),
+  rule('identity.preferences.family.update','identity-preference-write',/\b(?:familienkontext|familienprofil|family context)(?:\s+(?:andern|ändern|setzen|update|change))\b/),
+  rule('identity.profile.display-name.update','identity-profile',/\b(?:anzeigename|display name)(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['value']}),
+  rule('identity.profile.home-'+'location.update','identity-profile',/\b(?:heimatort|home loca(?:tion))(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['location']}),
+  rule('identity.profile.language.update','identity-profile',/\b(?:profilsprache|profile language)(?:\s+(?:andern|ändern|setzen|update|change))\b/,{entityHints:['locale']}),
+  rule('identity.profile.export','identity-export',/\b(?:profil|meine daten|profile data)(?:\s+(?:exportieren|herunterladen|export|download))\b/),
+  rule('settings.theme.update','settings',/\b(?:theme|darstellung|hellmodus|dunkelmodus|dark mode|light mode)(?:\s+(?:andern|ändern|setzen|einschalten|update|change|enable))?\b/),
+  rule('settings.reduced-motion.update','settings',/\b(?:reduzierte animation|weniger bewegung|reduced motion)(?:\s+(?:einschalten|ausschalten|enable|disable))?\b/),
+  rule('settings.notifications.update','settings',/\b(?:benachrichtigungen|notifications)(?:\s+(?:einschalten|ausschalten|aktivieren|deaktivieren|enable|disable))\b/),
+  rule('settings.location-sharing.update','settings',/\b(?:standortfreigabe|loca(?:tion) sharing)(?:\s+(?:einschalten|ausschalten|aktivieren|deaktivieren|enable|disable))\b/),
+
+  // Trips and collaboration
+  rule('trip.list','trip-read',/\b(?:meine reisen|reisen auflisten|list (?:my )?trips|show (?:my )?trips)\b/),
+  rule('trip.active.select','trip-select',/\b(?:reise wechseln|andere reise aktivieren|switch trip|select trip)\b/,{entityHints:['tripRef']}),
+  rule('trip.create','trip-write',/\b(?:reise|trip)(?:\s+(?:erstellen|anlegen|create|start))\b/,{entityHints:['destination','dateRange','participants']}),
+  rule('trip.details.title.update','trip-write',/\b(?:reisename|reisetitel|trip name|trip title)(?:\s+(?:andern|ändern|umbenennen|set|change|rename))\b/,{entityHints:['value']}),
+  rule('trip.details.destination.update','trip-write',/\b(?:reiseziel|destination)(?:\s+(?:andern|ändern|setzen|change|update))\b/,{entityHints:['destination']}),
+  rule('trip.details.dates.update','trip-write',/\b(?:reisedaten|reisezeitraum|trip dates)(?:\s+(?:andern|ändern|setzen|change|update))\b/,{entityHints:['dateRange']}),
+  rule('trip.archive','trip-lifecycle',/\b(?:reise|trip)(?:\s+(?:archivieren|archive))\b/),
+  rule('trip.restore','trip-lifecycle',/\b(?:reise|trip)(?:\s+(?:wiederherstellen|restore))\b/),
+  rule('trip.invite.code.copy','trip-share',/\b(?:einladungscode|invite code)(?:\s+(?:kopieren|copy))\b/,{entityHints:['code']}),
+  rule('trip.invite.link.copy','trip-share',/\b(?:einladungslink|reise-?link|invite link|trip link)(?:\s+(?:kopieren|copy))\b/,{entityHints:['url']}),
+  rule('trip.invite.native-share','trip-share',/\b(?:reise|trip|einladung|invite)(?:\s+(?:teilen|share))\b/),
+  rule('trip.invite.email','trip-share',/\b(?:einladung|invite)(?:\s+(?:per|via|mit) )?(?:e-?mail|email)(?:\s+(?:senden|send))?\b/,{entityHints:['email']}),
+  rule('trip.invite.whatsapp','trip-share',/\b(?:einladung|invite)(?:\s+(?:per|via|mit) )?whatsapp(?:\s+(?:senden|send))?\b/),
+  rule('trip.join.code.enter','trip-join',/\b(?:reise|trip)(?:\s+(?:mit code )?(?:beitreten|join))\b/,{entityHints:['code']}),
+  rule('trip.join.accept','trip-join',/\b(?:beitritt|einladung|join request)(?:\s+(?:annehmen|accept))\b/),
+
+  // Places and discovery
+  rule('places.restaurant.search','places-search',/\b(?:restaurant|lokal|essen gehen|dinner|lunch|breakfast|brunch)(?:s|e|en)?\b.*\b(?:finden|finde|suchen|suche|find|search|recommend|empfiehl)|\b(?:finden|finde|suchen|suche|find|search|recommend|empfiehl)\b.*\b(?:restaurant|lokal|dinner|lunch|brunch)(?:s|e|en)?\b/,{priority:82,entityHints:['query','location','spatialConstraints','date','time','partySize']}),
+  rule('places.discovery.search','places-search',/\b(?:finden|finde|suchen|suche|entdecken|find|search|discover|show me)\b.*\b(?:ort|place|aktivitat|aktivität|activity|ausflug|museum|minigolf|strand|beach|shop|cafe|café|bar)\b|\b(?:minigolf|museum|aktivitat|aktivität|activity|ausflug|shop|cafe|café|bar)\b.*\b(?:finden|finde|suchen|suche|find|search)\b/,{priority:72,entityHints:['query','location','spatialConstraints','date','time']}),
+  rule('places.filter.open-now','places-filter',/\b(?:jetzt geoffnet|jetzt geöffnet|open now|currently open)\b/),
+  rule('places.filter.rating','places-filter',/\b(?:mindestens|ab|minimum)\s*\d(?:[,.]\d)?\s*(?:sterne?|stars?|bewertung)|\b(?:bestbewertet|top rated)\b/,{entityHints:['rating']}),
+  rule('places.filter.vegetarian','places-filter',/\b(?:vegetarisch|vegetarian|vegan)\b/),
+  rule('places.filter.reset','places-filter-reset',/\b(?:filter zurucksetzen|filter zurücksetzen|reset filters|clear filters)\b/),
+  rule('places.results.more','places-results',/\b(?:mehr|weitere)\s+(?:orte|places|ergebnisse|results|vorschlage|vorschläge|suggestions)\b/),
+  rule('places.results.refresh','places-results',/\b(?:orte|places|ergebnisse|results)\s+(?:aktualisieren|refresh|neu laden|reload)\b/),
+  rule('places.location.enable','places-position',/\b(?:standort|loca(?:tion)|gps)(?:\s+(?:erlauben|freigeben|aktivieren|enable|allow))\b/),
+  rule('places.view.map','places-view',/\b(?:auf der karte|kartenansicht|show (?:it|them) on (?:the )?map|map view)\b/),
+  rule('places.view.list','places-view',/\b(?:als liste|listenansicht|list view|show as list)\b/),
+  rule('places.detail.open','places-detail',/\b(?:ort|place|restaurant|ergebnis)(?:\s+(?:details?|detailkarte))?(?:\s+(?:offnen|öffnen|anzeigen|open|show))\b/),
+  rule('places.detail.website.open','places-external',/\b(?:webseite|website)(?:\s+(?:offnen|öffnen|open|visit))\b/),
+  rule('places.detail.phone.call','places-external',/\b(?:anrufen|telefonieren|call (?:the )?(?:place|restaurant)|phone (?:the )?(?:place|restaurant))\b/,{entityHints:['phone']}),
+  rule('places.detail.maps.open','places-external',/\b(?:in google maps|in maps|route zum ort|directions to (?:the )?place)(?:\s+(?:offnen|öffnen|open))?\b/),
+  rule('places.favorite','places-favorite',/\b(?:als favorit(?:en)? (?:merken|markieren|speichern)|zu favoriten|save (?:it|this|place)? ?as favou?rite|add to favou?rites?)\b/),
+  rule('places.unfavorite','places-favorite',/\b(?:aus favoriten (?:entfernen|loschen|löschen)|favorit(?:en)? entfernen|remove from favou?rites?|unfavou?rite)\b/,{priority:85}),
+  rule('places.plan','places-plan',/\b(?:zur|in die|meiner?)\s+(?:timeline|tagesplan)(?:\s+(?:hinzufugen|hinzufügen|eintragen|planen))\b|\b(?:add|put|schedule|plan)\b.*\b(?:timeline|day plan|itinerary)\b/,{priority:84,entityHints:['placeRef','date','time','duration']}),
+  rule('places.unplan','places-plan',/\b(?:aus|von)\s+(?:der )?(?:timeline|tagesplan)\s+(?:entfernen|loschen|löschen)|\bremove\b.*\b(?:timeline|day plan|itinerary)\b/,{priority:88}),
+
+  // Journey and day planning
+  rule('journey.day.read','journey-read',/\b(?:tagesplan|timeline|day plan|itinerary)(?:\s+(?:lesen|anzeigen|zeigen|show|read))\b/),
+  rule('journey.conflicts.read','journey-read',/\b(?:zeitkonflikte|uberschneidungen|überschneidungen|schedule conflicts|time conflicts)(?:\s+(?:anzeigen|prufen|prüfen|show|check))?\b/),
+  rule('journey.route-uncertainty.read','journey-read',/\b(?:unsichere wegezeit|wegezeit.*unsicher|route uncertainty|uncertain travel time)\b/),
+  rule('journey.day-rehearsal.read','journey-read',/\b(?:tag simulieren|tagesablauf (?:simulieren|durchspielen)|rehearse (?:the )?day|simulate (?:the )?day)\b/),
+  rule('journey.disruption-recovery.read','journey-read',/\b(?:storungen|störungen|ausfalle|ausfälle|disruptions)(?:\s+(?:anzeigen|prufen|prüfen|show|check))?\b/),
+  rule('journey.editor.open','journey-editor',/\b(?:tag|tagesplan|timeline)(?:\s+(?:bearbeiten|edit))\b/),
+  rule('journey.entry.create','journey-write',/\b(?:trage|trag|eintragen|fuge|füge|hinzufugen|hinzufügen|plane|plan)\b.*\b(?:timeline|tagesplan|reiseplan|itinerary|day plan)\b|\b(?:add|put|schedule)\b.*\b(?:timeline|itinerary|day plan)\b/,{priority:86,entityHints:['title','date','time','duration','location']}),
+  rule('journey.entry.title.update','journey-write',/\b(?:titel|name)(?:\s+(?:des reisemoments|vom eintrag|of (?:the )?entry))?(?:\s+(?:andern|ändern|umbenennen|change|rename))\b/,{entityHints:['entryRef','value']}),
+  rule('journey.entry.date.update','journey-write',/\b(?:datum|tag)(?:\s+(?:des reisemoments|vom eintrag|of (?:the )?entry))?(?:\s+(?:andern|ändern|verschieben|change|move))\b/,{entityHints:['entryRef','date']}),
+  rule('journey.entry.time.update','journey-write',/\b(?:uhrzeit|startzeit|endzeit|time)(?:\s+(?:des reisemoments|vom eintrag|of (?:the )?entry))?(?:\s+(?:andern|ändern|verschieben|change|move))\b/,{entityHints:['entryRef','time']}),
+  rule('journey.entry.duration.update','journey-write',/\b(?:dauer|duration)(?:\s+(?:des reisemoments|vom eintrag|of (?:the )?entry))?(?:\s+(?:andern|ändern|change))\b/,{entityHints:['entryRef','duration']}),
+  rule('journey.entry.remove','journey-delete',/\b(?:reisemoment|timeline-?eintrag|entry)(?:\s+(?:loschen|löschen|entfernen|delete|remove))\b/),
+  rule('journey.entries.clear','journey-delete',/\b(?:alle|gefilterte)\s+(?:reisemomente|timeline-?eintrage|timeline-?einträge|entries)(?:\s+(?:loschen|löschen|leeren|delete|clear))\b/,{priority:90}),
+  rule('journey.day.balance','journey-draft',/\b(?:tagesplan|tag)(?:\s+(?:ausbalancieren|optimieren|balance|rebalance))\b/),
+  rule('journey.offline-pack.create','offline-pack',/\b(?:tag|tagesplan|day plan)(?:\s+(?:offline speichern|offline verfugbar|offline verfügbar|save offline|make available offline))\b/),
+  rule('journey.offline-pack.remove','offline-pack',/\b(?:offline-?(?:paket|tagesplan)|offline (?:day )?pack)(?:\s+(?:entfernen|loschen|löschen|remove|delete))\b/),
+  rule('journey.undo','undo',/\b(?:letzte (?:journey-?|timeline-?)?anderung (?:ruckgangig|rückgängig)|undo (?:last )?(?:journey|timeline) change)\b/,{priority:82}),
+  rule('collaboration.proposal.vote-yes','collaboration-vote',/\b(?:fur|für)\s+(?:den )?gruppenvorschlag\s+stimmen|\bvote yes\b/),
+  rule('collaboration.proposal.vote-no','collaboration-vote',/\b(?:gegen)\s+(?:den )?gruppenvorschlag\s+stimmen|\bvote no\b/),
+  rule('collaboration.proposal.abstain','collaboration-vote',/\b(?:bei (?:dem )?gruppenvorschlag enthalten|abstain)\b/),
+
+  // Booking and provider communication
+  rule('booking.availability.read','booking-read',/\b(?:verfugbarkeit|verfügbarkeit|availability)(?:\s+(?:prufen|prüfen|check))?\b/,{entityHints:['placeRef','date','time','partySize']}),
+  rule('booking.reservation.create','booking-write',/\b(?:reserviere|reservieren|buche|buchen|book|reserve)\b.*\b(?:tisch|table|restaurant|platz|reservation|reservierung)\b|\b(?:tisch|table)\b.*\b(?:reserviere|reservieren|buche|buchen|book|reserve)\b/,{priority:90,entityHints:['placeRef','date','time','partySize','occasion','note']}),
+  rule('booking.trip.read','booking-read',/\b(?:meine|unsere|die)\s+(?:buchungen|reservierungen)|\b(?:my|our) bookings\b/),
+  rule('booking.detail.open','booking-detail',/\b(?:buchungsdetails|reservierungsdetails|booking details)(?:\s+(?:offnen|öffnen|anzeigen|open|show))?\b/),
+  rule('booking.modify.date','booking-modify',/\b(?:buchungsdatum|reservierungsdatum|booking date)(?:\s+(?:andern|ändern|verschieben|change|move))\b/,{entityHints:['bookingRef','date']}),
+  rule('booking.modify.time','booking-modify',/\b(?:buchungszeit|reservierungszeit|booking time)(?:\s+(?:andern|ändern|verschieben|change|move))\b/,{entityHints:['bookingRef','time']}),
+  rule('booking.modify.party-size','booking-modify',/\b(?:personenzahl|gruppengrosse|gruppengröße|party size)(?:\s+(?:andern|ändern|change))\b/,{entityHints:['bookingRef','partySize']}),
+  rule('booking.modify.notes','booking-modify',/\b(?:buchungshinweis|sonderwunsch|booking note)(?:\s+(?:andern|ändern|erganzen|ergänzen|change|add))\b/,{entityHints:['bookingRef','note']}),
+  rule('booking.cancel.submit','booking-cancel',/\b(?:buchung|reservierung|booking|reservation)(?:\s+(?:stornieren|absagen|cancel))\b/,{priority:90,entityHints:['bookingRef','reason']}),
+  rule('booking.recovery.retry','booking-recovery',/\b(?:buchung|booking)(?:\s+(?:erneut versuchen|wiederholen|retry))\b/),
+  rule('booking.recovery.reconcile','booking-recovery',/\b(?:buchungsstatus|booking outcome|booking status)(?:\s+(?:abgleichen|klaren|klären|reconcile|check))\b/),
+  rule('booking.inbox.read','booking-inbox',/\b(?:booking inbox|buchungsnachrichten|anbieterunterhaltungen)(?:\s+(?:anzeigen|offnen|öffnen|show|open))?\b/),
+  rule('booking.message.compose','booking-message',/\b(?:nachricht|message)(?:\s+(?:an (?:den )?anbieter|to (?:the )?provider))?(?:\s+(?:verfassen|schreiben|compose|draft))\b/,{entityHints:['bookingRef','message']}),
+  rule('booking.message.send','booking-message',/\b(?:nachricht|message)(?:\s+(?:an (?:den )?anbieter|to (?:the )?provider))?(?:\s+(?:senden|schicken|send))\b/,{entityHints:['bookingRef','message']}),
+  rule('booking.message.reply','booking-message',/\b(?:im buchungsthread antworten|anbieter antworten|reply (?:to )?(?:the )?(?:booking|provider))\b/,{entityHints:['bookingRef','message']}),
+
+  // Media and memories
+  rule('media.capture.open','media-acquire',/\b(?:kamera|camera)(?:\s+(?:offnen|öffnen|open))\b|\b(?:foto|photo)(?:\s+(?:aufnehmen|take|capture))\b/),
+  rule('media.files.pick','media-acquire',/\b(?:dateien|fotos|bilder|files|photos|images)(?:\s+(?:auswahlen|auswählen|pick|choose))\b/),
+  rule('media.upload','media-write',/\b(?:dateien|fotos|bilder|files|photos|images)(?:\s+(?:hochladen|upload))\b/),
+  rule('media.gallery.read','media-read',/\b(?:galerie|gallery)(?:\s+(?:anzeigen|zeigen|show|open|offnen|öffnen))\b/),
+  rule('media.gallery.filter.favorites','media-filter',/\b(?:nur )?(?:favoriten|lieblingsbilder|favou?rites)(?:\s+(?:anzeigen|filtern|show|filter))\b/),
+  rule('media.photo.download','media-external',/\b(?:foto|bild|photo|image)(?:\s+(?:herunterladen|download))\b/),
+  rule('media.photo.favorite','media-write',/\b(?:foto|bild|photo|image)(?:\s+(?:als favorit|favorisieren|favou?rite|unfavou?rite))\b/),
+  rule('media.photo.title.update','media-write',/\b(?:fototitel|bildtitel|photo title)(?:\s+(?:andern|ändern|setzen|change|set))\b/,{entityHints:['mediaRef','value']}),
+  rule('media.photo.title.ai-suggest','media-read',/\b(?:fototitel|bildtitel|photo title)(?:\s+(?:vorschlagen|generieren|suggest|generate))\b/),
+  rule('media.photo.delete','media-delete',/\b(?:foto|bild|photo|image)(?:\s+(?:loschen|löschen|delete))\b/),
+  rule('memory.library.read','memory-read',/\b(?:erinnerungen|stories|memories)(?:\s+(?:anzeigen|zeigen|show|open|offnen|öffnen))\b/),
+  rule('memory.search','memory-read',/\b(?:erinnerungen|stories|memories)(?:\s+(?:durchsuchen|suchen|search))\b/,{entityHints:['query']}),
+  rule('memory.story.create','memory-draft',/\b(?:geschichte|story)(?:\s+(?:beginnen|erstellen|anlegen|start|create))\b/),
+  rule('memory.story.ai-weave','memory-read',/\b(?:geschichte|story)(?:\s+(?:aus.*(?:fotos|medien)|mit ki|with ai))?(?:\s+(?:entwerfen|weben|generieren|weave|draft|generate))\b/),
+  rule('memory.story.ai-title','memory-read',/\b(?:story-?titel|geschichtstitel|story title)(?:\s+(?:vorschlagen|generieren|suggest|generate))\b/),
+  rule('memory.story.save','memory-write',/\b(?:geschichte|story)(?:\s+(?:speichern|bewahren|save))\b/),
+  rule('memory.story.export','memory-external',/\b(?:geschichte|story)(?:\s+(?:exportieren|herunterladen|export|download))\b/),
+  rule('memory.vote.submit','memory-vote',/\b(?:fur|für)\s+(?:das )?(?:bild|foto|karte)\s+stimmen|\bvote for (?:the )?(?:photo|image|card)\b/),
+
+  // Verified events and device capabilities
+  rule('events.verified.search','events-search',/\b(?:veranstaltung|veranstaltungen|event|events|konzert|concert|festival)(?:e|en|s)?\b.*\b(?:finden|suchen|suche|find|search|show)|\b(?:finden|suchen|suche|find|search|show)\b.*\b(?:veranstaltung|veranstaltungen|event|events|konzert|concert|festival)(?:e|en|s)?\b/,{entityHints:['query','location','dateRange','timeRange']}),
+  rule('events.source.open','events-external',/\b(?:eventquelle|originalquelle|event source|original source)(?:\s+(?:offnen|öffnen|open))\b/),
+  rule('events.to-journey.plan','events-write',/\b(?:event|veranstaltung)(?:\s+(?:zur|in die) (?:timeline|tagesplan) (?:hinzufugen|hinzufügen|eintragen))\b|\badd (?:the )?event to (?:the )?(?:timeline|day plan)\b/,{priority:88,entityHints:['eventRef','date','time']}),
+  rule('events.to-memory.save','events-write',/\b(?:event|veranstaltung)(?:\s+(?:als erinnerung|als memory) (?:speichern|merken))\b|\bsave (?:the )?event as (?:a )?memory\b/),
+  rule('device.location.request','device-permission',/\b(?:standort|loca(?:tion)|gps)(?:\s+(?:zugriff|berechtigung|permission))?(?:\s+(?:anfordern|erlauben|request|allow))\b/),
+  rule('device.location.clear','device-position-clear',/\b(?:session-?)?(?:standort|loca(?:tion)|gps)(?:\s+(?:loschen|löschen|entfernen|clear|remove))\b/),
+  rule('device.camera.request','device-permission',/\b(?:kamera|camera)(?:\s+(?:zugriff|berechtigung|permission))?(?:\s+(?:anfordern|erlauben|request|allow))\b/),
+  rule('device.files.pick','device-files',/\b(?:system-?)?(?:dateiauswahl|file picker)(?:\s+(?:offnen|öffnen|open))\b/),
+  rule('device.share.open','device-share',/\b(?:system-?)?(?:teilen|share)(?:\s+(?:offnen|öffnen|open))\b/),
+  rule('device.clip'+'board.write','device-clip'+'board',/\b(?:code|link|text)(?:\s+(?:kopieren|copy))(?:\s+(?:in die zwischenablage|to clip(?:board)))?\b/,{entityHints:['code','url','text']}),
+  rule('device.download','device-download',/\b(?:datei|file)(?:\s+(?:herunterladen|download))\b/),
+  rule('device.notification.request','device-permission',/\b(?:mitteilungen|benachrichtigungen|notifications)(?:\s+(?:erlauben|berechtigung anfordern|allow|request permission))\b/)
+]);
+
+function correctedText(value){
+  return normalize(value).replace(/\b(?:14|15|16|17|18|19|20|21|22|23|0?[0-9]|1[0-3])\s+ur\b/g,match=>match.replace(/\bur\b/,'uhr'));
+}
+function languageOf(value){
+  const text=` ${normalize(value)} `;
+  const de=(text.match(/\b(?:ich|wir|uns|bitte|zeige|suche|finde|offne|andere|reise|heute|morgen|fur|mit|ohne|nicht|und|danach|tagesplan|uhr|tisch|eintragen)\b/g)||[]).length;
+  const en=(text.match(/\b(?:i|we|please|show|find|search|open|change|trip|today|tomorrow|for|with|without|not|and|then|day plan|table)\b/g)||[]).length;
+  if(de&&en)return'mixed';if(en)return'en';if(de)return'de';return'undetermined';
+}
+function isoDate(year,month,day){
+  const y=Number(year),m=Number(month),d=Number(day),date=new Date(Date.UTC(y,m-1,d));
+  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return null;
+  return `${String(y).padStart(4,'0')}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function displayDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return null;const[y,m,d]=iso.split('-');return`${d}.${m}.${y}`}
+function addDays(reference,amount){const base=new Date(`${reference}T12:00:00Z`);if(Number.isNaN(base.getTime()))return null;base.setUTCDate(base.getUTCDate()+amount);return base.toISOString().slice(0,10)}
+function referenceDateOf(options={}){const requested=clean(options.referenceDate);return/^\d{4}-\d{2}-\d{2}$/.test(requested)?requested:new Date().toISOString().slice(0,10)}
+function extractDates(raw,normalized,options={}){
+  const output=[];let match;
+  const dotted=/(?:^|\b)(\d{1,2})[./](\d{1,2})[./](\d{2}|\d{4})(?:\b|$)/g;
+  while((match=dotted.exec(raw))){let year=Number(match[3]);if(year<100)year+=2000;const iso=isoDate(year,match[2],match[1]);if(iso)output.push({kind:'absolute',raw:match[0].trim(),iso,display:displayDate(iso)})}
+  const dashed=/\b(20\d{2})-(\d{2})-(\d{2})\b/g;
+  while((match=dashed.exec(raw))){const iso=isoDate(match[1],match[2],match[3]);if(iso)output.push({kind:'absolute',raw:match[0],iso,display:displayDate(iso)})}
+  const relative=[['ubermorgen',2],['übermorgen',2],['day after tomorrow',2],['morgen',1],['tomorrow',1],['heute',0],['today',0]];
+  for(const[word,days]of relative){if(new RegExp(`\\b${escapeRegExp(normalize(word))}\\b`).test(normalized)){const iso=addDays(referenceDateOf(options),days);output.push({kind:'relative',raw:word,offsetDays:days,iso,display:displayDate(iso)})}}
+  return output.filter((item,index,list)=>list.findIndex(other=>other.iso===item.iso&&other.kind===item.kind)===index);
+}
+function extractTimes(normalized){
+  const output=[];let match;const pattern=/\b(?:um|gegen|ab|at|around|from)?\s*(\d{1,2})(?:[:.]([0-5]\d))?\s*(uhr|am|pm)?\b/g;
+  while((match=pattern.exec(normalized))){
+    const hasCue=Boolean(match[3])||/\b(?:um|gegen|ab|at|around|from)\s*$/.test(normalized.slice(Math.max(0,match.index-10),match.index));
+    if(!hasCue)continue;let hour=Number(match[1]),minute=Number(match[2]||0);if(match[3]==='pm'&&hour<12)hour+=12;if(match[3]==='am'&&hour===12)hour=0;if(hour>23)continue;
+    const value=`${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;output.push({raw:match[0].trim(),value,display:`${value} Uhr`,approximate:/\b(?:gegen|around)\b/.test(match[0])});
+  }
+  return output.filter((item,index,list)=>list.findIndex(other=>other.value===item.value)===index);
+}
+function extractPartySize(normalized){
+  const numeric=normalized.match(/\b(?:fur|für|for)\s+(\d{1,2})\s*(?:personen?|people|persons?|gaste|gäste)?\b/);if(numeric)return Number(numeric[1]);
+  const words=Object.keys(NUMBER_WORDS).join('|'),word=normalized.match(new RegExp(`\\b(?:fur|für|for)\\s+(${words})\\s*(?:personen?|people|persons?|gaste|gäste)?\\b`));
+  return word?NUMBER_WORDS[word[1]]:null;
+}
+function extractDuration(normalized){
+  const match=normalized.match(/\b(\d+(?:[,.]\d+)?)\s*(stunden?|std\.?|hours?|hrs?|minuten?|min\.?)(?:\b|$)/);if(!match)return null;
+  const amount=Number(match[1].replace(',','.')),minutes=/stund|std|hour|hrs/.test(match[2])?Math.round(amount*60):Math.round(amount);return{raw:match[0],minutes};
+}
+function extractSpatial(normalized){
+  const definitions=[
+    ['waterfront',/\b(?:direkt |nah |nahe |etwas nah )?(?:am|beim|nahe am|near (?:the )?|by (?:the )?)\s*(?:wasser|water|ufer|waterfront)\b/],
+    ['center',/\b(?:im|in der|nahe dem|near (?:the )?|in (?:the )?)\s*(?:zentrum|innenstadt|stadtmitte|centre|center|downtown)\b/],
+    ['beach',/\b(?:direkt |nah |nahe )?(?:am|beim|near (?:the )?|by (?:the )?)\s*(?:strand|beach|kuste|küste|coast)\b/],
+    ['outside',/\b(?:ausserhalb|außerhalb|outside|outskirts)\b/],
+    ['nearby',/\b(?:in der nahe|in der nähe|nearby|close by|near)\b/]
+  ],output=[];
+  for(const[kind,pattern]of definitions){const match=pattern.exec(normalized);if(!match)continue;const before=normalized.slice(Math.max(0,match.index-18),match.index),negated=/\b(?:nicht|kein|ohne|not|no|without)\s*$/.test(before)||/^\s*(?:nicht|not)\b/.test(match[0]);output.push({kind,value:match[0].trim(),negated})}
+  return output;
+}
+function extractLocation(raw){
+  const match=raw.match(/\b(?:in|bei|near|around)\s+([A-ZÄÖÜ][\p{L}'’-]*(?:\s+[A-ZÄÖÜ][\p{L}'’-]*){0,3})\b/u);if(!match)return null;
+  const value=match[1].trim();return/^(?:Meine|Meiner|Der|Die|Das|The|Timeline|Timline|Tagesplan)$/i.test(value)?null:value;
+}
+function extractContact(raw){
+  return{email:raw.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0]||null,url:raw.match(/https?:\/\/[^\s]+/i)?.[0]||null,phone:raw.match(/(?:\+\d{1,3}[\s/-]?)?(?:\d[\s/-]?){7,}/)?.[0]?.trim()||null,code:raw.match(/\b(?=[A-Z0-9-]{5,14}\b)(?=[A-Z0-9-]*[A-Z])(?=[A-Z0-9-]*\d)[A-Z0-9-]+\b/)?.[0]||null};
+}
+function extractEntities(raw,normalized,options={}){
+  const dates=extractDates(raw,normalized,options),times=extractTimes(normalized),spatialConstraints=extractSpatial(normalized),contact=extractContact(raw),partySize=extractPartySize(normalized),duration=extractDuration(normalized),placeLocation=extractLocation(raw);
+  const categories=[...new Set((normalized.match(/\b(?:restaurant|cafe|café|bar|minigolf|museum|strand|beach|shop|shopping|konzert|concert|festival|event|veranstaltung|aktivitat|aktivität|activity|luftmatratze|luftmatratzen)\b/g)||[]))];
+  return immutable({dates,times,partySize,duration,'location':placeLocation,spatialConstraints,categories,...contact});
+}
+function splitIntents(normalized){
+  if(!normalized)return[];
+  const command='(?:offne|öffne|zeige|suche|finde|find|search|show|open|buche|buchen|book|reserviere|reserve|trage|trag|fuge|füge|add|put|speichere|save|losche|lösche|delete|entferne|remove|teile|share|kopiere|copy|andere|ändere|change|setze|set|plane|plan|prufe|prüfe|check|sende|send|antworte|reply|exportiere|export)';
+  const expression=new RegExp(`\\s+(?:und dann|anschliessend|anschließend|ausserdem|außerdem|and then|then|danach)\\s+(?=${command}\\b)|\\s+(?:und|and)\\s+(?=${command}\\b)`,'gi');
+  return normalized.split(expression).map(value=>value.trim()).filter(Boolean).map((text,index)=>({index,text}));
+}
+function nearbyNegation(text,match){
+  const before=text.slice(Math.max(0,match.index-28),match.index),inside=match[0];return /\b(?:nicht|kein|keine|keinen|ohne|never|not|no|don't|do not|without)\b/.test(`${before} ${inside}`);
+}
+function levenshtein(left,right){
+  const a=String(left),b=String(right),row=Array.from({length:b.length+1},(_,index)=>index);
+  for(let i=1;i<=a.length;i++){let previous=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j],cost=a[i-1]===b[j-1]?0:1;row[j]=Math.min(row[j]+1,row[j-1]+1,previous+cost);previous=old}}
+  return row[b.length];
+}
+function tokenSimilarity(left,right){
+  const a=[...new Set(normalize(left).split(' ').filter(word=>word.length>2))],b=[...new Set(normalize(right).split(' ').filter(word=>word.length>2))];if(!a.length||!b.length)return 0;
+  let matches=0;for(const word of a){if(b.some(candidate=>candidate===word||(word.length>=5&&candidate.length>=5&&levenshtein(word,candidate)<=1)))matches+=1}
+  return matches/Math.max(a.length,b.length);
+}
+function catalogIndex(catalog=[]){
+  if(!Array.isArray(catalog))return{exact:new Map(),actions:[]};
+  const cached=CATALOG_CACHE.get(catalog);if(cached)return cached;
+  const actions=catalog.filter(action=>ACTION_ID.test(action?.id||'')&&clean(action.label)),exact=new Map(actions.map(action=>[normalize(action.label),action])),index={exact,actions};CATALOG_CACHE.set(catalog,index);return index;
+}
+function catalogCandidate(segment,catalog=[],allowFuzzy=true){
+  const index=catalogIndex(catalog),actions=index.actions,exact=index.exact.get(segment.text);
+  if(exact)return{actionId:exact.id,group:`catalog:${exact.id}`,priority:110,match:{0:exact.label,index:0},source:'canonical-label',similarity:1,entityHints:[]};
+  if(!allowFuzzy)return null;
+  let best=null;
+  for(const action of actions){if(!ACTION_ID.test(action?.id||''))continue;const label=clean(action.label);if(!label)continue;const similarity=tokenSimilarity(segment.text,label);if(similarity<.58)continue;if(!best||similarity>best.similarity)best={action,similarity,exact:false}}
+  if(!best)return null;return{actionId:best.action.id,group:`catalog:${best.action.id}`,priority:best.exact?110:45,match:{0:best.action.label,index:0},source:best.exact?'canonical-label':'catalog-fuzzy',similarity:best.similarity,entityHints:[]};
+}
+function ruleCandidates(segment,catalog=[]){
+  const found=[];
+  for(const definition of RULES){definition.pattern.lastIndex=0;const match=definition.pattern.exec(segment.text);if(match)found.push({...definition,match,source:'curated-rule',similarity:1})}
+  const canonical=catalogCandidate(segment,catalog,found.length===0);if(canonical)found.push(canonical);
+  const byGroup=new Map();for(const candidate of found){const current=byGroup.get(candidate.group);if(!current||candidate.priority>current.priority)byGroup.set(candidate.group,candidate)}
+  return [...byGroup.values()].sort((a,b)=>b.priority-a.priority||a.actionId.localeCompare(b.actionId));
+}
+function actionMeta(actionId,catalog=[]){const found=(Array.isArray(catalog)?catalog:[]).find(item=>item?.id===actionId);return found?{category:found.category||null,label:found.label||actionId,effect:found.effect||null,risk:found.risk||null,ownerContract:found.owner?.contract||null,ownerMethod:found.owner?.method||null,stateChanging:found.lifecycle?.stateChanging===true,confirmationPolicy:found.lifecycle?.confirmationPolicy||null,inputStatus:found.inputContract?.status||null,requiredFields:found.inputContract?.requiredFields||[]}:null}
+function candidateView(candidate,segment,entities,catalog){
+  const negated=nearbyNegation(segment.text,candidate.match),meta=actionMeta(candidate.actionId,catalog),confidence=Math.max(.45,Math.min(1,(candidate.priority+(candidate.source==='canonical-label'?10:0))/100));
+  return immutable({order:segment.index+1,actionId:candidate.actionId,source:candidate.source,matchedText:candidate.match[0],confidence:Number(confidence.toFixed(2)),negated,status:negated?'BLOCKED_BY_NEGATION':'READY_FOR_INPUT_VALIDATION',canProceed:false,requiresDeterministicValidation:true,entityHints:candidate.entityHints||[],entities,owner:meta?{contract:meta.ownerContract,method:meta.ownerMethod}:null,action:meta});
+}
+function compile(input={},options={}){
+  const raw=clean(typeof input==='string'?input:input.utterance||input.text),settings=typeof input==='string'?options:{...options,...input,...input.options},catalog=(typeof input==='object'&&Array.isArray(input.catalog)?input.catalog:settings.catalog)||[];
+  if(!raw)throw new TypeError('Human-AI language compiler requires a non-empty utterance.');
+  const normalized=correctedText(raw),segments=splitIntents(normalized),globalEntities=extractEntities(raw,normalized,settings),candidates=[];
+  for(const segment of segments){const extracted=extractEntities(segment.text,segment.text,settings),usesGlobalLocation=globalEntities.location&&segment.text.includes(normalize(globalEntities.location)),entities=usesGlobalLocation?immutable({...extracted,'location':globalEntities.location}):extracted,matches=ruleCandidates(segment,catalog);for(const match of matches)candidates.push(candidateView(match,segment,entities,catalog))}
+  const deduped=[];for(const candidate of candidates){const key=`${candidate.order}:${candidate.actionId}`;if(!deduped.some(item=>`${item.order}:${item.actionId}`===key))deduped.push(candidate)}
+  const actionable=deduped.filter(item=>!item.negated),negated=deduped.filter(item=>item.negated),understood=deduped.length>0;
+  return immutable({contractId:CONTRACT_ID,version:VERSION,kind:'language-interpretation',persisted:false,mutated:false,executed:false,utterance:raw,normalized,language:languageOf(raw),segments:segments.map(item=>({order:item.index+1,text:item.text})),entities:globalEntities,candidates:deduped,summary:{understood,intentCount:deduped.length,actionableIntentCount:actionable.length,negatedIntentCount:negated.length,multiIntent:segments.length>1,needsClarification:!understood,deterministicValidationRequired:understood},guard:{naturalLanguageConfirmsMutation:false,ownerExecutionAllowed:false,nextStep:understood?'VALIDATE_INPUT_CONTEXT_AUTHORITY':'ASK_CLARIFYING_QUESTION'}});
+}
+function describeCoverage(catalog=[]){
+  const actions=Array.isArray(catalog)?catalog.filter(item=>ACTION_ID.test(item?.id||'')):[],curated=[...new Set(RULES.map(item=>item.actionId))],canonical=actions.filter(item=>clean(item.label)).map(item=>item.id);
+  return immutable({contractId:CONTRACT_ID,version:VERSION,catalogActions:actions.length,canonicalLabelCoverage:canonical.length,curatedRuleCount:RULES.length,curatedActionCount:curated.length,curatedActionIds:curated,supportedLocales:['de','en','mixed'],entityTypes:['date','relative-date','time','party-size','duration','location','spatial-constraint','category','email','phone','url','code'],preserves:['negation','intent-order','source-utterance','normalized-utterance'],executesOwnerActions:false});
+}
+function describeRules(){return immutable(RULES.map(item=>({actionId:item.actionId,group:item.group,priority:item.priority,locales:item.locales,entityHints:item.entityHints,pattern:item.pattern.source})))}
+
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,compile,normalize:correctedText,extractEntities,splitIntents,describeCoverage,describeRules});
+})();
+
+;
+
+/* ===== core/intelligence/human-ai-safety-policy-core.js ===== */
+var LuviaHumanAISafetyPolicyCoreV1=(()=>{
+'use strict';
+
+const CONTRACT_ID='intelligence.human-ai-safety-policy.v1';
+const VERSION='1';
+const RUNTIME_VERSION='1.0.0';
+const CLASSIFICATIONS=Object.freeze({
+  READ_PRESENTATION:'READ_PRESENTATION',
+  NAVIGATION_OPEN:'NAVIGATION_OPEN',
+  DRAFT:'DRAFT',
+  INTERNAL_WRITE:'INTERNAL_WRITE',
+  EXTERNAL_TRANSACTION:'EXTERNAL_TRANSACTION',
+  HIGH_RISK_OR_PERMISSION:'HIGH_RISK_OR_PERMISSION'
+});
+const SCOPES=Object.freeze({PUBLIC:'PUBLIC',SELF:'SELF',TRIP_MEMBER:'TRIP_MEMBER',TRIP_ADMIN:'TRIP_ADMIN',SYSTEM_ADMIN:'SYSTEM_ADMIN'});
+const DECISIONS=Object.freeze({
+  ALLOW:'ALLOW',AUTHENTICATION_REQUIRED:'AUTHENTICATION_REQUIRED',SCOPE_DENIED:'SCOPE_DENIED',REAUTH_REQUIRED:'REAUTH_REQUIRED',
+  CONSENT_REQUIRED:'CONSENT_REQUIRED',NETWORK_REQUIRED:'NETWORK_REQUIRED',PROVIDER_UNAVAILABLE:'PROVIDER_UNAVAILABLE',
+  USER_GESTURE_REQUIRED:'USER_GESTURE_REQUIRED',CONFIRMATION_REQUIRED:'CONFIRMATION_REQUIRED',ACTION_UNAVAILABLE:'ACTION_UNAVAILABLE'
+});
+const DESTRUCTIVE=/(?:\.delete|\.remove|\.clear|\.archive|\.dissolve|cancel\.submit|session\.sign-out)$/;
+const PUBLIC_ACTION=/^(?:demo\.|auth\.(?:mode\.|email\.(?:sign-in|sign-up)$|oauth\.|password\.reset\.|recovery\.|anonymous-upgrade\.)|ui\.(?:sheet\.close|nested-sheet\.back|section\.|carousel\.|list\.more|retry|refresh)$)/;
+const TRIP_ADMIN_ACTION=/^(?:trip\.(?:archive|restore|invite\.)|places\.(?:favorites\.clear|schedule\.clear)|journey\.entries\.clear|media\.gallery\.clear)/;
+const TRIP_MEMBER_DOMAIN=/^(?:places\.|journey\.|collaboration\.|booking\.|media\.|memory\.|events\.)/;
+const SELF_TRIP_ACTION=/^trip\.(?:list$|active\.select$|open$|draft\.|create$|join\.|archived\.toggle-visibility$)/;
+const HIGH_RISK=/(?:^R4$|R4)/;
+const text=value=>String(value??'').trim();
+const unique=value=>[...new Set((Array.isArray(value)?value:[]).map(text).filter(Boolean))];
+const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+function immutable(value){if(value&&typeof value==='object'){Object.values(value).forEach(immutable);Object.freeze(value)}return value}
+function actionId(action){return text(action?.id||action?.actionId)}
+function classify(action={}){
+  const id=actionId(action),effect=text(action.effect).toUpperCase(),risk=text(action.risk).toUpperCase();
+  if(effect==='PERMISSION'||HIGH_RISK.test(risk)||(action?.lifecycle?.stateChanging===true&&DESTRUCTIVE.test(id)))return CLASSIFICATIONS.HIGH_RISK_OR_PERMISSION;
+  if(effect==='EXTERNAL')return CLASSIFICATIONS.EXTERNAL_TRANSACTION;
+  if(effect==='WRITE')return CLASSIFICATIONS.INTERNAL_WRITE;
+  if(effect==='DRAFT')return CLASSIFICATIONS.DRAFT;
+  if(effect==='NAVIGATION')return CLASSIFICATIONS.NAVIGATION_OPEN;
+  return CLASSIFICATIONS.READ_PRESENTATION;
+}
+function requiredScope(action={}){
+  const id=actionId(action);
+  if(PUBLIC_ACTION.test(id))return SCOPES.PUBLIC;
+  if(TRIP_ADMIN_ACTION.test(id))return SCOPES.TRIP_ADMIN;
+  if(SELF_TRIP_ACTION.test(id))return SCOPES.SELF;
+  if(/^trip\./.test(id)||TRIP_MEMBER_DOMAIN.test(id))return SCOPES.TRIP_MEMBER;
+  return SCOPES.SELF;
+}
+function consentRequirements(action={}){
+  const id=actionId(action),requirements=[];
+  if(/^(?:device\.loca(?:tion)\.|places\.loca(?:tion)\.|settings\.loca(?:tion)-sharing\.)/.test(id))requirements.push('GEOLOCATION');
+  if(/^(?:device\.camera\.|media\.capture\.)/.test(id))requirements.push('CAMERA');
+  if(/^(?:device\.notification|device\.notifications|settings\.notifications)/.test(id))requirements.push('NOTIFICATIONS');
+  if(/(?:native-share|\.email$|\.whatsapp$|device\.share\.)/.test(id))requirements.push('EXTERNAL_SHARE');
+  if(/(?:profile\.export|story\.export|photo\.download|device\.download)/.test(id))requirements.push('DATA_EXPORT');
+  if(/settings\.(?:personalization|activity-data)\.update/.test(id))requirements.push('PERSONALIZATION');
+  return unique(requirements);
+}
+function providerGate(action={}){
+  const id=actionId(action);
+  if(/^auth\.(?!mode\.)/.test(id))return'AUTH_PROVIDER';
+  if(/^(?:places\.(?:discovery\.search|restaurant\.search|results\.|detail\.(?:open|gallery\.open|website\.open|maps\.open)|loca(?:tion)\.refresh)|trip\.draft\.destination\.search)/.test(id))return'PLACES_PROVIDER';
+  if(/^booking\.(?:availability|external-handoff|reservation|refresh|timeline|route|channel|modify|cancel|recovery|inbox|message|thread|intelligence-action)/.test(id))return'BOOKING_PROVIDER';
+  if(/^events\./.test(id))return'VERIFIED_EVENT_PROVIDER';
+  if(/^ai\.chat\.(?:prompt\.submit|read\.|sequence\.continue)/.test(id))return'AI_RUNTIME';
+  return null;
+}
+function confirmationPolicy(action={},classification=classify(action)){
+  const configured=text(action?.lifecycle?.confirmationPolicy||action?.confirmation).toUpperCase();
+  if(text(action.effect).toUpperCase()==='PERMISSION')return'USER_GESTURE';
+  if(classification===CLASSIFICATIONS.HIGH_RISK_OR_PERMISSION&&DESTRUCTIVE.test(actionId(action)))return'EXPLICIT';
+  return['NEVER','USER_GESTURE','EXPLICIT'].includes(configured)?configured:(action?.lifecycle?.stateChanging===true?'EXPLICIT':'NEVER');
+}
+function compilePolicy(action={}){
+  const id=actionId(action);if(!id)throw new TypeError('Human-AI safety policy requires an action id.');
+  const classification=classify(action),gate=providerGate(action),effect=text(action.effect).toUpperCase()||'READ',risk=text(action.risk).toUpperCase()||'R0';
+  return immutable({
+    actionId:id,classification,effect,risk,requiredScope:requiredScope(action),
+    reauthRequired:/^(?:auth\.password\.update|auth\.provider\..*\.link|identity\.profile\.export)$/.test(id),reauthMaxAgeSeconds:600,
+    consentRequirements:consentRequirements(action),providerGate:gate,networkPolicy:gate||effect==='EXTERNAL'?'ONLINE_REQUIRED':'OFFLINE_CAPABLE',
+    userGestureRequired:effect==='PERMISSION'||effect==='EXTERNAL'||/(?:\.open$|\.copy$|\.call$|\.download$)/.test(id),
+    confirmationPolicy:confirmationPolicy(action,classification),stateChanging:action?.lifecycle?.stateChanging===true,
+    humanStatus:text(action?.human?.status)||'AVAILABLE',naturalLanguageConfirmsMutation:false,ownerExecution:false
+  });
+}
+function hasScope(required,actor={}){
+  if(required===SCOPES.PUBLIC)return true;
+  if(actor.authenticated!==true)return false;
+  const scopes=new Set(unique(actor.scopes).map(item=>item.toUpperCase())),role=text(actor.tripRole).toUpperCase();
+  if(scopes.has(required)||scopes.has('SYSTEM_ADMIN')||role==='SYSTEM_ADMIN')return true;
+  if(required===SCOPES.SELF)return true;
+  if(required===SCOPES.TRIP_MEMBER)return['MEMBER','OWNER','ADMIN'].includes(role)||scopes.has('TRIP_MEMBER')||scopes.has('TRIP_ADMIN');
+  if(required===SCOPES.TRIP_ADMIN)return['OWNER','ADMIN'].includes(role)||scopes.has('TRIP_ADMIN');
+  return false;
+}
+function outcome(policy,decision,message,missing=[]){
+  return immutable({actionId:policy.actionId,decision,allowed:decision===DECISIONS.ALLOW,ownerExecution:false,nextGate:decision===DECISIONS.ALLOW?'INPUT_VALIDATION':decision,message,missing:unique(missing),policy:clone(policy)});
+}
+function evaluate(input={}){
+  const policy=input.policy?immutable(clone(input.policy)):compilePolicy(input.action||{}),actor=input.actor&&typeof input.actor==='object'?input.actor:{};
+  if(!['AVAILABLE','CONDITIONAL'].includes(text(policy.humanStatus).toUpperCase()))return outcome(policy,DECISIONS.ACTION_UNAVAILABLE,'Diese Funktion ist für dich gerade nicht verfügbar.');
+  if(policy.requiredScope!==SCOPES.PUBLIC&&actor.authenticated!==true)return outcome(policy,DECISIONS.AUTHENTICATION_REQUIRED,'Bitte melde dich an, um fortzufahren.');
+  if(!hasScope(policy.requiredScope,actor))return outcome(policy,DECISIONS.SCOPE_DENIED,'Du hast für diese Reiseaktion nicht die nötige Berechtigung.',[policy.requiredScope]);
+  if(policy.reauthRequired){const now=Number.isFinite(Number(actor.nowEpochSeconds))?Number(actor.nowEpochSeconds):Math.floor(Date.now()/1000),reauth=Number(actor.reauthenticatedAtEpochSeconds);if(!Number.isFinite(reauth)||now-reauth>policy.reauthMaxAgeSeconds)return outcome(policy,DECISIONS.REAUTH_REQUIRED,'Bitte bestätige aus Sicherheitsgründen noch einmal deine Anmeldung.');}
+  const grants=new Set(unique(actor.consents));const missingConsents=(policy.consentRequirements||[]).filter(item=>!grants.has(item));
+  if(missingConsents.length)return outcome(policy,DECISIONS.CONSENT_REQUIRED,'Dafür brauche ich zuerst deine ausdrückliche Freigabe.',missingConsents);
+  if(policy.networkPolicy==='ONLINE_REQUIRED'&&actor.online!==true)return outcome(policy,DECISIONS.NETWORK_REQUIRED,'Diese Aktion braucht eine Internetverbindung.');
+  if(policy.providerGate){const providers=actor.providers&&typeof actor.providers==='object'?actor.providers:{};if(providers[policy.providerGate]!==true)return outcome(policy,DECISIONS.PROVIDER_UNAVAILABLE,'Der zuständige Dienst ist gerade nicht erreichbar.',[policy.providerGate]);}
+  if(policy.userGestureRequired&&actor.userGesture!==true)return outcome(policy,DECISIONS.USER_GESTURE_REQUIRED,'Bitte löse diesen Schritt selbst über die sichtbare Aktion aus.');
+  if(policy.confirmationPolicy==='EXPLICIT'&&actor.confirmed!==true)return outcome(policy,DECISIONS.CONFIRMATION_REQUIRED,'Prüfe die Vorschau und bestätige die Änderung ausdrücklich.');
+  return outcome(policy,DECISIONS.ALLOW,'Berechtigung und Sicherheitsvoraussetzungen sind erfüllt.');
+}
+function describeCoverage(catalog=[]){
+  const actions=Array.isArray(catalog)?catalog:[],policies=actions.map(compilePolicy),countBy=key=>policies.reduce((out,item)=>(out[item[key]]=(out[item[key]]||0)+1,out),{});
+  return immutable({contractId:CONTRACT_ID,version:VERSION,catalogActions:actions.length,policyActions:policies.length,classifications:countBy('classification'),scopes:countBy('requiredScope'),reauthRequired:policies.filter(item=>item.reauthRequired).length,consentGated:policies.filter(item=>item.consentRequirements.length).length,providerGated:policies.filter(item=>item.providerGate).length,onlineRequired:policies.filter(item=>item.networkPolicy==='ONLINE_REQUIRED').length,naturalLanguageConfirmsMutation:false,ownerExecution:false});
+}
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,classifications:CLASSIFICATIONS,scopes:SCOPES,decisions:DECISIONS,classify,compilePolicy,evaluate,describeCoverage});
+})();
+
+;
+
+/* ===== core/intelligence/human-ai-action-lifecycle-core.js ===== */
+var LuviaHumanAIActionLifecycleCoreV1=(()=>{
+'use strict';
+
+const CONTRACT_ID='intelligence.human-ai-action-lifecycle.v1';
+const VERSION='1';
+const RUNTIME_VERSION='1.0.0';
+const MODES=Object.freeze({READ_ONLY:'READ_ONLY',OPEN_ONLY:'OPEN_ONLY',DRAFT_ONLY:'DRAFT_ONLY',PRESENTATION_ONLY:'PRESENTATION_ONLY',PERMISSION_REQUEST:'PERMISSION_REQUEST',EXTERNAL_HANDOFF:'EXTERNAL_HANDOFF',MUTATION:'MUTATION',CONTROL_MUTATION:'CONTROL_MUTATION'});
+const TERMINAL=new Set(['COMPLETED','CANCELLED','COMPENSATED']);
+const text=value=>String(value??'').trim();
+const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+function immutable(value){if(value&&typeof value==='object'){Object.values(value).forEach(immutable);Object.freeze(value)}return value}
+function lifecycleError(code,message,extra={}){const error=new Error(message);error.code=code;Object.assign(error,extra);return error}
+function actionId(action){return text(action?.id||action?.actionId)}
+function modeFor(action={}){
+  if(action?.lifecycle?.stateChanging===true)return action?.owner?.contract&&action?.owner?.method?MODES.MUTATION:MODES.CONTROL_MUTATION;
+  const effect=text(action.effect).toUpperCase();
+  if(effect==='READ')return MODES.READ_ONLY;if(effect==='NAVIGATION')return MODES.OPEN_ONLY;if(effect==='DRAFT')return MODES.DRAFT_ONLY;
+  if(effect==='PERMISSION')return MODES.PERMISSION_REQUEST;if(effect==='EXTERNAL')return MODES.EXTERNAL_HANDOFF;
+  return MODES.PRESENTATION_ONLY;
+}
+function compileLifecycle(action={}){
+  const id=actionId(action);if(!id)throw new TypeError('Human-AI lifecycle requires an action id.');
+  const mode=modeFor(action),mutation=mode===MODES.MUTATION||mode===MODES.CONTROL_MUTATION,lifecycle=action.lifecycle||{},supportsUndo=mutation&&lifecycle.reversible===true&&Boolean(text(lifecycle.compensationActionId));
+  const stages=mutation?(mode===MODES.CONTROL_MUTATION?['INPUT_VALIDATION','AUTHORITY_GATE','PREVIEW','EXPLICIT_CONFIRMATION','IDEMPOTENCY','CONTROL_COMMAND','CONTROL_RECEIPT','CONTROL_STATE_READBACK','SUCCESS_OR_RECOVERY']:['INPUT_VALIDATION','AUTHORITY_GATE','PREVIEW','EXPLICIT_CONFIRMATION','IDEMPOTENCY','OWNER_COMMAND','OWNER_RECEIPT','READBACK_OR_RECONCILIATION','SUCCESS_OR_RECOVERY']):
+    mode===MODES.READ_ONLY?['AUTHORITY_GATE','OWNER_READ','RESULT_OR_EMPTY','RETRY_OR_REFINE']:
+    mode===MODES.DRAFT_ONLY?['AUTHORITY_GATE','INPUT_VALIDATION','DRAFT_UPDATE','DISCARD_OR_COMMIT_SEPARATELY']:
+    mode===MODES.PERMISSION_REQUEST?['PURPOSE_PREVIEW','DIRECT_USER_GESTURE','PLATFORM_PERMISSION_RESULT']:
+    mode===MODES.PRESENTATION_ONLY?['PRESENTATION','DISMISS']:['AUTHORITY_GATE','DIRECT_USER_GESTURE','OWNER_OPEN','OPENED_OR_FAILED'];
+  if(supportsUndo)stages.push('UNDO_PREVIEW','UNDO_CONFIRMATION','OWNER_COMPENSATION','COMPENSATION_RECEIPT');
+  return immutable({actionId:id,label:text(action.label)||id,mode,effect:text(action.effect).toUpperCase(),risk:text(action.risk).toUpperCase(),stateChanging:mutation,
+    owner:{contract:text(action?.owner?.contract)||null,method:text(action?.owner?.method)||null,bindingStatus:text(action?.owner?.bindingStatus)||null},
+    preview:{required:mutation,title:`${text(action.label)||'Änderung'} prüfen`,consequence:text(action.note||action.consequence||lifecycle.confirmationDescription)||'Die Folgen werden vor der Bestätigung angezeigt.'},
+    confirmation:{required:mutation,separateVisibleControl:mutation,naturalLanguageAccepted:false,policy:mutation?'EXPLICIT':text(lifecycle.confirmationPolicy)||'NEVER'},
+    idempotency:{required:mutation,policy:mutation?'REQUIRED':text(lifecycle.idempotency)||'NONE'},receipt:{required:mutation,ownerAttributed:mode===MODES.MUTATION,controlAttributed:mode===MODES.CONTROL_MUTATION},
+    readback:{required:mutation,policy:mode===MODES.CONTROL_MUTATION?'CONTROL_STATE_READBACK':mutation&&(text(action.effect).toUpperCase()==='EXTERNAL')?'RECONCILE_PROVIDER_THEN_OWNER_READBACK':mutation?'OWNER_READBACK':'NONE'},
+    recovery:{unknownExternalOutcome:text(action.effect).toUpperCase()==='EXTERNAL'?'RECONCILE_BEFORE_RETRY':'OWNER_GUIDED',blindRetry:false,description:text(lifecycle.recoveryDescription)||'Sicheren Owner-Status prüfen und verständlich fortsetzen.'},
+    undo:{supported:supportsUndo,requiresNewPreview:supportsUndo,requiresSeparateConfirmation:supportsUndo,compensationActionId:supportsUndo?text(lifecycle.compensationActionId):null},
+    stages,naturalLanguageConfirmsMutation:false,ownerExecution:false
+  });
+}
+function initialStatus(mode,authorityDecision){
+  if(text(authorityDecision)!=='ALLOW')return'AUTHORITY_BLOCKED';
+  if(mode===MODES.MUTATION||mode===MODES.CONTROL_MUTATION)return'PREVIEW_REQUIRED';
+  if(mode===MODES.READ_ONLY)return'OWNER_READ_READY';if(mode===MODES.DRAFT_ONLY)return'DRAFT_READY';
+  if(mode===MODES.PERMISSION_REQUEST)return'PURPOSE_PREVIEW_REQUIRED';if(mode===MODES.PRESENTATION_ONLY)return'PRESENTATION_READY';return'USER_GESTURE_REQUIRED';
+}
+function createInstance(input={}){
+  if(Object.prototype.hasOwnProperty.call(input,'input')||Object.prototype.hasOwnProperty.call(input,'payload'))throw lifecycleError('LIFECYCLE_RAW_PAYLOAD_FORBIDDEN','Store only an input reference and digest in the lifecycle.');
+  const definition=input.definition?immutable(clone(input.definition)):compileLifecycle(input.action||{}),instanceId=text(input.instanceId)||`${definition.actionId}:lifecycle`,authorityDecision=text(input.authorityDecision)||'BLOCKED';
+  return immutable({contractId:CONTRACT_ID,version:VERSION,instanceId,actionId:definition.actionId,status:initialStatus(definition.mode,authorityDecision),terminal:false,authorityDecision,inputRef:text(input.inputRef)||null,inputDigest:text(input.inputDigest)||null,idempotencyKey:null,previewRef:null,confirmationRef:null,ownerInvocationRef:null,receipt:null,readbackRef:null,reconciliationRef:null,undoPreviewRef:null,compensationReceipt:null,definition:clone(definition),events:[]});
+}
+function requireStatus(instance,allowed,eventType){if(!allowed.includes(instance.status))throw lifecycleError('LIFECYCLE_TRANSITION_FORBIDDEN',`${eventType} is not allowed from ${instance.status}.`,{status:instance.status,eventType})}
+function requireVisibleConfirmation(event,expectedPreviewRef){if(event.userGesture!==true||text(event.source)!=='VISIBLE_CONTROL'||!text(event.confirmationRef)||text(event.previewRef)!==text(expectedPreviewRef))throw lifecycleError('LIFECYCLE_VISIBLE_CONFIRMATION_REQUIRED','Confirmation requires the visible control for the exact preview.');}
+function safeEvent(event,status){return{type:text(event.type),status,ref:text(event.ref||event.receiptId||event.readbackRef||event.reconciliationRef||event.confirmationRef)||null}}
+function transition(current={},event={}){
+  const instance=clone(current),type=text(event.type).toUpperCase();if(!instance.actionId||!instance.definition)throw lifecycleError('LIFECYCLE_INSTANCE_INVALID','Lifecycle instance is invalid.');if(!type)throw lifecycleError('LIFECYCLE_EVENT_REQUIRED','Lifecycle event type is required.');if(instance.terminal&&type!=='REQUEST_UNDO')throw lifecycleError('LIFECYCLE_TERMINAL','The lifecycle is already terminal.');
+  const mutation=instance.definition.stateChanging===true;
+  if(type==='SHOW_PREVIEW'){requireStatus(instance,['PREVIEW_REQUIRED'],'SHOW_PREVIEW');if(!text(event.previewRef))throw lifecycleError('LIFECYCLE_PREVIEW_REF_REQUIRED','A bounded preview reference is required.');instance.previewRef=text(event.previewRef);instance.status='CONFIRMATION_REQUIRED';}
+  else if(type==='CONFIRM'){requireStatus(instance,['CONFIRMATION_REQUIRED'],'CONFIRM');requireVisibleConfirmation(event,instance.previewRef);instance.confirmationRef=text(event.confirmationRef);instance.status='IDEMPOTENCY_REQUIRED';}
+  else if(type==='SET_IDEMPOTENCY'){requireStatus(instance,['IDEMPOTENCY_REQUIRED'],'SET_IDEMPOTENCY');if(!text(event.idempotencyKey))throw lifecycleError('LIFECYCLE_IDEMPOTENCY_REQUIRED','A non-empty idempotency key is required.');instance.idempotencyKey=text(event.idempotencyKey);instance.status='OWNER_COMMAND_READY';}
+  else if(type==='OWNER_DISPATCHED'){requireStatus(instance,['OWNER_COMMAND_READY'],'OWNER_DISPATCHED');if(instance.definition.mode===MODES.MUTATION&&!instance.definition.owner.contract)throw lifecycleError('LIFECYCLE_OWNER_COMMAND_UNAVAILABLE','The public Owner command is unavailable.');if(!text(event.ownerInvocationRef))throw lifecycleError('LIFECYCLE_OWNER_INVOCATION_REF_REQUIRED','The Owner invocation reference is required.');instance.ownerInvocationRef=text(event.ownerInvocationRef);instance.status='OWNER_PENDING';}
+  else if(type==='OWNER_RECEIPT'){requireStatus(instance,['OWNER_PENDING'],'OWNER_RECEIPT');const receiptStatus=text(event.status).toUpperCase();if(!text(event.receiptId)||!['COMPLETED','FAILED','OUTCOME_UNKNOWN'].includes(receiptStatus))throw lifecycleError('LIFECYCLE_RECEIPT_INVALID','A valid Owner receipt id and status are required.');instance.receipt={receiptId:text(event.receiptId),status:receiptStatus,ownerRef:text(event.ownerRef)||null};instance.status=receiptStatus==='COMPLETED'?'READBACK_REQUIRED':receiptStatus==='OUTCOME_UNKNOWN'?'RECONCILIATION_REQUIRED':'RECOVERY_REQUIRED';}
+  else if(type==='READBACK_VERIFIED'){requireStatus(instance,['READBACK_REQUIRED'],'READBACK_VERIFIED');if(!text(event.readbackRef))throw lifecycleError('LIFECYCLE_READBACK_REF_REQUIRED','An Owner readback reference is required.');instance.readbackRef=text(event.readbackRef);instance.status='COMPLETED';instance.terminal=true;}
+  else if(type==='RECONCILE'){requireStatus(instance,['RECONCILIATION_REQUIRED'],'RECONCILE');if(!text(event.reconciliationRef))throw lifecycleError('LIFECYCLE_RECONCILIATION_REF_REQUIRED','A reconciliation reference is required.');instance.reconciliationRef=text(event.reconciliationRef);instance.status='RECONCILIATION_PENDING';}
+  else if(type==='RECONCILIATION_RESULT'){requireStatus(instance,['RECONCILIATION_PENDING'],'RECONCILIATION_RESULT');const result=text(event.status).toUpperCase();if(!['COMPLETED','FAILED'].includes(result))throw lifecycleError('LIFECYCLE_RECONCILIATION_RESULT_INVALID','Reconciliation must resolve to completed or failed.');instance.status=result==='COMPLETED'?'READBACK_REQUIRED':'RECOVERY_REQUIRED';}
+  else if(type==='RETRY'){if(instance.status==='RECONCILIATION_REQUIRED')throw lifecycleError('LIFECYCLE_RECONCILIATION_REQUIRED','Unknown external outcomes must be reconciled before retry.');requireStatus(instance,['RECOVERY_REQUIRED'],'RETRY');if(event.userGesture!==true||text(event.source)!=='VISIBLE_CONTROL')throw lifecycleError('LIFECYCLE_VISIBLE_RETRY_REQUIRED','Retry requires a visible user gesture.');instance.idempotencyKey=null;instance.ownerInvocationRef=null;instance.receipt=null;instance.status=mutation?'IDEMPOTENCY_REQUIRED':'OWNER_READ_READY';instance.terminal=false;}
+  else if(type==='CANCEL'){requireStatus(instance,['PREVIEW_REQUIRED','CONFIRMATION_REQUIRED','IDEMPOTENCY_REQUIRED','USER_GESTURE_REQUIRED','PURPOSE_PREVIEW_REQUIRED'],'CANCEL');instance.status='CANCELLED';instance.terminal=true;}
+  else if(type==='REQUEST_UNDO'){requireStatus(instance,['COMPLETED'],'REQUEST_UNDO');if(instance.definition.undo.supported!==true)throw lifecycleError('LIFECYCLE_UNDO_UNAVAILABLE','This Owner does not provide a truthful compensation action.');if(event.userGesture!==true||text(event.source)!=='VISIBLE_CONTROL')throw lifecycleError('LIFECYCLE_VISIBLE_UNDO_REQUIRED','Undo must start from a visible user gesture.');instance.status='UNDO_PREVIEW_REQUIRED';instance.terminal=false;}
+  else if(type==='SHOW_UNDO_PREVIEW'){requireStatus(instance,['UNDO_PREVIEW_REQUIRED'],'SHOW_UNDO_PREVIEW');if(!text(event.previewRef))throw lifecycleError('LIFECYCLE_UNDO_PREVIEW_REF_REQUIRED','A bounded Undo preview reference is required.');instance.undoPreviewRef=text(event.previewRef);instance.status='UNDO_CONFIRMATION_REQUIRED';}
+  else if(type==='CONFIRM_UNDO'){requireStatus(instance,['UNDO_CONFIRMATION_REQUIRED'],'CONFIRM_UNDO');requireVisibleConfirmation(event,instance.undoPreviewRef);instance.status='COMPENSATION_COMMAND_READY';}
+  else if(type==='COMPENSATION_DISPATCHED'){requireStatus(instance,['COMPENSATION_COMMAND_READY'],'COMPENSATION_DISPATCHED');if(!text(event.ownerInvocationRef))throw lifecycleError('LIFECYCLE_OWNER_INVOCATION_REF_REQUIRED','The compensation invocation reference is required.');instance.status='COMPENSATION_PENDING';}
+  else if(type==='COMPENSATION_RECEIPT'){requireStatus(instance,['COMPENSATION_PENDING'],'COMPENSATION_RECEIPT');const receiptStatus=text(event.status).toUpperCase();if(!text(event.receiptId)||!['COMPLETED','FAILED'].includes(receiptStatus))throw lifecycleError('LIFECYCLE_RECEIPT_INVALID','A valid compensation receipt is required.');instance.compensationReceipt={receiptId:text(event.receiptId),status:receiptStatus,ownerRef:text(event.ownerRef)||null};instance.status=receiptStatus==='COMPLETED'?'COMPENSATED':'RECOVERY_REQUIRED';instance.terminal=receiptStatus==='COMPLETED';}
+  else throw lifecycleError('LIFECYCLE_EVENT_UNKNOWN',`Unknown lifecycle event: ${type}.`);
+  instance.events=[...(instance.events||[]),safeEvent(event,instance.status)].slice(-40);instance.terminal=TERMINAL.has(instance.status);return immutable(instance);
+}
+function describeCoverage(catalog=[]){const actions=Array.isArray(catalog)?catalog:[],definitions=actions.map(compileLifecycle),countBy=key=>definitions.reduce((out,item)=>(out[item[key]]=(out[item[key]]||0)+1,out),{});return immutable({contractId:CONTRACT_ID,version:VERSION,catalogActions:actions.length,lifecycleActions:definitions.length,modes:countBy('mode'),stateChanging:definitions.filter(item=>item.stateChanging).length,previewAndExplicitConfirmation:definitions.filter(item=>item.stateChanging&&item.preview.required&&item.confirmation.required&&item.confirmation.separateVisibleControl).length,idempotencyRequired:definitions.filter(item=>item.idempotency.required).length,ownerReceiptAndReadback:definitions.filter(item=>item.receipt.ownerAttributed&&item.readback.required).length,controlReceiptAndReadback:definitions.filter(item=>item.receipt.controlAttributed&&item.readback.required).length,truthfulUndo:definitions.filter(item=>item.undo.supported).length,unknownExternalBlindRetry:false,naturalLanguageConfirmsMutation:false,ownerExecution:false});}
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,modes:MODES,compileLifecycle,createInstance,transition,describeCoverage});
+})();
+
+;
+
+/* ===== core/intelligence/human-ai-capability-discovery-core.js ===== */
+var LuviaHumanAICapabilityDiscoveryCoreV1=(()=>{
+'use strict';
+const CONTRACT_ID='intelligence.human-ai-capability-discovery.v1',VERSION='1',RUNTIME_VERSION='1.0.0';
+const STATES=Object.freeze({AVAILABLE_NOW:'AVAILABLE_NOW',AVAILABLE_AFTER_CONFIRMATION:'AVAILABLE_AFTER_CONFIRMATION',AVAILABLE_AFTER_USER_GESTURE:'AVAILABLE_AFTER_USER_GESTURE',NEEDS_INPUT:'NEEDS_INPUT',AUTHENTICATION_REQUIRED:'AUTHENTICATION_REQUIRED',SCOPE_DENIED:'SCOPE_DENIED',REAUTH_REQUIRED:'REAUTH_REQUIRED',CONSENT_REQUIRED:'CONSENT_REQUIRED',NETWORK_REQUIRED:'NETWORK_REQUIRED',PROVIDER_UNAVAILABLE:'PROVIDER_UNAVAILABLE',AI_ROUTE_MISSING:'AI_ROUTE_MISSING',OWNER_UNAVAILABLE:'OWNER_UNAVAILABLE',INPUT_CONTRACT_MISSING:'INPUT_CONTRACT_MISSING',ACTION_UNAVAILABLE:'ACTION_UNAVAILABLE',NOT_APPLICABLE:'NOT_APPLICABLE'});
+const text=value=>String(value??'').trim(),unique=value=>[...new Set((Array.isArray(value)?value:[]).map(text).filter(Boolean))],clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+function immutable(value){if(value&&typeof value==='object'){Object.values(value).forEach(immutable);Object.freeze(value)}return value}
+function dependencies(input={}){const safety=input.safetyCore||(typeof LuviaHumanAISafetyPolicyCoreV1!=='undefined'?LuviaHumanAISafetyPolicyCoreV1:null),lifecycle=input.lifecycleCore||(typeof LuviaHumanAIActionLifecycleCoreV1!=='undefined'?LuviaHumanAIActionLifecycleCoreV1:null);if(!safety||!lifecycle)throw new Error('Capability discovery requires the safety and lifecycle cores.');return{safety,lifecycle}}
+function manualFlow(action={}){const status=text(action?.human?.status).toUpperCase(),binding=text(action?.owner?.bindingStatus).toUpperCase();if(!['AVAILABLE','CONDITIONAL'].includes(status)||!['PUBLIC_CONTRACT_BOUND','PUBLIC_E2E_PROVEN','RUNTIME_REGISTERED'].includes(binding))return null;return immutable({available:true,label:`${text(action.label)||'Funktion'} selbst öffnen`,surface:text(action.surface)||'Passenden Bereich öffnen',ownerContract:text(action?.owner?.contract)||null});}
+function remedy(state,action,missing=[]){const manual=manualFlow(action),messages={AVAILABLE_NOW:'Diese Aktion ist jetzt möglich.',AVAILABLE_AFTER_CONFIRMATION:'Die Aktion ist möglich, nachdem du die Vorschau ausdrücklich bestätigst.',AVAILABLE_AFTER_USER_GESTURE:'Diese Aktion ist möglich, sobald du den sichtbaren Knopf selbst auswählst.',NEEDS_INPUT:'Dafür fehlt noch eine konkrete Angabe.',AUTHENTICATION_REQUIRED:'Bitte melde dich zuerst an.',SCOPE_DENIED:'Du hast in dieser Reise nicht die nötige Berechtigung.',REAUTH_REQUIRED:'Bitte bestätige aus Sicherheitsgründen erneut deine Anmeldung.',CONSENT_REQUIRED:'Dafür brauche ich zuerst deine ausdrückliche Freigabe.',NETWORK_REQUIRED:'Diese Aktion braucht eine Internetverbindung.',PROVIDER_UNAVAILABLE:'Der zuständige Dienst ist gerade nicht erreichbar.',AI_ROUTE_MISSING:'Diese Funktion ist in der App vorhanden, aber noch nicht sicher über den Chat bedienbar.',OWNER_UNAVAILABLE:'Der zuständige Produktbereich kann diese Aktion gerade nicht übernehmen.',INPUT_CONTRACT_MISSING:'Der Chat darf diese Aktion noch nicht senden, weil die geprüfte Eingabestruktur fehlt.',ACTION_UNAVAILABLE:'Diese Funktion ist gerade nicht verfügbar.',NOT_APPLICABLE:'Diese Oberflächenaktion wird nicht als Chat-Funktion angeboten.'};const next={AVAILABLE_NOW:'PROCEED_TO_INPUT_VALIDATION',AVAILABLE_AFTER_CONFIRMATION:'SHOW_PREVIEW',AVAILABLE_AFTER_USER_GESTURE:'SHOW_VISIBLE_ACTION',NEEDS_INPUT:'ASK_CLARIFYING_QUESTION',AUTHENTICATION_REQUIRED:'OPEN_SIGN_IN',SCOPE_DENIED:'EXPLAIN_ROLE_LIMIT',REAUTH_REQUIRED:'OPEN_REAUTH',CONSENT_REQUIRED:'OPEN_PERMISSION_FLOW',NETWORK_REQUIRED:'WAIT_FOR_NETWORK',PROVIDER_UNAVAILABLE:'RETRY_PROVIDER_OR_MANUAL_FLOW',AI_ROUTE_MISSING:'OPEN_MANUAL_OWNER_FLOW',OWNER_UNAVAILABLE:'SHOW_UNAVAILABLE',INPUT_CONTRACT_MISSING:'OPEN_MANUAL_OWNER_FLOW',ACTION_UNAVAILABLE:'SHOW_UNAVAILABLE',NOT_APPLICABLE:'DO_NOT_OFFER'};return immutable({message:messages[state]||'Diese Aktion kann gerade nicht angeboten werden.',nextAction:next[state]||'DO_NOT_OFFER',missing:unique(missing),manualFlow:manual});}
+function aiRouteReady(action={}){const coverage=text(action?.ai?.coverage).toUpperCase();return action?.ai?.runtimeRegistered===true||['PUBLIC_E2E_PASS','NATIVE_CHAT'].includes(coverage)}
+function inputMissing(action={},inputsByAction={}){const contract=action.inputContract||{},required=unique(contract.requiredFields),input=inputsByAction&&typeof inputsByAction==='object'&&inputsByAction[action.id]&&typeof inputsByAction[action.id]==='object'?inputsByAction[action.id]:{};return required.filter(field=>{const segments=field.split('.');let value=input;for(const segment of segments)value=value&&typeof value==='object'?value[segment]:undefined;return value==null||value===''})}
+function project(action,state,safetyDecision,lifecycle,missing=[]){const resolution=remedy(state,action,missing),offerable=['AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE'].includes(state);return immutable({actionId:action.id,label:text(action.label)||action.id,category:text(action.category),state,offerable,blocked:!offerable,message:resolution.message,nextAction:resolution.nextAction,missing:resolution.missing,manualFlow:resolution.manualFlow,safetyDecision:safetyDecision?.decision||null,lifecycleMode:lifecycle.mode,ownerBinding:text(action?.owner?.bindingStatus)||null,aiCoverage:text(action?.ai?.coverage)||null});}
+function evaluateAction(action={},input={},deps=dependencies(input)){
+  const lifecycle=deps.lifecycle.compileLifecycle(action),humanStatus=text(action?.human?.status).toUpperCase(),coverage=text(action?.ai?.coverage).toUpperCase();
+  if(['DEMO','NOT_REQUIRED','NOT_APPLICABLE'].includes(coverage)||lifecycle.mode==='PRESENTATION_ONLY')return project(action,STATES.NOT_APPLICABLE,null,lifecycle);
+  if(!['AVAILABLE','CONDITIONAL'].includes(humanStatus))return project(action,STATES.ACTION_UNAVAILABLE,null,lifecycle);
+  const safety=deps.safety.evaluate({action,actor:input.actor||{}}),safetyMap={AUTHENTICATION_REQUIRED:STATES.AUTHENTICATION_REQUIRED,SCOPE_DENIED:STATES.SCOPE_DENIED,REAUTH_REQUIRED:STATES.REAUTH_REQUIRED,CONSENT_REQUIRED:STATES.CONSENT_REQUIRED,NETWORK_REQUIRED:STATES.NETWORK_REQUIRED,PROVIDER_UNAVAILABLE:STATES.PROVIDER_UNAVAILABLE,ACTION_UNAVAILABLE:STATES.ACTION_UNAVAILABLE};
+  if(safetyMap[safety.decision])return project(action,safetyMap[safety.decision],safety,lifecycle,safety.missing);
+  const binding=text(action?.owner?.bindingStatus).toUpperCase(),control=lifecycle.mode==='CONTROL_MUTATION'||coverage==='NATIVE_CHAT';if(!control&&!['PUBLIC_CONTRACT_BOUND','PUBLIC_E2E_PROVEN','RUNTIME_REGISTERED'].includes(binding))return project(action,STATES.OWNER_UNAVAILABLE,safety,lifecycle);
+  if(!aiRouteReady(action))return project(action,STATES.AI_ROUTE_MISSING,safety,lifecycle);
+  if(!['READY','NATIVE_CHAT_CONTROL','NOT_APPLICABLE'].includes(text(action?.inputContract?.status).toUpperCase()))return project(action,STATES.INPUT_CONTRACT_MISSING,safety,lifecycle);
+  const missing=inputMissing(action,input.inputsByAction||{});if(missing.length)return project(action,STATES.NEEDS_INPUT,safety,lifecycle,missing);
+  if(safety.decision==='CONFIRMATION_REQUIRED')return project(action,STATES.AVAILABLE_AFTER_CONFIRMATION,safety,lifecycle);
+  if(safety.decision==='USER_GESTURE_REQUIRED')return project(action,STATES.AVAILABLE_AFTER_USER_GESTURE,safety,lifecycle);
+  return project(action,STATES.AVAILABLE_NOW,safety,lifecycle);
+}
+function discover(input={}){const catalog=Array.isArray(input.catalog)?input.catalog:[],deps=dependencies(input),wanted=new Set(unique(input.actionIds)),category=text(input.category),results=catalog.filter(action=>(!wanted.size||wanted.has(action.id))&&(!category||text(action.category)===category)).map(action=>evaluateAction(action,input,deps)),visible=input.includeBlocked===false?results.filter(item=>item.offerable):results,counts=results.reduce((out,item)=>(out[item.state]=(out[item.state]||0)+1,out),{});return immutable({contractId:CONTRACT_ID,version:VERSION,evaluated:results.length,offered:results.filter(item=>item.offerable).length,blocked:results.filter(item=>item.blocked).length,counts,capabilities:visible,ownerExecution:false,mutation:false});}
+function describeCoverage(catalog=[]){const actions=Array.isArray(catalog)?catalog:[];return immutable({contractId:CONTRACT_ID,version:VERSION,catalogActions:actions.length,aiRouted:actions.filter(aiRouteReady).length,manualOwnerFallbacks:actions.filter(action=>Boolean(manualFlow(action))).length,inputContractReady:actions.filter(action=>['READY','NATIVE_CHAT_CONTROL','NOT_APPLICABLE'].includes(text(action?.inputContract?.status).toUpperCase())).length,honestBlockingStates:Object.values(STATES).length,offersBlockedActions:false,ownerExecution:false});}
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,states:STATES,evaluateAction,discover,describeCoverage});
+})();
+
+;
+
+/* ===== core/intelligence/human-ai-consumer-projection-core.js ===== */
+var LuviaHumanAIConsumerProjectionCoreV1=(()=>{
+'use strict';
+
+const CONTRACT_ID='intelligence.human-ai-consumer-projection.v1';
+const VERSION='1';
+const RUNTIME_VERSION='1.0.0';
+const STATES=Object.freeze([
+  'AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE','NEEDS_INPUT',
+  'AUTHENTICATION_REQUIRED','SCOPE_DENIED','REAUTH_REQUIRED','CONSENT_REQUIRED','NETWORK_REQUIRED',
+  'PROVIDER_UNAVAILABLE','AI_ROUTE_MISSING','OWNER_UNAVAILABLE','INPUT_CONTRACT_MISSING',
+  'ACTION_UNAVAILABLE','NOT_APPLICABLE'
+]);
+const FIELD_LABELS=Object.freeze({
+  query:'deinen Wunsch',tripId:'die Reise',placeRef:'den Ort',providerPlaceId:'den Ort',placeId:'den Ort',
+  fields:'Datum und Uhrzeit',date:'das Datum',time:'die Uhrzeit',duration:'die Dauer',partySize:'die Personenzahl',
+  bookingRef:'die Buchung',bookingId:'die Buchung',entryRef:'den Reisemoment',title:'einen Titel',value:'den neuen Wert',
+  'location':'den Ort',destination:'das Reiseziel',dateRange:'den Reisezeitraum',email:'die E-Mail-Adresse',
+  code:'den Code',url:'den Link',reason:'den Grund',preferenceValues:'die gewünschten Vorlieben',
+  privacyPurpose:'wofür dein Standort verwendet werden darf',choice:'deine Auswahl',place:'den ausgewählten Ort',
+  startAt:'Datum und Uhrzeit',endAt:'die Endzeit',items:'den Inhalt'
+});
+const COPY=Object.freeze({
+  AVAILABLE_NOW:{tone:'ready',view:'ACTION',eyebrow:'Bereit',message:'Ich kann direkt weitermachen.',primary:'Jetzt anzeigen'},
+  AVAILABLE_AFTER_CONFIRMATION:{tone:'attention',view:'PREVIEW',eyebrow:'Noch einmal prüfen',message:'Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.',primary:'Vorschau ansehen',secondary:'Abbrechen'},
+  AVAILABLE_AFTER_USER_GESTURE:{tone:'attention',view:'HANDOFF',eyebrow:'Dein nächster Schritt',message:'Diese Aktion braucht einen sichtbaren Klick von dir.',primary:'Jetzt öffnen'},
+  NEEDS_INPUT:{tone:'attention',view:'QUESTION',eyebrow:'Eine Angabe fehlt',message:'Dafür brauche ich noch eine kurze Angabe.',primary:'Angabe ergänzen'},
+  AUTHENTICATION_REQUIRED:{tone:'attention',view:'HANDOFF',eyebrow:'Anmeldung nötig',message:'Melde dich bitte an, damit ich sicher fortfahren kann.',primary:'Anmelden'},
+  SCOPE_DENIED:{tone:'blocked',view:'NOTICE',eyebrow:'Nicht möglich',message:'Deine Rolle in dieser Reise erlaubt diese Änderung nicht.',primary:null},
+  REAUTH_REQUIRED:{tone:'attention',view:'HANDOFF',eyebrow:'Kurz bestätigen',message:'Bestätige bitte erneut deine Anmeldung.',primary:'Anmeldung bestätigen'},
+  CONSENT_REQUIRED:{tone:'attention',view:'PERMISSION',eyebrow:'Deine Freigabe',message:'Dafür brauche ich zuerst deine ausdrückliche Freigabe.',primary:'Freigabe prüfen'},
+  NETWORK_REQUIRED:{tone:'blocked',view:'RETRY',eyebrow:'Keine Verbindung',message:'Dafür wird eine Internetverbindung benötigt.',primary:'Erneut versuchen'},
+  PROVIDER_UNAVAILABLE:{tone:'blocked',view:'RETRY',eyebrow:'Gerade nicht erreichbar',message:'Die benötigten aktuellen Informationen sind gerade nicht erreichbar.',primary:'Erneut versuchen',secondary:'Selbst öffnen'},
+  AI_ROUTE_MISSING:{tone:'attention',view:'HANDOFF',eyebrow:'In der App verfügbar',message:'Diese Funktion kannst du bereits im passenden Bereich verwenden.',primary:'Bereich öffnen'},
+  OWNER_UNAVAILABLE:{tone:'blocked',view:'RETRY',eyebrow:'Gerade nicht erreichbar',message:'Der passende Bereich kann die Anfrage gerade nicht übernehmen.',primary:'Erneut versuchen'},
+  INPUT_CONTRACT_MISSING:{tone:'attention',view:'HANDOFF',eyebrow:'In der App verfügbar',message:'Diese Funktion ist im Chat noch nicht sicher vorbereitet.',primary:'Bereich öffnen'},
+  ACTION_UNAVAILABLE:{tone:'blocked',view:'NOTICE',eyebrow:'Noch nicht verfügbar',message:'Diese Funktion steht gerade nicht zur Verfügung.',primary:null},
+  NOT_APPLICABLE:{tone:'quiet',view:'HIDDEN',eyebrow:'',message:'',primary:null}
+});
+
+function immutable(value){if(value&&typeof value==='object'){Object.values(value).forEach(immutable);Object.freeze(value)}return value}
+function clean(value){return String(value??'').replace(/\s+/g,' ').trim()}
+function unique(values){return[...new Set((Array.isArray(values)?values:[]).map(clean).filter(Boolean))]}
+function titleCase(value){const text=clean(value);return text?text.charAt(0).toLocaleUpperCase('de-DE')+text.slice(1):''}
+function formatDate(value){const raw=clean(value),match=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);if(match)return`${match[3]}.${match[2]}.${match[1]}`;const german=raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);return german?`${german[1].padStart(2,'0')}.${german[2].padStart(2,'0')}.${german[3]}`:raw}
+function formatTime(value){const match=clean(value).match(/(?:T|^)(\d{1,2}):(\d{2})/);return match?`${match[1].padStart(2,'0')}:${match[2]} Uhr`:clean(value)}
+function consumerText(value,fallback=''){
+  let text=clean(value)||clean(fallback);
+  text=text
+    .replace(/\bAction Ledger\b/gi,'Verlauf')
+    .replace(/\bOwner[- ]?Receipt\b/gi,'Bestätigung')
+    .replace(/\bReceipt\b/gi,'Bestätigung')
+    .replace(/\bOwner\b/gi,'zuständiger Bereich')
+    .replace(/\bMutation(?:en)?\b/gi,'Änderungen')
+    .replace(/\bPreview\b/gi,'Vorschau')
+    .replace(/\bLifecycle\b/gi,'Ablauf')
+    .replace(/\bProvider\b/gi,'Dienst')
+    .replace(/\bContract\b/gi,'Verbindung')
+    .replace(/\b(?:[a-z][a-z0-9-]*\.){2,}[a-z0-9-]+\b/gi,'interne Funktion')
+    .replace(/\b\d{4}-(\d{2})-(\d{2})\b/g,(_,month,day)=>`${day}.${month}.${_.slice(0,4)}`);
+  return clean(text);
+}
+function fieldLabel(field){const key=clean(field).split('.').at(-1);return FIELD_LABELS[field]||FIELD_LABELS[key]||clean(field).replace(/[_-]+/g,' ')}
+function actionTitle(action={}){return consumerText(action.label||action.title||action.id,'Diese Aktion')}
+function mode(action={}){
+  const effect=clean(action.effect).toUpperCase(),stateChanging=action?.lifecycle?.stateChanging===true;
+  if(['UNAVAILABLE','HIDDEN'].includes(clean(action?.human?.status).toUpperCase()))return'UNAVAILABLE';
+  if(effect==='READ')return'READ';
+  if(effect==='NAVIGATION'||effect==='OPEN')return'OPEN';
+  if(effect==='DRAFT'&&!stateChanging)return'DRAFT';
+  if(effect==='EXTERNAL')return'EXTERNAL';
+  return stateChanging||['WRITE','DELETE'].includes(effect)?'CHANGE':'ACTION';
+}
+function projectCapability(input={}){
+  const action=input.action||{},capability=input.capability||{},state=STATES.includes(capability.state)?capability.state:'ACTION_UNAVAILABLE',copy=COPY[state],missing=unique(capability.missing).map(fieldLabel),manual=capability.manualFlow?.available===true,actionMode=mode(action),title=actionTitle(action);
+  const message=state==='NEEDS_INPUT'&&missing.length
+    ?`Dafür brauche ich noch ${missing.length===1?missing[0]:`${missing.slice(0,-1).join(', ')} und ${missing.at(-1)}`}.`
+    :consumerText(capability.consumerMessage||copy.message,copy.message);
+  const primary=copy.primary||(manual?'Bereich öffnen':null),secondary=copy.secondary||(manual&&state!=='AI_ROUTE_MISSING'?'Selbst öffnen':null);
+  return immutable({contractId:CONTRACT_ID,actionId:clean(action.id||capability.actionId)||null,state,view:copy.view,tone:copy.tone,hidden:copy.view==='HIDDEN',title,eyebrow:state==='NEEDS_INPUT'&&missing.length>1?'Angaben fehlen':copy.eyebrow,message,details:missing,primaryAction:primary?{label:primary,kind:state==='AVAILABLE_AFTER_CONFIRMATION'?'PREVIEW':state==='NEEDS_INPUT'?'CLARIFY':state==='AVAILABLE_NOW'?'PROCEED':state.includes('NETWORK')||state.includes('UNAVAILABLE')?'RETRY':'OPEN'}:null,secondaryAction:secondary?{label:secondary,kind:secondary==='Abbrechen'?'CANCEL':'OPEN'}:null,requiresConfirmation:state==='AVAILABLE_AFTER_CONFIRMATION',actionMode,manualFlow:manual?{label:consumerText(capability.manualFlow.label,'Passenden Bereich öffnen'),surface:consumerText(capability.manualFlow.surface)}:null});
+}
+function projectCatalog(catalog=[]){return immutable((Array.isArray(catalog)?catalog:[]).map(action=>{const actionMode=mode(action),state=actionMode==='UNAVAILABLE'?'ACTION_UNAVAILABLE':action?.ai?.runtimeRegistered===true?(action?.lifecycle?.stateChanging===true?'AVAILABLE_AFTER_CONFIRMATION':'AVAILABLE_NOW'):'AI_ROUTE_MISSING';return projectCapability({action,capability:{actionId:action.id,state,manualFlow:{available:['AVAILABLE','CONDITIONAL'].includes(clean(action?.human?.status).toUpperCase()),label:`${actionTitle(action)} selbst öffnen`,surface:action.surface}}})}))}
+function projectIntentSummary(compiled={}){
+  const intents=Array.isArray(compiled.intents)?compiled.intents:[],issues=[...(compiled.conflicts||[]),...(compiled.blockedCommands||[]),...(compiled.missingInputs||[])],simpleResolved=compiled.status==='compiled'&&intents.length===1&&!issues.length;
+  if(!intents.length)return immutable({visible:false,title:'',items:[],message:''});
+  const items=intents.slice(0,4).map((intent,index)=>({sequence:index+1,label:consumerText(intent.consumerLabel||intent.clause||intent.label,`Wunsch ${index+1}`),requiresConfirmation:intent.mode!=='read'}));
+  const missing=unique((compiled.missingInputs||[]).map(item=>fieldLabel(item.input||item.field||item)));
+  const state=compiled.status==='needs-clarification'?'QUESTION':compiled.status==='blocked'?'BLOCKED':compiled.status==='conflicted'?'CONFLICT':'READY';
+  const title=state==='QUESTION'?'Eine Angabe fehlt':state==='BLOCKED'?'So kann ich das nicht ausführen':state==='CONFLICT'?'Bitte entscheide dich':`Ich kümmere mich um ${items.length} Dinge`;
+  const message=missing.length?`Ergänze bitte ${missing.length===1?missing[0]:`${missing.slice(0,-1).join(', ')} und ${missing.at(-1)}`}.`:items.some(item=>item.requiresConfirmation)?'Änderungen zeige ich dir zuerst zur Bestätigung.':'';
+  return immutable({visible:!simpleResolved,state,title,message,items});
+}
+function previewDetails(preview={}){
+  const date=formatDate(preview.date||preview.startAt),clock=formatTime(preview.time||preview.startAt),details=[];
+  if(preview.name||preview.title)details.push({label:'Was',value:consumerText(preview.name||preview.title)});
+  if(date)details.push({label:'Datum',value:date});
+  if(clock)details.push({label:'Uhrzeit',value:clock});
+  if(preview.partySize)details.push({label:'Personen',value:String(preview.partySize)});
+  if(preview.duration)details.push({label:'Dauer',value:consumerText(preview.duration)});
+  return details.slice(0,5);
+}
+function projectPreview(input={}){
+  const result=input.result||{},preview=input.preview||result?.evidence?.preview||{},details=previewDetails(preview),undo=input.compensatesLedgerId||input.undo===true,title=undo?'Änderung rückgängig machen?':consumerText(result.title||input.title,'Bitte noch einmal prüfen');
+  return immutable({contractId:CONTRACT_ID,view:'PREVIEW',tone:'attention',eyebrow:'Bitte prüfen',title,message:consumerText(result.message||input.message,undo?'Die vorherige Änderung wird zurückgenommen.':'Erst nach deiner Bestätigung wird etwas geändert.'),details,note:undo?'Auch das Rückgängigmachen wird erst nach deiner Bestätigung ausgeführt.':'Du entscheidest. Ohne Bestätigung bleibt alles unverändert.',primaryAction:{label:undo?'Rückgängig machen':'Bestätigen',kind:'CONFIRM'},secondaryAction:{label:'Abbrechen',kind:'CANCEL'}})
+}
+function projectReceipt(input={}){
+  const result=input.result||{},status=clean(input.status||result?.evidence?.status||result.status||'completed').toLowerCase(),recoveryKind=clean(input.recoveryKind),states={completed:{tone:'success',eyebrow:'Erledigt',title:'Änderung gespeichert'},opened:{tone:'success',eyebrow:'Geöffnet',title:'Für dich geöffnet'},failed:{tone:'blocked',eyebrow:'Nicht ausgeführt',title:'Das hat nicht geklappt'},outcome_unknown:{tone:'attention',eyebrow:'Wird geprüft',title:'Der Ausgang ist noch offen'},cancelled:{tone:'quiet',eyebrow:'Verworfen',title:'Nichts wurde geändert'},compensated:{tone:'success',eyebrow:'Rückgängig gemacht',title:'Die Änderung wurde zurückgenommen'}},copy=states[status]||states.completed;
+  const primary=recoveryKind==='undo'?{label:'Rückgängig machen',kind:'UNDO'}:recoveryKind==='retry'?{label:'Erneut versuchen',kind:'RETRY'}:null;
+  const note=recoveryKind==='reconcile'?'Ich prüfe zuerst den tatsächlichen Stand und wiederhole nichts automatisch.':recoveryKind==='manual'?'Falls du das zurücknehmen möchtest, öffne bitte den vorgesehenen Hilfeweg.':'';
+  return immutable({contractId:CONTRACT_ID,view:'RECEIPT',tone:copy.tone,status,eyebrow:copy.eyebrow,title:consumerText(result.title,copy.title),message:consumerText(result.message,status==='completed'?'Die Änderung ist im aktuellen Stand angekommen.':copy.title),note,primaryAction:primary});
+}
+function projectReadFailure(input={}){const area=consumerText(input.area||input.result?.owner,'Diesen Teil');return immutable({contractId:CONTRACT_ID,view:'ERROR',tone:'blocked',eyebrow:'Gerade nicht verfügbar',title:`${titleCase(area)} konnte ich nicht zuverlässig laden`,message:'Versuche es noch einmal oder passe deinen Wunsch an. Es wurde nichts verändert.',primaryAction:{label:'Erneut versuchen',kind:'RETRY'},secondaryAction:{label:'Wunsch anpassen',kind:'REFINE'}})}
+function projectResult(result={},options={}){return immutable({contractId:CONTRACT_ID,view:'RESULT',tone:result.kind==='error'?'blocked':'ready',eyebrow:consumerText(options.area||result.owner,'Für deine Reise'),title:consumerText(result.title,'Das habe ich gefunden'),message:consumerText(result.message),kind:clean(result.kind)||'message'})}
+function projectSequenceTransition(input={}){const next=consumerText(input.nextLabel,'deinen nächsten Wunsch'),finished=input.finished===true;return immutable({title:finished?'Alles bearbeitet':'Als Nächstes',message:finished?'Alle Wünsche sind bearbeitet. Erledigte Änderungen bleiben im Verlauf sichtbar.':`Jetzt kümmere ich mich um ${next}.`})}
+function describeCoverage(catalog=[]){const projections=projectCatalog(catalog),views=Object.fromEntries([...new Set(projections.map(item=>item.view))].sort().map(view=>[view,projections.filter(item=>item.view===view).length]));return immutable({catalogActions:projections.length,projectedActions:projections.length,consumerViews:views,capabilityStates:STATES.length,technicalVocabularyHidden:true,duplicateSingleIntentSuppressed:true,dateFormat:'TT.MM.JJJJ'})}
+
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,states:STATES,formatDate,formatTime,consumerText,projectCapability,projectCatalog,projectIntentSummary,projectPreview,projectReceipt,projectReadFailure,projectResult,projectSequenceTransition,describeCoverage});
+})();
+
+;
+
+/* ===== core/intelligence/human-ai-parity-failure-matrix-core.js ===== */
+var LuviaHumanAIParityFailureMatrixCoreV1=(()=>{
+  'use strict';
+  const CONTRACT_ID='intelligence.human-ai-parity-failure-matrix.v1';
+  const VERSION='1';
+  const RUNTIME_VERSION='1.0.0';
+  const DIMENSIONS=Object.freeze(['contract','compiler','permission','confirmation','idempotency','receipt','recovery','undo','multilingual','typo','multiIntent','denial']);
+  const EXECUTABLE=new Set(['AVAILABLE','CONDITIONAL']);
+  const BOUND=new Set(['PUBLIC_CONTRACT_BOUND','PUBLIC_E2E_PROVEN','RUNTIME_REGISTERED']);
+  const AI_ROUTED=new Set(['PUBLIC_E2E_PASS','REGISTERED_PARTIAL','PARTIAL','NATIVE_CHAT']);
+  const freeze=value=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.freeze(value);for(const child of Object.values(value))freeze(child)}return value};
+  const text=value=>String(value??'').trim();
+  const byId=(items=[],key='actionId')=>new Map((items||[]).map(item=>[text(item?.[key]||item?.id),item]));
+  const dimension=(status,evidence,expected,extra={})=>freeze({status,evidence,expected,...extra});
+  const typoSample=value=>{const source=text(value);if(!source)return'';const replacements=[[/ä/i,'a'],[/ö/i,'o'],[/ü/i,'u'],[/ß/i,'ss'],[/ie/i,'i'],[/en\b/i,'n']];for(const [pattern,replacement]of replacements)if(pattern.test(source))return source.replace(pattern,replacement);return source.length>5?`${source.slice(0,3)}${source.slice(4)}`:source.toLowerCase()};
+  function denialCases(policy={}){
+    const cases=[];
+    if(text(policy.requiredScope)&&policy.requiredScope!=='PUBLIC')cases.push({id:'permission_denied',given:`Berechtigung ${policy.requiredScope} fehlt`,expected:'Keine Ausführung; erforderliche Berechtigung verständlich anzeigen'});
+    if(policy.reauthRequired===true)cases.push({id:'reauth_required',given:'Letzte Anmeldung ist zu alt',expected:'Erneute Anmeldung verlangen; keine Ausführung'});
+    if((policy.consentRequirements||[]).length)cases.push({id:'consent_missing',given:'Erforderliche Zustimmung fehlt',expected:'Zustimmung erklären und anfordern; keine Ausführung'});
+    if(policy.providerGate)cases.push({id:'provider_unavailable',given:`${policy.providerGate} ist nicht erreichbar`,expected:'Keine erfundenen Ergebnisse; Wiederholen oder manuellen Weg anbieten'});
+    if(policy.networkPolicy==='ONLINE_REQUIRED')cases.push({id:'offline',given:'Gerät ist offline',expected:'Offline-Hinweis und sichere Fortsetzung; keine Ausführung'});
+    return cases;
+  }
+  function failureCases({action={},policy={},lifecycle={},capability={},language={}}={}){
+    const cases=[
+      {id:'compiler_unresolved',given:'Wunsch kann nicht eindeutig zugeordnet werden',expected:'Rückfrage statt falscher Aktion'},
+      {id:'owner_unavailable',given:'Zuständiger Bereich antwortet nicht',expected:'Ehrlicher Fehlerzustand; keine erfundenen Daten'},
+      {id:'typo_input',given:typoSample(action.label),expected:`Weiterhin ${action.id} erkennen oder konkret nachfragen`},
+      {id:'multi_intent',given:`${action.label} und danach einen zweiten Wunsch bearbeiten`,expected:'Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen'},
+      ...denialCases(policy)
+    ];
+    if(capability.inputContractStatus==='OPEN'||(action.inputContract?.requiredFields||[]).length)cases.push({id:'input_missing',given:'Eine erforderliche Angabe fehlt',expected:'Fehlende Angabe konkret nennen; keinen Owner aufrufen'});
+    if(lifecycle.confirmation?.required)cases.push({id:'confirmation_rejected',given:'Vorschau wird abgebrochen',expected:'Keine Änderung; Ausgangsaktion wieder benutzbar'});
+    if(lifecycle.idempotency?.required)cases.push({id:'duplicate_command',given:'Derselbe bestätigte Befehl wird erneut gesendet',expected:'Keine doppelte Wirkung; vorhandenes Ergebnis zurückgeben'});
+    if(lifecycle.receipt?.required)cases.push({id:'outcome_unknown',given:'Ausgang der Änderung ist unbekannt',expected:'Nicht blind wiederholen; beim Owner abgleichen'});
+    if(lifecycle.stateChanging&&!lifecycle.undo?.supported)cases.push({id:'undo_unavailable',given:'Automatisches Rückgängig wird verlangt',expected:'Grenze ehrlich erklären und manuellen Wiederherstellungsweg zeigen'});
+    if(language.coverage!=='MULTILINGUAL_CURATED')cases.push({id:'multilingual_unproven',given:'Der Wunsch wird nicht auf Deutsch formuliert',expected:'Evidenz offen lassen oder sicher nachfragen'});
+    return freeze(cases);
+  }
+  function releaseStatus(action={},capability={}){
+    if(action.ai?.coverage==='PUBLIC_E2E_PASS')return'PUBLIC_E2E_PROVEN';
+    if(!EXECUTABLE.has(action.human?.status))return'NOT_APPLICABLE';
+    if(capability.aiRouted===true||AI_ROUTED.has(action.ai?.coverage))return'LOCAL_AI_PATH';
+    if(capability.manualOwnerFlowAvailable===true)return'MANUAL_OWNER_PATH';
+    return'BLOCKED';
+  }
+  function compileRow(input={}){
+    const action=input.action||{},language=input.language||{},policy=input.policy||{},lifecycle=input.lifecycle||{},capability=input.capability||{},projection=input.projection||{};
+    if(!text(action.id))throw new TypeError('Parity matrix action.id is required.');
+    const executable=EXECUTABLE.has(action.human?.status),routed=capability.aiRouted===true||AI_ROUTED.has(action.ai?.coverage),bound=BOUND.has(action.owner?.bindingStatus),stateChanging=lifecycle.stateChanging===true;
+    const denials=denialCases(policy),release=releaseStatus(action,capability),blockers=[];
+    if(executable&&release!=='PUBLIC_E2E_PROVEN')blockers.push('PUBLIC_E2E_EVIDENCE_OPEN');
+    if(executable&&!routed)blockers.push('AI_ROUTE_OPEN');
+    if(executable&&action.inputContract?.status==='OPEN')blockers.push('TYPED_INPUT_CONTRACT_OPEN');
+    if(executable&&language.coverage!=='MULTILINGUAL_CURATED')blockers.push('MULTILINGUAL_EVIDENCE_OPEN');
+    const dimensions={
+      contract:dimension(bound?'PASS':action.owner?.bindingStatus==='NOT_APPLICABLE'?'NOT_REQUIRED':'OPEN',`${action.owner?.contract||'Kein öffentlicher Vertrag'} · ${action.owner?.method||'keine Methode'}`,bound?'Öffentlichen Owner-Weg verwenden':'Owner-Vertrag ergänzen',{inputContractStatus:action.inputContract?.status||'OPEN'}),
+      compiler:dimension(language.coverage==='MULTILINGUAL_CURATED'?'PASS':'PARTIAL',language.coverage||'Kein Sprachvertrag',`„${action.label}“ eindeutig ${action.id} zuordnen`),
+      permission:dimension(policy.actionId?'PASS':'OPEN',policy.actionId?`${policy.classification} · ${policy.requiredScope}`:'Keine Sicherheitsregel','Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen'),
+      confirmation:dimension(stateChanging?(lifecycle.confirmation?.separateVisibleControl?'PASS':'OPEN'):'NOT_REQUIRED',stateChanging?'Separate sichtbare Bestätigung':'Keine Änderung',stateChanging?'Ohne Bestätigung keine Ausführung':'Direkt lesen oder öffnen'),
+      idempotency:dimension(stateChanging?(lifecycle.idempotency?.required?'PASS':'OPEN'):'NOT_REQUIRED',lifecycle.idempotency?.policy||'Nicht erforderlich',stateChanging?'Wiederholung darf keine doppelte Wirkung erzeugen':'Keine Mutations-ID erforderlich'),
+      receipt:dimension(lifecycle.receipt?.required?'PASS':'NOT_REQUIRED',lifecycle.receipt?.required?(lifecycle.receipt.ownerAttributed?'Owner-Ergebnis':'Kontrolliertes Ergebnis'):'Kein Schreib-Receipt erforderlich',lifecycle.receipt?.required?'Erfolg, Fehler oder unbekannten Ausgang sichtbar belegen':'Lesergebnis normal darstellen'),
+      recovery:dimension(lifecycle.recovery?.description?'PASS':'OPEN',lifecycle.recovery?.description||'Kein Wiederherstellungsweg',lifecycle.recovery?.blindRetry===false?'Keine blinde Wiederholung':'Wiederholungsgrenze ergänzen'),
+      undo:dimension(lifecycle.undo?.supported?'PASS':'NOT_REQUIRED',lifecycle.undo?.supported?'Eigene Vorschau und Bestätigung':'Nicht automatisch zugesagt',lifecycle.undo?.supported?'Rückgängig als neue geschützte Änderung':'Manuellen Wiederherstellungsweg nennen'),
+      multilingual:dimension(language.coverage==='MULTILINGUAL_CURATED'?'PASS':'OPEN',(language.curatedLocales||[]).join(', ')||'Nur kanonisches Deutsch',language.coverage==='MULTILINGUAL_CURATED'?'Kuratierten mehrsprachigen Fall auswerten':'Mehrsprachigen Beleg ergänzen'),
+      typo:dimension(language.coverage==='MULTILINGUAL_CURATED'?'PARTIAL':'OPEN',typoSample(action.label),`Tippfehler sicher als ${action.id} erkennen oder nachfragen`),
+      multiIntent:dimension(!executable?'NOT_REQUIRED':routed?'PARTIAL':'OPEN',routed?'Allgemeine Sequenzierung vorhanden':'Aktionsspezifischer AI-Weg fehlt','Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen'),
+      denial:dimension(policy.actionId?'PASS':'OPEN',denials.length?`${denials.length} relevante Ablehnungsfälle`:'Basissperre gegen unzulässige Ausführung',denials.length?'Alle zutreffenden Ablehnungen fail-closed prüfen':'Unzulässige Ausführung weiterhin verhindern')
+    };
+    return freeze({sequence:action.sequence,actionId:action.id,label:action.label,category:action.category,area:action.area,surface:action.surface,effect:action.effect,risk:action.risk,humanStatus:action.human?.status,owner:{contract:action.owner?.contract||null,method:action.owner?.method||null,bindingStatus:action.owner?.bindingStatus||'OPEN'},ai:{coverage:action.ai?.coverage||'MISSING',routed,inputContractStatus:action.inputContract?.status||'OPEN',consumerView:projection.view||null},release:{status:release,publicEvidence:action.delivery?.publicEvidence||'OPEN',blockers:freeze([...new Set(blockers)])},dimensions:freeze(dimensions),failures:failureCases({action,policy,lifecycle,capability,language})});
+  }
+  function compileMatrix(input={}){
+    const actions=input.actions||[],languages=byId(input.languages),policies=byId(input.policies),lifecycles=byId(input.lifecycles),capabilities=byId(input.capabilities),projections=byId(input.projections);
+    return freeze(actions.map(action=>compileRow({action,language:languages.get(action.id),policy:policies.get(action.id),lifecycle:lifecycles.get(action.id),capability:capabilities.get(action.id),projection:projections.get(action.id)})));
+  }
+  const counts=(rows,key)=>rows.reduce((result,row)=>{const value=key(row);result[value]=(result[value]||0)+1;return result},{});
+  function describeCoverage(rows=[]){
+    const dimensionStatus={};for(const name of DIMENSIONS)dimensionStatus[name]=counts(rows,row=>row.dimensions[name].status);
+    return freeze({catalogActions:rows.length,matrixRows:rows.length,dimensions:DIMENSIONS.length,releaseStatus:counts(rows,row=>row.release.status),publicE2eProven:rows.filter(row=>row.release.status==='PUBLIC_E2E_PROVEN').length,localAiPaths:rows.filter(row=>row.release.status==='LOCAL_AI_PATH').length,manualOwnerPaths:rows.filter(row=>row.release.status==='MANUAL_OWNER_PATH').length,protectedChanges:rows.filter(row=>row.dimensions.confirmation.status==='PASS').length,generatedFailureCases:rows.reduce((sum,row)=>sum+row.failures.length,0,dimensionStatus),driftGuard:true,ownerExecution:false});
+  }
+  function query(rows=[],filters={}){
+    const search=text(filters.search).toLocaleLowerCase('de-DE'),category=text(filters.category),release=text(filters.releaseStatus),failure=text(filters.failureId),dimensionName=text(filters.dimension),dimensionStatus=text(filters.dimensionStatus),limit=Math.max(1,Math.min(Number(filters.limit)||rows.length,327));
+    return freeze(rows.filter(row=>(!search||[row.actionId,row.label,row.category,row.area,row.owner.contract,row.owner.method].some(value=>text(value).toLocaleLowerCase('de-DE').includes(search)))&&(!category||row.category===category)&&(!release||row.release.status===release)&&(!failure||row.failures.some(item=>item.id===failure))&&(!dimensionName||!dimensionStatus||row.dimensions[dimensionName]?.status===dimensionStatus)).slice(0,limit));
+  }
+  function projectRow(row={}){
+    const releaseLabels={PUBLIC_E2E_PROVEN:'Öffentlich bewiesen',LOCAL_AI_PATH:'Lokal über Luvia vorbereitet',MANUAL_OWNER_PATH:'Im passenden Bereich nutzbar',BLOCKED:'Noch nicht verfügbar',NOT_APPLICABLE:'Nicht als Produktaktion vorgesehen'};
+    const open=DIMENSIONS.filter(name=>['OPEN','PARTIAL','BLOCKED'].includes(row.dimensions?.[name]?.status));
+    return freeze({actionId:row.actionId,title:row.label,category:row.category,status:releaseLabels[row.release?.status]||'Status offen',summary:open.length?`${open.length} Nachweise sind noch offen.`:'Alle erforderlichen Nachweise sind vorhanden.',openDimensions:open,failures:(row.failures||[]).map(item=>({title:item.id.replaceAll('_',' '),message:item.expected}))});
+  }
+  return freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,dimensions:DIMENSIONS,compileRow,compileMatrix,describeCoverage,query,projectRow,typoSample});
+})();
+
+;
+
 /* ===== core/intelligence/verified-event-intelligence-core.js ===== */
 var LuviaVerifiedEventIntelligenceCoreV1=(()=>{
 'use strict';
@@ -11941,7 +13076,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.5.0-provider-truth';
+const RUNTIME_VERSION='1.9.0-complete-input-enforcement';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -11952,6 +13087,29 @@ const RESULT_KINDS=Object.freeze({
 const RECEIPT_STATUSES=Object.freeze(['prepared','confirmed','completed','opened','cancelled','failed','outcome_unknown','compensated']);
 const BLOCKED_KEYS=/^(email|phone|telephone|password|token|access_token|refresh_token|authorization|apikey|api_key|booking_number|reservation_number|payment|card|iban|address_exact)$/i;
 const LIMITS=Object.freeze({maxDepth:7,maxArray:40,maxString:1000,maxItems:12,maxActions:6,maxPermissions:8});
+const INPUT_CONTRACTS=Object.freeze({
+  'places.place.favorite':Object.freeze({schemaId:'luvia.ai-input.places.place.favorite.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.unfavorite':Object.freeze({schemaId:'luvia.ai-input.places.place.unfavorite.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.plan':Object.freeze({schemaId:'luvia.ai-input.places.place.plan.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.unplan':Object.freeze({schemaId:'luvia.ai-input.places.place.unplan.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.restaurant.open':Object.freeze({schemaId:'luvia.ai-input.booking.restaurant.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.trip.read':Object.freeze({schemaId:'luvia.ai-input.booking.trip.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.create':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.create.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.modify':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.modify.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.cancel':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.cancel.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.day.read':Object.freeze({schemaId:'luvia.ai-input.journey.day.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.day.open':Object.freeze({schemaId:'luvia.ai-input.journey.day.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.active.list':Object.freeze({schemaId:'luvia.ai-input.trip.active.list.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.active.select':Object.freeze({schemaId:'luvia.ai-input.trip.active.select.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.update.details':Object.freeze({schemaId:'luvia.ai-input.trip.update.details.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.restaurant.recommend':Object.freeze({schemaId:'luvia.ai-input.places.restaurant.recommend.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.discovery.recommend':Object.freeze({schemaId:'luvia.ai-input.places.discovery.recommend.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'events.verified.read':Object.freeze({schemaId:'luvia.ai-input.events.verified.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'memory.library.read':Object.freeze({schemaId:'luvia.ai-input.memory.library.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'memory.story.save':Object.freeze({schemaId:'luvia.ai-input.memory.story.save.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'identity.preferences.read':Object.freeze({schemaId:'luvia.ai-input.identity.preferences.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'identity.preferences.update':Object.freeze({schemaId:'luvia.ai-input.identity.preferences.update.v1',enforcement:'RUNTIME_ENFORCED'})
+});
 
 function clone(value){
   if(value==null||typeof value!=='object')return value;
@@ -11985,6 +13143,199 @@ function sanitize(value,depth=0,seen=new WeakSet()){
   return undefined;
 }
 function contractError(code,message,extra={}){const error=new Error(message);error.code=code;Object.assign(error,extra);return error}
+
+function validCalendarDate(value){
+  const match=text(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!match)return false;
+  const date=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));
+  return date.getUTCFullYear()===Number(match[1])&&date.getUTCMonth()===Number(match[2])-1&&date.getUTCDate()===Number(match[3]);
+}
+function validClockTime(value){return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(text(value))}
+function plainObject(value){return Boolean(value&&typeof value==='object'&&!Array.isArray(value))}
+function absoluteDateTime(value){const source=text(value);return Boolean(source&&/(?:z|[+-]\d{2}:?\d{2})$/i.test(source)&&!Number.isNaN(Date.parse(source)))}
+function zonedParts(value,timeZone){
+  const date=value instanceof Date?value:new Date(value);if(Number.isNaN(date.getTime()))return null;
+  try{
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date).map(part=>[part.type,part.value]));
+    return{year:Number(parts.year),month:Number(parts.month),day:Number(parts.day),hour:Number(parts.hour),minute:Number(parts.minute),second:Number(parts.second)};
+  }catch{return null}
+}
+function timeZoneOffset(value,timeZone){
+  const date=value instanceof Date?value:new Date(value),parts=zonedParts(date,timeZone);if(!parts)return null;
+  return Date.UTC(parts.year,parts.month-1,parts.day,parts.hour,parts.minute,parts.second)-Math.trunc(date.getTime()/1000)*1000;
+}
+function zonedDateTimeToIso(dateValue,timeValue,timeZone){
+  const date=text(dateValue),time=text(timeValue),zone=text(timeZone);if(!validCalendarDate(date)||!validClockTime(time)||!zone)return null;
+  const [year,month,day]=date.split('-').map(Number),[hour,minute]=time.split(':').map(Number),localEpoch=Date.UTC(year,month-1,day,hour,minute,0);
+  let offset=timeZoneOffset(new Date(localEpoch),zone);if(offset==null)return null;
+  let instant=new Date(localEpoch-offset);const corrected=timeZoneOffset(instant,zone);if(corrected==null)return null;if(corrected!==offset)instant=new Date(localEpoch-corrected);
+  const parts=zonedParts(instant,zone);if(!parts||parts.year!==year||parts.month!==month||parts.day!==day||parts.hour!==hour||parts.minute!==minute)return null;
+  const sameLocal=other=>{const candidate=zonedParts(other,zone);return candidate&&candidate.year===year&&candidate.month===month&&candidate.day===day&&candidate.hour===hour&&candidate.minute===minute};
+  if([30,60,90,120].some(minutes=>sameLocal(new Date(instant.getTime()+minutes*60000))||sameLocal(new Date(instant.getTime()-minutes*60000))))return null;
+  return instant.toISOString();
+}
+function validateActionInput(actionId,input={},context={}){
+  const action=getAction(actionId);if(!action)throw contractError('INTELLIGENCE_ACTION_UNKNOWN','Action is not registered.',{actionId:text(actionId)});
+  const contract=INPUT_CONTRACTS[action.id];if(!contract)return immutable({valid:true,enforced:false,actionId:action.id,schemaId:null,issues:[],normalized:null});
+  const issues=[],value=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
+  const issue=(code,path,message)=>issues.push({code,path,message});
+  const finish=normalized=>immutable({valid:issues.length===0,enforced:true,actionId:action.id,schemaId:contract.schemaId,enforcement:contract.enforcement,issues,normalized:issues.length?null:normalized});
+  if(action.id==='booking.restaurant.open'){
+    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Restaurants fehlt.');
+    if(value.tripId!=null&&!text(value.tripId))issue('format','tripId','Die Reise-ID ist ungültig.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,providerPlaceId:text(value.providerPlaceId),placeId:text(value.placeId)||null});
+  }
+  if(action.id==='booking.trip.read'){
+    const activeTripId=text(context.tripId);
+    if(!activeTripId)issue('required','context.tripId','Es ist keine aktive Reise ausgewählt.');
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Buchungssuche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Buchungssuche ist zu lang.');
+    if(value.intent!=null&&!['list','prerequisite-read','modify','cancel'].includes(text(value.intent)))issue('enum','intent','Der gewünschte Buchungsvorgang ist unbekannt.');
+    return finish({tripId:activeTripId,query:text(value.query)||null,intent:text(value.intent)||'list'});
+  }
+  if(action.id==='booking.reservation.create'){
+    if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+    if(!plainObject(value.place))issue('required','place','Das verifizierte Restaurant fehlt.');
+    else if(!text(value.place.providerPlaceId))issue('required','place.providerPlaceId','Eine verifizierte Provider-ID des Restaurants fehlt.');
+    if(value.startAt!=null&&!absoluteDateTime(value.startAt))issue('format','startAt','Der Reservierungszeitpunkt braucht einen eindeutigen UTC-Offset.');
+    if(value.endAt!=null&&!absoluteDateTime(value.endAt))issue('format','endAt','Das Reservierungsende braucht einen eindeutigen UTC-Offset.');
+    if(absoluteDateTime(value.startAt)&&absoluteDateTime(value.endAt)&&Date.parse(value.endAt)<=Date.parse(value.startAt))issue('conflict','endAt','Das Reservierungsende muss nach dem Beginn liegen.');
+    if(value.partySize!=null&&(!Number.isInteger(value.partySize)||value.partySize<1||value.partySize>100))issue('range','partySize','Die Personenzahl muss zwischen 1 und 100 liegen.');
+    if(value.email!=null&&text(value.email).length>320)issue('limit','email','Die E-Mail-Adresse ist zu lang.');
+    return finish({tripId:text(value.tripId),providerPlaceId:text(value.place?.providerPlaceId),startAt:text(value.startAt)||null,endAt:text(value.endAt)||null,partySize:value.partySize??null});
+  }
+  if(action.id==='booking.reservation.modify'){
+    if(!text(value.bookingId))issue('required','bookingId','Die Booking-ID fehlt.');
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Änderung fehlt.');
+    else if(Object.keys(value.patch).length>40)issue('limit','patch','Die Buchungsänderung enthält zu viele Felder.');
+    return finish({bookingId:text(value.bookingId),tripId:text(value.tripId)||text(context.tripId)||null,patch:plainObject(value.patch)?clone(value.patch):null});
+  }
+  if(action.id==='booking.reservation.cancel'){
+    if(!text(value.bookingId))issue('required','bookingId','Die Booking-ID fehlt.');
+    if(value.reason!=null&&text(value.reason).length>2000)issue('limit','reason','Der Stornierungsgrund ist zu lang.');
+    return finish({bookingId:text(value.bookingId),tripId:text(value.tripId)||text(context.tripId)||null,reason:text(value.reason)||null});
+  }
+  if(action.id==='journey.day.read'){
+    const activeTripId=text(context.tripId);
+    if(!activeTripId)issue('required','context.tripId','Es ist keine aktive Reise ausgewählt.');
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Tagesplan-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Tagesplan-Anfrage ist zu lang.');
+    if(value.date!=null&&value.date!==''&&!validCalendarDate(value.date))issue('format','date','Das Tagesplan-Datum ist ungültig.');
+    if(value.includePlanningDetails!=null&&typeof value.includePlanningDetails!=='boolean')issue('type','includePlanningDetails','Die Detailauswahl ist ungültig.');
+    return finish({tripId:activeTripId,date:text(value.date)||null,includePlanningDetails:value.includePlanningDetails===true});
+  }
+  if(action.id==='journey.day.open'){
+    if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+    if(value.date!=null&&!validCalendarDate(value.date))issue('format','date','Das zu öffnende Tagesplan-Datum ist ungültig.');
+    if(value.mode!=null&&!['schedule','edit','create'].includes(text(value.mode)))issue('enum','mode','Der gewünschte Bearbeitungsmodus ist unbekannt.');
+    return finish({tripId:text(value.tripId),date:text(value.date)||null,mode:text(value.mode)||'schedule'});
+  }
+  if(action.id==='trip.active.list'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Reise-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Reise-Anfrage ist zu lang.');
+    return finish({query:text(value.query)||null});
+  }
+  if(action.id==='trip.active.select'){
+    if(!text(value.tripId))issue('required','tripId','Die Zielreise fehlt.');
+    if(value.previousTripId!=null&&!text(value.previousTripId))issue('format','previousTripId','Die vorherige Reise-ID ist ungültig.');
+    return finish({tripId:text(value.tripId),previousTripId:text(value.previousTripId)||text(context.tripId)||null});
+  }
+  if(action.id==='trip.update.details'){
+    if(!text(value.tripId))issue('required','tripId','Die zu ändernde Reise fehlt.');
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Reiseänderung fehlt.');
+    else{
+      if(Object.keys(value.patch).length>40)issue('limit','patch','Die Reiseänderung enthält zu viele Felder.');
+      if(value.patch.startDate!=null&&!validCalendarDate(value.patch.startDate))issue('format','patch.startDate','Das Startdatum ist ungültig.');
+      if(value.patch.endDate!=null&&!validCalendarDate(value.patch.endDate))issue('format','patch.endDate','Das Enddatum ist ungültig.');
+      if(validCalendarDate(value.patch.startDate)&&validCalendarDate(value.patch.endDate)&&value.patch.endDate<value.patch.startDate)issue('conflict','patch.endDate','Das Reiseende muss am oder nach dem Start liegen.');
+    }
+    return finish({tripId:text(value.tripId),patch:plainObject(value.patch)?clone(value.patch):null});
+  }
+  if(['places.restaurant.recommend','places.discovery.recommend'].includes(action.id)){
+    const query=text(value.query);
+    if(!query)issue('required','query','Der Suchwunsch fehlt.');else if(query.length>1000)issue('limit','query','Der Suchwunsch ist zu lang.');
+    if(value.category!=null&&(typeof value.category!=='string'||!text(value.category)||text(value.category).length>80))issue('format','category','Die Ortskategorie ist ungültig.');
+    if(value.categories!=null){
+      if(!Array.isArray(value.categories))issue('type','categories','Die Ortskategorien müssen als Liste angegeben werden.');
+      else{
+        if(value.categories.length>8)issue('limit','categories','Es können höchstens acht Ortskategorien gleichzeitig gesucht werden.');
+        if(value.categories.some(item=>typeof item!=='string'||!text(item)||text(item).length>80))issue('format','categories','Mindestens eine Ortskategorie ist ungültig.');
+        if(new Set(value.categories.map(item=>text(item))).size!==value.categories.length)issue('unique','categories','Ortskategorien dürfen nicht doppelt vorkommen.');
+      }
+    }
+    if(value.limit!=null&&(!Number.isInteger(value.limit)||value.limit<1||value.limit>12))issue('range','limit','Die Trefferzahl muss zwischen 1 und 12 liegen.');
+    if(value.explicitPreferencePatch!=null&&(!plainObject(value.explicitPreferencePatch)||Object.keys(value.explicitPreferencePatch).length>30))issue('type','explicitPreferencePatch','Die ausdrücklich genannten Vorlieben sind ungültig oder zu umfangreich.');
+    if(value.spatialConstraints!=null&&!plainObject(value.spatialConstraints))issue('type','spatialConstraints','Die räumliche Einschränkung ist ungültig.');
+    if(value.strictPlaceType!=null&&(typeof value.strictPlaceType!=='string'||text(value.strictPlaceType).length>80))issue('format','strictPlaceType','Der gewünschte Ortstyp ist ungültig.');
+    if(value.mutationHints!=null&&(!plainObject(value.mutationHints)||Object.keys(value.mutationHints).length>6))issue('type','mutationHints','Die Aktionshinweise sind ungültig oder zu umfangreich.');
+    return finish({query,category:text(value.category)||null,categories:Array.isArray(value.categories)?value.categories.map(text):[],limit:value.limit??null,explicitPreferencePatch:plainObject(value.explicitPreferencePatch)?clone(value.explicitPreferencePatch):{},spatialConstraints:plainObject(value.spatialConstraints)?clone(value.spatialConstraints):null,strictPlaceType:text(value.strictPlaceType)||null,mutationHints:plainObject(value.mutationHints)?clone(value.mutationHints):{}});
+  }
+  if(action.id==='events.verified.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Event-Suche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Event-Suche ist zu lang.');
+    if(value.from!=null&&!absoluteDateTime(value.from))issue('format','from','Der Beginn des Event-Zeitraums braucht einen eindeutigen UTC-Offset.');
+    if(value.to!=null&&!absoluteDateTime(value.to))issue('format','to','Das Ende des Event-Zeitraums braucht einen eindeutigen UTC-Offset.');
+    if(absoluteDateTime(value.from)&&absoluteDateTime(value.to)&&Date.parse(value.to)<Date.parse(value.from))issue('conflict','to','Das Ende des Event-Zeitraums muss nach dem Beginn liegen.');
+    if(value.limit!=null&&(!Number.isInteger(value.limit)||value.limit<1||value.limit>50))issue('range','limit','Die Event-Trefferzahl muss zwischen 1 und 50 liegen.');
+    return finish({query:text(value.query)||null,from:text(value.from)||null,to:text(value.to)||null,limit:value.limit??null});
+  }
+  if(action.id==='memory.library.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Erinnerungssuche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Erinnerungssuche ist zu lang.');
+    return finish({query:text(value.query)||null});
+  }
+  if(action.id==='memory.story.save'){
+    if(value.storyId!=null&&(!text(value.storyId)||text(value.storyId).length>240))issue('format','storyId','Die Story-ID ist ungültig.');
+    if(!plainObject(value.story)||!Object.keys(value.story).length)issue('required','story','Die zu speichernde Geschichte fehlt.');
+    else{
+      if(value.story.id!=null&&(!text(value.story.id)||text(value.story.id).length>240))issue('format','story.id','Die Story-ID ist ungültig.');
+      if(value.story.title!=null&&(typeof value.story.title!=='string'||!text(value.story.title)||text(value.story.title).length>240))issue('format','story.title','Der Story-Titel ist ungültig.');
+      if(value.story.description!=null&&(typeof value.story.description!=='string'||value.story.description.length>10000))issue('limit','story.description','Der Storytext ist ungültig oder zu lang.');
+      if(value.story.status!=null&&!['draft','published','archived'].includes(text(value.story.status)))issue('enum','story.status','Der Story-Status ist unbekannt.');
+      if(value.story.mediaIds!=null){
+        if(!Array.isArray(value.story.mediaIds))issue('type','story.mediaIds','Die ausgewählten Medien müssen als Liste angegeben werden.');
+        else{
+          if(value.story.mediaIds.length>240)issue('limit','story.mediaIds','Es können höchstens 240 Medien verknüpft werden.');
+          if(value.story.mediaIds.some(item=>!text(item)||text(item).length>240))issue('format','story.mediaIds','Mindestens eine Medien-ID ist ungültig.');
+          if(new Set(value.story.mediaIds.map(text)).size!==value.story.mediaIds.length)issue('unique','story.mediaIds','Medien dürfen nicht doppelt verknüpft werden.');
+        }
+      }
+    }
+    return finish({storyId:text(value.storyId)||text(value.story?.id)||null,story:plainObject(value.story)?clone(value.story):null});
+  }
+  if(action.id==='identity.preferences.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Vorlieben-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Vorlieben-Anfrage ist zu lang.');
+    if(value.scope!=null&&value.scope!=='self')issue('enum','scope','Vorlieben dürfen hier nur für das eigene Profil gelesen werden.');
+    return finish({query:text(value.query)||null,scope:'self'});
+  }
+  if(action.id==='identity.preferences.update'){
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Profiländerung fehlt.');
+    else if(Object.keys(value.patch).length>40)issue('limit','patch','Die Profiländerung enthält zu viele Felder.');
+    if(value.source!=null&&(typeof value.source!=='string'||!text(value.source)||text(value.source).length>120))issue('format','source','Die Quelle der Profiländerung ist ungültig.');
+    if(value.evidenceId!=null&&(!text(value.evidenceId)||text(value.evidenceId).length>240))issue('format','evidenceId','Der Beleg der Profiländerung ist ungültig.');
+    return finish({patch:plainObject(value.patch)?clone(value.patch):null,source:text(value.source)||null,evidenceId:text(value.evidenceId)||null});
+  }
+  if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+  if(['places.place.favorite','places.place.unfavorite'].includes(action.id)){
+    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Orts fehlt.');
+    return finish({tripId:text(value.tripId),providerPlaceId:text(value.providerPlaceId),tripPlaceId:text(value.tripPlaceId)||null});
+  }
+  if(action.id==='places.place.unplan'){
+    if(!text(value.tripPlaceId))issue('required','tripPlaceId','Die Places-eigene Reiseort-ID fehlt.');
+    if(value.fields!=null&&!Array.isArray(value.fields)&&(typeof value.fields!=='object'||value.fields===null))issue('type','fields','Die zu entfernenden Planfelder sind ungültig.');
+    return finish({tripId:text(value.tripId),tripPlaceId:text(value.tripPlaceId),providerPlaceId:text(value.providerPlaceId)||null});
+  }
+  if(!text(value.providerPlaceId)&&!text(value.tripPlaceId))issue('required','providerPlaceId|tripPlaceId','Eine verifizierte Owner-ID des Orts fehlt.');
+  const date=text(value.date),time=text(value.time),plannedAt=text(value.fields?.planned_at),timeZone=text(context.timeZone);
+  if(!date)issue('required','date','Das Datum fehlt.');else if(!validCalendarDate(date))issue('format','date','Das Datum ist ungültig.');
+  if(!time)issue('required','time','Die Uhrzeit fehlt.');else if(!validClockTime(time))issue('format','time','Die Uhrzeit ist ungültig.');
+  if(!plannedAt)issue('required','fields.planned_at','Der Owner-Zeitpunkt fehlt.');else if(!/(?:z|[+-]\d{2}:?\d{2})$/i.test(plannedAt)||Number.isNaN(Date.parse(plannedAt)))issue('format','fields.planned_at','Der Owner-Zeitpunkt braucht einen eindeutigen UTC-Offset.');
+  if(!timeZone)issue('required','context.timeZone','Die Reise-Zeitzone fehlt.');else if(!zonedParts(new Date(0),timeZone))issue('format','context.timeZone','Die Reise-Zeitzone ist ungültig.');
+  const canResolve=!issues.some(entry=>['date','time','context.timeZone'].includes(entry.path)),expected=canResolve?zonedDateTimeToIso(date,time,timeZone):null;
+  if(canResolve&&!expected)issue('ambiguous','time','Die lokale Uhrzeit ist in dieser Reise-Zeitzone nicht eindeutig oder existiert nicht.');
+  if(expected&&plannedAt&&Date.parse(expected)!==Date.parse(plannedAt))issue('conflict','fields.planned_at','Bestätigte Uhrzeit und Owner-Zeitpunkt widersprechen sich.');
+  return finish({tripId:text(value.tripId),date,time,timeZone,plannedAt:expected});
+}
 
 const ACTIONS=Object.freeze([
   {id:'places.restaurant.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Restaurants finden',description:'Findet und ordnet echte Restaurantkandidaten im aktiven Reisekontext.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort.'},
@@ -12193,9 +13544,9 @@ function routeIntents(message=''){
 function routeIntent(message=''){
   return routeIntents(message)?.[0]||null;
 }
-function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
+function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',inputEnforcement:{runtimeEnforced:Object.keys(INPUT_CONTRACTS),remaining:ACTIONS.length-Object.keys(INPUT_CONTRACTS).length},unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeEvent,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,validateActionInput,zonedDateTimeToIso,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeEvent,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
 })();
 
 ;
@@ -12937,7 +14288,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.3.0';
+  const RUNTIME_VERSION = '1.10.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -13020,6 +14371,112 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
       providerUnavailable('LuviaTravelOrchestrationCoreV1');
   }
 
+  function languageCompiler() {
+    return root.LuviaHumanAILanguageCompilerCoreV1 ||
+      providerUnavailable('LuviaHumanAILanguageCompilerCoreV1');
+  }
+
+  function compileHumanActions(input = {}) {
+    return immutable(languageCompiler().compile(input));
+  }
+
+  function getHumanActionLanguageCoverage(catalog = []) {
+    return immutable(languageCompiler().describeCoverage(catalog));
+  }
+
+  function safetyPolicy() {
+    return root.LuviaHumanAISafetyPolicyCoreV1 ||
+      providerUnavailable('LuviaHumanAISafetyPolicyCoreV1');
+  }
+
+  function evaluateHumanActionAuthority(input = {}) {
+    return immutable(safetyPolicy().evaluate(input));
+  }
+
+  function getHumanActionSafetyCoverage(catalog = []) {
+    return immutable(safetyPolicy().describeCoverage(catalog));
+  }
+
+  function actionLifecycle() {
+    return root.LuviaHumanAIActionLifecycleCoreV1 ||
+      providerUnavailable('LuviaHumanAIActionLifecycleCoreV1');
+  }
+
+  function compileHumanActionLifecycle(action = {}) {
+    return immutable(actionLifecycle().compileLifecycle(action));
+  }
+
+  function createHumanActionLifecycle(input = {}) {
+    return immutable(actionLifecycle().createInstance(input));
+  }
+
+  function advanceHumanActionLifecycle(instance = {}, event = {}) {
+    return immutable(actionLifecycle().transition(instance, event));
+  }
+
+  function getHumanActionLifecycleCoverage(catalog = []) {
+    return immutable(actionLifecycle().describeCoverage(catalog));
+  }
+
+  function capabilityDiscovery() {
+    return root.LuviaHumanAICapabilityDiscoveryCoreV1 ||
+      providerUnavailable('LuviaHumanAICapabilityDiscoveryCoreV1');
+  }
+
+  function discoverHumanActionCapabilities(input = {}) {
+    return immutable(capabilityDiscovery().discover(input));
+  }
+
+  function getHumanActionCapabilityCoverage(catalog = []) {
+    return immutable(capabilityDiscovery().describeCoverage(catalog));
+  }
+
+  function consumerProjection() {
+    return root.LuviaHumanAIConsumerProjectionCoreV1 ||
+      providerUnavailable('LuviaHumanAIConsumerProjectionCoreV1');
+  }
+
+  function projectHumanActionConsumer(input = {}) {
+    return immutable(consumerProjection().projectCapability(input));
+  }
+
+  function projectHumanActionConversation(compiled = {}) {
+    return immutable(consumerProjection().projectIntentSummary(compiled));
+  }
+
+  function projectHumanActionPreview(input = {}) {
+    return immutable(consumerProjection().projectPreview(input));
+  }
+
+  function projectHumanActionReceipt(input = {}) {
+    return immutable(consumerProjection().projectReceipt(input));
+  }
+
+  function getHumanActionConsumerCoverage(catalog = []) {
+    return immutable(consumerProjection().describeCoverage(catalog));
+  }
+
+  function parityFailureMatrix() {
+    return root.LuviaHumanAIParityFailureMatrixCoreV1 ||
+      providerUnavailable('LuviaHumanAIParityFailureMatrixCoreV1');
+  }
+
+  function compileHumanActionParityMatrix(input = {}) {
+    return immutable(parityFailureMatrix().compileMatrix(input));
+  }
+
+  function queryHumanActionParityMatrix(rows = [], filters = {}) {
+    return immutable(parityFailureMatrix().query(rows, filters));
+  }
+
+  function projectHumanActionParityRow(row = {}) {
+    return immutable(parityFailureMatrix().projectRow(row));
+  }
+
+  function getHumanActionParityCoverage(rows = []) {
+    return immutable(parityFailureMatrix().describeCoverage(rows));
+  }
+
   function planningTrace(input = {}) {
     return immutable(travelOrchestration().planningTrace(input));
   }
@@ -13078,6 +14535,18 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     return domainCore().projectMemorySnapshot(provider.snapshot());
   }
 
+  async function confirmLearningSignal(signal = {}) {
+    const provider = root.LuviaAIMemory;
+    if (typeof provider?.confirmSignal !== 'function') providerUnavailable('LuviaAIMemory.confirmSignal');
+    return immutable(await provider.confirmSignal(signal));
+  }
+
+  async function dismissLearningSignal(signal = {}) {
+    const provider = root.LuviaAIMemory;
+    if (typeof provider?.dismissSignal !== 'function') providerUnavailable('LuviaAIMemory.dismissSignal');
+    return immutable(await provider.dismissSignal(signal));
+  }
+
   function getSystemSnapshot() {
     const core = domainCore();
     const diagnostics = root.LuviaAI?.diagnostics?.() || {};
@@ -13131,6 +14600,12 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
       providers: Object.freeze({
         domainCore: Boolean(core),
         travelOrchestration: Boolean(root.LuviaTravelOrchestrationCoreV1),
+        humanActionLanguageCompiler: Boolean(root.LuviaHumanAILanguageCompilerCoreV1),
+        humanActionSafetyPolicy: Boolean(root.LuviaHumanAISafetyPolicyCoreV1),
+        humanActionLifecycle: Boolean(root.LuviaHumanAIActionLifecycleCoreV1),
+        humanActionCapabilityDiscovery: Boolean(root.LuviaHumanAICapabilityDiscoveryCoreV1),
+        humanActionConsumerProjection: Boolean(root.LuviaHumanAIConsumerProjectionCoreV1),
+        humanActionParityFailureMatrix: Boolean(root.LuviaHumanAIParityFailureMatrixCoreV1),
         preferenceResolver: Boolean(root.LuviaTripPreferenceResolutionCoreV1),
         runtime: Boolean(root.LuviaAI),
         proposals: Boolean(root.LuviaAIProposals?.create),
@@ -13161,11 +14636,30 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
       planningTrace,
       gateContext,
       causalFeedback,
+      compileHumanActions,
+      getHumanActionLanguageCoverage,
+      evaluateHumanActionAuthority,
+      getHumanActionSafetyCoverage,
+      compileHumanActionLifecycle,
+      createHumanActionLifecycle,
+      advanceHumanActionLifecycle,
+      getHumanActionLifecycleCoverage,
+      discoverHumanActionCapabilities,
+      getHumanActionCapabilityCoverage,
+      projectHumanActionConsumer,
+      projectHumanActionConversation,
+      projectHumanActionPreview,
+      projectHumanActionReceipt,
+      getHumanActionConsumerCoverage,
+      compileHumanActionParityMatrix,
+      queryHumanActionParityMatrix,
+      projectHumanActionParityRow,
+      getHumanActionParityCoverage,
       getMemorySnapshot,
       getSystemSnapshot,
       subscribe
     }),
-    commands: Object.freeze({ createProposal }),
+    commands: Object.freeze({ createProposal, confirmLearningSignal, dismissLearningSignal }),
     events: EVENTS,
     getCapabilities,
     getCapability,
@@ -13179,6 +14673,25 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     planningTrace,
     gateContext,
     causalFeedback,
+    compileHumanActions,
+    getHumanActionLanguageCoverage,
+    evaluateHumanActionAuthority,
+    getHumanActionSafetyCoverage,
+    compileHumanActionLifecycle,
+    createHumanActionLifecycle,
+    advanceHumanActionLifecycle,
+    getHumanActionLifecycleCoverage,
+    discoverHumanActionCapabilities,
+    getHumanActionCapabilityCoverage,
+    projectHumanActionConsumer,
+    projectHumanActionConversation,
+    projectHumanActionPreview,
+    projectHumanActionReceipt,
+    getHumanActionConsumerCoverage,
+    compileHumanActionParityMatrix,
+    queryHumanActionParityMatrix,
+    projectHumanActionParityRow,
+    getHumanActionParityCoverage,
     getMemorySnapshot,
     getSystemSnapshot,
     run,
@@ -13188,6 +14701,8 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     explain,
     summarize,
     createProposal,
+    confirmLearningSignal,
+    dismissLearningSignal,
     subscribe,
     diagnostics
   });
@@ -13709,12 +15224,12 @@ window.LuviaAIMemoryBridge=Object.freeze({version:VERSION,build:BUILD,buildConte
 ;
 
 /* ===== core/diagnostics/media-readiness.js ===== */
-/* Release 13.82.133 - Core 4.82.133 */
+/* Release 13.82.134 - Core 4.82.134 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.133';
-  const BUILD='13.82.133';
+  const CORE='4.82.134';
+  const BUILD='13.82.134';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -16012,7 +17527,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.1.0';
+  const RUNTIME_VERSION='1.2.0';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -16026,6 +17541,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
   function creator(){const api=window.LuviaTripCreator;if(!api?.save)unavailable('LuviaTripCreator.save');return api}
   function experience(){const api=window.LuviaTripExperience;if(!api?.update)unavailable('LuviaTripExperience.update');return api}
   function joinFlow(){const api=window.LuviaJoinFlow;if(!api?.join)unavailable('LuviaJoinFlow.join');return api}
+  function draftCore(){return globalThis.LuviaTripDraftCoreV1||unavailable('LuviaTripDraftCoreV1')}
   const clean=value=>value==null?null:String(value);
   const coordinate=value=>value==null||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
   const freezeArray=items=>Object.freeze(items);
@@ -16206,6 +17722,14 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     const tripId=clean(result?.trip_id||result?.tripId||result?.id); return Object.freeze({joined:Boolean(tripId),tripId});
   }
 
+  const composition=Object.freeze({
+    createDraft(input={}){return draftCore().createDraft(input)},
+    updateDraft(draft={},patch={}){return draftCore().updateDraft(draft,patch)},
+    deferDraft(draft={}){return draftCore().deferDraft(draft)},
+    resumeDraft(draft={}){return draftCore().resumeDraft(draft)},
+    validateDraft(draft={}){return draftCore().validateDraft(draft)}
+  });
+
   function envelope(name,payload={},options={}){
     return Object.freeze({
       name,
@@ -16255,6 +17779,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
     reads:Object.freeze({listTrips,getTrip,getActiveTrip,getContext,subscribe}),
+    composition,
     runtime:Object.freeze({getState:getRuntimeState,initialize:initializeRuntime,loadRemote:loadRemoteRuntime}),
     commands:Object.freeze({selectActiveTrip,createTrip,createFirstTrip,updateTrip,applyResolvedDestination,joinTrip,commitTripSnapshot}),
     events:Object.freeze(['trip.created','trip.changed','trip.active.changed','trip.membership.changed','trip.timeline.changed']),
@@ -16267,6 +17792,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
       runtimeVersion:RUNTIME_VERSION,
       ready:Boolean(window.LuviaTripStateReaderV1&&window.LuviaTripContext),
       providers:Object.freeze({
+        draftCore:Boolean(globalThis.LuviaTripDraftCoreV1),
         store:Boolean(window.LuviaTripStateReaderV1),
         context:Boolean(window.LuviaTripContext),
         create:Boolean(window.LuviaTripCreator?.save),
@@ -16288,13 +17814,101 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 
 ;
 
+/* ===== core/collaboration/collaboration-interaction-contract-core.js ===== */
+var LuviaCollaborationInteractionContractCoreV1=(()=>{
+'use strict';
+
+const CONTRACT_ID='collaboration.interaction.v1';
+const VERSION='1';
+const RUNTIME_VERSION='1.0.0';
+const clean=value=>String(value??'').trim();
+function immutable(value){
+  if(value==null||typeof value!=='object')return value;
+  if(Array.isArray(value))return Object.freeze(value.map(immutable));
+  return Object.freeze(Object.fromEntries(Object.entries(value).map(([key,item])=>[key,immutable(item)])));
+}
+function fail(code,message){throw Object.assign(new Error(message),{code})}
+function inviteCode(value){const code=clean(value).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);if(code.length<5)fail('COLLABORATION_INVITE_CODE_INVALID','Bitte einen gültigen Einladungscode angeben.');return code}
+function memberName(value){const name=clean(value).slice(0,80);if(!name)fail('COLLABORATION_MEMBER_NAME_REQUIRED','Anzeigename fehlt.');return name}
+function trip(input={}){
+  const id=clean(input.id||input.tripId||input.trip_id),title=clean(input.title||input.tripName||input.trip_name)||'Unsere Reise',code=inviteCode(input.joinCode||input.join_code);
+  if(!id)fail('COLLABORATION_TRIP_REQUIRED','Reise fehlt.');
+  return immutable({id,title,joinCode:code,destinationName:clean(input.destinationName||input.destination?.name),symbol:clean(input.symbol)||'✦',accent:clean(input.accent)||'#ee6f83'});
+}
+function invitePayload(input={},baseUrl=''){
+  const selected=trip(input),root=clean(baseUrl).replace(/[?#].*$/,'')||'index.html',url=`${root}${root.includes('?')?'&':'?'}join=${encodeURIComponent(selected.joinCode)}`,text=`Komm mit auf unsere Reise ${selected.title}. ${url}`;
+  return immutable({trip:selected,code:selected.joinCode,url,title:`Einladung zu ${selected.title}`,text});
+}
+function preview(input={}){
+  const id=clean(input.trip_id||input.tripId||input.id);if(!id)fail('COLLABORATION_INVITE_UNAVAILABLE','Einladung enthält keine Reise.');
+  return immutable({tripId:id,title:clean(input.trip_name||input.tripName||input.title)||'Unsere Reise',destinationName:clean(input.destination_name||input.destinationName),symbol:clean(input.symbol)||'✦',accent:clean(input.accent)||'#ee6f83',memberCount:Math.max(0,Number(input.member_count||input.memberCount)||0),available:true});
+}
+function voteChoice(value){
+  if(value===true)return Object.freeze({id:'yes',providerValue:true,label:'Ja'});
+  if(value===false)return Object.freeze({id:'no',providerValue:false,label:'Nein'});
+  const choice=clean(value).toLowerCase();
+  if(['yes','ja','approve','approved'].includes(choice))return Object.freeze({id:'yes',providerValue:true,label:'Ja'});
+  if(['no','nein','reject','rejected'].includes(choice))return Object.freeze({id:'no',providerValue:false,label:'Nein'});
+  if(['abstain','enthalten','skip','neutral'].includes(choice)||value==null)return Object.freeze({id:'abstain',providerValue:null,label:'Enthalten'});
+  fail('COLLABORATION_VOTE_INVALID','Stimme muss Ja, Nein oder Enthalten sein.');
+}
+function diagnostics(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,browserless:true,membershipTruth:false,providerBoundary:'existing-trip-membership-and-proposal-providers'});}
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,inviteCode,memberName,trip,invitePayload,preview,voteChoice,diagnostics});
+})();
+
+;
+
+/* ===== core/platform/collaboration-contract-adapter.js ===== */
+(()=>{
+'use strict';
+
+const core=globalThis.LuviaCollaborationInteractionContractCoreV1;
+if(!core)throw new Error('Collaboration Interaction Contract v1: Browserless Core fehlt.');
+const CONTRACT_ID=core.contractId;
+const VERSION=core.version;
+const RUNTIME_VERSION='1.0.0-owner-adapter';
+
+function unavailable(provider){throw Object.assign(new Error(`Collaboration Interaction Contract v1: ${provider} ist nicht verfügbar.`),{code:'COLLABORATION_PROVIDER_UNAVAILABLE',provider})}
+function tripContract(){return globalThis.LuviaTripContractV1||unavailable('trip.v1')}
+function joinFlow(){return globalThis.LuviaJoinFlow||unavailable('LuviaJoinFlow')}
+function tripExperience(){return globalThis.LuviaTripExperience||unavailable('LuviaTripExperience')}
+function proposals(){return globalThis.LuviaJourneyPlaceProposals||unavailable('LuviaJourneyPlaceProposals')}
+function port(id){return globalThis.LuviaPlatformPorts?.get?.(id)||unavailable(id)}
+function activeTrip(input){return input&&typeof input==='object'?input:tripContract().reads?.getActiveTrip?.()||tripContract().getActiveTrip?.()||unavailable('active trip')}
+function baseUrl(){return globalThis.LuviaEnvironment?.universalLink?.('index.html')||`${globalThis.location?.origin||''}${globalThis.location?.pathname||'/index.html'}`}
+function sharePayload(input){return core.invitePayload(activeTrip(input),baseUrl())}
+
+function getInviteSharePayload(input){return sharePayload(input)}
+async function previewInvite(code){return core.preview(await joinFlow().preview(core.inviteCode(code)))}
+async function listProposals(input={}){return Object.freeze(await proposals().list(String(input.tripId||'').trim()||undefined,{openOnly:input.openOnly!==false}))}
+function openInvite(input){tripExperience().openInvite(activeTrip(input));return Object.freeze({opened:true,owner:'trip',contractId:CONTRACT_ID})}
+async function copyInviteCode(input){const payload=sharePayload(input),copied=await port('SharingPort').copyText(payload.code);return Object.freeze({...payload,copied:Boolean(copied),copiedValue:'code'})}
+async function copyInviteLink(input){const payload=sharePayload(input),copied=await port('SharingPort').copyText(payload.url);return Object.freeze({...payload,copied:Boolean(copied),copiedValue:'url'})}
+async function shareInvite(input){const payload=sharePayload(input),shared=await port('SharingPort').share({title:payload.title,text:payload.text,url:payload.url});if(!shared)await port('SharingPort').copyText(payload.url);return Object.freeze({...payload,shared:Boolean(shared),copiedFallback:!shared})}
+function openInviteEmail(input){const payload=sharePayload(input),url=`mailto:?subject=${encodeURIComponent(payload.title)}&body=${encodeURIComponent(payload.text)}`;return Object.freeze({...payload,opened:port('ExternalNavigationPort').open(url)!==false,channel:'email'})}
+function openInviteWhatsApp(input){const payload=sharePayload(input),url=`https://wa.me/?text=${encodeURIComponent(payload.text)}`;return Object.freeze({...payload,opened:port('ExternalNavigationPort').open(url)!==false,channel:'whatsapp'})}
+function setPendingJoinCode(input={}){const code=core.inviteCode(input.code||input);joinFlow().setPending({code,source:String(input.source||'public-contract')});return Object.freeze({pending:true,code})}
+function cancelJoin(){joinFlow().setPending(null);return Object.freeze({pending:false,cancelled:true})}
+async function joinTrip(input={}){return tripContract().commands.joinTrip(core.inviteCode(input.code),core.memberName(input.memberName))}
+function openJoinedTrip(input={}){const tripId=String(input.tripId||input.id||'').trim();if(!tripId)throw Object.assign(new Error('Reise-ID fehlt.'),{code:'COLLABORATION_TRIP_REQUIRED'});const selection=tripContract().commands.selectActiveTrip(tripId),intent=globalThis.LuviaNavigationContractV1?.createIntent?.('trip',{source:'collaboration.interaction.v1'});return Object.freeze({opened:true,tripId,selection,intent:intent||null})}
+async function voteProposal(input={}){const proposalId=String(input.proposalId||input.id||'').trim();if(!proposalId)throw Object.assign(new Error('Abstimmungs-ID fehlt.'),{code:'COLLABORATION_PROPOSAL_REQUIRED'});const choice=core.voteChoice(input.choice);const result=await proposals().vote(proposalId,choice.providerValue,String(input.tripId||'').trim()||undefined);return Object.freeze({choice,result})}
+
+const reads=Object.freeze({getInviteSharePayload,previewInvite,listProposals});
+const commands=Object.freeze({openInvite,copyInviteCode,copyInviteLink,shareInvite,openInviteEmail,openInviteWhatsApp,setPendingJoinCode,cancelJoin,joinTrip,openJoinedTrip,voteProposal});
+const api=Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,commands,diagnostics:()=>Object.freeze({...core.diagnostics(),runtimeVersion:RUNTIME_VERSION,providers:Object.freeze({trip:Boolean(globalThis.LuviaTripContractV1),join:Boolean(globalThis.LuviaJoinFlow),proposals:Boolean(globalThis.LuviaJourneyPlaceProposals),sharing:Boolean(globalThis.LuviaPlatformPorts?.get?.('SharingPort'))})})});
+globalThis.LuviaCollaborationInteractionContractV1=api;
+globalThis.LuviaGlobalContracts?.register?.({id:CONTRACT_ID,version:VERSION,required:false,probe:()=>({available:Boolean(globalThis.LuviaTripContractV1&&globalThis.LuviaJoinFlow),detail:'Collaboration interaction v1 compatibility owner adapter'})});
+})();
+
+;
+
 /* ===== core/platform/places-contract-adapter.js ===== */
 (() => {
   'use strict';
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.2.0-provider-media-hydration';
+  const RUNTIME_VERSION='1.4.0-owner-interaction-bundle';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -16312,6 +17926,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
   function coreCommand(name){const api=core(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPlaceCore.${name}`);return fn.bind(api)}
   function command(name){const api=commands(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPlaceCommands.${name}`);return fn.bind(api)}
   function visit(){const api=window.LuviaPresenceVisitCore;if(typeof api?.confirmVisit!=='function')unavailable('LuviaPresenceVisitCore.confirmVisit');return api}
+  function presenceCommand(name){const api=visit(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPresenceVisitCore.${name}`);return fn.bind(api)}
   const clean=value=>value==null?null:String(value);
   const httpsUrl=value=>{const url=clean(value)?.trim()||'';return /^https:\/\//i.test(url)?url:null};
   const usablePhoto=photo=>Boolean(photo&&(httpsUrl(photo.uri||photo.url||photo.photoUri)||clean(photo.name)));
@@ -16424,6 +18039,27 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}
   function createDeepLink(options={}){return domain().createDeepLink(options)}
   function openDiscovery(options={}){return platformPort('DeepLinkPort').open(createDeepLink(options))}
+  function selectView(input={}){
+    const view=String(typeof input==='string'?input:input.view||'').toLowerCase();
+    if(!['map','list'].includes(view))throw new Error('PLACES_VIEW_INVALID');
+    return Object.freeze({view,stateChanging:false});
+  }
+  function openWebsite(input={}){
+    if(input.userGesture!==true)throw new Error('PLACES_USER_GESTURE_REQUIRED');
+    const url=httpsUrl(input.url||input.website||input.place?.website||input.place?.websiteUri);
+    if(!url)throw new Error('PLACES_WEBSITE_REQUIRED');
+    return Object.freeze({opened:Boolean(platformPort('ExternalNavigationPort').open(url)),url,providerPlaceId:clean(input.providerPlaceId||input.place?.providerPlaceId)});
+  }
+  function openPhone(input={}){
+    const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.openTelephone)unavailable('LuviaPlatformActionContractV1.commands.openTelephone');
+    return api.commands.openTelephone({phone:input.phone||input.place?.phone||input.place?.internationalPhoneNumber,userGesture:input.userGesture});
+  }
+  function openMaps(input={}){
+    if(input.userGesture!==true)throw new Error('PLACES_USER_GESTURE_REQUIRED');
+    const place=input.place||{},coordinates=input.coordinates||place.coordinates||place.location||{};
+    const opened=platformPort('ExternalNavigationPort').openMaps({latitude:number(input.latitude??coordinates.latitude),longitude:number(input.longitude??coordinates.longitude),label:clean(input.label||place.name||place.address),providerPlaceId:clean(input.providerPlaceId||place.providerPlaceId)});
+    return Object.freeze({opened:Boolean(opened),providerPlaceId:clean(input.providerPlaceId||place.providerPlaceId)});
+  }
 
   async function importPlace(providerPlaceId,options={}){
     const response=await coreCommand('importProviderPlace')(providerPlaceId,options||{});
@@ -16476,6 +18112,10 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
   async function unplan(options={}){const result=await command('unplan')(options||{});return commandProjection('unplan',result,options||{})}
   async function updateLifecycle(tripPlaceId,value,patch={},options={}){const result=await coreCommand('updateLifecycleCloud')(tripPlaceId,value,patch||{},options||{});return commandProjection('updateLifecycle',result,{...options,tripPlaceId,lifecycle:value,isFavorite:typeof patch?.isFavorite==='boolean'?patch.isFavorite:undefined})}
   async function confirmVisit(placeId,patch={}){visit();return visitProjection(await coreCommand('recordVisit')(placeId,patch||{}))}
+  async function rejectVisit(visitId,reason){return visitProjection(await presenceCommand('rejectVisit')(clean(visitId),clean(reason)||'Nicht als Besuch übernehmen'))}
+  async function setLocationEnabled(value){return Object.freeze({enabled:Boolean(value),diagnostics:Object.freeze(await presenceCommand('setGlobalEnabled')(Boolean(value)))})}
+  async function refreshLocation(){return Object.freeze(await presenceCommand('refreshLocation')())}
+  function pendingVisits(){return freezeArray((visit().pendingVisits?.()||[]).map(visitProjection).filter(Boolean))}
 
   function snapshot(){
     const places=listPlaces();
@@ -16536,11 +18176,12 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink}),
-    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery}),
+    reads:Object.freeze({search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
+    composition:Object.freeze({selectView}),
+    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,
-    importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,openDiscovery,
+    search,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,
+    selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
     snapshot,
     diagnostics:()=>Object.freeze({
       contractId:CONTRACT_ID,
@@ -16576,7 +18217,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 ((root)=>{
 'use strict';
 
-const VERSION='1.9.0-referential-place-plan';
+const VERSION='1.13.0-complete-input-enforcement';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -16603,6 +18244,10 @@ const displayDate=value=>{const match=clean(value).match(/^(\d{4})-(\d{2})-(\d{2
 const tripId=trip=>clean(trip?.tripId||trip?.id)||null;
 const destination=trip=>clean(trip?.destination?.name||trip?.destination?.formattedAddress||trip?.destinationName||trip?.city);
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
+function runtimeTimeZone(explicit){
+  const active=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},profile=root.LuviaProfileService?.snapshot?.()||{};
+  return clean(explicit||active.timezone||active.timeZone||active.destination?.timezone||active.destination?.timeZone||profile.timezone||profile.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone);
+}
 function newId(prefix){return`${prefix}-${root.crypto?.randomUUID?.()||`${Date.now()}-${++sequence}`}`}
 function emit(reason,detail={}){const event=actionCore().immutable({reason,...detail});for(const listener of listeners){try{listener(event)}catch{}}root.dispatchEvent?.(new CustomEvent('luvia:ai-action-changed',{detail:event}));return event}
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():missing(owner)}
@@ -16610,6 +18255,18 @@ function operation(contract,path){return clean(path).split('.').reduce((value,ke
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
 function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null}}
 function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
+function ledgerPayload(definition,payload={}){
+  if(definition.id==='memory.story.save')return{tripId:payload.tripId||null,storyId:payload.storyId||payload.story?.id||null,story:{id:payload.story?.id||null,status:payload.story?.status||null,mediaIds:Array.isArray(payload.story?.mediaIds)?payload.story.mediaIds:[],contentOmitted:true},changedFields:Object.keys(payload.story||{}),contentOmitted:true};
+  if(definition.id==='identity.preferences.update')return{source:payload.source||null,evidenceId:payload.evidenceId||null,preferenceFields:Object.keys(payload.patch||{}),valuesOmitted:true};
+  return payload;
+}
+function confirmationPreview(definition,payload={}){
+  const base=previewPayload(payload);
+  if(definition.id==='memory.story.save')return{...base,story:{id:payload.storyId||payload.story?.id||null,title:clean(payload.story?.title)||null,status:clean(payload.story?.status)||'draft',descriptionPreview:clean(payload.story?.description).slice(0,280)||null,mediaCount:Array.isArray(payload.story?.mediaIds)?payload.story.mediaIds.length:0}};
+  if(definition.id==='identity.preferences.update')return{...base,changes:actionCore().sanitize(payload.patch||{})};
+  if(['trip.update.details','booking.reservation.modify'].includes(definition.id))return{...base,changes:actionCore().sanitize(payload.patch||{})};
+  return base;
+}
 function connectionSnapshot(){
   const owners=['trip','places','booking','journey','memory','identity','intelligence'];
   return actionCore().immutable(owners.map(owner=>{
@@ -16624,14 +18281,14 @@ function capabilitySnapshot(){
   return actionCore().createCapabilitySnapshot(availability);
 }
 
-function plannedAt(hint={}){if(!hint.date||!hint.time)return null;const parsed=new Date(`${hint.date}T${hint.time}:00`);return Number.isNaN(parsed.getTime())?null:parsed.toISOString()}
+function plannedAt(hint={},timeZone=runtimeTimeZone()){return actionCore().zonedDateTimeToIso?.(hint.date,hint.time,timeZone)||null}
 function mutationHints(compiled){
-  const intents=compiled?.intents||[],writes=intents.filter(intent=>intent.mode==='propose-write'),plan=writes.find(intent=>intent.domain==='journey'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|reiseplan|tagesplan|plan|schedule|add)\b/i.test(intent.clause))||writes.find(intent=>intent.domain==='places'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|plan|schedule|add)\b/i.test(intent.clause)),favorite=writes.find(intent=>intent.domain==='places'&&/\b(?:merk|speicher|favorit)\w*\b/i.test(intent.clause)),booking=writes.find(intent=>intent.domain==='booking');
-  return actionCore().immutable({plan:plan?{clause:plan.clause,date:plan.temporalHint?.date||null,time:plan.temporalHint?.time||null,plannedAt:plannedAt(plan.temporalHint)}:null,favorite:Boolean(favorite),booking:booking?{clause:booking.clause,date:booking.temporalHint?.date||null,time:booking.temporalHint?.time||null,partySize:booking.entityHints?.partySize||null}:null});
+  const intents=compiled?.intents||[],writes=intents.filter(intent=>intent.mode==='propose-write'),plan=writes.find(intent=>intent.domain==='journey'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|reiseplan|tagesplan|plan|schedule|add)\b/i.test(intent.clause))||writes.find(intent=>intent.domain==='places'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|plan|schedule|add)\b/i.test(intent.clause)),favorite=writes.find(intent=>intent.domain==='places'&&/\b(?:merk|speicher|favorit)\w*\b/i.test(intent.clause)),booking=writes.find(intent=>intent.domain==='booking'),timeZone=runtimeTimeZone();
+  return actionCore().immutable({plan:plan?{clause:plan.clause,date:plan.temporalHint?.date||null,time:plan.temporalHint?.time||null,timeZone,plannedAt:plannedAt(plan.temporalHint,timeZone)}:null,favorite:Boolean(favorite),booking:booking?{clause:booking.clause,date:booking.temporalHint?.date||null,time:booking.temporalHint?.time||null,partySize:booking.entityHints?.partySize||null}:null});
 }
 function placeActions(place,trip,hints={}){
   const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),bookable=/restaurant|cafe|bakery|bar|food|meal/.test(primary),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',name:place.name,address:place.address,website:place.website,reservationUrl:place.reservationUrl};
-  const planPayload=hints.plan?.plannedAt?{...payload,date:hints.plan.date,time:hints.plan.time,fields:{planned_at:hints.plan.plannedAt,place_name:place.name,notes:hints.plan.clause},requestedBy:'intelligence.travel-orchestration.v1'}:payload;
+  const planPayload=hints.plan?.plannedAt?{tripId:payload.tripId,providerPlaceId:payload.providerPlaceId,placeId:payload.placeId,placeType:payload.placeType,name:payload.name,date:hints.plan.date,time:hints.plan.time,fields:{planned_at:hints.plan.plannedAt,place_name:place.name,notes:hints.plan.clause},requestedBy:'intelligence.travel-orchestration.v1'}:payload;
   return[
     {actionId:place.isFavorite?'places.place.unfavorite':'places.place.favorite',label:place.isFavorite?'Favorit entfernen':'Als Favorit merken',payload},
     ...(bookable?[{actionId:'booking.restaurant.open',label:'Jetzt reservieren',payload:{...payload,type:'restaurant'}}]:[]),
@@ -16664,19 +18321,19 @@ function fairCategorySelection(places=[],categories=[],perCategoryLimit=3){
   return selected.concat(fallback).slice(0,Math.min(12,Math.max(perCategoryLimit,order.length*perCategoryLimit)));
 }
 async function placeDiscoveryResult(request,options={}){
-  const trip=tripContract().getActiveTrip?.()||{};const input=request.input||{},hints=input.mutationHints||{},strictPlaceType=request.actionId==='places.restaurant.recommend'?'restaurant':clean(input.strictPlaceType).toLowerCase()||null,confirmedPreferences=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),requestPreferences=input.explicitPreferencePatch||{},profileFallbackUsed=!Object.keys(requestPreferences).length,effectivePreferences={...confirmedPreferences,...requestPreferences},profileContext=options.profileContext||effectivePreferences,excluded=new Set((options.excludedProviderPlaceIds||[]).map(value=>clean(typeof value==='string'?value:providerId(value)).replace(/^places\//,'')).filter(Boolean)),inputSpatial=input.spatialConstraints||root.LuviaGlobalPlaceContracts?.spatialIntent?.(input.query)||null,sourceSpatial=root.LuviaGlobalPlaceContracts?.spatialIntent?.(options.sourceMessage)||null,spatialConstraints=inputSpatial?.explicit?inputSpatial:sourceSpatial?.explicit?sourceSpatial:inputSpatial;
+  const trip=tripContract().getActiveTrip?.()||{};const input=request.input||{};validatePreparedInput(actionCore().getAction(request.actionId),input,{...request.context,tripId:tripId(trip)});const hints=input.mutationHints||{},strictPlaceType=request.actionId==='places.restaurant.recommend'?'restaurant':clean(input.strictPlaceType).toLowerCase()||null,confirmedPreferences=await Promise.resolve(identityContract().getPreferences?.('self')??identityContract().reads?.getPreferences?.('self')??{}),requestPreferences=input.explicitPreferencePatch||{},profileFallbackUsed=!Object.keys(requestPreferences).length,effectivePreferences={...confirmedPreferences,...requestPreferences},profileContext=options.profileContext||effectivePreferences,excluded=new Set((options.excludedProviderPlaceIds||[]).map(value=>clean(typeof value==='string'?value:providerId(value)).replace(/^places\//,'')).filter(Boolean)),inputSpatial=input.spatialConstraints||root.LuviaGlobalPlaceContracts?.spatialIntent?.(input.query)||null,sourceSpatial=root.LuviaGlobalPlaceContracts?.spatialIntent?.(options.sourceMessage)||null,spatialConstraints=inputSpatial?.explicit?inputSpatial:sourceSpatial?.explicit?sourceSpatial:inputSpatial;
   const categories=Array.isArray(input.categories)&&input.categories.length?input.categories:[input.category||'places'];
   const ownerReads=rejectedProviderPlaceIds=>Promise.allSettled(categories.map(category=>placesContract().reads.recommend({tripId:tripId(trip),trip,text:input.query,query:input.query,category,destination:destination(trip),destinationContext:trip?.destination&&typeof trip.destination==='object'?trip.destination:null,limit:Math.min(3,Math.max(1,Number(input.limit||3))),candidateLimit:32,queryVariantLimit:3,preferences:effectivePreferences,profileContext,preferenceMode:profileFallbackUsed?'confirmed-profile-fallback':'explicit-request-over-confirmed-profile',strictPlaceType,rejectedProviderPlaceIds,spatialConstraints,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}})));
   let responses=await ownerReads([...excluded]),successful=responses.filter(response=>response.status==='fulfilled');if(!successful.length){const diagnostics=boundedProviderDiagnostics(responses,categories);throw Object.assign(new Error('Alle angeforderten Places-Owner-Reads sind fehlgeschlagen; Luvia zeigt keine erfundenen Treffer.'),{code:'PLACES_ALL_PROVIDERS_FAILED',providerDiagnostics:diagnostics})}
   const collect=(source,respectExclusions=true)=>{const seen=new Set(),places=[],repeats=[];source.forEach((response,index)=>{if(response.status!=='fulfilled')return;const ownerCategory=clean(response.value?.route?.category||categories[index]||categories[0]||'place').toLowerCase();for(const place of response.value?.places||[]){const id=providerId(place);if(!id||seen.has(id))continue;seen.add(id);const normalized={...place,requestCategory:ownerCategory,primaryType:place.primaryType||place.primary_type||ownerCategory};if(respectExclusions&&excluded.has(id))repeats.push(normalized);else places.push(normalized)}});return{places,repeats}};
   let collected=collect(responses,true),raw=collected.places,repeatFallbackUsed=false;if(!raw.length&&excluded.size){if(collected.repeats.length){raw=collected.repeats;repeatFallbackUsed=true}else{responses=await ownerReads([]);successful=responses.filter(response=>response.status==='fulfilled');if(!successful.length){const diagnostics=boundedProviderDiagnostics(responses,categories);throw Object.assign(new Error('Alle angeforderten Places-Owner-Reads sind fehlgeschlagen; Luvia zeigt keine erfundenen Treffer.'),{code:'PLACES_ALL_PROVIDERS_FAILED',providerDiagnostics:diagnostics})}raw=collect(responses,false).places;repeatFallbackUsed=raw.length>0}}
   if(!raw.length&&responses.some(response=>response.status==='rejected'))throw Object.assign(new Error('Mindestens ein angeforderter Places-Read ist fehlgeschlagen; ein vollständiger belastbarer Nulltreffer ist deshalb nicht belegt.'),{code:'PLACES_PROVIDER_READ_INCOMPLETE',providerDiagnostics:boundedProviderDiagnostics(responses,categories)});
-  const perCategoryLimit=Math.min(3,Math.max(1,Number(input.limit||3))),selected=fairCategorySelection(raw,categories,perCategoryLimit),cards=await Promise.all(selected.map(place=>resolveCard(place,trip,hints))),evidenceContracts=successful.map(response=>response.value?.evidenceContract).filter(Boolean),requiresInventoryVerification=evidenceContracts.some(contract=>contract.requiresInventoryVerification===true),noun=requiresInventoryVerification?'mögliche Einkaufsorte':categories.length>1?'Orte':'Möglichkeiten',planCopy=hints.plan?.plannedAt?` Deine gewünschte Zeit ${displayDate(hints.plan.date)} · ${hints.plan.time} Uhr steht an jeder passenden Aktion. Eingetragen wird sie erst nach deiner Bestätigung.`:'',profileFields=Object.entries(confirmedPreferences||{}).filter(([key,value])=>!/(?:updated|completed|schema|version)/i.test(key)&&(Array.isArray(value)?value.length:Boolean(value))).length,profileCopy=profileFallbackUsed?(profileFields?' Du hast in dieser Nachricht keine zusätzlichen Vorlieben genannt. Deshalb habe ich deine gespeicherten Profilvorlieben berücksichtigt.':' Für diese Auswahl sind noch keine gespeicherten Profilvorlieben hinterlegt.'):' Deine ausdrücklich genannten Vorlieben haben Vorrang.',diversityCopy=excluded.size?(repeatFallbackUsed?' Es waren gerade keine neuen passenden Orte verfügbar; deshalb zeige ich einige Treffer noch einmal.':' Bereits in diesem Chat gezeigte Orte habe ich diesmal ausgelassen.'):'',diversityMeta=successful.map(response=>response.value?.diversityMeta).find(Boolean)||null,providerDiagnostics=boundedProviderDiagnostics(responses,categories),categoryDistribution=Object.fromEntries(categories.map(category=>[category,cards.filter(card=>card.requestCategory===category).length])),providerCopy=providerDiagnostics.degraded?' Eine Quelle ist gerade eingeschränkt. Die sichtbaren Orte stammen nur aus den weiterhin erreichbaren, geprüften Quellen.':'',inventoryCopy=requiresInventoryVerification?' Die Quelle belegt den passenden Geschäftstyp, aber keinen aktuellen Warenbestand. Bitte prüfe vor dem Weg dorthin direkt beim Anbieter, ob der gewünschte Artikel vorrätig ist.':'';
-  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} passende ${noun}`:'Noch kein verlässlicher Ort gefunden',message:cards.length?`Die Orte stammen aus den jeweils genannten Quellen. Ich ordne sie passend zu deiner Reise und deinen Vorlieben ein.${profileCopy}${diversityCopy}${providerCopy}${inventoryCopy} Merken, zum Tag hinzufügen oder reservieren passiert erst, wenn du selbst auswählst.${planCopy}`:requiresInventoryVerification?'Ich finde gerade keinen belegten passenden Geschäftstyp. Einen aktuellen Warenbestand darf ich aus Place-Daten nicht ableiten.':'Passe Wunsch, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,aiReasonsNonAuthoritative:true,specificSubjectEvidenceRequired:evidenceContracts.some(contract=>contract.strict===true),evidenceContracts,inventoryVerified:false,inventoryVerificationRequired:requiresInventoryVerification,preferenceOwner:'identity.v1',confirmedProfileFields:profileFields,profileFallbackUsed,explicitRequestPreferenceFields:Object.keys(requestPreferences),query:input.query,categories,categoryDistribution,destination:destination(trip),tripId:tripId(trip),count:cards.length,excludedProviderPlaceIds:excluded.size,repeatFallbackUsed,diversityMeta,providerDiagnostics,observedAt:providerDiagnostics.observedAt,spatialConstraints,mutationHints:hints},meta:{actionId:request.actionId}});
+  const perCategoryLimit=Math.min(3,Math.max(1,Number(input.limit||3))),selected=fairCategorySelection(raw,categories,perCategoryLimit),cards=await Promise.all(selected.map(place=>resolveCard(place,trip,hints))),evidenceContracts=successful.map(response=>response.value?.evidenceContract).filter(Boolean),requiresInventoryVerification=evidenceContracts.some(contract=>contract.requiresInventoryVerification===true),noun=requiresInventoryVerification?'mögliche Einkaufsorte':categories.length>1?'Orte':'Möglichkeiten',planCopy=hints.plan?.plannedAt?` Gewünschte Zeit: ${displayDate(hints.plan.date)} · ${hints.plan.time} Uhr.`:'',profileFields=Object.entries(confirmedPreferences||{}).filter(([key,value])=>!/(?:updated|completed|schema|version)/i.test(key)&&(Array.isArray(value)?value.length:Boolean(value))).length,profileCopy=profileFallbackUsed&&profileFields?' Gespeicherte Vorlieben sind berücksichtigt.':!profileFallbackUsed?' Deine genannten Vorlieben haben Vorrang.':'',diversityCopy=excluded.size?(repeatFallbackUsed?' Einige bereits gezeigte Treffer sind wieder dabei.':' Bereits gezeigte Orte wurden ausgelassen.'):'',diversityMeta=successful.map(response=>response.value?.diversityMeta).find(Boolean)||null,providerDiagnostics=boundedProviderDiagnostics(responses,categories),categoryDistribution=Object.fromEntries(categories.map(category=>[category,cards.filter(card=>card.requestCategory===category).length])),providerCopy=providerDiagnostics.degraded?' Eine Quelle ist eingeschränkt.':'',inventoryCopy=requiresInventoryVerification?' Bestand bitte direkt beim Anbieter prüfen.':'';
+  return actionCore().normalizeResult({kind:cards.length?'place_collection':'message',owner:'places',contractId:'places.v1',title:cards.length?`${cards.length} passende ${noun}`:'Noch kein verlässlicher Ort gefunden',message:cards.length?`Belegte Treffer aus den genannten Quellen.${profileCopy}${diversityCopy}${providerCopy}${inventoryCopy}${planCopy}`:requiresInventoryVerification?'Kein belegter passender Geschäftstyp gefunden. Einen aktuellen Warenbestand darf ich aus Place-Daten nicht ableiten.':'Passe Wunsch, Entfernung oder Zeitpunkt an.',items:cards,evidence:{providerFactsAuthoritative:true,aiReasonsNonAuthoritative:true,specificSubjectEvidenceRequired:evidenceContracts.some(contract=>contract.strict===true),evidenceContracts,inventoryVerified:false,inventoryVerificationRequired:requiresInventoryVerification,preferenceOwner:'identity.v1',confirmedProfileFields:profileFields,profileFallbackUsed,explicitRequestPreferenceFields:Object.keys(requestPreferences),query:input.query,categories,categoryDistribution,destination:destination(trip),tripId:tripId(trip),count:cards.length,excludedProviderPlaceIds:excluded.size,repeatFallbackUsed,diversityMeta,providerDiagnostics,observedAt:providerDiagnostics.observedAt,spatialConstraints,mutationHints:hints},meta:{actionId:request.actionId}});
 }
 const restaurantResult=(request,options={})=>placeDiscoveryResult({...request,input:{...(request.input||{}),category:'food',categories:['food']}},options);
 async function dayResult(request){
-  const trip=tripContract().getActiveTrip?.()||{};const projection=await journeyContract().reads.snapshot({trip});const today=new Date().toISOString().slice(0,10),requestedDate=clean(request.input?.date),includePlanningDetails=request.input?.includePlanningDetails===true;
+  const trip=tripContract().getActiveTrip?.()||{},activeTripId=tripId(trip);validatePreparedInput(actionCore().getAction(request.actionId),request.input,{...request.context,tripId:activeTripId});const projection=await journeyContract().reads.snapshot({trip});const today=new Date().toISOString().slice(0,10),requestedDate=clean(request.input?.date),includePlanningDetails=request.input?.includePlanningDetails===true;
   const orderedDays=[...(projection?.days||[])].sort((left,right)=>left.date===today?-1:right.date===today?1:String(left.date).localeCompare(String(right.date)));
   const populatedDays=orderedDays.filter(day=>(day.entries||[]).length>0);
   const selected=requestedDate?[orderedDays.find(day=>String(day.date)===requestedDate)||{date:requestedDate,label:'',entries:[],conflicts:[]}]:[(populatedDays[0]||orderedDays[0])].filter(Boolean);
@@ -16694,12 +18351,12 @@ async function dayResult(request){
   return actionCore().normalizeResult({kind:'day_plan',owner:'journey',contractId:'journey.v1',title:days.length?`Dein Tagesplan${dateLabel?` am ${dateLabel}`:''}`:'Dein Reisetag ist noch offen',message:days.length?entries?`${momentLabel} ${entries===1?'ist':'sind'} an diesem Tag geplant.`:'Für diesen Tag ist noch nichts geplant.':'Luvia kann gemeinsam mit euch erste Reisemomente strukturieren.',items:days,actions:[{actionId:'journey.day.open',label:days.length?'Tag bearbeiten':'Tag planen',payload:{tripId:tripId(trip),date:days[0]?.date||today,mode:'schedule'}}],evidence:{journeyOwner:true,tripId:tripId(trip),summary:{...(projection?.summary||{}),visibleEntryCount:entries,visibleDate:days[0]?.date||null},routeUncertainty,rehearsals,disruptionRecovery,destinationTwin,offlineCrdt:{enabled:root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-07-offline-crdt-plan')===true,reserved:true,owner:'journey',ownerSyncRequired:true},planningDetailsIncluded:includePlanningDetails,probabilityClaim:false,automaticMutation:false},meta:{actionId:request.actionId,query:request.input?.query||'',compact:true,requestedDate:requestedDate||null,planningDetailsIncluded:includePlanningDetails,slices:['S16.03','S16.04','S16.05','S16.08']}});
 }
 async function tripResult(request){
-  const contract=tripContract(),active=contract.getActiveTrip?.()||contract.reads?.getActiveTrip?.()||null;const trips=contract.listTrips?.()||contract.reads?.listTrips?.()||[];
+  validatePreparedInput(actionCore().getAction(request.actionId),request.input,request.context||{});const contract=tripContract(),active=contract.getActiveTrip?.()||contract.reads?.getActiveTrip?.()||null;const trips=contract.listTrips?.()||contract.reads?.listTrips?.()||[];
   const items=trips.map(trip=>({...trip,active:String(trip.id)===String(active?.id),actions:String(trip.id)===String(active?.id)?[]:[{actionId:'trip.active.select',label:'Diese Reise öffnen',payload:{tripId:trip.id,name:trip.title}}]}));
   return actionCore().normalizeResult({kind:'trip_collection',owner:'trip',contractId:'trip.v1',title:items.length?'Deine Reisen':'Noch keine Reise verfügbar',message:items.length?'Wähle die Reise aus, mit der du weiterarbeiten möchtest. Luvia verwendet danach deren Ziel, Zeitraum und bestätigte Vorlieben.':'Erstelle zuerst eine Reise in Luvia.',items,evidence:{activeTripId:active?.id||null,count:items.length},meta:{actionId:request.actionId}});
 }
 async function bookingResult(request){
-  const trip=tripContract().getActiveTrip?.()||{};const rows=await bookingContract().reads.listForTrip(tripId(trip));
+  const trip=tripContract().getActiveTrip?.()||{},activeTripId=tripId(trip);validatePreparedInput(actionCore().getAction(request.actionId),request.input,{...request.context,tripId:activeTripId});const rows=await bookingContract().reads.listForTrip(activeTripId);
   const items=(Array.isArray(rows)?rows:rows?.bookings||[]).map(booking=>{
     const id=booking.id||booking.bookingId||booking.booking_id,status=clean(booking.status).toLowerCase();const actions=[];
     if(id&&!['cancelled','canceled','completed','failed'].includes(status)){
@@ -16711,15 +18368,15 @@ async function bookingResult(request){
   return actionCore().normalizeResult({kind:'booking_collection',owner:'booking',contractId:'booking.v1',title:items.length?'Buchungen dieser Reise':'Noch keine Buchung vorhanden',message:items.length?'Hier siehst du den aktuellen Stand deiner Buchungen. Änderungen und Stornierungen werden immer noch einmal einzeln bestätigt.':'Neue Reservierungen startest du bei einem konkreten Ort.',items,evidence:{tripId:tripId(trip),count:items.length,requestedIntent:request.input?.intent||'list'},meta:{actionId:request.actionId}});
 }
 async function memoryResult(request){
-  const rows=await memoryContract().reads.listStories();const items=(Array.isArray(rows)?rows:[]).map(story=>({...story,actions:[]}));
+  validatePreparedInput(actionCore().getAction(request.actionId),request.input,request.context||{});const activeTrip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{};const rows=await memoryContract().reads.listStories({query:request.input?.query||'',tripId:tripId(activeTrip)});const items=(Array.isArray(rows)?rows:[]).map(story=>({...story,actions:[]}));
   return actionCore().normalizeResult({kind:'memory_collection',owner:'memory',contractId:'memory.v1',title:items.length?'Eure Reisegeschichten':'Noch keine kuratierte Geschichte',message:items.length?'Diese Geschichten wurden bereits für eure Reise gespeichert.':'Luvia kann aus ausgewählten Erinnerungen einen Entwurf vorbereiten, den du vor dem Speichern prüfst.',items,evidence:{count:items.length,memoryTruth:true,mediaTruth:false},meta:{actionId:request.actionId}});
 }
 async function preferenceResult(request){
-  const contract=identityContract();const direct=contract.getPreferences?.('self');const preferences=await Promise.resolve(direct??contract.reads?.getPreferences?.('self')??{});
+  validatePreparedInput(actionCore().getAction(request.actionId),request.input,request.context||{});const contract=identityContract();const direct=contract.getPreferences?.('self');const preferences=await Promise.resolve(direct??contract.reads?.getPreferences?.('self')??{});
   return actionCore().normalizeResult({kind:'preference_summary',owner:'identity',contractId:'identity.v1',title:'Deine bestätigten Vorlieben',message:'Ich berücksichtige nur Vorlieben, die du selbst bestätigt hast. Vermutungen werden nicht als deine Präferenzen gespeichert.',summary:preferences,actions:[],evidence:{scope:'self',explicitPreferences:true,inferredSignals:false},meta:{actionId:request.actionId}});
 }
 async function verifiedEventResult(request,options={}){
-  const trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},contract=verifiedEventContract(),collection=await contract.reads.listVerified({query:request.input?.query||'',destination:destination(trip),tripId:tripId(trip),limit:request.input?.limit||12,now:options.now});
+  const trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{};validatePreparedInput(actionCore().getAction(request.actionId),request.input,{...request.context,tripId:tripId(trip)});const contract=verifiedEventContract(),collection=await contract.reads.listVerified({query:request.input?.query||'',from:request.input?.from||null,to:request.input?.to||null,destination:destination(trip),tripId:tripId(trip),limit:request.input?.limit||12,now:options.now});
   if(collection?.status==='provider-unavailable')throw runtimeError('VERIFIED_EVENT_PROVIDER_UNAVAILABLE','Es ist gerade keine verifizierte Event-Quelle erreichbar. Luvia zeigt deshalb keine erfundenen Events.');
   const items=(collection?.visible||[]).map(event=>({...event,actions:[]})),graph=contract.reads.buildGraph({claims:items,tripId:tripId(trip),generatedAt:options.now||new Date().toISOString()}),brush=contract.reads.brushGraph(graph,{from:request.input?.from,to:request.input?.to,bounds:request.input?.bounds}),culturalContext=items.map(event=>contract.reads.culturalContext({event,documents:options.culturalDocuments||[],locale:options.locale||'de-DE'})),serendipity=contract.reads.serendipityWindow({events:items,openWindow:options.serendipityWindow||{},routeUncertainty:options.eventRouteUncertainty||[]}),groupTaste=contract.reads.groupTasteDivergence(options.groupEventContext||{}),weatherSafe=contract.reads.weatherSafeSubstitution({weather:options.weatherEvidence||{},originalEvent:items[0],alternatives:items.slice(1),now:options.now}),scheduleReconciliation=contract.reads.reconcileSchedule({claims:items,entries:options.eventJourneyEntries||[],bookings:options.eventBookings||[]});
   return actionCore().normalizeResult({kind:'event_collection',owner:'intelligence',contractId:'intelligence.verified-events.v1',title:items.length?`${items.length} bestätigte Veranstaltungen`:'Keine aktuell bestätigte Veranstaltung',message:items.length?'Zeit, Status, Ort und Quelle wurden geprüft. Hinzufügen, reservieren oder als Erinnerung speichern startet erst nach deiner Auswahl.':'Für diesen Wunsch habe ich gerade keine Veranstaltung mit vollständig bestätigter Quelle, Zeit und aktuellem Status gefunden.',items,evidence:{actionId:request.actionId,counts:collection?.counts||{},sourceFailures:collection?.sourceFailures||[],sourceGateway:collection?.sourceGateway||false,graph,brush,culturalContext,serendipity,groupTaste,weatherSafe,scheduleReconciliation,syntheticEventCount:0,automaticMutation:false,slices:['S16.09','S16.10','S16.11','S16.12']},meta:{actionId:request.actionId,uspKind:'verified-events'}});
@@ -16728,7 +18385,7 @@ const readHandlers=Object.freeze({'places.restaurant.recommend':restaurantResult
 
 function compiledRoutes(message,compiled){
   if(compiled?.contractId!=='intelligence.travel-orchestration.v1'||!Array.isArray(compiled.intents))return null;
-  const routes=[],hints=mutationHints(compiled),push=(actionId,input={},query=message)=>{if(actionId&&!routes.some(route=>route.actionId===actionId))routes.push({actionId,input:{query:query||message,mutationHints:hints,...input}})};
+  const routes=[],hints=mutationHints(compiled),push=(actionId,input={},query=message)=>{if(actionId&&!routes.some(route=>route.actionId===actionId)){const routed={query:query||message,...input};if(actionId.startsWith('places.'))routed.mutationHints=hints;routes.push({actionId,input:routed})}};
   for(const intent of compiled.intents){
     const query=intent.clause||message;
     if(intent.domain==='places')push(intent.categoryHints?.length===1&&intent.categoryHints[0]==='food'?'places.restaurant.recommend':'places.discovery.recommend',{category:intent.categoryHints?.[0]||'places',categories:intent.categoryHints?.length?intent.categoryHints:['places'],limit:3,explicitPreferencePatch:intent.entityHints?.preferencePatch||{},spatialConstraints:root.LuviaGlobalPlaceContracts?.spatialIntent?.(query)||null},query);
@@ -16752,7 +18409,8 @@ function planningTraceResult(compiled,requests,results){
     decisions.push({id:`decision:${request.actionId}`,owner:request.owner,action:request.actionId,reasonCodes:failed?['owner-read-failed',result.evidence?.code||'unknown-owner-read-failure']:verified?['owner-read-projection','owner-evidence-present']:['owner-read-projection','freshness-or-verification-unknown'],evidenceIds:[evidenceId],requiresConfirmation:false,status:failed?'failed':'completed'});
   }
   const trace=contract.reads.planningTrace({compiled,evidence,decisions,now});
-  return actionCore().normalizeResult({kind:'message',owner:'intelligence',contractId:'intelligence.v1',title:'Warum Luvia so plant',message:'Owner-Routen, verwendete Evidenz und offene Belege sind nachvollziehbar. Die Erklärung selbst verändert nichts.',evidence:{planningTrace:trace},meta:{traceOnly:true,slice:'S16.01'}});
+  const consumerReasons=results.filter(result=>result?.kind==='place_collection').flatMap(result=>(result.items||[]).slice(0,4).map(item=>{const source=clean(item.provider)||Object.keys(item.providerRefs||{}).join(' + ')||'Places',facts=[],distance=Number(item.distanceMeters),reviews=Number(item.userRatingCount),type=clean(item.primaryTypeLabel||item.primary_type_label||item.requestCategory||item.primaryType);if(type)facts.push(`Als ${type.replace(/[_-]+/g,' ')} geführt.`);if(Number.isFinite(distance)&&distance>=0)facts.push(distance<1000?`${Math.round(distance)} m vom Reiseziel-Zentrum entfernt.`:`${(distance/1000).toFixed(1).replace('.',',')} km vom Reiseziel-Zentrum entfernt.`);if(Number(item.rating)>0)facts.push(`${Number(item.rating).toFixed(1).replace('.',',')} von 5${reviews>0?` bei ${reviews.toLocaleString('de-DE')} Bewertungen`:''}.`);if(item.openNow===true)facts.push('Laut Quelle aktuell geöffnet.');else if(item.openNow===false)facts.push('Laut Quelle aktuell geschlossen.');if(item.spatialConstraint?.state==='confirmed')facts.push('Die gewünschte Lage ist mit den Owner-Koordinaten bestätigt.');return{label:clean(item.name)||'Ort',source,facts:[...new Set(facts)].slice(0,4)}}));
+  return actionCore().normalizeResult({kind:'message',owner:'intelligence',contractId:'intelligence.v1',title:'Auswahl erklärt',message:'Die sichtbaren Gründe stammen aus den belegten Owner-Fakten.',evidence:{planningTrace:trace,consumerReasons},meta:{traceOnly:true,slice:'S16.01'}});
 }
 function contextGateResult(compiled,options={}){
   const intents=compiled?.intents||[];if(!intents.some(intent=>['privacy','device-position'].includes(intent.domain))||root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-02-on-device-context-gate')===false)return null;
@@ -16781,9 +18439,29 @@ async function runMessage(message,options={}){
   return actionCore().immutable({handled:Boolean(results.length),results,routes:requests,error,multiIntent:requests.length>1,compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
 }
 
-function validatePreparedInput(definition,payload={}){
+function validatePreparedInput(definition,payload={},context={}){
   if(definition.id==='places.place.plan'&&!payload.fields?.planned_at)throw runtimeError('AI_ACTION_INPUT_REQUIRED','Für die Timeline fehlen ein eindeutiges Datum und eine Uhrzeit. Bitte nenne beides im Chat oder öffne den Journey-Planungsdialog.',{actionId:definition.id,missingInputs:['date','time']});
   if(definition.id==='places.place.plan'&&!payload.providerPlaceId&&!payload.tripPlaceId)throw runtimeError('AI_ACTION_INPUT_REQUIRED','Der zu planende Place besitzt keine verifizierte Owner-ID.',{actionId:definition.id,missingInputs:['providerPlaceId']});
+  const validation=actionCore().validateActionInput?.(definition.id,payload,context);if(validation?.enforced&&!validation.valid){const missingInputs=validation.issues.filter(issue=>issue.code==='required').map(issue=>issue.path),messages={
+    'places.place.plan':'Datum, Uhrzeit und Reise-Zeitzone passen nicht eindeutig zusammen. Bitte prüfe die Vorschau; es wurde nichts verändert.',
+    'booking.restaurant.open':'Das Restaurant ist nicht eindeutig mit einem verifizierten Anbieter verknüpft. Bitte lade den Ort neu; es wurde nichts geöffnet.',
+    'booking.trip.read':'Wähle zuerst eine Reise aus, damit ich ihre Buchungen sicher laden kann.',
+    'booking.reservation.create':'Für die Reservierung fehlen noch eindeutige Restaurant- oder Zeitangaben. Es wurde nichts gesendet.',
+    'booking.reservation.modify':'Nenne die konkrete Buchung und die gewünschte Änderung. Es wurde nichts geändert.',
+    'booking.reservation.cancel':'Die zu stornierende Buchung ist nicht eindeutig. Es wurde nichts storniert.',
+    'journey.day.read':'Wähle zuerst eine Reise und nenne bei Bedarf ein gültiges Datum. Der Tagesplan wurde nicht geladen.',
+    'journey.day.open':'Der zu bearbeitende Reisetag ist nicht eindeutig. Es wurde kein Planungsdialog geöffnet.',
+    'trip.active.list':'Die Reise-Anfrage ist ungültig. Es wurden keine Reisedaten geladen.',
+    'trip.active.select':'Die Zielreise ist nicht eindeutig. Die aktive Reise blieb unverändert.',
+    'trip.update.details':'Nenne die konkrete Reise und mindestens eine gültige Änderung. Es wurde nichts geändert.',
+    'places.restaurant.recommend':'Der Restaurantwunsch ist nicht eindeutig oder enthält ungültige Filter. Es wurden keine Places-Daten geladen.',
+    'places.discovery.recommend':'Der Ortswunsch ist nicht eindeutig oder enthält ungültige Filter. Es wurden keine Places-Daten geladen.',
+    'events.verified.read':'Der Veranstaltungswunsch oder Zeitraum ist nicht eindeutig. Es wurden keine Eventdaten geladen.',
+    'memory.library.read':'Die Erinnerungssuche ist ungültig. Es wurden keine Geschichten geladen.',
+    'memory.story.save':'Die Geschichte ist leer oder enthält ungültige Angaben. Es wurde nichts gespeichert.',
+    'identity.preferences.read':'Die Anfrage an dein Profil ist ungültig. Es wurden keine Vorlieben geladen.',
+    'identity.preferences.update':'Nenne mindestens eine konkrete gültige Profiländerung. Es wurde nichts gespeichert.'
+  },message=messages[definition.id]||'Der ausgewählte Ort ist für diese Änderung nicht eindeutig mit der aktiven Reise verknüpft. Bitte lade den Ort neu; es wurde nichts verändert.';throw runtimeError(missingInputs.length?'AI_ACTION_INPUT_REQUIRED':'AI_ACTION_INPUT_CONFLICT',message,{actionId:definition.id,schemaId:validation.schemaId,missingInputs,inputIssues:validation.issues})}
   return payload;
 }
 
@@ -16791,15 +18469,16 @@ function prepare(actionId,payload={},options={}){
   const definition=actionCore().getAction(actionId);if(!definition)missing(actionId);
   if(definition.effect!=='READ'&&options.userGesture!==true)throw runtimeError('INTELLIGENCE_USER_GESTURE_REQUIRED','Die Aktion muss durch eine direkte Nutzerauswahl vorbereitet werden.',{actionId});
   if(!operationAvailable(definition))throw runtimeError('AI_ACTION_BINDING_UNAVAILABLE',`Für ${actionId} ist kein erreichbares Owner Binding registriert.`,{actionId,owner:definition.owner});
-  validatePreparedInput(definition,payload);
   const preparedPayload=definition.id==='trip.active.select'&&!payload.previousTripId?{...payload,previousTripId:tripId(tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{})}:payload;
+  if(['trip.active.select','trip.update.details'].includes(definition.id)){const contract=tripContract(),trips=contract.listTrips?.()||contract.reads?.listTrips?.()||[];if(preparedPayload.tripId&&trips.length&&!trips.some(trip=>String(trip.id||trip.tripId)===String(preparedPayload.tripId)))throw runtimeError('AI_ACTION_INPUT_CONFLICT','Die angegebene Reise ist nicht in deinen verfügbaren Reisen enthalten. Es wurde nichts verändert.',{actionId:definition.id,tripId:preparedPayload.tripId,inputIssues:[{code:'owner-reference',path:'tripId',message:'Die Zielreise ist für diesen Owner nicht belegt.'}]})}
+  const timeZone=runtimeTimeZone(options.timeZone);validatePreparedInput(definition,preparedPayload,{surface:options.surface||'global-chat',tripId:preparedPayload.tripId||null,locale:options.locale||null,timeZone});
   const correlationId=clean(options.correlationId)||newId('corr');const idempotencyKey=clean(options.idempotencyKey)||newId(`idem-${actionId.replace(/[^a-z0-9]+/gi,'-')}`);const requestedAt=new Date().toISOString();
-  const envelope=actionCore().createExecutionEnvelope(actionId,preparedPayload,{surface:options.surface||'global-chat'},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
+  const envelope=actionCore().createExecutionEnvelope(actionId,ledgerPayload(definition,preparedPayload),{surface:options.surface||'global-chat',tripId:preparedPayload.tripId||null,locale:options.locale||null,timeZone},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
   const entry=ledger.create({actionId,owner:definition.owner,ownerContract:definition.ownerContract,effect:definition.effect,risk:definition.risk,confirmation:definition.confirmation,reversible:definition.reversible,idempotencyKey,correlationId,payload:envelope.input,reference:previewPayload(envelope.input)});
-  const expiresAt=new Date(Date.now()+CONFIRMATION_TTL_MS).toISOString();pending.set(entry.id,{definition,envelope,expiresAt});
+  const expiresAt=new Date(Date.now()+CONFIRMATION_TTL_MS).toISOString();pending.set(entry.id,{definition,envelope,ownerInput:actionCore().immutable(preparedPayload),expiresAt});
   if(definition.confirmation==='EXPLICIT'){
     ledger.requireConfirmation(entry.id);
-    const result=actionCore().createConfirmation({actionId,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt,preview:previewPayload(envelope.input)});
+    const result=actionCore().createConfirmation({actionId,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt,preview:confirmationPreview(definition,preparedPayload)});
     emit('confirmation-required',{actionId,owner:definition.owner,risk:definition.risk,ledgerId:entry.id});return actionCore().immutable({requiresConfirmation:true,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt,result});
   }
   return actionCore().immutable({requiresConfirmation:false,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt:null,result:null});
@@ -16846,10 +18525,10 @@ async function execute(actionId,payload={},options={}){
   const state=ledger.begin(ledgerId);if(['succeeded','cancelled','compensated'].includes(state.status)&&receipts.has(ledgerId))return receipts.get(ledgerId);
   emit('command-started',{actionId,owner:definition.owner,risk:definition.risk,ledgerId});let ownerInvoked=false;
   try{
-    ownerInvoked=true;const outcome=await invokeOwner(definition,staged.envelope.input,staged.envelope.idempotencyKey);
-    const compensationOrigin=compensationOrigins.get(ledgerId)||null,receipt=actionCore().createReceipt({actionId,status:compensationOrigin?'compensated':outcome.status,message:compensationOrigin?'Die vorherige Änderung wurde rückgängig gemacht.':outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,compensationStatus:compensationOrigin?'completed':null,reference:receiptReference(staged.envelope.input,outcome.result),meta:compensationOrigin?{compensatesLedgerId:compensationOrigin}: {}});
+    ownerInvoked=true;const outcome=await invokeOwner(definition,staged.ownerInput||staged.envelope.input,staged.envelope.idempotencyKey);
+    const compensationOrigin=compensationOrigins.get(ledgerId)||null,receipt=actionCore().createReceipt({actionId,status:compensationOrigin?'compensated':outcome.status,message:compensationOrigin?'Die vorherige Änderung wurde rückgängig gemacht.':outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,compensationStatus:compensationOrigin?'completed':null,reference:receiptReference(staged.ownerInput||staged.envelope.input,outcome.result),meta:compensationOrigin?{compensatesLedgerId:compensationOrigin}: {}});
     if(outcome.status==='failed')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_DECLINED',retryable:true,receipt});else ledger.succeed(ledgerId,receipt);
-    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:outcome.resolvedPayload||staged.envelope.input});pending.delete(ledgerId);
+    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:outcome.resolvedPayload||staged.ownerInput||staged.envelope.input});pending.delete(ledgerId);
     if(compensationOrigin&&outcome.status!=='failed'){ledger.startCompensation(compensationOrigin);ledger.finishCompensation(compensationOrigin,receipt);compensationOrigins.delete(ledgerId);emit('command-compensated',{actionId,owner:definition.owner,ledgerId,compensatesLedgerId:compensationOrigin})}
     emit(outcome.status==='failed'?'command-failed':'command-completed',{actionId,owner:definition.owner,status:compensationOrigin?'compensated':outcome.status,ledgerId});return receipt;
   }catch(error){
@@ -16914,6 +18593,7 @@ const VERSION='4.35.0-canonical-owner-command';
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const tripId=trip=>String(trip?.id||trip?.tripId||'');
   const intelligence=()=>window.LuviaIntelligenceContractV1||(()=>{throw new Error('Intelligence Contract v1 ist noch nicht bereit.')})();
+  const consumer=()=>globalThis.LuviaHumanAIConsumerProjectionCoreV1||(()=>{throw new Error('Die Luvia Chat-Darstellung ist noch nicht bereit.')})();
   const actionRuntime=()=>window.LuviaAIActionRuntime||(()=>{throw new Error('Luvia Action Runtime ist noch nicht bereit.')})();
   const experience=()=>window.LuviaExperienceContractV1||(()=>{throw new Error('Experience Contract v1 ist noch nicht bereit.')})();
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
@@ -16924,9 +18604,11 @@ const VERSION='4.35.0-canonical-owner-command';
   const reviewCount=value=>{const count=Number(value);return Number.isFinite(count)&&count>0?`${count.toLocaleString('de-DE')} ${count===1?'Bewertung':'Bewertungen'}`:''};
   const placeProvider=item=>{const names=Object.keys(item?.providerRefs||{}).map(value=>String(value).toLowerCase()),provider=String(item?.provider||'').toLowerCase();if(provider==='multi'||names.length>1)return'Google + Foursquare';if(provider.includes('foursquare')||names.some(name=>name.includes('foursquare')))return'Foursquare';if(provider.includes('google')||names.some(name=>name.includes('google')))return'Google Places';return item?.image?.provider||'Quelle wird geprüft'};
   const placeFreshness=item=>{const parsed=Date.parse(item?.providerObservedAt||'');if(Number.isFinite(parsed))return`Zuletzt geprüft ${new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(parsed)}`;return item?.providerFactsCached?'Gespeicherte Angaben · Aktualität wird vor der Übernahme geprüft':'Aktualität wird vor der Übernahme geprüft'};
-  const time=value=>{const match=String(value||'').match(/T(\d{2}:\d{2})/);return match?.[1]||''};
-  const displayDate=value=>{const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return match?`${match[3]}.${match[2]}.${match[1]}`:String(value||'')};
-  const displayDateTime=value=>{const raw=String(value||''),date=displayDate(raw),clock=raw.match(/T(\d{2}:\d{2})/)?.[1];return[date,clock?`${clock} Uhr`:null].filter(Boolean).join(' · ')};
+  const runtimeTimeZone=()=>{const active=activeTrip()||{},profile=globalThis.LuviaProfileService?.snapshot?.()||{},candidate=active.timezone||active.timeZone||active.destination?.timezone||active.destination?.timeZone||profile.timezone||profile.timeZone;try{new Intl.DateTimeFormat('de-DE',{timeZone:candidate||undefined}).format();return candidate||Intl.DateTimeFormat().resolvedOptions().timeZone}catch{return Intl.DateTimeFormat().resolvedOptions().timeZone}};
+  const zonedDateTime=value=>{const raw=String(value||''),absolute=/(?:z|[+-]\d{2}:?\d{2})$/i.test(raw),parsed=absolute?new Date(raw):null;if(!parsed||Number.isNaN(parsed.getTime()))return null;try{const parts=Object.fromEntries(new Intl.DateTimeFormat('de-DE',{timeZone:runtimeTimeZone(),year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(parsed).map(part=>[part.type,part.value]));return{date:`${parts.day}.${parts.month}.${parts.year}`,time:`${parts.hour}:${parts.minute}`}}catch{return null}};
+  const time=value=>zonedDateTime(value)?.time||String(value||'').match(/T(\d{2}:\d{2})/)?.[1]||'';
+  const displayDate=value=>zonedDateTime(value)?.date||(()=>{const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return match?`${match[3]}.${match[2]}.${match[1]}`:String(value||'')})();
+  const displayDateTime=value=>{const raw=String(value||''),zoned=zonedDateTime(raw),date=zoned?.date||displayDate(raw),clock=zoned?.time||raw.match(/T(\d{2}:\d{2})/)?.[1];return[date,clock?`${clock} Uhr`:null].filter(Boolean).join(' · ')};
   const safeWebUrl=value=>{const raw=String(value||'').trim();if(!raw)return'';try{const url=new URL(raw);return ['http:','https:'].includes(url.protocol)?url.href:''}catch{return''}};
   const safePhone=value=>String(value||'').replace(/[^+\d()\s./-]/g,'').trim();
   const compassMark=()=>`<span class="lvx-luvia-compass" aria-hidden="true"><img src="assets/brand/luvia-living-compass/layers/face.svg" alt=""><img class="is-needle" src="assets/brand/luvia-living-compass/layers/two-ended-needle.svg" alt=""><img src="assets/brand/luvia-living-compass/layers/hub.svg" alt=""></span>`;
@@ -16952,7 +18634,7 @@ const VERSION='4.35.0-canonical-owner-command';
     if(!contract.getComponent('commandSurface'))throw new Error('Experience Command Surface ist noch nicht bereit.');
     const trip=activeTrip()||{},surface=window.LuviaApp?.activeView?.()||'global-assistant';
     const prompts=[{label:'Ruhig am Wasser',value:'Finde uns heute ein ruhiges Restaurant am Wasser.'},{label:'Abend planen',value:'Plane einen entspannten Abend für uns.'},{label:'Freien Moment füllen',value:'Was passt zu unserem freien Abend?'}];
-    const body=`<div class="lvx-command-hero"><span class="lvx-command-eyebrow">Luvia</span><h2 id="luv-ai-command-title">Was möchtest du erleben?</h2><button type="button" class="lvx-command-close" data-ai-close aria-label="Luvia schließen">×</button></div><form class="lvx-command-body" data-ai-command-body data-ai-command-form data-experience-state="idle"><div class="lvx-command-scroll"><div class="lvx-command-answer" data-ai-answer role="log" aria-live="polite" aria-relevant="additions text"><article class="lvx-command-message is-assistant"><span class="lvx-command-message-mark" aria-hidden="true">✦</span><div><p>Ich kann Orte finden, vergleichen, zum Tag hinzufügen und nach deiner Bestätigung reservieren.</p><div class="lvx-command-prompts" aria-label="Schnelleinstiege">${prompts.map((prompt,index)=>`<button class="lvx-command-prompt" type="button" data-ai-prompt="${index}">${esc(prompt.label)}</button>`).join('')}</div></div></article></div></div><div class="lvx-command-composer-panel"><div class="lvx-command-status" id="luv-ai-command-status" data-ai-status data-state="idle" role="status" aria-live="polite"></div><label class="lvx-command-label" for="luv-ai-command-input">Nachricht an Luvia</label><div class="lvx-command-composer"><textarea class="lvx-command-input" id="luv-ai-command-input" rows="1" aria-describedby="luv-ai-command-help luv-ai-command-keyboard luv-ai-command-status" aria-keyshortcuts="Enter" placeholder="Restaurant, Tagesplan oder nächste Entscheidung"></textarea><button class="lvx-button lvx-button-primary" type="submit" data-ai-send aria-label="Anfrage an Luvia senden"><span data-ai-send-label>Senden</span><span class="lvx-button-send-mark" aria-hidden="true">→</span></button></div><span class="lvx-command-keyboard" id="luv-ai-command-keyboard">Enter sendet · Shift+Enter fügt eine Zeile ein</span><span class="lvx-command-safety" id="luv-ai-command-help">Ein Satz darf mehrere Wünsche enthalten. Passende Informationen liest Luvia direkt. Bevor etwas geändert wird, siehst du eine Vorschau und bestätigst selbst. Erledigte Änderungen lassen sich – wenn möglich – wieder rückgängig machen.</span></div></form>`;
+    const body=`<div class="lvx-command-hero"><span class="lvx-command-eyebrow">Luvia</span><h2 id="luv-ai-command-title">Was möchtest du erleben?</h2><button type="button" class="lvx-command-close" data-ai-close aria-label="Luvia schließen">×</button></div><form class="lvx-command-body" data-ai-command-body data-ai-command-form data-ai-consumer-projection="${esc(consumer().contractId)}" data-experience-state="idle"><div class="lvx-command-scroll"><div class="lvx-command-answer" data-ai-answer role="log" aria-live="polite" aria-relevant="additions text"><article class="lvx-command-message is-assistant"><span class="lvx-command-message-mark" aria-hidden="true">✦</span><div><p>Ich kann Orte finden, vergleichen, zum Tag hinzufügen und nach deiner Bestätigung reservieren.</p><div class="lvx-command-prompts" aria-label="Schnelleinstiege">${prompts.map((prompt,index)=>`<button class="lvx-command-prompt" type="button" data-ai-prompt="${index}">${esc(prompt.label)}</button>`).join('')}</div></div></article></div></div><div class="lvx-command-composer-panel"><div class="lvx-command-status" id="luv-ai-command-status" data-ai-status data-state="idle" role="status" aria-live="polite"></div><label class="lvx-command-label" for="luv-ai-command-input">Nachricht an Luvia</label><div class="lvx-command-composer"><textarea class="lvx-command-input" id="luv-ai-command-input" rows="1" aria-describedby="luv-ai-command-help luv-ai-command-keyboard luv-ai-command-status" aria-keyshortcuts="Enter" placeholder="Restaurant, Tagesplan oder nächste Entscheidung"></textarea><button class="lvx-button lvx-button-primary" type="submit" data-ai-send aria-label="Anfrage an Luvia senden"><span data-ai-send-label>Senden</span><span class="lvx-button-send-mark" aria-hidden="true">→</span></button></div><span class="lvx-command-keyboard" id="luv-ai-command-keyboard">Enter sendet · Shift+Enter fügt eine Zeile ein</span><span class="lvx-command-safety" id="luv-ai-command-help">Ein Satz darf mehrere Wünsche enthalten. Passende Informationen liest Luvia direkt. Bevor etwas geändert wird, siehst du eine Vorschau und bestätigst selbst. Erledigte Änderungen lassen sich – wenn möglich – wieder rückgängig machen.</span></div></form>`;
     const overlay=modalShell({name:'intelligence.ask',title:'Mit Luvia sprechen',className:'luv-ai-chat lvx-command-surface',initialFocus:'textarea',component:'commandSurface',header:false,closeOnEscape:false,body});
     const input=overlay.querySelector('#luv-ai-command-input'),button=overlay.querySelector('[data-ai-send]'),answer=overlay.querySelector('[data-ai-answer]'),status=overlay.querySelector('[data-ai-status]'),commandBody=overlay.querySelector('[data-ai-command-body]'),form=commandBody,sendLabel=button.firstElementChild;
     askOverlay=overlay;askInput=input;
@@ -16964,20 +18646,20 @@ const VERSION='4.35.0-canonical-owner-command';
     const actionLabel=value=>{const action=String(value||'').toLowerCase();if(action.includes('places'))return'Passende Orte finden';if(action.includes('booking'))return'Buchungen prüfen';if(action.includes('journey'))return'Deinen Tag prüfen';if(action.includes('trip'))return'Deine Reise berücksichtigen';if(action.includes('identity')||action.includes('preference'))return'Deine Vorlieben berücksichtigen';if(action.includes('memory'))return'Deine Erinnerungen berücksichtigen';if(action.includes('event'))return'Passende Veranstaltungen finden';return'Diesen Teil deines Wunsches prüfen'};
     const missingLabel=value=>({date:'ein Datum',time:'eine Uhrzeit','open-period':'einen ungefähren Zeitraum','time-or-open-period':'eine ungefähre Uhrzeit oder einen offenen Zeitraum','journey-target':'was ihr ungefähr machen möchtet','location':'einen Ort',destination:'ein Reiseziel',partySize:'die Anzahl der Personen',bookingId:'die gewünschte Buchung',choice:'deine Auswahl',privacyPurpose:'wofür der Standort verwendet werden darf'}[String(value||'')]||'eine weitere Angabe');
     const intentDisplay=(intent,fallback)=>{const seen=new Set();const parts=String(intent?.clause||'').split(' · ').map(value=>value.trim()).filter(value=>value&&!/^(?:planung|read|write|mutation)$/i.test(value)).filter(value=>{const key=value.toLocaleLowerCase('de-DE');if(seen.has(key))return false;seen.add(key);return true});return parts.slice(0,2).join(' · ')||areaLabel(intent?.domain||fallback)};
-    const appendIntentGraph=compiled=>{if(!compiled?.intents?.length)return;const stateLabel={compiled:`Ich habe ${compiled.steps.length===1?'einen Schritt':`${compiled.steps.length} Schritte`} erkannt`,'needs-clarification':'Dazu brauche ich noch eine Angabe',conflicted:'Da passt etwas noch nicht zusammen',blocked:'Das kann ich so nicht ausführen',unresolved:'Ich brauche noch etwas mehr Kontext'}[compiled.status]||'Ich habe deinen Wunsch verstanden',issues=[...(compiled.conflicts||[]).map(item=>item.message),...(compiled.blockedCommands||[]).map(item=>item.message),...(compiled.missingInputs||[]).map(item=>`Bitte ergänze ${missingLabel(item.input)}.`)];answer.insertAdjacentHTML('beforeend',`<section class="lvx-intent-graph is-${esc(compiled.status)}" data-ai-intent-graph="${esc(compiled.messageHash)}" data-ai-compiler="${esc(compiled.compilerSource||'deterministic')}" aria-label="Erkannte Schritte"><header><span>Dein Wunsch</span><strong>${esc(stateLabel)}</strong></header><ol>${compiled.steps.map(step=>{const intent=(compiled.intents||[]).find(item=>item.id===step.intentId);return`<li class="is-${esc(step.status)}"><i>${esc(step.sequence)}</i><div><strong>${esc(intentDisplay(intent,step.ownerContract))}</strong><small>${step.mode==='read'?'Ich suche zuerst nach passenden, belegten Informationen.':'Du siehst zuerst eine Vorschau und bestätigst selbst.'}${step.relation==='after'?' Danach geht es mit diesem Wunsch weiter.':''}</small></div></li>`}).join('')}</ol>${issues.length?`<div class="lvx-intent-issues">${issues.slice(0,6).map(issue=>`<p>${esc(issue)}</p>`).join('')}</div>`:''}<footer>Du kannst jeden Schritt einzeln prüfen. Ohne deine Bestätigung wird nichts geändert.</footer></section>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
+    const appendIntentGraph=compiled=>{if(!compiled?.intents?.length)return;const issues=[...(compiled.conflicts||[]),...(compiled.blockedCommands||[]),...(compiled.missingInputs||[])],simpleResolved=compiled.status==='compiled'&&compiled.intents.length===1&&!issues.length;if(simpleResolved)return;const projected=consumer().projectIntentSummary(compiled);if(!projected.visible)return;answer.insertAdjacentHTML('beforeend',`<section class="lvx-intent-graph is-${esc(compiled.status)}" data-ai-intent-graph="${esc(compiled.messageHash)}" data-ai-compiler="${esc(compiled.compilerSource||'deterministic')}" data-ai-consumer-view="INTENT_SUMMARY" aria-label="${esc(projected.title)}"><header><span>Luvia</span><strong>${esc(projected.title)}</strong></header><ol>${projected.items.map(item=>`<li><i>${esc(item.sequence)}</i><div><strong>${esc(item.label)}</strong>${item.requiresConfirmation?'<small>Vor der Änderung siehst du eine Vorschau.</small>':''}</div></li>`).join('')}</ol>${projected.message?`<footer>${esc(projected.message)}</footer>`:''}</section>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
     const appendSuggestions=items=>{const labels=(Array.isArray(items)?items:[]).map(item=>String(item?.label||item||'').trim()).filter(Boolean).slice(0,3);const fallbacks=labels.length?labels:['Vertiefe das bitte','Zeige mir passende Alternativen','Was wäre der nächste Schritt?'];answer.insertAdjacentHTML('beforeend',`<div class="lvx-command-suggestions" aria-label="Passende Folgefragen">${fallbacks.map(label=>{const id=String(++suggestionSequence);suggestions.set(id,label);return`<button type="button" data-ai-suggestion="${id}">${esc(label)}</button>`}).join('')}</div>`)};
     const ownerActionButton=(offer,subject=null)=>{const id=String(++actionSequence);ownerActions.set(id,{offer,subject,conversationId:activeConversation?.id||null,sequenceIndex:activeConversation?.index??null});return`<button type="button" class="lvx-rich-action" data-ai-owner-action="${id}" ${offer.disabled?'disabled':''} aria-label="${esc(offer.label)}">${esc(offer.label)}</button>`};
     const registerPlaceSubject=item=>{const id=String(++placeSequence);placeSubjects.set(id,item);return id};
     const placeReferenceKey=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de-DE').replace(/[^\p{L}\p{N}]+/gu,'');
-    const referencedPlan=(compiled,request)=>{const intents=(compiled?.intents||[]).filter(intent=>intent.domain==='places'&&intent.mode==='propose-write'),intent=intents.length===1?intents[0]:null,date=intent?.temporalHint?.date,timeValue=intent?.temporalHint?.time;if(!intent||!date||!timeValue)return null;const requestKey=placeReferenceKey(request),uniqueSubjects=[...new Map([...placeSubjects.values()].map(subject=>[String(subject?.providerPlaceId||subject?.id||subject?.name),subject])).values()],matches=uniqueSubjects.filter(subject=>{const key=placeReferenceKey(subject?.name);return key.length>=4&&requestKey.includes(key)}).sort((left,right)=>placeReferenceKey(right?.name).length-placeReferenceKey(left?.name).length),subject=matches[0],bestLength=placeReferenceKey(subject?.name).length,nextLength=placeReferenceKey(matches[1]?.name).length;if(!subject||matches.length>1&&bestLength-nextLength<5)return null;const original=(subject.actions||[]).find(action=>action?.actionId==='places.place.plan')||{},base=original.payload||{},plannedAt=new Date(`${date}T${timeValue}:00`);if(Number.isNaN(plannedAt.getTime()))return null;return{subject,offer:{actionId:'places.place.plan',label:`${displayDate(date)} · ${timeValue} Uhr einplanen`,payload:{...base,tripId:base.tripId||tripId(trip),providerPlaceId:base.providerPlaceId||String(subject.providerPlaceId||subject.id||'').replace(/^places\//,''),placeId:base.placeId||subject.id||subject.providerPlaceId,placeType:base.placeType||subject.primaryType||subject.primary_type||'place',name:subject.name,date,time:timeValue,fields:{planned_at:plannedAt.toISOString(),place_name:subject.name,notes:intent.clause},requestedBy:'intelligence.travel-orchestration.v1'}}}};
+    const referencedPlan=(compiled,request)=>{const intents=(compiled?.intents||[]).filter(intent=>intent.domain==='places'&&intent.mode==='propose-write'),intent=intents.length===1?intents[0]:null,date=intent?.temporalHint?.date,timeValue=intent?.temporalHint?.time;if(!intent||!date||!timeValue)return null;const requestKey=placeReferenceKey(request),uniqueSubjects=[...new Map([...placeSubjects.values()].map(subject=>[String(subject?.providerPlaceId||subject?.id||subject?.name),subject])).values()],matches=uniqueSubjects.filter(subject=>{const key=placeReferenceKey(subject?.name);return key.length>=4&&requestKey.includes(key)}).sort((left,right)=>placeReferenceKey(right?.name).length-placeReferenceKey(left?.name).length),subject=matches[0],bestLength=placeReferenceKey(subject?.name).length,nextLength=placeReferenceKey(matches[1]?.name).length;if(!subject||matches.length>1&&bestLength-nextLength<5)return null;const original=(subject.actions||[]).find(action=>action?.actionId==='places.place.plan')||{},base=original.payload||{},plannedAt=globalThis.LuviaIntelligenceActionContractCoreV1?.zonedDateTimeToIso?.(date,timeValue,runtimeTimeZone());if(!plannedAt)return null;return{subject,offer:{actionId:'places.place.plan',label:`${displayDate(date)} · ${timeValue} Uhr einplanen`,payload:{tripId:base.tripId||tripId(trip),providerPlaceId:base.providerPlaceId||String(subject.providerPlaceId||subject.id||'').replace(/^places\//,''),placeId:base.placeId||subject.id||subject.providerPlaceId,placeType:base.placeType||subject.primaryType||subject.primary_type||'place',name:subject.name,date,time:timeValue,fields:{planned_at:plannedAt,place_name:subject.name,notes:intent.clause},requestedBy:'intelligence.travel-orchestration.v1'}}}};
     const placeOpenButton=(item,id=registerPlaceSubject(item))=>`<button type="button" class="lvx-rich-action is-secondary" data-ai-place-open="${id}" aria-label="Details zu ${esc(item.name)} ansehen">Details ansehen</button>`;
     const gpsDistanceAllowed=item=>Number.isFinite(Number(item?.distanceMeters))&&['gps','device','explicit-user-gesture','explicit-user-gesture-watch','global-explicit-user-gesture'].includes(String(item?.distanceSource||'').toLowerCase());
     const placeDetailPhoto=(place,photos=[])=>{const candidates=[...(photos||[]),place?.image?{uri:place.image.url,attribution:place.image.attribution||place.image.provider}:null].filter(Boolean),photo=candidates.find(item=>safeImage(item?.uri||item?.url));return photo?{url:safeImage(photo.uri||photo.url),attribution:photo.attribution||place?.image?.attribution||placeProvider(place)}:null};
     const closePlaceSubject=({restoreFocus=true}={})=>{const entry=activePlaceDetail;if(!entry)return false;activePlaceDetail=null;entry.projection?.destroy?.();entry.layer.classList.remove('is-open');entry.surface?.removeAttribute('inert');entry.surface?.removeAttribute('aria-hidden');const remove=()=>entry.layer.remove();if(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)remove();else setTimeout(remove,260);if(restoreFocus)queueMicrotask(()=>entry.returnFocus?.isConnected?entry.returnFocus.focus():input.focus());return true};
-    const placeDetailMarkup=(place,photos=[],{loading=false,error=''}={})=>{const photo=placeDetailPhoto(place,photos),provider=placeProvider(place),website=safeWebUrl(place.website||place.websiteUri),phone=safePhone(place.phone||place.internationalPhoneNumber||place.nationalPhoneNumber),distance=gpsDistanceAllowed(place)?(Number(place.distanceMeters)<1000?`${Math.round(Number(place.distanceMeters))} m von deinem aktuellen Standort`:`${(Number(place.distanceMeters)/1000).toFixed(1).replace('.',',')} km von deinem aktuellen Standort`):'',reviews=reviewCount(place.userRatingCount),facts=[rating(place.rating)?{label:'Bewertung',value:`${rating(place.rating)} von 5${reviews?` · ${reviews}`:''}`} : null,place.openNow===true?{label:'Öffnung',value:'Jetzt geöffnet'}:place.openNow===false?{label:'Öffnung',value:'Aktuell geschlossen'}:null,place.priceLevel?{label:'Preis',value:String(place.priceLevel)}:null,distance?{label:'Entfernung',value:distance}:null].filter(Boolean),reasons=(place.reasons||place.aiReasons||[]).filter(Boolean).slice(0,3),actions=(place.actions||[]).filter(offer=>offer?.actionId&&offer?.label);return`<div class="lvx-ai-place-detail-layout ${photo?'':'is-without-photo'}">${photo?`<div class="lvx-ai-place-detail-visual"><img src="${esc(photo.url)}" alt="${esc(place.name||'Ort')}" loading="eager"><small>${esc(photo.attribution)}</small></div>`:''}<div class="lvx-ai-place-detail-map" data-ai-place-detail-map role="group" aria-label="${esc(place.name||'Ort')} auf der Karte"></div></div><div class="lvx-ai-place-detail-body"><span class="lvx-ai-place-detail-kicker">${esc(place.requestCategory||place.primaryType||'Ort')} · ${esc(provider)}</span><h3 id="lvx-ai-place-detail-title">${esc(place.name||'Ortsdetails')}</h3>${place.address||place.formattedAddress?`<p class="lvx-ai-place-detail-address">${esc(place.address||place.formattedAddress)}</p>`:''}${loading?'<div class="lvx-ai-place-detail-loading" role="status">Aktuelle Places-Details werden geladen …</div>':''}${error?`<div class="lvx-ai-place-detail-error" role="status">${esc(error)}</div>`:''}${facts.length?`<div class="lvx-ai-place-detail-facts">${facts.map(item=>`<article><span>${esc(item.label)}</span><strong>${esc(item.value)}</strong></article>`).join('')}</div>`:''}<section class="lvx-ai-place-detail-source"><span>Belegte Ortsangaben</span><strong>${esc(provider)}</strong><small>${esc(placeFreshness(place))}</small></section>${phone||website?`<div class="lvx-ai-place-detail-links">${phone?`<a href="tel:${esc(phone.replace(/[^+\d]/g,''))}">Anrufen · ${esc(phone)}</a>`:''}${website?`<a href="${esc(website)}" target="_blank" rel="noopener noreferrer">Website öffnen ↗</a>`:''}</div>`:''}${reasons.length?`<section class="lvx-ai-place-detail-reasons"><span>Warum dieser Ort in deiner Auswahl ist</span><ul>${reasons.map(reason=>`<li>${esc(reason)}</li>`).join('')}</ul></section>`:''}${actions.length?`<div class="lvx-rich-actions lvx-ai-place-detail-actions">${actions.map(offer=>ownerActionButton(offer,place)).join('')}</div>`:''}<footer>Places bleibt Owner der Ortsdaten. Änderungen starten erst nach Vorschau und deiner ausdrücklichen Bestätigung.</footer></div>`};
+    const placeDetailMarkup=(place,photos=[],{loading=false,error=''}={})=>{const photo=placeDetailPhoto(place,photos),provider=placeProvider(place),website=safeWebUrl(place.website||place.websiteUri),phone=safePhone(place.phone||place.internationalPhoneNumber||place.nationalPhoneNumber),distance=gpsDistanceAllowed(place)?(Number(place.distanceMeters)<1000?`${Math.round(Number(place.distanceMeters))} m von deinem aktuellen Standort`:`${(Number(place.distanceMeters)/1000).toFixed(1).replace('.',',')} km von deinem aktuellen Standort`):'',reviews=reviewCount(place.userRatingCount),facts=[rating(place.rating)?{label:'Bewertung',value:`${rating(place.rating)} von 5${reviews?` · ${reviews}`:''}`} : null,place.openNow===true?{label:'Öffnung',value:'Jetzt geöffnet'}:place.openNow===false?{label:'Öffnung',value:'Aktuell geschlossen'}:null,place.priceLevel?{label:'Preis',value:String(place.priceLevel)}:null,distance?{label:'Entfernung',value:distance}:null].filter(Boolean),reasons=(place.reasons||place.aiReasons||[]).filter(Boolean).slice(0,3),actions=(place.actions||[]).filter(offer=>offer?.actionId&&offer?.label);return`<div class="lvx-ai-place-detail-layout ${photo?'':'is-without-photo'}">${photo?`<div class="lvx-ai-place-detail-visual"><img src="${esc(photo.url)}" alt="${esc(place.name||'Ort')}" loading="eager"><small>${esc(photo.attribution)}</small></div>`:''}<div class="lvx-ai-place-detail-map" data-ai-place-detail-map role="group" aria-label="${esc(place.name||'Ort')} auf der Karte"></div></div><div class="lvx-ai-place-detail-body"><span class="lvx-ai-place-detail-kicker">${esc(place.requestCategory||place.primaryType||'Ort')} · ${esc(provider)}</span><h3 id="lvx-ai-place-detail-title">${esc(place.name||'Ortsdetails')}</h3>${place.address||place.formattedAddress?`<p class="lvx-ai-place-detail-address">${esc(place.address||place.formattedAddress)}</p>`:''}${loading?'<div class="lvx-ai-place-detail-loading" role="status">Aktuelle Places-Details werden geladen …</div>':''}${error?`<div class="lvx-ai-place-detail-error" role="status">${esc(error)}</div>`:''}${facts.length?`<div class="lvx-ai-place-detail-facts">${facts.map(item=>`<article><span>${esc(item.label)}</span><strong>${esc(item.value)}</strong></article>`).join('')}</div>`:''}<section class="lvx-ai-place-detail-source"><span>Belegte Ortsangaben</span><strong>${esc(provider)}</strong><small>${esc(placeFreshness(place))}</small></section>${phone||website?`<div class="lvx-ai-place-detail-links">${phone?`<a href="tel:${esc(phone.replace(/[^+\d]/g,''))}">Anrufen · ${esc(phone)}</a>`:''}${website?`<a href="${esc(website)}" target="_blank" rel="noopener noreferrer">Website öffnen ↗</a>`:''}</div>`:''}${reasons.length?`<section class="lvx-ai-place-detail-reasons"><span>Warum dieser Ort in deiner Auswahl ist</span><ul>${reasons.map(reason=>`<li>${esc(reason)}</li>`).join('')}</ul></section>`:''}${actions.length?`<div class="lvx-rich-actions lvx-ai-place-detail-actions">${actions.map(offer=>ownerActionButton(offer,place)).join('')}</div>`:''}<footer>Ortsangaben bleiben nachvollziehbar. Geändert wird erst nach deiner Bestätigung.</footer></div>`};
     const mountPlaceDetailMap=(entry,place)=>{const container=entry?.content?.firstElementChild?.lastElementChild,spatial=globalThis.LuviaPlacesSpatialExperience;if(!container||!spatial?.mountProjection||!place?.coordinates&&!Number.isFinite(Number(place?.latitude)))return null;try{return spatial.mountProjection(container,[place],{label:`${place.name||'Ort'} · Luvia Karte`,onSelect:()=>{}})}catch{return null}};
     const paintPlaceSubject=(entry,place,photos=[],options={})=>{if(activePlaceDetail!==entry||!entry.layer.isConnected)return;entry.projection?.destroy?.();entry.content.innerHTML=placeDetailMarkup(place,photos,options);entry.projection=mountPlaceDetailMap(entry,place);if(!entry.focused){entry.focused=true;queueMicrotask(()=>entry.sheet?.children?.[1]?.focus())}};
-    const renderPlace=item=>{const image=safeImage(item.image?.url),openId=registerPlaceSubject(item),spatial=item.spatialConstraint?.state,provider=placeProvider(item),reviews=reviewCount(item.userRatingCount),facts=[rating(item.rating)?`★ ${rating(item.rating)}`:'',reviews,item.priceLevel||'',item.openNow===true?'Jetzt geöffnet':item.openNow===false?'Aktuell geschlossen':'',finiteValue(item.distanceMeters)?`${Number(item.distanceMeters)<1000?`${Math.round(Number(item.distanceMeters))} m`:`${(Number(item.distanceMeters)/1000).toFixed(1).replace('.',',')} km`} zum ${item.distanceSource==='landmark'?'Bezugspunkt':'Zentrum'}`:'',spatial==='confirmed'?'Gewünschte Lage bestätigt':spatial==='unknown'?'Lage noch nicht eindeutig':'',provider,placeFreshness(item)].filter(Boolean);return`<article class="lvx-place-card" data-ai-place-media="${image?'provider-photo':'absent'}" data-ai-place-card="${esc(item.providerPlaceId)}" data-ai-place-provider="${esc(provider)}" data-ai-place-freshness="${esc(item.providerObservedAt||'unknown')}">${image?`<button type="button" class="lvx-place-card-media" data-ai-place-open="${openId}" aria-label="Details zu ${esc(item.name)} öffnen"><img src="${esc(image)}" alt="${esc(item.image?.alt||item.name)}" loading="lazy"><span class="lvx-place-attribution">${esc(item.image?.attribution||item.image?.provider||provider)}</span></button>`:''}<div class="lvx-place-card-body"><span class="lvx-rich-owner">${esc(item.requestCategory||item.primaryType||'Ort')} · ${esc(provider)}</span><h4><button type="button" class="lvx-place-card-title" data-ai-place-open="${openId}">${esc(item.name)}</button></h4>${item.address?`<p>${esc(item.address)}</p>`:''}${facts.length?`<div class="lvx-place-facts">${facts.map(fact=>`<span>${esc(fact)}</span>`).join('')}</div>`:''}${item.reasons?.length?`<ul>${item.reasons.map(reason=>`<li>${esc(reason)}</li>`).join('')}</ul>`:''}<div class="lvx-rich-actions">${placeOpenButton(item,openId)}${(item.actions||[]).map(offer=>ownerActionButton(offer,item)).join('')}</div></div></article>`};
+    const renderPlace=item=>{const image=safeImage(item.image?.url),openId=registerPlaceSubject(item),spatial=item.spatialConstraint?.state,provider=placeProvider(item),reviews=reviewCount(item.userRatingCount),facts=[rating(item.rating)?`★ ${rating(item.rating)}`:'',reviews,item.priceLevel||'',item.openNow===true?'Jetzt geöffnet':item.openNow===false?'Aktuell geschlossen':'',finiteValue(item.distanceMeters)?`${Number(item.distanceMeters)<1000?`${Math.round(Number(item.distanceMeters))} m`:`${(Number(item.distanceMeters)/1000).toFixed(1).replace('.',',')} km`} zum ${item.distanceSource==='landmark'?'Bezugspunkt':'Zentrum'}`:'',spatial==='confirmed'?'Gewünschte Lage bestätigt':spatial==='unknown'?'Lage noch nicht eindeutig':'',provider,placeFreshness(item)].filter(Boolean);return`<article class="lvx-place-card" data-ai-place-media="${image?'provider-photo':'absent'}" data-ai-place-card="${esc(item.providerPlaceId)}" data-ai-place-provider="${esc(provider)}" data-ai-place-freshness="${esc(item.providerObservedAt||'unknown')}">${image?`<button type="button" class="lvx-place-card-media" data-ai-place-open="${openId}" aria-label="Details zu ${esc(item.name)} öffnen"><img src="${esc(image)}" alt="${esc(item.image?.alt||item.name)}" loading="lazy"><span class="lvx-place-attribution">${esc(item.image?.attribution||item.image?.provider||provider)}</span></button>`:''}<div class="lvx-place-card-body"><span class="lvx-rich-owner">${esc(item.requestCategory||item.primaryType||'Ort')} · ${esc(provider)}</span><h4><button type="button" class="lvx-place-card-title" data-ai-place-open="${openId}">${esc(item.name)}</button></h4>${item.address?`<p>${esc(item.address)}</p>`:''}${facts.length?`<div class="lvx-place-facts">${facts.map(fact=>`<span>${esc(fact)}</span>`).join('')}</div>`:''}<div class="lvx-rich-actions">${placeOpenButton(item,openId)}${(item.actions||[]).map(offer=>ownerActionButton(offer,item)).join('')}</div></div></article>`};
     const renderDay=day=>{const count=day.entries?.length||0,date=displayDate(day.date),label=day.label&&!/^\d{4}-\d{2}-\d{2}/.test(day.label)?[day.label,date].filter(Boolean).join(' · '):date||day.label||'Reisetag';return`<article class="lvx-day-card"><header><span>${esc(label)}</span><b>${esc(count)} ${count===1?'Moment':'Momente'}</b></header><div>${(day.entries||[]).map(entry=>`<p><time>${esc(time(entry.startAt)||'Offen')}</time><strong>${esc(entry.title)}</strong></p>`).join('')||'<p><strong>Noch keine Reisemomente geplant.</strong></p>'}</div>${day.conflictCount?`<em>${esc(day.conflictCount)} Zeitkonflikt${day.conflictCount===1?'':'e'} prüfen</em>`:''}</article>`};
     const renderTrip=item=>`<article class="lvx-entity-card lvx-trip-card ${item.active?'is-active':''}"><span class="lvx-entity-symbol" aria-hidden="true">${esc(item.symbol||'✦')}</span><div><span class="lvx-rich-owner">${item.active?'Aktive Reise':'Reise'}</span><h4>${esc(item.title)}</h4><p>${esc(item.destination||'Reiseziel offen')}${item.startDate?` · ${esc(displayDate(item.startDate))}`:''}</p><div class="lvx-rich-actions">${(item.actions||[]).map(ownerActionButton).join('')}</div></div></article>`;
     const renderBooking=item=>`<article class="lvx-entity-card lvx-booking-card"><span class="lvx-entity-symbol" aria-hidden="true">⌁</span><div><span class="lvx-rich-owner">Buchung · ${esc(item.status)}</span><h4>${esc(item.title)}</h4><p>${esc([displayDate(item.date),item.time,item.partySize?`${item.partySize} Personen`:null].filter(Boolean).join(' · '))}</p><div class="lvx-rich-actions">${(item.actions||[]).map(ownerActionButton).join('')}</div></div></article>`;
@@ -16986,11 +18668,11 @@ const VERSION='4.35.0-canonical-owner-command';
     const contextPurpose=value=>({'places-ranking':'für passendere Vorschläge in deiner Nähe','route-planning':'für realistischere Wege und Ankunftszeiten'}[String(value||'')]||'nur für diesen Wunsch');
     const renderContextGate=gate=>`<div class="lvx-context-gate is-${gate?.allowed?'allowed':'denied'}"><span>${gate?.allowed?'Standort für diesen Wunsch':'Standort ist aus'}</span><strong>${gate?.allowed?'Du hast den Standort einmalig freigegeben':'Dein genauer Ort bleibt privat'}</strong><small>${gate?.allowed?`${esc(contextPurpose(gate.purpose))} · ${gate.precision==='precise'?'genau':'ungefähr'}`:'Nenne stattdessen einfach einen Ort im Chat.'}</small><footer>Die genaue Geräteposition wird dabei nicht in deinem Chatverlauf gespeichert.</footer></div>`;
     const renderCausalFeedback=feedback=>`<div class="lvx-causal-feedback is-${feedback?.accepted?'accepted':'rejected'}"><span>Aus deinem Feedback lernen</span><strong>${feedback?.accepted?'Ich habe eine kleine Profilanpassung vorbereitet':'Dein Profil bleibt unverändert'}</strong><small>${feedback?.accepted?`${esc(feedback.proposedAdjustments?.length||0)} Vorschlag${feedback.proposedAdjustments?.length===1?'':'e'} zum Prüfen`:'Zum Lernen brauche ich dein ausdrückliches Feedback zu einem bestätigten Erlebnis.'}</small><footer>Dein Profil ändert sich erst, wenn du die Vorschau bestätigst.</footer></div>`;
-    const renderPlanningTrace=trace=>{if(!trace)return'';const decisions=trace.decisions||[],evidence=trace.evidence||[],missing=trace.missingEvidence||[],stale=trace.staleEvidence||[],basis=evidence.length?'Mit den verfügbaren Reiseinformationen abgeglichen':'Noch ohne verlässliche Reiseinformation',freshness=missing.length?'Für einen Teil brauche ich noch eine verlässliche Angabe':stale.length?'Einige Informationen prüfe ich vor einer Übernahme erneut':'Die verwendeten Informationen sind ausreichend aktuell';return`<details class="lvx-planning-trace" data-ai-planning-trace="${esc(trace.traceId||'trace')}"><summary><span>So kam der Vorschlag zustande</span><strong>Warum passt das zu dir?</strong></summary><div class="lvx-planning-trace-metrics"><span>${esc(basis)}</span><span>${esc(freshness)}</span></div><ol>${decisions.map(item=>`<li class="is-${esc(item.status)}"><b>${esc(areaLabel(item.owner))}</b><span>${esc(actionLabel(item.action))}</span><small>${item.status==='failed'?'Dieser Teil konnte gerade nicht zuverlässig geprüft werden.':'Dabei wurden deine Angaben und der aktuelle Reisestand berücksichtigt.'}</small></li>`).join('')||'<li><b>Dein Wunsch</b><span>Ich erkläre dir gern, welche Angaben ich dafür berücksichtige.</span></li>'}</ol><footer>Deine Nachricht und deine genaue Geräteposition werden dafür nicht zusätzlich gespeichert. Ohne deine Bestätigung ändert Luvia nichts.</footer></details>`};
+    const renderPlanningTrace=(trace,consumerReasons=[])=>{if(!trace)return'';const decisions=trace.decisions||[],reasons=(consumerReasons||[]).filter(item=>item?.label&&(item.facts||[]).length).slice(0,4),failed=decisions.filter(item=>item.status==='failed'),title=reasons.length?'Warum diese Treffer?':'Was wurde geprüft?';return`<details class="lvx-planning-trace" data-ai-planning-trace="${esc(trace.traceId||'trace')}"><summary><span>Nachvollziehbar ausgewählt</span><strong>${esc(title)}</strong></summary>${reasons.length?`<div class="lvx-planning-trace-reasons">${reasons.map(item=>`<article><strong>${esc(item.label)}</strong><small>${esc(item.source||'Belegte Quelle')}</small><ul>${item.facts.slice(0,4).map(fact=>`<li>${esc(fact)}</li>`).join('')}</ul></article>`).join('')}</div>`:`<ol>${decisions.map(item=>`<li class="is-${esc(item.status)}"><b>${esc(areaLabel(item.owner))}</b><span>${esc(actionLabel(item.action))}</span><small>${item.status==='failed'?'Gerade nicht zuverlässig erreichbar.':'Erfolgreich beim zuständigen Bereich gelesen.'}</small></li>`).join('')}</ol>`}${failed.length?`<p class="lvx-planning-trace-warning">${esc(failed.length===1?'Ein Teil konnte gerade nicht zuverlässig geprüft werden.':'Mehrere Teile konnten gerade nicht zuverlässig geprüft werden.')}</p>`:''}</details>`};
     const renderJourneyResilience=evidence=>{const routes=evidence?.routeUncertainty||[],rehearsals=evidence?.rehearsals||[],recovery=evidence?.disruptionRecovery,twin=evidence?.destinationTwin;if(!routes.length&&!rehearsals.length&&!recovery&&!twin)return'';return`<details class="lvx-journey-rehearsal" aria-label="Planungsdetails für diesen Tag"><summary><span>Planungsdetails</span><strong>Wege, Konflikte und aktuelle Störungen</strong></summary><div class="lvx-journey-rehearsal-body">${routes.length?`<div class="lvx-route-uncertainty">${routes.map(route=>`<article><b>${esc(route.from||'Start')} → ${esc(route.to||'Ziel')}</b><span>realistisch ${esc(route.percentiles?.p50)}–${esc(route.percentiles?.p95)} Min.</span><small>Plane am besten ${esc(route.recommendedMinutes)} Minuten ein.</small></article>`).join('')}</div>`:'<p class="lvx-rehearsal-empty">Sobald zwei feste Reisemomente stehen, kann Luvia den Weg dazwischen realistisch einschätzen.</p>'}${rehearsals.map(item=>`<article class="lvx-rehearsal-status is-${esc(item.status)}"><span>${esc(displayDate(item.date))}</span><strong>${item.status==='blocked'?'Diese Zeiten überschneiden sich':item.status==='attention'?'Dieser Tag könnte zu voll werden':'Dieser Tagesablauf wirkt machbar'}</strong><small>${esc(item.summary?.entryCount||0)} geplante Momente · nichts wurde automatisch geändert</small></article>`).join('')}${recovery?.proposals?.length?`<div class="lvx-disruption-recovery"><span>${esc(recovery.proposals.length)} aktuelle Störung${recovery.proposals.length===1?'':'en'} erkannt</span>${recovery.proposals.map(item=>`<article><strong>${esc(item.reason)}</strong><p>${(item.options||[]).map(option=>esc(option.label)).join(' · ')}</p></article>`).join('')}<small>Wenn du eine Alternative auswählst, siehst du zuerst die Vorschau.</small></div>`:'<p class="lvx-rehearsal-empty">Für deinen Tag ist gerade keine bestätigte aktuelle Störung bekannt.</p>'}${twin?`<div class="lvx-destination-twin"><span>Dein Reiseziel im Zusammenhang</span><strong>${esc(twin.nodes?.length||0)} Orte und Momente · ${esc(twin.edges?.length||0)} passende Verbindungen</strong><small>Deine genaue Position wird dafür nicht gespeichert.</small></div>`:''}</div></details>`};
-    const appendReadFailure=result=>{const recovery=result.meta?.readRecovery||{},id=String(++readRecoverySequence),area=areaLabel(result.owner);readRecoveries.set(id,{...recovery,conversationId:activeConversation?.id||null,sequenceIndex:activeConversation?.index??null});answer.insertAdjacentHTML('beforeend',`<article class="lvx-owner-read-failure" role="alert" data-ai-read-error="${esc(result.evidence?.code||'unavailable')}"><span>Gerade nicht verfügbar</span><strong>${esc(area)} konnte ich nicht zuverlässig laden</strong><p>Bitte versuche diesen Teil noch einmal oder passe deinen Wunsch an.</p>${renderPlanningTrace(result.evidence?.planningTrace)}<div class="lvx-rich-actions"><button type="button" class="lvx-rich-action is-secondary" data-ai-read-retry="${id}" ${recovery.canRetry===false?'disabled':''}>Erneut versuchen</button><button type="button" class="lvx-rich-action is-secondary" data-ai-read-refine="${id}">Wunsch anpassen</button></div><small>Es wurde nichts verändert und ich zeige keine erfundenen Treffer.</small></article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
-    const appendConfirmation=(result,{sourceButton=null,compensatesLedgerId=null,subject=null}={})=>{const id=String(++confirmationSequence),ledgerId=result.evidence?.ledgerId,resolvedSubject=subject||ownerActions.get(sourceButton?.dataset?.aiOwnerAction)?.subject||null,preview=result.evidence?.preview||{},previewTitle=preview.name||preview.title||resolvedSubject?.name||'',previewWhen=[displayDate(preview.date),preview.time?`${preview.time} Uhr`:null].filter(Boolean).join(' · '),previewMarkup=previewTitle||previewWhen?`<div class="lvx-confirmation-summary">${previewTitle?`<strong>${esc(previewTitle)}</strong>`:''}${previewWhen?`<span>${esc(previewWhen)}</span>`:''}</div>`:'';confirmations.set(id,{actionId:result.evidence?.actionId,ledgerId,sourceButton,compensatesLedgerId,subject:resolvedSubject,conversationId:activeConversation?.id||null,sequenceIndex:activeConversation?.index??null});if(ledgerId&&resolvedSubject)feedbackSubjects.set(ledgerId,resolvedSubject);answer.insertAdjacentHTML('beforeend',`<article class="lvx-command-confirmation" data-ai-confirmation-card="${id}" role="group" aria-label="Aktion bestätigen"><span>Bitte noch einmal prüfen</span><strong>${esc(compensatesLedgerId?'Änderung rückgängig machen?':result.title)}</strong><p>${esc(result.message)}</p>${previewMarkup}<small>${compensatesLedgerId?'Auch das Rückgängigmachen wird erst nach deiner Bestätigung ausgeführt.':'Erst wenn du bestätigst, wird diese Änderung ausgeführt.'}</small><div class="lvx-rich-actions"><button type="button" class="lvx-rich-action is-secondary" data-ai-cancel-confirmation="${id}">Abbrechen</button><button type="button" class="lvx-rich-action is-confirm" data-ai-confirm="${id}">Verbindlich bestätigen</button></div></article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
-    const appendReceipt=result=>{const failed=result.evidence?.status==='failed',unknown=result.evidence?.status==='outcome_unknown',cancelled=result.evidence?.status==='cancelled',compensated=result.evidence?.status==='compensated',ledgerId=result.evidence?.ledgerId,subject=feedbackSubjects.get(ledgerId);if(!failed&&!unknown&&!cancelled&&!compensated&&subject){const raw=String(subject.primaryType||'').toLowerCase(),value=/restaurant|cafe|food|meal|bakery|bar/.test(raw)?'food':/museum|culture|gallery|theater/.test(raw)?'culture':/nature|park|beach|trail/.test(raw)?'nature':/shop|market|store/.test(raw)?'shopping':raw||null;if(value)lastFeedbackContext={confirmedOutcome:true,evidenceId:ledgerId,value,owner:result.owner,actionId:result.evidence?.actionId}}let recovery='';if(failed&&result.evidence?.retryable&&ledgerId){const id=String(++recoverySequence);recoveries.set(id,ledgerId);recovery=`<button type="button" class="lvx-rich-action is-secondary" data-ai-action-retry="${id}">Erneut versuchen</button>`}const plan=ledgerId?actionRuntime().recoveryPlan?.(ledgerId):null;if(!failed&&!unknown&&!cancelled&&!compensated&&plan?.kind==='undo'){const id=String(++undoSequence);undos.set(id,ledgerId);recovery=`<button type="button" class="lvx-rich-action is-secondary" data-ai-action-undo="${id}">Rückgängig machen</button>`}else if(unknown||plan?.kind==='owner-reconciliation')recovery='<small class="lvx-recovery-note">Ich prüfe den Ausgang, bevor eine weitere Aktion möglich ist.</small>';else if(plan?.kind==='owner-recovery')recovery='<small class="lvx-recovery-note">Diese Änderung lässt sich nur über den vorgesehenen Hilfeweg zurücknehmen.</small>';answer.insertAdjacentHTML('beforeend',`<article class="lvx-command-receipt ${failed||unknown?'is-failed':cancelled?'is-cancelled':compensated?'is-compensated':'is-success'}" role="status" data-ai-receipt-status="${esc(result.evidence?.status||'completed')}"><span>${compensated?'Rückgängig gemacht':unknown?'Wird noch geprüft':failed?'Nicht ausgeführt':cancelled?'Verworfen':'Erledigt'}</span><strong>${esc(result.title)}</strong><p>${esc(result.message)}</p>${recovery}</article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
+    const appendReadFailure=result=>{const recovery=result.meta?.readRecovery||{},id=String(++readRecoverySequence),projected=consumer().projectReadFailure({result,area:areaLabel(result.owner)});readRecoveries.set(id,{...recovery,conversationId:activeConversation?.id||null,sequenceIndex:activeConversation?.index??null});answer.insertAdjacentHTML('beforeend',`<article class="lvx-owner-read-failure" role="alert" data-ai-read-error="${esc(result.evidence?.code||'unavailable')}" data-ai-consumer-view="${esc(projected.view)}"><span>${esc(projected.eyebrow)}</span><strong>${esc(projected.title)}</strong><p>${esc(projected.message)}</p>${renderPlanningTrace(result.evidence?.planningTrace)}<div class="lvx-rich-actions"><button type="button" class="lvx-rich-action is-secondary" data-ai-read-retry="${id}" ${recovery.canRetry===false?'disabled':''}>${esc(projected.primaryAction.label)}</button><button type="button" class="lvx-rich-action is-secondary" data-ai-read-refine="${id}">${esc(projected.secondaryAction.label)}</button></div></article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
+    const appendConfirmation=(result,{sourceButton=null,compensatesLedgerId=null,subject=null}={})=>{const id=String(++confirmationSequence),ledgerId=result.evidence?.ledgerId,resolvedSubject=subject||ownerActions.get(sourceButton?.dataset?.aiOwnerAction)?.subject||null,preview={...(result.evidence?.preview||{})};if(!preview.name&&!preview.title&&resolvedSubject?.name)preview.name=resolvedSubject.name;const projected=consumer().projectPreview({result,preview,compensatesLedgerId});confirmations.set(id,{actionId:result.evidence?.actionId,ledgerId,sourceButton,compensatesLedgerId,subject:resolvedSubject,conversationId:activeConversation?.id||null,sequenceIndex:activeConversation?.index??null});if(ledgerId&&resolvedSubject)feedbackSubjects.set(ledgerId,resolvedSubject);answer.insertAdjacentHTML('beforeend',`<article class="lvx-command-confirmation" data-ai-confirmation-card="${id}" data-ai-consumer-view="${esc(projected.view)}" role="group" aria-label="${esc(projected.title)}"><span>${esc(projected.eyebrow)}</span><strong>${esc(projected.title)}</strong><p>${esc(projected.message)}</p>${projected.details.length?`<dl class="lvx-confirmation-summary">${projected.details.map(item=>`<div><dt>${esc(item.label)}</dt><dd>${esc(item.value)}</dd></div>`).join('')}</dl>`:''}<small>${esc(projected.note)}</small><div class="lvx-rich-actions"><button type="button" class="lvx-rich-action is-secondary" data-ai-cancel-confirmation="${id}">${esc(projected.secondaryAction.label)}</button><button type="button" class="lvx-rich-action is-confirm" data-ai-confirm="${id}">${esc(projected.primaryAction.label)}</button></div></article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
+    const appendReceipt=result=>{const failed=result.evidence?.status==='failed',unknown=result.evidence?.status==='outcome_unknown',cancelled=result.evidence?.status==='cancelled',compensated=result.evidence?.status==='compensated',ledgerId=result.evidence?.ledgerId,subject=feedbackSubjects.get(ledgerId);if(!failed&&!unknown&&!cancelled&&!compensated&&subject){const raw=String(subject.primaryType||'').toLowerCase(),value=/restaurant|cafe|food|meal|bakery|bar/.test(raw)?'food':/museum|culture|gallery|theater/.test(raw)?'culture':/nature|park|beach|trail/.test(raw)?'nature':/shop|market|store/.test(raw)?'shopping':raw||null;if(value)lastFeedbackContext={confirmedOutcome:true,evidenceId:ledgerId,value,owner:result.owner,actionId:result.evidence?.actionId}}let recoveryKind='',recoveryId='';if(failed&&result.evidence?.retryable&&ledgerId){recoveryKind='retry';recoveryId=String(++recoverySequence);recoveries.set(recoveryId,ledgerId)}const plan=ledgerId?actionRuntime().recoveryPlan?.(ledgerId):null;if(!failed&&!unknown&&!cancelled&&!compensated&&plan?.kind==='undo'){recoveryKind='undo';recoveryId=String(++undoSequence);undos.set(recoveryId,ledgerId)}else if(unknown||plan?.kind==='owner-reconciliation')recoveryKind='reconcile';else if(plan?.kind==='owner-recovery')recoveryKind='manual';const projected=consumer().projectReceipt({result,recoveryKind}),recovery=projected.primaryAction?`<button type="button" class="lvx-rich-action is-secondary" ${recoveryKind==='undo'?`data-ai-action-undo="${recoveryId}"`:`data-ai-action-retry="${recoveryId}"`}>${esc(projected.primaryAction.label)}</button>`:projected.note?`<small class="lvx-recovery-note">${esc(projected.note)}</small>`:'';answer.insertAdjacentHTML('beforeend',`<article class="lvx-command-receipt is-${esc(projected.tone)}" role="status" data-ai-receipt-status="${esc(projected.status)}" data-ai-consumer-view="${esc(projected.view)}"><span>${esc(projected.eyebrow)}</span><strong>${esc(projected.title)}</strong><p>${esc(projected.message)}</p>${recovery}</article>`);answer.lastElementChild?.scrollIntoView?.({block:'nearest'})};
     const openPlaceSubject=async(subject,trigger=null)=>{if(!subject)return false;closePlaceSubject({restoreFocus:false});const ownerDocument=overlay.ownerDocument,layer=ownerDocument.createElement('div'),surface=commandBody.parentElement,returnFocus=trigger||ownerDocument.activeElement;layer.className='lvx-ai-place-detail-layer';layer.dataset.aiPlaceDetailLayer='';layer.innerHTML=`<div class="lvx-ai-place-detail-scrim" data-ai-place-detail-close aria-hidden="true"></div><section class="lvx-ai-place-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="lvx-ai-place-detail-title"><div class="lvx-ai-place-detail-handle" aria-hidden="true"></div><button type="button" class="lvx-ai-place-detail-close" data-ai-place-detail-close aria-label="Zurück zum Luvia Chat">←</button><div class="lvx-ai-place-detail-content" data-ai-place-detail-content></div></section>`;overlay.appendChild(layer);surface?.setAttribute('inert','');surface?.setAttribute('aria-hidden','true');const sheet=layer.lastElementChild,entry={layer,surface,sheet,content:sheet.lastElementChild,returnFocus,projection:null};activePlaceDetail=entry;queueMicrotask(()=>layer.classList.add('is-open'));paintPlaceSubject(entry,subject,subject.image?.url?[{uri:subject.image.url,attribution:subject.image.attribution||subject.image.provider}]:[],{loading:true});const providerPlaceId=String(subject.providerPlaceId||subject.id||'').replace(/^places\//,'');if(!providerPlaceId||!globalThis.LuviaPlaceDetails?.prepare){paintPlaceSubject(entry,subject,[],{});return true}try{const prepared=await globalThis.LuviaPlaceDetails.prepare(providerPlaceId,{regionCode:trip?.destination?.countryCode||'DE',photoLimit:5,seedPlace:subject}),details=prepared?.place||{},place={...subject,...details,coordinates:details.coordinates||details['loca'+'tion']||subject.coordinates||subject['loca'+'tion']||null,latitude:details.latitude??subject.latitude,longitude:details.longitude??subject.longitude,actions:subject.actions||[]};paintPlaceSubject(entry,place,prepared?.photos||[],{})}catch{paintPlaceSubject(entry,subject,[],{error:'Einige aktuelle Details konnten nicht geladen werden. Die bereits belegten Ortsangaben bleiben sichtbar.'})}return true};
     const placeMapMarkup=result=>`<div class="lvx-place-map" data-place-map-shell data-map-state="loading"><div class="lvx-place-map-engine" data-ai-place-map data-map-renderer="maplibre" role="group" aria-label="Karte für ${esc(result.title||'passende Orte')}"></div><small class="lvx-place-map-status" data-place-map-status role="status" aria-live="polite">Die Karte wird aus den bestätigten Ortsangaben aufgebaut …</small></div>`;
     const mountPlaceMap=(section,result)=>{const shell=section?.children?.[1],container=shell?.firstElementChild,status=shell?.lastElementChild,grid=shell?.nextElementSibling,items=result.items||[],spatial=globalThis.LuviaPlacesSpatialExperience;if(!container||container.dataset.aiPlaceMap==null)return;if(!spatial?.mountProjection){shell.setAttribute('data-map-state','unavailable');if(status)status.textContent='Die Karte ist gerade nicht verfügbar; die geprüfte Ortsliste bleibt bedienbar.';return}spatial.mountProjection(container,items,{label:'Luvia Karte · Compass-Farben',onSelect:providerPlaceId=>{const subject=items.find(item=>String(item.providerPlaceId||item.id).replace(/^places\//,'')===String(providerPlaceId).replace(/^places\//,''));if(!subject)return;for(const card of grid?.children||[])card.classList.toggle('is-map-selected',String(card.dataset.aiPlaceCard).replace(/^places\//,'')===String(providerPlaceId).replace(/^places\//,''));openPlaceSubject(subject)}})};
@@ -16998,13 +18680,13 @@ const VERSION='4.35.0-canonical-owner-command';
     const renderEventCard=(event,collectionId)=>{const starts=new Date(event.startAt),date=Number.isNaN(starts.getTime())?displayDateTime(event.startAt):new Intl.DateTimeFormat('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:event.timeZone||'UTC'}).format(starts),venueSubject=eventVenueSubject(event),status={scheduled:'Geplant',cancelled:'Abgesagt',postponed:'Verschoben',moved:'Ort geändert'}[event.status]||event.status;return`<article class="lvx-event-card" data-ai-event-card="${esc(event.eventClaimId)}"><div class="lvx-event-time"><time datetime="${esc(event.startAt)}">${esc(date)}</time><span>${esc(status)}</span></div><div><span class="lvx-rich-owner">Veranstaltung · Quelle bestätigt</span><h4>${esc(event.title)}</h4><p>${esc(event.venue?.name||'Veranstaltungsort wird noch geprüft')}</p>${event.description?`<small>${esc(event.description)}</small>`:''}<div class="lvx-event-provenance"><span>${event.freshUntil?`Angaben geprüft bis ${esc(displayDateTime(event.freshUntil))}`:'Aktualität wird vor der Übernahme erneut geprüft'}</span><a href="${esc(event.sourceRef)}" target="_blank" rel="noopener noreferrer">Quelle öffnen</a></div>${venueSubject?`<button type="button" class="lvx-rich-action is-secondary" data-ai-event-place="${esc(collectionId)}:${esc(event.eventClaimId)}">Ort auf der Karte ansehen</button>`:'<em>Der Ort erscheint erst auf der Karte, wenn seine Position bestätigt ist.</em>'}</div></article>`};
     const renderEventExperience=result=>{const id=String(++eventSequence),items=result.items||[],first=items[0]?.startAt||new Date().toISOString(),day=first.slice(0,10),evidence=result.evidence||{},graph=evidence.graph||{},culture=(evidence.culturalContext||[]).filter(item=>item.available).length;eventCollections.set(id,{result,items,graph});return`<section class="lvx-event-experience" data-ai-event-collection="${id}"><div class="lvx-event-brush" role="group" aria-label="Zeitfenster der Veranstaltungskarte"><button type="button" class="is-active" data-ai-event-brush="${id}" data-event-from="" data-event-to="">Alle Zeiten</button><button type="button" data-ai-event-brush="${id}" data-event-from="${day}T12:00:00Z" data-event-to="${day}T17:59:59Z">Nachmittag</button><button type="button" data-ai-event-brush="${id}" data-event-from="${day}T18:00:00Z" data-event-to="${day}T23:59:59Z">Abend</button><output data-ai-event-count>${esc(items.length)} Veranstaltungen</output></div><div class="lvx-place-map lvx-event-map" data-event-map-shell data-map-state="loading"><div class="lvx-place-map-engine" data-ai-event-map role="group" aria-label="Karte bestätigter Veranstaltungen"></div><small class="lvx-place-map-status" data-event-map-status role="status" aria-live="polite">Die Karte wird aus bestätigten Veranstaltungsorten aufgebaut …</small></div><div class="lvx-event-timeline">${items.map(item=>renderEventCard(item,id)).join('')}</div><div class="lvx-event-evidence"><article><span>Geprüfte Auswahl</span><strong>${esc(items.length)} bestätigte Veranstaltung${items.length===1?'':'en'}</strong><small>Keine erfundenen Veranstaltungen</small></article><article><span>Karte und Zeit</span><strong>${esc(graph.edges?.length||0)} passende Verbindung${graph.edges?.length===1?'':'en'}</strong><small>Die Auswahl folgt deinem Zeitfenster.</small></article>${culture?`<article><span>Gut vorbereitet</span><strong>${esc(culture)} kulturelle${culture===1?'r Hinweis':' Hinweise'}</strong><small>Nur wenn eine verlässliche Quelle vorliegt.</small></article>`:''}</div></section>`};
     const mountEventMap=(section,id,eventIds=null)=>{const entry=eventCollections.get(id),shell=section?.querySelector('[data-event-map-shell]'),container=shell?.querySelector('[data-ai-event-map]'),status=shell?.querySelector('[data-event-map-status]'),spatial=globalThis.LuviaPlacesSpatialExperience;if(!entry||!container)return;eventProjections.get(id)?.destroy?.();const allowed=eventIds?new Set(eventIds):null,events=entry.items.filter(event=>!allowed||allowed.has(event.eventClaimId)),places=events.map(eventVenueSubject).filter(subject=>subject?.coordinates);for(const card of section.querySelectorAll('[data-ai-event-card]'))card.hidden=Boolean(allowed&&!allowed.has(card.dataset.aiEventCard));const output=section.querySelector('[data-ai-event-count]');if(output)output.textContent=`${events.length} Events`;if(!spatial?.mountProjection){shell.dataset.mapState='unavailable';if(status)status.textContent='MapLibre ist nicht verfügbar; die belegte Event-Timeline bleibt sichtbar.';return}const handle=spatial.mountProjection(container,places,{label:'Verified Events · MapLibre · Compass-Farben',onSelect:placeId=>{const event=events.find(item=>String(item.venue?.placeId)===String(placeId));if(event)openPlaceSubject(eventVenueSubject(event))}});eventProjections.set(id,handle)};
-    const appendRichResult=(result,options={})=>{if(result.meta?.traceOnly){answer.insertAdjacentHTML('beforeend',renderPlanningTrace(result.evidence?.planningTrace));answer.lastElementChild?.scrollIntoView?.({block:'nearest'});return}if(result.kind==='error'){appendReadFailure(result);return}if(result.kind==='confirmation'){appendConfirmation(result,options);return}if(result.kind==='receipt'){appendReceipt(result);return}const content=result.meta?.uspKind==='context-gate'?renderContextGate(result.evidence?.contextGate):result.meta?.uspKind==='causal-feedback'?renderCausalFeedback(result.evidence?.causalFeedback):result.kind==='place_collection'?`${placeMapMarkup(result)}<div class="lvx-place-grid">${(result.items||[]).map(renderPlace).join('')}</div>`:result.kind==='event_collection'?renderEventExperience(result):result.kind==='day_plan'?`<div class="lvx-day-grid">${(result.items||[]).map(renderDay).join('')}</div>${result.meta?.planningDetailsIncluded?renderJourneyResilience(result.evidence):''}`:result.kind==='trip_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderTrip).join('')}</div>`:result.kind==='booking_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderBooking).join('')}</div>`:result.kind==='memory_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderMemory).join('')}</div>`:result.kind==='preference_summary'?renderPreference(result.summary):'';answer.insertAdjacentHTML('beforeend',`<section class="lvx-rich-result is-${esc(result.kind)}" aria-label="${esc(result.title||'Luvia Ergebnis')}"><header><span>${esc(areaLabel(result.owner))}</span><h3>${esc(result.title)}</h3><p>${esc(result.message)}</p></header>${content}${result.actions?.length?`<div class="lvx-rich-actions is-result">${result.actions.map(ownerActionButton).join('')}</div>`:''}</section>`);const section=answer.lastElementChild;if(result.kind==='place_collection')queueMicrotask(()=>mountPlaceMap(section,result));if(result.kind==='event_collection'){const id=section.querySelector('[data-ai-event-collection]')?.dataset.aiEventCollection;if(id)queueMicrotask(()=>mountEventMap(section,id))}section?.scrollIntoView?.({block:'nearest'})};
+    const appendRichResult=(result,options={})=>{if(result.meta?.traceOnly){answer.insertAdjacentHTML('beforeend',renderPlanningTrace(result.evidence?.planningTrace,result.evidence?.consumerReasons));answer.lastElementChild?.scrollIntoView?.({block:'nearest'});return}if(result.kind==='error'){appendReadFailure(result);return}if(result.kind==='confirmation'){appendConfirmation(result,options);return}if(result.kind==='receipt'){appendReceipt(result);return}const projected=consumer().projectResult(result,{area:areaLabel(result.owner)}),content=result.meta?.uspKind==='context-gate'?renderContextGate(result.evidence?.contextGate):result.meta?.uspKind==='causal-feedback'?renderCausalFeedback(result.evidence?.causalFeedback):result.kind==='place_collection'?`${placeMapMarkup(result)}<div class="lvx-place-grid">${(result.items||[]).map(renderPlace).join('')}</div>`:result.kind==='event_collection'?renderEventExperience(result):result.kind==='day_plan'?`<div class="lvx-day-grid">${(result.items||[]).map(renderDay).join('')}</div>${result.meta?.planningDetailsIncluded?renderJourneyResilience(result.evidence):''}`:result.kind==='trip_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderTrip).join('')}</div>`:result.kind==='booking_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderBooking).join('')}</div>`:result.kind==='memory_collection'?`<div class="lvx-entity-grid">${(result.items||[]).map(renderMemory).join('')}</div>`:result.kind==='preference_summary'?renderPreference(result.summary):'';answer.insertAdjacentHTML('beforeend',`<section class="lvx-rich-result is-${esc(result.kind)}" data-ai-consumer-view="${esc(projected.view)}" aria-label="${esc(projected.title)}"><header><span>${esc(projected.eyebrow)}</span><h3>${esc(projected.title)}</h3>${projected.message?`<p>${esc(projected.message)}</p>`:''}</header>${content}${result.actions?.length?`<div class="lvx-rich-actions is-result">${result.actions.map(ownerActionButton).join('')}</div>`:''}</section>`);const section=answer.lastElementChild;if(result.kind==='place_collection')queueMicrotask(()=>mountPlaceMap(section,result));if(result.kind==='event_collection'){const id=section.querySelector('[data-ai-event-collection]')?.dataset.aiEventCollection;if(id)queueMicrotask(()=>mountEventMap(section,id))}section?.scrollIntoView?.({block:'nearest'})};
     const compilerContract=Object.freeze({version:2,goalTypes:['meal','activity','place','event','events','festival','booking','journey','timeline','trip','preference','privacy','location','collaboration','group_decision','memory'],constraintKeys:['operation','target','category','dietary','partySize','date','time','privacyPurpose','choice','travelPace','budgetPreference','travelInterest','areaPreference','areaAvoid','neighborhood','distance'],operations:['read','add','plan','book','reserve','change','cancel','delete','connect','create','save','share','set','enable','disable','invite','vote'],rules:['Preserve every distinct user wish as its own ordered goal.','Preserve positive and negative spatial constraints such as centre instead of waterfront.','Use operation=read unless the user explicitly requests a change.','Do not authorize execution or omit confirmation.','Do not invent provider facts or events.']});
     const compileRequest=async(request,context)=>{const core=globalThis.LuviaTravelOrchestrationCoreV1,deterministic=core?.compileIntent?.(request,context);if(!context.online||['blocked','conflicted'].includes(deterministic?.status))return{compiled:deterministic,dialogue:null};try{const response=await intelligence().run('planning.dialogue',{surface:'global-assistant',userGoal:request,outputLanguage:'match-user',compilerContract,currentMoment:{surface,tripId:tripId(trip),destination:trip?.destination?.name||trip?.destination||'',locale:context.locale}},{fallback:true}),dialogue=response?.data||null;if(response?.meta?.fallback===true||!dialogue)return{compiled:deterministic,dialogue:null};const semantic=core?.compileDialogue?.(request,dialogue,context),semanticPlan=core?.sequencePlan?.(semantic)||[],deterministicPlan=core?.sequencePlan?.(deterministic)||[],deterministicOwners=new Set(deterministic?.ownerRoutes||[]),semanticOwners=new Set(semantic?.ownerRoutes||[]),preservesDeterministicOwners=[...deterministicOwners].every(owner=>semanticOwners.has(owner));if(!semantic?.intents?.length||semantic.status==='unresolved'||(deterministic?.requiresConfirmation&&!semantic.requiresConfirmation))return{compiled:deterministic,dialogue};const preferSemantic=!deterministic?.intents?.length||preservesDeterministicOwners&&(semanticPlan.length>deterministicPlan.length||semantic.intents.length>=deterministic.intents.length);return{compiled:preferSemantic?semantic:deterministic,dialogue}}catch{return{compiled:deterministic,dialogue:null}}};
-    const appendContinuation=()=>{const conversation=activeConversation,next=conversation?.plan?.[conversation.index+1];if(!conversation||!next)return;const id=String(++continuationSequence);answer.insertAdjacentHTML('beforeend',`<div class="lvx-sequence-continuation" data-ai-sequence-continuation="${id}"><span>Wunsch ${conversation.index+1} ist sichtbar. Du entscheidest, ob du etwas übernimmst.</span><button type="button" class="lvx-rich-action is-secondary" data-ai-sequence-continue="${id}">Ohne Übernahme mit Wunsch ${conversation.index+2} weiter</button></div>`);const element=answer.lastElementChild;continuations.set(id,{conversationId:conversation.id,sequenceIndex:conversation.index,control:element?.lastElementChild||null});element?.scrollIntoView?.({block:'nearest'})};
+    const appendContinuation=()=>{const conversation=activeConversation,next=conversation?.plan?.[conversation.index+1];if(!conversation||!next)return;const id=String(++continuationSequence);answer.insertAdjacentHTML('beforeend',`<div class="lvx-sequence-continuation" data-ai-sequence-continuation="${id}"><span>Du kannst diesen Vorschlag übernehmen oder direkt weitermachen.</span><button type="button" class="lvx-rich-action is-secondary" data-ai-sequence-continue="${id}">Weiter mit: ${esc(next.label)}</button></div>`);const element=answer.lastElementChild;continuations.set(id,{conversationId:conversation.id,sequenceIndex:conversation.index,control:element?.lastElementChild||null});element?.scrollIntoView?.({block:'nearest'})};
     const successfulReceipt=result=>['completed','opened'].includes(result?.evidence?.status);
     let runActiveSequence;
-    const advanceConversation=async(reason,expected={})=>{const conversation=activeConversation;if(advancing||!conversation||expected.conversationId&&expected.conversationId!==conversation.id||expected.sequenceIndex!=null&&expected.sequenceIndex!==conversation.index)return false;const next=conversation.plan[conversation.index+1];if(!next){if(reason==='owner-receipt')appendMessage('assistant','Fertig – ich habe alle erkannten Wünsche mit dir Schritt für Schritt bearbeitet. Abgeschlossene Änderungen kannst du im Verlauf prüfen und, wenn angeboten, wieder rückgängig machen.');return false}advancing=true;for(const entry of continuations.values())if(entry.control)entry.control.disabled=true;conversation.index+=1;commandBody.dataset.activeSequence=String(next.sequence);appendMessage('assistant',reason==='owner-receipt'?`Der vorherige Schritt ist bestätigt. Jetzt kümmere ich mich um Wunsch ${conversation.index+1}: ${next.label}`:`Okay. Jetzt kümmere ich mich um Wunsch ${conversation.index+1}: ${next.label}`);try{await runActiveSequence()}finally{advancing=false}return true};
+    const advanceConversation=async(reason,expected={})=>{const conversation=activeConversation;if(advancing||!conversation||expected.conversationId&&expected.conversationId!==conversation.id||expected.sequenceIndex!=null&&expected.sequenceIndex!==conversation.index)return false;const next=conversation.plan[conversation.index+1];if(!next){if(reason==='owner-receipt'){const projected=consumer().projectSequenceTransition({finished:true});appendMessage('assistant',projected.message)}return false}advancing=true;for(const entry of continuations.values())if(entry.control)entry.control.disabled=true;conversation.index+=1;commandBody.dataset.activeSequence=String(next.sequence);const projected=consumer().projectSequenceTransition({nextLabel:next.label});appendMessage('assistant',projected.message);try{await runActiveSequence()}finally{advancing=false}return true};
     runActiveSequence=async()=>{const conversation=activeConversation,step=conversation?.plan?.[conversation.index],core=globalThis.LuviaTravelOrchestrationCoreV1;if(!conversation||!step)return;const scoped=core?.sliceIntentGraph?.(conversation.compiled,step.sequence)||conversation.compiled;commandBody.dataset.activeSequence=String(step.sequence);if(['blocked','conflicted'].includes(scoped?.status)){const message=scoped.status==='blocked'?'Diesen Befehl kann ich so nicht ausführen. Bitte formuliere den Wunsch neu. Eine Änderung passiert immer erst nach deiner Bestätigung.':'Ich brauche eine eindeutige Entscheidung von dir, bevor ich etwas vorbereite.';appendMessage('assistant',message,{error:scoped.status==='blocked'});setState(scoped.status==='blocked'?'error':'attention',message);return}if(scoped?.status==='needs-clarification'){const message=scoped.followUpQuestion?.text||'Für diesen Wunsch brauche ich noch eine Angabe von dir.';appendMessage('assistant',message);setState('attention',message);appendContinuation();return}const reference=referencedPlan(scoped,conversation.request);if(reference){setState('loading','Ich bereite den gewählten Ort für deine Timeline vor …');try{const prepared=actionRuntime().prepare(reference.offer.actionId,reference.offer.payload,{userGesture:true,surface});appendRichResult(prepared.result,{subject:reference.subject});setState('attention','Prüfe Ort und Zeitpunkt. Erst mit deiner Bestätigung wird der Eintrag erstellt.')}catch(error){appendMessage('assistant','Der gewählte Ort konnte nicht sicher für die Timeline vorbereitet werden.',{error:true});setState('error',error?.message||'Die Vorschau konnte nicht erstellt werden.')}return}setState('loading',`Ich prüfe Wunsch ${conversation.index+1} …`);const actionResponse=await actionRuntime().runMessage(step.label,{surface,compiledIntent:scoped,sourceMessage:conversation.request,excludedProviderPlaceIds:[...shownPlaceIds],feedbackContext:lastFeedbackContext});if(actionResponse.handled){for(const result of actionResponse.results||[])if(result.kind==='place_collection')for(const item of result.items||[]){const id=String(item.providerPlaceId||item.id||'').replace(/^places\//,'');if(id)shownPlaceIds.add(id)}actionResponse.results.forEach(appendRichResult);if(actionResponse.clarificationRequired){const message=scoped.followUpQuestion?.text||'Für die gewünschte Änderung brauche ich noch eine Angabe von dir.';appendMessage('assistant',message);setState('attention',message)}else setState(actionResponse.error?'error':'success',actionResponse.error?'Ein Teil deiner Anfrage konnte gerade nicht geladen werden. Du kannst ihn erneut versuchen oder anpassen.':'Die passenden Informationen sind da. Wenn du etwas übernehmen möchtest, siehst du zuerst eine Vorschau.');appendContinuation();return}const response=await intelligence().ask(step.label,{currentMoment:{surface,intentCount:scoped?.intents?.length||0,ownerRoutes:scoped?.ownerRoutes||[],intentStatus:scoped?.status||'unresolved'}}),fallback=response.meta?.fallback===true;appendMessage('assistant',response.data?.answer||'Dazu konnte Luvia gerade keine verlässliche Antwort formulieren.',{source:fallback?'Ohne Live-Antwort – bitte wichtige Angaben prüfen':'Mit deinen freigegebenen Reiseinformationen'});appendSuggestions(response.data?.suggestedActions);setState(fallback?'attention':'success',fallback?'Die Live-Antwort war gerade nicht verfügbar. Du kannst es erneut versuchen.':'Antwort bereit. Es wurde nichts verändert.');appendContinuation()};
     const submit=async()=>{if(submitting)return;const request=input.value.trim();if(!request){setState('attention','Bitte beschreibe zuerst, wobei Luvia helfen soll.');input.focus();return}appendMessage('user',request);input.value='';submitting=true;sendLabel.textContent='Luvia denkt …';const online=globalThis.LuviaNetworkGuard?.snapshot?.()?.online!==false,context={locale:globalThis.LuviaRuntimeContext?.locale||document.documentElement.lang||'de-DE',online,now:new Date().toISOString(),trip};setState('loading','Ich erkenne deine Wünsche und prüfe, welche Informationen dafür gebraucht werden …');try{const {compiled,dialogue}=await compileRequest(request,context),intentCount=compiled?.intents?.length||0,plan=globalThis.LuviaTravelOrchestrationCoreV1?.sequencePlan?.(compiled)||[];commandBody.dataset.compiledIntentCount=String(intentCount);commandBody.dataset.sequenceCount=String(plan.length);appendIntentGraph(compiled);if(compiled&&['blocked','conflicted'].includes(compiled.status)){const message=compiled.status==='blocked'?'Diesen Befehl kann ich so nicht ausführen. Bitte formuliere den Wunsch neu. Eine Änderung passiert immer erst nach deiner Bestätigung.':'Ich brauche eine eindeutige Entscheidung von dir, bevor ich etwas vorbereite.';appendMessage('assistant',message,{error:compiled.status==='blocked'});setState(compiled.status==='blocked'?'error':'attention',message);return}activeConversation={id:`conversation-${++conversationSequence}`,request,compiled,dialogue,plan,index:0};if(dialogue?.understanding&&compiled?.compilerSource==='openai-structured'&&!compiled.requiresConfirmation)appendMessage('assistant',dialogue.understanding,{source:'So habe ich deinen Wunsch verstanden'});if(plan.length){await runActiveSequence();return}const response=await intelligence().ask(request,{currentMoment:{surface,intentCount,ownerRoutes:compiled?.ownerRoutes||[],intentStatus:compiled?.status||'unresolved'}}),fallback=response.meta?.fallback===true;appendMessage('assistant',response.data?.answer||'Dazu konnte Luvia gerade keine verlässliche Antwort formulieren.',{source:fallback?'Ohne Live-Antwort – bitte wichtige Angaben prüfen':'Mit deinen freigegebenen Reiseinformationen'});appendSuggestions(response.data?.suggestedActions);setState(fallback?'attention':'success',fallback?'Die Live-Antwort war gerade nicht verfügbar. Du kannst es erneut versuchen.':'Antwort bereit. Es wurde nichts verändert.')}catch(error){appendMessage('assistant','Beim Verarbeiten ist etwas schiefgegangen. Bitte versuche es erneut.',{error:true});setState('error','Luvia konnte die Anfrage gerade nicht zuverlässig beantworten.')}finally{submitting=false;sendLabel.textContent='Senden';syncComposer()}};
     form.onsubmit=event=>{event.preventDefault();submit()};
@@ -17935,6 +19617,16 @@ const VERSION='4.35.0-canonical-owner-command';
     );
   }
 
+  function suggestTitles(input={}){
+    const item=input.media||input,placeName=text(input.location||item.locationName||item.metadata?.resolvedLocation?.name),day=text(input.day||item.dayKey),base=text(item.displayName||item.title||item.filename||'Moment').replace(/\.[a-z0-9]{2,5}$/i,'');
+    const candidates=[base,placeName?`${base} in ${placeName}`:'',day?`${base} · ${day}`:''].filter(Boolean);
+    return Object.freeze({titles:freezeArray([...new Set(candidates)].slice(0,3)),source:'media-evidence',inventedFacts:false});
+  }
+  const acquisitionCommands=Object.freeze({
+    capture(input={}){const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.captureMedia)throw providerError('LuviaPlatformActionContractV1.commands.captureMedia');return api.commands.captureMedia(input)},
+    pick(input={}){const api=globalThis.LuviaPlatformActionContractV1;if(!api?.commands?.pickFiles)throw providerError('LuviaPlatformActionContractV1.commands.pickFiles');return api.commands.pickFiles(input)}
+  });
+
   const reads=Object.freeze({
     listMedia,
     getMedia,
@@ -17951,6 +19643,7 @@ const VERSION='4.35.0-canonical-owner-command';
 
   const commands=Object.freeze({
     media:mediaCommands,
+    acquisition:acquisitionCommands,
     albums:albumCommands,
     cards:cardCommands,
     journeys:journeyCommands
@@ -18002,6 +19695,7 @@ const VERSION='4.35.0-canonical-owner-command';
 
     reads,
     commands,
+    composition:Object.freeze({suggestTitles}),
     events,
 
     listMedia,
@@ -18044,7 +19738,7 @@ const VERSION='4.35.0-canonical-owner-command';
 
 const CONTRACT_ID='memory.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0-owner-narrative-bundle';
 const core=globalThis.LuviaMemoryDomainContractCoreV1;
 if(!core)throw new Error('Luvia Memory Domain Contract Core v1 fehlt.');
 
@@ -18139,6 +19833,34 @@ async function signedAsset(mediaId,options={}){
   return media().reads.signedUrl(mediaId,expiresIn);
 }
 
+async function getVote(clusterId,cardIds=[]){
+  const value=optionalProvider('LuviaMemoryCards','albumVotes');
+  if(!value)throw providerError('LuviaMemoryCards.albumVotes');
+  return immutable({clusterId:String(clusterId||''),votes:await value(clusterId,cardIds),cardIds:(cardIds||[]).map(String)});
+}
+
+const CONTRIBUTION_QUESTIONS=Object.freeze([
+  Object.freeze({id:'first-thought',text:'Was war dein allererster Gedanke in diesem Moment?'}),
+  Object.freeze({id:'hidden-detail',text:'Welches kleine Detail möchtest du niemals vergessen?'}),
+  Object.freeze({id:'off-camera',text:'Was ist auf den Bildern nicht zu sehen?'}),
+  Object.freeze({id:'funny-truth',text:'Worüber musstest du hier lachen?'}),
+  Object.freeze({id:'tell-later',text:'Was würdest du später über diesen Moment erzählen?'}),
+  Object.freeze({id:'typical-us',text:'Was war daran ganz typisch für euch?'})
+]);
+function weaveStoryDraft(input={}){
+  const contributions=(input.contributions||[]).map(item=>String(item?.answerText||item?.answer_text||item||'').trim()).filter(Boolean);
+  const placeName=String(input.locationName||input.location||'').trim(),sentences=contributions.map(text=>/[.!?]$/.test(text)?text:`${text}.`);
+  return immutable({description:sentences.join(' '),evidenceCount:contributions.length,placeName:placeName||null,inventedFacts:false,requiresAiRefinement:true});
+}
+function suggestStoryTitles(input={}){
+  const placeName=String(input.locationName||input.location||'').trim(),mood=String(input.mood||'').trim(),base=String(input.title||'Unsere Erinnerung').trim();
+  return immutable({titles:[...new Set([base,placeName?`Unser Moment in ${placeName}`:'',mood?`${mood} in Bildern`:''].filter(Boolean))].slice(0,3),inventedFacts:false,requiresAiRefinement:true});
+}
+function nextContributionQuestion(input={}){
+  const current=String(input.currentQuestion||input.currentQuestionId||''),index=CONTRIBUTION_QUESTIONS.findIndex(item=>item.id===current),next=CONTRIBUTION_QUESTIONS[(index+1+CONTRIBUTION_QUESTIONS.length)%CONTRIBUTION_QUESTIONS.length];
+  return immutable(next);
+}
+
 const storyCommands=Object.freeze({
   async save(input={}){
     const command=core.normalizeStoryCommand(input);
@@ -18178,8 +19900,17 @@ const albumCommands=Object.freeze({
 const cardCommands=Object.freeze({
   async save(input={}){return core.projectCard(await provider('LuviaMemoryCards','save')(input))},
   async updateStory(cardId,content){return core.projectCard(await provider('LuviaMemoryCards','updateStory')(cardId,content))},
-  async dismiss(cardId){return Boolean(await provider('LuviaMemoryCards','dismiss')(cardId))}
+  async dismiss(cardId){return Boolean(await provider('LuviaMemoryCards','dismiss')(cardId))},
+  async saveAlbumVotes(clusterId,votes={},budget=0){return immutable(await provider('LuviaMemoryCards','saveAlbumVotes')(clusterId,votes,budget))},
+  async dissolveStack(clusterId){return Boolean(await provider('LuviaMemoryCards','dissolveStack')(clusterId))}
 });
+
+async function exportStory(input={}){
+  if(input.userGesture!==true)throw new Error('MEMORY_EXPORT_USER_GESTURE_REQUIRED');
+  const engine=globalThis.LuviaMemoryExportEngine;if(!engine?.exportStory)throw providerError('LuviaMemoryExportEngine.exportStory');
+  const story=input.story||input;if(!story||typeof story!=='object')throw new Error('MEMORY_STORY_REQUIRED');
+  return Boolean(await engine.exportStory(story));
+}
 
 const maintenanceCommands=Object.freeze({
   async clearForTrip(){
@@ -18220,10 +19951,11 @@ const reads=Object.freeze({
   transferSnapshot,
   createDraft,
   signedAsset,
+  getVote,
   subscribe
 });
 
-const commands=Object.freeze({stories:storyCommands,albums:albumCommands,cards:cardCommands,maintenance:maintenanceCommands});
+const commands=Object.freeze({stories:storyCommands,albums:albumCommands,cards:cardCommands,maintenance:maintenanceCommands,exportStory});
 const events=Object.freeze(['memory.album.changed','memory.card.changed','memory.story.changed','memory.media.changed','memory.transfer.changed']);
 
 const diagnostics=()=>immutable({
@@ -18255,6 +19987,9 @@ const api=Object.freeze({
     createSelection:core.createSelection,
     toggleSelection:core.toggleSelection,
     createStoryDraft:core.createStoryDraft,
+    weaveStoryDraft,
+    suggestStoryTitles,
+    nextContributionQuestion,
     normalizeStoryCommand:core.normalizeStoryCommand
   }),
   diagnostics
@@ -18280,7 +20015,7 @@ globalThis.LuviaGlobalContracts?.register?.({
 
   const CONTRACT_ID = 'identity.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.1.0';
+  const RUNTIME_VERSION = '1.2.0';
   const root = window;
 
   const EVENTS = Object.freeze([
@@ -18492,6 +20227,22 @@ globalThis.LuviaGlobalContracts?.register?.({
     );
   }
 
+  function exportData(scope = 'self') {
+    if (scope !== 'self') throw selfOnly();
+    return deepFreeze({
+      contractId: CONTRACT_ID,
+      version: VERSION,
+      exportedAt: new Date().toISOString(),
+      viewer: clone(getViewerIdentity()),
+      preferences: clone(getPreferences('self')),
+      excludes: Object.freeze([
+        'auth-tokens',
+        'passwords',
+        'other-users-private-data'
+      ])
+    });
+  }
+
   async function updateProfile(patch = {}) {
     const provider = profileProvider();
 
@@ -18595,6 +20346,57 @@ globalThis.LuviaGlobalContracts?.register?.({
         status: 'committed',
         mode: input.mode === 'edit' ? 'edit' : 'first-use'
       }
+    });
+  }
+
+  async function setTripArchived(tripId, archived = true) {
+    const provider = profileProvider();
+    if (typeof provider.archiveTrip !== 'function') {
+      throw providerUnavailable('LuviaProfileService.archiveTrip');
+    }
+    const normalizedTripId = String(tripId || '').trim();
+    if (!normalizedTripId) {
+      throw contractError('IDENTITY_CONTRACT_TRIP_ID_REQUIRED', 'Trip id is required.');
+    }
+    const saved = await provider.archiveTrip(normalizedTripId, Boolean(archived));
+    return deepFreeze({
+      tripId: normalizedTripId,
+      archived: Boolean(archived),
+      identity: projectViewer(saved || currentProfile()),
+      receipt: { owner: 'identity', contractId: CONTRACT_ID, command: 'setTripArchived', status: 'committed' }
+    });
+  }
+
+  async function updateDashboardLayout(items = []) {
+    const provider = profileProvider();
+    if (typeof provider.saveDashboardLayout !== 'function') {
+      throw providerUnavailable('LuviaProfileService.saveDashboardLayout');
+    }
+    const layout = domainCore().normalizeDashboardLayout(items);
+    await provider.saveDashboardLayout(layout);
+    return deepFreeze({
+      count: layout.length,
+      layout,
+      receipt: { owner: 'identity', contractId: CONTRACT_ID, command: 'updateDashboardLayout', status: 'committed' }
+    });
+  }
+
+  function notificationPort() {
+    return root.LuviaPlatformPorts?.get?.('NotificationPort') ||
+      root.LuviaIdentityPlatformWebPorts?.NotificationPort ||
+      null;
+  }
+
+  async function requestNotificationPermission() {
+    const port = notificationPort();
+    if (typeof port?.requestPermission !== 'function') {
+      throw providerUnavailable('NotificationPort.requestPermission');
+    }
+    const permission = await port.requestPermission();
+    return deepFreeze({
+      permission: String(permission || 'unsupported'),
+      status: typeof port.status === 'function' ? port.status() : null,
+      receipt: { owner: 'platform', contractId: CONTRACT_ID, command: 'requestNotificationPermission', status: 'completed' }
     });
   }
 
@@ -18790,12 +20592,23 @@ globalThis.LuviaGlobalContracts?.register?.({
     getViewerIdentity,
     getPublicIdentity,
     getPreferences,
+    exportData,
     subscribe,
+
+    reads: Object.freeze({
+      getViewerIdentity,
+      getPublicIdentity,
+      getPreferences,
+      exportData
+    }),
 
     commands: Object.freeze({
       updateProfile,
       updatePreferences,
-      completeOnboarding
+      completeOnboarding,
+      updateDashboardLayout,
+      setTripArchived,
+      requestNotificationPermission
     }),
 
     diagnostics
@@ -18908,6 +20721,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;const trips=()=>{const api=tripContract();if(!api)throw new Error('Luvia Trip Contract ist nicht verfügbar.');const activeTrip=api.getActiveTrip?.()||null,context=api.getContext?.()||{};return Object.freeze({trips:api.listTrips?.()||[],activeTrip,activeTripId:context.tripId||activeTrip?.id||activeTrip?.tripId||null})};
   const profile=()=>window.LuviaProfileService.snapshot().profile||{};
+  const identityUpdateProfile=patch=>{const command=window.LuviaIdentityContractV1?.commands?.updateProfile;if(typeof command!=='function')throw new Error('Luvia Identity Contract ist nicht verfügbar.');return command(patch)};
   const fmt=v=>v?new Date(v+'T12:00:00').toLocaleDateString('de-DE'):'Offen';
   const initials=p=>(p.displayName||p.email||'L').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
   function status(){const s=window.LuviaProfileService.snapshot();return s.syncing?'Synchronisiert …':s.error?'Cloud nicht erreichbar · nicht gespeichert':s.lastSyncedAt?'Cloud synchronisiert':'Noch nicht synchronisiert';}
@@ -18941,7 +20755,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
   function close(reason='owner'){return overlayHandle?.close(reason)||false}
   async function activate(id){const api=tripContract();if(!api?.selectActiveTrip)throw new Error('Luvia Trip Contract Aktivierung ist nicht verfügbar.');api.selectActiveTrip(id);await window.LuviaProfileService.setActiveTrip(id);window.LuviaTheme.apply();close();window.LuviaApp?.show?.('dashboard');}
   function download(){const data={exportedAt:new Date().toISOString(),profile:profile(),trips:trips().trips};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`luvia-export-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);}
-  function bind(){overlay.querySelectorAll('[data-pf-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.pfTab;render()});overlay.querySelector('[data-pf-close]')?.addEventListener('click',close);overlay.querySelectorAll('[data-pf-signout]').forEach(b=>b.onclick=()=>window.ParisAuth.signOut());overlay.querySelectorAll('[data-pf-create]').forEach(b=>b.onclick=()=>{close();window.LuviaTripCreator.open()});overlay.querySelectorAll('[data-pf-open-trip]').forEach(b=>b.onclick=()=>activate(b.dataset.pfOpenTrip));overlay.querySelectorAll('[data-pf-edit-trip]').forEach(b=>b.onclick=()=>window.LuviaUI.open('trip.edit',{trip:trips().trips.find(t=>t.id===b.dataset.pfEditTrip),onSave:render}));overlay.querySelectorAll('[data-pf-archive]').forEach(b=>b.onclick=async()=>{await window.LuviaProfileService.archiveTrip(b.dataset.pfArchive,!new Set(profile().archivedTripIds||[]).has(b.dataset.pfArchive));render()});overlay.querySelector('[data-pf-toggle-archived]')?.addEventListener('click',async()=>{await window.LuviaProfileService.save({showArchivedTrips:!profile().showArchivedTrips});render()});overlay.querySelectorAll('[data-pf-export]').forEach(b=>b.onclick=download);overlay.querySelector('[data-pf-edit-preferences]')?.addEventListener('click',()=>{window.LuviaGuidedDiscovery?.open?.({domain:'profile',initialPreferences:profile(),trip:trips().activeTrip,onComplete:async result=>{await window.LuviaUserPreferences.completeOnboarding(result.preferences,{reason:'profile-guided-flow'});render();}})});overlay.querySelectorAll('[data-pf-ai-confirm]').forEach(button=>button.onclick=async()=>{const signal=learningSignals().find(item=>item.id===button.dataset.pfAiConfirm);if(!signal)return;const row=button.closest('[data-ai-signal-row]');row?.classList.add('is-busy');try{await window.LuviaAIMemory.confirmSignal(signal);render();}catch(error){row?.classList.remove('is-busy');alert(error?.message||'Die Vorliebe konnte nicht übernommen werden.');}});overlay.querySelectorAll('[data-pf-ai-dismiss]').forEach(button=>button.onclick=async()=>{const signal=learningSignals().find(item=>item.id===button.dataset.pfAiDismiss);if(!signal)return;const row=button.closest('[data-ai-signal-row]');row?.classList.add('is-busy');try{await window.LuviaAIMemory.dismissSignal(signal);render();}catch(error){row?.classList.remove('is-busy');alert(error?.message||'Das Lernsignal konnte nicht ausgeblendet werden.');}});overlay.querySelectorAll('[data-widget-toggle]').forEach(input=>input.onchange=async()=>{const items=window.LuviaDashboardWidgets.configured(profile()).map((item,index)=>({id:item.id,enabled:item.id===input.dataset.widgetToggle?input.checked:item.enabled,position:index}));await window.LuviaProfileService.save({dashboardWidgets:items});render();});overlay.querySelectorAll('[data-widget-move]').forEach(button=>button.onclick=async()=>{const items=window.LuviaDashboardWidgets.configured(profile()).map(item=>({id:item.id,enabled:item.enabled,position:item.position}));const index=items.findIndex(item=>item.id===button.dataset.widgetId),target=button.dataset.widgetMove==='up'?index-1:index+1;if(index<0||target<0||target>=items.length)return;[items[index],items[target]]=[items[target],items[index]];const normalized=items.map((item,position)=>({...item,position}));await window.LuviaProfileService.save({dashboardWidgets:normalized});render();});overlay.querySelector('[data-pf-password]')?.addEventListener('click',async()=>{const email=profile().email;if(!email)return;const c=await window.LuviaSupabaseService.start(),r=await c.auth.resetPasswordForEmail(email,{redirectTo:(LuviaSupabaseConfig||ParisSupabaseConfig).redirectUrl});if(r.error)alert(r.error.message);else alert('E-Mail zum Zurücksetzen wurde versendet.');});const pf=overlay.querySelector('[data-pf-profile-form]');if(pf)pf.onsubmit=async e=>{e.preventDefault();const d=new FormData(pf);await window.LuviaProfileService.save({displayName:d.get('displayName'),avatarUrl:d.get('avatarUrl'),firstName:d.get('firstName'),lastName:d.get('lastName'),homeLocation:d.get('homeLocation'),timezone:d.get('timezone'),avatarColor:d.get('avatarColor'),language:d.get('language')});window.LuviaTheme.apply();render();};const sf=overlay.querySelector('[data-pf-settings-form]');const locationRefresh=overlay.querySelector('[data-pf-location-refresh]');if(locationRefresh)locationRefresh.onclick=async()=>{const message=overlay.querySelector('[data-pf-location-message]');locationRefresh.disabled=true;locationRefresh.textContent='Wird geladen …';if(message)message.textContent='Standort wird neu bestimmt.';try{await window.LuviaPresenceVisitCore?.refreshLocation?.();if(message)message.textContent='Standort aktualisiert. Entfernungen werden jetzt neu berechnet.';setTimeout(render,350)}catch(error){locationRefresh.disabled=false;locationRefresh.textContent='Neu laden';if(message)message.textContent=error?.message||'Standort konnte nicht aktualisiert werden.'}};if(sf)sf.onchange=()=>{};if(sf)sf.onsubmit=async e=>{e.preventDefault();const d=new FormData(sf);const locationEnabled=d.has('locationSharing');await window.LuviaProfileService.save({themeMode:d.get('themeMode'),density:d.get('density'),defaultView:d.get('defaultView'),reducedMotion:d.has('reducedMotion'),useTripAccent:d.has('useTripAccent'),personalizedRecommendations:d.has('personalizedRecommendations'),activityData:d.has('activityData'),locationSharing:locationEnabled,notifications:d.has('notifications')});await window.LuviaPresenceVisitCore?.setGlobalEnabled?.(locationEnabled);window.LuviaTheme.apply();render();};}
+  function bind(){overlay.querySelectorAll('[data-pf-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.pfTab;render()});overlay.querySelector('[data-pf-close]')?.addEventListener('click',close);overlay.querySelectorAll('[data-pf-signout]').forEach(b=>b.onclick=()=>window.ParisAuth.signOut());overlay.querySelectorAll('[data-pf-create]').forEach(b=>b.onclick=()=>{close();window.LuviaTripCreator.open()});overlay.querySelectorAll('[data-pf-open-trip]').forEach(b=>b.onclick=()=>activate(b.dataset.pfOpenTrip));overlay.querySelectorAll('[data-pf-edit-trip]').forEach(b=>b.onclick=()=>window.LuviaUI.open('trip.edit',{trip:trips().trips.find(t=>t.id===b.dataset.pfEditTrip),onSave:render}));overlay.querySelectorAll('[data-pf-archive]').forEach(b=>b.onclick=async()=>{await window.LuviaProfileService.archiveTrip(b.dataset.pfArchive,!new Set(profile().archivedTripIds||[]).has(b.dataset.pfArchive));render()});overlay.querySelector('[data-pf-toggle-archived]')?.addEventListener('click',async()=>{await window.LuviaProfileService.save({showArchivedTrips:!profile().showArchivedTrips});render()});overlay.querySelectorAll('[data-pf-export]').forEach(b=>b.onclick=download);overlay.querySelector('[data-pf-edit-preferences]')?.addEventListener('click',()=>{window.LuviaGuidedDiscovery?.open?.({domain:'profile',initialPreferences:profile(),trip:trips().activeTrip,onComplete:async result=>{await window.LuviaUserPreferences.completeOnboarding(result.preferences,{reason:'profile-guided-flow'});render();}})});overlay.querySelectorAll('[data-pf-ai-confirm]').forEach(button=>button.onclick=async()=>{const signal=learningSignals().find(item=>item.id===button.dataset.pfAiConfirm);if(!signal)return;const row=button.closest('[data-ai-signal-row]');row?.classList.add('is-busy');try{await window.LuviaAIMemory.confirmSignal(signal);render();}catch(error){row?.classList.remove('is-busy');alert(error?.message||'Die Vorliebe konnte nicht übernommen werden.');}});overlay.querySelectorAll('[data-pf-ai-dismiss]').forEach(button=>button.onclick=async()=>{const signal=learningSignals().find(item=>item.id===button.dataset.pfAiDismiss);if(!signal)return;const row=button.closest('[data-ai-signal-row]');row?.classList.add('is-busy');try{await window.LuviaAIMemory.dismissSignal(signal);render();}catch(error){row?.classList.remove('is-busy');alert(error?.message||'Das Lernsignal konnte nicht ausgeblendet werden.');}});overlay.querySelectorAll('[data-widget-toggle]').forEach(input=>input.onchange=async()=>{const items=window.LuviaDashboardWidgets.configured(profile()).map((item,index)=>({id:item.id,enabled:item.id===input.dataset.widgetToggle?input.checked:item.enabled,position:index}));await window.LuviaProfileService.save({dashboardWidgets:items});render();});overlay.querySelectorAll('[data-widget-move]').forEach(button=>button.onclick=async()=>{const items=window.LuviaDashboardWidgets.configured(profile()).map(item=>({id:item.id,enabled:item.enabled,position:item.position}));const index=items.findIndex(item=>item.id===button.dataset.widgetId),target=button.dataset.widgetMove==='up'?index-1:index+1;if(index<0||target<0||target>=items.length)return;[items[index],items[target]]=[items[target],items[index]];const normalized=items.map((item,position)=>({...item,position}));await window.LuviaProfileService.save({dashboardWidgets:normalized});render();});overlay.querySelector('[data-pf-password]')?.addEventListener('click',async()=>{const email=profile().email;if(!email)return;const c=await window.LuviaSupabaseService.start(),r=await c.auth.resetPasswordForEmail(email,{redirectTo:(LuviaSupabaseConfig||ParisSupabaseConfig).redirectUrl});if(r.error)alert(r.error.message);else alert('E-Mail zum Zurücksetzen wurde versendet.');});const pf=overlay.querySelector('[data-pf-profile-form]');if(pf)pf.onsubmit=async e=>{e.preventDefault();const d=new FormData(pf);await identityUpdateProfile({displayName:d.get('displayName'),avatarUrl:d.get('avatarUrl'),firstName:d.get('firstName'),lastName:d.get('lastName'),homeLocation:d.get('homeLocation'),timezone:d.get('timezone'),avatarColor:d.get('avatarColor'),language:d.get('language')});window.LuviaTheme.apply();render();};const sf=overlay.querySelector('[data-pf-settings-form]');const locationRefresh=overlay.querySelector('[data-pf-location-refresh]');if(locationRefresh)locationRefresh.onclick=async()=>{const message=overlay.querySelector('[data-pf-location-message]');locationRefresh.disabled=true;locationRefresh.textContent='Wird geladen …';if(message)message.textContent='Standort wird neu bestimmt.';try{await window.LuviaPresenceVisitCore?.refreshLocation?.();if(message)message.textContent='Standort aktualisiert. Entfernungen werden jetzt neu berechnet.';setTimeout(render,350)}catch(error){locationRefresh.disabled=false;locationRefresh.textContent='Neu laden';if(message)message.textContent=error?.message||'Standort konnte nicht aktualisiert werden.'}};if(sf)sf.onchange=()=>{};if(sf)sf.onsubmit=async e=>{e.preventDefault();const d=new FormData(sf);const locationEnabled=d.has('locationSharing');await identityUpdateProfile({themeMode:d.get('themeMode'),density:d.get('density'),defaultView:d.get('defaultView'),reducedMotion:d.has('reducedMotion'),useTripAccent:d.has('useTripAccent'),personalizedRecommendations:d.has('personalizedRecommendations'),activityData:d.has('activityData'),locationSharing:locationEnabled,notifications:d.has('notifications')});await window.LuviaPresenceVisitCore?.setGlobalEnabled?.(locationEnabled);window.LuviaTheme.apply();render();};}
   window.addEventListener('luvia:ai-memory-changed',()=>{if(overlay&&tab==='preferences')render()});
   window.LuviaProfileFoundation=Object.freeze({version:'2.3.0',open,close,render});
 })();
@@ -19378,7 +21192,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
 (() => {
   "use strict";
 
-  const VERSION = "13.82.133";
+  const VERSION = "13.82.134";
   const DESTINATIONS = Object.freeze([
     "Scharbeutz · Ostsee", "Kopenhagen · Dänemark", "Pragser Wildsee · Südtirol", "Lissabon · Portugal",
     "Kyoto · Japan", "Utrecht · Niederlande", "Annecy · Frankreich", "Ljubljana · Slowenien",
@@ -21343,7 +23157,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     };
   }
 
-  const api = Object.freeze({ version: "13.82.133", mount: init, init, haptic, navigate, bindMagnetic, bindCinematicLinks });
+  const api = Object.freeze({ version: "13.82.134", mount: init, init, haptic, navigate, bindMagnetic, bindCinematicLinks });
   window.LuviaPublicLandingExperience = api;
   window.LuviaExperiencePreview = api;
 })();
@@ -21354,7 +23168,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
 (() => {
   'use strict';
 
-  const VERSION = '13.82.133';
+  const VERSION = '13.82.134';
   const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
   const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
   let activeContainer = null;
@@ -22843,6 +24657,7 @@ window.LuviaAppRuntimeSignalsV1=Object.freeze({contractId:core.contractId,versio
   const fmt=v=>{if(!v)return'';const d=new Date(v);return Number.isNaN(d.getTime())?'':new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(d)};
   const msg=(id,text,type='info')=>{feedback.set(id,{text,type});};
   const providerName=v=>PROVIDER[String(v||'').toLowerCase()]||String(v||'').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const bookingContract=()=>window.LuviaBookingContractV1||(()=>{throw new Error('Booking Contract v1 fehlt.')})();
   const bookingUrl=b=>b?.contact?.bookingUrl||b?.contact?.booking_url||'';
   function routeLabel(b){
     if(b.channel==='external_link'&&bookingUrl(b))return `${providerName(b.provider)||'Reservierung'} · Direkt reservieren`;
@@ -22876,8 +24691,8 @@ window.LuviaAppRuntimeSignalsV1=Object.freeze({contractId:core.contractId,versio
     root.innerHTML='<section class="lv-bookings-view"><div class="lv-booking-empty">Buchungen werden geladen …</div></section>';
     try{
       const tripId=trip.id||trip.tripId;
-      await window.LuviaBooking.reconcileTripReturns?.(tripId);
-      const rows=await window.LuviaBooking.listForTrip(tripId);
+      await bookingContract().commands.reconcileTripReturns?.(tripId);
+      const rows=await bookingContract().reads.listForTrip(tripId);
       root.innerHTML=`<section class="lv-bookings-view"><header class="lv-bookings-head"><span>Booking Core</span><h1>Buchungen & Reservierungen</h1><p>Luvia bevorzugt direkte Buchungsanbieter und offizielle Reservierungswege. E-Mail ist nur der Fallback.</p></header>${rows.length?`<div class="lv-booking-list">${rows.map(card).join('')}</div>`:`<div class="lv-booking-empty"><strong>Noch keine Buchungsanfragen.</strong><p>Öffne ein reservierbares Restaurant oder eine Unterkunft in Places und wähle „Reservieren“ bzw. „Buchen“.</p></div>`}</section>`;
     }catch(error){
       root.innerHTML=`<section class="lv-bookings-view"><div class="lv-booking-empty"><strong>Buchungen konnten nicht geladen werden.</strong><p>${esc(error?.message||'Unbekannter Fehler')}</p></div></section>`;
@@ -22899,7 +24714,7 @@ window.LuviaAppRuntimeSignalsV1=Object.freeze({contractId:core.contractId,versio
     const resolve=e.target.closest?.('[data-booking-resolve]');
     if(resolve){e.preventDefault();e.stopPropagation();const id=resolve.dataset.bookingResolve;try{const result=await run(id,'Bester belegbarer Buchungskanal wird gesucht …',()=>window.LuviaBooking.resolveRoute(id));const label=result?.resolved?(result.channel==='external_link'?`${providerName(result.provider)||'Direkter Buchungsweg'} gefunden.`:'Sicherer Buchungskanal gefunden.'):'Kein sicherer automatischer Buchungskanal gefunden.';msg(id,label,result?.resolved?'success':'info');await load()}catch{}return;}
     const contact=e.target.closest?.('[data-booking-contact]');
-    if(contact){e.preventDefault();e.stopPropagation();const id=contact.dataset.bookingContact;const email=prompt('Öffentliche bzw. verifizierte Kontakt-E-Mail des Anbieters:','');if(!email)return;try{await run(id,'Kontakt wird gespeichert …',()=>window.LuviaBooking.updateContact(id,email));msg(id,'Kontakt gespeichert.','success');await load()}catch{}return;}
+    if(contact){e.preventDefault();e.stopPropagation();const id=contact.dataset.bookingContact;const email=prompt('Öffentliche bzw. verifizierte Kontakt-E-Mail des Anbieters:','');if(!email)return;try{await run(id,'Kontakt wird gespeichert …',()=>bookingContract().commands.updateContact(id,email));msg(id,'Kontakt gespeichert.','success');await load()}catch{}return;}
   }
   function globalClick(e){
     if(!root?.isConnected)return;
@@ -22909,7 +24724,7 @@ window.LuviaAppRuntimeSignalsV1=Object.freeze({contractId:core.contractId,versio
     handleClick(e).catch(error=>console.error('[Luvia Booking] action handler',error));
   }
   document.addEventListener('click',globalClick,true);
-  async function mount(node,activeTrip){root=node;trip=activeTrip;await window.LuviaBooking.init();await load();}
+  async function mount(node,activeTrip){root=node;trip=activeTrip;await bookingContract().init();await load();}
   function unmount(){root=null;trip=null;busy.clear();feedback.clear();}
   window.addEventListener('luvia:booking-changed',()=>{if(root?.isConnected)load().catch(console.warn)});
   window.LuviaBookingsView=Object.freeze({version:VERSION,mount,unmount,load});
@@ -23391,7 +25206,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,timelineRenderFrame=0,todayRenderTimer=0,todayLastHtml='',timelineLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false,pwaRegistrationScheduled=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null,navigationCompassMotionCleanup=null;
   const activeCompassAnimations=new Set();
-  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.133',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.134',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
@@ -23404,7 +25219,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
     emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
   });
-  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.133')}`;
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.134')}`;
   function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
     const current=()=>window[descriptor.global];
     if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
@@ -24278,7 +26093,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
 
   window.addEventListener('click',event=>{if(!event.target.closest?.('[data-pf-edit-preferences]'))return;event.preventDefault();event.stopPropagation();window.LuviaProfileFoundation?.close?.();window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:profileOnboardingReturnTo(activeView)});},true);
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-changed',refreshTimelineProjection);window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.133',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.134',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();
 

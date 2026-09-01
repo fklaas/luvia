@@ -52,16 +52,16 @@ function derive(id,memberRows=[]){
       proposals.set(pid,{id:pid,trip_id:clean(row.trip_id||id),proposed_by:clean(row.actor_user_id),place_snapshot:clone(meta.placeSnapshot||{}),planned_at:meta.plannedAt,duration_minutes:Number(meta.durationMinutes)||75,transfer_minutes:Number(meta.transferMinutes)||0,decision_mode:clean(meta.policy?.mode)||'vote',expires_at:meta.expiresAt,created_at:row.created_at,application_status:'idle',trip_place_id:null,_events:[row],_votes:new Map(),member_count:Number(meta.memberCount)||memberRows.length||1,policy:meta.policy||null});continue;
     }
     const proposal=proposals.get(pid);if(!proposal)continue;proposal._events.push(row);
-    if(row.event_type===EVENT.vote)proposal._votes.set(clean(row.actor_user_id),{user_id:clean(row.actor_user_id),vote:meta.vote===true,updated_at:row.created_at,actor_name:row.actor_name});
+    if(row.event_type===EVENT.vote)proposal._votes.set(clean(row.actor_user_id),{user_id:clean(row.actor_user_id),vote:meta.vote===null?null:meta.vote===true,updated_at:row.created_at,actor_name:row.actor_name});
     if(row.event_type===EVENT.applying)proposal.application_status='applying';
     if(row.event_type===EVENT.applied){proposal.application_status='applied';proposal.trip_place_id=clean(meta.tripPlaceId)||null}
     if(row.event_type===EVENT.failed)proposal.application_status='failed';
     if(row.event_type===EVENT.cancelled)proposal.cancelled=true;
   }
   return [...proposals.values()].map(proposal=>{
-    const votes=[...proposal._votes.values()],yes=votes.filter(row=>row.vote).length,no=votes.filter(row=>!row.vote).length,total=Math.max(1,proposal.member_count,memberRows.length),majority=Math.floor(total/2)+1,expiresAt=new Date(proposal.expires_at).getTime(),expired=Number.isFinite(expiresAt)&&Date.now()>=expiresAt;
+    const votes=[...proposal._votes.values()],yes=votes.filter(row=>row.vote===true).length,no=votes.filter(row=>row.vote===false).length,abstain=votes.filter(row=>row.vote===null).length,total=Math.max(1,proposal.member_count,memberRows.length),majority=Math.floor(total/2)+1,expiresAt=new Date(proposal.expires_at).getTime(),expired=Number.isFinite(expiresAt)&&Date.now()>=expiresAt;
     const status=proposal.cancelled?'cancelled':proposal.application_status==='applied'?'applied':proposal.decision_mode==='owner_decides'||yes>=majority?'approved':no>=majority||expired?'rejected':'pending';
-    return Object.freeze({...proposal,status,journey_place_proposal_votes:votes,yes_votes:yes,no_votes:no,required_votes:majority,member_count:total,expired,placeSnapshot:proposal.place_snapshot,plannedAt:proposal.planned_at,durationMinutes:proposal.duration_minutes,transferMinutes:proposal.transfer_minutes});
+    return Object.freeze({...proposal,status,journey_place_proposal_votes:votes,yes_votes:yes,no_votes:no,abstain_votes:abstain,required_votes:majority,member_count:total,expired,placeSnapshot:proposal.place_snapshot,plannedAt:proposal.planned_at,durationMinutes:proposal.duration_minutes,transferMinutes:proposal.transfer_minutes});
   }).sort((left,right)=>String(left.planned_at).localeCompare(String(right.planned_at)));
 }
 async function list(id=tripId(),options={}){
@@ -81,7 +81,8 @@ async function create(input={}){
 }
 async function vote(pid,value,id=tripId()){
   const proposal=(await list(id,{openOnly:false})).find(row=>row.id===pid);if(!proposal)throw new Error('Diese Abstimmung ist nicht mehr verfügbar.');
-  await record(id,EVENT.vote,value?'Für den Place gestimmt':'Gegen den Place gestimmt',{proposalId:pid,vote:Boolean(value)});const next=(await list(id,{openOnly:false})).find(row=>row.id===pid);emit('voted',next);return next;
+  const normalized=value==null?null:Boolean(value),title=normalized===null?'Bei der Abstimmung enthalten':normalized?'Für den Place gestimmt':'Gegen den Place gestimmt';
+  await record(id,EVENT.vote,title,{proposalId:pid,vote:normalized});const next=(await list(id,{openOnly:false})).find(row=>row.id===pid);emit('voted',next);return next;
 }
 async function claim(pid){
   const id=tripId(),uid=await currentUserId(),proposal=(await list(id,{openOnly:false})).find(row=>row.id===pid);

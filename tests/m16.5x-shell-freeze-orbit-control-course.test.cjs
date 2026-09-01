@@ -12,7 +12,7 @@ const hubs = read('app/module-hubs.js');
 const hubsCss = read('app/module-hubs.css');
 const version = read('intelligence/kernel/version.js');
 
-assert.match(version, /core:'4\.82\.133',build:'13\.82\.133',name:'M16\.5 Specific Subject Evidence Gate'/);
+assert.match(version, /core:'4\.82\.134',build:'13\.82\.134',name:'M16\.5 Block 0 Human-AI Parity Control Plane'/);
 
 // All signed-in Compass contexts share one real ring; Profile no longer staggers cards.
 assert.match(hubsCss, /M16\.5X — one collision-free Compass orbit for every signed-in context/);

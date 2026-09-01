@@ -6,6 +6,7 @@ const vm=require('node:vm');
 
 const actionSource=fs.readFileSync('core/intelligence/intelligence-action-contract-core.js','utf8');
 const matrix=fs.readFileSync('docs/modularization/M16.5-AI-MUTATION-COVERAGE-MATRIX.md','utf8');
+const productSurfaces=fs.readFileSync('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv','utf8');
 const context={Object,Array,String,Number,Boolean,Date,Math,RegExp,JSON,Set,Map,Error,TypeError};
 vm.createContext(context);vm.runInContext(actionSource,context);
 
@@ -31,6 +32,12 @@ for(const requiredGap of [
 
 assert.match(matrix,/Google Places quota failure, no invented cards/);
 assert.match(matrix,/Main, Production, DB\/RLS, Secrets and Edge Functions are outside/);
+assert.match(matrix,/Human ↔ AI action parity has no product exception/);
+assert.match(matrix,/Adding a public UI command without adding its AI route/);
+const intelligenceRow=productSurfaces.split('\n').find(row=>row.startsWith('luvia-intelligence,'));
+assert.ok(intelligenceRow,'Luvia Intelligence product-surface row missing');
+assert.match(intelligenceRow,/,SHELL-WIRED,/,'the product surface must remain at the controlled incomplete status while human-only actions remain open');
+assert.doesNotMatch(intelligenceRow,/,FUNCTIONAL PARITY,/);
 assert.match(matrix,/\.126.*→.*\.124/);
 
 console.log('M16.5 Step16 complete AI mutation coverage matrix: PASS');

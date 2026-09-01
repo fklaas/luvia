@@ -10,7 +10,8 @@ const actionSource=fs.readFileSync('core/ai/ai-action-runtime.js','utf8');
 const dashboardSource=fs.readFileSync('core/ai/ai-dashboard-service.js','utf8');
 const restaurantSource=fs.readFileSync('modules/restaurants-v2/restaurant-module.js','utf8');
 
-assert.match(actionSource,/Du hast in dieser Nachricht keine zusätzlichen Vorlieben genannt\. Deshalb habe ich deine gespeicherten Profilvorlieben berücksichtigt\./,'the chat must distinguish missing message-specific preferences from a populated Profile Compass');
+assert.match(actionSource,/Gespeicherte Vorlieben sind berücksichtigt\./,'the chat must state briefly and truthfully when a populated Profile Compass informed the result');
+assert.match(actionSource,/profileFallbackUsed&&profileFields/,'the Profile Compass claim must require a successful profile fallback and populated confirmed fields');
 assert.doesNotMatch(actionSource,/keine konkreten Vorlieben genannt\. Deshalb habe ich \$\{profileFields\}/,'the consumer copy must not make a reachable Profile Compass sound empty');
 assert.match(dashboardSource,/value!==null&&value!==undefined&&value!==''.*Number\(value\)>0/,'missing provider ratings must not render as 0,0');
 assert.match(dashboardSource,/count===1\?'Bewertung':'Bewertungen'/,'review count grammar must remain consumer-ready');

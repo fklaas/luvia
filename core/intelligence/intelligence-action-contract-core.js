@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.5.0-provider-truth';
+const RUNTIME_VERSION='1.9.0-complete-input-enforcement';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -14,6 +14,29 @@ const RESULT_KINDS=Object.freeze({
 const RECEIPT_STATUSES=Object.freeze(['prepared','confirmed','completed','opened','cancelled','failed','outcome_unknown','compensated']);
 const BLOCKED_KEYS=/^(email|phone|telephone|password|token|access_token|refresh_token|authorization|apikey|api_key|booking_number|reservation_number|payment|card|iban|address_exact)$/i;
 const LIMITS=Object.freeze({maxDepth:7,maxArray:40,maxString:1000,maxItems:12,maxActions:6,maxPermissions:8});
+const INPUT_CONTRACTS=Object.freeze({
+  'places.place.favorite':Object.freeze({schemaId:'luvia.ai-input.places.place.favorite.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.unfavorite':Object.freeze({schemaId:'luvia.ai-input.places.place.unfavorite.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.plan':Object.freeze({schemaId:'luvia.ai-input.places.place.plan.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.place.unplan':Object.freeze({schemaId:'luvia.ai-input.places.place.unplan.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.restaurant.open':Object.freeze({schemaId:'luvia.ai-input.booking.restaurant.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.trip.read':Object.freeze({schemaId:'luvia.ai-input.booking.trip.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.create':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.create.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.modify':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.modify.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.reservation.cancel':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.cancel.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.day.read':Object.freeze({schemaId:'luvia.ai-input.journey.day.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.day.open':Object.freeze({schemaId:'luvia.ai-input.journey.day.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.active.list':Object.freeze({schemaId:'luvia.ai-input.trip.active.list.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.active.select':Object.freeze({schemaId:'luvia.ai-input.trip.active.select.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'trip.update.details':Object.freeze({schemaId:'luvia.ai-input.trip.update.details.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.restaurant.recommend':Object.freeze({schemaId:'luvia.ai-input.places.restaurant.recommend.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'places.discovery.recommend':Object.freeze({schemaId:'luvia.ai-input.places.discovery.recommend.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'events.verified.read':Object.freeze({schemaId:'luvia.ai-input.events.verified.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'memory.library.read':Object.freeze({schemaId:'luvia.ai-input.memory.library.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'memory.story.save':Object.freeze({schemaId:'luvia.ai-input.memory.story.save.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'identity.preferences.read':Object.freeze({schemaId:'luvia.ai-input.identity.preferences.read.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'identity.preferences.update':Object.freeze({schemaId:'luvia.ai-input.identity.preferences.update.v1',enforcement:'RUNTIME_ENFORCED'})
+});
 
 function clone(value){
   if(value==null||typeof value!=='object')return value;
@@ -47,6 +70,199 @@ function sanitize(value,depth=0,seen=new WeakSet()){
   return undefined;
 }
 function contractError(code,message,extra={}){const error=new Error(message);error.code=code;Object.assign(error,extra);return error}
+
+function validCalendarDate(value){
+  const match=text(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!match)return false;
+  const date=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));
+  return date.getUTCFullYear()===Number(match[1])&&date.getUTCMonth()===Number(match[2])-1&&date.getUTCDate()===Number(match[3]);
+}
+function validClockTime(value){return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(text(value))}
+function plainObject(value){return Boolean(value&&typeof value==='object'&&!Array.isArray(value))}
+function absoluteDateTime(value){const source=text(value);return Boolean(source&&/(?:z|[+-]\d{2}:?\d{2})$/i.test(source)&&!Number.isNaN(Date.parse(source)))}
+function zonedParts(value,timeZone){
+  const date=value instanceof Date?value:new Date(value);if(Number.isNaN(date.getTime()))return null;
+  try{
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date).map(part=>[part.type,part.value]));
+    return{year:Number(parts.year),month:Number(parts.month),day:Number(parts.day),hour:Number(parts.hour),minute:Number(parts.minute),second:Number(parts.second)};
+  }catch{return null}
+}
+function timeZoneOffset(value,timeZone){
+  const date=value instanceof Date?value:new Date(value),parts=zonedParts(date,timeZone);if(!parts)return null;
+  return Date.UTC(parts.year,parts.month-1,parts.day,parts.hour,parts.minute,parts.second)-Math.trunc(date.getTime()/1000)*1000;
+}
+function zonedDateTimeToIso(dateValue,timeValue,timeZone){
+  const date=text(dateValue),time=text(timeValue),zone=text(timeZone);if(!validCalendarDate(date)||!validClockTime(time)||!zone)return null;
+  const [year,month,day]=date.split('-').map(Number),[hour,minute]=time.split(':').map(Number),localEpoch=Date.UTC(year,month-1,day,hour,minute,0);
+  let offset=timeZoneOffset(new Date(localEpoch),zone);if(offset==null)return null;
+  let instant=new Date(localEpoch-offset);const corrected=timeZoneOffset(instant,zone);if(corrected==null)return null;if(corrected!==offset)instant=new Date(localEpoch-corrected);
+  const parts=zonedParts(instant,zone);if(!parts||parts.year!==year||parts.month!==month||parts.day!==day||parts.hour!==hour||parts.minute!==minute)return null;
+  const sameLocal=other=>{const candidate=zonedParts(other,zone);return candidate&&candidate.year===year&&candidate.month===month&&candidate.day===day&&candidate.hour===hour&&candidate.minute===minute};
+  if([30,60,90,120].some(minutes=>sameLocal(new Date(instant.getTime()+minutes*60000))||sameLocal(new Date(instant.getTime()-minutes*60000))))return null;
+  return instant.toISOString();
+}
+function validateActionInput(actionId,input={},context={}){
+  const action=getAction(actionId);if(!action)throw contractError('INTELLIGENCE_ACTION_UNKNOWN','Action is not registered.',{actionId:text(actionId)});
+  const contract=INPUT_CONTRACTS[action.id];if(!contract)return immutable({valid:true,enforced:false,actionId:action.id,schemaId:null,issues:[],normalized:null});
+  const issues=[],value=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
+  const issue=(code,path,message)=>issues.push({code,path,message});
+  const finish=normalized=>immutable({valid:issues.length===0,enforced:true,actionId:action.id,schemaId:contract.schemaId,enforcement:contract.enforcement,issues,normalized:issues.length?null:normalized});
+  if(action.id==='booking.restaurant.open'){
+    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Restaurants fehlt.');
+    if(value.tripId!=null&&!text(value.tripId))issue('format','tripId','Die Reise-ID ist ungültig.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,providerPlaceId:text(value.providerPlaceId),placeId:text(value.placeId)||null});
+  }
+  if(action.id==='booking.trip.read'){
+    const activeTripId=text(context.tripId);
+    if(!activeTripId)issue('required','context.tripId','Es ist keine aktive Reise ausgewählt.');
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Buchungssuche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Buchungssuche ist zu lang.');
+    if(value.intent!=null&&!['list','prerequisite-read','modify','cancel'].includes(text(value.intent)))issue('enum','intent','Der gewünschte Buchungsvorgang ist unbekannt.');
+    return finish({tripId:activeTripId,query:text(value.query)||null,intent:text(value.intent)||'list'});
+  }
+  if(action.id==='booking.reservation.create'){
+    if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+    if(!plainObject(value.place))issue('required','place','Das verifizierte Restaurant fehlt.');
+    else if(!text(value.place.providerPlaceId))issue('required','place.providerPlaceId','Eine verifizierte Provider-ID des Restaurants fehlt.');
+    if(value.startAt!=null&&!absoluteDateTime(value.startAt))issue('format','startAt','Der Reservierungszeitpunkt braucht einen eindeutigen UTC-Offset.');
+    if(value.endAt!=null&&!absoluteDateTime(value.endAt))issue('format','endAt','Das Reservierungsende braucht einen eindeutigen UTC-Offset.');
+    if(absoluteDateTime(value.startAt)&&absoluteDateTime(value.endAt)&&Date.parse(value.endAt)<=Date.parse(value.startAt))issue('conflict','endAt','Das Reservierungsende muss nach dem Beginn liegen.');
+    if(value.partySize!=null&&(!Number.isInteger(value.partySize)||value.partySize<1||value.partySize>100))issue('range','partySize','Die Personenzahl muss zwischen 1 und 100 liegen.');
+    if(value.email!=null&&text(value.email).length>320)issue('limit','email','Die E-Mail-Adresse ist zu lang.');
+    return finish({tripId:text(value.tripId),providerPlaceId:text(value.place?.providerPlaceId),startAt:text(value.startAt)||null,endAt:text(value.endAt)||null,partySize:value.partySize??null});
+  }
+  if(action.id==='booking.reservation.modify'){
+    if(!text(value.bookingId))issue('required','bookingId','Die Booking-ID fehlt.');
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Änderung fehlt.');
+    else if(Object.keys(value.patch).length>40)issue('limit','patch','Die Buchungsänderung enthält zu viele Felder.');
+    return finish({bookingId:text(value.bookingId),tripId:text(value.tripId)||text(context.tripId)||null,patch:plainObject(value.patch)?clone(value.patch):null});
+  }
+  if(action.id==='booking.reservation.cancel'){
+    if(!text(value.bookingId))issue('required','bookingId','Die Booking-ID fehlt.');
+    if(value.reason!=null&&text(value.reason).length>2000)issue('limit','reason','Der Stornierungsgrund ist zu lang.');
+    return finish({bookingId:text(value.bookingId),tripId:text(value.tripId)||text(context.tripId)||null,reason:text(value.reason)||null});
+  }
+  if(action.id==='journey.day.read'){
+    const activeTripId=text(context.tripId);
+    if(!activeTripId)issue('required','context.tripId','Es ist keine aktive Reise ausgewählt.');
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Tagesplan-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Tagesplan-Anfrage ist zu lang.');
+    if(value.date!=null&&value.date!==''&&!validCalendarDate(value.date))issue('format','date','Das Tagesplan-Datum ist ungültig.');
+    if(value.includePlanningDetails!=null&&typeof value.includePlanningDetails!=='boolean')issue('type','includePlanningDetails','Die Detailauswahl ist ungültig.');
+    return finish({tripId:activeTripId,date:text(value.date)||null,includePlanningDetails:value.includePlanningDetails===true});
+  }
+  if(action.id==='journey.day.open'){
+    if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+    if(value.date!=null&&!validCalendarDate(value.date))issue('format','date','Das zu öffnende Tagesplan-Datum ist ungültig.');
+    if(value.mode!=null&&!['schedule','edit','create'].includes(text(value.mode)))issue('enum','mode','Der gewünschte Bearbeitungsmodus ist unbekannt.');
+    return finish({tripId:text(value.tripId),date:text(value.date)||null,mode:text(value.mode)||'schedule'});
+  }
+  if(action.id==='trip.active.list'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Reise-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Reise-Anfrage ist zu lang.');
+    return finish({query:text(value.query)||null});
+  }
+  if(action.id==='trip.active.select'){
+    if(!text(value.tripId))issue('required','tripId','Die Zielreise fehlt.');
+    if(value.previousTripId!=null&&!text(value.previousTripId))issue('format','previousTripId','Die vorherige Reise-ID ist ungültig.');
+    return finish({tripId:text(value.tripId),previousTripId:text(value.previousTripId)||text(context.tripId)||null});
+  }
+  if(action.id==='trip.update.details'){
+    if(!text(value.tripId))issue('required','tripId','Die zu ändernde Reise fehlt.');
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Reiseänderung fehlt.');
+    else{
+      if(Object.keys(value.patch).length>40)issue('limit','patch','Die Reiseänderung enthält zu viele Felder.');
+      if(value.patch.startDate!=null&&!validCalendarDate(value.patch.startDate))issue('format','patch.startDate','Das Startdatum ist ungültig.');
+      if(value.patch.endDate!=null&&!validCalendarDate(value.patch.endDate))issue('format','patch.endDate','Das Enddatum ist ungültig.');
+      if(validCalendarDate(value.patch.startDate)&&validCalendarDate(value.patch.endDate)&&value.patch.endDate<value.patch.startDate)issue('conflict','patch.endDate','Das Reiseende muss am oder nach dem Start liegen.');
+    }
+    return finish({tripId:text(value.tripId),patch:plainObject(value.patch)?clone(value.patch):null});
+  }
+  if(['places.restaurant.recommend','places.discovery.recommend'].includes(action.id)){
+    const query=text(value.query);
+    if(!query)issue('required','query','Der Suchwunsch fehlt.');else if(query.length>1000)issue('limit','query','Der Suchwunsch ist zu lang.');
+    if(value.category!=null&&(typeof value.category!=='string'||!text(value.category)||text(value.category).length>80))issue('format','category','Die Ortskategorie ist ungültig.');
+    if(value.categories!=null){
+      if(!Array.isArray(value.categories))issue('type','categories','Die Ortskategorien müssen als Liste angegeben werden.');
+      else{
+        if(value.categories.length>8)issue('limit','categories','Es können höchstens acht Ortskategorien gleichzeitig gesucht werden.');
+        if(value.categories.some(item=>typeof item!=='string'||!text(item)||text(item).length>80))issue('format','categories','Mindestens eine Ortskategorie ist ungültig.');
+        if(new Set(value.categories.map(item=>text(item))).size!==value.categories.length)issue('unique','categories','Ortskategorien dürfen nicht doppelt vorkommen.');
+      }
+    }
+    if(value.limit!=null&&(!Number.isInteger(value.limit)||value.limit<1||value.limit>12))issue('range','limit','Die Trefferzahl muss zwischen 1 und 12 liegen.');
+    if(value.explicitPreferencePatch!=null&&(!plainObject(value.explicitPreferencePatch)||Object.keys(value.explicitPreferencePatch).length>30))issue('type','explicitPreferencePatch','Die ausdrücklich genannten Vorlieben sind ungültig oder zu umfangreich.');
+    if(value.spatialConstraints!=null&&!plainObject(value.spatialConstraints))issue('type','spatialConstraints','Die räumliche Einschränkung ist ungültig.');
+    if(value.strictPlaceType!=null&&(typeof value.strictPlaceType!=='string'||text(value.strictPlaceType).length>80))issue('format','strictPlaceType','Der gewünschte Ortstyp ist ungültig.');
+    if(value.mutationHints!=null&&(!plainObject(value.mutationHints)||Object.keys(value.mutationHints).length>6))issue('type','mutationHints','Die Aktionshinweise sind ungültig oder zu umfangreich.');
+    return finish({query,category:text(value.category)||null,categories:Array.isArray(value.categories)?value.categories.map(text):[],limit:value.limit??null,explicitPreferencePatch:plainObject(value.explicitPreferencePatch)?clone(value.explicitPreferencePatch):{},spatialConstraints:plainObject(value.spatialConstraints)?clone(value.spatialConstraints):null,strictPlaceType:text(value.strictPlaceType)||null,mutationHints:plainObject(value.mutationHints)?clone(value.mutationHints):{}});
+  }
+  if(action.id==='events.verified.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Event-Suche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Event-Suche ist zu lang.');
+    if(value.from!=null&&!absoluteDateTime(value.from))issue('format','from','Der Beginn des Event-Zeitraums braucht einen eindeutigen UTC-Offset.');
+    if(value.to!=null&&!absoluteDateTime(value.to))issue('format','to','Das Ende des Event-Zeitraums braucht einen eindeutigen UTC-Offset.');
+    if(absoluteDateTime(value.from)&&absoluteDateTime(value.to)&&Date.parse(value.to)<Date.parse(value.from))issue('conflict','to','Das Ende des Event-Zeitraums muss nach dem Beginn liegen.');
+    if(value.limit!=null&&(!Number.isInteger(value.limit)||value.limit<1||value.limit>50))issue('range','limit','Die Event-Trefferzahl muss zwischen 1 und 50 liegen.');
+    return finish({query:text(value.query)||null,from:text(value.from)||null,to:text(value.to)||null,limit:value.limit??null});
+  }
+  if(action.id==='memory.library.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Erinnerungssuche ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Erinnerungssuche ist zu lang.');
+    return finish({query:text(value.query)||null});
+  }
+  if(action.id==='memory.story.save'){
+    if(value.storyId!=null&&(!text(value.storyId)||text(value.storyId).length>240))issue('format','storyId','Die Story-ID ist ungültig.');
+    if(!plainObject(value.story)||!Object.keys(value.story).length)issue('required','story','Die zu speichernde Geschichte fehlt.');
+    else{
+      if(value.story.id!=null&&(!text(value.story.id)||text(value.story.id).length>240))issue('format','story.id','Die Story-ID ist ungültig.');
+      if(value.story.title!=null&&(typeof value.story.title!=='string'||!text(value.story.title)||text(value.story.title).length>240))issue('format','story.title','Der Story-Titel ist ungültig.');
+      if(value.story.description!=null&&(typeof value.story.description!=='string'||value.story.description.length>10000))issue('limit','story.description','Der Storytext ist ungültig oder zu lang.');
+      if(value.story.status!=null&&!['draft','published','archived'].includes(text(value.story.status)))issue('enum','story.status','Der Story-Status ist unbekannt.');
+      if(value.story.mediaIds!=null){
+        if(!Array.isArray(value.story.mediaIds))issue('type','story.mediaIds','Die ausgewählten Medien müssen als Liste angegeben werden.');
+        else{
+          if(value.story.mediaIds.length>240)issue('limit','story.mediaIds','Es können höchstens 240 Medien verknüpft werden.');
+          if(value.story.mediaIds.some(item=>!text(item)||text(item).length>240))issue('format','story.mediaIds','Mindestens eine Medien-ID ist ungültig.');
+          if(new Set(value.story.mediaIds.map(text)).size!==value.story.mediaIds.length)issue('unique','story.mediaIds','Medien dürfen nicht doppelt verknüpft werden.');
+        }
+      }
+    }
+    return finish({storyId:text(value.storyId)||text(value.story?.id)||null,story:plainObject(value.story)?clone(value.story):null});
+  }
+  if(action.id==='identity.preferences.read'){
+    if(value.query!=null&&!text(value.query))issue('format','query','Die Vorlieben-Anfrage ist leer.');
+    if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Vorlieben-Anfrage ist zu lang.');
+    if(value.scope!=null&&value.scope!=='self')issue('enum','scope','Vorlieben dürfen hier nur für das eigene Profil gelesen werden.');
+    return finish({query:text(value.query)||null,scope:'self'});
+  }
+  if(action.id==='identity.preferences.update'){
+    if(!plainObject(value.patch)||!Object.keys(value.patch).length)issue('required','patch','Die gewünschte Profiländerung fehlt.');
+    else if(Object.keys(value.patch).length>40)issue('limit','patch','Die Profiländerung enthält zu viele Felder.');
+    if(value.source!=null&&(typeof value.source!=='string'||!text(value.source)||text(value.source).length>120))issue('format','source','Die Quelle der Profiländerung ist ungültig.');
+    if(value.evidenceId!=null&&(!text(value.evidenceId)||text(value.evidenceId).length>240))issue('format','evidenceId','Der Beleg der Profiländerung ist ungültig.');
+    return finish({patch:plainObject(value.patch)?clone(value.patch):null,source:text(value.source)||null,evidenceId:text(value.evidenceId)||null});
+  }
+  if(!text(value.tripId))issue('required','tripId','Die aktive Reise fehlt.');
+  if(['places.place.favorite','places.place.unfavorite'].includes(action.id)){
+    if(!text(value.providerPlaceId))issue('required','providerPlaceId','Eine verifizierte Provider-ID des Orts fehlt.');
+    return finish({tripId:text(value.tripId),providerPlaceId:text(value.providerPlaceId),tripPlaceId:text(value.tripPlaceId)||null});
+  }
+  if(action.id==='places.place.unplan'){
+    if(!text(value.tripPlaceId))issue('required','tripPlaceId','Die Places-eigene Reiseort-ID fehlt.');
+    if(value.fields!=null&&!Array.isArray(value.fields)&&(typeof value.fields!=='object'||value.fields===null))issue('type','fields','Die zu entfernenden Planfelder sind ungültig.');
+    return finish({tripId:text(value.tripId),tripPlaceId:text(value.tripPlaceId),providerPlaceId:text(value.providerPlaceId)||null});
+  }
+  if(!text(value.providerPlaceId)&&!text(value.tripPlaceId))issue('required','providerPlaceId|tripPlaceId','Eine verifizierte Owner-ID des Orts fehlt.');
+  const date=text(value.date),time=text(value.time),plannedAt=text(value.fields?.planned_at),timeZone=text(context.timeZone);
+  if(!date)issue('required','date','Das Datum fehlt.');else if(!validCalendarDate(date))issue('format','date','Das Datum ist ungültig.');
+  if(!time)issue('required','time','Die Uhrzeit fehlt.');else if(!validClockTime(time))issue('format','time','Die Uhrzeit ist ungültig.');
+  if(!plannedAt)issue('required','fields.planned_at','Der Owner-Zeitpunkt fehlt.');else if(!/(?:z|[+-]\d{2}:?\d{2})$/i.test(plannedAt)||Number.isNaN(Date.parse(plannedAt)))issue('format','fields.planned_at','Der Owner-Zeitpunkt braucht einen eindeutigen UTC-Offset.');
+  if(!timeZone)issue('required','context.timeZone','Die Reise-Zeitzone fehlt.');else if(!zonedParts(new Date(0),timeZone))issue('format','context.timeZone','Die Reise-Zeitzone ist ungültig.');
+  const canResolve=!issues.some(entry=>['date','time','context.timeZone'].includes(entry.path)),expected=canResolve?zonedDateTimeToIso(date,time,timeZone):null;
+  if(canResolve&&!expected)issue('ambiguous','time','Die lokale Uhrzeit ist in dieser Reise-Zeitzone nicht eindeutig oder existiert nicht.');
+  if(expected&&plannedAt&&Date.parse(expected)!==Date.parse(plannedAt))issue('conflict','fields.planned_at','Bestätigte Uhrzeit und Owner-Zeitpunkt widersprechen sich.');
+  return finish({tripId:text(value.tripId),date,time,timeZone,plannedAt:expected});
+}
 
 const ACTIONS=Object.freeze([
   {id:'places.restaurant.recommend',owner:'places',ownerContract:'places.v1',ownerMethod:'reads.recommend',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'place_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['places.read'],label:'Restaurants finden',description:'Findet und ordnet echte Restaurantkandidaten im aktiven Reisekontext.',consequence:'Liest freigegebene Places-Projektionen; verändert keinen Ort.'},
@@ -255,7 +471,7 @@ function routeIntents(message=''){
 function routeIntent(message=''){
   return routeIntents(message)?.[0]||null;
 }
-function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
+function policySnapshot(){return immutable({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,actionCount:ACTIONS.length,autoRun:'registered-read-only',autoRunRisk:'R0-only',writeExecution:'every-write-preview-plus-explicit-confirmation-plus-owner-command-plus-receipt',explicitConfirmation:'natural-language-alone-is-never-confirmation',idempotency:'required-for-owner-mutations',inputEnforcement:{runtimeEnforced:Object.keys(INPUT_CONTRACTS),remaining:ACTIONS.length-Object.keys(INPUT_CONTRACTS).length},unknownExternalOutcome:'owner-reconciliation-before-retry',undo:'registered-owner-compensation-only',foreignDomainMutation:false,journeyTimelineOwner:false,limits:LIMITS})}
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeEvent,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,effects:EFFECTS,risk:RISK,confirmation:CONFIRMATION,resultKinds:RESULT_KINDS,immutable,sanitize,normalizeAction,createActionRegistry,getAction,listActions,canAutoRun,assertExecution,validateActionInput,zonedDateTimeToIso,normalizeActionOffer,normalizeCoordinates,normalizePlace,normalizeEvent,normalizeDay,normalizeTrip,normalizeBooking,normalizeMemory,normalizePreferenceSummary,normalizeResult,createActionRequest,createExecutionEnvelope,createConfirmation,createReceipt,createCapabilitySnapshot,routeIntent,routeIntents,policySnapshot});
 })();

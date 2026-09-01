@@ -1,0 +1,393 @@
+{
+  "contractId": "luvia.ai-action-input-contracts.v1",
+  "version": "1.0.0",
+  "actionContractId": "intelligence.actions.v1",
+  "enforcement": "BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE",
+  "runtimeEnforcement": {
+    "policyCore": "intelligence.actions.v1",
+    "runtimeEnforcedActionIds": ["places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.restaurant.open", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
+    "metadataValidatedOpenActionIds": 0,
+    "rejectsBeforeLedgerAndOwnerInvocation": true
+  },
+  "context": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "surface": { "type": "string", "minLength": 1, "maxLength": 80 },
+      "tripId": { "type": "string", "minLength": 1, "maxLength": 160 },
+      "locale": { "type": "string", "minLength": 2, "maxLength": 35 },
+      "timeZone": { "type": "string", "minLength": 1, "maxLength": 80 }
+    }
+  },
+  "$defs": {
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "time": { "type": "string", "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$" },
+    "dateTime": { "type": "string", "format": "date-time" },
+    "id": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "query": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "patch": { "type": "object", "minProperties": 1, "maxProperties": 40 }
+  },
+  "contracts": {
+    "places.restaurant.recommend": {
+      "schemaId": "luvia.ai-input.places.restaurant.recommend.v1",
+      "required": ["query"],
+      "optional": ["category", "categories", "limit", "explicitPreferencePatch", "spatialConstraints", "strictPlaceType", "mutationHints"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["query"],
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "categories": { "type": "array", "maxItems": 8, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 80 } },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "explicitPreferencePatch": { "type": "object", "maxProperties": 30 },
+          "spatialConstraints": { "type": ["object", "null"] },
+          "strictPlaceType": { "type": ["string", "null"], "maxLength": 80 },
+          "mutationHints": { "type": "object", "maxProperties": 6 }
+        }
+      }
+    },
+    "places.discovery.recommend": {
+      "schemaId": "luvia.ai-input.places.discovery.recommend.v1",
+      "required": ["query"],
+      "optional": ["category", "categories", "limit", "explicitPreferencePatch", "spatialConstraints", "strictPlaceType", "mutationHints"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["query"],
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "categories": { "type": "array", "maxItems": 8, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 80 } },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "explicitPreferencePatch": { "type": "object", "maxProperties": 30 },
+          "spatialConstraints": { "type": ["object", "null"] },
+          "strictPlaceType": { "type": ["string", "null"], "maxLength": 80 },
+          "mutationHints": { "type": "object", "maxProperties": 6 }
+        }
+      }
+    },
+    "events.verified.read": {
+      "schemaId": "luvia.ai-input.events.verified.read.v1",
+      "required": [],
+      "optional": ["query", "from", "to", "limit"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "from": { "type": ["string", "null"], "format": "date-time" },
+          "to": { "type": ["string", "null"], "format": "date-time" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 50 }
+        }
+      }
+    },
+    "places.place.favorite": {
+      "schemaId": "luvia.ai-input.places.place.favorite.v1",
+      "required": ["tripId", "providerPlaceId"],
+      "optional": ["placeId", "tripPlaceId", "placeType", "name", "address", "website", "reservationUrl"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": { "$ref": "#/$defsExpanded/placeAction" }
+    },
+    "places.place.unfavorite": {
+      "schemaId": "luvia.ai-input.places.place.unfavorite.v1",
+      "required": ["tripId", "providerPlaceId"],
+      "optional": ["placeId", "tripPlaceId", "placeType", "name", "address", "website", "reservationUrl"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": { "$ref": "#/$defsExpanded/placeAction" }
+    },
+    "places.place.plan": {
+      "schemaId": "luvia.ai-input.places.place.plan.v1",
+      "required": ["tripId", "fields"],
+      "optional": ["providerPlaceId", "placeId", "tripPlaceId", "placeType", "name", "date", "time", "requestedBy"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId", "fields"],
+        "anyOf": [{ "required": ["providerPlaceId"] }, { "required": ["tripPlaceId"] }],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "providerPlaceId": { "$ref": "#/$defs/id" },
+          "placeId": { "$ref": "#/$defs/id" },
+          "tripPlaceId": { "$ref": "#/$defs/id" },
+          "placeType": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 240 },
+          "date": { "$ref": "#/$defs/date" },
+          "time": { "$ref": "#/$defs/time" },
+          "fields": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["planned_at"],
+            "properties": { "planned_at": { "$ref": "#/$defs/dateTime" } }
+          },
+          "requestedBy": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      }
+    },
+    "places.place.unplan": {
+      "schemaId": "luvia.ai-input.places.place.unplan.v1",
+      "required": ["tripId", "tripPlaceId"],
+      "optional": ["providerPlaceId", "placeId", "placeType", "name", "fields"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId", "tripPlaceId"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "tripPlaceId": { "$ref": "#/$defs/id" },
+          "providerPlaceId": { "$ref": "#/$defs/id" },
+          "placeId": { "$ref": "#/$defs/id" },
+          "placeType": { "type": "string", "maxLength": 80 },
+          "name": { "type": "string", "maxLength": 240 },
+          "fields": { "type": ["array", "object"], "maxItems": 20 }
+        }
+      }
+    },
+    "booking.restaurant.open": {
+      "schemaId": "luvia.ai-input.booking.restaurant.open.v1",
+      "required": ["providerPlaceId"],
+      "optional": ["tripId", "placeId", "placeType", "type", "name", "address", "website", "reservationUrl"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": { "$ref": "#/$defsExpanded/placeOpen" }
+    },
+    "booking.trip.read": {
+      "schemaId": "luvia.ai-input.booking.trip.read.v1",
+      "required": [],
+      "optional": ["query", "intent"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "intent": { "enum": ["list", "prerequisite-read", "modify", "cancel"] }
+        }
+      }
+    },
+    "booking.reservation.create": {
+      "schemaId": "luvia.ai-input.booking.reservation.create.v1",
+      "required": ["tripId", "place"],
+      "optional": ["tripPlaceId", "placeId", "placeType", "title", "startAt", "endAt", "partySize", "requesterName", "occasion", "note", "email"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId", "place"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "tripPlaceId": { "$ref": "#/$defs/id" },
+          "placeId": { "$ref": "#/$defs/id" },
+          "placeType": { "type": "string", "maxLength": 80 },
+          "title": { "type": "string", "maxLength": 240 },
+          "startAt": { "type": ["string", "null"], "format": "date-time" },
+          "endAt": { "type": ["string", "null"], "format": "date-time" },
+          "partySize": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "requesterName": { "type": "string", "maxLength": 160 },
+          "occasion": { "type": "string", "maxLength": 240 },
+          "note": { "type": "string", "maxLength": 2000 },
+          "email": { "type": "string", "maxLength": 320 },
+          "place": { "$ref": "#/$defsExpanded/placeOpen" }
+        }
+      }
+    },
+    "booking.reservation.modify": {
+      "schemaId": "luvia.ai-input.booking.reservation.modify.v1",
+      "required": ["bookingId", "patch"],
+      "optional": ["tripId", "name"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bookingId", "patch"],
+        "properties": {
+          "bookingId": { "$ref": "#/$defs/id" },
+          "tripId": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "maxLength": 240 },
+          "patch": { "$ref": "#/$defs/patch" }
+        }
+      }
+    },
+    "booking.reservation.cancel": {
+      "schemaId": "luvia.ai-input.booking.reservation.cancel.v1",
+      "required": ["bookingId"],
+      "optional": ["tripId", "name", "reason"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bookingId"],
+        "properties": {
+          "bookingId": { "$ref": "#/$defs/id" },
+          "tripId": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "maxLength": 240 },
+          "reason": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    },
+    "journey.day.read": {
+      "schemaId": "luvia.ai-input.journey.day.read.v1",
+      "required": [],
+      "optional": ["query", "date", "includePlanningDetails"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": { "$ref": "#/$defs/query" },
+          "date": { "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "includePlanningDetails": { "type": "boolean" }
+        }
+      }
+    },
+    "journey.day.open": {
+      "schemaId": "luvia.ai-input.journey.day.open.v1",
+      "required": ["tripId"],
+      "optional": ["date", "mode"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "date": { "$ref": "#/$defs/date" },
+          "mode": { "enum": ["schedule", "edit", "create"] }
+        }
+      }
+    },
+    "trip.active.list": {
+      "schemaId": "luvia.ai-input.trip.active.list.v1",
+      "required": [],
+      "optional": ["query"],
+      "context": ["surface", "locale", "timeZone"],
+      "input": { "type": "object", "additionalProperties": false, "properties": { "query": { "$ref": "#/$defs/query" } } }
+    },
+    "trip.active.select": {
+      "schemaId": "luvia.ai-input.trip.active.select.v1",
+      "required": ["tripId"],
+      "optional": ["previousTripId", "name"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "previousTripId": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "maxLength": 240 }
+        }
+      }
+    },
+    "trip.update.details": {
+      "schemaId": "luvia.ai-input.trip.update.details.v1",
+      "required": ["tripId", "patch"],
+      "optional": [],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tripId", "patch"],
+        "properties": { "tripId": { "$ref": "#/$defs/id" }, "patch": { "$ref": "#/$defs/patch" } }
+      }
+    },
+    "memory.library.read": {
+      "schemaId": "luvia.ai-input.memory.library.read.v1",
+      "required": [],
+      "optional": ["query"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": { "type": "object", "additionalProperties": false, "properties": { "query": { "$ref": "#/$defs/query" } } }
+    },
+    "memory.story.save": {
+      "schemaId": "luvia.ai-input.memory.story.save.v1",
+      "required": ["story"],
+      "optional": ["storyId"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["story"],
+        "properties": {
+          "storyId": { "$ref": "#/$defs/id" },
+          "story": {
+            "type": "object",
+            "minProperties": 1,
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "title": { "type": "string", "minLength": 1, "maxLength": 240 },
+              "description": { "type": "string", "maxLength": 10000 },
+              "status": { "enum": ["draft", "published", "archived"] },
+              "mediaIds": { "type": "array", "maxItems": 240, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+            }
+          }
+        }
+      }
+    },
+    "identity.preferences.read": {
+      "schemaId": "luvia.ai-input.identity.preferences.read.v1",
+      "required": [],
+      "optional": ["query", "scope"],
+      "context": ["surface", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": { "query": { "$ref": "#/$defs/query" }, "scope": { "const": "self" } }
+      }
+    },
+    "identity.preferences.update": {
+      "schemaId": "luvia.ai-input.identity.preferences.update.v1",
+      "required": ["patch"],
+      "optional": ["source", "evidenceId"],
+      "context": ["surface", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["patch"],
+        "properties": {
+          "patch": { "$ref": "#/$defs/patch" },
+          "source": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "evidenceId": { "$ref": "#/$defs/id" }
+        }
+      }
+    }
+  },
+  "$defsExpanded": {
+    "placeAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tripId", "providerPlaceId"],
+      "properties": {
+        "tripId": { "$ref": "#/$defs/id" },
+        "providerPlaceId": { "$ref": "#/$defs/id" },
+        "placeId": { "$ref": "#/$defs/id" },
+        "tripPlaceId": { "$ref": "#/$defs/id" },
+        "placeType": { "type": "string", "maxLength": 80 },
+        "name": { "type": "string", "maxLength": 240 },
+        "address": { "type": "string", "maxLength": 500 },
+        "website": { "type": "string", "maxLength": 2000 },
+        "reservationUrl": { "type": "string", "maxLength": 2000 }
+      }
+    },
+    "placeOpen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerPlaceId"],
+      "properties": {
+        "tripId": { "$ref": "#/$defs/id" },
+        "providerPlaceId": { "$ref": "#/$defs/id" },
+        "placeId": { "$ref": "#/$defs/id" },
+        "placeType": { "type": "string", "maxLength": 80 },
+        "type": { "type": "string", "maxLength": 80 },
+        "name": { "type": "string", "maxLength": 240 },
+        "address": { "type": "string", "maxLength": 500 },
+        "website": { "type": "string", "maxLength": 2000 },
+        "reservationUrl": { "type": "string", "maxLength": 2000 }
+      }
+    }
+  }
+}

@@ -108,6 +108,8 @@ const preferences = {
 };
 
 let savedProfilePatch = null;
+let savedDashboardLayout = null;
+let archivedTrip = null;
 let updatedPreferencesPatch = null;
 let replacedCategory = null;
 const registrations = [];
@@ -131,6 +133,16 @@ const window = {
     async save(patch) {
       savedProfilePatch = structuredClone(patch);
       return { ...structuredClone(profile), ...structuredClone(patch) };
+    },
+
+    async saveDashboardLayout(layout) {
+      savedDashboardLayout = structuredClone(layout);
+      return structuredClone(profile);
+    },
+
+    async archiveTrip(tripId, archived) {
+      archivedTrip = { tripId, archived };
+      return structuredClone(profile);
     }
   },
 
@@ -162,6 +174,16 @@ const window = {
 
   LuviaTravelPreferences: {
     version: '3.0.0'
+  },
+
+  LuviaPlatformPorts: {
+    get(id) {
+      return id === 'NotificationPort' ? {
+        requestPermission: async () => 'granted',
+        status: () => ({ supported: true, permission: 'granted' })
+      } : null;
+    },
+    has: id => id === 'NotificationPort'
   },
 
   LuviaGlobalContracts: {
@@ -205,7 +227,7 @@ assert.ok(api, 'LuviaIdentityContractV1 missing');
 assert.equal(window.LuviaIdentityContract, api, 'identity alias mismatch');
 assert.equal(api.contractId, 'identity.v1');
 assert.equal(api.version, '1');
-assert.equal(api.runtimeVersion, '1.1.0');
+assert.equal(api.runtimeVersion, '1.2.0');
 assert.equal(Object.isFrozen(api), true);
 
 assert.deepEqual(
@@ -215,7 +237,7 @@ assert.deepEqual(
 
 assert.deepEqual(
   Object.keys(api.commands).sort(),
-  ['completeOnboarding', 'updatePreferences', 'updateProfile']
+  ['completeOnboarding', 'requestNotificationPermission', 'setTripArchived', 'updateDashboardLayout', 'updatePreferences', 'updateProfile']
 );
 
 for (const method of [
@@ -357,6 +379,23 @@ assert.throws(
     category: 'dietary',
     value: ['vegetarian', 'vegan']
   });
+
+  const dashboard = await api.commands.updateDashboardLayout([
+    { id: 'weather', enabled: false, position: 2 },
+    { id: 'today', enabled: true, position: 0 }
+  ]);
+  assert.deepEqual(savedDashboardLayout, [
+    { id: 'today', enabled: true, position: 0 },
+    { id: 'weather', enabled: false, position: 1 }
+  ]);
+  assert.equal(dashboard.receipt.command, 'updateDashboardLayout');
+
+  const archiveReceipt = await api.commands.setTripArchived('trip-old', true);
+  assert.deepEqual(archivedTrip, { tripId: 'trip-old', archived: true });
+  assert.equal(archiveReceipt.archived, true);
+
+  const notificationReceipt = await api.commands.requestNotificationPermission();
+  assert.equal(notificationReceipt.permission, 'granted');
 
   const completed = await api.commands.completeOnboarding({
     profile: {
@@ -516,7 +555,7 @@ assert.throws(
 
   assert.equal(diagnostics.contractId, 'identity.v1');
   assert.equal(diagnostics.version, '1');
-  assert.equal(diagnostics.runtimeVersion, '1.1.0');
+  assert.equal(diagnostics.runtimeVersion, '1.2.0');
   assert.equal(diagnostics.ready, true);
   assert.equal(diagnostics.providers.profile, true);
   assert.equal(diagnostics.providers.preferences, true);

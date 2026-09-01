@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.3.0';
+  const RUNTIME_VERSION = '1.10.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -86,6 +86,112 @@
       providerUnavailable('LuviaTravelOrchestrationCoreV1');
   }
 
+  function languageCompiler() {
+    return root.LuviaHumanAILanguageCompilerCoreV1 ||
+      providerUnavailable('LuviaHumanAILanguageCompilerCoreV1');
+  }
+
+  function compileHumanActions(input = {}) {
+    return immutable(languageCompiler().compile(input));
+  }
+
+  function getHumanActionLanguageCoverage(catalog = []) {
+    return immutable(languageCompiler().describeCoverage(catalog));
+  }
+
+  function safetyPolicy() {
+    return root.LuviaHumanAISafetyPolicyCoreV1 ||
+      providerUnavailable('LuviaHumanAISafetyPolicyCoreV1');
+  }
+
+  function evaluateHumanActionAuthority(input = {}) {
+    return immutable(safetyPolicy().evaluate(input));
+  }
+
+  function getHumanActionSafetyCoverage(catalog = []) {
+    return immutable(safetyPolicy().describeCoverage(catalog));
+  }
+
+  function actionLifecycle() {
+    return root.LuviaHumanAIActionLifecycleCoreV1 ||
+      providerUnavailable('LuviaHumanAIActionLifecycleCoreV1');
+  }
+
+  function compileHumanActionLifecycle(action = {}) {
+    return immutable(actionLifecycle().compileLifecycle(action));
+  }
+
+  function createHumanActionLifecycle(input = {}) {
+    return immutable(actionLifecycle().createInstance(input));
+  }
+
+  function advanceHumanActionLifecycle(instance = {}, event = {}) {
+    return immutable(actionLifecycle().transition(instance, event));
+  }
+
+  function getHumanActionLifecycleCoverage(catalog = []) {
+    return immutable(actionLifecycle().describeCoverage(catalog));
+  }
+
+  function capabilityDiscovery() {
+    return root.LuviaHumanAICapabilityDiscoveryCoreV1 ||
+      providerUnavailable('LuviaHumanAICapabilityDiscoveryCoreV1');
+  }
+
+  function discoverHumanActionCapabilities(input = {}) {
+    return immutable(capabilityDiscovery().discover(input));
+  }
+
+  function getHumanActionCapabilityCoverage(catalog = []) {
+    return immutable(capabilityDiscovery().describeCoverage(catalog));
+  }
+
+  function consumerProjection() {
+    return root.LuviaHumanAIConsumerProjectionCoreV1 ||
+      providerUnavailable('LuviaHumanAIConsumerProjectionCoreV1');
+  }
+
+  function projectHumanActionConsumer(input = {}) {
+    return immutable(consumerProjection().projectCapability(input));
+  }
+
+  function projectHumanActionConversation(compiled = {}) {
+    return immutable(consumerProjection().projectIntentSummary(compiled));
+  }
+
+  function projectHumanActionPreview(input = {}) {
+    return immutable(consumerProjection().projectPreview(input));
+  }
+
+  function projectHumanActionReceipt(input = {}) {
+    return immutable(consumerProjection().projectReceipt(input));
+  }
+
+  function getHumanActionConsumerCoverage(catalog = []) {
+    return immutable(consumerProjection().describeCoverage(catalog));
+  }
+
+  function parityFailureMatrix() {
+    return root.LuviaHumanAIParityFailureMatrixCoreV1 ||
+      providerUnavailable('LuviaHumanAIParityFailureMatrixCoreV1');
+  }
+
+  function compileHumanActionParityMatrix(input = {}) {
+    return immutable(parityFailureMatrix().compileMatrix(input));
+  }
+
+  function queryHumanActionParityMatrix(rows = [], filters = {}) {
+    return immutable(parityFailureMatrix().query(rows, filters));
+  }
+
+  function projectHumanActionParityRow(row = {}) {
+    return immutable(parityFailureMatrix().projectRow(row));
+  }
+
+  function getHumanActionParityCoverage(rows = []) {
+    return immutable(parityFailureMatrix().describeCoverage(rows));
+  }
+
   function planningTrace(input = {}) {
     return immutable(travelOrchestration().planningTrace(input));
   }
@@ -144,6 +250,18 @@
     return domainCore().projectMemorySnapshot(provider.snapshot());
   }
 
+  async function confirmLearningSignal(signal = {}) {
+    const provider = root.LuviaAIMemory;
+    if (typeof provider?.confirmSignal !== 'function') providerUnavailable('LuviaAIMemory.confirmSignal');
+    return immutable(await provider.confirmSignal(signal));
+  }
+
+  async function dismissLearningSignal(signal = {}) {
+    const provider = root.LuviaAIMemory;
+    if (typeof provider?.dismissSignal !== 'function') providerUnavailable('LuviaAIMemory.dismissSignal');
+    return immutable(await provider.dismissSignal(signal));
+  }
+
   function getSystemSnapshot() {
     const core = domainCore();
     const diagnostics = root.LuviaAI?.diagnostics?.() || {};
@@ -197,6 +315,12 @@
       providers: Object.freeze({
         domainCore: Boolean(core),
         travelOrchestration: Boolean(root.LuviaTravelOrchestrationCoreV1),
+        humanActionLanguageCompiler: Boolean(root.LuviaHumanAILanguageCompilerCoreV1),
+        humanActionSafetyPolicy: Boolean(root.LuviaHumanAISafetyPolicyCoreV1),
+        humanActionLifecycle: Boolean(root.LuviaHumanAIActionLifecycleCoreV1),
+        humanActionCapabilityDiscovery: Boolean(root.LuviaHumanAICapabilityDiscoveryCoreV1),
+        humanActionConsumerProjection: Boolean(root.LuviaHumanAIConsumerProjectionCoreV1),
+        humanActionParityFailureMatrix: Boolean(root.LuviaHumanAIParityFailureMatrixCoreV1),
         preferenceResolver: Boolean(root.LuviaTripPreferenceResolutionCoreV1),
         runtime: Boolean(root.LuviaAI),
         proposals: Boolean(root.LuviaAIProposals?.create),
@@ -227,11 +351,30 @@
       planningTrace,
       gateContext,
       causalFeedback,
+      compileHumanActions,
+      getHumanActionLanguageCoverage,
+      evaluateHumanActionAuthority,
+      getHumanActionSafetyCoverage,
+      compileHumanActionLifecycle,
+      createHumanActionLifecycle,
+      advanceHumanActionLifecycle,
+      getHumanActionLifecycleCoverage,
+      discoverHumanActionCapabilities,
+      getHumanActionCapabilityCoverage,
+      projectHumanActionConsumer,
+      projectHumanActionConversation,
+      projectHumanActionPreview,
+      projectHumanActionReceipt,
+      getHumanActionConsumerCoverage,
+      compileHumanActionParityMatrix,
+      queryHumanActionParityMatrix,
+      projectHumanActionParityRow,
+      getHumanActionParityCoverage,
       getMemorySnapshot,
       getSystemSnapshot,
       subscribe
     }),
-    commands: Object.freeze({ createProposal }),
+    commands: Object.freeze({ createProposal, confirmLearningSignal, dismissLearningSignal }),
     events: EVENTS,
     getCapabilities,
     getCapability,
@@ -245,6 +388,25 @@
     planningTrace,
     gateContext,
     causalFeedback,
+    compileHumanActions,
+    getHumanActionLanguageCoverage,
+    evaluateHumanActionAuthority,
+    getHumanActionSafetyCoverage,
+    compileHumanActionLifecycle,
+    createHumanActionLifecycle,
+    advanceHumanActionLifecycle,
+    getHumanActionLifecycleCoverage,
+    discoverHumanActionCapabilities,
+    getHumanActionCapabilityCoverage,
+    projectHumanActionConsumer,
+    projectHumanActionConversation,
+    projectHumanActionPreview,
+    projectHumanActionReceipt,
+    getHumanActionConsumerCoverage,
+    compileHumanActionParityMatrix,
+    queryHumanActionParityMatrix,
+    projectHumanActionParityRow,
+    getHumanActionParityCoverage,
     getMemorySnapshot,
     getSystemSnapshot,
     run,
@@ -254,6 +416,8 @@
     explain,
     summarize,
     createProposal,
+    confirmLearningSignal,
+    dismissLearningSignal,
     subscribe,
     diagnostics
   });

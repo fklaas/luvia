@@ -24,14 +24,25 @@
     "transferSnapshot",
     "createDraft",
     "signedAsset",
+    "getVote",
     "subscribe"
   ],
   "commands": {
     "stories": ["save", "publish", "archive", "remove", "contribute"],
     "albums": ["save", "remove", "contribute"],
-    "cards": ["save", "updateStory", "dismiss"],
-    "maintenance": ["clearForTrip"]
+    "cards": ["save", "updateStory", "dismiss", "saveAlbumVotes", "dissolveStack"],
+    "maintenance": ["clearForTrip"],
+    "root": ["exportStory"]
   },
+  "composition": [
+    "createSelection",
+    "toggleSelection",
+    "createStoryDraft",
+    "weaveStoryDraft",
+    "suggestStoryTitles",
+    "nextContributionQuestion",
+    "normalizeStoryCommand"
+  ],
   "events": [
     "memory.album.changed",
     "memory.card.changed",

@@ -17,19 +17,26 @@
     "getMedia",
     "signedUrl",
     "signedOriginalUrl",
+    "download",
+    "uploadQueueSnapshot",
     "listAlbums",
     "listCards",
     "listJourneys"
   ],
   "commands": [
-    "upload",
-    "update",
-    "reanalyze",
-    "toggleFavorite",
-    "setPolaroid",
-    "linkPlace",
-    "remove",
+    "acquisition.capture",
+    "acquisition.pick",
+    "media.upload",
+    "media.update",
+    "media.reanalyze",
+    "media.toggleFavorite",
+    "media.setPolaroid",
+    "media.linkPlace",
+    "media.remove",
     "memory commands"
+  ],
+  "composition": [
+    "suggestTitles"
   ],
   "events": [
     "media.changed",

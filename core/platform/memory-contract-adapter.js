@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='memory.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0-owner-narrative-bundle';
 const core=globalThis.LuviaMemoryDomainContractCoreV1;
 if(!core)throw new Error('Luvia Memory Domain Contract Core v1 fehlt.');
 
@@ -98,6 +98,34 @@ async function signedAsset(mediaId,options={}){
   return media().reads.signedUrl(mediaId,expiresIn);
 }
 
+async function getVote(clusterId,cardIds=[]){
+  const value=optionalProvider('LuviaMemoryCards','albumVotes');
+  if(!value)throw providerError('LuviaMemoryCards.albumVotes');
+  return immutable({clusterId:String(clusterId||''),votes:await value(clusterId,cardIds),cardIds:(cardIds||[]).map(String)});
+}
+
+const CONTRIBUTION_QUESTIONS=Object.freeze([
+  Object.freeze({id:'first-thought',text:'Was war dein allererster Gedanke in diesem Moment?'}),
+  Object.freeze({id:'hidden-detail',text:'Welches kleine Detail möchtest du niemals vergessen?'}),
+  Object.freeze({id:'off-camera',text:'Was ist auf den Bildern nicht zu sehen?'}),
+  Object.freeze({id:'funny-truth',text:'Worüber musstest du hier lachen?'}),
+  Object.freeze({id:'tell-later',text:'Was würdest du später über diesen Moment erzählen?'}),
+  Object.freeze({id:'typical-us',text:'Was war daran ganz typisch für euch?'})
+]);
+function weaveStoryDraft(input={}){
+  const contributions=(input.contributions||[]).map(item=>String(item?.answerText||item?.answer_text||item||'').trim()).filter(Boolean);
+  const placeName=String(input.locationName||input.location||'').trim(),sentences=contributions.map(text=>/[.!?]$/.test(text)?text:`${text}.`);
+  return immutable({description:sentences.join(' '),evidenceCount:contributions.length,placeName:placeName||null,inventedFacts:false,requiresAiRefinement:true});
+}
+function suggestStoryTitles(input={}){
+  const placeName=String(input.locationName||input.location||'').trim(),mood=String(input.mood||'').trim(),base=String(input.title||'Unsere Erinnerung').trim();
+  return immutable({titles:[...new Set([base,placeName?`Unser Moment in ${placeName}`:'',mood?`${mood} in Bildern`:''].filter(Boolean))].slice(0,3),inventedFacts:false,requiresAiRefinement:true});
+}
+function nextContributionQuestion(input={}){
+  const current=String(input.currentQuestion||input.currentQuestionId||''),index=CONTRIBUTION_QUESTIONS.findIndex(item=>item.id===current),next=CONTRIBUTION_QUESTIONS[(index+1+CONTRIBUTION_QUESTIONS.length)%CONTRIBUTION_QUESTIONS.length];
+  return immutable(next);
+}
+
 const storyCommands=Object.freeze({
   async save(input={}){
     const command=core.normalizeStoryCommand(input);
@@ -137,8 +165,17 @@ const albumCommands=Object.freeze({
 const cardCommands=Object.freeze({
   async save(input={}){return core.projectCard(await provider('LuviaMemoryCards','save')(input))},
   async updateStory(cardId,content){return core.projectCard(await provider('LuviaMemoryCards','updateStory')(cardId,content))},
-  async dismiss(cardId){return Boolean(await provider('LuviaMemoryCards','dismiss')(cardId))}
+  async dismiss(cardId){return Boolean(await provider('LuviaMemoryCards','dismiss')(cardId))},
+  async saveAlbumVotes(clusterId,votes={},budget=0){return immutable(await provider('LuviaMemoryCards','saveAlbumVotes')(clusterId,votes,budget))},
+  async dissolveStack(clusterId){return Boolean(await provider('LuviaMemoryCards','dissolveStack')(clusterId))}
 });
+
+async function exportStory(input={}){
+  if(input.userGesture!==true)throw new Error('MEMORY_EXPORT_USER_GESTURE_REQUIRED');
+  const engine=globalThis.LuviaMemoryExportEngine;if(!engine?.exportStory)throw providerError('LuviaMemoryExportEngine.exportStory');
+  const story=input.story||input;if(!story||typeof story!=='object')throw new Error('MEMORY_STORY_REQUIRED');
+  return Boolean(await engine.exportStory(story));
+}
 
 const maintenanceCommands=Object.freeze({
   async clearForTrip(){
@@ -179,10 +216,11 @@ const reads=Object.freeze({
   transferSnapshot,
   createDraft,
   signedAsset,
+  getVote,
   subscribe
 });
 
-const commands=Object.freeze({stories:storyCommands,albums:albumCommands,cards:cardCommands,maintenance:maintenanceCommands});
+const commands=Object.freeze({stories:storyCommands,albums:albumCommands,cards:cardCommands,maintenance:maintenanceCommands,exportStory});
 const events=Object.freeze(['memory.album.changed','memory.card.changed','memory.story.changed','memory.media.changed','memory.transfer.changed']);
 
 const diagnostics=()=>immutable({
@@ -214,6 +252,9 @@ const api=Object.freeze({
     createSelection:core.createSelection,
     toggleSelection:core.toggleSelection,
     createStoryDraft:core.createStoryDraft,
+    weaveStoryDraft,
+    suggestStoryTitles,
+    nextContributionQuestion,
     normalizeStoryCommand:core.normalizeStoryCommand
   }),
   diagnostics

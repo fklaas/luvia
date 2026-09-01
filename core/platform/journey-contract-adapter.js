@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.3.0-owner-action-bundle';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -51,9 +51,20 @@ function snapshot(options={}){
 }
 function listDays(options={}){return snapshot(options).days}
 function list(filters={}){return snapshot(filters).entries.filter(entry=>(!filters.tripId||entry.tripId===String(filters.tripId))&&(!filters.entityType||entry.entityType===filters.entityType))}
+function getEntry(identity,options={}){const id=typeof identity==='string'?identity:identity?.id;return list(options).find(entry=>String(entry.id)===String(id))||null}
 function getDay(date,options={}){return listDays(options).find(day=>day.date===String(date||'').slice(0,10))||null}
 function entriesForDate(date,options={}){return getDay(date,options)?.entries||Object.freeze([])}
 function listConflicts(options={}){return snapshot(options).conflicts}
+function planTrust(identity,options={}){
+  const entry=typeof identity==='object'&&identity?.id?identity:getEntry(identity,options);
+  if(!entry)return null;
+  const metadata=entry.metadata||{},raw=String(metadata.planTrust||metadata.bookingStatus||entry.status||entry.lifecycle||'').toLowerCase();
+  let label='bestätigt',kind='confirmed';
+  if(/wait|pending|requested|angefragt/.test(raw)){label='wartet auf Antwort';kind='waiting'}
+  else if(/vote|proposal|abstimmung/.test(raw)){label='Abstimmung läuft';kind='vote'}
+  else if(/suggest|draft|vorschlag/.test(raw)){label='nur vorgeschlagen';kind='suggested'}
+  return Object.freeze({entryId:String(entry.id||''),label,kind,planningTrace:metadata.planningTrace||null,providerObservedAt:metadata.providerFacts?.observedAt||null});
+}
 function routeUncertainty(input={}){return resilience().routeUncertainty(input)}
 function rehearseDay(input={}){return resilience().rehearseDay(input)}
 function disruptionRecovery(input={}){return resilience().disruptionRecovery(input)}
@@ -73,9 +84,36 @@ async function removePhotoMemoryByCluster(clusterId,options={}){const result=awa
 function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(resolveSourceEntry(identity),node)}
 function editEntry(identity,onDone){return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)})}
 function openPlanningEditor(options,onDone){return provider().openPlanningEditor?.(options,onDone)}
+function offlineProvider(){const api=globalThis.LuviaJourneyOfflinePack;if(!api?.save||!api?.remove)unavailable('LuviaJourneyOfflinePack');return api}
+function externalNavigation(){const api=globalThis.LuviaPlatformPorts?.get?.('ExternalNavigationPort');if(!api?.open)unavailable('ExternalNavigationPort');return api}
+function resolveDayInput(input={}){
+  const trip=input.trip||activeTrip();if(!trip?.id&&!trip?.tripId)throw new Error('JOURNEY_TRIP_REQUIRED');
+  const date=String(input.date||input.day?.date||'').slice(0,10),day=input.day||getDay(date,{trip});
+  if(!date||!day)throw new Error('JOURNEY_DAY_REQUIRED');
+  return{trip,day,date};
+}
+function openExternalLink(input={}){
+  if(input.userGesture!==true)throw new Error('JOURNEY_USER_GESTURE_REQUIRED');
+  const url=String(input.url||'').trim();if(!/^https?:\/\//i.test(url))throw new Error('JOURNEY_EXTERNAL_URL_INVALID');
+  return Object.freeze({opened:Boolean(externalNavigation().open(url)),url,entryId:String(input.entryId||'')||null});
+}
+function saveOfflinePack(input={}){const value=resolveDayInput(input);return offlineProvider().save(value.trip,value.day)}
+function removeOfflinePack(input={}){const value=resolveDayInput(input);return Object.freeze({removed:Boolean(offlineProvider().remove(value.trip,value.date)),tripId:String(value.trip.id||value.trip.tripId),date:value.date})}
+async function undo(input={}){
+  const operation=String(input.operation||input.receipt?.operation||'');
+  if(operation==='restore-entry'){
+    const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
+    return Object.freeze({operation,restored:true,result:await recordEvent(entry)});
+  }
+  if(operation==='remove-entry'){
+    const entryId=input.entryId||input.receipt?.entryId;if(!entryId)throw new Error('JOURNEY_UNDO_ENTRY_ID_REQUIRED');
+    return Object.freeze({operation,removed:Boolean(await removeEntry(entryId,{reason:'undo'}))});
+  }
+  throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
+}
 
-const reads=Object.freeze({snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
-const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
+const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
   version:VERSION,
@@ -83,8 +121,8 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getDay,entriesForDate,listConflicts,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
-  init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
+  init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
     version:VERSION,

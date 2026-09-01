@@ -1,0 +1,25 @@
+{
+  "contractId": "collaboration.interaction.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "owner": "Collaboration interaction boundary",
+  "status": "local-compatibility-foundation",
+  "browserlessCore": "LuviaCollaborationInteractionContractCoreV1",
+  "publicAdapter": "LuviaCollaborationInteractionContractV1",
+  "reads": ["getInviteSharePayload", "previewInvite", "listProposals"],
+  "commands": [
+    "openInvite",
+    "copyInviteCode",
+    "copyInviteLink",
+    "shareInvite",
+    "openInviteEmail",
+    "openInviteWhatsApp",
+    "setPendingJoinCode",
+    "cancelJoin",
+    "joinTrip",
+    "openJoinedTrip",
+    "voteProposal"
+  ],
+  "ownershipNote": "This public compatibility boundary delegates current trip membership and proposal operations to their existing providers. It does not claim canonical collaboration membership persistence.",
+  "internal": ["Join Flow RPCs", "Trip interaction UI", "journey_place_proposal events"]
+}

@@ -1,0 +1,32 @@
+{
+  "contractId": "platform.actions.v1",
+  "version": "1",
+  "compatibility": "additive-within-major",
+  "runtimeImplementationStage": "M16.5-B0.02",
+  "owner": "Platform",
+  "status": "active-local",
+  "truthOwnership": "bounded-device-and-web-capabilities",
+  "foreignDomainTruth": false,
+  "currentImplementation": [
+    "core/runtime/platform-action-contract-core.js",
+    "app/adapters/platform-action-web-adapter.js",
+    "LuviaPlatformActionContractV1"
+  ],
+  "composition": ["retryIntent", "refreshIntent"],
+  "commands": [
+    "requestLocation",
+    "clearLocation",
+    "captureMedia",
+    "pickFiles",
+    "share",
+    "copyText",
+    "openTelephone",
+    "download"
+  ],
+  "safety": {
+    "userGestureRequired": ["requestLocation", "clearLocation", "captureMedia", "pickFiles", "share", "copyText", "openTelephone", "download"],
+    "arbitraryCallbackExecution": false,
+    "browserlessValidationCore": true
+  },
+  "ports": ["LocationPort", "MediaCapturePort", "MediaPickerPort", "SharingPort"]
+}
