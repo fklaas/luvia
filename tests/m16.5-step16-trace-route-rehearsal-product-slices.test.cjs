@@ -32,7 +32,7 @@ context.LuviaJourneyContractV1={
     snapshot(){return{days:[{date:'2027-06-13',label:'Sonntag',entries:[
       {id:'breakfast',title:'Frühstück',startAt:'2027-06-13T09:00:00Z',endAt:'2027-06-13T10:00:00Z',provenance:{owner:'booking'}},
       {id:'museum',title:'Museum',startAt:'2027-06-13T10:12:00Z',endAt:'2027-06-13T12:00:00Z',transferMinutes:24,routeConfidence:.55,routeEvidence:[]}
-    ],conflicts:[]}],disruptions:[{verified:true,entryIds:['museum'],reason:'Venue meldet einen späteren Einlass',observedAt:'2027-06-13T08:55:00Z'}],summary:{entryCount:2}}},
+    ],conflicts:[]},{date:'2027-06-14',label:'Montag',entries:[],conflicts:[]}],disruptions:[{verified:true,entryIds:['museum'],reason:'Venue meldet einen späteren Einlass',observedAt:'2027-06-13T08:55:00Z'}],summary:{entryCount:2}}},
     routeUncertainty:input=>resilience.routeUncertainty(input),
     rehearseDay:input=>resilience.rehearseDay(input),
     disruptionRecovery:input=>resilience.disruptionRecovery(input),
@@ -92,8 +92,20 @@ vm.runInContext(read('core/ai/ai-action-runtime.js'),context,{filename:'core/ai/
   assert.equal(acceptedFeedback.results[1].kind,'confirmation');
   assert.equal(acceptedFeedback.results[1].evidence.actionId,'identity.preferences.update');
 
-  const dayGraph=orchestration.compileIntent('Zeige den Tagesplan.');
-  const day=await runtime.runMessage('Zeige den Tagesplan.',{surface:'global-chat',compiledIntent:dayGraph});
+  const compactDayGraph=orchestration.compileIntent('Zeige den Tagesplan am 13.06.2027.');
+  const compactDay=await runtime.runMessage('Zeige den Tagesplan am 13.06.2027.',{surface:'global-chat',compiledIntent:compactDayGraph});
+  const compactDayResult=compactDay.results.find(result=>result.kind==='day_plan');
+  assert.equal(compactDayResult.items.length,1);
+  assert.equal(compactDayResult.items[0].date,'2027-06-13');
+  assert.equal(compactDayResult.meta.compact,true);
+  assert.equal(compactDayResult.meta.planningDetailsIncluded,false);
+  assert.equal(compactDayResult.evidence.routeUncertainty.length,0);
+  assert.equal(compactDayResult.evidence.rehearsals.length,0);
+  assert.equal(compactDayResult.evidence.disruptionRecovery,null);
+  assert.equal(compactDayResult.evidence.destinationTwin,null);
+
+  const dayGraph=orchestration.compileIntent('Zeige den Tagesplan und erkläre Route, Tagesprobe und aktuelle Störung.');
+  const day=await runtime.runMessage('Zeige den Tagesplan und erkläre Route, Tagesprobe und aktuelle Störung.',{surface:'global-chat',compiledIntent:dayGraph});
   const dayResult=day.results.find(result=>result.kind==='day_plan');
   assert.ok(dayResult,'Journey owner day projection missing');
   assert.equal(dayResult.evidence.routeUncertainty.length,1);

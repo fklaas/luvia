@@ -121,6 +121,8 @@ assert.match(journeyCss,/\.lvjt-day-panel/);
 assert.match(journeyCss,/\.lvjs-sheet \.lvjs-header h2[^{]*\{[^}]*color:#112f44/,'the signed-in theme must not wash out the suggestion sheet heading');
 assert.match(journeyCss,/\.lvjs-choice-scheduler/,'mobile and desktop cards must keep their own scheduling controls visible without a global action bar');
 assert.match(journeyCss,/\.lvjs-choice-actions \[data-lvjs-booking\]/,'the verified Booking route must become a prominent card-local primary action for gastronomy');
+assert.match(journeyCss,/\.lvjs-footer \.lvjs-footer-plan/,'a selected Place must expose its Timeline action in the fixed sheet footer');
+assert.match(suggestionSheet,/data-lvjs-plan-selected/,'the fixed sheet footer must contain the contextual Timeline action');
 assert.match(journeyCss,/\.lvjt-entry-links/,'planned Timeline entries must expose compact contextual actions');
 assert.match(journeyCss,/--lvjt-entry-accent/,'Timeline cards must retain the selected Compass-spectrum category accent');
 assert.match(journeyComposer,/data-journey-entry-delete/,'Places-owned Timeline entries must offer an explicit remove action');

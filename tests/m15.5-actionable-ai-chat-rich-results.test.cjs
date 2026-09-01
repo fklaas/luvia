@@ -18,6 +18,9 @@ for(const needle of [
   'data-ai-owner-action=',
   'ownerActions=new Map()',
   'actionRuntime().prepare(offer.actionId,offer.payload,{userGesture:true,surface})',
+  'const referencedPlan=(compiled,request)=>',
+  'actionRuntime().prepare(reference.offer.actionId,reference.offer.payload,{userGesture:true,surface})',
+  'Erst mit deiner Bestätigung wird der Eintrag erstellt.',
   'ledgerId:prepared.ledgerId,userGesture:true',
   'actionRuntime().prepareUndo(ledgerId',
   'data-ai-action-undo=',
@@ -38,6 +41,10 @@ assert.ok(/receipt\.evidence\?\.status==='failed'/.test(source),'owner receipt f
 assert.ok(/safeImage\(item\.image\?\.url\)/.test(source),'provider image URL must pass the bounded media guard');
 assert.ok(/role="log" aria-live="polite"/.test(source),'conversation log semantics must remain active');
 assert.ok(/class="lvx-command-receipt[^`]*role="status"/.test(source),'receipts must announce status');
+assert.match(source,/const displayDate=value=>/,'chat must own one visible DD.MM.YYYY formatter');
+assert.match(source,/result\.meta\?\.planningDetailsIncluded\?renderJourneyResilience/,'journey diagnostics must not flood an ordinary day-plan answer');
+assert.match(source,/displayDate\(day\.date\)/,'day cards must render their date in user format');
+assert.match(source,/previewWhen=\[displayDate\(preview\.date\)/,'mutation previews must render dates in user format');
 
 console.log('M15.5 Actionable AI Chat Rich Results: PASS');
 console.log('Restaurant cards / Day Plan / Receipts: PASS');

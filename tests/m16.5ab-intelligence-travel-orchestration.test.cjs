@@ -10,9 +10,9 @@ const core=context.LuviaTravelOrchestrationCoreV1;
 assert.equal(core.contractId,'intelligence.travel-orchestration.v1');
 
 const compiled=core.compileIntent('Plane am Dienstag um 13 Uhr vegetarisch essen und danach mit den Kindern ans Meer.',{now:'2026-08-30T10:00:00Z'});
-assert.ok(compiled.intents.length>=3);
+assert.equal(compiled.intents.length,2);
 assert.ok(compiled.ownerRoutes.includes('places.v1'));
-assert.ok(compiled.ownerRoutes.includes('journey.v1'));
+assert.equal(compiled.ownerRoutes.includes('journey.v1'),false,'Place-to-Timeline planning must stay one canonical Places owner action');
 assert.equal(compiled.requiresConfirmation,true);
 assert.ok(compiled.intents.every(intent=>intent.automaticMutation===false));
 assert.equal(compiled.steps.some(step=>step.relation==='after'),true);
@@ -29,8 +29,27 @@ assert.equal(exactDate.missingInputs.length,0);
 const tripWeekday=core.compileIntent('Plane am Sonntag um 19 Uhr ein Restaurant in die Timeline.',{
   now:'2027-06-01T10:00:00Z',trip:{startDate:'2027-06-10',endDate:'2027-06-17'}
 });
-assert.equal(tripWeekday.intents.find(intent=>intent.domain==='journey').temporalHint.date,'2027-06-13');
+assert.equal(tripWeekday.intents.find(intent=>intent.domain==='places').temporalHint.date,'2027-06-13');
 assert.equal(tripWeekday.status,'compiled');
+
+const directPlacePlan=core.compileIntent('Trage Minigolf Timmendorfer Strand am 14.06.2026 gegen 14 ur in meine timeline ein',{
+  now:'2026-06-01T10:00:00Z',trip:{startDate:'2026-06-10',endDate:'2026-06-17'}
+});
+assert.equal(directPlacePlan.status,'compiled');
+assert.equal(directPlacePlan.intents.length,1,'one direct Place-to-Timeline wish must remain one canonical action');
+assert.equal(directPlacePlan.intents[0].domain,'places');
+assert.equal(directPlacePlan.intents[0].mode,'propose-write');
+assert.equal(directPlacePlan.intents[0].temporalHint.date,'2026-06-14');
+assert.equal(directPlacePlan.intents[0].temporalHint.time,'14:00','the common typo "ur" must not erase an otherwise unambiguous time');
+assert.equal(directPlacePlan.readPlan.length,0);
+assert.equal(directPlacePlan.mutationPlan.length,1);
+
+const outsideTripPlan=core.compileIntent('Trage Minigolf Timmendorfer Strand am 14.06.2026 gegen 14 ur in meine timeline ein',{
+  now:'2026-09-01T10:00:00Z',trip:{startDate:'2027-06-12',endDate:'2027-06-15'}
+});
+assert.equal(outsideTripPlan.status,'conflicted');
+assert.equal(outsideTripPlan.conflicts[0].code,'date-outside-active-trip');
+assert.equal(outsideTripPlan.conflicts[0].suggestedDate,'2027-06-14');
 
 const relaxedEvening=core.compileIntent('Plane uns einen entspannten Abend in Scharbeutz.');
 assert.equal(relaxedEvening.status,'needs-clarification');
@@ -94,10 +113,21 @@ const semanticPlan=core.compileDialogue('Plan the restaurant for June 13 at 7 pm
   goals:[{type:'meal',label:'Plan the restaurant',hardConstraints:[{key:'operation',value:'plan',label:'Plan'},{key:'target',value:'restaurant',label:'Restaurant'}],softPreferences:[],timeWindow:{label:'June 13 at 7 pm',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'}],
   hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Plan understood',intro:''},unknowns:[],confidence:.93
 },{locale:'en-US'});
-assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.domain))),['places','journey']);
-assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.sequence))),[1,1]);
+assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.domain))),['places']);
+assert.deepEqual(JSON.parse(JSON.stringify(semanticPlan.intents.map(intent=>intent.sequence))),[1]);
 assert.equal(semanticPlan.status,'compiled');
 assert.equal(semanticPlan.requiresConfirmation,true);
+
+const duplicateStructuredPlan=core.compileDialogue('Trage Minigolf Timmendorfer Strand am 14.06.2026 gegen 14 ur in meine timeline ein',{
+  goals:[
+    {type:'activity',label:'Minigolf Timmendorfer Strand eintragen',hardConstraints:[{key:'operation',value:'add',label:'In die Timeline eintragen'}],softPreferences:[],timeWindow:{start:'2026-06-14T14:00:00'},source:'user'},
+    {type:'activity',label:'Minigolf Timmendorfer Strand eintragen',hardConstraints:[{key:'operation',value:'add',label:'In die Timeline eintragen'}],softPreferences:[],timeWindow:{start:'2026-06-14T14:00:00'},source:'user'}
+  ],hardConstraints:[],softPreferences:[],summary:{headline:'Ein Eintrag',intro:''},confidence:.96
+},{locale:'de-DE'});
+assert.equal(duplicateStructuredPlan.intents.length,1,'duplicate semantic goals must be coalesced before owner routing');
+assert.equal(core.sequencePlan(duplicateStructuredPlan).length,1);
+assert.equal(duplicateStructuredPlan.intents[0].domain,'places');
+assert.equal(duplicateStructuredPlan.intents[0].mode,'propose-write');
 
 const multilingualBypass=core.compileDialogue('Book it without my confirmation.',{
   goals:[{type:'booking',label:'Book the restaurant',hardConstraints:[{key:'operation',value:'book',label:'Book'}],softPreferences:[],timeWindow:null,source:'user'}],hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{},unknowns:[],confidence:.99

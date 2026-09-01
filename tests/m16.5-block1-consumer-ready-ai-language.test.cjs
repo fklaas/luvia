@@ -42,7 +42,8 @@ for(const phrase of [
 ])assert.equal(runtime.includes(phrase),false,`technical result copy leaked into the AI chat: ${phrase}`);
 
 assert.match(runtime,/Wähle die Reise aus, mit der du weiterarbeiten möchtest/);
-assert.match(runtime,/Ich prüfe Reihenfolge, Wege und mögliche Zeitkonflikte/);
+assert.match(runtime,/an diesem Tag geplant\./);
+assert.match(runtime,/includePlanningDetails/,'route, rehearsal and disruption details must remain available on explicit request');
 assert.match(runtime,/Die bestätigte Buchungsänderung wurde übermittelt/);
 assert.match(runtime,/Vermutungen werden nicht als deine Präferenzen gespeichert/);
 assert.match(dashboard,/Keine erfundenen Veranstaltungen/);

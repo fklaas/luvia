@@ -40,7 +40,7 @@ const uniquePlaces=items=>{
 const restaurantEvidence=place=>{const values=[place?.primaryTypeLabel,place?.primary_type_label,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(value=>clean(value).toLowerCase()).filter(Boolean);return values.some(value=>/(?:^|[_\s-])restaurant(?:$|[_\s-])|ristorante|restaurante|restaurang|restauracja|restoran|restaurace|restauracja|ресторан|مطعم|餐厅|餐館|レストラン/.test(value))};
 function diverseOrder(items,queries=[],enabled=true){
   if(!enabled||items.length<3||queries.length<2)return items;
-  const remaining=[...items],ordered=[],queryOrder=[...new Set(queries.map(clean).filter(Boolean))];
+  const leader=items[0],remaining=items.slice(1),ordered=[leader],queryOrder=[...new Set(queries.map(clean).filter(Boolean))];
   while(remaining.length){
     let added=false;
     for(const query of queryOrder){

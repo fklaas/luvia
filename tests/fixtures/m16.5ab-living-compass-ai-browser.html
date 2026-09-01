@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.132-ai">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.132-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.132-ai2">
-  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.132-ai">
-  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.132-ai">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.133-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.133-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.133-ai2">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.133-ai">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.133-ai">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
@@ -30,6 +30,7 @@
   </main>
   <script>
     window.__ownerCalls=[];
+    window.__fixtureJourneyEntries=[];
     window.__fixturePlaces={
       food:[
         {id:'places/fixture-restaurant',providerPlaceId:'fixture-restaurant',name:'Dünenküche',address:'Strandallee 1, Scharbeutz',primaryType:'restaurant',providerNativeTypes:['restaurant'],waterfrontEvidence:true,rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
@@ -93,12 +94,12 @@
         favorite:async payload=>(window.__ownerCalls.push(['favorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
         unfavorite:async payload=>(window.__ownerCalls.push(['unfavorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
         importPlace:async(providerPlaceId,options)=>(window.__ownerCalls.push(['importPlace',providerPlaceId,options]),{id:'fixture-place',placeId:'fixture-place',tripPlaceId:'fixture-trip-place',providerPlaceId}),
-        plan:async payload=>(window.__ownerCalls.push(['plan',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
-        unplan:async payload=>(window.__ownerCalls.push(['unplan',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        plan:async payload=>{window.__ownerCalls.push(['plan',payload]);const startAt=payload.date&&payload.time?`${payload.date}T${payload.time}:00`:payload.fields?.planned_at;window.__fixtureJourneyEntries=window.__fixtureJourneyEntries.filter(entry=>entry.tripPlaceId!=='fixture-trip-place').concat({id:'fixture-trip-place',tripPlaceId:'fixture-trip-place',title:payload.name||payload.fields?.place_name||'Geplanter Ort',startAt,endAt:startAt,provenance:{owner:'places'}});return{ok:true,tripPlaceId:'fixture-trip-place'}},
+        unplan:async payload=>(window.__ownerCalls.push(['unplan',payload]),window.__fixtureJourneyEntries=window.__fixtureJourneyEntries.filter(entry=>entry.tripPlaceId!==(payload.tripPlaceId||'fixture-trip-place')),{ok:true,tripPlaceId:payload.tripPlaceId||'fixture-trip-place'}),
         updateLifecycle:async(tripPlaceId,status,patch,options)=>(window.__ownerCalls.push(['updateLifecycle',tripPlaceId,status,patch,options]),{ok:true,tripPlaceId,status})
       }
     };
-    window.LuviaJourneyContractV1={reads:{snapshot:()=>({days:[{date:'2027-06-13',label:'Sonntag',entries:[{id:'fixture-breakfast',title:'Frühstück',startAt:'2027-06-13T09:00:00Z',endAt:'2027-06-13T10:00:00Z',provenance:{owner:'booking'}},{id:'fixture-museum',title:'Museum',startAt:'2027-06-13T10:12:00Z',endAt:'2027-06-13T12:00:00Z',transferMinutes:24,routeConfidence:.55,routeEvidence:[],provenance:{owner:'places'}}]}],disruptions:[{verified:true,entryIds:['fixture-museum'],reason:'Kontrollierte Fixture-Quelle meldet einen späteren Einlass',observedAt:'2027-06-13T08:55:00Z'}],summary:{entryCount:2}}),routeUncertainty:input=>window.LuviaJourneyResilienceCoreV1.routeUncertainty(input),rehearseDay:input=>window.LuviaJourneyResilienceCoreV1.rehearseDay(input),disruptionRecovery:input=>window.LuviaJourneyResilienceCoreV1.disruptionRecovery(input),destinationTwin:input=>window.LuviaJourneyResilienceCoreV1.destinationTwin(input)},commands:{openPlanningEditor:async()=>({opened:true})}};
+    window.LuviaJourneyContractV1={reads:{snapshot:()=>{const days=[{date:'2027-06-13',label:'Sonntag',entries:[{id:'fixture-breakfast',title:'Frühstück',startAt:'2027-06-13T09:00:00Z',endAt:'2027-06-13T10:00:00Z',provenance:{owner:'booking'}},{id:'fixture-museum',title:'Museum',startAt:'2027-06-13T10:12:00Z',endAt:'2027-06-13T12:00:00Z',transferMinutes:24,routeConfidence:.55,routeEvidence:[],provenance:{owner:'places'}}]}];for(const entry of window.__fixtureJourneyEntries){const date=String(entry.startAt||'').slice(0,10);let day=days.find(item=>item.date===date);if(!day){day={date,label:new Intl.DateTimeFormat('de-DE',{weekday:'long',timeZone:'Europe/Berlin'}).format(new Date(`${date}T12:00:00Z`)),entries:[]};days.push(day)}day.entries.push(entry)}days.sort((left,right)=>left.date.localeCompare(right.date));return{days,disruptions:[{verified:true,entryIds:['fixture-museum'],reason:'Kontrollierte Fixture-Quelle meldet einen späteren Einlass',observedAt:'2027-06-13T08:55:00Z'}],summary:{entryCount:days.reduce((sum,day)=>sum+day.entries.length,0)}}},routeUncertainty:input=>window.LuviaJourneyResilienceCoreV1.routeUncertainty(input),rehearseDay:input=>window.LuviaJourneyResilienceCoreV1.rehearseDay(input),disruptionRecovery:input=>window.LuviaJourneyResilienceCoreV1.disruptionRecovery(input),destinationTwin:input=>window.LuviaJourneyResilienceCoreV1.destinationTwin(input)},commands:{openPlanningEditor:async()=>({opened:true})}};
     window.LuviaBookingContractV1={reads:{listForTrip:async()=>[]},commands:{openPlaceBooking:async()=>({opened:true}),createForPlace:async()=>({ok:true}),modifyBooking:async()=>({ok:true}),cancelBooking:async()=>({ok:true})}};
     window.LuviaMemoryContractV1={reads:{listStories:async()=>[]},commands:{stories:{save:async()=>({ok:true})}}};
     window.LuviaIdentityContractV1={getPreferences:()=>({dietaryPreferences:['vegetarian'],travelPace:'relaxed'}),commands:{updatePreferences:async payload=>(window.__ownerCalls.push(['updatePreferences',payload]),{ok:true})}};
@@ -139,22 +140,22 @@
       }
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.132-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.132-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.132-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.132-ai"></script>
-  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.132-ai"></script>
-  <script src="core/places/places-domain-contract-core.js?v=13.82.132-ai"></script>
-  <script src="core/places/global-place-contracts.js?v=13.82.132-ai"></script>
-  <script src="app/places/places-spatial-composition-core.js?v=13.82.132-ai"></script>
-  <script src="app/places/places-spatial-experience.js?v=13.82.132-ai-event-map-state"></script>
-  <script src="core/journey/journey-resilience-core.js?v=13.82.132-ai"></script>
-  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.132-ai"></script>
-  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.132-ai"></script>
-  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.132-ai"></script>
-  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.132-ai-map"></script>
-  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.132-ai"></script>
-  <script src="core/ai/ai-action-runtime.js?v=13.82.132-ai-product-language"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.132-ai-product-language"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.133-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.133-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.133-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.133-ai"></script>
+  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.133-ai"></script>
+  <script src="core/places/places-domain-contract-core.js?v=13.82.133-ai"></script>
+  <script src="core/places/global-place-contracts.js?v=13.82.133-ai"></script>
+  <script src="app/places/places-spatial-composition-core.js?v=13.82.133-ai"></script>
+  <script src="app/places/places-spatial-experience.js?v=13.82.133-ai-event-map-state"></script>
+  <script src="core/journey/journey-resilience-core.js?v=13.82.133-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.133-ai"></script>
+  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.133-ai"></script>
+  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.133-ai"></script>
+  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.133-ai-map"></script>
+  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.133-ai"></script>
+  <script src="core/ai/ai-action-runtime.js?v=13.82.133-ai-product-language"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.133-ai-product-language"></script>
 </body>
 </html>

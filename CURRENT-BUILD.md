@@ -20,24 +20,32 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.132**
-- Core: **4.82.132**
-- Name: **M16.5 Provider Query and Exact-Type Ranking Recovery**
+- App: **13.82.133**
+- Core: **4.82.133**
+- Name: **M16.5 Canonical AI Owner Commands and Compact Day Readback**
 - Channel: **integration-preview**
 - Datum: **2026-09-01**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Provider Query and Exact-Type Ranking Recovery — Integration Candidate 13.82.132
+## M16.5 Canonical AI Owner Commands and Compact Day Readback — Integration Candidate 13.82.133
 
-- Runtime target: **App 13.82.132 / Core 4.82.132 / cache `luvia-shell-v13.82.132` / Integration only**.
+- Runtime target: **App 13.82.133 / Core 4.82.133 / cache `luvia-shell-v13.82.133` / Integration only**.
 - Reproduced public cause: **the existing Google provider is configured but its daily `SearchTextRequest` quota is exhausted. The same bounded public diagnostic proved that the existing Foursquare provider is reachable and returns source-backed Minigolf places, provider-native Mini Golf Course categories, coordinates and exact Place photos**.
 - Provider query repair: **when Trip has already supplied a canonical destination, the existing `luvia-gateway` removes duplicate destination tokens before calling Foursquare. The chat request `Minigolf in Scharbeutz` no longer becomes the relevance-diluting provider query `Minigolf in Scharbeutz Scharbeutz`; it becomes the subject-only query `Minigolf` around the owner-supplied Scharbeutz anchor**.
 - Exact-type contract: **a name-only occurrence of “Minigolf” can no longer override contradictory provider categories. A restaurant named `Imbiss da Gino Pizzeria Minigolf` is rejected, while provider-native `Mini Golf Course` evidence remains accepted**.
 - Destination-first ranking: **among otherwise eligible candidates, source-backed distance to the Trip-owned destination now contributes a bounded deterministic score. The real near-Scharbeutz course is therefore not displaced solely by farther Timmendorfer results**.
+- Best-result invariant: **query-variant diversity may fan out positions two and later, but it may never displace the highest-scoring eligible owner result. This keeps result breadth without letting the order of provider-query variants override relevance, exact type, preferences or destination distance**.
+- Canonical owner command: **a referential request such as `Trage Ostsee Minigolf am 14.06.2027 gegen 14 ur in meine Timeline ein` resolves the already displayed, owner-backed Place once, survives the spelling error, produces one Places-owned mutation preview and no longer duplicates the same wish as a second Journey command or an unrelated new search**.
+- Real mutation protocol: **the direct chat command now exercises the existing public `places.place.plan` owner path as Preview → explicit confirmation → Receipt → Journey readback → separately confirmed Undo → empty Journey readback. Intelligence keeps orchestration and explanation authority only; Places/Journey remain the fact and mutation owners**.
+- Date and day-plan projection: **all visible Chat dates use `TT.MM.JJJJ`. A normal request for one date renders only that day, its moment count, time, title and concise conflict count. Route Uncertainty, Day Rehearsal, Disruption Recovery and Destination Twin are computed only when explicitly requested and remain inside one optional collapsed `Planungsdetails` section in the same Chat**.
+- Trip-boundary safety: **a requested mutation date outside the active Trip is blocked as a visible conflict and may suggest the same day/month inside the active Trip; Luvia does not silently rewrite or execute it**.
 - Media truth: **exact provider media remains photo-first. If neither provider search nor the existing bounded owner-detail hydration supplies a trustworthy photo, the consumer renders the compact map-first card; fixture and Landing imagery are never substituted for a Place photo**.
 - Edge evidence: **the authorized existing `luvia-gateway` is ACTIVE as v120, function id `ae8f0801-2325-4125-b1a9-4c57f81770ce`, bundle SHA-256 `2b33580693d4f1363eb38835f9e27f4d659e405d92883056c6be6d28e8319590`. Health reports Places gateway 4.30.0 / gateway 4.63.0 and bounded named probes only. No second owner or public arbitrary query proxy was added**.
-- Acceptance state: **full Safe Regression 147/147 PASS and NFR foundation 3/3 PASS, including exact-type, provider-query normalization, current Foursquare response/media mapping and destination-distance ranking. Immutable Worker deployment, Stable/Immutable byte provenance and visible public pointer/keyboard acceptance are still required before `.132` may be accepted**.
+- Rejected public `.132` evidence: **runtime commit `45478d098bdef014492203517142569d62b419fa`, version `284b9c62-e4b4-4ad7-b6ad-20d371fdfc0e`, deployment `c9f2869b-19fb-40ee-8e1b-b59c03e2dff3`, Stable/Immutable parity 20/20. A real public pointer/keyboard run returned three source-backed Foursquare Mini Golf Course results with exact photos and excluded the name-only Pizzeria counterexample, but placed the 358 m Scharbeutz result third because query-variant diversity ran after deterministic scoring. `.132` is therefore public counterevidence, not an accepted release or rollback target**.
+- Local acceptance evidence: **Safe Regression 147/147 PASS, including NFR-0 3/3, fresh visual inventory, owner-boundary gates and S16.01/S16.03/S16.04. A real local pointer/keyboard run proved exact Minigolf search, the typo-tolerant direct command, one compact `14.06.2027 · 14:00 Uhr` preview, explicit confirmation, successful receipt, one-day readback, confirmed Undo, empty readback and explicitly requested collapsed Planungsdetails. No DOM click shortcut was used**.
+- Remaining acceptance gate: **clean source commit, immutable Worker upload/deployment, Stable/Immutable byte provenance, real public provider search, public mutation/readback/Undo, console check and Desktop/Mobile/Keyboard/Reload/Back/Reduced-Motion evidence remain required before `.133` may be accepted**.
+- Planned rollback: **return Integration 100% to the last accepted Owner-first USP release `.126`, version `df05650e-7776-4282-ac27-78efea65792c`; rejected `.128`–`.132` are deliberately not rollback targets. Code/assets only; no data rollback. The authorized v120 `luvia-gateway` remains unchanged by this App rollback**.
 - Scope lock: **Main, Production, Secrets and DB/RLS unchanged**.
 
 ## M16.5 Specific Subject Evidence Gate — Integration Candidate 13.82.131

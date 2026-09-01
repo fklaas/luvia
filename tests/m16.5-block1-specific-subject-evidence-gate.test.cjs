@@ -92,6 +92,21 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
   const distanceRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf direkt in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:2,queryVariantLimit:1,fastPath:true});
   assert.deepEqual(Array.from(distanceRanked.places,place=>place.providerPlaceId),['near','far'],'owner distance must outrank a farther otherwise-equivalent candidate');
 
+  let breadthCall=0;
+  sandbox.LuviaPlaceEntities={searchPlaces:async options=>{
+    breadthCall++;
+    const candidates=breadthCall===1
+      ?[
+        {...miniatureGolf,id:'far-first-query',providerPlaceId:'far-first-query',name:'Minigolf Timmendorfer Strand',distanceMeters:3900},
+        {...miniatureGolf,id:'far-first-query-b',providerPlaceId:'far-first-query-b',name:'Strandgolfer',distanceMeters:3800}
+      ]
+      :[{...miniatureGolf,id:'near-second-query',providerPlaceId:'near-second-query',name:'Mini Golf',distanceMeters:358}];
+    return{data:{places:candidates,providers:{requested:['foursquare'],used:['foursquare'],errors:[]}}};
+  }};
+  const diverseRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Minigolf in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:3,fastPath:true,fastQueryLimit:3});
+  assert.equal(breadthCall,2,'the breadth scenario must exercise independent provider-query variants');
+  assert.equal(diverseRanked.places[0].providerPlaceId,'near-second-query','query diversity may fan out the remaining cards but must never displace the best ranked result');
+
   assert.match(actionSource,/Die Quelle belegt den passenden Geschäftstyp, aber keinen aktuellen Warenbestand/);
   assert.match(actionSource,/inventoryVerificationRequired:requiresInventoryVerification/);
   assert.doesNotMatch(actionSource,/Luftmatratzen oder der gewünschte Artikel/,'consumer truth copy must be generic rather than another item-specific patch');

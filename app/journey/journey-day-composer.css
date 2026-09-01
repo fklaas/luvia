@@ -178,4 +178,6 @@
 .lvjt-transfer-trace.is-unresolved{border-color:#e2c880;background:linear-gradient(100deg,rgba(255,249,228,.96),rgba(255,255,255,.92));color:#705b22}
 @media(max-width:560px){.lvjt-entry-card{grid-template-columns:92px minmax(0,1fr);gap:10px;padding:10px}.lvjt-entry-card img{height:112px;border-radius:16px}.lvjt-entry-card h3{font-size:1.35rem}.lvjt-entry-links{grid-column:1/-1}.lvjt-transfer-trace{grid-column:3;grid-template-columns:25px minmax(0,1fr);padding:7px 8px}.lvjt-transfer-trace>i{width:25px;height:25px}.lvjt-transfer-trace>span{gap:4px}.lvjt-transfer-trace b,.lvjt-transfer-trace small{flex-basis:100%}}
 .lvjs-footer [data-lvjs-spectrum]{border-color:color-mix(in srgb,#2d9b93 28%,rgba(17,47,68,.12));background:linear-gradient(135deg,#fff,#eef9f7);color:#1f716c}
+.lvjs-footer .lvjs-footer-plan{min-width:min(360px,55vw);border-color:transparent;background:linear-gradient(135deg,#2d9b93,#4da9ad);color:#fff;box-shadow:0 10px 26px rgba(45,155,147,.22);font-size:12px}
 @media(max-width:720px){.lvjs-footer [data-lvjs-ai-state]{display:none}.lvjs-footer [data-lvjs-spectrum]{width:100%;min-height:34px}}
+@media(max-width:720px){.lvjs-footer .lvjs-footer-plan{width:100%;min-width:0;min-height:46px}.lvjs-footer:has(.lvjs-footer-plan:not([hidden])) [data-lvjs-spectrum]{display:none}}
