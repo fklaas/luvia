@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 928,
+  "markerCount": 929,
   "markers": [
     {
       "marker": "data-accent",
@@ -6308,6 +6308,15 @@
     },
     {
       "marker": "data-places-plan",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-places-preview-open",
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
       "sources": [

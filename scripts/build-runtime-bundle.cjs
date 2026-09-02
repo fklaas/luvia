@@ -7,10 +7,10 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 const manifestPath = path.join(root, 'app', 'luvia-runtime.bundle.manifest.json');
-const legacyBundleRelativePath = 'app/luvia-runtime-13.82.161.bundle.js';
-const preContextBundleRelativePath = 'app/luvia-runtime-precontext-13.82.161.bundle.js';
-const postContextBundleRelativePath = 'app/luvia-runtime-postcontext-13.82.161.bundle.js';
-const bundleMarker = 'data-luvia-runtime-bundle="13.82.161"';
+const legacyBundleRelativePath = 'app/luvia-runtime-13.82.163.bundle.js';
+const preContextBundleRelativePath = 'app/luvia-runtime-precontext-13.82.163.bundle.js';
+const postContextBundleRelativePath = 'app/luvia-runtime-postcontext-13.82.163.bundle.js';
+const bundleMarker = 'data-luvia-runtime-bundle="13.82.163"';
 
 const withoutQuery = value => String(value || '').replace(/\?.*$/, '');
 const isBundledSource = source => {
@@ -68,7 +68,7 @@ if (!indexSource.includes(bundleMarker)) {
     return sourceMatch && sourceSet.has(withoutQuery(sourceMatch[1])) ? '' : match;
   });
   const inertManifest = manifest.map(item => `    ${item.tag}`).join('\n');
-  const insertion = `  <template id="luviaRuntimeSourceManifest" hidden aria-hidden="true">\n${inertManifest}\n  </template>\n  <script type="module" src="app/luvia-runtime-loader.mjs?v=13.82.161-split9" ${bundleMarker}></script>\n`;
+  const insertion = `  <template id="luviaRuntimeSourceManifest" hidden aria-hidden="true">\n${inertManifest}\n  </template>\n  <script type="module" src="app/luvia-runtime-loader.mjs?v=13.82.163-split9" ${bundleMarker}></script>\n`;
   indexSource = indexSource.replace('</body>', `${insertion}</body>`);
   fs.writeFileSync(indexPath, indexSource, 'utf8');
 }

@@ -72,6 +72,12 @@ assert.equal(guidance.policy.pace,'ruhig');
 assert.equal(guidance.policy.routeBufferMinutes,15);
 assert.equal(guidance.policy.maximumSuggestions,3);
 
+const familyResolution=resolver.resolve({profilePreferences:{dietaryPreferences:['vegetarian'],familyPreferences:{needs:['traveling_with_children','baby']}},tripComposition:{}});
+assert.equal(familyResolution.hardConstraints.length,1,'travelling with children is ranking context and must not make every Place without a Google family flag unverifiable');
+assert.ok(Array.from(familyResolution.profileSignals).some(item=>item.label==='Familienzeit'),'baby and child context must still influence the personal order');
+const strollerResolution=resolver.resolve({profilePreferences:{familyPreferences:{needs:['stroller']}},tripComposition:{}});
+assert.equal(strollerResolution.hardConstraints.length,1,'an explicit stroller requirement remains a hard functional gate');
+
 const activeResolution=resolver.resolve({profilePreferences:profile,tripComposition:activeTrip,trip:{id:'trip-2'}});
 const activeRanked=resolver.rankPlaces({resolution:activeResolution,candidates});
 assert.equal(activeRanked.places[0].id,'bike-cafe','a different trip feeling should change order without changing Profile truth');

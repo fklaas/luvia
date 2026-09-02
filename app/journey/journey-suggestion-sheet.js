@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.22.0-explicit-provider-handoff';
+const VERSION='1.23.0-interactive-map-preview-sheet';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -721,7 +721,7 @@ function open(rawInput={}){
   const content=document.createElement('section');content.className='lvjs-sheet';content.dataset.journeySuggestionSheet='true';content.innerHTML=shellMarkup(input);
   let mounted=null;mounted=ui.mount({name:'journey.suggestions',kind:'sheet',content,className:'lvjs-overlay',closeOnEscape:false,closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Luvia Vorschläge für den Reisetag',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});mounted.overlay.addEventListener('keydown',event=>{if(event.key!=='Escape')return;event.preventDefault();event.stopPropagation();const bookingBack=mounted.overlay.querySelector('[data-booking-close][aria-label="Zurück zu den Vorschlägen"]');bookingBack?bookingBack.click():mounted.close('escape')},true);activeHandle=mounted;hydrate(mounted,input);return mounted.overlay;
 }
-async function openResults(rawInput={}){
+function openResults(rawInput={}){
   const input=currentInput({...rawInput,source:rawInput.source||'places-search',requestedCount:(rawInput.places||[]).length}),ui=globalThis.LuviaUI;
   if(!ui?.mount)throw new Error('Overlay Host v1 ist noch nicht bereit.');if(!Array.isArray(rawInput.places)||!rawInput.places.length)throw new Error('Es liegen keine belegten Places-Ergebnisse vor.');
   const routeCandidate=rawInput.places.find(place=>providerId(place)===rawInput.selectedId)||rawInput.places[0];
@@ -732,12 +732,12 @@ async function openResults(rawInput={}){
   activeHandle?.close?.('replace');const content=document.createElement('section');content.className='lvjs-sheet';content.dataset.journeySuggestionSheet='true';content.innerHTML=shellMarkup(input);let mounted=null;
   mounted=ui.mount({name:'places.search-results',kind:'sheet',content,className:'lvjs-overlay',closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Places Suchergebnisse',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted;
   const status=mounted.overlay.querySelector('[data-lvjs-status]');status.innerHTML='<span class="lvjs-loader" aria-hidden="true"></span><div><strong>Ergebnisse werden für alle Reisenden eingeordnet …</strong><small>Google- und Provider-Fakten bleiben die einzige Ortswahrheit.</small></div>';
-  try{
+  (async()=>{try{
     input.groupContext=await sharedPreferenceContext(input,{fast:true});
     const photoReady=await Promise.all(rawInput.places.map(place=>within(enrich(place),3200,place)));
     const firstChoices=await rankForTravelers(photoReady,input.groupContext,input,{useAI:false});
     const first={input,choices:firstChoices,ai:{ranking:false,fallback:true},count:firstChoices.length,loadedAt:Date.now(),phase:'provider-facts',warning:''};
-    paintResults(mounted,first,rawInput.selectedId||'');
+    if(!mounted.overlay?.isConnected)return;paintResults(mounted,first,rawInput.selectedId||'');
     Promise.all([sharedPreferenceContext(input),Promise.all(photoReady.map(enrich))]).then(async([groupContext,enriched])=>{
       if(!mounted.overlay?.isConnected)return;
       input.groupContext=groupContext;
@@ -745,8 +745,15 @@ async function openResults(rawInput={}){
       if(!mounted.overlay?.isConnected)return;
       patchEnrichedResults(mounted,first,{input,choices,ai:{ranking:choices.some(place=>place.travelerInsights?.some(item=>item.aiExplanation)),fallback:choices.every(place=>!place.travelerInsights?.some(item=>item.aiExplanation))},count:choices.length,loadedAt:Date.now(),phase:'ai-enriched',warning:''});
     }).catch(error=>console.warn('[LuviaPlacesResultEnrichment]',error));
-  }catch(error){status.className='lvjs-status is-error';status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Die Ergebnisse konnten nicht persönlich eingeordnet werden.</strong><small>${esc(error?.message||'Bitte versucht es erneut.')}</small></div>`}
+  }catch(error){if(!mounted.overlay?.isConnected)return;status.className='lvjs-status is-error';status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Die Ergebnisse konnten nicht persönlich eingeordnet werden.</strong><small>${esc(error?.message||'Bitte versucht es erneut.')}</small></div>`}})();
   return mounted.overlay;
+}
+function openResultsInteractive(rawInput={}){
+  const overlay=openResults(rawInput),handle=activeHandle;if(!overlay||!handle)return null;
+  let settled=false,progress=0;overlay.dataset.lvjsInteractive='true';overlay.style.setProperty('--lvjs-sheet-progress','0');
+  const update=value=>{if(settled||!overlay.isConnected)return;progress=Math.max(0,Math.min(1,Number(value)||0));overlay.style.setProperty('--lvjs-sheet-progress',String(progress))};
+  const settle=open=>{if(settled)return;settled=true;overlay.dataset.lvjsInteractiveSettling=open?'open':'closed';overlay.style.setProperty('--lvjs-sheet-progress',open?'1':'0');if(open){setTimeout(()=>{if(!overlay.isConnected)return;overlay.dataset.lvjsInteractive='settled';delete overlay.dataset.lvjsInteractiveSettling;overlay.style.removeProperty('--lvjs-sheet-progress')},340)}else setTimeout(()=>handle.close('gesture-cancel'),260)};
+  return Object.freeze({overlay,update,settle,cancel:()=>settle(false),get progress(){return progress}});
 }
 function diagnostics(){return Object.freeze({version:VERSION,owner:'consumer-orchestration',domainTruth:false,persistence:'ephemeral-cache-only',sources:['journey.v1','identity.v1','trip.v1','intelligence.v1','places.v1','booking.v1'],writeOwner:'places.v1',bookingOwner:'booking.v1',explicitConfirmation:true,cacheEntries:cache.size})}
 
@@ -759,5 +766,5 @@ function bindProposalSync(){
 globalThis.addEventListener('luvia:journey-place-proposal-changed',event=>{const proposal=event.detail?.proposal;if(proposal?.status==='approved'&&proposal.application_status!=='applied')applyApprovedProposal(proposal).catch(error=>console.warn('[LuviaJourneyProposalApply]',error));if(globalThis.LuviaApp?.activeView?.()==='timeline'||globalThis.LuviaApp?.activeView==null)queueMicrotask(()=>globalThis.LuviaApp?.show?.('timeline',{force:true,animate:false,source:'journey-proposal-local-projection'}))});
 ['luvia:trip.changed','luvia:trip.active.changed','luvia:auth-ready'].forEach(name=>globalThis.addEventListener(name,()=>{bindProposalSync();reconcileApprovedProposals()}));
 globalThis.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{bindProposalSync();reconcileApprovedProposals()},400));
-globalThis.LuviaJourneySuggestions=Object.freeze({version:VERSION,load,open,openResults,diagnostics});
+globalThis.LuviaJourneySuggestions=Object.freeze({version:VERSION,load,open,openResults,openResultsInteractive,diagnostics});
 })();

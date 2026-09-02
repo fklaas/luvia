@@ -236,6 +236,10 @@ assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
 assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*border:2px solid transparent[^}]*conic-gradient\(from 0deg,#ef6254 0deg,#f4b34c 72deg,#2f8c73 154deg,#2c93a9 222deg,#756fa9 292deg,#a65f8f 328deg,#ef6254 360deg\) border-box/,'the selected-pin preview must carry the complete ordered Compass spectrum around its border');
+assert.match(css,/@keyframes lv-places-preview-cue-wave/,'the three preview chevrons need their own motion rather than inheriting only the preview float');
+assert.match(css,/nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper chevron must lead the staggered rise');
+assert.match(css,/nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle chevron must follow at a fixed delay');
+assert.match(css,/nth-child\(1\)\{top:9px;animation-delay:\.24s\}/,'the lower chevron must complete the staggered rise');
 assert.doesNotMatch(experience,/projectionState\(container,'loading','Kartenausschnitt/,'a viewport refresh must never return the mounted map to its initial loading state');
 assert.match(experience,/projectionRefreshState\(container,true,'Neue Pins werden im Hintergrund geladen/,'viewport loading must use the non-blocking refresh state');
 assert.match(experience,/projectionState\(container,'ready',updated\.markers\.length\?/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');
@@ -256,7 +260,16 @@ assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinat
 assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view,renderToken\)/,'only the latest render may mount a MapLibre instance into the current map host');
 assert.match(experience,/const current=\(\)=>alive&&container\.isConnected&&map/,'late MapLibre callbacks must be fenced to the live projection host');
 assert.match(experience,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'selecting a result card must move the map to the same owner coordinate');
-assert.match(experience,/openResultSheet\(\[findPlace\(marker\.providerPlaceId\)\]\.filter\(Boolean\),marker\.providerPlaceId\)/,'selecting a map marker must open the unified bottom sheet for that exact Place only');
+assert.doesNotMatch(experience,/button\.addEventListener\('click',[\s\S]{0,240}openResultSheet\(\[findPlace\(marker\.providerPlaceId\)/,'selecting a map marker must stop at the exact compact preview instead of opening a sheet');
+assert.match(experience,/data-places-preview-open/,'the selected pin must expose one explicit compact-preview entry into details');
+assert.match(experience,/data-places-preview-open value="\$\{esc\(providerId\(place\)\)\}"/,'the visible compact preview must carry the exact provider identity that the traveler sees');
+assert.match(experience,/gesturePlaceId=visiblePreviewId\(\)/,'the drag gesture must freeze the visible preview identity before viewport results can refresh');
+assert.match(experience,/openResultSheet\(filteredResults\(\),id\)/,'a preview click must open its own visible provider identity rather than a concurrently replaced selection');
+assert.match(experience,/function bindPreviewGesture\(\)/,'the compact preview must own its click and direct-manipulation gesture');
+assert.match(experience,/distance>=6[\s\S]{0,240}interactive:true/,'an intentional upward preview drag must create the real interactive result sheet');
+assert.match(experience,/progress>=\.2\|\|releaseVelocity>\.45/,'the sheet must settle from an explicit distance or upward-velocity threshold');
+assert.match(experience,/requiresVegetarianEvidence\(\)/,'a profile dietary requirement must constrain provider retrieval even without a manually selected filter');
+assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');
 assert.doesNotMatch(experience,/class="lv-places-spatial__results"/,'the productive Places map must not duplicate pins as a neighboring or following result list');
 assert.match(experience,/data-places-map-fallback/,'the map must retain an honest bright fallback surface while tiles are unavailable');
 assert.match(experience,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back navigation must restore the embedded Plan Compass');

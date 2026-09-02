@@ -43,6 +43,16 @@
 @media(max-width:720px){.lvjs-sheet{width:100%;height:min(86dvh,760px);border-radius:26px 26px 0 0}.lvjs-header{gap:12px;padding:17px 16px 10px}.lvjs-header h2{max-width:15ch;font-size:clamp(1.65rem,7vw,2.2rem)}.lvjs-header p{display:none}.lvjs-header>button{width:44px;height:44px}.lvjs-status{margin:0 16px 10px;padding:11px 13px}.lvjs-results{grid-auto-columns:84vw;gap:11px;padding:0 16px 10px}.lvjs-choice-main{min-height:220px}.lvjs-choice-copy{padding:13px 15px 15px}.lvjs-confirm{grid-template-columns:1fr 1fr;margin:0 16px;padding:11px}.lvjs-confirm>div{grid-column:1/-1}.lvjs-confirm>button{grid-column:1/-1}.lvjs-footer{min-height:38px;padding:3px 16px max(5px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){.lvjs-loader{animation:none}.lvjs-choice-main,.lvjs-choice-check{transition:none}.lvjs-choice-main:hover{transform:none}}
 
+/* A selected map preview may hand the real owner-backed sheet to the user's
+   finger. The mounted content is complete from the first pixel; only its
+   presentation progress is interactive, and cancelling performs no write. */
+.lvjs-overlay[data-lvjs-interactive="true"],.lvjs-overlay[data-lvjs-interactive-settling]{--lvjs-sheet-progress:0;background:rgba(10,31,45,calc(.3 * var(--lvjs-sheet-progress)));backdrop-filter:blur(calc(12px * var(--lvjs-sheet-progress)));transition:background .28s ease,backdrop-filter .28s ease}
+.lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet,.lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{animation:none!important;transform:translate3d(0,calc((1 - var(--lvjs-sheet-progress)) * 100%),0);will-change:transform}
+.lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet{transition:none}
+.lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{transition:transform .32s cubic-bezier(.16,1,.3,1)}
+.lvjs-overlay[data-lvjs-interactive="settled"]>.lvjs-sheet{animation:none!important;transform:none}
+@media(prefers-reduced-motion:reduce){.lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet,.lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{transition:none}}
+
 /* M16.5AB: one bottom-sheet journey, with the Compass ring spectrum as category truth.
    The shared UI host owns the sheet movement so every app sheet enters identically. */
 .lvjs-choice{--lvjs-category:#2d9b93;--lvjs-category-soft:color-mix(in srgb,var(--lvjs-category) 9%,#fff)}

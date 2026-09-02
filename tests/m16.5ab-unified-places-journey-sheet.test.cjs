@@ -49,13 +49,15 @@ assert.doesNotMatch(places,/saveCached\(\);\s*await loadSaved\(\);\s*render\(\)/
 assert.ok(places.indexOf('render();')<places.indexOf('loadSaved(lifecycleToken).then'),'cached Places must paint before lifecycle hydration during mount');
 assert.match(places,/Promise\.allSettled\(enrichmentTasks\)/,'card images and bounded deep enrichment must continue behind the visible first result set');
 assert.match(places,/if\(enriched\.length\)\{state\.results=enriched;state\.status='ready';state\.error=null/,'deep provider results must replace an earlier empty state instead of leaving contradictory empty copy above real cards');
-assert.match(places,/openResultSheet\(\[findPlace\(marker\.providerPlaceId\)\]\.filter\(Boolean\),marker\.providerPlaceId\)/,'the exact map pin must open only its own shared result sheet');
-assert.match(places,/return opener\(\{places:\[selected\],selectedId:providerId\(selected\)/,'one Place pin must never expand the complete result collection inside the sheet');
+assert.match(places,/const place=findPlace\(marker\.providerPlaceId\);select\(marker\.providerPlaceId,false,false\);rememberViewed\(place\);\s*\}\)/,'the exact map pin must only select and preview its own Place');
+assert.match(places,/return\{places:\[selected\],selectedId:providerId\(selected\)/,'one selected Place must never expand the complete result collection inside the sheet');
+assert.match(places,/openResultSheet\(filteredResults\(\),id\)/,'the compact selected-pin preview must open the shared result sheet only after an explicit second action using the provider identity attached to the visible preview');
+assert.match(sheet,/function openResultsInteractive\(rawInput=\{\}\)/,'the shared sheet must expose a direct-manipulation presentation for map preview swipes');
 assert.match(places,/onViewportSearch:descriptor=>viewportSearch/,'the primary Places map must discover the visible viewport after pan or zoom');
 assert.match(places,/decoratePreferences/,'personal preference evaluation must decorate the complete viewport instead of selecting its contents');
 assert.match(places,/place\?\.distanceReference==='device'/,'Places may only label or sort a distance as nearby when the current device is the explicit reference');
 assert.match(places,/vom aktuellen Standort/,'device GPS distances must name their reference in the visible card');
-assert.match(places,/LuviaJourneySuggestions\?\.openResults/);
+assert.match(places,/const api=globalThis\.LuviaJourneySuggestions,opener=interactive\?api\?\.openResultsInteractive:api\?\.openResults/);
 assert.match(places,/onSelectionChange:id=>select\(id,false,false\)/,'sheet swipes and selections must keep the selected marker synchronized without changing the locked map viewport');
 assert.match(places,/data-places-plan=/);
 assert.match(places,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct Place action must enter the same single-Place sheet as its map pin');
@@ -75,7 +77,7 @@ assert.match(read('app/journey/journey-day-composer.css'),/\.lvjs-choice-schedul
 assert.match(read('app/journey/journey-day-composer.css'),/overflow-y:hidden!important/,'the horizontal result rail may not create a detached vertical card scrollbar');
 assert.match(read('app/journey/journey-day-composer.css'),/grid-template-rows:auto auto minmax\(0,1fr\) auto/,'mobile sheet tracks must no longer reserve a global white confirmation bar');
 
-assert.match(sheet,/async function openResults\(/);
+assert.match(sheet,/function openResults\(/,'the result sheet must mount synchronously so direct manipulation can start before its asynchronous enrichment');
 assert.match(sheet,/sharedPreferenceContext\(input,\{fast:true\}\)/,'Places search results must paint from provider facts and the bounded local preference projection');
 assert.match(sheet,/const photoReady=await Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),3200,place\)\)\)/,'the exact selected Place must receive a bounded provider-photo attempt before first paint');
 assert.match(sheet,/rankForTravelers\(photoReady,input\.groupContext,input,\{useAI:false\}\)/,'AI explanation must not delay the first photo-ready Places result sheet');

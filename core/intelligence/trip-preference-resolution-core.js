@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.5.0';
+const VERSION='1.6.0';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
@@ -75,18 +75,21 @@ function hardConstraints(profile){
   const result=[];
   for(const value of profile.dietary)result.push({id:`dietary:${value}`,kind:'dietary',value,label:value.replaceAll('_',' '),source:'identity',required:true});
   for(const value of profile.accessibility)result.push({id:`accessibility:${value}`,kind:'accessibility',value,label:value.replaceAll('_',' '),source:'identity',required:true});
-  for(const value of profile.family.filter(value=>/baby|stroller|kinderwagen|child|children/.test(value)))result.push({id:`family:${value}`,kind:'family',value,label:value.replaceAll('_',' '),source:'identity',required:true});
+  // Travelling with a baby or children is context, not proof that every venue
+  // lacking a Google family flag must disappear. A concrete stroller need is a
+  // functional admission requirement and therefore remains fail-closed.
+  for(const value of profile.family.filter(value=>/stroller|kinderwagen/.test(value)))result.push({id:`family:${value}`,kind:'family',value,label:value.replaceAll('_',' '),source:'identity',required:true});
   return result;
 }
 function profileSignals(profile,weights){
   const output=[];
-  const all=[...profile.interests,...profile.styles,...profile.activities,...profile.entertainment,...profile.dining,...profile.atmosphere,...profile.mobility];
+  const all=[...profile.interests,...profile.styles,...profile.activities,...profile.entertainment,...profile.dining,...profile.atmosphere,...profile.mobility,...profile.family];
   const rules=[
     [/culture|kultur|histor(?:y|ic)|geschichte|authentic/,{culture:7,local:4},'Kultur und lokales Leben'],
     [/culinary|food|essen|cafe|café|restaurant|genuss/,{dining:8,market:3},'Kulinarische Vorlieben'],
     [/nature|natur|beach|strand/,{nature:8,outdoor:5},'Natur und Draußensein'],
     [/photo|foto/,{photography:8,scenic:4},'Fotografie'],
-    [/family|famil/,{family:9,together:4},'Familienzeit'],
+    [/family|famil|baby|child|children|kind|kinder/,{family:9,together:4},'Familienzeit'],
     [/wellness|relax|entspann/,{wellness:9,quiet:5},'Erholung'],
     [/night|nacht|live.music|festival/,{nightlife:8},'Abend und Musik'],
     [/adventure|abenteuer|active|aktiv|hiking|wandern|cycling|fahrrad|outdoor/,{active:8,outdoor:6},'Aktive Erlebnisse'],
@@ -165,6 +168,7 @@ function matchesTag(place,tag){
   if(tag==='outdoor'&&features.outdoorSeating===true)return true;
   if(tag==='nightlife'&&(features.liveMusic===true||features.servesCocktails===true))return true;
   if(tag==='accessible'&&(features.wheelchairAccessible===true||place.accessibilityOptions?.wheelchairAccessibleEntrance===true))return true;
+  if(tag==='family'&&(features.goodForChildren===true||features.childrenAllowed===true||features.strollerFriendly===true))return true;
   return Boolean(TAGS[tag]?.test(hay));
 }
 function clamp(value,min=0,max=1){return Math.max(min,Math.min(max,Number(value)||0))}

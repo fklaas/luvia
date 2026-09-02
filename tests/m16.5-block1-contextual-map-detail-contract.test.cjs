@@ -19,7 +19,7 @@ for(const token of ["themeparks:{key:'themeparks'","wellness:{key:'wellness'","w
 assert.match(places,/filter\(category=>category\.key!=='accommodation'&&category\.primaryType!=='accommodation'\)/,'Hotels must remain outside the Places consumer category rail');
 for(const token of ['vegetarian','reservable','accessible','priceLevels','subtype'])assert.ok(places.includes(token),`missing contextual Places filter: ${token}`);
 assert.match(places,/includedTypes:selectedTypes/,'multi-select type and cuisine filters must reach the provider owner request');
-assert.match(places,/vegetarianOnly:state\.filters\.vegetarian/,'provider-backed vegetarian filtering must reach both discovery and viewport owner requests');
+assert.equal((places.match(/vegetarianOnly:requiresVegetarianEvidence\(\)/g)||[]).length,2,'provider-backed vegetarian filtering must automatically reach discovery and viewport owner requests from either Profile or manual filters');
 assert.match(places,/maxViewportResults:MAX_RESULTS/,'Places must compose the bounded 80-result viewport contract rather than expose a 20-item UI shortlist');
 assert.match(places,/data-places-history-region/);
 assert.match(places,/state\.history=.*\.slice\(0,6\)/);
