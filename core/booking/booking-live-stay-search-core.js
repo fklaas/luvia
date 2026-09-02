@@ -1,8 +1,8 @@
 (function(root){
 'use strict';
 
-const VERSION='1.0.0-fail-closed-live-stay-search';
-const PROVIDERS=Object.freeze(['amadeus_hotels','hotelbeds']);
+const VERSION='1.1.0-duffel-requested-live-stay-search';
+const PROVIDERS=Object.freeze(['duffel_stays','hotelbeds','amadeus_hotels']);
 const clean=value=>String(value??'').trim();
 const validDate=value=>{const match=clean(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!match)return false;const date=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));return date.getUTCFullYear()===Number(match[1])&&date.getUTCMonth()===Number(match[2])-1&&date.getUTCDate()===Number(match[3])};
 const boundedInteger=(value,min,max,fallback)=>{const number=Number(value);return Number.isInteger(number)&&number>=min&&number<=max?number:fallback};
@@ -76,8 +76,8 @@ async function search(input={},transport){
 }
 
 function diagnostics(){
-  const fitOnly=buildResult({checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,rooms:1,currency:'EUR',cityCode:'BER',providers:['amadeus_hotels','hotelbeds']},[
-    {providerId:'amadeus_hotels',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]},
+  const fitOnly=buildResult({checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,rooms:1,currency:'EUR',cityCode:'BER',providers:['duffel_stays','hotelbeds']},[
+    {providerId:'duffel_stays',ok:false,expected:true,error:'APPLICATION_PENDING',offers:[]},
     {providerId:'hotelbeds',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]},
   ]);
   return immutable({version:VERSION,status:'ready',browserless:true,providers:PROVIDERS,failClosed:fitOnly.productMode==='fit_only'&&!fitOnly.claims.priceRankingAvailable});

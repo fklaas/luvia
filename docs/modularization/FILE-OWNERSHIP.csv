@@ -2554,6 +2554,7 @@ tests/m16.5q-living-compass-recovery-release.test.cjs,Platform/Experience Shared
 tests/m16.5q-pwa-cache-recovery-e2e.cjs,Platform/Experience Shared Tests,Test/E2E,Real Edge stale cache pruning active Service Worker cache and offline reload recovery evidence
 docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md,Platform/Consumer/Places/Experience,Documentation/Architecture,M16.5Q revoked acceptance evidence root causes public visible E2E deployment provenance open scope and rollback
 docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md,Consumer/Experience/Platform,Documentation/Architecture,Binding M16.5 vertical productization sequence status vocabulary Definition of Done release gates and Design Freeze lock
+docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md,All Core Owner Streams,Documentation/Execution,Binding Product Reset promise Golden Journey maturity ladder five ten-package blocks provider gates stop rules and user-value acceptance order
 docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv,Consumer/Experience/Domain Owners,Documentation/Architecture,Live M16.5 surface delivery evidence priority and acceptance ledger
 docs/modularization/M16.5-CORE-OWNER-MATRIX.csv,All Core Owner Streams,Documentation/Architecture,M16.5 productization ownership public-boundary and forbidden-shortcut ledger
 tests/m16.5-productization-plan.test.cjs,Consumer/Experience/Platform,Test/Guardrail,Static lock for the M16.5 vertical sequence surface statuses owner matrix and Main Production freeze
@@ -2642,8 +2643,13 @@ docs/rollback/M16.5-B1-CORE-4.82.136-UNIVERSAL-BOOKING-ROLLBACK.sql,Booking/Plat
 supabase/functions/booking-hotel-offer-search/index.ts,Booking,Domain/Edge Function,Authenticated Booking-owned live hotel offer orchestration with enabled-provider and contract gates
 supabase/functions/booking-provider-amadeus-hotels/index.ts,Booking,Provider Edge Adapter,Fail-closed Amadeus Hotels provider boundary requiring an enabled partner connection and approved live contract
 supabase/functions/booking-provider-hotelbeds/index.ts,Booking,Provider Edge Adapter,Fail-closed Hotelbeds provider boundary requiring an enabled partner connection and approved live contract
+supabase/functions/booking-provider-duffel-stays/index.ts,Booking,Provider Edge Adapter,Fail-closed Duffel Stays provider boundary requiring an active approved connection and exact property offer evidence
 supabase/migrations/20260901143000_core_v4_82_136_universal_admission_lodging_affiliate_foundation.sql,Booking/Platform,Database Migration,Additive universal admission lodging affiliate provider contract tables policies and readiness views
 supabase/migrations/20260902110000_core_v4_82_136_hotel_live_offer_gateway.sql,Booking/Platform,Database Migration,Additive live hotel offer request snapshot evidence contracts indexes policies and readiness view
+supabase/migrations/20260902124500_core_v4_82_148_duffel_stays_requested.sql,Booking/Platform,Database Migration,Additive Duffel Stays requested activation state without credentials or false readiness
+docs/rollback/M16.5-B1-CORE-4.82.148-DUFFEL-STAYS-REQUESTED-ROLLBACK.sql,Booking/Platform,Documentation/Rollback,Exact compensation for the Duffel Stays requested activation metadata
+app/luvia-runtime-postcontext-13.82.148.bundle.js,Platform Runtime,Generated Runtime,Immutable post-Trip-Context runtime bundle for the Product Reset map and hotel provider preparation candidate
+app/luvia-runtime-precontext-13.82.148.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle for the Product Reset map and hotel provider preparation candidate
 tests/fixtures/m16.5-block1-hotel-live-price-browser.html,Booking/Consumer Shared Tests,Test/Visible Fixture,Visible responsive live-price normalization and honest unavailable-provider acceptance surface
 tests/m16.5-block1-hotel-live-price-browser.test.cjs,Booking/Consumer Shared Tests,Test/Guardrail,Visible hotel live-price fixture semantics responsive controls and no-fabricated-best-claim gate
 tests/m16.5-block1-hotel-live-price-gateway.test.cjs,Booking/Platform Shared Tests,Test/Guardrail,Authenticated hotel gateway provider contract migration Edge configuration rollback and provider-order gate

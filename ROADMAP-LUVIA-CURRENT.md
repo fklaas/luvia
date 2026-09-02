@@ -1,9 +1,19 @@
 # Luvia Current Roadmap
 
-Date: 2026-08-28
+Date: 2026-09-02
 
 Source of truth: Git/runtime evidence first; the complete normative roadmap is
 the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
+
+## Product Reset execution order
+
+`docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md` is the binding
+product execution layer for the current M16.5 continuation. It preserves all
+five canonical 10-package blocks B1–B5 and P01–P50, while requiring a complete
+Golden Journey, honest capability maturity, user-value proof and stop gates
+before broader product surfaces become visible. The existing Fifty-Point Plan
+retains package wording and owner-first technical authority. Main and
+Production remain locked.
 
 ## Current verified product baseline
 

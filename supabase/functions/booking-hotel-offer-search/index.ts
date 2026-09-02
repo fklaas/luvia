@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
-const VERSION='1.0.0-two-provider-live-price-gateway';
-const PROVIDER_FUNCTIONS:Record<string,string>={amadeus_hotels:'booking-provider-amadeus-hotels',hotelbeds:'booking-provider-hotelbeds'};
+const VERSION='1.1.0-duffel-requested-live-price-gateway';
+const PROVIDER_FUNCTIONS:Record<string,string>={duffel_stays:'booking-provider-duffel-stays',hotelbeds:'booking-provider-hotelbeds',amadeus_hotels:'booking-provider-amadeus-hotels'};
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json'};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:cors});
 const clean=(value:unknown)=>String(value??'').trim();

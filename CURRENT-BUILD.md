@@ -20,13 +20,23 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.147**
-- Core: **4.82.147**
+- App: **13.82.148**
+- Core: **4.82.148**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Product Reset Map + Hotel Provider Preparation — Local Integration candidate 13.82.148
+
+- Candidate status: **EDGE READY / WORKER NOT YET DEPLOYED. Stable Integration continues to serve accepted App 13.82.147 / Core 4.82.147 until the immutable Worker deployment and operated public acceptance are evidenced**.
+- Product reset: **the binding execution order retains all five 10-package blocks B1–B5 / P01–P50, but gates later breadth behind truthful provider state, one map language and the Golden Journey. Main and Production remain locked**.
+- Map contract: **Places and Hotels are map-first. Productive results are represented by verified pins; selecting a pin opens the shared bright Journey Bottom Sheet. A parallel result list and the legacy full-page Place detail are not accepted productive routes**.
+- Hotel truth: **hotel discovery, live rate evidence and booking handoff remain separate capabilities. A price is shown only for the exact property, dates and occupancy returned by a connected source; Duffel Stays and Booking.com Demand remain application-pending and therefore cannot be presented as live**.
+- Provider preparation: **Google remains the primary Place source and Foursquare the bounded fallback. The additive provider-registry migration was applied individually through the linked Management API, avoiding the defective broad migration ledger, and proves Duffel Stays as `application_pending / APPLICATION_PENDING` without adding a credential, fabricating availability or changing shared secrets**.
+- Edge evidence: **`booking-provider-duffel-stays` v1, `booking-provider-connection-health` v7 and `booking-hotel-offer-search` v2 are ACTIVE with JWT verification retained. No unrelated Edge Function was deployed**.
+- Local release gate: **the complete controlled Safe Regression is 200/200 PASS; NFR0 is 3/3 PASS; versions, generated inventories, Human-AI parity, cross-core ownership and patch hygiene are green. This remains a candidate rather than a public PASS until an exact commit, immutable Integration Worker, byte proof and public-browser operation are evidenced**.
 
 ## M16.5 Places + Hotel Recovery — Integration live, provider gate open 13.82.147
 

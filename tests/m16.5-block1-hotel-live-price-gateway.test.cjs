@@ -12,13 +12,13 @@ const live=coreContext.LuviaBookingLiveStaySearchCore,stay=coreContext.LuviaBook
 assert.ok(live&&stay);
 for(const file of ['core/booking/booking-accommodation-core.js','core/booking/booking-stay-decision-core.js','core/booking/booking-live-stay-search-core.js'])assert.doesNotMatch(read(file),/\bwindow\b|\bglobalThis\b|\bfetch\s*\(/,`${file} must remain browserless`);
 
-const query={tripId:'trip-1',destination:'Berlin',cityCode:'BER',checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,childAges:[],rooms:1,currency:'EUR',providers:['amadeus_hotels','hotelbeds']};
+const query={tripId:'trip-1',destination:'Berlin',cityCode:'BER',checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,childAges:[],rooms:1,currency:'EUR',providers:['duffel_stays','hotelbeds']};
 assert.equal(live.validateQuery(query).valid,true);
 assert.equal(live.validateQuery({...query,checkOut:'2027-06-11'}).valid,false);
 assert.equal(live.validateQuery({...query,children:1,childAges:[]}).valid,false);
 
 const unavailable=live.buildResult(query,[
-  {providerId:'amadeus_hotels',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]},
+  {providerId:'duffel_stays',ok:false,expected:true,error:'APPLICATION_PENDING',offers:[]},
   {providerId:'hotelbeds',ok:false,expected:true,error:'PARTNER_REQUIRED',offers:[]},
 ]);
 assert.equal(unavailable.productMode,'fit_only');
@@ -27,7 +27,7 @@ assert.equal(unavailable.search.failed.length,2);
 
 const base={propertyName:'Seehotel Berlin',latitude:52.52,longitude:13.405,roomCode:'double',board:'breakfast',checkIn:query.checkIn,checkOut:query.checkOut,adults:2,children:0,rooms:1,currency:'EUR',totalIncludesMandatoryCharges:true,available:true,isLive:true,source:'provider_api',freshnessMinutes:0};
 const decision=live.buildResult(query,[
-  {providerId:'amadeus_hotels',ok:true,source:'provider_api',live:true,observedAt:'2026-09-02T08:00:00Z',offers:[{...base,offerId:'ama-1',totalPrice:310,refundable:false}]},
+  {providerId:'duffel_stays',ok:true,source:'provider_api',live:true,observedAt:'2026-09-02T08:00:00Z',offers:[{...base,offerId:'duf-1',totalPrice:310,refundable:false}]},
   {providerId:'hotelbeds',ok:true,source:'provider_api',live:true,observedAt:'2026-09-02T08:00:01Z',offers:[{...base,offerId:'hbx-1',totalPrice:295,refundable:true,freeCancellationUntil:'2027-06-10',prepaymentRequired:false}]},
 ]);
 assert.equal(decision.productMode,'cross_source_live_prices');
@@ -39,15 +39,18 @@ assert.equal(decision.recommendations.bestPersonalFit,null,'provider reliability
 assert.equal(decision.coverage.allMarketPriceGuarantee,false);
 assert.equal(decision.invariants.unconnectedProviderCannotContributeOffers,true);
 
-const affiliate=live.buildResult(query,[{providerId:'amadeus_hotels',ok:true,source:'affiliate_link',live:true,offers:[{...base,offerId:'fake',totalPrice:1}]}]);
+const affiliate=live.buildResult(query,[{providerId:'duffel_stays',ok:true,source:'affiliate_link',live:true,offers:[{...base,offerId:'fake',totalPrice:1}]}]);
 assert.equal(affiliate.claims.priceRankingAvailable,false);
 const unproven=stay.buildDecision([{...base,offerId:'unproven',isLive:false,source:'fixture',totalPrice:1}],query,{attempted:['fixture'],succeeded:['fixture']});
 assert.ok(unproven.excluded[0].reasons.includes('LIVE_PROVIDER_EVIDENCE_MISSING'));
 
 const gateway=read('supabase/functions/booking-hotel-offer-search/index.ts');
+const duffel=read('supabase/functions/booking-provider-duffel-stays/index.ts');
 const amadeus=read('supabase/functions/booking-provider-amadeus-hotels/index.ts');
 const hotelbeds=read('supabase/functions/booking-provider-hotelbeds/index.ts');
-for(const source of [gateway,amadeus,hotelbeds]){
+const hotelSurface=read('modules/accommodations/accommodation-module.js');
+const journeySheet=read('app/journey/journey-suggestion-sheet.js');
+for(const source of [gateway,duffel,amadeus,hotelbeds]){
   assert.match(source,/AUTH_REQUIRED/);
   assert.match(source,/partner|required|connected/i);
   assert.match(source,/offers:\[\]/);
@@ -56,20 +59,34 @@ assert.match(gateway,/booking_stay_offer_readiness_v1/);
 assert.match(gateway,/runtime_state==='ready'/);
 assert.match(gateway,/affiliateLinksNeverBecomeOffers:true/);
 assert.match(gateway,/exactCoordinatesStored:false/);
+assert.match(duffel,/DUFFEL_ACCESS_TOKEN/);
+assert.match(duffel,/\/stays\/search/);
+assert.match(duffel,/fetch_all_rates/);
+assert.match(duffel,/\/stays\/quotes/);
+assert.match(duffel,/BOOKING_OWNER_LEDGER_REQUIRED/);
+assert.match(duffel,/finalQuoteRequired:true/);
 assert.match(amadeus,/AMADEUS_CLIENT_ID/);assert.match(amadeus,/AMADEUS_CLIENT_SECRET/);assert.match(amadeus,/\/v3\/shopping\/hotel-offers/);
 assert.match(hotelbeds,/HOTELBEDS_API_KEY/);assert.match(hotelbeds,/HOTELBEDS_API_SECRET/);assert.match(hotelbeds,/hotel-api\/1\.0\/hotels/);
+assert.match(hotelSurface,/function hotelResults\(\)\{if\(state\.searchStatus==='ready'&&state\.results\.length\)return hotelMap\(\)/,'Hotels must stay map-only after live prices arrive');
+assert.match(hotelSurface,/stayDecision:state\.stayDecision/,'the pin sheet must receive the current price decision');
+assert.match(journeySheet,/function stayPriceMarkup\(place,input\)/,'the unified pin sheet must own exact-match live-price presentation');
+assert.match(journeySheet,/hotelIdentity\(hotel\?\.propertyName\)===name/,'a live rate may only attach to an exact normalized hotel identity');
 
 const migration=read('supabase/migrations/20260902110000_core_v4_82_136_hotel_live_offer_gateway.sql');
 const rollback=read('docs/rollback/M16.5-B1-CORE-4.82.136-HOTEL-LIVE-OFFER-GATEWAY-ROLLBACK.sql');
 for(const token of ['booking_stay_offer_searches','booking_stay_offer_snapshots','booking_stay_offer_readiness_v1','hotel-live-offer-v1']){assert.ok(migration.includes(token));assert.ok(rollback.includes(token));}
 assert.match(migration,/Affiliate-Links|affiliateLinkCannotSupplyPrice/i);
 assert.match(rollback,/removes the 4\.82\.136 live-offer gateway slice/i);
+const duffelMigration=read('supabase/migrations/20260902124500_core_v4_82_148_duffel_stays_requested.sql');
+const duffelRollback=read('docs/rollback/M16.5-B1-CORE-4.82.148-DUFFEL-STAYS-REQUESTED-ROLLBACK.sql');
+for(const token of ['duffel_stays','application_pending','DUFFEL_ACCESS_TOKEN'])assert.ok(duffelMigration.includes(token));
+assert.ok(duffelRollback.includes('duffel_stays'));
 const config=read('supabase/config.toml');
-for(const fn of ['booking-hotel-offer-search','booking-provider-amadeus-hotels','booking-provider-hotelbeds'])assert.match(config,new RegExp(`\\[functions\\.${fn}\\]\\r?\\nverify_jwt = true`));
+for(const fn of ['booking-hotel-offer-search','booking-provider-duffel-stays','booking-provider-amadeus-hotels','booking-provider-hotelbeds'])assert.match(config,new RegExp(`\\[functions\\.${fn}\\]\\r?\\nverify_jwt = true`));
 
 const master=read('docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
 const step17=read('docs/modularization/M16.5-STEP17-E2E-MATRIX.md');
-for(const provider of ['Amadeus','Hotelbeds','KAYAK','Expedia Rapid','Booking.com Demand'])assert.ok(master.includes(provider),`master plan must preserve provider order: ${provider}`);
+for(const provider of ['Duffel','Hotelbeds','KAYAK','Expedia Rapid','Booking.com Demand'])assert.ok(master.includes(provider),`master plan must preserve provider order: ${provider}`);
 assert.match(master,/never\s+claims\s+a\s+universal\s+best-market\s+price/i);
 assert.match(step17,/m16\.5-block1-hotel-live-price-browser\.html/);
 assert.match(step17,/d4efd8ac-969c-426c-b312-7ea686740ac1@100/);

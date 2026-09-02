@@ -57,3 +57,6 @@ verify_jwt = true
 
 [functions.booking-provider-hotelbeds]
 verify_jwt = true
+
+[functions.booking-provider-duffel-stays]
+verify_jwt = true

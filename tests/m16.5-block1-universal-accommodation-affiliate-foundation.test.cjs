@@ -41,6 +41,10 @@ for (const id of affiliateIds) {
 }
 assert.equal(capabilities.get('bookingcom_demand').platform.messaging, true);
 assert.equal(capabilities.get('expedia_rapid').platform.cancelReservation, true);
+assert.equal(capabilities.get('duffel_stays').platform.quote, true);
+assert.equal(capabilities.get('duffel_stays').platform.cancelReservation, true);
+assert.equal(capabilities.get('duffel_stays').luviaAccessState, 'partner_required');
+assert.equal(capabilities.get('duffel_stays').metadata.applicationStatus, 'submitted');
 assert.equal(capabilities.get('amadeus_hotels').platform.quote, true);
 assert.equal(capabilities.get('amadeus_hotels').platform.cancelReservation, false, 'Amadeus Self-Service cancellation remains an offline boundary');
 assert.equal(capabilities.get('hotelbeds').platform.modifyReservation, true);

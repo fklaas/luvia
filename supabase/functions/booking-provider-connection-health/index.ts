@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-const VERSION='4.2.0-affiliate-portfolio';
+const VERSION='4.3.0-duffel-stays-readiness';
 const PROBE_FRESH_MS=10*60*1000;
 const cors={'Access-Control-Allow-Origin':'https://myluvia.app','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Vary':'Origin'};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:cors});
@@ -8,7 +8,7 @@ const clean=(v:unknown)=>String(v??'').trim().toLowerCase();
 const now=()=>new Date().toISOString();
 const redactedUrl=(raw:string)=>{try{const u=new URL(raw);return `${u.protocol}//${u.host}${u.pathname}`;}catch{return ''}};
 
-type ProbeStrategy='none'|'contract_required'|'read_only_http';
+type ProbeStrategy='none'|'contract_required'|'read_only_http'|'minimal_live_search';
 type Manifest={secretKeys:string[];configKeys:string[];probeStrategy:ProbeStrategy;autoActivation:boolean;publicContract?:string};
 const KNOWN:Record<string,Manifest>={
  email:{secretKeys:[],configKeys:[],probeStrategy:'none',autoActivation:false},
@@ -27,6 +27,7 @@ const KNOWN:Record<string,Manifest>={
  bookingcom_demand:{secretKeys:['BOOKINGCOM_DEMAND_API_KEY'],configKeys:['BOOKINGCOM_AFFILIATE_ID'],probeStrategy:'contract_required',autoActivation:false,publicContract:'bookingcom-demand-api'},
  bookingcom_affiliate:{secretKeys:['BOOKINGCOM_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'bookingcom-affiliate'},
  expedia_rapid:{secretKeys:['EXPEDIA_RAPID_API_KEY','EXPEDIA_RAPID_SHARED_SECRET'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-rapid-lodging'},
+ duffel_stays:{secretKeys:['DUFFEL_ACCESS_TOKEN'],configKeys:[],probeStrategy:'minimal_live_search',autoActivation:true,publicContract:'duffel-stays-v2'},
  amadeus_hotels:{secretKeys:['AMADEUS_CLIENT_ID','AMADEUS_CLIENT_SECRET'],configKeys:['AMADEUS_ENVIRONMENT'],probeStrategy:'contract_required',autoActivation:false,publicContract:'amadeus-self-service-hotels'},
  hotelbeds:{secretKeys:['HOTELBEDS_API_KEY','HOTELBEDS_API_SECRET'],configKeys:['HOTELBEDS_ENVIRONMENT'],probeStrategy:'contract_required',autoActivation:false,publicContract:'hotelbeds-booking-api'},
  expedia_affiliate:{secretKeys:['EXPEDIA_AFFILIATE_ID'],configKeys:[],probeStrategy:'contract_required',autoActivation:false,publicContract:'expedia-travel-creator'},
@@ -71,10 +72,29 @@ async function quandooProbe(){
  }catch(e){const latency=Date.now()-t0;return {state:'failed',reason:e instanceof DOMException&&e.name==='AbortError'?'PROBE_TIMEOUT':'PROBE_NETWORK_ERROR',httpStatus:null,latencyMs:latency,evidence:{strategy:'read_only_http',contract:'quandoo-public-api',endpoint:redactedUrl(target)}}}
  finally{clearTimeout(timer)}
 }
+async function duffelStaysProbe(){
+ const token=Deno.env.get('DUFFEL_ACCESS_TOKEN')?.trim();
+ if(!token)return {state:'blocked',reason:'DUFFEL_ACCESS_TOKEN_MISSING',httpStatus:null,latencyMs:null,evidence:{strategy:'minimal_live_search',contract:'duffel-stays-v2'}};
+ const target='https://api.duffel.com/stays/search';
+ const checkIn=new Date(Date.now()+7*86400000),checkOut=new Date(Date.now()+8*86400000),date=(value:Date)=>value.toISOString().slice(0,10);
+ const body={data:{rooms:1,mobile:false,location:{radius:1,geographic_coordinates:{latitude:52.52,longitude:13.405}},guests:[{type:'adult'}],check_in_date:date(checkIn),check_out_date:date(checkOut)}};
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),7000);const t0=Date.now();
+ try{
+  const res=await fetch(target,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Duffel-Version':'v2',Accept:'application/json','Accept-Encoding':'gzip','Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal,redirect:'manual'});
+  const latency=Date.now()-t0;const evidence={strategy:'minimal_live_search',contract:'duffel-stays-v2',endpoint:redactedUrl(target),responseClass:`${Math.floor(res.status/100)}xx`};
+  if(res.status>=200&&res.status<300)return {state:'healthy',reason:'DUFFEL_STAYS_MINIMAL_SEARCH_PROBE_OK',httpStatus:res.status,latencyMs:latency,evidence};
+  if(res.status===401)return {state:'failed',reason:'DUFFEL_AUTH_REJECTED',httpStatus:res.status,latencyMs:latency,evidence};
+  if(res.status===403)return {state:'blocked',reason:'DUFFEL_STAYS_ACCESS_NOT_GRANTED',httpStatus:res.status,latencyMs:latency,evidence};
+  if(res.status===429)return {state:'degraded',reason:'DUFFEL_RATE_LIMITED',httpStatus:res.status,latencyMs:latency,evidence};
+  return {state:'degraded',reason:'DUFFEL_PROVIDER_REACHABLE_UNEXPECTED_RESPONSE',httpStatus:res.status,latencyMs:latency,evidence};
+ }catch(e){const latency=Date.now()-t0;return {state:'failed',reason:e instanceof DOMException&&e.name==='AbortError'?'PROBE_TIMEOUT':'PROBE_NETWORK_ERROR',httpStatus:null,latencyMs:latency,evidence:{strategy:'minimal_live_search',contract:'duffel-stays-v2',endpoint:redactedUrl(target)}}}
+ finally{clearTimeout(timer)}
+}
 async function runProbe(provider:string,manifest:Manifest){
  if(manifest.probeStrategy==='none')return {state:'healthy',reason:'INTERNAL_TRANSPORT',httpStatus:null,latencyMs:0,evidence:{strategy:'none'}};
  if(manifest.probeStrategy==='contract_required')return {state:'blocked',reason:'EXACT_PARTNER_PROBE_CONTRACT_REQUIRED',httpStatus:null,latencyMs:null,evidence:{strategy:'contract_required'}};
  if(provider==='quandoo')return await quandooProbe();
+ if(provider==='duffel_stays')return await duffelStaysProbe();
  return {state:'blocked',reason:'PROBE_NOT_IMPLEMENTED',httpStatus:null,latencyMs:null,evidence:{strategy:manifest.probeStrategy}};
 }
 

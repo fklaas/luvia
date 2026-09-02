@@ -40,6 +40,9 @@ function parseCsv(text) {
 }
 
 const plan = read('docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md');
+const productReset = read('docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md');
+const fiftyPoint = read('docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md');
+const handout = read('docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
 const surfaces = parseCsv(read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv'));
 const owners = parseCsv(read('docs/modularization/M16.5-CORE-OWNER-MATRIX.csv'));
 const ownership = read('docs/modularization/FILE-OWNERSHIP.csv');
@@ -62,6 +65,16 @@ assert.match(plan, /No functional acceptance is granted without a real visible E
 assert.match(plan, /Main and Production remain locked until the complete M16\.5 parity matrix/);
 assert.match(plan, /accepted Living Compass interaction is frozen after M16\.5Q/);
 assert.match(plan, /selected Place, exact[\s\S]*rail position, map marker\/viewport, filters, query, focus origin/);
+assert.match(productReset, /Luvia turns a personal travel intention into an executable, live-adaptable[\s\S]*lasting memory/);
+assert.match(productReset, /G2 — Golden Journey/);
+assert.match(productReset, /B1 \/ P01–P10[\s\S]*B2 \/ P11–P20[\s\S]*B3 \/ P21–P30[\s\S]*B4 \/ P31–P40[\s\S]*B5 \/ P41–P50/);
+assert.match(productReset, /Zero cross-venue and cross-property redirects/);
+assert.match(productReset, /No parallel result list appears beside or below the map/);
+assert.match(productReset, /five independent users/);
+assert.match(productReset, /External provider delay does not stop the whole product/);
+assert.match(productReset, /Finish `\.148` inventory, regression, clean commit/);
+assert.match(fiftyPoint, /LUVIA-PRODUCT-RESET-MASTERPLAN-2026\.md/);
+assert.match(handout, /PRODUCT RESET BINDING/);
 
 assert.strictEqual(surfaces.length, 20, 'the Product Surface Matrix must retain all 20 controlled rows');
 assert.strictEqual(owners.length, 18, 'the Core Owner Matrix must retain all 18 controlled owner rows');
@@ -80,6 +93,7 @@ assert.strictEqual(trip?.priority, 'P0');
 
 for (const file of [
   'docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md',
+  'docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md',
   'docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv',
   'docs/modularization/M16.5-CORE-OWNER-MATRIX.csv',
   'tests/m16.5-productization-plan.test.cjs'
@@ -88,6 +102,7 @@ for (const file of [
 }
 
 assert(roadmap.includes('M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md'));
+assert(roadmap.includes('LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md'));
 assert(current.includes('M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md'));
 assert(runner.includes('tests/m16.5-productization-plan.test.cjs'));
 

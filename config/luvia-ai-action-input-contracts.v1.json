@@ -197,7 +197,7 @@
           "childAges": { "type": "array", "maxItems": 30, "items": { "type": "integer", "minimum": 0, "maximum": 17 } },
           "rooms": { "type": "integer", "minimum": 1, "maximum": 30 },
           "currency": { "type": "string", "pattern": "^[A-Za-z]{3}$" },
-          "providers": { "type": "array", "maxItems": 2, "uniqueItems": true, "items": { "enum": ["amadeus_hotels", "hotelbeds"] } }
+          "providers": { "type": "array", "maxItems": 3, "uniqueItems": true, "items": { "enum": ["duffel_stays", "hotelbeds", "amadeus_hotels"] } }
         }
       }
     },

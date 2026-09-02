@@ -1,5 +1,11 @@
 # Luvia Fifty-Point Owner-First Execution and Frontier Plan
 
+Product execution authority: `LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md` now
+defines the binding product promise, capability maturity ladder, Golden Journey,
+user-value gates, stop rules and cross-block visibility order. This document
+retains canonical package IDs `P01`–`P50`, owner boundaries and technical
+acceptance requirements; the five 10-package blocks are not renumbered.
+
 Date: 2026-09-01
 
 Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP SELECTION PUBLIC ON 13.82.138, BLOCK STILL ACTIVE**

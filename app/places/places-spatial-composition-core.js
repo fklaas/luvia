@@ -79,7 +79,7 @@ function normalizePlace(input){
   const id=clean(input.id||input.placeId||input.place_id);
   const externalId=providerId(input.providerPlaceId||input.provider_place_id||input.sourceId||input.source_id||id);
   if(!externalId)return null;
-  const coordinates=normalizeCoordinates(input.coordinates||input.position||{
+  const coordinates=normalizeCoordinates(input.coordinates||input.position||input.location||{
     latitude:input.latitude,
     longitude:input.longitude
   });

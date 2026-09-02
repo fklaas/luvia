@@ -620,11 +620,11 @@
   color: var(--places-accent-contrast);
 }
 
-/* One connected spatial canvas: map and results are two views of one dataset. */
+/* One map-first spatial canvas. Result details open from a verified pin. */
 .lv-places-spatial__canvas {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.6fr);
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
   min-height: 740px;
   overflow: hidden;
@@ -639,7 +639,7 @@
   min-width: 0;
   min-height: 740px;
   overflow: hidden;
-  border-right: 1px solid var(--places-line);
+  border-right: 0;
   background:
     radial-gradient(ellipse at 78% 42%, rgba(181, 219, 235, 0.72) 0 23%, transparent 24%),
     linear-gradient(124deg, transparent 0 34%, rgba(184, 211, 181, 0.62) 34.2% 36.2%, transparent 36.4%),

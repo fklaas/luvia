@@ -120,6 +120,7 @@ assert.deepEqual(plain(paginationModel.bounds.lngLatBounds),[[10,54],[10.005,54.
 const coordinatePlaces=[
   {id:'valid-a',providerPlaceId:'places/google-land-1',name:'Diercksen',coordinates:validCoordinates},
   {id:'valid-b',providerPlaceId:'places/google-land-2',name:'Grande Beach Café',coordinates:{lat:'54.0269110',lng:'10.7575622'}},
+  {id:'valid-provider-location',providerPlaceId:'places/google-hotel-1',name:'Hotel mit Google-Ort',location:{latitude:54.031,longitude:10.744}},
   {id:'missing',providerPlaceId:'missing-coordinate',name:'Nur in der Liste',coordinates:null},
   {id:'half',providerPlaceId:'half-coordinate',name:'Unvollständig',coordinates:{latitude:54.02}},
   {id:'bad-lat',providerPlaceId:'bad-latitude',name:'Ungültig',coordinates:{latitude:91,longitude:10.7}},
@@ -129,8 +130,8 @@ const coordinatePlaces=[
 const coordinatesSnapshot=JSON.stringify(coordinatePlaces);
 const coordinateModel=core.compose({contractId:'places.v1',categories,places:coordinatePlaces,visibleLimit:18,runtime:{status:'ready'}});
 assert.equal(JSON.stringify(coordinatePlaces),coordinatesSnapshot,'Consumer composition mutated owner projections');
-assert.equal(coordinateModel.results.length,7,'places without coordinates must remain available in the result list');
-assert.equal(coordinateModel.markers.length,2,'only complete finite WGS84 owner coordinates may create markers');
+assert.equal(coordinateModel.results.length,8,'places without coordinates must remain available to the owner-safe projection');
+assert.equal(coordinateModel.markers.length,3,'coordinates from coordinates, position, and provider location must create markers');
 assert.equal(coordinateModel.mapOmissions.length,5);
 assert.deepEqual(plain(coordinateModel.markers[0]),{
   providerPlaceId:'google-land-1',
@@ -143,6 +144,7 @@ assert.deepEqual(plain(coordinateModel.markers[0]),{
   sourceContract:'places.v1'
 });
 assert.deepEqual(plain(coordinateModel.markers[1].lngLat),[10.7575622,54.026911]);
+assert.deepEqual(plain(coordinateModel.markers[2].lngLat),[10.744,54.031],'Google Places location coordinates must reach the map projection');
 assert.ok(coordinateModel.markers.every(marker=>coordinateModel.results.some(result=>result.providerPlaceId===marker.providerPlaceId)));
 assert.equal(new Set(coordinateModel.markers.map(marker=>marker.providerPlaceId)).size,coordinateModel.markers.length);
 assert.ok(coordinateModel.mapOmissions.every(item=>item.reason==='missing-or-invalid-owner-coordinates'));
@@ -213,7 +215,8 @@ assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinat
 assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view,renderToken\)/,'only the latest render may mount a MapLibre instance into the current map host');
 assert.match(experience,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late MapLibre callbacks must be fenced to the current render and live map host');
 assert.match(experience,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'selecting a result card must move the map to the same owner coordinate');
-assert.match(experience,/select\(marker\.providerPlaceId,true,false\)/,'selecting a map marker must move the corresponding result into view without a redundant map jump');
+assert.match(experience,/openResultSheet\(filteredResults\(\),marker\.providerPlaceId\)/,'selecting a map marker must open the unified bottom sheet for that exact Place');
+assert.doesNotMatch(experience,/class="lv-places-spatial__results"/,'the productive Places map must not duplicate pins as a neighboring or following result list');
 assert.match(experience,/data-places-map-fallback/,'the map must retain an honest bright fallback surface while tiles are unavailable');
 assert.match(experience,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back navigation must restore the embedded Plan Compass');
 assert.doesNotMatch(experience,/Math\.random|pin-a|pin-b|pin-c|pin-d|pin-e|map-land|map-sea/,'synthetic prototype pin placement may not enter the productive Experience');
