@@ -30,7 +30,7 @@
 <script src="../../core/intelligence/intelligence-action-ledger-core.js"></script>
 <script>
 (()=>{'use strict';
-  const bookings=[{id:'booking-cafe',tripId:'trip-scharbeutz',title:'Grande Beach Café',status:'confirmed',provider:'official',startAt:'2027-06-14T16:30:00.000Z',partySize:4,request:{website:'https://cafe.example'}}],calls=[];
+  const bookings=[{id:'booking-cafe',tripId:'trip-scharbeutz',title:'Grande Beach Café',status:'confirmed',provider:'official',startAt:'2027-06-14T16:30:00.000Z',partySize:4,request:{website:'https://cafe.example',providerPlaceId:'fsq-grande-beach-cafe'}}],calls=[];
   window.LuviaTripContractV1={getActiveTrip:()=>({id:'trip-scharbeutz',timeZone:'Europe/Berlin',destination:{name:'Scharbeutz'}})};
   window.LuviaNavigationContractV1={createIntent:route=>({route,label:'Buchungen'}),diagnostics:()=>({ready:true})};
   const lifecycleFor=booking=>LuviaBookingLifecyclePolicyCore.assess({booking,capability:{id:'official',luviaAccessState:'connected',platform:{modifyReservation:true,cancelReservation:true,statusPolling:true}}});
@@ -55,7 +55,7 @@
 (()=>{'use strict';
   const runtime=LuviaAIActionRuntime,compiler=LuviaTravelOrchestrationCoreV1,fixture=window.__bookingFixture;
   const scenarios=[
-    {id:'create',label:'Neu anfragen',sentence:'Reserviere bitte für vier Personen am 15.06.2027 um 18:30 Uhr einen Tisch im Dünenblick.',actionId:'booking.reservation.create',title:'Anfrage an Dünenblick senden?',detail:'15.06.2027 · 18:30 Uhr · 4 Personen',dialogue:{confidence:.99,goals:[{type:'booking',label:'Tisch im Dünenblick reservieren',timeWindow:{start:'2027-06-15T18:30:00+02:00'},hardConstraints:[{key:'operation',value:'reserve',label:'reservieren'},{key:'target',value:'Dünenblick',label:'Dünenblick'},{key:'party_size',value:'4',label:'4 Personen'}]}]},knownPlaceSubjects:[{providerPlaceId:'fsq-duenenblick',name:'Dünenblick',primaryType:'restaurant',website:'https://duenenblick.example'}]},
+    {id:'create',label:'Neu anfragen',sentence:'Reserviere mir am 15.06.2027 um 18:30 Uhr für vier Personen einen Tisch im Grande Beach Café.',actionId:'booking.reservation.create',title:'Anfrage an Grande Beach Café senden?',detail:'15.06.2027 · 18:30 Uhr · 4 Personen',dialogue:{confidence:.99,goals:[{type:'booking',label:'Tisch im Grande Beach Café reservieren',timeWindow:{start:'2027-06-15T18:30:00+02:00'},hardConstraints:[{key:'operation',value:'reserve',label:'reservieren'},{key:'target',value:'Grande Beach Café',label:'Grande Beach Café'},{key:'party_size',value:'4',label:'4 Personen'}]}]}},
     {id:'modify',label:'Ändern',sentence:'Verschiebe bitte unsere Buchung im Grande Beach Café auf den 15.06.2027 um 19:30 Uhr.',actionId:'booking.reservation.modify',title:'Buchungsänderung anfragen?',detail:'Grande Beach Café · neu: 15.06.2027 · 19:30 Uhr',dialogue:{confidence:.99,goals:[{type:'booking',label:'Grande Beach Café verschieben',timeWindow:{start:'2027-06-15T19:30:00+02:00'},hardConstraints:[{key:'operation',value:'modify',label:'ändern'},{key:'target',value:'Grande Beach Café',label:'Grande Beach Café'}]}]}},
     {id:'cancel',label:'Stornieren',sentence:'Bitte storniere die Reservierung im Grande Beach Café.',actionId:'booking.reservation.cancel',title:'Stornierung anfragen?',detail:'Grande Beach Café · endgültig erst nach Providerbestätigung',dialogue:{confidence:.99,goals:[{type:'booking',label:'Grande Beach Café stornieren',hardConstraints:[{key:'operation',value:'cancel',label:'stornieren'},{key:'target',value:'Grande Beach Café',label:'Grande Beach Café'}]}]}}
   ];

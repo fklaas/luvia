@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.17.0-semantic-booking-lifecycle';
+const VERSION='1.18.0-booking-owner-subject-resolution';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -117,6 +117,27 @@ function mutationCandidate(value={},fallback={}){
   const place=value.place||{},nested=value.entity?.place||{},link=value.tripPlace||value.entity?.tripPlace||{},providerPlaceId=providerId(value)||providerId(place)||providerId(nested)||clean(value.provider_place_id||place.provider_place_id||nested.provider_place_id),tripPlaceId=clean(value.tripPlaceId||value.trip_place_id||place.tripPlaceId||link.id||fallback.tripPlaceId),name=clean(value.name||value.title||place.name||nested.name||fallback.name),placeId=clean(value.placeId||value.place_id||place.id||nested.id||fallback.placeId),placeType=clean(value.placeType||value.primaryType||value.primary_type||place.primaryType||place.primary_type||fallback.placeType)||'place';
   if(!name)return null;return{tripId:clean(value.tripId||value.trip_id||link.trip_id||fallback.tripId),providerPlaceId,tripPlaceId,placeId,placeType,name,plannedAt:clean(value.plannedAt||value.planned_at||value.startAt||fallback.plannedAt)||null};
 }
+function bookingPlaceSubject(booking={}){
+  const request=booking.request||{},contact=booking.contact||{},verified=booking.metadata?.verifiedContact||{},name=clean(booking.title||booking.venueName||booking.venue_name||booking.restaurantName||booking.restaurant_name||booking.accommodationName||booking.accommodation_name);
+  if(!name)return null;
+  return{
+    tripId:clean(booking.tripId||booking.trip_id),
+    tripPlaceId:clean(booking.tripPlaceId||booking.trip_place_id),
+    placeId:clean(booking.placeId||booking.place_id),
+    providerPlaceId:clean(booking.providerPlaceId||booking.provider_place_id||request.providerPlaceId||request.provider_place_id),
+    name,
+    primaryType:clean(booking.type||request.sourcePlaceType)||'place',
+    website:clean(request.website||contact.website)||undefined,
+    reservationUrl:clean(request.reservationUrl||request.reservation_url||contact.bookingUrl)||undefined,
+    bookingProvider:clean(booking.provider)||undefined,
+    providerVenueReference:clean(request.providerReference||request.provider_reference)||undefined,
+    bookingEmail:verified.email===true?clean(contact.email)||undefined:undefined,
+    bookingEmailVerified:verified.email===true,
+    bookingEmailPublic:verified.email===true,
+    bookingEmailSourceUrl:verified.email===true?clean(verified.source)||undefined:undefined,
+    ownerEvidence:{contractId:'booking.v1',bookingId:clean(booking.id||booking.bookingId||booking.booking_id),status:clean(booking.status)||null}
+  };
+}
 function uniqueMutationCandidates(items=[]){const seen=new Map();for(const item of items){const candidate=mutationCandidate(item);if(!candidate)continue;const key=[candidate.tripPlaceId,candidate.providerPlaceId,referenceKey(candidate.name)].join('|');if(!seen.has(key))seen.set(key,candidate)}return[...seen.values()]}
 function namedMutationCandidate(candidates,intent,message){
   const explicit=referenceKey(intent?.entityHints?.targetName),source=referenceKey(message||intent?.clause),ranked=candidates.map(candidate=>{const key=referenceKey(candidate.name),exact=Boolean(explicit&&key===explicit),contained=Boolean(key.length>=4&&(explicit?key.includes(explicit)||explicit.includes(key):source.includes(key)));return{candidate,key,score:exact?10000+key.length:contained?key.length:0}}).filter(item=>item.score>0).sort((left,right)=>right.score-left.score);
@@ -159,8 +180,10 @@ async function semanticBookingPreview(message,compiled,options={}){
   const mutations=(compiled?.intents||[]).map(intent=>({intent,actionId:bookingMutationAction(intent)})).filter(item=>item.actionId);if(mutations.length!==1)return null;
   const {intent,actionId}=mutations[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)return null;
   if(actionId==='booking.reservation.create'){
-    const known=(options.knownPlaceSubjects||[]).map(place=>({...place,tripId:place.tripId||activeTripId})),candidates=uniqueMutationCandidates(known),target=namedMutationCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
-    const original=known.find(place=>providerId(place)===target.providerPlaceId||referenceKey(place.name||place.title)===referenceKey(target.name))||target,date=intent.temporalHint?.date,time=intent.temporalHint?.time,partySize=Number(intent.entityHints?.partySize),startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt||!Number.isInteger(partySize)||partySize<1)return null;
+    const known=(options.knownPlaceSubjects||[]).map(place=>({...place,tripId:place.tripId||activeTripId}));let ownerSubjects=[];
+    try{const rows=await bookingContract().reads.listForTrip?.(activeTripId);ownerSubjects=(Array.isArray(rows)?rows:rows?.items||rows?.bookings||[]).map(bookingPlaceSubject).filter(Boolean).map(place=>({...place,tripId:place.tripId||activeTripId}))}catch{}
+    const candidates=uniqueMutationCandidates([...known,...ownerSubjects]),target=namedMutationCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+    const original=[...known,...ownerSubjects].find(place=>target.providerPlaceId&&providerId(place)===target.providerPlaceId||referenceKey(place.name||place.title)===referenceKey(target.name))||target,date=intent.temporalHint?.date,time=intent.temporalHint?.time,partySize=Number(intent.entityHints?.partySize),startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt||!Number.isInteger(partySize)||partySize<1)return null;
     const place={...original,providerPlaceId:target.providerPlaceId,placeId:target.placeId,name:target.name,primaryType:original.primaryType||original.primary_type||target.placeType||'place'};
     return prepare(actionId,{tripId:activeTripId,place,providerPlaceId:target.providerPlaceId,placeType:place.primaryType,name:target.name,date,time,startAt,partySize,timezone:runtimeTimeZone(),email:place.bookingEmailVerified===true&&place.bookingEmailPublic===true?place.bookingEmail:undefined,emailVerified:place.bookingEmailVerified===true&&place.bookingEmailPublic===true,emailVerificationSource:place.bookingEmailSourceUrl||undefined,provider:place.bookingProvider||undefined,venueReference:place.providerVenueReference||place.venueReference||undefined,note:intent.clause},{userGesture:true,surface:options.surface||'global-chat'}).result;
   }

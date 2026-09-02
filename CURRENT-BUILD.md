@@ -20,26 +20,35 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.140**
-- Core: **4.82.140**
-- Name: **M16.5 Block 1 Semantic Booking Lifecycle**
+- App: **13.82.141**
+- Core: **4.82.141**
+- Name: **M16.5 Block 1 Booking Owner Subject Resolution**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Semantic Booking Lifecycle — Integration Candidate 13.82.140
+## M16.5 Block 1 Booking Owner Subject Resolution — Local Integration Candidate 13.82.141
 
-- Runtime target: **App 13.82.140 / Core 4.82.140 / cache `luvia-shell-v13.82.140` / Integration only**.
+- Runtime target: **App 13.82.141 / Core 4.82.141 / cache `luvia-shell-v13.82.141` / Integration only**.
 - Existing Booking Core extended: **no parallel booking system was created. `booking.v1 commands.submitReservation` now drives confirmed AI Create through exactly one evidenced transport: connected provider API, verified public booking e-mail, external handoff or an honest unavailable result**.
-- Whole-sentence AI: **structured dialogue semantics resolve Create, Modify and Cancel against one exact known Place or active Booking Owner object. The deterministic language compiler remains the bounded safety fallback; isolated keywords do not authorize a write**.
+- Whole-sentence AI: **structured dialogue semantics resolve Create, Modify and Cancel against one exact known Place or active Booking Owner object. A fresh Chat may derive the bounded subject from `booking.v1.reads.listForTrip`; it no longer requires a Place card to have been opened first. The deterministic language compiler remains the bounded safety fallback; isolated keywords do not authorize a write**.
 - Lifecycle policy: **Read cards expose only actions supported by the current Booking state and provider/thread capability. Terminal bookings expose no mutation; ambiguous titles do not silently select a target**.
 - Mutation safety: **Create, Modify and Cancel retain Preview, explicit confirmation, idempotency, Owner Receipt and unknown-outcome reconciliation. A Booking-owned draft is never described as externally submitted, an external link is never described as booked, and an unverified e-mail is never used as transport**.
 - Compact Chat consumer: **one booking card exposes Lesen, Buchungsweg, Neu anfragen, Ändern and Stornieren. User-facing dates use `TT.MM.JJJJ`; provider and ledger details stay outside normal product copy**.
 - Local evidence: **the real AI Runtime, Action Contract, Ledger, Booking Lifecycle Policy and public Owner boundary pass a visible 390 px five-action fixture. The run reaches 5/5, has no horizontal overflow and produces zero current browser warnings/errors. Browserless tests cover exact sentence-to-owner resolution plus provider API, verified e-mail, external handoff and unavailable routes**.
 - Registry truth: **329 semantic actions, 23 typed runtime actions, 124 protected mutations, 20 truthful Undo paths and 2,725 generated failure evals remain active. Public E2E passes deliberately remain 7 until the Integration candidate has been operated publicly; provider-positive evidence is not inferred from controlled local transports**.
-- Release state: **runtime commit, immutable Worker version, Stable/Immutable byte comparison, public Step-17 result and exact `.140 → .139` rollback are pending the remaining release gates**.
+- Release state: **focused tests and the visible local 5/5 run are green. Runtime commit, immutable Worker version, Stable/Immutable byte comparison, public Step-17 result and exact `.141 → .139` rollback remain pending; `.141` is not accepted before these gates pass**.
 - Scope: **this app-only candidate changes no DB, RLS, Edge Function, Provider credential, Secret, Main or Production. Official ticket/reservation activation and Hotel live-provider activation remain the next separate slices**.
+
+## M16.5 Block 1 Semantic Booking Lifecycle — Publicly deployed, rejected 13.82.140
+
+- Implemented scope: **Booking Read/Open/Create/Modify/Cancel, typed whole-sentence semantics, Preview, explicit confirmation, Booking Owner command, readback/Receipt and unknown-outcome handling were locally green at 5/5 and 194/194**.
+- Publicly proven subset: **the signed-in Stable Chat listed real Booking Owner rows and opened the compact Booking Center at 390 px without horizontal overflow**.
+- Decisive public counterevidence: **the fresh-chat sentence `Reserviere mir am 14.06.2027 um 18:30 Uhr für 2 Personen einen Tisch im DAS LEO.` was semantically classified as a Booking write, but Create could resolve targets only from prior Place cards. With no Place card in the conversation, the safe prerequisite route displayed the Booking list instead of a confirmation preview. No external mutation occurred**.
+- Disposition: **`.140` was rejected immediately and Stable Integration was rolled back to accepted `.139`; `.140` is retained only as immutable counterevidence and as a runtime upgrade bridge, never as an accepted rollback target**.
+- Provenance: **runtime commit `89090dc149f0cce6e974683c0a2291206cbb848a`; clean archive `C:\Users\fabia\AppData\Local\Temp\luvia-integration-13.82.140-89090dc1-release.zip`, SHA-256 `E7ECE5DFB682E33EBD4103991819A150053135BB04989C3417838138B9729E36`, 3,083 Git files and 66,829,905 bytes; immutable Worker version `ede79778-88f3-47bb-9b59-257bc27d4e55`; deployed at `2026-09-02T01:39:02.268Z`; 28/28 release-critical files / 7,451,883 bytes matched archive, Stable and Immutable before rollback**.
+- Correct rollback: **Stable Integration was restored to accepted App 13.82.139 with `npx wrangler versions deploy df146bb6-52dc-4c82-8ab2-d4a6618839db@100 --name integration-luvia --message "Rollback rejected App 13.82.140 to accepted App 13.82.139 after public booking-create counterevidence" --yes`; DB, RLS, Edge Functions, Provider state, Secrets, Main and Production were unchanged**.
 
 ## M16.5 Block 1 Semantic Places Mutations — Stable Integration Slice 13.82.139
 

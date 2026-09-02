@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const read=file=>fs.readFileSync(file,'utf8');
 const calls=[];
 const bookings=[
-  {id:'booking-cafe',tripId:'trip-scharbeutz',title:'Grande Beach Café',status:'confirmed',provider:'official',request:{website:'https://cafe.example'}},
+  {id:'booking-cafe',tripId:'trip-scharbeutz',title:'Grande Beach Café',status:'confirmed',provider:'official',request:{website:'https://cafe.example',providerPlaceId:'fsq-grande-beach-cafe'}},
   {id:'booking-museum',tripId:'trip-scharbeutz',title:'Museum für Regionalgeschichte',status:'cancelled',provider:'official'}
 ];
 let uuid=0;
@@ -78,6 +78,16 @@ const dialogue=(label,operation,target,timeWindow=null,partySize=null)=>({confid
   assert.equal(created.place.providerPlaceId,'fsq-duenenblick');
   assert.equal(created.partySize,4);
   assert.equal(created.startAt,'2027-06-15T16:30:00.000Z');
+
+  const ownerCreateMessage='Reserviere mir am 14.06.2027 um 18:30 Uhr für 2 Personen einen Tisch im Grande Beach Café.';
+  const ownerCreateCompiled=compiler.compileDialogue(ownerCreateMessage,dialogue('Tisch im Grande Beach Café am 14.06.2027 um 18:30 Uhr reservieren','reserve','Grande Beach Café',{start:'2027-06-14T18:30:00+02:00'},2),{trip:{startDate:'2027-06-12',endDate:'2027-06-19'}});
+  const ownerCreatePreview=await runtime.runMessage(ownerCreateMessage,{compiledIntent:ownerCreateCompiled,sourceMessage:ownerCreateMessage,knownPlaceSubjects:[]});
+  assert.equal(ownerCreatePreview.results[0].kind,'confirmation','a Booking-owned venue must resolve without a preceding Places search');
+  assert.equal(ownerCreatePreview.results[0].evidence.actionId,'booking.reservation.create');
+  assert.equal(ownerCreatePreview.results[0].evidence.preview.name,'Grande Beach Café');
+  assert.equal(ownerCreatePreview.results[0].evidence.preview.date,'2027-06-14');
+  assert.equal(ownerCreatePreview.results[0].evidence.preview.time,'18:30');
+  assert.equal(ownerCreatePreview.results[0].evidence.preview.partySize,2);
 
   const read=await runtime.runMessage('Zeige meine Buchungen');
   const cafe=read.results[0].items.find(item=>item.id==='booking-cafe'),museum=read.results[0].items.find(item=>item.id==='booking-museum');

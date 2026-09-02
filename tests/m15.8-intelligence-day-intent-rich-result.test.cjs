@@ -20,6 +20,6 @@ for(const prompt of [
 
 assert.equal(contract.routeIntent('Finde ein Restaurant für heute')?.actionId,'places.restaurant.recommend');
 assert.equal(contract.routeIntent('Erkläre mir die Reiseversicherung'),null);
-assert.match(fs.readFileSync(path.resolve(__dirname,'../core/ai/ai-action-runtime.js'),'utf8'),/const VERSION='1\.17\.0-semantic-booking-lifecycle'/);
+assert.match(fs.readFileSync(path.resolve(__dirname,'../core/ai/ai-action-runtime.js'),'utf8'),/const VERSION='1\.18\.0-booking-owner-subject-resolution'/);
 
 console.log('M15.8 Intelligence day intent rich result: PASS');

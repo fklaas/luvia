@@ -91,6 +91,22 @@ The AI could route a complete sentence such as “Ich will eine andere Reise aus
   Hotel route without dependence on one lexical keyword.
 - Full relevant test suites, public Integration smoke, immutable/stable byte comparison and exact previous-version rollback proof.
 
+## Booking lifecycle correction history
+
+App/Core `13.82.140/4.82.140` reached Integration from commit
+`89090dc149f0cce6e974683c0a2291206cbb848a` and passed public Booking Read/Open,
+but was rejected when a fresh-chat Create sentence could not resolve `DAS LEO`
+without a preceding Place card. The model had correctly selected Booking Create;
+the defect was the runtime's subject source, not keyword recognition. No external
+mutation occurred, and Stable was restored immediately to accepted `.139`.
+
+The `.141` correction reads bounded active-Trip Booking Owner projections and
+merges them with any known Place subjects before exact, ambiguity-safe target
+resolution. Missing owner/provider identity still fails closed. Focused tests
+and the visible 390 px lifecycle fixture pass Read, Open, Create-from-Booking-
+Owner, Modify and Cancel at 5/5. Public Integration operation, byte proof and
+the exact `.141 → .139` rollback remain release gates; `.141` is not yet accepted.
+
 ## Rollout and rollback
 
 The coherent Integration slice is public from commit
@@ -151,7 +167,7 @@ Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files 
 app-only rollback restores `.138`:
 `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.
 
-## Semantic Booking lifecycle candidate — App/Core 13.82.140/4.82.140
+## Semantic Booking lifecycle candidate — App/Core 13.82.141/4.82.141
 
 The next Integration-only slice extends the existing Booking Core rather than
 creating a second booking system. `booking.reservation.create` now delegates to
