@@ -102,7 +102,25 @@ for 24/24 selected files and 6,003,200 bytes. The public signed-in Chat proves
 the typed Berlin/date/occupancy Hotel read and truthful provider-unavailable
 state at desktop and 390×844; it is not a positive live-provider proof.
 
-Code rollback restores accepted App `13.82.135` / Worker version
+An app-only semantic follow-up is accepted on App/Core `13.82.138/4.82.138`.
+It preserves a compiled Trip `switch/select` operation and prevents the older
+direct-navigation recognizer from closing the conversation. The signed-in
+public 390×844 run of `Ich will eine andere Reise auswählen.` stayed in Chat,
+returned nine real Trip-owner projections plus eight concrete selection
+controls, asked for no date/time and performed no mutation. Its provenance is
+runtime commit `3beb33f38909c1b82c0b6078e8aa0d88ba08616f`, clean archive SHA-256
+`59EBC14CF89C6925C1BE9FA5E20EC72B01EBB180C1971F5AAF4A68A572A0341F`,
+Worker version `e12ec944-a66e-4f77-9b18-9259f63fa46b` and deployment
+`92b83529-6b0d-42ab-b1e0-83c8bb42628f`; 23/23 selected files / 6,340,606
+bytes match archive, Stable and Immutable.
+
+The immediate `.138` rollback is app-only and restores accepted `.136`:
+`npx wrangler versions deploy caf3e8bd-7f98-47fc-991c-135062732dad@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.138 to accepted App 13.82.136" --yes`.
+Rejected `.137` is not a rollback target. No DB or Edge compensation belongs to
+the `.138` rollback.
+
+If the complete `.136` Booking/Hotel foundation must also be removed, its code
+rollback restores accepted App `13.82.135` / Worker version
 `d4efd8ac-969c-426c-b312-7ea686740ac1`. Full additive backend compensation then
 runs the Hotel live-offer rollback followed by the universal Booking rollback.
 Neither rollback deletes existing Booking, message, reservation or conversion

@@ -5635,8 +5635,8 @@
         "interaction-source",
         "navigation-source"
       ],
-      "bytes": 80814,
-      "sha256": "aa2c1abfb00771d8eba8b249eed00f0f9c9562d3d845b87dffbee84374990099"
+      "bytes": 80928,
+      "sha256": "9fe2433d5bd6e57dab49c5dc7ff4e3d5b571cc7ec7c7abcc8e4afce64281b9e1"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",

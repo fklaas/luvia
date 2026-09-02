@@ -896,7 +896,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-02\n\n` +
-    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136, BLOCK STILL ACTIVE / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
+    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON 13.82.138, BLOCK STILL ACTIVE / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -950,16 +950,15 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; current Integration candidate \`13.82.138\` does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes before public acceptance.\n\n` +
-    `## Local B1 registry delta regenerated, awaiting visible/public release evidence\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; accepted Integration App \`13.82.138\` additionally proves the Chat-native Trip-selection read, but does not convert unrelated remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes.\n\n` +
+    `## B1 registry delta retained after visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
     `alias and adds bounded \`navigation.route.open\` plus \`booking.stay.search\` runtime actions. All 20\n` +
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
     `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. The source runtime action set is **23**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
-    `locally green; the 329-row parity/failure matrix and public Integration evidence still require the coherent release\n` +
-    `gate. No public-pass count is raised by this note.\n`;
+    `locally green; the 329-row parity/failure matrix remains a release gate for every following domain slice. The accepted \`13.82.138\` Trip-selection read is documented without inflating unrelated public-pass rows.\n`;
 }
 
 function main() {
