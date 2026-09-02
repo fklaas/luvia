@@ -20,27 +20,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.145**
-- Core: **4.82.145**
+- App: **13.82.146**
+- Core: **4.82.146**
 - Name: **M16.5 Block 1 Semantic Places Mutations**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Google-first Destination Binding + Bright Hotel Truth — Integration Candidate 13.82.145
+## M16.5 Block 1 Google-first Destination Binding + Bright Hotel Truth — Integration Candidate 13.82.146
 
-- Runtime target: **App 13.82.145 / Core 4.82.145 / cache `luvia-shell-v13.82.145` / Integration only**. Stable App/Core 13.82.143/4.82.143 remains the accepted deployment until this candidate completes the immutable release and public operation chain.
+- Runtime target: **App 13.82.146 / Core 4.82.146 / cache `luvia-shell-v13.82.146` / Integration only**. App/Core 13.82.145/4.82.145 is publicly deployed but rejected; this candidate must complete the immutable release and public operation chain before acceptance.
 - Real provider order: **the Places gateway now calls Google first and starts Foursquare only after Google is not configured, errors or returns no eligible destination-bound result. Diagnostics expose requested, attempted, used, fallback reason and fallback usage. If every attempted provider fails, the gateway returns `PLACES_ALL_PROVIDERS_FAILED`; the consumer must not project a truthful-looking zero-result state**.
 - Current provider evidence: **both Google and Foursquare secrets exist in the shared Supabase project. The operated pre-change health probe showed Google failing with `The caller does not have permission` while Foursquare returned real Places. The Google Cloud Places API permission/billing/restriction remains an external configuration defect; Foursquare therefore remains necessary as fallback but no longer consumes quota beside a healthy Google response**.
-- Explicit destination binding: **an explicit location such as `in Lübeck` is carried separately from the active Trip destination. A compound request searches the named destination, resolves the exact requested subject and then asks the Booking Owner for the requirement. A Scharbeutz result can no longer silently satisfy a Lübeck request, and a different venue can never satisfy `Tonfink reservieren?`**.
+- Explicit destination binding: **an explicit location such as `in Lübeck` is carried separately from the active Trip destination and is inherited by every dependent goal in the same structured dialogue unless that goal names its own destination. A compound request therefore searches the named destination and preserves it through the later exact-subject requirement read. A Scharbeutz result can no longer silently satisfy a Lübeck request, and a different venue can never satisfy `Tonfink reservieren?`**.
 - Whole-sentence requirement read: **`muss ich dort reservieren?` remains a read-only `check_requirement` intent against the exact resolved Place; it does not require party size, cannot authorize a reservation write and returns compact Booking-owned language rather than internal compiler fields**.
 - Bright Hotel consumer: **the dedicated accommodation screen now uses the bright Luvia design world, compact `TT.MM.JJJJ` stay inputs and separately truthful loading, ready, empty and provider-unavailable states. Hotel cards contain neither `Eintritt`, `Tickets prüfen`, `Reservierung prüfen` nor generic Place-booking routes. Live prices appear only when a connected provider API supplies a complete current total; affiliate links remain handoffs, never price evidence**.
 - Exact Hotel identity: **the Booking Owner carries the canonical property ID and selected offer ID across normalization, comparison and handoff. Foreign properties, sibling Hotels, changed dates/occupancy, incomplete prices and unverified URLs fail closed**.
 - Inventory and local evidence: **330 semantic actions, 246 public Owner paths, 24/24 typed runtime actions, 124 guarded writes, 903 audited source markers and 2,733 generated failure evals. `data-place-retry` is mapped to existing `places.results.retry`; the Hotel search marker is a state projection. Focused tests and the complete 200-test Safe Regression are green**.
-- Current gate: **runtime bundles are built. Shared Supabase Edge deployment, live health proof, immutable Integration deployment, signed-in operation, byte proof and exact rollback remain before acceptance**.
+- Current gate: **runtime bundles are built. Shared Supabase Edge v121 already proves Google-first/Foursquare-fallback; immutable Integration deployment, repeated signed-in operation, byte proof and exact rollback remain before acceptance**.
 - Fixed continuation: **after this public gate, prove one real Restaurant route and one real Activity/Culture route, activate the first real Hotel live-price source and separately approved affiliate handoffs, close P09/P10 and remaining Step-17 rows, then continue Blocks 2–5 without reordering**.
 - Scope: **this candidate changes the already authorized shared Supabase Places gateway and the Integration Worker only. It changes no DB schema, RLS policy, secret value, Main or Production deployment**.
+
+## M16.5 Block 1 Shared-Destination Continuity — Publicly deployed, rejected 13.82.145
+
+- Proven subset: **the public Hotel screen uses the new bright Luvia design on desktop and at 390 px without horizontal overflow. Hotels expose no ticket, entry or generic reservation control, and a Places-provider outage renders as unavailable rather than a false zero result. The compound Chat request correctly identified two tasks and searched nightlife in Lübeck**.
+- Decisive public counterevidence: **the second sequential task, `Reservierungspflicht im Tonfink prüfen`, lost the sentence-level Lübeck destination and fell back to the active Scharbeutz Trip. Exact-subject protection prevented a wrong venue or hotel from opening, but the read was still scoped to the wrong city**.
+- Root cause and correction: **the structured compiler attached Lübeck only to the first goal because the model did not repeat the already shared destination constraint on the second goal. App 13.82.146 now binds the one explicit sentence destination to dependent dialogue goals before their graphs are sliced for sequential execution. A new regression executes the second slice independently and requires its Places Owner call to remain in Lübeck**.
+- Provider truth: **Supabase Edge `luvia-gateway` v121 remains correct and unchanged. It attempts Google first, receives the external Google Cloud permission failure, and only then uses Foursquare. No DB, RLS, secret, Main or Production change occurred**.
 
 ## M16.5 Block 1 Whole-Sentence Requirement + Exact Bright Hotel — Publicly deployed, rejected 13.82.144
 

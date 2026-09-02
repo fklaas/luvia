@@ -47,6 +47,19 @@ for(const file of ['core/intelligence/travel-orchestration-core.js','core/intell
   assert.equal(response.results[0].evidence.exactSubjectResolved,true);
   assert.equal(response.results[0].evidence.automaticMutation,false);
 
+  const multiMessage='Finde mir in Lübeck einen Nachtclub und prüfe, ob ich im Tonfink reservieren muss.';
+  const multiCompiled=compiler.compileDialogue(multiMessage,{confidence:.98,goals:[
+    {type:'places',label:'Nachtclub in Lübeck finden',hardConstraints:[{key:'destination',value:'Lübeck',label:'In Lübeck'},{key:'category',value:'nightlife',label:'Nachtclub suchen'}]},
+    {type:'booking',label:'Reservierungspflicht im Tonfink prüfen',hardConstraints:[{key:'operation',value:'check_requirement',label:'Reservierungserfordernis prüfen'},{key:'target',value:'Tonfink',label:'Tonfink'}]}
+  ]},{trip:activeTrip,online:true,locale:'de-DE'});
+  const secondIntent=multiCompiled.intents.find(intent=>intent.sequence===2&&intent.domain==='booking');
+  assert.equal(secondIntent.entityHints.destinationName,'Lübeck','a sentence-level destination must remain bound to every dependent dialogue goal');
+  ownerCalls.length=0;mode='target';
+  const secondResponse=await runtime.runMessage(multiMessage,{compiledIntent:compiler.sliceIntentGraph(multiCompiled,2),sourceMessage:multiMessage,surface:'global-chat'});
+  assert.equal(ownerCalls[0].destination,'Lübeck','the sequential requirement step must not fall back to the active Scharbeutz trip');
+  assert.equal(secondResponse.results[0].evidence.destination,'Lübeck');
+  assert.equal(secondResponse.results[0].evidence.exactSubjectResolved,true);
+
   mode='wrong';ownerCalls.length=0;
   const mismatch=await runtime.runMessage(message,{compiledIntent:compiled,sourceMessage:message,surface:'global-chat'});
   assert.equal(mismatch.results[0].kind,'message');
