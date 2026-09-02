@@ -20,7 +20,7 @@ assert.ok(core,'browserless Places Domain Contract Core must install without a b
 assert.strictEqual(core.version,'1');
 
 const categories=core.categories();
-assert.strictEqual(Object.keys(categories).length,10);
+assert.strictEqual(Object.keys(categories).length,14);
 assert.ok(Object.isFrozen(categories));
 assert.strictEqual(categories.food.label,'Essen & Trinken');
 assert.strictEqual(categories.practical.label,'Praktisch unterwegs');
@@ -117,7 +117,7 @@ assert.ok(files.index.indexOf('global-place-contracts.js')<files.index.indexOf('
   assert.strictEqual(recommended.places[0].rating,4.7);
   assert.strictEqual(surface.getLifecycle({placeId:'p1'}),'favorite');
   console.log('M6 FINAL Places Domain Contract / Native Readiness: PASS');
-  console.log('Canonical categories: 10 / 10');
+  console.log('Canonical categories: 14 / 14');
   console.log('Direct navigator in locked Places device paths: 0');
   console.log('Places category UI private owner/device bypasses: 0');
 })().catch(error=>{console.error(error);process.exitCode=1});

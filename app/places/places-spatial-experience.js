@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.10.0-continuous-map-refresh';
+  const VERSION='1.11.0-contextual-filters-history';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -35,13 +35,35 @@
     food:{icon:'heart',hint:'Restaurant · Café · Bar'},
     accommodation:{icon:'home',hint:'Hotel · Apartment · Camping'},
     activities:{icon:'star',hint:'Freizeit · Familie · Wellness'},
+    themeparks:{icon:'spark',hint:'Themenpark · Erlebnispark'},
+    wellness:{icon:'heart',hint:'Spa · Sauna · Erholung'},
+    water:{icon:'map',hint:'Wasserpark · Schwimmen · Strand'},
     sights:{icon:'pin',hint:'Wahrzeichen · Aussicht'},
     photo:{icon:'camera',hint:'Licht · Perspektive · Natur'},
     culture:{icon:'culture',hint:'Museum · Kino · Bühne'},
     nature:{icon:'map',hint:'Strand · Park · Wandern'},
     shopping:{icon:'wallet',hint:'Markt · Boutique · Feinkost'},
+    malls:{icon:'wallet',hint:'Shopping Center · Kaufhaus'},
     nightlife:{icon:'spark',hint:'Bar · Club · Live-Musik'},
     practical:{icon:'route',hint:'Apotheke · Parken · Laden'}
+  });
+  const emptyFilters=()=>({openNow:false,rated:false,rating45:false,nearby:false,vegetarian:false,reservable:false,accessible:false,priceLevel:'',subtype:''});
+  const CATEGORY_FILTERS=Object.freeze({
+    food:Object.freeze({label:'Restaurant & Küche',subtypes:Object.freeze([
+      ['','Alle'],['restaurant','Restaurant'],['cafe','Café'],['bar','Bar'],['italian_restaurant','Italienisch'],['german_restaurant','Deutsch'],['asian_restaurant','Asiatisch'],['vegetarian_restaurant','Vegetarisch']
+    ]),facts:Object.freeze(['openNow','rating45','vegetarian','reservable','accessible','priceLevel'])}),
+    activities:Object.freeze({label:'Aktivität',subtypes:Object.freeze([['','Alle'],['amusement_park','Freizeitpark'],['playground','Spielplatz'],['zoo','Zoo'],['spa','Wellness'],['swimming_pool','Schwimmen']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
+    themeparks:Object.freeze({label:'Freizeitpark',subtypes:Object.freeze([['','Alle'],['amusement_park','Themenpark'],['amusement_center','Erlebniscenter'],['water_park','Wasserpark']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
+    wellness:Object.freeze({label:'Wellness',subtypes:Object.freeze([['','Alle'],['spa','Spa & Wellness']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
+    water:Object.freeze({label:'Wassererlebnis',subtypes:Object.freeze([['','Alle'],['water_park','Wasserpark'],['swimming_pool','Schwimmbad'],['beach','Strand'],['marina','Hafen']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
+    sights:Object.freeze({label:'Sehenswürdigkeit',subtypes:Object.freeze([['','Alle'],['tourist_attraction','Attraktion'],['historical_landmark','Historisch'],['monument','Denkmal'],['observation_deck','Aussicht']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
+    photo:Object.freeze({label:'Motiv',subtypes:Object.freeze([['','Alle'],['observation_deck','Aussicht'],['historical_landmark','Architektur'],['park','Natur'],['garden','Garten']]),facts:Object.freeze(['rating45','accessible'])}),
+    culture:Object.freeze({label:'Kulturort',subtypes:Object.freeze([['','Alle'],['museum','Museum'],['art_gallery','Galerie'],['movie_theater','Kino'],['performing_arts_theater','Theater'],['concert_hall','Konzert']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
+    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['spa','Erholung']]),facts:Object.freeze(['rating45','accessible'])}),
+    shopping:Object.freeze({label:'Einkaufen',subtypes:Object.freeze([['','Alle'],['shopping_mall','Center'],['market','Markt'],['clothing_store','Mode'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
+    malls:Object.freeze({label:'Einkaufszentrum',subtypes:Object.freeze([['','Alle'],['shopping_mall','Shopping Center'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
+    nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bar'],['night_club','Club'],['concert_hall','Live-Musik']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
+    practical:Object.freeze({label:'Praktischer Ort',subtypes:Object.freeze([['','Alle'],['pharmacy','Apotheke'],['supermarket','Supermarkt'],['parking','Parken'],['electric_vehicle_charging_station','Laden'],['atm','Geldautomat']]),facts:Object.freeze(['openNow','nearby','accessible'])})
   });
   const icons=Object.freeze({
     search:'<circle cx="10.5" cy="10.5" r="6.2"/><path d="m15.2 15.2 4.3 4.3"/>',
@@ -66,7 +88,7 @@
 
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:{openNow:false,rated:false,rating45:false,nearby:false},sort:'fit',filterOpen:false,
+    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',filterOpen:false,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null
   };
 
@@ -92,7 +114,8 @@
     return score;
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));
-  function filteredResults(){const rows=state.results.filter(place=>(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000)));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
+  const normalizedPriceLevel=value=>({0:'PRICE_LEVEL_FREE',1:'PRICE_LEVEL_INEXPENSIVE',2:'PRICE_LEVEL_MODERATE',3:'PRICE_LEVEL_EXPENSIVE',4:'PRICE_LEVEL_VERY_EXPENSIVE'}[clean(value)]||clean(value).toUpperCase());
+  function filteredResults(){const rows=state.results.filter(place=>(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||place.features?.servesVegetarianFood===true)&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!state.filters.priceLevel||normalizedPriceLevel(place.priceLevel)===state.filters.priceLevel));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function publicRuntime(filteredCount=filteredResults().length){
     const filteredEmpty=state.status==='ready'&&state.results.length>0&&filteredCount===0;
     return{status:state.offline?'offline':filteredEmpty?'empty':state.status,loading:state.status==='loading',offline:state.offline,error:state.error,settled:['ready','empty','error','offline'].includes(state.status)};
@@ -100,6 +123,11 @@
   function model(){const places=filteredResults();return COMPOSITION().compose({sourceContract:'places.v1',categories:state.categories,places,visibleLimit:state.visibleLimit,runtime:publicRuntime(places.length)})}
   function selectedPlace(){return state.results.find(place=>providerId(place)===state.selectedId)||state.results[0]||null}
   function categoryDefinition(key=state.category){return state.categories.find(item=>item.key===key)||state.categories[0]||{key:'activities',label:'Aktivitäten',primaryType:'activity',query:'Aktivitäten Erlebnisse Freizeit'}}
+  function categoryFilterDefinition(){return CATEGORY_FILTERS[state.category]||CATEGORY_FILTERS.activities}
+  function activeSearchDefinition(){
+    const definition=categoryDefinition(),filter=categoryFilterDefinition(),subtype=clean(state.filters.subtype),entry=filter.subtypes.find(item=>item[0]===subtype);
+    return{...definition,includedType:subtype||definition.includedType||'',query:entry&&subtype?`${entry[1]} ${definition.label}`:definition.query};
+  }
   function notify(message,type='success'){globalThis.LuviaUIKit?.toast?.(message,{type})}
 
   function decoratePreferences(items,trip=state.trip){
@@ -119,11 +147,12 @@
     const latKm=Math.abs(bounds.north-bounds.south)*111.32,lngKm=Math.abs(bounds.east-bounds.west)*111.32*Math.cos(point.latitude*Math.PI/180),radiusMeters=Math.min(50000,Math.max(250,Math.ceil(Math.hypot(latKm,lngKm)*500)));
     return{bounds,center:point,zoom:Number(map.getZoom?.()||0),radiusMeters,key:[bounds.south,bounds.west,bounds.north,bounds.east].map(value=>value.toFixed(4)).join(':')};
   }
-  async function viewportSearch({bounds,center,radiusMeters,query='Orte',type='custom',includedType='',trip=state.trip,providers=['google','foursquare'],openNow=false,minRating=null}={}){
+  async function viewportSearch({bounds,center,radiusMeters,query='Orte',type='custom',includedType='',trip=state.trip,providers=['google','foursquare'],openNow=false,minRating=null,minUserRatingCount=0,priceLevels=[],vegetarianOnly=false,reservableOnly=false,accessibleOnly=false}={}){
     const reader=placesContract()?.reads?.searchViewport;
     if(!bounds||!center||typeof reader!=='function')return[];
-    const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,query:clean(query)||'Orte',includedType,strictTypeFiltering:Boolean(includedType),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
-    return decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),trip);
+    const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,query:clean(query)||'Orte',includedType,strictTypeFiltering:Boolean(includedType),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
+    const rows=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),trip);
+    return rows.filter(place=>(!vegetarianOnly||place.features?.servesVegetarianFood===true)&&(!reservableOnly||place.features?.reservable===true)&&(!accessibleOnly||place.accessibilityOptions?.wheelchairAccessibleEntrance===true));
   }
 
   async function loadSaved(lifecycleToken=state.lifecycleToken){
@@ -213,9 +242,21 @@
     const ariaRole=view.status.ariaRole;
     return `<p class="lv-places-spatial__status is-${esc(view.status.kind)}" role="${esc(ariaRole)}" aria-live="${esc(view.status.ariaLive)}">${view.status.busy?'<i aria-hidden="true"></i>':''}<span>${esc(view.status.message)}</span>${view.status.canRetry?'<button type="button" data-places-retry>Erneut versuchen</button>':''}</p>`;
   }
+  function filterOption(key,label,iconName='check'){
+    return `<button type="button" data-places-filter-option="${esc(key)}" aria-pressed="${Boolean(state.filters[key])}">${icon(iconName)} ${esc(label)}</button>`;
+  }
   function filterMarkup(){
-    if(!state.filterOpen)return'';
-    return `<aside class="lv-places-spatial__filter-panel" aria-label="Places filtern"><div><span>Ergebnisse eingrenzen</span><strong>Nur belegbare Provider-Fakten filtern</strong></div><button type="button" data-places-filter-option="openNow" aria-pressed="${state.filters.openNow}">${icon('check')} Jetzt geöffnet</button><button type="button" data-places-filter-option="rated" aria-pressed="${state.filters.rated}">${icon('star')} Mit Bewertung</button><button type="button" data-places-filter-option="rating45" aria-pressed="${state.filters.rating45}">${icon('star')} Ab 4,5</button><button type="button" data-places-filter-option="nearby" aria-pressed="${state.filters.nearby}">${icon('route')} Bis 5 km</button><button type="button" data-places-sort="fit" aria-pressed="${state.sort==='fit'}">${icon('compass')} Persönliche Passung</button><button type="button" data-places-sort="rating" aria-pressed="${state.sort==='rating'}">${icon('star')} Beste Bewertung</button><button type="button" data-places-sort="distance" aria-pressed="${state.sort==='distance'}">${icon('route')} Kürzeste Entfernung</button><button type="button" data-places-filter-reset ${Object.values(state.filters).some(Boolean)||state.sort!=='fit'?'':'disabled'}>Zurücksetzen</button></aside>`;
+    const schema=categoryFilterDefinition(),facts=schema.facts,truthButtons=[
+      facts.includes('openNow')?filterOption('openNow','Jetzt geöffnet'):null,
+      filterOption('rated','Mit Bewertung','star'),
+      facts.includes('rating45')?filterOption('rating45','Ab 4,5','star'):null,
+      facts.includes('nearby')?filterOption('nearby','Bis 5 km','route'):null,
+      facts.includes('vegetarian')?filterOption('vegetarian','Vegetarisch bestätigt','check'):null,
+      facts.includes('reservable')?filterOption('reservable','Reservierbar bestätigt','ticket'):null,
+      facts.includes('accessible')?filterOption('accessible','Rollstuhlgerechter Eingang','route'):null
+    ].filter(Boolean).join('');
+    const price=facts.includes('priceLevel')?`<div class="lv-places-spatial__filter-group"><span>Preisniveau</span><div>${[['PRICE_LEVEL_INEXPENSIVE','€'],['PRICE_LEVEL_MODERATE','€€'],['PRICE_LEVEL_EXPENSIVE','€€€']].map(([value,label])=>`<button type="button" data-places-price="${value}" aria-pressed="${state.filters.priceLevel===value}">${label}</button>`).join('')}</div></div>`:'';
+    return `<div class="lv-places-spatial__filter-reveal ${state.filterOpen?'is-open':''}" aria-hidden="${!state.filterOpen}"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(categoryDefinition().label)} filtern"><div class="lv-places-spatial__filter-intro"><span>${esc(schema.label)} filtern</span><strong>Google-/Provider-Fakten, keine KI-Vermutungen</strong></div><div class="lv-places-spatial__filter-group is-wide"><span>Typ oder Landesküche</span><div>${schema.subtypes.map(([value,label])=>`<button type="button" data-places-subtype="${esc(value)}" aria-pressed="${state.filters.subtype===value}">${esc(label)}</button>`).join('')}</div></div><div class="lv-places-spatial__filter-facts">${truthButtons}</div>${price}<div class="lv-places-spatial__filter-sort"><button type="button" data-places-sort="fit" aria-pressed="${state.sort==='fit'}">${icon('compass')} Persönliche Passung</button><button type="button" data-places-sort="rating" aria-pressed="${state.sort==='rating'}">${icon('star')} Beste Bewertung</button><button type="button" data-places-sort="distance" aria-pressed="${state.sort==='distance'}">${icon('route')} Kürzeste Entfernung</button></div><button type="button" class="lv-places-spatial__filter-reset" data-places-filter-reset ${Object.values(state.filters).some(Boolean)||state.sort!=='fit'?'':'disabled'}>Filter zurücksetzen</button></aside></div>`;
   }
   function priceLabel(value){
     const normalized=clean(value).toUpperCase();
@@ -255,6 +296,19 @@
     const profile=(resolution.profileSignals||[]).slice(0,2),trip=(resolution.tripSignals||[]).slice(0,3),constraints=(resolution.hardConstraints||[]).slice(0,3);
     const ai=state.aiDecision?.ranking,aiLabel=ai?.used&&!ai?.fallback?'Luvia-KI ordnet · Fakten sichern ab':ai?.fallback?'Regelbasiert abgesichert · KI gerade nicht verfügbar':'Profil schützt · diese Reise gewichtet';
     return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>${esc(aiLabel)}</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
+  }
+  function rememberViewed(place){
+    const id=providerId(place);if(!id)return;
+    state.history=[{...place,providerPlaceId:id,viewedAt:Date.now()},...state.history.filter(item=>providerId(item)!==id)].slice(0,6);
+    refreshHistory();
+  }
+  function historyMarkup(){
+    const rows=state.history;
+    return `<section class="lv-places-spatial__history" data-places-history-region aria-label="Zuletzt auf der Karte angesehen"><header><div><small>Pin-Verlauf</small><strong>${rows.length?'Zuletzt angesehen':'Noch keinen Pin geöffnet'}</strong></div>${rows.length?'<button type="button" data-places-history-clear>Leeren</button>':''}</header><div class="lv-places-spatial__history-list">${rows.map((place,index)=>`<button type="button" data-places-history="${esc(providerId(place))}"><span>${index+1}</span><b>${esc(place.name||'Ort')}</b><small>${esc(place.address||categoryDefinition().label)}</small></button>`).join('')||'<p>Tippt einen Pin an. Nur die von euch geöffneten Orte erscheinen hier – keine zweite Ergebnisliste.</p>'}</div></section>`;
+  }
+  function refreshHistory(){
+    const current=state.root?.querySelector('[data-places-history-region]');if(!current)return;
+    const template=document.createElement('template');template.innerHTML=historyMarkup();current.replaceWith(template.content.firstElementChild);
   }
   function resultCard(place,index){
     const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image,imageUrl=clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri);
@@ -317,9 +371,10 @@
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
-          <aside class="lv-places-spatial__map-story"><small>${isFailure?'Ortsquelle nicht erreichbar':'Auf der Karte'}</small><strong>${mapHeadline}</strong></aside>
+          <aside class="lv-places-spatial__map-story"><small>${isFailure?'Ortsquelle nicht erreichbar':'Auf der Karte'}</small><strong>${mapHeadline}</strong><span><i aria-hidden="true">Passt</i> markiert nur belegte Präferenztreffer</span></aside>
         </section>
       </div>
+      ${historyMarkup()}
     </section>`;
     bind();
     requestAnimationFrame(()=>{if(renderToken===state.renderToken)mountMap(view,renderToken)});
@@ -375,14 +430,14 @@
     button.className='lv-places-spatial__marker';
     button.dataset.providerPlaceId=marker.providerPlaceId;
     button.dataset.compassTone=String((marker.rank-1)%4);
-    button.setAttribute('aria-label',`${marker.rank}. ${marker.name} in der Ergebnisliste auswählen`);
+    button.setAttribute('aria-label',`${marker.rank}. Details zu ${marker.name} öffnen${marker.preferred?' · passt besonders zu euren belegten Vorlieben':''}`);
     button.setAttribute('aria-controls',marker.resultId);
     button.setAttribute('aria-pressed',String(marker.providerPlaceId===state.selectedId));
-    button.innerHTML=`<span>${marker.rank}</span><b aria-hidden="true">✦</b>`;
+    button.innerHTML=`<span>${marker.rank}</span><b aria-hidden="true">Passt</b>`;
     button.classList.toggle('is-selected',marker.providerPlaceId===state.selectedId);
     button.classList.toggle('is-preferred',marker.preferred===true);
     button.addEventListener('click',()=>{
-      select(marker.providerPlaceId,false,false);
+      const place=findPlace(marker.providerPlaceId);select(marker.providerPlaceId,false,false);rememberViewed(place);
       openResultSheet([findPlace(marker.providerPlaceId)].filter(Boolean),marker.providerPlaceId);
     });
     return markerAnchor(marker,button);
@@ -409,9 +464,9 @@
     button.className='lv-places-spatial__marker is-inline-projection';
     button.dataset.providerPlaceId=marker.providerPlaceId;
     button.dataset.compassTone=String((marker.rank-1)%4);
-    button.setAttribute('aria-label',`${marker.rank}. Details zu ${marker.name} öffnen`);
+    button.setAttribute('aria-label',`${marker.rank}. Details zu ${marker.name} öffnen${marker.preferred?' · passt besonders zu euren belegten Vorlieben':''}`);
     button.setAttribute('aria-pressed',String(marker.providerPlaceId===selectedId));
-    button.innerHTML=`<span>${marker.rank}</span><b aria-hidden="true">✦</b>`;
+    button.innerHTML=`<span>${marker.rank}</span><b aria-hidden="true">Passt</b>`;
     button.classList.toggle('is-selected',marker.providerPlaceId===selectedId);
     button.classList.toggle('is-preferred',marker.preferred===true);
     button.addEventListener('click',()=>onSelect?.(marker.providerPlaceId,marker));
@@ -470,14 +525,14 @@
   function mountMap(view,renderToken=state.renderToken){
     const container=state.root?.querySelector('[data-places-map]');
     if(!container||renderToken!==state.renderToken)return;
-    if(!globalThis.maplibregl){setMapMessage('Die geografische Karte ist gerade nicht verfügbar. Alle Orte bleiben in der Liste vollständig bedienbar.','unavailable');return}
+    if(!globalThis.maplibregl){setMapMessage('Die geografische Karte ist gerade nicht verfügbar. Bitte versuche den Kartenausschnitt gleich erneut.','unavailable');return}
     try{
-      const def=categoryDefinition();
+      const def=activeSearchDefinition();
       const target=state.trip?.destination||state.trip||{},initialCenter=target.location||target.center||target.coordinates||{latitude:target.latitude,longitude:target.longitude};
-      state.mapProjection=mountProjection(container,state.results,{selectedId:state.selectedId,initialCenter,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{select(id,false,false);openResultSheet([findPlace(id)].filter(Boolean),id)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedTypes?.[0]||'',trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null)}),onViewportResults:rows=>{state.results=rows;state.selectedId=rows.some(place=>providerId(place)===state.selectedId)?state.selectedId:null;const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${rows.length} Orte im sichtbaren Ausschnitt · Pin antippen`}});
+      state.mapProjection=mountProjection(container,state.results,{selectedId:state.selectedId,initialCenter,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place);openResultSheet([place].filter(Boolean),id)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedType,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevel?[state.filters.priceLevel]:[],vegetarianOnly:state.filters.vegetarian,reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible}),onViewportResults:rows=>{state.results=rows;state.selectedId=rows.some(place=>providerId(place)===state.selectedId)?state.selectedId:null;const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${filteredResults().length} Orte im sichtbaren Ausschnitt · Pin antippen`}});
       state.map=state.mapProjection?.map||null;
     }catch{
-      if(renderToken===state.renderToken&&container.isConnected)setMapMessage('Die Karte konnte nicht aufgebaut werden. Die Ergebnisliste bleibt verfügbar.','unavailable');
+      if(renderToken===state.renderToken&&container.isConnected)setMapMessage('Die Karte konnte nicht aufgebaut werden. Bitte versuche den Kartenausschnitt gleich erneut.','unavailable');
     }
   }
   function destroyMap(){
@@ -571,10 +626,24 @@
     }
     render();
   }
+  function updateFilteredMap(){
+    const rows=filteredResults(),view=state.mapProjection?.update?.(rows);
+    const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${view?.markers?.length??rows.length} Orte im sichtbaren Ausschnitt · Pin antippen`;
+    const count=Object.values(state.filters).filter(Boolean).length,button=state.root?.querySelector('[data-places-filter]'),badge=button?.querySelector('.lv-places-spatial__filter-count');
+    if(badge)badge.textContent=String(count);
+  }
+  function setFilterOpen(open,{focus=false}={}){
+    state.filterOpen=Boolean(open);
+    const trigger=state.root?.querySelector('[data-places-filter]'),reveal=state.root?.querySelector('.lv-places-spatial__filter-reveal');
+    trigger?.setAttribute('aria-expanded',String(state.filterOpen));
+    reveal?.classList.toggle('is-open',state.filterOpen);
+    reveal?.setAttribute('aria-hidden',String(!state.filterOpen));
+    if(focus&&state.filterOpen)requestAnimationFrame(()=>reveal?.querySelector('button')?.focus());
+  }
   function bind(){
     const root=state.root;
-    root.querySelector('[data-places-search]')?.addEventListener('submit',event=>{event.preventDefault();search({query:new FormData(event.currentTarget).get('query'),category:state.category})});
-    root.querySelectorAll('[data-places-category]').forEach(button=>button.addEventListener('click',()=>{const def=categoryDefinition(button.dataset.placesCategory);search({query:def.query,category:def.key})}));
+    root.querySelector('[data-places-search]')?.addEventListener('submit',event=>{event.preventDefault();state.filters.subtype='';search({query:new FormData(event.currentTarget).get('query'),category:state.category})});
+    root.querySelectorAll('[data-places-category]').forEach(button=>button.addEventListener('click',()=>{const def=categoryDefinition(button.dataset.placesCategory);state.filters=emptyFilters();state.filterOpen=true;search({query:def.query,category:def.key})}));
     root.querySelectorAll('[data-places-select]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.placesSelect)));
     root.querySelectorAll('[data-places-external]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openExternal(link.dataset.placesExternal)}));
     root.querySelectorAll('[data-places-maps]').forEach(button=>button.addEventListener('click',()=>openMaps(findPlace(button.dataset.placesMaps))));
@@ -597,10 +666,13 @@
     root.querySelectorAll('[data-places-retry]').forEach(button=>button.addEventListener('click',()=>search({focus:false})));
     root.querySelector('[data-places-more]')?.addEventListener('click',()=>showMore());
     root.querySelector('[data-places-back-plan]')?.addEventListener('click',()=>globalThis.LuviaApp?.openCompass?.('plan')||globalThis.LuviaApp?.show?.('plan'));
-    root.querySelectorAll('[data-places-filter]').forEach(button=>button.addEventListener('click',()=>{state.filterOpen=!state.filterOpen;render();if(state.filterOpen)state.root?.querySelector('[data-places-filter-option]')?.focus()}));
-    root.querySelectorAll('[data-places-filter-option]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.placesFilterOption;state.filters[key]=!state.filters[key];state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()}));
-    root.querySelectorAll('[data-places-sort]').forEach(button=>button.addEventListener('click',()=>{state.sort=button.dataset.placesSort;state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()}));
-    root.querySelector('[data-places-filter-reset]')?.addEventListener('click',()=>{state.filters={openNow:false,rated:false,rating45:false,nearby:false};state.sort='fit';state.visibleLimit=INITIAL_VISIBLE_RESULTS;render()});
+    root.querySelectorAll('[data-places-filter]').forEach(button=>button.addEventListener('click',()=>setFilterOpen(!state.filterOpen,{focus:true})));
+    root.querySelectorAll('[data-places-filter-option]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.placesFilterOption;state.filters[key]=!state.filters[key];button.setAttribute('aria-pressed',String(state.filters[key]));updateFilteredMap()}));
+    root.querySelectorAll('[data-places-sort]').forEach(button=>button.addEventListener('click',()=>{state.sort=button.dataset.placesSort;root.querySelectorAll('[data-places-sort]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));updateFilteredMap()}));
+    root.querySelectorAll('[data-places-price]').forEach(button=>button.addEventListener('click',()=>{state.filters.priceLevel=state.filters.priceLevel===button.dataset.placesPrice?'':button.dataset.placesPrice;root.querySelectorAll('[data-places-price]').forEach(item=>item.setAttribute('aria-pressed',String(item.dataset.placesPrice===state.filters.priceLevel)));updateFilteredMap()}));
+    root.querySelectorAll('[data-places-subtype]').forEach(button=>button.addEventListener('click',()=>{state.filters.subtype=button.dataset.placesSubtype||'';state.filterOpen=true;const def=activeSearchDefinition();search({query:def.query,category:state.category,focus:false})}));
+    root.querySelector('[data-places-filter-reset]')?.addEventListener('click',()=>{state.filters=emptyFilters();state.sort='fit';state.filterOpen=true;const def=activeSearchDefinition();search({query:def.query,category:state.category,focus:false})});
+    root.addEventListener?.('click',event=>{const item=event.target.closest?.('[data-places-history]');if(item){const place=state.history.find(row=>providerId(row)===item.dataset.placesHistory);if(place){rememberViewed(place);openResultSheet([place],providerId(place))}return}if(event.target.closest?.('[data-places-history-clear]')){state.history=[];refreshHistory()}});
   }
 
   function bindPreferenceRefresh(){
@@ -615,11 +687,11 @@
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters={openNow:false,rated:false,rating45:false,nearby:false};state.sort='fit';state.filterOpen=false;state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.filterOpen=false;state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
     if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
-    state.categories=COMPOSITION().normalizeCategories(contract.reads.categories());
+    state.categories=COMPOSITION().normalizeCategories(contract.reads.categories()).filter(category=>category.key!=='accommodation'&&category.primaryType!=='accommodation');
     const networkPort=port('NetworkPort');
     state.offline=networkPort?.isOnline?.()===false;
     loadCached();

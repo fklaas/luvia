@@ -3,7 +3,7 @@ var LuviaPlacesSpatialCompositionCoreV1=(()=>{
 
 const CONTRACT_ID='consumer.places-spatial-composition.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.2.0';
 const SOURCE_CONTRACT='places.v1';
 const INITIAL_VISIBLE_RESULTS=6;
 const MAX_RESULTS=80;
@@ -55,6 +55,7 @@ function normalizeCategories(input){
       label:clean(value.label)||key,
       icon:clean(value.icon)||null,
       primaryType:clean(value.primaryType||value.type)||'custom',
+      includedType:clean(value.includedType),
       includedTypes:Array.isArray(value.includedTypes)?value.includedTypes.map(clean).filter(Boolean):[],
       query:clean(value.query),
       order:categories.length
@@ -145,7 +146,7 @@ function markerProjection(result){
     resultId:`place-result-${result.rank}`,
     name:result.name,
     rank:result.rank,
-    preferred:result.preferenceScore!=null&&result.preferenceCoverage>=45&&result.preferenceScore>=65&&result.preferenceReasons.length>0,
+    preferred:result.preferenceScore!=null&&result.preferenceCoverage>0&&result.preferenceScore>=55&&result.preferenceReasons.length>0,
     latitude:result.coordinates.latitude,
     longitude:result.coordinates.longitude,
     lngLat:[result.coordinates.longitude,result.coordinates.latitude],

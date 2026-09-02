@@ -36,7 +36,7 @@ capabilities inside this loop. None is an independent unfinished mini-product.
   publicly deployed `.149` repaired exact selection and viewport breadth but
   is rejected because background refresh hid the rendered map behind a grey
   loading/empty fallback.
-- App/Core `13.82.150 / 4.82.150` is the local continuous-map Integration
+- App/Core `13.82.151 / 4.82.151` is the local continuous-map Integration
   candidate. It retains tiles and old pins during pan/zoom loading, stages new
   pins before replacement and keeps the map active for empty or transient-error
   outcomes. It is not public evidence until deployed and operated on Stable and

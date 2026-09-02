@@ -1,8 +1,8 @@
 {
   "contractId": "luvia.human-ai-action-source-audit.v1",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 907,
+  "markerCount": 914,
   "markers": [
     {
       "marker": "data-accent",
@@ -607,15 +607,6 @@
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
         "app/journey/journey-day-composer.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-base",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -1410,15 +1401,6 @@
         "app/public-landing-motion.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-booking",
-      "category": "Buchung & Anbieterkommunikation",
-      "classification": "AKTIONSKANDIDAT",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
-      ],
-      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
       "marker": "data-booking-",
@@ -2593,7 +2575,6 @@
       "category": "Navigation & Oberfläche",
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/mobility/mobility-module.js",
         "modules/nature/nature-module.js",
@@ -3090,15 +3071,6 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
-      "marker": "data-guests",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
       "marker": "data-guided-refine",
       "category": "Navigation & Oberfläche",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -3225,13 +3197,67 @@
       "assessment": "Semantisch als Booking-Flow für die exakt ausgewählte Unterkunft erfasst; der öffentliche Booking Owner prüft den konkreten Provider-, Place- und Routennachweis."
     },
     {
-      "marker": "data-hotel-detail-booking",
-      "category": "Buchung & Anbieterkommunikation",
+      "marker": "data-hotel-filter",
+      "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "modules/accommodations/accommodation-module.js"
       ],
-      "assessment": "Semantisch als Booking-Flow aus dem Detail der exakt ausgewählten Unterkunft erfasst; kein Ticket- oder fremder Unterkunftsweg darf ersatzweise geöffnet werden."
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-filter-panel",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-hotel-filter-reset",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-filter-shell",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-hotel-filter-toggle",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-history-clear",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-history-id",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
       "marker": "data-hotel-map",
@@ -3241,6 +3267,15 @@
         "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; der Marker trägt die gemeinsame räumliche Projektion ausschließlich für Unterkünfte mit belegten Koordinaten."
+    },
+    {
+      "marker": "data-hotel-pin-history",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-hotel-place-id",
@@ -3320,7 +3355,6 @@
       "category": "Navigation & Oberfläche",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/mobility/mobility-module.js",
         "modules/nature/nature-module.js",
@@ -3335,15 +3369,6 @@
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
         "core/places/places-final-foundation.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-in",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -4310,6 +4335,24 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-lvjs-detail-close",
+      "category": "Navigation & Oberfläche",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvjs-details",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-lvjs-facts",
       "category": "Navigation & Oberfläche",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4427,6 +4470,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-lvjs-staged-actions",
+      "category": "Navigation & Oberfläche",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-lvjs-status",
       "category": "Navigation & Oberfläche",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4531,6 +4583,15 @@
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
         "core/trips/trip-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-map-refreshing",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -4953,15 +5014,6 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
-      "marker": "data-notes",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
       "marker": "data-open",
       "category": "Navigation & Oberfläche",
       "classification": "AKTIONSKANDIDAT",
@@ -5021,15 +5073,6 @@
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
         "app/memory-worlds-v3.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-out",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -5536,7 +5579,6 @@
       "category": "Places & Ortsentdeckung",
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/mobility/mobility-module.js",
         "modules/nature/nature-module.js",
@@ -6077,6 +6119,33 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-places-history",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-places-history-clear",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-places-history-region",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-places-map",
       "category": "Places & Ortsentdeckung",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -6131,6 +6200,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-places-price",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-places-retry",
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
@@ -6167,20 +6245,20 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-places-subtype",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-plan",
       "category": "Navigation & Oberfläche",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/places/places-final-foundation.js"
-      ],
-      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
-    },
-    {
-      "marker": "data-plan-accommodation",
-      "category": "Navigation & Oberfläche",
-      "classification": "AKTIONSKANDIDAT",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
@@ -6530,8 +6608,7 @@
       "category": "Profil, Vorlieben & Privatsphäre",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
-        "auth/ui.js",
-        "modules/accommodations/accommodation-module.js"
+        "auth/ui.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
@@ -7032,15 +7109,6 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
-      "marker": "data-rooms",
-      "category": "Navigation & Oberfläche",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
       "marker": "data-rotate",
       "category": "Medien & Galerie",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -7320,15 +7388,6 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/trips/trip-experience.js"
-      ],
-      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
-    },
-    {
-      "marker": "data-save-stay",
-      "category": "Navigation & Oberfläche",
-      "classification": "AKTIONSKANDIDAT",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },

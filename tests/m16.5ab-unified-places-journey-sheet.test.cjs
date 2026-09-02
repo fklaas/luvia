@@ -76,7 +76,8 @@ assert.match(read('app/journey/journey-day-composer.css'),/grid-template-rows:au
 
 assert.match(sheet,/async function openResults\(/);
 assert.match(sheet,/sharedPreferenceContext\(input,\{fast:true\}\)/,'Places search results must paint from provider facts and the bounded local preference projection');
-assert.match(sheet,/rankForTravelers\(rawInput\.places,input\.groupContext,input,\{useAI:false\}\)/,'AI explanation must not delay the first visible Places result sheet');
+assert.match(sheet,/const photoReady=await Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),3200,place\)\)\)/,'the exact selected Place must receive a bounded provider-photo attempt before first paint');
+assert.match(sheet,/rankForTravelers\(photoReady,input\.groupContext,input,\{useAI:false\}\)/,'AI explanation must not delay the first photo-ready Places result sheet');
 assert.match(sheet,/LuviaPlacesResultEnrichment/,'full traveler and AI enrichment must repaint the already visible Places sheet in the background');
 assert.match(sheet,/Ein Tipp wählt/);
 assert.match(sheet,/data-lvjs-heading/,'the visible result count must be patched from the actual loaded choices');
@@ -117,7 +118,7 @@ assert.match(sheet,/accommodation:'Unterkunft'/,'a hotel must be presented as an
 assert.match(sheet,/if\(\['nightlife','activities','wellness'\]\.includes\(visual\)\)return'activity'/,'nightlife and activities must keep an activity owner identity instead of being persisted as restaurants');
 assert.match(sheet,/providerNativeTypes/,'visual category projection must use the complete provider taxonomy when a primary type is generic');
 assert.match(sheet,/data-lvjs-booking="\$\{esc\(id\)\}"/,'only a selected card with an evidenced Booking route may expose its action');
-assert.match(sheet,/openBooking\(place,bookingButton,form/,'Booking must act on the exact card-local Place and schedule');
+assert.match(sheet,/openBooking\(plannedPlace,bookingButton,form/,'Booking must act on the exact card-local Place and its correlated Timeline identity');
 assert.match(sheet,/data-lvjs-plan="\$\{esc\(id\)\}"/,'each card must bind its own explicit Timeline action for real pointer and touch input');
 assert.match(sheet,/function imageAttribution\(place\)/,'verified fixture or provider photo attribution must be carried as structured evidence');
 assert.match(sheet,/lvjs-photo-credit/,'the visible suggestion card must disclose photographer and license');

@@ -43,7 +43,7 @@ assert.equal(core.maxResults,80);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
-  runtimeVersion:'1.1.0',
+  runtimeVersion:'1.2.0',
   sourceContract:'places.v1',
   browserless:true,
   deterministic:true,
@@ -63,8 +63,8 @@ const categories={
   invalid:null
 };
 assert.deepEqual(plain(core.normalizeCategories(categories)),[
-  {key:'food',label:'Essen & Trinken',icon:'restaurant',primaryType:'restaurant',includedTypes:['restaurant','cafe'],query:'Restaurants Cafés',order:0},
-  {key:'nature',label:'Natur & Erholung',icon:'leaf',primaryType:'nature',includedTypes:['park','beach'],query:'Parks Natur',order:1}
+  {key:'food',label:'Essen & Trinken',icon:'restaurant',primaryType:'restaurant',includedType:'',includedTypes:['restaurant','cafe'],query:'Restaurants Cafés',order:0},
+  {key:'nature',label:'Natur & Erholung',icon:'leaf',primaryType:'nature',includedType:'',includedTypes:['park','beach'],query:'Parks Natur',order:1}
 ]);
 assert.equal(Object.isFrozen(core.normalizeCategories(categories)),true);
 

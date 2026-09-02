@@ -58,9 +58,11 @@ function listConflicts(options={}){return snapshot(options).conflicts}
 function planTrust(identity,options={}){
   const entry=typeof identity==='object'&&identity?.id?identity:getEntry(identity,options);
   if(!entry)return null;
-  const metadata=entry.metadata||{},raw=String(metadata.planTrust||metadata.bookingStatus||entry.status||entry.lifecycle||'').toLowerCase();
+  const metadata=entry.metadata||{},bookingStatus=String(metadata.bookingStatus||'').toLowerCase(),raw=String(bookingStatus||metadata.planTrust||entry.status||entry.lifecycle||'').toLowerCase();
   let label='bestätigt',kind='confirmed';
-  if(/wait|pending|requested|angefragt/.test(raw)){label='wartet auf Antwort';kind='waiting'}
+  if(/draft|ready|forwarded|wait|pending|requested|angefragt|change_requested|cancellation_requested/.test(raw)){label=bookingStatus?'Buchung noch unbestätigt':'wartet auf Antwort';kind='waiting'}
+  else if(/cancelled|canceled|storniert/.test(raw)){label='Buchung storniert';kind='cancelled'}
+  else if(/declined|abgelehnt|failed/.test(raw)){label='Buchung nicht bestätigt';kind='attention'}
   else if(/vote|proposal|abstimmung/.test(raw)){label='Abstimmung läuft';kind='vote'}
   else if(/suggest|draft|vorschlag/.test(raw)){label='nur vorgeschlagen';kind='suggested'}
   return Object.freeze({entryId:String(entry.id||''),label,kind,planningTrace:metadata.planningTrace||null,providerObservedAt:metadata.providerFacts?.observedAt||null});

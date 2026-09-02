@@ -1,11 +1,12 @@
 (()=>{
 'use strict';
 
-const VERSION='1.12.0-owner-read-bundle';
+const VERSION='1.13.0-booking-status-projection';
 const boundRoots=new WeakSet();
 let dayHandle=null;
 let activeTimelineRoot=null;
 let presenceEventsBound=false;
+let bookingEventsBound=false;
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const contract=()=>globalThis.LuviaJourneyContractV1||(()=>{throw new Error('Journey Contract v1 fehlt.')})();
 const experience=()=>globalThis.LuviaExperienceContractV1||null;
@@ -122,7 +123,15 @@ async function bookingForEntry(entry){
  const api=globalThis.LuviaBookingContractV1;if(!api?.reads?.listForTrip||!entry?.tripId)return null;
  try{const rows=await api.reads.listForTrip(entry.tripId);return(rows||[]).find(row=>String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId||'')||String(row.place_id||row.placeId||'')===String(entry.placeId||''))||null}catch{return null}
 }
-function trustForBooking(row={}){const raw=String(row.status||'').toLowerCase();if(/confirmed|booked|reserved|completed/.test(raw))return{label:'bestätigt',kind:'confirmed'};if(/requested|ready|forwarded|awaiting|pending|alternative_proposed|needs_action/.test(raw))return{label:'wartet auf Antwort',kind:'waiting'};return null}
+function trustForBooking(row={}){
+ const raw=String(row.status||'').toLowerCase();
+ if(/confirmed|booked|reserved|completed/.test(raw))return{label:'Buchung bestätigt',kind:'confirmed'};
+ if(/cancelled|canceled|storniert/.test(raw))return{label:'Buchung storniert',kind:'cancelled'};
+ if(/declined|abgelehnt|failed/.test(raw))return{label:'Buchung nicht bestätigt',kind:'attention'};
+ if(/cancellation_requested/.test(raw))return{label:'Stornierung angefragt',kind:'waiting'};
+ if(/change_requested|alternative_proposed/.test(raw))return{label:'Änderung noch offen',kind:'waiting'};
+ return{label:'Buchung noch unbestätigt',kind:'waiting'};
+}
 async function hydrateBookingTrust(root){
  const api=globalThis.LuviaBookingContractV1,trip=globalThis.LuviaTripContractV1?.getActiveTrip?.()||{};if(!root?.isConnected||!api?.reads?.listForTrip||!trip?.id)return;
  let rows=[];try{rows=await api.reads.listForTrip(trip.id)||[]}catch{return}
@@ -222,6 +231,7 @@ function syncTimelineSelection(root,date){
 function bindTimeline(root=document){
   if(!root)return;
   activeTimelineRoot=root;if(!presenceEventsBound){presenceEventsBound=true;['luvia:place-visit-confirmation-required','luvia:place-visit-rejected'].forEach(name=>globalThis.addEventListener(name,()=>{if(activeTimelineRoot?.isConnected)hydratePendingVisits(activeTimelineRoot)}))}
+  if(!bookingEventsBound){bookingEventsBound=true;['luvia:booking-changed','luvia:booking-ready'].forEach(name=>globalThis.addEventListener(name,()=>{if(activeTimelineRoot?.isConnected)hydrateBookingTrust(activeTimelineRoot)}));globalThis.addEventListener('focus',()=>{if(activeTimelineRoot?.isConnected)hydrateBookingTrust(activeTimelineRoot)})}
   root.querySelectorAll('[data-timeline-date]').forEach(button=>button.addEventListener('click',()=>{
     const date=button.dataset.timelineDate;
     root.querySelectorAll('[data-timeline-date]').forEach(item=>{const active=item===button;item.classList.toggle('is-active',active);item.setAttribute('aria-pressed',String(active))});

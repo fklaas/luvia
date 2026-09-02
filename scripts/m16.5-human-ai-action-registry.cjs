@@ -689,6 +689,50 @@ function currentSourceMarkers() {
   return new Map([...markerMap.entries()].map(([marker, files]) => [marker, [...files].sort()]));
 }
 
+const SOURCE_MARKER_DECISIONS = Object.freeze({
+  'data-hotel-filter': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-hotel-filter-panel': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-hotel-filter-reset': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-hotel-filter-shell': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-hotel-filter-toggle': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-hotel-history-clear': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-hotel-history-id': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-hotel-pin-history': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lvjs-detail-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-lvjs-details': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-lvjs-staged-actions': ['Navigation & Oberfläche', 'STATUS/EINGABE/PROJEKTION'],
+  'data-map-refreshing': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-places-history': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-places-history-clear': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-places-history-region': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-places-price': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-places-subtype': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+});
+
+function materializeSourceAudit() {
+  const previous = readJson(SOURCE_AUDIT_PATH);
+  const previousByMarker = new Map(previous.markers.map(record => [record.marker, record]));
+  const markers = [...currentSourceMarkers()].sort(([left], [right]) => left.localeCompare(right)).map(([marker, sources]) => {
+    const existing = previousByMarker.get(marker);
+    if (existing) return { ...existing, sources };
+    const decision = SOURCE_MARKER_DECISIONS[marker];
+    assert.ok(decision, `new active marker ${marker} needs an explicit audit decision`);
+    const [category, classification] = decision;
+    return {
+      marker,
+      category,
+      classification,
+      sources,
+      assessment: classification === 'AKTIONSKANDIDAT'
+        ? 'Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst.'
+        : 'Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert.',
+    };
+  });
+  const audit = { ...previous, version: '1.0.4', markerCount: markers.length, markers };
+  fs.writeFileSync(SOURCE_AUDIT_PATH, `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
+  console.log(`WROTE ${path.relative(ROOT, SOURCE_AUDIT_PATH).replace(/\\/g, '/')} (${markers.length} deliberate markers)`);
+}
+
 function validateRegistry() {
   const registry = readJson(REGISTRY_PATH);
   const schema = readJson(SCHEMA_PATH);
@@ -739,8 +783,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 907);
-  assert.equal(sourceAudit.markerCount, 907);
+  assert.equal(sourceAudit.markers.length, 914);
+  assert.equal(sourceAudit.markerCount, 914);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');
@@ -931,7 +975,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-02\n\n` +
-    `Status: **B0.01–B0.10 PUBLIC COMPLETE ON 13.82.135 / B1 FOUNDATION PUBLIC ON 13.82.136 + TRIP READ ON 13.82.138 + PLACES MUTATIONS ON 13.82.139 + BOOKING LIFECYCLE/PLACE-ROUTE INTEGRITY ON 13.82.143 / RECOVERY BASELINE ON 13.82.147 / 13.82.148–149 REJECTED / CONTINUOUS-MAP CANDIDATE ON 13.82.150 / PRODUCT PARITY CONTINUES THROUGH B1–B5**\n\n` +
+    `Status: **B0.01–B0.10 PUBLIC COMPLETE ON 13.82.135 / B1 FOUNDATION PUBLIC ON 13.82.136 + TRIP READ ON 13.82.138 + PLACES MUTATIONS ON 13.82.139 + BOOKING LIFECYCLE/PLACE-ROUTE INTEGRITY ON 13.82.143 / RECOVERY BASELINE ON 13.82.147 / 13.82.148–149 REJECTED / CONTINUOUS-MAP CANDIDATE ON 13.82.151 / PRODUCT PARITY CONTINUES THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -985,7 +1029,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read, accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol, and accepted App \`13.82.143\` proved the Booking lifecycle plus exact Place-route gate. App \`13.82.147\` retains the accepted recovery baseline; Apps \`13.82.148\` and \`13.82.149\` are rejected counterevidence, and App \`13.82.150\` is the local uninterrupted-map candidate; provider-positive public evidence remains open.\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read, accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol, and accepted App \`13.82.143\` proved the Booking lifecycle plus exact Place-route gate. App \`13.82.147\` retains the accepted recovery baseline; Apps \`13.82.148\` and \`13.82.149\` are rejected counterevidence, and App \`13.82.151\` is the local uninterrupted-map candidate; provider-positive public evidence remains open.\n\n` +
     `## B1 registry delta retained after visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
@@ -997,6 +1041,11 @@ function buildReport(validated = validateRegistry()) {
 }
 
 function main() {
+  if (process.argv.includes('--write-source-audit')) {
+    materializeSourceAudit();
+    materializeNavigationAIParity();
+    materializeOwnerBindingDecisions();
+  }
   if (process.argv.includes('--write-owner-bindings')) materializeOwnerBindingDecisions();
   if (process.argv.includes('--write-navigation-ai')) materializeNavigationAIParity();
   const validated = validateRegistry();
@@ -1035,6 +1084,7 @@ module.exports = {
   loadTripOwnerContract,
   materializeOwnerBindingDecisions,
   materializeNavigationAIParity,
+  materializeSourceAudit,
   methodAt,
   validateRegistry,
 };

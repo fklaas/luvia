@@ -750,6 +750,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-hotel-consumer-owner.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Contextual Map + Clean Pin Detail',
+    test: 'tests/m16.5-block1-contextual-map-detail-contract.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Chat Navigation Parity',
     test: 'tests/m16.5-block1-chat-navigation-parity.test.cjs'
   },
