@@ -6,7 +6,7 @@ const VERSION='1';
 const RUNTIME_VERSION='1.1.0';
 const SOURCE_CONTRACT='places.v1';
 const INITIAL_VISIBLE_RESULTS=6;
-const MAX_RESULTS=18;
+const MAX_RESULTS=80;
 
 const immutable=value=>{
   if(value==null||typeof value!=='object')return value;
@@ -98,6 +98,9 @@ function normalizePlace(input){
     userRatingCount:finiteNumber(input.userRatingCount??input.user_rating_count),
     distanceMeters:finiteNumber(input.distanceMeters??input.distance_meters),
     aiMatchScore:finiteNumber(input.aiMatchScore??input.ai_match_score??input.discoveryScore),
+    preferenceScore:finiteNumber(input.preferenceFit?.score??input.groupFit?.score??input.preferenceScore),
+    preferenceCoverage:finiteNumber(input.preferenceFit?.coverage??input.groupFit?.coverage),
+    preferenceReasons:stringArray(input.preferenceReasons||input.aiReasons||input._luviaReasons),
     priceLevel:clean(input.priceLevel||input.price_level)||null,
     openNow:typeof input.openNow==='boolean'?input.openNow:(typeof input.currentOpeningHours?.openNow==='boolean'?input.currentOpeningHours.openNow:null),
     lifecycle:clean(input.lifecycle||input.lifecycleStatus||input.lifecycle_status||input.status)||'discovered',
@@ -142,6 +145,7 @@ function markerProjection(result){
     resultId:`place-result-${result.rank}`,
     name:result.name,
     rank:result.rank,
+    preferred:result.preferenceScore!=null&&result.preferenceCoverage>=45&&result.preferenceScore>=65&&result.preferenceReasons.length>0,
     latitude:result.coordinates.latitude,
     longitude:result.coordinates.longitude,
     lngLat:[result.coordinates.longitude,result.coordinates.latitude],

@@ -72,7 +72,7 @@ assert.match(productReset, /Zero cross-venue and cross-property redirects/);
 assert.match(productReset, /No parallel result list appears beside or below the map/);
 assert.match(productReset, /five independent users/);
 assert.match(productReset, /External provider delay does not stop the whole product/);
-assert.match(productReset, /Finish `\.148` inventory, regression, clean commit/);
+assert.match(productReset, /Finish `\.149` inventory, regression, clean commit/);
 assert.match(fiftyPoint, /LUVIA-PRODUCT-RESET-MASTERPLAN-2026\.md/);
 assert.match(handout, /PRODUCT RESET BINDING/);
 

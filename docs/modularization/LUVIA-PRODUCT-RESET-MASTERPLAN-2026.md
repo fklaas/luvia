@@ -31,9 +31,9 @@ capabilities inside this loop. None is an independent unfinished mini-product.
 
 ## 2. Current truthful baseline
 
-- Stable Integration remains App/Core `13.82.147 / 4.82.147` until the complete
-  `.148` acceptance and release chain passes.
-- App/Core `13.82.148 / 4.82.148` is a local Integration candidate for map,
+- Stable Integration remains App/Core `13.82.147 / 4.82.147` after `.148` was
+  rejected because one pin opened the complete result collection.
+- App/Core `13.82.149 / 4.82.149` is a local Integration candidate for map,
   Place-sheet, Hotel identity, action semantics and provider-gate recovery. It
   is not public evidence until deployed and operated on Stable and Immutable.
 - Main and Production remain locked.
@@ -89,6 +89,18 @@ actually reached. A lower level remains useful when named honestly.
   experience.
 - Selecting a pin opens the one bright Journey suggestion sheet / Bottom Sheet
   for Place, Hotel, Restaurant, Event or Activity.
+- One pin opens exactly one provider entity. A Bottom Sheet opened from a pin
+  never receives the complete result collection.
+- Panning or zooming runs a debounced query for the new visible bounds in every
+  productive spatial consumer. Valid new provider results become pins without
+  requiring a new destination-form submission.
+- A viewport is split into four Google-primary requests because Google returns
+  at most 20 results per request. Results are deduplicated by provider identity,
+  filtered to the requested bounds and capped at 80 unique pins per viewport.
+  Further panning/zooming loads the next visible area. This is broad provider
+  coverage, not a false promise that Google exposes an exhaustive inventory.
+- Personal or Trip fit may decorate a pin only when evidenced. It never removes
+  or hides another provider-returned, coordinate-qualified result.
 - The legacy white Place detail card has no productive route.
 - Every result supplies a real provider image or one deliberate, consistent
   unavailable-image state; broken or indefinitely loading media is not accepted.
@@ -143,7 +155,7 @@ dead end or false claim.
 
 #### B1 execution slices
 
-1. **`.148` trust recovery — P01–P03/P06 guardrails.** Complete Google-primary
+1. **`.149` trust recovery — P01–P03/P06 guardrails.** Complete Google-primary
    coordinates, bounded Foursquare fallback, map-only Places/Hotels, exact pin
    selection, unified Bottom Sheet, media loading/fallback, no legacy detail
    route and no automatic arbitrary result opening.
@@ -470,8 +482,8 @@ privacy/permission behavior.
 
 ## 12. Immediate execution order
 
-1. Finish `.148` inventory, regression, clean commit, additive DB/Edge release,
-   explicit Integration Worker deployment and public map/Hotel/Golden-path QA.
+1. Finish `.149` inventory, regression, clean commit, explicit Integration
+   Worker deployment and public one-pin/one-entity plus pan/zoom viewport QA.
 2. Close remaining B1 exact Restaurant and Activity/Culture route evidence.
 3. Close P09 granular Journey actions and P10 user-facing explainability.
 4. Run the complete G2 Golden Journey and first five-user G3 value test.

@@ -39,7 +39,7 @@ assert.ok(core,'Places Spatial Composition Core v1 did not install');
 assert.equal(core.contractId,'consumer.places-spatial-composition.v1');
 assert.equal(core.sourceContract,'places.v1');
 assert.equal(core.initialVisibleResults,6);
-assert.equal(core.maxResults,18);
+assert.equal(core.maxResults,80);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
@@ -49,7 +49,7 @@ assert.deepEqual(plain(core.diagnostics()),{
   deterministic:true,
   domainTruth:false,
   initialVisibleResults:6,
-  maxResults:18,
+  maxResults:80,
   coordinatePolicy:'complete-finite-wgs84-owner-projection-only',
   coordinateOrder:'longitude-latitude',
   syntheticMarkers:false,
@@ -105,9 +105,9 @@ const eighteenPlus=Array.from({length:22},(_,index)=>({
   rawProviderPayload:{secret:'must-not-leak'}
 }));
 const paginationModel=core.compose({sourceContract:'places.v1',categories,places:eighteenPlus,runtime:{status:'ready'}});
-assert.equal(paginationModel.counts.total,18,'result model must cap owner projections at 18');
+assert.equal(paginationModel.counts.total,22,'result model must not truncate the deduplicated multi-tile viewport below its available owner projections');
 assert.equal(paginationModel.counts.visible,6,'initial result model must expose six entries');
-assert.equal(paginationModel.counts.remaining,12);
+assert.equal(paginationModel.counts.remaining,16);
 assert.equal(paginationModel.markers.length,6);
 assert.equal(paginationModel.results[0].providerPlaceId,'provider-1');
 assert.equal(paginationModel.results[0].rawProviderPayload,undefined,'private/raw provider fields leaked into Consumer composition');
@@ -138,6 +138,7 @@ assert.deepEqual(plain(coordinateModel.markers[0]),{
   resultId:'place-result-1',
   name:'Diercksen',
   rank:1,
+  preferred:false,
   latitude:54.0279115,
   longitude:10.7563139,
   lngLat:[10.7563139,54.0279115],
@@ -205,17 +206,22 @@ assert.match(experience,/data-compact-place-card/,'Places results must use the c
 assert.match(experience,/function matchLabel\(place\)/,'compact cards must expose the personal ranking when available');
 assert.match(experience,/function distanceLabel\(place\)/,'compact cards must expose useful distance facts');
 assert.match(experience,/place\?\.distanceReference==='device'/,'distance facts must only be labeled as device distance when a real device-position reference exists');
-assert.match(experience,/await openResultSheet\(filteredResults\(\),id\)/,'adding a search result must use the shared Journey result sheet while retaining the filtered alternatives');
+assert.match(experience,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct result action must open only the exact Place in the shared sheet');
+assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay behind the public places.v1 owner contract');
+assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
+assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
+assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
+assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
 for(const removed of ['Details &amp; Evidenz','data-places-detail=','data-places-detail-region=','function detailMarkup','async function loadDetails'])assert.equal(experience.includes(removed),false,`old Places detail/evidence UI re-entered the new shell: ${removed}`);
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');
-assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:markerButton\(marker\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
+assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:projectionMarkerButton\(marker,\{selectedId,onSelect\}\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
 assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinate-qualified result bounds');
 assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view,renderToken\)/,'only the latest render may mount a MapLibre instance into the current map host');
-assert.match(experience,/renderToken===state\.renderToken&&container\.isConnected&&state\.map===map/,'late MapLibre callbacks must be fenced to the current render and live map host');
+assert.match(experience,/const current=\(\)=>alive&&container\.isConnected&&map/,'late MapLibre callbacks must be fenced to the live projection host');
 assert.match(experience,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'selecting a result card must move the map to the same owner coordinate');
-assert.match(experience,/openResultSheet\(filteredResults\(\),marker\.providerPlaceId\)/,'selecting a map marker must open the unified bottom sheet for that exact Place');
+assert.match(experience,/openResultSheet\(\[findPlace\(marker\.providerPlaceId\)\]\.filter\(Boolean\),marker\.providerPlaceId\)/,'selecting a map marker must open the unified bottom sheet for that exact Place only');
 assert.doesNotMatch(experience,/class="lv-places-spatial__results"/,'the productive Places map must not duplicate pins as a neighboring or following result list');
 assert.match(experience,/data-places-map-fallback/,'the map must retain an honest bright fallback surface while tiles are unavailable');
 assert.match(experience,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back navigation must restore the embedded Plan Compass');
@@ -346,7 +352,7 @@ assert.ok(index.indexOf('app/places/places-spatial-experience.js')<index.indexOf
   runtimeContext.LuviaPlacesSpatialExperience.unmount();
 
   console.log('M16.5N Productive Places Spatial Experience: PASS');
-  console.log('Places result model: 6 initial / 18 maximum');
+  console.log('Places result model: 6 initial / 80 deduplicated viewport results maximum');
   console.log('Map markers: complete finite WGS84 places.v1 projections only');
   console.log('Places lifecycle: pending initialization cancels on unmount');
   console.log('Consumer Domain Truth ownership: NONE');

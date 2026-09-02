@@ -44,7 +44,7 @@ const rawPlace={
   lifecycle:'favorite',capabilities:['reserve'],bookingDomains:['restaurant'],createdAt:'2026-08-01T00:00:00.000Z',
   updatedAt:'2026-08-02T00:00:00.000Z',storageSecret:'must-not-leak'
 };
-const calls={search:[],autocomplete:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],presence:[],registered:[]};
+const calls={search:[],viewport:[],autocomplete:[],details:[],importPlace:[],favorite:[],unfavorite:[],toggleFavorite:[],clearFavorites:[],plan:[],unplan:[],lifecycle:[],visit:[],presence:[],registered:[]};
 
 window.LuviaPlaceCore={
   getPlace(id){return id==='p1'?rawPlace:null},
@@ -55,6 +55,7 @@ window.LuviaPlaceCore={
   async recordVisit(placeId,patch){calls.visit.push({placeId,patch});return{id:'v1',tripId:'t1',placeId,state:'visited',arrivedAt:'2026-08-13T12:00:00.000Z',leftAt:null,durationSeconds:120,detectionSource:'manual',isAutomatic:false,isConfirmed:true,correction:{private:'must-not-leak'},participantId:'private-user'}}
 };
 window.LuviaPlaces={
+  async textSearch(query,options){const location=options.destination.location,id=`tile-${location.latitude}-${location.longitude}`;calls.viewport.push({query,options});return{data:{places:[{id:`places/${id}`,providerPlaceId:`places/${id}`,displayName:`Treffer ${id}`,formattedAddress:'Im Kartenausschnitt',location}],providers:{requested:['google'],used:['google']}}}},
   async autocomplete(query,options){calls.autocomplete.push({query,options});return{data:{sessionToken:'places-session-1',suggestions:[{placeId:'places/copenhagen',text:'Kopenhagen, Dänemark'},{description:'ohne id'}]}}},
   async details(placeId,options){
     calls.details.push({placeId,options});
@@ -94,10 +95,10 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.4.0-owner-interaction-bundle');
+assert.strictEqual(api.runtimeVersion,'1.5.0-live-viewport');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','searchViewport','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
 assert.deepStrictEqual(Object.keys(api.composition),['selectView']);
 assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','rejectVisit','setLocationEnabled','refreshLocation','openDiscovery','openWebsite','openPhone','openMaps']);
 
@@ -122,6 +123,12 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(searched.places[0].providerPlaceId,'google-search');
   assert.strictEqual(searched.places[0].rawProviderPayload,undefined,'provider search payload must not leak');
   assert.strictEqual(searched.debug,undefined,'search transport metadata must not leak');
+
+  const viewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5},radiusMeters:5000,maxResultCount:20,maxViewportResults:80});
+  assert.strictEqual(calls.viewport.length,4,'one viewport must be split into four provider requests');
+  assert.strictEqual(viewport.count,4,'deduplicated tile results must all remain visible');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(viewport.tiles)),{requested:4,fulfilled:4,providerPageSize:20,maximumUniqueResults:80});
+  assert(viewport.places.every(place=>place.coordinates.latitude>=52&&place.coordinates.latitude<=53&&place.coordinates.longitude>=7&&place.coordinates.longitude<=8));
 
   const details=await api.getDetails('google-1',{languageCode:'de'});
   assert.strictEqual(details.rating,4.7);

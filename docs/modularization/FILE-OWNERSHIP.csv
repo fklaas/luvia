@@ -2650,6 +2650,8 @@ supabase/migrations/20260902124500_core_v4_82_148_duffel_stays_requested.sql,Boo
 docs/rollback/M16.5-B1-CORE-4.82.148-DUFFEL-STAYS-REQUESTED-ROLLBACK.sql,Booking/Platform,Documentation/Rollback,Exact compensation for the Duffel Stays requested activation metadata
 app/luvia-runtime-postcontext-13.82.148.bundle.js,Platform Runtime,Generated Runtime,Immutable post-Trip-Context runtime bundle for the Product Reset map and hotel provider preparation candidate
 app/luvia-runtime-precontext-13.82.148.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle for the Product Reset map and hotel provider preparation candidate
+app/luvia-runtime-postcontext-13.82.149.bundle.js,Platform Runtime,Generated Runtime,Immutable post-Trip-Context runtime bundle for the live viewport and exact pin selection candidate
+app/luvia-runtime-precontext-13.82.149.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle for the live viewport and exact pin selection candidate
 tests/fixtures/m16.5-block1-hotel-live-price-browser.html,Booking/Consumer Shared Tests,Test/Visible Fixture,Visible responsive live-price normalization and honest unavailable-provider acceptance surface
 tests/m16.5-block1-hotel-live-price-browser.test.cjs,Booking/Consumer Shared Tests,Test/Guardrail,Visible hotel live-price fixture semantics responsive controls and no-fabricated-best-claim gate
 tests/m16.5-block1-hotel-live-price-gateway.test.cjs,Booking/Platform Shared Tests,Test/Guardrail,Authenticated hotel gateway provider contract migration Edge configuration rollback and provider-order gate

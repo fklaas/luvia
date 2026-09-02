@@ -20,23 +20,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.148**
-- Core: **4.82.148**
+- App: **13.82.149**
+- Core: **4.82.149**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Product Reset Map + Hotel Provider Preparation — Local Integration candidate 13.82.148
+## M16.5 Live Viewport Map Contract — Local Integration candidate 13.82.149
 
-- Candidate status: **EDGE READY / WORKER NOT YET DEPLOYED. Stable Integration continues to serve accepted App 13.82.147 / Core 4.82.147 until the immutable Worker deployment and operated public acceptance are evidenced**.
+- Candidate status: **LOCAL RELEASE GATE OPEN. Stable Integration continues to serve App 13.82.147 / Core 4.82.147 after the rejected `.148` pin-selection deployment. Main and Production remain locked**.
+- Exact selection: **one pin represents one exact provider entity and opens a Bottom Sheet containing only that Place, Hotel, Restaurant, Activity, Culture or Event. A pin click cannot pass the complete result collection into the sheet**.
+- Live viewport: **Places and Hotels now query the public `places.v1` contract again after a debounced map pan or zoom. The contract splits the visible bounds into four provider requests, accepts at most Google's 20 results per request, removes duplicate provider identities, rejects coordinates outside the requested bounds and retains up to 80 unique visible pins. Moving to a neighbouring area starts a new bounded viewport query; existing pins remain visible if that refresh fails**.
+- Visibility and preference: **personal fit never filters the provider result set. Every eligible returned and coordinate-qualified result remains a pin; strong preference evidence may add a Compass marker to the pin. The UI does not claim that Google exposes an exhaustive global inventory beyond the results returned by its bounded API calls**.
+- Shared consumers: **the same projection lifecycle is connected to productive Places, Hotels and the AI Places map. The Event map uses the same viewport hook, but no productive Event-source gateway exists yet, so Event breadth remains honestly unavailable rather than synthetic**.
+- Provider order and Hotel truth: **each tile stays Google-primary with Foursquare as failure/empty fallback. Hotel discovery, live rate evidence and booking handoff remain separate; Duffel Stays and Booking.com Demand are application-pending and therefore cannot produce a live price or comparison claim**.
+- Local release gate: **runtime bundles are built; the complete controlled Safe Regression is 200/200 PASS, NFR0 is 3/3 PASS and patch hygiene is green. A clean release commit, immutable Integration deployment, Stable/Immutable byte proof and operated desktop/mobile map acceptance remain required before this candidate may replace `.147`**.
+
+## M16.5 Product Reset Map + Hotel Provider Preparation — Publicly deployed, rejected 13.82.148
+
+- Deployment evidence: **runtime commit `b1cf5a20a4f4912ca31fa8d4e2bfe89caab7674f` was uploaded as immutable Integration Worker version `4820c15d-bffe-4f4c-8d47-ccb8e5b272ae`. The candidate was rejected during public operation and Stable Integration was returned to App/Core `13.82.147 / 4.82.147`, Worker version `0c639544-b074-4633-a307-1b9d63ffa2d3`**.
+- Decisive counterevidence: **selecting one map pin opened the complete collection of result cards instead of exactly one entity. This violates the map-only product contract even though the shared Bottom Sheet itself rendered**.
 - Product reset: **the binding execution order retains all five 10-package blocks B1–B5 / P01–P50, but gates later breadth behind truthful provider state, one map language and the Golden Journey. Main and Production remain locked**.
-- Map contract: **Places and Hotels are map-first. Productive results are represented by verified pins; selecting a pin opens the shared bright Journey Bottom Sheet. A parallel result list and the legacy full-page Place detail are not accepted productive routes**.
+- Map contract retained: **Places and Hotels are map-first. Productive results are represented by verified pins; selecting a pin must open only its exact shared bright Journey Bottom Sheet. A parallel result list and the legacy full-page Place detail are not accepted productive routes**.
 - Hotel truth: **hotel discovery, live rate evidence and booking handoff remain separate capabilities. A price is shown only for the exact property, dates and occupancy returned by a connected source; Duffel Stays and Booking.com Demand remain application-pending and therefore cannot be presented as live**.
 - Provider preparation: **Google remains the primary Place source and Foursquare the bounded fallback. The additive provider-registry migration was applied individually through the linked Management API, avoiding the defective broad migration ledger, and proves Duffel Stays as `application_pending / APPLICATION_PENDING` without adding a credential, fabricating availability or changing shared secrets**.
 - Edge evidence: **`booking-provider-duffel-stays` v1, `booking-provider-connection-health` v7 and `booking-hotel-offer-search` v2 are ACTIVE with JWT verification retained. No unrelated Edge Function was deployed**.
-- Local release gate: **the complete controlled Safe Regression is 200/200 PASS; NFR0 is 3/3 PASS; versions, generated inventories, Human-AI parity, cross-core ownership and patch hygiene are green. This remains a candidate rather than a public PASS until an exact commit, immutable Integration Worker, byte proof and public-browser operation are evidenced**.
+- Rejection scope: **the additive provider-registry migration and the three bounded Edge deployments remain valid preparation, but `.148` is not an accepted App release and must not be used as a rollback target. The correction continues in `.149`; no Main or Production deployment occurred**.
 
 ## M16.5 Places + Hotel Recovery — Integration live, provider gate open 13.82.147
 

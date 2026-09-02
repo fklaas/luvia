@@ -67,7 +67,7 @@ assert.match(duffel,/BOOKING_OWNER_LEDGER_REQUIRED/);
 assert.match(duffel,/finalQuoteRequired:true/);
 assert.match(amadeus,/AMADEUS_CLIENT_ID/);assert.match(amadeus,/AMADEUS_CLIENT_SECRET/);assert.match(amadeus,/\/v3\/shopping\/hotel-offers/);
 assert.match(hotelbeds,/HOTELBEDS_API_KEY/);assert.match(hotelbeds,/HOTELBEDS_API_SECRET/);assert.match(hotelbeds,/hotel-api\/1\.0\/hotels/);
-assert.match(hotelSurface,/function hotelResults\(\)\{if\(state\.searchStatus==='ready'&&state\.results\.length\)return hotelMap\(\)/,'Hotels must stay map-only after live prices arrive');
+assert.match(hotelSurface,/function hotelResults\(\)\{if\(\['ready','empty'\]\.includes\(state\.searchStatus\)&&!state\.loading\)return hotelMap\(\)/,'Hotels must stay map-only after live prices arrive and must permit an empty destination-centered map to live-load');
 assert.match(hotelSurface,/stayDecision:state\.stayDecision/,'the pin sheet must receive the current price decision');
 assert.match(journeySheet,/function stayPriceMarkup\(place,input\)/,'the unified pin sheet must own exact-match live-price presentation');
 assert.match(journeySheet,/hotelIdentity\(hotel\?\.propertyName\)===name/,'a live rate may only attach to an exact normalized hotel identity');

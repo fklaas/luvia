@@ -827,6 +827,30 @@
   z-index: 1;
 }
 
+.lv-places-spatial__marker > b {
+  position: absolute;
+  right: -7px;
+  top: -8px;
+  z-index: 3;
+  display: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: #f4b34c;
+  color: #17384d;
+  box-shadow: 0 5px 12px rgba(31, 65, 86, 0.2);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.lv-places-spatial__marker.is-preferred > b { display: grid; }
+
+.lv-places-spatial__marker.is-preferred {
+  box-shadow: 0 0 0 5px rgba(244, 179, 76, 0.25), 0 10px 22px rgba(31, 65, 86, 0.2);
+}
+
 .lv-places-spatial__marker:is(.is-selected, [aria-pressed="true"]) {
   z-index: 7;
   color: var(--places-accent-contrast, #ffffff);

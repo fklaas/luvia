@@ -7,6 +7,12 @@ const fixture=fs.readFileSync('tests/fixtures/m16.5-block1-hotel-consumer-owner-
 
 for(const token of ["VERSION='5.2.0-bright-map-media-booking'",'luvia-hotels-bright-v3','data-hotel-search-status','Unterkünfte konnten nicht geladen werden','data-place-retry','reads.searchStayOffers','commands.openStayOffer','commands.openPlaceBooking','data-hotel-booking','data-hotel-detail-booking','data-hotel-map','mountProjection','cardReference','userGesture:true','Dieses Angebot öffnen','Datumsformat: TT.MM.JJJJ','Duffel Stays beantragt · Freigabe ausstehend','kein Marktbestpreis',"placeType:'accommodation'",'LuviaPlaceExperience.plannedPanel','LuviaPlaceExperience.discovery','LuviaPlaceCollections.favoritePanel','LuviaPlaceUI.card'])assert.ok(moduleSource.includes(token),`Hotel consumer owner token missing: ${token}`);
 for(const forbidden of ['Tickets prüfen','Eintritt noch ungeklärt','data-book-accommodation'])assert.ok(!moduleSource.includes(forbidden),`Hotel module must not contain generic ticket semantics: ${forbidden}`);
+assert.match(moduleSource,/openHotelSheet\(selected\).*places:\[selected\],selectedId:providerId\(selected\)/s,'one Hotel pin must open exactly one Hotel in the shared sheet');
+assert.doesNotMatch(moduleSource,/function openHotelSheet\(selected,choices=/,'the Hotel pin contract must not carry the complete search result list into the sheet');
+assert.match(moduleSource,/onViewportSearch:descriptor=>spatial\.viewportSearch/,'Hotel map panning and zooming must use the shared live viewport contract');
+assert.match(moduleSource,/maxResultCount:20/,'the initial Hotel map must request the complete Google provider page');
+assert.match(moduleSource,/bis zu 80 unterschiedliche Provider-Treffer/,'Hotel map copy must disclose the four-tile viewport breadth without claiming mathematical completeness');
+assert.match(moduleSource,/onViewportResults:rows=>\{state\.results=rows;state\.searchMap=new Map/,'live Hotel pins must replace the selectable map projection atomically');
 assert.match(css,/\.luvia-accommodations-v2/);
 assert.match(css,/\.hotel-offer-card/);
 assert.doesNotMatch(css,/consume the restaurant design contract/i);

@@ -47,6 +47,10 @@ assert.match(source,/time=value=>zonedDateTime\(value\)\?\.time/,'Journey readba
 assert.match(source,/result\.meta\?\.planningDetailsIncluded\?renderJourneyResilience/,'journey diagnostics must not flood an ordinary day-plan answer');
 assert.match(source,/displayDate\(day\.date\)/,'day cards must render their date in user format');
 assert.match(source,/consumer\(\)\.projectPreview\(\{result,preview,compensatesLedgerId\}\)/,'mutation previews must use the shared consumer projection with user-formatted dates');
+assert.match(source,/result\.kind==='place_collection'\?placeMapMarkup\(result\):/,'AI Place discovery must use the shared map as its only result surface');
+assert.doesNotMatch(source,/result\.kind==='place_collection'\?`\$\{placeMapMarkup\(result\)\}<div class="lvx-place-grid">/,'AI Place discovery must not duplicate map pins in a parallel result grid');
+assert.match(source,/if\(subject\)openPlaceSubject\(subject\)/,'an AI map pin must open only its exact entity');
+assert.match(source,/initialCenter,label:'Verified Events · Live-Kartenausschnitt'/,'the Event map must be able to start a viewport query from the active Trip even before a provider returns initial pins');
 
 console.log('M15.5 Actionable AI Chat Rich Results: PASS');
 console.log('Restaurant cards / Day Plan / Receipts: PASS');
