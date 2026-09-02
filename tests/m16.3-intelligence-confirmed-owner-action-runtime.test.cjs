@@ -45,11 +45,12 @@ const context={
   LuviaBookingContractV1:{
     reads:{
       async listForTrip(id){calls.push(['booking-list',id]);return[{id:'booking-1',tripId:id,title:'Dünenküche',status:'confirmed',date:'2026-08-26',time:'19:00',partySize:2}]},
+      async lifecycleCapabilities(){return{actions:{modify:{available:true},message:{available:true},manageExternal:{available:false},cancel:{available:true}}}},
       async searchStayOffers(input){calls.push(['stay-search',input]);return{productMode:'fit_only',hotels:[],claims:{priceRankingAvailable:false,liveProviderCount:0},coverage:{fulfilledProviders:0,expectedProviders:2},search:{checkIn:input.checkIn,checkOut:input.checkOut}}}
     },
     commands:{
       async openPlaceBooking(payload,options){calls.push(['booking-open',payload,options]);return{opened:true,channel:'owner_dialog'}},
-      async createForPlace(payload){calls.push(['booking-create',payload]);return{bookingId:'booking-2',status:'requested'}},
+      async submitReservation(payload){calls.push(['booking-create',payload]);return{ok:true,bookingId:'booking-2',status:'requested',transport:'email',submissionState:'email_sent',providerOutcomeKnown:true}},
       async modifyBooking(id,payload){calls.push(['booking-modify',id,payload]);return{bookingId:id,status:'change_requested'}},
       async cancelBooking(id,payload){calls.push(['booking-cancel',id,payload]);const error=new Error('Provider timeout');error.code='BOOKING_PROVIDER_TIMEOUT';throw error}
     }

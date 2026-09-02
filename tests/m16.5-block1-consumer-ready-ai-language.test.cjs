@@ -50,7 +50,8 @@ for(const phrase of [
 assert.match(runtime,/Wähle die Reise aus, mit der du weiterarbeiten möchtest/);
 assert.match(runtime,/an diesem Tag geplant\./);
 assert.match(runtime,/includePlanningDetails/,'route, rehearsal and disruption details must remain available on explicit request');
-assert.match(runtime,/Die bestätigte Buchungsänderung wurde übermittelt/);
+assert.match(runtime,/Die Änderung wurde beim verbundenen Provider angefragt/);
+assert.match(runtime,/Die Buchung bleibt bis zur Antwort unverändert/);
 assert.match(runtime,/Vermutungen werden nicht als deine Präferenzen gespeichert/);
 assert.match(dashboard,/Keine erfundenen Veranstaltungen/);
 

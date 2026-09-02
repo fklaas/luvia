@@ -595,6 +595,21 @@ function materializeNavigationAIParity() {
   const auditText = fs.readFileSync(SOURCE_AUDIT_PATH, 'utf8').replace(/\r\n?/g, '\n');
   const sourceAudit = JSON.parse(auditText);
   const runtimeActions = loadRuntimeActions();
+  const runtimeById = new Map(runtimeActions.map(action => [action.id, action]));
+  for (const action of registry.actions.filter(item => item.ai?.runtimeRegistered === true)) {
+    const runtime = runtimeById.get(action.ai.actionId);
+    if (!runtime) continue;
+    action.owner.contract = runtime.ownerContract;
+    action.owner.method = runtime.ownerMethod;
+    const inputContract = inputContracts.contracts[action.ai.actionId];
+    if (inputContract) action.inputContract = {
+      status: 'READY',
+      schemaId: inputContract.schemaId,
+      requiredFields: inputContract.required,
+      optionalFields: inputContract.optional,
+      contextFields: inputContract.context,
+    };
+  }
   if (!registry.actions.some(action => action.id === 'navigation.hotels.open')) {
     registry.actions.push({
       sequence: registry.actions.length + 1,
@@ -896,7 +911,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-02\n\n` +
-    `Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON 13.82.138 / SEMANTIC PLACES MUTATIONS CANDIDATE ON 13.82.139, BLOCK STILL ACTIVE / PRODUCT PARITY CONTINUES ROW BY ROW THROUGH B1–B5**\n\n` +
+    `Status: **B0.01–B0.10 PUBLIC COMPLETE ON 13.82.135 / B1 FOUNDATION PUBLIC ON 13.82.136 + TRIP READ ON 13.82.138 + PLACES MUTATIONS ON 13.82.139 / SEMANTIC BOOKING LIFECYCLE LOCAL CANDIDATE ON 13.82.140 / PRODUCT PARITY CONTINUES THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -950,7 +965,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read and accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol. Continue next with Booking Read/Open/Create/Modify/Cancel while the cross-surface Chat-subject reset remains an explicit AI eval.\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read and accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol. App \`13.82.140\` is the local Booking Read/Open/Create/Modify/Cancel candidate; provider-positive public evidence remains open.\n\n` +
     `## B1 registry delta retained after visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
@@ -958,7 +973,7 @@ function buildReport(validated = validateRegistry()) {
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
     `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. The source runtime action set is **23**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
-    `locally green; the 329-row parity/failure matrix remains a release gate for every following domain slice. App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes; unrelated rows are not inflated.\n`;
+    `locally green; the 329-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The \`13.82.140\` Booking lifecycle candidate does not inflate public evidence before an operated public run.\n`;
 }
 
 function main() {

@@ -150,3 +150,20 @@ Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files 
 6,572,893 bytes identical across archive, Stable and Immutable. The exact
 app-only rollback restores `.138`:
 `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.
+
+## Semantic Booking lifecycle candidate — App/Core 13.82.140/4.82.140
+
+The next Integration-only slice extends the existing Booking Core rather than
+creating a second booking system. `booking.reservation.create` now delegates to
+`booking.v1 commands.submitReservation`; the Owner distinguishes connected
+provider API, verified public booking e-mail, external handoff and unavailable
+route without claiming that a draft row was externally submitted.
+
+Whole-sentence structured semantics resolve Create, Modify and Cancel against
+one exact Place or active Booking Owner object. Read cards expose only actions
+allowed by the browserless lifecycle policy. All writes retain Preview,
+explicit confirmation, idempotency, Owner Receipt and unknown-outcome
+reconciliation. A local 390 px five-action fixture proves Read, Open, Create,
+Modify and Cancel with `TT.MM.JJJJ`, no overflow and zero current browser
+warnings/errors. Provider-positive public evidence remains a release gate and
+is not inferred from the local controlled transport matrix.

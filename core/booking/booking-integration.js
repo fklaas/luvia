@@ -108,6 +108,74 @@
     return ready;
   }
 
+  const CREATE_EXPECTED_CODES=new Set([
+    'RESERVATION_CREATE_NOT_SUPPORTED','PARTNER_REQUIRED','CONNECTION_NOT_READY',
+    'RESERVATION_CREATE_TRANSPORT_NOT_ACTIVE','LIVE_PROBE_NOT_HEALTHY','PROVIDER_DISABLED',
+    'PROVIDER_NOT_FOUND','RESERVATION_CREATE_ADAPTER_NOT_IMPLEMENTED','BOOKING_STATE_NOT_CREATABLE'
+  ]);
+  function createExpected(result={}){
+    const code=clean(result?.error||result?.code).toUpperCase();
+    return result?.expected===true||CREATE_EXPECTED_CODES.has(code);
+  }
+  function reservationDateTime(input={}){
+    const start=clean(input.startAt||input.start_at),instant=start?new Date(start):null;
+    return{
+      date:clean(input.date||input.requestedDate)||(instant&&!Number.isNaN(instant.getTime())?instant.toISOString().slice(0,10):''),
+      time:clean(input.time||input.requestedTime)||(instant&&!Number.isNaN(instant.getTime())?instant.toISOString().slice(11,16):'')
+    };
+  }
+  function providerVenueReference(input={},booking={}){
+    const place=input.place||{},metadata=booking.metadata||{},providers=metadata.providers||{},provider=clean(input.provider||booking.provider).toLowerCase();
+    return clean(input.venueReference||input.venue_reference||input.providerVenueReference||input.provider_venue_reference||input.providerSlotReference||place.venueReference||place.providerVenueReference||booking.request?.providerReference||providers?.[provider]?.venueId||providers?.[provider]?.reference);
+  }
+  function submissionResult(booking,result={}){
+    return{bookingId:booking.id,bookingStatus:booking.status||null,provider:clean(result.provider||booking.provider)||null,providerOutcomeKnown:result.providerOutcomeKnown!==false,bookingStatusChanged:Boolean(result.bookingStatusChanged),...result};
+  }
+
+  /**
+   * Executes the confirmed reservation request through exactly one evidenced
+   * transport. Creating the Booking-owned row alone is never reported as an
+   * external submission. Expected provider unavailability may safely fall back
+   * to a verified e-mail route; an uncertain provider response never does.
+   */
+  async function submitReservation(input={}){
+    await init();
+    const trustedEmail=input.emailVerified===true?clean(input.email||input.place?.bookingEmail||input.place?.email):'';
+    const protectedInput={...input,email:trustedEmail||undefined,place:{...(input.place||{}),...(trustedEmail?{email:trustedEmail}:{email:undefined})},skipRouteResolution:true};
+    let booking=input.bookingId?await get(input.bookingId):await createForPlace(protectedInput);
+    if(!booking)throw Object.assign(new Error('Die Buchungsanfrage konnte nicht angelegt werden.'),{code:'BOOKING_CREATE_FAILED',outcomeKnown:true});
+    let route=input.route&&typeof input.route==='object'?input.route:null;
+    const dateTime=reservationDateTime(input),provider=clean(input.provider||route?.provider||booking.provider).toLowerCase(),venueReference=providerVenueReference({...input,provider},booking),reservationCreate=typeof LuviaBookingReservationCreate!=='undefined'?LuviaBookingReservationCreate:null;
+    const canTryProvider=Boolean(provider&&venueReference&&dateTime.date&&Number(input.partySize)>0&&reservationCreate?.create);
+    if(canTryProvider&&(clean(input.channel||route?.channel||booking.channel).toLowerCase()==='api'||input.preferProviderApi===true)){
+      let providerResult;
+      try{
+        providerResult=await reservationCreate.create({bookingId:booking.id,providerId:provider,venueReference,providerSlotReference:input.providerSlotReference||null,date:dateTime.date,time:dateTime.time||null,partySize:Number(input.partySize),timezone:clean(input.timezone)||null,guest:input.guest||{},notes:clean(input.note||input.notes)||null,idempotencyKey:input.idempotencyKey||null});
+      }catch(error){
+        // A transport exception may have reached the provider. It must be
+        // reconciled and must never trigger an automatic second submission.
+        error.outcomeKnown=false;throw error;
+      }
+      if(providerResult?.ok)return submissionResult(booking,{...providerResult,ok:true,transport:'provider_api',submissionState:providerResult.luviaStatus==='confirmed'?'confirmed':'provider_requested',providerOutcomeKnown:true});
+      if(!createExpected(providerResult))throw Object.assign(new Error(providerResult?.error||'Der Provider-Ausgang ist noch nicht eindeutig.'),{code:providerResult?.error||'RESERVATION_CREATE_OUTCOME_UNKNOWN',outcomeKnown:false,providerResult});
+      route=null;
+    }
+    if(!route?.resolved){
+      try{route=await resolveRoute(booking.id)}catch(error){return submissionResult(booking,{ok:false,expected:true,transport:null,submissionState:'route_unavailable',providerOutcomeKnown:true,reason:error?.code||'BOOKING_ROUTE_RESOLUTION_FAILED'})}
+      booking=await get(booking.id)||booking;
+    }
+    const resolvedChannel=clean(route?.channel||booking.channel).toLowerCase(),resolvedProvider=clean(route?.provider||booking.provider)||null;
+    if(resolvedChannel==='email'){
+      const verifiedByResolver=route?.resolved===true||booking?.metadata?.verifiedContact?.email===true;
+      if(!verifiedByResolver||!clean(booking.contact?.email))return submissionResult(booking,{ok:false,expected:true,transport:null,submissionState:'verified_contact_required',provider:resolvedProvider,providerOutcomeKnown:true});
+      const emailResult=await sendEmail(booking.id,{requesterName:input.requesterName,note:input.note||input.notes,occasion:input.occasion,idempotencyKey:input.idempotencyKey});
+      if(emailResult?.expected===true||emailResult?.error)return submissionResult(booking,{...emailResult,ok:false,expected:true,transport:'email',submissionState:'email_not_sent',provider:resolvedProvider,providerOutcomeKnown:true});
+      return submissionResult(booking,{...emailResult,ok:true,transport:'email',submissionState:'email_sent',provider:resolvedProvider,providerOutcomeKnown:true,awaitingProviderReply:true});
+    }
+    if(['external_link','affiliate'].includes(resolvedChannel)&&clean(route?.value||booking.contact?.bookingUrl))return submissionResult(booking,{ok:false,expected:true,transport:resolvedChannel,submissionState:'external_action_required',provider:resolvedProvider,providerOutcomeKnown:true,requiresUserAction:true,url:clean(route?.value||booking.contact?.bookingUrl)});
+    return submissionResult(booking,{ok:false,expected:true,transport:null,submissionState:'route_unavailable',provider:resolvedProvider,providerOutcomeKnown:true,requiresUserAction:true,reason:clean(route?.reason)||'NO_VERIFIED_BOOKING_ROUTE'});
+  }
+
   async function listForTrip(tripId=activeTripId()){
     await init();
     if(!tripId)return [];
@@ -651,7 +719,7 @@
   }
 
   const api=Object.freeze({
-    version:VERSION,init,createForPlace,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,trackExternalHandoffForPlace,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,bookingTimeline,conversationPreferences,setConversationPreference,modifyBooking,cancelBooking,cancel,mapType,
+    version:VERSION,init,createForPlace,submitReservation,listForTrip,get,transition,providerCapabilities,statusHistory,statusSignals,attributionJourney,statusAttributionSummary,correlationJourney,conversionReports,monetizationProfiles,monetizationForBooking,orchestrationReadiness,providerRuntimeHealth,routeDecisionDiagnostics,routeFailoverDiagnostics,replayRouteDecision,reconcileTripReturns,returnOrchestrationSummary,linkRecentPlaceHandoff,recordHandoff,recordPlaceHandoff,trackExternalHandoffForPlace,planRoute,resolvePlaceRoute,resolveRoute,resolveContact,updateContact,messages,messageIntelligence,emailThread,conversation,sendEmail,reply,resolveIntelligence,performIntelligenceAction,actionReplyText,bookingTimeline,conversationPreferences,setConversationPreference,modifyBooking,cancelBooking,cancel,mapType,
     diagnostics:()=>({version:VERSION,initialized,activeTripId:activeTripId(),coreVersion:window.LuviaBookingCore?.version||null})
   });
   window.LuviaBooking=api;

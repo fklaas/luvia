@@ -750,6 +750,18 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-booking-lifecycle-consumer.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Booking Submission Owner',
+    test: 'tests/m16.5-block1-booking-submit-owner.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Semantic Booking Lifecycle',
+    test: 'tests/m16.5-block1-semantic-booking-lifecycle.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Visible Semantic Booking Lifecycle',
+    test: 'tests/m16.5-block1-semantic-booking-lifecycle-browser.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Admission Consumers',
     test: 'tests/m16.5-block1-admission-consumers.test.cjs'
   },

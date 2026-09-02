@@ -10,7 +10,7 @@ const runtime={
   async init(){return{}},async listForTrip(id){calls.push(['listForTrip',id]);return[{id:'booking-1',trip_id:id}]},
   async get(id){calls.push(['get',id]);return{id}},async conversation(id){calls.push(['conversation',id]);return{booking:{id},messages:[]}},
   async messages(){return[]},async bookingTimeline(id){calls.push(['bookingTimeline',id]);return{items:[]}},async providerCapabilities(){return[]},
-  async conversationPreferences(ids){calls.push(['conversationPreferences',ids]);return[]},async createForPlace(input){return input},
+  async conversationPreferences(ids){calls.push(['conversationPreferences',ids]);return[]},async createForPlace(input){return input},async submitReservation(input){calls.push(['submitReservation',input]);return input},
   async reply(id,input){calls.push(['reply',id,input]);return{id,...input}},async performIntelligenceAction(id,input){calls.push(['performIntelligenceAction',id,input]);return{id,...input}},
   async modifyBooking(id,input){return{id,...input}},async cancelBooking(id,input){return{id,...input}},async setConversationPreference(id,action,value){return{id,action,value}},
   async updateContact(id,email){calls.push(['updateContact',id,email]);return{id,email}},async reconcileTripReturns(id){calls.push(['reconcileTripReturns',id]);return{tripId:id}}

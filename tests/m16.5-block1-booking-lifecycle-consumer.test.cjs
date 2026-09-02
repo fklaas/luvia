@@ -17,7 +17,7 @@ assert.match(integration,/channel:route\.channel==='affiliate'\?'affiliate':'ext
 assert.match(integration,/recordHandoff\(booking\.id/);
 assert.match(integration,/deduplicated:true/);
 assert.match(adapter,/async function lifecycleCapabilities/);
-assert.match(adapter,/commands=Object\.freeze\(\{createForPlace,trackExternalHandoff/);
+assert.match(adapter,/commands=Object\.freeze\(\{createForPlace,submitReservation,trackExternalHandoff/);
 assert.ok(ui.indexOf('trackExternalHandoffForPlace')<ui.indexOf('openBooking(target,{reserved})'),'external handoff must be tracked before navigation is consumed');
 assert.match(ui,/emailVerified:true/);
 assert.match(sheet,/contract\.reads\.lifecycleCapabilities/);

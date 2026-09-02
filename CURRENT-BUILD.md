@@ -20,13 +20,26 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.139**
-- Core: **4.82.139**
-- Name: **M16.5 Block 1 Semantic Places Mutations**
+- App: **13.82.140**
+- Core: **4.82.140**
+- Name: **M16.5 Block 1 Semantic Booking Lifecycle**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Semantic Booking Lifecycle — Integration Candidate 13.82.140
+
+- Runtime target: **App 13.82.140 / Core 4.82.140 / cache `luvia-shell-v13.82.140` / Integration only**.
+- Existing Booking Core extended: **no parallel booking system was created. `booking.v1 commands.submitReservation` now drives confirmed AI Create through exactly one evidenced transport: connected provider API, verified public booking e-mail, external handoff or an honest unavailable result**.
+- Whole-sentence AI: **structured dialogue semantics resolve Create, Modify and Cancel against one exact known Place or active Booking Owner object. The deterministic language compiler remains the bounded safety fallback; isolated keywords do not authorize a write**.
+- Lifecycle policy: **Read cards expose only actions supported by the current Booking state and provider/thread capability. Terminal bookings expose no mutation; ambiguous titles do not silently select a target**.
+- Mutation safety: **Create, Modify and Cancel retain Preview, explicit confirmation, idempotency, Owner Receipt and unknown-outcome reconciliation. A Booking-owned draft is never described as externally submitted, an external link is never described as booked, and an unverified e-mail is never used as transport**.
+- Compact Chat consumer: **one booking card exposes Lesen, Buchungsweg, Neu anfragen, Ändern and Stornieren. User-facing dates use `TT.MM.JJJJ`; provider and ledger details stay outside normal product copy**.
+- Local evidence: **the real AI Runtime, Action Contract, Ledger, Booking Lifecycle Policy and public Owner boundary pass a visible 390 px five-action fixture. The run reaches 5/5, has no horizontal overflow and produces zero current browser warnings/errors. Browserless tests cover exact sentence-to-owner resolution plus provider API, verified e-mail, external handoff and unavailable routes**.
+- Registry truth: **329 semantic actions, 23 typed runtime actions, 124 protected mutations, 20 truthful Undo paths and 2,725 generated failure evals remain active. Public E2E passes deliberately remain 7 until the Integration candidate has been operated publicly; provider-positive evidence is not inferred from controlled local transports**.
+- Release state: **runtime commit, immutable Worker version, Stable/Immutable byte comparison, public Step-17 result and exact `.140 → .139` rollback are pending the remaining release gates**.
+- Scope: **this app-only candidate changes no DB, RLS, Edge Function, Provider credential, Secret, Main or Production. Official ticket/reservation activation and Hotel live-provider activation remain the next separate slices**.
 
 ## M16.5 Block 1 Semantic Places Mutations — Stable Integration Slice 13.82.139
 

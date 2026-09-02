@@ -6,6 +6,12 @@ const context={console,URL};context.window=context;context.globalThis=context;vm
 vm.runInContext(fs.readFileSync('core/booking/booking-lifecycle-policy-core.js','utf8'),context,{filename:'booking-lifecycle-policy-core.js'});
 const policy=context.LuviaBookingLifecyclePolicyCore;
 
+const target=policy.resolveTarget({query:'Storniere bitte das Abendessen im Grande Beach Café',bookings:[{id:'booking-1',title:'Grande Beach Café',status:'confirmed'},{id:'booking-2',title:'Dünenmuseum',status:'confirmed'}]});
+assert.equal(target.status,'resolved');
+assert.equal(target.bookingId,'booking-1');
+const ambiguous=policy.resolveTarget({query:'Storniere das Museum',bookings:[{id:'booking-3',title:'Museum am Meer',status:'confirmed'},{id:'booking-4',title:'Museum für Regionalgeschichte',status:'confirmed'}]});
+assert.equal(ambiguous.status,'not_found','partial generic tokens must not silently pick one of several bookings');
+
 const api=policy.assess({booking:{status:'confirmed',provider:'tiqets'},capability:{id:'tiqets',luviaAccessState:'connected',platform:{modifyReservation:true,cancelReservation:true,statusPolling:true}}});
 assert.equal(api.actions.modify.transport,'provider_api');
 assert.equal(api.actions.cancel.transport,'provider_api');

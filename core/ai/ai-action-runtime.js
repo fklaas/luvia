@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.16.0-semantic-place-mutations';
+const VERSION='1.17.0-semantic-booking-lifecycle';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -39,7 +39,7 @@ function emit(reason,detail={}){const event=actionCore().immutable({reason,...de
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():owner==='navigation'?navigationContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
-function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
+function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||payload.place?.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||result?.transport||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,submissionState:result?.submissionState||result?.mutationLifecycleState||null,providerOutcomeKnown:typeof result?.providerOutcomeKnown==='boolean'?result.providerOutcomeKnown:null,awaitingProviderReply:typeof result?.awaitingProviderReply==='boolean'?result.awaitingProviderReply:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
 function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function ledgerPayload(definition,payload={}){
   if(definition.id==='navigation.route.open')return{route:payload.route||null,source:payload.source||'global-chat',rawPromptOmitted:true};
@@ -140,6 +140,37 @@ async function semanticPlaceMutationPreview(message,compiled,options={}){
   }
   return prepare(actionId,payload,{userGesture:true,surface:options.surface||'global-chat'}).result;
 }
+function bookingMutationAction(intent){
+  if(!intent||intent.domain!=='booking'||intent.mode!=='propose-write')return null;
+  const operation=clean(intent.semanticOperation).toLowerCase().replace(/[\s-]+/g,'_'),source=`${intent.semanticGoalType||''} ${intent.clause||''}`;
+  if(['cancel','storno','stornieren'].includes(operation)||/\bstornier\w*|\bcancel\w*/i.test(source))return'booking.reservation.cancel';
+  if(['change','modify','update','rebook','umbuchen'].includes(operation)||/\b(?:änder|aender|umbuch|verschieb)\w*/i.test(source))return'booking.reservation.modify';
+  if(['book','reserve','create'].includes(operation)||/\b(?:reservier|buche|buchen|book|reserve)\w*/i.test(source))return'booking.reservation.create';
+  return null;
+}
+function bookingPatch(intent={}){
+  const patch={},hint=intent.temporalHint||{},entities=intent.entityHints||{};
+  if(hint.date)patch.date=hint.date;
+  if(hint.time)patch.time=hint.time;
+  if(Number(entities.partySize)>0)patch.partySize=Number(entities.partySize);
+  return patch;
+}
+async function semanticBookingPreview(message,compiled,options={}){
+  const mutations=(compiled?.intents||[]).map(intent=>({intent,actionId:bookingMutationAction(intent)})).filter(item=>item.actionId);if(mutations.length!==1)return null;
+  const {intent,actionId}=mutations[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)return null;
+  if(actionId==='booking.reservation.create'){
+    const known=(options.knownPlaceSubjects||[]).map(place=>({...place,tripId:place.tripId||activeTripId})),candidates=uniqueMutationCandidates(known),target=namedMutationCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+    const original=known.find(place=>providerId(place)===target.providerPlaceId||referenceKey(place.name||place.title)===referenceKey(target.name))||target,date=intent.temporalHint?.date,time=intent.temporalHint?.time,partySize=Number(intent.entityHints?.partySize),startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt||!Number.isInteger(partySize)||partySize<1)return null;
+    const place={...original,providerPlaceId:target.providerPlaceId,placeId:target.placeId,name:target.name,primaryType:original.primaryType||original.primary_type||target.placeType||'place'};
+    return prepare(actionId,{tripId:activeTripId,place,providerPlaceId:target.providerPlaceId,placeType:place.primaryType,name:target.name,date,time,startAt,partySize,timezone:runtimeTimeZone(),email:place.bookingEmailVerified===true&&place.bookingEmailPublic===true?place.bookingEmail:undefined,emailVerified:place.bookingEmailVerified===true&&place.bookingEmailPublic===true,emailVerificationSource:place.bookingEmailSourceUrl||undefined,provider:place.bookingProvider||undefined,venueReference:place.providerVenueReference||place.venueReference||undefined,note:intent.clause},{userGesture:true,surface:options.surface||'global-chat'}).result;
+  }
+  const operation=actionId==='booking.reservation.cancel'?'cancel':'modify',resolution=await bookingContract().reads.resolveCommand?.({tripId:activeTripId,operation,query:options.sourceMessage||message,targetName:intent.entityHints?.targetName||null});if(!resolution||resolution.status!=='resolved')return null;
+  if(resolution.available===false)throw runtimeError('BOOKING_LIFECYCLE_ACTION_UNAVAILABLE',operation==='cancel'?'Diese Buchung kann über den belegten Anbieterweg aktuell nicht storniert werden.':'Diese Buchung kann über den belegten Anbieterweg aktuell nicht geändert werden.',{bookingId:resolution.bookingId,reason:resolution.reason});
+  const name=resolution.booking?.title||resolution.booking?.venueName||resolution.booking?.restaurantName||'Buchung';
+  if(actionId==='booking.reservation.cancel')return prepare(actionId,{bookingId:resolution.bookingId,tripId:activeTripId,name,reason:null},{userGesture:true,surface:options.surface||'global-chat'}).result;
+  const patch=bookingPatch(intent);if(!Object.keys(patch).length)return null;
+  return prepare(actionId,{bookingId:resolution.bookingId,tripId:activeTripId,name,patch},{userGesture:true,surface:options.surface||'global-chat'}).result;
+}
 function placeActions(place,trip,hints={}){
   const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),resolvedAdmission=place.admission||bookingAdmission({...place,providerPlaceId:id}),admission=resolvedAdmission||(/restaurant|cafe|bakery|bar|food|meal/.test(primary)?{relevant:true,action:{available:true,label:'Reservierung prüfen'}}:null),bookable=Boolean(admission?.relevant&&admission?.action?.available),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',type:primary||'place',primaryType:primary||'place',types:Array.isArray(place.types)?place.types:[],name:place.name,address:place.address||place.formattedAddress,website:place.website||place.websiteUri,reservationUrl:place.reservationUrl||place.bookingUrl||place.ticketUrl,ticketUrl:place.ticketUrl,admissionRequirement:place.admissionRequirement,ticketRequired:place.ticketRequired,reservationRequired:place.reservationRequired,reservationRecommended:place.reservationRecommended,reservable:place.reservable,readbackRequired:true};
   const planPayload=hints.plan?.plannedAt?{tripId:payload.tripId,providerPlaceId:payload.providerPlaceId,placeId:payload.placeId,placeType:payload.placeType,name:payload.name,date:hints.plan.date,time:hints.plan.time,fields:{planned_at:hints.plan.plannedAt,place_name:place.name,notes:hints.plan.clause},requestedBy:'intelligence.travel-orchestration.v1'}:payload;
@@ -212,14 +243,13 @@ async function tripResult(request){
 }
 async function bookingResult(request){
   const trip=tripContract().getActiveTrip?.()||{},activeTripId=tripId(trip);validatePreparedInput(actionCore().getAction(request.actionId),request.input,{...request.context,tripId:activeTripId});const rows=await bookingContract().reads.listForTrip(activeTripId);
-  const items=(Array.isArray(rows)?rows:rows?.bookings||[]).map(booking=>{
-    const id=booking.id||booking.bookingId||booking.booking_id,status=clean(booking.status).toLowerCase();const actions=[];
-    if(id&&!['cancelled','canceled','completed','failed'].includes(status)){
-      actions.push({actionId:'booking.reservation.modify',label:'Änderung vorbereiten',payload:{bookingId:id,tripId:tripId(trip),name:booking.venueName||booking.restaurantName||booking.title}});
-      actions.push({actionId:'booking.reservation.cancel',label:'Stornierung prüfen',payload:{bookingId:id,tripId:tripId(trip),name:booking.venueName||booking.restaurantName||booking.title}});
-    }
-    return{...booking,actions};
-  });
+  const items=await Promise.all((Array.isArray(rows)?rows:rows?.bookings||[]).map(async booking=>{
+    const id=booking.id||booking.bookingId||booking.booking_id,actions=[];let lifecycle=null;
+    if(id&&typeof bookingContract().reads.lifecycleCapabilities==='function')try{lifecycle=await bookingContract().reads.lifecycleCapabilities({booking})}catch{}
+    if(id&&(lifecycle?.actions?.modify?.available||lifecycle?.actions?.message?.available||lifecycle?.actions?.manageExternal?.available))actions.push({actionId:'navigation.route.open',label:'Buchung verwalten',payload:{route:'bookings',source:'ai-booking-card',bookingId:id}});
+    if(id&&lifecycle?.actions?.cancel?.available)actions.push({actionId:'booking.reservation.cancel',label:'Stornierung prüfen',payload:{bookingId:id,tripId:tripId(trip),name:booking.venueName||booking.restaurantName||booking.title}});
+    return{...booking,actions,lifecycle};
+  }));
   return actionCore().normalizeResult({kind:'booking_collection',owner:'booking',contractId:'booking.v1',title:items.length?'Buchungen dieser Reise':'Noch keine Buchung vorhanden',message:items.length?'Hier siehst du den aktuellen Stand deiner Buchungen. Änderungen und Stornierungen werden immer noch einmal einzeln bestätigt.':'Neue Reservierungen startest du bei einem konkreten Ort.',items,evidence:{tripId:tripId(trip),count:items.length,requestedIntent:request.input?.intent||'list'},meta:{actionId:request.actionId}});
 }
 async function memoryResult(request){
@@ -309,7 +339,10 @@ async function causalFeedbackResults(message,compiled,options={}){
 async function runMessage(message,options={}){
   const compiled=options.compiledIntent||null;
   if(compiled&&['blocked','conflicted'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
-  if(compiled?.status==='compiled'){try{const preview=await semanticPlaceMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Änderung konnte nicht vorbereitet werden',message:cause?.message||'Der genannte Ort konnte nicht eindeutig mit dem zuständigen Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(placeMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}}
+  if(compiled?.status==='compiled'){
+    try{const preview=await semanticPlaceMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Änderung konnte nicht vorbereitet werden',message:cause?.message||'Der genannte Ort konnte nicht eindeutig mit dem zuständigen Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(placeMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
+    try{const preview=await semanticBookingPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'booking',title:'Buchung konnte nicht vorbereitet werden',message:cause?.message||'Die Buchung konnte nicht eindeutig und sicher mit dem Booking Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(bookingMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
+  }
   const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean)),contextResult=contextGateResult(compiled,options),feedbackResults=await causalFeedbackResults(message,compiled,options),preResults=[...(contextResult?[contextResult]:[]),...feedbackResults];if(!routes.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes:[],compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
   const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes});
   const results=[...preResults];let error=false;
@@ -329,7 +362,7 @@ function validatePreparedInput(definition,payload={},context={}){
     'booking.restaurant.open':'Das Restaurant ist nicht eindeutig mit einem verifizierten Anbieter verknüpft. Bitte lade den Ort neu; es wurde nichts geöffnet.',
     'booking.stay.search':'Für belegte Hotelpreise fehlen noch Reisedaten, Belegung oder eine Provider-Zielkennung. Es wurde kein Preis erfunden.',
     'booking.trip.read':'Wähle zuerst eine Reise aus, damit ich ihre Buchungen sicher laden kann.',
-    'booking.reservation.create':'Für die Reservierung fehlen noch eindeutige Restaurant- oder Zeitangaben. Es wurde nichts gesendet.',
+    'booking.reservation.create':'Für die Buchungsanfrage fehlen noch ein eindeutiger Ort, Zeitpunkt oder die Personenzahl. Es wurde nichts gesendet.',
     'booking.reservation.modify':'Nenne die konkrete Buchung und die gewünschte Änderung. Es wurde nichts geändert.',
     'booking.reservation.cancel':'Die zu stornierende Buchung ist nicht eindeutig. Es wurde nichts storniert.',
     'journey.day.read':'Wähle zuerst eine Reise und nenne bei Bedarf ein gültiges Datum. Der Tagesplan wurde nicht geladen.',
@@ -381,9 +414,16 @@ async function invokeOwner(definition,payload,idempotencyKey){
     const resolved={...payload,fields:Array.isArray(payload.fields)?payload.fields:Object.keys(payload.fields||{}).length?Object.keys(payload.fields):['planned_at']};result=await placesContract().commands.unplan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'saved',{}, {tripId:resolved.tripId});const reconciled=await reconcilePlaceMutation(definition.id,resolved,result,'Der Ort wurde aus deinem Tagesplan entfernt.');return{...reconciled,resolvedPayload:{...payload,tripPlaceId:resolved.tripPlaceId,placeId:resolved.placeId}};
   }
   else if(['booking.place.open','booking.restaurant.open'].includes(definition.id)){result=await bookingContract().commands.openPlaceBooking(payload,{reserveExternalWindow:true});message=result?.opened?'Der passende Buchungsweg ist geöffnet.':'Der Buchungsweg konnte nicht geöffnet werden.';status=result?.opened?'opened':'failed'}
-  else if(definition.id==='booking.reservation.create'){result=await bookingContract().commands.createForPlace({...payload,idempotencyKey});message='Die bestätigte Reservierungsanfrage wurde übermittelt.'}
-  else if(definition.id==='booking.reservation.modify'){result=await bookingContract().commands.modifyBooking(payload.bookingId,{...(payload.patch||payload.input||payload),idempotencyKey});message='Die bestätigte Buchungsänderung wurde übermittelt.'}
-  else if(definition.id==='booking.reservation.cancel'){result=await bookingContract().commands.cancelBooking(payload.bookingId,{...(payload.input||payload),idempotencyKey});message='Die bestätigte Stornierung wurde übermittelt.'}
+  else if(definition.id==='booking.reservation.create'){
+    result=await bookingContract().commands.submitReservation({...payload,idempotencyKey});
+    if(result?.submissionState==='confirmed')message='Die Buchung ist durch den verbundenen Provider bestätigt.';
+    else if(result?.submissionState==='provider_requested')message='Die Anfrage wurde direkt an den verbundenen Provider übermittelt. Der endgültige Status folgt aus dessen Bestätigung.';
+    else if(result?.submissionState==='email_sent')message='Die Anfrage wurde an die verifizierte Anbieteradresse gesendet. Sie bleibt offen, bis der Anbieter antwortet.';
+    else if(result?.submissionState==='external_action_required'){message='Noch nichts gebucht: Der belegte externe Buchungsweg muss von dir geöffnet und dort abgeschlossen werden.';status='failed'}
+    else{message='Es wurde nichts extern versendet. Aktuell ist kein belegter direkter Buchungs- oder Anfrageweg verfügbar.';status='failed'}
+  }
+  else if(definition.id==='booking.reservation.modify'){result=await bookingContract().commands.modifyBooking(payload.bookingId,{...(payload.patch||payload.input||payload),idempotencyKey});message=result?.transport==='provider_api'?'Die Änderung wurde beim verbundenen Provider angefragt. Der endgültige Status wird erst nach dessen Bestätigung übernommen.':'Die Änderungsanfrage wurde im verifizierten Anbieter-Thread gesendet. Die Buchung bleibt bis zur Antwort unverändert.'}
+  else if(definition.id==='booking.reservation.cancel'){result=await bookingContract().commands.cancelBooking(payload.bookingId,{...(payload.input||payload),idempotencyKey});message=result?.transport==='provider_api'?'Die Stornierung wurde beim verbundenen Provider angefragt. Als storniert gilt sie erst nach bestätigtem Status.':'Die Stornierungsanfrage wurde im verifizierten Anbieter-Thread gesendet. Als storniert gilt sie erst nach der Antwort.'}
   else if(definition.id==='journey.day.open'){result=await journeyContract().commands.openPlanningEditor(payload);message='Dein Tagesplan ist geöffnet.';status='opened'}
   else if(definition.id==='trip.active.select'){result=tripContract().commands.selectActiveTrip(payload.tripId,{source:'intelligence.actions.v1'});message='Die aktive Reise wurde gewechselt.'}
   else if(definition.id==='trip.update.details'){result=await tripContract().commands.updateTrip(payload.tripId,payload.patch||{});message='Die bestätigten Reisedetails wurden aktualisiert.'}

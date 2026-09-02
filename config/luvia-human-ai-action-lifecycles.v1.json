@@ -9479,7 +9479,7 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.favorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "preview": {
         "required": true,
@@ -9544,7 +9544,7 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.unfavorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "preview": {
         "required": true,
@@ -9670,7 +9670,7 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.plan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "preview": {
         "required": true,
@@ -9796,7 +9796,7 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.unplan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "preview": {
         "required": true,
@@ -12485,7 +12485,7 @@
       "stateChanging": true,
       "owner": {
         "contract": "booking.v1",
-        "method": "commands.createForPlace",
+        "method": "commands.submitReservation",
         "bindingStatus": "RUNTIME_REGISTERED"
       },
       "preview": {

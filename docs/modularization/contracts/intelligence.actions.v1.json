@@ -15,7 +15,7 @@
     {"id": "places.place.unplan", "effect": "WRITE", "risk": "R2", "confirmation": "EXPLICIT", "ownerContract": "places.v1", "ownerOperation": "commands.unplan"},
     {"id": "booking.restaurant.open", "effect": "EXTERNAL", "risk": "R1", "confirmation": "USER_GESTURE", "ownerContract": "booking.v1", "ownerOperation": "commands.openPlaceBooking"},
     {"id": "booking.trip.read", "effect": "READ", "risk": "R0", "confirmation": "NEVER", "ownerContract": "booking.v1", "ownerOperation": "reads.listForTrip"},
-    {"id": "booking.reservation.create", "effect": "EXTERNAL", "risk": "R3", "confirmation": "EXPLICIT", "ownerContract": "booking.v1", "ownerOperation": "commands.createForPlace"},
+    {"id": "booking.reservation.create", "effect": "EXTERNAL", "risk": "R3", "confirmation": "EXPLICIT", "ownerContract": "booking.v1", "ownerOperation": "commands.submitReservation"},
     {"id": "booking.reservation.modify", "effect": "EXTERNAL", "risk": "R3", "confirmation": "EXPLICIT", "ownerContract": "booking.v1", "ownerOperation": "commands.modifyBooking"},
     {"id": "booking.reservation.cancel", "effect": "EXTERNAL", "risk": "R3", "confirmation": "EXPLICIT", "ownerContract": "booking.v1", "ownerOperation": "commands.cancelBooking"},
     {"id": "journey.day.read", "effect": "READ", "risk": "R0", "confirmation": "NEVER", "ownerContract": "journey.v1", "ownerOperation": "reads.snapshot"},

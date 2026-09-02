@@ -5,13 +5,17 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 
 const read=file=>fs.readFileSync(file,'utf8');
+const inputContracts=JSON.parse(read('config/luvia-ai-action-input-contracts.v1.json'));
+const createSchema=inputContracts.contracts['booking.reservation.create'];
+assert.deepEqual(createSchema.required,['tripId','place','startAt','partySize']);
+for(const field of ['date','time','timezone','emailVerified','emailVerificationSource','provider','venueReference','providerSlotReference','preferProviderApi','route'])assert.ok(createSchema.input.properties[field],`Booking create schema misses semantic/Owner field ${field}`);
 const ownerCalls=[];
 let activeTrip={id:'trip-scharbeutz',timeZone:'Europe/Berlin',destination:{name:'Scharbeutz'}},uuidSequence=0;
 const booking={
   reads:{async listForTrip(tripId){ownerCalls.push(['listForTrip',tripId]);return[{id:'booking-1',tripId,title:'Abendessen am Wasser',status:'confirmed',partySize:4}]}},
   commands:{
     async openPlaceBooking(payload){ownerCalls.push(['openPlaceBooking',payload]);return{opened:true,providerPlaceId:payload.providerPlaceId}},
-    async createForPlace(payload){ownerCalls.push(['createForPlace',payload]);return{ok:true,id:'booking-created'}},
+    async submitReservation(payload){ownerCalls.push(['submitReservation',payload]);return{ok:true,bookingId:'booking-created',transport:'email',submissionState:'email_sent',providerOutcomeKnown:true,awaitingProviderReply:true}},
     async modifyBooking(bookingId,payload){ownerCalls.push(['modifyBooking',bookingId,payload]);return{ok:true,bookingId}},
     async cancelBooking(bookingId,payload){ownerCalls.push(['cancelBooking',bookingId,payload]);if(bookingId==='booking-uncertain'){const error=new Error('Provider timeout');error.code='ETIMEDOUT';throw error}return{ok:true,bookingId}}
   }
@@ -66,10 +70,10 @@ assert.equal(ownerCount(),0,'invalid booking input must fail before owner invoca
   assert.equal(JSON.stringify(created.result).includes('fabian@example.test'),false,'sensitive contact data must not enter confirmation or ledger projections');
   const createReceipt=await runtime.execute('booking.reservation.create',{}, {ledgerId:created.ledgerId,userGesture:true,confirmed:true});
   assert.equal(createReceipt.evidence.status,'completed');
-  assert.equal(ownerCalls.find(call=>call[0]==='createForPlace')[1].email,'fabian@example.test','confirmed contact data must reach only the booking owner execution');
+  assert.equal(ownerCalls.find(call=>call[0]==='submitReservation')[1].email,'fabian@example.test','confirmed contact data must reach only the booking owner execution');
   const replay=await runtime.execute('booking.reservation.create',{}, {ledgerId:created.ledgerId,userGesture:true,confirmed:true});
   assert.equal(replay,createReceipt);
-  assert.equal(ownerCalls.filter(call=>call[0]==='createForPlace').length,1,'the same ledger action must not book twice');
+  assert.equal(ownerCalls.filter(call=>call[0]==='submitReservation').length,1,'the same ledger action must not book twice');
 
   const modified=runtime.prepare('booking.reservation.modify',{bookingId:'booking-1',tripId:'trip-scharbeutz',patch:{time:'19:30',partySize:5}},{userGesture:true,idempotencyKey:'booking-modify-once'});
   const modifyReceipt=await runtime.execute('booking.reservation.modify',{}, {ledgerId:modified.ledgerId,userGesture:true,confirmed:true});

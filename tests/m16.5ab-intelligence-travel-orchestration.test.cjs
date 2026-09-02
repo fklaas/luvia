@@ -103,11 +103,11 @@ const multilingualBooking=core.compileDialogue('Reserva un restaurante para cuat
   goals:[{type:'booking',label:'Reservar un restaurante',hardConstraints:[{key:'operation',value:'reserve',label:'Reservar'},{key:'target',value:'restaurant',label:'Restaurante'},{key:'partySize',value:'4',label:'Cuatro personas'}],softPreferences:[],timeWindow:{label:'13 de junio a las 19:00',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'}],
   hardConstraints:[],softPreferences:[],followUpQuestion:null,summary:{headline:'Reserva entendida',intro:''},unknowns:[],confidence:.91
 },{locale:'es-ES'});
-assert.equal(multilingualBooking.status,'needs-clarification');
+assert.equal(multilingualBooking.status,'compiled');
 assert.equal(multilingualBooking.intents[0].temporalHint.date,'2027-06-13');
 assert.equal(multilingualBooking.intents[0].temporalHint.time,'19:00');
 assert.equal(multilingualBooking.intents[0].entityHints.partySize,4);
-assert.ok(multilingualBooking.missingInputs.some(item=>item.input==='verified-provider-capability'));
+assert.equal(multilingualBooking.missingInputs.length,0,'provider capability is runtime evidence, not a user clarification field');
 
 const semanticPlan=core.compileDialogue('Plan the restaurant for June 13 at 7 pm.',{
   goals:[{type:'meal',label:'Plan the restaurant',hardConstraints:[{key:'operation',value:'plan',label:'Plan'},{key:'target',value:'restaurant',label:'Restaurant'}],softPreferences:[],timeWindow:{label:'June 13 at 7 pm',start:'2027-06-13T19:00:00',end:'2027-06-13T21:00:00',flexible:false},source:'user'}],
@@ -187,7 +187,9 @@ assert.equal(naturalMulti.rawMessageStored,false);
 
 const missing=core.compileIntent('Buche ein Restaurant.');
 assert.equal(missing.status,'needs-clarification');
-assert.ok(missing.missingInputs.some(item=>item.input==='verified-provider-capability'));
+assert.equal(missing.missingInputs.some(item=>item.input==='verified-provider-capability'),false,'provider capability is resolved by the Booking Owner');
+assert.ok(missing.missingInputs.some(item=>item.input==='date'));
+assert.ok(missing.missingInputs.some(item=>item.input==='time'));
 assert.ok(missing.missingInputs.some(item=>item.input==='party-size'));
 
 const conflicting=core.compileIntent('Teile meinen Standort, aber nutze meinen Standort nicht.');

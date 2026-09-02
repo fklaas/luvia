@@ -9,11 +9,11 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "241EBFE381CDD76CB5A4590DCE96766E25BFF5BF27A0E2CDF458FC4BE4FF333B"
+        "sha256": "F7D4E4B0A0A1456C62290BB6344E0CBE1F14F550C3936E8733B00A6BECCE7691"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
-        "sha256": "92B0AB0E7EACF1EF78A2964C6D9DAF2BDAFD029E1E7BAF3C5E4C059D23C92378"
+        "sha256": "27D659CADDE4F13A3B5C220E19B9A622B13AE372EC5D7089CF7141DFFA49DC21"
       },
       "safety": {
         "file": "config/luvia-human-ai-safety-policy.v1.json",
@@ -21,7 +21,7 @@
       },
       "lifecycle": {
         "file": "config/luvia-human-ai-action-lifecycles.v1.json",
-        "sha256": "7BF4506ACD5E0D92E490C7B13E943605267F084135566A7CBABEE76810CA5B11"
+        "sha256": "4AF97904D1D755AF8B9C2143306C14FB445413AD166FF9334C8ED0DCC544C51D"
       },
       "capability": {
         "file": "config/luvia-human-ai-capability-matrix.v1.json",
@@ -29395,7 +29395,7 @@
       "humanStatus": "AVAILABLE",
       "owner": {
         "contract": "booking.v1",
-        "method": "commands.createForPlace",
+        "method": "commands.submitReservation",
         "bindingStatus": "RUNTIME_REGISTERED"
       },
       "ai": {
@@ -29414,7 +29414,7 @@
       "dimensions": {
         "contract": {
           "status": "PASS",
-          "evidence": "booking.v1 · commands.createForPlace",
+          "evidence": "booking.v1 · commands.submitReservation",
           "expected": "Öffentlichen Owner-Weg verwenden",
           "inputContractStatus": "READY"
         },

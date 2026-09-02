@@ -82,7 +82,12 @@ function preferencePatch(source){
 function entityHints(source){const party=source.match(PARTY_PATTERN),partyWord=source.match(PARTY_WORD_PATTERN),partyToken=clean(partyWord?.[1]||partyWord?.[2]).toLocaleLowerCase('de-DE'),namedTrip=/\b(?:zur|die)\s+reise\s+(?!wechseln\b|ändern\b|aendern\b)[\p{L}\d][\p{L}\d .'-]{1,80}/iu.test(source);return{partySize:party?Number(party[1]):PARTY_WORDS[partyToken]||null,hasNamedTarget:/[„“"'][^„“"']{2,80}[„“"']/.test(source)||namedTrip,hasChoice:/\b(?:oder|zwischen)\b/i.test(source),preferencePatch:preferencePatch(source)}}
 function requiredInputs(domain,mode,clause,hint,entities,operation=''){
   if(mode!=='propose-write')return domain.id==='device-position'&&!/\b(?:in\s+meiner\s+nähe|in\s+meiner\s+naehe|hier)\b/i.test(clause)?['purpose']:[];
-  if(domain.id==='booking')return[!entities.hasNamedTarget&&!/\b(?:restaurant|hotel|ticket|tisch)\b/i.test(clause)?'bookable-target':null,!hint.date?'date':null,!hint.time?'time':null,!entities.partySize?'party-size':null,'verified-provider-capability'].filter(Boolean);
+  if(domain.id==='booking'){
+    const semantic=clean(operation).toLowerCase().replace(/[\s-]+/g,'_'),cancel=['cancel','storno','stornieren'].includes(semantic)||/\bstornier\w*|\bcancel\w*/i.test(clause),modify=['change','modify','update','rebook','umbuchen'].includes(semantic)||/\b(?:änder|aender|umbuch|verschieb)\w*/i.test(clause);
+    if(cancel)return[];
+    if(modify)return[hint.date||hint.time||entities.partySize?null:'booking-change'].filter(Boolean);
+    return[!entities.hasNamedTarget&&!/\b(?:restaurant|hotel|ticket|tisch|museum|aktivität|aktivitaet|attraktion|event|veranstaltung|tour)\b/i.test(clause)?'bookable-target':null,!hint.date?'date':null,!hint.time?'time':null,!entities.partySize?'party-size':null].filter(Boolean);
+  }
   if(domain.id==='journey'){
     const removal=['delete','remove','unplan'].includes(clean(operation).toLowerCase())||/\b(?:entfern|entplan|lösch|loesch|remove|unplan)\w*/i.test(clause);
     if(removal)return[];

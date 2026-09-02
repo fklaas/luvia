@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='booking.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.6.0-live-stay-search-owner';
+const RUNTIME_VERSION='1.7.0-ai-booking-lifecycle-owner';
 
 function unavailable(provider){const error=new Error(`Booking Contract v1: ${provider} ist nicht verfügbar.`);error.code='BOOKING_CONTRACT_PROVIDER_UNAVAILABLE';error.provider=provider;throw error}
 function runtime(){const api=globalThis.LuviaBooking;if(!api)unavailable('LuviaBooking');return api}
@@ -78,6 +78,15 @@ async function lifecycleCapabilities(input={}){
   if(!policy?.assess)unavailable('LuviaBookingLifecyclePolicyCore');
   return immutable(policy.assess({booking,capability,thread,verifiedContact,canResolveVerifiedContact,route:input.route}));
 }
+async function resolveCommand(input={}){
+  const tripId=clean(input.tripId),bookings=Array.isArray(input.bookings)?input.bookings:await runtime().listForTrip(tripId);
+  const policy=globalThis.LuviaBookingLifecyclePolicyCore;if(!policy?.resolveTarget)unavailable('LuviaBookingLifecyclePolicyCore.resolveTarget');
+  const resolution=policy.resolveTarget({...input,bookings});
+  if(resolution.status!=='resolved')return immutable(resolution);
+  const lifecycle=await lifecycleCapabilities({booking:resolution.booking}),operation=clean(input.operation).toLowerCase();
+  const action=operation==='modify'||operation==='change'||operation==='update'?lifecycle.actions.modify:operation==='cancel'?lifecycle.actions.cancel:null;
+  return immutable({...resolution,lifecycle,operation,available:action?Boolean(action.available):true,transport:action?.transport||null,reason:action?.reason||null});
+}
 async function conversationPreferences(bookingIds=[]){return immutable(await runtime().conversationPreferences((bookingIds||[]).map(clean).filter(Boolean)))}
 async function checkAvailability(input={}){return immutable(await availability().check(input))}
 async function resolveChannel(input={}){
@@ -93,6 +102,7 @@ async function searchStayOffers(input={}){return immutable(await staySearch().se
 async function reconcileUnknownOutcome(input={}){return immutable(await recovery().reconcile(input))}
 
 async function createForPlace(input={}){return immutable(await runtime().createForPlace(input))}
+async function submitReservation(input={}){return immutable(await runtime().submitReservation(input))}
 async function trackExternalHandoff(input={}){return immutable(await runtime().trackExternalHandoffForPlace(input))}
 async function reply(bookingId,input={}){return immutable(await runtime().reply(clean(bookingId),input))}
 async function performIntelligenceAction(bookingId,input={}){return immutable(await runtime().performIntelligenceAction(clean(bookingId),input))}
@@ -134,13 +144,13 @@ async function resolveThread(input={}){
   return immutable(await runtime().setConversationPreference(bookingId,'resolved',input.resolved===false?null:(input.at||new Date().toISOString())));
 }
 
-const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,lifecycleCapabilities,conversationPreferences,checkAvailability,resolveChannel,resolveAdmission,admissionProviderCatalog,resolveAccommodation,accommodationProviderCatalog,compareStayOffers,searchStayOffers,reconcileUnknownOutcome});
+const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,lifecycleCapabilities,resolveCommand,conversationPreferences,checkAvailability,resolveChannel,resolveAdmission,admissionProviderCatalog,resolveAccommodation,accommodationProviderCatalog,compareStayOffers,searchStayOffers,reconcileUnknownOutcome});
 const composition=Object.freeze({createDraft,updateDraft,validateDraft,selectRoute,composeMessageDraft});
-const commands=Object.freeze({createForPlace,trackExternalHandoff,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,retryRecovery,resolveThread});
+const commands=Object.freeze({createForPlace,submitReservation,trackExternalHandoff,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,retryRecovery,resolveThread});
 const api=Object.freeze({
   contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,composition,commands,
   events:Object.freeze(['booking.changed','booking.created','booking.status.changed','booking.message.changed','booking.provider.selected']),
-  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,createForPlace,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,placeProjection,
+  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,createForPlace,submitReservation,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,placeProjection,
   diagnostics:()=>Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,ready:Boolean(globalThis.LuviaBooking&&globalThis.LuviaBookingUI?.openForPlace&&globalThis.LuviaBookingDraftCoreV1&&globalThis.LuviaBookingAdmissionCore&&globalThis.LuviaBookingAccommodationCore&&globalThis.LuviaBookingStayDecisionCore),providers:Object.freeze({runtime:Boolean(globalThis.LuviaBooking),ownerFlow:Boolean(globalThis.LuviaBookingUI?.openForPlace),draftCore:Boolean(globalThis.LuviaBookingDraftCoreV1),availability:Boolean(globalThis.LuviaBookingAvailability),admission:Boolean(globalThis.LuviaBookingAdmissionCore),accommodation:Boolean(globalThis.LuviaBookingAccommodationCore),stayDecision:Boolean(globalThis.LuviaBookingStayDecisionCore),staySearch:Boolean(globalThis.LuviaBookingStaySearchWebAdapter),recovery:Boolean(globalThis.LuviaBookingReservationRecovery)}),ownership:Object.freeze({bookingTruth:true,admissionTruth:true,accommodationTruth:true,hotelDecisionTruth:true,hotelLivePriceGatewayTruth:true,intelligenceTruth:false,foreignDomainMutation:false})})
 });
 
