@@ -18,11 +18,11 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5P-PRODUCTIVE-PLACES-RUNTIME-RELEASE.md');
 
-assert.match(version,/core:'4\.82\.137'/);
-assert.match(version,/build:'13\.82\.137'/);
-assert.match(version,/name:'M16\.5 Block 1 Trip Selection Semantic Repair'/);
+assert.match(version,/core:'4\.82\.138'/);
+assert.match(version,/build:'13\.82\.138'/);
+assert.match(version,/name:'M16\.5 Block 1 Chat-Native Trip Selection Repair'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.137(?:-runtime\d+)?'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.138(?:-runtime\d+)?'/);
 assert.equal(/\?v=13\.82\.53/.test(index),false,'active entry retains the prior cache key');
 
 for(const asset of [
@@ -31,10 +31,10 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'modules/places-shell.js',
   'app/app-shell.js'
-])assert.ok(index.includes(`${asset}?v=13.82.137`),`active entry release key missing for ${asset}`);
+])assert.ok(index.includes(`${asset}?v=13.82.138`),`active entry release key missing for ${asset}`);
 
-assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.css\?v=13\.82\.137/);
-assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.137/);
+assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.css\?v=13\.82\.138/);
+assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.138/);
 for(const asset of [
   'app/places/places-spatial-composition-core.js',
   'app/places/places-spatial-experience.js',
@@ -71,6 +71,6 @@ assert.match(pcr,/Main and Production remain locked/);
 assert.match(pcr,/No database\/schema\/RPC\/RLS\/bucket migration/);
 
 console.log('M16.5P Productive Places Runtime Release: PASS');
-console.log('App / Core: 13.82.137 / 4.82.137');
+console.log('App / Core: 13.82.138 / 4.82.138');
 console.log('Places coordinates, spatial composition and owner boundaries: LOCKED');
 console.log('Main / Production visual parity lock: ACTIVE');

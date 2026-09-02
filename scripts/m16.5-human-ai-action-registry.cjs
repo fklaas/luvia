@@ -950,7 +950,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; candidate \`13.82.136\` does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes before public acceptance.\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved real Places search, exact plan Preview, confirmation, Owner receipt, separately confirmed receipt Undo and empty Timeline readback; current Integration candidate \`13.82.138\` does not convert the remaining \`MISSING\` or \`REGISTERED/PARTIAL\` rows into public passes before public acceptance.\n\n` +
     `## Local B1 registry delta regenerated, awaiting visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +

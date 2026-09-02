@@ -38,6 +38,7 @@ assert.equal(tripSwitch.status,'compiled','explicit trip switching must not inhe
 assert.deepEqual([...tripSwitch.ownerRoutes],['trip.v1'],'the semantic owner invariant must keep trip switching at the Trip owner');
 assert.equal(tripSwitch.intents.length,1);
 assert.equal(tripSwitch.intents[0].domain,'trip');
+assert.equal(tripSwitch.intents[0].semanticOperation,'switch','the semantic operation must remain available to downstream action routing');
 assert.equal(tripSwitch.intents[0].mode,'read','an unnamed target must first return the available trips');
 assert.equal(tripSwitch.intents[0].requiresConfirmation,false,'listing trips must not pretend to mutate the active trip');
 assert.deepEqual([...tripSwitch.intents[0].missingInputs],[],'trip listing needs neither date nor time');

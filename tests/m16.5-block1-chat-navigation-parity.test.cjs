@@ -9,7 +9,13 @@ const context = {
   console, Object, Array, Map, Set, WeakSet, Error, TypeError, String, Boolean, Number, Math, JSON, Date, RegExp, Promise, Intl,
   CustomEvent: function CustomEvent(name, options) { this.type = name; this.detail = options?.detail; },
   dispatchEvent(event) { events.push(event); },
-  LuviaTripContractV1: { getActiveTrip: () => ({ id: 'trip-nav', timezone: 'Europe/Berlin' }) },
+  LuviaTripContractV1: {
+    getActiveTrip: () => ({ id: 'trip-nav', title: 'Aktuelle Reise', timezone: 'Europe/Berlin' }),
+    listTrips: () => [
+      { id: 'trip-nav', title: 'Aktuelle Reise', timezone: 'Europe/Berlin' },
+      { id: 'trip-next', title: 'Nächste Reise', timezone: 'Europe/Berlin' },
+    ],
+  },
 };
 context.window = context;
 context.globalThis = context;
@@ -40,6 +46,24 @@ for (const file of [
   const typo = await runtime.runMessage('offne den Bereich Unterkunfte', { surface: 'global-chat' });
   assert.equal(typo.handled, true);
   assert.equal(events.find(event => event.type === 'luvia:navigate-request').detail.intent.route, 'hotels');
+
+  events.length = 0;
+  const tripSelection = await runtime.runMessage('Ich will eine andere Reise auswählen.', {
+    surface: 'global-chat',
+    compiledIntent: {
+      contractId: 'intelligence.travel-orchestration.v1',
+      status: 'compiled',
+      intents: [{
+        domain: 'trip', mode: 'read', semanticOperation: 'switch',
+        clause: 'Andere Reise auswählen · Reise wechseln', missingInputs: [],
+      }],
+    },
+  });
+  assert.equal(tripSelection.handled, true);
+  assert.equal(tripSelection.results[0].kind, 'trip_collection','trip selection must list trips inside the chat');
+  assert.equal(tripSelection.results[0].items.length, 2);
+  assert.equal(tripSelection.results[0].items[1].actions[0].actionId, 'trip.active.select');
+  assert.equal(events.some(event => event.type === 'luvia:navigate-request'), false,'semantic trip selection must not leave the chat');
 
   const invalid = actions.validateActionInput('navigation.route.open', { route: 'https://attacker.invalid' });
   assert.equal(invalid.valid, false);

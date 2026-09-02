@@ -188,7 +188,11 @@ const runtimeHandlers=Object.freeze({...readHandlers,'navigation.route.open':nav
 
 function compiledRoutes(message,compiled){
   if(compiled?.contractId!=='intelligence.travel-orchestration.v1'||!Array.isArray(compiled.intents))return null;
-  const directNavigation=actionCore().routeIntents?.(message)?.find(route=>route.actionId==='navigation.route.open');if(directNavigation)return[directNavigation];
+  // A structured Trip select/switch intent is a chat-native read first.  Do not
+  // let the older navigation recognizer turn it into a module jump and hide the
+  // selectable trips. Explicit module-opening requests still navigate normally.
+  const tripSelectionRead=compiled.intents.some(intent=>intent.domain==='trip'&&intent.mode==='read'&&(['switch','select'].includes(clean(intent.semanticOperation).toLowerCase())||/\b(?:wechsel|auswähl|auswaehl|select|switch)\w*/i.test(intent.clause||message)));
+  const directNavigation=tripSelectionRead?null:actionCore().routeIntents?.(message)?.find(route=>route.actionId==='navigation.route.open');if(directNavigation)return[directNavigation];
   const routes=[],hints=mutationHints(compiled),push=(actionId,input={},query=message)=>{if(actionId&&!routes.some(route=>route.actionId===actionId)){const routed={query:query||message,...input};if(actionId.startsWith('places.'))routed.mutationHints=hints;routes.push({actionId,input:routed})}};
   for(const intent of compiled.intents){
     const query=intent.clause||message;

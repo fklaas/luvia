@@ -20,21 +20,32 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.137**
-- Core: **4.82.137**
-- Name: **M16.5 Block 1 Trip Selection Semantic Repair**
+- App: **13.82.138**
+- Core: **4.82.138**
+- Name: **M16.5 Block 1 Chat-Native Trip Selection Repair**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Trip Selection Semantic Repair — Local Integration Candidate 13.82.137
+## M16.5 Block 1 Chat-Native Trip Selection Repair — Local Integration Candidate 13.82.138
+
+- Runtime target: **App 13.82.138 / Core 4.82.138 / cache `luvia-shell-v13.82.138` / Integration only**.
+- Public counterevidence on `.137`: **the exact sentence `Ich will eine andere Reise auswählen.` no longer asked for date or time, but an older direct-navigation route overruled the correct semantic Trip intent and closed the Chat on the general Reise module instead of returning selectable trips inside the conversation**.
+- Repair: **structured Trip `switch/select` reads now keep priority over the lower-level navigation recognizer. The Chat returns the Trip-owner collection and exposes `trip.active.select` only on a concrete non-active trip; an explicit request to open an App module still navigates normally**.
+- Automated evidence: **the focused semantic and navigation tests inject the same structured OpenAI result, prove a two-trip Chat collection with no navigation event, preserve Hotel navigation including typo tolerance, and keep the internal-route allow-list plus foreign-URL rejection green**.
+- Release state: **candidate only. Full regression, visible local consumer acceptance, clean commit/archive, immutable deployment, public Stable reread, byte identity and the exact rollback to accepted `.136` remain required**.
+- Scope lock: **no DB, RLS, Secret, Provider, Booking Edge, Main or Production change belongs to this repair slice**.
+
+## M16.5 Block 1 Trip Selection Semantic Repair — Publicly deployed, rejected after Chat-boundary counterevidence 13.82.137
 
 - Runtime target: **App 13.82.137 / Core 4.82.137 / cache `luvia-shell-v13.82.137` / Integration only**.
 - Public counterevidence on `.136`: **`Ich will eine andere Reise auswählen.` reached the Trip wording but a structured model misclassified the control as a Journey task and the consumer incorrectly asked for date and time. No mutation occurred**.
 - Repair: **structured `switch/select trip` operations are now constrained to the Trip owner even when a model labels the goal generically as `journey`; generic references such as `another` remain reads that list the available trips rather than pretending to identify or mutate one**.
 - Visible local evidence: **the semantic/admission fixture injects that exact high-confidence wrong model shape and proves `trip.v1`, read mode, zero missing date/time fields, no Places/Journey call, zero console errors and no horizontal overflow at 390×844**.
-- Release state: **candidate only. Commit, clean archive, immutable URL, Stable bytes, real public reread and exact `.136` rollback will be recorded only after the full regression and public acceptance pass**.
+- Public disposition: **the signed-in 390×844 Stable run removed the false date/time requirement and made no mutation, but left the Chat and opened the general Reise module. Because the requested selectable trip list did not remain in the Chat, `.137` is counterevidence rather than an accepted rollback target**.
+- Release provenance: **runtime commit `15f7992e45186fb848ed9201ccfe8db543a6de8e`; clean archive SHA-256 `BC921456AB4769BF171B092BD2DCA54620BD0D2E95786AA4CDAA325A9360CBC7`; immutable Worker version `f5ee73eb-fb0b-4ec6-b564-8403108810db`; 100 % deployment `19f1efaa-3dfa-4208-949b-b1905a5fc72d`; 20/20 checked release files / 4,000,683 bytes matched archive, Stable and Immutable**.
+- Exact rollback: **restore accepted App 13.82.136 with `npx wrangler versions deploy caf3e8bd-7f98-47fc-991c-135062732dad@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.137 to accepted App 13.82.136" --yes`; code/assets only, no DB or Edge rollback**.
 - Scope lock: **no DB, RLS, Secret, Provider, Booking Edge, Main or Production change belongs to this repair slice**.
 
 ## M16.5 Block 1 Semantic AI / Universal Admission / Hotel Live Price — Stable Integration Slice 13.82.136
