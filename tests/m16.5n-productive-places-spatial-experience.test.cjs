@@ -43,7 +43,7 @@ assert.equal(core.maxResults,80);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
-  runtimeVersion:'1.4.0',
+  runtimeVersion:'1.5.0',
   sourceContract:'places.v1',
   browserless:true,
   deterministic:true,
@@ -161,13 +161,15 @@ const preferencePlaces=Array.from({length:16},(_,index)=>({
   name:`Passender Ort ${index+1}`,
   coordinates:{latitude:54.02+index/1000,longitude:10.74+index/1000},
   groupFit:{score:index<13?34-index:0,coverage:index<13?0.35:0},
-  preferenceReasons:index<13?['Belegtes Reisendenmerkmal']:[]
+  preferenceReasons:index<13?['Belegtes Reisendenmerkmal']:[],
+  preferenceConstraintState:index<12?'satisfied':index===12?'verify':null
 }));
 const preferenceModel=core.compose({places:preferencePlaces,visibleLimit:16,runtime:{status:'ready'}});
-assert.deepEqual(plain(preferenceModel.markers.filter(marker=>marker.preferred).map(marker=>marker.providerPlaceId)),Array.from({length:13},(_,index)=>`fit-${index+1}`),'the map must mark every positive evidence-backed match instead of truncating the cohort to five places');
+assert.deepEqual(plain(preferenceModel.markers.filter(marker=>marker.preferred).map(marker=>marker.providerPlaceId)),Array.from({length:12},(_,index)=>`fit-${index+1}`),'the map must mark every hard-gate-satisfied evidence match instead of truncating the cohort to five places');
+assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-13').preferred,false,'unknown hard-requirement evidence must remain in Alle but never receive a Passend marker');
 assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-14').preferred,false,'a marker without positive coverage and reasons must never be marked as personally fitting');
-assert.equal(preferenceModel.policy.preferredMarkers,'all-positive-evidence-backed-non-conflicting-results');
-assert.equal(preferenceModel.policy.unknownEvidence,'never-treated-as-conflict');
+assert.equal(preferenceModel.policy.preferredMarkers,'all-positive-evidence-backed-hard-requirements-satisfied');
+assert.equal(preferenceModel.policy.unknownEvidence,'visible-in-all-excluded-from-preferred');
 
 const ready=core.compose({categories,places:[coordinatePlaces[0]],runtime:{status:'ready'}}).status;
 const loading=core.compose({categories,places:[],runtime:{loading:true}}).status;
@@ -226,10 +228,12 @@ assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or z
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
 assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'the Passend mode must share the same evidence-backed cohort as the visible preferred pin markers');
 assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
+assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
 assert.match(experience,/fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'the fast provider-first map must always deepen preference discovery in the background');
 assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\)/,'Passend must actually remove non-matching pins instead of only changing the pressed toggle');
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
+assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*border:2px solid transparent[^}]*conic-gradient\(from 0deg,#ef6254 0deg,#f4b34c 72deg,#2f8c73 154deg,#2c93a9 222deg,#756fa9 292deg,#a65f8f 328deg,#ef6254 360deg\) border-box/,'the selected-pin preview must carry the complete ordered Compass spectrum around its border');
 assert.doesNotMatch(experience,/projectionState\(container,'loading','Kartenausschnitt/,'a viewport refresh must never return the mounted map to its initial loading state');
 assert.match(experience,/projectionRefreshState\(container,true,'Neue Pins werden im Hintergrund geladen/,'viewport loading must use the non-blocking refresh state');
 assert.match(experience,/projectionState\(container,'ready',updated\.markers\.length\?/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');

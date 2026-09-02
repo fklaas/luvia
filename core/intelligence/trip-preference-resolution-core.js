@@ -1,9 +1,12 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.4.0';
+const VERSION='1.5.0';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
+const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
+const VEGAN_FOCUS=/vegan_restaurant|\bvegan(?:e[rsnm]?|ism)?\b|plant[ _-]?based|rein pflanzlich|pflanzenk[uü]che/i;
+const MEAT_LED_OFFER=/kebab|kebap|d[oö]ner|steak(?:house)?|barbecue|\bbbq\b|grill|hamburger|burger|greek_restaurant|griech(?:isch|e[rsnm]?)/i;
 const TAGS=Object.freeze({
   quiet:/quiet|calm|ruhig|still|garden|garten|park|spa|wellness|library|bibliothek|courtyard|hof|retreat|beach|strand/,
   nature:/nature|natur|park|garden|garten|forest|wald|beach|strand|coast|küste|lake|see\b|river|fluss|scenic|aussicht/,
@@ -122,15 +125,19 @@ function evidence(place,constraint){
   if(constraint.kind==='dietary'){
     if(!FOOD.test(hay))return{state:'not-applicable'};
     if(/vegan/.test(value)){
-      if(features.servesVeganFood===true||/vegan/.test(hay))return{state:'confirmed'};
       if(features.servesVeganFood===false)return{state:'conflict'};
       if(features.servesVegetarianFood===false)return{state:'conflict'};
-      return{state:'unknown'};
+      if(VEGAN_FOCUS.test(hay))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
+      if(MEAT_LED_OFFER.test(hay))return{state:'unknown',reason:'Das erkennbare Hauptangebot ist nicht vegan ausgerichtet; einzelne Optionen reichen für „Passend“ nicht aus.'};
+      if(features.servesVeganFood===true)return{state:'confirmed',strength:'provider-feature',source:'provider-feature'};
+      return{state:'unknown',reason:'Eine verlässlich vegane Auswahl ist nicht ausdrücklich belegt.'};
     }
     if(/vegetar/.test(value)){
-      if(features.servesVegetarianFood===true||/vegetar|vegan/.test(hay))return{state:'confirmed'};
       if(features.servesVegetarianFood===false)return{state:'conflict'};
-      return{state:'unknown'};
+      if(VEGETARIAN_FOCUS.test(hay))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
+      if(MEAT_LED_OFFER.test(hay))return{state:'unknown',reason:'Das erkennbare Hauptangebot ist fleischzentriert; eine einzelne vegetarische Option genügt nicht für „Passend“.'};
+      if(features.servesVegetarianFood===true)return{state:'confirmed',strength:'provider-feature',source:'provider-feature'};
+      return{state:'unknown',reason:'Eine verlässlich vegetarische Auswahl ist nicht ausdrücklich belegt.'};
     }
     if(hay.includes(value.replaceAll('_',' ')))return{state:'confirmed'};
     return{state:'unknown'};
@@ -235,8 +242,8 @@ function rankCandidate(place,resolution,index=0,input={}){
   for(const constraint of resolution.hardConstraints||[]){
     const proof=evidence(place,constraint);
     if(proof.state==='conflict'){eligible=false;warnings.push(`${constraint.label}: verfügbare Ortsdaten widersprechen der Anforderung.`)}
-    else if(proof.state==='unknown')warnings.push(`${constraint.label}: für diesen Ort noch nicht eindeutig bestätigt.`);
-    else if(proof.state==='confirmed')reasons.push(`${constraint.label} ist durch Provider-Fakten bestätigt.`);
+    else if(proof.state==='unknown')warnings.push(`${constraint.label}: ${proof.reason||'für diesen Ort noch nicht eindeutig bestätigt.'}`);
+    else if(proof.state==='confirmed')reasons.push(`${constraint.label} ist durch ${proof.strength==='focus'?'das erkennbare Angebotsprofil':'Provider-Fakten'} bestätigt.`);
   }
   for(const [tag,weight] of Object.entries(resolution.weights||{})){
     if(!matchesTag(place,tag))continue;

@@ -20,13 +20,22 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.156**
-- Core: **4.82.156**
+- App: **13.82.157**
+- Core: **4.82.157**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Hard Preference Gate + Compass Preview — Local Integration candidate 13.82.157
+
+- Hard requirement order: **`Passend` now applies every applicable hard Profile requirement before any soft preference score. A Place with unknown dietary, accessibility or family evidence remains available in `Alle`, but cannot receive a `Passt` marker or enter the `Passend` pin set. Confirmed conflicts remain blocked by Intelligence**.
+- Vegetarian evidence: **a positive Google/provider `servesVegetarianFood` fact continues to admit an ordinary mixed-menu restaurant. A recognizably meat-led primary offer such as kebab/döner, steak, barbecue/grill, burger or Greek cuisine no longer becomes personally fitting from that single generic option flag; it requires explicit vegetarian/vegan offer focus in the provider category, name or description. An explicitly vegetarian/vegan concept remains eligible regardless of cuisine format**.
+- Ranking boundary: **soft signals such as family context, waterfront, quiet atmosphere, rating, distance or trip feeling can rank only after the hard gate passes. They can never compensate for an unknown or contradicted dietary requirement**.
+- UI: **the full-width selected-pin preview at the bottom of the map uses a two-pixel conic border that traverses the complete ordered Luvia Compass spectrum from coral through amber, green, teal, blue and violet back to coral. The existing responsive preview grid, provider image and selected Place identity remain unchanged**.
+- Truth boundary: **no cuisine, dish or dietary suitability is invented. `Alle` remains the complete bounded provider set; `Passend` is deliberately fail-closed on hard Profile requirements. Official-site/menu research remains a separate evidence capability and is not claimed by this App-only candidate**.
+- Release gate: **focused shared-Intelligence, verified-dietary and productive spatial tests pass; fresh runtime bundles are built and the complete controlled Safe Regression is 201/201 PASS. Clean release, Integration-only deployment and public authenticated proof remain required. Main and Production remain locked**.
 
 ## M16.5 Preference Evidence Breadth — Local Integration candidate 13.82.156
 

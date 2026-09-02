@@ -34,6 +34,9 @@ const activeTrip={feelings:['active']};
 const candidates=[
   {id:'culture-cafe',name:'Local Culture Museum Café',primaryType:'restaurant',features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
   {id:'bike-cafe',name:'Outdoor Bike Garden Café',primaryType:'restaurant',features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
+  {id:'vegetarian-inn',name:'Altes Gasthaus',primaryType:'restaurant',types:['restaurant'],features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
+  {id:'generic-doner',name:'City Döner Grill',primaryType:'restaurant',types:['kebab_shop','restaurant'],features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
+  {id:'vegan-doner',name:'Veganer Döner Garten',primaryType:'vegetarian_restaurant',types:['vegetarian_restaurant','kebab_shop','restaurant'],features:{servesVegetarianFood:true,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
   {id:'meat-only',name:'Meat Bar Restaurant',primaryType:'restaurant',features:{servesVegetarianFood:false,wheelchairAccessible:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},
   {id:'unknown-park',name:'Quiet Riverside Park',primaryType:'park',features:{}}
 ];
@@ -50,6 +53,10 @@ assert.equal(cultureResolution.summary.planningPace,'ruhig','the profile pace mu
 assert.equal(cultureRanked.places[0].id,'culture-cafe','trip culture feeling should lift the cultural candidate');
 assert.equal(cultureRanked.meta.blockedCount,1,'explicit hard-constraint conflict must be removed');
 assert.ok(Array.from(cultureRanked.meta.blockedProviderPlaceIds).includes('meat-only'));
+assert.equal(cultureRanked.places.find(place=>place.id==='vegetarian-inn').preferenceConstraintState,'satisfied','a normal restaurant with positive provider evidence may satisfy the vegetarian gate even when it also serves meat');
+assert.equal(cultureRanked.places.find(place=>place.id==='generic-doner').preferenceConstraintState,'verify','a meat-led primary offer must not satisfy a vegetarian hard requirement from one generic provider boolean');
+assert.match(Array.from(cultureRanked.places.find(place=>place.id==='generic-doner').preferenceWarnings).join(' '),/fleischzentriert/);
+assert.equal(cultureRanked.places.find(place=>place.id==='vegan-doner').preferenceConstraintState,'satisfied','an explicit vegetarian or vegan offer profile may satisfy the gate regardless of cuisine format');
 const unknown=cultureRanked.places.find(place=>place.id==='unknown-park');
 assert.equal(unknown.preferenceConstraintState,'verify','unknown evidence must remain visible but marked for verification');
 assert.ok(Array.from(unknown.preferenceWarnings).some(item=>/nicht eindeutig bestätigt/.test(item)));

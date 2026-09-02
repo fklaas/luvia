@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.13.0-broad-evidence-fit';
+  const VERSION='1.14.0-hard-requirement-fit';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -115,7 +115,7 @@
   }
   function preferredPlaceIds(source=state.results){
     return new Set((Array.isArray(source)?source:[])
-      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState!=='blocked')
+      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState==='satisfied')
       .map(providerId));
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));

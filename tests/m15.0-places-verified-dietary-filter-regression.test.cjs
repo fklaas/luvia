@@ -20,11 +20,15 @@ const verified={providerPlaceId:'google-verified',name:'Strandgenuss',primaryTyp
 const contradicted={...verified,providerPlaceId:'google-contradicted',features:{servesVegetarianFood:false}};
 const unknown={...verified,providerPlaceId:'google-unknown',features:{}};
 const explicitType={providerPlaceId:'google-explicit',name:'Grüne Küche',types:['vegetarian_restaurant','restaurant'],features:{}};
+const genericDoner={providerPlaceId:'google-doner',name:'City Döner Grill',types:['kebab_shop','restaurant'],features:{servesVegetarianFood:true}};
+const vegetarianDoner={providerPlaceId:'google-veggie-doner',name:'Veganer Döner',types:['vegetarian_restaurant','kebab_shop','restaurant'],features:{servesVegetarianFood:true}};
 
 assert.equal(contracts.accepts(verified,'food','Vegetarisch essen',{}),true,'positive provider evidence must not require vegetarian wording in the place name');
 assert.equal(contracts.accepts(contradicted,'food','Vegetarisch essen',{}),false,'negative provider evidence must remain a hard rejection');
 assert.equal(contracts.accepts(unknown,'food','Vegetarisch essen',{}),false,'unknown dietary evidence must remain unverified');
 assert.equal(contracts.accepts(explicitType,'food','Vegetarisch essen',{}),true,'an explicit provider type is verified dietary evidence');
+assert.equal(contracts.accepts(genericDoner,'food','Vegetarisch essen',{}),false,'a meat-led primary offer must not become a vegetarian recommendation from one generic option flag');
+assert.equal(contracts.accepts(vegetarianDoner,'food','Vegetarisch essen',{}),true,'an explicit vegetarian offer profile must remain eligible');
 assert.equal(contracts.evidence(verified,'Vegetarisch essen','food',{}).traits.vegetarian,'confirmed');
 assert.match(contracts.evidence(verified,'Vegetarisch essen','food',{}).sentences.join(' '),/ausdrücklich belegt/);
 assert.equal(contracts.diagnostics().verifiedDietaryEvidence,true);
