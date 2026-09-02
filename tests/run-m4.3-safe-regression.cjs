@@ -742,6 +742,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-hotel-live-price-browser.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Bright Hotel Consumer + Exact Owner Handoff',
+    test: 'tests/m16.5-block1-hotel-consumer-owner.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Chat Navigation Parity',
     test: 'tests/m16.5-block1-chat-navigation-parity.test.cjs'
   },

@@ -4,16 +4,16 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3095,
-    "visualCandidates": 899,
+    "trackedFiles": 3097,
+    "visualCandidates": 900,
     "activeEntryReferences": 308,
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 65,
-      "bytes": 1544739,
-      "lines": 10855,
+      "bytes": 1555743,
+      "lines": 10895,
       "important": 3778,
-      "literalHexColours": 4039,
+      "literalHexColours": 4061,
       "zIndexDeclarations": 493,
       "reducedMotionQueries": 84,
       "focusVisibleSelectors": 107
@@ -2645,8 +2645,8 @@
       "classes": [
         "active-entry-reference"
       ],
-      "bytes": 16271,
-      "sha256": "746848c01d80ec099e16eea79f6c1490c3de7ad3ac634f5f57912332696593ca"
+      "bytes": 16820,
+      "sha256": "1a43d1f8d733bb28b0fd76e2ebd8a0c11ff2b3471e182cc8aa6fd20c6e92dc78"
     },
     {
       "path": "core/booking/booking-ui.css",
@@ -5035,20 +5035,21 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 1259,
-      "sha256": "cd6bd075d3fc0f33ce1962ad30a842b78bf95a39a4f92244a6f1fcebe35c6e97"
+      "bytes": 12263,
+      "sha256": "74845d1507579c365d2c60133a13054b316e81f8533c43e7f5bdba1bb8b57579"
     },
     {
       "path": "modules/accommodations/accommodation-module.js",
       "classes": [
+        "accessibility-source",
         "dom-rendering-source",
         "interaction-source",
         "navigation-source",
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 22347,
-      "sha256": "f5c13e28811a97ce3cdb38daab2efe48ce960812e688bd6bd9811f8d2950e261"
+      "bytes": 31557,
+      "sha256": "d38c4913e444b3c91452e12123077564b38345dd38d7d6df247662e9f64c6dea"
     },
     {
       "path": "modules/apps.html",
@@ -5766,7 +5767,7 @@
         "navigation-source"
       ],
       "bytes": 84054,
-      "sha256": "2159ab0ff5d8f8c051df6ee74ee736abe61021a4b980826d58e93ad628196bb3"
+      "sha256": "38449358fdab38e6a0b1cfcbece9e08c50a581a7ea689b7bdaad45d11e5b2609"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",
@@ -6395,6 +6396,14 @@
       ],
       "bytes": 6587,
       "sha256": "5cfa989d3e0e51c5803ff136f088c13c6814cd933b7842a134af5364ba68ea19"
+    },
+    {
+      "path": "tests/fixtures/m16.5-block1-hotel-consumer-owner-browser.html",
+      "classes": [
+        "document-entry"
+      ],
+      "bytes": 4584,
+      "sha256": "c9c74416aaad3f9a6f5590ac11cb80c3914f596031752401e02d01249585f1cb"
     },
     {
       "path": "tests/fixtures/m16.5-block1-hotel-live-price-browser.html",
@@ -7069,8 +7078,8 @@
       "classes": [
         "navigation-source"
       ],
-      "bytes": 5893,
-      "sha256": "1fc530b2a1da2beb394c5a4e87274b9ba3b0ed4e6c318ce73898c409ba7cfde6"
+      "bytes": 6232,
+      "sha256": "5ce763effb6d97c9a3f7dd8890a64ea97c8c89c46856b733c758b82ad0b8c2e7"
     },
     {
       "path": "tests/m16.5-block1-place-booking-integrity.test.cjs",
@@ -7151,7 +7160,7 @@
         "navigation-source"
       ],
       "bytes": 2873,
-      "sha256": "d4436899b0ca0d7f94a8a69064ca2c4e9fab303ad62daa0a6a0a77d281ffb90e"
+      "sha256": "e985ab6f017bb562d28f0605821193399b45763617bcfa3e1281ce1480ba93a3"
     },
     {
       "path": "tests/m16.5-productization-plan.test.cjs",
@@ -7224,7 +7233,7 @@
         "motion-source"
       ],
       "bytes": 2381,
-      "sha256": "a0dea195763b47e04c53737065b8fdb02f069b4c7072d4aae16e4d278a576998"
+      "sha256": "e2290eecd9bdd61aacc583110a96e8e349cc334092c43587dbf8e697c617b8bb"
     },
     {
       "path": "tests/m16.5aa-compass-direction-activation.test.cjs",
@@ -8163,8 +8172,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 28366,
-      "sha256": "1228bcee198823c7b9893a82db9140a833ca72e043ad5130338cf8a53975bc15"
+      "bytes": 28513,
+      "sha256": "fad73c2a2e64e9124c40047033687c4189f2c98b5b9f36a42d9ff2b2bb65c314"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

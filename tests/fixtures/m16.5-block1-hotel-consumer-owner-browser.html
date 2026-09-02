@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Luvia · Hotel Consumer Owner-Abnahme</title>
+  <link rel="stylesheet" href="../../modules/accommodations/accommodation-module.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#edf4f5}.proof-bar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;gap:12px;padding:10px 14px;background:#17344b;color:#fff;font:700 12px/1.35 Inter,system-ui,sans-serif}.proof-bar span:last-child{color:#8be0ce}#accommodations-module{min-height:100vh}
+  </style>
+</head>
+<body>
+  <div class="proof-bar"><span>Kontrollierte Browser-Abnahme · keine echte Buchung</span><span id="handoff-proof">Exakte Angebotsidentität bereit</span></div>
+  <main id="accommodations-module"></main>
+  <script src="../../core/booking/booking-stay-decision-core.js"></script>
+  <script>
+    const trip={id:'trip-hotel-proof',title:'Berlin',startDate:'2027-06-12',endDate:'2027-06-14',accent:'#4fa3a6',destination:{name:'Berlin',cityCode:'BER',latitude:52.52,longitude:13.405},participants:[{id:'adult-1'},{id:'adult-2'}]};
+    const query={tripId:trip.id,destination:'Berlin',cityCode:'BER',latitude:52.52,longitude:13.405,checkIn:'2027-06-12',checkOut:'2027-06-14',adults:2,children:0,childAges:[],rooms:1,currency:'EUR',providers:['amadeus_hotels','hotelbeds']};
+    const shared={canonicalPropertyId:'seehotel-berlin',propertyName:'Seehotel Berlin',address:'Uferweg 2, Berlin',roomCode:'double',roomName:'Doppelzimmer',board:'Frühstück',checkIn:query.checkIn,checkOut:query.checkOut,adults:2,children:0,rooms:1,currency:'EUR',totalIncludesMandatoryCharges:true,available:true,isLive:true,source:'provider_api',freshnessMinutes:0,bookingUrlVerified:true};
+    const decision=window.LuviaBookingStayDecisionCore.buildDecision([
+      {...shared,offerId:'ama-offer-1',providerId:'amadeus_hotels',providerHotelId:'AMA-77',providerRateKey:'AMA-RATE-7',bookingUrlPropertyId:'AMA-77',deepLink:'https://amadeus.example.invalid/hotel/AMA-77/rate/AMA-RATE-7',totalPrice:310,refundable:false},
+      {...shared,offerId:'hbx-offer-1',providerId:'hotelbeds',providerHotelId:'HBX-9',providerRateKey:'HBX-RATE-9',bookingUrlPropertyId:'HBX-9',deepLink:'https://hotelbeds.example.invalid/hotel/HBX-9/rate/HBX-RATE-9',totalPrice:295,refundable:true,freeCancellationUntil:'2027-06-10',prepaymentRequired:false}
+    ],query,{attempted:['amadeus_hotels','hotelbeds'],succeeded:['amadeus_hotels','hotelbeds'],failed:[]});
+    window.LuviaTripContractV1={getActiveTrip:()=>trip};
+    window.LuviaTravelContext={snapshot:()=>({location:null})};
+    window.LuviaDestination={getActive:()=>({canonicalCity:{name:'Berlin'}})};
+    window.LuviaPlaceCollections={remember(){},favoriteButton:()=>'',favoritePanel:()=>''};
+    window.LuviaPlaceExperience={esc:value=>String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])),plannedPanel:()=>'',discovery:()=>''};
+    window.LuviaPlaceUI={card:()=>''};
+    window.LuviaPlaceUIActions={actionButtons:()=>''};
+    window.LuviaTripPlaceData={hydrate:async()=>{},dateEntries:()=>[],recordForTripPlace:()=>null,recordsForType:()=>[]};
+    window.LuviaPlaceEntities={
+      list:async()=>({data:{entities:[]}}),
+      searchPlaces:async()=>({data:{places:[{id:'places/berlin-fit-1',providerPlaceId:'berlin-fit-1',name:'Hotel am Tiergarten',formattedAddress:'Tiergartenstraße 8, Berlin',rating:4.5,userRatingCount:482}]}}),
+      importPlace:async()=>({data:{entity:null}})
+    };
+    window.LuviaBookingContractV1={reads:{searchStayOffers:async input=>{if(input.checkIn!=='2027-06-12'||input.checkOut!=='2027-06-14')throw new Error('Datumsidentität verloren');return decision}},commands:{openStayOffer:async({offer,query:search},{userGesture})=>{if(!userGesture||offer.providerHotelId!=='HBX-9'||offer.bookingUrlPropertyId!=='HBX-9'||search.checkIn!=='2027-06-12')throw new Error('Falsches Angebot');document.getElementById('handoff-proof').textContent='✓ HBX-9 · HBX-RATE-9 exakt ausgewählt';return{opened:true}}}};
+    window.LuviaUIKit={toast:message=>{document.getElementById('handoff-proof').textContent=message}};
+    window.LuviaModules={register:definition=>{window.hotelModuleDefinition=definition}};
+  </script>
+  <script src="../../modules/accommodations/accommodation-module.js"></script>
+  <script>
+    window.hotelModuleDefinition.mount({roots:[document.getElementById('accommodations-module')]},{trip});
+  </script>
+</body>
+</html>

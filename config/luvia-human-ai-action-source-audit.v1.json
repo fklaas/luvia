@@ -1,8 +1,8 @@
 {
   "contractId": "luvia.human-ai-action-source-audit.v1",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 899,
+  "markerCount": 901,
   "markers": [
     {
       "marker": "data-accent",
@@ -816,15 +816,6 @@
         "app/control-center/booking-inbox.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-book-accommodation",
-      "category": "Buchung & Anbieterkommunikation",
-      "classification": "AKTIONSKANDIDAT",
-      "sources": [
-        "modules/accommodations/accommodation-module.js"
-      ],
-      "assessment": "Semantisch als allgemeiner Booking-Owner-Einstieg für Unterkünfte inventarisiert; der Chat nutzt denselben booking.place.open-Ownerweg."
     },
     {
       "marker": "data-book-add-text",
@@ -5537,8 +5528,7 @@
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
-        "core/places/place-collection-service.js",
-        "modules/accommodations/accommodation-module.js"
+        "core/places/place-collection-service.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
@@ -5548,7 +5538,6 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/places/place-experience-shell.js",
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/nature/nature-module.js",
         "modules/photo-spots/photo-spot-module.js",
@@ -5590,7 +5579,6 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/places/place-experience-shell.js",
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/nature/nature-module.js",
         "modules/photo-spots/photo-spot-module.js",
@@ -5819,7 +5807,6 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/places/place-experience-shell.js",
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/mobility/mobility-module.js",
         "modules/nature/nature-module.js",
@@ -5835,7 +5822,6 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "core/places/place-experience-shell.js",
-        "modules/accommodations/accommodation-module.js",
         "modules/attractions/attraction-module.js",
         "modules/nature/nature-module.js",
         "modules/photo-spots/photo-spot-module.js",
@@ -6455,6 +6441,15 @@
         "core/trips/trip-creator.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-property-key",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kanonische Hotelidentität des sichtbaren Angebots; keine eigenständige Benutzeraktion."
     },
     {
       "marker": "data-proposal-id",
@@ -7445,6 +7440,24 @@
         "core/ai/ai-dashboard-service.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-stay-offer",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Dem bereits inventarisierten Outcome booking.stay.offer.open zugeordnet; öffnet nur das ausgewählte verifizierte Hotelangebot."
+    },
+    {
+      "marker": "data-stay-search",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Dem bereits inventarisierten Outcome booking.stay.search zugeordnet; prüft Livepreise für die sichtbaren Reisedaten."
     },
     {
       "marker": "data-step",

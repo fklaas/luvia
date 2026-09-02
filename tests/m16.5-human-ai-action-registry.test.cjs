@@ -22,14 +22,14 @@ assert.equal(validated.registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN || 
 assert.equal(validated.inputContracts.enforcement, 'BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE');
 assert.deepEqual(validated.inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
 assert.equal(validated.inputContracts.runtimeEnforcement.metadataValidatedOpenActionIds, 0);
-assert.equal(validated.sourceAudit.markers.length, 899);
+assert.equal(validated.sourceAudit.markers.length, 901);
 
 const expectedReport = buildReport(validated).replace(/\r\n?/g, '\n');
 const actualReport = fs.readFileSync(REPORT, 'utf8').replace(/\r\n?/g, '\n');
 assert.equal(actualReport, expectedReport, 'generated Human ↔ AI parity report is stale');
 
 console.log('M16.5 Human ↔ AI action registry: PASS');
-console.log('330 semantic actions · 24 runtime actions · 899 active source markers: PASS');
+console.log('330 semantic actions · 24 runtime actions · 901 active source markers: PASS');
 console.log('24 typed runtime input contracts and 67 mapped human-action rows: PASS');
 console.log('24/24 runtime actions guarded before Ledger or Owner execution: PASS');
 console.log('246 Navigation/Auth/Identity/Collaboration/Intelligence/Trip/Journey/Booking/Places/Media/Memory/Event/Platform actions bound to verified public Owner methods: PASS');

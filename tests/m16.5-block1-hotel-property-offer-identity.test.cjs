@@ -43,6 +43,8 @@ assert.equal(handoff.payload.providerRateKey,'rate-hotelbeds');
 assert.equal(handoff.payload.propertyKey,'canonical:luvia-hotel-1');
 assert.equal(handoff.payload.totalPrice,300);
 assert.ok(handoff.payload.quoteFingerprint);
+const normalizedHandoff=stay.createOfferHandoff(canonical.hotels[0].bestAvailableTotal,query);
+assert.equal(normalizedHandoff.valid,true,`a selected normalized offer must retain its exact handoff identity: ${normalizedHandoff.issues.join(', ')} ${JSON.stringify(stay.normalizeOffer(canonical.hotels[0].bestAvailableTotal,query).price)}`);
 
 const foreign=stay.createOfferHandoff(offer('hotelbeds','HBX-9',{bookingUrlPropertyId:'HBX-FOREIGN'}),query);
 assert.equal(foreign.valid,false);

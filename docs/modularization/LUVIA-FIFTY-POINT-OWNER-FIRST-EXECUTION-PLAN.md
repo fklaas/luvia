@@ -5,7 +5,7 @@ Date: 2026-09-01
 Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP SELECTION PUBLIC ON 13.82.138, BLOCK STILL ACTIVE**
 
 Current canonical counts on 2026-09-02 are **330 semantic actions, 246 public
-Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 899
+Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 901
 audited source markers and 2,733 generated failure evals**. Lower figures in
 the dated B0 construction ledger below are retained only as historical progress
 evidence; they do not describe the current control plane.
@@ -379,14 +379,14 @@ multi-month mega-release while preserving the no-exception parity requirement.
 
 ### B1 — Productive AI Chat and first real agency (P01–P10)
 
-Status: **STARTED / SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL FOUNDATION PUBLIC ON `.136` / CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON `.138` / P04–P05 PLACES MUTATIONS PUBLIC ON `.139` / BOOKING LIFECYCLE AND PUBLIC PROVIDER ACCEPTANCE OPEN**
+Status: **STARTED / SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL FOUNDATION PUBLIC ON `.136` / CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON `.138` / P04–P05 PLACES MUTATIONS PUBLIC ON `.139` / BOOKING LIFECYCLE + PLACE-ROUTE INTEGRITY PUBLIC ON `.143` / SEMANTIC REQUIREMENT + BRIGHT HOTEL SUCCESSOR LOCAL / PROVIDER ACCEPTANCE OPEN**
 
 Current truthful B1 position on 2026-09-02:
 
-- The current accepted Integration App is `.139`. Its immediate safe app-only
-  rollback is accepted `.138`; rejected `.137` is not a rollback target. The
-  historical `.126` Owner-first baseline remains evidence, not the current
-  deployment pointer.
+- The current accepted Integration App is `.143`. Its exact documented
+  app-only rollback is accepted `.139`; rejected `.140`–`.142` are not rollback
+  targets. The historical `.126` Owner-first baseline remains evidence, not the
+  current deployment pointer.
 - P02/P03 are **PARTIAL / OPEN**. Public runs proved live Foursquare results,
   exact provider categories, coordinates and photos, while Google
   `SearchTextRequest` remained quota-restricted. Successive public runs also
@@ -403,7 +403,9 @@ Current truthful B1 position on 2026-09-02:
   registry now contains seven `PUBLIC_E2E_PASS` rows. Cross-surface Chat subject
   hydration remains a named AI follow-up because reopening Chat from Places
   required one search before the Place name was again an unambiguous subject.
-- P06–P09 remain **OPEN** beyond partial contracts/evals. P10 and the S16
+- P06–P09 remain **OPEN** beyond partial contracts/evals. The `.143` public
+  lifecycle and exact Place-route slice closes neither real provider
+  activation nor provider-backed completion. P10 and the S16
   planning projections have meaningful partial coverage but do not constitute
   Block-1 completion.
 - The `.135` counterexample (`ich will eine andere reise auswählen` → Places
@@ -431,9 +433,10 @@ Current truthful B1 position on 2026-09-02:
   `booking.place.open` action with the old restaurant ID retained only as a
   compatibility alias, admission notices in Chat/Place detail, Places and
   Journey suggestions, plus fail-closed Tiqets and Viator adapters. The
-  executable registry contains **23** actions, including
+  executable registry contains **24** actions, including
   `navigation.route.open`, universal `booking.place.open` and the typed
-  `booking.stay.search` Owner read.
+  `booking.stay.search` Owner read; `booking.stay.offer.open` is the separately
+  typed selected-offer handoff.
 - Focused syntax, semantic-routing, admission/provider, Booking-owner,
   action-runtime, consumer and registry suites are green. The visible local
   fixture is operated successfully at the default and 390 × 844 viewport:
@@ -444,7 +447,11 @@ Current truthful B1 position on 2026-09-02:
   `.136`. The separate visible
   Hotel live-price fixture is also green at default and 390×844: one property,
   two controlled comparable tariffs, `TT.MM.JJJJ`, no market-best claim,
-  truthful no-provider fallback, no overflow and no console warning/error.
+  truthful no-provider fallback, no overflow and no console warning/error. The
+  actual Hotel module has now been rebuilt locally in the same bright design
+  language and passes a second visible Owner fixture: no ticket labels or
+  generic Place route, and the selected Hotelbeds property/offer identity
+  survives the exact handoff unchanged.
 - Consequently Block 1 is started, not finished. Booking Read/Open/Create/
   Modify/Cancel, positive provider activation, P09/P10 and the applicable remaining Desktop/Mobile/
   Keyboard/Reload/Back/Reduced-Motion rows must still pass before the Block may
@@ -631,7 +638,7 @@ coherent slice in every block must independently include:
 
 The immediate active slice is now **B1's first still-open productive Owner bundle after the publicly closed B0.10 control-plane release**:
 
-- retain the now-versioned 330-action semantic registry and 899-marker source
+- retain the now-versioned 330-action semantic registry and 901-marker source
   audit as the canonical B0.01 baseline;
 - preserve the 246 public Owner bindings and zero remaining
   `OWNER_METHOD_AUDIT_OPEN` rows rather than inventing global methods;
@@ -644,15 +651,17 @@ The immediate active slice is now **B1's first still-open productive Owner bundl
   it must continue to load the canonical register rather than a copied demo list;
 - retain `.135` as the accepted B0 control-plane baseline, `.136` as the
   accepted B1 admission/Hotel foundation, `.138` as the accepted Chat-native
-  Trip-read deployment and `.139` as the accepted Places-mutation deployment;
-  rollback `.139` app-only to `.138`;
-- keep the accepted semantic-first owner router, universal admission Read/Open
-  gates and `.139` Favorite/Unfavorite/Plan/Unplan paths green, then close the
-  coherent Booking Read/Open/Create/Modify/Cancel bundle;
+  Trip-read deployment, `.139` as the accepted Places-mutation deployment and
+  `.143` as the accepted Booking lifecycle/Place-route-integrity deployment;
+  rollback the current successor slice app-only to `.143`;
+- keep the accepted semantic-first owner router, universal admission Read/Open,
+  `.139` Favorite/Unfavorite/Plan/Unplan and `.143` lifecycle/identity paths
+  green; release the local compound-requirement and bright exact-Hotel slice;
 - retain the now-regenerated canonical `booking.place.open` registry and typed
   input contract while `booking.restaurant.open` remains only a migration
-  alias, and retain `booking.stay.search` as a semantic read through
-  `booking.v1.reads.searchStayOffers`. The runtime count is 23; public evidence
+  alias, retain `booking.stay.search` as a semantic read through
+  `booking.v1.reads.searchStayOffers`, and retain `booking.stay.offer.open` as
+  the exact selected-offer handoff. The runtime count is 24; public evidence
   does not rise until the visible Integration run passes;
 - activate Booking/Ticket Create/Modify/Cancel only after real partner access,
   Edge transport authorization, health, idempotency and provider-positive E2E,
@@ -769,8 +778,13 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
 - The visible local Hotel acceptance passes at default and 390×844 for both
   two-controlled-source and no-source states, with no overflow or console
   warning/error. Stable additionally proves the signed-in semantic Hotel read,
-  truthful no-provider state and 390×844 no-overflow path. It remains no proof
-  of a positive live-provider price.
+  truthful no-provider state and 390×844 no-overflow path. The actual Hotel
+  module is now also replaced locally by a bright dedicated consumer using the
+  same Booking Owner. It shows `TT.MM.JJJJ`, the named source and complete total,
+  exposes one `Dieses Angebot öffnen` action and proves the exact controlled
+  `HBX-9 · HBX-RATE-9` handoff. It renders neither `Tickets prüfen` nor the
+  generic Place booking command. This is still no proof of a positive public
+  live-provider price.
 - Viator, Tiqets, Expedia Creator, Hostelworld, Omio and Klook form the first
   commercial application wave. The owner must submit contracts and payout/tax
   data; credentials remain outside the repository.

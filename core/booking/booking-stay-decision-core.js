@@ -1,9 +1,10 @@
 (function(root){
 'use strict';
 
-const VERSION='1.1.0-property-offer-identity';
+const VERSION='1.2.0-normalized-offer-roundtrip';
+const NORMALIZED_OFFER_CONTRACT_ID='booking.stay-offer.normalized.v1';
 const clean=value=>String(value??'').trim();
-const numberOrNull=value=>Number.isFinite(Number(value))?Number(value):null;
+const numberOrNull=value=>value===null||value===undefined||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
 const clamp=(value,min=0,max=1)=>Math.min(max,Math.max(min,Number(value)||0));
 const freezeList=list=>Object.freeze(list.map(item=>Object.freeze(item)));
 const isoDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(clean(value))?clean(value):null;
@@ -16,18 +17,19 @@ function sumKnown(values){
   return values.every(value=>value!==null)?values.reduce((sum,value)=>sum+value,0):null;
 }
 
-function normalizePrice(raw={}){
+function normalizePrice(raw={},options={}){
   const currency=clean(raw.currency||'EUR').toUpperCase();
   const reportedTotal=numberOrNull(raw.totalPrice??raw.total_price??raw.total);
-  const base=numberOrNull(raw.basePrice??raw.base_price);
+  const base=numberOrNull(raw.basePrice??raw.base_price??raw.base);
   const taxes=numberOrNull(raw.taxes);
   const fees=numberOrNull(raw.mandatoryFees??raw.mandatory_fees??raw.fees);
-  const propertyCharges=numberOrNull(raw.mandatoryAtProperty??raw.mandatory_at_property);
+  const propertyCharges=numberOrNull(raw.mandatoryAtProperty??raw.mandatory_at_property??raw.propertyCharges);
   const calculated=sumKnown([base,taxes,fees,propertyCharges]);
   const total=reportedTotal!==null?reportedTotal:calculated;
-  const completeness=reportedTotal!==null&&raw.totalIncludesMandatoryCharges===true
+  const retained=options.retainVerifiedCompleteness===true&&['all_in_verified','calculated_complete'].includes(clean(raw.completeness))&&raw.comparable===true;
+  const completeness=retained?clean(raw.completeness):(reportedTotal!==null&&raw.totalIncludesMandatoryCharges===true
     ?'all_in_verified'
-    :(calculated!==null?'calculated_complete':'incomplete');
+    :(calculated!==null?'calculated_complete':'incomplete'));
   return Object.freeze({currency,total,reportedTotal,base,taxes,fees,propertyCharges,completeness,comparable:total!==null&&total>=0&&completeness!=='incomplete'});
 }
 
@@ -57,7 +59,8 @@ function propertyIdentity(raw={}){
 function propertyKey(raw={}){return propertyIdentity(raw).key}
 
 function normalizeOffer(raw={},query={}){
-  const price=normalizePrice(raw.price||raw);
+  const normalizedInput=raw.normalizationContractId===NORMALIZED_OFFER_CONTRACT_ID;
+  const price=normalizePrice(raw.price||raw,{retainVerifiedCompleteness:normalizedInput});
   const cancellation=normalizeCancellation(raw.cancellation||raw);
   const checkIn=isoDate(raw.checkIn??raw.check_in??query.checkIn??query.check_in);
   const checkOut=isoDate(raw.checkOut??raw.check_out??query.checkOut??query.check_out);
@@ -88,6 +91,7 @@ function normalizeOffer(raw={},query={}){
   const fitAverage=fitEvidenceCount?fitValues.reduce((sum,value)=>sum+value,0)/fitEvidenceCount:null;
   const comparable=Boolean(key&&price.comparable&&exactStay&&exactParty&&exactCurrency&&stale!==true&&isLive);
   return Object.freeze({
+    normalizationContractId:NORMALIZED_OFFER_CONTRACT_ID,
     offerId:clean(raw.offerId||raw.offer_id)||null,
     providerId:clean(raw.providerId||raw.provider_id).toLowerCase()||null,
     providerHotelId:clean(raw.providerHotelId||raw.provider_hotel_id||raw.propertyId||raw.property_id)||null,
