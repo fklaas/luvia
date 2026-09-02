@@ -379,12 +379,12 @@ multi-month mega-release while preserving the no-exception parity requirement.
 
 ### B1 — Productive AI Chat and first real agency (P01–P10)
 
-Status: **STARTED / SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL FOUNDATION PUBLIC ON `.136` / CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON `.138` / PUBLIC PROVIDER ACCEPTANCE AND REMAINING MUTATIONS OPEN**
+Status: **STARTED / SEMANTIC-AI + UNIVERSAL-ADMISSION + FAIL-CLOSED HOTEL FOUNDATION PUBLIC ON `.136` / CHAT-NATIVE TRIP-SELECTION READ PUBLIC ON `.138` / P04–P05 PLACES MUTATIONS PUBLIC ON `.139` / BOOKING LIFECYCLE AND PUBLIC PROVIDER ACCEPTANCE OPEN**
 
 Current truthful B1 position on 2026-09-02:
 
-- The current accepted Integration App is `.138`. Its immediate safe app-only
-  rollback is accepted `.136`; rejected `.137` is not a rollback target. The
+- The current accepted Integration App is `.139`. Its immediate safe app-only
+  rollback is accepted `.138`; rejected `.137` is not a rollback target. The
   historical `.126` Owner-first baseline remains evidence, not the current
   deployment pointer.
 - P02/P03 are **PARTIAL / OPEN**. Public runs proved live Foursquare results,
@@ -394,14 +394,15 @@ Current truthful B1 position on 2026-09-02:
   breadth, contradictory broad categories, duplicate destination tokens,
   ranking and chat-native Place details. These reads are not a completed slice
   until the corrected consumer passes one coherent public release.
-- P04 remains **OPEN**: Favorite/Unfavorite has code/eval coverage but no complete
-  current public Preview/confirm/Receipt/persistence/Undo acceptance.
-- P05 is **PARTIAL**. `.133` reached the canonical
-  `places.place.plan` path and created the owner-backed Timeline entry, but the
-  public readback rendered confirmed `14:00` as `12:00`. The timezone-aware
-  readback, compact day projection, duplicate-intent suppression and concrete
-  explanation corrections were subsequently added. One exact `.135` Plan/Undo
-  flow is public, but the freely worded Unplan and complete row set are open.
+- P04 and P05 are **PUBLICLY ACCEPTED ON `.139`** for the four registered rows.
+  A signed-in 390 px run proved Favorite, Unfavorite, Plan and freely worded
+  Unplan through Preview, explicit confirmation, public Owner command,
+  independent readback, Receipt and the applicable separately confirmed Undo.
+  Journey restoration retained exactly `12.06.2027`, `17:50 Uhr` and three
+  moments; the Favorite test restored the original no-favorite state. The
+  registry now contains seven `PUBLIC_E2E_PASS` rows. Cross-surface Chat subject
+  hydration remains a named AI follow-up because reopening Chat from Places
+  required one search before the Place name was again an unambiguous subject.
 - P06–P09 remain **OPEN** beyond partial contracts/evals. P10 and the S16
   planning projections have meaningful partial coverage but do not constitute
   Block-1 completion.
@@ -444,8 +445,8 @@ Current truthful B1 position on 2026-09-02:
   Hotel live-price fixture is also green at default and 390×844: one property,
   two controlled comparable tariffs, `TT.MM.JJJJ`, no market-best claim,
   truthful no-provider fallback, no overflow and no console warning/error.
-- Consequently Block 1 is started, not finished. P04/P05 mutations, positive
-  provider activation, P09/P10 and the applicable remaining Desktop/Mobile/
+- Consequently Block 1 is started, not finished. Booking Read/Open/Create/
+  Modify/Cancel, positive provider activation, P09/P10 and the applicable remaining Desktop/Mobile/
   Keyboard/Reload/Back/Reduced-Motion rows must still pass before the Block may
   advance as complete.
 
@@ -642,11 +643,12 @@ The immediate active slice is now **B1's first still-open productive Owner bundl
 - retain the visible local register gate as an always-operable progress surface;
   it must continue to load the canonical register rather than a copied demo list;
 - retain `.135` as the accepted B0 control-plane baseline, `.136` as the
-  accepted B1 admission/Hotel foundation and `.138` as the accepted Chat-native
-  Trip-read deployment; rollback `.138` app-only to `.136`;
-- keep the accepted semantic-first owner router and universal admission
-  Read/Open gates green, then close the coherent Places Favorite/Unfavorite/
-  Plan/Unplan bundle;
+  accepted B1 admission/Hotel foundation, `.138` as the accepted Chat-native
+  Trip-read deployment and `.139` as the accepted Places-mutation deployment;
+  rollback `.139` app-only to `.138`;
+- keep the accepted semantic-first owner router, universal admission Read/Open
+  gates and `.139` Favorite/Unfavorite/Plan/Unplan paths green, then close the
+  coherent Booking Read/Open/Create/Modify/Cancel bundle;
 - retain the now-regenerated canonical `booking.place.open` registry and typed
   input contract while `booking.restaurant.open` remains only a migration
   alias, and retain `booking.stay.search` as a semantic read through
@@ -701,7 +703,7 @@ Still open before P02/P03 completion:
 
 ### 4.2 Current B0/B1 handoff ledger — 2026-09-01
 
-Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.136` + CHAT-NATIVE TRIP READ `.138` PUBLIC / PRODUCT-PARITY DELIVERY CONTINUES**
+Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.136` + CHAT-NATIVE TRIP READ `.138` + PLACES MUTATIONS `.139` PUBLIC / PRODUCT-PARITY DELIVERY CONTINUES**
 
 - B0 inventory/review and the local B0.01 machine-readable repository insertion
   are complete. The current control plane has 245 audited public Owner paths;
@@ -730,14 +732,14 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
 - P02/P03 have positive public Foursquare/provider-photo evidence and extensive
   negative counterevidence. They remain partial until one corrected coherent
   public build passes the complete consumer and release chain.
-- P05 now has one real positive `.135` Plan/Undo path with exact date/time and
-  correct Timeline readback. Favorite/Unfavorite and the full Plan/Unplan row
-  set remain the next coherent public B1 bundle; a later freely worded Unplan
-  command still duplicated the wish and performed no mutation. The former
-  `.135` trip-selection misroute is closed on accepted `.138`: the exact natural
-  sentence remains in Chat and returns the Trip collection without date/time,
-  navigation or mutation. This read-side repair does not upgrade the still-open
-  Unplan path or claim all-language/all-mutation parity.
+- `.139` closes the four coherent P04/P05 rows after the earlier `.135`
+  counterevidence: Favorite/Unfavorite and Plan/freely worded Unplan all use
+  Preview, separate confirmation, Owner readback, Receipt and compensation.
+  The public Journey sequence removed one exact entry, showed two moments and
+  restored `12.06.2027`, `17:50 Uhr` plus three moments; Favorite/Unfavorite
+  restored the original state. The former `.135` trip-selection misroute remains
+  closed on accepted `.138`. Neither release claims all-language parity; the
+  observed cross-surface Chat-subject reset is retained as an explicit eval.
 - The next accepted public build must expose a visible test the user can operate.
   No block or row becomes complete from automated tests alone.
 

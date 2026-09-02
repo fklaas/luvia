@@ -125,3 +125,28 @@ rollback restores accepted App `13.82.135` / Worker version
 runs the Hotel live-offer rollback followed by the universal Booking rollback.
 Neither rollback deletes existing Booking, message, reservation or conversion
 evidence.
+
+## Accepted semantic Places-mutation follow-up — App/Core 13.82.139/4.82.139
+
+The next app-only slice completes the four registered Places mutation paths
+without changing the Booking, Provider, DB, RLS, Secret or Edge boundaries in
+this PCR. Structured sentence meaning plus an exact Chat/Owner subject resolves
+`places.place.favorite`, `places.place.unfavorite`, `places.place.plan` or
+`places.place.unplan`. Interpretation alone never mutates. Confirmation invokes
+the existing public Owner, and an independent `places.v1.reads.listSaved` or
+`journey.v1.reads.snapshot` reconciliation is required before success. A
+contradictory readback becomes `outcome_unknown` and blocks blind retry.
+
+The signed-in Stable test publicly removed and restored one exact Journey entry
+at `12.06.2027`, `17:50 Uhr`, and separately favorited/unfavorited one real
+Foursquare Place. The canonical action registry therefore promotes only those
+four rows, for seven total public passes. The observed loss of conversational
+Place subjects after switching surfaces remains explicit counterevidence and a
+following semantic-context hydration requirement.
+
+Provenance is runtime commit `e2a1d39c59c39ea84c0652e2b4cc1b785678a6b0`,
+archive SHA-256 `2E605A191E3D0A8296B125BC6874C099EAFDCD2857D38C2F05B52D2E65E7B118`,
+Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files /
+6,572,893 bytes identical across archive, Stable and Immutable. The exact
+app-only rollback restores `.138`:
+`npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.

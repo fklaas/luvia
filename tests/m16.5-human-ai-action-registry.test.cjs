@@ -11,8 +11,8 @@ const validated = validateRegistry();
 
 assert.equal(validated.registry.actions.length, 329);
 assert.equal(validated.registry.summary.aiCoverage.MISSING, 229);
-assert.equal(validated.registry.summary.aiCoverage.PUBLIC_E2E_PASS, 3);
-assert.equal(validated.registry.summary.aiCoverage.REGISTERED_PARTIAL, 61);
+assert.equal(validated.registry.summary.aiCoverage.PUBLIC_E2E_PASS, 7);
+assert.equal(validated.registry.summary.aiCoverage.REGISTERED_PARTIAL, 57);
 assert.equal(validated.registry.summary.aiCoverage.NATIVE_CHAT, 14);
 assert.equal(validated.runtimeActions.length, 23);
 assert.equal(Object.keys(validated.inputContracts.contracts).length, 23);

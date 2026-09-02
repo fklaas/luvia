@@ -5661,8 +5661,8 @@
         "interaction-source",
         "navigation-source"
       ],
-      "bytes": 81025,
-      "sha256": "9fba1539474ebf578765b3502fd632e9e5d25dde2b882eefe7144fcd9c322fc5"
+      "bytes": 81052,
+      "sha256": "830858d08988d808189ee21ac3ba1d1d9fc9611be7d7cd99ccb3f4ee8cde6b75"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",
@@ -5694,7 +5694,7 @@
         "visual-source-candidate"
       ],
       "bytes": 4992,
-      "sha256": "f0883dc651e88a6385c70e14ab48abb6fa454eed0869608535cc37cbf2b1bddd"
+      "sha256": "3905abc19c04e97a3d6560d40c39fcbe27670cd11b994b896b8519e0c87b475b"
     },
     {
       "path": "scripts/m16.5-human-ai-safety-policy.cjs",
@@ -6789,7 +6789,7 @@
         "visual-source-candidate"
       ],
       "bytes": 2379,
-      "sha256": "e6a36b31eb696709cff0593ee2276326b662ed594fd344242ecfb3325c9ad544"
+      "sha256": "dcbaab803cf9478b3e288b34ab7a20260bd6a79b8d0a562efed12b1e651b7e8d"
     },
     {
       "path": "tests/m16.5-block0-human-ai-safety-policy.test.cjs",
@@ -6980,7 +6980,7 @@
         "navigation-source"
       ],
       "bytes": 2846,
-      "sha256": "c7528fc917b31275348c774e6c91b661d96acd612537e40250b6977eec707660"
+      "sha256": "e928524f9cd9cc0c0b2eb7cc38cefa8dc5591d2723c393d2ac7b2fd56db97ed9"
     },
     {
       "path": "tests/m16.5-productization-plan.test.cjs",

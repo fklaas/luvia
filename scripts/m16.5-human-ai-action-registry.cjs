@@ -950,7 +950,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path and accepted App \`13.82.138\` proved the Chat-native Trip-selection read. Candidate \`13.82.139\` adds the complete Favorite/Unfavorite/Plan/Unplan language, confirmation, readback, receipt and Undo protocol; those rows remain \`REGISTERED/PARTIAL\` until their real public Step-17 run passes.\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read and accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol. Continue next with Booking Read/Open/Create/Modify/Cancel while the cross-surface Chat-subject reset remains an explicit AI eval.\n\n` +
     `## B1 registry delta retained after visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
@@ -958,7 +958,7 @@ function buildReport(validated = validateRegistry()) {
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
     `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. The source runtime action set is **23**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
-    `locally green; the 329-row parity/failure matrix remains a release gate for every following domain slice. Candidate \`13.82.139\` retains honest partial coverage until all four semantic Places mutation paths pass the public visible test; unrelated rows are not inflated.\n`;
+    `locally green; the 329-row parity/failure matrix remains a release gate for every following domain slice. App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes; unrelated rows are not inflated.\n`;
 }
 
 function main() {

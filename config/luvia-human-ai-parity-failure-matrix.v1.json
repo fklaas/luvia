@@ -9,7 +9,7 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "1EACA85D4C108A19C9808D51EE57504D6EC2584678C7EF811EB4838E8D3C98B5"
+        "sha256": "241EBFE381CDD76CB5A4590DCE96766E25BFF5BF27A0E2CDF458FC4BE4FF333B"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
@@ -25,7 +25,7 @@
       },
       "capability": {
         "file": "config/luvia-human-ai-capability-matrix.v1.json",
-        "sha256": "2CB3B1D0F60D5DB1E46B26245A75DC85BE2F663705A6281E2198571FFCFE4D8A"
+        "sha256": "716CC5B58E4519E5C8AD519D773872379BA085AC4ED9F6473A5E692A07393124"
       },
       "consumer": {
         "file": "config/luvia-human-ai-consumer-projections.v1.json",
@@ -62,14 +62,14 @@
     "matrixRows": 329,
     "dimensions": 12,
     "releaseStatus": {
-      "LOCAL_AI_PATH": 78,
+      "LOCAL_AI_PATH": 74,
       "MANUAL_OWNER_PATH": 223,
       "BLOCKED": 14,
-      "PUBLIC_E2E_PROVEN": 3,
+      "PUBLIC_E2E_PROVEN": 7,
       "NOT_APPLICABLE": 11
     },
-    "publicE2eProven": 3,
-    "localAiPaths": 78,
+    "publicE2eProven": 7,
+    "localAiPaths": 74,
     "manualOwnerPaths": 223,
     "protectedChanges": 124,
     "generatedFailureCases": 2725,
@@ -22288,20 +22288,18 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.favorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
+        "coverage": "PUBLIC_E2E_PASS",
         "routed": true,
         "inputContractStatus": "READY",
         "consumerView": "PREVIEW"
       },
       "release": {
-        "status": "LOCAL_AI_PATH",
-        "publicEvidence": "OPEN",
-        "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN"
-        ]
+        "status": "PUBLIC_E2E_PROVEN",
+        "publicEvidence": "PUBLIC_E2E_PASS",
+        "blockers": []
       },
       "dimensions": {
         "contract": {
@@ -22427,20 +22425,18 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.unfavorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
+        "coverage": "PUBLIC_E2E_PASS",
         "routed": true,
         "inputContractStatus": "READY",
         "consumerView": "PREVIEW"
       },
       "release": {
-        "status": "LOCAL_AI_PATH",
-        "publicEvidence": "OPEN",
-        "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN"
-        ]
+        "status": "PUBLIC_E2E_PROVEN",
+        "publicEvidence": "PUBLIC_E2E_PASS",
+        "blockers": []
       },
       "dimensions": {
         "contract": {
@@ -22718,20 +22714,18 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.plan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
+        "coverage": "PUBLIC_E2E_PASS",
         "routed": true,
         "inputContractStatus": "READY",
         "consumerView": "PREVIEW"
       },
       "release": {
-        "status": "LOCAL_AI_PATH",
-        "publicEvidence": "OPEN",
-        "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN"
-        ]
+        "status": "PUBLIC_E2E_PROVEN",
+        "publicEvidence": "PUBLIC_E2E_PASS",
+        "blockers": []
       },
       "dimensions": {
         "contract": {
@@ -23009,20 +23003,18 @@
       "owner": {
         "contract": "places.v1",
         "method": "commands.unplan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
+        "coverage": "PUBLIC_E2E_PASS",
         "routed": true,
         "inputContractStatus": "READY",
         "consumerView": "PREVIEW"
       },
       "release": {
-        "status": "LOCAL_AI_PATH",
-        "publicEvidence": "OPEN",
-        "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN"
-        ]
+        "status": "PUBLIC_E2E_PROVEN",
+        "publicEvidence": "PUBLIC_E2E_PASS",
+        "blockers": []
       },
       "dimensions": {
         "contract": {

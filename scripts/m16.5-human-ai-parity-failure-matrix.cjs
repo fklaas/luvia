@@ -28,7 +28,7 @@ function validateParityFailureMatrix(document){
   assert.equal(new Set(document.rows.map(row=>row.actionId)).size,329,'matrix action IDs must be unique');
   assert.equal(document.dimensions.length,12,'B0.09 must retain all twelve parity dimensions');
   assert.deepEqual(document.dimensions,['contract','compiler','permission','confirmation','idempotency','receipt','recovery','undo','multilingual','typo','multiIntent','denial']);
-  assert.equal(document.summary.catalogActions,329);assert.equal(document.summary.matrixRows,329);assert.equal(document.summary.dimensions,12);assert.equal(document.summary.protectedChanges,124);assert.equal(document.summary.publicE2eProven,3);assert.equal(document.summary.driftGuard,true);assert.equal(document.summary.ownerExecution,false);
+  assert.equal(document.summary.catalogActions,329);assert.equal(document.summary.matrixRows,329);assert.equal(document.summary.dimensions,12);assert.equal(document.summary.protectedChanges,124);assert.equal(document.summary.publicE2eProven,7);assert.equal(document.summary.driftGuard,true);assert.equal(document.summary.ownerExecution,false);
   for(const row of document.rows){
     assert.deepEqual(Object.keys(row.dimensions),document.dimensions,`${row.actionId} dimension order or coverage drift`);
     assert.ok(row.failures.some(item=>item.id==='compiler_unresolved'),`${row.actionId} misses compiler failure`);

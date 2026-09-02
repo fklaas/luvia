@@ -1814,8 +1814,8 @@
       "label": "Ort als Favorit speichern",
       "category": "Places & Ortsentdeckung",
       "humanStatus": "AVAILABLE",
-      "ownerBinding": "RUNTIME_REGISTERED",
-      "aiCoverage": "REGISTERED_PARTIAL",
+      "ownerBinding": "PUBLIC_E2E_PROVEN",
+      "aiCoverage": "PUBLIC_E2E_PASS",
       "aiRouted": true,
       "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
@@ -1825,8 +1825,8 @@
       "label": "Favorit entfernen",
       "category": "Places & Ortsentdeckung",
       "humanStatus": "AVAILABLE",
-      "ownerBinding": "RUNTIME_REGISTERED",
-      "aiCoverage": "REGISTERED_PARTIAL",
+      "ownerBinding": "PUBLIC_E2E_PROVEN",
+      "aiCoverage": "PUBLIC_E2E_PASS",
       "aiRouted": true,
       "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
@@ -1847,8 +1847,8 @@
       "label": "Ort mit Datum und Uhrzeit zur Timeline hinzufügen",
       "category": "Places & Ortsentdeckung",
       "humanStatus": "AVAILABLE",
-      "ownerBinding": "RUNTIME_REGISTERED",
-      "aiCoverage": "REGISTERED_PARTIAL",
+      "ownerBinding": "PUBLIC_E2E_PROVEN",
+      "aiCoverage": "PUBLIC_E2E_PASS",
       "aiRouted": true,
       "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
@@ -1869,8 +1869,8 @@
       "label": "Ort aus der Timeline entfernen",
       "category": "Places & Ortsentdeckung",
       "humanStatus": "AVAILABLE",
-      "ownerBinding": "RUNTIME_REGISTERED",
-      "aiCoverage": "REGISTERED_PARTIAL",
+      "ownerBinding": "PUBLIC_E2E_PROVEN",
+      "aiCoverage": "PUBLIC_E2E_PASS",
       "aiRouted": true,
       "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true

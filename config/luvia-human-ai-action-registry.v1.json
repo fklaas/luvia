@@ -63,14 +63,14 @@
       "NOT_APPLICABLE": 11,
       "NOT_REQUIRED": 10,
       "PARTIAL": 1,
-      "PUBLIC_E2E_PASS": 3,
-      "REGISTERED_PARTIAL": 61
+      "PUBLIC_E2E_PASS": 7,
+      "REGISTERED_PARTIAL": 57
     },
     "ownerBinding": {
       "NOT_APPLICABLE": 39,
       "PUBLIC_CONTRACT_BOUND": 245,
-      "PUBLIC_E2E_PROVEN": 3,
-      "RUNTIME_REGISTERED": 42
+      "PUBLIC_E2E_PROVEN": 7,
+      "RUNTIME_REGISTERED": 38
     },
     "inputContracts": {
       "NATIVE_CHAT_CONTROL": 14,
@@ -9800,11 +9800,11 @@
         "primaryDomain": "journey",
         "contract": "places.v1",
         "method": "commands.favorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
-        "sourceCoverage": "REGISTRIERT/PARTIELL",
+        "coverage": "PUBLIC_E2E_PASS",
+        "sourceCoverage": "PUBLIC-E2E-PASS",
         "actionId": "places.place.favorite",
         "runtimeRegistered": true
       },
@@ -9842,8 +9842,8 @@
         "lifecycleAuditStatus": "REGISTERED_ACTION_AUDIT_OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "B1.P04-PLACES-FAVORITE",
+        "publicEvidence": "PUBLIC_E2E_PASS"
       },
       "sources": [
         "core/places/place-collection-service.js",
@@ -9875,11 +9875,11 @@
         "primaryDomain": "journey",
         "contract": "places.v1",
         "method": "commands.unfavorite",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
-        "sourceCoverage": "REGISTRIERT/PARTIELL",
+        "coverage": "PUBLIC_E2E_PASS",
+        "sourceCoverage": "PUBLIC-E2E-PASS",
         "actionId": "places.place.unfavorite",
         "runtimeRegistered": true
       },
@@ -9917,8 +9917,8 @@
         "lifecycleAuditStatus": "REGISTERED_ACTION_AUDIT_OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "B1.P04-PLACES-FAVORITE",
+        "publicEvidence": "PUBLIC_E2E_PASS"
       },
       "sources": [
         "core/places/place-collection-service.js",
@@ -10010,11 +10010,11 @@
         "primaryDomain": "journey",
         "contract": "places.v1",
         "method": "commands.plan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
-        "sourceCoverage": "REGISTRIERT/PARTIELL",
+        "coverage": "PUBLIC_E2E_PASS",
+        "sourceCoverage": "PUBLIC-E2E-PASS",
         "actionId": "places.place.plan",
         "runtimeRegistered": true
       },
@@ -10053,8 +10053,8 @@
         "lifecycleAuditStatus": "REGISTERED_ACTION_AUDIT_OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "B1.P05-PLACES-PLAN",
+        "publicEvidence": "PUBLIC_E2E_PASS"
       },
       "sources": [
         "core/places/place-collection-service.js",
@@ -10145,11 +10145,11 @@
         "primaryDomain": "journey",
         "contract": "places.v1",
         "method": "commands.unplan",
-        "bindingStatus": "RUNTIME_REGISTERED"
+        "bindingStatus": "PUBLIC_E2E_PROVEN"
       },
       "ai": {
-        "coverage": "REGISTERED_PARTIAL",
-        "sourceCoverage": "REGISTRIERT/PARTIELL",
+        "coverage": "PUBLIC_E2E_PASS",
+        "sourceCoverage": "PUBLIC-E2E-PASS",
         "actionId": "places.place.unplan",
         "runtimeRegistered": true
       },
@@ -10185,8 +10185,8 @@
         "lifecycleAuditStatus": "REGISTERED_ACTION_AUDIT_OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "B1.P05-PLACES-PLAN",
+        "publicEvidence": "PUBLIC_E2E_PASS"
       },
       "sources": [
         "core/places/place-collection-service.js",
