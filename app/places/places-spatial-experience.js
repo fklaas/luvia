@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.15.0-map-native-discovery-controls';
+  const VERSION='1.15.1-minimal-map-native-discovery-controls';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -276,6 +276,10 @@
     const active=item.key===state.category;
     return `<button type="button" class="lv-places-spatial__category ${active?'is-active':''}" data-places-category="${esc(item.key)}" aria-pressed="${active}" aria-selected="${active}"><span class="lv-places-spatial__category-icon">${icon(meta.icon)}</span><span class="lv-places-spatial__category-copy"><strong>${esc(item.label)}</strong><small>${esc(meta.hint)}</small></span></button>`;
   }).join('')}
+  function mapCategoryMarkup(categories){return categories.map(item=>{
+    const active=item.key===state.category;
+    return `<button type="button" data-places-category="${esc(item.key)}" aria-pressed="${active}" aria-selected="${active}">${esc(item.label)}</button>`;
+  }).join('')}
   function statusMarkup(view){
     const ariaRole=view.status.ariaRole;
     return `<p class="lv-places-spatial__status is-${esc(view.status.kind)}" role="${esc(ariaRole)}" aria-live="${esc(view.status.ariaLive)}">${view.status.busy?'<i aria-hidden="true"></i>':''}<span>${esc(view.status.message)}</span>${view.status.canRetry?'<button type="button" data-places-retry>Erneut versuchen</button>':''}</p>`;
@@ -296,9 +300,11 @@
     const price=facts.includes('priceLevel')?`<div class="lv-places-spatial__filter-group"><span>Preisniveau</span><div>${[['PRICE_LEVEL_INEXPENSIVE','€'],['PRICE_LEVEL_MODERATE','€€'],['PRICE_LEVEL_EXPENSIVE','€€€']].map(([value,label])=>`<button type="button" data-places-price="${value}" aria-pressed="${state.filters.priceLevel===value}">${label}</button>`).join('')}</div></div>`:'';
     return `<div class="lv-places-spatial__filter-reveal ${state.filterOpen?'is-open':''}" aria-hidden="${!state.filterOpen}"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(categoryDefinition().label)} filtern"><div class="lv-places-spatial__filter-intro"><span>${esc(schema.label)} filtern</span><strong>Google-/Provider-Fakten, keine KI-Vermutungen</strong></div><div class="lv-places-spatial__filter-group is-wide"><span>Typ oder Landesküche</span><div>${schema.subtypes.map(([value,label])=>`<button type="button" data-places-subtype="${esc(value)}" aria-pressed="${state.filters.subtype===value}">${esc(label)}</button>`).join('')}</div></div><div class="lv-places-spatial__filter-facts">${truthButtons}</div>${price}<div class="lv-places-spatial__filter-sort"><button type="button" data-places-sort="fit" aria-pressed="${state.sort==='fit'}">${icon('compass')} Persönliche Passung</button><button type="button" data-places-sort="rating" aria-pressed="${state.sort==='rating'}">${icon('star')} Beste Bewertung</button><button type="button" data-places-sort="distance" aria-pressed="${state.sort==='distance'}">${icon('route')} Kürzeste Entfernung</button></div><button type="button" class="lv-places-spatial__filter-reset" data-places-filter-reset ${Object.values(state.filters).some(Boolean)||state.sort!=='fit'?'':'disabled'}>Filter zurücksetzen</button></aside></div>`;
   }
-  function mapDiscoveryToolsMarkup(){
+  function mapDiscoveryToolsMarkup(view){
     const filterCount=Object.values(state.filters).filter(Boolean).length;
-    return `<div class="lv-places-spatial__map-tools" aria-label="Suche, Kategorien und Filter">
+    return `<div class="lv-places-spatial__map-tools" aria-label="Kartenansicht, Suche, Kategorien und Filter">
+      <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
+      <div class="lv-places-spatial__map-browser" data-places-map-browser><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b>/<span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
       <button type="button" data-places-map-tool="search" aria-label="Orte suchen" aria-pressed="${state.mapPanel==='search'}" title="Suchen">${icon('search')}</button>
       <button type="button" data-places-map-tool="categories" aria-label="Place-Kategorie auswählen" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
       <button type="button" data-places-map-tool="filter" aria-label="Ergebnisse filtern${filterCount?` · ${filterCount} aktiv`:''}" aria-pressed="${state.mapPanel==='filter'}" title="Filter">${icon('filter')}${filterCount?`<span class="lv-places-spatial__map-tool-count">${filterCount}</span>`:''}</button>
@@ -307,8 +313,8 @@
   }
   function mapDiscoveryPanelsMarkup(){
     return `<div class="lv-places-spatial__map-panels">
-      <section class="lv-places-spatial__map-panel" data-places-map-panel="search" ${state.mapPanel==='search'?'':'hidden'} aria-label="Orte suchen"><small>Suche</small><form class="lv-places-spatial__map-query" data-places-search novalidate><label for="places-map-query"><span class="sr-only">Orte suchen</span>${icon('search')}<input id="places-map-query" name="query" value="${esc(state.query)}" placeholder="Restaurant, Museum, Ausflugsziel …" autocomplete="off"></label><button type="submit">Suchen</button></form></section>
-      <section class="lv-places-spatial__map-panel" data-places-map-panel="categories" ${state.mapPanel==='categories'?'':'hidden'} aria-label="Place-Kategorie auswählen"><small>Kategorie</small><nav class="lv-places-spatial__map-categories" aria-label="Kanonische Places-Kategorien aus places.v1">${categoryMarkup(model().categories)}</nav></section>
+      <section class="lv-places-spatial__map-panel" data-places-map-panel="search" ${state.mapPanel==='search'?'':'hidden'} aria-label="Orte suchen"><small>Suche</small><form class="lv-places-spatial__map-query" data-places-search novalidate><label for="places-map-query"><span class="sr-only">Orte suchen</span>${icon('search')}<input type="search" enterkeyhint="search" id="places-map-query" name="query" value="${esc(state.query)}" placeholder="Restaurant, Museum, Ausflugsziel …" autocomplete="off"></label></form></section>
+      <section class="lv-places-spatial__map-panel" data-places-map-panel="categories" ${state.mapPanel==='categories'?'':'hidden'} aria-label="Place-Kategorie auswählen"><small>Kategorie</small><nav class="lv-places-spatial__map-categories" aria-label="Kanonische Places-Kategorien aus places.v1">${mapCategoryMarkup(model().categories)}</nav></section>
       <section class="lv-places-spatial__map-panel is-filter" data-places-map-panel="filter" ${state.mapPanel==='filter'?'':'hidden'} aria-label="Ergebnisse filtern"><small>Filter · ${esc(categoryDefinition().label)}</small>${filterMarkup()}</section>
     </div>`;
   }
@@ -451,12 +457,8 @@
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
-          ${mapDiscoveryToolsMarkup()}
+          ${mapDiscoveryToolsMarkup(view)}
           ${mapDiscoveryPanelsMarkup()}
-          <div class="lv-places-spatial__map-toolbar" aria-label="Kartenansicht steuern">
-            <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
-            <div class="lv-places-spatial__map-browser" data-places-map-browser><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b> / <span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
-          </div>
           <aside class="lv-places-spatial__map-preview" ${selectedPlace()?'':'hidden'} aria-live="polite">${mapPreviewMarkup()}</aside>
         </section>
       </div>

@@ -269,9 +269,15 @@ for(const semantic of ['role="region"','aria-label','aria-live="polite"','aria-b
 }
 assert.match(experience,/<label[^>]+for="places-map-query"/);
 assert.match(experience,/<(?:input|textarea)[^>]+id="places-map-query"/);
+assert.match(experience,/<input type="search" enterkeyhint="search"[^>]+id="places-map-query"/,'map search must submit from one minimal search field');
+assert.doesNotMatch(experience,/class="lv-places-spatial__map-query"[^>]*>[\s\S]{0,800}<button type="submit">Suchen<\/button>/,'map search must not add a large submit button');
+assert.match(experience,/function mapCategoryMarkup\(categories\)/,'map category overlay must use a text-only projection');
 assert.match(experience,/data-places-map-tool="search"/,'search must be a compact map-native control');
 assert.match(experience,/data-places-map-tool="categories"/,'categories must be a compact map-native control');
 assert.match(experience,/data-places-map-tool="filter"/,'filters must be a compact map-native control');
+assert.doesNotMatch(experience,/lv-places-spatial__map-toolbar/,'fit mode, pin navigation and discovery tools must share one map toolbar');
+assert.match(css,/\.lv-places-spatial__map-categories>button\{[^}]*border:0[^}]*background:transparent/,'map categories must render as a quiet text list rather than cards');
+assert.match(css,/\.lv-places-spatial__map-panel \.lv-places-spatial__filter-panel button\{[^}]*border:0[^}]*background:transparent/,'map filters must render as quiet text choices rather than chips');
 assert.match(experience,/class="lv-places-spatial__legend-trigger"[^>]+aria-describedby="places-map-legend"/,'the ranking legend must be available from its map icon by hover or keyboard focus');
 assert.doesNotMatch(experience,/class="lv-places-spatial__context"/,'the oversized explanatory context card must not remain outside the map');
 assert.doesNotMatch(experience,/class="lv-places-spatial__search"/,'the old full-width search bar must not remain outside the map');

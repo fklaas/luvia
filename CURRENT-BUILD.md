@@ -20,20 +20,27 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.159**
-- Core: **4.82.159**
+- App: **13.82.160**
+- Core: **4.82.160**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Map-native Places Discovery Controls — Local Integration candidate 13.82.159
+## M16.5 Compact Map-native Places Filters — Local Integration candidate 13.82.160
+
+- Public counterevidence and correction: **public `.159` proved the map-native tool dock and all three working overlays, but the mobile filter's inherited expanding flex rows produced a large white area over the map. `.160` replaces that inherited layout with a content-sized one-column grid, removes row growth and keeps every factual choice in compact wrapping chips. Search, categories and legend retain their accepted map-native behavior**.
+- Unified control bar: **`Alle / Passend`, locked `← 1/xx →` pin navigation and the Search, Category, Filter and Legend icons now share one quiet translucent bar between the native zoom control and the map's right edge. No second control bar remains**.
+- Minimal overlays: **Search is one understated search field that submits with Enter. Categories and evidence-backed filters are small text-only lists without icons, checks, chip borders or card backgrounds; selection is communicated only by trip-colour type weight and a fine underline. The narrow panel fades in from the right over a lightly translucent surface**.
+- Release gate: **fresh `.160` runtime bundles, focused layout/version gates, NFR-0 3/3 and the complete controlled Safe Regression 201/201 are PASS. Clean Integration-only deployment and repeated public mobile interaction proof remain required. Main and Production remain locked**.
+
+## M16.5 Map-native Places Discovery Controls — Rejected Integration candidate 13.82.159
 
 - Map-first composition: **the oversized `Entdecken, verstehen und bewusst einplanen` context card, full-width search row, external filter drawer, preference container and external category rail are removed from the productive Places render. Outside the map only the requested discovery heading, one small evidence/Booking line and the compact Luvia entry remain**.
 - Native map tools: **four compact controls at the map's upper-right edge open Search, Category and evidence-backed Filter popovers directly over the continuously mounted map; the fourth exposes the ranking legend on hover and keyboard focus. Each popover uses compact responsive typography, active-Trip colour tokens and real pressed states. Opening or closing a tool does not remount or grey the map**.
 - Map scale and continuity: **the map now owns roughly three quarters of the available small-screen height, while `Alle / Passend`, locked previous/next navigation, the full-spectrum selected-Place preview and the click-history remain intact. Category and query changes still use the Places owner read; factual filter changes update the mounted pins without a new map instance**.
-- Superseded candidate: **the viewport evidence continuity correction from `.158` is included unchanged. Focused gates, release consistency, NFR-0 3/3 and the complete controlled Safe Regression are 201/201 PASS. Clean Integration-only release and public responsive interaction proof remain required. Main and Production remain locked**.
+- Superseded candidate: **the viewport evidence continuity correction from `.158` is included unchanged. Focused gates, release consistency, NFR-0 3/3 and the complete controlled Safe Regression are 201/201 PASS. Public operation proved all map tools but rejected the mobile filter geometry because it covered too much of the map; `.160` contains the corrective layout. Main and Production remain locked**.
 
 ## M16.5 Viewport Preference Continuity — Local Integration candidate 13.82.158
 
