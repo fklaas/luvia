@@ -7,7 +7,7 @@
     "workbook": "Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx",
     "workbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
     "snapshotDate": "2026-09-01",
-    "integrationBuild": "13.82.142",
+    "integrationBuild": "13.82.143",
     "scope": "Aktuell servierte öffentliche und angemeldete Web-App einschließlich konditionaler Provider- und Geräteaktionen; nicht ausführbare Outcomes separat."
   },
   "invariants": {
@@ -21,7 +21,7 @@
     "semanticActions": 329,
     "availableOrConditional": 318,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 898,
+    "auditedDataMarkers": 899,
     "runtimeRegisteredActions": 23,
     "categories": {
       "Buchung & Anbieterkommunikation": 39,
@@ -20063,16 +20063,16 @@
     }
   ],
   "markerAudit": {
-    "count": 898,
+    "count": 899,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "42F52FC347B509E40FAA396A0953B5E4A782EC195E61F42D5A8CF6F2DCF32BFA",
+    "registrySha256": "ED1952954A7775359B637519EDB0E7411A23D9EB14B186406F9CBC70C24B5C18",
     "classifications": {
       "AKTIONSKANDIDAT": 382,
       "INTERAKTIONSPRIMITIVE": 290,
-      "STATUS/EINGABE/PROJEKTION": 226
+      "STATUS/EINGABE/PROJEKTION": 227
     },
     "categories": {
-      "Buchung & Anbieterkommunikation": 72,
+      "Buchung & Anbieterkommunikation": 73,
       "Erinnerungen & Geschichten": 53,
       "Journey, Timeline & Tagesplan": 41,
       "Luvia AI Chat": 55,

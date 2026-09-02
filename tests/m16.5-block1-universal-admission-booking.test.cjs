@@ -32,6 +32,56 @@ const restaurant=admission.resolve({id:'restaurant-1',primaryType:'restaurant',r
 assert.equal(restaurant.requirement,'reservation_supported','reservable means supported, never required');
 assert.equal(restaurant.notice.label,'Reservierung möglich');
 
+const restaurantBar=admission.resolve({id:'restaurant-bar-1',primaryType:'restaurant',categories:[{name:'bar'}]});
+assert.equal(restaurantBar.kind,'dining','an explicit restaurant primary type must remain dining even with a secondary bar tag');
+
+const hotelUnknown=admission.resolve({id:'hotel-1',primaryType:'hotel',name:'Grand Hotel'});
+assert.equal(hotelUnknown.kind,'lodging');
+assert.equal(hotelUnknown.requirement,'unknown','a lodging category must not invent availability or a booking requirement');
+assert.equal(hotelUnknown.certainty,'unknown');
+assert.equal(hotelUnknown.notice.label,'Preis und Verfügbarkeit ungeklärt');
+assert.equal(hotelUnknown.notice.detail,'Preis und Verfügbarkeit vor dem Aufenthalt prüfen.');
+assert.equal(hotelUnknown.action.label,'Zimmer und Preise prüfen');
+assert.doesNotMatch(JSON.stringify(hotelUnknown),/Ticket|Eintritt/,'unknown lodging must never be presented as admission or ticketing');
+
+const hotelRoute=admission.resolve({id:'hotel-2',primaryType:'lodging',bookingUrl:'https://hotel.example/book'});
+assert.equal(hotelRoute.requirement,'reservation_supported','a verified hotel booking route proves only a supported route, never live availability');
+assert.equal(hotelRoute.certainty,'provider_supported');
+assert.equal(hotelRoute.notice.label,'Buchungsweg verfügbar');
+assert.equal(hotelRoute.action.label,'Zimmer und Preise öffnen');
+assert.equal(hotelRoute.notice.detail,'Ein Buchungsweg ist belegt; Preis und Verfügbarkeit sind noch nicht bestätigt.');
+
+const nightclubUnknown=admission.resolve({id:'nightclub-1',primaryType:'night_club',name:'Tonfink'});
+assert.equal(nightclubUnknown.kind,'nightlife');
+assert.equal(nightclubUnknown.requirement,'unknown','nightlife alone proves neither tickets nor reservations');
+assert.equal(nightclubUnknown.notice.label,'Einlass noch ungeklärt');
+assert.equal(nightclubUnknown.action.label,'Einlass prüfen');
+
+const barUnknown=admission.resolve({id:'bar-1',primaryType:'bar',name:'Beach Lounge'});
+assert.equal(barUnknown.kind,'nightlife','bar must no longer collapse into dining without a stronger dining provider type');
+assert.equal(barUnknown.requirement,'unknown');
+
+const nightclubTicket=admission.resolve({id:'nightclub-2',primaryType:'nightclub',ticketRequired:true});
+assert.equal(nightclubTicket.kind,'nightlife');
+assert.equal(nightclubTicket.requirement,'ticket_required','an explicit provider ticket requirement must remain authoritative');
+assert.equal(nightclubTicket.certainty,'verified');
+
+const nightclubReservation=admission.resolve({id:'nightclub-3',primaryType:'nightclub',reservationRequired:true});
+assert.equal(nightclubReservation.requirement,'reservation_required','an explicit provider reservation requirement must remain authoritative');
+assert.equal(nightclubReservation.certainty,'verified');
+
+const nightclubBookingRoute=admission.resolve({id:'nightclub-4',primaryType:'nightclub',providerBookingUrl:'https://club.example/guest-list'});
+assert.equal(nightclubBookingRoute.requirement,'reservation_supported','a provider booking route must not be relabelled as a ticket route');
+assert.equal(nightclubBookingRoute.certainty,'provider_supported');
+
+const nightclubTicketRoute=admission.resolve({id:'nightclub-5',primaryType:'nightclub',providerTicketUrl:'https://tickets.example/club'});
+assert.equal(nightclubTicketRoute.requirement,'ticket_available','a provider ticket route may prove ticket availability, but never ticket requirement');
+assert.equal(nightclubTicketRoute.certainty,'provider_supported');
+
+const culturalReservationRoute=admission.resolve({id:'culture-reservation-1',primaryType:'museum',reservationUrl:'https://museum.example/tour-reservation'});
+assert.equal(culturalReservationRoute.requirement,'reservation_supported','an explicit reservation route must not be relabelled as ticket availability merely because the place is cultural');
+assert.equal(culturalReservationRoute.certainty,'provider_supported');
+
 const minigolf=admission.resolve({id:'activity-1',primaryType:'miniature_golf'});
 assert.equal(minigolf.kind,'activity');
 assert.equal(minigolf.requirement,'unknown');

@@ -2,8 +2,8 @@
 'use strict';
 
 const CONTRACT_ID='booking.admission.v1';
-const VERSION='1.0.0';
-const KINDS=Object.freeze(['dining','lodging','attraction','culture','activity','event','transport','rental','other']);
+const VERSION='1.1.0-place-kind-integrity';
+const KINDS=Object.freeze(['dining','lodging','nightlife','attraction','culture','activity','event','transport','rental','other']);
 const REQUIREMENTS=Object.freeze(['free','not_required','reservation_supported','reservation_recommended','reservation_required','ticket_available','ticket_required','timed_entry_required','unknown']);
 const CERTAINTY=Object.freeze(['verified','provider_supported','unknown']);
 const clean=value=>String(value??'').trim();
@@ -19,11 +19,14 @@ const tokens=place=>[
   place?.type,place?.primaryType,place?.primary_type,place?.canonicalType,place?.canonical_type,place?.category,place?.requestCategory,
   ...(Array.isArray(place?.types)?place.types:[]),...(Array.isArray(place?.categories)?place.categories.map(item=>item?.name||item):[])
 ].map(value=>clean(value).toLowerCase()).filter(Boolean);
+const primaryToken=place=>[
+  place?.primaryType,place?.primary_type,place?.canonicalType,place?.canonical_type,place?.type,place?.category
+].map(value=>clean(value).toLowerCase()).find(Boolean)||'';
 
-function classify(place={}){
-  const haystack=tokens(place).join(' ');
-  if(/restaurant|cafe|café|bakery|food|meal|bar|bistro|brasserie/.test(haystack))return'dining';
+function kindFrom(haystack=''){
   if(/hotel|lodging|hostel|motel|resort|accommodation|guest.house|bed.and.breakfast/.test(haystack))return'lodging';
+  if(/night[\s_.-]?club|nightlife|discoth|disco|dance[\s_.-]?club|music[\s_.-]?venue|cocktail[\s_.-]?bar|(^|\s)(bar|pub|lounge)(\s|$)/.test(haystack))return'nightlife';
+  if(/restaurant|cafe|café|bakery|food|meal|bistro|brasserie/.test(haystack))return'dining';
   if(/event|concert|festival|performance|show|cinema|movie|theatre_event|theater_event/.test(haystack))return'event';
   if(/museum|gallery|theat|opera|cultur|historic|heritage|exhibition|planetarium/.test(haystack))return'culture';
   if(/attraction|aquarium|zoo|amusement|theme.park|water.park|observation|landmark|monument|sightseeing/.test(haystack))return'attraction';
@@ -31,6 +34,14 @@ function classify(place={}){
   if(/transport|ferry|train|rail|bus|flight|airport|taxi|transfer/.test(haystack))return'transport';
   if(/rental|hire|bike.rental|car.rental|boat.rental/.test(haystack))return'rental';
   return'other';
+}
+
+function classify(place={}){
+  // Provider-owned primary/canonical types win over secondary category tags.
+  // In particular, a bar is nightlife unless the provider explicitly supplies a
+  // stronger dining primary type such as restaurant, cafe or bistro.
+  const primary=kindFrom(primaryToken(place));
+  return primary!=='other'?primary:kindFrom(tokens(place).join(' '));
 }
 
 function explicitRequirement(place={}){
@@ -62,7 +73,8 @@ function routeCandidates(place={}){
   if(apiUrl&&connection==='connected')add('provider_api',apiUrl,provider,'connected-provider',true);
   add('official_link',place.ticketUrl||place.ticket_url||place.officialTicketUrl||place.official_ticket_url,provider||'official','official-ticket-link',true);
   add('official_link',place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url,provider||'official','official-booking-link',true);
-  add('provider_link',place.providerBookingUrl||place.provider_booking_url||place.providerTicketUrl||place.provider_ticket_url,provider,'provider-handoff',true);
+  add('provider_link',place.providerBookingUrl||place.provider_booking_url,provider,'provider-booking-handoff',true);
+  add('provider_link',place.providerTicketUrl||place.provider_ticket_url,provider,'provider-ticket-handoff',true);
   const verifiedEmail=bool(place.bookingEmailVerified??place.booking_email_verified)&&bool(place.bookingEmailPublic??place.booking_email_public)&&safeUrl(place.bookingEmailSourceUrl||place.booking_email_source_url);
   if(verifiedEmail)add('email',place.bookingEmail||place.booking_email,provider||'official',place.bookingEmailSourceUrl||place.booking_email_source_url,true);
   const order={provider_api:100,official_link:90,provider_link:80,email:70};
@@ -74,7 +86,8 @@ function requirementFor(place={},kind=classify(place),routes=routeCandidates(pla
   if(explicit)return{requirement:explicit,certainty:'verified',evidenceKind:'explicit-provider-fact'};
   if(bool(place.reservable??place.isReservable??place.is_reservable))return{requirement:'reservation_supported',certainty:'provider_supported',evidenceKind:'provider-reservable-capability'};
   if(routes.some(route=>/ticket/.test(route.source||'')))return{requirement:'ticket_available',certainty:'provider_supported',evidenceKind:'verified-ticket-route'};
-  if(routes.length)return{requirement:kind==='dining'?'reservation_supported':'ticket_available',certainty:'provider_supported',evidenceKind:'verified-booking-route'};
+  if(routes.some(route=>/booking/.test(route.source||'')))return{requirement:'reservation_supported',certainty:'provider_supported',evidenceKind:'verified-booking-route'};
+  if(routes.length)return{requirement:['dining','lodging','nightlife'].includes(kind)?'reservation_supported':'ticket_available',certainty:'provider_supported',evidenceKind:'verified-booking-route'};
   return{requirement:'unknown',certainty:'unknown',evidenceKind:kind==='other'?'not-applicable-by-current-evidence':'category-only'};
 }
 
@@ -89,10 +102,31 @@ function presentation(kind,requirement,routes){
     ticket_available:['Tickets verfügbar',hasRoute?'Tickets öffnen':'Ticketweg prüfen','info'],
     ticket_required:['Ticket erforderlich',hasRoute?'Tickets öffnen':'Ticketweg prüfen','required'],
     timed_entry_required:['Zeitfenster erforderlich',hasRoute?'Zeitfenster wählen':'Ticketweg prüfen','required'],
-    unknown:[kind==='dining'?'Reservierung noch ungeklärt':'Eintritt noch ungeklärt',kind==='dining'?'Reservierung prüfen':'Tickets prüfen','quiet']
+    unknown:kind==='dining'
+      ?['Reservierung noch ungeklärt','Reservierung prüfen','quiet']
+      :kind==='lodging'
+        ?['Preis und Verfügbarkeit ungeklärt','Zimmer und Preise prüfen','quiet']
+        :kind==='nightlife'
+          ?['Einlass noch ungeklärt','Einlass prüfen','quiet']
+          :['Eintritt noch ungeklärt','Tickets prüfen','quiet']
   };
-  const [label,actionLabel,tone]=table[requirement]||table.unknown;
+  let [label,actionLabel,tone]=table[requirement]||table.unknown;
+  if(kind==='lodging'&&requirement==='reservation_supported'){
+    label='Buchungsweg verfügbar';
+    actionLabel=hasRoute?'Zimmer und Preise öffnen':'Zimmer und Preise prüfen';
+  }
   return{label,actionLabel,tone};
+}
+
+function detailFor(kind,fact){
+  if(fact.certainty==='unknown'){
+    if(kind==='lodging')return'Preis und Verfügbarkeit vor dem Aufenthalt prüfen.';
+    if(kind==='nightlife')return'Einlass, Gästeliste oder Reservierung vor dem Besuch prüfen.';
+    return'Vor dem Besuch kurz prüfen.';
+  }
+  if(kind==='lodging'&&fact.requirement==='reservation_supported')return'Ein Buchungsweg ist belegt; Preis und Verfügbarkeit sind noch nicht bestätigt.';
+  if(fact.requirement==='reservation_supported')return'Der Anbieter unterstützt Reservierungen; eine Pflicht ist nicht belegt.';
+  return'Durch Anbieter- oder Ortsangaben belegt.';
 }
 
 function resolve(place={}){
@@ -101,7 +135,7 @@ function resolve(place={}){
   const actionAvailable=relevant&&!['free','not_required'].includes(fact.requirement);
   return immutable({
     contractId:CONTRACT_ID,version:VERSION,kind,relevant,requirement:fact.requirement,certainty:fact.certainty,
-    notice:{label:copy.label,tone:copy.tone,detail:fact.certainty==='unknown'?'Vor dem Besuch kurz prüfen.':fact.requirement==='reservation_supported'?'Der Anbieter unterstützt Reservierungen; eine Pflicht ist nicht belegt.':'Durch Anbieter- oder Ortsangaben belegt.'},
+    notice:{label:copy.label,tone:copy.tone,detail:detailFor(kind,fact)},
     action:{available:actionAvailable,label:copy.actionLabel,command:'booking.v1.commands.openPlaceBooking'},
     route:routes[0]||null,routes,evidence:{kind:fact.evidenceKind,explicit:fact.certainty==='verified',providerSupported:fact.certainty==='provider_supported'},
     invariants:{placeTypeNeverProvesRequirement:true,reservableNeverMeansRequired:true,routeNeverMeansRequired:true,verifiedEmailOnly:true,noAutomaticMutation:true}

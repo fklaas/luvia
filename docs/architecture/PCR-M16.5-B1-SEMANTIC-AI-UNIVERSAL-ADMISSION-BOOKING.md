@@ -37,12 +37,23 @@ The AI could route a complete sentence such as “Ich will eine andere Reise aus
 9. Add service-only Hotel search/snapshot evidence and a readiness view. RLS is
    deny-default for normal clients; no raw prompt, secret or exact device
    location is persisted.
+10. Resolve every external URL or verified-email handoff through the Booking
+    route owner. First gate the requested action by Place kind; then require an
+    exact selected venue/property identity proof from provider place ID,
+    normalized name/address or a provider-specific property/product identifier.
+    Cache identity is Place- and route-specific and is invalidated when either
+    changes.
 
 ## Evidence and safety rules
 
 - Place type alone may make admission relevant, but never proves that a ticket or reservation is required.
 - `reservable=true` means supported, not required.
 - A ticket or booking URL means a route is available, not that entry is mandatory.
+- Lodging never inherits ticket/admission actions, and nightlife/activity is not
+  recast as restaurant merely because a reservation route may exist.
+- HTTPS validity, a corporate domain or partial name overlap does not prove the
+  selected venue/property. Generic corporate pages, sibling properties,
+  cross-venue targets and weak Hotel-name matches fail closed.
 - “required”, “recommended”, “free” and timed-entry statements require explicit provider or official-place evidence.
 - A public booking email is usable only when it is structurally valid and explicitly marked public and verified with a source URL.
 - Provider API routes are exposed as connected only when a real configured connection exists. Partner-gated catalogs are discovery metadata until credentials and commercial access exist.
@@ -85,6 +96,8 @@ The AI could route a complete sentence such as “Ich will eine andere Reise aus
 - Public-adapter projection test: raw contact data cannot cross the boundary.
 - AI action compatibility and universal action tests.
 - Consumer source tests and a visible browser fixture.
+- Place-route identity tests must include the public cross-venue negatives and
+  positive exact OpenTable/TheFork, activity ticket and Hotel-property routes.
 - Controlled Hotel fixture at default and 390×844: two-source comparison and
   no-source fail-closed state, `TT.MM.JJJJ`, no overflow and no console errors.
 - Static Edge/auth/secret-boundary tests, migration/rollback test and semantic
@@ -108,13 +121,36 @@ time remained preserved in `preview.changes`. `.141` was rejected because the
 user could not verify what would change; every confirmation was cancelled and
 Stable returned to accepted `.139` without an external mutation.
 
-The `.142` correction keeps `.141` subject resolution and extends the shared
-browserless consumer projection to render exact nested change values with
-explicit labels such as `Neues Datum` and `Neue Uhrzeit`. The visible lifecycle
-fixture now projects actual Runtime data and fails if Create, Modify or Cancel
-details are missing; the local run passes Read/Open/Create/Modify/Cancel at 5/5.
-Public Integration operation, byte proof and the exact `.142 → .139` rollback
-remain release gates; `.142` is not accepted before all of them pass.
+The `.142` correction kept `.141` subject resolution and extended the shared
+browserless consumer projection to render nested change values. Public Read,
+Open and fresh-chat Create passed, but the exact Modify sentence failed twice:
+the model returned new date/time as typed constraints rather than `timeWindow`,
+and the compiler asked for the internal placeholder `booking change`. `.142`
+was rejected and rolled back to `.139`; all previews were cancelled.
+
+The `.143` correction normalizes structured temporal evidence from either form.
+The permanent regression uses the public sentence and model shape, asserts the
+exact Owner patch, and drives the visible 5/5 fixture to `Neues Datum` and `Neue
+Uhrzeit`. Public Integration operation, byte proof and exact `.143 → .139`
+rollback remain release gates.
+
+Public operation of Stable `.139` then exposed a separate route-integrity
+counterexample set: Hotel cards showed `Eintritt`/`Tickets prüfen`; a nightlife
+reservation action opened an unrelated A-ROSA/Straubinger Hotel property; and a
+partial Hotel-name match could pass as if it identified the selected property.
+These are decisive failures because a safe-looking destination is still the
+wrong destination.
+
+The same `.143` local candidate now adds two independent gates. The Place-Kind
+gate decides whether lodging, dining or activity/nightlife can expose the
+requested action. The route gate then requires exact venue/property identity
+for every external URL and verified-email target and fails closed on generic,
+sibling or cross-place destinations. Route cache reuse is bound to the selected
+Place plus provider/address/source facts. The dedicated visible local integrity
+fixture is **4/4 green** and focused identity/source/unit tests are green for the
+concrete negative cases and exact provider/property positives. Edge
+`booking-route-resolve` **2.7 is a local Candidate and has not been deployed**.
+Public `.143` Acceptance remains open.
 
 ## Rollout and rollback
 
@@ -176,7 +212,7 @@ Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files 
 app-only rollback restores `.138`:
 `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.
 
-## Semantic Booking lifecycle candidate — App/Core 13.82.142/4.82.142
+## Semantic Booking lifecycle candidate — App/Core 13.82.143/4.82.143
 
 The next Integration-only slice extends the existing Booking Core rather than
 creating a second booking system. `booking.reservation.create` now delegates to
@@ -185,8 +221,10 @@ provider API, verified public booking e-mail, external handoff and unavailable
 route without claiming that a draft row was externally submitted.
 
 Whole-sentence structured semantics resolve Create, Modify and Cancel against
-one exact Place or active Booking Owner object. Read cards expose only actions
-allowed by the browserless lifecycle policy. All writes retain Preview,
+one exact Place or active Booking Owner object. Dates and times may be supplied
+through a structured `timeWindow` or individual typed constraints; both produce
+the same normalized temporal hint. Read cards expose only actions allowed by the
+browserless lifecycle policy. All writes retain Preview,
 explicit confirmation, idempotency, Owner Receipt and unknown-outcome
 reconciliation. A local 390 px five-action fixture proves Read, Open, Create,
 Modify and Cancel with `TT.MM.JJJJ`. The shared consumer projection now reads
@@ -194,3 +232,21 @@ the exact nested Modify patch and visibly labels the new date/time; the fixture
 uses these real Runtime values rather than fixed demonstration copy. Provider-
 positive public evidence remains a separate release gate and is not inferred
 from the local controlled transport matrix.
+
+The binding continuation is: publish and publicly accept `.143` first; prove
+real Restaurant and Activity provider routes; build the bright Demo-design
+Hotel surface over the existing Booking Owner; activate Hotel/Affiliate
+providers; close P09/P10; finish the remaining Step-17 rows; then execute Blocks
+2–5 in order.
+
+## Visible Hotel consumer debt
+
+The Hotel owner, provider boundary and fail-closed price decision are technical
+foundation only. The currently reachable Hotel page still uses the retired
+turquoise, form-heavy, long stacked-card layout and is not a visually accepted
+product slice. Before live Hotel provider activation is accepted, it must be
+replaced by a bright Demo-design consumer over the same Booking Owner: compact
+search, three explainable decision lanes, readable offer cards, complete total/
+flexibility/breakfast evidence, one primary action, concise Chat projection and
+desktop/mobile/keyboard/reduced-motion Step-17 evidence. No legacy Hotel UI may
+be described as complete merely because the owner core exists.

@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.17.0-journey-owner-reads';
+const VERSION='1.18.0-place-kind-integrity';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -35,26 +35,33 @@ const destinationContext=trip=>{
     longitude:Number.isFinite(Number(destination.longitude??destination.lng))?Number(destination.longitude??destination.lng):null
   };
 };
+const providerTypeText=place=>[place?.primaryType,place?.primary_type,place?.type,place?.category,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(value=>clean(value).toLowerCase()).filter(Boolean).join(' ');
+const dominantTypeText=place=>{
+  const primary=clean(place?.primaryType||place?.primary_type||place?.type).toLowerCase();
+  return !primary||/^(?:custom|place|point_of_interest|establishment|\d+)$/.test(primary)?providerTypeText(place):primary;
+};
 const categoryGroup=place=>{
-  const value=clean(place?.primaryType||place?.primary_type||place?.types?.[0]).toLowerCase();
-  if(/restaurant|cafe|bakery|bar|food|meal/.test(value))return'food';
+  const value=dominantTypeText(place);
   if(/hotel|lodging|hostel|motel|campground|accommodation/.test(value))return'accommodation';
+  if(/night_club|nightclub|nightlife|dance_club|discoth|disco|cocktail_bar|wine_bar|lounge|pub|concert_hall|music_venue|(^|\s)bar(\s|$)/.test(value))return'nightlife';
+  if(/restaurant|cafe|bakery|food|meal|bistro|brasserie/.test(value))return'food';
   if(/park|beach|garden|natural|hiking|spa/.test(value))return'nature';
   if(/photo|viewpoint|observation/.test(value))return'photo';
   if(/landmark|monument|tourist_attraction|sight/.test(value))return'sightseeing';
   if(/museum|gallery|theater|concert|culture/.test(value))return'culture';
   if(/shopping|store|market|mall/.test(value))return'shopping';
-  if(/night_club|nightlife|casino/.test(value))return'nightlife';
+  if(/casino/.test(value))return'nightlife';
   if(/activity|zoo|aquarium|stadium|bowling|escape|swimming/.test(value))return'activities';
   return value||clean(place?.requestedCategory).toLowerCase()||'places';
 };
 const categoryLabel=group=>({food:'Genuss',accommodation:'Unterkunft',nature:'Draußen',photo:'Fotospot',sightseeing:'Sehenswert',culture:'Kultur',shopping:'Shopping',nightlife:'Nachtleben',activities:'Erleben',places:'Entdecken'}[group]||'Entdecken');
 const categoryIcon=group=>({food:'◌',accommodation:'⌂',nature:'≈',photo:'◉',sightseeing:'⌖',culture:'◇',shopping:'□',nightlife:'✺',activities:'↝',places:'✦'}[group]||'✦');
 const visualCategory=place=>{
-  const value=clean(place?.primaryType||place?.primary_type||place?.types?.[0]).toLowerCase();
+  const value=dominantTypeText(place);
+  if(/hotel|lodging|hostel|motel|resort|accommodation|guest_house|bed_and_breakfast|campground/.test(value))return'accommodation';
+  if(/night_club|nightclub|nightlife|dance_club|discoth|disco|cocktail_bar|wine_bar|lounge|pub|concert_hall|music_venue|(^|\s)bar(\s|$)/.test(value))return'nightlife';
   if(/cafe|bakery/.test(value))return'cafe';
   if(/restaurant|food|meal/.test(value))return'food';
-  if(/bar|night_club|nightlife/.test(value))return'nightlife';
   if(/park|beach|garden|natural|hiking/.test(value))return'nature';
   if(/spa|wellness/.test(value))return'wellness';
   if(/museum|gallery|theater|concert/.test(value))return'culture';
@@ -63,9 +70,9 @@ const visualCategory=place=>{
   if(/activity|zoo|aquarium|stadium|bowling|escape|swimming/.test(value))return'activities';
   return'places';
 };
-const visualLabel=group=>({food:'Restaurant',cafe:'Café',nightlife:'Abend',nature:'Draußen',wellness:'Wellness',culture:'Kultur',sightseeing:'Sehenswert',shopping:'Entdecken',activities:'Erleben',places:'Ort'}[group]||'Ort');
-const visualIcon=group=>({food:'◌',cafe:'☕',nightlife:'◐',nature:'≈',wellness:'⌁',culture:'◇',sightseeing:'⌖',shopping:'✦',activities:'↝',places:'•'}[group]||'•');
-const visualAccent=group=>({food:'#ef6659',cafe:'#f08a4b',sightseeing:'#e3b63e',culture:'#c15e87',nature:'#2f9478',activities:'#2b8eb8',wellness:'#39a99c',nightlife:'#745eb8',shopping:'#ad609c',places:'#438ea5'}[group]||'#438ea5');
+const visualLabel=group=>({food:'Restaurant',cafe:'Café',accommodation:'Unterkunft',nightlife:'Nachtleben',nature:'Draußen',wellness:'Wellness',culture:'Kultur',sightseeing:'Sehenswert',shopping:'Entdecken',activities:'Erleben',places:'Ort'}[group]||'Ort');
+const visualIcon=group=>({food:'◌',cafe:'☕',accommodation:'⌂',nightlife:'◐',nature:'≈',wellness:'⌁',culture:'◇',sightseeing:'⌖',shopping:'✦',activities:'↝',places:'•'}[group]||'•');
+const visualAccent=group=>({food:'#ef6659',cafe:'#f08a4b',accommodation:'#2f8c83',sightseeing:'#e3b63e',culture:'#c15e87',nature:'#2f9478',activities:'#2b8eb8',wellness:'#39a99c',nightlife:'#745eb8',shopping:'#ad609c',places:'#438ea5'}[group]||'#438ea5');
 const admissionFor=place=>{try{return contracts().booking?.reads?.resolveAdmission?.(place)||globalThis.LuviaBookingAdmissionCore?.resolve?.(place)||null}catch{return null}};
 const ratings=place=>{
   const rating=Number(place?.rating||0),count=Number(place?.userRatingCount||place?.user_rating_count||0);
@@ -73,8 +80,10 @@ const ratings=place=>{
 };
 const canonicalPlaceType=place=>{
   const visual=visualCategory(place);
-  if(['food','cafe','nightlife'].includes(visual))return'restaurant';
-  if(['culture','sightseeing','activities','wellness'].includes(visual))return'attraction';
+  if(visual==='accommodation')return'accommodation';
+  if(['food','cafe'].includes(visual))return'restaurant';
+  if(['nightlife','activities','wellness'].includes(visual))return'activity';
+  if(['culture','sightseeing'].includes(visual))return'attraction';
   if(visual==='nature')return'nature';
   if(visual==='shopping')return'shopping';
   return'attraction';
@@ -414,7 +423,7 @@ async function openBooking(place,button,form,handle,result,viewState){
     return opened;
   }finally{button.disabled=false;button.textContent=label}
 }
-function durationFor(place){return({food:90,cafe:60,nightlife:120,nature:90,wellness:120,culture:120,sightseeing:90,shopping:75,activities:120,places:75}[visualCategory(place)]||75)}
+function durationFor(place){return({food:90,cafe:60,accommodation:1440,nightlife:120,nature:90,wellness:120,culture:120,sightseeing:90,shopping:75,activities:120,places:75}[visualCategory(place)]||75)}
 function coordinates(place){const value=place?.coordinates||place?.location||{};return{lat:Number(value.latitude??value.lat),lng:Number(value.longitude??value.lng)}}
 function distanceBetween(left,right){const a=coordinates(left),b=coordinates(right);if(![a.lat,a.lng,b.lat,b.lng].every(Number.isFinite))return null;const rad=value=>value*Math.PI/180,dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function routeBuffer(input={}){return Math.max(5,Math.min(20,Number(input.planningPolicy?.routeBufferMinutes)||10))}

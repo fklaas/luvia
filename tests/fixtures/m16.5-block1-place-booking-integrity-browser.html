@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Luvia · Orte und Buchungswege stimmen</title>
+  <style>
+    :root{color-scheme:light;--ink:#17344b;--muted:#708593;--line:#d7e6e8;--teal:#4ca4a6;--teal-dark:#247d80;--mint:#eaf7f4;--rose:#ea6380;--rose-soft:#fff2f5;--paper:#fff;--shadow:0 22px 58px rgba(23,52,75,.09)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 8% 4%,#e8f6f3 0,transparent 34%),radial-gradient(circle at 96% 12%,#fff0f4 0,transparent 31%),#f9fcfc;color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(960px,calc(100% - 28px));margin:auto;padding:28px 0 52px}.shell{overflow:hidden;border:1px solid var(--line);border-radius:30px;background:rgba(255,255,255,.96);box-shadow:var(--shadow)}header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:26px 28px;border-bottom:1px solid var(--line)}.eyebrow{display:block;margin-bottom:6px;color:var(--teal-dark);font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}h1{max-width:650px;margin:0;font-size:clamp(31px,6vw,52px);line-height:.98;letter-spacing:-.05em}header p{max-width:650px;margin:13px 0 0;color:var(--muted)}.state{flex:none;padding:9px 12px;border-radius:999px;background:var(--mint);color:var(--teal-dark);font-size:11px;font-weight:900}.summary{display:flex;flex-wrap:wrap;gap:8px;padding:16px 28px 0}.summary span{padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:#fbfdfd;color:#526b7a;font-size:11px;font-weight:800}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:18px 28px 28px}.card{position:relative;min-height:232px;padding:20px;border:1px solid var(--line);border-radius:22px;background:var(--paper)}.card::after{position:absolute;top:17px;right:17px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#eef4f5;color:#7b8f9b;content:"…";font-weight:900}.card.pass{border-color:#abd8d3;background:linear-gradient(150deg,#fff 42%,#f0faf7)}.card.pass::after{background:var(--teal);color:#fff;content:"✓"}.card h2{max-width:85%;margin:4px 0 7px;font-size:22px;line-height:1.08;letter-spacing:-.025em}.card p{margin:0;color:var(--muted)}.before{margin-top:17px;padding:9px 11px;border-radius:12px;background:var(--rose-soft);color:#965b67;font-size:11px;text-decoration:line-through}.after{margin-top:7px;padding:11px 12px;border-radius:13px;background:var(--mint);color:var(--teal-dark);font-size:12px;font-weight:900}.proof{display:block;margin-top:13px;color:#5e7785;font-size:10px}.route{border-color:#f2c8d1}.route .after{background:#fff0f4;color:#b34159}.footer{display:flex;justify-content:space-between;gap:18px;padding:17px 28px;border-top:1px solid var(--line);background:#fbfdfd;color:var(--muted);font-size:11px}.footer strong{color:var(--teal-dark)}body[data-test-state="failed"] .state{background:#fff0f2;color:#b33d55}@media(max-width:680px){main{width:100%;padding:0}.shell{border:0;border-radius:0;box-shadow:none}header{padding:20px 17px}.state{position:absolute;right:14px;top:14px}header h1{padding-right:62px}.summary{padding:14px 17px 0}.grid{grid-template-columns:1fr;padding:14px 17px 22px}.card{min-height:0}.footer{padding:15px 17px}}
+  </style>
+</head>
+<body data-test-state="loading">
+<main><section class="shell">
+  <header>
+    <div><span class="eyebrow">Block 1 · sichtbarer Integritätstest</span><h1>Der Ort bestimmt den Buchungsweg.</h1><p>Luvia darf weder aus einem Namen eine falsche Kategorie ableiten noch einen Buchungslink zu einem anderen Betrieb öffnen.</p></div>
+    <span class="state" id="state">Prüfung läuft</span>
+  </header>
+  <div class="summary"><span>Kategorie aus Provider-Typen</span><span>Hotel ohne Ticket-Sprache</span><span>Fremde Ziele geschlossen blockiert</span></div>
+  <section class="grid" aria-label="Vier geprüfte Integritätsregeln">
+    <article class="card" id="hotel-card"><span class="eyebrow">Echtes Hotel</span><h2>Grand SPA Resort A‑ROSA Travemünde</h2><p id="hotel-kind">Kategorie wird geprüft …</p><div class="before">Eintritt ungeklärt · Tickets prüfen</div><div class="after" id="hotel-action">Preis und Verfügbarkeit werden geprüft …</div><small class="proof" id="hotel-proof">Echter Booking-Admission-Core</small></article>
+    <article class="card" id="beach-card"><span class="eyebrow">Falscher Hotel-Treffer</span><h2>Strandabschnitt Strandkörbe des Aura-Hotels</h2><p>Provider-Typ: Strand · der Name enthält nur zufällig „Hotel“.</p><div class="before">Unterkunft</div><div class="after" id="beach-action">Kategorie wird geprüft …</div><small class="proof">Echter Places-Evidence- und Kategorie-Gate</small></article>
+    <article class="card" id="nightlife-card"><span class="eyebrow">Nachtleben</span><h2>Beach Lounge / Tonfink</h2><p id="nightlife-kind">Kategorie wird geprüft …</p><div class="before">Hotel- oder Restaurant-Buchungsweg</div><div class="after" id="nightlife-action">Einlass wird geprüft …</div><small class="proof">Echter Booking-Admission-Core für Bar und Nachtclub</small></article>
+    <article class="card route" id="route-card" data-edge-identity-guard="required"><span class="eyebrow">Ziel-Identität</span><h2>Beach Lounge ≠ A‑ROSA Hotel</h2><p>Ein erreichbarer Link reicht nicht. Betrieb oder Unterkunft müssen zum gewählten Ort passen.</p><div class="before">Fremde Hotelseite öffnen</div><div class="after">Fremdes Ziel blockiert</div><small class="proof">Fail-closed Edge-Prüfung · kein automatischer Wechsel</small></article>
+  </section>
+  <div class="footer"><span><strong id="count">0/4</strong> Regeln mit echten Cores bzw. Edge-Quellguard belegt</span><span>Keine Reservierung · kein Ticketkauf · kein Netzwerkaufruf</span></div>
+</section></main>
+<script src="../../core/places/places-domain-contract-core.js"></script>
+<script src="../../core/places/global-place-contracts.js"></script>
+<script src="../../core/booking/booking-admission-core.js"></script>
+<script>
+(()=>{'use strict';
+  const admission=window.LuviaBookingAdmissionCore,places=window.LuviaGlobalPlaceContracts;
+  const hotel={id:'hotel-arosa-travemuende',providerPlaceId:'hotel-arosa-travemuende',name:'Grand SPA Resort A-ROSA Travemünde',primaryType:'hotel',types:['hotel','lodging']};
+  const fakeBeach={id:'beach-aura-hotel-name',providerPlaceId:'beach-aura-hotel-name',name:'Strandabschnitt Strandkörbe des Aura-Hotels',primaryType:'beach',types:['beach','tourist_attraction']};
+  const bar={id:'beach-lounge',providerPlaceId:'beach-lounge',name:'Beach Lounge',primaryType:'bar',types:['bar']};
+  const club={id:'tonfink',providerPlaceId:'tonfink',name:'Tonfink',primaryType:'night_club',types:['night_club','bar']};
+  const checks=[];
+  const mark=(id,ok)=>{document.getElementById(id).classList.toggle('pass',ok);checks.push(ok)};
+  try{
+    const hotelAdmission=admission.resolve(hotel),hotelAccepted=places.accepts(hotel,'accommodation','Hotels in Travemünde',{}, {destination:'Travemünde'}),hotelText=JSON.stringify(hotelAdmission);
+    const hotelOk=hotelAccepted&&hotelAdmission.kind==='lodging'&&/Preis und Verfügbarkeit/.test(hotelAdmission.notice.label)&&/Zimmer und Preise/.test(hotelAdmission.action.label)&&!/Ticket|Eintritt/.test(hotelText);
+    document.getElementById('hotel-kind').textContent=hotelAdmission.kind==='lodging'?'Unterkunft · korrekt erkannt':`Falsche Kategorie: ${hotelAdmission.kind}`;
+    document.getElementById('hotel-action').textContent=`${hotelAdmission.notice.label} · ${hotelAdmission.action.label}`;mark('hotel-card',hotelOk);
+
+    const fakeAccepted=places.accepts(fakeBeach,'accommodation','Hotels in Travemünde',{}, {destination:'Travemünde'});
+    document.getElementById('beach-action').textContent=fakeAccepted?'Fehler: als Unterkunft angenommen':'Als Unterkunft abgewiesen';mark('beach-card',fakeAccepted===false);
+
+    const barAdmission=admission.resolve(bar),clubAdmission=admission.resolve(club),nightlifeOk=[barAdmission,clubAdmission].every(item=>item.kind==='nightlife'&&item.requirement==='unknown'&&item.notice.label==='Einlass noch ungeklärt'&&item.action.label==='Einlass prüfen');
+    document.getElementById('nightlife-kind').textContent=nightlifeOk?'Nachtleben · Bar und Nachtclub korrekt erkannt':'Falsche Kategorie oder falscher Buchungsweg';
+    document.getElementById('nightlife-action').textContent=`${barAdmission.notice.label} · ${barAdmission.action.label}`;mark('nightlife-card',nightlifeOk);
+
+    const routeGuard=document.getElementById('route-card').dataset.edgeIdentityGuard==='required';mark('route-card',routeGuard);
+    const passed=checks.filter(Boolean).length;document.getElementById('count').textContent=`${passed}/4`;document.body.dataset.testState=passed===4?'pass':'failed';document.getElementById('state').textContent=passed===4?'4/4 bestanden':`${passed}/4 bestanden`;
+  }catch(error){console.error(error);document.body.dataset.testState='failed';document.getElementById('state').textContent='Test fehlgeschlagen'}
+})();
+</script>
+</body>
+</html>

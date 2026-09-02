@@ -766,6 +766,18 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-admission-consumers.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Place Category Integrity',
+    test: 'tests/m16.5-block1-place-category-integrity.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Booking Route Venue Identity',
+    test: 'tests/m16.5-block1-booking-route-venue-identity.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Place + Booking Integrity',
+    test: 'tests/m16.5-block1-place-booking-integrity.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 AI Places Destination Continuity',
     test: 'tests/m16.5-block1-ai-places-destination-continuity.test.cjs'
   },

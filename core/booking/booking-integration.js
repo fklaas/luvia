@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.20.0-universal-lifecycle';
+  const VERSION='1.21.0-venue-identity-payload';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -441,11 +441,17 @@
 
   async function resolvePlaceRoute(place={}){
     await init();
+    const reservationUrl=clean(place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url||place.ticketUrl||place.ticket_url);
+    const providerPlaceId=providerId(place);
+    const explicitReservationSource=clean(place.reservationSource||place.reservation_source||place.bookingRouteSource||place.booking_route_source);
+    const inferredReservationSource=!explicitReservationSource&&providerPlaceId&&/^https:\/\/[^/]*google\.[^/]+\/maps\/reserve\//i.test(reservationUrl)?'google_place_details':'unknown';
     const payload={
       name:clean(place.name),
       placeType:String(place.type||place.primaryType||place.primary_type||'').toLowerCase(),
       website:clean(place.website||place.websiteUri||place.website_uri),
-      reservationUrl:clean(place.reservationUrl||place.reservation_url||place.bookingUrl||place.booking_url),
+      reservationUrl,
+      reservationSource:explicitReservationSource||inferredReservationSource,
+      providerPlaceId,
       address:clean(place.formattedAddress||place.address||place.shortAddress)
     };
     if(!payload.name)throw new Error('Ort konnte nicht eindeutig bestimmt werden.');

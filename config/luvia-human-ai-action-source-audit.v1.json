@@ -1,8 +1,8 @@
 {
   "contractId": "luvia.human-ai-action-source-audit.v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 898,
+  "markerCount": 899,
   "markers": [
     {
       "marker": "data-accent",
@@ -1627,6 +1627,15 @@
         "core/booking/booking-ui.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-booking-place-reservation-source",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "core/booking/booking-ui.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; dokumentiert ausschließlich die Herkunft des ortsgebundenen Buchungswegs für die Identitätsprüfung."
     },
     {
       "marker": "data-booking-place-reservation-url",

@@ -1,11 +1,14 @@
 (() => {
   'use strict';
-  const VERSION='1.9.0-universal-lifecycle';
+  const VERSION='1.10.0-venue-identity-gate';
   let activeHandle=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clean=v=>String(v??'').trim();
+  const normalizeIdentity=v=>clean(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const canonicalType=raw=>{
     const type=String(raw||'').toLowerCase();
-    if(type==='restaurant'||type.includes('restaurant')||['cafe','café','bar','bakery','meal_takeaway','meal_delivery','food'].includes(type))return 'restaurant';
+    if(type==='restaurant'||type.includes('restaurant')||['cafe','café','bakery','meal_takeaway','meal_delivery','food'].includes(type))return 'restaurant';
+    if(['night_club','nightclub','nightlife','bar','pub','lounge','music_venue','discotheque','disco','dance_club'].includes(type))return 'activity';
     if(['accommodation','hotel','lodging','motel','hostel','resort_hotel','bed_and_breakfast','guest_house'].includes(type)||type.includes('hotel'))return 'accommodation';
     return type;
   };
@@ -27,8 +30,9 @@
     const email=(place?.bookingEmailVerified===true&&place?.bookingEmailPublic===true)?place?.bookingEmail||'':'';
     const website=place?.website||place?.websiteUri||place?.website_uri||'';
     const reservationUrl=place?.reservationUrl||place?.reservation_url||place?.bookingUrl||place?.booking_url||place?.ticketUrl||place?.ticket_url||'';
+    const reservationSource=place?.reservationSource||place?.reservation_source||place?.bookingRouteSource||place?.booking_route_source||(pid&&reservationUrl?'provider_place_details':'');
     const address=place?.formattedAddress||place?.address||place?.shortAddress||'';
-    return `<button type="button" class="luv-place-primary-action" data-luvia-booking-place data-booking-place-type="${esc(type)}" data-booking-place-id="${esc(pid)}" data-booking-place-name="${esc(name)}" data-booking-place-email="${esc(email)}" data-booking-place-website="${esc(website)}" data-booking-place-reservation-url="${esc(reservationUrl)}" data-booking-place-address="${esc(address)}">◇ ${label}</button>`;
+    return `<button type="button" class="luv-place-primary-action" data-luvia-booking-place data-booking-place-type="${esc(type)}" data-booking-place-id="${esc(pid)}" data-booking-place-name="${esc(name)}" data-booking-place-email="${esc(email)}" data-booking-place-website="${esc(website)}" data-booking-place-reservation-url="${esc(reservationUrl)}" data-booking-place-reservation-source="${esc(reservationSource)}" data-booking-place-address="${esc(address)}">◇ ${label}</button>`;
   }
 
   function dialogHtml(place={},route={},options={}){
@@ -74,6 +78,7 @@
 
   async function open(place={},route={},options={}){
     if(!(route?.resolved&&route.channel==='email'&&route.value))throw new Error('Der E-Mail-Canvas darf nur für einen verifizierten E-Mail-Fallback geöffnet werden.');
+    if(!routeIdentityMatchesPlace(place,route))throw new Error('Der E-Mail-Weg gehört nicht nachweisbar zu diesem Ort.');
     const inlineHost=options.host instanceof Element?options.host:null;
     if(!inlineHost)close(activeHandle?.overlay,'replace');
     const wrap=document.createElement('div');
@@ -148,8 +153,38 @@
     return node;
   }
 
+  const ROUTE_CACHE_TTL_MS=5*60*1000;
   const routeCache=new Map();
-  const cacheKey=place=>[place?.providerPlaceId||place?.id||'',place?.name||'',place?.website||'',place?.reservationUrl||place?.ticketUrl||'',place?.bookingEmailVerified?place?.bookingEmail||'':''].join('|');
+  const routeCacheFamilies=new Map();
+  const placeIdentityKey=place=>[
+    clean(place?.providerPlaceId||place?.provider_place_id||place?.id).replace(/^places\//,''),
+    normalizeIdentity(place?.name),
+    normalizeIdentity(place?.formattedAddress||place?.address||place?.shortAddress),
+    normalizeIdentity(place?.type||place?.primaryType||place?.primary_type)
+  ].join('|');
+  const routeFactsKey=place=>[
+    clean(place?.website||place?.websiteUri||place?.website_uri).toLowerCase(),
+    clean(place?.reservationUrl||place?.reservation_url||place?.bookingUrl||place?.booking_url||place?.ticketUrl||place?.ticket_url).toLowerCase(),
+    normalizeIdentity(place?.reservationSource||place?.reservation_source),
+    place?.bookingEmailVerified===true?normalizeIdentity(place?.bookingEmail||place?.email):''
+  ].join('|');
+  const cacheKey=place=>`${placeIdentityKey(place)}::${routeFactsKey(place)}`;
+  const cacheFamilyKey=place=>clean(place?.providerPlaceId||place?.provider_place_id||place?.id).replace(/^places\//,'')||`${normalizeIdentity(place?.name)}|${normalizeIdentity(place?.formattedAddress||place?.address||place?.shortAddress)}`;
+  function cachedRoute(place){
+    const key=cacheKey(place),identity=placeIdentityKey(place),entry=routeCache.get(key);
+    if(!entry)return null;
+    if(entry.identity!==identity||entry.expiresAt<=Date.now()){routeCache.delete(key);return null}
+    return entry.promise;
+  }
+  function rememberRoute(place,promise){
+    const key=cacheKey(place),identity=placeIdentityKey(place),family=cacheFamilyKey(place),previous=routeCacheFamilies.get(family);
+    if(previous&&previous!==key)routeCache.delete(previous);
+    routeCacheFamilies.set(family,key);
+    routeCache.set(key,{identity,expiresAt:Date.now()+ROUTE_CACHE_TTL_MS,promise});
+    Promise.resolve(promise).catch(()=>{const current=routeCache.get(key);if(current?.promise===promise)routeCache.delete(key)});
+    return promise;
+  }
+  const routeIdentityMatchesPlace=(place,route)=>Boolean(route?.identityVerified===true&&clean(route.placeIdentityKey)&&route.placeIdentityKey===placeIdentityKey(place));
 
   async function enrichPlace(place){
     let enriched={...place};
@@ -158,10 +193,12 @@
       try{
         const prepared=await window.LuviaPlaceDetails.prepare(providerId,{regionCode:'DE',photoLimit:1,seedPlace:{name:enriched.name,primaryType:enriched.type}});
         const detail=prepared?.place||{};
+        const detailedReservationUrl=detail.reservationUrl||detail.reservation_url||detail.bookingUrl||detail.booking_url||detail.ticketUrl||detail.ticket_url||'';
         enriched={...enriched,
           name:enriched.name||detail.name||detail.displayName?.text||'',
           website:enriched.website||detail.website||detail.websiteUri||detail.website_uri||'',
-          reservationUrl:enriched.reservationUrl||enriched.ticketUrl||detail.reservationUrl||detail.reservation_url||detail.bookingUrl||detail.booking_url||detail.ticketUrl||detail.ticket_url||'',
+          reservationUrl:enriched.reservationUrl||enriched.ticketUrl||detailedReservationUrl,
+          reservationSource:enriched.reservationSource||(detailedReservationUrl?'provider_place_details':''),
           address:enriched.address||detail.formattedAddress||detail.address||''
         };
       }catch(error){console.debug('[Luvia Booking] Place-Details für Provider-Routing konnten nicht nachgeladen werden.',error?.message||error)}
@@ -170,21 +207,19 @@
   }
 
   async function resolveRouteCached(place){
-    const firstKey=cacheKey(place);
-    if(routeCache.has(firstKey))return routeCache.get(firstKey);
+    const cachedFirst=cachedRoute(place);if(cachedFirst)return cachedFirst;
     const promise=(async()=>{
       const enriched=await enrichPlace(place);
-      const enrichedKey=cacheKey(enriched);
-      if(enrichedKey!==firstKey&&routeCache.has(enrichedKey))return routeCache.get(enrichedKey);
-      const admission=admissionFor(enriched),local=admission?.routes?.find(candidate=>['official_link','provider_link','email'].includes(candidate.kind));
-      const route=local?{resolved:true,channel:local.kind==='email'?'email':'external_link',value:local.value,provider:local.provider||'official',reason:'VERIFIED_ADMISSION_OWNER_ROUTE',source:local.source}:await window.LuviaBooking.resolvePlaceRoute(enriched);
+      // Admission may describe a possible route, but only the Edge resolver may
+      // bind a concrete external URL or e-mail address to this exact Place.
+      // This deliberately prevents stale/cross-venue admission data from bypassing
+      // the identity gate (for example Beach Lounge -> unrelated A-ROSA property).
+      let route=await window.LuviaBooking.resolvePlaceRoute(enriched);
+      if(route?.resolved&&['external_link','affiliate','email'].includes(route.channel)&&!routeIdentityMatchesPlace(enriched,route))route={...route,resolved:false,channel:null,value:null,reason:'ROUTE_PLACE_IDENTITY_MISMATCH'};
       const resolved={place:enriched,route};
-      if(enrichedKey!==firstKey)routeCache.set(enrichedKey,Promise.resolve(resolved));
       return resolved;
     })();
-    routeCache.set(firstKey,promise);
-    promise.catch(()=>routeCache.delete(firstKey));
-    return promise;
+    return rememberRoute(place,promise);
   }
 
   function placeFromButton(button){
@@ -196,6 +231,7 @@
       email:button.dataset.bookingPlaceEmail,
       website:button.dataset.bookingPlaceWebsite,
       reservationUrl:button.dataset.bookingPlaceReservationUrl,
+      reservationSource:button.dataset.bookingPlaceReservationSource||'',
       address:button.dataset.bookingPlaceAddress||''
     };
   }
@@ -260,6 +296,12 @@
     place._bookingEnginesDetected=Array.isArray(route.enginesDetected)?route.enginesDetected:[];
 
     const target=externalTarget(route);
+    if(target&&!routeIdentityMatchesPlace(place,route)){
+      closeReserved(reserved);
+      const blockedRoute={...route,resolved:false,channel:null,value:null,reason:'ROUTE_PLACE_IDENTITY_MISMATCH'};
+      options.onUnavailable?.({place,route:blockedRoute});
+      return Object.freeze({opened:false,channel:'unavailable',resolvedChannel:null,provider:route.provider||null,reason:'ROUTE_PLACE_IDENTITY_MISMATCH',requiresOwnerFlow:false});
+    }
     if(target){
       let tracking=null,trackingError=null;
       try{

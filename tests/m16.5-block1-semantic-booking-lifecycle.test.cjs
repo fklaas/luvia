@@ -7,6 +7,7 @@ const read=file=>fs.readFileSync(file,'utf8');
 const calls=[];
 const bookings=[
   {id:'booking-cafe',tripId:'trip-scharbeutz',title:'Grande Beach Café',status:'confirmed',provider:'official',request:{website:'https://cafe.example',providerPlaceId:'fsq-grande-beach-cafe'}},
+  {id:'booking-leo',tripId:'trip-scharbeutz',title:'DAS LEO',status:'confirmed',provider:'official',request:{website:'https://das-leo.example',providerPlaceId:'fsq-das-leo'}},
   {id:'booking-museum',tripId:'trip-scharbeutz',title:'Museum für Regionalgeschichte',status:'cancelled',provider:'official'}
 ];
 let uuid=0;
@@ -19,7 +20,7 @@ const context={
 };
 context.window=context;context.globalThis=context;vm.createContext(context);
 for(const file of ['core/booking/booking-lifecycle-policy-core.js','core/intelligence/travel-orchestration-core.js','core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js'])vm.runInContext(read(file),context,{filename:file});
-const lifecycleFor=booking=>context.LuviaBookingLifecyclePolicyCore.assess({booking,thread:booking.id==='booking-cafe'?{id:'thread-cafe'}:null});
+const lifecycleFor=booking=>context.LuviaBookingLifecyclePolicyCore.assess({booking,thread:booking.id==='booking-museum'?null:{id:`thread-${booking.id}`}});
 context.LuviaBookingContractV1={
   reads:{
     async listForTrip(){return bookings},
@@ -44,6 +45,21 @@ const compiler=context.LuviaTravelOrchestrationCoreV1,runtime=context.LuviaAIAct
 const dialogue=(label,operation,target,timeWindow=null,partySize=null)=>({confidence:.99,goals:[{type:'booking',label,timeWindow:timeWindow||{},hardConstraints:[{key:'operation',value:operation,label:operation},{key:'target',value:target,label:target},...(partySize?[{key:'party_size',value:String(partySize),label:`${partySize} Personen`}]:[])]}]});
 
 (async()=>{
+  const publicModifyMessage='Verschiebe bitte unsere Buchung im DAS LEO auf den 15.06.2027 um 19:30 Uhr.';
+  const publicConstraintDialogue={confidence:.99,goals:[{type:'booking',label:'Buchung im DAS LEO ändern',hardConstraints:[
+    {key:'operation',value:'modify',label:'Bestehende Buchung ändern'},
+    {key:'target',value:'DAS LEO',label:'DAS LEO'},
+    {key:'date',value:'2027-06-15',label:'15.06.2027'},
+    {key:'time',value:'19:30',label:'19:30 Uhr'}
+  ]}]};
+  const publicModifyCompiled=compiler.compileDialogue(publicModifyMessage,publicConstraintDialogue,{trip:{startDate:'2027-06-12',endDate:'2027-06-19'},now:'2027-06-12T08:00:00Z'});
+  assert.equal(publicModifyCompiled.status,'compiled','structured date/time constraints must not become the internal missing input booking-change');
+  assert.deepEqual(JSON.parse(JSON.stringify(publicModifyCompiled.intents[0].temporalHint)),{day:null,date:'2027-06-15',time:'19:30',explicit:true});
+  const publicModifyPreview=await runtime.runMessage(publicModifyMessage,{compiledIntent:publicModifyCompiled,sourceMessage:publicModifyMessage});
+  assert.equal(publicModifyPreview.results[0].kind,'confirmation');
+  assert.equal(publicModifyPreview.results[0].evidence.preview.name,'DAS LEO');
+  assert.deepEqual(JSON.parse(JSON.stringify(publicModifyPreview.results[0].evidence.preview.changes)),{date:'2027-06-15',time:'19:30'});
+
   const modifyMessage='Kannst du bitte unser Abendessen im Grande Beach Café auf den 14.06.2027 um 19:30 Uhr verschieben?';
   const modifyCompiled=compiler.compileDialogue(modifyMessage,dialogue('Grande Beach Café auf 14.06.2027 um 19:30 Uhr verschieben','modify','Grande Beach Café',{start:'2027-06-14T19:30:00+02:00'}),{trip:{startDate:'2027-06-12',endDate:'2027-06-19'},now:'2027-06-12T08:00:00Z'});
   assert.equal(modifyCompiled.status,'compiled');

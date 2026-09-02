@@ -65,7 +65,7 @@ const context={
     openBooking(url,{reserved:handle}={}){opened.push({url,handle});return true}
   },
   LuviaBooking:{
-    async resolvePlaceRoute(place){routeCalls.push(place);if(place.id==='provider')return{resolved:true,channel:'external_link',provider:'opentable',value:'https://www.opentable.com/r/example',reason:'VERIFIED_BOOKING_ROUTE'};return{resolved:false,channel:null,value:null,reason:'NO_VERIFIED_ROUTE'}},
+    async resolvePlaceRoute(place){routeCalls.push(place);if(place.id==='provider')return{resolved:true,channel:'external_link',provider:'opentable',value:'https://www.opentable.com/r/provider-venue',reason:'VERIFIED_BOOKING_ROUTE',identityVerified:true,placeIdentityKey:'provider|provider venue||restaurant'};return{resolved:false,channel:null,value:null,reason:'NO_VERIFIED_ROUTE'}},
     async recordPlaceHandoff(place,route){handoffs.push({place,route})}
   }
 };
@@ -93,7 +93,7 @@ assert.equal((legacyComposed.bodyText.match(/Anlass: Geburtstag/g)||[]).length,1
   assert.equal(provider.channel,'external_link');
   assert.equal(provider.provider,'opentable');
   assert.equal(opened.length,1);
-  assert.equal(opened[0].url,'https://www.opentable.com/r/example');
+  assert.equal(opened[0].url,'https://www.opentable.com/r/provider-venue');
   assert.equal(handoffs.length,1);
   assert.equal(reserved[0].closed,false,'reserved provider handoff must be consumed, not closed before navigation');
 

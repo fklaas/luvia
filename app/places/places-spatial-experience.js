@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.7.0';
+  const VERSION='1.8.0-place-kind-integrity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -214,7 +214,9 @@
     return Number.isFinite(score)&&score>0?`${Math.round(score)}% persönlich passend`:'';
   }
   function placeCategoryLabel(place){
-    const type=clean(place?.primaryType||place?.primary_type||place?.category).toLowerCase();
+    const type=[place?.primaryType,place?.primary_type,place?.category,...(place?.types||[])].map(clean).join(' ').toLowerCase();
+    if(/hotel|lodging|hostel|motel|resort|accommodation|guest.house|bed.and.breakfast|campground/.test(type))return'Unterkunft';
+    if(state.category==='nightlife'&&/bar|pub|night|club|concert|music/.test(type))return'Nachtleben';
     if(/restaurant|cafe|bar|bakery|food/.test(type))return'Essen & Trinken';
     if(/museum|culture|gallery|historic/.test(type))return'Kultur';
     if(/park|nature|beach|garden/.test(type))return'Natur & Erholung';
