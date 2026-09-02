@@ -931,7 +931,7 @@ function buildReport(validated = validateRegistry()) {
   });
   return `# M16.5 Human ↔ AI Action Parity Control Plane\n\n` +
     `Date: 2026-09-02\n\n` +
-    `Status: **B0.01–B0.10 PUBLIC COMPLETE ON 13.82.135 / B1 FOUNDATION PUBLIC ON 13.82.136 + TRIP READ ON 13.82.138 + PLACES MUTATIONS ON 13.82.139 + BOOKING LIFECYCLE/PLACE-ROUTE INTEGRITY ON 13.82.143 / WHOLE-SENTENCE REQUIREMENT + EXACT BRIGHT HOTEL CANDIDATE ON 13.82.144 / PRODUCT PARITY CONTINUES THROUGH B1–B5**\n\n` +
+    `Status: **B0.01–B0.10 PUBLIC COMPLETE ON 13.82.135 / B1 FOUNDATION PUBLIC ON 13.82.136 + TRIP READ ON 13.82.138 + PLACES MUTATIONS ON 13.82.139 + BOOKING LIFECYCLE/PLACE-ROUTE INTEGRITY ON 13.82.143 / GOOGLE-FIRST DESTINATION BINDING + EXACT BRIGHT HOTEL CANDIDATE ON 13.82.145 / PRODUCT PARITY CONTINUES THROUGH B1–B5**\n\n` +
     `Source: \`${registry.source.workbook}\` · SHA-256 \`${registry.source.workbookSha256}\` · Integration snapshot \`${registry.source.integrationBuild}\`.\n\n` +
     `## Plain-language position\n\n` +
     `The complete reviewed inventory is now a machine-readable release control plane. It records what a person can do, which Owner must perform it, whether the AI can reach the same path and exactly which contract work remains open. It does not make missing capabilities available by declaration.\n\n` +
@@ -985,7 +985,7 @@ function buildReport(validated = validateRegistry()) {
     `2. Keep all ${registry.summary.runtimeRegisteredActions} typed runtime actions fail-closed while public AI routes are completed domain by domain.\n` +
     `3. Keep the generated ${registry.summary.semanticActions}-row, 12-dimension failure-eval matrix green while action routes are completed domain by domain.\n` +
     `4. Keep the visible local register, consumer-chat and parity/failure gates green from their canonical files.\n` +
-    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read, accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol, and accepted App \`13.82.143\` proved the Booking lifecycle plus exact Place-route gate. App \`13.82.144\` is the local whole-sentence requirement and exact bright Hotel candidate; provider-positive public evidence remains open.\n\n` +
+    `5. Preserve the publicly closed B0.10 control-plane release and continue product parity row by row through B1–B5. App \`13.82.135\` proved one exact Plan/Undo path, accepted App \`13.82.138\` proved the Chat-native Trip-selection read, accepted App \`13.82.139\` publicly proved the complete Favorite/Unfavorite/Plan/Unplan confirmation, readback, receipt and Undo protocol, and accepted App \`13.82.143\` proved the Booking lifecycle plus exact Place-route gate. App \`13.82.145\` is the local whole-sentence requirement and exact bright Hotel candidate; provider-positive public evidence remains open.\n\n` +
     `## B1 registry delta retained after visible/public release evidence\n\n` +
     `The universal Booking candidate replaces the restaurant-specific runtime\n` +
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
@@ -993,7 +993,7 @@ function buildReport(validated = validateRegistry()) {
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
     `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. A selected offer opens only when Provider-, Property-, Offer-, Rate-, Quote- and URL identity agree. The source runtime action set is **24**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
-    `locally green; the 330-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The \`13.82.144\` requirement/Hotel candidate does not inflate public evidence before an operated public run.\n`;
+    `locally green; the 330-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The \`13.82.145\` requirement/Hotel candidate does not inflate public evidence before an operated public run.\n`;
 }
 
 function main() {

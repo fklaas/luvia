@@ -20,25 +20,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.144**
-- Core: **4.82.144**
+- App: **13.82.145**
+- Core: **4.82.145**
 - Name: **M16.5 Block 1 Semantic Places Mutations**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Whole-Sentence Requirement + Exact Bright Hotel — Integration Candidate 13.82.144
+## M16.5 Block 1 Google-first Destination Binding + Bright Hotel Truth — Integration Candidate 13.82.145
 
-- Runtime target: **App 13.82.144 / Core 4.82.144 / cache `luvia-shell-v13.82.144` / Integration only**. Stable App/Core 13.82.143/4.82.143 remains the accepted deployment until this candidate completes the immutable release and public operation chain.
-- Whole-sentence requirement read: **a compound request may find a Place and then ask whether a reservation is needed. `muss ich dort reservieren?` is compiled as a read-only `check_requirement` intent against the resolved Place; it is not reduced to isolated keywords, does not require a party size and cannot authorize a reservation write. Consumer copy no longer exposes internal fields such as `bookable target`**.
-- Exact Hotel identity: **the Booking Owner carries the canonical property ID and selected offer ID across normalization, comparison and handoff. An already normalized offer retains its complete mandatory total; a foreign property, sibling Hotel, changed dates/occupancy, incomplete price or unverified URL fails closed**.
-- Bright Hotel consumer: **the real `modules/accommodations` screen no longer inherits the restaurant surface. It uses compact stay inputs, visible `TT.MM.JJJJ`, named live-price provenance, one concise offer card and one primary `Dieses Angebot öffnen` action. Hotel cards contain neither `Eintritt`, `Tickets prüfen`, `Reservierung prüfen` nor a generic `booking.place.open` route**.
-- Controlled visible proof: **the actual Hotel module renders the Hotelbeds offer at 295,00 € for 12.06.2027–14.06.2027, shows no market-best claim, and the primary action returns exactly `HBX-9 · HBX-RATE-9`. The desktop and 390×844 fixture has zero ticket labels and no horizontal overflow. No real provider purchase or external navigation is performed by this controlled acceptance**.
-- Inventory: **330 semantic actions, 246 public Owner paths, 24/24 typed runtime actions, 124 guarded writes, 901 audited source markers and 2,733 generated failure evals. No duplicate Hotel action was invented; `booking.stay.offer.open` remains the one shared UI/Chat action**.
-- Current gate: **focused Hotel, gateway, registry and visual-inventory suites are green. The complete 199-test Safe Regression, versioned runtime build, clean commit, immutable Integration deployment, public signed-in operation, byte proof and exact rollback still remain before acceptance**.
-- Fixed continuation: **release this successor to Integration; then prove one real Restaurant route and one real Activity/Culture route, activate Hotel/Affiliate providers in the binding order, close P09/P10 and remaining Step-17 rows, and continue Blocks 2–5 without reordering**.
-- Scope: **no DB, RLS, Edge Function, Provider credential, Secret, Main or Production change belongs to this local successor**.
+- Runtime target: **App 13.82.145 / Core 4.82.145 / cache `luvia-shell-v13.82.145` / Integration only**. Stable App/Core 13.82.143/4.82.143 remains the accepted deployment until this candidate completes the immutable release and public operation chain.
+- Real provider order: **the Places gateway now calls Google first and starts Foursquare only after Google is not configured, errors or returns no eligible destination-bound result. Diagnostics expose requested, attempted, used, fallback reason and fallback usage. If every attempted provider fails, the gateway returns `PLACES_ALL_PROVIDERS_FAILED`; the consumer must not project a truthful-looking zero-result state**.
+- Current provider evidence: **both Google and Foursquare secrets exist in the shared Supabase project. The operated pre-change health probe showed Google failing with `The caller does not have permission` while Foursquare returned real Places. The Google Cloud Places API permission/billing/restriction remains an external configuration defect; Foursquare therefore remains necessary as fallback but no longer consumes quota beside a healthy Google response**.
+- Explicit destination binding: **an explicit location such as `in Lübeck` is carried separately from the active Trip destination. A compound request searches the named destination, resolves the exact requested subject and then asks the Booking Owner for the requirement. A Scharbeutz result can no longer silently satisfy a Lübeck request, and a different venue can never satisfy `Tonfink reservieren?`**.
+- Whole-sentence requirement read: **`muss ich dort reservieren?` remains a read-only `check_requirement` intent against the exact resolved Place; it does not require party size, cannot authorize a reservation write and returns compact Booking-owned language rather than internal compiler fields**.
+- Bright Hotel consumer: **the dedicated accommodation screen now uses the bright Luvia design world, compact `TT.MM.JJJJ` stay inputs and separately truthful loading, ready, empty and provider-unavailable states. Hotel cards contain neither `Eintritt`, `Tickets prüfen`, `Reservierung prüfen` nor generic Place-booking routes. Live prices appear only when a connected provider API supplies a complete current total; affiliate links remain handoffs, never price evidence**.
+- Exact Hotel identity: **the Booking Owner carries the canonical property ID and selected offer ID across normalization, comparison and handoff. Foreign properties, sibling Hotels, changed dates/occupancy, incomplete prices and unverified URLs fail closed**.
+- Inventory and local evidence: **330 semantic actions, 246 public Owner paths, 24/24 typed runtime actions, 124 guarded writes, 903 audited source markers and 2,733 generated failure evals. `data-place-retry` is mapped to existing `places.results.retry`; the Hotel search marker is a state projection. Focused tests and the complete 200-test Safe Regression are green**.
+- Current gate: **runtime bundles are built. Shared Supabase Edge deployment, live health proof, immutable Integration deployment, signed-in operation, byte proof and exact rollback remain before acceptance**.
+- Fixed continuation: **after this public gate, prove one real Restaurant route and one real Activity/Culture route, activate the first real Hotel live-price source and separately approved affiliate handoffs, close P09/P10 and remaining Step-17 rows, then continue Blocks 2–5 without reordering**.
+- Scope: **this candidate changes the already authorized shared Supabase Places gateway and the Integration Worker only. It changes no DB schema, RLS policy, secret value, Main or Production deployment**.
+
+## M16.5 Block 1 Whole-Sentence Requirement + Exact Bright Hotel — Publicly deployed, rejected 13.82.144
+
+- Repaired subset: **whole-sentence reservation-requirement recognition, exact Hotel offer handoff and the first dedicated Hotel consumer passed controlled local tests**.
+- Decisive public counterevidence: **the signed-in request for nightlife in Lübeck still searched against the active Scharbeutz trip, and the exact Tonfink requirement read fell back into generic discovery. The resulting route could therefore show unrelated Places even though the sentence contained an explicit destination and venue**.
+- Root cause and disposition: **the semantic compiler preserved the requested subject but the Places Owner call still inherited only the active Trip destination. Stable Integration was restored to accepted `.143`; `.144` remains an immutable upgrade bridge and counterexample, not a rollback target**.
+- Correct rollback: **Stable Integration currently serves Worker version `a8db9b4a-ace5-4144-b86c-db61d9586ccf` at accepted App 13.82.143. Main and Production were untouched**.
 
 ## M16.5 Block 1 Booking Time and Place-Route Integrity — Stable Integration Accepted 13.82.143
 

@@ -1,4 +1,4 @@
-const BUILD = '13.82.144';
+const BUILD = '13.82.145';
 const ASSET_REVISION = `${BUILD}-split9`;
 
 function loadClassic(relativeUrl) {
@@ -20,9 +20,9 @@ await import(`./adapters/media-storage-web-adapter.mjs?v=${ASSET_REVISION}`);
 // Supabase remains its own vendor asset. The Trip web binding has one hard
 // ordering boundary: state/store first, binding second, every consumer third.
 await loadClassic(`../vendor/supabase/supabase-2.112.4.js?v=${ASSET_REVISION}`);
-await loadClassic(`./luvia-runtime-precontext-13.82.144.bundle.js?v=${ASSET_REVISION}`);
+await loadClassic(`./luvia-runtime-precontext-13.82.145.bundle.js?v=${ASSET_REVISION}`);
 await import(`../luvia-trip-context.js?v=${ASSET_REVISION}`);
 if (!globalThis.LuviaTripContext) {
   throw new Error('Luvia Runtime: Trip Context Binding wurde nicht initialisiert.');
 }
-await loadClassic(`./luvia-runtime-postcontext-13.82.144.bundle.js?v=${ASSET_REVISION}`);
+await loadClassic(`./luvia-runtime-postcontext-13.82.145.bundle.js?v=${ASSET_REVISION}`);

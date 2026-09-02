@@ -5,7 +5,7 @@ Date: 2026-09-01
 Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP SELECTION PUBLIC ON 13.82.138, BLOCK STILL ACTIVE**
 
 Current canonical counts on 2026-09-02 are **330 semantic actions, 246 public
-Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 901
+Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 903
 audited source markers and 2,733 generated failure evals**. Lower figures in
 the dated B0 construction ledger below are retained only as historical progress
 evidence; they do not describe the current control plane.
