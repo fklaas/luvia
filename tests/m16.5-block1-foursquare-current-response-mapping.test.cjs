@@ -107,6 +107,8 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/\.\.\.\(probe\.options\|\|\{\}\)/);
   assert.match(source,/'beach-supplies-scharbeutz'/);
   assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
+  assert.match(source,/status:'failed'/);
+  assert.match(source,/providerErrors:\(error\?\.providerErrors\|\|\[\]\)/);
   assert.match(source,/mode:'google_primary_foursquare_fallback'/);
   assert.match(source,/providerOrder:'google_primary_foursquare_fallback'/);
   assert.match(source,/priority:'primary'/);
@@ -116,6 +118,7 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/fallbackUsed:foursquareIsFallback/);
   assert.doesNotMatch(source,/Promise\.allSettled\(tasks\.map\(task=>task\.promise\)\)/,'Foursquare must no longer consume quota in parallel with a healthy Google primary search');
   assert.match(source,/PLACES_ALL_PROVIDERS_FAILED/,'a complete provider failure must not look like a valid zero-result search');
+  assert.match(source,/status:503,providerErrors/,'bounded provider failures must remain diagnosable through the public health probe');
   assert.match(source,/query:foursquareQuery\(query,destination\)/);
   assert.match(source,/params\.fsq_category_ids=categoryFilter/);
   assert.match(source,/categoryFilteredSearch:'explicit-reviewed-taxonomy-only'/);
