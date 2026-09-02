@@ -227,6 +227,8 @@ assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay 
 assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
 assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'the Passend mode must share the same evidence-backed cohort as the visible preferred pin markers');
+assert.match(experience,/function mergeKnownPreferenceEvidence\(items,knownItems=state\.results\)/,'viewport refreshes must preserve richer preference evidence by immutable provider identity');
+assert.match(experience,/features:\{\.\.\.\(known\.features\|\|\{\}\),\.\.\.\(place\.features\|\|\{\}\)\}/,'lean viewport payloads must not erase already verified provider features');
 assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
 assert.match(experience,/fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'the fast provider-first map must always deepen preference discovery in the background');

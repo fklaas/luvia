@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Today – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="app/app-shell.css?v=13.82.157-today2">
-  <link rel="stylesheet" href="app/today/today-experience.css?v=13.82.157-today2">
+  <link rel="stylesheet" href="app/app-shell.css?v=13.82.158-today2">
+  <link rel="stylesheet" href="app/today/today-experience.css?v=13.82.158-today2">
   <style>
     html,body{margin:0;min-height:100%;overflow:hidden;background:#f6fafb}
     #app{min-height:100dvh}
@@ -39,8 +39,8 @@
     window.LuviaAIDashboard={refreshBrief:async()=>({})};
     window.addEventListener('click',event=>{const view=event.target.closest('[data-view]')?.dataset.view;if(view)document.body.dataset.lastView=view});
   </script>
-  <script src="app/today/today-composition-core.js?v=13.82.157-today2"></script>
-  <script src="app/today/today-experience.js?v=13.82.157-today2"></script>
+  <script src="app/today/today-composition-core.js?v=13.82.158-today2"></script>
+  <script src="app/today/today-experience.js?v=13.82.158-today2"></script>
   <script>
     const app=document.getElementById('app');
     app.innerHTML=window.LuviaTodayExperience.render({trip,profile});

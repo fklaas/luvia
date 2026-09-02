@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.14.0-hard-requirement-fit';
+  const VERSION='1.14.1-viewport-preference-continuity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -144,6 +144,14 @@
       return places.map(place=>byId.get(providerId(place))||place);
     }catch{return places}
   }
+  function mergeKnownPreferenceEvidence(items,knownItems=state.results){
+    const knownById=new Map((Array.isArray(knownItems)?knownItems:[]).map(place=>[providerId(place),place]).filter(([id])=>id));
+    return (Array.isArray(items)?items:[]).map(place=>{
+      const known=knownById.get(providerId(place));
+      if(!known)return place;
+      return {...known,...place,features:{...(known.features||{}),...(place.features||{})},accessibilityOptions:{...(known.accessibilityOptions||{}),...(place.accessibilityOptions||{})},coordinates:place.coordinates||place.location||known.coordinates||known.location||null};
+    });
+  }
   function viewportDescriptor(map){
     const raw=map?.getBounds?.(),center=map?.getCenter?.();
     if(!raw||!center)return null;
@@ -156,7 +164,12 @@
     const reader=placesContract()?.reads?.searchViewport;
     if(!bounds||!center||typeof reader!=='function')return[];
     const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,query:clean(query)||'Orte',includedType,strictTypeFiltering:Boolean(includedType),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
-    const rows=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),trip);
+    // A viewport refresh may return a deliberately lean provider projection. Keep
+    // already verified preference facts for the same immutable provider identity
+    // before ranking again, otherwise switching to "Passend" can lose pins that
+    // were verified by the richer discovery response moments earlier.
+    const candidates=mergeKnownPreferenceEvidence((response?.places||[]).slice(0,MAX_RESULTS));
+    const rows=decoratePreferences(candidates,trip);
     return rows.filter(place=>(!vegetarianOnly||place.features?.servesVegetarianFood===true)&&(!reservableOnly||place.features?.reservable===true)&&(!accessibleOnly||place.accessibilityOptions?.wheelchairAccessibleEntrance===true));
   }
 

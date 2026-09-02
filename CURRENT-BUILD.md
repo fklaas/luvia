@@ -20,15 +20,21 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.157**
-- Core: **4.82.157**
+- App: **13.82.158**
+- Core: **4.82.158**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Hard Preference Gate + Compass Preview — Local Integration candidate 13.82.157
+## M16.5 Viewport Preference Continuity — Local Integration candidate 13.82.158
+
+- Corrected viewport identity continuity: **a live map refresh can return a lean provider projection for a Place that the broader discovery response already verified. Luvia now merges the richer known preference and provider facts by immutable provider Place ID before ranking the refreshed viewport. This keeps the reported `Passend` cohort, visible preferred Pins and `x/xx` navigation aligned instead of showing a positive match count with an empty map**.
+- Hard-gate continuity: **the merge cannot promote a new or unrelated Place. New viewport Places are still evaluated from their own provider facts; unknown hard dietary evidence remains in `Alle` and outside `Passend`, while an already verified identical Place does not lose its evidence merely because the viewport endpoint returned fewer fields**.
+- Release gate: **public `.157` testing found the empty-`Passend` viewport regression after the hard gate had correctly narrowed the result set. `.158` supersedes that Integration candidate; focused continuity tests, fresh runtime bundles, release consistency, NFR-0 3/3 and the complete controlled Safe Regression are 201/201 PASS. Clean release, Integration-only deployment and public proof remain required. Main and Production remain locked**.
+
+## M16.5 Hard Preference Gate + Compass Preview — Superseded Integration candidate 13.82.157
 
 - Hard requirement order: **`Passend` now applies every applicable hard Profile requirement before any soft preference score. A Place with unknown dietary, accessibility or family evidence remains available in `Alle`, but cannot receive a `Passt` marker or enter the `Passend` pin set. Confirmed conflicts remain blocked by Intelligence**.
 - Vegetarian evidence: **a positive Google/provider `servesVegetarianFood` fact continues to admit an ordinary mixed-menu restaurant. A recognizably meat-led primary offer such as kebab/döner, steak, barbecue/grill, burger or Greek cuisine no longer becomes personally fitting from that single generic option flag; it requires explicit vegetarian/vegan offer focus in the provider category, name or description. An explicitly vegetarian/vegan concept remains eligible regardless of cuisine format**.
