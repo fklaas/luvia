@@ -167,7 +167,13 @@ function boundsProjection(markers){
 
 function publicErrorMessage(error){
   const supplied=clean(error?.publicMessage||error?.userMessage);
-  return supplied||'Die Places-Suche konnte gerade nicht geladen werden.';
+  if(supplied)return supplied;
+  const code=clean(error?.code).toUpperCase();
+  const status=Number(error?.status)||0;
+  if(status===429||/RATE|QUOTA|429/.test(code))return'Das Kontingent der Ortsquelle ist gerade erreicht. Bitte kurz warten oder den Provider-Tarif prüfen.';
+  if(status===401||status===403||/AUTH|SESSION|PERMISSION|401|403/.test(code))return'Die Berechtigung für die primäre Ortssuche muss geprüft werden.';
+  if(/PLACES_ALL_PROVIDERS_FAILED|PROVIDER_READ_INCOMPLETE/.test(code))return'Keine verbundene Ortsquelle konnte diese Suche vollständig beantworten.';
+  return'Die Ortsquellen konnten gerade nicht geladen werden. Deine bisherigen Reiseangaben bleiben erhalten.';
 }
 function projectStatus(runtime={},resultCount=0){
   const requested=clean(runtime.status).toLowerCase();

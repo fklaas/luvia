@@ -181,7 +181,7 @@
     }catch(error){
       if(token!==state.requestToken)return false;
       if(silent&&state.results.length){console.warn('[PlacesSpatial] Preference refresh kept the visible provider result.',error?.code||error?.message||error)}
-      else{state.error={userMessage:error?.publicMessage||'Die Places-Suche konnte gerade nicht geladen werden.',code:error?.code||'PLACES_SEARCH_FAILED'};state.status='error';render()}
+      else{state.error={userMessage:error?.publicMessage||null,code:error?.code||'PLACES_SEARCH_FAILED',status:Number(error?.status)||null};state.status='error';render()}
       return false;
     }
   }
@@ -268,7 +268,7 @@
   }
   function emptyResultsMarkup(view){
     if(view.status.kind==='loading')return`<div class="lv-places-spatial__state" aria-hidden="true">${Array.from({length:3},()=>'<i class="lv-places-spatial__skeleton"></i>').join('')}</div>`;
-    return `<div class="lv-places-spatial__state is-${esc(view.status.kind)}"><span class="lv-places-spatial__state-icon">${icon('compass')}</span><strong>${view.status.kind==='error'?'Die Verbindung ist kurz abgebogen.':'Noch kein verlässlicher Treffer.'}</strong><p>${esc(view.status.message)}</p></div>`;
+    return `<div class="lv-places-spatial__state is-${esc(view.status.kind)}"><span class="lv-places-spatial__state-icon">${icon('compass')}</span><strong>${view.status.kind==='error'?'Ortsquellen gerade nicht erreichbar':'Noch kein verlässlicher Treffer.'}</strong><p>${esc(view.status.message)}</p></div>`;
   }
   function render(){
     if(!state.root)return;

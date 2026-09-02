@@ -710,6 +710,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-semantic-first-ai-routing.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Destination-bound Requirement Read',
+    test: 'tests/m16.5-block1-destination-bound-requirement-read.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Semantic Places Mutations',
     test: 'tests/m16.5-block1-semantic-place-mutation-resolution.test.cjs'
   },

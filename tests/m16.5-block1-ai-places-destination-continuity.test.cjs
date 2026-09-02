@@ -69,7 +69,8 @@ test('AI Places discovery reuses the resolved active destination before provider
 });
 
 test('AI owner passes Trip-owned destination context without creating a second owner',()=>{
-  assert.match(actionSource,/placesContract\(\)\.reads\.recommend\(\{tripId:tripId\(trip\),trip,text:/);
-  assert.match(actionSource,/destinationContext:trip\?\.destination&&typeof trip\.destination==='object'\?trip\.destination:null/);
+  assert.match(actionSource,/placesContract\(\)\.reads\.recommend\(\{tripId:tripId\(trip\),trip,text:input\.query,query:input\.query,category,destination:searchDestination,destinationContext/);
+  assert.match(actionSource,/sameDestination=!requestedDestination\|\|referenceKey\(requestedDestination\)===activeDestination/);
+  assert.match(actionSource,/destinationContext=sameDestination&&trip\?\.destination&&typeof trip\.destination==='object'\?trip\.destination:\{name:searchDestination,destinationName:searchDestination\}/);
   assert.doesNotMatch(actionSource,/LuviaDestination\.(?:ensureResolved|set|save)/);
 });

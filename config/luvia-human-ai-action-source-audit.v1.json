@@ -1,8 +1,8 @@
 {
   "contractId": "luvia.human-ai-action-source-audit.v1",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 901,
+  "markerCount": 903,
   "markers": [
     {
       "marker": "data-accent",
@@ -3216,6 +3216,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-hotel-search-status",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; der Marker projiziert ausschließlich den belegten Lade-, Leer- oder Fehlerzustand der Unterkunftssuche."
+    },
+    {
       "marker": "data-hub-action",
       "category": "Navigation & Oberfläche",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -5839,6 +5848,15 @@
         "modules/restaurants-v2/restaurant-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-place-retry",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch durch die bereits inventarisierte Aktion places.results.retry abgedeckt; die Unterkunftsoberfläche nutzt denselben Places-Owner-Read erneut."
     },
     {
       "marker": "data-place-schedule",
