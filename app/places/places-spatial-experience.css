@@ -2182,3 +2182,32 @@
   .lv-places-spatial__history{padding:14px;border-radius:18px}
 }
 @media(prefers-reduced-motion:reduce){.lv-places-spatial__filter-reveal{transition:none}}
+
+/* B1 compact map controls: discovery remains map-first and takes its accent from
+   the active trip instead of assigning unrelated fixed colours to controls. */
+.lv-places-spatial__map-toolbar{position:absolute;z-index:8;top:14px;right:14px;display:flex;align-items:center;gap:7px}
+.lv-places-spatial__fit-toggle,.lv-places-spatial__map-browser{display:flex;align-items:center;min-height:36px;padding:3px;border:1px solid color-mix(in srgb,var(--places-accent) 22%,#dbe5e9);border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 9px 24px rgba(31,56,72,.1);backdrop-filter:blur(12px)}
+.lv-places-spatial__fit-toggle button,.lv-places-spatial__map-browser button{display:grid;min-width:31px;height:30px;place-items:center;padding:0 9px;border:0;border-radius:999px;background:transparent;color:var(--places-muted);font-size:9px;font-weight:850;cursor:pointer}
+.lv-places-spatial__fit-toggle button[aria-pressed="true"]{background:var(--places-accent);color:var(--places-accent-contrast)}
+.lv-places-spatial__map-browser span{min-width:52px;color:var(--places-muted);font-size:9px;font-weight:760;text-align:center}.lv-places-spatial__map-browser b{color:var(--places-accent-ink)}
+.lv-places-spatial__marker,.lv-places-spatial__marker[data-compass-tone]{background:var(--places-accent)!important;color:var(--places-accent-contrast)!important}
+.lv-places-spatial__marker.is-preferred{box-shadow:0 0 0 3px #fff,0 0 0 7px color-mix(in srgb,var(--places-accent) 48%,transparent),0 12px 26px rgba(31,65,86,.22)}
+.lv-places-spatial__marker>b,.lv-places-spatial__map-story>span i{background:color-mix(in srgb,var(--places-accent) 14%,#fff);color:var(--places-accent-ink)}
+.lv-places-spatial__filter-panel{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;padding:10px 12px!important;border-radius:18px!important}
+.lv-places-spatial__filter-intro{display:flex!important;flex:1 0 100%;align-items:center;justify-content:space-between;gap:10px}.lv-places-spatial__filter-intro strong{font-size:9px!important;font-weight:650!important}
+.lv-places-spatial__filter-group,.lv-places-spatial__filter-facts,.lv-places-spatial__filter-sort{display:flex!important;flex:0 1 auto!important;align-items:center!important;gap:6px!important;min-width:0!important}
+.lv-places-spatial__filter-group.is-wide{flex:1 1 420px!important}.lv-places-spatial__filter-group>div{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto!important}
+.lv-places-spatial__filter-panel :is(button){flex:0 0 auto!important;min-height:34px!important;padding:0 10px!important;border-radius:999px!important;font-size:9px!important}
+.lv-places-spatial__filter-reset{margin-left:auto!important}
+.lv-places-spatial__categories{gap:7px!important;padding:6px!important;border-radius:18px!important}
+.lv-places-spatial__category{flex:0 0 auto!important;min-width:0!important;min-height:42px!important;padding:5px 10px 5px 6px!important;border-radius:999px!important}
+.lv-places-spatial__category-icon{width:30px!important;height:30px!important;flex:0 0 30px!important}.lv-places-spatial__category-icon svg{width:15px!important;height:15px!important}
+.lv-places-spatial__category-copy strong{font-size:10px!important;white-space:nowrap!important}.lv-places-spatial__category-copy small{display:none!important}
+.lv-places-spatial__preference{grid-template-columns:auto minmax(0,1fr)!important;gap:10px!important;margin:0 0 8px!important;padding:9px 11px!important;border-radius:16px!important;box-shadow:none!important}
+.lv-places-spatial__preference>div strong{font-size:12px!important}.lv-places-spatial__preference>div small{font-size:7px!important}.lv-places-spatial__preference ul{flex-wrap:nowrap!important;overflow-x:auto!important}.lv-places-spatial__preference li{flex:0 0 auto!important;min-height:34px!important;padding:4px 8px!important;border-radius:999px!important}.lv-places-spatial__preference li small{display:none!important}
+@media(max-width:720px){
+  .lv-places-spatial__map-toolbar{top:10px;right:10px;left:72px;justify-content:flex-end}.lv-places-spatial__fit-toggle button{padding-inline:8px}
+  .lv-places-spatial__filter-panel{flex-wrap:nowrap!important;overflow-x:auto!important;padding:8px!important}.lv-places-spatial__filter-intro{display:none!important}.lv-places-spatial__filter-group,.lv-places-spatial__filter-facts,.lv-places-spatial__filter-sort{flex:0 0 auto!important}.lv-places-spatial__filter-group.is-wide{flex-basis:auto!important}.lv-places-spatial__filter-group>span{display:none}.lv-places-spatial__filter-reset{margin-left:0!important}
+  .lv-places-spatial__categories{margin-inline:-2px!important}.lv-places-spatial__category{min-height:38px!important;padding-block:3px!important}.lv-places-spatial__category-icon{width:28px!important;height:28px!important;flex-basis:28px!important}
+  .lv-places-spatial__preference{display:flex!important;align-items:center!important;overflow:hidden}.lv-places-spatial__preference>div{flex:0 0 auto}.lv-places-spatial__preference ul{min-width:0}.lv-places-spatial__preference li{min-width:auto!important}
+}

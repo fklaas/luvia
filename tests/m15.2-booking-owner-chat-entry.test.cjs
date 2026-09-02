@@ -15,7 +15,7 @@ for(const needle of [
   "route.resolved&&route.channel==='email'&&route.value",
   "channel:'email_canvas'",
   "channel:'unavailable'",
-  'await openForPlace(place,{reserveExternalWindow:true})',
+  'await openForPlace(place,{reserveExternalWindow:false})',
   'Object.freeze({version:VERSION,actionButton,open,openForPlace})'
 ])assert.ok(source.includes(needle),`Booking owner chat entry missing ${needle}`);
 

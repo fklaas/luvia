@@ -43,3 +43,5 @@
   .lv-booking-dialog.is-inline .lv-booking-occasions button{min-height:34px}.lv-booking-dialog.is-inline .lv-booking-note textarea{min-height:64px;max-height:78px}
   .lv-booking-dialog.is-inline .lv-booking-route{margin-top:8px;padding:9px 11px}.lv-booking-dialog.is-inline .lv-booking-route small{font-size:9px;line-height:1.35}
 }
+
+.lv-booking-dialog{--module-accent:var(--trip-accent,var(--luvia-color-action-primary,#b46678))}

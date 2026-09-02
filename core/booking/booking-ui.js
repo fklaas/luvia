@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.10.0-venue-identity-gate';
+  const VERSION='1.11.0-submit-before-timeline';
   let activeHandle=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clean=v=>String(v??'').trim();
@@ -125,7 +125,10 @@
         const email=controls.email?.value||'';if(!email)throw new Error('Für diesen Ort wurde keine verifizierte Buchungs-E-Mail gefunden.');
         const booking=await window.LuviaBooking.createForPlace({placeType:place.type,place:{...place,email},channel:'email',provider:route.provider||'official',emailVerified:true,emailVerificationSource:route.source||route.reason||'verified_booking_owner_route',route,...request});
         await window.LuviaBooking.sendEmail(booking.id,{requesterName:request.requesterName,note:request.note,occasion:request.occasion});
-        result.hidden=false;result.innerHTML=`<strong>Anfrage versendet.</strong><p>Luvia hat Anlass und Anmerkungen an ${esc(booking.contact.email)} übergeben. Der Status bleibt „Angefragt“, bis eine belastbare Antwort vorliegt.</p>`;
+        let timelineLinked=false,timelineError=null;
+        try{if(typeof options.onSubmitted==='function'){await options.onSubmitted({booking,request,place,route});timelineLinked=true}}
+        catch(error){timelineError=error;console.warn('[Luvia Booking] Anfrage wurde versendet, aber der Timeline-Eintrag konnte nicht angelegt werden.',error)}
+        result.hidden=false;result.innerHTML=`<strong>Anfrage versendet.</strong><p>Luvia hat Anlass und Anmerkungen an ${esc(booking.contact.email)} übergeben. Der Status bleibt „Angefragt“, bis eine belastbare Antwort vorliegt.${timelineLinked?' Der Eintrag wurde jetzt mit genau diesem Datum und dieser Uhrzeit in der Timeline angelegt.':timelineError?' Die Anfrage ist sicher versendet; der Timeline-Eintrag muss wegen eines technischen Fehlers im Booking Center nachgeholt werden.':''}</p>`;
         create.hidden=true;
       }catch(error){
         result.hidden=false;
@@ -336,7 +339,7 @@
     const place=placeFromButton(button);
     button.dataset.bookingBusy='1';button.disabled=true;
     try{
-      await openForPlace(place,{reserveExternalWindow:true});
+      await openForPlace(place,{reserveExternalWindow:false});
     }catch(error){
       window.LuviaUIKit?.toast?.(error?.message||'Der Booking-Owner-Flow konnte nicht geöffnet werden.',{type:'error'});
     }finally{

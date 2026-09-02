@@ -184,6 +184,8 @@ assert.equal(api.hasVenueIdentifier('https://www.booking.com/'),false,'a provide
   assert.match(uiSource,/ROUTE_CACHE_TTL_MS=5\*60\*1000/);
   assert.match(uiSource,/routeIdentityMatchesPlace/);
   assert.match(uiSource,/ROUTE_PLACE_IDENTITY_MISMATCH/);
+  assert.match(uiSource,/typeof options\.onSubmitted==='function'/,'the Booking canvas must expose a post-submit owner receipt hook');
+  assert.match(uiSource,/await window\.LuviaBooking\.sendEmail[\s\S]*options\.onSubmitted/,'Timeline projection must run only after the reservation request was sent');
   assert.doesNotMatch(uiSource,/localEmail\?/,'email admission must not bypass Edge identity resolution');
 
   console.log('M16.5 BLOCK 1 BOOKING ROUTE VENUE IDENTITY: PASS');

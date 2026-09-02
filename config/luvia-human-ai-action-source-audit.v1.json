@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 914,
+  "markerCount": 921,
   "markers": [
     {
       "marker": "data-accent",
@@ -4290,6 +4290,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-lvjs-action-state",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-lvjs-ai-state",
       "category": "Luvia AI Chat",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4396,6 +4405,15 @@
         "app/journey/journey-suggestion-sheet.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-lvjs-navigate",
+      "category": "Navigation & Oberfläche",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
       "marker": "data-lvjs-nearby",
@@ -6119,6 +6137,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-places-fit-mode",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-places-history",
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
@@ -6155,6 +6182,24 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-places-map-browser",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-places-map-current",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-places-map-fallback",
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
@@ -6165,6 +6210,24 @@
     },
     {
       "marker": "data-places-map-message",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-places-map-navigate",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/places/places-spatial-experience.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-places-map-total",
       "category": "Places & Ortsentdeckung",
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [

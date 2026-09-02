@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.11.0-contextual-filters-history';
+  const VERSION='1.12.0-compact-map-browser';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -88,7 +88,7 @@
 
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',filterOpen:false,history:[],
+    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null
   };
 
@@ -115,7 +115,7 @@
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));
   const normalizedPriceLevel=value=>({0:'PRICE_LEVEL_FREE',1:'PRICE_LEVEL_INEXPENSIVE',2:'PRICE_LEVEL_MODERATE',3:'PRICE_LEVEL_EXPENSIVE',4:'PRICE_LEVEL_VERY_EXPENSIVE'}[clean(value)]||clean(value).toUpperCase());
-  function filteredResults(){const rows=state.results.filter(place=>(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||place.features?.servesVegetarianFood===true)&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!state.filters.priceLevel||normalizedPriceLevel(place.priceLevel)===state.filters.priceLevel));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
+  function filteredResults(){const rows=state.results.filter(place=>(!state.fitOnly||verifiedFitScore(place)!=null)&&(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||place.features?.servesVegetarianFood===true)&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!state.filters.priceLevel||normalizedPriceLevel(place.priceLevel)===state.filters.priceLevel));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function publicRuntime(filteredCount=filteredResults().length){
     const filteredEmpty=state.status==='ready'&&state.results.length>0&&filteredCount===0;
     return{status:state.offline?'offline':filteredEmpty?'empty':state.status,loading:state.status==='loading',offline:state.offline,error:state.error,settled:['ready','empty','error','offline'].includes(state.status)};
@@ -186,7 +186,11 @@
     state.visibleLimit=MAX_RESULTS;
     state.error=null;
     if(state.offline){state.status='offline';render();return false}
-    if(!silent||!state.results.length){state.status='loading';render()}
+    if(!silent||!state.results.length){
+      state.status='loading';
+      if(state.results.length&&state.mapProjection)projectionRefreshState(state.root?.querySelector('[data-places-map]'),true,'Neue Orte werden geladen · die aktuelle Karte bleibt sichtbar.');
+      else render();
+    }
     try{
       if(!contract?.reads?.recommend)throw Object.assign(new Error('Places ist noch nicht vollständig geladen.'),{publicMessage:'Die Places-Suche ist noch nicht bereit. Bitte ladet die App neu.'});
       const context=preferenceContext()?.snapshot?.()||{},positionContext=globalThis.LuviaTravelContext?.snapshot?.()?.location||null;
@@ -227,8 +231,20 @@
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
-      if(silent&&state.results.length){console.warn('[PlacesSpatial] Preference refresh kept the visible provider result.',error?.code||error?.message||error)}
-      else{state.error={userMessage:error?.publicMessage||null,code:error?.code||'PLACES_SEARCH_FAILED',status:Number(error?.status)||null};state.status='error';render()}
+      if(state.results.length){
+        state.status='ready';
+        state.error=null;
+        const mapHost=state.root?.querySelector?.('[data-places-map]');
+        if(mapHost){
+          projectionState(mapHost,'ready','Nachladen fehlgeschlagen · Karte und bisherige Pins bleiben sichtbar.');
+          projectionRefreshState(mapHost,false);
+        }
+        console.warn('[PlacesSpatial] Search refresh kept the visible provider result.',error?.code||error?.message||error);
+      }else{
+        state.error={userMessage:error?.publicMessage||null,code:error?.code||'PLACES_SEARCH_FAILED',status:Number(error?.status)||null};
+        state.status='error';
+        render();
+      }
       return false;
     }
   }
@@ -310,6 +326,19 @@
     const current=state.root?.querySelector('[data-places-history-region]');if(!current)return;
     const template=document.createElement('template');template.innerHTML=historyMarkup();current.replaceWith(template.content.firstElementChild);
   }
+  function mapBrowserPlaces(){return filteredResults().filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location)))}
+  function mapBrowserPosition(){const rows=mapBrowserPlaces(),index=Math.max(0,rows.findIndex(place=>providerId(place)===state.selectedId));return{rows,index:rows.length?index:0,count:rows.length}}
+  function refreshMapBrowser(){
+    const browser=state.root?.querySelector('[data-places-map-browser]');if(!browser)return;
+    const position=mapBrowserPosition(),current=browser.querySelector('[data-places-map-current]'),total=browser.querySelector('[data-places-map-total]');
+    if(current)current.textContent=String(position.count?position.index+1:0);if(total)total.textContent=String(position.count);
+    browser.querySelectorAll('button').forEach(button=>button.disabled=position.count<2);
+  }
+  function navigateMap(direction){
+    const position=mapBrowserPosition();if(!position.count)return;
+    const delta=direction==='previous'?-1:1,next=(position.index+delta+position.count)%position.count,place=position.rows[next];
+    select(providerId(place),false,true);rememberViewed(place);
+  }
   function resultCard(place,index){
     const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image,imageUrl=clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri);
     const admission=admissionFor(place);
@@ -371,6 +400,10 @@
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
+          <div class="lv-places-spatial__map-toolbar" aria-label="Kartenansicht steuern">
+            <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
+            <div class="lv-places-spatial__map-browser" data-places-map-browser><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b> / <span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
+          </div>
           <aside class="lv-places-spatial__map-story"><small>${isFailure?'Ortsquelle nicht erreichbar':'Auf der Karte'}</small><strong>${mapHeadline}</strong><span><i aria-hidden="true">Passt</i> markiert nur belegte Präferenztreffer</span></aside>
         </section>
       </div>
@@ -529,7 +562,7 @@
     try{
       const def=activeSearchDefinition();
       const target=state.trip?.destination||state.trip||{},initialCenter=target.location||target.center||target.coordinates||{latitude:target.latitude,longitude:target.longitude};
-      state.mapProjection=mountProjection(container,state.results,{selectedId:state.selectedId,initialCenter,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place);openResultSheet([place].filter(Boolean),id)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedType,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevel?[state.filters.priceLevel]:[],vegetarianOnly:state.filters.vegetarian,reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible}),onViewportResults:rows=>{state.results=rows;state.selectedId=rows.some(place=>providerId(place)===state.selectedId)?state.selectedId:null;const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${filteredResults().length} Orte im sichtbaren Ausschnitt · Pin antippen`}});
+      state.mapProjection=mountProjection(container,state.results,{selectedId:state.selectedId,initialCenter,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place);openResultSheet(filteredResults(),id)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedType,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevel?[state.filters.priceLevel]:[],vegetarianOnly:state.filters.vegetarian,reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible}),onViewportResults:rows=>{state.results=rows;state.selectedId=rows.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(rows[0])||null;const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${filteredResults().length} Orte im sichtbaren Ausschnitt · Pin antippen`;refreshMapBrowser()}});
       state.map=state.mapProjection?.map||null;
     }catch{
       if(renderToken===state.renderToken&&container.isConnected)setMapMessage('Die Karte konnte nicht aufgebaut werden. Bitte versuche den Kartenausschnitt gleich erneut.','unavailable');
@@ -559,6 +592,7 @@
     if(scroll)card?.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'nearest',inline:'start'});
     const coordinates=COMPOSITION().normalizeCoordinates(findPlace(id)?.coordinates);
     if(moveMap&&coordinates&&state.map){try{state.map.easeTo({center:coordinates.lngLat,zoom:Math.max(Number(state.map.getZoom?.()||13),14),duration:reducedMotion()?0:520})}catch{}}
+    refreshMapBrowser();
   }
   function findPlace(id){return state.results.find(place=>providerId(place)===id)||null}
   function openMaps(place){
@@ -597,7 +631,7 @@
   async function openBooking(place,button){
     button.disabled=true;
     try{
-      const result=await bookingContract()?.commands?.openPlaceBooking?.(place,{source:'consumer.places-spatial',reserveExternalWindow:true});
+      const result=await bookingContract()?.commands?.openPlaceBooking?.(place,{source:'consumer.places-spatial',reserveExternalWindow:false});
       if(result?.opened!==true)notify('Für diesen Ort ist gerade kein bestätigter Booking-Weg verfügbar.','info');
     }catch(error){notify(error?.message||'Booking konnte nicht geöffnet werden.','error')}
     finally{button.disabled=false}
@@ -611,9 +645,11 @@
     if(!places.length)return null;
     const opener=globalThis.LuviaJourneySuggestions?.openResults;
     if(typeof opener!=='function'){notify('Die einheitliche Ergebnisansicht ist noch nicht bereit.','error');return null}
-    const selected=places.find(place=>providerId(place)===selectedId)||findPlace(selectedId);
+    const navigationPlaces=(places.length>1?places:filteredResults()).filter(place=>providerId(place));
+    const selected=navigationPlaces.find(place=>providerId(place)===selectedId)||places.find(place=>providerId(place)===selectedId)||findPlace(selectedId);
     if(!selected){notify('Dieser Ort ist nicht mehr Teil der aktuellen Karte. Bitte die Suche neu laden.','info');return null}
-    return opener({places:[selected],selectedId:providerId(selected),trip:state.trip,query:state.query,source:'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],onSelectionChange:id=>select(id,false,true)});
+    const selectedIndex=Math.max(0,navigationPlaces.findIndex(place=>providerId(place)===providerId(selected)));
+    return opener({places:[selected],selectedId:providerId(selected),trip:state.trip,query:state.query,source:'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],navigation:{index:selectedIndex,count:navigationPlaces.length},onNavigate:direction=>{if(navigationPlaces.length<2)return;const delta=direction==='previous'?-1:1,index=(selectedIndex+delta+navigationPlaces.length)%navigationPlaces.length,next=navigationPlaces[index];select(providerId(next),false,true);rememberViewed(next);openResultSheet(navigationPlaces,providerId(next))},onSelectionChange:id=>select(id,false,true)});
   }
   async function showMore(){
     const previous=state.visibleLimit;
@@ -630,7 +666,7 @@
     const rows=filteredResults(),view=state.mapProjection?.update?.(rows);
     const story=state.root?.querySelector('.lv-places-spatial__map-story strong');if(story)story.textContent=`${view?.markers?.length??rows.length} Orte im sichtbaren Ausschnitt · Pin antippen`;
     const count=Object.values(state.filters).filter(Boolean).length,button=state.root?.querySelector('[data-places-filter]'),badge=button?.querySelector('.lv-places-spatial__filter-count');
-    if(badge)badge.textContent=String(count);
+    if(badge)badge.textContent=String(count);refreshMapBrowser();
   }
   function setFilterOpen(open,{focus=false}={}){
     state.filterOpen=Boolean(open);
@@ -667,6 +703,8 @@
     root.querySelector('[data-places-more]')?.addEventListener('click',()=>showMore());
     root.querySelector('[data-places-back-plan]')?.addEventListener('click',()=>globalThis.LuviaApp?.openCompass?.('plan')||globalThis.LuviaApp?.show?.('plan'));
     root.querySelectorAll('[data-places-filter]').forEach(button=>button.addEventListener('click',()=>setFilterOpen(!state.filterOpen,{focus:true})));
+    root.querySelectorAll('[data-places-fit-mode]').forEach(button=>button.addEventListener('click',()=>{state.fitOnly=button.dataset.placesFitMode==='fit';root.querySelectorAll('[data-places-fit-mode]').forEach(item=>item.setAttribute('aria-pressed',String((item.dataset.placesFitMode==='fit')===state.fitOnly)));updateFilteredMap()}));
+    root.querySelectorAll('[data-places-map-navigate]').forEach(button=>button.addEventListener('click',()=>navigateMap(button.dataset.placesMapNavigate)));
     root.querySelectorAll('[data-places-filter-option]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.placesFilterOption;state.filters[key]=!state.filters[key];button.setAttribute('aria-pressed',String(state.filters[key]));updateFilteredMap()}));
     root.querySelectorAll('[data-places-sort]').forEach(button=>button.addEventListener('click',()=>{state.sort=button.dataset.placesSort;root.querySelectorAll('[data-places-sort]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));updateFilteredMap()}));
     root.querySelectorAll('[data-places-price]').forEach(button=>button.addEventListener('click',()=>{state.filters.priceLevel=state.filters.priceLevel===button.dataset.placesPrice?'':button.dataset.placesPrice;root.querySelectorAll('[data-places-price]').forEach(item=>item.setAttribute('aria-pressed',String(item.dataset.placesPrice===state.filters.priceLevel)));updateFilteredMap()}));
@@ -687,7 +725,7 @@
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.filterOpen=false;state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
     if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');

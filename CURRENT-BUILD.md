@@ -20,13 +20,21 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.152**
-- Core: **4.82.152**
+- App: **13.82.153**
+- Core: **4.82.153**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Map Navigation + Booking Submit Boundary — Local Integration candidate 13.82.153
+
+- Public counterevidence on `.152`: **the exact Google Place `DAS LEO`, Strandallee 99a in Scharbeutz, opened as one correct Restaurant sheet with its real image and staged `Details`, `Reservierung prüfen` and `Zur Timeline` actions. Selecting `Reservierung prüfen` appeared to do nothing when the provisional 10:00 slot collided with an existing Timeline moment, because the error was written only into the deliberately hidden legacy scheduler region**.
+- Corrected interaction: **Booking progress and failures now use a compact visible live region directly below the staged actions. Opening `Reservierung prüfen` performs no Places or Timeline mutation. A Timeline entry is created only after the embedded verified-email form has actually been submitted, using the date and time from that form and retaining `requested` until Booking-owner evidence changes the status. External provider handoffs do not invent a completed submission or Timeline entry**.
+- Blank-window and Core boundary: **the consumer no longer reserves a temporary browser tab while the Booking Core resolves the exact venue. OpenTable, TheFork and the remaining adapters stay available only when the exact selected venue has an identity-verified route; otherwise the result is honestly unavailable. The Luvia e-mail form remains embedded in the existing sheet**.
+- Map and detail correction: **the active-trip colour now owns Pins and staged actions; Places adds compact `Alle / Passend`, previous/next and `1/xx` map controls. The exact one-entity sheet has its own previous/next counter. Filters, preference context and category rail are compact horizontal controls. The provider-detail sheet uses a layer above the first sheet instead of the defective low fixed z-index**.
+- Current gate: **focused Place-detail, unified Journey sheet, Booking route, lifecycle and admission tests pass. Fresh bundles are built; full Safe Regression, clean release commit, Integration deployment, operated exact Restaurant route, one Activity/Culture route, mobile layout proof, byte proof and exact rollback remain required before acceptance**.
 
 ## M16.5 Contextual Maps + Clean Place Detail — Stable Integration accepted 13.82.152
 

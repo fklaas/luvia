@@ -27,6 +27,9 @@ assert.match(placesCore,/\.slice\(0,5\)/,'the map may highlight only a bounded s
 assert.match(placesCore,/result\.preferenceCoverage>0&&result\.preferenceReasons\.length>0/,'a preferred pin must keep positive traveler coverage and explicit reasons');
 assert.match(placesCss,/\.lv-places-spatial__marker\.is-preferred/);
 assert.match(places,/innerHTML=`<span>\$\{marker\.rank\}<\/span><b aria-hidden="true">Passt<\/b>`/,'preference fit must be rendered as real accessible marker content rather than decorative CSS');
+for(const token of ['data-places-fit-mode="all"','data-places-fit-mode="fit"','data-places-map-navigate="previous"','data-places-map-navigate="next"','data-places-map-current','data-places-map-total'])assert.ok(places.includes(token),`missing compact map navigation control: ${token}`);
+assert.match(places,/state\.fitOnly=button\.dataset\.placesFitMode==='fit'/,'the map must let travelers switch explicitly between all and evidence-backed matching pins');
+assert.match(placesCss,/\.lv-places-spatial__map-toolbar/);
 
 for(const token of ['data-hotel-filter="rating"','data-hotel-filter="reviews"','data-hotel-filter="accessible"','data-hotel-pin-history','minUserRatingCount','accessibleOnly'])assert.ok(hotels.includes(token),`missing shared Hotel map behavior: ${token}`);
 assert.match(hotels,/maxResultCount:80/);
@@ -44,7 +47,15 @@ assert.match(sheet,/data-lvjs-details/);
 assert.match(sheet,/function openProviderDetails\(place,input\)/);
 for(const label of ['Küche','Preisniveau','Öffnungszeiten','Zahlung','Barrierefreiheit','Adresse','Telefon'])assert.ok(sheet.includes(`'${label}'`),`secondary detail sheet misses ${label}`);
 assert.match(sheet,/safeHttpUrl=value=>\{const raw=clean\(value\);if\(!\/\^https\?:\\\/\\\//,'external detail actions must reject internal or malformed relative URLs');
-assert.match(sheet,/bookingStatus:'pending_user_action'/,'starting Booking must create an explicitly unconfirmed Timeline state');
+assert.doesNotMatch(sheet,/bookingStatus:'pending_user_action'/,'opening Booking must not create a Timeline entry before the reservation form is submitted');
+assert.match(sheet,/onSubmitted:async\(\{booking:submittedBooking,request\}\)=>\{/,'only the submitted Booking receipt may bridge into Timeline planning');
+assert.match(sheet,/bookingStatus:'requested'/,'the post-submit Timeline projection must remain unconfirmed until provider evidence arrives');
+assert.match(sheet,/reserveExternalWindow:false/,'route resolution must not expose a temporary blank browser tab');
+assert.match(sheet,/Die Timeline bleibt bis zum Absenden unverändert/,'the visible progress state must explain the non-mutating route check');
+assert.match(sheet,/data-lvjs-action-state role="status" aria-live="polite"/,'Booking progress and failures must remain visible beside the staged actions even while the scheduler stays hidden');
+assert.match(sheet,/data-lvjs-navigate="previous"/);assert.match(sheet,/data-lvjs-navigate="next"/);
+assert.match(sheetCss,/\.lvjs-action-state/,'the visible Booking action state needs a dedicated compact presentation');
+assert.match(sheetCss,/\.lvjs-provider-detail-overlay\{z-index:2147483100!important/,'the secondary detail sheet must sit above the primary pin sheet');
 assert.match(journeyAdapter,/bookingStatus\|\|metadata\.planTrust/,'Booking truth must override an earlier planning-trust label');
 for(const status of ['Buchung bestätigt','Buchung storniert','Buchung nicht bestätigt','Buchung noch unbestätigt'])assert.ok(journeyComposer.includes(status),`Timeline Booking projection misses ${status}`);
 assert.match(journeyComposer,/\['luvia:booking-changed','luvia:booking-ready'\]/,'Timeline must refresh its Booking-owner projection after lifecycle changes');
