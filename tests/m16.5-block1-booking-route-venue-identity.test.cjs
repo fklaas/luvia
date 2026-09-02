@@ -161,6 +161,13 @@ assert.equal(api.hasVenueIdentifier('https://www.booking.com/'),false,'a provide
   vm.runInNewContext(uiSource,uiContext,{filename:'booking-ui.identity-test.js'});
 
   const exact={id:'exact',providerPlaceId:'exact',type:'restaurant',name:'Exact Venue',address:'Promenade 1, Lübeck'};
+  let deferred=null;
+  const deferredResult=await uiContext.LuviaBookingUI.openForPlace(exact,{reserveExternalWindow:false,deferExternalOpen:true,onExternalReady:value=>{deferred=value}});
+  assert.equal(deferredResult.channel,'external_ready');
+  assert.equal(deferredResult.opened,false);
+  assert.equal(opened.length,0,'route resolution must not open a blank or provider tab by itself');
+  assert.equal(typeof deferred?.open,'function');
+  assert.equal((await deferred.open()).opened,true,'the deliberate provider-button action opens the exact route');
   assert.equal((await uiContext.LuviaBookingUI.openForPlace(exact,{reserveExternalWindow:true})).opened,true);
   assert.equal((await uiContext.LuviaBookingUI.openForPlace(exact,{reserveExternalWindow:true})).opened,true);
   assert.equal(routeCalls.filter(item=>item.name==='Exact Venue').length,1,'identical identity should reuse the short-lived cache');

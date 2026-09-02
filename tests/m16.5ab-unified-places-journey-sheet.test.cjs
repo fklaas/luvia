@@ -55,7 +55,7 @@ assert.match(places,/decoratePreferences/,'personal preference evaluation must d
 assert.match(places,/place\?\.distanceReference==='device'/,'Places may only label or sort a distance as nearby when the current device is the explicit reference');
 assert.match(places,/vom aktuellen Standort/,'device GPS distances must name their reference in the visible card');
 assert.match(places,/LuviaJourneySuggestions\?\.openResults/);
-assert.match(places,/onSelectionChange:id=>select\(id,false,true\)/,'sheet swipes and selections must keep the original map marker and result card synchronized');
+assert.match(places,/onSelectionChange:id=>select\(id,false,false\)/,'sheet swipes and selections must keep the selected marker synchronized without changing the locked map viewport');
 assert.match(places,/data-places-plan=/);
 assert.match(places,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct Place action must enter the same single-Place sheet as its map pin');
 assert.match(places,/event\.preventDefault\(\);event\.stopPropagation\(\)/,'the direct Timeline action must not be swallowed by its surrounding result-card interaction');

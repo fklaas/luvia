@@ -16,7 +16,7 @@ for(const needle of [
   "channel:'email_canvas'",
   "channel:'unavailable'",
   'await openForPlace(place,{reserveExternalWindow:false})',
-  'Object.freeze({version:VERSION,actionButton,open,openForPlace})'
+  'Object.freeze({version:VERSION,actionButton,open,openForPlace,preparePlace})'
 ])assert.ok(source.includes(needle),`Booking owner chat entry missing ${needle}`);
 
 assert.equal((source.match(/await resolveRouteCached\(place\)/g)||[]).length,1,'provider route resolution must have one reusable execution owner');

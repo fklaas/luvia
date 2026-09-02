@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.21.0-booking-form-before-timeline';
+const VERSION='1.22.0-explicit-provider-handoff';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -446,9 +446,18 @@ async function openBooking(place,button,form,handle,result,viewState){
     const data=new FormData(form),sheetHost=handle.overlay.querySelector('[data-journey-suggestion-sheet]')||handle.overlay;
     const selectedId=providerId(place);
     const restore=()=>{sheetHost.className='lvjs-sheet';sheetHost.dataset.journeySuggestionSheet='true';sheetHost.innerHTML=shellMarkup(result.input);paintResults(handle,result,selectedId,viewState);queueMicrotask(()=>sheetHost.querySelector(`[data-lvjs-booking="${CSS.escape(selectedId)}"]`)?.focus())};
-    const showRouteState=(kind,headline,copy)=>{const status=handle.overlay.querySelector('[data-lvjs-status]');if(!status)return;status.hidden=false;status.className=`lvjs-status ${kind}`;status.innerHTML=`<span aria-hidden="true">${kind==='is-success'?'↗':'!'}</span><div><strong>${esc(headline)}</strong><small>${esc(copy)}</small></div>`};
+    const showRouteState=(kind,headline,copy)=>{const status=handle.overlay.querySelector('[data-lvjs-status]');if(!status)return null;status.hidden=false;status.className=`lvjs-status ${kind}`;status.innerHTML=`<span aria-hidden="true">${kind==='is-success'?'↗':'!'}</span><div><strong>${esc(headline)}</strong><small>${esc(copy)}</small></div>`;return status};
+    const showExternalReady=({route,open})=>{
+      const provider=clean(route?.provider)||'Buchungsanbieter',status=showRouteState('is-success',`${provider} ist verfügbar.`,'Öffnet den belegten Anbieter erst mit eurem nächsten Klick – ohne leeren Zwischentab. Die Timeline bleibt unverändert.');
+      if(!status||typeof open!=='function')return;
+      const action=document.createElement('button');action.type='button';action.className='lvjs-provider-handoff';action.dataset.lvjsProviderHandoff='true';action.textContent=`Bei ${provider} reservieren ↗`;
+      action.addEventListener('click',async()=>{if(action.disabled)return;action.disabled=true;const actionLabel=action.textContent;action.textContent='Anbieter wird geöffnet …';try{await open()}catch(error){action.disabled=false;action.textContent=actionLabel;showRouteState('is-error','Anbieter konnte nicht geöffnet werden.',error?.message||'Bitte versucht es erneut.')}}, {once:true});
+      status.querySelector('div')?.append(action);
+    };
     const opened=await booking.commands.openPlaceBooking(place,{
       source:'consumer.journey-suggestions',host:sheetHost,onBack:restore,
+      deferExternalOpen:true,
+      onExternalReady:showExternalReady,
       onExternal:({route})=>showRouteState('is-success',`${route.provider||'Buchungsanbieter'} wurde geöffnet.`, 'Der Booking Core hat den belegten Providerweg gewählt. Die Reservierungsdaten gebt ihr direkt dort ein.'),
       onUnavailable:({route})=>showRouteState('is-error','Kein belegter Buchungsweg gefunden.',route?.reason==='ROUTE_PREVIEW_UNAVAILABLE'?'Die Prüfung war technisch nicht erreichbar. Es wurde nichts geöffnet oder versendet.':'Weder ein belastbarer Providerlink noch eine verifizierte öffentliche Buchungs-E-Mail wurden gefunden.'),
       onSubmitted:async({booking:submittedBooking,request})=>{
@@ -459,7 +468,7 @@ async function openBooking(place,button,form,handle,result,viewState){
       },
       date:dateValue(data.get('date')),time:clean(data.get('time'))||timeValue(result.input.startAt),reserveExternalWindow:false
     });
-    if(opened?.opened!==true&&opened?.channel!=='unavailable')throw new Error('Für diesen Ort ist gerade kein bestätigter Buchungsweg verfügbar.');
+    if(opened?.opened!==true&&!['unavailable','external_ready'].includes(opened?.channel))throw new Error('Für diesen Ort ist gerade kein bestätigter Buchungsweg verfügbar.');
     return opened;
   }finally{button.disabled=false;button.textContent=label}
 }
@@ -599,6 +608,8 @@ function paintResults(handle,result,selectedId='',restoredState=null){
   if(spectrum){spectrum.hidden=mapResults;spectrum.onclick=()=>{const detail={source:'journey-spectrum',targetDate:result.input.targetDate,startAt:result.input.startAt,endAt:result.input.endAt,destination:destinationOf(result.input.trip),categories:['Essen','Cafés','Bars','Kultur','Sehenswürdigkeiten','Natur','Wellness','Sport','Shopping','Nachtleben','Fotospots','Familie','Events']};globalThis.dispatchEvent(new CustomEvent('luvia:places-discovery-requested',{detail}));if(globalThis.LuviaApp?.show){handle.close('open-places-spectrum');globalThis.LuviaApp.show('places',{payload:detail,source:'journey-spectrum'})}else{spectrum.textContent='Gesamtes Spektrum in Places';spectrum.dataset.requested='true'}}}
   if(result.warning)status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Letzter belegter Vorschlagsstand</strong><small>${esc(result.warning)}</small></div>`;else status.hidden=true;
   results.hidden=false;results.innerHTML=result.choices.map((place,index)=>cardMarkup(place,index,result.input,result.choices)).join('');
+  const routeCandidate=result.choices.find(place=>providerId(place)===selectedId)||result.choices[0];
+  if(routeCandidate&&mapResults)Promise.resolve(contracts().booking?.reads?.preparePlaceBooking?.(routeCandidate)).catch(()=>{});
   setTimeout(()=>{if(!handle.overlay?.isConnected)return;results.querySelectorAll('[data-lvjs-staged-actions]').forEach((actions,index)=>{actions.hidden=false;setTimeout(()=>actions.classList.add('is-visible'),Math.min(index,4)*80)})},700);
   const selectedIds=new Set(restoredState?.selectedIds||[selectedId].filter(Boolean)),plans=new Map(restoredState?.plans||[]),completed=new Map(restoredState?.completed||[]),alternativeHistory=new Map((restoredState?.alternativeHistory||[]).map(([id,values])=>[id,new Set(values)]));
   const selectedPlaces=()=>result.choices.filter(place=>selectedIds.has(providerId(place)));
@@ -618,7 +629,7 @@ function paintResults(handle,result,selectedId='',restoredState=null){
       const note=scheduler.querySelector('[data-lvjs-card-plan]'),planButton=scheduler.querySelector('[data-lvjs-plan]'),weatherNote=weatherReaction(item?.place||result.choices.find(place=>providerId(place)===id),result.input,item?.plannedAt);
       if(done){note.textContent=done==='proposal'?'Die Gruppenabstimmung läuft direkt am künftigen Timeline-Eintrag.':done==='booking-pending'?'In der Timeline · Buchung oder Reservierung wartet auf Bestätigung.':'Dieser Ort steht bestätigt in eurer Timeline.';if(planButton){planButton.disabled=true;planButton.textContent=done==='proposal'?'Abstimmung läuft':'In der Timeline'}return}
       if(item?.timelineConflict)note.textContent=item.timelineConflict.message;else if(item?.overlap){const required=new Date(item.requiredAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});note.textContent=`Kollision: Nach dem zuvor gewählten Ort und dem Weg ist frühestens ${required} sinnvoll.`}else if(item?.outside)note.textContent='Konflikt: Der Termin liegt außerhalb des ausgewählten freien Zeitfensters.';else if(item?.openingConflict)note.textContent=`Konflikt: Die zuletzt belegten Öffnungszeiten decken ${plan.time} Uhr nicht ab.`;else if(item?.openingStale)note.textContent='Öffnungszeiten sind veraltet oder widersprüchlich und werden deshalb nicht als sicher behauptet.';else if(weatherNote)note.textContent=weatherNote;else if(item?.transferLabel)note.textContent=`Danach erreichbar: ${item.transferLabel}.`;else note.textContent=`Passt zum bestätigten Tagesstand · ${routeBuffer(result.input)} Min. Ankunftspuffer bleiben berücksichtigt.`;
-      if(planButton){planButton.disabled=!item?.fits;planButton.textContent=groupDecision?'Abstimmung starten':'Zur Timeline'}
+      if(planButton){planButton.disabled=false;planButton.textContent=groupDecision?'Abstimmung starten':'Zur Timeline'}
     });
     const count=chosen.length,conflicts=schedule.filter(item=>!item.fits).length,balance=liveDayBalance(schedule,result.input),footerPlan=root.querySelector('[data-lvjs-plan-selected]'),actionable=schedule.filter(item=>item.fits&&!completed.has(providerId(item.place)));if(footerPlan){const item=actionable.length===1?actionable[0]:null;footerPlan.hidden=!item;footerPlan.disabled=!item;footerPlan.dataset.lvjsPlanSelected=item?providerId(item.place):'';footerPlan.textContent=groupDecision?'Abstimmung starten':'Zur Timeline hinzufügen'}if(spectrum)spectrum.hidden=mapResults||Boolean(actionable.length);footer.textContent=conflicts?`${count} gewählt · ${conflicts} Zeitkonflikt${conflicts===1?'':'e'} lösen`:balance||count?balance||`${count} gewählt · Termine werden je Karte live aufeinander abgestimmt`:result.ai.ranking?'Belegbar berechnet · KI erklärt · ihr bestätigt':'Belegte Orte · ihr bestätigt';
   };
@@ -630,7 +641,33 @@ function paintResults(handle,result,selectedId='',restoredState=null){
     handle.close('pin-navigation');
     result.input.onNavigate?.(direction);
   },{signal:eventController.signal}));
-  const commitPlan=async(id,trigger)=>{const place=result.choices.find(item=>providerId(item)===id),form=schedulerFor(id),item=scheduleFor(selectedPlaces(),plans,result.input).find(row=>providerId(row.place)===id);if(!place||!item?.fits||!form||!trigger)return;trigger.disabled=true;trigger.textContent='Wird geprüft …';const cardButton=form.querySelector('[data-lvjs-plan]');if(cardButton&&cardButton!==trigger){cardButton.disabled=true;cardButton.textContent='Wird geprüft …'}const cardState=form.querySelector('[data-lvjs-card-state]');try{const outcome=await commitOrPropose(item,result.input,form);completed.set(id,outcome.kind==='proposal'?'proposal':'planned');cardState.className='lvjs-card-state is-success';cardState.innerHTML=outcome.kind==='proposal'?'Vorschlag eingereicht · die zeitabhängige Gruppenentscheidung läuft.':'Bestätigt · der Eintrag ist jetzt in der Timeline. <button type="button" data-lvjs-open-timeline>Timeline öffnen</button>';cardState.querySelector('[data-lvjs-open-timeline]')?.addEventListener('click',()=>{handle.close('planned');globalThis.LuviaApp?.show?.('timeline',{source:'journey-suggestion-receipt'})});offerPlanUndo(cardState,outcome,result.input)}catch(error){trigger.disabled=false;trigger.textContent=groupDecision?'Abstimmung starten':'Zur Timeline hinzufügen';if(cardButton&&cardButton!==trigger){cardButton.disabled=false;cardButton.textContent=groupDecision?'Abstimmung starten':'Zur Timeline'}cardState.className='lvjs-card-state is-error';cardState.textContent=error?.message||'Nichts wurde verändert.'}sync()};
+  const commitPlan=async(id,trigger)=>{
+    const place=result.choices.find(item=>providerId(item)===id),form=schedulerFor(id),item=scheduleFor(selectedPlaces(),plans,result.input).find(row=>providerId(row.place)===id),actionState=trigger?.closest?.('[data-lvjs-staged-actions]')?.querySelector?.('[data-lvjs-action-state]'),visibleState=actionState||form?.querySelector('[data-lvjs-card-state]');
+    if(!place||!form||!trigger){
+      if(visibleState){visibleState.hidden=false;visibleState.className='lvjs-action-state is-error';visibleState.textContent='Dieser Ort ist nicht mehr eindeutig verfügbar. Bitte öffnet den Pin erneut.'}
+      return;
+    }
+    if(!item?.fits){
+      const conflictMessage=item?.timelineConflict?.message
+        ||(item?.overlap?'Der vorgeschlagene Zeitpunkt überschneidet sich mit einem bestehenden Timeline-Eintrag.':'')
+        ||(item?.openingConflict?'Die belegten Öffnungszeiten passen nicht zum vorgeschlagenen Zeitpunkt.':'')
+        ||(item?.outside?'Der vorgeschlagene Zeitpunkt liegt außerhalb des ausgewählten Reisezeitraums.':'')
+        ||'Der Timeline-Eintrag kann mit dem aktuellen Tagesstand noch nicht angelegt werden.';
+      visibleState.hidden=false;visibleState.className='lvjs-action-state is-error';visibleState.textContent=`${conflictMessage} Öffnet den Timeline-Planer für eine freie Zeit.`;
+      return;
+    }
+    trigger.disabled=true;trigger.textContent='Wird geprüft …';
+    try{
+      const outcome=await commitOrPropose(item,result.input,form);
+      completed.set(id,outcome.kind==='proposal'?'proposal':'planned');
+      visibleState.hidden=false;visibleState.className='lvjs-action-state is-success';visibleState.innerHTML=outcome.kind==='proposal'?'Vorschlag eingereicht · die zeitabhängige Gruppenentscheidung läuft.':'Bestätigt · der Eintrag ist jetzt in der Timeline. <button type="button" data-lvjs-open-timeline>Timeline öffnen</button>';
+      visibleState.querySelector('[data-lvjs-open-timeline]')?.addEventListener('click',()=>{handle.close('planned');globalThis.LuviaApp?.show?.('timeline',{source:'journey-suggestion-receipt'})});
+      offerPlanUndo(visibleState,outcome,result.input);
+    }catch(error){
+      trigger.disabled=false;trigger.textContent=groupDecision?'Abstimmung starten':'Zur Timeline';visibleState.hidden=false;visibleState.className='lvjs-action-state is-error';visibleState.textContent=error?.message||'Nichts wurde verändert.';
+    }
+    sync();
+  };
   root.addEventListener('click',event=>{const footerPlan=event.target.closest?.('[data-lvjs-plan-selected]');if(!footerPlan||footerPlan.disabled)return;event.preventDefault();commitPlan(footerPlan.dataset.lvjsPlanSelected,footerPlan)},{signal:eventController.signal});
   results.addEventListener('click',async event=>{
     const detailButton=event.target.closest?.('[data-lvjs-details]'),bookingButton=event.target.closest?.('[data-lvjs-booking]'),planButton=event.target.closest?.('[data-lvjs-plan]'),nearbyButton=event.target.closest?.('[data-lvjs-nearby]');
@@ -687,6 +724,11 @@ function open(rawInput={}){
 async function openResults(rawInput={}){
   const input=currentInput({...rawInput,source:rawInput.source||'places-search',requestedCount:(rawInput.places||[]).length}),ui=globalThis.LuviaUI;
   if(!ui?.mount)throw new Error('Overlay Host v1 ist noch nicht bereit.');if(!Array.isArray(rawInput.places)||!rawInput.places.length)throw new Error('Es liegen keine belegten Places-Ergebnisse vor.');
+  const routeCandidate=rawInput.places.find(place=>providerId(place)===rawInput.selectedId)||rawInput.places[0];
+  // Route discovery starts before preference and photo hydration. The selected
+  // provider handoff is therefore usually ready by the time its delayed action
+  // enters, while a click still remains the only operation that opens it.
+  if(routeCandidate)Promise.resolve(contracts().booking?.reads?.preparePlaceBooking?.(routeCandidate)).catch(()=>{});
   activeHandle?.close?.('replace');const content=document.createElement('section');content.className='lvjs-sheet';content.dataset.journeySuggestionSheet='true';content.innerHTML=shellMarkup(input);let mounted=null;
   mounted=ui.mount({name:'places.search-results',kind:'sheet',content,className:'lvjs-overlay',closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Places Suchergebnisse',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted;
   const status=mounted.overlay.querySelector('[data-lvjs-status]');status.innerHTML='<span class="lvjs-loader" aria-hidden="true"></span><div><strong>Ergebnisse werden für alle Reisenden eingeordnet …</strong><small>Google- und Provider-Fakten bleiben die einzige Ortswahrheit.</small></div>';

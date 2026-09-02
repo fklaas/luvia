@@ -100,6 +100,7 @@ function accommodationProviderCatalog(){return immutable(accommodation().provide
 function compareStayOffers(input={}){return immutable(stayDecision().buildDecision(input.offers||[],input.query||input.profile||{},input.providerRun||input.coverage||{}))}
 async function searchStayOffers(input={}){return immutable(await staySearch().search(input))}
 async function reconcileUnknownOutcome(input={}){return immutable(await recovery().reconcile(input))}
+async function preparePlaceBooking(place={}){return immutable(await ui().preparePlace(placeProjection(place)))}
 
 async function createForPlace(input={}){return immutable(await runtime().createForPlace(input))}
 async function submitReservation(input={}){return immutable(await runtime().submitReservation(input))}
@@ -153,7 +154,7 @@ async function resolveThread(input={}){
   return immutable(await runtime().setConversationPreference(bookingId,'resolved',input.resolved===false?null:(input.at||new Date().toISOString())));
 }
 
-const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,lifecycleCapabilities,resolveCommand,conversationPreferences,checkAvailability,resolveChannel,resolveAdmission,admissionProviderCatalog,resolveAccommodation,accommodationProviderCatalog,compareStayOffers,searchStayOffers,reconcileUnknownOutcome});
+const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,lifecycleCapabilities,resolveCommand,conversationPreferences,checkAvailability,resolveChannel,resolveAdmission,admissionProviderCatalog,resolveAccommodation,accommodationProviderCatalog,compareStayOffers,searchStayOffers,reconcileUnknownOutcome,preparePlaceBooking});
 const composition=Object.freeze({createDraft,updateDraft,validateDraft,selectRoute,composeMessageDraft});
 const commands=Object.freeze({createForPlace,submitReservation,trackExternalHandoff,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,openStayOffer,retryRecovery,resolveThread});
 const api=Object.freeze({

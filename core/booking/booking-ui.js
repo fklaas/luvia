@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.11.0-submit-before-timeline';
+  const VERSION='1.12.0-explicit-provider-handoff';
   let activeHandle=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clean=v=>String(v??'').trim();
@@ -224,6 +224,7 @@
     })();
     return rememberRoute(place,promise);
   }
+  async function preparePlace(place={}){return resolveRouteCached({...place,type:canonicalType(place.type||place.primaryType||place.primary_type||'other')})}
 
   function placeFromButton(button){
     return {
@@ -306,17 +307,28 @@
       return Object.freeze({opened:false,channel:'unavailable',resolvedChannel:null,provider:route.provider||null,reason:'ROUTE_PLACE_IDENTITY_MISMATCH',requiresOwnerFlow:false});
     }
     if(target){
-      let tracking=null,trackingError=null;
-      try{
-        if(typeof window.LuviaBooking.trackExternalHandoffForPlace==='function')tracking=await window.LuviaBooking.trackExternalHandoffForPlace({place,route:{...route,value:target},startAt:options.startAt||null,endAt:options.endAt||null,partySize:options.partySize||1});
-        else{await window.LuviaBooking.recordPlaceHandoff?.(place,{...route,value:target});tracking={tracked:true,legacyAttributionOnly:true}}
+      const resolvedRoute={...route,value:target};
+      const launch=async()=>{
+        // Opening must happen synchronously inside the deliberate provider-button
+        // click. Awaiting attribution first makes mobile browsers reject the popup.
+        const didOpen=LuviaOwnerFlowNavigationV1.openBooking(target,{reserved});
+        if(!didOpen){closeReserved(reserved);throw new Error('Der Browser hat das Anbieterfenster blockiert.')}
+        let tracking=null,trackingError=null;
+        try{
+          if(typeof window.LuviaBooking.trackExternalHandoffForPlace==='function')tracking=await window.LuviaBooking.trackExternalHandoffForPlace({place,route:resolvedRoute,startAt:options.startAt||null,endAt:options.endAt||null,partySize:options.partySize||1});
+          else{await window.LuviaBooking.recordPlaceHandoff?.(place,resolvedRoute);tracking={tracked:true,legacyAttributionOnly:true}}
+        }
+        catch(error){trackingError=error;console.warn('[Luvia Booking] Der externe Weg wurde geöffnet, konnte aber nicht im Booking Center gespeichert werden.',error)}
+        const tracked=tracking?.tracked===true;
+        options.onExternal?.({place,route:resolvedRoute,tracked,bookingId:tracking?.bookingId||null,trackingError});
+        return Object.freeze({opened:true,channel:'external_link',resolvedChannel:route.channel,provider:route.provider||null,reason:route.reason||null,requiresOwnerFlow:false,tracked,bookingId:tracking?.bookingId||null,trackingError:trackingError?.message||null});
+      };
+      if(options.deferExternalOpen===true){
+        closeReserved(reserved);
+        options.onExternalReady?.({place,route:resolvedRoute,target,open:launch});
+        return Object.freeze({opened:false,ready:true,channel:'external_ready',resolvedChannel:route.channel,provider:route.provider||null,reason:route.reason||null,requiresOwnerFlow:true});
       }
-      catch(error){trackingError=error;console.warn('[Luvia Booking] Der externe Weg wurde geöffnet, konnte aber nicht im Booking Center gespeichert werden.',error)}
-      const didOpen=LuviaOwnerFlowNavigationV1.openBooking(target,{reserved});
-      if(!didOpen){closeReserved(reserved);throw new Error('Der Browser hat das Buchungsfenster blockiert.')}
-      const tracked=tracking?.tracked===true;
-      options.onExternal?.({place,route:{...route,value:target},tracked,bookingId:tracking?.bookingId||null,trackingError});
-      return Object.freeze({opened:true,channel:'external_link',resolvedChannel:route.channel,provider:route.provider||null,reason:route.reason||null,requiresOwnerFlow:false,tracked,bookingId:tracking?.bookingId||null,trackingError:trackingError?.message||null});
+      return launch();
     }
 
     closeReserved(reserved);
@@ -348,5 +360,5 @@
   },true);
 
 
-  window.LuviaBookingUI=Object.freeze({version:VERSION,actionButton,open,openForPlace});
+  window.LuviaBookingUI=Object.freeze({version:VERSION,actionButton,open,openForPlace,preparePlace});
 })();
