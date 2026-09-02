@@ -20,15 +20,24 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.160**
-- Core: **4.82.160**
+- App: **13.82.161**
+- Core: **4.82.161**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Compact Map-native Places Filters — Local Integration candidate 13.82.160
+## M16.5 Hierarchical Multi-filter Map Controls — Local Integration candidate 13.82.161
+
+- One unified map bar: **`Alle / Passend`, locked `← 1/xx →` pin navigation and the Search, Category, Filter and Legend icons remain in one quiet translucent bar between native zoom and the map's right edge. No second toolbar or external Places controls return**.
+- Search correction: **the map search is a single non-wrapping field, starts empty for a category-led search and never copies `Restaurants, Cafés, Bars` into the visible input. The chosen canonical category still constrains the owner request. The redundant shell-dependent `.sr-only` element is removed; the native field owns its accessible name**.
+- Hierarchical factual filters: **the compact right panel initially shows only `Art`, `Landesküche`, `Merkmale`, `Preisniveau` and `Sortierung`. Selecting a heading softly replaces that list with its values and a return action. Restaurant types and cuisines are substantially expanded; multiple values can be selected within a group, while distinct groups combine. Selected cuisine/type, provider facts and price levels participate in both the existing pins and subsequent Google-primary requests**.
+- Preference conjunction: **filtered retrieval carries the active vegetarian or vegan Profile requirement into the cuisine-aware query and then reruns the same evidence-backed ranking. A selected Italian cuisine therefore searches for vegetarian Italian evidence instead of discarding the dietary requirement. The hard dietary gate remains fail-closed: category alone never fabricates suitability, meat-led counterevidence cannot become `Passend`, and unverified places remain available only under `Alle`**.
+- Compact dismissal and map continuity: **every small panel has an `×`; tapping the free map closes it as well. Filter values update the mounted marker set immediately, while a debounced owner refresh replaces the marker data without destroying the visible map. Category and filter panels are height-bounded above the bottom navigation and scroll internally**.
+- Release gate: **fresh runtime bundles, generated visual/action inventories, the 330-row parity matrix, NFR-0 3/3 and the complete controlled Safe Regression 201/201 are PASS. Clean Integration-only deployment and public narrow-screen interaction proof remain required. Main and Production remain locked**.
+
+## M16.5 Compact Map-native Places Filters — Superseded Integration candidate 13.82.160
 
 - Public counterevidence and correction: **public `.159` proved the map-native tool dock and all three working overlays, but the mobile filter's inherited expanding flex rows produced a large white area over the map. `.160` replaces that inherited layout with a content-sized one-column grid, removes row growth and keeps every factual choice in compact wrapping chips. Search, categories and legend retain their accepted map-native behavior**.
 - Unified control bar: **`Alle / Passend`, locked `← 1/xx →` pin navigation and the Search, Category, Filter and Legend icons now share one quiet translucent bar between the native zoom control and the map's right edge. No second control bar remains**.

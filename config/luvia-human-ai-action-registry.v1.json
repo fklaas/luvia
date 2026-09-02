@@ -7,7 +7,7 @@
     "workbook": "Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx",
     "workbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
     "snapshotDate": "2026-09-01",
-    "integrationBuild": "13.82.160",
+    "integrationBuild": "13.82.161",
     "scope": "Aktuell servierte öffentliche und angemeldete Web-App einschließlich konditionaler Provider- und Geräteaktionen; nicht ausführbare Outcomes separat."
   },
   "invariants": {
@@ -21,7 +21,7 @@
     "semanticActions": 330,
     "availableOrConditional": 319,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 923,
+    "auditedDataMarkers": 928,
     "runtimeRegisteredActions": 24,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
@@ -20135,13 +20135,13 @@
     }
   ],
   "markerAudit": {
-    "count": 923,
+    "count": 928,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "905D9B426EA72A018527F7EF2B27AEA4C54AF75249EDE59AC75E583409C37E58",
+    "registrySha256": "9FF8DAD2930E08729A0B8DDD6B8BE6F8A6CA25F27A1F54DE498FDAFA230F8638",
     "classifications": {
-      "AKTIONSKANDIDAT": 397,
+      "AKTIONSKANDIDAT": 400,
       "INTERAKTIONSPRIMITIVE": 284,
-      "STATUS/EINGABE/PROJEKTION": 242
+      "STATUS/EINGABE/PROJEKTION": 244
     },
     "categories": {
       "Buchung & Anbieterkommunikation": 76,
@@ -20149,9 +20149,9 @@
       "Journey, Timeline & Tagesplan": 41,
       "Luvia AI Chat": 55,
       "Medien & Galerie": 49,
-      "Navigation & Oberfläche": 326,
+      "Navigation & Oberfläche": 328,
       "Öffentliche Landing-Demos": 94,
-      "Places & Ortsentdeckung": 135,
+      "Places & Ortsentdeckung": 138,
       "Profil, Vorlieben & Privatsphäre": 60,
       "Reisen & Zusammenarbeit": 34
     },

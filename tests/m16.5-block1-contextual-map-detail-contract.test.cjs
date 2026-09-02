@@ -17,8 +17,9 @@ const journeyComposer=read('app/journey/journey-day-composer.js');
 
 for(const token of ["themeparks:{key:'themeparks'","wellness:{key:'wellness'","water:{key:'water'","malls:{key:'malls'"])assert.ok(placesOwner.includes(token),`missing canonical Places category: ${token}`);
 assert.match(places,/filter\(category=>category\.key!=='accommodation'&&category\.primaryType!=='accommodation'\)/,'Hotels must remain outside the Places consumer category rail');
-for(const token of ['vegetarian','reservable','accessible','priceLevel','subtype'])assert.ok(places.includes(token),`missing contextual Places filter: ${token}`);
-assert.match(places,/Google-\/Provider-Fakten, keine KI-Vermutungen/);
+for(const token of ['vegetarian','reservable','accessible','priceLevels','subtype'])assert.ok(places.includes(token),`missing contextual Places filter: ${token}`);
+assert.match(places,/includedTypes:selectedTypes/,'multi-select type and cuisine filters must reach the provider owner request');
+assert.match(places,/vegetarianOnly:state\.filters\.vegetarian/,'provider-backed vegetarian filtering must reach both discovery and viewport owner requests');
 assert.match(places,/maxViewportResults:MAX_RESULTS/,'Places must compose the bounded 80-result viewport contract rather than expose a 20-item UI shortlist');
 assert.match(places,/data-places-history-region/);
 assert.match(places,/state\.history=.*\.slice\(0,6\)/);
@@ -35,7 +36,8 @@ assert.match(places,/projectViewportResults:rows=>filteredResults\(rows\)/,'new 
 assert.match(places,/dataset\.compassTone=String\(\(marker\.rank-1\)%12\)/,'both shared marker paths must traverse the complete twelve-tone Compass spectrum');
 assert.equal((places.match(/dataset\.compassTone=String\(\(marker\.rank-1\)%12\)/g)||[]).length,2,'main and inline map projections must use the same Compass spectrum');
 for(let tone=0;tone<12;tone++)assert.ok(placesCss.includes(`data-compass-tone="${tone}"`),`Compass tone ${tone} is missing from the map pins`);
-assert.match(placesCss,/\.lv-places-spatial__map-toolbar/);
+assert.match(placesCss,/\.lv-places-spatial__map-tools/);
+assert.doesNotMatch(places,/lv-places-spatial__map-toolbar/,'fit, count, arrows and discovery icons must remain in one shared map bar');
 assert.doesNotMatch(places,/lv-places-spatial__map-story/,'the large informational map box must be removed from the productive Places DOM');
 assert.match(places,/class="lv-places-spatial__map-preview"/,'the map must expose one full-width selected-pin preview');
 assert.match(places,/contract\.reads\.getCard\(id,\{maxWidthPx:960,maxHeightPx:720\}\)/,'the selected-pin preview must hydrate its exact provider card photo');
