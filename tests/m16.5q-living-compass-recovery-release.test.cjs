@@ -19,17 +19,17 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5Q-LIVING-COMPASS-INTEGRATION-RECOVERY.md');
 
-assert.match(version,/core:'4\.82\.163'/);
-assert.match(version,/build:'13\.82\.163'/);
+assert.match(version,/core:'4\.82\.167'/);
+assert.match(version,/build:'13\.82\.167'/);
 assert.match(version,/name:'M16\.5 Places Hotel Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.163'/);
-assert.match(worker,/const BUILD='13\.82\.163'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.167'/);
+assert.match(worker,/const BUILD='13\.82\.167'/);
 assert.equal(index.includes('?v=13.82.61'),false,'active entry retains the handset-revoked cache key');
 assert.equal(index.includes('?v=13.82.62'),false,'active entry retains the superseded moment-routing/needle cache key');
 assert.equal(index.includes('?v=13.82.63'),false,'active entry retains the publicly superseded route-host click-replay cache key');
-for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.163`),`M16.5Q cache key missing for ${asset}`);
-const earlyPwaScript='intelligence/pwa-service.js?v=13.82.163';
+for(const asset of ['intelligence/kernel/version.js','intelligence/pwa-service.js','app/app-shell.js','app/module-hubs.js','app/module-hubs.css','app/places/places-spatial-experience.js','app/places/places-spatial-experience.css'])assert.ok(index.includes(`${asset}?v=13.82.167`),`M16.5Q cache key missing for ${asset}`);
+const earlyPwaScript='intelligence/pwa-service.js?v=13.82.167';
 assert.equal(index.split(earlyPwaScript).length-1,1,'the PWA recovery runtime must be loaded exactly once');
 assert.ok(index.indexOf(earlyPwaScript)<index.indexOf('<link rel="stylesheet"'),'stale-controller recovery must begin before any blocking stylesheet');
 
@@ -158,7 +158,7 @@ assert.match(read('tests/m16.5q-living-compass-recovery-e2e.cjs'),/mobile select
 assert.match(places,/const current=\(\)=>alive&&container\.isConnected&&map/,'late map callbacks must not mutate a replacement surface');
 assert.match(places,/state\.map\.easeTo\(\{center:coordinates\.lngLat/,'result selection must move the map using the public coordinate tuple');
 assert.match(places,/data-places-preview-open/,'marker selection must stop at one exact compact Place preview without a parallel result list');
-assert.match(places,/openResultSheet\(filteredResults\(\),id\)/,'the selected compact preview must be the explicit route into the unified Place sheet using its visibly frozen provider identity');
+assert.match(places,/openSheet\(placesFromSnapshot\(place\),providerId\(place\),\{interactive:true,origin\}\)\?\.settle\?\.\(true\)/,'the selected compact preview must be the explicit morph route into the unified Place sheet using its visibly frozen Place snapshot');
 assert.match(places,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back action must restore Plan Compass');
 assert.match(places,/data-places-map-fallback/,'honest map fallback markup is required');
 assert.match(placesCss,/\.lv-places-spatial__map-fallback/,'honest bright map fallback styling is required');
@@ -173,6 +173,6 @@ assert.match(pcr,/Main remained exactly at\s+`c4b6d1740ad04c291d5e27d8d18b3a32e5
 assert.match(pcr,/Production remained exactly on deployment\s+`578f13fc-8193-4988-88cf-93c94362fcc3`/);
 
 console.log('M16.5Q Living Compass Integration Recovery Release: PASS');
-console.log('App / Core / shell cache: 13.82.163 / 4.82.163 / luvia-shell-v13.82.163');
+console.log('App / Core / shell cache: 13.82.167 / 4.82.167 / luvia-shell-v13.82.167');
 console.log('Compass contexts, physical touch routing, cleanup, Places map and PWA cache recovery: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

@@ -421,16 +421,18 @@
     const image=state.images.get(providerId(place))||place?.image||null;
     return clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri||place?.photoUri||place?.imageUrl);
   }
-  function mapPreviewMarkup(){
-    const place=findPlace(state.selectedId),imageUrl=mapPreviewImage(place);
+  function mapPreviewMarkup(place=findPlace(state.selectedId)){
+    const imageUrl=mapPreviewImage(place);
     if(!place)return'<span class="lv-places-spatial__map-preview-empty">Pin auswählen</span>';
     return `<span class="lv-places-spatial__map-preview-cue" aria-hidden="true"><i></i><i></i><i></i></span><button type="button" class="lv-places-spatial__map-preview-open" data-places-preview-open value="${esc(providerId(place))}" aria-label="Details zu ${esc(place.name||'ausgewähltem Ort')} öffnen oder nach oben ziehen">${imageUrl?`<img src="${esc(imageUrl)}" alt="${esc(place.name||'Ausgewählter Ort')}" loading="eager" fetchpriority="high" decoding="async">`:'<span class="lv-places-spatial__map-preview-loading" aria-label="Anbieterfoto wird geladen"></span>'}<span><small>${esc(placeCategoryLabel(place))}</small><strong>${esc(place.name||'Ausgewählter Ort')}</strong></span></button>`;
   }
   function refreshMapPreview(){
     const preview=state.root?.querySelector('.lv-places-spatial__map-preview');
     if(!preview)return;
-    preview.innerHTML=mapPreviewMarkup();
-    preview.hidden=!findPlace(state.selectedId);
+    const place=findPlace(state.selectedId);
+    preview.__luviaSelectedPlace=place||null;
+    preview.innerHTML=mapPreviewMarkup(place);
+    preview.hidden=!place;
   }
   async function hydrateMapPreview(place){
     const id=providerId(place),contract=placesContract();
@@ -751,31 +753,52 @@
     const selectedIndex=Math.max(0,navigationPlaces.findIndex(place=>providerId(place)===providerId(selected)));
     return{places:[selected],selectedId:providerId(selected),trip:state.trip,query:state.query,source:'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],navigation:{index:selectedIndex,count:navigationPlaces.length},onNavigate:direction=>{if(navigationPlaces.length<2)return;const delta=direction==='previous'?-1:1,index=(selectedIndex+delta+navigationPlaces.length)%navigationPlaces.length,next=navigationPlaces[index];select(providerId(next),false,false);rememberViewed(next);openResultSheet(navigationPlaces,providerId(next))},onSelectionChange:id=>select(id,false,false)};
   }
-  function openResultSheet(places=filteredResults(),selectedId=state.selectedId,{interactive=false}={}){
+  function openResultSheet(places=filteredResults(),selectedId=state.selectedId,{interactive=false,origin=null}={}){
     const input=resultSheetInput(places,selectedId);if(!input)return null;
     const api=globalThis.LuviaJourneySuggestions,opener=interactive?api?.openResultsInteractive:api?.openResults;
     if(typeof opener!=='function'){notify('Die einheitliche Ergebnisansicht ist noch nicht bereit.','error');return null}
-    return opener(input);
+    return opener(interactive&&origin?{...input,interactiveOrigin:origin}:input);
   }
-  function bindPreviewGesture(){
-    const preview=state.root?.querySelector('.lv-places-spatial__map-preview');if(!preview)return;
-    let pointerId=null,gesturePlaceId=null,startY=0,lastY=0,lastAt=0,releaseVelocity=0,progress=0,controller=null,suppressClick=false;
-    const visiblePreviewId=()=>clean(preview.querySelector('[data-places-preview-open]')?.value)||state.selectedId;
+  function bindMapPreviewGesture(preview,{getPlace,getPlaces,openSheet}={}){
+    if(!preview||typeof getPlace!=='function'||typeof openSheet!=='function')return null;
+    let pointerId=null,gesturePlace=null,activationPlace=null,activationOrigin=null,startY=0,lastY=0,lastAt=0,releaseVelocity=0,progress=0,maxDistance=0,controller=null,gestureHost=null,backgroundHost=null,suppressClick=false;
+    const visiblePreviewPlace=()=>preview.__luviaSelectedPlace||getPlace(clean(preview.querySelector('[data-places-preview-open]')?.value));
+    const placesFromSnapshot=place=>{const id=providerId(place),rows=typeof getPlaces==='function'?getPlaces():[];return[place,...(Array.isArray(rows)?rows:[]).filter(item=>providerId(item)!==id)]};
+    const gestureOrigin=()=>{const source=preview.getBoundingClientRect(),map=preview.closest('[data-place-map-shell]')?.getBoundingClientRect?.()||source;return{source:{left:source.left,top:source.top,right:source.right,bottom:source.bottom,width:source.width,height:source.height},map:{left:map.left,top:map.top,right:map.right,bottom:map.bottom,width:map.width,height:map.height},viewport:{width:innerWidth,height:innerHeight}}};
+    const releaseGestureHost=()=>{if(!gestureHost)return;Object.assign(gestureHost,{onpointermove:null,onpointerup:null,onpointercancel:null});gestureHost=null};
+    const restoreModalIsolation=()=>{if(!backgroundHost)return;backgroundHost.inert=true;backgroundHost.setAttribute('aria-hidden','true');backgroundHost=null};
+    const beginInteractive=()=>{
+      if(controller||!providerId(gesturePlace))return controller;
+      controller=openSheet(placesFromSnapshot(gesturePlace),providerId(gesturePlace),{interactive:true,origin:activationOrigin||gestureOrigin()});gestureHost=controller?.overlay||null;
+      if(!gestureHost){controller=null;return null}
+      backgroundHost=preview;while(backgroundHost?.parentElement&&backgroundHost.parentElement!==document.body)backgroundHost=backgroundHost.parentElement;
+      if(backgroundHost){backgroundHost.inert=false;backgroundHost.removeAttribute('aria-hidden');try{preview.setPointerCapture?.(pointerId)}catch{}}
+      Object.assign(gestureHost,{onpointermove:move,onpointerup:finish,onpointercancel:cancel});return controller;
+    };
     const finish=event=>{
       if(pointerId==null||event.pointerId!==pointerId)return;
       try{preview.releasePointerCapture?.(pointerId)}catch{}
-      const open=Boolean(controller&&(progress>=.2||releaseVelocity>.45));
-      preview.classList.remove('is-dragging');controller?.settle?.(open);if(controller){suppressClick=true;setTimeout(()=>{suppressClick=false},0)}
-      pointerId=null;gesturePlaceId=null;controller=null;progress=0;
+      const dragged=maxDistance>=4,hadController=Boolean(controller),open=Boolean(hadController&&(progress>=.16||releaseVelocity>.34));
+      preview.classList.remove('is-dragging');controller?.settle?.(open);
+      const releasedPlace=gesturePlace,releasedOrigin=activationOrigin;
+      if(hadController||dragged){suppressClick=true;activationPlace=null;activationOrigin=null;setTimeout(()=>{suppressClick=false},0)}
+      else{activationPlace=releasedPlace;activationOrigin=releasedOrigin;setTimeout(()=>{if(activationPlace===releasedPlace){activationPlace=null;activationOrigin=null}},0)}
+      releaseGestureHost();restoreModalIsolation();pointerId=null;gesturePlace=null;controller=null;progress=0;maxDistance=0;
     };
-    preview.addEventListener('pointerdown',event=>{if(event.button!==undefined&&event.button!==0)return;gesturePlaceId=visiblePreviewId();if(!findPlace(gesturePlaceId))return;pointerId=event.pointerId;startY=lastY=Number(event.clientY);lastAt=performance.now();releaseVelocity=0;try{preview.setPointerCapture?.(pointerId)}catch{}});
-    preview.addEventListener('pointermove',event=>{
-      if(pointerId==null||event.pointerId!==pointerId)return;const y=Number(event.clientY),now=performance.now(),distance=Math.max(0,startY-y);releaseVelocity=Math.max(0,(lastY-y)/Math.max(1,now-lastAt));lastY=y;lastAt=now;
-      if(!controller&&distance>=6){controller=openResultSheet(filteredResults(),gesturePlaceId,{interactive:true});preview.classList.add('is-dragging')}
-      if(!controller)return;event.preventDefault();progress=Math.min(1,distance/Math.min(520,Math.max(260,innerHeight*.58)));controller.update?.(progress);
-    });
-    preview.addEventListener('pointerup',finish);preview.addEventListener('pointercancel',event=>{if(pointerId==null||event.pointerId!==pointerId)return;preview.classList.remove('is-dragging');controller?.settle?.(false);pointerId=null;gesturePlaceId=null;controller=null;progress=0});
-    preview.addEventListener('click',event=>{if(suppressClick){event.preventDefault();event.stopPropagation();return}const id=clean(event.target.closest?.('[data-places-preview-open]')?.value)||visiblePreviewId();openResultSheet(filteredResults(),id)});
+    const move=event=>{
+      if(pointerId==null||event.pointerId!==pointerId)return;const y=Number(event.clientY),now=performance.now(),distance=Math.max(0,startY-y);maxDistance=Math.max(maxDistance,Math.abs(startY-y));releaseVelocity=Math.max(0,(lastY-y)/Math.max(1,now-lastAt));lastY=y;lastAt=now;
+      if(distance<1&&!controller)return;if(!controller&&!beginInteractive())return;event.preventDefault();progress=Math.min(1,distance/Math.min(440,Math.max(220,innerHeight*.5)));controller.update?.(progress);
+    };
+    const cancel=event=>{if(pointerId==null||event.pointerId!==pointerId)return;preview.classList.remove('is-dragging');controller?.settle?.(false);releaseGestureHost();restoreModalIsolation();pointerId=null;gesturePlace=null;activationPlace=null;activationOrigin=null;controller=null;progress=0;maxDistance=0};
+    preview.addEventListener('pointerdown',event=>{if(event.button!==undefined&&event.button!==0)return;gesturePlace=visiblePreviewPlace();activationPlace=gesturePlace;if(!providerId(gesturePlace))return;activationOrigin=gestureOrigin();pointerId=event.pointerId;startY=lastY=Number(event.clientY);lastAt=performance.now();releaseVelocity=0;progress=0;maxDistance=0;preview.classList.add('is-dragging');try{preview.setPointerCapture?.(pointerId)}catch{}});
+    preview.addEventListener('pointermove',move);
+    preview.addEventListener('pointerup',finish);preview.addEventListener('pointercancel',cancel);
+    preview.addEventListener('click',event=>{if(suppressClick){event.preventDefault();event.stopPropagation();activationPlace=null;activationOrigin=null;return}const place=activationPlace||visiblePreviewPlace(),origin=activationOrigin||gestureOrigin();activationPlace=null;activationOrigin=null;if(!providerId(place))return;openSheet(placesFromSnapshot(place),providerId(place),{interactive:true,origin})?.settle?.(true)});
+    return Object.freeze({destroy:()=>{controller?.cancel?.();releaseGestureHost();restoreModalIsolation();pointerId=null;gesturePlace=null;activationPlace=null;activationOrigin=null;controller=null}});
+  }
+  function bindPreviewGesture(){
+    const preview=state.root?.querySelector('.lv-places-spatial__map-preview');
+    return bindMapPreviewGesture(preview,{getPlace:id=>findPlace(id||state.selectedId),getPlaces:()=>filteredResults(),openSheet:openResultSheet});
   }
   async function showMore(){
     const previous=state.visibleLimit;
@@ -925,5 +948,5 @@
   }
   function diagnostics(){return{version:VERSION,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,viewportSearch,decoratePreferences,openResultSheet,mountProjection,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,viewportSearch,decoratePreferences,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

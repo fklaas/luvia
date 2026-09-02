@@ -200,13 +200,13 @@ const adapterIndex =
   runtimeSources.indexOf('core/platform/trip-contract-adapter.js');
 
 const precontextIndex =
-  runtimeLoader.indexOf('luvia-runtime-precontext-13.82.163.bundle.js');
+  runtimeLoader.indexOf('luvia-runtime-precontext-13.82.167.bundle.js');
 
 const contextIndex =
   runtimeLoader.indexOf('../luvia-trip-context.js');
 
 const postcontextIndex =
-  runtimeLoader.indexOf('luvia-runtime-postcontext-13.82.163.bundle.js');
+  runtimeLoader.indexOf('luvia-runtime-postcontext-13.82.167.bundle.js');
 
 assert(
   storeIndex >= 0 &&

@@ -46,11 +46,14 @@
 /* A selected map preview may hand the real owner-backed sheet to the user's
    finger. The mounted content is complete from the first pixel; only its
    presentation progress is interactive, and cancelling performs no write. */
-.lvjs-overlay[data-lvjs-interactive="true"],.lvjs-overlay[data-lvjs-interactive-settling]{--lvjs-sheet-progress:0;background:rgba(10,31,45,calc(.3 * var(--lvjs-sheet-progress)));backdrop-filter:blur(calc(12px * var(--lvjs-sheet-progress)));transition:background .28s ease,backdrop-filter .28s ease}
+.lvjs-overlay[data-lvjs-interactive="true"],.lvjs-overlay[data-lvjs-interactive-settling]{--lvjs-sheet-progress:0;--lvjs-backdrop-alpha:0;--lvjs-backdrop-blur:0px;background:rgba(10,31,45,var(--lvjs-backdrop-alpha));backdrop-filter:blur(var(--lvjs-backdrop-blur));transition:background .28s ease,backdrop-filter .28s ease}
 .lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet,.lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{animation:none!important;transform:translate3d(0,calc((1 - var(--lvjs-sheet-progress)) * 100%),0);will-change:transform}
 .lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet{transition:none}
 .lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{transition:transform .32s cubic-bezier(.16,1,.3,1)}
 .lvjs-overlay[data-lvjs-interactive="settled"]>.lvjs-sheet{animation:none!important;transform:none}
+.lvjs-overlay[data-lvjs-origin-morph="true"]>.lvjs-sheet{position:fixed!important;left:var(--lvjs-sheet-left);bottom:var(--lvjs-sheet-bottom);width:var(--lvjs-sheet-width);height:var(--lvjs-sheet-height);max-height:none;margin:0!important;border-color:color-mix(in srgb,rgba(17,47,68,.12) var(--lvjs-surface-mix),transparent);border-radius:var(--lvjs-sheet-radius-top) var(--lvjs-sheet-radius-top) var(--lvjs-sheet-radius-bottom) var(--lvjs-sheet-radius-bottom);background:color-mix(in srgb,rgba(247,252,252,.99) var(--lvjs-surface-mix),transparent);box-shadow:0 var(--lvjs-shadow-y) var(--lvjs-shadow-blur) rgba(13,45,60,var(--lvjs-shadow-alpha));transform:none!important;overflow:hidden;will-change:left,bottom,width,height,border-radius,background}
+.lvjs-overlay[data-lvjs-origin-morph="true"]>.lvjs-sheet>*{opacity:var(--lvjs-content-opacity);transition:opacity .08s linear}
+.lvjs-overlay[data-lvjs-origin-morph="true"][data-lvjs-interactive-settling]>.lvjs-sheet{transition:left .34s cubic-bezier(.16,1,.3,1),bottom .34s cubic-bezier(.16,1,.3,1),width .34s cubic-bezier(.16,1,.3,1),height .34s cubic-bezier(.16,1,.3,1),border-radius .34s cubic-bezier(.16,1,.3,1),background .2s ease,box-shadow .2s ease}
 @media(prefers-reduced-motion:reduce){.lvjs-overlay[data-lvjs-interactive="true"]>.lvjs-sheet,.lvjs-overlay[data-lvjs-interactive-settling]>.lvjs-sheet{transition:none}}
 
 /* M16.5AB: one bottom-sheet journey, with the Compass ring spectrum as category truth.
@@ -220,6 +223,14 @@
 .lvjs-provider-detail-sheet>nav{display:flex;gap:8px;padding:12px 24px max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(17,47,68,.08);background:#fff}.lvjs-provider-detail-sheet>nav a{display:inline-flex;min-height:42px;align-items:center;justify-content:center;padding:7px 14px;border:1px solid rgba(17,47,68,.12);border-radius:13px;color:#17384e;font-size:10px;font-weight:820;text-decoration:none}
 @media(max-width:720px){.lvjs-overlay .lvjs-sheet{display:grid;grid-template-rows:auto auto auto auto;width:100%;height:auto;max-height:96dvh;overflow-y:auto}.lvjs-overlay .lvjs-results{align-items:start;max-height:none;overflow-x:auto!important;overflow-y:visible!important}.lvjs-overlay .lvjs-choice{overflow:visible!important}.lvjs-overlay .lvjs-choice-main{grid-template-rows:clamp(150px,27svh,220px) auto}.lvjs-overlay .lvjs-choice-main>img,.lvjs-overlay .lvjs-choice-placeholder{height:clamp(150px,27svh,220px)}.lvjs-overlay .lvjs-choice-copy{padding:13px 14px 15px}.lvjs-overlay .lvjs-choice-copy>strong{font-size:1.18rem}.lvjs-staged-actions{grid-template-columns:1fr 1fr;margin-inline:2px}.lvjs-staged-actions .is-primary{grid-column:1/-1}.lvjs-overlay .lvjs-footer{position:static;grid-row:auto;padding:8px 14px max(10px,env(safe-area-inset-bottom));background:#fff}.lvjs-provider-detail-sheet{max-height:92dvh;border-radius:25px 25px 0 0}.lvjs-provider-detail-sheet>header{padding:18px 16px 13px}.lvjs-provider-detail-body{padding:12px 16px 18px}.lvjs-provider-detail-body dl>div{grid-template-columns:1fr;gap:4px;padding:10px 0}.lvjs-provider-detail-sheet>nav{padding-inline:16px}.lvjs-provider-detail-sheet>nav a{flex:1}}
 @media(prefers-reduced-motion:reduce){.lvjs-staged-actions{transition:none}}
+
+/* The finger-owned preview morph is intentionally last in the sheet cascade.
+   It must win over both the generic Living Sheet and the compact mobile rules:
+   at progress zero it is the preview rectangle; at progress one it is exactly
+   the map rectangle, expanding left, right, up and down without a visual jump. */
+.lvjs-overlay[data-lvjs-origin-morph="true"]>.lvjs-sheet{position:fixed!important;left:var(--lvjs-sheet-left)!important;bottom:var(--lvjs-sheet-bottom)!important;width:var(--lvjs-sheet-width)!important;height:var(--lvjs-sheet-height)!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:var(--lvjs-sheet-radius-top) var(--lvjs-sheet-radius-top) var(--lvjs-sheet-radius-bottom) var(--lvjs-sheet-radius-bottom)!important;background:color-mix(in srgb,rgba(247,252,252,.99) var(--lvjs-surface-mix),transparent)!important;transform:none!important;overflow:hidden!important}
+.lvjs-overlay[data-lvjs-origin-morph="true"]>.lvjs-sheet>*{opacity:var(--lvjs-content-opacity)!important}
+@media(prefers-reduced-motion:reduce){.lvjs-overlay[data-lvjs-origin-morph="true"][data-lvjs-interactive-settling]>.lvjs-sheet{transition:none!important}}
 
 /* The active trip owns the sheet accent. Pin navigation is deliberately quiet;
    it changes the viewed result but never confirms or persists an action. */

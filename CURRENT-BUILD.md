@@ -20,22 +20,23 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.163**
-- Core: **4.82.163**
+- App: **13.82.167**
+- Core: **4.82.167**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Selected Pin Preview + Direct Sheet Gesture — Integration candidate 13.82.163
+## M16.5 Preview Morph + Hotel Map Parity — Integration candidate 13.82.167
 
 - Two-step map interaction: **tapping a pin now selects only that exact provider Place, raises its visual priority and shows the full-spectrum compact preview. It no longer opens the large result sheet immediately. Tapping that preview is the explicit second step into the exact one-Place sheet**.
-- Direct manipulation: **the preview owns a real pointer gesture. An upward drag mounts the owner-backed result sheet immediately and its sheet position follows the finger continuously; release past the distance or velocity threshold settles it open, while a short cancelled drag returns it without a write. Reduced-motion users retain the same interaction without decorative transitions**.
-- Selected-state motion: **the current pin is larger, receives a white separation ring plus an animated full-Compass halo, and remains programmatically pressed. The preview floats independently; its three small chevrons rise in a fixed top-to-bottom 120 ms stagger and pause while the user drags**.
-- Viewport-race protection: **the visible preview carries and freezes its exact provider Place ID at pointer-down. A simultaneous background viewport refresh can therefore neither exchange the touched Place nor open a different sheet. `.163` intentionally supersedes the two short-lived `.162` Integration uploads with a new App, Core, Service Worker and asset-cache identity**.
+- Direct manipulation: **the preview owns a real pointer gesture from its first upward pixel. Pointer-down freezes only identity and geometry so a simple tap is never swallowed by premature modal isolation; the first upward movement creates the owner-backed result sheet and grows it from the exact compact-preview rectangle left and right to the full map width, downward to the map edge and upward with the finger. Explicit pixel geometry replaces breakpoint-dependent jumps; release past the forgiving distance or velocity threshold settles it open, while a short cancelled drag returns it without a write. Reduced-motion users retain the same interaction without decorative transitions**.
+- Selected-state motion: **the current pin is larger, receives a white separation ring plus an animated full-Compass halo, and remains programmatically pressed. The preview floats independently; its three visible line-only chevrons rise in a fixed top-to-bottom 120 ms stagger, retain contrast over light map tiles and pause while the user drags. On narrow screens the preview clears the persistent bottom navigation**.
+- Viewport-race protection: **the visible preview carries and freezes the complete provider Place snapshot at pointer-down. A simultaneous background viewport refresh can therefore neither exchange the touched Place nor open a different sheet. `.167` supersedes the intermediate `.163`–`.166` local candidates with a new App, Core, Service Worker and asset-cache identity**.
+- Hotel parity: **Planen → Hotels now uses the same continuously mounted geographic renderer, twelve-tone Compass pins, enlarged selected state, `Alle / Passend`, locked `← x/xx →` navigation, compact Search/Type/Filter/Legend controls, provider-image preview, three staggered chevrons and exact-snapshot tap/drag sheet transition as Places. Panning and zooming use the same live viewport contract; one pin stages only one preview and never opens all hotels**.
 - Preference recovery: **a Profile vegetarian/vegan requirement now constrains the initial and viewport provider reads automatically, not only after a manual filter selection. `traveling_with_children` and `baby` remain strong ranking context instead of becoming impossible universal admission gates; an explicit stroller requirement remains hard and fail-closed. Google `goodForChildren`, `goodForGroups` and `menuForChildren` fields are normalized for evidence-aware family ranking**.
-- Release gate: **fresh `.163` runtime bundles, generated visual/action inventories, the 330-row parity matrix, NFR-0 3/3 and complete controlled Safe Regression 201/201 are PASS. Clean Integration-only deployment and public mobile pointer proof remain required. Main and Production remain locked**.
+- Release gate: **fresh `.167` runtime bundles, generated visual/action inventories, the 330-row parity matrix, NFR-0 3/3 and the complete controlled Safe Regression are 201/201 PASS. Local 390 × 844 real-pointer proof covers Places and Hotels: one Pin stages one exact image preview, preview tap morphs open, and upward drag settles the same provider entity. Clean Integration-only deployment and public confirmation remain; Main and Production stay locked**.
 
 ## M16.5 Hierarchical Multi-filter Map Controls — Local Integration candidate 13.82.161
 

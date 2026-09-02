@@ -51,8 +51,10 @@ assert.match(places,/Promise\.allSettled\(enrichmentTasks\)/,'card images and bo
 assert.match(places,/if\(enriched\.length\)\{state\.results=enriched;state\.status='ready';state\.error=null/,'deep provider results must replace an earlier empty state instead of leaving contradictory empty copy above real cards');
 assert.match(places,/const place=findPlace\(marker\.providerPlaceId\);select\(marker\.providerPlaceId,false,false\);rememberViewed\(place\);\s*\}\)/,'the exact map pin must only select and preview its own Place');
 assert.match(places,/return\{places:\[selected\],selectedId:providerId\(selected\)/,'one selected Place must never expand the complete result collection inside the sheet');
-assert.match(places,/openResultSheet\(filteredResults\(\),id\)/,'the compact selected-pin preview must open the shared result sheet only after an explicit second action using the provider identity attached to the visible preview');
+assert.match(places,/openSheet\(placesFromSnapshot\(place\),providerId\(place\),\{interactive:true,origin\}\)\?\.settle\?\.\(true\)/,'the compact selected-pin preview must morph into the shared result sheet only after an explicit second action using the exact Place snapshot presented at touch time');
 assert.match(sheet,/function openResultsInteractive\(rawInput=\{\}\)/,'the shared sheet must expose a direct-manipulation presentation for map preview swipes');
+assert.match(sheet,/interactiveOrigin/,'the interactive sheet must accept the exact compact-preview and map geometry');
+assert.match(sheet,/--lvjs-sheet-left[\s\S]*--lvjs-sheet-bottom[\s\S]*--lvjs-sheet-width[\s\S]*--lvjs-sheet-height/,'the sheet must interpolate all four map-bound dimensions under the finger');
 assert.match(places,/onViewportSearch:descriptor=>viewportSearch/,'the primary Places map must discover the visible viewport after pan or zoom');
 assert.match(places,/decoratePreferences/,'personal preference evaluation must decorate the complete viewport instead of selecting its contents');
 assert.match(places,/place\?\.distanceReference==='device'/,'Places may only label or sort a distance as nearby when the current device is the explicit reference');

@@ -751,8 +751,17 @@ function openResults(rawInput={}){
 function openResultsInteractive(rawInput={}){
   const overlay=openResults(rawInput),handle=activeHandle;if(!overlay||!handle)return null;
   let settled=false,progress=0;overlay.dataset.lvjsInteractive='true';overlay.style.setProperty('--lvjs-sheet-progress','0');
-  const update=value=>{if(settled||!overlay.isConnected)return;progress=Math.max(0,Math.min(1,Number(value)||0));overlay.style.setProperty('--lvjs-sheet-progress',String(progress))};
-  const settle=open=>{if(settled)return;settled=true;overlay.dataset.lvjsInteractiveSettling=open?'open':'closed';overlay.style.setProperty('--lvjs-sheet-progress',open?'1':'0');if(open){setTimeout(()=>{if(!overlay.isConnected)return;overlay.dataset.lvjsInteractive='settled';delete overlay.dataset.lvjsInteractiveSettling;overlay.style.removeProperty('--lvjs-sheet-progress')},340)}else setTimeout(()=>handle.close('gesture-cancel'),260)};
+  const origin=rawInput.interactiveOrigin,source=origin?.source,map=origin?.map,viewport=origin?.viewport;
+  let morph=null;
+  if(source&&map&&Number(source.width)>0&&Number(source.height)>0&&Number(map.width)>0&&Number(map.height)>0){
+    const viewportHeight=Number(viewport?.height)||innerHeight,targetLeft=Number(map.left),targetBottom=Math.max(0,viewportHeight-Number(map.bottom)),targetWidth=Number(map.width),targetHeight=Math.max(Number(source.height),Number(map.height)),originBottom=Math.max(0,viewportHeight-Number(source.bottom));
+    overlay.dataset.lvjsOriginMorph='true';
+    morph={left:Number(source.left),bottom:originBottom,width:Number(source.width),height:Number(source.height),deltaLeft:targetLeft-Number(source.left),deltaBottom:targetBottom-originBottom,deltaWidth:targetWidth-Number(source.width),deltaHeight:targetHeight-Number(source.height)};
+  }
+  const paint=value=>{const p=Math.max(0,Math.min(1,Number(value)||0));overlay.style.setProperty('--lvjs-sheet-progress',String(p));overlay.style.setProperty('--lvjs-backdrop-alpha',String(.3*p));overlay.style.setProperty('--lvjs-backdrop-blur',`${12*p}px`);if(morph){overlay.style.setProperty('--lvjs-sheet-left',`${morph.left+morph.deltaLeft*p}px`);overlay.style.setProperty('--lvjs-sheet-bottom',`${morph.bottom+morph.deltaBottom*p}px`);overlay.style.setProperty('--lvjs-sheet-width',`${morph.width+morph.deltaWidth*p}px`);overlay.style.setProperty('--lvjs-sheet-height',`${morph.height+morph.deltaHeight*p}px`);overlay.style.setProperty('--lvjs-sheet-radius-top',`${18+8*p}px`);overlay.style.setProperty('--lvjs-sheet-radius-bottom',`${18*(1-p)}px`);overlay.style.setProperty('--lvjs-surface-mix',`${p*100}%`);overlay.style.setProperty('--lvjs-content-opacity',String(Math.max(0,Math.min(1,(p-.08)*4))));overlay.style.setProperty('--lvjs-shadow-y',`${-26*p}px`);overlay.style.setProperty('--lvjs-shadow-blur',`${80*p}px`);overlay.style.setProperty('--lvjs-shadow-alpha',String(.2*p))}};
+  paint(0);
+  const update=value=>{if(settled||!overlay.isConnected)return;progress=Math.max(0,Math.min(1,Number(value)||0));paint(progress)};
+  const settle=open=>{if(settled)return;settled=true;overlay.dataset.lvjsInteractiveSettling=open?'open':'closed';paint(open?1:0);if(open){setTimeout(()=>{if(!overlay.isConnected)return;overlay.dataset.lvjsInteractive='settled';delete overlay.dataset.lvjsInteractiveSettling;if(overlay.dataset.lvjsOriginMorph!=='true')overlay.style.removeProperty('--lvjs-sheet-progress')},360)}else setTimeout(()=>handle.close('gesture-cancel'),260)};
   return Object.freeze({overlay,update,settle,cancel:()=>settle(false),get progress(){return progress}});
 }
 function diagnostics(){return Object.freeze({version:VERSION,owner:'consumer-orchestration',domainTruth:false,persistence:'ephemeral-cache-only',sources:['journey.v1','identity.v1','trip.v1','intelligence.v1','places.v1','booking.v1'],writeOwner:'places.v1',bookingOwner:'booking.v1',explicitConfirmation:true,cacheEntries:cache.size})}

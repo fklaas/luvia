@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 929,
+  "markerCount": 939,
   "markers": [
     {
       "marker": "data-accent",
@@ -3241,6 +3241,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-hotel-fit-mode",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-hotel-history-clear",
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
@@ -3266,6 +3275,87 @@
         "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; der Marker trägt die gemeinsame räumliche Projektion ausschließlich für Unterkünfte mit belegten Koordinaten."
+    },
+    {
+      "marker": "data-hotel-map-category",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-map-current",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-hotel-map-navigate",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-map-panel",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-hotel-map-panel-close",
+      "category": "Navigation & Oberfläche",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-map-preview",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-hotel-map-search",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-map-tool",
+      "category": "Places & Ortsentdeckung",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-hotel-map-total",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-hotel-pin-history",
@@ -6320,7 +6410,8 @@
       "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
-        "app/places/places-spatial-experience.js"
+        "app/places/places-spatial-experience.js",
+        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
