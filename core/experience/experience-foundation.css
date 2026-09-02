@@ -204,13 +204,16 @@ html[data-theme="dark"]{
 .lvx-place-map .maplibregl-ctrl-attrib{border-radius:8px 0 0;background:rgba(255,255,255,.9);color:#607483;font-size:8px}
 .lvx-place-map-status{position:absolute;right:10px;bottom:10px;z-index:5;max-width:calc(100% - 20px);box-sizing:border-box;padding:7px 10px;border:1px solid rgba(255,255,255,.9);border-radius:999px;background:rgba(255,255,255,.92);color:#40576a;box-shadow:0 8px 20px rgba(24,56,77,.11);font-size:8px;font-weight:750;line-height:1.35;backdrop-filter:blur(10px)}
 .lvx-place-map[data-map-state="loading"] .lvx-place-map-engine,.lvx-place-map[data-map-state="unavailable"] .lvx-place-map-engine,.lvx-place-map[data-map-state="empty"] .lvx-place-map-engine{opacity:0}
+.lvx-place-map[data-map-refreshing="true"] .lvx-place-map-engine{opacity:1}
+.lvx-place-map-status[data-refreshing="true"]::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--lvx-map-sea);vertical-align:1px;animation:lvx-map-refresh-pulse .9s ease-in-out infinite alternate}
+@keyframes lvx-map-refresh-pulse{from{opacity:.42;transform:scale(.78)}to{opacity:1;transform:scale(1.18)}}
 .lvx-place-card-media{width:100%;padding:0;border:0;cursor:pointer}.lvx-place-card-media>img{display:block;width:100%;height:100%;object-fit:cover;transition:transform var(--luvia-motion-slow) var(--luvia-ease-standard)}.lvx-place-card:hover .lvx-place-card-media>img{transform:scale(1.025)}
 .lvx-place-attribution{position:absolute;right:7px;bottom:6px;max-width:70%;padding:3px 6px;overflow:hidden;border-radius:var(--luvia-radius-pill);background:color-mix(in srgb,#000 58%,transparent);color:#fff;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
 .lvx-place-card-title{margin:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:left;cursor:pointer}.lvx-place-card-title:hover,.lvx-place-card-title:focus-visible{color:var(--luvia-color-action-primary)}
 .lvx-place-card.is-map-selected{border-color:#ef6254;box-shadow:0 0 0 3px color-mix(in srgb,#ef6254 12%,transparent),0 12px 30px rgba(24,56,77,.1)}
 @media(min-width:721px){.lvx-command-surface .lvx-place-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:560px){.lvx-place-map{min-height:200px;border-radius:15px}.lvx-place-map-status{left:9px;right:auto;bottom:9px;max-width:calc(100% - 18px)}}
-@media(prefers-reduced-motion:reduce){.lvx-command-surface .lvx-place-card-media>img,.lv-places-spatial .lv-places-spatial__marker{animation:none;transition:none}.lvx-place-card:hover .lvx-place-card-media>img{transform:none}}
+@media(prefers-reduced-motion:reduce){.lvx-command-surface .lvx-place-card-media>img,.lv-places-spatial .lv-places-spatial__marker,.lvx-place-map-status[data-refreshing="true"]::before{animation:none;transition:none}.lvx-place-card:hover .lvx-place-card-media>img{transform:none}}
 
 /* AI Place detail is a second, chat-native Living Sheet. It consumes the
    existing Places owner projection and never enters the legacy rv2 surface. */

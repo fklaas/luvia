@@ -212,6 +212,17 @@ assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or z
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
+assert.doesNotMatch(experience,/projectionState\(container,'loading','Kartenausschnitt/,'a viewport refresh must never return the mounted map to its initial loading state');
+assert.match(experience,/projectionRefreshState\(container,true,'Neue Pins werden im Hintergrund geladen/,'viewport loading must use the non-blocking refresh state');
+assert.match(experience,/projectionState\(container,'ready',updated\.markers\.length\?/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');
+assert.match(experience,/mapReady&&!map\.loaded\(\)/,'only an initial renderer failure may replace the not-yet-visible map');
+assert.match(experience,/else if\(event\?\.error\)projectionRefreshState\(container,false/,'runtime tile errors must preserve the visible map and pins');
+assert.match(experience,/nextMarkerInstances=new Map\(\)/,'new pins must be fully staged before the visible marker set is exchanged');
+assert.match(css,/\.lv-places-spatial__map\[data-map-refreshing="true"\] \.lv-places-spatial__map-engine\s*\{\s*opacity:\s*1/,'the Places map engine must remain visible during a viewport refresh');
+const hotelCss=read('modules/accommodations/accommodation-module.css');
+const experienceCss=read('core/experience/experience-foundation.css');
+assert.match(hotelCss,/\.hotel-map\[data-map-refreshing="true"\] \.hotel-map-engine\{opacity:1\}/,'the Hotel map engine must remain visible during the shared viewport refresh');
+assert.match(experienceCss,/\.lvx-place-map\[data-map-refreshing="true"\] \.lvx-place-map-engine\{opacity:1\}/,'AI Place and Event maps must remain visible during the shared viewport refresh');
 for(const removed of ['Details &amp; Evidenz','data-places-detail=','data-places-detail-region=','function detailMarkup','async function loadDetails'])assert.equal(experience.includes(removed),false,`old Places detail/evidence UI re-entered the new shell: ${removed}`);
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');

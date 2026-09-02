@@ -1900,6 +1900,24 @@
   transition: opacity .3s ease 1.2s;
 }
 
+.lv-places-spatial__map[data-map-refreshing="true"] .lv-places-spatial__map-engine {
+  opacity: 1;
+}
+
+.lv-places-spatial__map.is-ready[data-map-refreshing="true"] .lv-places-spatial__map-message {
+  opacity: 1;
+  transition: opacity .16s ease;
+}
+
+.lv-places-spatial__map-message[data-refreshing="true"] > i {
+  animation: lv-places-spatial-refresh-pulse .9s ease-in-out infinite alternate;
+}
+
+@keyframes lv-places-spatial-refresh-pulse {
+  from { opacity: .42; transform: scale(.78); }
+  to { opacity: 1; transform: scale(1.18); }
+}
+
 .lv-places-spatial__image-fallback {
   display: grid;
   place-items: center;
@@ -2075,6 +2093,7 @@
 @media (prefers-reduced-motion: reduce) {
   .lv-places-spatial__status > i { animation: none; }
   .lv-places-spatial__map.is-ready .lv-places-spatial__map-message { transition: none; }
+  .lv-places-spatial__map-message[data-refreshing="true"] > i { animation: none; }
   .lv-places-spatial__marker { animation: none; translate: none; }
 }
 

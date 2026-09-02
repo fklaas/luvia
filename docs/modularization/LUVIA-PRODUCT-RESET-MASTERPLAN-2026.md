@@ -31,11 +31,16 @@ capabilities inside this loop. None is an independent unfinished mini-product.
 
 ## 2. Current truthful baseline
 
-- Stable Integration remains App/Core `13.82.147 / 4.82.147` after `.148` was
-  rejected because one pin opened the complete result collection.
-- App/Core `13.82.149 / 4.82.149` is a local Integration candidate for map,
-  Place-sheet, Hotel identity, action semantics and provider-gate recovery. It
-  is not public evidence until deployed and operated on Stable and Immutable.
+- App/Core `13.82.147 / 4.82.147` remains the last accepted recovery baseline.
+  `.148` was rejected because one pin opened the complete result collection;
+  publicly deployed `.149` repaired exact selection and viewport breadth but
+  is rejected because background refresh hid the rendered map behind a grey
+  loading/empty fallback.
+- App/Core `13.82.150 / 4.82.150` is the local continuous-map Integration
+  candidate. It retains tiles and old pins during pan/zoom loading, stages new
+  pins before replacement and keeps the map active for empty or transient-error
+  outcomes. It is not public evidence until deployed and operated on Stable and
+  Immutable.
 - Main and Production remain locked.
 - Google Places is the primary Places source. Foursquare is fallback only and
   currently has no remaining credits. A fallback outage may reduce coverage
@@ -155,10 +160,11 @@ dead end or false claim.
 
 #### B1 execution slices
 
-1. **`.149` trust recovery — P01–P03/P06 guardrails.** Complete Google-primary
+1. **`.150` trust recovery — P01–P03/P06 guardrails.** Complete Google-primary
    coordinates, bounded Foursquare fallback, map-only Places/Hotels, exact pin
-   selection, unified Bottom Sheet, media loading/fallback, no legacy detail
-   route and no automatic arbitrary result opening.
+   selection, an uninterrupted map during live viewport refresh, unified Bottom
+   Sheet, media loading/fallback, no legacy detail route and no automatic
+   arbitrary result opening.
 2. **Golden discovery and planning — P03–P05/P09.** Close search, detail,
    favorite/unfavorite, plan/unplan, exact day/time, Journey conflict preview,
    owner receipt, readback, recovery and separately confirmed Undo in one user
@@ -482,8 +488,9 @@ privacy/permission behavior.
 
 ## 12. Immediate execution order
 
-1. Finish `.149` inventory, regression, clean commit, explicit Integration
-   Worker deployment and public one-pin/one-entity plus pan/zoom viewport QA.
+1. Finish `.150` inventory, regression, clean commit, explicit Integration
+   Worker deployment and public one-pin/one-entity plus uninterrupted pan/zoom
+   viewport QA.
 2. Close remaining B1 exact Restaurant and Activity/Culture route evidence.
 3. Close P09 granular Journey actions and P10 user-facing explainability.
 4. Run the complete G2 Golden Journey and first five-user G3 value test.

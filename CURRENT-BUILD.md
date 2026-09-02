@@ -20,23 +20,33 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.149**
-- Core: **4.82.149**
+- App: **13.82.150**
+- Core: **4.82.150**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Live Viewport Map Contract — Local Integration candidate 13.82.149
+## M16.5 Continuous Place Map Refresh — Local Integration candidate 13.82.150
 
-- Candidate status: **LOCAL RELEASE GATE OPEN. Stable Integration continues to serve App 13.82.147 / Core 4.82.147 after the rejected `.148` pin-selection deployment. Main and Production remain locked**.
+- Candidate status: **LOCAL RELEASE GATE OPEN. Public Stable currently serves the rejected `.149` build while `.150` completes its clean release gate; App/Core `13.82.147 / 4.82.147` remains the last accepted recovery baseline. Main and Production remain locked**.
+- Continuous canvas: **pan/zoom refresh never changes an already rendered map back to `loading`, `empty` or `unavailable`. Tiles, camera and the previous pin set remain visible while the next bounded viewport result loads; zero results and transient provider/tile errors retain the active base map**.
+- Atomic pins: **the complete replacement marker set is staged before the old set is removed. A newer camera movement invalidates an older in-flight response, the debounce is reduced from 420 ms to 180 ms and only a small non-blocking status pulse may indicate background work**.
+- Global scope: **the contract is owned by the shared MapLibre projection and therefore applies to productive Places, Hotels, AI Places and the prepared AI Event map, with reduced-motion behavior retained**.
 - Exact selection: **one pin represents one exact provider entity and opens a Bottom Sheet containing only that Place, Hotel, Restaurant, Activity, Culture or Event. A pin click cannot pass the complete result collection into the sheet**.
 - Live viewport: **Places and Hotels now query the public `places.v1` contract again after a debounced map pan or zoom. The contract splits the visible bounds into four provider requests, accepts at most Google's 20 results per request, removes duplicate provider identities, rejects coordinates outside the requested bounds and retains up to 80 unique visible pins. Moving to a neighbouring area starts a new bounded viewport query; existing pins remain visible if that refresh fails**.
 - Visibility and preference: **personal fit never filters the provider result set. Every eligible returned and coordinate-qualified result remains a pin; strong preference evidence may add a Compass marker to the pin. The UI does not claim that Google exposes an exhaustive global inventory beyond the results returned by its bounded API calls**.
 - Shared consumers: **the same projection lifecycle is connected to productive Places, Hotels and the AI Places map. The Event map uses the same viewport hook, but no productive Event-source gateway exists yet, so Event breadth remains honestly unavailable rather than synthetic**.
 - Provider order and Hotel truth: **each tile stays Google-primary with Foursquare as failure/empty fallback. Hotel discovery, live rate evidence and booking handoff remain separate; Duffel Stays and Booking.com Demand are application-pending and therefore cannot produce a live price or comparison claim**.
-- Local release gate: **runtime bundles are built; the complete controlled Safe Regression is 200/200 PASS, NFR0 is 3/3 PASS and patch hygiene is green. A clean release commit, immutable Integration deployment, Stable/Immutable byte proof and operated desktop/mobile map acceptance remain required before this candidate may replace `.147`**.
+- Local release gate: **focused shared-map contracts are green. Fresh runtime bundles, the complete controlled Safe Regression, NFR0, patch hygiene, clean release commit, immutable Integration deployment, Stable/Immutable byte proof and operated desktop/mobile continuous-map acceptance remain required**.
+
+## M16.5 Live Viewport Map Contract — Publicly deployed, rejected 13.82.149
+
+- Deployment evidence: **runtime commit `56fd9b71` was uploaded as immutable Integration Worker version `aca26938-b43a-4f37-b802-ffd5fb805bb9` and received 100% Stable Integration traffic**.
+- Retained correction: **one pin opens one exact entity; live viewport reads can return up to 80 unique coordinate-qualified pins, and personal relevance marks rather than hides provider results**.
+- Decisive counterevidence: **during pan/zoom, the refresh incorrectly returned the shared map shell to `loading`. Its CSS hid the real MapLibre engine and exposed the grey fallback until the provider call settled; an empty refreshed viewport could hide it again as `empty`. This violates the always-visible map contract, so `.149` is not an acceptance or rollback target**.
+- Correction: **`.150` separates first construction from background pin refresh and preserves the rendered map through loading, empty and transient-error outcomes**.
 
 ## M16.5 Product Reset Map + Hotel Provider Preparation — Publicly deployed, rejected 13.82.148
 

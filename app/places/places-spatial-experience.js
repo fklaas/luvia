@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.9.0-resilient-results-media';
+  const VERSION='1.10.0-continuous-map-refresh';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -391,9 +391,17 @@
   function projectionState(container,stateName,message){
     const shell=container?.closest?.('[data-place-map-shell],[data-event-map-shell]');
     if(container)container.dataset.mapState=stateName;
-    if(shell)shell.dataset.mapState=stateName;
-    const status=shell?.querySelector?.('[data-place-map-status],[data-event-map-status]');
-    if(status)status.textContent=message;
+    if(shell){shell.dataset.mapState=stateName;shell.classList.toggle('is-ready',stateName==='ready')}
+    const status=shell?.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
+    if(status){const copy=status.querySelector?.('span');if(copy)copy.textContent=message;else status.textContent=message}
+  }
+  function projectionRefreshState(container,busy,message=''){
+    const shell=container?.closest?.('[data-place-map-shell],[data-event-map-shell]');
+    if(!shell)return;
+    if(busy){shell.dataset.mapRefreshing='true';shell.setAttribute('aria-busy','true')}
+    else{delete shell.dataset.mapRefreshing;shell.removeAttribute('aria-busy')}
+    const status=shell.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
+    if(status){status.dataset.refreshing=String(Boolean(busy));const copy=status.querySelector?.('span');if(message){if(copy)copy.textContent=message;else status.textContent=message}}
   }
   function projectionMarkerButton(marker,{selectedId=null,onSelect=null}={}){
     const button=document.createElement('button');
@@ -412,8 +420,8 @@
   function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,onViewportResults=null,label='Places v1 · verifizierte Geodaten'}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
-    let map=null,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
-    const destroy=()=>{if(!alive)return;alive=false;clearTimeout(viewportTimer);disconnectObserver?.disconnect?.();disconnectObserver=null;for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();try{map?.remove?.()}catch{}map=null;container.replaceChildren()};
+    let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
+    const destroy=()=>{if(!alive)return;alive=false;++viewportRequest;clearTimeout(viewportTimer);projectionRefreshState(container,false);disconnectObserver?.disconnect?.();disconnectObserver=null;for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();try{map?.remove?.()}catch{}map=null;container.replaceChildren()};
     const current=()=>alive&&container.isConnected&&map;
     const fallbackCenter=COMPOSITION().normalizeCoordinates(initialCenter);
     if(!view.markers.length&&!fallbackCenter){projectionState(container,'empty','Keine vollständigen Places-Koordinaten für den Kartenstart.');return Object.freeze({view,map:null,destroy})}
@@ -425,17 +433,23 @@
       map.addControl(new globalThis.maplibregl.NavigationControl({showCompass:false,showZoom:true}),'top-left');
       const replaceMarkers=nextPlaces=>{
         if(!current())return view;
-        currentPlaces=Array.isArray(nextPlaces)?nextPlaces:[];view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
+        const nextPlacesList=Array.isArray(nextPlaces)?nextPlaces:[],nextView=COMPOSITION().compose({sourceContract:'places.v1',places:nextPlacesList,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,nextPlacesList.length||1)),runtime:{status:'ready',settled:true}}),nextMarkerInstances=new Map();
+        try{for(const marker of nextView.markers){const instance=new globalThis.maplibregl.Marker({element:projectionMarkerButton(marker,{selectedId,onSelect}),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);nextMarkerInstances.set(marker.providerPlaceId,instance)}}catch(error){for(const marker of nextMarkerInstances.values())try{marker.remove?.()}catch{}throw error}
         for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();
-        for(const marker of view.markers){const instance=new globalThis.maplibregl.Marker({element:projectionMarkerButton(marker,{selectedId,onSelect}),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);markerInstances.set(marker.providerPlaceId,instance)}
+        for(const [id,marker] of nextMarkerInstances)markerInstances.set(id,marker);
+        currentPlaces=nextPlacesList;view=nextView;
         return view;
       };
       const queueViewportSearch=()=>{
         if(typeof onViewportSearch!=='function'||!current())return;
-        clearTimeout(viewportTimer);viewportTimer=setTimeout(async()=>{const descriptor=viewportDescriptor(map);if(!descriptor||descriptor.key===lastViewportKey||!current())return;lastViewportKey=descriptor.key;const token=++viewportRequest;projectionState(container,'loading','Kartenausschnitt wird live neu geladen …');try{const next=await onViewportSearch(descriptor);if(token!==viewportRequest||!current())return;const updated=replaceMarkers(next);projectionState(container,updated.markers.length?'ready':'empty',updated.markers.length?`${label} · ${updated.markers.length} Treffer im sichtbaren Kartenausschnitt.`:'Keine belegten Treffer in diesem Kartenausschnitt.');onViewportResults?.(currentPlaces,descriptor,updated)}catch(error){if(token!==viewportRequest||!current())return;projectionState(container,'ready',`${label} · Nachladen fehlgeschlagen, bisherige Pins bleiben sichtbar.`)}},420);
+        const descriptor=viewportDescriptor(map);if(!descriptor||descriptor.key===lastViewportKey)return;
+        lastViewportKey=descriptor.key;const token=++viewportRequest;clearTimeout(viewportTimer);
+        projectionRefreshState(container,true,'Neue Pins werden im Hintergrund geladen …');
+        viewportTimer=setTimeout(async()=>{if(token!==viewportRequest||!current())return;try{const next=await onViewportSearch(descriptor);if(token!==viewportRequest||!current())return;const updated=replaceMarkers(next);projectionState(container,'ready',updated.markers.length?`${label} · ${updated.markers.length} Treffer im sichtbaren Kartenausschnitt.`:'Keine belegten Treffer in diesem Ausschnitt · Karte bleibt aktiv.');projectionRefreshState(container,false);onViewportResults?.(currentPlaces,descriptor,updated)}catch(error){if(token!==viewportRequest||!current())return;projectionState(container,'ready',`${label} · Nachladen fehlgeschlagen, bisherige Pins bleiben sichtbar.`);projectionRefreshState(container,false)}},180);
       };
       map.on('load',()=>{
         if(!current())return;
+        mapReady=true;
         styleCorporateMap(map);
         replaceMarkers(currentPlaces);
         if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:compactMap?38:54,maxZoom:15,duration:reducedMotion()?0:(compactMap?220:560)});
@@ -444,7 +458,7 @@
         if(typeof onViewportSearch==='function')map.once('idle',()=>{if(!current())return;map.on('moveend',queueViewportSearch);queueViewportSearch()});
         setTimeout(()=>{if(current())map.resize()},100);
       });
-      map.on('error',event=>{if(current()&&(!map.loaded()||event?.error))projectionState(container,'unavailable','Kartendaten sind unvollständig; die verifizierte Places-Liste bleibt verfügbar.')});
+      map.on('error',event=>{if(!current())return;if(!mapReady&&!map.loaded())projectionState(container,'unavailable','Kartendaten sind noch nicht verfügbar.');else if(event?.error)projectionRefreshState(container,false,'Ein Teil der Kartendaten lädt verzögert · Karte und vorhandene Pins bleiben sichtbar.')});
       disconnectObserver=new MutationObserver(()=>{if(!container.isConnected)destroy()});
       disconnectObserver.observe(document.documentElement,{childList:true,subtree:true});
       return Object.freeze({get view(){return view},get map(){return map},update:replaceMarkers,destroy});
