@@ -113,9 +113,21 @@
     if(!Number.isFinite(score)||score<=0||score>100||!Number.isFinite(coverage)||coverage<=0||!reasons.length)return null;
     return score;
   }
+  function preferredPlaceIds(source=state.results){
+    const eligible=(Array.isArray(source)?source:[]).filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null);
+    if(!eligible.length)return new Set();
+    const best=Math.max(...eligible.map(place=>verifiedFitScore(place)));
+    const threshold=Math.max(1,best-5);
+    const coverage=place=>Number(place?.groupFit?.coverage??place?.preferenceFit?.coverage??place?.preferenceCoverage??0);
+    return new Set(eligible
+      .filter(place=>verifiedFitScore(place)>=threshold)
+      .sort((left,right)=>(verifiedFitScore(right)-verifiedFitScore(left))||(coverage(right)-coverage(left)))
+      .slice(0,5)
+      .map(providerId));
+  }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));
   const normalizedPriceLevel=value=>({0:'PRICE_LEVEL_FREE',1:'PRICE_LEVEL_INEXPENSIVE',2:'PRICE_LEVEL_MODERATE',3:'PRICE_LEVEL_EXPENSIVE',4:'PRICE_LEVEL_VERY_EXPENSIVE'}[clean(value)]||clean(value).toUpperCase());
-  function filteredResults(source=state.results){const rows=(Array.isArray(source)?source:[]).filter(place=>(!state.fitOnly||verifiedFitScore(place)!=null)&&(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||place.features?.servesVegetarianFood===true)&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!state.filters.priceLevel||normalizedPriceLevel(place.priceLevel)===state.filters.priceLevel));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
+  function filteredResults(source=state.results){const preferred=state.fitOnly?preferredPlaceIds(source):null,rows=(Array.isArray(source)?source:[]).filter(place=>(!state.fitOnly||preferred.has(providerId(place)))&&(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasDeviceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||place.features?.servesVegetarianFood===true)&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!state.filters.priceLevel||normalizedPriceLevel(place.priceLevel)===state.filters.priceLevel));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasDeviceDistance(left)?Number(left.distanceMeters):Infinity)-(hasDeviceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function publicRuntime(filteredCount=filteredResults().length){
     const filteredEmpty=state.status==='ready'&&state.results.length>0&&filteredCount===0;
     return{status:state.offline?'offline':filteredEmpty?'empty':state.status,loading:state.status==='loading',offline:state.offline,error:state.error,settled:['ready','empty','error','offline'].includes(state.status)};
