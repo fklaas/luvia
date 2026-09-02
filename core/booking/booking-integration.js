@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='1.21.0-venue-identity-payload';
+  const VERSION='1.22.0-selected-stay-offer-handoff';
   let client=null, repository=null, initialized=false, initPromise=null;
 
   const mapType=type=>({
@@ -307,7 +307,7 @@
       p_venue_name:clean(place.name)||null,
       p_provider:clean(route.provider)||'official',
       p_destination_url:clean(route.value),
-      p_metadata:{source:'places_reserve_action',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null,bookingRequest:route.request||null}
+      p_metadata:{source:clean(route.source)||'places_reserve_action',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null,bookingRequest:route.request||null,...(route.metadata&&typeof route.metadata==='object'?route.metadata:{})}
     };
     const primary=await client.rpc('luvia_booking_prepare_monetized_handoff',args);
     if(!primary.error)return primary.data;
@@ -319,7 +319,7 @@
     return {handoffId:legacy.data,legacyFallback:true,bookingStatusChanged:false};
   }
 
-  async function trackExternalHandoffForPlace({place={},route={},startAt=null,endAt=null,partySize=1,tripId=null}={}){
+  async function trackExternalHandoffForPlace({place={},route={},startAt=null,endAt=null,partySize=1,tripId=null,metadata={}}={}){
     await init();
     const target=safeHttps(route?.value||route?.url);
     if(!target)throw Object.assign(new Error('Der externe Buchungsweg ist nicht als sichere HTTPS-Adresse belegt.'),{code:'BOOKING_EXTERNAL_URL_INVALID'});
@@ -327,7 +327,7 @@
     if(!resolvedTripId)throw new Error('Keine aktive Reise verfügbar.');
     const placeReference=providerId(place);
     const provider=clean(route.provider)||'official';
-    const now=Date.now();
+    const quoteFingerprint=clean(metadata?.selectedStayOffer?.quoteFingerprint||metadata?.quoteFingerprint),now=Date.now();
     let booking=null;
     try{
       const existing=await listForTrip(resolvedTripId);
@@ -335,12 +335,13 @@
         const rowPlace=clean(row?.request?.providerPlaceId||row?.request?.provider_place_id);
         const rowUrl=safeHttps(row?.metadata?.handoff?.url||row?.metadata?.handoff?.externalUrl||row?.metadata?.handoff?.external_url||row?.request?.reservationUrl||row?.request?.reservation_url);
         const created=Date.parse(row?.created_at||row?.createdAt||'');
-        return rowPlace&&rowPlace===placeReference&&rowUrl===target&&Number.isFinite(created)&&(now-created)<7200000&&!['cancelled','declined','completed'].includes(clean(row?.status).toLowerCase());
+        const rowQuoteFingerprint=clean(row?.metadata?.selectedStayOffer?.quoteFingerprint||row?.metadata?.quoteFingerprint),sameQuote=!quoteFingerprint||rowQuoteFingerprint===quoteFingerprint;
+        return rowPlace&&rowPlace===placeReference&&rowUrl===target&&sameQuote&&Number.isFinite(created)&&(now-created)<7200000&&!['cancelled','declined','completed'].includes(clean(row?.status).toLowerCase());
       })||null;
     }catch(error){console.warn('[Luvia Booking] bestehender externer Vorgang konnte nicht dedupliziert werden.',error)}
     if(!booking){
-      booking=await createForPlace({tripId:resolvedTripId,place,placeType:place.type||place.primaryType,startAt,endAt,partySize,channel:route.channel==='affiliate'?'affiliate':'external_link',provider,reservationUrl:target,route:{...route,value:target},skipRouteResolution:true,metadata:{externalHandoff:{trackedAt:new Date().toISOString(),provider,url:target,source:'places_owner_flow'}}});
-      const handoff=await recordHandoff(booking.id,{provider,url:target,providerReference:route.providerReference||null,metadata:{source:'places_owner_flow',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null}});
+      booking=await createForPlace({tripId:resolvedTripId,place,placeType:place.type||place.primaryType,startAt,endAt,partySize,channel:route.channel==='affiliate'?'affiliate':'external_link',provider,reservationUrl:target,route:{...route,value:target},skipRouteResolution:true,metadata:{externalHandoff:{trackedAt:new Date().toISOString(),provider,url:target,source:clean(route.source)||'places_owner_flow'},...(metadata&&typeof metadata==='object'?metadata:{})}});
+      const handoff=await recordHandoff(booking.id,{provider,url:target,providerReference:route.providerReference||null,metadata:{source:clean(route.source)||'places_owner_flow',resolverReason:route.reason||null,resolverVersion:route.resolverVersion||null,...(metadata&&typeof metadata==='object'?metadata:{})}});
       booking=await get(booking.id)||booking;
       try{await recordPlaceHandoff(place,{...route,value:target})}catch(error){console.warn('[Luvia Booking] Handoff-Attribution konnte nicht zusätzlich protokolliert werden.',error)}
       return {ok:true,tracked:true,deduplicated:false,bookingId:booking.id,booking,handoff,url:target,provider};

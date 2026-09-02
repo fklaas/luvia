@@ -16,10 +16,10 @@
     "blockedCapabilityPresentedAsAvailable": false
   },
   "summary": {
-    "catalogActions": 329,
-    "projectedActions": 329,
+    "catalogActions": 330,
+    "projectedActions": 330,
     "consumerViews": {
-      "ACTION": 39,
+      "ACTION": 40,
       "HANDOFF": 263,
       "PREVIEW": 27
     },
@@ -7758,6 +7758,32 @@
       "actionMode": "READ",
       "manualFlow": {
         "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen selbst öffnen",
+        "surface": "Hotels & Unterkünfte / Globaler Luvia Chat"
+      }
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "booking.stay.offer.open",
+      "state": "AVAILABLE_NOW",
+      "view": "ACTION",
+      "tone": "ready",
+      "hidden": false,
+      "title": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
+      "eyebrow": "Bereit",
+      "message": "Ich kann direkt weitermachen.",
+      "details": [],
+      "primaryAction": {
+        "label": "Jetzt anzeigen",
+        "kind": "PROCEED"
+      },
+      "secondaryAction": {
+        "label": "Selbst öffnen",
+        "kind": "OPEN"
+      },
+      "requiresConfirmation": false,
+      "actionMode": "EXTERNAL",
+      "manualFlow": {
+        "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen selbst öffnen",
         "surface": "Hotels & Unterkünfte / Globaler Luvia Chat"
       }
     }

@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='booking.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.7.0-ai-booking-lifecycle-owner';
+const RUNTIME_VERSION='1.8.0-selected-stay-offer-handoff';
 
 function unavailable(provider){const error=new Error(`Booking Contract v1: ${provider} ist nicht verfügbar.`);error.code='BOOKING_CONTRACT_PROVIDER_UNAVAILABLE';error.provider=provider;throw error}
 function runtime(){const api=globalThis.LuviaBooking;if(!api)unavailable('LuviaBooking');return api}
@@ -133,6 +133,15 @@ async function openExternalHandoff(input={}){
   const result=await openRoute({route,place,bookingId:tracking.bookingId,recordHandoff:false});
   return immutable({...result,tracking,providerPlaceId:place.providerPlaceId});
 }
+async function openStayOffer(input={},options={}){
+  if(options.userGesture!==true)throw Object.assign(new Error('Booking Contract v1: Das ausgewählte Hotelangebot muss sichtbar geöffnet werden.'),{code:'BOOKING_STAY_OFFER_USER_GESTURE_REQUIRED'});
+  const prepared=stayDecision().createOfferHandoff?.(input.offer||input,input.query||input.search||{});
+  if(!prepared?.valid)throw Object.assign(new Error('Dieses konkrete Hotelangebot besitzt noch keinen vollständig belegten Buchungsweg.'),{code:'BOOKING_STAY_OFFER_HANDOFF_INVALID',issues:prepared?.issues||['HANDOFF_CONTRACT_UNAVAILABLE']});
+  const selected=prepared.payload,place={providerPlaceId:`hotel:${selected.providerId}:${selected.providerHotelId}`,name:selected.propertyName,type:'accommodation',primaryType:'lodging',canonicalType:'lodging',reservationUrl:selected.bookingUrl,bookingProvider:selected.providerId,providerBookingUrl:selected.bookingUrl},route={channel:selected.bookingAuthority==='affiliate'?'affiliate':'external_link',provider:selected.providerId,value:selected.bookingUrl,providerReference:selected.providerRateKey||selected.providerOfferId||selected.offerId,source:'hotel_selected_offer'};
+  const tracking=await runtime().trackExternalHandoffForPlace({place,route,tripId:selected.tripId||clean(input.tripId),startAt:null,endAt:null,partySize:selected.adults+selected.children,metadata:{selectedStayOffer:selected}});
+  const opened=await externalNavigation().open(selected.bookingUrl);
+  return immutable({opened:opened!==false,owner:'booking',contractId:CONTRACT_ID,bookingId:tracking?.bookingId||null,tracking,selectedOffer:selected});
+}
 async function retryRecovery(input={}){
   const action=clean(input.action).toLowerCase(),bookingId=clean(input.bookingId||input.booking_id),idempotencyKey=clean(input.idempotencyKey||input.idempotency_key);
   if(!bookingId||!idempotencyKey||!['modify','cancel'].includes(action))throw Object.assign(new Error('Booking Contract v1: Booking-ID, Aktion und Idempotency-Key fehlen.'),{code:'BOOKING_RETRY_INPUT_INVALID'});
@@ -146,11 +155,11 @@ async function resolveThread(input={}){
 
 const reads=Object.freeze({listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,lifecycleCapabilities,resolveCommand,conversationPreferences,checkAvailability,resolveChannel,resolveAdmission,admissionProviderCatalog,resolveAccommodation,accommodationProviderCatalog,compareStayOffers,searchStayOffers,reconcileUnknownOutcome});
 const composition=Object.freeze({createDraft,updateDraft,validateDraft,selectRoute,composeMessageDraft});
-const commands=Object.freeze({createForPlace,submitReservation,trackExternalHandoff,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,retryRecovery,resolveThread});
+const commands=Object.freeze({createForPlace,submitReservation,trackExternalHandoff,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openRoute,openExternalHandoff,openStayOffer,retryRecovery,resolveThread});
 const api=Object.freeze({
   contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,reads,composition,commands,
   events:Object.freeze(['booking.changed','booking.created','booking.status.changed','booking.message.changed','booking.provider.selected']),
-  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,createForPlace,submitReservation,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,placeProjection,
+  init,listForTrip,get,conversation,messages,bookingTimeline,providerCapabilities,conversationPreferences,createForPlace,submitReservation,reply,performIntelligenceAction,modifyBooking,cancelBooking,setConversationPreference,updateContact,reconcileTripReturns,openPlaceBooking,openStayOffer,placeProjection,
   diagnostics:()=>Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,ready:Boolean(globalThis.LuviaBooking&&globalThis.LuviaBookingUI?.openForPlace&&globalThis.LuviaBookingDraftCoreV1&&globalThis.LuviaBookingAdmissionCore&&globalThis.LuviaBookingAccommodationCore&&globalThis.LuviaBookingStayDecisionCore),providers:Object.freeze({runtime:Boolean(globalThis.LuviaBooking),ownerFlow:Boolean(globalThis.LuviaBookingUI?.openForPlace),draftCore:Boolean(globalThis.LuviaBookingDraftCoreV1),availability:Boolean(globalThis.LuviaBookingAvailability),admission:Boolean(globalThis.LuviaBookingAdmissionCore),accommodation:Boolean(globalThis.LuviaBookingAccommodationCore),stayDecision:Boolean(globalThis.LuviaBookingStayDecisionCore),staySearch:Boolean(globalThis.LuviaBookingStaySearchWebAdapter),recovery:Boolean(globalThis.LuviaBookingReservationRecovery)}),ownership:Object.freeze({bookingTruth:true,admissionTruth:true,accommodationTruth:true,hotelDecisionTruth:true,hotelLivePriceGatewayTruth:true,intelligenceTruth:false,foreignDomainMutation:false})})
 });
 

@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.13.0-day-entry-actions';
+const RUNTIME_VERSION='1.14.0-selected-stay-offer-action';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL',NAVIGATION:'NAVIGATION'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -23,6 +23,7 @@ const INPUT_CONTRACTS=Object.freeze({
   'places.place.unplan':Object.freeze({schemaId:'luvia.ai-input.places.place.unplan.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.place.open':Object.freeze({schemaId:'luvia.ai-input.booking.place.open.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.stay.search':Object.freeze({schemaId:'luvia.ai-input.booking.stay.search.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'booking.stay.offer.open':Object.freeze({schemaId:'luvia.ai-input.booking.stay.offer.open.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.trip.read':Object.freeze({schemaId:'luvia.ai-input.booking.trip.read.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.reservation.create':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.create.v1',enforcement:'RUNTIME_ENFORCED'}),
   'booking.reservation.modify':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.modify.v1',enforcement:'RUNTIME_ENFORCED'}),
@@ -135,6 +136,19 @@ function validateActionInput(actionId,input={},context={}){
     if(!hasDestination)issue('required','destination','Für Livepreise fehlt eine belegte Zielkoordinate oder Provider-Zielkennung.');
     if(value.currency!=null&&!/^[A-Za-z]{3}$/.test(text(value.currency)))issue('format','currency','Der Währungscode ist ungültig.');
     return finish({tripId:text(value.tripId)||text(context.tripId)||null,destination:text(value.destination)||null,cityCode:text(value.cityCode).toUpperCase()||null,latitude:Number.isFinite(latitude)?latitude:null,longitude:Number.isFinite(longitude)?longitude:null,providerDestinationIds:clone(providerDestinationIds),providerHotelIds:plainObject(value.providerHotelIds)?clone(value.providerHotelIds):{},checkIn:text(value.checkIn),checkOut:text(value.checkOut),adults,children,childAges,rooms,currency:text(value.currency).toUpperCase()||'EUR',providers:Array.isArray(value.providers)?unique(value.providers,4):[]});
+  }
+  if(action.id==='booking.stay.offer.open'){
+    const offer=plainObject(value.offer)?value.offer:{},query=plainObject(value.query)?value.query:{};
+    if(!plainObject(value.offer))issue('required','offer','Das konkret ausgewählte Hotelangebot fehlt.');
+    for(const [field,message] of [['providerId','Der Preis-Provider fehlt.'],['providerHotelId','Die Provider-ID des Hotels fehlt.'],['offerId','Die Angebots-ID fehlt.']])if(!text(offer[field]))issue('required',`offer.${field}`,message);
+    if(!text(offer.providerRateKey)&&!text(offer.providerOfferId))issue('required','offer.providerRateKey|offer.providerOfferId','Die Rate-ID des Angebots fehlt.');
+    if(!/^https:\/\/[^\s/?#]+(?:[/?#]|$)/i.test(text(offer.deepLink||offer.bookingUrl)))issue('format','offer.bookingUrl','Der belegte HTTPS-Buchungslink fehlt.');
+    if(offer.bookingUrlVerified!==true)issue('evidence','offer.bookingUrlVerified','Der Buchungslink ist noch nicht für dieses Hotel verifiziert.');
+    if(!text(offer.bookingUrlPropertyId)||text(offer.bookingUrlPropertyId)!==text(offer.providerHotelId))issue('conflict','offer.bookingUrlPropertyId','Buchungslink und ausgewähltes Hotel stimmen nicht überein.');
+    if(!validCalendarDate(offer.checkIn)||!validCalendarDate(offer.checkOut)||offer.checkOut<=offer.checkIn)issue('conflict','offer.checkIn|offer.checkOut','Die Angebotsdaten enthalten keinen gültigen Aufenthalt.');
+    if(!Number.isFinite(Number(offer.price?.total??offer.totalPrice))||Number(offer.price?.total??offer.totalPrice)<0)issue('required','offer.totalPrice','Der belegte Gesamtpreis fehlt.');
+    if(offer.available!==true||offer.isLive!==true||text(offer.source)!=='provider_api')issue('evidence','offer','Das Angebot ist nicht als verfügbares Live-Provider-Angebot belegt.');
+    return finish({tripId:text(value.tripId)||text(query.tripId)||text(context.tripId)||null,offer:clone(offer),query:clone(query)});
   }
   if(action.id==='booking.trip.read'){
     const activeTripId=text(context.tripId);
@@ -302,6 +316,7 @@ const ACTIONS=Object.freeze([
   {id:'places.place.unplan',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.unplan',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'places.place.plan',permissions:['places.write','trip.member'],label:'Aus Planung entfernen',description:'Entfernt die Place-Planung ausschließlich über Places v1.',consequence:'Der Ort bleibt gespeichert, wird aber aus der Reiseplanung entfernt.'},
   {id:'booking.place.open',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.openPlaceBooking',effect:'EXTERNAL',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['booking.read'],label:'Buchungsweg prüfen',description:'Öffnet den allgemeinen Booking-Owner-Flow für Restaurant, Aktivität, Kultur, Sehenswürdigkeit, Attraktion oder Event.',consequence:'Prüft und öffnet einen belegten Ticket-, Reservierungs- oder Anfrageweg; kauft, reserviert und sendet noch nichts.'},
   {id:'booking.stay.search',owner:'booking',ownerContract:'booking.v1',ownerMethod:'reads.searchStayOffers',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'booking_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['booking.read'],label:'Hotels mit Livepreisen vergleichen',description:'Liest Hotelangebote ausschließlich über verbundene Booking-Provider und vergleicht nur vollständige, frische Gesamtpreise für identische Reisedaten.',consequence:'Zeigt belegte Hoteloptionen; verändert keine Reise und löst keine Buchung aus.'},
+  {id:'booking.stay.offer.open',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.openStayOffer',effect:'EXTERNAL',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['booking.read'],label:'Ausgewähltes Hotelangebot öffnen',description:'Öffnet ausschließlich den belegten Buchungslink des sichtbar ausgewählten Live-Angebots.',consequence:'Übergibt genau Hotel, Provider, Rate, Reisedaten und Gesamtpreis dieses Angebots an den Booking Owner; bucht und bezahlt noch nichts.'},
   {id:'booking.trip.read',owner:'booking',ownerContract:'booking.v1',ownerMethod:'reads.listForTrip',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'booking_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['booking.read'],label:'Buchungen zeigen',description:'Liest Buchungen der aktiven Reise ausschließlich über Booking v1.',consequence:'Zeigt Booking-Projektionen ohne Provideraktion.'},
   {id:'booking.reservation.create',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.submitReservation',effect:'EXTERNAL',risk:'R3',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',compensation:'booking.owner-recovery',permissions:['booking.write','trip.member'],label:'Buchungsanfrage bestätigen',description:'Übermittelt eine bestätigte Reservierungs- oder Ticketanfrage ausschließlich über den belegten Booking-Owner-Transport.',consequence:'Kann eine Provider-Anfrage oder verifizierte Anbieter-E-Mail auslösen; ein externer Buchungsweg bleibt als erforderlicher Nutzerschritt sichtbar.'},
   {id:'booking.reservation.modify',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.modifyBooking',effect:'EXTERNAL',risk:'R3',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',compensation:'booking.owner-recovery',permissions:['booking.write','trip.member'],label:'Buchungsänderung bestätigen',description:'Delegiert eine bestätigte Änderung an den Booking Owner.',consequence:'Kann eine bestehende Reservierung bei einem externen Provider ändern.'},

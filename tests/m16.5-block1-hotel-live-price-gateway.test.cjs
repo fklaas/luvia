@@ -35,6 +35,7 @@ assert.equal(decision.hotels.length,1);
 assert.equal(decision.hotels[0].offerCount,2);
 assert.equal(decision.recommendations.cheapestComparable.offerId,'hbx-1');
 assert.equal(decision.claims.bestMarketPrice,false);
+assert.equal(decision.recommendations.bestPersonalFit,null,'provider reliability without traveler evidence must not become personal fit');
 assert.equal(decision.coverage.allMarketPriceGuarantee,false);
 assert.equal(decision.invariants.unconnectedProviderCannotContributeOffers,true);
 

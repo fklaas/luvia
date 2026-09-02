@@ -4,9 +4,9 @@ Date: 2026-09-01
 
 Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP SELECTION PUBLIC ON 13.82.138, BLOCK STILL ACTIVE**
 
-Current canonical counts on 2026-09-02 are **329 semantic actions, 245 public
-Owner bindings, 23/23 typed runtime actions, 124 protected state changes, 898
-audited source markers and 2,725 generated failure evals**. Lower figures in
+Current canonical counts on 2026-09-02 are **330 semantic actions, 246 public
+Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 899
+audited source markers and 2,733 generated failure evals**. Lower figures in
 the dated B0 construction ledger below are retained only as historical progress
 evidence; they do not describe the current control plane.
 
@@ -82,11 +82,11 @@ execution blocks are `B1`–`B5`. The inserted parity packages are
 
 ### B0 — Complete Human ↔ AI action-parity control plane (B0.01–B0.10)
 
-Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON APP 13.82.135 / CURRENT 329-ACTION REGISTER, 245 PUBLIC OWNER PATHS, 23/23 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PRODUCT PARITY CONTINUES THROUGH B1–B5**
+Status: **B0.01–B0.10 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON APP 13.82.135 / CURRENT 330-ACTION REGISTER, 246 PUBLIC OWNER PATHS, 24/24 RUNTIME INPUT ENFORCEMENT, LANGUAGE, SAFETY, LIFECYCLE, BRIGHT CONSUMER AND 12-DIMENSION PARITY/FAILURE MATRIX GREEN / PRODUCT PARITY CONTINUES THROUGH B1–B5**
 
 Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts above:
 
-- The verified inventory contains **329 semantic user actions** across 13
+- The verified inventory contains **330 semantic user actions** across 13
   product categories. **318** are executable or conditionally executable
   product actions; **11** are explicitly labelled Landing/demo interactions.
   The audit also records **24 unavailable or reserved outcomes** and reconciles
@@ -104,14 +104,14 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   These figures are a baseline, not a completion claim.
 - B0.01 now exists locally as
   `config/luvia-human-ai-action-registry.v1.json` plus its JSON Schema and the
-  complete 898-marker source audit. The validator proves unique contiguous IDs,
+  complete 899-marker source audit. The validator proves unique contiguous IDs,
   workbook provenance, all 21 runtime-action mappings, honest open Owner/input
   states and explicit confirmation plus idempotency for all 124 classified
   state changes. The first B0.09 CI/source-drift gate is green locally. These
   artifacts are not yet a committed or public product slice.
 - The read-only visible local gate
   `tests/fixtures/m16.5-block0-human-ai-action-parity-browser.html` now loads
-  the versioned register directly. It visibly proves 329/329 actions, 23 typed
+  the versioned register directly. It visibly proves 330/330 actions, 24 typed
   runtime paths, 124 explicitly confirmed/idempotent state changes and 898
   audited source markers. Search, category/status filters, Desktop and 390 × 844
   responsive layout passed with no horizontal overflow and no browser console
@@ -119,7 +119,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
 - `config/luvia-ai-action-input-contracts.v1.json` now defines one typed input
   contract for every existing runtime action: 21 unique schema IDs projected to
   45 matching human-action rows. Required, optional and allowed context fields
-  are machine-checked. Bounded runtime enforcement is active for all 23/23 actions:
+  are machine-checked. Bounded runtime enforcement is active for all 24/24 actions:
   `places.place.favorite`, `places.place.unfavorite`, `places.place.plan` and
   `places.place.unplan` reject missing Owner IDs; Plan also rejects a missing or
   contradictory date/time/time-zone and shifted Owner instant before ledger
@@ -190,7 +190,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   bindings still do not claim that the 51 actions are already callable by Chat
   or publicly E2E-proven.
 - B0.04 now has a local browserless language compiler and a versioned language
-  contract for all **329** semantic actions. Every action has its canonical
+  contract for all **330** semantic actions. Every action has its canonical
   German utterance; **142** high-frequency actions across all product domains
   additionally have curated German/English, colloquial and mixed-language
   rules. The compiler preserves source text, correction, intent order,
@@ -203,7 +203,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   it never executes an Owner or treats natural language as confirmation. This
   closes the **local B0.04 control-plane package**, not Chat insertion or public
   product parity.
-- B0.05 now compiles all **329/329** semantic actions through one versioned,
+- B0.05 now compiles all **330/330** semantic actions through one versioned,
   browserless safety policy. The generated register contains six primary
   safety classes, 30 public, 111 self, 173 Trip-member and 13 Trip-admin
   authority decisions, four fresh-login gates, 21 purpose-bound consent gates,
@@ -213,7 +213,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   confirmation, offline blocking, location consent, Trip-role denial and
   re-authentication. This closes the **local B0.05 control-plane package**;
   Chat insertion and public Integration E2E evidence remain open.
-- B0.06 now compiles **329/329** action lifecycles and runs them through a
+- B0.06 now compiles **330/330** action lifecycles and runs them through a
   browserless state machine. All **124** state-changing control/Owner actions
   require bounded Preview, a separate visible confirmation and idempotency;
   **121** durable Owner mutations require an Owner receipt plus readback or
@@ -225,7 +225,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   flows without sending any real Owner/provider request. This closes the
   **local B0.06 control-plane package**; productive Chat and public E2E
   insertion remain open.
-- B0.07 now evaluates all **329** actions against the acting user, Trip role,
+- B0.07 now evaluates all **330** actions against the acting user, Trip role,
   required input, connectivity, provider health, Owner binding, AI-route state
   and lifecycle before the Chat may offer them. The matrix records **80**
   currently AI-routed semantic rows, **290** truthful human-operable Owner
@@ -235,7 +235,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   Chat action with a manual product path. Blocked actions are never included in
   the offer-only result. This closes the **local B0.07 control-plane package**;
   its decisions now feed the local B0.08 consumer projector.
-- B0.08 now projects all **329/329** actions and all **15** capability states
+- B0.08 now projects all **330/330** actions and all **15** capability states
   through one browserless bright-consumer contract. The real AI dashboard uses
   it for compact multi-intent summaries, result headers, clarification,
   previews, confirmations, read failures, receipts, recovery and Undo. A
@@ -248,7 +248,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
   package**; public Integration E2E evidence remains open until B0.10.
 - B0.09 now joins the canonical registry, language contracts, safety policy,
   lifecycle, capability discovery and consumer projection into one generated
-  **329-row, 12-dimension parity and failure matrix**. It derives **2,725**
+  **330-row, 12-dimension parity and failure matrix**. It derives **2,733**
   explicit failure evals for compiler ambiguity, Owner failure, typo,
   multi-intent, missing input, authority, consent, re-auth, connectivity,
   provider, confirmation, duplicate command, unknown outcome and truthful Undo
@@ -292,7 +292,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
    or high-risk/destructive action; bind self/member/admin scopes, re-auth,
    privacy/consent, provider and offline gates. The AI receives exactly the
    acting user's authority and never a broader shadow permission.
-   **Local implementation complete (updated 2026-09-02):** all 329 registry actions
+   **Local implementation complete (updated 2026-09-02):** all 330 registry actions
    now compile through one browserless, deny-by-default policy into six safety
    classes. Public/self/Trip-member/Trip-admin authority, fresh-login,
    purpose-bound consent, online/provider readiness, direct gesture and
@@ -308,7 +308,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
    recovery and a separately confirmed Undo/compensation where the owner can
    truthfully provide it. Reads and owner-surface opens use their corresponding
    non-mutating lifecycle.
-   **Local implementation complete (updated 2026-09-02):** 329 generated lifecycle
+   **Local implementation complete (updated 2026-09-02):** 330 generated lifecycle
    definitions, 124 protected state changes, 121 Owner receipt/readback paths,
    three scoped Intelligence-control receipt paths, 20 truthful compensation
    paths and zero blind retries for unknown external outcomes are green in the
@@ -318,7 +318,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
    provider state. Offer only operable actions; otherwise explain the concrete
    missing prerequisite and expose a safe retry, refinement, manual owner flow
    or clearly unavailable result.
-   **Local implementation complete (updated 2026-09-02):** 329 actions are evaluated
+   **Local implementation complete (updated 2026-09-02):** 330 actions are evaluated
    through 15 honest capability states; 80 semantic rows have current AI routes,
    290 have a truthful manual Owner fallback, and offer-only queries exclude
    every blocked action. The real bright Chat consumer remains B0.08 scope.
@@ -327,7 +327,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
    confirmations, receipts, errors and Undo. Technical traces remain optional
    diagnostics; duplicate intent summaries, internal IDs, raw owner vocabulary
    and oversized day dumps are not normal product copy.
-   **Local implementation complete (updated 2026-09-02):** all 329 semantic actions
+   **Local implementation complete (updated 2026-09-02):** all 330 semantic actions
    compile to consumer-safe action, handoff or preview views, while the runtime
    also projects clarification, result, confirmation, error, receipt, recovery
    and Undo states. The public `intelligence.v1` adapter exposes the additive
@@ -338,8 +338,8 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
    multilingual, typo, multi-intent and denial evals from the registry. Add a CI
    parity guard: a new or changed authenticated UI action cannot pass release
    gates without a registry decision and the applicable AI/owner evidence.
-   **Local implementation complete (updated 2026-09-02):** 329 rows retain all twelve
-   required dimensions and 2,725 generated failure evals. The deterministic
+   **Local implementation complete (updated 2026-09-02):** 330 rows retain all twelve
+   required dimensions and 2,733 generated failure evals. The deterministic
    generator hashes all six source contracts; CI compares the stored artifact
    byte-for-byte with a fresh build and rejects missing or changed action IDs,
    confirmation/idempotency gaps and unsupported public-pass claims. The public
@@ -364,7 +364,7 @@ Control-plane construction ledger, reconciled to the canonical 2026-09-02 counts
 
 Block-0 exit has two binding levels:
 
-1. **Control-plane exit:** all 329 actions are versioned, owned, classified,
+1. **Control-plane exit:** all 330 actions are versioned, owned, classified,
    scheduled and protected by generated parity/release gates; no action is
    hidden or ambiguously counted.
 2. **Product-parity exit:** every one of the 318 executable/conditional actions
@@ -631,15 +631,15 @@ coherent slice in every block must independently include:
 
 The immediate active slice is now **B1's first still-open productive Owner bundle after the publicly closed B0.10 control-plane release**:
 
-- retain the now-versioned 329-action semantic registry and 898-marker source
+- retain the now-versioned 330-action semantic registry and 899-marker source
   audit as the canonical B0.01 baseline;
-- preserve the 245 public Owner bindings and zero remaining
+- preserve the 246 public Owner bindings and zero remaining
   `OWNER_METHOD_AUDIT_OPEN` rows rather than inventing global methods;
-- retain the now-green 23/23 runtime input enforcement across Places, Events,
+- retain the now-green 24/24 runtime input enforcement across Places, Events,
   Booking, Journey, Trip, Memory and Identity, then expand typed contracts to
   missing actions domain by domain;
-- retain the now-green registry/source-drift, language, 329/329 authority,
-  lifecycle, capability, bright-consumer and 329-row parity/failure gates;
+- retain the now-green registry/source-drift, language, 330/330 authority,
+  lifecycle, capability, bright-consumer and 330-row parity/failure gates;
 - retain the visible local register gate as an always-operable progress surface;
   it must continue to load the canonical register rather than a copied demo list;
 - retain `.135` as the accepted B0 control-plane baseline, `.136` as the
@@ -715,17 +715,17 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
   bundle. No Owner-method audit row remains open. This does not mean complete
   AI parity: typed chat routes, visible confirmation/receipt/Undo and public
   E2E evidence are still required. B0.03 typed metadata contracts and
-  bounded pre-Owner enforcement now cover all 23/23 current runtime actions;
+  bounded pre-Owner enforcement now cover all 24/24 current runtime actions;
   schemas for the still-missing AI actions remain open. The generated B0.09
-  structure, provenance, 12-dimension evidence, 2,725 failure evals,
+  structure, provenance, 12-dimension evidence, 2,733 failure evals,
   typed-contract and source-marker gates are green locally. B0.04
-  additionally covers 329 canonical German actions and 142 curated multilingual
-  action rules. B0.05 covers all 329 actions with the shared authority,
-  re-auth, privacy, provider and offline policy. B0.06 covers all 329 actions
+  additionally covers 330 canonical German actions and 142 curated multilingual
+  action rules. B0.05 covers all 330 actions with the shared authority,
+  re-auth, privacy, provider and offline policy. B0.06 covers all 330 actions
   with read/open/draft/permission/external/mutation lifecycles, including all
-  124 protected changes and 20 truthful Undo paths. B0.07 evaluates all 329
+  124 protected changes and 20 truthful Undo paths. B0.07 evaluates all 330
   actions through 15 honest capability states, with 80 currently routed rows
-  and 290 truthful manual Owner fallbacks. B0.08 now projects all 329 actions
+  and 291 truthful manual Owner fallbacks. B0.08 now projects all 330 actions
   into the compact local Chat; B0.09 now closes the local parity/failure matrix
   and CI drift package. B0.10 is publicly released and closed as a control-plane
   exit; product parity remains open and is now delivered through B1–B5.

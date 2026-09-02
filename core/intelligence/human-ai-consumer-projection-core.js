@@ -3,7 +3,7 @@ var LuviaHumanAIConsumerProjectionCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.human-ai-consumer-projection.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0-exact-change-preview';
+const RUNTIME_VERSION='1.2.0-consumer-only-field-labels';
 const STATES=Object.freeze([
   'AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE','NEEDS_INPUT',
   'AUTHENTICATION_REQUIRED','SCOPE_DENIED','REAUTH_REQUIRED','CONSENT_REQUIRED','NETWORK_REQUIRED',
@@ -17,7 +17,9 @@ const FIELD_LABELS=Object.freeze({
   'location':'den Ort',destination:'das Reiseziel',dateRange:'den Reisezeitraum',email:'die E-Mail-Adresse',
   code:'den Code',url:'den Link',reason:'den Grund',preferenceValues:'die gewünschten Vorlieben',
   privacyPurpose:'wofür dein Standort verwendet werden darf',choice:'deine Auswahl',place:'den ausgewählten Ort',
-  startAt:'Datum und Uhrzeit',endAt:'die Endzeit',items:'den Inhalt'
+  startAt:'Datum und Uhrzeit',endAt:'die Endzeit',items:'den Inhalt',
+  'bookable-target':'den Ort','party-size':'die Personenzahl','booking-change':'die gewünschte Änderung',
+  'time-or-open-period':'die Uhrzeit oder den Zeitraum','target-trip':'die Reise','journey-target':'den Reisemoment'
 });
 const COPY=Object.freeze({
   AVAILABLE_NOW:{tone:'ready',view:'ACTION',eyebrow:'Bereit',message:'Ich kann direkt weitermachen.',primary:'Jetzt anzeigen'},

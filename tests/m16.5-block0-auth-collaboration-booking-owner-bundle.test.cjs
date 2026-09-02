@@ -76,7 +76,7 @@ const {
     assert.ok(sw.includes(file),`${file} missing from offline shell`);
   }
 
-  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,245);
+  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,246);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
   assert.equal(registry.summary.aiCoverage.MISSING,229,'public Owner binding must not be mislabeled as AI parity');
   console.log('M16.5 Block 0 Auth/Collaboration/Booking public Owner bundle: PASS');

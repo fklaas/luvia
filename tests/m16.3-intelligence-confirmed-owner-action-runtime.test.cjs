@@ -50,6 +50,7 @@ const context={
     },
     commands:{
       async openPlaceBooking(payload,options){calls.push(['booking-open',payload,options]);return{opened:true,channel:'owner_dialog'}},
+      async openStayOffer(payload,options){calls.push(['stay-offer-open',payload,options]);return{opened:true,bookingId:'booking-stay-1'}},
       async submitReservation(payload){calls.push(['booking-create',payload]);return{ok:true,bookingId:'booking-2',status:'requested',transport:'email',submissionState:'email_sent',providerOutcomeKnown:true}},
       async modifyBooking(id,payload){calls.push(['booking-modify',id,payload]);return{bookingId:id,status:'change_requested'}},
       async cancelBooking(id,payload){calls.push(['booking-cancel',id,payload]);const error=new Error('Provider timeout');error.code='BOOKING_PROVIDER_TIMEOUT';throw error}
@@ -80,8 +81,8 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 (async()=>{
   const runtime=context.LuviaAIActionRuntime;
   const diagnostics=runtime.diagnostics();
-  assert.equal(diagnostics.actions,23);
-  assert.equal(diagnostics.availableActions,22);
+  assert.equal(diagnostics.actions,24);
+  assert.equal(diagnostics.availableActions,23);
   assert.equal(diagnostics.connections.length,8);
   assert.equal(diagnostics.connections.filter(connection=>connection.owner!=='intelligence').every(connection=>connection.registered&&connection.operations===connection.totalOperations),true);
   assert.equal(diagnostics.connections.find(connection=>connection.owner==='intelligence').registered,false);

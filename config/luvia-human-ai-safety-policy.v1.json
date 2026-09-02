@@ -19,26 +19,26 @@
   "summary": {
     "contractId": "intelligence.human-ai-safety-policy.v1",
     "version": "1",
-    "catalogActions": 329,
-    "policyActions": 329,
+    "catalogActions": 330,
+    "policyActions": 330,
     "classifications": {
       "NAVIGATION_OPEN": 27,
       "READ_PRESENTATION": 102,
       "DRAFT": 53,
       "HIGH_RISK_OR_PERMISSION": 24,
       "INTERNAL_WRITE": 82,
-      "EXTERNAL_TRANSACTION": 41
+      "EXTERNAL_TRANSACTION": 42
     },
     "scopes": {
       "SELF": 112,
       "PUBLIC": 30,
       "TRIP_ADMIN": 13,
-      "TRIP_MEMBER": 174
+      "TRIP_MEMBER": 175
     },
     "reauthRequired": 4,
     "consentGated": 21,
     "providerGated": 65,
-    "onlineRequired": 78,
+    "onlineRequired": 79,
     "naturalLanguageConfirmsMutation": false,
     "ownerExecution": false
   },
@@ -6002,6 +6002,24 @@
       "networkPolicy": "OFFLINE_CAPABLE",
       "userGestureRequired": false,
       "confirmationPolicy": "NEVER",
+      "stateChanging": false,
+      "humanStatus": "AVAILABLE",
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "booking.stay.offer.open",
+      "classification": "EXTERNAL_TRANSACTION",
+      "effect": "EXTERNAL",
+      "risk": "R1",
+      "requiredScope": "TRIP_MEMBER",
+      "reauthRequired": false,
+      "reauthMaxAgeSeconds": 600,
+      "consentRequirements": [],
+      "providerGate": null,
+      "networkPolicy": "ONLINE_REQUIRED",
+      "userGestureRequired": true,
+      "confirmationPolicy": "USER_GESTURE",
       "stateChanging": false,
       "humanStatus": "AVAILABLE",
       "naturalLanguageConfirmsMutation": false,

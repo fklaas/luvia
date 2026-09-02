@@ -56,7 +56,7 @@ const validInputs={
   'identity.preferences.update':{patch:{pace:'ruhig',travelInterests:['Küste','Minigolf']},source:'explicit-chat-request',evidenceId:'evidence-1'}
 };
 for(const [actionId,input] of Object.entries(validInputs))assert.equal(core.validateActionInput(actionId,input,{}).valid,true,`${actionId} should accept its declared input`);
-assert.equal(core.policySnapshot().inputEnforcement.runtimeEnforced.length,23);
+assert.equal(core.policySnapshot().inputEnforcement.runtimeEnforced.length,24);
 assert.equal(core.policySnapshot().inputEnforcement.remaining,0);
 
 assert.equal(core.validateActionInput('places.discovery.recommend',{query:'x',categories:['food','food']},{}).valid,false);
@@ -103,6 +103,6 @@ assert.equal(counters.memoryWrites+counters.identityWrites,0,'invalid writes mus
 
   console.log('M16.5 Block 0 remaining input enforcement: PASS');
   console.log('Places + Events + Memory + Identity: 7/7 VALIDATED');
-  console.log('All registered runtime actions: 23/23 ENFORCED');
+  console.log('All registered runtime actions: 24/24 ENFORCED');
   console.log('Raw story/profile values in Action Ledger: 0');
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -9,27 +9,27 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "15EBAE6ECD5357F06E6ED6A861C291008F512F881B58565B6530C536468DDBB5"
+        "sha256": "8162119C2843B4CE0F32539B09979D259B8CF6FF7ADB3FB38B2DD14674B029CC"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
-        "sha256": "27D659CADDE4F13A3B5C220E19B9A622B13AE372EC5D7089CF7141DFFA49DC21"
+        "sha256": "3828D4F3C472E16DC78F2E241510E2F6B3927CEB858FCC3DFE21B216E059BF69"
       },
       "safety": {
         "file": "config/luvia-human-ai-safety-policy.v1.json",
-        "sha256": "BBA10CFD133A63129C4D969511781FDB0636618F5236C33B5C01DD5E20CC11F0"
+        "sha256": "C11E306065DB88AE84AAC15AC026E0A53C0052930ABFB644903F3C3DA5A712EA"
       },
       "lifecycle": {
         "file": "config/luvia-human-ai-action-lifecycles.v1.json",
-        "sha256": "4AF97904D1D755AF8B9C2143306C14FB445413AD166FF9334C8ED0DCC544C51D"
+        "sha256": "0436F38694D867284868B4AE38F2F446D0F43E201ED38631F3F64EB73B326A28"
       },
       "capability": {
         "file": "config/luvia-human-ai-capability-matrix.v1.json",
-        "sha256": "716CC5B58E4519E5C8AD519D773872379BA085AC4ED9F6473A5E692A07393124"
+        "sha256": "F77DB4FC0642A7245185304CE966D486181FB74361C71FFAE511509FEFDADE9E"
       },
       "consumer": {
         "file": "config/luvia-human-ai-consumer-projections.v1.json",
-        "sha256": "BD4BC69E9DEB815AB3BFAF97F13A543AACAE8C39950DCB2B0E6A394457CB227E"
+        "sha256": "357CED9E683B0DC844F4A09428D15B8B007257FF34F610911100EEAD0E0411FC"
       }
     }
   },
@@ -58,21 +58,21 @@
     "denial"
   ],
   "summary": {
-    "catalogActions": 329,
-    "matrixRows": 329,
+    "catalogActions": 330,
+    "matrixRows": 330,
     "dimensions": 12,
     "releaseStatus": {
-      "LOCAL_AI_PATH": 74,
+      "LOCAL_AI_PATH": 75,
       "MANUAL_OWNER_PATH": 223,
       "BLOCKED": 14,
       "PUBLIC_E2E_PROVEN": 7,
       "NOT_APPLICABLE": 11
     },
     "publicE2eProven": 7,
-    "localAiPaths": 74,
+    "localAiPaths": 75,
     "manualOwnerPaths": 223,
     "protectedChanges": 124,
-    "generatedFailureCases": 2725,
+    "generatedFailureCases": 2733,
     "driftGuard": true,
     "ownerExecution": false
   },
@@ -45216,6 +45216,141 @@
           "id": "permission_denied",
           "given": "Berechtigung TRIP_MEMBER fehlt",
           "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 330,
+      "actionId": "booking.stay.offer.open",
+      "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
+      "category": "Buchung & Anbieterkommunikation",
+      "area": "Hotels finden und vergleichen",
+      "surface": "Hotels & Unterkünfte / Globaler Luvia Chat",
+      "effect": "EXTERNAL",
+      "risk": "R1",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "booking.v1",
+        "method": "commands.openStayOffer",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "ACTION"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "booking.v1 · commands.openStayOffer",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen“ eindeutig booking.stay.offer.open zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "EXTERNAL_TRANSACTION · TRIP_MEMBER",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Keine Änderung",
+          "expected": "Direkt lesen oder öffnen"
+        },
+        "idempotency": {
+          "status": "NOT_REQUIRED",
+          "evidence": "OPTIONAL",
+          "expected": "Keine Mutations-ID erforderlich"
+        },
+        "receipt": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Kein Schreib-Receipt erforderlich",
+          "expected": "Lesergebnis normal darstellen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Angebot neu laden; niemals auf ein anderes Hotel oder eine andere Rate ausweichen",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Nicht automatisch zugesagt",
+          "expected": "Manuellen Wiederherstellungsweg nennen"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Ausgewahltes Hotelangebot beim richtigen Anbieter öffnen",
+          "expected": "Tippfehler sicher als booking.stay.offer.open erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "2 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Ausgewahltes Hotelangebot beim richtigen Anbieter öffnen",
+          "expected": "Weiterhin booking.stay.offer.open erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung TRIP_MEMBER fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "offline",
+          "given": "Gerät ist offline",
+          "expected": "Offline-Hinweis und sichere Fortsetzung; keine Ausführung"
         },
         {
           "id": "input_missing",

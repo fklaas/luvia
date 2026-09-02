@@ -5,7 +5,7 @@
   "enforcement": "BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE",
   "runtimeEnforcement": {
     "policyCore": "intelligence.actions.v1",
-    "runtimeEnforcedActionIds": ["navigation.route.open", "places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.place.open", "booking.stay.search", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
+    "runtimeEnforcedActionIds": ["navigation.route.open", "places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.place.open", "booking.stay.search", "booking.stay.offer.open", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
     "metadataValidatedOpenActionIds": 0,
     "rejectsBeforeLedgerAndOwnerInvocation": true
   },
@@ -198,6 +198,22 @@
           "rooms": { "type": "integer", "minimum": 1, "maximum": 30 },
           "currency": { "type": "string", "pattern": "^[A-Za-z]{3}$" },
           "providers": { "type": "array", "maxItems": 2, "uniqueItems": true, "items": { "enum": ["amadeus_hotels", "hotelbeds"] } }
+        }
+      }
+    },
+    "booking.stay.offer.open": {
+      "schemaId": "luvia.ai-input.booking.stay.offer.open.v1",
+      "required": ["offer", "query"],
+      "optional": ["tripId"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["offer", "query"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "offer": { "type": "object", "minProperties": 12, "maxProperties": 60 },
+          "query": { "type": "object", "minProperties": 7, "maxProperties": 40 }
         }
       }
     },

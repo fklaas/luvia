@@ -19,8 +19,8 @@
   "summary": {
     "contractId": "intelligence.human-ai-action-lifecycle.v1",
     "version": "1",
-    "catalogActions": 329,
-    "lifecycleActions": 329,
+    "catalogActions": 330,
+    "lifecycleActions": 330,
     "modes": {
       "OPEN_ONLY": 27,
       "PRESENTATION_ONLY": 21,
@@ -28,7 +28,7 @@
       "DRAFT_ONLY": 53,
       "CONTROL_MUTATION": 3,
       "MUTATION": 121,
-      "EXTERNAL_HANDOFF": 13,
+      "EXTERNAL_HANDOFF": 14,
       "PERMISSION_REQUEST": 10
     },
     "stateChanging": 124,
@@ -19110,6 +19110,62 @@
         "OWNER_READ",
         "RESULT_OR_EMPTY",
         "RETRY_OR_REFINE"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "booking.stay.offer.open",
+      "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
+      "mode": "EXTERNAL_HANDOFF",
+      "effect": "EXTERNAL",
+      "risk": "R1",
+      "stateChanging": false,
+      "owner": {
+        "contract": "booking.v1",
+        "method": "commands.openStayOffer",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": false,
+        "title": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen prüfen",
+        "consequence": "Der Booking Owner öffnet nur den zur ausgewählten Property-, Provider-, Offer-, Rate- und Quote-Identität verifizierten HTTPS-Link. Es wird dabei noch nichts gebucht oder bezahlt."
+      },
+      "confirmation": {
+        "required": false,
+        "separateVisibleControl": false,
+        "naturalLanguageAccepted": false,
+        "policy": "USER_GESTURE"
+      },
+      "idempotency": {
+        "required": false,
+        "policy": "OPTIONAL"
+      },
+      "receipt": {
+        "required": false,
+        "ownerAttributed": false,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": false,
+        "policy": "NONE"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "RECONCILE_BEFORE_RETRY",
+        "blindRetry": false,
+        "description": "Angebot neu laden; niemals auf ein anderes Hotel oder eine andere Rate ausweichen"
+      },
+      "undo": {
+        "supported": false,
+        "requiresNewPreview": false,
+        "requiresSeparateConfirmation": false,
+        "compensationActionId": null
+      },
+      "stages": [
+        "AUTHORITY_GATE",
+        "DIRECT_USER_GESTURE",
+        "OWNER_OPEN",
+        "OPENED_OR_FAILED"
       ],
       "naturalLanguageConfirmsMutation": false,
       "ownerExecution": false

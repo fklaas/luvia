@@ -734,6 +734,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-hotel-live-price-gateway.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Hotel Property + Selected Offer Identity',
+    test: 'tests/m16.5-block1-hotel-property-offer-identity.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Visible Hotel Live-Price Decision',
     test: 'tests/m16.5-block1-hotel-live-price-browser.test.cjs'
   },

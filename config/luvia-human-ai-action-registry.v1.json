@@ -18,13 +18,13 @@
     "newUiActionRequiresRegistryDecision": true
   },
   "summary": {
-    "semanticActions": 329,
-    "availableOrConditional": 318,
+    "semanticActions": 330,
+    "availableOrConditional": 319,
     "unavailableOrReservedOutcomes": 24,
     "auditedDataMarkers": 899,
-    "runtimeRegisteredActions": 23,
+    "runtimeRegisteredActions": 24,
     "categories": {
-      "Buchung & Anbieterkommunikation": 39,
+      "Buchung & Anbieterkommunikation": 40,
       "Erinnerungen & Geschichten": 35,
       "Gerät, System & Offline": 10,
       "Journey, Timeline & Tagesplan": 30,
@@ -41,7 +41,7 @@
     "effects": {
       "DEMO": 11,
       "DRAFT": 53,
-      "EXTERNAL": 43,
+      "EXTERNAL": 44,
       "NAVIGATION": 27,
       "PERMISSION": 10,
       "PRESENTATION": 10,
@@ -50,7 +50,7 @@
     },
     "risks": {
       "R0": 137,
-      "R1": 73,
+      "R1": 74,
       "R1–R2": 1,
       "R1–R4": 1,
       "R2": 80,
@@ -64,11 +64,11 @@
       "NOT_REQUIRED": 10,
       "PARTIAL": 1,
       "PUBLIC_E2E_PASS": 7,
-      "REGISTERED_PARTIAL": 57
+      "REGISTERED_PARTIAL": 58
     },
     "ownerBinding": {
       "NOT_APPLICABLE": 39,
-      "PUBLIC_CONTRACT_BOUND": 245,
+      "PUBLIC_CONTRACT_BOUND": 246,
       "PUBLIC_E2E_PROVEN": 7,
       "RUNTIME_REGISTERED": 38
     },
@@ -76,7 +76,7 @@
       "NATIVE_CHAT_CONTROL": 14,
       "NOT_APPLICABLE": 25,
       "OPEN": 224,
-      "READY": 66
+      "READY": 67
     }
   },
   "runtimeActionIds": [
@@ -84,6 +84,7 @@
     "booking.reservation.cancel",
     "booking.reservation.create",
     "booking.reservation.modify",
+    "booking.stay.offer.open",
     "booking.stay.search",
     "booking.trip.read",
     "events.verified.read",
@@ -19826,6 +19827,75 @@
         "core/ai/ai-action-runtime.js"
       ],
       "note": "Affiliate-Links liefern keine Preise. Ohne mindestens eine verbundene Live-Providerantwort bleibt das Produkt im Fit-only-Modus und behauptet weder Preisranking noch Marktbestpreis."
+    },
+    {
+      "sequence": 330,
+      "id": "booking.stay.offer.open",
+      "category": "Buchung & Anbieterkommunikation",
+      "area": "Hotels finden und vergleichen",
+      "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
+      "surface": "Hotels & Unterkünfte / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR · NUR MIT BELEGTEM LIVE-ANGEBOT"
+      },
+      "effect": "EXTERNAL",
+      "risk": "R1",
+      "owner": {
+        "label": "Booking",
+        "domains": [
+          "booking"
+        ],
+        "primaryDomain": "booking",
+        "contract": "booking.v1",
+        "method": "commands.openStayOffer",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "providerId|providerHotelId|offerId|providerRateKey|quote|bookingUrl"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · LOKALER OWNER-E2E · ÖFFENTLICHER PROVIDER-E2E NOCH OFFEN",
+        "actionId": "booking.stay.offer.open",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.booking.stay.offer.open.v1",
+        "requiredFields": [
+          "offer",
+          "query"
+        ],
+        "optionalFields": [
+          "tripId"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": false,
+        "confirmationPolicy": "USER_GESTURE",
+        "confirmationDescription": "Direkte Auswahl genau dieses sichtbaren Angebots",
+        "idempotency": "OPTIONAL",
+        "reversible": null,
+        "compensationActionId": null,
+        "recoveryDescription": "Angebot neu laden; niemals auf ein anderes Hotel oder eine andere Rate ausweichen",
+        "lifecycleAuditStatus": "READY"
+      },
+      "delivery": {
+        "block": "B1.02-HOTEL-SELECTED-OFFER",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/booking/booking-stay-decision-core.js",
+        "core/platform/booking-contract-adapter.js",
+        "core/booking/booking-integration.js",
+        "core/ai/ai-action-runtime.js"
+      ],
+      "note": "Der Booking Owner öffnet nur den zur ausgewählten Property-, Provider-, Offer-, Rate- und Quote-Identität verifizierten HTTPS-Link. Es wird dabei noch nichts gebucht oder bezahlt."
     }
   ],
   "unavailableOutcomes": [

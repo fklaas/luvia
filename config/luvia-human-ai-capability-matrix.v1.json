@@ -18,10 +18,10 @@
   "summary": {
     "contractId": "intelligence.human-ai-capability-discovery.v1",
     "version": "1",
-    "catalogActions": 329,
-    "aiRouted": 80,
-    "manualOwnerFallbacks": 290,
-    "inputContractReady": 105,
+    "catalogActions": 330,
+    "aiRouted": 81,
+    "manualOwnerFallbacks": 291,
+    "inputContractReady": 106,
     "honestBlockingStates": 15,
     "offersBlockedActions": false,
     "ownerExecution": false
@@ -3638,6 +3638,17 @@
     {
       "actionId": "booking.stay.search",
       "label": "Hotels für identische Reisedaten mit belegten Live-Gesamtpreisen vergleichen",
+      "category": "Buchung & Anbieterkommunikation",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
+    },
+    {
+      "actionId": "booking.stay.offer.open",
+      "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
       "category": "Buchung & Anbieterkommunikation",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",

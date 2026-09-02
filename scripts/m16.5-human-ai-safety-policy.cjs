@@ -16,8 +16,8 @@ function buildSafetyPolicy(){
   return{$schema:'./luvia-human-ai-safety-policy.v1.schema.json',contractId:'luvia.human-ai-safety-policy.v1',version:'1.0.0',generatedAt:'2026-09-01',source:{registryContractId:registry.contractId,registryVersion:registry.version,coreContractId:core.contractId,coreVersion:core.version},invariants:{sameAuthorityAsActingUser:true,shadowPermission:false,naturalLanguageAloneConfirmsMutation:false,ownerExecution:false,denyByDefault:true},summary:coverage,policies};
 }
 function validateSafetyPolicy(document){
-  assert.equal(document.contractId,'luvia.human-ai-safety-policy.v1');assert.equal(document.version,'1.0.0');assert.equal(document.policies.length,329);assert.equal(document.summary.policyActions,329);
-  assert.equal(new Set(document.policies.map(item=>item.actionId)).size,329);assert.equal(Object.values(document.summary.classifications).reduce((sum,count)=>sum+count,0),329);assert.equal(Object.keys(document.summary.classifications).length,6);
+  assert.equal(document.contractId,'luvia.human-ai-safety-policy.v1');assert.equal(document.version,'1.0.0');assert.equal(document.policies.length,330);assert.equal(document.summary.policyActions,330);
+  assert.equal(new Set(document.policies.map(item=>item.actionId)).size,330);assert.equal(Object.values(document.summary.classifications).reduce((sum,count)=>sum+count,0),330);assert.equal(Object.keys(document.summary.classifications).length,6);
   assert.ok(document.policies.every(item=>item.requiredScope&&item.networkPolicy&&item.confirmationPolicy));assert.ok(document.policies.every(item=>item.naturalLanguageConfirmsMutation===false&&item.ownerExecution===false));
   return true;
 }

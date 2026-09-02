@@ -18,8 +18,8 @@
     "orderingPreserved": true
   },
   "summary": {
-    "semanticActions": 329,
-    "canonicalGermanActions": 329,
+    "semanticActions": 330,
+    "canonicalGermanActions": 330,
     "curatedActionIds": 142,
     "curatedRules": 142,
     "supportedLocales": [
@@ -43,7 +43,7 @@
     ],
     "coverage": {
       "MULTILINGUAL_CURATED": 142,
-      "CANONICAL_DE": 187
+      "CANONICAL_DE": 188
     }
   },
   "actions": [
@@ -8821,6 +8821,31 @@
       "owner": {
         "contract": "booking.v1",
         "method": "reads.searchStayOffers",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "booking.stay.offer.open",
+      "category": "Buchung & Anbieterkommunikation",
+      "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
+      "effect": "EXTERNAL",
+      "stateChanging": false,
+      "canonical": {
+        "de": [
+          "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "booking.v1",
+        "method": "commands.openStayOffer",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "guard": {

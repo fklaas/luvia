@@ -10,9 +10,9 @@ vm.createContext(context);
 vm.runInContext(read('core/intelligence/human-ai-consumer-projection-core.js'),context,{filename:'human-ai-consumer-projection-core.js'});
 const core=context.LuviaHumanAIConsumerProjectionCoreV1;
 
-assert.equal(document.projections.length,329);
-assert.equal(new Set(document.projections.map(item=>item.actionId)).size,329);
-assert.equal(document.summary.projectedActions,329);
+assert.equal(document.projections.length,330);
+assert.equal(new Set(document.projections.map(item=>item.actionId)).size,330);
+assert.equal(document.summary.projectedActions,330);
 assert.equal(document.summary.capabilityStates,15);
 assert.equal(document.summary.dateFormat,'TT.MM.JJJJ');
 assert.equal(core.formatDate('2027-06-14'),'14.06.2027');
@@ -26,6 +26,11 @@ const missing=core.projectCapability({action:byId('booking.reservation.create'),
 assert.equal(missing.view,'QUESTION');
 assert.match(missing.message,/ausgewählten Ort/);
 assert.match(missing.message,/Personenzahl/);
+const internalBookingFields=core.projectIntentSummary({status:'needs-clarification',intents:[{clause:'Reservierung prüfen',mode:'read'}],missingInputs:[{input:'bookable-target'},{input:'party-size'},{input:'booking-change'}],conflicts:[],blockedCommands:[]});
+assert.match(internalBookingFields.message,/den Ort/);
+assert.match(internalBookingFields.message,/die Personenzahl/);
+assert.match(internalBookingFields.message,/die gewünschte Änderung/);
+assert.doesNotMatch(internalBookingFields.message,/bookable target|party size|booking change/i,'internal schema labels must never reach the user');
 const offline=core.projectCapability({action:byId('places.restaurant.search'),capability:{state:'NETWORK_REQUIRED'}});
 assert.equal(offline.view,'RETRY');
 assert.match(offline.message,/Internetverbindung/);
@@ -62,4 +67,4 @@ for(const projection of document.projections){
   assert.doesNotMatch(JSON.stringify({title:projection.title,message:projection.message,manualFlow:projection.manualFlow}),/\b(?:Owner|Receipt|Mutation|Action Ledger|Lifecycle|Contract)\b/i,projection.actionId);
 }
 assert.doesNotMatch(read('core/intelligence/human-ai-consumer-projection-core.js'),/\b(?:window|document|localStorage|sessionStorage|LuviaTripStore|LuviaJourneyContractV1)\b/);
-console.log('M16.5 Block 0 complete Human-AI consumer projection: PASS (329/329 actions)');
+console.log('M16.5 Block 0 complete Human-AI consumer projection: PASS (330/330 actions)');
