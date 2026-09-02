@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <base href="../../">
   <title>Luvia Compass AI – sichtbare Abnahme</title>
-  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.138-ai">
-  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.138-ai">
-  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.138-ai2">
-  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.138-ai">
-  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.138-ai">
+  <link rel="stylesheet" href="core/design/design-system-v3.css?v=13.82.139-ai">
+  <link rel="stylesheet" href="core/ai/ai-brain.css?v=13.82.139-ai">
+  <link rel="stylesheet" href="core/experience/experience-foundation.css?v=13.82.139-ai2">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl-5.12.0.css?v=13.82.139-ai">
+  <link rel="stylesheet" href="app/places/places-spatial-experience.css?v=13.82.139-ai">
   <style>
     html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#f5fbfb,#fff4f1);font-family:Inter,Arial,sans-serif;color:#102d3f}
     main{min-height:100dvh;display:grid;place-items:center;padding:24px;box-sizing:border-box}
@@ -29,8 +29,14 @@
     </section>
   </main>
   <script>
+    const fixtureQuery=new URL(location.href).searchParams;
+    const semanticMutationFixture=fixtureQuery.get('step15')==='semantic-place-mutations-139';
     window.__ownerCalls=[];
-    window.__fixtureJourneyEntries=[];
+    window.__fixtureJourneyEntries=semanticMutationFixture?[{id:'fixture-trip-place-minigolf',tripId:'trip-scharbeutz',tripPlaceId:'fixture-trip-place-minigolf',providerPlaceId:'fixture-minigolf',placeId:'fixture-place-minigolf',entityType:'activity',title:'Ostsee Minigolf',startAt:'2027-06-14T12:00:00.000Z',endAt:'2027-06-14T14:00:00.000Z',provenance:{owner:'places'}}]:[];
+    window.__fixtureSavedPlaces=[
+      {tripId:'trip-scharbeutz',tripPlaceId:'fixture-trip-place-cafe',providerPlaceId:'fixture-cafe',placeId:'fixture-place-cafe',primaryType:'cafe',name:'Wellen Café',isFavorite:true},
+      {tripId:'trip-scharbeutz',tripPlaceId:'fixture-trip-place-minigolf',providerPlaceId:'fixture-minigolf',placeId:'fixture-place-minigolf',primaryType:'activity',name:'Ostsee Minigolf',isFavorite:false}
+    ];
     window.__fixturePlaces={
       food:[
         {id:'places/fixture-restaurant',providerPlaceId:'fixture-restaurant',name:'Dünenküche',address:'Strandallee 1, Scharbeutz',primaryType:'restaurant',providerNativeTypes:['restaurant'],waterfrontEvidence:true,rating:4.7,userRatingCount:440,coordinates:{latitude:54.02691,longitude:10.75756}},
@@ -88,13 +94,14 @@
           const limit=Math.min(3,Number(input?.limit||3));
           return{places:places.slice(0,limit),route:{category:input?.category||'food'},evidenceContract,diversityMeta:{candidateCount:places.length,returnedCount:Math.min(limit,places.length),minimumQueryVariants:3,queriedVariants:3,rotationAcrossQueries:true,rejectedProviderPlaceIds:rejected.size,strictRestaurantEvidence:strictRestaurant}};
         },
-        getCard:async id=>{const key=String(id).replace(/^places\//,''),place=Object.values(window.__fixturePlaces).flat().find(item=>item.providerPlaceId===key);return{place:place||null,image:null}}
+        getCard:async id=>{const key=String(id).replace(/^places\//,''),place=Object.values(window.__fixturePlaces).flat().find(item=>item.providerPlaceId===key);return{place:place||null,image:null}},
+        listSaved:async({tripId}={})=>window.__fixtureSavedPlaces.filter(place=>!tripId||place.tripId===tripId).map(place=>({...place}))
       },
       commands:{
-        favorite:async payload=>(window.__ownerCalls.push(['favorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
-        unfavorite:async payload=>(window.__ownerCalls.push(['unfavorite',payload]),{ok:true,tripPlaceId:'fixture-trip-place'}),
+        favorite:async payload=>{window.__ownerCalls.push(['favorite',payload]);const place=window.__fixtureSavedPlaces.find(item=>item.providerPlaceId===payload.providerPlaceId);if(place)place.isFavorite=true;return{ok:true,tripPlaceId:place?.tripPlaceId||payload.tripPlaceId||'fixture-trip-place'}},
+        unfavorite:async payload=>{window.__ownerCalls.push(['unfavorite',payload]);const place=window.__fixtureSavedPlaces.find(item=>item.providerPlaceId===payload.providerPlaceId);if(place)place.isFavorite=false;return{ok:true,tripPlaceId:place?.tripPlaceId||payload.tripPlaceId||'fixture-trip-place'}},
         importPlace:async(providerPlaceId,options)=>(window.__ownerCalls.push(['importPlace',providerPlaceId,options]),{id:'fixture-place',placeId:'fixture-place',tripPlaceId:'fixture-trip-place',providerPlaceId}),
-        plan:async payload=>{window.__ownerCalls.push(['plan',payload]);const startAt=payload.date&&payload.time?`${payload.date}T${payload.time}:00`:payload.fields?.planned_at;window.__fixtureJourneyEntries=window.__fixtureJourneyEntries.filter(entry=>entry.tripPlaceId!=='fixture-trip-place').concat({id:'fixture-trip-place',tripPlaceId:'fixture-trip-place',title:payload.name||payload.fields?.place_name||'Geplanter Ort',startAt,endAt:startAt,provenance:{owner:'places'}});return{ok:true,tripPlaceId:'fixture-trip-place'}},
+        plan:async payload=>{window.__ownerCalls.push(['plan',payload]);const tripPlaceId=payload.tripPlaceId||'fixture-trip-place',startAt=payload.fields?.planned_at||`${payload.date}T${payload.time}:00`;window.__fixtureJourneyEntries=window.__fixtureJourneyEntries.filter(entry=>entry.tripPlaceId!==tripPlaceId).concat({id:tripPlaceId,tripId:payload.tripId,tripPlaceId,providerPlaceId:payload.providerPlaceId,placeId:payload.placeId,entityType:payload.placeType||'place',title:payload.name||payload.fields?.place_name||'Geplanter Ort',startAt,endAt:startAt,provenance:{owner:'places'}});return{ok:true,tripPlaceId}},
         unplan:async payload=>(window.__ownerCalls.push(['unplan',payload]),window.__fixtureJourneyEntries=window.__fixtureJourneyEntries.filter(entry=>entry.tripPlaceId!==(payload.tripPlaceId||'fixture-trip-place')),{ok:true,tripPlaceId:payload.tripPlaceId||'fixture-trip-place'}),
         updateLifecycle:async(tripPlaceId,status,patch,options)=>(window.__ownerCalls.push(['updateLifecycle',tripPlaceId,status,patch,options]),{ok:true,tripPlaceId,status})
       }
@@ -125,8 +132,16 @@
       ask:async request=>({data:{answer:`Ich habe verstanden: „${request}“. Ich prüfe passende Orte, deinen Tagesplan und vorhandene Buchungen. Bevor ich etwas ändere, entscheidest du selbst.`}}),
       run:async(capability,input={})=>{
         if(capability!=='planning.dialogue')return{data:{headline:'Luvia ist bereit.',message:'Deine Reiseinformationen bleiben geschützt und Änderungen brauchen deine Bestätigung.',highlights:[]},meta:{fallback:false}};
-        const request=String(input.userGoal||''),english=/\bI\b|dinner|children/i.test(request),concrete=/13\.06\.2027|2027-06-13/.test(request),specificCompound=/minigolf/i.test(request)&&/luftmatrat/i.test(request);
-        const goals=specificCompound?[
+        const request=String(input.userGoal||''),english=/\bI\b|dinner|children/i.test(request),dayRead=/(?:zeig|zeige).*?(?:tagesplan|timeline|reiseplan)/i.test(request),removeFavorite=/wellen\s+caf[eé]/i.test(request)&&/favorit/i.test(request)&&/(?:entfern|raus|nicht mehr)/i.test(request),removeTimeline=/ostsee\s+minigolf/i.test(request)&&/(?:timeline|tagesplan|reiseplan)/i.test(request)&&/(?:entfern|nimm|raus|entplan)/i.test(request),planNamed=/ostsee\s+minigolf/i.test(request)&&/(?:timeline|tagesplan|reiseplan)/i.test(request)&&/(?:trag|einplan|hinzuf)/i.test(request),concrete=/13\.06\.2027|2027-06-13/.test(request),specificCompound=/minigolf/i.test(request)&&/luftmatrat/i.test(request);
+        const goals=dayRead?[
+          {type:'journey',label:'Tagesplan anzeigen',hardConstraints:[{key:'operation',value:'read',label:'Anzeigen'}],softPreferences:[],timeWindow:{label:'14. Juni',start:'2027-06-14T00:00:00',end:'2027-06-14T23:59:00',flexible:false},source:'user'}
+        ]:removeFavorite?[
+          {type:'place',label:'Wellen Café aus den Favoriten entfernen',hardConstraints:[{key:'operation',value:'remove',label:'Entfernen'},{key:'target_place',value:'Wellen Café',label:'Wellen Café'}],softPreferences:[],timeWindow:null,source:'user'}
+        ]:removeTimeline?[
+          {type:'journey',label:'Ostsee Minigolf aus der Timeline entfernen',hardConstraints:[{key:'operation',value:'remove',label:'Entfernen'},{key:'target_place',value:'Ostsee Minigolf',label:'Ostsee Minigolf'}],softPreferences:[],timeWindow:null,source:'user'}
+        ]:planNamed?[
+          {type:'place',label:'Ostsee Minigolf in die Timeline eintragen',hardConstraints:[{key:'operation',value:'plan',label:'Einplanen'},{key:'target_place',value:'Ostsee Minigolf',label:'Ostsee Minigolf'}],softPreferences:[],timeWindow:{label:'14. Juni um 14 Uhr',start:'2027-06-14T14:00:00',end:'2027-06-14T16:00:00',flexible:false},source:'user'}
+        ]:specificCompound?[
           {type:'activity',label:'Minigolf in Scharbeutz finden',hardConstraints:[{key:'activity',value:'minigolf',label:'Minigolf'}],softPreferences:[],timeWindow:null,source:'user'},
           {type:'shopping',label:'Luftmatratzen für Kinder in Scharbeutz finden',hardConstraints:[{key:'target',value:'air-mattress',label:'Luftmatratzen für Kinder'}],softPreferences:[],timeWindow:null,source:'user'}
         ]:english?[
@@ -140,22 +155,23 @@
       }
     };
   </script>
-  <script src="core/experience/experience-contract-core.js?v=13.82.138-ai"></script>
-  <script src="app/adapters/experience-web-adapter.js?v=13.82.138-ai"></script>
-  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.138-ai"></script>
-  <script src="core/ui/ui-manager.js?v=13.82.138-ai"></script>
-  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.138-ai"></script>
-  <script src="core/places/places-domain-contract-core.js?v=13.82.138-ai"></script>
-  <script src="core/places/global-place-contracts.js?v=13.82.138-ai"></script>
-  <script src="app/places/places-spatial-composition-core.js?v=13.82.138-ai"></script>
-  <script src="app/places/places-spatial-experience.js?v=13.82.138-ai-event-map-state"></script>
-  <script src="core/journey/journey-resilience-core.js?v=13.82.138-ai"></script>
-  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.138-ai"></script>
-  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.138-ai"></script>
-  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.138-ai"></script>
-  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.138-ai-map"></script>
-  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.138-ai"></script>
-  <script src="core/ai/ai-action-runtime.js?v=13.82.138-ai-product-language"></script>
-  <script src="core/ai/ai-dashboard-service.js?v=13.82.138-ai-product-language"></script>
+  <script src="core/experience/experience-contract-core.js?v=13.82.139-ai"></script>
+  <script src="app/adapters/experience-web-adapter.js?v=13.82.139-ai"></script>
+  <script src="core/runtime/overlay-host-contract-core.js?v=13.82.139-ai"></script>
+  <script src="core/ui/ui-manager.js?v=13.82.139-ai"></script>
+  <script src="vendor/maplibre/maplibre-gl-5.12.0.js?v=13.82.139-ai"></script>
+  <script src="core/places/places-domain-contract-core.js?v=13.82.139-ai"></script>
+  <script src="core/places/global-place-contracts.js?v=13.82.139-ai"></script>
+  <script src="app/places/places-spatial-composition-core.js?v=13.82.139-ai"></script>
+  <script src="app/places/places-spatial-experience.js?v=13.82.139-ai-event-map-state"></script>
+  <script src="core/journey/journey-resilience-core.js?v=13.82.139-ai"></script>
+  <script src="core/intelligence/travel-orchestration-core.js?v=13.82.139-ai"></script>
+  <script src="core/intelligence/verified-event-intelligence-core.js?v=13.82.139-ai"></script>
+  <script src="core/platform/verified-event-intelligence-contract-adapter.js?v=13.82.139-ai"></script>
+  <script src="core/intelligence/intelligence-action-contract-core.js?v=13.82.139-ai-map"></script>
+  <script src="core/intelligence/intelligence-action-ledger-core.js?v=13.82.139-ai"></script>
+  <script src="core/intelligence/human-ai-consumer-projection-core.js?v=13.82.139-ai"></script>
+  <script src="core/ai/ai-action-runtime.js?v=13.82.139-ai-product-language"></script>
+  <script src="core/ai/ai-dashboard-service.js?v=13.82.139-ai-product-language"></script>
 </body>
 </html>

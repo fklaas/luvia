@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.12.0-live-stay-search';
+const RUNTIME_VERSION='1.13.0-day-entry-actions';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL',NAVIGATION:'NAVIGATION'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -410,7 +410,7 @@ function normalizeEvent(value={}){
   });
 }
 function normalizeDay(value={}){
-  const entries=(Array.isArray(value.entries)?value.entries:[]).slice(0,20).map(entry=>({id:text(entry.id),title:text(entry.title,'Reisemoment'),startAt:text(entry.startAt)||null,endAt:text(entry.endAt)||null,entityType:text(entry.entityType,'place'),owner:text(entry.provenance?.owner||entry.owner,'journey')}));
+  const entries=(Array.isArray(value.entries)?value.entries:[]).slice(0,20).map(entry=>({id:text(entry.id),title:text(entry.title,'Reisemoment'),startAt:text(entry.startAt)||null,endAt:text(entry.endAt)||null,entityType:text(entry.entityType,'place'),owner:text(entry.provenance?.owner||entry.owner,'journey'),actions:(Array.isArray(entry.actions)?entry.actions:[]).slice(0,LIMITS.maxActions).map(normalizeActionOffer).filter(Boolean)}));
   return immutable({date:text(value.date)||null,label:text(value.label||value.date,'Reisetag'),entries,conflictCount:finite(value.conflictCount||value.conflicts?.length,0,100,0)});
 }
 function normalizeTrip(value={}){

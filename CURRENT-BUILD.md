@@ -20,13 +20,25 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.138**
-- Core: **4.82.138**
-- Name: **M16.5 Block 1 Chat-Native Trip Selection Repair**
+- App: **13.82.139**
+- Core: **4.82.139**
+- Name: **M16.5 Block 1 Semantic Places Mutations**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Block 1 Semantic Places Mutations — Integration Candidate 13.82.139
+
+- Runtime target: **App 13.82.139 / Core 4.82.139 / cache `luvia-shell-v13.82.139` / Integration only**.
+- Whole-sentence resolution: **structured OpenAI dialogue semantics select Favorite, Unfavorite, Plan or Unplan and the named Place; the deterministic compiler remains the bounded safety fallback. Matching uses current Chat subjects plus fresh `places.v1` or `journey.v1` Owner projections, never a free-form invented identifier**.
+- Mutation protocol: **all four writes use Preview → explicit confirmation → public Owner command → independent Owner readback → Receipt → separately confirmed Undo. Plan/Unplan preserve the exact local date and time. No write is triggered merely by interpreting the sentence**.
+- Honest completion: **a successful command response alone is insufficient. Favorites are reconciled through `places.v1.reads.listSaved`; planned moments are reconciled through `journey.v1.reads.snapshot`. A missing or contradictory required readback becomes `outcome_unknown`, blocks blind retry and never produces a false success receipt**.
+- Consumer slice: **compact day cards expose `Aus Timeline entfernen` on the concrete entry, and all user-facing dates remain `TT.MM.JJJJ`. The normal Chat stays short; technical action/Owner details remain outside the ordinary product copy**.
+- Local evidence: **the focused semantic tests and visible browser fixture prove natural German commands, typo-tolerant structured semantics, no pre-confirmation mutation, exact Owner entity resolution, confirmed write, readback, receipt and separately confirmed Undo. Full release and public Step-17 evidence follow before acceptance**.
+- Remaining B1 boundary: **after public acceptance, continue in the fixed order with Booking Read/Open/Create/Modify/Cancel, provider-positive ticket/reservation routes, Hotel/provider activation, P09/P10 and the remaining Step-17 hardware/provider rows; Blocks 2–5 remain queued in their binding order**.
+- Planned exact rollback: **restore accepted App 13.82.138 with `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`; code/assets only**.
+- Scope lock: **no DB, RLS, Edge Function, Provider, Secret, Main or Production change belongs to this slice**.
 
 ## M16.5 Block 1 Chat-Native Trip Selection Repair — Stable Integration Slice 13.82.138
 

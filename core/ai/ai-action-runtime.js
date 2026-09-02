@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.15.0-live-stay-search';
+const VERSION='1.16.0-semantic-place-mutations';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -39,7 +39,7 @@ function emit(reason,detail={}){const event=actionCore().immutable({reason,...de
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():owner==='navigation'?navigationContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
-function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null}}
+function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
 function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function ledgerPayload(definition,payload={}){
   if(definition.id==='navigation.route.open')return{route:payload.route||null,source:payload.source||'global-chat',rawPromptOmitted:true};
@@ -69,12 +69,79 @@ function capabilitySnapshot(){
 }
 
 function plannedAt(hint={},timeZone=runtimeTimeZone()){return actionCore().zonedDateTimeToIso?.(hint.date,hint.time,timeZone)||null}
+function localDateTimeHint(iso,timeZone=runtimeTimeZone()){
+  const instant=new Date(iso);if(!clean(iso)||Number.isNaN(instant.getTime())||!clean(timeZone))return{date:null,time:null};
+  try{const parts=Object.fromEntries(new Intl.DateTimeFormat('de-DE',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(instant).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));return{date:`${parts.year}-${parts.month}-${parts.day}`,time:`${parts.hour}:${parts.minute}`}}catch{return{date:null,time:null}}
+}
+function sameOwnerIdentity(entity={},payload={}){
+  const entityTripPlaceId=clean(entity.tripPlaceId||entity.trip_place_id||entity.place?.tripPlaceId),entityProviderPlaceId=providerId(entity)||providerId(entity.place||{}),entityPlaceId=clean(entity.placeId||entity.place_id||entity.place?.id);
+  return Boolean(payload.tripPlaceId&&entityTripPlaceId===clean(payload.tripPlaceId)||payload.providerPlaceId&&entityProviderPlaceId===clean(payload.providerPlaceId).replace(/^places\//,'')||payload.placeId&&entityPlaceId===clean(payload.placeId));
+}
+function exactInstant(left,right){const leftMs=Date.parse(clean(left)),rightMs=Date.parse(clean(right));return Number.isFinite(leftMs)&&Number.isFinite(rightMs)?leftMs===rightMs:clean(left)===clean(right)}
+function journeyEntries(projection={}){const values=[...(projection.entries||[]),...(projection.days||[]).flatMap(day=>day.entries||[])],seen=new Set();return values.filter(entry=>{const key=clean(entry.id||entry.tripPlaceId)||`${clean(entry.title)}|${clean(entry.startAt)}`;if(seen.has(key))return false;seen.add(key);return true})}
+async function placeMutationReadback(actionId,payload={}){
+  const expectedFavorite=actionId==='places.place.favorite',expectedPlannedAt=clean(payload.fields?.planned_at),maxAttempts=3;
+  for(let attempt=1;attempt<=maxAttempts;attempt+=1){
+    if(attempt>1&&typeof root.setTimeout==='function')await new Promise(resolve=>root.setTimeout(resolve,attempt===2?80:180));
+    try{
+      if(['places.place.favorite','places.place.unfavorite'].includes(actionId)){
+        const response=await placesContract().reads.listSaved({tripId:payload.tripId}),entities=Array.isArray(response)?response:response?.places||[],entity=entities.find(item=>sameOwnerIdentity(item,payload)),actual=entity?Boolean(entity.isFavorite??entity.is_favorite):false,verified=expectedFavorite?Boolean(entity&&actual):!entity||actual===false;
+        if(verified)return{verified:true,state:expectedFavorite?'favorite':'not_favorite',owner:'places.v1',observedAt:new Date().toISOString(),attempts:attempt};
+      }else{
+        const trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{id:payload.tripId},projection=await Promise.resolve(journeyContract().reads.snapshot({trip})),entry=journeyEntries(projection).find(item=>sameOwnerIdentity(item,payload)),verified=actionId==='places.place.unplan'?!entry:Boolean(entry&&(!expectedPlannedAt||exactInstant(entry.startAt||entry.plannedAt||entry.planned_at,expectedPlannedAt)));
+        if(verified)return{verified:true,state:actionId==='places.place.plan'?'planned':'not_planned',owner:'journey.v1',observedAt:new Date().toISOString(),attempts:attempt};
+      }
+    }catch(error){if(attempt===maxAttempts)return{verified:false,state:'read_unavailable',owner:['places.place.favorite','places.place.unfavorite'].includes(actionId)?'places.v1':'journey.v1',observedAt:new Date().toISOString(),attempts:attempt,code:error?.code||'OWNER_READBACK_UNAVAILABLE'}}
+  }
+  return{verified:false,state:'not_reconciled',owner:['places.place.favorite','places.place.unfavorite'].includes(actionId)?'places.v1':'journey.v1',observedAt:new Date().toISOString(),attempts:maxAttempts,code:'OWNER_READBACK_MISMATCH'};
+}
+async function reconcilePlaceMutation(actionId,payload,result,message,status='completed'){
+  const readback=await placeMutationReadback(actionId,payload),enriched={...(result||{}),tripPlaceId:result?.tripPlaceId||payload.tripPlaceId||null,readbackVerified:readback.verified,readbackState:readback.state,readbackOwner:readback.owner,readbackObservedAt:readback.observedAt,readbackAttempts:readback.attempts};
+  if(payload.readbackRequired===true&&!readback.verified)return{result:enriched,message:'Die Änderung wurde gesendet, aber der gespeicherte Zustand konnte noch nicht eindeutig bestätigt werden. Ich wiederhole sie nicht automatisch.',status:'outcome_unknown',resolvedPayload:payload};
+  return{result:enriched,message,status,resolvedPayload:payload};
+}
 function mutationHints(compiled){
   const intents=compiled?.intents||[],writes=intents.filter(intent=>intent.mode==='propose-write'),plan=writes.find(intent=>intent.domain==='journey'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|reiseplan|tagesplan|plan|schedule|add)\b/i.test(intent.clause))||writes.find(intent=>intent.domain==='places'&&/\b(?:plane|planen|einplan\w*|eintrag\w*|trage|trag|hinzufueg\w*|hinzufüg\w*|timeline|plan|schedule|add)\b/i.test(intent.clause)),favorite=writes.find(intent=>intent.domain==='places'&&/\b(?:merk|speicher|favorit)\w*\b/i.test(intent.clause)),booking=writes.find(intent=>intent.domain==='booking'),timeZone=runtimeTimeZone();
   return actionCore().immutable({plan:plan?{clause:plan.clause,date:plan.temporalHint?.date||null,time:plan.temporalHint?.time||null,timeZone,plannedAt:plannedAt(plan.temporalHint,timeZone)}:null,favorite:Boolean(favorite),booking:booking?{clause:booking.clause,date:booking.temporalHint?.date||null,time:booking.temporalHint?.time||null,partySize:booking.entityHints?.partySize||null}:null});
 }
+const referenceKey=value=>clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de-DE').replace(/[^\p{L}\p{N}]+/gu,'');
+function placeMutationAction(intent){
+  if(!intent||intent.mode!=='propose-write'||!['places','journey'].includes(intent.domain))return null;
+  const operation=clean(intent.semanticOperation).toLowerCase().replace(/[\s-]+/g,'_'),source=`${intent.semanticGoalType||''} ${intent.clause||''}`.toLocaleLowerCase('de-DE'),favoriteScope=/favorit|lieblingsort/.test(source),timelineScope=intent.domain==='journey'||/timeline|tagesplan|reiseplan|einplan|entplan|schedule/.test(source);
+  if(['remove','delete','unplan','unsave'].includes(operation)||/\b(?:entfern|entplan|lösch|loesch|remove|unplan)\w*/i.test(source))return favoriteScope?'places.place.unfavorite':timelineScope?'places.place.unplan':null;
+  if(['favorite','favourite','save','bookmark','mark'].includes(operation)||favoriteScope&&/\b(?:merk|speicher|favoris|favorite|bookmark)\w*/i.test(source))return'places.place.favorite';
+  if(['add','plan','schedule'].includes(operation)||timelineScope&&/\b(?:plane|planen|einplan|eintrag|trage|trag|hinzufueg|hinzufüg|schedule|add)\w*/i.test(source))return'places.place.plan';
+  return null;
+}
+function mutationCandidate(value={},fallback={}){
+  const place=value.place||{},nested=value.entity?.place||{},link=value.tripPlace||value.entity?.tripPlace||{},providerPlaceId=providerId(value)||providerId(place)||providerId(nested)||clean(value.provider_place_id||place.provider_place_id||nested.provider_place_id),tripPlaceId=clean(value.tripPlaceId||value.trip_place_id||place.tripPlaceId||link.id||fallback.tripPlaceId),name=clean(value.name||value.title||place.name||nested.name||fallback.name),placeId=clean(value.placeId||value.place_id||place.id||nested.id||fallback.placeId),placeType=clean(value.placeType||value.primaryType||value.primary_type||place.primaryType||place.primary_type||fallback.placeType)||'place';
+  if(!name)return null;return{tripId:clean(value.tripId||value.trip_id||link.trip_id||fallback.tripId),providerPlaceId,tripPlaceId,placeId,placeType,name,plannedAt:clean(value.plannedAt||value.planned_at||value.startAt||fallback.plannedAt)||null};
+}
+function uniqueMutationCandidates(items=[]){const seen=new Map();for(const item of items){const candidate=mutationCandidate(item);if(!candidate)continue;const key=[candidate.tripPlaceId,candidate.providerPlaceId,referenceKey(candidate.name)].join('|');if(!seen.has(key))seen.set(key,candidate)}return[...seen.values()]}
+function namedMutationCandidate(candidates,intent,message){
+  const explicit=referenceKey(intent?.entityHints?.targetName),source=referenceKey(message||intent?.clause),ranked=candidates.map(candidate=>{const key=referenceKey(candidate.name),exact=Boolean(explicit&&key===explicit),contained=Boolean(key.length>=4&&(explicit?key.includes(explicit)||explicit.includes(key):source.includes(key)));return{candidate,key,score:exact?10000+key.length:contained?key.length:0}}).filter(item=>item.score>0).sort((left,right)=>right.score-left.score);
+  if(!ranked.length||ranked.length>1&&ranked[0].score===ranked[1].score&&ranked[0].key!==ranked[1].key)return null;return ranked[0].candidate;
+}
+async function semanticPlaceMutationPreview(message,compiled,options={}){
+  const mutationIntents=(compiled?.intents||[]).map(intent=>({intent,actionId:placeMutationAction(intent)})).filter(item=>item.actionId);if(mutationIntents.length!==1)return null;
+  const {intent,actionId}=mutationIntents[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)return null;
+  let candidates=[];
+  if(actionId==='places.place.unplan'){
+    const projection=await Promise.resolve(journeyContract().reads?.snapshot?.({trip})||{}),entries=[...(projection.entries||[]),...(projection.days||[]).flatMap(day=>day.entries||[])];candidates=uniqueMutationCandidates(entries.map(entry=>({...entry,tripId:entry.tripId||activeTripId})));
+  }else{
+    const known=(options.knownPlaceSubjects||[]).map(place=>({...place,tripId:place.tripId||activeTripId}));let saved=[];try{saved=await Promise.resolve(placesContract().reads?.listSaved?.({tripId:activeTripId})||[])}catch{}candidates=uniqueMutationCandidates([...known,...saved]);
+  }
+  const target=namedMutationCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+  const payload={...target,tripId:target.tripId||activeTripId,readbackRequired:true};
+  if(['places.place.favorite','places.place.unfavorite'].includes(actionId)&&!payload.providerPlaceId)return null;
+  if(actionId==='places.place.unplan'){if(!payload.tripPlaceId)return null;const previous=localDateTimeHint(payload.plannedAt);payload.date=previous.date;payload.time=previous.time;payload.fields=payload.plannedAt?{planned_at:payload.plannedAt}:['planned_at'];}
+  if(actionId==='places.place.plan'){
+    const date=intent.temporalHint?.date||null,time=intent.temporalHint?.time||null,planned=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!planned||!payload.providerPlaceId&&!payload.tripPlaceId)return null;payload.date=date;payload.time=time;payload.fields={planned_at:planned,place_name:payload.name,notes:intent.clause};payload.requestedBy='intelligence.travel-orchestration.v1';
+  }
+  return prepare(actionId,payload,{userGesture:true,surface:options.surface||'global-chat'}).result;
+}
 function placeActions(place,trip,hints={}){
-  const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),resolvedAdmission=place.admission||bookingAdmission({...place,providerPlaceId:id}),admission=resolvedAdmission||(/restaurant|cafe|bakery|bar|food|meal/.test(primary)?{relevant:true,action:{available:true,label:'Reservierung prüfen'}}:null),bookable=Boolean(admission?.relevant&&admission?.action?.available),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',type:primary||'place',primaryType:primary||'place',types:Array.isArray(place.types)?place.types:[],name:place.name,address:place.address||place.formattedAddress,website:place.website||place.websiteUri,reservationUrl:place.reservationUrl||place.bookingUrl||place.ticketUrl,ticketUrl:place.ticketUrl,admissionRequirement:place.admissionRequirement,ticketRequired:place.ticketRequired,reservationRequired:place.reservationRequired,reservationRecommended:place.reservationRecommended,reservable:place.reservable};
+  const id=providerId(place),primary=clean(place.primaryType||place.primary_type||'place').toLowerCase(),resolvedAdmission=place.admission||bookingAdmission({...place,providerPlaceId:id}),admission=resolvedAdmission||(/restaurant|cafe|bakery|bar|food|meal/.test(primary)?{relevant:true,action:{available:true,label:'Reservierung prüfen'}}:null),bookable=Boolean(admission?.relevant&&admission?.action?.available),payload={tripId:tripId(trip),providerPlaceId:id,placeId:place.id||id,placeType:primary||'place',type:primary||'place',primaryType:primary||'place',types:Array.isArray(place.types)?place.types:[],name:place.name,address:place.address||place.formattedAddress,website:place.website||place.websiteUri,reservationUrl:place.reservationUrl||place.bookingUrl||place.ticketUrl,ticketUrl:place.ticketUrl,admissionRequirement:place.admissionRequirement,ticketRequired:place.ticketRequired,reservationRequired:place.reservationRequired,reservationRecommended:place.reservationRecommended,reservable:place.reservable,readbackRequired:true};
   const planPayload=hints.plan?.plannedAt?{tripId:payload.tripId,providerPlaceId:payload.providerPlaceId,placeId:payload.placeId,placeType:payload.placeType,name:payload.name,date:hints.plan.date,time:hints.plan.time,fields:{planned_at:hints.plan.plannedAt,place_name:place.name,notes:hints.plan.clause},requestedBy:'intelligence.travel-orchestration.v1'}:payload;
   return[
     {actionId:place.isFavorite?'places.place.unfavorite':'places.place.favorite',label:place.isFavorite?'Favorit entfernen':'Als Favorit merken',payload},
@@ -125,7 +192,7 @@ async function dayResult(request){
   const orderedDays=[...(projection?.days||[])].sort((left,right)=>left.date===today?-1:right.date===today?1:String(left.date).localeCompare(String(right.date)));
   const populatedDays=orderedDays.filter(day=>(day.entries||[]).length>0);
   const selected=requestedDate?[orderedDays.find(day=>String(day.date)===requestedDate)||{date:requestedDate,label:'',entries:[],conflicts:[]}]:[(populatedDays[0]||orderedDays[0])].filter(Boolean);
-  const days=selected.map(day=>({...day,conflictCount:Number(day.conflictCount??day.conflicts?.length??0)}));
+  const days=selected.map(day=>({...day,entries:(day.entries||[]).map(entry=>{const tripPlaceId=clean(entry.tripPlaceId||entry.place?.tripPlaceId),providerPlaceId=clean(entry.providerPlaceId||entry.place?.providerPlaceId),actions=[...(entry.actions||[])],previous=localDateTimeHint(entry.startAt);if(tripPlaceId&&!actions.some(action=>action?.actionId==='places.place.unplan'))actions.push({actionId:'places.place.unplan',label:'Aus Timeline entfernen',payload:{tripId:entry.tripId||activeTripId,tripPlaceId,providerPlaceId:providerPlaceId||undefined,placeId:entry.placeId||entry.place?.placeId||undefined,placeType:entry.entityType||'place',name:entry.title,date:previous.date,time:previous.time,fields:entry.startAt?{planned_at:entry.startAt}:['planned_at'],readbackRequired:true}});return{...entry,actions}}),conflictCount:Number(day.conflictCount??day.conflicts?.length??0)}));
   const entries=days.reduce((count,day)=>count+(day.entries?.length||0),0);
   const reads=journeyContract().reads||{},routeEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-03-route-uncertainty')!==false,rehearsalEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-04-day-rehearsal')!==false,recoveryEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-05-live-disruption-recovery')!==false,twinEnabled=root.LuviaFeatureFlagRegistry?.isEnabled?.('intelligence.s16-08-destination-digital-twin')!==false;
   const routeUncertainty=includePlanningDetails&&routeEnabled&&typeof reads.routeUncertainty==='function'?days.flatMap(day=>(day.entries||[]).slice(1).map((entry,index)=>{const previous=day.entries[index],projection=reads.routeUncertainty({baseMinutes:entry.transferMinutes||previous?.transferMinutes||20,travelSpeed:'balanced',providerConfidence:entry.routeConfidence,evidence:entry.routeEvidence||[]});return{date:day.date,from:previous?.title||'Vorheriger Reisemoment',to:entry.title||'Nächster Reisemoment',...projection}})):[];
@@ -242,6 +309,7 @@ async function causalFeedbackResults(message,compiled,options={}){
 async function runMessage(message,options={}){
   const compiled=options.compiledIntent||null;
   if(compiled&&['blocked','conflicted'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
+  if(compiled?.status==='compiled'){try{const preview=await semanticPlaceMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Änderung konnte nicht vorbereitet werden',message:cause?.message||'Der genannte Ort konnte nicht eindeutig mit dem zuständigen Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(placeMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}}
   const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean)),contextResult=contextGateResult(compiled,options),feedbackResults=await causalFeedbackResults(message,compiled,options),preResults=[...(contextResult?[contextResult]:[]),...feedbackResults];if(!routes.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes:[],compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
   const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes});
   const results=[...preResults];let error=false;
@@ -303,14 +371,14 @@ function prepare(actionId,payload={},options={}){
 async function invokeOwner(definition,payload,idempotencyKey){
   let result=null,message='Aktion wurde ausgeführt.',status='completed';
   if(definition.id==='navigation.route.open'){const intent=navigationContract().createIntent(payload.route,{source:payload.source||'global-chat'});root.dispatchEvent?.(new CustomEvent('luvia:navigate-request',{detail:{view:intent.route,intent}}));result={opened:true,route:intent.route};message=`${intent.label||'Der gewünschte Bereich'} ist geöffnet.`;status='opened'}
-  else if(definition.id==='places.place.favorite'){result=await placesContract().commands.favorite({...payload,placeType:payload.placeType||'restaurant'});message='Der Ort wurde als Favorit gespeichert.'}
-  else if(definition.id==='places.place.unfavorite'){result=await placesContract().commands.unfavorite({...payload,placeType:payload.placeType||'restaurant'});message='Der Ort wurde aus deinen Favoriten entfernt.'}
+  else if(definition.id==='places.place.favorite'){result=await placesContract().commands.favorite({...payload,placeType:payload.placeType||'restaurant'});return reconcilePlaceMutation(definition.id,payload,result,'Der Ort wurde als Favorit gespeichert.')}
+  else if(definition.id==='places.place.unfavorite'){result=await placesContract().commands.unfavorite({...payload,placeType:payload.placeType||'restaurant'});return reconcilePlaceMutation(definition.id,payload,result,'Der Ort wurde aus deinen Favoriten entfernt.')}
   else if(definition.id==='places.place.plan'){
     const linked=payload.tripPlaceId?payload:await placesContract().commands.importPlace(payload.providerPlaceId,{tripId:payload.tripId,type:payload.placeType,tripPlace:{status:'planned',isFavorite:false}}),resolved={...payload,placeId:linked.placeId||linked.id||payload.placeId,tripPlaceId:linked.tripPlaceId||payload.tripPlaceId};
-    result=await placesContract().commands.plan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'planned',{}, {tripId:resolved.tripId});result={...(result||{}),placeId:resolved.placeId,tripPlaceId:resolved.tripPlaceId,providerPlaceId:resolved.providerPlaceId};message='Der Ort wurde zur bestätigten Zeit in deinen Tagesplan aufgenommen.';return{result,message,status,resolvedPayload:resolved};
+    result=await placesContract().commands.plan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'planned',{}, {tripId:resolved.tripId});result={...(result||{}),placeId:resolved.placeId,tripPlaceId:resolved.tripPlaceId,providerPlaceId:resolved.providerPlaceId};return reconcilePlaceMutation(definition.id,resolved,result,'Der Ort wurde zur bestätigten Zeit in deinen Tagesplan aufgenommen.');
   }
   else if(definition.id==='places.place.unplan'){
-    const resolved={...payload,fields:Array.isArray(payload.fields)?payload.fields:Object.keys(payload.fields||{}).length?Object.keys(payload.fields):['planned_at']};result=await placesContract().commands.unplan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'saved',{}, {tripId:resolved.tripId});message='Der Ort wurde aus deinem Tagesplan entfernt.';return{result,message,status,resolvedPayload:{...payload,tripPlaceId:resolved.tripPlaceId,placeId:resolved.placeId}};
+    const resolved={...payload,fields:Array.isArray(payload.fields)?payload.fields:Object.keys(payload.fields||{}).length?Object.keys(payload.fields):['planned_at']};result=await placesContract().commands.unplan(resolved);await placesContract().commands.updateLifecycle?.(resolved.tripPlaceId,'saved',{}, {tripId:resolved.tripId});const reconciled=await reconcilePlaceMutation(definition.id,resolved,result,'Der Ort wurde aus deinem Tagesplan entfernt.');return{...reconciled,resolvedPayload:{...payload,tripPlaceId:resolved.tripPlaceId,placeId:resolved.placeId}};
   }
   else if(['booking.place.open','booking.restaurant.open'].includes(definition.id)){result=await bookingContract().commands.openPlaceBooking(payload,{reserveExternalWindow:true});message=result?.opened?'Der passende Buchungsweg ist geöffnet.':'Der Buchungsweg konnte nicht geöffnet werden.';status=result?.opened?'opened':'failed'}
   else if(definition.id==='booking.reservation.create'){result=await bookingContract().commands.createForPlace({...payload,idempotencyKey});message='Die bestätigte Reservierungsanfrage wurde übermittelt.'}
@@ -345,10 +413,10 @@ async function execute(actionId,payload={},options={}){
   try{
     ownerInvoked=true;const outcome=await invokeOwner(definition,staged.ownerInput||staged.envelope.input,staged.envelope.idempotencyKey);
     const compensationOrigin=compensationOrigins.get(ledgerId)||null,receipt=actionCore().createReceipt({actionId,status:compensationOrigin?'compensated':outcome.status,message:compensationOrigin?'Die vorherige Änderung wurde rückgängig gemacht.':outcome.message,ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,compensationStatus:compensationOrigin?'completed':null,reference:receiptReference(staged.ownerInput||staged.envelope.input,outcome.result),meta:compensationOrigin?{compensatesLedgerId:compensationOrigin}: {}});
-    if(outcome.status==='failed')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_DECLINED',retryable:true,receipt});else ledger.succeed(ledgerId,receipt);
-    receipts.set(ledgerId,receipt);completedInputs.set(ledgerId,{definition,payload:outcome.resolvedPayload||staged.ownerInput||staged.envelope.input});pending.delete(ledgerId);
+    if(outcome.status==='failed')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_DECLINED',retryable:true,receipt});else if(outcome.status==='outcome_unknown')ledger.fail(ledgerId,{code:'AI_ACTION_OWNER_READBACK_UNCONFIRMED',retryable:false,outcomeUnknown:true,receipt});else ledger.succeed(ledgerId,receipt);
+    receipts.set(ledgerId,receipt);if(outcome.status!=='outcome_unknown')completedInputs.set(ledgerId,{definition,payload:outcome.resolvedPayload||staged.ownerInput||staged.envelope.input});pending.delete(ledgerId);
     if(compensationOrigin&&outcome.status!=='failed'){ledger.startCompensation(compensationOrigin);ledger.finishCompensation(compensationOrigin,receipt);compensationOrigins.delete(ledgerId);emit('command-compensated',{actionId,owner:definition.owner,ledgerId,compensatesLedgerId:compensationOrigin})}
-    emit(outcome.status==='failed'?'command-failed':'command-completed',{actionId,owner:definition.owner,status:compensationOrigin?'compensated':outcome.status,ledgerId});return receipt;
+    emit(['failed','outcome_unknown'].includes(outcome.status)?'command-failed':'command-completed',{actionId,owner:definition.owner,status:compensationOrigin?'compensated':outcome.status,ledgerId});return receipt;
   }catch(error){
     const outcomeUnknown=ownerInvoked&&definition.risk==='R3';const retryable=!outcomeUnknown&&definition.risk!=='R4';ledger.fail(ledgerId,{code:error?.code||'AI_ACTION_FAILED',retryable,outcomeUnknown});
     const receipt=actionCore().createReceipt({actionId,status:outcomeUnknown?'outcome_unknown':'failed',message:outcomeUnknown?'Ich kann noch nicht sicher bestätigen, ob die externe Änderung abgeschlossen wurde. Deshalb wiederhole ich sie nicht automatisch.':'Die Änderung konnte nicht abgeschlossen werden. Bitte versuche es erneut.',ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId,correlationId:staged.envelope.correlationId,idempotencyKey:staged.envelope.idempotencyKey,retryable,outcomeUnknown,reference:{...receiptReference(staged.envelope.input),code:error?.code||'AI_ACTION_FAILED'}});
@@ -369,7 +437,8 @@ async function retry(ledgerId,options={}){
   return execute(state.actionId,{}, {...options,ledgerId,userGesture:true,confirmed:true});
 }
 function compensationPayload(definition,payload={}){
-  if(['places.place.favorite','places.place.unfavorite','places.place.plan','places.place.unplan'].includes(definition.id))return{...payload};
+  if(definition.id==='places.place.unplan'){const previous=localDateTimeHint(payload.fields?.planned_at);return{...payload,date:payload.date||previous.date,time:payload.time||previous.time}}
+  if(['places.place.favorite','places.place.unfavorite','places.place.plan'].includes(definition.id))return{...payload};
   if(definition.id==='trip.active.select'&&payload.previousTripId)return{tripId:payload.previousTripId,previousTripId:payload.tripId};
   return null;
 }

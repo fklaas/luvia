@@ -16,7 +16,7 @@ const actionRuntime='core/ai/ai-action-runtime.js';
 const dashboard='core/ai/ai-dashboard-service.js';
 
 for(const asset of [actionCore,ledgerCore,actionRuntime,dashboard]){
-  assert.ok(index.includes(`${asset}?v=13.82.138`),`index misses M16 runtime asset ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.139`),`index misses M16 runtime asset ${asset}`);
   assert.ok(worker.includes(`'${asset}'`),`service worker misses M16 runtime asset ${asset}`);
 }
 assert.ok(index.indexOf(actionCore)<index.indexOf(ledgerCore),'action contract must load before ledger');
@@ -36,8 +36,8 @@ for(const test of [
   'tests/m16.5-intelligence-action-runtime-registration.test.cjs'
 ])assert.ok(runner.includes(test),`safe regression misses ${test}`);
 
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.138'"));
-assert.match(version,/core:'4\.82\.138',build:'13\.82\.138',name:'M16\.5 Block 1 Chat-Native Trip Selection Repair'/);
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.139'"));
+assert.match(version,/core:'4\.82\.139',build:'13\.82\.139',name:'M16\.5 Block 1 Semantic Places Mutations'/);
 
 console.log('M16.5 Intelligence Action Runtime Registration: PASS');
 console.log('Action Contract -> Ledger -> Runtime -> Chat order: PASS');

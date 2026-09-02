@@ -710,6 +710,14 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5-block1-semantic-first-ai-routing.test.cjs'
   },
   {
+    category: 'M16.5 / Block 1 Semantic Places Mutations',
+    test: 'tests/m16.5-block1-semantic-place-mutation-resolution.test.cjs'
+  },
+  {
+    category: 'M16.5 / Block 1 Semantic Places Mutation Browser',
+    test: 'tests/m16.5-block1-semantic-place-mutation-browser.test.cjs'
+  },
+  {
     category: 'M16.5 / Block 1 Universal Admission Booking Core',
     test: 'tests/m16.5-block1-universal-admission-booking.test.cjs'
   },
