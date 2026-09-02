@@ -20,17 +20,17 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.143**
-- Core: **4.82.143**
-- Name: **M16.5 Block 1 Booking Time and Place-Route Integrity**
+- App: **13.82.144**
+- Core: **4.82.144**
+- Name: **M16.5 Block 1 Semantic Places Mutations**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Whole-Sentence Requirement + Exact Bright Hotel — Local Integration Successor
+## M16.5 Block 1 Whole-Sentence Requirement + Exact Bright Hotel — Integration Candidate 13.82.144
 
-- Stable baseline: **App/Core 13.82.143/4.82.143 remains the accepted Integration deployment until this successor completes the immutable release and public operation chain**.
+- Runtime target: **App 13.82.144 / Core 4.82.144 / cache `luvia-shell-v13.82.144` / Integration only**. Stable App/Core 13.82.143/4.82.143 remains the accepted deployment until this candidate completes the immutable release and public operation chain.
 - Whole-sentence requirement read: **a compound request may find a Place and then ask whether a reservation is needed. `muss ich dort reservieren?` is compiled as a read-only `check_requirement` intent against the resolved Place; it is not reduced to isolated keywords, does not require a party size and cannot authorize a reservation write. Consumer copy no longer exposes internal fields such as `bookable target`**.
 - Exact Hotel identity: **the Booking Owner carries the canonical property ID and selected offer ID across normalization, comparison and handoff. An already normalized offer retains its complete mandatory total; a foreign property, sibling Hotel, changed dates/occupancy, incomplete price or unverified URL fails closed**.
 - Bright Hotel consumer: **the real `modules/accommodations` screen no longer inherits the restaurant surface. It uses compact stay inputs, visible `TT.MM.JJJJ`, named live-price provenance, one concise offer card and one primary `Dieses Angebot öffnen` action. Hotel cards contain neither `Eintritt`, `Tickets prüfen`, `Reservierung prüfen` nor a generic `booking.place.open` route**.
