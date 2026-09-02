@@ -141,7 +141,7 @@ partial Hotel-name match could pass as if it identified the selected property.
 These are decisive failures because a safe-looking destination is still the
 wrong destination.
 
-The same `.143` local candidate now adds two independent gates. The Place-Kind
+The accepted `.143` slice adds two independent gates. The Place-Kind
 gate decides whether lodging, dining or activity/nightlife can expose the
 requested action. The route gate then requires exact venue/property identity
 for every external URL and verified-email target and fails closed on generic,
@@ -149,8 +149,17 @@ sibling or cross-place destinations. Route cache reuse is bound to the selected
 Place plus provider/address/source facts. The dedicated visible local integrity
 fixture is **4/4 green** and focused identity/source/unit tests are green for the
 concrete negative cases and exact provider/property positives. Edge
-`booking-route-resolve` **2.7 is a local Candidate and has not been deployed**.
-Public `.143` Acceptance remains open.
+`booking-route-resolve` **2.7 is ACTIVE as remote version 13**, with JWT
+verification and fail-closed origin/auth checks retained. Runtime commit
+`11ff01ae`, Worker version `a8db9b4a-ace5-4144-b86c-db61d9586ccf`, 100% Stable
+Integration traffic, 197/197 Safe Regression and 24/24 byte-identical changed
+assets complete public `.143` Acceptance.
+
+The signed-in public Hotel sentence is semantically recognized and returns an
+honest provider-unavailable state. A compound sentence asking to find Lübeck
+nightlife and check Tonfink reservation requirements still fails closed and
+leaks internal missing-field labels. That is a separate next-slice semantic
+counterexample; no external mutation or wrong handoff occurred.
 
 ## Rollout and rollback
 
@@ -212,7 +221,7 @@ Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files 
 app-only rollback restores `.138`:
 `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.
 
-## Semantic Booking lifecycle candidate — App/Core 13.82.143/4.82.143
+## Accepted semantic Booking lifecycle and route integrity — App/Core 13.82.143/4.82.143
 
 The next Integration-only slice extends the existing Booking Core rather than
 creating a second booking system. `booking.reservation.create` now delegates to
@@ -233,11 +242,11 @@ uses these real Runtime values rather than fixed demonstration copy. Provider-
 positive public evidence remains a separate release gate and is not inferred
 from the local controlled transport matrix.
 
-The binding continuation is: publish and publicly accept `.143` first; prove
-real Restaurant and Activity provider routes; build the bright Demo-design
-Hotel surface over the existing Booking Owner; activate Hotel/Affiliate
-providers; close P09/P10; finish the remaining Step-17 rows; then execute Blocks
-2–5 in order.
+The binding continuation is: prove real Restaurant and Activity provider routes
+while repairing the Tonfink compound sentence; add canonical Hotel property and
+selected-offer identity; build the bright Demo-design Hotel surface over the
+existing Booking Owner; activate Hotel/Affiliate providers; close P09/P10;
+finish the remaining Step-17 rows; then execute Blocks 2–5 in order.
 
 ## Visible Hotel consumer debt
 
