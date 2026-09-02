@@ -267,8 +267,14 @@ assert.doesNotMatch(experience,/setLngLat\(\s*\[\s*\d+(?:\.\d+)?\s*,\s*\d+(?:\.\
 for(const semantic of ['role="region"','aria-label','aria-live="polite"','aria-busy','ariaRole','aria-controls','aria-pressed']){
   assert.ok(experience.includes(semantic),`productive Places accessibility semantic missing: ${semantic}`);
 }
-assert.match(experience,/<label[^>]+for="places-query"/);
-assert.match(experience,/<(?:input|textarea)[^>]+id="places-query"/);
+assert.match(experience,/<label[^>]+for="places-map-query"/);
+assert.match(experience,/<(?:input|textarea)[^>]+id="places-map-query"/);
+assert.match(experience,/data-places-map-tool="search"/,'search must be a compact map-native control');
+assert.match(experience,/data-places-map-tool="categories"/,'categories must be a compact map-native control');
+assert.match(experience,/data-places-map-tool="filter"/,'filters must be a compact map-native control');
+assert.match(experience,/class="lv-places-spatial__legend-trigger"[^>]+aria-describedby="places-map-legend"/,'the ranking legend must be available from its map icon by hover or keyboard focus');
+assert.doesNotMatch(experience,/class="lv-places-spatial__context"/,'the oversized explanatory context card must not remain outside the map');
+assert.doesNotMatch(experience,/class="lv-places-spatial__search"/,'the old full-width search bar must not remain outside the map');
 assert.match(experience,/createElement\(['"]button['"]\)/,'map markers must be native buttons');
 assert.doesNotMatch(experience,/data-places-map[^>]+role="img"/,'the map container may not hide its interactive marker descendants behind role="img"');
 assert.match(experience,/data-places-map[^>]+role="group"/,'the interactive map must expose its marker controls as an accessible group');

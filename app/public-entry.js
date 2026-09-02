@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '13.82.158';
+  const VERSION = '13.82.159';
   const TEMPLATE_URL = `app/public-landing.html?v=${VERSION}`;
   const AUTH_HASHES = Object.freeze({ login: '#anmelden', register: '#registrieren' });
   let activeContainer = null;

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.14.1-viewport-preference-continuity';
+  const VERSION='1.15.0-map-native-discovery-controls';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -80,6 +80,8 @@
     filter:'<path d="M4 6h16M7 12h10M10 18h4"/><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/>',
     arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',
     ticket:'<path d="M4 7h16v3a2.5 2.5 0 0 0 0 5v3H4v-3a2.5 2.5 0 0 0 0-5Z"/><path d="M12 7v11"/>',
+    info:'<circle cx="12" cy="12" r="9"/><path d="M12 10v7"/><path d="M12 7h.01"/>',
+    grid:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
     check:'<path d="m5 12 4 4L19 6"/>',
     compass:'<circle cx="12" cy="12" r="8"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>'
   });
@@ -88,7 +90,7 @@
 
   const state={
     root:null,trip:null,categories:[],category:'food',query:'Ruhiges Restaurant am Wasser',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,history:[],
+    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null
   };
 
@@ -294,6 +296,22 @@
     const price=facts.includes('priceLevel')?`<div class="lv-places-spatial__filter-group"><span>Preisniveau</span><div>${[['PRICE_LEVEL_INEXPENSIVE','€'],['PRICE_LEVEL_MODERATE','€€'],['PRICE_LEVEL_EXPENSIVE','€€€']].map(([value,label])=>`<button type="button" data-places-price="${value}" aria-pressed="${state.filters.priceLevel===value}">${label}</button>`).join('')}</div></div>`:'';
     return `<div class="lv-places-spatial__filter-reveal ${state.filterOpen?'is-open':''}" aria-hidden="${!state.filterOpen}"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(categoryDefinition().label)} filtern"><div class="lv-places-spatial__filter-intro"><span>${esc(schema.label)} filtern</span><strong>Google-/Provider-Fakten, keine KI-Vermutungen</strong></div><div class="lv-places-spatial__filter-group is-wide"><span>Typ oder Landesküche</span><div>${schema.subtypes.map(([value,label])=>`<button type="button" data-places-subtype="${esc(value)}" aria-pressed="${state.filters.subtype===value}">${esc(label)}</button>`).join('')}</div></div><div class="lv-places-spatial__filter-facts">${truthButtons}</div>${price}<div class="lv-places-spatial__filter-sort"><button type="button" data-places-sort="fit" aria-pressed="${state.sort==='fit'}">${icon('compass')} Persönliche Passung</button><button type="button" data-places-sort="rating" aria-pressed="${state.sort==='rating'}">${icon('star')} Beste Bewertung</button><button type="button" data-places-sort="distance" aria-pressed="${state.sort==='distance'}">${icon('route')} Kürzeste Entfernung</button></div><button type="button" class="lv-places-spatial__filter-reset" data-places-filter-reset ${Object.values(state.filters).some(Boolean)||state.sort!=='fit'?'':'disabled'}>Filter zurücksetzen</button></aside></div>`;
   }
+  function mapDiscoveryToolsMarkup(){
+    const filterCount=Object.values(state.filters).filter(Boolean).length;
+    return `<div class="lv-places-spatial__map-tools" aria-label="Suche, Kategorien und Filter">
+      <button type="button" data-places-map-tool="search" aria-label="Orte suchen" aria-pressed="${state.mapPanel==='search'}" title="Suchen">${icon('search')}</button>
+      <button type="button" data-places-map-tool="categories" aria-label="Place-Kategorie auswählen" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
+      <button type="button" data-places-map-tool="filter" aria-label="Ergebnisse filtern${filterCount?` · ${filterCount} aktiv`:''}" aria-pressed="${state.mapPanel==='filter'}" title="Filter">${icon('filter')}${filterCount?`<span class="lv-places-spatial__map-tool-count">${filterCount}</span>`:''}</button>
+      <span class="lv-places-spatial__legend-anchor"><button type="button" class="lv-places-spatial__legend-trigger" aria-label="Kartenlegende" aria-describedby="places-map-legend" title="Legende">${icon('info')}</button><span class="lv-places-spatial__legend" id="places-map-legend" role="tooltip"><b>So liest du die Karte</b><span>Die Pinfarben folgen dem vollständigen Luvia-Kompass. „Passt“ erscheint nur bei belegten Vorlieben und erfüllten festen Anforderungen. „Alle“ zeigt auch noch ungeklärte Orte.</span></span></span>
+    </div>`;
+  }
+  function mapDiscoveryPanelsMarkup(){
+    return `<div class="lv-places-spatial__map-panels">
+      <section class="lv-places-spatial__map-panel" data-places-map-panel="search" ${state.mapPanel==='search'?'':'hidden'} aria-label="Orte suchen"><small>Suche</small><form class="lv-places-spatial__map-query" data-places-search novalidate><label for="places-map-query"><span class="sr-only">Orte suchen</span>${icon('search')}<input id="places-map-query" name="query" value="${esc(state.query)}" placeholder="Restaurant, Museum, Ausflugsziel …" autocomplete="off"></label><button type="submit">Suchen</button></form></section>
+      <section class="lv-places-spatial__map-panel" data-places-map-panel="categories" ${state.mapPanel==='categories'?'':'hidden'} aria-label="Place-Kategorie auswählen"><small>Kategorie</small><nav class="lv-places-spatial__map-categories" aria-label="Kanonische Places-Kategorien aus places.v1">${categoryMarkup(model().categories)}</nav></section>
+      <section class="lv-places-spatial__map-panel is-filter" data-places-map-panel="filter" ${state.mapPanel==='filter'?'':'hidden'} aria-label="Ergebnisse filtern"><small>Filter · ${esc(categoryDefinition().label)}</small>${filterMarkup()}</section>
+    </div>`;
+  }
   function priceLabel(value){
     const normalized=clean(value).toUpperCase();
     const map={PRICE_LEVEL_FREE:'Kostenlos',PRICE_LEVEL_INEXPENSIVE:'€',PRICE_LEVEL_MODERATE:'€€',PRICE_LEVEL_EXPENSIVE:'€€€',PRICE_LEVEL_VERY_EXPENSIVE:'€€€€'};
@@ -423,31 +441,18 @@
     if(!state.root)return;
     const renderToken=++state.renderToken;
     destroyMap();
-    const view=model(),filterCount=Object.values(state.filters).filter(Boolean).length;
+    const view=model();
     state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="Luvia Places" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
       <header class="lv-places-spatial__heading">
-        <div class="lv-places-spatial__heading-copy"><span class="lv-places-spatial__kicker">Spatial Compass Light</span><h1>Was möchtet ihr heute entdecken?</h1><p>Viele Möglichkeiten, ein klarer räumlicher Zusammenhang.</p></div>
-        <button type="button" class="lv-places-spatial__ai-action" data-ai-ask-open>${icon('spark')} Mit Luvia suchen</button>
+        <div class="lv-places-spatial__heading-copy"><h1>Was möchtet ihr heute entdecken?</h1><p>Belegte Orte im sichtbaren Kartenausschnitt · <button type="button" data-view="bookings">Buchungen ansehen</button></p></div>
       </header>
-      <section class="lv-places-spatial__context" aria-label="Planen-Funktionskompass">
-        <button type="button" class="lv-places-spatial__context-compass" data-places-back-plan aria-label="Alle Planen-Funktionen im Living Compass öffnen">${compassMarkup()}</button>
-        <div class="lv-places-spatial__context-copy"><small>Eure Orte im Zusammenhang</small><h2>Entdecken, verstehen und bewusst einplanen.</h2><p>Places zeigt belegbare Orte, ihre Eigenschaften und warum sie zu eurer Reise passen. Erst eure Bestätigung macht aus einer Möglichkeit einen Teil der Timeline.</p></div>
-        <div class="lv-places-spatial__capabilities"><span class="lv-places-spatial__capability">Places</span><span class="lv-places-spatial__capability">Booking</span><span class="lv-places-spatial__capability">Budget</span><span class="lv-places-spatial__capability">Route</span><span class="lv-places-spatial__capability lv-places-spatial__capability--more">+6</span><button type="button" class="lv-places-spatial__primary-action" data-view="bookings">Buchungen öffnen ${icon('arrow')}</button></div>
-      </section>
-      <form class="lv-places-spatial__search" data-places-search novalidate>
-        <label class="lv-places-spatial__search-field" for="places-query"><span class="sr-only">Orte suchen</span><span class="lv-places-spatial__search-icon">${icon('search')}</span><input class="lv-places-spatial__search-input" id="places-query" name="query" value="${esc(state.query)}" placeholder="Ruhiges Restaurant am Wasser" autocomplete="off"></label>
-        <button type="button" class="lv-places-spatial__filter" data-places-filter aria-expanded="${state.filterOpen}" aria-controls="places-filter-panel">${icon('filter')} Filter <span class="lv-places-spatial__filter-count">${filterCount}</span></button>
-        <button type="submit" class="lv-places-spatial__search-submit">Suchen</button>
-      </form>
-      <div id="places-filter-panel">${filterMarkup()}</div>
-      ${preferenceMarkup()}
-      ${statusMarkup(view)}
-      <nav class="lv-places-spatial__categories" aria-label="Kanonische Places-Kategorien aus places.v1">${categoryMarkup(view.categories)}</nav>
       <div class="lv-places-spatial__canvas">
         <section class="lv-places-spatial__map" data-place-map-shell aria-label="Geografisch genaue Luvia-Karte">
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
+          ${mapDiscoveryToolsMarkup()}
+          ${mapDiscoveryPanelsMarkup()}
           <div class="lv-places-spatial__map-toolbar" aria-label="Kartenansicht steuern">
             <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
             <div class="lv-places-spatial__map-browser" data-places-map-browser><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b> / <span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
@@ -727,10 +732,17 @@
     reveal?.setAttribute('aria-hidden',String(!state.filterOpen));
     if(focus&&state.filterOpen)requestAnimationFrame(()=>reveal?.querySelector('button')?.focus());
   }
+  function setMapPanel(panel,{focus=false}={}){
+    state.mapPanel=state.mapPanel===panel?null:panel;
+    state.filterOpen=state.mapPanel==='filter';
+    state.root?.querySelectorAll('[data-places-map-tool]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.placesMapTool===state.mapPanel)));
+    state.root?.querySelectorAll('[data-places-map-panel]').forEach(node=>{node.hidden=node.dataset.placesMapPanel!==state.mapPanel});
+    if(focus&&state.mapPanel)requestAnimationFrame(()=>state.root?.querySelector(`[data-places-map-panel="${state.mapPanel}"] input, [data-places-map-panel="${state.mapPanel}"] button`)?.focus());
+  }
   function bind(){
     const root=state.root;
-    root.querySelector('[data-places-search]')?.addEventListener('submit',event=>{event.preventDefault();state.filters.subtype='';search({query:new FormData(event.currentTarget).get('query'),category:state.category})});
-    root.querySelectorAll('[data-places-category]').forEach(button=>button.addEventListener('click',()=>{const def=categoryDefinition(button.dataset.placesCategory);state.filters=emptyFilters();state.filterOpen=true;search({query:def.query,category:def.key})}));
+    root.querySelector('[data-places-search]')?.addEventListener('submit',event=>{event.preventDefault();state.filters.subtype='';state.mapPanel=null;state.filterOpen=false;search({query:new FormData(event.currentTarget).get('query'),category:state.category})});
+    root.querySelectorAll('[data-places-category]').forEach(button=>button.addEventListener('click',()=>{const def=categoryDefinition(button.dataset.placesCategory);state.filters=emptyFilters();state.mapPanel=null;state.filterOpen=false;search({query:def.query,category:def.key})}));
     root.querySelectorAll('[data-places-select]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.placesSelect)));
     root.querySelectorAll('[data-places-external]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openExternal(link.dataset.placesExternal)}));
     root.querySelectorAll('[data-places-maps]').forEach(button=>button.addEventListener('click',()=>openMaps(findPlace(button.dataset.placesMaps))));
@@ -753,7 +765,7 @@
     root.querySelectorAll('[data-places-retry]').forEach(button=>button.addEventListener('click',()=>search({focus:false})));
     root.querySelector('[data-places-more]')?.addEventListener('click',()=>showMore());
     root.querySelector('[data-places-back-plan]')?.addEventListener('click',()=>globalThis.LuviaApp?.openCompass?.('plan')||globalThis.LuviaApp?.show?.('plan'));
-    root.querySelectorAll('[data-places-filter]').forEach(button=>button.addEventListener('click',()=>setFilterOpen(!state.filterOpen,{focus:true})));
+    root.querySelectorAll('[data-places-map-tool]').forEach(button=>button.addEventListener('click',()=>setMapPanel(button.dataset.placesMapTool,{focus:true})));
     root.querySelectorAll('[data-places-fit-mode]').forEach(button=>button.addEventListener('click',()=>{state.fitOnly=button.dataset.placesFitMode==='fit';root.querySelectorAll('[data-places-fit-mode]').forEach(item=>item.setAttribute('aria-pressed',String((item.dataset.placesFitMode==='fit')===state.fitOnly)));updateFilteredMap()}));
     root.querySelectorAll('[data-places-map-navigate]').forEach(button=>button.addEventListener('click',()=>navigateMap(button.dataset.placesMapNavigate)));
     root.querySelectorAll('[data-places-filter-option]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.placesFilterOption;state.filters[key]=!state.filters[key];button.setAttribute('aria-pressed',String(state.filters[key]));updateFilteredMap()}));
@@ -776,7 +788,7 @@
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.root=root;state.trip=trip;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.mapPanel=null;state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
     if(state.planningDraft?.query)state.query=clean(state.planningDraft.query);
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
