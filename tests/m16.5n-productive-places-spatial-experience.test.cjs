@@ -43,7 +43,7 @@ assert.equal(core.maxResults,80);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
-  runtimeVersion:'1.2.0',
+  runtimeVersion:'1.3.0',
   sourceContract:'places.v1',
   browserless:true,
   deterministic:true,
@@ -154,6 +154,20 @@ assert.equal(coordinateModel.policy.domainTruth,false);
 assert.equal(coordinateModel.policy.coordinateOrder,'longitude-latitude');
 assert.deepEqual(plain(core.compose({categories,places:coordinatePlaces,visibleLimit:18,runtime:{status:'ready'}})),plain(coordinateModel),'same owner projection must produce the same model');
 assert.throws(()=>core.compose({sourceContract:'places.v2',places:[]}),/places\.v1/,'foreign/unversioned owner input must be rejected');
+
+const preferencePlaces=Array.from({length:8},(_,index)=>({
+  id:`fit-${index+1}`,
+  providerPlaceId:`fit-${index+1}`,
+  name:`Passender Ort ${index+1}`,
+  coordinates:{latitude:54.02+index/1000,longitude:10.74+index/1000},
+  groupFit:{score:index<6?21-index:0,coverage:index<6?0.35:0},
+  preferenceReasons:index<6?['Belegtes Reisendenmerkmal']:[]
+}));
+const preferenceModel=core.compose({places:preferencePlaces,visibleLimit:8,runtime:{status:'ready'}});
+assert.deepEqual(plain(preferenceModel.markers.filter(marker=>marker.preferred).map(marker=>marker.providerPlaceId)),['fit-1','fit-2','fit-3','fit-4','fit-5'],'the map must visibly mark the five relatively strongest evidence-backed preference matches even below an arbitrary absolute score');
+assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-6').preferred,false,'the preference signal must remain bounded instead of marking every scored place');
+assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-7').preferred,false,'a marker without positive coverage and reasons must never be marked as personally fitting');
+assert.equal(preferenceModel.policy.maxPreferredMarkers,5);
 
 const ready=core.compose({categories,places:[coordinatePlaces[0]],runtime:{status:'ready'}}).status;
 const loading=core.compose({categories,places:[],runtime:{loading:true}}).status;

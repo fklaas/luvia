@@ -7,7 +7,7 @@
     "workbook": "Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx",
     "workbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
     "snapshotDate": "2026-09-01",
-    "integrationBuild": "13.82.151",
+    "integrationBuild": "13.82.152",
     "scope": "Aktuell servierte öffentliche und angemeldete Web-App einschließlich konditionaler Provider- und Geräteaktionen; nicht ausführbare Outcomes separat."
   },
   "invariants": {

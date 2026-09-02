@@ -20,19 +20,19 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.151**
-- Core: **4.82.151**
+- App: **13.82.152**
+- Core: **4.82.152**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Contextual Maps + Clean Place Detail — Integration candidate 13.82.151
+## M16.5 Contextual Maps + Clean Place Detail — Integration candidate 13.82.152
 
-- Candidate status: **LOCAL RELEASE GATE IN PROGRESS. Integration-only; Main and Production remain locked**.
+- Candidate status: **LOCAL RELEASE GATE IN PROGRESS. Integration-only; Main and Production remain locked. Public `.151` validated the real map, exact single-entity sheet, provider image and layered details, then was superseded because its absolute fit threshold could leave every preference pin unmarked**.
 - Map product contract: **Places and Hotels keep one uninterrupted MapLibre canvas, update their complete bounded provider pin set after pan/zoom and open exactly one selected entity. Search-result lists remain absent; a compact six-item click history is the only region below the map**.
-- Categories and filters: **accommodations are removed from Places because Hotels owns lodging. Places adds Freizeitparks, Einkaufszentren, Wellness and Wassererlebnisse. Contextual filters and Hotel filters project only fields backed by provider evidence; personal fit marks pins and never hides the rest of the returned set**.
+- Categories and filters: **accommodations are removed from Places because Hotels owns lodging. Places adds Freizeitparks, Einkaufszentren, Wellness and Wassererlebnisse. Contextual filters and Hotel filters project only fields backed by provider evidence; up to five relatively strongest pins with positive preference coverage and explicit reasons receive the visible `Passt` mark, while every other returned place remains on the map**.
 - Clean Pin Sheet: **the selected Place or Hotel first appears as a calm image-led card. Details, Booking/Reservierung and Timeline actions enter softly after the first paint; date, time, party-size and room forms are not shown in the initial sheet. Missing provider photos use an explicit neutral fallback and never a synthetic or unrelated image**.
 - Detail layering: **Details opens a second Bottom Sheet over the selected entity with provider-backed category, cuisine, price level, rating, opening hours, service, payment, accessibility, address, phone, Route, Website and menu links. Unknown fields remain absent**.
 - Booking and Timeline: **starting a booking or reservation first creates an explicitly unconfirmed Journey entry. Booking remains the sole lifecycle owner; provider/API/e-mail replies project confirmed, cancelled, declined, change-requested and still-pending states back onto the Timeline without copying Booking truth into Places**.

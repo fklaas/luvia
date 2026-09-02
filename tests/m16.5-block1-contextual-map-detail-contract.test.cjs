@@ -22,7 +22,9 @@ assert.match(places,/Google-\/Provider-Fakten, keine KI-Vermutungen/);
 assert.match(places,/maxViewportResults:MAX_RESULTS/,'Places must compose the bounded 80-result viewport contract rather than expose a 20-item UI shortlist');
 assert.match(places,/data-places-history-region/);
 assert.match(places,/state\.history=.*\.slice\(0,6\)/);
-assert.match(placesCore,/preferenceScore>=55/,'evidence-backed preference pins must be visibly marked at the accepted fit threshold');
+assert.match(placesCore,/function preferredResultIds\(results\)/,'preference pins need an evidence-backed relative selection policy');
+assert.match(placesCore,/\.slice\(0,5\)/,'the map may highlight only a bounded set of the most relevant evidence-backed pins');
+assert.match(placesCore,/result\.preferenceCoverage>0&&result\.preferenceReasons\.length>0/,'a preferred pin must keep positive traveler coverage and explicit reasons');
 assert.match(placesCss,/\.lv-places-spatial__marker\.is-preferred/);
 assert.match(places,/innerHTML=`<span>\$\{marker\.rank\}<\/span><b aria-hidden="true">Passt<\/b>`/,'preference fit must be rendered as real accessible marker content rather than decorative CSS');
 

@@ -3,7 +3,7 @@ var LuviaPlacesSpatialCompositionCoreV1=(()=>{
 
 const CONTRACT_ID='consumer.places-spatial-composition.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.2.0';
+const RUNTIME_VERSION='1.3.0';
 const SOURCE_CONTRACT='places.v1';
 const INITIAL_VISIBLE_RESULTS=6;
 const MAX_RESULTS=80;
@@ -139,14 +139,26 @@ function normalizeResults(input){
   return Object.freeze(results);
 }
 
-function markerProjection(result){
+function preferredResultIds(results){
+  const eligible=(Array.isArray(results)?results:[]).filter(result=>result?.coordinates&&result.preferenceScore!=null&&result.preferenceScore>0&&result.preferenceCoverage>0&&result.preferenceReasons.length>0);
+  if(!eligible.length)return new Set();
+  const best=Math.max(...eligible.map(result=>result.preferenceScore));
+  const threshold=Math.max(1,best-5);
+  return new Set(eligible
+    .filter(result=>result.preferenceScore>=threshold)
+    .sort((left,right)=>(right.preferenceScore-left.preferenceScore)||(right.preferenceCoverage-left.preferenceCoverage)||(left.rank-right.rank))
+    .slice(0,5)
+    .map(result=>result.providerPlaceId));
+}
+
+function markerProjection(result,preferred=false){
   if(!result?.coordinates)return null;
   return immutable({
     providerPlaceId:result.providerPlaceId,
     resultId:`place-result-${result.rank}`,
     name:result.name,
     rank:result.rank,
-    preferred:result.preferenceScore!=null&&result.preferenceCoverage>0&&result.preferenceScore>=55&&result.preferenceReasons.length>0,
+    preferred,
     latitude:result.coordinates.latitude,
     longitude:result.coordinates.longitude,
     lngLat:[result.coordinates.longitude,result.coordinates.latitude],
@@ -213,7 +225,8 @@ function compose(input={}){
   const results=normalizeResults(input.places||input.results);
   const visibleLimit=boundedInteger(input.visibleLimit,INITIAL_VISIBLE_RESULTS,1,MAX_RESULTS);
   const visibleResults=Object.freeze(results.slice(0,visibleLimit));
-  const markers=Object.freeze(visibleResults.map(markerProjection).filter(Boolean));
+  const preferredIds=preferredResultIds(visibleResults);
+  const markers=Object.freeze(visibleResults.map(result=>markerProjection(result,preferredIds.has(result.providerPlaceId))).filter(Boolean));
   const mapOmissions=Object.freeze(visibleResults.filter(result=>!result.coordinates).map(result=>immutable({
     providerPlaceId:result.providerPlaceId,
     resultId:`place-result-${result.rank}`,
@@ -231,7 +244,7 @@ function compose(input={}){
     bounds:boundsProjection(markers),
     status:projectStatus(input.runtime||{},results.length),
     counts:{total:results.length,visible:visibleResults.length,remaining:Math.max(0,results.length-visibleResults.length),markers:markers.length,omittedFromMap:mapOmissions.length},
-    policy:{initialVisibleResults:INITIAL_VISIBLE_RESULTS,maxResults:MAX_RESULTS,coordinateOrder:'longitude-latitude',coordinateSystem:'WGS84',syntheticMarkers:false,domainTruth:false}
+    policy:{initialVisibleResults:INITIAL_VISIBLE_RESULTS,maxResults:MAX_RESULTS,maxPreferredMarkers:5,relativePreferenceWindow:5,coordinateOrder:'longitude-latitude',coordinateSystem:'WGS84',syntheticMarkers:false,domainTruth:false}
   });
 }
 
