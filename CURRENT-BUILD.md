@@ -20,13 +20,26 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.146**
-- Core: **4.82.146**
-- Name: **M16.5 Block 1 Semantic Places Mutations**
+- App: **13.82.147**
+- Core: **4.82.147**
+- Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Places + Hotel Recovery — Integration Candidate 13.82.147
+
+- Incident decision: **public App 13.82.146 is rejected. User-operated evidence showed an artificial AI clarification for a complete restaurant-search sentence, non-working Hotel details, unreadable card copy, Hotel ticket semantics, missing/slow media, misleading zero-result projections and a prior cross-venue booking handoff. These are product regressions, not cosmetic polish**.
+- AI repair: **a relative date such as `heute` may conflict with the active Trip dates for a write that would change the Trip, but it no longer blocks a read-only Place search. The complete sentence `Finde uns heute ein ruhiges Restaurant am Wasser.` therefore compiles as a read and proceeds to Places instead of asking the user to decide again**.
+- Exact Hotel identity: **Hotel card references now split only at the first UI namespace separator and preserve a full provider ID such as `fsq:…`. Detail, media and Booking resolution therefore receive the exact selected Place instead of the truncated value `fsq`. The Booking Owner remains fail-closed: no unrelated property, ticket flow or generic corporate URL may substitute for the selected Hotel**.
+- Hotel experience: **Hotel cards isolate image and copy layers, use bounded visible-first media hydration, expose `Details`, `Verfügbarkeit` and `Merken`, and add the same shared verified-coordinate map projection as Places. Hotels never show `Eintritt` or `Tickets prüfen`. Without an exact booking route the UI reports that honestly rather than opening a foreign Hotel**.
+- Places resilience: **one bounded request preserves the Google-first/Foursquare-fallback provider order. Foursquare is not queried in parallel with a healthy Google result, and deeper provider breadth runs only when the first pass supplies fewer than six verified results. Provider failure is displayed as unavailable, never as a factual `0 von 0` result**.
+- Activity breadth and media truth: **the Foursquare mapper recognizes additional canonical amusement, sports, fitness, playground and skating categories. Provider photos load visible-first with bounded concurrency; when an exact image is unavailable, the UI renders an explicit neutral fallback instead of a wrong or invented Place photo**.
+- Inventory: **330 semantic user actions, 24 typed runtime actions and 907 audited active source markers. The new Hotel controls map to existing `places.detail.open` and `booking.place.open` outcomes; Hotel map and full Place ID are separately audited technical projections, not inflated user-action counts**.
+- Local gate: **the focused AI, Places, Hotel, Booking identity, admission and provider-mapping tests are green, and the complete controlled Safe Regression is 200/200 PASS. Supabase Edge deployment, Integration-only Worker deployment and signed-in 390 px public browser operation remain required before acceptance**.
+- External provider truth: **Google remains configured first but currently answers with a permission error from the Google Cloud project. Foursquare is therefore the real fallback. No live Hotel-price API is connected, so Luvia must not claim a price comparison until identical dates, occupancy and current total prices arrive from a connected source**.
+- Scope: **candidate changes are limited to source, generated inventories, the authorized shared Supabase Places gateway mapping and the Integration Worker. Main and Production remain untouched**.
 
 ## M16.5 Block 1 Google-first Destination Binding + Bright Hotel Truth — Integration Candidate 13.82.146
 

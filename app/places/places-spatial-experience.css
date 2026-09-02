@@ -1879,6 +1879,8 @@
 .lv-places-spatial__image-fallback {
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 8px;
   width: 100%;
   height: 100%;
   background: linear-gradient(145deg, #f8fbfb, var(--places-accent-soft));
@@ -2050,6 +2052,13 @@
   .lv-places-spatial__status > i { animation: none; }
   .lv-places-spatial__map.is-ready .lv-places-spatial__map-message { transition: none; }
   .lv-places-spatial__marker { animation: none; translate: none; }
+}
+
+.lv-places-spatial__image-fallback small {
+  color: var(--places-ink-soft);
+  font-size: .67rem;
+  font-weight: 750;
+  letter-spacing: .025em;
 }
 
 /* Scrolling remains available by wheel, touch and keyboard, but Luvia never

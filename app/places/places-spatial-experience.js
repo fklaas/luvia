@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.8.0-place-kind-integrity';
+  const VERSION='1.9.0-resilient-results-media';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=18;
@@ -119,14 +119,9 @@
   async function enrichCards(items){
     const contract=placesContract();
     if(!contract?.reads?.getCard)return items;
-    const enriched=await Promise.all(items.map(async place=>{
-      const id=providerId(place);
-      try{
-        const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720});
-        if(card?.image)state.images.set(id,card.image);
-        return {...place,...(card?.place||{}),image:card?.image||place.image||null};
-      }catch{return place}
-    }));
+    const enriched=[...items];let cursor=0;
+    const worker=async()=>{while(cursor<items.length){const index=cursor++,place=items[index],id=providerId(place);try{const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720});if(card?.image)state.images.set(id,card.image);enriched[index]={...place,...(card?.place||{}),image:card?.image||place.image||null}}catch{enriched[index]=place}}};
+    await Promise.all([worker(),worker(),worker()]);
     return enriched;
   }
   async function search({query=state.query,category=state.category,focus=true,silent=false}={}){
@@ -156,7 +151,7 @@
         momentContext:state.planningDraft||null,
         positionContext
       };
-      const response=await contract.reads.recommend({...request,fastPath:true,parallelFastQueries:true,fastQueryLimit:3,providerTimeoutMs:2400,candidateLimit:24,limit:Math.min(12,MAX_RESULTS)});
+      const response=await contract.reads.recommend({...request,fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:20,limit:Math.min(12,MAX_RESULTS)});
       if(token!==state.requestToken)return false;
       const raw=(response?.places||[]).slice(0,MAX_RESULTS).map(place=>({...place,distanceReference:positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':null}));
       state.results=raw;
@@ -168,10 +163,9 @@
       saveCached();
       render();
       if(focus)openResultSheet();
-      Promise.allSettled([
-        enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS)),
-        contract.reads.recommend({...request,fastPath:false,providerTimeoutMs:7000,candidateLimit:48,limit:MAX_RESULTS})
-      ]).then(results=>{
+      const enrichmentTasks=[enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS))];
+      if(raw.length<INITIAL_VISIBLE_RESULTS)enrichmentTasks.push(contract.reads.recommend({...request,fastPath:false,queryVariantLimit:2,providerTimeoutMs:8000,candidateLimit:30,limit:MAX_RESULTS}));
+      Promise.allSettled(enrichmentTasks).then(results=>{
         if(token!==state.requestToken||!state.root)return;
         const cards=results[0]?.status==='fulfilled'?results[0].value:[],deep=results[1]?.status==='fulfilled'?results[1].value:null,byId=new Map(cards.map(place=>[providerId(place),place]));
         const enriched=(deep?.places?.length?deep.places:state.results).slice(0,MAX_RESULTS).map(place=>({...place,...(byId.get(providerId(place))||{}),distanceReference:positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':null}));
@@ -239,14 +233,14 @@
     return `<aside class="lv-places-spatial__preference" aria-label="So richtet Luvia diese Suche aus"><div><small>Warum diese Reihenfolge?</small><strong>${esc(aiLabel)}</strong></div><ul>${constraints.map(item=>`<li class="is-constraint">${icon('check')}<span><b>${esc(item.label)}</b><small>Feste Anforderung aus deinem Profil</small></span></li>`).join('')}${profile.map(item=>`<li>${icon('compass')}<span><b>${esc(item.label)}</b><small>Globale Vorliebe</small></span></li>`).join('')}${trip.map(item=>`<li class="is-trip">${icon('spark')}<span><b>${esc(item.label)}</b><small>Gefühl nur für diese Reise</small></span></li>`).join('')}</ul></aside>`;
   }
   function resultCard(place,index){
-    const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image;
+    const id=providerId(place),selected=id===state.selectedId,saved=state.saved.get(id),image=state.images.get(id)||place.image,imageUrl=clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri);
     const admission=admissionFor(place);
     const opening=place.openNow===true?{className:'is-open',label:'Geöffnet'}:place.openNow===false?{className:'is-closed',label:'Geschlossen'}:{className:'is-unknown',label:'Öffnung prüfen'};
     const rating=place.rating!=null?`<strong class="lv-places-spatial__fact">${Number(place.rating).toFixed(1).replace('.',',')}</strong><span class="lv-places-spatial__fact">${place.userRatingCount?`${Number(place.userRatingCount).toLocaleString('de-DE')} Bewertungen`:'Bewertung'}</span>`:'';
     const price=priceLabel(place.priceLevel),distance=distanceLabel(place),match=matchLabel(place);
     return `<article class="lv-places-spatial__result-card ${selected?'is-selected':''}" id="place-result-${index+1}" data-place-card="${esc(id)}" aria-current="${selected}" data-compact-place-card>
       <button type="button" class="lv-places-spatial__result-media" data-places-select="${esc(id)}" aria-label="${esc(place.name)} auf der Karte auswählen" aria-pressed="${selected}">
-        ${image?.url?`<img src="${esc(image.url)}" alt="${esc(image.alt||place.name)}" loading="lazy">`:`<span class="lv-places-spatial__image-fallback">${icon(categoryMeta[state.category]?.icon||'pin')}</span>`}
+        ${imageUrl?`<img src="${esc(imageUrl)}" alt="${esc(image?.alt||place.name)}" loading="${index<2?'eager':'lazy'}" fetchpriority="${index===0?'high':'auto'}" decoding="async">`:`<span class="lv-places-spatial__image-fallback" role="img" aria-label="Noch kein belegtes Anbieterfoto">${icon(categoryMeta[state.category]?.icon||'pin')}<small>Karte statt ungeprüftem Foto</small></span>`}
         <b class="lv-places-spatial__result-rank">${index+1}</b>
       </button>
       <div class="lv-places-spatial__result-body">
@@ -274,7 +268,7 @@
     if(!state.root)return;
     const renderToken=++state.renderToken;
     destroyMap();
-    const view=model(),visible=view.visibleResults,remaining=view.counts.remaining,filterCount=Object.values(state.filters).filter(Boolean).length;
+    const view=model(),visible=view.visibleResults,remaining=view.counts.remaining,filterCount=Object.values(state.filters).filter(Boolean).length,isFailure=['error','offline'].includes(view.status.kind),mapHeadline=isFailure?'Karte wartet auf die Ortsquelle':`${view.counts.markers} von ${view.counts.visible} sichtbaren Orten auf der Karte.`,resultsHeadline=isFailure?'Ergebnisse konnten nicht geladen werden':`${view.counts.visible} von ${view.counts.total} gerankte Orte`;
     state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="Luvia Places" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
       <header class="lv-places-spatial__heading">
         <div class="lv-places-spatial__heading-copy"><span class="lv-places-spatial__kicker">Spatial Compass Light</span><h1>Was möchtet ihr heute entdecken?</h1><p>Viele Möglichkeiten, ein klarer räumlicher Zusammenhang.</p></div>
@@ -299,10 +293,10 @@
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
-          <aside class="lv-places-spatial__map-story"><small>Places v1 · verifizierte Geodaten</small><strong>${view.counts.markers} von ${view.counts.visible} sichtbaren Orten auf der Karte.</strong><p>Marker entstehen ausschließlich aus vollständigen WGS84-Koordinaten der Places-Projektion. Fehlende Koordinaten werden nicht erfunden.</p></aside>
+          <aside class="lv-places-spatial__map-story"><small>Places v1 · verifizierte Geodaten</small><strong>${mapHeadline}</strong><p>${isFailure?'Sobald eine Ortsquelle antwortet, erscheinen hier ausschließlich belegte Koordinaten.':'Marker entstehen ausschließlich aus vollständigen WGS84-Koordinaten der Places-Projektion. Fehlende Koordinaten werden nicht erfunden.'}</p></aside>
         </section>
         <aside class="lv-places-spatial__results" aria-label="Gerankte Orte">
-          <header class="lv-places-spatial__results-header"><div><strong>${view.counts.visible} von ${view.counts.total} gerankte Orte</strong><small>Produktive Places-Daten · keine Demo-Pins</small></div><button type="button" class="lv-places-spatial__results-tool" data-places-filter aria-expanded="${state.filterOpen}" aria-controls="places-filter-panel" aria-label="Ergebnisse filtern">${icon('filter')}</button></header>
+          <header class="lv-places-spatial__results-header"><div><strong>${resultsHeadline}</strong><small>${isFailure?'Kein falscher Nulltreffer · erneut versuchen':'Produktive Places-Daten · keine Demo-Pins'}</small></div><button type="button" class="lv-places-spatial__results-tool" data-places-filter aria-expanded="${state.filterOpen}" aria-controls="places-filter-panel" aria-label="Ergebnisse filtern">${icon('filter')}</button></header>
           <div class="lv-places-spatial__result-list">${visible.length?visible.map(resultCard).join(''):emptyResultsMarkup(view)}</div>
           ${remaining?`<button type="button" class="lv-places-spatial__load-more" data-places-more>Nächste ${Math.min(PAGE_SIZE,remaining)} Orte laden</button>`:''}
         </aside>
@@ -542,6 +536,7 @@
     root.querySelectorAll('[data-places-maps]').forEach(button=>button.addEventListener('click',()=>openMaps(findPlace(button.dataset.placesMaps))));
     root.querySelectorAll('[data-places-favorite]').forEach(button=>button.addEventListener('click',()=>favorite(findPlace(button.dataset.placesFavorite),button)));
     root.querySelectorAll('[data-places-booking]').forEach(button=>button.addEventListener('click',()=>openBooking(findPlace(button.dataset.placesBooking),button)));
+    root.querySelectorAll('.lv-places-spatial__result-media img').forEach(image=>image.addEventListener('error',()=>{const host=image.closest('.lv-places-spatial__result-media');if(host){const fallback=document.createElement('span');fallback.className='lv-places-spatial__image-fallback';fallback.setAttribute('role','img');fallback.setAttribute('aria-label','Noch kein belegtes Anbieterfoto');fallback.innerHTML=`${icon(categoryMeta[state.category]?.icon||'pin')}<small>Karte statt ungeprüftem Foto</small>`;image.replaceWith(fallback)}},{once:true}));
     root.querySelectorAll('[data-places-plan]').forEach(button=>button.addEventListener('click',async event=>{
       event.preventDefault();event.stopPropagation();
       const id=button.dataset.placesPlan,place=findPlace(id);

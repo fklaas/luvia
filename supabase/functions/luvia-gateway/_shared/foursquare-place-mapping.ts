@@ -1,5 +1,5 @@
 export const FOURSQUARE_API_VERSION='2025-06-17';
-export const FOURSQUARE_MAPPING_VERSION='2026-09-01.category-breadth-rating-scale.v3';
+export const FOURSQUARE_MAPPING_VERSION='2026-09-02.activity-breadth-rating-scale.v4';
 export const FOURSQUARE_RESTAURANT_CATEGORY_ID='13065';
 
 const PRO_FIELDS=[
@@ -85,6 +85,7 @@ function canonicalCategoryTypes(labels:string[]){
   add('bar',/\bbar\b|pub|cocktail/);
   add('lodging',/hotel|hostel|motel|lodging|resort|bed and breakfast|guest house|campground/);
   add('amusement_park',/amusement park|theme park/);
+  add('amusement_center',/entertainment center|family entertainment|amusement arcade|video arcade|recreation center|indoor play|trampoline|laser tag|paintball|go[ -]?kart|miniature golf|mini golf/);
   add('bowling_alley',/bowling/);
   add('escape_room',/escape room/);
   add('aquarium',/aquarium/);
@@ -92,7 +93,12 @@ function canonicalCategoryTypes(labels:string[]){
   add('water_park',/water park/);
   add('stadium',/stadium/);
   add('swimming_pool',/swimming pool|aquatic center/);
-  add('tourist_attraction',/attraction|landmark|monument|observation deck|miniature golf|mini golf/);
+  add('sports_activity_location',/sports and recreation|sports club|athletic field|sports complex|recreation center|adventure sports|outdoor recreation/);
+  add('fitness_center',/fitness center|fitness club|health club/);
+  add('gym',/\bgym\b|gymnasium/);
+  add('playground',/playground|play area/);
+  add('skating_rink',/skating rink|ice rink|roller rink/);
+  add('tourist_attraction',/attraction|landmark|monument|observation deck|visitor center|miniature golf|mini golf/);
   add('museum',/museum/);
   add('movie_theater',/movie theater|cinema/);
   add('art_gallery',/art gallery/);

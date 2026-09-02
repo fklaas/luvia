@@ -7,7 +7,7 @@
     "workbook": "Luvia-vollstaendiges-Benutzeraktionsinventar-2026-09-01.xlsx",
     "workbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
     "snapshotDate": "2026-09-01",
-    "integrationBuild": "13.82.146",
+    "integrationBuild": "13.82.147",
     "scope": "Aktuell servierte öffentliche und angemeldete Web-App einschließlich konditionaler Provider- und Geräteaktionen; nicht ausführbare Outcomes separat."
   },
   "invariants": {
@@ -21,7 +21,7 @@
     "semanticActions": 330,
     "availableOrConditional": 319,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 903,
+    "auditedDataMarkers": 907,
     "runtimeRegisteredActions": 24,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
@@ -9128,7 +9128,8 @@
       "sources": [
         "app/places/places-spatial-experience.js",
         "core/places/place-detail-service.js",
-        "core/places/place-ui.js"
+        "core/places/place-ui.js",
+        "modules/accommodations/accommodation-module.js"
       ],
       "note": null
     },
@@ -12318,6 +12319,7 @@
         "publicEvidence": "OPEN"
       },
       "sources": [
+        "modules/accommodations/accommodation-module.js",
         "core/booking/booking-ui.js",
         "core/booking/booking-reservation-create.js",
         "core/platform/booking-contract-adapter.js"
@@ -20133,23 +20135,23 @@
     }
   ],
   "markerAudit": {
-    "count": 903,
+    "count": 907,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "6236F651AD87F946D79D1C3B4A961C5ED4CD1219F4041A93C78D0B295AD43B81",
+    "registrySha256": "5ADCB284542454A5F7CDE0325ACBC529EC4931EA00BBEE0501D0B589D1786A69",
     "classifications": {
-      "AKTIONSKANDIDAT": 384,
+      "AKTIONSKANDIDAT": 386,
       "INTERAKTIONSPRIMITIVE": 290,
-      "STATUS/EINGABE/PROJEKTION": 229
+      "STATUS/EINGABE/PROJEKTION": 231
     },
     "categories": {
-      "Buchung & Anbieterkommunikation": 75,
+      "Buchung & Anbieterkommunikation": 77,
       "Erinnerungen & Geschichten": 53,
       "Journey, Timeline & Tagesplan": 41,
       "Luvia AI Chat": 55,
       "Medien & Galerie": 49,
       "Navigation & Oberfläche": 331,
       "Öffentliche Landing-Demos": 94,
-      "Places & Ortsentdeckung": 111,
+      "Places & Ortsentdeckung": 113,
       "Profil, Vorlieben & Privatsphäre": 60,
       "Reisen & Zusammenarbeit": 34
     },

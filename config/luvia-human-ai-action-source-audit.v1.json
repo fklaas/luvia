@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.3",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 903,
+  "markerCount": 907,
   "markers": [
     {
       "marker": "data-accent",
@@ -3216,6 +3216,42 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-hotel-booking",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch als Booking-Flow für die exakt ausgewählte Unterkunft erfasst; der öffentliche Booking Owner prüft den konkreten Provider-, Place- und Routennachweis."
+    },
+    {
+      "marker": "data-hotel-detail-booking",
+      "category": "Buchung & Anbieterkommunikation",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Semantisch als Booking-Flow aus dem Detail der exakt ausgewählten Unterkunft erfasst; kein Ticket- oder fremder Unterkunftsweg darf ersatzweise geöffnet werden."
+    },
+    {
+      "marker": "data-hotel-map",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; der Marker trägt die gemeinsame räumliche Projektion ausschließlich für Unterkünfte mit belegten Koordinaten."
+    },
+    {
+      "marker": "data-hotel-place-id",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "modules/accommodations/accommodation-module.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; der Marker erhält die vollständige Provider-Place-ID für Detail-, Medien- und Booking-Identität."
+    },
+    {
       "marker": "data-hotel-search-status",
       "category": "Places & Ortsentdeckung",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -5674,7 +5710,8 @@
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [
         "app/places/places-spatial-experience.js",
-        "core/ai/ai-dashboard-service.js"
+        "core/ai/ai-dashboard-service.js",
+        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -5684,7 +5721,8 @@
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [
         "app/places/places-spatial-experience.js",
-        "core/ai/ai-dashboard-service.js"
+        "core/ai/ai-dashboard-service.js",
+        "modules/accommodations/accommodation-module.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },

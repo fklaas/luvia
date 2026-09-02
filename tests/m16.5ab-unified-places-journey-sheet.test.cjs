@@ -42,10 +42,11 @@ assert.match(ui,/html\.luvia-ui-open,body\.luvia-ui-open\{overflow:hidden/);
 assert.match(ui,/@media\(prefers-reduced-motion:reduce\)/);
 
 assert.match(places,/if\(focus\)openResultSheet\(\)/,'an explicit Places search must open the shared result sheet');
-assert.match(places,/fastPath:true,parallelFastQueries:true,fastQueryLimit:3,providerTimeoutMs:2400/,'the visible Places search must use bounded parallel provider breadth without waiting for AI enrichment');
+assert.match(places,/fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500/,'the visible Places search must make one bounded Google-first provider request before consuming fallback quota');
+assert.match(places,/if\(raw\.length<INITIAL_VISIBLE_RESULTS\).*fastPath:false,queryVariantLimit:2,providerTimeoutMs:8000/,'the visible Places search may deepen provider breadth only when the first verified pass is insufficient');
 assert.doesNotMatch(places,/saveCached\(\);\s*await loadSaved\(\);\s*render\(\)/,'the first provider result paint must never wait for saved-Place hydration');
 assert.ok(places.indexOf('render();')<places.indexOf('loadSaved(lifecycleToken).then'),'cached Places must paint before lifecycle hydration during mount');
-assert.match(places,/Promise\.allSettled\(\[/,'card images and full multi-source enrichment must continue behind the visible first result set');
+assert.match(places,/Promise\.allSettled\(enrichmentTasks\)/,'card images and bounded deep enrichment must continue behind the visible first result set');
 assert.match(places,/if\(enriched\.length\)\{state\.results=enriched;state\.status='ready';state\.error=null/,'deep provider results must replace an earlier empty state instead of leaving contradictory empty copy above real cards');
 assert.match(places,/if\(focus&&!raw\.length\)openResultSheet\(\)/,'late verified results must still honor the user-requested result sheet when the fast pass was empty');
 assert.match(places,/place\?\.distanceReference==='device'/,'Places may only label or sort a distance as nearby when the current device is the explicit reference');

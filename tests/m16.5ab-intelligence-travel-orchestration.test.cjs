@@ -51,6 +51,14 @@ assert.equal(outsideTripPlan.status,'conflicted');
 assert.equal(outsideTripPlan.conflicts[0].code,'date-outside-active-trip');
 assert.equal(outsideTripPlan.conflicts[0].suggestedDate,'2027-06-14');
 
+const currentDayRead=core.compileDialogue('Finde uns heute ein ruhiges Restaurant am Wasser.',{
+  goals:[{type:'restaurant',label:'Ruhiges Restaurant am Wasser finden',hardConstraints:[{key:'date',value:'today',label:'Heute'},{key:'setting',value:'waterfront',label:'Am Wasser'}],softPreferences:[{key:'atmosphere',value:'quiet',label:'Ruhige Atmosphäre'}],timeWindow:{label:'Heute'},source:'user'}],
+  confidence:.97,summary:{headline:'Ruhiges Restaurant am Wasser',intro:'Direkte Suche'},unknowns:[],followUpQuestion:null
+},{now:'2026-09-02T10:00:00+02:00',trip:{startDate:'2027-06-12',endDate:'2027-06-19'}});
+assert.equal(currentDayRead.status,'compiled','a read-only Place search must not become a trip-date conflict');
+assert.equal(currentDayRead.intents[0].mode,'read');
+assert.equal(currentDayRead.conflicts.length,0);
+
 const relaxedEvening=core.compileIntent('Plane uns einen entspannten Abend in Scharbeutz.');
 assert.equal(relaxedEvening.status,'needs-clarification');
 assert.deepEqual(JSON.parse(JSON.stringify(relaxedEvening.missingInputs.map(item=>item.input))),['date','time-or-open-period']);

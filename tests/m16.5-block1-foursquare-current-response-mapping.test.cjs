@@ -67,8 +67,12 @@ test('provider category labels become bounded Luvia discovery types without losi
   const {normalizeFoursquarePlace}=await mapping();
   const miniGolf=normalizeFoursquarePlace({fsq_place_id:'mini-golf',name:'Küsten Adventure Golf',latitude:54.02,longitude:10.75,categories:[{id:10054,name:'Arts and Entertainment > Miniature Golf Course'}]});
   const museum=normalizeFoursquarePlace({fsq_place_id:'museum',name:'Museum am Meer',latitude:54.03,longitude:10.76,categories:[{id:10027,name:'Arts and Entertainment > Museum'}]});
+  const recreation=normalizeFoursquarePlace({fsq_place_id:'recreation',name:'Küsten Freizeitwelt',latitude:54.04,longitude:10.77,categories:[{id:18000,name:'Sports and Recreation > Recreation Center'}]});
   assert.ok(miniGolf.types.includes('tourist_attraction'));
+  assert.ok(miniGolf.types.includes('amusement_center'));
   assert.ok(museum.types.includes('museum'));
+  assert.ok(recreation.types.includes('sports_activity_location'));
+  assert.ok(recreation.types.includes('amusement_center'));
   assert.ok(miniGolf.providerNativeTypes.includes('Arts and Entertainment > Miniature Golf Course'));
 });
 
