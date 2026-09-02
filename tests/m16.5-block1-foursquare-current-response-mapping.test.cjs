@@ -102,6 +102,9 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/HEALTH_PROBES=Object\.freeze/);
   assert.match(source,/'minigolf-scharbeutz'/);
   assert.match(source,/'minigolf-chat-scharbeutz'/);
+  assert.match(source,/'hotels-scharbeutz'/);
+  assert.match(source,/options:Object\.freeze\(\{includedType:'lodging'\}\)/);
+  assert.match(source,/\.\.\.\(probe\.options\|\|\{\}\)/);
   assert.match(source,/'beach-supplies-scharbeutz'/);
   assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
   assert.match(source,/mode:'google_primary_foursquare_fallback'/);
