@@ -100,12 +100,21 @@ without a preceding Place card. The model had correctly selected Booking Create;
 the defect was the runtime's subject source, not keyword recognition. No external
 mutation occurred, and Stable was restored immediately to accepted `.139`.
 
-The `.141` correction reads bounded active-Trip Booking Owner projections and
-merges them with any known Place subjects before exact, ambiguity-safe target
-resolution. Missing owner/provider identity still fails closed. Focused tests
-and the visible 390 px lifecycle fixture pass Read, Open, Create-from-Booking-
-Owner, Modify and Cancel at 5/5. Public Integration operation, byte proof and
-the exact `.141 → .139` rollback remain release gates; `.141` is not yet accepted.
+The `.141` correction read bounded active-Trip Booking Owner projections and
+merged them with known Place subjects before exact, ambiguity-safe target
+resolution. Public Read/Open, fresh-chat Create and Cancel recognition passed,
+but Modify displayed only the Booking name even though the exact new date and
+time remained preserved in `preview.changes`. `.141` was rejected because the
+user could not verify what would change; every confirmation was cancelled and
+Stable returned to accepted `.139` without an external mutation.
+
+The `.142` correction keeps `.141` subject resolution and extends the shared
+browserless consumer projection to render exact nested change values with
+explicit labels such as `Neues Datum` and `Neue Uhrzeit`. The visible lifecycle
+fixture now projects actual Runtime data and fails if Create, Modify or Cancel
+details are missing; the local run passes Read/Open/Create/Modify/Cancel at 5/5.
+Public Integration operation, byte proof and the exact `.142 → .139` rollback
+remain release gates; `.142` is not accepted before all of them pass.
 
 ## Rollout and rollback
 
@@ -167,7 +176,7 @@ Worker version `df146bb6-52dc-4c82-8ab2-d4a6618839db`, and 26/26 selected files 
 app-only rollback restores `.138`:
 `npx wrangler versions deploy e12ec944-a66e-4f77-9b18-9259f63fa46b@100 --name integration-luvia --message "Rollback M16.5 B1 App 13.82.139 to accepted App 13.82.138" --yes`.
 
-## Semantic Booking lifecycle candidate — App/Core 13.82.141/4.82.141
+## Semantic Booking lifecycle candidate — App/Core 13.82.142/4.82.142
 
 The next Integration-only slice extends the existing Booking Core rather than
 creating a second booking system. `booking.reservation.create` now delegates to
@@ -180,6 +189,8 @@ one exact Place or active Booking Owner object. Read cards expose only actions
 allowed by the browserless lifecycle policy. All writes retain Preview,
 explicit confirmation, idempotency, Owner Receipt and unknown-outcome
 reconciliation. A local 390 px five-action fixture proves Read, Open, Create,
-Modify and Cancel with `TT.MM.JJJJ`, no overflow and zero current browser
-warnings/errors. Provider-positive public evidence remains a release gate and
-is not inferred from the local controlled transport matrix.
+Modify and Cancel with `TT.MM.JJJJ`. The shared consumer projection now reads
+the exact nested Modify patch and visibly labels the new date/time; the fixture
+uses these real Runtime values rather than fixed demonstration copy. Provider-
+positive public evidence remains a separate release gate and is not inferred
+from the local controlled transport matrix.

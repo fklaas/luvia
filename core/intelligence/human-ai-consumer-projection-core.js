@@ -3,7 +3,7 @@ var LuviaHumanAIConsumerProjectionCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.human-ai-consumer-projection.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0-exact-change-preview';
 const STATES=Object.freeze([
   'AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE','NEEDS_INPUT',
   'AUTHENTICATION_REQUIRED','SCOPE_DENIED','REAUTH_REQUIRED','CONSENT_REQUIRED','NETWORK_REQUIRED',
@@ -90,12 +90,13 @@ function projectIntentSummary(compiled={}){
   return immutable({visible:!simpleResolved,state,title,message,items});
 }
 function previewDetails(preview={}){
-  const date=formatDate(preview.date||preview.startAt),clock=formatTime(preview.time||preview.startAt),details=[];
+  const changes=preview.changes&&typeof preview.changes==='object'?preview.changes:{},hasChange=field=>Object.prototype.hasOwnProperty.call(changes,field),dateChanged=hasChange('date')||hasChange('startAt'),timeChanged=hasChange('time')||hasChange('startAt'),partySizeChanged=hasChange('partySize'),durationChanged=hasChange('duration');
+  const date=formatDate(preview.date||preview.startAt||changes.date||changes.startAt),clock=formatTime(preview.time||preview.startAt||changes.time||changes.startAt),partySize=preview.partySize??changes.partySize,duration=preview.duration??changes.duration,details=[];
   if(preview.name||preview.title)details.push({label:'Was',value:consumerText(preview.name||preview.title)});
-  if(date)details.push({label:'Datum',value:date});
-  if(clock)details.push({label:'Uhrzeit',value:clock});
-  if(preview.partySize)details.push({label:'Personen',value:String(preview.partySize)});
-  if(preview.duration)details.push({label:'Dauer',value:consumerText(preview.duration)});
+  if(date)details.push({label:dateChanged?'Neues Datum':'Datum',value:date});
+  if(clock)details.push({label:timeChanged?'Neue Uhrzeit':'Uhrzeit',value:clock});
+  if(partySize!==undefined&&partySize!==null&&partySize!=='')details.push({label:partySizeChanged?'Neue Personenzahl':'Personen',value:String(partySize)});
+  if(duration!==undefined&&duration!==null&&duration!=='')details.push({label:durationChanged?'Neue Dauer':'Dauer',value:consumerText(duration)});
   return details.slice(0,5);
 }
 function projectPreview(input={}){

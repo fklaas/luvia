@@ -98,7 +98,7 @@
     };
   }
 
-  const api = Object.freeze({ version: "13.82.141", mount: init, init, haptic, navigate, bindMagnetic, bindCinematicLinks });
+  const api = Object.freeze({ version: "13.82.142", mount: init, init, haptic, navigate, bindMagnetic, bindCinematicLinks });
   window.LuviaPublicLandingExperience = api;
   window.LuviaExperiencePreview = api;
 })();

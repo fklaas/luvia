@@ -43,6 +43,13 @@ const preview=core.projectPreview({result:{title:'Owner Receipt Preview',message
 assert.equal(preview.view,'PREVIEW');
 assert.equal(preview.details.find(item=>item.label==='Datum').value,'14.06.2027');
 assert.doesNotMatch(JSON.stringify(preview),/\b(?:Owner|Receipt|Mutation|Action Ledger)\b/i);
+const modifyPreview=core.projectPreview({result:{title:'Buchungsänderung bestätigen'},preview:{name:'DAS LEO',changes:{date:'2027-06-15',time:'19:30',partySize:3}}});
+assert.deepEqual(JSON.parse(JSON.stringify(modifyPreview.details)),[
+  {label:'Was',value:'DAS LEO'},
+  {label:'Neues Datum',value:'15.06.2027'},
+  {label:'Neue Uhrzeit',value:'19:30 Uhr'},
+  {label:'Neue Personenzahl',value:'3'}
+]);
 const receipt=core.projectReceipt({result:{title:'Owner Receipt',message:'Provider mutation completed',evidence:{status:'completed'}},recoveryKind:'undo'});
 assert.equal(receipt.view,'RECEIPT');
 assert.equal(receipt.primaryAction.kind,'UNDO');

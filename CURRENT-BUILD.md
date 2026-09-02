@@ -20,26 +20,34 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.141**
-- Core: **4.82.141**
-- Name: **M16.5 Block 1 Booking Owner Subject Resolution**
+- App: **13.82.142**
+- Core: **4.82.142**
+- Name: **M16.5 Block 1 Exact Booking Change Preview**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
 
-## M16.5 Block 1 Booking Owner Subject Resolution — Local Integration Candidate 13.82.141
+## M16.5 Block 1 Exact Booking Change Preview — Local Integration Candidate 13.82.142
 
-- Runtime target: **App 13.82.141 / Core 4.82.141 / cache `luvia-shell-v13.82.141` / Integration only**.
+- Runtime target: **App 13.82.142 / Core 4.82.142 / cache `luvia-shell-v13.82.142` / Integration only**.
 - Existing Booking Core extended: **no parallel booking system was created. `booking.v1 commands.submitReservation` now drives confirmed AI Create through exactly one evidenced transport: connected provider API, verified public booking e-mail, external handoff or an honest unavailable result**.
 - Whole-sentence AI: **structured dialogue semantics resolve Create, Modify and Cancel against one exact known Place or active Booking Owner object. A fresh Chat may derive the bounded subject from `booking.v1.reads.listForTrip`; it no longer requires a Place card to have been opened first. The deterministic language compiler remains the bounded safety fallback; isolated keywords do not authorize a write**.
 - Lifecycle policy: **Read cards expose only actions supported by the current Booking state and provider/thread capability. Terminal bookings expose no mutation; ambiguous titles do not silently select a target**.
 - Mutation safety: **Create, Modify and Cancel retain Preview, explicit confirmation, idempotency, Owner Receipt and unknown-outcome reconciliation. A Booking-owned draft is never described as externally submitted, an external link is never described as booked, and an unverified e-mail is never used as transport**.
-- Compact Chat consumer: **one booking card exposes Lesen, Buchungsweg, Neu anfragen, Ändern and Stornieren. User-facing dates use `TT.MM.JJJJ`; provider and ledger details stay outside normal product copy**.
-- Local evidence: **the real AI Runtime, Action Contract, Ledger, Booking Lifecycle Policy and public Owner boundary pass a visible 390 px five-action fixture. The run reaches 5/5, has no horizontal overflow and produces zero current browser warnings/errors. Browserless tests cover exact sentence-to-owner resolution plus provider API, verified e-mail, external handoff and unavailable routes**.
+- Compact Chat consumer: **the browserless consumer projection reads both initial booking values and exact requested changes. A Modify preview now says `Neues Datum: 15.06.2027` and `Neue Uhrzeit: 19:30 Uhr`; one booking card exposes Lesen, Buchungsweg, Neu anfragen, Ändern and Stornieren. User-facing dates use `TT.MM.JJJJ`; provider and ledger details stay outside normal product copy**.
+- Local evidence: **the real AI Runtime, Action Contract, Ledger, Booking Lifecycle Policy, public Owner boundary and shared consumer projection pass a visible 390 px five-action fixture. The run reaches 5/5 and derives every visible Create/Modify/Cancel detail from the actual Runtime preview rather than hardcoded fixture copy. Browserless tests cover exact sentence-to-owner resolution, the nested Modify patch plus provider API, verified e-mail, external handoff and unavailable routes**.
 - Registry truth: **329 semantic actions, 23 typed runtime actions, 124 protected mutations, 20 truthful Undo paths and 2,725 generated failure evals remain active. Public E2E passes deliberately remain 7 until the Integration candidate has been operated publicly; provider-positive evidence is not inferred from controlled local transports**.
-- Release state: **focused tests and the visible local 5/5 run are green. Runtime commit, immutable Worker version, Stable/Immutable byte comparison, public Step-17 result and exact `.141 → .139` rollback remain pending; `.141` is not accepted before these gates pass**.
+- Release state: **focused tests, the visible local 5/5 run, Safe Regression 194/194 and NFR-0 3/3 are green. Runtime commit, immutable Worker version, Stable/Immutable byte comparison, public Step-17 result and exact `.142 → .139` rollback remain pending; `.142` is not accepted before these gates pass**.
 - Scope: **this app-only candidate changes no DB, RLS, Edge Function, Provider credential, Secret, Main or Production. Official ticket/reservation activation and Hotel live-provider activation remain the next separate slices**.
+
+## M16.5 Block 1 Booking Owner Subject Resolution — Publicly deployed, rejected 13.82.141
+
+- Repaired subset: **a fresh Chat now resolved `DAS LEO` from the public active-Trip Booking Owner collection and produced the correct Create confirmation with `14.06.2027`, `18:30 Uhr` and `2 Personen`. Public Read/Open and Cancel recognition also passed at 390 px**.
+- Decisive public counterevidence: **the Modify sentence `Verschiebe bitte unsere Buchung im DAS LEO auf den 15.06.2027 um 19:30 Uhr.` reached `Buchungsänderung bestätigen`, but the shared consumer projection displayed only `Was: DAS LEO` and omitted the requested new date and time. Because a user could not safely verify the actual change, `.141` was rejected. Every preview was cancelled and no external booking mutation occurred**.
+- Root cause and disposition: **the AI and Booking Owner had preserved the exact patch under `preview.changes`; `human-ai-consumer-projection-core` read only top-level fields. Stable Integration was restored immediately to accepted `.139`; `.141` remains immutable counterevidence and a retained upgrade bridge, not an accepted rollback target**.
+- Provenance: **runtime commit `e45e21d8a6e7969a5bbc43cc42aca5ac11d7fea7`; clean archive `C:\Users\fabia\AppData\Local\Temp\luvia-integration-13.82.141-e45e21d8-release.zip`, SHA-256 `5205DB3B06B585C3769F8BD56EC27972E61053CF9282C3F48E25E8116DC59213`, 3,085 Git files and 67,658,301 bytes; immutable Worker version `ab4f2900-a068-44d5-be25-76a2ea04f87b`**.
+- Correct rollback: **Stable Integration was restored to accepted App 13.82.139 with `npx wrangler versions deploy df146bb6-52dc-4c82-8ab2-d4a6618839db@100 --name integration-luvia --message "Rollback rejected App 13.82.141 to accepted App 13.82.139 after incomplete modify preview" --yes`; DB, RLS, Edge Functions, Provider state, Secrets, Main and Production were unchanged**.
 
 ## M16.5 Block 1 Semantic Booking Lifecycle — Publicly deployed, rejected 13.82.140
 
