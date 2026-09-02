@@ -97,9 +97,9 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
   assert.deepEqual(Array.from(boundedAiRanked.places,place=>place.providerPlaceId),['near','far'],'a non-authoritative AI score must not displace a materially nearer otherwise-equivalent provider result');
   sandbox.LuviaAI.rankCandidates=async input=>input.candidates;
 
-  let breadthCall=0;
+  let breadthCall=0;const breadthQueries=[];
   sandbox.LuviaPlaceEntities={searchPlaces:async options=>{
-    breadthCall++;
+    breadthCall++;breadthQueries.push(options.query);
     const candidates=breadthCall===1
       ?[
         {...miniatureGolf,id:'far-first-query',providerPlaceId:'far-first-query',name:'Minigolf Timmendorfer Strand',distanceMeters:3900},
@@ -109,7 +109,8 @@ assert.deepEqual(Array.from(deterministic.intents,intent=>intent.categoryHints[0
     return{data:{places:candidates,providers:{requested:['foursquare'],used:['foursquare'],errors:[]}}};
   }};
   const diverseRanked=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Abwechslungsreiche Minigolf-Anlagen in Scharbeutz',category:'activities',destination:'Scharbeutz',limit:3,fastPath:true,fastQueryLimit:3});
-  assert.equal(breadthCall,2,'the breadth scenario must exercise independent provider-query variants');
+  assert.ok(breadthCall>=2,'the breadth scenario must exercise independent provider-query variants');
+  assert.ok(new Set(breadthQueries).size>=2,'preference breadth must use distinct provider queries rather than repeat one generic request');
   assert.equal(diverseRanked.places[0].providerPlaceId,'near-second-query','query diversity may fan out the remaining cards but must never displace the best ranked result');
 
   assert.match(actionSource,/Bestand bitte direkt beim Anbieter prüfen/);

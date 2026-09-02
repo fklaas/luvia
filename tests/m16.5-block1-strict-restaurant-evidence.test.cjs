@@ -86,5 +86,15 @@ assert.match(browserFixtureSource,/providerPlaceId:'fixture-bakery'.*providerNat
   assert.equal(broadened.diversityMeta.providerCandidateWindow,20);
   assert.ok(broadened.diversityMeta.eligibleCandidateCount>=3);
 
+  const preferenceCalls=[];
+  sandbox.LuviaIntelligenceContractV1={reads:{
+    resolveTripPreferences:()=>({kind:'derived-trip-preference-resolution',hardConstraints:[{kind:'dietary',value:'vegetarian'}],weights:{quiet:8,local:7}}),
+    rankPlaceCandidates:({candidates})=>({places:candidates,meta:{candidateCount:candidates.length,eligibleCount:candidates.length,blockedCount:0}})
+  }};
+  sandbox.LuviaPlaceEntities={searchPlaces:async options=>{preferenceCalls.push(options);return{data:{places:[{id:`pref-${preferenceCalls.length}`,providerPlaceId:`pref-${preferenceCalls.length}`,name:'Pflanzenküche',types:['restaurant','vegetarian_restaurant'],features:{servesVegetarianFood:true},rating:4.5,userRatingCount:120}],providers:{requested:['google'],used:['google'],errors:[]}}}}};
+  await sandbox.LuviaPlacesDiscoveryService.recommend({text:'Restaurant',category:'food',destination:'Kiel',strictPlaceType:'restaurant',profilePreferences:{dietaryPreferences:['vegetarian']},limit:12,candidateLimit:60,queryVariantLimit:5,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}});
+  assert.ok(preferenceCalls.some(call=>/Vegetarisches Restaurant Kiel/i.test(call.query)),'confirmed dietary preferences must create a targeted provider query instead of ranking only the generic Google result page');
+  assert.ok(preferenceCalls.some(call=>/Ruhiges Restaurant Kiel|Restaurant regionale Küche Kiel/i.test(call.query)),'positive trip/profile weights must widen discovery with relevant restaurant evidence queries');
+
   console.log('M16.5 Block 1 strict restaurant evidence: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

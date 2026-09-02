@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-category-integrity-gate';
+const VERSION='1.12.0-preference-evidence-breadth';
 const PROVIDER_CACHE_MS=180000;
 const providerCache=new Map();
 const clean=value=>String(value??'').trim();
@@ -99,12 +99,26 @@ async function aiPlan(options,discoveryRoute,queries,resolution){
     },{fallback:true});
     const searchPlans=(response?.data?.searchPlans||[]).map(item=>({query:clean(item?.query),includedTypes:[...(item?.includedTypes||[])].map(clean).filter(Boolean).slice(0,12),weight:Number(item?.weight)||0})).filter(item=>item.query),planned=searchPlans.map(item=>`${item.query} ${options.destination||''}`.trim());
     return{
-      queries:[...new Set([...(queries||[]),...planned])].slice(0,14),
+      queries:[...new Set([(queries||[])[0],...planned,...(queries||[]).slice(1)].filter(Boolean))].slice(0,14),
       ai:{fallback:Boolean(response?.meta?.fallback),summary:response?.data?.reasoningSummary||'',preferredSignals:response?.data?.preferredSignals||[],mustHave:response?.data?.mustHave||[],excludedSignals:response?.data?.excludedSignals||[],searchPlans}
     };
   }catch(error){
     return{queries,ai:{fallback:true,error:error?.code||error?.message||'AI_UNAVAILABLE'}};
   }
+}
+function preferenceQueryVariants(goal,discoveryRoute,resolution,destination=''){
+  if(discoveryRoute.category!=='food')return[];
+  const suffix=clean(typeof destination==='object'?(destination.name||destination.displayName||destination.destinationName):destination),queries=[];
+  const add=value=>queries.push(`${value}${suffix?` ${suffix}`:''}`);
+  const constraints=resolution?.hardConstraints||[],weights=resolution?.weights||{};
+  if(constraints.some(item=>item.kind==='dietary'&&/vegan/.test(clean(item.value).toLowerCase())))add('Veganes Restaurant');
+  else if(constraints.some(item=>item.kind==='dietary'&&/vegetar/.test(clean(item.value).toLowerCase())))add('Vegetarisches Restaurant');
+  if(constraints.some(item=>item.kind==='accessibility'))add('Barrierefreies Restaurant');
+  if(constraints.some(item=>item.kind==='family'))add('Familienfreundliches Restaurant');
+  if(Number(weights.quiet)>0)add('Ruhiges Restaurant');
+  if(Number(weights.local)>0)add('Restaurant regionale Küche');
+  if(Number(weights.scenic)>0)add('Restaurant mit Aussicht');
+  return[...new Set(queries)].filter(query=>query!==goal.text).slice(0,4);
 }
 function deterministicAssessment(place,options,discoveryRoute){
   let score=Math.min(25,Number(place.rating||0)*5);
@@ -112,7 +126,7 @@ function deterministicAssessment(place,options,discoveryRoute){
   score+=Math.min(15,Math.log10(Math.max(1,reviews))*5);
   if(place.currentOpeningHours?.openNow===true||place.openNow===true)score+=10;
   if(place.formattedAddress||place.address)score+=5;
-  const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||{})||{score:0,reasons:[]};
+  const relevance=window.LuviaGlobalPlaceContracts?.relevance?.(place,options.text||options.query||'',discoveryRoute.category,options.preferences||options.profilePreferences||{})||{score:0,reasons:[]};
   const distance=Number(place.distanceMeters),distanceReasons=[];
   if(Number.isFinite(distance)&&distance>=0){
     score+=distance<=500?38:distance<=1500?30:distance<=5000?12:distance<=12000?3:-Math.min(24,Math.round((distance-12000)/2500));
@@ -130,19 +144,20 @@ async function recommend(options={}){
   const goal={text:clean(options.text||options.query)||requestedRoute.query,category:requestedRoute.category};
   const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
   const discoveryRoute=intent.category&&intent.category!==goal.category?route({...options,category:intent.category,text:goal.text,query:goal.text}):requestedRoute;
-  const deterministic=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,options.destination||'',options.preferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${options.destination||''}`.trim()];
+  const baseQueries=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,options.destination||'',options.preferences||options.profilePreferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${options.destination||''}`.trim()];
+  const deterministic=[...new Set([baseQueries[0],...preferenceQueryVariants(goal,discoveryRoute,resolvedPreferences,options.destination),...baseQueries.slice(1)].filter(Boolean))];
   const plan=options.fastPath===true?{queries:deterministic,ai:null}:await aiPlan(options,discoveryRoute,deterministic,resolvedPreferences);
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
   const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(goal.text,goal.category,plan.ai||{},options.destination||'')||null;
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
   const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
-  const requestedLimit=Math.min(20,Math.max(1,Number(options.limit||5)));
+  const requestedLimit=Math.min(60,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
-  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:options.destination||''})!==false};
+  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:options.destination||''})!==false};
   const eligibleCandidates=()=>uniquePlaces(candidates).filter(accepts);
   const hasEnoughCandidates=()=>eligibleCandidates().length>=diversityTarget;
-  const providerCandidateWindow=requestedLimit>=12?requestedLimit:Math.min(20,Math.max(options.strictPlaceType==='restaurant'?20:12,requestedLimit*4));
+  const providerCandidateWindow=requestedLimit>=12?Math.min(20,requestedLimit):Math.min(20,Math.max(options.strictPlaceType==='restaurant'?20:12,requestedLimit*4));
   const attempts=[];
   let lastError=null;
   const providerRequest=async(query,strictDestination)=>{

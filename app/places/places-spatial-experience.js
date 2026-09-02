@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.12.0-compact-map-browser';
+  const VERSION='1.13.0-broad-evidence-fit';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -114,15 +114,8 @@
     return score;
   }
   function preferredPlaceIds(source=state.results){
-    const eligible=(Array.isArray(source)?source:[]).filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null);
-    if(!eligible.length)return new Set();
-    const best=Math.max(...eligible.map(place=>verifiedFitScore(place)));
-    const threshold=Math.max(1,best-5);
-    const coverage=place=>Number(place?.groupFit?.coverage??place?.preferenceFit?.coverage??place?.preferenceCoverage??0);
-    return new Set(eligible
-      .filter(place=>verifiedFitScore(place)>=threshold)
-      .sort((left,right)=>(verifiedFitScore(right)-verifiedFitScore(left))||(coverage(right)-coverage(left)))
-      .slice(0,5)
+    return new Set((Array.isArray(source)?source:[])
+      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState!=='blocked')
       .map(providerId));
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));
@@ -232,8 +225,10 @@
       state.lastSearchAt=new Date().toISOString();
       saveCached();
       render();
-      const enrichmentTasks=[enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS))];
-      if(raw.length<INITIAL_VISIBLE_RESULTS)enrichmentTasks.push(contract.reads.recommend({...request,fastPath:false,queryVariantLimit:2,providerTimeoutMs:8000,candidateLimit:30,limit:MAX_RESULTS}));
+      const enrichmentTasks=[
+        enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS)),
+        contract.reads.recommend({...request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60,limit:MAX_RESULTS,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}})
+      ];
       Promise.allSettled(enrichmentTasks).then(results=>{
         if(token!==state.requestToken||!state.root)return;
         const cards=results[0]?.status==='fulfilled'?results[0].value:[],deep=results[1]?.status==='fulfilled'?results[1].value:null,byId=new Map(cards.map(place=>[providerId(place),place]));

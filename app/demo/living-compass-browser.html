@@ -22,7 +22,7 @@
     const auth={loading:false,authenticated:true,user:{id:'m16-5q-user'},session:{fixture:true}};
     const stages=['idle','platform-ready','auth-ready','domain-context-ready','shell-ready','modules-ready'];let runtimeStage='idle',runtimeStatus='ready';
     const stageIndex=name=>Math.max(0,stages.indexOf(name));
-    window.LuviaKernelVersion={build:'13.82.155',core:'4.82.155'};
+    window.LuviaKernelVersion={build:'13.82.156',core:'4.82.156'};
     window.LuviaCoreVersion=window.LuviaKernelVersion;
     window.LuviaAppRuntime={
       async run(name,fn){const value=await fn();runtimeStage=name;runtimeStatus='ready';return value},

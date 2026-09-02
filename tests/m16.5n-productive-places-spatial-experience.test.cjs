@@ -43,7 +43,7 @@ assert.equal(core.maxResults,80);
 assert.deepEqual(plain(core.diagnostics()),{
   contractId:'consumer.places-spatial-composition.v1',
   version:'1',
-  runtimeVersion:'1.3.0',
+  runtimeVersion:'1.4.0',
   sourceContract:'places.v1',
   browserless:true,
   deterministic:true,
@@ -155,19 +155,19 @@ assert.equal(coordinateModel.policy.coordinateOrder,'longitude-latitude');
 assert.deepEqual(plain(core.compose({categories,places:coordinatePlaces,visibleLimit:18,runtime:{status:'ready'}})),plain(coordinateModel),'same owner projection must produce the same model');
 assert.throws(()=>core.compose({sourceContract:'places.v2',places:[]}),/places\.v1/,'foreign/unversioned owner input must be rejected');
 
-const preferencePlaces=Array.from({length:8},(_,index)=>({
+const preferencePlaces=Array.from({length:16},(_,index)=>({
   id:`fit-${index+1}`,
   providerPlaceId:`fit-${index+1}`,
   name:`Passender Ort ${index+1}`,
   coordinates:{latitude:54.02+index/1000,longitude:10.74+index/1000},
-  groupFit:{score:index<6?21-index:0,coverage:index<6?0.35:0},
-  preferenceReasons:index<6?['Belegtes Reisendenmerkmal']:[]
+  groupFit:{score:index<13?34-index:0,coverage:index<13?0.35:0},
+  preferenceReasons:index<13?['Belegtes Reisendenmerkmal']:[]
 }));
-const preferenceModel=core.compose({places:preferencePlaces,visibleLimit:8,runtime:{status:'ready'}});
-assert.deepEqual(plain(preferenceModel.markers.filter(marker=>marker.preferred).map(marker=>marker.providerPlaceId)),['fit-1','fit-2','fit-3','fit-4','fit-5'],'the map must visibly mark the five relatively strongest evidence-backed preference matches even below an arbitrary absolute score');
-assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-6').preferred,false,'the preference signal must remain bounded instead of marking every scored place');
-assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-7').preferred,false,'a marker without positive coverage and reasons must never be marked as personally fitting');
-assert.equal(preferenceModel.policy.maxPreferredMarkers,5);
+const preferenceModel=core.compose({places:preferencePlaces,visibleLimit:16,runtime:{status:'ready'}});
+assert.deepEqual(plain(preferenceModel.markers.filter(marker=>marker.preferred).map(marker=>marker.providerPlaceId)),Array.from({length:13},(_,index)=>`fit-${index+1}`),'the map must mark every positive evidence-backed match instead of truncating the cohort to five places');
+assert.equal(preferenceModel.markers.find(marker=>marker.providerPlaceId==='fit-14').preferred,false,'a marker without positive coverage and reasons must never be marked as personally fitting');
+assert.equal(preferenceModel.policy.preferredMarkers,'all-positive-evidence-backed-non-conflicting-results');
+assert.equal(preferenceModel.policy.unknownEvidence,'never-treated-as-conflict');
 
 const ready=core.compose({categories,places:[coordinatePlaces[0]],runtime:{status:'ready'}}).status;
 const loading=core.compose({categories,places:[],runtime:{loading:true}}).status;
@@ -224,7 +224,9 @@ assert.match(experience,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boo
 assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay behind the public places.v1 owner contract');
 assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
-assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'the Passend mode must share the same bounded evidence-backed cohort as the visible preferred pin markers');
+assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'the Passend mode must share the same evidence-backed cohort as the visible preferred pin markers');
+assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
+assert.match(experience,/fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'the fast provider-first map must always deepen preference discovery in the background');
 assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\)/,'Passend must actually remove non-matching pins instead of only changing the pressed toggle');
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');

@@ -3,7 +3,7 @@ var LuviaPlacesSpatialCompositionCoreV1=(()=>{
 
 const CONTRACT_ID='consumer.places-spatial-composition.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.3.0';
+const RUNTIME_VERSION='1.4.0';
 const SOURCE_CONTRACT='places.v1';
 const INITIAL_VISIBLE_RESULTS=6;
 const MAX_RESULTS=80;
@@ -140,14 +140,8 @@ function normalizeResults(input){
 }
 
 function preferredResultIds(results){
-  const eligible=(Array.isArray(results)?results:[]).filter(result=>result?.coordinates&&result.preferenceScore!=null&&result.preferenceScore>0&&result.preferenceCoverage>0&&result.preferenceReasons.length>0);
-  if(!eligible.length)return new Set();
-  const best=Math.max(...eligible.map(result=>result.preferenceScore));
-  const threshold=Math.max(1,best-5);
-  return new Set(eligible
-    .filter(result=>result.preferenceScore>=threshold)
-    .sort((left,right)=>(right.preferenceScore-left.preferenceScore)||(right.preferenceCoverage-left.preferenceCoverage)||(left.rank-right.rank))
-    .slice(0,5)
+  return new Set((Array.isArray(results)?results:[])
+    .filter(result=>result?.coordinates&&result.preferenceScore!=null&&result.preferenceScore>0&&result.preferenceCoverage>0&&result.preferenceReasons.length>0)
     .map(result=>result.providerPlaceId));
 }
 
@@ -244,7 +238,7 @@ function compose(input={}){
     bounds:boundsProjection(markers),
     status:projectStatus(input.runtime||{},results.length),
     counts:{total:results.length,visible:visibleResults.length,remaining:Math.max(0,results.length-visibleResults.length),markers:markers.length,omittedFromMap:mapOmissions.length},
-    policy:{initialVisibleResults:INITIAL_VISIBLE_RESULTS,maxResults:MAX_RESULTS,maxPreferredMarkers:5,relativePreferenceWindow:5,coordinateOrder:'longitude-latitude',coordinateSystem:'WGS84',syntheticMarkers:false,domainTruth:false}
+    policy:{initialVisibleResults:INITIAL_VISIBLE_RESULTS,maxResults:MAX_RESULTS,preferredMarkers:'all-positive-evidence-backed-non-conflicting-results',unknownEvidence:'never-treated-as-conflict',coordinateOrder:'longitude-latitude',coordinateSystem:'WGS84',syntheticMarkers:false,domainTruth:false}
   });
 }
 

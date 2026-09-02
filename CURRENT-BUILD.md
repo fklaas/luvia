@@ -20,13 +20,21 @@ M5 remains IN PROGRESS. M5.4 continues with the remaining active runtime/global 
 
 # CURRENT BUILD
 
-- App: **13.82.155**
-- Core: **4.82.155**
+- App: **13.82.156**
+- Core: **4.82.156**
 - Name: **M16.5 Places Hotel Recovery**
 - Channel: **integration-preview**
 - Datum: **2026-09-02**
 - Milestone Status: **M5 COMPLETE / CLOSED; M6 COMPLETE / CLOSED; M7 COMPLETE / CLOSED; M8 COMPLETE / CLOSED; M8.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M9 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10 COMPLETE / CLOSED / PRODUCTION VERIFIED; M10.5 COMPLETE / CLOSED / PRODUCTION VERIFIED; M11 COMPLETE / CLOSED / PRODUCTION VERIFIED; M12 COMPLETE / CLOSED / PRODUCTION VERIFIED; M13 COMPLETE / CLOSED / PRODUCTION VERIFIED; M14 COMPLETE / CLOSED / PRODUCTION VERIFIED; M15 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16 COMPLETE / CLOSED / PRODUCTION VERIFIED; M16.5 BINDING VISUAL PARITY LOCK ACTIVE / PRODUCTIVE ADOPTION IN PROGRESS / DESIGN FREEZE PENDING**
 - Parallel Development Status: **TWENTY-STREAM CORE-ALIGNED FOUNDATION COMPLETE**
+
+## M16.5 Preference Evidence Breadth — Local Integration candidate 13.82.156
+
+- Corrected `Passend` contract: **the UI no longer truncates personally fitting Places to five results or requires every match to sit within five points of the current best candidate. Every coordinate-qualified Place with positive provider-backed preference evidence remains in the matching cohort. Missing evidence remains an explicit unknown and is never treated as a conflict; only an evidenced contradiction can block a candidate**.
+- Broader discovery: **the fast Google-primary result remains visible immediately, while every search now starts a non-blocking deep pass with up to five query variants and 60 unique candidates. A full first page can no longer suppress this evidence pass**.
+- Preference-aware retrieval: **confirmed dietary, accessibility and family requirements plus positive quiet, local and scenic weights produce targeted restaurant searches. AI search plans are placed ahead of generic fallback variants instead of being starved by them, and the deterministic fallback reads the same profile projection**.
+- Truth boundary: **Google/provider types, service features, editorial facts and real candidate identity remain the evidence base. The AI may search within and rank that supplied evidence but may not invent cuisine, dietary suitability, atmosphere or accessibility. Official-site/menu crawling is a separate provider-owned evidence capability and is not claimed by this App-only candidate**.
+- Release gate: **focused preference, strict Restaurant, unified sheet and productive spatial tests pass; fresh runtime bundles are built and the complete controlled Safe Regression is 201/201 PASS. Clean Integration release, public mobile proof and immutable byte proof remain required before acceptance. Main and Production remain locked**.
 
 ## M16.5 Map Navigation + Booking Submit Boundary — Local Integration candidate 13.82.155
 
