@@ -19,7 +19,7 @@ assert.match(version,/core:'4\.82\.168'/);
 assert.match(version,/build:'13\.82\.168'/);
 assert.match(version,/name:'M16\.5 Places Hotel Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168-quota-stop'/);
 assert.equal(/\?v=13\.82\.52/.test(index),false,'active entry retains the prior cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
   assert.ok(index.includes(`${asset}?v=13.82.168`),`active entry release key missing for ${asset}`);

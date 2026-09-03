@@ -28,12 +28,12 @@ const BROWSER=process.env.LUVIA_E2E_BROWSER||chromium.executablePath();
     });
     await page.waitForTimeout(500);
     const cachesAfterRegister=await page.evaluate(()=>caches.keys());
-    assert.ok(cachesAfterRegister.includes('luvia-shell-v13.82.168'),'current release cache is missing');
+    assert.ok(cachesAfterRegister.includes('luvia-shell-v13.82.168-quota-stop'),'current release cache is missing');
     assert.ok(cachesAfterRegister.includes('luvia-shell-v13.17.0'),'registration must preserve caches while the current worker controls the live document');
     assert.equal(await page.evaluate(()=>window.__m165qPwaDocumentToken),documentToken,'registration must not reload the live document');
     await page.evaluate(()=>window.LuviaPWA.clearOldCaches());
     const cachesAfterMaintenance=await page.evaluate(()=>caches.keys());
-    assert.ok(cachesAfterMaintenance.includes('luvia-shell-v13.82.168'),'explicit maintenance removed the active release cache');
+    assert.ok(cachesAfterMaintenance.includes('luvia-shell-v13.82.168-quota-stop'),'explicit maintenance removed the active release cache');
     assert.equal(cachesAfterMaintenance.includes('luvia-shell-v13.17.0'),false,'explicit maintenance did not prune the stale shell cache');
 
     await context.setOffline(true);

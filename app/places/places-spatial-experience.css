@@ -1887,22 +1887,24 @@
 .lv-places-spatial__map-message {
   position: absolute;
   z-index: 7;
-  top: 18px;
-  left: 50%;
+  top: auto;
+  bottom: 14px;
+  left: 14px;
+  right: auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: calc(100% - 144px);
+  max-width: min(300px, calc(100% - 28px));
   min-height: 38px;
   padding: 8px 12px;
   border: 1px solid rgba(193, 209, 216, .88);
-  border-radius: 999px;
+  border-radius: 14px;
   background: rgba(255,255,255,.94);
   color: var(--places-muted);
   box-shadow: 0 10px 24px rgba(32,58,72,.09);
   font-size: 9px;
   font-weight: 760;
-  transform: translateX(-50%);
+  transform: none;
   backdrop-filter: blur(12px);
 }
 
@@ -1919,8 +1921,64 @@
 
 .lv-places-spatial__map.is-ready .lv-places-spatial__map-message {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transition: opacity .3s ease 1.2s;
+}
+
+.lv-places-spatial__map[data-map-state="unavailable"] .lv-places-spatial__map-message,
+.lv-places-spatial__map-message[data-state="unavailable"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transition: opacity .16s ease;
+}
+
+.lv-places-spatial__map-provider-state {
+  position: absolute;
+  z-index: 8;
+  left: 14px;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--places-danger) 24%, var(--places-line));
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 12px 28px rgba(32,58,72,.12);
+  text-align: center;
+}
+
+.lv-places-spatial__map-provider-state strong {
+  color: var(--places-ink);
+  font-size: 11px;
+}
+
+.lv-places-spatial__map-provider-state p {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--places-muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.lv-places-spatial__map-provider-retry {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--places-accent);
+  color: var(--places-accent-contrast);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.lv-places-spatial__map[data-map-state="unavailable"] .lv-places-spatial__map-message {
+  bottom: calc(118px + env(safe-area-inset-bottom, 0px));
 }
 
 .lv-places-spatial__map[data-map-refreshing="true"] .lv-places-spatial__map-engine {
@@ -1929,6 +1987,7 @@
 
 .lv-places-spatial__map.is-ready[data-map-refreshing="true"] .lv-places-spatial__map-message {
   opacity: 1;
+  visibility: visible;
   transition: opacity .16s ease;
 }
 

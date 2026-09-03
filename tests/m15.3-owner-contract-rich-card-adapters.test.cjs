@@ -33,7 +33,7 @@ assert.ok(actionCoreIndex<actionRuntimeIndex,'browserless action policy must loa
 for(const ownerAsset of order.slice(1,5))assert.ok(index.indexOf(ownerAsset)<actionRuntimeIndex,`${ownerAsset} must load before the Web action runtime`);
 assert.ok(actionRuntimeIndex<index.indexOf(order[6]),'the chat must load only after its action runtime');
 for(const asset of ['core/intelligence/intelligence-action-contract-core.js','core/ai/ai-action-runtime.js'])assert.ok(serviceWorker.includes(`'${asset}'`),`Service Worker misses ${asset}`);
-assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.168'"));
+assert.ok(serviceWorker.includes("const CACHE='luvia-shell-v13.82.168-quota-stop'"));
 
 const registrations=[];
 let detailCalls=0;

@@ -346,11 +346,16 @@
     }).join('');
     return `<div class="lv-places-spatial__filter-reveal is-open"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(active.label)} filtern"><header class="lv-places-spatial__filter-detail-head"><button type="button" data-places-filter-back aria-label="Zurück zu den Filterbereichen">←</button><strong>${esc(active.label)}</strong><small>Mehrfachauswahl</small></header><div class="lv-places-spatial__filter-options">${buttons}</div></aside></div>`;
   }
+  function mapProviderStateMarkup(view){
+    if(view.status.kind!=='error')return '';
+    return `<div class="lv-places-spatial__map-provider-state is-error" role="alert" aria-live="assertive"><strong>Ortsquellen gerade nicht erreichbar</strong><p>${esc(view.status.message)}</p><button type="button" class="lv-places-spatial__map-provider-retry" data-places-retry>Erneut versuchen</button></div>`;
+  }
   function mapDiscoveryToolsMarkup(view){
     const filterCount=activeFilterCount();
+    const pinBrowserHidden=view.status.kind==='error'||view.status.kind==='loading';
     return `<div class="lv-places-spatial__map-tools" aria-label="Kartenansicht, Suche, Kategorien und Filter">
       <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
-      <div class="lv-places-spatial__map-browser" data-places-map-browser><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b>/<span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
+      <div class="lv-places-spatial__map-browser" data-places-map-browser ${pinBrowserHidden?'hidden':''}><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current">${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b>/<span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
       <button type="button" data-places-map-tool="search" aria-label="Orte suchen" aria-pressed="${state.mapPanel==='search'}" title="Suchen">${icon('search')}</button>
       <button type="button" data-places-map-tool="categories" aria-label="Place-Kategorie auswählen" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
       <button type="button" data-places-map-tool="filter" aria-label="Ergebnisse filtern${filterCount?` · ${filterCount} aktiv`:''}" aria-pressed="${state.mapPanel==='filter'}" title="Filter">${icon('filter')}${filterCount?`<span class="lv-places-spatial__map-tool-count">${filterCount}</span>`:''}</button>
@@ -504,7 +509,8 @@
         <section class="lv-places-spatial__map" data-place-map-shell aria-label="Geografisch genaue Luvia-Karte">
           <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
-          <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite"><i></i><span>Karte wird aus den echten Ortskoordinaten aufgebaut …</span></div>
+          <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite" data-state="${view.status.kind==='error'?'unavailable':'loading'}"><i></i><span>${view.status.kind==='error'?esc(view.status.message):'Karte wird aus den echten Ortskoordinaten aufgebaut …'}</span></div>
+          ${mapProviderStateMarkup(view)}
           ${mapDiscoveryToolsMarkup(view)}
           ${mapDiscoveryPanelsMarkup()}
           <aside class="lv-places-spatial__map-preview" ${selectedPlace()?'':'hidden'} aria-live="polite" aria-label="Kurzvorschau des ausgewählten Pins">${mapPreviewMarkup()}</aside>
@@ -583,7 +589,10 @@
     if(container)container.dataset.mapState=stateName;
     if(shell){shell.dataset.mapState=stateName;shell.classList.toggle('is-ready',stateName==='ready')}
     const status=shell?.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
-    if(status){const copy=status.querySelector?.('span');if(copy)copy.textContent=message;else status.textContent=message}
+    if(status){
+      if(status.matches?.('[data-places-map-message]'))status.dataset.state=stateName==='unavailable'||stateName==='empty'?'unavailable':stateName==='ready'?'ready':'loading';
+      const copy=status.querySelector?.('span');if(copy)copy.textContent=message;else status.textContent=message;
+    }
   }
   function projectionRefreshState(container,busy,message=''){
     const shell=container?.closest?.('[data-place-map-shell],[data-event-map-shell]');
@@ -607,7 +616,7 @@
     button.addEventListener('click',()=>onSelect?.(marker.providerPlaceId,marker));
     return markerAnchor(marker,button);
   }
-  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,label='Places v1 · verifizierte Geodaten'}={}){
+  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
     let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
@@ -644,7 +653,11 @@
         replaceMarkers(currentPlaces);
         if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:compactMap?38:54,maxZoom:15,duration:reducedMotion()?0:(compactMap?220:560)});
         else map.easeTo({center:first.lngLat,zoom:view.markers.length?14:12,duration:reducedMotion()?0:(compactMap?180:420)});
-        projectionState(container,'ready',`${label} · ${view.markers.length} von ${view.counts.visible} Treffern mit Owner-Koordinaten.`);
+        if(runtimeStatus?.kind==='error')projectionState(container,'unavailable',runtimeStatus.message||'Keine verbundene Ortsquelle konnte diese Suche vollständig beantworten.');
+        else{
+          const summary=view.markers.length?`${label} · ${view.markers.length} von ${view.counts.visible} Treffern mit Owner-Koordinaten.`:`${label} · Keine belegten Treffer mit Koordinaten in dieser Ansicht.`;
+          projectionState(container,'ready',summary);
+        }
         if(typeof onViewportSearch==='function')map.once('idle',()=>{if(!current())return;lastViewportKey=viewportDescriptor(map)?.key||'';map.on('moveend',queueViewportSearch)});
         setTimeout(()=>{if(current())map.resize()},100);
       });
@@ -664,7 +677,7 @@
     try{
       const def=activeSearchDefinition();
       const target=state.trip?.destination||state.trip||{},initialCenter=target.location||target.center||target.coordinates||{latitude:target.latitude,longitude:target.longitude};
-      state.mapProjection=mountProjection(container,filteredResults(),{selectedId:state.selectedId,initialCenter,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedType,includedTypes:def.includedTypes||[],trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible}),projectViewportResults:rows=>filteredResults(rows),onViewportResults:rows=>{state.results=rows;const visible=filteredResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;refreshMapBrowser();refreshMapPreview();hydrateMapPreview(findPlace(state.selectedId))}});
+      state.mapProjection=mountProjection(container,filteredResults(),{selectedId:state.selectedId,initialCenter,runtimeStatus:view.status,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportSearch:descriptor=>viewportSearch({...descriptor,query:def.query,type:def.primaryType,includedType:def.includedType,includedTypes:def.includedTypes||[],trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible}),projectViewportResults:rows=>filteredResults(rows),onViewportResults:rows=>{state.results=rows;const visible=filteredResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;refreshMapBrowser();refreshMapPreview();hydrateMapPreview(findPlace(state.selectedId))}});
       state.map=state.mapProjection?.map||null;
       hydrateMapPreview(findPlace(state.selectedId));
     }catch{

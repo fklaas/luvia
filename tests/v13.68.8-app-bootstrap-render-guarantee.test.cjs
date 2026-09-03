@@ -18,6 +18,6 @@ ok(shell.includes("await guaranteeInitialRender('post-bootstrap')"),'post-bootst
 ok(index.includes('app/app-shell.js?v=13.82.168'),'index shell cache bust missing');
 ok(index.includes('app/public-entry.js?v=13.82.168'),'index public entry cache bust missing');
 ok(index.includes('app/luvia-runtime-loader.mjs?v=13.82.168-split9'),'split runtime loader missing');
-ok(/luvia-shell-v13\.82\.168(?:-runtime\d+)?/.test(sw),'service worker cache missing');
+ok(/luvia-shell-v13\.82\.168(?:-runtime\d+|-quota-stop)?/.test(sw),'service worker cache missing');
 ok(version.includes("core:'4.82.168'")&&version.includes("build:'13.82.168'"),'kernel version missing');
 console.log('LUVIA_CURRENT_APP_BOOTSTRAP_RENDER_GUARANTEE_OK');

@@ -23,7 +23,7 @@ assert.match(version,/core:'4\.82\.168'/);
 assert.match(version,/build:'13\.82\.168'/);
 assert.match(version,/name:'M16\.5 Places Hotel Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168-quota-stop'/);
 assert.match(worker,/const BUILD='13\.82\.168'/);
 assert.equal(index.includes('?v=13.82.61'),false,'active entry retains the handset-revoked cache key');
 assert.equal(index.includes('?v=13.82.62'),false,'active entry retains the superseded moment-routing/needle cache key');

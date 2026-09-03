@@ -10,6 +10,12 @@
   const PUBLIC_ACTIONS=new Set(['system.health','places.health','destination.resolve']);
   const TRANSIENT_STATUS=new Set([502,503,504]);
   const NO_TRANSIENT_RETRY_ACTIONS=new Set(['places.text-search','places.nearby-search']);
+  const PLACES_SEARCH_ACTIONS=new Set(['places.text-search','places.nearby-search']);
+  const QUOTA_CIRCUIT_MS=30*60*1000;
+  const isPlacesQuotaFailure=(status,code,message)=>{
+    const text=`${code||''} ${message||''}`.toLowerCase();
+    return status===429||/quota|rate.?limit|credits remaining|places_all_providers_failed|resource.?exhausted/.test(text);
+  };
   const state={initialized:false,requests:0,successes:0,failures:0,timeouts:0,lastRequestAt:null,lastSuccessAt:null,lastError:null,lastStatus:null,lastRequestId:null,recent:[]};
   const now=()=>new Date().toISOString();
   const uuid=()=>globalThis.crypto?.randomUUID?.()||`req_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
@@ -135,6 +141,7 @@
       if(TRANSIENT_STATUS.has(response.status))circuit.set(safeAction,Date.now()+5000);else circuit.delete(safeAction);
       const body=await response.json().catch(()=>({ok:false,error:{code:'INVALID_RESPONSE',message:'Backend lieferte keine gültige JSON-Antwort.'}}));
       const responseRequestId=response.headers.get('x-luvia-request-id')||body?.meta?.requestId||requestId;
+      if(PLACES_SEARCH_ACTIONS.has(safeAction)&&isPlacesQuotaFailure(response.status,body?.error?.code,body?.error?.message))circuit.set(safeAction,Date.now()+QUOTA_CIRCUIT_MS);
       if(!response.ok||body?.ok===false){
         const error=new Error(body?.error?.message||`Backend-Anfrage fehlgeschlagen (${response.status}).`);
         error.code=body?.error?.code||`HTTP_${response.status}`;error.status=response.status;error.requestId=responseRequestId;error.retryAfter=response.headers.get('retry-after');throw error;
@@ -156,7 +163,7 @@
       throw error;
     }finally{clearTimeout(timeout);}
   }
-  async function request(action,payload={},options={}){const safeAction=validateAction(action);const key=`${safeAction}:${JSON.stringify(sanitize(payload))}`;const until=cooldowns.get(safeAction)||0;if(Date.now()<until){const error=new Error('Der Dienst wird kurz entlastet. Bitte erneut versuchen.');error.code='RATE_LIMIT_COOLDOWN';error.status=429;throw error}if(inflight.has(key))return inflight.get(key);const task=requestRaw(safeAction,payload,options).catch(error=>{if(error?.status===429||error?.code==='RATE_LIMITED')cooldowns.set(safeAction,Date.now()+Math.max(3000,Number(error.retryAfter||3)*1000));throw error}).finally(()=>inflight.delete(key));inflight.set(key,task);return task}
+  async function request(action,payload={},options={}){const safeAction=validateAction(action);const key=`${safeAction}:${JSON.stringify(sanitize(payload))}`;const until=cooldowns.get(safeAction)||0;if(Date.now()<until){const error=new Error('Der Dienst wird kurz entlastet. Bitte erneut versuchen.');error.code='RATE_LIMIT_COOLDOWN';error.status=429;throw error}if(inflight.has(key))return inflight.get(key);const task=requestRaw(safeAction,payload,options).catch(error=>{if(error?.status===429||error?.code==='RATE_LIMITED'||(PLACES_SEARCH_ACTIONS.has(safeAction)&&isPlacesQuotaFailure(error?.status,error?.code,error?.message)))cooldowns.set(safeAction,Date.now()+Math.max(PLACES_SEARCH_ACTIONS.has(safeAction)?QUOTA_CIRCUIT_MS:3000,Number(error.retryAfter||3)*1000));throw error}).finally(()=>inflight.delete(key));inflight.set(key,task);return task}
   async function health(options={}){return request('system.health',{},options);}
   async function probe(){
     const cfg=config();

@@ -244,6 +244,11 @@ assert.match(css,/nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper chevr
 assert.match(css,/nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle chevron must follow at a fixed delay');
 assert.match(css,/nth-child\(1\)\{top:9px;animation-delay:\.24s\}/,'the lower chevron must complete the staggered rise');
 assert.doesNotMatch(experience,/projectionState\(container,'loading','Kartenausschnitt/,'a viewport refresh must never return the mounted map to its initial loading state');
+assert.match(experience,/function mapProviderStateMarkup\(view\)/,'provider failures must render an explicit map-level unavailable state instead of a fake empty market');
+assert.match(experience,/runtimeStatus\?\.kind==='error'/,'map projection must honor provider error truth instead of reporting zero coordinate hits');
+assert.match(experience,/pinBrowserHidden=view\.status\.kind==='error'/,'provider failure must not show a misleading 0/0 pin browser');
+assert.match(css,/\.lv-places-spatial__map-provider-state/,'provider failure must expose a dedicated map overlay with retry');
+assert.match(css,/\.lv-places-spatial__map-message[\s\S]{0,220}bottom:\s*14px/,'map status copy must stay clear of the top toolbar');
 assert.match(experience,/projectionRefreshState\(container,true,'Neue Pins werden im Hintergrund geladen/,'viewport loading must use the non-blocking refresh state');
 assert.match(experience,/projectionState\(container,'ready',updated\.markers\.length\?/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');
 assert.match(experience,/mapReady&&!map\.loaded\(\)/,'only an initial renderer failure may replace the not-yet-visible map');

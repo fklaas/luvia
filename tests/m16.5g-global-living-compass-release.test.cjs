@@ -47,7 +47,7 @@ assert.match(version,/core:'4\.82\.168'/);
 assert.match(version,/build:'13\.82\.168'/);
 assert.match(version,/name:'M16\.5 Places Hotel Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168'/);
+assert.match(worker,/const CACHE='luvia-shell-v13\.82\.168-quota-stop'/);
 assert.equal(index.includes('?v=13.82.49'),false,'active entry must not retain the previous runtime cache key');
 assert.ok(index.includes('app/app-shell.js?v=13.82.168'));
 assert.ok(index.includes('app/today/today-experience.js?v=13.82.168'));

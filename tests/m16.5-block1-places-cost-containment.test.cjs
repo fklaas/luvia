@@ -26,12 +26,15 @@ const atmosphereLine=gateway.split('\n').find(line=>line.startsWith('const VIEWP
 assert.ok(atmosphereLine.includes('places.servesVegetarianFood'),'verified vegetarian filtering may opt into the required Atmosphere evidence');
 assert.equal(atmosphereLine.includes('places.goodForChildren'),false,'vegetarian evidence must not pull unrelated Atmosphere fields');
 
-assert.ok(gateway.includes('options?.locationRestriction?.rectangle||options?.locationBias?.rectangle'),'viewport FieldMask selection must be bound to rectangle map searches');
+assert.match(gateway,/if\(options\?\.richEvidence===true\)return SEARCH_FIELDS/,'an explicit richEvidence opt-in must remain available for owner-backed ranking');
+assert.match(gateway,/fallbackReason!=='google_quota'/,'a Google quota failure must not spend Foursquare credits as an automatic fallback');
+assert.match(backend,/const QUOTA_CIRCUIT_MS=30\*60\*1000/,'exhausted Places quota must open a long client circuit instead of retrying every five seconds');
+assert.match(backend,/places_all_providers_failed/,'complete provider failure must be treated as a quota-class stop');
 assert.equal((gateway.match(/searchFields\(options\)/g)||[]).length,2,'text and nearby search must both route FieldMask selection through one policy');
 
 const richLine=gateway.split('\n').find(line=>line.startsWith('const SEARCH_FIELDS='))||'';
-assert.ok(richLine.includes('places.servesVegetarianFood'),'normal rich discovery must retain existing dietary evidence');
-assert.ok(richLine.includes('places.goodForChildren'),'normal rich discovery must retain existing family evidence');
+assert.ok(richLine.includes('places.servesVegetarianFood'),'opt-in rich discovery must retain existing dietary evidence');
+assert.ok(richLine.includes('places.goodForChildren'),'opt-in rich discovery must retain existing family evidence');
 
 const detailLine=gateway.split('\n').find(line=>line.startsWith('const DETAIL_FIELDS='))||'';
 assert.ok(detailLine.includes('servesVegetarianFood')&&detailLine.includes('goodForChildren')&&detailLine.includes('reviews'),'Place Details must retain full owner-backed evidence');

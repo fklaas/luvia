@@ -41,7 +41,7 @@ for(const test of [
   'tests/m16.5-block1-semantic-booking-lifecycle-browser.test.cjs'
 ])assert.ok(runner.includes(test),`safe regression misses Booking lifecycle test ${test}`);
 
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168'"));
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168-quota-stop'"));
 assert.match(version,/core:'4\.82\.168',build:'13\.82\.168',name:'M16\.5 Places Hotel Recovery'/);
 
 console.log('M16.5 Intelligence Action Runtime Registration: PASS');

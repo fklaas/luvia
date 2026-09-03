@@ -25,7 +25,7 @@ for(const asset of [
   'app/places/places-spatial-experience.css',
   'modules/places-shell.js'
 ])assert(index.includes(`${asset}?v=13.82.168`),`active M16.5R cache key missing for ${asset}`);
-assert(worker.includes("const CACHE='luvia-shell-v13.82.168'"));
+assert(worker.includes("const CACHE='luvia-shell-v13.82.168-quota-stop'"));
 
 assert.match(experience,/data-compact-place-card/);
 assert.match(experience,/preview\.addEventListener\('click',[\s\S]{0,560}openSheet\(placesFromSnapshot\(place\),providerId\(place\),\{interactive:true,origin\}\)\?\.settle\?\.\(true\)/,'the compact selected-Pin preview must remain the deliberate morph entry into the exact result sheet using the complete Place snapshot visibly attached to it');
