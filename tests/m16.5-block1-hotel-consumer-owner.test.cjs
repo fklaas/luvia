@@ -11,11 +11,12 @@ assert.match(moduleSource,/function openHotelSheet\(selected,[\s\S]*?places:\[se
 assert.doesNotMatch(moduleSource,/function openHotelSheet\(selected,choices=/,'the Hotel pin contract must not carry the complete search result list into the sheet');
 assert.doesNotMatch(moduleSource,/LuviaPlaceDetail(?!s)|data-hotel-detail-booking/,'the retired Hotel detail card must not remain in the consumer bundle');
 assert.match(moduleSource,/onViewportSearch:descriptor=>spatial\.viewportSearch/,'Hotel map panning and zooming must use the shared live viewport contract');
+assert.match(moduleSource,/onSelect:id=>focusHotel\(id,\{move:false\}\)/,'selecting a Hotel pin must not programmatically move the map and trigger another provider viewport read');
 assert.match(moduleSource,/maxResultCount:80/,'the initial Hotel map must request the complete bounded provider result set');
 assert.match(moduleSource,/maxResultCount:80[\s\S]*strictDestination:true/,'Hotel discovery must request a bounded complete provider page without claiming mathematical completeness');
 assert.match(moduleSource,/onViewportResults:rows=>\{state\.results=filteredHotelRows\(spatial\?\.decoratePreferences\?\.\(rows,state\.trip\)\|\|rows\);state\.searchMap=new Map/,'live Hotel pins must replace and preference-decorate the selectable map projection atomically after exact local filters');
 for(const token of ['bindMapPreviewGesture','data-hotel-fit-mode','data-hotel-map-navigate','data-hotel-map-tool="search"','data-hotel-map-tool="categories"','data-hotel-map-tool="filter"','data-hotel-map-preview','interactiveOrigin'])assert.ok(moduleSource.includes(token),`shared Hotel map interaction token missing: ${token}`);
-assert.match(moduleSource,/onSelect:id=>focusHotel\(id\)/,'one Hotel pin must stage only its compact preview before any sheet opens');
+assert.match(moduleSource,/onSelect:id=>focusHotel\(id,\{move:false\}\)/,'one Hotel pin must stage only its compact preview while keeping the map viewport locked before any sheet opens');
 assert.match(moduleSource,/openHotelMapSheet\(places,id,options=\{\}\)/,'Hotel preview taps and drags must use the same exact-snapshot adapter as Places');
 for(const token of ['data-hotel-filter-toggle','data-hotel-filter="accessible"','data-hotel-pin-history','Preisfilter folgt mit Livepreisen'])assert.ok(moduleSource.includes(token),`Hotel contextual filter/history token missing: ${token}`);
 assert.match(css,/\.luvia-accommodations-v2/);

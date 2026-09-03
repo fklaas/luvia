@@ -268,9 +268,10 @@
       state.lastSearchAt=new Date().toISOString();
       saveCached();
       if(preserveMap&&state.mapProjection)updateFilteredMap();else render();
+      const shouldDeepen=raw.length<INITIAL_VISIBLE_RESULTS;
       const enrichmentTasks=[
         enrichCards(raw.slice(0,INITIAL_VISIBLE_RESULTS)),
-        contract.reads.recommend({...request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60,limit:MAX_RESULTS,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}})
+        shouldDeepen?contract.reads.recommend({...request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60,limit:MAX_RESULTS,diversity:{minimumQueryVariants:3,rotateAcrossQueries:true}}):Promise.resolve(null)
       ];
       Promise.allSettled(enrichmentTasks).then(results=>{
         if(token!==state.requestToken||!state.root)return;
@@ -644,7 +645,7 @@
         if(view.markers.length>1)map.fitBounds(view.bounds.lngLatBounds,{padding:compactMap?38:54,maxZoom:15,duration:reducedMotion()?0:(compactMap?220:560)});
         else map.easeTo({center:first.lngLat,zoom:view.markers.length?14:12,duration:reducedMotion()?0:(compactMap?180:420)});
         projectionState(container,'ready',`${label} · ${view.markers.length} von ${view.counts.visible} Treffern mit Owner-Koordinaten.`);
-        if(typeof onViewportSearch==='function')map.once('idle',()=>{if(!current())return;map.on('moveend',queueViewportSearch);queueViewportSearch()});
+        if(typeof onViewportSearch==='function')map.once('idle',()=>{if(!current())return;lastViewportKey=viewportDescriptor(map)?.key||'';map.on('moveend',queueViewportSearch)});
         setTimeout(()=>{if(current())map.resize()},100);
       });
       map.on('error',event=>{if(!current())return;if(!mapReady&&!map.loaded())projectionState(container,'unavailable','Kartendaten sind noch nicht verfügbar.');else if(event?.error)projectionRefreshState(container,false,'Ein Teil der Kartendaten lädt verzögert · Karte und vorhandene Pins bleiben sichtbar.')});

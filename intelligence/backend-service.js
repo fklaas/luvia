@@ -9,6 +9,7 @@
   const inflight=new Map();const cooldowns=new Map();const circuit=new Map();
   const PUBLIC_ACTIONS=new Set(['system.health','places.health','destination.resolve']);
   const TRANSIENT_STATUS=new Set([502,503,504]);
+  const NO_TRANSIENT_RETRY_ACTIONS=new Set(['places.text-search','places.nearby-search']);
   const state={initialized:false,requests:0,successes:0,failures:0,timeouts:0,lastRequestAt:null,lastSuccessAt:null,lastError:null,lastStatus:null,lastRequestId:null,recent:[]};
   const now=()=>new Date().toISOString();
   const uuid=()=>globalThis.crypto?.randomUUID?.()||`req_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
@@ -127,6 +128,7 @@
           if(refreshedToken){headers.Authorization=`Bearer ${refreshedToken}`;continue;}
         }
         if(response.status===401&&PUBLIC_ACTIONS.has(safeAction)&&headers.Authorization){delete headers.Authorization;continue;}
+        if(NO_TRANSIENT_RETRY_ACTIONS.has(safeAction)&&TRANSIENT_STATUS.has(response.status))break;
         if(TRANSIENT_STATUS.has(response.status)&&attempt<2){await sleep(250*(2**attempt)+Math.round(Math.random()*120));continue;}
         break;
       }

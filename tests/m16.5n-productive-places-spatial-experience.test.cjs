@@ -225,13 +225,16 @@ assert.match(experience,/place\?\.distanceReference==='device'/,'distance facts 
 assert.match(experience,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct result action must open only the exact Place in the shared sheet');
 assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay behind the public places.v1 owner contract');
 assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
+assert.doesNotMatch(experience,/map\.once\('idle',\(\)=>\{[^}]*map\.on\('moveend',queueViewportSearch\);queueViewportSearch\(\)/,'mounting the map must not spend a provider viewport read before deliberate map interaction');
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
 assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'the Passend mode must share the same evidence-backed cohort as the visible preferred pin markers');
 assert.match(experience,/function mergeKnownPreferenceEvidence\(items,knownItems=state\.results\)/,'viewport refreshes must preserve richer preference evidence by immutable provider identity');
 assert.match(experience,/features:\{\.\.\.\(known\.features\|\|\{\}\),\.\.\.\(place\.features\|\|\{\}\)\}/,'lean viewport payloads must not erase already verified provider features');
 assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
-assert.match(experience,/fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'the fast provider-first map must always deepen preference discovery in the background');
+assert.match(experience,/const shouldDeepen=raw\.length<INITIAL_VISIBLE_RESULTS/,'deep provider discovery must be cost-gated behind insufficient visible breadth');
+assert.match(experience,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'bounded deep discovery must remain available for an insufficient fast result');
+assert.doesNotMatch(experience,/enrichCards\(raw\.slice\(0,INITIAL_VISIBLE_RESULTS\)\),\s*contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'a full fast result must not automatically multiply provider searches');
 assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\)/,'Passend must actually remove non-matching pins instead of only changing the pressed toggle');
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');

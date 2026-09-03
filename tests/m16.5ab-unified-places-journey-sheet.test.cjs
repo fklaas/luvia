@@ -43,8 +43,9 @@ assert.match(ui,/@media\(prefers-reduced-motion:reduce\)/);
 
 assert.doesNotMatch(places,/if\(focus\)openResultSheet\(\)/,'a Places search must keep the map visible until the user selects a pin');
 assert.match(places,/fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500/,'the visible Places search must make one bounded Google-first provider request before consuming fallback quota');
-assert.match(places,/fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'the visible Places search must deepen preference evidence after every fast first pass');
-assert.doesNotMatch(places,/if\(raw\.length<INITIAL_VISIBLE_RESULTS\).*fastPath:false/,'a full fast page must not suppress the deeper preference pass');
+assert.match(places,/const shouldDeepen=raw\.length<INITIAL_VISIBLE_RESULTS/,'the visible Places search must cost-gate deep discovery behind insufficient fast-result breadth');
+assert.match(places,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'an insufficient fast result may still use bounded deep discovery');
+assert.doesNotMatch(places,/enrichCards\(raw\.slice\(0,INITIAL_VISIBLE_RESULTS\)\),\s*contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'a full fast page must not start an unconditional deep provider search');
 assert.doesNotMatch(places,/saveCached\(\);\s*await loadSaved\(\);\s*render\(\)/,'the first provider result paint must never wait for saved-Place hydration');
 assert.ok(places.indexOf('render();')<places.indexOf('loadSaved(lifecycleToken).then'),'cached Places must paint before lifecycle hydration during mount');
 assert.match(places,/Promise\.allSettled\(enrichmentTasks\)/,'card images and bounded deep enrichment must continue behind the visible first result set');
