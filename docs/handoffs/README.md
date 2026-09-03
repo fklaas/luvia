@@ -22,6 +22,6 @@ Entwicklungsbasis. Die aktuelle Wahrheit lebt im Git-Repository auf Branch
 `integration`, in `CURRENT-BUILD.md`, im Product Reset Masterplan und in dieser
 Handoff-Mappe.
 
-`13.82.167` ist öffentlich auf Integration geprüft, aber Karte, Mini-Info und
+`13.82.168` ist öffentlich auf Integration geprüft, aber Karte, Mini-Info und
 Drag-Gefühl sind ausdrücklich noch nicht durch den Nutzer abgenommen. Genau dort
 wird weitergearbeitet.

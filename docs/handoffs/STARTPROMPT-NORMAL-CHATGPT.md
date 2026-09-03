@@ -42,9 +42,9 @@ den nächsten Schritt.
 Aktueller bekannter Stand vor dem Bootstrap:
 
 - Branch `integration`;
-- Runtime-Commit von App 13.82.167:
+- Runtime-Commit von App 13.82.168:
   `568d6e4c0796f87d3af377ce9e480386aea6892f`;
-- öffentliche Integration: App/Core `13.82.167 / 4.82.167`, Worker
+- öffentliche Integration: App/Core `13.82.168 / 4.82.168`, Worker
   `b2ab956a-729f-402a-8d3d-56778614d61a` bei 100 %;
 - Produktion unverändert: App/Core `13.82.49 / 4.82.49`, Worker
   `cc7d58fc-a5f8-4d5c-a63f-95782e34eabe` bei 100 %;

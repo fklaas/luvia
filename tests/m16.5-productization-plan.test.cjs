@@ -78,6 +78,9 @@ assert.match(productReset, /explicit user acceptance for this surface/);
 assert.match(fiftyPoint, /LUVIA-PRODUCT-RESET-MASTERPLAN-2026\.md/);
 assert.match(handout, /PRODUCT RESET BINDING/);
 assert.match(handout, /APP 13\.82\.167 PUBLIC INTEGRATION CHECKPOINT, MAP\/MINI-INFO USER ACCEPTANCE OPEN/);
+assert.match(handout, /local Integration RC 13\.82\.168/);
+assert.match(handout, /Lokaler immutable Release Candidate: \*\*App 13\.82\.168 \/ Core 4\.82\.168\*\*/);
+assert.match(handout, /Öffentliche Integration bleibt bis zum tatsächlichen Deployment und Byte-Proof \*\*App 13\.82\.167 \/ Core 4\.82\.167\*\*/);
 
 for (const file of [
   'HANDOFF-NORMAL-CHATGPT-CURRENT.md',

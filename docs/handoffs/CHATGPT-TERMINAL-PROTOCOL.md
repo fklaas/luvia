@@ -119,7 +119,7 @@ nicht pauschal `git add .`, wenn fremde unversionierte Dateien existieren.
 - Ein Nachfolge-Slice von `.167` verwendet für App-only-Rollback:
 
 ```powershell
-npx wrangler versions deploy b2ab956a-729f-402a-8d3d-56778614d61a@100 --name integration-luvia --message "Rollback map/mini-info successor to App 13.82.167" --yes
+npx wrangler versions deploy b2ab956a-729f-402a-8d3d-56778614d61a@100 --name integration-luvia --message "Rollback map/mini-info successor to App 13.82.168" --yes
 ```
 
 Dieser Rollback wird nur bei einem tatsächlich abgelehnten/defekten Deploy und

@@ -1,5 +1,29 @@
 # Aktiver Slice: Karte, ausgewählter Pin, Mini-Info und Bottom-Sheet-Morph
 
+## M16.5 P02/P03 Places Cost & Availability Recovery — local Integration RC 13.82.168
+
+Status: **LOCAL RELEASE CANDIDATE / PUBLIC ACCEPTANCE OPEN**
+Datum: **2026-09-03**
+
+- Lokaler immutable Release Candidate: **App 13.82.168 / Core 4.82.168**.
+- P02/P03 Feature Commit: 1efe10bf5b9465a6e24d0d87785e1a346d0b1f76.
+- Öffentliche Integration bleibt bis zum tatsächlichen Deployment und Byte-Proof **App 13.82.167 / Core 4.82.167**.
+- Production bleibt unverändert und gesperrt.
+- Places Cost + Availability P0 lokal: **COMPLETE**.
+- Focused P02/P03 Regression: **10/10 PASS**.
+- Safe Regression vor Release-Vorbereitung: **201/201 PASS**.
+- NFR-0: **PASS**.
+- Map-Mount löst keinen automatischen initialen Viewport-Provider-Read mehr aus.
+- Hotel-Pin-Auswahl erzeugt keinen künstlichen easeTo → moveend → Provider-Refresh mehr.
+- Ein vollständiger Fast-Pass startet keinen bedingungslosen Deep-Pass mehr.
+- places.text-search und places.nearby-search werden bei 502/503/504 nicht mehr automatisch dreimal wiederholt.
+- Ein persistenter 503 ist damit für einen Vier-Tile-Viewport auf maximal vier Gateway-Sends statt vorher potenziell zwölf begrenzt.
+- Rectangle-Viewport-Suchen nutzen eine schlankere Google FieldMask; teurere Enterprise-/Atmosphere-Felder werden nur bei tatsächlich benötigter Filter-/Evidence-Semantik ergänzt.
+- Es wird ausdrücklich **nicht** behauptet, dass jeder frühere Gateway-POST Google erreicht hat oder berechnet wurde.
+- Keine DB-Migration, keine Secret-Änderung.
+- Remote luvia-gateway, Push, integration-luvia, Byte-Proof und reale Browser-/Mobile-Abnahme sind noch offen.
+
+
 Stand: 2026-09-03
 
 Status: **IN ARBEIT / ÖFFENTLICHER `.167`-CHECKPOINT / NUTZERABNAHME OFFEN**

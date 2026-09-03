@@ -1,5 +1,17 @@
 # PCR M16.5 B1 — Places Cost Containment
 
+## Local immutable release candidate 13.82.168 / 4.82.168
+
+- Feature Commit: 1efe10bf5b9465a6e24d0d87785e1a346d0b1f76
+- Local App/Core RC: $appNew / 4.82.168
+- Public Integration before deployment: $appOld / 4.82.167
+- Focused P02/P03: **10/10 PASS**
+- Safe Regression baseline: **201/201 PASS**
+- NFR-0: **PASS**
+- Remote Edge/Cloudflare release: **NOT YET AUTHORIZED / NOT DEPLOYED**
+- Public browser/mobile acceptance: **OPEN**
+
+
 **Status:** LOCAL IMPLEMENTATION AUTHORIZED · PRODUCTION LOCKED
 **Date:** 2026-09-03
 **Authorization:** explicit user authorization for local Platform + Edge changes for the Places cost P0
