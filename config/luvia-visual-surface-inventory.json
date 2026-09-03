@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3145,
+    "trackedFiles": 3151,
     "visualCandidates": 946,
     "activeEntryReferences": 308,
     "unclassifiedEntryReferences": 0,
@@ -6315,8 +6315,8 @@
         "interaction-source",
         "navigation-source"
       ],
-      "bytes": 89283,
-      "sha256": "92eb66052f10e7f1bad93193fe2273264d117052d54310c7f37bc5edecb4a003"
+      "bytes": 89463,
+      "sha256": "1a0a6a27539c4ea009a66abe37fa44214ce06cfdeac562710aaaaf86d7a96c50"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",
@@ -7756,8 +7756,8 @@
       "classes": [
         "interaction-source"
       ],
-      "bytes": 5558,
-      "sha256": "977483fffc20bb854a9b57081a7ca98d6c54d818d0dc1e39c1c272198f139d1b"
+      "bytes": 6986,
+      "sha256": "6cdbba8173ce92a045ec1ae1cdd446c55c6002ce1f7879ca7ed2b996609efaf1"
     },
     {
       "path": "tests/m16.5-step15-global-ai-chat-and-step16-backlog.test.cjs",

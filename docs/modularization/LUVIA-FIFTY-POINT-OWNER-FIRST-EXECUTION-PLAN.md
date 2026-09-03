@@ -6,12 +6,12 @@ user-value gates, stop rules and cross-block visibility order. This document
 retains canonical package IDs `P01`–`P50`, owner boundaries and technical
 acceptance requirements; the five 10-package blocks are not renumbered.
 
-Date: 2026-09-01
+Date: 2026-09-03
 
-Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 FOUNDATION PUBLIC ON 13.82.136 + CHAT-NATIVE TRIP SELECTION PUBLIC ON 13.82.138, BLOCK STILL ACTIVE**
+Status: **BINDING CONTINUATION PLAN / INTEGRATION ONLY / BLOCK 0 PUBLICLY ACCEPTED ON 13.82.135 / BLOCK 1 PUBLIC MAP/MINI-INFO CHECKPOINT ON 13.82.167 WITH USER ACCEPTANCE OPEN, BLOCK STILL ACTIVE**
 
-Current canonical counts on 2026-09-02 are **330 semantic actions, 246 public
-Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 903
+Current canonical counts on 2026-09-03 are **330 semantic actions, 246 public
+Owner bindings, 24/24 typed runtime actions, 124 protected state changes, 939
 audited source markers and 2,733 generated failure evals**. Lower figures in
 the dated B0 construction ledger below are retained only as historical progress
 evidence; they do not describe the current control plane.
@@ -642,9 +642,13 @@ coherent slice in every block must independently include:
 
 ## 4. Active next slice
 
-The immediate active slice is now **B1's first still-open productive Owner bundle after the publicly closed B0.10 control-plane release**:
+The immediate active slice is now **B1's unfinished shared Places/Hotels map and
+mini-info interaction after the public `.167` engineering checkpoint**. An older
+conversation whose context ends at M5 must not resume the old milestone order;
+it must first read `../handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md` and continue at
+this exact surface:
 
-- retain the now-versioned 330-action semantic registry and 901-marker source
+- retain the now-versioned 330-action semantic registry and 939-marker source
   audit as the canonical B0.01 baseline;
 - preserve the 246 public Owner bindings and zero remaining
   `OWNER_METHOD_AUDIT_OPEN` rows rather than inventing global methods;
@@ -658,11 +662,19 @@ The immediate active slice is now **B1's first still-open productive Owner bundl
 - retain `.135` as the accepted B0 control-plane baseline, `.136` as the
   accepted B1 admission/Hotel foundation, `.138` as the accepted Chat-native
   Trip-read deployment, `.139` as the accepted Places-mutation deployment and
-  `.143` as the accepted Booking lifecycle/Place-route-integrity deployment;
-  rollback the current successor slice app-only to `.143`;
+  `.143` as the accepted Booking lifecycle/Place-route-integrity deployment and
+  `.147` as the accepted recovery baseline. `.167` is the current public
+  map/preview checkpoint and the rollback target for its next App-only
+  successor; it is not yet a user-accepted Design Freeze;
 - keep the accepted semantic-first owner router, universal admission Read/Open,
   `.139` Favorite/Unfavorite/Plan/Unplan and `.143` lifecycle/identity paths
-  green; release the local compound-requirement and bright exact-Hotel slice;
+  green; reproduce and close the remaining mini-info/map smoothness and layout
+  defects without creating a second sheet, map or Hotel interaction path;
+- preserve one exact selected provider entity and its image from pin through
+  preview and drag; the preview must grow with the finger to map width and map
+  bottom, and Places plus Planen → Hotels must remain behaviorally identical;
+- obtain explicit user acceptance after desktop, narrow mobile, real touch,
+  keyboard, Back/Reload and Reduced Motion evidence before leaving this slice;
 - retain the now-regenerated canonical `booking.place.open` registry and typed
   input contract while `booking.restaurant.open` remains only a migration
   alias, retain `booking.stay.search` as a semantic read through
@@ -716,9 +728,9 @@ Still open before P02/P03 completion:
   gateway-side five-minute failure caching, which require separately authorized
   Edge Function work and are not implied by this client slice.
 
-### 4.2 Current B0/B1 handoff ledger — 2026-09-01
+### 4.2 Current B0/B1 handoff ledger — 2026-09-03
 
-Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.136` + CHAT-NATIVE TRIP READ `.138` + PLACES MUTATIONS `.139` PUBLIC / PRODUCT-PARITY DELIVERY CONTINUES**
+Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.136` + CHAT-NATIVE TRIP READ `.138` + PLACES MUTATIONS `.139` + ROUTE INTEGRITY `.143` PUBLIC / `.167` PUBLIC MAP CHECKPOINT WITH USER ACCEPTANCE OPEN / PRODUCT-PARITY DELIVERY CONTINUES**
 
 - B0 inventory/review and the local B0.01 machine-readable repository insertion
   are complete. The current control plane has 245 audited public Owner paths;
@@ -755,8 +767,13 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
   restored the original state. The former `.135` trip-selection misroute remains
   closed on accepted `.138`. Neither release claims all-language parity; the
   observed cross-surface Chat-subject reset is retained as an explicit eval.
-- The next accepted public build must expose a visible test the user can operate.
-  No block or row becomes complete from automated tests alone.
+- `.167` is the current visible public checkpoint: 201/201 Safe Regression,
+  NFR-0 3/3, public Places/Hotels pointer and drag proof, exact one-entity
+  previews and 10/10 release-byte equality are complete. The user's latest
+  assessment still rejects completion of the map and compact preview. The next
+  accepted build must improve that same interaction and expose a visible test
+  the user can operate. No block or row becomes complete from automated tests
+  alone.
 
 ### 4.3 Hotel decision and affiliate activation lane — 2026-09-02
 
@@ -771,8 +788,9 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
 - KAYAK is the strategic hotel breadth application; Expedia Group Travel
   Creator is the earliest broad tracked-handoff application; Booking.com
   Demand and Expedia Rapid stay separately gated deep-booking contracts.
-- Amadeus Self-Service and Hotelbeds evaluation are the fast live-price proof
-  lane. They do not replace KAYAK's cross-provider breadth and do not inherit an
+- Duffel Stays is the first requested named live-price proof; Hotelbeds is the
+  intended independent second-source evaluation. They do not replace KAYAK's
+  cross-provider breadth and do not inherit an
   affiliate revenue claim. Without at least one live price response, Hotel UI
   is fit-only; without two live sources it cannot claim cross-source comparison.
 - The public `.136` foundation contains the authenticated
@@ -781,16 +799,18 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
   `booking.v1.reads.searchStayOffers` route. Only `live=true` provider API
   evidence may enter a price decision; missing partner status, credentials,
   destination identifiers, taxes or current responses stays `fit_only`.
-- The visible local Hotel acceptance passes at default and 390×844 for both
+- The controlled Hotel acceptance passes at default and 390×844 for both
   two-controlled-source and no-source states, with no overflow or console
   warning/error. Stable additionally proves the signed-in semantic Hotel read,
   truthful no-provider state and 390×844 no-overflow path. The actual Hotel
-  module is now also replaced locally by a bright dedicated consumer using the
-  same Booking Owner. It shows `TT.MM.JJJJ`, the named source and complete total,
+  module is now replaced on public `.167` by a bright dedicated consumer using
+  the same Booking Owner and the shared Places map interaction. It shows
+  `TT.MM.JJJJ`, the named source and complete total,
   exposes one `Dieses Angebot öffnen` action and proves the exact controlled
   `HBX-9 · HBX-RATE-9` handoff. It renders neither `Tickets prüfen` nor the
   generic Place booking command. This is still no proof of a positive public
-  live-provider price.
+  live-provider price, and its map/mini-info design remains awaiting explicit
+  user acceptance.
 - Viator, Tiqets, Expedia Creator, Hostelworld, Omio and Klook form the first
   commercial application wave. The owner must submit contracts and payout/tax
   data; credentials remain outside the repository.
@@ -799,7 +819,8 @@ Status: **B0 CONTROL-PLANE EXIT PUBLICLY COMPLETE ON `.135` / B1 FOUNDATION `.13
   active without real approval, Edge transport, health, reconciliation,
   visible public E2E and the complete immutable release/rollback chain.
 
-The binding provider order is Amadeus proof → Hotelbeds second-source proof →
-KAYAK breadth application → Expedia Rapid qualification → Booking.com Demand
-qualification. Affiliate applications may proceed in parallel, but their links
-never become price evidence or ranking input.
+The binding provider order is Duffel Stays first named live-source proof after
+approval → Hotelbeds second-source proof → KAYAK breadth application → Expedia
+Rapid qualification → Booking.com Demand qualification. The prepared Amadeus
+adapter remains a later enterprise option. Affiliate applications may proceed
+in parallel, but their links never become price evidence or ranking input.

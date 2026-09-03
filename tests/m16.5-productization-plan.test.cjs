@@ -72,9 +72,31 @@ assert.match(productReset, /Zero cross-venue and cross-property redirects/);
 assert.match(productReset, /No parallel result list appears beside or below the map/);
 assert.match(productReset, /five independent users/);
 assert.match(productReset, /External provider delay does not stop the whole product/);
-assert.match(productReset, /Finish `\.150` inventory, regression, clean commit/);
+assert.match(productReset, /Continue directly from public Integration `\.167`; do not restart at M5/);
+assert.match(productReset, /Finish the shared Places\/Hotels map interaction/);
+assert.match(productReset, /explicit user acceptance for this surface/);
 assert.match(fiftyPoint, /LUVIA-PRODUCT-RESET-MASTERPLAN-2026\.md/);
 assert.match(handout, /PRODUCT RESET BINDING/);
+assert.match(handout, /APP 13\.82\.167 PUBLIC INTEGRATION CHECKPOINT, MAP\/MINI-INFO USER ACCEPTANCE OPEN/);
+
+for (const file of [
+  'HANDOFF-NORMAL-CHATGPT-CURRENT.md',
+  'docs/handoffs/README.md',
+  'docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md',
+  'docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md',
+  'docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md',
+  'docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md'
+]) {
+  assert(fs.existsSync(file), `current ChatGPT terminal handoff missing ${file}`);
+}
+
+const terminalProtocol = read('docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md');
+const contextBridge = read('docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md');
+const mapSlice = read('docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md');
+assert.match(terminalProtocol, /ERGEBNIS AB HIER KOPIEREN/);
+assert.match(terminalProtocol, /--name integration-luvia/);
+assert.match(contextBridge, /Nicht M5 fortsetzen\. Nicht B2 beginnen/);
+assert.match(mapSlice, /ÖFFENTLICHER `\.167`-CHECKPOINT \/ NUTZERABNAHME OFFEN/);
 
 assert.strictEqual(surfaces.length, 20, 'the Product Surface Matrix must retain all 20 controlled rows');
 assert.strictEqual(owners.length, 18, 'the Core Owner Matrix must retain all 18 controlled owner rows');
@@ -96,6 +118,12 @@ for (const file of [
   'docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md',
   'docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv',
   'docs/modularization/M16.5-CORE-OWNER-MATRIX.csv',
+  'HANDOFF-NORMAL-CHATGPT-CURRENT.md',
+  'docs/handoffs/README.md',
+  'docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md',
+  'docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md',
+  'docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md',
+  'docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md',
   'tests/m16.5-productization-plan.test.cjs'
 ]) {
   assert(ownership.includes(file), `ownership registry missing ${file}`);

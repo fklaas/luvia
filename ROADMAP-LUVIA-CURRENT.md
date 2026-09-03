@@ -1,9 +1,13 @@
 # Luvia Current Roadmap
 
-Date: 2026-09-02
+Date: 2026-09-03
 
-Source of truth: Git/runtime evidence first; the complete normative roadmap is
-the latest `Luvia_Masterfahrplan_Native_First_Ready_*_VOLLSTAENDIG.docx`.
+Source of truth: Git/runtime evidence first. The binding product order is
+`docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md`; canonical package
+IDs and owner-first technical scope are in
+`docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md`. Older
+DOCX roadmaps and exported handoff folders are historical evidence, not a
+development base.
 
 ## Product Reset execution order
 
@@ -17,26 +21,43 @@ Production remain locked.
 
 ## Current verified product baseline
 
-- Stable Integration App/Core: 13.82.99 / 4.82.99 (M16.5Z First Trip
-  Composer), version `e9c1df5d-d172-459e-ab8a-93736988d65e`, deployment
-  `ff560abc-6fe4-4258-be16-ea2280c18ff0`.
-- Rollback Integration baseline remains App/Core 13.82.98 / 4.82.98, version
-  `31624f74-d281-43eb-81b7-8b994401c7df`, deployment
-  `a0215087-ad1c-47a3-9345-e5fa3cd2eb83`.
-- Main/Production remain on App/Core 13.82.49 / 4.82.49 until joint visual
-  Preview acceptance.
+- Public Integration App/Core: **13.82.167 / 4.82.167**, commit
+  `568d6e4c0796f87d3af377ce9e480386aea6892f`, Worker version
+  `b2ab956a-729f-402a-8d3d-56778614d61a` at 100 %.
+- `.167` passes **201/201 Safe Regression**, NFR-0 **3/3**, public 390×844
+  Places/Hotels pointer and drag operation and a **10/10** clean-source/public
+  byte proof.
+- `.167` is a public engineering checkpoint, not a finished map surface. The
+  user has not accepted the compact mini-info layout or drag smoothness. Work
+  therefore continues inside the same shared Places/Hotels map slice; B2 and
+  unrelated features remain gated.
+- The next App-only successor rolls back exactly to Integration version
+  `b2ab956a-729f-402a-8d3d-56778614d61a` if its acceptance gate fails.
+- Main/Production remain on App/Core **13.82.49 / 4.82.49**, Worker version
+  `cc7d58fc-a5f8-4d5c-a63f-95782e34eabe` at 100 %, until explicit visual
+  acceptance and promotion authorization.
 - M0-M16: COMPLETE / CLOSED; M16 Production verified.
-- Integration candidate Safe Regression: 116/116 PASS; regenerated visual
-  inventory freshness 2,855/726 with 0 unclassified; NFR-0 3/3 PASS; cross-Core DB guard PASS
-  without debt growth.
-- Main/Production M16 baseline before visual promotion: 90/90 PASS.
-- M16 action platform: 19 actions across Trip, Places, Booking, Journey,
-  Memory and Identity with R0-R3 policy and digest-only Action Ledger.
-- Integration and Production: 17/17 critical assets exact; 10/10
-  private/retired SPA fallbacks; authenticated 25/25 F5 each; console 0.
+- The current B0 control plane contains 330 semantic actions, 246 public Owner
+  bindings, 24/24 typed runtime actions, 124 protected state changes, 939
+  audited active markers and 2,733 generated failure evals.
 - Database/schema/RPC/RLS/bucket migration in M16: none.
 - Supabase Edge Function, secret and manual Cloudflare configuration change in
   M16: none.
+
+## Mandatory M5-to-current context bridge
+
+Any conversation whose last reliable context is M5 is stale for current
+execution. M5 closed the Trip boundary; the repository has since closed M6
+Places, M7 Media, M8 Identity/Events, M8.5 Intelligence, M9 App Shell and
+Navigation, M10 Overlay Host, M10.5 Experience, M11 Today, M12 Journey, M13
+Memory, M14 Runtime/Conversational clarity, M15 Rich Results and M16 confirmed
+Owner actions. M16.5 then established the twenty-stream architecture, Living
+Compass redesign, B0 Human↔AI control plane and the Product Reset with five
+10-package blocks B1–B5/P01–P50.
+
+The full bridge, current open map acceptance and terminal-only collaboration
+protocol are bindingly indexed in `docs/handoffs/README.md`. A continuing ChatGPT
+conversation must read that package before proposing code or commands.
 - M16.5 architecture marker: `41c02f6cf6a36d85eecba3f02a7c7a7a38e4444f`;
   Safe Regression 92/92 on Platform, Integration and Main; NFR-0 3/3;
   20/20 architecture streams synchronized at that marker.

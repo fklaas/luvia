@@ -1,7 +1,7 @@
 # Luvia Product Reset Masterplan 2026
 
-Date: 2026-09-02
-Status: **BINDING EXECUTION ORDER FOR INTEGRATION; MAIN AND PRODUCTION LOCKED**
+Date: 2026-09-03
+Status: **BINDING EXECUTION ORDER FOR INTEGRATION; B1 MAP/MINI-INFO ACCEPTANCE ACTIVE; MAIN AND PRODUCTION LOCKED**
 Canonical package IDs: **B1–B5 / P01–P50 remain unchanged**
 Technical decomposition: `LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md`
 Operational status index: `M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md`
@@ -33,15 +33,22 @@ capabilities inside this loop. None is an independent unfinished mini-product.
 
 - App/Core `13.82.147 / 4.82.147` remains the last accepted recovery baseline.
   `.148` was rejected because one pin opened the complete result collection;
-  publicly deployed `.149` repaired exact selection and viewport breadth but
-  is rejected because background refresh hid the rendered map behind a grey
-  loading/empty fallback.
-- App/Core `13.82.167 / 4.82.167` is the local continuous-map Integration
-  candidate. It retains tiles and old pins during pan/zoom loading, stages new
-  pins before replacement and keeps the map active for empty or transient-error
-  outcomes. It is not public evidence until deployed and operated on Stable and
-  Immutable.
-- Main and Production remain locked.
+  `.149` was rejected because background refresh hid the rendered map behind a
+  grey loading/empty fallback. The intermediate `.150`–`.163` slices are
+  retained as implementation and counterevidence, not as independent product
+  acceptance.
+- App/Core `13.82.167 / 4.82.167` is the current public Integration checkpoint.
+  It retains the map during viewport refresh, provides compact map-native
+  controls, locks one selected provider entity, stages a mini-info preview and
+  morphs that preview into the shared Bottom Sheet by tap or upward drag. The
+  same engine is used by Places and Planen → Hotels.
+- `.167` passed 201/201 controlled Safe Regression, NFR-0 3/3, public narrow
+  browser pointer/drag operation and ten-file clean-source byte proof. It is not
+  the final map acceptance: the user has not accepted the mini-info layout or
+  physical drag smoothness, so G1 and the surface-level Design Freeze remain
+  open.
+- Production remains App/Core `13.82.49 / 4.82.49` on Worker version
+  `cc7d58fc-a5f8-4d5c-a63f-95782e34eabe`; Main and Production remain locked.
 - Google Places is the primary Places source. Foursquare is fallback only and
   currently has no remaining credits. A fallback outage may reduce coverage
   but must not silently replace Google as the primary source.
@@ -92,8 +99,14 @@ actually reached. A lower level remains useful when named honestly.
 - The map is the primary results surface for spatial discovery.
 - No parallel result list appears beside or below the map in the accepted map
   experience.
-- Selecting a pin opens the one bright Journey suggestion sheet / Bottom Sheet
-  for Place, Hotel, Restaurant, Event or Activity.
+- Selecting a pin first opens only one compact exact-entity mini-info preview.
+  The bright Journey suggestion sheet / Bottom Sheet opens only after a second
+  tap on that preview or an upward drag from it.
+- During the drag, the preview and sheet form one continuous surface: it grows
+  horizontally to the map width, downward to the map bottom and upward with the
+  finger. A short release returns to the preview; sufficient distance or
+  velocity settles it open. Places and Planen → Hotels must share this exact
+  behavior rather than approximate it in two implementations.
 - One pin opens exactly one provider entity. A Bottom Sheet opened from a pin
   never receives the complete result collection.
 - Panning or zooming runs a debounced query for the new visible bounds in every
@@ -488,16 +501,26 @@ privacy/permission behavior.
 
 ## 12. Immediate execution order
 
-1. Finish `.150` inventory, regression, clean commit, explicit Integration
-   Worker deployment and public one-pin/one-entity plus uninterrupted pan/zoom
-   viewport QA.
-2. Close remaining B1 exact Restaurant and Activity/Culture route evidence.
-3. Close P09 granular Journey actions and P10 user-facing explainability.
-4. Run the complete G2 Golden Journey and first five-user G3 value test.
-5. Continue B2 P11–P20 in order while provider applications run in parallel.
-6. Open B3 only after P20 verifies at least one lawful event source.
-7. Open B4 only after real Event/Calendar/Ticket operation closes B3.
-8. Open B5 only after the classic intent-to-memory loop and surface-level
+1. Continue directly from public Integration `.167`; do not restart at M5 and
+   do not open a new product surface. Reproduce the remaining public/physical
+   map and mini-info defects before changing code.
+2. Finish the shared Places/Hotels map interaction: exact one-pin preview,
+   provider image and Compass border, selected-pin emphasis, independent
+   staggered chevrons, uninterrupted viewport refresh, compact controls and a
+   genuinely finger-coupled preview-to-sheet morph without a jump, hidden
+   duplicate sheet or entity swap.
+3. Run focused plus 201-test regression, desktop/narrow mobile, real touch,
+   keyboard, Back/Reload and Reduced Motion evidence. Publish a new immutable
+   Integration slice only if required, prove bytes and rollback, and obtain
+   explicit user acceptance for this surface. `.167` itself remains the exact
+   rollback target for a successor App-only defect.
+4. Close remaining B1 exact Restaurant and Activity/Culture route evidence.
+5. Close P09 granular Journey actions and P10 user-facing explainability.
+6. Run the complete G2 Golden Journey and first five-user G3 value test.
+7. Continue B2 P11–P20 in order while provider applications run in parallel.
+8. Open B3 only after P20 verifies at least one lawful event source.
+9. Open B4 only after real Event/Calendar/Ticket operation closes B3.
+10. Open B5 only after the classic intent-to-memory loop and surface-level
    Design Freeze are accepted.
 
 This order is the binding Product Reset. The canonical Fifty-Point Plan remains

@@ -2664,3 +2664,9 @@ app/luvia-runtime-postcontext-13.82.138.bundle.js,Platform Runtime,Generated Run
 app/luvia-runtime-precontext-13.82.138.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle for the Block 1 chat-native trip-selection repair
 app/luvia-runtime-postcontext-13.82.139.bundle.js,Platform Runtime,Generated Runtime,Immutable post-Trip-Context runtime bundle for Block 1 semantic Places mutations
 app/luvia-runtime-precontext-13.82.139.bundle.js,Platform Runtime,Generated Runtime,Immutable pre-Trip-Context runtime bundle for Block 1 semantic Places mutations
+HANDOFF-NORMAL-CHATGPT-CURRENT.md,All Core Owner Streams,Documentation/Handoff,Canonical current-state entry for terminal-mediated continuation in normal ChatGPT without direct workspace access
+docs/handoffs/README.md,All Core Owner Streams,Documentation/Handoff,Canonical index for current normal-ChatGPT terminal handoff artifacts
+docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md,All Core Owner Streams,Documentation/Handoff,Copy-ready prompt that advances the stale M5 conversation to the current M16.5 B1 map acceptance boundary
+docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md,Platform/Documentation/Release,Documentation/Handoff,PowerShell command result evidence and deployment safety protocol for user-executed normal-ChatGPT work
+docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md,All Core Owner Streams,Documentation/Handoff,Closed M5 through M16 boundaries M16.5 redesign Product Reset and six-block context bridge
+docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md,Places/Booking/Journey/Experience/Consumer,Documentation/Handoff,Current public 13.82.167 shared Places Hotel map preview gesture acceptance and remaining user-visible work
