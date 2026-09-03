@@ -2157,8 +2157,8 @@
         "visual-source-candidate",
         "active-entry-reference"
       ],
-      "bytes": 12558,
-      "sha256": "6b50ba548312322874c7352aae9f2707eb2460f12918c059067b0a7a1e9b3cb4"
+      "bytes": 12673,
+      "sha256": "a381cb2ae08831157bac4834b7d915b24856f984f7a4704249b8cc168321b786"
     },
     {
       "path": "app/places/places-spatial-experience.css",
@@ -2746,8 +2746,8 @@
         "dom-rendering-source",
         "active-entry-reference"
       ],
-      "bytes": 11582,
-      "sha256": "bf06b9f060fa4af038a97855806f39f9a6590d2b85490993409ba46c18610e81"
+      "bytes": 11996,
+      "sha256": "9082544e4295b26f007a555ac3056a75ee5eff0457251ebfcf41d30e69adb2c9"
     },
     {
       "path": "core/ai/ai-dashboard-service.js",
@@ -3795,8 +3795,8 @@
         "visual-source-candidate",
         "active-entry-reference"
       ],
-      "bytes": 26268,
-      "sha256": "fff938a664019dcc44f9ced633ee18cc5610e8e552354f9d13caaec3a0470332"
+      "bytes": 26486,
+      "sha256": "c348430e61a643c7fdc8aef3fea24bfe158e037d45315b9abcba9da1c025db4a"
     },
     {
       "path": "core/places/nature-intelligence-service.js",
@@ -4081,8 +4081,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 32948,
-      "sha256": "cf92cba787688c438111554a228ef05fa16daaaab9ca45ab6492a9829e91f92d"
+      "bytes": 33268,
+      "sha256": "26bfe90fb21e05d4fb766ba90a1d3166157bfcfc6318d0ba1dc0d2a78297b124"
     },
     {
       "path": "core/places/presence-visit-core.js",
@@ -4324,8 +4324,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 25473,
-      "sha256": "9ee3a96bf4a5e90d79a0e430165b4e9f3ca2157974beb4dfa5ebd8c6330d5686"
+      "bytes": 26926,
+      "sha256": "9f8a1caa386f7efd8fdbe91a4403235f47f9e4957e46e7a9f0372a21df10fc6e"
     },
     {
       "path": "core/platform/product-module-registry.js",
@@ -5137,8 +5137,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 15007,
-      "sha256": "4b3528db0e2b8c0b2964c652a0f5111d2dc362d93e0b07e284e2cd2a3e3ea92f"
+      "bytes": 15046,
+      "sha256": "2590c1cdc61e0cb7c91bc5de8c1518159b4585e60e86b0a3c3e68fafeef4f116"
     },
     {
       "path": "intelligence/places-test.js",
@@ -6644,8 +6644,8 @@
       "classes": [
         "dom-rendering-source"
       ],
-      "bytes": 38171,
-      "sha256": "ff5a054462aa65a0b0b6cb9a7072f04849257e72ce3db1a834d57c11b28868a6"
+      "bytes": 48595,
+      "sha256": "635c34626b8af42380e022aa2d13e9b1d0f68c15a4fe63c32eef890b56e32010"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",

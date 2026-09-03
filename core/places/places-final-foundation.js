@@ -53,7 +53,33 @@
     state.question=null;return state.activeGoal;
   }
   function validForCategory(place,category){if(window.LuviaGlobalPlaceContracts?.accepts)return window.LuviaGlobalPlaceContracts.accepts(place,category,state.activeGoal?.text||'',currentPreferences());return Boolean(providerId(place)&&clean(place?.name).length>=2)}
-  function score(place){const known=state.known.get(providerId(place));let s=0;s+=Math.min(25,Number(place.rating||0)*5);const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(state.activeGoal?.text||'',state.activeGoal?.category||'')||{};const reviewCount=Number(place.userRatingCount||0);if(intent.key==='hidden_gem')s+=reviewCount<500?20:reviewCount<1500?12:reviewCount<3000?4:-8;else s+=Math.min(15,Math.log10(Math.max(1,reviewCount))*5);if(place.currentOpeningHours?.openNow===true||place.openNow===true)s+=10;if(place.formattedAddress||place.address)s+=5;if(place.location||place.latitude)s+=5;if(known?.planned)s-=18;if(/visited|checked_in|checked_out/.test(known?.status||''))s-=15;const rel=window.LuviaGlobalPlaceContracts?.relevance?.(place,state.activeGoal?.text||'',state.activeGoal?.category||'',currentPreferences())||{score:0,reasons:[]};const aiReasons=(place.aiReasons||[]).map(x=>String(x||'').trim()).filter(Boolean).map(x=>/[.!?]$/.test(x)?x:`${x}.`);place._luviaReasons=[...new Set([...(rel.reasons||[]),...aiReasons])];const sources=Object.keys(place.providerRefs||{});if(sources.length>1)place._luviaReasons.push('Mehrere Places-Quellen bestätigen, dass dieser Ort tatsächlich existiert und zum Reiseziel gehört.');place._luviaIntent=rel.intent||null;place._luviaEvidence=rel.evidence||null;s+=Number(rel.score||0);if(Number.isFinite(Number(place.aiMatchScore)))s+=Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2));return s}
+  function score(place){
+    const known=state.known.get(providerId(place));
+    let s=0;
+    const rating=place?.rating==null?null:(Number.isFinite(Number(place.rating))?Number(place.rating):null);
+    if(rating!=null)s+=Math.min(25,rating*5);
+    const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(state.activeGoal?.text||'',state.activeGoal?.category||'')||{};
+    const reviews=place?.userRatingCount==null?null:(Number.isFinite(Number(place.userRatingCount))?Number(place.userRatingCount):null);
+    if(reviews!=null){
+      if(intent.key==='hidden_gem')s+=reviews<500?20:reviews<1500?12:reviews<3000?4:-8;
+      else s+=Math.min(15,Math.log10(Math.max(1,reviews))*5);
+    }
+    if(place.currentOpeningHours?.openNow===true||place.openNow===true)s+=10;
+    if(place.formattedAddress||place.address)s+=5;
+    if(place.location||place.latitude)s+=5;
+    if(known?.planned)s-=18;
+    if(/visited|checked_in|checked_out/.test(known?.status||''))s-=15;
+    const rel=window.LuviaGlobalPlaceContracts?.relevance?.(place,state.activeGoal?.text||'',state.activeGoal?.category||'',currentPreferences())||{score:0,reasons:[]};
+    const aiReasons=(place.aiReasons||[]).map(x=>String(x||'').trim()).filter(Boolean).map(x=>/[.!?]$/.test(x)?x:`${x}.`);
+    place._luviaReasons=[...new Set([...(rel.reasons||[]),...aiReasons])];
+    const sources=Object.keys(place.providerRefs||{});
+    if(sources.length>1)place._luviaReasons.push('Mehrere Places-Quellen bestätigen, dass dieser Ort tatsächlich existiert und zum Reiseziel gehört.');
+    place._luviaIntent=rel.intent||null;
+    place._luviaEvidence=rel.evidence||null;
+    s+=Number(rel.score||0);
+    if(Number.isFinite(Number(place.aiMatchScore)))s+=Math.max(-10,Math.min(25,(Number(place.aiMatchScore)-50)/2));
+    return s;
+  }
   async function enrich(list){const output=[];for(const p of list.slice(0,10)){try{const prep=await window.LuviaPlaceDetails?.prepare?.(providerId(p),{seedPlace:p,photoLimit:1,regionCode:window.LuviaPlaces?.activeDestination?.()?.countryCode||'DE'});output.push({...p,...(prep?.place||{}),_photo:prep?.photos?.[0]?.uri||null})}catch{output.push(p)}}return output}
   async function search(goal=state.activeGoal){
     if(!goal){state.lastError='NO_ACTIVE_GOAL';state.error='Bitte beschreibt zuerst, wonach ihr sucht.';state.phase='empty';render();return false}

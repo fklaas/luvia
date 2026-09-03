@@ -22,6 +22,11 @@ const finiteNumber=value=>{
   try{parsed=Number(value)}catch{return null}
   return Number.isFinite(parsed)?parsed:null;
 };
+const triBool=value=>{
+  if(value===true)return true;
+  if(value===false)return false;
+  return null;
+};
 const boundedInteger=(value,fallback,min,max)=>{
   const parsed=finiteNumber(value);
   if(parsed==null)return fallback;
@@ -114,12 +119,12 @@ function normalizePlace(input){
     capabilities:stringArray(input.capabilities),
     bookingDomains:stringArray(input.bookingDomains),
     features:immutable({
-      reservable:input.features?.reservable===true,
-      servesVegetarianFood:input.features?.servesVegetarianFood===true,
-      servesVeganFood:input.features?.servesVeganFood===true,
-      goodForChildren:input.features?.goodForChildren===true
+      reservable:triBool(input.features?.reservable),
+      servesVegetarianFood:triBool(input.features?.servesVegetarianFood),
+      servesVeganFood:triBool(input.features?.servesVeganFood),
+      goodForChildren:triBool(input.features?.goodForChildren)
     }),
-    accessibilityOptions:immutable({wheelchairAccessibleEntrance:input.accessibilityOptions?.wheelchairAccessibleEntrance===true}),
+    accessibilityOptions:immutable({wheelchairAccessibleEntrance:triBool(input.accessibilityOptions?.wheelchairAccessibleEntrance)}),
     aiReasons:stringArray(input.aiReasons||input._luviaReasons),
     aiUnknowns:stringArray(input.aiUnknowns),
     businessStatus:clean(input.businessStatus||input.business_status)||null,

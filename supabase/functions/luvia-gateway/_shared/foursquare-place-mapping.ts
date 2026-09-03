@@ -159,7 +159,7 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
     ratingScale:5,
     providerRatingRaw:rating.providerRatingRaw,
     providerRatingScale:10,
-    userRatingCount:p.stats?.total_ratings??0,
+    userRatingCount:p.stats?.total_ratings??null,
     priceLevel:p.price??null,
     businessStatus:p.date_closed?'CLOSED_PERMANENTLY':'OPERATIONAL',
     openNow:p.hours?.open_now??null,

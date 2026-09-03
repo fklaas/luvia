@@ -6,7 +6,27 @@
   let metrics={requests:0,successes:0,fallbacks:0,failures:0,lastRequestAt:null,lastSuccessAt:null,lastError:null};
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
   const idOf=place=>String(place?.id||place?.providerPlaceId||place?.provider_place_id||'').replace(/^places\//,'');
-  const compactPlace=place=>({id:idOf(place),providerPlaceId:idOf(place),name:place?.name||place?.displayName||'',primaryType:place?.primaryType||place?.primary_type||'',types:[...(place?.types||[])].slice(0,15),rating:Number(place?.rating||0)||null,userRatingCount:Number(place?.userRatingCount||0)||0,distanceMeters:place?.distanceMeters??null,formattedAddress:place?.formattedAddress||place?.address||'',editorialSummary:String(place?.editorialSummary||'').slice(0,500),features:clone(place?.features||{}),businessStatus:place?.businessStatus||null,discoveryScore:Number(place?.discoveryScore||0)||0});
+  const compactPlace=place=>{
+    const ratingValue=place?.rating==null?null:Number(place?.rating);
+    const rating=ratingValue==null||!Number.isFinite(ratingValue)?null:ratingValue;
+    const userRatingCountValue=place?.userRatingCount==null?null:Number(place?.userRatingCount);
+    const userRatingCount=userRatingCountValue==null||!Number.isFinite(userRatingCountValue)?null:userRatingCountValue;
+    return{
+      id:idOf(place),
+      providerPlaceId:idOf(place),
+      name:place?.name||place?.displayName||'',
+      primaryType:place?.primaryType||place?.primary_type||'',
+      types:[...(place?.types||[])].slice(0,15),
+      rating,
+      userRatingCount,
+      distanceMeters:place?.distanceMeters??null,
+      formattedAddress:place?.formattedAddress||place?.address||'',
+      editorialSummary:String(place?.editorialSummary||'').slice(0,500),
+      features:clone(place?.features||{}),
+      businessStatus:place?.businessStatus||null,
+      discoveryScore:Number(place?.discoveryScore||0)||0
+    };
+  };
   const hash=value=>{const text=JSON.stringify(value);let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
   function emit(reason,detail={}){listeners.forEach(fn=>{try{fn({reason,...detail})}catch{}});window.dispatchEvent(new CustomEvent('luvia:ai-changed',{detail:{reason,...detail}}))}
   function fallback(capability,input={},context={}){

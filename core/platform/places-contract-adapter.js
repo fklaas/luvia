@@ -24,6 +24,16 @@
   function presenceCommand(name){const api=visit(),fn=api?.[name];if(typeof fn!=='function')unavailable(`LuviaPresenceVisitCore.${name}`);return fn.bind(api)}
   const clean=value=>value==null?null:String(value);
   const httpsUrl=value=>{const url=clean(value)?.trim()||'';return /^https:\/\//i.test(url)?url:null};
+
+  // Session-scoped Google Premium details cost guard.
+  // At most 1 Google Premium details request per providerPlaceId per session.
+  // Returns true on the FIRST call for a given id; false on all subsequent calls.
+  const _premiumDetailsUsed=new Set();
+  function consumePremiumDetailsQuota(id){
+    if(!id||_premiumDetailsUsed.has(id))return false;
+    _premiumDetailsUsed.add(id);
+    return true;
+  }
   const usablePhoto=photo=>Boolean(photo&&(httpsUrl(photo.uri||photo.url||photo.photoUri)||clean(photo.name)));
   function photoProvider(source={},photo={}){
     const signature=`${photo?.name||''} ${photo?.uri||photo?.url||''} ${source?.provider||''} ${source?.source||''}`.toLowerCase();
@@ -52,7 +62,16 @@
   function getPlace(placeId){return placeProjection(core().getPlace?.(placeId)||null)}
   function listPlaces(filters={}){return freezeArray((core().getPlaces?.(filters||{})||[]).map(placeProjection).filter(Boolean))}
   async function getDetails(placeId,options={}){
-    const response=await gateway().details(placeId,options||{});
+    // Validate gateway availability first so unavailability errors are never swallowed.
+    const gw=gateway();
+    const id=clean(placeId)?.replace(/^places\//,'');
+    // Google Premium details are on-demand only. Gate to 1 request per id per session.
+    const isPremiumId=id&&!id.startsWith('fsq:')&&!id.startsWith('geoapify:');
+    if(isPremiumId&&!consumePremiumDetailsQuota(id)){
+      // Quota exhausted for this id this session; skip the Premium call.
+      return null;
+    }
+    const response=await gw.details(placeId,options||{});
     return detailsProjection(response?.data?.place||response?.data||response);
   }
   async function searchViewport(options={}){
@@ -101,7 +120,15 @@
     const seeded=options?.source||options?.place||null,seedId=clean(seeded?.providerPlaceId||seeded?.id)?.replace(/^places\//,''),requestedId=clean(placeId)?.replace(/^places\//,'');
     const {source:_source,place:_place,...detailOptions}=options||{},seedMatches=Boolean(seeded&&seedId===requestedId),seedHasPhoto=Array.isArray(seeded?.photos)&&seeded.photos.some(usablePhoto);
     let response=null;
-    if(!seedMatches||!seedHasPhoto){try{response=await gateway().details(placeId,detailOptions)}catch(error){if(!seedMatches)throw error}}
+    // Apply Google Premium cost guard: block repeat enrichment when we already have full data.
+    // Exception: if the seed has no photos, always allow the gateway call for media hydration.
+    const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:');
+    const premiumAllowed=!isPremiumId||!seedHasPhoto||consumePremiumDetailsQuota(requestedId);
+    if((!seedMatches||!seedHasPhoto)&&premiumAllowed){
+      try{response=await gateway().details(placeId,detailOptions)}catch(error){if(!seedMatches)throw error}
+      // Mark premium id as consumed after a successful gateway call.
+      if(isPremiumId&&response)consumePremiumDetailsQuota(requestedId);
+    }
     const detailed=response?.data?.place||response?.data||response||null;
     const source=detailed?{...(seeded||{}),...detailed,photos:Array.isArray(detailed.photos)&&detailed.photos.length?detailed.photos:(seeded?.photos||[])}:seeded;
     const place=detailsProjection(source);

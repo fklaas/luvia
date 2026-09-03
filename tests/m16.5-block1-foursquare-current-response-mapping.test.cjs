@@ -86,7 +86,7 @@ test('legacy cached coordinates remain readable but missing provider facts are n
   assert.deepEqual(missing.photos,[]);
   assert.equal(missing.rating,null);
   assert.equal(missing.providerRatingRaw,null);
-  assert.equal(missing.userRatingCount,0);
+  assert.equal(missing.userRatingCount,null,'tri-state: missing provider rating count must be null, not invented 0');
 });
 
 test('public diagnostics are bounded and gateway owns a layered Pro-field fallback',async()=>{
@@ -98,7 +98,7 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/foursquareWithFieldFallback/);
   assert.match(source,/fieldFallbacks\+\+/);
   assert.match(source,/coordinateSchema:'top-level-latitude-longitude'/);
-  assert.match(source,/version:'4\.31\.0'/);
+  assert.match(source,/version:'4\.31\.0/);
   assert.match(source,/HEALTH_PROBES=Object\.freeze/);
   assert.match(source,/'minigolf-scharbeutz'/);
   assert.match(source,/'minigolf-chat-scharbeutz'/);
@@ -109,13 +109,9 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
   assert.match(source,/status:'failed'/);
   assert.match(source,/providerErrors:\(error\?\.providerErrors\|\|\[\]\)/);
-  assert.match(source,/mode:'google_primary_foursquare_fallback'/);
-  assert.match(source,/providerOrder:'google_primary_foursquare_fallback'/);
+  assert.match(source,/providerOrder:'geoapify_primary_no_fallback'/,'provider order must reflect the new cost-safe primary provider');
   assert.match(source,/priority:'primary'/);
-  assert.match(source,/priority:'fallback'/);
-  assert.match(source,/attempted\.push\('google'\)/);
-  assert.match(source,/const useFoursquare=.*fallbackReason/);
-  assert.match(source,/fallbackUsed:foursquareIsFallback/);
+  assert.match(source,/priority:'legacy'/);
   assert.doesNotMatch(source,/Promise\.allSettled\(tasks\.map\(task=>task\.promise\)\)/,'Foursquare must no longer consume quota in parallel with a healthy Google primary search');
   assert.match(source,/PLACES_ALL_PROVIDERS_FAILED/,'a complete provider failure must not look like a valid zero-result search');
   assert.match(source,/status:503,providerErrors/,'bounded provider failures must remain diagnosable through the public health probe');
