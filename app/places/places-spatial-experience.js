@@ -136,7 +136,7 @@
     if(!results.length)return;
     try{port('OfflineCachePort')?.write(cacheKey(),{scope:cacheScope(),query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results,savedAt:state.lastSearchAt||new Date().toISOString()})}catch{}
   }
-  function categoryCohortKey(category=state.category,query=state.query){return JSON.stringify({scope:cacheScope(),category:clean(category),query:clean(query),radius:state.searchRadiusMeters===5000?5000:0})}
+  function categoryCohortKey(category=state.category){return JSON.stringify({scope:cacheScope(),category:clean(category),radius:state.searchRadiusMeters===5000?5000:0})}
   function rememberCategoryCohort(){
     if(state.activeViewport||state.userQuery||activeFilterCount()||!state.results.length||!['ready','loading'].includes(state.status))return false;
     const key=categoryCohortKey(),savedAt=state.lastSearchAt||new Date().toISOString();

@@ -52,9 +52,9 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const entry=savedCache.get(ctx.recovery.cacheKey());entry.savedAt='2020-01-01';assert.equal(ctx.recovery.loadCached(),false,'expired data cannot claim current coverage');entry.savedAt=new Date().toISOString();
  st.filters.cuisines=['italian_restaurant'];st.results=[row('geoapify:filtered')];ctx.recovery.saveCached();assert.equal(entry.results[0].name,'geoapify:cached','a filtered result must not overwrite the default destination cohort');st.filters.cuisines=[];
  st.results=[row('google-legacy')];ctx.recovery.saveCached();assert.equal(savedCache.get(ctx.recovery.cacheKey()).results[0].name,'geoapify:cached','cache must not absorb other provider content');
- st.category='food';st.query='Restaurant';st.results=[row('geoapify:food-cohort')];st.status='ready';st.lastSearchAt=new Date().toISOString();assert.equal(ctx.recovery.rememberCategoryCohort(),true);
+ st.category='food';st.query='Legacy food cache phrase';st.results=[row('geoapify:food-cohort')];st.status='ready';st.lastSearchAt=new Date().toISOString();assert.equal(ctx.recovery.rememberCategoryCohort(),true);
  st.category='shopping';st.query='Shopping';st.results=[{...row('geoapify:shopping-cohort'),primaryType:'store',types:['store']}];
- assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'returning to a recent category restores its exact destination cohort immediately');
+ assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'returning to a recent category restores its exact destination cohort even when an older cache used different default copy');
  assert.equal(st.results[0].name,'geoapify:food-cohort');assert.equal(st.status,'ready');
  // A late destination read must not overwrite a newer camera intent, and a
  // category change during the viewport debounce must use that camera's bounds.
@@ -87,6 +87,9 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const failureMap={dataset:{},closest:()=>failureShell};
  st.root={querySelector:selector=>selector==='[data-places-map]'?failureMap:null,querySelectorAll:()=>[]};st.activeViewport=null;
  ctx.LuviaPlacesContractV1={reads:{recommend:async()=>{throw new Error('timeout')}}};
+ st.category='food';st.query='Restaurant';st.filters=Object.fromEntries(Object.keys(st.filters).map(key=>[key,Array.isArray(st.filters[key])?[]:false]));st.results=[row('geoapify:restored-food')];st.status='ready';
+ await ctx.LuviaPlacesSpatialExperience.search({category:'food',query:'Restaurant',silent:true,preserveMap:true});
+ assert.equal(st.status,'ready','a failed background refresh must preserve the exact restored category cohort');assert.equal(st.results[0].name,'geoapify:restored-food');
  st.category='food';st.filters.cuisines=['italian_restaurant'];st.results=[row('Old unfiltered result')];
  await ctx.LuviaPlacesSpatialExperience.search({category:'food',query:'Italienisch',silent:true,preserveMap:true});
  assert.equal(st.status,'error','a failed filter read must not hide behind stale rows excluded by that filter');assert.equal(st.results.length,0);
