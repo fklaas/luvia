@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
   "sourceBaseline": "6da646bdd774b764cad9e868445a1c921a65c783",
-  "app": "13.82.168.51",
-  "core": "4.82.173",
+  "app": "13.82.168.52",
+  "core": "4.82.174",
   "runtimeSource": "6da646bdd774b764cad9e868445a1c921a65c783",
   "worker": "47496145-d13d-4a59-9e9c-b1785dd9f171",
   "gateway": "v163 ACTIVE",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.51 / Core 4.82.173 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.",
+      "evidence": "13.82.168.52 / Core 4.82.174 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.",
       "nextAcceptance": "Im nächsten P02/P03-Slice vollständige reale Filter-, Landesküchen-, Alle/Passend- und Place-Foto-Matrix auf demselben unveränderlichen Releaseverfahren belegen; .51 als Rückfall erhalten.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.51 / Core 4.82.173: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.",
+      "evidence": "13.82.168.52 / Core 4.82.174: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"

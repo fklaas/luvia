@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.51**, Core **4.82.173**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.52**, Core **4.82.174**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 
@@ -52,14 +52,14 @@ Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.51. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
+Integration läuft auf 13.82.168.52. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## 1 Wo Luvia heute steht
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.51 und Core 4.82.173. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
+Integration läuft auf App 13.82.168.52 und Core 4.82.174. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -306,7 +306,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.51 / Core 4.82.173 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.
+13.82.168.52 / Core 4.82.174 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.
 
 **Nächster Abschlussnachweis:** Im nächsten P02/P03-Slice vollständige reale Filter-, Landesküchen-, Alle/Passend- und Place-Foto-Matrix auf demselben unveränderlichen Releaseverfahren belegen; .51 als Rückfall erhalten.
 
@@ -686,7 +686,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.51 / Core 4.82.173: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.
+13.82.168.52 / Core 4.82.174: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 

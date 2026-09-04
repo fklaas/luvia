@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 const ctx=vm.createContext({console,Date,Map,Set,Promise,setTimeout,clearTimeout,URL,URLSearchParams,AbortSignal,Deno:{env:{get:name=>name==='GEOAPIFY_API_KEY'?'test':''}},document:{documentElement:{classList:{contains:()=>false}}}});ctx.window=ctx;
 for(const file of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js'])vm.runInContext(read(file),ctx);
-vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.filters={state,CATEGORY_FILTERS,emptyFilters,filteredResults,filterAvailability};globalThis.LuviaPlacesSpatialExperience='),ctx);
+vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.filters={state,CATEGORY_FILTERS,emptyFilters,filteredResults,filterAvailability,publicRuntime};globalThis.LuviaPlacesSpatialExperience='),ctx);
 ctx.providerFetch=(_p,_o,_u,url,init)=>ctx.fetch(url,init);ctx.enrichLinkedMedia=async p=>p;
 vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/places.ts').replace(/^import .*?;\r?\n/gm,'').replace(/^export /gm,''))+'\nglobalThis.provider={geoapifyCategoriesFromOptions,normalizedGeoapifyPlace,geoapifyPlacesSearch,geoapifyPlaceDetails};',ctx);
 // Independent provider fixtures: a UI filter must recognize actual provider taxonomy.
@@ -41,9 +41,9 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  for(const [type]of f.CATEGORY_FILTERS.food.cuisines){
   const before=cuisineCalls.length;const rows=await ctx.provider.geoapifyPlacesSearch('Cuisine Restaurant',{location:point},{category:'food',includedType:type,includedTypes:[type],userQuery:''},null,null);
   assert.ok(rows.some(p=>p.types.includes(type)),`${type}: actual provider request and returned normalization must agree`);
-  assert.equal(cuisineCalls.length-before,type==='italian_restaurant'?2:1,`${type}: typed query plus one shared cohort for the first cuisine only`);
+  assert.equal(cuisineCalls.length-before,1,`${type}: a successful typed cuisine uses one precise provider request`);
  }
- assert.equal(cuisineCalls.filter(u=>u.searchParams.get('limit')==='500').length,1,'all cuisines share one bounded catering cohort per scope');
+ assert.equal(cuisineCalls.filter(u=>u.searchParams.get('limit')==='500').length,0,'successful typed cuisines never spend the expensive catering cohort');
  const start=cuisineCalls.length;
  const union=await ctx.provider.geoapifyPlacesSearch('Italienisch Deutsch Griechisch Restaurant',{location:point},{category:'food',includedTypes:['italian_restaurant','german_restaurant','greek_restaurant'],userQuery:''},null,null);
  assert.equal(cuisineCalls.length-start,1,'national cuisine union uses one provider request, not a broad cohort or per-cuisine fanout');
@@ -63,6 +63,9 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  for(const cuisine of ['chinese','thai','vietnamese','sushi']){
   const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:cuisine,name:'Kitchen',lat:54,lon:10,categories:['catering.restaurant',`catering.restaurant.${cuisine}`]}});assert.ok(p.types.includes('asian_restaurant'),`${cuisine} belongs to broader Asian cuisine`);
  }
+ const rescueCalls=[];ctx.fetch=async url=>{const u=new URL(url);rescueCalls.push(u);if(u.searchParams.get('limit')==='500')return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:'raw-cuisine',name:'Raw cuisine',lat:54.02,lon:10.75,categories:['catering.restaurant'],catering:{cuisine:'italian'}}}]})};return{ok:true,status:200,json:async()=>({features:[]})}};
+ const rescued=await ctx.provider.geoapifyPlacesSearch('Italienisch Restaurant',{location:point},{category:'food',includedType:'italian_restaurant',includedTypes:['italian_restaurant'],userQuery:''},null,null);
+ assert.equal(rescueCalls.length,2,'a genuine typed zero performs one bounded cohort rescue');assert.equal(rescued.length,1);assert.ok(rescued[0].types.includes('italian_restaurant'));
  const partialCalls=[];ctx.fetch=async url=>{const u=new URL(url),category=u.searchParams.get('categories');partialCalls.push(category);if(category==='entertainment')throw Object.assign(new Error('supplement unavailable'),{code:'PROVIDER_BUDGET_DENIED',status:503});return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:category,name:category,lat:54.02,lon:10.75,categories:[category]}}]})}};
  const partialActivities=await ctx.provider.geoapifyPlacesSearch('Aktivitäten Erlebnisse Freizeit',{location:point},{category:'activities',userQuery:'',maxResultCount:50},null,null);
  assert.deepEqual(partialCalls.sort(),['entertainment','leisure','sport'],'all broad category parents are requested independently');
@@ -70,6 +73,7 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  const composition=ctx.LuviaPlacesSpatialCompositionCoreV1;
  const preferencePins=composition.compose({places:[{id:'yes',name:'Yes',coordinates:point,preferenceDiscoveryMatch:true,preferenceConstraintState:'verify'},{id:'no',name:'No',coordinates:point,preferenceDiscoveryMatch:false,preferenceScore:95,preferenceFit:{score:95,coverage:100},preferenceReasons:['generic'],preferenceConstraintState:'satisfied'}],runtime:{status:'ready'}}).markers;
  assert.equal(preferencePins.find(p=>p.providerPlaceId==='yes').preferred,true);assert.equal(preferencePins.find(p=>p.providerPlaceId==='no').preferred,false,'pin badge obeys the same explicit match verdict as Passend');
+ f.state.status='ready';f.state.results=[];assert.equal(f.publicRuntime(0).status,'empty','a settled zero must render an honest empty state even without a stale source cohort');
  const calls=[];ctx.fetch=async url=>{calls.push(new URL(url));return{ok:true,status:200,json:async()=>({features:[{properties:{feature_type:'details',place_id:'abc',name:'Real Place',lat:54.02,lon:10.75,categories:['catering.restaurant'],wiki_and_media:{image:'https://example.org/real-place.jpg'}}}]})}};
  const detail=await ctx.provider.geoapifyPlaceDetails('geoapify:abc',{enrichMedia:true});assert.equal(detail.name,'Real Place');assert.equal(detail.photos[0].uri,'https://example.org/real-place.jpg');
  await ctx.provider.geoapifyPlaceDetails('geoapify:abc',{enrichMedia:true});assert.equal(calls.length,1,'exact-place media details are cached');

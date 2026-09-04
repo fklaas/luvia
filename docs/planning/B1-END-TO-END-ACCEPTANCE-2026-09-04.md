@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.51**, Core **4.82.173**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.52**, Core **4.82.174**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 

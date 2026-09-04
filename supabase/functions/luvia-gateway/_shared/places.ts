@@ -658,7 +658,6 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     const rejected=settled.find((item:any)=>item.status==='rejected') as PromiseRejectedResult|undefined;
     throw rejected?.reason||Object.assign(new Error('Geoapify Kategorien antworten gerade nicht.'),{code:'GEOAPIFY_PROVIDER_ERROR',status:503,provider:'geoapify'});
   };
-  const cohortPromise=cuisines.length&&filter?geoapifyCuisineCohort(key,filter,String(options.languageCode||'de')).catch(()=>[]):null;
   let {response,body}=await runBatches(true);
   if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
     ({response,body}=await runBatches(false));
@@ -672,9 +671,11 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     throw Object.assign(new Error(message),{code:'GEOAPIFY_PROVIDER_ERROR',status,provider:'geoapify'});
   }
   let features=Array.isArray(body?.features)?body.features:[];
-  if(cuisines.length&&filter){
-    // Bounded supplement can fail without disguising a successful typed query.
-    try{const cohort=await cohortPromise||[];
+  if(cuisines.length&&filter&&!features.length){
+    // The official cuisine category is the cheap, precise path. A 500-place
+    // catering cohort costs much more provider budget, so use it only to rescue
+    // a genuine typed zero where structured `cuisine` evidence may exist.
+    try{const cohort=await geoapifyCuisineCohort(key,filter,String(options.languageCode||'de'));
       const eligible=cohort.filter((feature:any)=>{const p=normalizedGeoapifyPlace(feature,options);return p&&cuisines.some((type:string)=>p.types.includes(type))&&(!name||p.name.toLowerCase().includes(name.toLowerCase()))});
       features=mergeFeatures([features,eligible]);
     }catch{}
@@ -777,7 +778,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.34.2-partial-category-continuity',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.34.3-filter-budget-truth',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;

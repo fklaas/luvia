@@ -83,6 +83,10 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const failureMap={dataset:{},closest:()=>failureShell};
  st.root={querySelector:selector=>selector==='[data-places-map]'?failureMap:null,querySelectorAll:()=>[]};st.activeViewport=null;
  ctx.LuviaPlacesContractV1={reads:{recommend:async()=>{throw new Error('timeout')}}};
+ st.category='food';st.filters.cuisines=['italian_restaurant'];st.results=[row('Old unfiltered result')];
+ await ctx.LuviaPlacesSpatialExperience.search({category:'food',query:'Italienisch',silent:true,preserveMap:true});
+ assert.equal(st.status,'error','a failed filter read must not hide behind stale rows excluded by that filter');assert.equal(st.results.length,0);
+ st.filters.cuisines=[];
  await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
  assert.equal(st.status,'error');assert.equal(failureMap.dataset.mapState,'unavailable');assert.equal(failureStatus.dataset.refreshing,'false');assert.equal(failureShell['aria-busy'],undefined,'failed read must stop loading');assert.match(failureStatus.actions,/data-places-retry/,'failure must offer a retry');assert.match(failureCopy.textContent,/erneut versuchen/);
  projection.destroy();racing.destroy();hotel.destroy();console.log('Places viewport gestures, empty replacement, fit cohort, Hotel parity and stale response cancellation: PASS');

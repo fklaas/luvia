@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.51**, Core **4.82.173**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.52**, Core **4.82.174**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 
@@ -26,7 +26,7 @@ Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan
 
 ## Nachweis P09 Entfernen/Wiederherstellen .47
 
-Integration läuft auf **13.82.168.51**, Core **4.82.173**, Quelle **8eeba9ada79488760fc55d0de042c107630a7002**, Worker **020f04e8-677c-4027-8cbb-0c5b1847ff38**. **214/214 Safe Regression** und **30/30 öffentliche Dateihashes** sind belegt. Gateway v161, Main-Frontend und der vorhandene Booking-Resolver 2.8.0 / Function v18 blieben unverändert; keine Function, Migration oder Secret-Änderung in diesem Slice.
+Integration läuft auf **13.82.168.52**, Core **4.82.174**, Quelle **8eeba9ada79488760fc55d0de042c107630a7002**, Worker **020f04e8-677c-4027-8cbb-0c5b1847ff38**. **214/214 Safe Regression** und **30/30 öffentliche Dateihashes** sind belegt. Gateway v161, Main-Frontend und der vorhandene Booking-Resolver 2.8.0 / Function v18 blieben unverändert; keine Function, Migration oder Secret-Änderung in diesem Slice.
 
 Geplante Places werden erst nach einer lesbaren Vorschau entfernt. Diese nennt Termin und Dauer sowie die getrennt erhaltenen Ortsdetails, Favoriten und Booking-Fakten. Der Recovery-Beleg liegt im bestehenden Places-Owner-Datensatz und bleibt nach einem Reload sichtbar. Wiederherstellen liest den aktuellen Owner-Stand erneut, prüft Revision, Tageskonflikte und Booking-Gate und schreibt erst nach einer weiteren Bestätigung. Wiederholte Befehle liefern dasselbe fachliche Ergebnis.
 

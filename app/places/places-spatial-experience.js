@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.1-provider-partial-continuity';
+  const VERSION='1.31.2-filter-budget-truth';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -158,7 +158,7 @@
     return filteredResults(source);
   }
   function publicRuntime(filteredCount=filteredResults().length){
-    const filteredEmpty=state.status==='ready'&&state.results.length>0&&filteredCount===0;
+    const filteredEmpty=state.status==='ready'&&filteredCount===0;
     return{status:state.offline?'offline':filteredEmpty?'empty':state.status,loading:state.status==='loading',offline:state.offline,error:state.error,settled:['ready','empty','error','offline'].includes(state.status)};
   }
   function model(){const places=ensureVisibleFitResults();return COMPOSITION().compose({sourceContract:'places.v1',categories:state.categories,places,visibleLimit:state.visibleLimit,runtime:publicRuntime(places.length)})}
@@ -400,7 +400,7 @@
         return search({query,category,focus:false,silent:true,preserveMap,replaceCategory,_retriedRateLimit:true});
       }
       // After a category switch, never keep foreign-category pins from the previous search.
-      if(state.results.length&&!categoryChanged&&!replaceCategory){
+      if(filteredResults(state.results).length&&!categoryChanged&&!replaceCategory){
         state.status='ready';
         state.error=null;
         const mapHost=state.root?.querySelector?.('[data-places-map]');
