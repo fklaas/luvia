@@ -52,7 +52,8 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const entry=savedCache.get(ctx.recovery.cacheKey());entry.savedAt='2020-01-01';assert.equal(ctx.recovery.loadCached(),false,'expired data cannot claim current coverage');entry.savedAt=new Date().toISOString();
  st.filters.cuisines=['italian_restaurant'];st.results=[row('geoapify:filtered')];ctx.recovery.saveCached();assert.equal(entry.results[0].name,'geoapify:cached','a filtered result must not overwrite the default destination cohort');st.filters.cuisines=[];
  st.results=[row('google-legacy')];ctx.recovery.saveCached();assert.equal(savedCache.get(ctx.recovery.cacheKey()).results[0].name,'geoapify:cached','cache must not absorb other provider content');
- st.category='food';st.query='Legacy food cache phrase';st.results=[row('geoapify:food-cohort')];st.status='ready';st.lastSearchAt=new Date().toISOString();assert.equal(ctx.recovery.rememberCategoryCohort(),true);
+ entry.category='food';entry.savedAt=new Date(Date.now()-30*60*1000).toISOString();st.results=[];assert.equal(ctx.recovery.loadCached(),true,'a provider cache within the 24-hour recovery window remains usable');assert.equal(ctx.recovery.rememberCategoryCohort(),true,'a cache shown now starts a fresh in-session continuity window');
+ st.query='Legacy food cache phrase';st.results=[row('geoapify:food-cohort')];st.status='ready';st.lastSearchAt=entry.savedAt;assert.equal(ctx.recovery.rememberCategoryCohort(),true);
  st.category='shopping';st.query='Shopping';st.results=[{...row('geoapify:shopping-cohort'),primaryType:'store',types:['store']}];
  assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'returning to a recent category restores its exact destination cohort even when an older cache used different default copy');
  assert.equal(st.results[0].name,'geoapify:food-cohort');assert.equal(st.status,'ready');

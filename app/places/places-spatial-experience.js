@@ -124,7 +124,7 @@
       state.category=clean(cached.category)||state.category;
       state.results=decoratePreferences(usable.slice(0,MAX_RESULTS),state.trip);
       state.searchRadiusMeters=cached.searchRadiusMeters===5000?5000:0;
-      state.query=clean(cached.query)||state.query;state.category=clean(cached.category)||state.category;
+      state.query=clean(cached.query)||state.query;
       state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cached.savedAt;
       state.status=state.offline?'offline':'ready';return true;
     }catch{return false}
@@ -139,15 +139,15 @@
   function categoryCohortKey(category=state.category){return JSON.stringify({scope:cacheScope(),category:clean(category),radius:state.searchRadiusMeters===5000?5000:0})}
   function rememberCategoryCohort(){
     if(state.activeViewport||state.userQuery||activeFilterCount()||!state.results.length||!['ready','loading'].includes(state.status))return false;
-    const key=categoryCohortKey(),savedAt=state.lastSearchAt||new Date().toISOString();
-    state.categoryCohorts.set(key,{results:state.results.slice(0,MAX_RESULTS),savedAt,preferenceResolution:state.preferenceResolution,aiDecision:state.aiDecision});
+    const key=categoryCohortKey(),savedAt=new Date().toISOString();
+    state.categoryCohorts.set(key,{results:state.results.slice(0,MAX_RESULTS),savedAt,sourceSavedAt:state.lastSearchAt||savedAt,preferenceResolution:state.preferenceResolution,aiDecision:state.aiDecision});
     while(state.categoryCohorts.size>24)state.categoryCohorts.delete(state.categoryCohorts.keys().next().value);
     return true;
   }
   function restoreCategoryCohort(category,query){
     const key=categoryCohortKey(category,query),cohort=state.categoryCohorts.get(key),age=Date.now()-Date.parse(cohort?.savedAt||'');
     if(!cohort||!Number.isFinite(age)||age<0||age>CATEGORY_COHORT_MAX_MS||!Array.isArray(cohort.results)||!cohort.results.length){if(cohort)state.categoryCohorts.delete(key);return false}
-    state.results=decoratePreferences(cohort.results.slice(0,MAX_RESULTS),state.trip);state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cohort.savedAt;state.preferenceResolution=cohort.preferenceResolution||null;state.aiDecision=cohort.aiDecision||null;state.status='ready';state.error=null;state.readNotice='Bereits geladene Orte · Aktualisierung läuft im Hintergrund.';return true;
+    state.results=decoratePreferences(cohort.results.slice(0,MAX_RESULTS),state.trip);state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cohort.sourceSavedAt||cohort.savedAt;state.preferenceResolution=cohort.preferenceResolution||null;state.aiDecision=cohort.aiDecision||null;state.status='ready';state.error=null;state.readNotice='Bereits geladene Orte · Aktualisierung läuft im Hintergrund.';return true;
   }
   function verifiedFitScore(place){
     const fit=place?.groupFit||place?.preferenceFit||{},score=Number(fit?.score??place?.preferenceScore),coverage=Number(fit?.coverage??place?.preferenceCoverage),reasons=[...(place?.preferenceReasons||[]),...(place?.aiReasons||[]),...(place?._luviaReasons||[])].filter(Boolean);
