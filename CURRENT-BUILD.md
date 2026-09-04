@@ -1,6 +1,6 @@
 ## Visible acceptance correction — App 13.82.168.22 / Core 4.82.168
 
-M16.5 Local Places and Trip Recovery · integration-preview. Public .21 confirmed Ostseeurlaub reload, local Scharbeutz Food and exact BREEZE SPA. Final correction exposes the empty-fit status, fixes the malformed pin counter attribute, and synchronizes marker selection after cohort changes. Acceptance in progress.
+M16.5 Local Places and Trip Recovery · integration-preview. Public .21 confirmed Ostseeurlaub reload, local Scharbeutz Food and exact BREEZE SPA. Final correction exposes the empty-fit status, fixes the malformed pin counter attribute, and synchronizes marker selection after cohort changes. Public recovery acceptance: PASS. Runtime source e910f799; Worker bf58124e-df60-4a0f-aa22-bc38f0b26219 at 100%; gateway version 144 ACTIVE. Controlled regression 205/205 and public byte proof 14/14. Visible tests cover normal reload in both Trip selections, Scharbeutz category switching, empty Passend/Alle restoration, synchronized pin controls and a real zoom viewport request. This acceptance covers the reported recovery defects, not completion of the master roadmap.
 
 ## Recovery 2026-09-04 — App 13.82.168.21 / Core 4.82.168
 
