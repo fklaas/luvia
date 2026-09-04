@@ -215,6 +215,9 @@
 .lvjs-staged-actions button{min-height:44px;padding:8px 10px;border:1px solid rgba(17,47,68,.13);border-radius:14px;background:#fff;color:#17384e;font:inherit;font-size:10px;font-weight:820;cursor:pointer}.lvjs-staged-actions button.is-booking{border-color:rgba(45,155,147,.32);color:#22776f}.lvjs-staged-actions button.is-primary{border-color:transparent;background:#17384e;color:#fff}
 .lvjs-action-state{grid-column:1/-1;margin:0;padding:8px 10px;border-radius:12px;background:#f4f8f8;color:#4f6877;font-size:9px;font-weight:700;line-height:1.45}.lvjs-action-state.is-working{color:#55727b}.lvjs-action-state.is-success{background:#eef8f5;color:#24705d}.lvjs-action-state.is-error{background:#fff1ef;color:#a44444}
 .lvjs-choice-scheduler{margin-top:8px;background:#f6f9f9;box-shadow:none}.lvjs-choice-scheduler>p{min-height:0}.lvjs-card-state{font-size:9px;line-height:1.45}
+.lvjs-choice-scheduler .lvjs-choice-schedule-fields label{font-size:10px;letter-spacing:.04em}
+.lvjs-choice-scheduler .lvjs-choice-schedule-fields input{min-height:44px;font-size:16px}
+.lvjs-choice-scheduler>button.is-primary{min-height:44px;border:0;border-radius:12px;padding:10px 14px;background:var(--lvjs-category,#af7498);color:#fff;font:inherit;font-weight:700;cursor:pointer}
 
 .lvjs-provider-detail-overlay{z-index:10040!important;align-items:flex-end!important;background:rgba(12,35,48,.38)!important;backdrop-filter:blur(9px)}
 .lvjs-provider-detail-sheet{display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:min(100%,760px);max-height:min(88dvh,820px);margin:0 auto;overflow:hidden;border:1px solid rgba(17,47,68,.12);border-radius:30px 30px 0 0;background:#fbfdfd;color:#112f44;box-shadow:0 -22px 70px rgba(13,45,60,.22)}
