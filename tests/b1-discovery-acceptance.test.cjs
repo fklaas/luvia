@@ -6,7 +6,7 @@ const load=file=>vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file
 load('core/places/places-domain-contract-core.js');load('core/places/global-place-contracts.js');
 const api=ctx.LuviaGlobalPlaceContracts,domain=ctx.LuviaPlacesDomainContractCoreV1;
 const place=(id,name,features={})=>({id,providerPlaceId:id,name,types:['restaurant'],features,location:{latitude:54.0225,longitude:10.7544}});
-for(const [query,city]of [['Zeige mir Restaurants in Scharbeutz.','Scharbeutz'],['Restaurants in Bremen entdecken','Bremen'],['Show restaurants in Copenhagen','Copenhagen']]){
+for(const [query,city]of [['Zeige mir Restaurants in Scharbeutz.','Scharbeutz'],['Restaurants in Scharbeutz anzeigen · Restaurants suchen','Scharbeutz'],['Restaurants in Bremen auflisten','Bremen'],['Restaurants in Bremen entdecken','Bremen'],['Show restaurants in Copenhagen','Copenhagen']]){
  const contract=api.evidenceContract(query,'food',{},city);
  assert.equal(contract.strict,false,query+' must remain category discovery');
  assert.equal(api.accepts(place('generic','Essbar'),'food',query,{}, {evidenceContract:contract}),true);
@@ -59,6 +59,7 @@ load('app/adapters/places-discovery-adapter.js');
  assert.equal(planning.planningDay({},trip,{targetDate:'2026-08-31'},{}),'2027-06-12','stale timeline guidance cannot choose the previous year');
  assert.equal(planning.planningDay({},trip,{targetDate:'2027-06-14'},{}),'2027-06-14');
  assert.equal(planning.planningDay({targetDate:'2027-06-13'},trip,{targetDate:'2027-06-14'},{}),'2027-06-13');
+ assert.equal(planning.planningDay({targetDate:'2026-08-31'},trip,{},{}),'2027-06-12','legacy surface target date must also stay inside the current trip');
  assert.match(sheet,/name="date" type="date" required/);assert.match(sheet,/name="time" type="time" required/);
  let writes=0;const plan={},subject={id:'roof'},form={querySelector:()=>({}),reportValidity:()=>false,scrollIntoView:()=>{}};
  const review={result:{choices:[subject],input:{}},providerId:p=>p.id,schedulerFor:()=>form,scheduleFor:()=>[{place:subject,fits:true}],selectedPlaces:()=>[subject],plans:new Map(),ensurePlan:()=>plan,sync:()=>{},commitOrPropose:()=>{writes++;}};

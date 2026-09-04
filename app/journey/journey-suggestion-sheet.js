@@ -242,8 +242,7 @@ async function rankForTravelers(places,group,input,{useAI=true}={}){
 }
 function planningDay(input,trip,guidance,graph){
   const start=clean(trip.startDate||trip.start_date).slice(0,10),end=clean(trip.endDate||trip.end_date).slice(0,10);
-  if(input.targetDate)return dateValue(input.targetDate);
-  const suggested=clean(guidance.targetDate||graph.currentDay?.date).slice(0,10);
+  const suggested=clean(input.targetDate||guidance.targetDate||graph.currentDay?.date).slice(0,10);
   return dateValue(suggested&&(!start||suggested>=start)&&(!end||suggested<=end)?suggested:start);
 }
 function currentInput(input={}){
