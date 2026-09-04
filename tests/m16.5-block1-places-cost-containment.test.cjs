@@ -59,9 +59,10 @@ assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order mu
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
 assert.match(gateway,/v2\.14\.1-empty-continuity/,'gateway cache must invalidate after empty-result continuity hardening');
-assert.match(gateway,/version:'4\.35\.0-exact-selected-media'/,'gateway health version must expose provider answer truth and selected-place exact media');
+assert.match(gateway,/version:'4\.35\.1-exact-photo-endpoint'/,'gateway health version must expose provider answer truth and the dedicated selected-place photo endpoint');
 assert.match(gateway,/priority:'on_demand_exact_selected_media'/,'Foursquare media use must stay on-demand instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');
+assert.match(gateway,/photoEndpoint:'one_popular_photo_after_exact_identity'/,'one dedicated photo read is allowed only after exact identity matching');
 assert.match(gateway,/ttl>0&&!forceRefresh\?cached\(key\):null/,'forceRefresh must bypass a gateway cache hit');
 assert.match(gateway,/if\(ttl>0&&!searchEmpty\)store\(key,result,ttl\)/,'successful empty provider pages must never be cached as geographic truth');
 assert.match(gateway,/skippedEmpty:searchEmpty,forced:forceRefresh/,'cache diagnostics must disclose forced and skipped-empty reads');
