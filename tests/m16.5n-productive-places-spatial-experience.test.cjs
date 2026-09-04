@@ -209,9 +209,9 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
 assert.match(experience,/id\.startsWith\('geoapify:'\)/,'Geoapify pin previews must skip empty details round-trips that wipe names');
-assert.match(experience,/consumer:places-spatial:v3-local/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
-assert.match(css,/position:fixed/,'selected-pin preview must be viewport-fixed above the living-shell dock');
-assert.match(css,/bottom:calc\(84px \+ env\(safe-area-inset-bottom,0px\)\)/,'selected-pin preview must sit just above Heute\/Planen\/Reise\/Erinnern');
+assert.match(experience,/consumer:places-spatial:v4-surface/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
+assert.match(css,/\.lv-places-spatial__map-preview\{position:absolute/,'selected-pin preview must be contained by the map on every surface');
+assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute;bottom:12px/,'selected-pin preview must stay inside the map when the page scrolls');
 for(const forbidden of [
   'LuviaPlaceCore','LuviaPlaceEntities','LuviaPlacesDomainContractCoreV1','LuviaPlaceDetails',
   'LuviaBookingUI','LuviaBookingCore','LuviaTripContext','LuviaTripStore','LuviaSupabaseService',
@@ -260,7 +260,7 @@ assert.match(experience,/if\(state\.onRootClick\)root\.removeEventListener\?\.\(
 assert.match(experience,/candidateLimit:MAX_RESULTS,limit:MAX_RESULTS/,'the map must ask for a full Geoapify page instead of 12 pins');
 assert.match(experience,/includedTypes:selectedTypes/,'multi-select type filters must reach recommend');
 assert.match(css,/min-height:36px/,'category rows must be large enough to tap on a phone');
-assert.match(css,/bottom:calc\(84px \+ env\(safe-area-inset-bottom,0px\)\)/,'the preview card must sit just above the shell dock so it can be pulled up');
+assert.match(css,/\.lv-places-spatial__map-preview\{position:absolute;bottom:12px/,'the mobile preview card must remain inside its map container');
 assert.match(experience,/Map-first: do not fan out deep multi-query discovery/,'deep multi-query discovery must stay disabled after first useful map pins');
 assert.doesNotMatch(experience,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'fast Places map paint must not automatically start a deep multi-query provider fan-out');
 assert.doesNotMatch(experience,/enrichCards\(raw\.slice\(0,INITIAL_VISIBLE_RESULTS\)\),\s*contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'a full fast result must not automatically multiply provider searches');
@@ -269,7 +269,7 @@ assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
 assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*position:absolute[^}]*max-width:min\(420px,calc\(100% - 24px\)\)/,'desktop preview bar must stay inside the map shell');
-assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:fixed/,'mobile preview bar may leave the map shell only above the dock');
+assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute/,'mobile preview bar must remain inside the map shell');
 assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*border:2px solid transparent[^}]*conic-gradient\(from 0deg,#ef6254 0deg,#f4b34c 72deg,#2f8c73 154deg,#2c93a9 222deg,#756fa9 292deg,#a65f8f 328deg,#ef6254 360deg\) border-box/,'the selected-pin preview must carry the complete ordered Compass spectrum around its border');
 assert.match(css,/@keyframes lv-places-preview-cue-wave/,'the three preview chevrons need their own motion rather than inheriting only the preview float');
 assert.match(css,/nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper chevron must lead the staggered rise');

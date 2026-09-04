@@ -1,4 +1,8 @@
-# M16.5 Places and Stays Quality — Integration deployed — 13.82.168.27
+# M16.5 Shared Places / Stays Surface — candidate 13.82.168.28
+
+Hotels mounts the existing Places spatial consumer with accommodation configuration. Initial destination search, categories, filters, profile matching, viewport cache, pins, history and detail handling now share the same active code. The mobile preview stays within the map. Candidate acceptance pending; previous public deployment is documented below.
+
+## M16.5 Places and Stays Quality — Integration deployed — 13.82.168.27
 
 Runtime source 079d07aa3ca5d807c211d90f6f41a20eb4d4e48d. Worker 610b6d75-d8df-4017-ae0e-db235c46e08b at 100%; gateway v148 ACTIVE. Controlled regression 207/207 PASS; public bytes 15/15 match. Visible browser checks confirm the steakhouse exclusion, individual and combined filters, reset, retained active trip and shared accommodation viewport filtering. Exact evidence and limits: [Places/Stays acceptance](docs/modularization/PLACES-STAYS-ACCEPTANCE-20260904.md).
 

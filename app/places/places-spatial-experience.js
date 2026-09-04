@@ -64,6 +64,7 @@
   });
   const emptyFilters=()=>({openNow:false,rated:false,rating45:false,nearby:false,vegetarian:false,reservable:false,accessible:false,priceLevels:[],types:[],cuisines:[]});
   const CATEGORY_FILTERS=Object.freeze({
+    accommodation:Object.freeze({label:'Unterkunftsart',types:Object.freeze([['hotel','Hotel'],['apartment','Apartment'],['vacation_rental','Ferienhaus'],['hostel','Hostel'],['campground','Camping']]),subtypes:Object.freeze([]),facts:Object.freeze(['rating45','accessible'])}),
     food:Object.freeze({label:'Restaurant & Küche',types:Object.freeze([
       ['restaurant','Restaurant'],['cafe','Café'],['bar','Bar'],['bakery','Bäckerei'],['meal_takeaway','Imbiss & Take-away'],['food_court','Food Court'],['fine_dining_restaurant','Fine Dining']
     ]),cuisines:Object.freeze([
@@ -106,16 +107,16 @@
   const compassMarkup=()=>`<span class="lv-places-spatial__compass" aria-hidden="true"><img src="assets/brand/luvia-living-compass/layers/face.svg" alt=""><img class="is-needle" src="assets/brand/luvia-living-compass/layers/two-ended-needle.svg" alt=""><img src="assets/brand/luvia-living-compass/layers/hub.svg" alt=""></span>`;
 
   const state={
-    root:null,trip:null,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
+    root:null,trip:null,surface:'places',activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
     status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null
   };
 
-  function cacheKey(){return `consumer:places-spatial:v3-local:${tripId(state.trip)||'active'}`}
+  function cacheKey(){return `consumer:places-spatial:v4-surface:${state.surface}:${tripId(state.trip)||'active'}`}
   function loadCached(){
     try{
       const cached=port('OfflineCachePort')?.read(cacheKey(),null);
-      if(!cached||!Array.isArray(cached.results))return false;
+      if(!cached||!Array.isArray(cached.results)||!state.categories.some(item=>item.key===cached.category))return false;
       const usable=cached.results.filter(place=>{
         const title=clean(place?.name||place?.displayName);
         return title&&!/^(unbenannter ort|unbekannter ort|unknown place|\[object object\])$/i.test(title);
@@ -270,12 +271,13 @@
       refreshMapPreview();
     }else if(state.root)render();
   }
-  async function search({query=state.query,category=state.category,focus=true,silent=false,preserveMap=false,replaceCategory=false,_retriedRateLimit=false}={}){
+  async function search({query=state.query,userQuery=state.userQuery,category=state.category,focus=true,silent=false,preserveMap=false,replaceCategory=false,_retriedRateLimit=false}={}){
     const contract=placesContract();
     const token=++state.requestToken;
     const nextCategory=categoryDefinition(category).key;
     const categoryChanged=replaceCategory||nextCategory!==state.category;
     state.mapProjection?.cancelPending?.();
+    state.userQuery=clean(userQuery);
     state.query=clean(query)||categoryDefinition(category).query;
     state.category=nextCategory;
     state.visibleLimit=MAX_RESULTS;
@@ -437,15 +439,16 @@
       <div class="lv-places-spatial__fit-toggle" role="group" aria-label="Orte nach Passung anzeigen"><button type="button" data-places-fit-mode="all" aria-pressed="${!state.fitOnly}">Alle</button><button type="button" data-places-fit-mode="fit" aria-pressed="${state.fitOnly}">Passend</button></div>
       <div class="lv-places-spatial__map-browser" data-places-map-browser ${pinBrowserHidden?'hidden':''}><button type="button" data-places-map-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b data-places-map-current>${view.counts.markers?Math.max(1,view.markers.findIndex(marker=>marker.providerPlaceId===state.selectedId)+1):0}</b>/<span data-places-map-total>${view.counts.markers}</span></span><button type="button" data-places-map-navigate="next" aria-label="Nächster Pin">→</button></div>
       <button type="button" data-places-map-tool="search" aria-label="Orte suchen" aria-pressed="${state.mapPanel==='search'}" title="Suchen">${icon('search')}</button>
-      <button type="button" data-places-map-tool="categories" aria-label="Place-Kategorie auswählen" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
+      <button type="button" data-places-map-tool="categories" aria-label="${state.surface==='accommodation'?'Unterkunftsart auswählen':'Place-Kategorie auswählen'}" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
       <button type="button" data-places-map-tool="filter" aria-label="Ergebnisse filtern${filterCount?` · ${filterCount} aktiv`:''}" aria-pressed="${state.mapPanel==='filter'}" title="Filter">${icon('filter')}${filterCount?`<span class="lv-places-spatial__map-tool-count">${filterCount}</span>`:''}</button>
       <span class="lv-places-spatial__legend-anchor"><button type="button" class="lv-places-spatial__legend-trigger" aria-label="Kartenlegende" aria-describedby="places-map-legend" title="Legende">${icon('info')}</button><span class="lv-places-spatial__legend" id="places-map-legend" role="tooltip"><b>So liest du die Karte</b><span>Die Pinfarben folgen dem vollständigen Luvia-Kompass. „Passend“ zeigt Orte mit belegten Profiltreffern. Offene Eigenschaften wie Kinderwagenzugang stehen in den Details. „Alle“ zeigt die gesamte Kategorie.</span></span></span>
     </div>`;
   }
+  function accommodationTypesMarkup(){return `<button type="button" data-places-category="accommodation" aria-pressed="${!state.filters.types.length}">Alle Unterkünfte</button>${CATEGORY_FILTERS.accommodation.types.map(([value,label])=>`<button type="button" data-places-subtype="${value}" data-places-subtype-group="types" aria-pressed="${state.filters.types.includes(value)}">${esc(label)}</button>`).join('')}`}
   function mapDiscoveryPanelsMarkup(){
     return `<div class="lv-places-spatial__map-panels">
       <section class="lv-places-spatial__map-panel is-search" data-places-map-panel="search" ${state.mapPanel==='search'?'':'hidden'} aria-label="Orte suchen"><header class="lv-places-spatial__map-panel-head"><small>Suche</small><button type="button" data-places-map-panel-close aria-label="Suche schließen">×</button></header><form class="lv-places-spatial__map-query" data-places-search novalidate><label for="places-map-query">${icon('search')}<input type="search" enterkeyhint="search" id="places-map-query" name="query" aria-label="Orte suchen" value="${esc(state.userQuery)}" placeholder="Ort oder Wunsch suchen" autocomplete="off"></label></form></section>
-      <section class="lv-places-spatial__map-panel" data-places-map-panel="categories" ${state.mapPanel==='categories'?'':'hidden'} aria-label="Place-Kategorie auswählen"><header class="lv-places-spatial__map-panel-head"><small>Kategorie</small><button type="button" data-places-map-panel-close aria-label="Kategorien schließen">×</button></header><nav class="lv-places-spatial__map-categories" aria-label="Kanonische Places-Kategorien aus places.v1">${mapCategoryMarkup(model().categories)}</nav></section>
+      <section class="lv-places-spatial__map-panel" data-places-map-panel="categories" ${state.mapPanel==='categories'?'':'hidden'} aria-label="${state.surface==='accommodation'?'Unterkunftsart auswählen':'Place-Kategorie auswählen'}"><header class="lv-places-spatial__map-panel-head"><small>Kategorie</small><button type="button" data-places-map-panel-close aria-label="Kategorien schließen">×</button></header><nav class="lv-places-spatial__map-categories" aria-label="Kanonische Places-Kategorien aus places.v1">${state.surface==='accommodation'?accommodationTypesMarkup():mapCategoryMarkup(model().categories)}</nav></section>
       <section class="lv-places-spatial__map-panel is-filter" data-places-map-panel="filter" ${state.mapPanel==='filter'?'':'hidden'} aria-label="Ergebnisse filtern"><header class="lv-places-spatial__map-panel-head"><small>Filter · ${esc(categoryDefinition().label)}</small><button type="button" data-places-map-panel-close aria-label="Filter schließen">×</button></header><div data-places-filter-content>${filterMarkup()}</div></section>
     </div>`;
   }
@@ -592,9 +595,9 @@
     const renderToken=++state.renderToken;
     destroyMap();
     const view=model();
-    state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="Luvia Places" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
+    state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="${state.surface==='accommodation'?'Luvia Unterkünfte':'Luvia Places'}" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
       <header class="lv-places-spatial__heading">
-        <div class="lv-places-spatial__heading-copy"><h1>Was möchtet ihr heute entdecken?</h1><p>Belegte Orte im sichtbaren Kartenausschnitt · <button type="button" data-view="bookings">Buchungen ansehen</button></p></div>
+        <div class="lv-places-spatial__heading-copy"><h1>${state.surface==='accommodation'?'Wo möchtet ihr übernachten?':'Was möchtet ihr heute entdecken?'}</h1><p>Belegte Orte im sichtbaren Kartenausschnitt · <button type="button" data-view="bookings">Buchungen ansehen</button></p></div>
       </header>
       <div class="lv-places-spatial__canvas">
         <section class="lv-places-spatial__map" data-place-map-shell aria-label="Geografisch genaue Luvia-Karte">
@@ -887,7 +890,7 @@
     const selected=navigationPlaces.find(place=>providerId(place)===selectedId)||places.find(place=>providerId(place)===selectedId)||findPlace(selectedId);
     if(!selected){notify('Dieser Ort ist nicht mehr Teil der aktuellen Karte. Bitte die Suche neu laden.','info');return null}
     const selectedIndex=Math.max(0,navigationPlaces.findIndex(place=>providerId(place)===providerId(selected)));
-    return{places:[selected],selectedId:providerId(selected),trip:state.trip,query:state.query,source:'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],navigation:{index:selectedIndex,count:navigationPlaces.length},onNavigate:direction=>{if(navigationPlaces.length<2)return;const delta=direction==='previous'?-1:1,index=(selectedIndex+delta+navigationPlaces.length)%navigationPlaces.length,next=navigationPlaces[index];select(providerId(next),false,false);rememberViewed(next);openResultSheet(navigationPlaces,providerId(next))},onSelectionChange:id=>select(id,false,false)};
+    return{places:[selected],selectedId:providerId(selected),trip:state.trip,query:state.query,source:state.surface==='accommodation'?'hotel-map':'places-search',targetDate:planningDate(),reasons:[categoryDefinition().label,state.query],navigation:{index:selectedIndex,count:navigationPlaces.length},onNavigate:direction=>{if(navigationPlaces.length<2)return;const delta=direction==='previous'?-1:1,index=(selectedIndex+delta+navigationPlaces.length)%navigationPlaces.length,next=navigationPlaces[index];select(providerId(next),false,false);rememberViewed(next);openResultSheet(navigationPlaces,providerId(next))},onSelectionChange:id=>select(id,false,false)};
   }
   function openResultSheet(places=filteredResults(),selectedId=state.selectedId,{interactive=false,origin=null}={}){
     const input=resultSheetInput(places,selectedId);if(!input)return null;
@@ -1076,15 +1079,17 @@
     state.preferenceHandlers=['luvia:user-preferences-changed','luvia:identity.preferences.changed','luvia:profile-changed','luvia:trip-preferences-projected'].map(name=>{globalThis.addEventListener?.(name,refresh);return{name,refresh}});
   }
 
-  async function mount(root,trip){
+  async function mount(root,trip,{surface='places'}={}){
     if(!root)throw new TypeError('Places Spatial Experience benötigt ein Mount-Ziel.');
     unmount();
     const lifecycleToken=state.lifecycleToken;
-    state.root=root;state.trip=trip;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=preferenceContext()?.consumeDraft?.()||null;
+    state.surface=surface==='accommodation'?'accommodation':'places';state.category=state.surface==='accommodation'?'accommodation':'food';state.query=state.surface==='accommodation'?'Unterkünfte':'Restaurant';
+    state.root=root;state.trip=trip;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
     if(state.planningDraft?.query){state.userQuery=clean(state.planningDraft.query);state.query=state.userQuery}
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
-    state.categories=COMPOSITION().normalizeCategories(contract.reads.categories()).filter(category=>category.key!=='accommodation'&&category.primaryType!=='accommodation');
+    const categories=COMPOSITION().normalizeCategories(contract.reads.categories());
+    state.categories=state.surface==='accommodation'?categories.filter(category=>category.key==='accommodation'):categories.filter(category=>category.key!=='accommodation'&&category.primaryType!=='accommodation');
     const networkPort=port('NetworkPort');
     state.offline=networkPort?.isOnline?.()===false;
     loadCached();
@@ -1102,7 +1107,8 @@
     if(!state.offline)search({focus:false});
     return true;
   }
-  function unmount(){
+  function unmount(root=null){
+    if(root&&state.root!==root)return false;
     state.lifecycleToken++;
     state.renderToken++;
     state.requestToken++;
@@ -1118,7 +1124,7 @@
     if(state.root)state.root.innerHTML='';
     state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.saved.clear();
   }
-  function diagnostics(){return{version:VERSION,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
+  function diagnostics(){return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
   globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,viewportSearch,decoratePreferences,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

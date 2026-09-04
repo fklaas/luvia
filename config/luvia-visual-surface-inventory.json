@@ -4,13 +4,13 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3169,
-    "visualCandidates": 956,
+    "trackedFiles": 3171,
+    "visualCandidates": 957,
     "activeEntryReferences": 307,
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 65,
-      "bytes": 1610913,
+      "bytes": 1610815,
       "lines": 11256,
       "important": 3870,
       "literalHexColours": 4198,
@@ -603,7 +603,7 @@
         "active-entry-reference"
       ],
       "bytes": 111921,
-      "sha256": "a34fafcf86410b7b5c3af6cd0bf93d6b9e22a8cff6f5277a831677afcc98d422"
+      "sha256": "4e90a9c5b5b5b5161c37d1f55a58d83da6c3fb79ca2781b8652b8313dbcc092f"
     },
     {
       "path": "app/booking/booking-management-sheet.css",
@@ -879,7 +879,7 @@
         "active-entry-reference"
       ],
       "bytes": 1409,
-      "sha256": "b5f7009f62d34b61c17a184cf26b1d081bbb2761dd753a9d788ecd8bde8ab3bb"
+      "sha256": "0f6fe50651b5ee88c052cde20b9280bda41974e2f2c0bb0679b7662eb055633d"
     },
     {
       "path": "app/luvia-runtime-postcontext-13.82.121.bundle.js",
@@ -1437,8 +1437,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 3011827,
-      "sha256": "34354acec652c89b5dc9cf2b1f45722880352c5a9a2f44f700eb65bf45d54847"
+      "bytes": 3013843,
+      "sha256": "93948f8a722391aaaf7a8675bba894cd97d886cea4a17cbd22f8f9d338e3e5cd"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -1997,7 +1997,7 @@
         "overlay-source"
       ],
       "bytes": 409573,
-      "sha256": "77b704a1f3e2eecba5c5a234339cb4856dce9436021f4c6f15c1f7aba56dd720"
+      "sha256": "16461052c46a71600e49670c7cf02096cae6c76d0b88f06d8b44f786aafd7df8"
     },
     {
       "path": "app/memories/premium-memories-experience.css",
@@ -2164,8 +2164,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 80510,
-      "sha256": "d4f0863aa4516627c96fbbae2a24e4cf4accd79dc594a3cffdf175699ad351ec"
+      "bytes": 80412,
+      "sha256": "77c5f0ae6b7ef9603931cb076969e23947bef943cedd7cf07378b151f3400071"
     },
     {
       "path": "app/places/places-spatial-experience.js",
@@ -2178,8 +2178,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 99523,
-      "sha256": "53c86aeddd0271aad52b3c024292121aedcde2235bc24f783cad69652bf8aa07"
+      "bytes": 101226,
+      "sha256": "904a16a93d61f91a2f2f74912d1d5ea1639a1866f96a0fd3c127adf969027846"
     },
     {
       "path": "app/product-module-manifests.js",
@@ -3444,7 +3444,7 @@
         "active-entry-reference"
       ],
       "bytes": 6981,
-      "sha256": "62f9d85f02c790e74518a8cc00f2f7339d8e52412caa7a4e2f333ad01cadb1db"
+      "sha256": "42f33abc60dc9275595979bcfc09376689412bda0257485b187044ac838c4877"
     },
     {
       "path": "core/diagnostics/product-module-diagnostics.js",
@@ -4793,7 +4793,7 @@
         "document-entry"
       ],
       "bytes": 1611,
-      "sha256": "094c275861332fda26ed6d26df02e060451418222468c199bfe4f2bbdee4e7d3"
+      "sha256": "b1fb221a24ff1d8a2c4ce844b04079f698bf8df940ee6d93b8e25ed197f58ebe"
     },
     {
       "path": "fotospot-alexandre.webp",
@@ -4884,7 +4884,7 @@
         "document-entry"
       ],
       "bytes": 31537,
-      "sha256": "97cd3490a313f0179c851502ab32d089e455ac2ee696f9b53a78f48d487c4741"
+      "sha256": "7eda0e9d30ca5bbb6bd53e53a7e364fb9d61d97f81a29f3683ef26fb909e0f9b"
     },
     {
       "path": "intelligence/backend-console.css",
@@ -5110,7 +5110,7 @@
         "active-entry-reference"
       ],
       "bytes": 305,
-      "sha256": "8219836190fc0fa7cee7dc8a30012f712069fc3a5bcc7aaf08f7c76c79d16a99"
+      "sha256": "837985cd170de600f16722f58c1924c5c14a6e534e6bf9b9f278c598a55bed9c"
     },
     {
       "path": "intelligence/permission-test.js",
@@ -5419,7 +5419,7 @@
         "active-entry-reference"
       ],
       "bytes": 1765,
-      "sha256": "24f7b2c01ce98f06c593e76c81dc0f0932409d617d72468444b905992d78b1e8"
+      "sha256": "ee9b712f21fa1e1eb7ed11117b8c439214e895b0f993e8f92d2ed979171552b0"
     },
     {
       "path": "luvia-v7-enhancements.js",
@@ -5621,8 +5621,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 54338,
-      "sha256": "47ea400b3b77978f9134479f764a08b08d4b1bcf62c5f08819f7d57f8f1eb123"
+      "bytes": 54651,
+      "sha256": "4cc643584619e1469a400fe2c9aae3fbcb8cb2a38b4fe44908681738e7873d09"
     },
     {
       "path": "modules/apps.html",
@@ -6679,7 +6679,7 @@
         "overlay-source"
       ],
       "bytes": 16538,
-      "sha256": "7e14b38c6a16000837478a0955284326303a947e46a21ff70b9457e13dc75f44"
+      "sha256": "b8a1349d17bee409fdcc956ac58f45fc32567b4eef42672b91cf89607b5591f4"
     },
     {
       "path": "sync/budget.js",
@@ -7263,7 +7263,7 @@
         "overlay-source"
       ],
       "bytes": 11762,
-      "sha256": "4e4a54e00a88b453cf2721f735bd433ca3bd48188d3681735d90076206838cd5"
+      "sha256": "2ea791f54e80edfa0cbcd2d88aaf738055c4e47315e256d698425a155b068f44"
     },
     {
       "path": "tests/m13.1-memory-core-contract-foundation.test.cjs",
@@ -7283,7 +7283,7 @@
         "overlay-source"
       ],
       "bytes": 5069,
-      "sha256": "7157018a851d5cab0d8f29064d687ce65eda6149cc41329b4d1e43c27bbd3381"
+      "sha256": "ae7a1eb4061d5c9a9e1b313d2ea922c6bf3d73f0ced2737a010ae2dea32bd425"
     },
     {
       "path": "tests/m14.1-app-shell-legacy-runtime-hardening.test.cjs",
@@ -7353,7 +7353,7 @@
         "dom-rendering-source"
       ],
       "bytes": 6073,
-      "sha256": "be24e9cb3fe1a332f9c593af520d9f7719de058c052931bbf485cf6ceee3f46e"
+      "sha256": "714c9be70993c353d2cc6ae01b3c1be1ddc03971cbfad8a9060fa38cee6d4be3"
     },
     {
       "path": "tests/m15.4-intelligence-action-runtime.test.cjs",
@@ -7854,7 +7854,7 @@
         "visual-source-candidate"
       ],
       "bytes": 3437,
-      "sha256": "03a9334ca94b89a25be5eaaec0963de2c59a0aa30a09ac2c6f037d7413c90be5"
+      "sha256": "ac0559a2abfb57ded18f0828fb1ea339be8403e5d9b7ba0bebb0b4d7720b4221"
     },
     {
       "path": "tests/m16.5-visual-surface-inventory.test.cjs",
@@ -7862,7 +7862,7 @@
         "motion-source"
       ],
       "bytes": 2381,
-      "sha256": "6065ee0ca6c15b42958f7152b4a0987d34f20f388b6b8cf4b54a9072620a0d7e"
+      "sha256": "ab7b030d2052020238642f6ddc022cdfc2a7b67fe87f4a40b79e99b4252de52c"
     },
     {
       "path": "tests/m16.5aa-compass-direction-activation.test.cjs",
@@ -7909,7 +7909,7 @@
         "overlay-source"
       ],
       "bytes": 7250,
-      "sha256": "d3b208345f660a377476bc538a85f4193d6888c2489e7bb30cadbd571ff25c9a"
+      "sha256": "f2e6c1a35c4156ecf6a9cc3cde54adb895d53eb1c37ea1bd8e7023b752629ecc"
     },
     {
       "path": "tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs",
@@ -8045,7 +8045,7 @@
         "navigation-source"
       ],
       "bytes": 5451,
-      "sha256": "5812b8fa935f8fc5a4b6ed0cbf12cf0645afdc10064cc99fc4fa011299bb02b2"
+      "sha256": "993c7b0df81e401996d82c1439f617bad1b0153010b528eb7aa9b50748e57bae"
     },
     {
       "path": "tests/m16.5h-accepted-living-shell-adoption.test.cjs",
@@ -8083,7 +8083,7 @@
         "navigation-source"
       ],
       "bytes": 3701,
-      "sha256": "74c429194c5377d1293b308fa9699b873dbef2199acad156bb8200c32ec53378"
+      "sha256": "4c960078e68c1293b3722bdc37a1b9ac1829d86c89704dda5a0320c9144d32a1"
     },
     {
       "path": "tests/m16.5n-places-coordinate-projection-hardening.test.cjs",
@@ -8103,8 +8103,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 42416,
-      "sha256": "daad55617eb709011e4197aab3f3bc94153aad0beca6f6b8bbcfdde16a7804a7"
+      "bytes": 42465,
+      "sha256": "d3436abb2454f668de635f2ae4d9c9fe105ad02404b6e9330391dcf35132ff66"
     },
     {
       "path": "tests/m16.5p-productive-places-runtime-release.test.cjs",
@@ -8112,7 +8112,7 @@
         "visual-source-candidate"
       ],
       "bytes": 3862,
-      "sha256": "34e71c797aa3728004be68c9100228a0d80a5b1680baacb57703e64dd57f9ac4"
+      "sha256": "9d270ab369fa6b8fee5e22b65070381d4c05f18e6b45f169c3e37c3e0ee2bb93"
     },
     {
       "path": "tests/m16.5q-living-compass-recovery-e2e.cjs",
@@ -8138,7 +8138,7 @@
         "overlay-source"
       ],
       "bytes": 25912,
-      "sha256": "36e36eb045884d08159b2014e2722638c83d00f754e59a79c0ce0cc917cef550"
+      "sha256": "997b02fb4a1625a0ab73522ebe8decc9caf82f2d8a37bbaee13be37291ab535f"
     },
     {
       "path": "tests/m16.5q-pwa-cache-recovery-e2e.cjs",
@@ -8165,7 +8165,7 @@
         "overlay-source"
       ],
       "bytes": 3507,
-      "sha256": "34c762ff27cbc8e5bfb4b31ba52d4638db1f0343b7af970834d86cd5ec17df23"
+      "sha256": "5636327bdd9188daad471f965aa8514de173fcfd71b9be8f2c216de964d267fa"
     },
     {
       "path": "tests/m16.5s-landing-auth-scope-lock.test.cjs",
@@ -8185,7 +8185,7 @@
         "overlay-source"
       ],
       "bytes": 10209,
-      "sha256": "7cf25315df95587ff2863d1e23159a23a8202a54073881d4f7c9eb65b34fecfa"
+      "sha256": "0e993674a36a02402e29bfb58a1a9efb233513d9b60557f3b97376cd19024b92"
     },
     {
       "path": "tests/m16.5t-public-landing-e2e.cjs",
@@ -8206,7 +8206,7 @@
         "motion-source"
       ],
       "bytes": 3757,
-      "sha256": "173c66c1c799e9fae1b4dd9f283a540819c41798c648b9f0740ed9e81ac7b10d"
+      "sha256": "377c1e41eff8ee5e5684df304eb8ddb51798b2be2239f61e9780486296509848"
     },
     {
       "path": "tests/m16.5v-shell-warm-start-profile-header-release.test.cjs",
@@ -8234,7 +8234,7 @@
         "visual-source-candidate"
       ],
       "bytes": 2380,
-      "sha256": "423fc1b8a748ff67850b314db1ed18dda1428ba3f1c1112171e663e77773a3fc"
+      "sha256": "53f55fd73e553c691e302963f13777571a55324678c4ccb978bcd4b2eff285db"
     },
     {
       "path": "tests/m16.5y-identity-compass-onboarding.test.cjs",
@@ -8245,7 +8245,7 @@
         "navigation-source"
       ],
       "bytes": 3571,
-      "sha256": "f6ba644d007e4b935de6977ad83bbb9e82c31f7d350b57f4f6c23e1858a45cd5"
+      "sha256": "6e7d53cecc27e424504e893f67812fd7556a7957c8ce3464113e9c27aa29d5e7"
     },
     {
       "path": "tests/m16.5z-first-trip-composer.test.cjs",
@@ -8355,7 +8355,7 @@
         "interaction-source"
       ],
       "bytes": 5752,
-      "sha256": "2c457a8edf1423ad9fde2cfba629caf183f0c475abb6df988efc29357daeac5e"
+      "sha256": "7aebddc5affa2d136739ee487b39f14c2698d00e48c3fcb77b2a8ec08873a026"
     },
     {
       "path": "tests/m5.1b-gallery-view-trip-contract-adoption.test.cjs",
@@ -8427,7 +8427,7 @@
         "dom-rendering-source"
       ],
       "bytes": 9295,
-      "sha256": "73e760d78309b6f7bb31fad58db2a2a1c6e326337b8bbe641a3ea6c7b86e610d"
+      "sha256": "5d1537503a02538d3d63d45cf788a02832a89f2caf8fb242609fa37ce364be3f"
     },
     {
       "path": "tests/m5.4-final-web-compatibility-boundary.test.cjs",
@@ -8743,8 +8743,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 10347,
-      "sha256": "3deb0ffa9a74bed237aad9ecb8f78e25da0deb83945ac375e2c1e9cfdb9a3092"
+      "bytes": 10511,
+      "sha256": "2961ebea52adec351e0aba7d6598c8d2a9a1e31e6e43d089ffcf46beaba81170"
     },
     {
       "path": "tests/places-foundation-reliability-v13.26.1.test.cjs",
@@ -8850,8 +8850,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 29057,
-      "sha256": "04efbff1b72be80a779f83fc472f32c80ce08547db9769fd25aec919ef75a7e6"
+      "bytes": 29080,
+      "sha256": "f31af7adb0718f0f85817900ad05fbb3df202839542b1ace84aee5adba7f66cc"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
@@ -8868,6 +8868,15 @@
       ],
       "bytes": 2304,
       "sha256": "c39326842ba9a57a1d9cc0d707c1f39db69dc7a04e1ebb8f7e2de60736489ab6"
+    },
+    {
+      "path": "tests/stays-shared-spatial.test.cjs",
+      "classes": [
+        "dom-rendering-source",
+        "motion-source"
+      ],
+      "bytes": 3441,
+      "sha256": "3fcc53c80bf3a323e6e75a58bd20ab93ead9d4579598b435262074cad2d212e6"
     },
     {
       "path": "tests/transport-intelligence.test.cjs",
@@ -9011,7 +9020,7 @@
         "visual-source-candidate"
       ],
       "bytes": 1854,
-      "sha256": "5ece0c68391049abcd60b0e2d667a799150a0d92e1bcf63fec0a044ef057d526"
+      "sha256": "c586a441bd28e268bc156a23e060f6e5430c108f3c6fad3631bc0bdd78412de1"
     },
     {
       "path": "tests/v13.70.1-conversion-runtime-view-migration-fix.test.cjs",

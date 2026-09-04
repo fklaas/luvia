@@ -1,0 +1,26 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const read=p=>fs.readFileSync(p,'utf8');
+const requests=[],cacheKeys=[],categories=[{key:'food',label:'Essen & Trinken',primaryType:'restaurant',query:'Restaurant',includedTypes:['restaurant']},{key:'accommodation',label:'Unterkünfte',primaryType:'accommodation',query:'Unterkünfte',includedTypes:['lodging']}];
+const root=()=>({isConnected:true,className:'',innerHTML:'',style:{setProperty(){}},querySelector(){return null},querySelectorAll(){return[]},addEventListener(){},removeEventListener(){}});
+const ctx=vm.createContext({console,Date,Map,Set,Promise,setTimeout,clearTimeout,requestAnimationFrame(){},addEventListener(){},removeEventListener(){},document:{documentElement:{classList:{contains(){return false}}}}});ctx.window=ctx;
+ctx.LuviaPlatformPorts={get:id=>id==='OfflineCachePort'?{read:key=>{cacheKeys.push(key);return{category:'food',query:'Restaurant',results:[{id:'bad-cache',name:'Steakhouse',types:['restaurant']}]};},write(){}}:null};
+ctx.LuviaPlacesContractV1={reads:{categories:()=>categories,listSaved:async()=>[],recommend:async request=>{requests.push(request);return{places:[]}}}};
+for(const file of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js','app/places/places-spatial-experience.js','modules/accommodations/accommodation-module.js'])vm.runInContext(read(file),ctx);
+const trip={id:'trip-a',destinationName:'Scharbeutz',destinationLat:54.0224961,destinationLng:10.7544158};
+(async()=>{
+ const stays=root();await ctx.LuviaAccommodations.mount({roots:[stays]},{trip});await Promise.resolve();
+ assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().surface,'accommodation');
+ assert.equal(requests.length,1,'one shared initial discovery; no competing Hotel or live-offer search');
+ assert.equal(requests[0].category,'accommodation');assert.equal(requests[0].maxDistanceMeters,3000);assert.equal(requests[0].destination.location.latitude,trip.destinationLat);
+ assert.equal(requests[0].userQuery,'');assert.deepEqual(Array.from(requests[0].providers),['geoapify']);
+ assert.match(stays.innerHTML,/Wo möchtet ihr übernachten/);assert.match(stays.innerHTML,/data-places-map/);assert.match(stays.innerHTML,/data-places-history-region/);
+ assert.doesNotMatch(stays.innerHTML,/hotel-hero|hotel-stay|Wann und für wen|Geplante Aufenthalte|Steakhouse/);
+ const normal=root();await ctx.LuviaPlacesSpatialExperience.mount(normal,trip);await Promise.resolve();
+ assert.equal(requests.at(-1).category,'food');assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().surface,'places');
+ ctx.LuviaAccommodations.unmount();assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().status,'mounted','late Hotel cleanup cannot unmount a newer Places root');
+ assert.notEqual(cacheKeys[0],cacheKeys.at(-1),'Places and Stays cannot reuse each other’s cached cohort');
+ ctx.LuviaPlacesSpatialExperience.unmount();
+ const css=read('app/places/places-spatial-experience.css');assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute/);assert.doesNotMatch(css,/\.lv-places-spatial__map-preview\{position:fixed/);
+ console.log('Shared Stays/Places mount, destination query, cache isolation, lifecycle and mobile map containment: PASS');
+})().catch(e=>{console.error(e);process.exitCode=1});

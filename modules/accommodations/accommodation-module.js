@@ -2,7 +2,7 @@
 const MODULE_ID='accommodations',VERSION='5.3.0-contextual-filters-history';
 const PLACE_CONFORMANCE_MARKERS=Object.freeze(['LuviaPlaceExperience.plannedPanel','LuviaPlaceExperience.discovery','LuviaPlaceCollections.favoritePanel','LuviaPlaceUI.card']);
 const QUICK=[['🏨','Entdecken','Unterkünfte'],['🏨','Hotel','Hotel'],['🏢','Apartment','Apartment'],['🏡','Ferienhaus','Ferienhaus'],['🛏️','Hostel','Hostel'],['⛺','Camping','Campingplatz']];
-const state={root:null,trip:null,query:'Unterkünfte',filter:'Unterkünfte',options:{sortBy:'relevance'},results:[],entities:[],searchMap:new Map(),routeCache:new Map(),loading:false,error:null,searchStatus:'idle',searchError:null,visibleCount:80,stayDecision:null,stayLoading:false,stayError:null,stayInput:null,searchToken:0,mapProjection:null,activeViewport:null,filterOpen:false,history:[],selectedId:null,fitOnly:false,mapPanel:null,previewGesture:null};
+const state={shared:false,root:null,trip:null,query:'Unterkünfte',filter:'Unterkünfte',options:{sortBy:'relevance'},results:[],entities:[],searchMap:new Map(),routeCache:new Map(),loading:false,error:null,searchStatus:'idle',searchError:null,visibleCount:80,stayDecision:null,stayLoading:false,stayError:null,stayInput:null,searchToken:0,mapProjection:null,activeViewport:null,filterOpen:false,history:[],selectedId:null,fitOnly:false,mapPanel:null,previewGesture:null};
 const esc=v=>window.LuviaPlaceExperience?.esc?.(v)||String(v??'');
 function placeSearchFailure(error){const code=String(error?.code||'').toUpperCase(),status=Number(error?.status)||0;if(status===429||/RATE|QUOTA|429/.test(code))return'Das Kontingent der Ortsquelle ist gerade erreicht. Bitte kurz warten oder den Provider-Tarif prüfen.';if(status===401||status===403||/AUTH|SESSION|PERMISSION|401|403/.test(code))return'Die Berechtigung für die primäre Ortssuche muss geprüft werden.';if(/PLACES_ALL_PROVIDERS_FAILED|PROVIDER_READ_INCOMPLETE/.test(code))return'Keine verbundene Ortsquelle konnte diese Suche beantworten.';return'Die Verbindung zur Ortssuche ist gerade nicht verfügbar. Bitte erneut versuchen.'}
 const tripContract=()=>window.LuviaTripContractV1||window.LuviaTripContract||null;
@@ -72,7 +72,7 @@ function hotelResults(){if(['ready','empty'].includes(state.searchStatus)&&!stat
 function compactPlan(){const items=scheduledItems(),favorites=state.entities.filter(e=>link(e).is_favorite===true);return `<section class="hotel-compact-sections"><details${items.length?' open':''}><summary><span><b>Geplante Aufenthalte</b><small>${items.length?`${items.length} ${items.length===1?'Eintrag':'Einträge'}`:'Noch kein Eintrag'}</small></span></summary><div class="hotel-compact-list">${items.slice(0,4).map(item=>`<button type="button" data-place-schedule="${esc(item.id)}"><strong>${esc(item.title)}</strong><span>${esc(item.time)}</span></button>`).join('')||'<p>Eine Unterkunft könnt ihr über „Details“ zur Timeline hinzufügen.</p>'}</div></details><details><summary><span><b>Gemerkt</b><small>${favorites.length?`${favorites.length} ${favorites.length===1?'Unterkunft':'Unterkünfte'}`:'Noch nichts gemerkt'}</small></span></summary><div class="hotel-compact-list">${favorites.slice(0,6).map(item=>`<button type="button" data-place-card-open="saved:${esc(link(item).id)}"><strong>${esc(place(item).name||'Unterkunft')}</strong><span>Details und Planung öffnen</span></button>`).join('')||'<p>Merkt interessante Unterkünfte, um sie später zu vergleichen.</p>'}</div></details></section>`}
 function filteredHotelRows(rows=[]){const filtered=rows.filter(p=>(!hotelSubtype()||(p.types||[]).includes(hotelSubtype()))&&(!state.options.minRating||Number(p.rating)>=Number(state.options.minRating))&&(!state.options.minUserRatingCount||Number(p.userRatingCount||p.user_rating_count)>=Number(state.options.minUserRatingCount))&&(!state.options.accessibleOnly||p.accessibilityOptions?.wheelchairAccessibleEntrance===true));return state.options.sortBy==='rating'?filtered.sort((a,b)=>Number(b.rating||0)-Number(a.rating||0)||Number(b.userRatingCount||0)-Number(a.userRatingCount||0)):filtered}
 function render(){
-  if(!state.root)return;
+  if(state.shared||!state.root)return;
   state.mapProjection?.destroy?.();state.mapProjection=null;
   state.previewGesture?.destroy?.();state.previewGesture=null;
   window.LuviaPlaceCollections?.remember?.('accommodation',state.entities,tripId());
@@ -92,8 +92,9 @@ function render(){
     refreshHotelMapChrome();
   });
 }
-async function load(){try{await window.LuviaTripPlaceData?.hydrate?.(tripId());const r=await window.LuviaPlaceEntities.list({tripId:tripId(),type:'accommodation'});state.entities=(r?.data?.entities||[]).filter(e=>link(e).status!=='archived');state.error=null}catch(e){state.error=e.message||String(e)}render();hydrate(state.entities.map(place),{limit:6,details:true}).then(()=>state.root?.isConnected&&render()).catch(()=>{});hydrateFavoriteMedia().catch(()=>{})}
+async function load(){if(state.shared)return;try{await window.LuviaTripPlaceData?.hydrate?.(tripId());const r=await window.LuviaPlaceEntities.list({tripId:tripId(),type:'accommodation'});state.entities=(r?.data?.entities||[]).filter(e=>link(e).status!=='archived');state.error=null}catch(e){state.error=e.message||String(e)}render();hydrate(state.entities.map(place),{limit:6,details:true}).then(()=>state.root?.isConnected&&render()).catch(()=>{});hydrateFavoriteMedia().catch(()=>{})}
 async function search(query=state.query,options=state.options){
+  if(state.shared)return window.LuviaPlacesSpatialExperience.search({query,userQuery:QUICK.some(item=>item[2]===query)?'':query,category:'accommodation',focus:false,preserveMap:true});
   state.mapProjection?.cancelPending?.();
   const token=++state.searchToken,keepMap=Boolean(state.mapProjection&&state.root?.querySelector('[data-hotel-map]'));
   state.visibleCount=80;state.query=String(query||'Unterkünfte').trim()||'Unterkünfte';state.options={sortBy:'relevance',...options};state.loading=true;state.searchStatus='loading';state.searchError=null;
@@ -170,8 +171,17 @@ function bind(){
   root.onpointerover=event=>{const card=event.target.closest('[data-place-card-open^="result:"]');if(card){const {id}=cardReference(card.dataset.placeCardOpen);if(id)window.LuviaPlaceDetails?.prefetch?.([id],{regionCode:'DE'})}};
   root.onfocusin=root.onpointerover;
 }
-async function mount(instance,context={}){state.root=instance?.roots?.[0]||document.querySelector('#accommodations-module');state.trip=context.trip||instance?.trip||tripContract()?.getActiveTrip?.()||null;state.stayInput=tripStayInput();state.stayDecision=null;state.stayError=null;state.options={sortBy:'relevance'};state.filterOpen=false;state.history=[];state.selectedId=null;state.fitOnly=false;state.mapPanel=null;state.activeViewport=null;render();await load();const tasks=[];if(!state.results.length&&!window.LuviaDiscoveryContracts?.pendingFor?.('accommodations'))tasks.push(search('Unterkünfte',state.options));if(state.stayInput.checkIn&&state.stayInput.checkOut)tasks.push(searchStayOffers(state.stayInput));await Promise.allSettled(tasks);return instance}
-function unmount(){state.previewGesture?.destroy?.();state.previewGesture=null;state.mapProjection?.destroy?.();state.mapProjection=null;state.root=null;state.trip=null;state.selectedId=null;state.mapPanel=null}
+// The Hotels discovery route is a configuration of the same Places consumer.
+// Legacy offer commands below remain callable; they never render the discovery page.
+async function mount(instance,context={}){
+  state.root=instance?.roots?.[0]||document.querySelector('#accommodations-module');
+  state.trip=context.trip||instance?.trip||tripContract()?.getActiveTrip?.()||null;
+  state.shared=true;state.results=[];state.entities=[];state.searchMap.clear();state.searchToken++;
+  state.root.className='luvia-stays-shared-map';state.root.onclick=null;state.root.onsubmit=null;state.root.onpointerover=null;state.root.onfocusin=null;
+  await window.LuviaPlacesSpatialExperience.mount(state.root,state.trip,{surface:'accommodation'});
+  return instance;
+}
+function unmount(){if(state.shared){window.LuviaPlacesSpatialExperience?.unmount?.(state.root);state.shared=false;}state.previewGesture?.destroy?.();state.previewGesture=null;state.mapProjection?.destroy?.();state.mapProjection=null;state.root=null;state.trip=null;state.selectedId=null;state.mapPanel=null}
 async function openPlace(payload={}){const e=state.entities.find(x=>String(link(x).id)===String(payload.tripPlaceId)||String(place(x).id)===String(payload.placeId));if(e){openHotelSheet(place(e));return true}return false}
 window.addEventListener('luvia:open-place',e=>{if(e.detail?.type==='accommodation')openPlace(e.detail)});window.addEventListener('luvia:schedule-intelligence-changed',()=>state.root&&render());window.addEventListener('luvia:trip-place-data-changed',()=>state.root&&render());window.addEventListener('luvia:place-collection-changed',e=>{if(state.root&&e.detail?.placeType==='accommodation')load()});
 window.LuviaAccommodations=Object.freeze({version:VERSION,load,search,searchStayOffers,openPlace,mount,unmount});window.LuviaModules?.register({id:MODULE_ID,order:60,group:'Places',icon:'🏨',title:'Hotels',description:'Unterkünfte mit belegten Livepreisen und exakter Angebotsidentität.',selectors:['#accommodations-module'],version:VERSION,mount,unmount});

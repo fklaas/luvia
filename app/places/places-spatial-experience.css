@@ -2308,9 +2308,9 @@
   .lv-places-spatial__map-panel .lv-places-spatial__filter-panel{display:grid;overflow:visible}
 }
 @media(max-width:420px){.lv-places-spatial__map-tools{gap:0;padding:2px}.lv-places-spatial__map-tools .lv-places-spatial__fit-toggle button{min-width:24px;padding:0 4px;font-size:7px}.lv-places-spatial__map-tools .lv-places-spatial__map-browser button{min-width:21px;padding:0 3px}.lv-places-spatial__map-tools .lv-places-spatial__map-browser span{min-width:28px}.lv-places-spatial__map-tools>button,.lv-places-spatial__legend-trigger{width:26px;height:27px}}
-/* Preview sits just above Heute/Planen/Reise/Erinnern — greifbar, nicht mittig auf der Karte. */
-@media(max-width:800px){.lv-places-spatial__map-preview{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));left:10px;right:10px;max-width:none;margin-inline:0;z-index:39}}
-@media(max-width:390px){.lv-places-spatial__map-preview{bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
+/* Preview belongs to the map on every surface, including mobile scrolling. */
+@media(max-width:800px){.lv-places-spatial__map-preview{position:absolute;bottom:12px;left:10px;right:10px;max-width:none;margin-inline:0;z-index:24}}
+@media(max-width:390px){.lv-places-spatial__map-preview{bottom:12px}}
 @media(prefers-reduced-motion:reduce){.lv-places-spatial__map-panel{animation:none}.lv-places-spatial__legend{transition:none}.lv-places-spatial__map-preview,.lv-places-spatial__map-preview-cue i,.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"])::before{animation:none}.lv-places-spatial__map-preview{translate:none}}
 
 .lv-category-image { display:grid;place-content:center;justify-items:center;gap:8px;width:100%;min-height:110px;background:#f0f4f4;color:#637b83; }
