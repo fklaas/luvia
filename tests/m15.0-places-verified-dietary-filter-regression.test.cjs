@@ -43,7 +43,7 @@ assert.match(discoveryAdapter,/candidateLimit=Math\.min\(60,Math\.max\(20,/,'can
 assert.match(discoveryAdapter,/minimumQueryVariants=Math\.min\(queryLimit,Math\.max\(1,Number\(diversity\.minimumQueryVariants\|\|3\)\)\)/,'deep discovery must sample at least three semantic provider queries before settling');
 assert.match(discoveryAdapter,/diversityTarget=Math\.min\(candidateLimit,Math\.max\(requestedLimit,Number\(diversity\.targetCandidates\)\|\|Math\.max\(requestedLimit\*3,requestedLimit\+6\)\)\)/,'candidate breadth must exceed the visible card count so repeated top results can be rotated out');
 assert.match(discoveryAdapter,/queryIndex\+1>=minimumQueryVariants&&hasEnoughCandidates\(\)/,'the provider cascade may settle only after both semantic breadth and the diversity pool are satisfied');
-assert.match(discoveryAdapter,/catch\(error\)\{return\{places:\[\],error,attempt:\{query,strictDestination,ok:false/,'one failing provider query must be represented as an empty failed attempt instead of rejecting the complete provider batch');
+assert.match(discoveryAdapter,/catch\(error\)\{[\s\S]*return\{places:\[\],error,attempt:\{query,strictDestination,ok:false/,'a failing provider query without eligible cached recovery remains an empty failed attempt instead of rejecting the complete provider batch');
 assert.match(discoveryAdapter,/Promise\.all\(selectedQueries\.map\(query=>providerRequest\(query,true\)\)\)/,'the explicit parallel fast path must keep provider variants failure-isolated');
 assert.match(discoveryAdapter,/plan\.queries\.slice\(0,queryLimit\)/,'query expansion must remain latency-bounded');
 

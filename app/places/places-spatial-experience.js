@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.30.0-search-intent-continuity';
+  const VERSION='1.31.0-search-error-continuity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -108,7 +108,7 @@
 
   const state={
     story:null,root:null,trip:null,surface:'places',searchRadiusMeters:0,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
+    status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null
   };
 
@@ -131,7 +131,7 @@
   }
   function saveCached(){
     // Only an unfiltered destination cohort can seed a later default mount.
-    if(state.activeViewport||state.userQuery||activeFilterCount()||!state.results.length)return;
+    if(state.activeViewport||state.userQuery||state.readNotice||activeFilterCount()||!state.results.length)return;
     const results=state.results.filter(p=>providerId(p).startsWith('geoapify:')).slice(0,MAX_RESULTS);
     if(!results.length)return;
     try{port('OfflineCachePort')?.write(cacheKey(),{scope:cacheScope(),query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results,savedAt:state.lastSearchAt||new Date().toISOString()})}catch{}
@@ -222,6 +222,7 @@
     state.requestToken++;
     clearTimeout(state.filterRefreshTimer);state.filterRefreshTimer=0;
     state.error=null;
+    state.readNotice=null;
     state.status='loading';
     refreshSearchScope();
   }
@@ -295,6 +296,7 @@
     state.category=nextCategory;
     state.visibleLimit=MAX_RESULTS;
     state.error=null;
+    state.readNotice=null;
     if(state.offline){state.status='offline';render();return false}
     if(categoryChanged)clearVisibleCategoryResults({message:`${categoryDefinition().label} wird geladen · vorherige Pins werden entfernt.`});
     else if(!silent||!state.results.length){
@@ -349,7 +351,8 @@
       state.aiDecision=response?.aiMeta||null;
       state.selectedId=providerId(state.results[0])||null;
       state.status=state.results.length?'ready':'empty';
-      state.lastSearchAt=new Date().toISOString();
+      state.readNotice=response?.plan?.attempts?.some(attempt=>attempt.stale)?'Zuletzt geladene Orte · Aktualisieren ist gerade nicht möglich.':null;
+      state.lastSearchAt=(state.readNotice?response?.plan?.attempts?.find(attempt=>attempt.stale)?.ownerObservedAt:null)||new Date().toISOString();
       saveCached();
       const keepMap=Boolean(preserveMap&&state.mapProjection)||Boolean(state.mapProjection);
       if(keepMap)updateFilteredMap();else render();
@@ -381,7 +384,13 @@
         state.selectedId=null;
         state.error={userMessage:error?.publicMessage||null,code:error?.code||'PLACES_SEARCH_FAILED',status:Number(error?.status)||null};
         state.status='error';
-        if(state.mapProjection){try{state.mapProjection.update?.([])}catch{}refreshMapPreview();refreshMapBrowser()}
+        if(state.mapProjection){
+          try{state.mapProjection.update?.([])}catch{}
+          const mapHost=state.root?.querySelector?.('[data-places-map]');
+          projectionRefreshState(mapHost,false);
+          projectionState(mapHost,'unavailable',state.error.userMessage||'Orte konnten gerade nicht geladen werden. Bitte erneut versuchen.');
+          refreshMapPreview();refreshMapBrowser();
+        }
         else render();
       }
       return false;
@@ -996,7 +1005,7 @@
   }
   function syncEmptySearchActions(node,empty){
     node.querySelector?.('[data-places-empty-actions]')?.remove();
-    const actions=empty?emptySearchActions():'';
+    const actions=state.status==='error'?'<button type="button" data-places-retry>Erneut versuchen</button>':empty?emptySearchActions():'';
     if(actions)node.insertAdjacentHTML('beforeend',`<div data-places-empty-actions>${actions}</div>`);
   }
   async function expandDestinationSearch(){
@@ -1020,6 +1029,10 @@
     if(mapHost&&state.status!=='loading'){
       projectionRefreshState(mapHost,false);
       projectionState(mapHost,rows.length?'ready':'empty',rows.length?`${rows.length} Orte · ${state.fitOnly?'Passend':'Alle'}`:state.fitOnly?'Für diese Orte ist passende Eignung noch nicht belegt. „Alle“ zeigt die übrigen Orte.':emptySearchMessage());
+      if(state.readNotice&&rows.length){
+        const notice=state.root?.querySelector('[data-places-map-message]');
+        if(notice){notice.dataset.state='unavailable';const copy=notice.querySelector('span');if(copy)copy.textContent=state.readNotice;}
+      }
     }
     const count=activeFilterCount(),button=state.root?.querySelector('[data-places-map-tool="filter"]');let badge=button?.querySelector('.lv-places-spatial__map-tool-count');
     if(button){button.setAttribute('aria-label',`Ergebnisse filtern${count?` · ${count} aktiv`:''}`);if(count&&!badge){badge=document.createElement('span');badge.className='lv-places-spatial__map-tool-count';button.append(badge)}else if(!count&&badge){badge.remove();badge=null}}
@@ -1127,7 +1140,6 @@
         notify(error?.message||'Die Timeline-Auswahl konnte gerade nicht geöffnet werden.','error');
       }
     }));
-    root.querySelectorAll('[data-places-retry]').forEach(button=>button.addEventListener('click',()=>search({focus:false})));
     root.querySelector('[data-places-more]')?.addEventListener('click',()=>showMore());
     root.querySelector('[data-places-back-plan]')?.addEventListener('click',()=>globalThis.LuviaApp?.openCompass?.('plan')||globalThis.LuviaApp?.show?.('plan'));
     root.querySelectorAll('[data-places-map-tool]').forEach(button=>button.addEventListener('click',()=>setMapPanel(button.dataset.placesMapTool,{focus:true})));
@@ -1142,6 +1154,7 @@
     bindPreviewGesture();
     if(state.onRootClick)root.removeEventListener?.('click',state.onRootClick);
     state.onRootClick=event=>{
+      if(event.target.closest?.('[data-places-retry]')){search({query:activeSearchDefinition().query,focus:false,preserveMap:true});return}
       if(event.target.closest?.('[data-places-expand-radius]')){expandDestinationSearch();return}
       if(event.target.closest?.('[data-places-broaden-cuisine]')){state.filters.cuisines=['asian_restaurant'];refreshFilterPanel();applyFilterChange();return}
       const category=event.target.closest?.('[data-places-category]');if(category){event.preventDefault();event.stopPropagation();applyCategory(category.dataset.placesCategory);return}

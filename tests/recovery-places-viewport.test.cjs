@@ -66,5 +66,12 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  assert.equal(viewportOptions.bounds,camera.bounds,'category switch uses new viewport before a viewport response has completed');assert.equal(viewportOptions.category,'shopping');
  ctx.LuviaPlacesContractV1={reads:{}};
  await assert.rejects(ctx.LuviaPlacesSpatialExperience.viewportSearch(camera),/not ready/,'unavailable contract is not a successful empty result');
+ const failureCopy={textContent:''},failureStatus={dataset:{},matches:()=>true,querySelector:selector=>selector==='span'?failureCopy:null,insertAdjacentHTML(_where,html){this.actions=html}};
+ const failureShell={dataset:{},classList:{toggle(){}},setAttribute(k,v){this[k]=v},removeAttribute(k){delete this[k]},querySelector:()=>failureStatus};
+ const failureMap={dataset:{},closest:()=>failureShell};
+ st.root={querySelector:selector=>selector==='[data-places-map]'?failureMap:null,querySelectorAll:()=>[]};st.activeViewport=null;
+ ctx.LuviaPlacesContractV1={reads:{recommend:async()=>{throw new Error('timeout')}}};
+ await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
+ assert.equal(st.status,'error');assert.equal(failureMap.dataset.mapState,'unavailable');assert.equal(failureStatus.dataset.refreshing,'false');assert.equal(failureShell['aria-busy'],undefined,'failed read must stop loading');assert.match(failureStatus.actions,/data-places-retry/,'failure must offer a retry');assert.match(failureCopy.textContent,/erneut versuchen/);
  projection.destroy();racing.destroy();hotel.destroy();console.log('Places viewport gestures, empty replacement, fit cohort, Hotel parity and stale response cancellation: PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});

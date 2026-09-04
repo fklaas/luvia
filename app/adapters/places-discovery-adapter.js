@@ -1,7 +1,8 @@
 (()=>{
 'use strict';
-const VERSION='1.13.0-bounded-chat-discovery';
+const VERSION='1.14.0-bounded-error-recovery';
 const PROVIDER_CACHE_MS=180000;
+const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
@@ -216,10 +217,21 @@ async function recommend(options={}){
       const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
       if(!(response?.data?.places||[]).length&&providers.errors.length)throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während mindestens ein Provider nicht erreichbar war.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
       const rawPlaces=(response?.data?.places||[]).map(place=>({...place,ownerObservedAt,providerObservedAt:place.providerObservedAt||null,providerFactsCached:backendCached,providerReadiness:providers.status}));
-      if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now()});
+      if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now()});else providerCache.delete(cacheKey);
       const places=rawPlaces.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query]}));
       return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:backendCached,ownerObservedAt,providers}};
-    }catch(error){return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED',cached:false,providers:safeProviderMeta(error?.providerDiagnostics||{})}}}
+    }catch(error){
+      const age=cached?Date.now()-cached.loadedAt:Infinity;
+      // A temporary network failure must not erase a previously verified cohort.
+      // Reuse only this exact query/filter/area and only bounded Geoapify data;
+      // never claim a stale opening-hours result is currently open.
+      if(cached&&age>=0&&age<PROVIDER_RECOVERY_MS&&!options.openNow&&cached.places.length&&cached.places.every(place=>providerId(place).startsWith('geoapify:'))){
+        const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],ownerObservedAt:place.ownerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true,providerReadiness:'stale'}));
+        const providers={...cached.providers,status:'partial',degraded:true,errors:[...(cached.providers.errors||[]),{provider:'geoapify',code:clean(error?.code||'PLACES_QUERY_FAILED').slice(0,80)}]};
+        return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,stale:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers}};
+      }
+      return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED',cached:false,providers:safeProviderMeta(error?.providerDiagnostics||{})}};
+    }
   };
   const selectedQueries=plan.queries.slice(0,queryLimit);
   if(options.fastPath===true&&options.parallelFastQueries===true){
