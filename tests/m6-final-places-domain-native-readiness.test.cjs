@@ -26,7 +26,7 @@ assert.strictEqual(categories.food.label,'Essen & Trinken');
 assert.strictEqual(categories.practical.label,'Praktisch unterwegs');
 assert.strictEqual(core.categoryFor('Wir suchen ein ruhiges Hotel'),'accommodation');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(core.routeDiscovery({category:'nature'}))),{
-  category:'nature',label:'Natur & Erholung',primaryType:'nature',domainTypes:['nature','activity'],includedType:'park',includedTypes:['park','garden','beach','hiking_area','natural_feature','spa'],excludedTypes:['store','hospital'],query:'Parks Gärten Natur Erholung'
+  category:'nature',label:'Natur & Erholung',primaryType:'nature',domainTypes:['nature','activity'],includedType:'park',includedTypes:['park','garden','beach','hiking_area','natural_feature','spa'],excludedTypes:['store','hospital','lodging','accommodation','hotel','hostel','motel','guest_house','bed_and_breakfast','apartment','vacation_rental','holiday_home','resort_hotel','campground'],query:'Parks Gärten Natur Erholung'
 });
 assert.deepStrictEqual(JSON.parse(JSON.stringify(core.createDeepLink({category:'food',query:'Pasta'}))),{screen:'places',params:{category:'food',query:'Pasta'}});
 

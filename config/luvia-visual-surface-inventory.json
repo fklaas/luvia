@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3237,
-    "visualCandidates": 972,
+    "trackedFiles": 3238,
+    "visualCandidates": 973,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -4093,8 +4093,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 19725,
-      "sha256": "d7aaae2614432ce826ef2228eafd95d6e4e5395e9d59560219ede21676a54e17"
+      "bytes": 19883,
+      "sha256": "021e06952a4a1921962b8ea27db446937e8d3b45a3b11ffa5ea36fad1b98285f"
     },
     {
       "path": "core/places/places-final-foundation.css",
@@ -6702,8 +6702,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 81703,
-      "sha256": "30ac19bee473c3f9d2d6a9570a7920946d33d53748dade8a47d182509cc887d7"
+      "bytes": 82689,
+      "sha256": "308d33a60eac6097df8ea9cdd57141758da77c12f3d238c52e230c3a58e09484"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7787,8 +7787,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 8076,
-      "sha256": "df01a52d0c374add9f733c549f65072348ea54a0a0ddff722a78b4da605be68c"
+      "bytes": 8079,
+      "sha256": "caa4856fa3f0b9ad722a08e349d082e55e4cd1b08330bf041a828e5baa1ee790"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",
@@ -8539,8 +8539,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 7257,
-      "sha256": "adf79f6d6343e0e241ed1d3c07f46befd49ae16607145abcd23933c072d1c029"
+      "bytes": 7415,
+      "sha256": "5ada760447cfab7d1106d03272b43f5ed80bea8b7ccc380b8ae9244c17ae48bd"
     },
     {
       "path": "tests/m6.1-places-state-core-foundation.test.cjs",
@@ -8903,6 +8903,14 @@
       "sha256": "a6b1b06c3fff4bed53c5a04e1845bd8fd79e47b33d2b6589b88cbcfd08c36831"
     },
     {
+      "path": "tests/places-provider-cascade-diagnostics-category-purity.test.cjs",
+      "classes": [
+        "visual-source-candidate"
+      ],
+      "bytes": 1327,
+      "sha256": "e7af2548e47d6f8e69d9201e8fb4026438e320d4d7df70ffa1123258c4162b45"
+    },
+    {
       "path": "tests/places-stays-quality.test.cjs",
       "classes": [
         "overlay-source"
@@ -8999,8 +9007,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 29420,
-      "sha256": "585ec9841663a6c4df141b5a36c6384bd580f20f5ef2ae194b180052e5a9afd0"
+      "bytes": 29474,
+      "sha256": "e0b19638f5d6efd2251a7e5fd10d9aedddfd91b9ccf6f550920eb1730bae750b"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
