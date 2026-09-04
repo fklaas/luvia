@@ -3,19 +3,19 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.46**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.47**, Core **4.82.169**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.
+**Zuletzt geliefert:** P09 Entfernen/Wiederherstellen ist in Runtime .47 begrenzt belegt: geplante Places werden erst nach lesbarer Vorschau und Bestätigung entfernt. Ein dauerhafter Recovery-Beleg im Places-Owner-Datensatz überlebt Reloads; die Wiederherstellung prüft ursprünglichen Termin, aktuellen Konfliktstand, Versionsstand und Booking-Gate erneut. Grande Beach Café wurde sichtbar entfernt → neu geladen → wiederhergestellt → erneut neu geladen; Termin, Dauer und Eintrag blieben korrekt. Favorit, Ortsdaten und Booking bleiben getrennt. 214/214 Safe Regression und 30/30 öffentliche Dateihashes stimmen.
 
-**Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
+**Nächster Schritt (GEPLANT): Timeline-Momente verbinden und mehrere Einträge geordnet verschieben.** Einzelne geplante Places können jetzt sicher geändert, entfernt und wiederhergestellt werden; für zusammengehörige Urlaubsmomente fehlen noch eine bewusste Verbindung und ein atomar erklärter Mehrfach-Reorder.
 
 **Abnahme dieses Schritts:**
 
-- Entfernen erst nach lesbarer Vorschau und Bestätigung; Favorit, Ortsdaten und echte Buchungen bleiben fachlich getrennt.
-- Nach Reload Wiederherstellung anbieten, ursprünglichen Termin prüfen und erst nach Bestätigung speichern; veraltete Änderungen und Konflikte berücksichtigen.
-- Sichtbar im Browser entfernen → reloaden → wiederherstellen → erneut reloaden; Ergebnis unabhängig lesen, Prüfdaten zurücksetzen und gezielte Regression belegen.
+- Mindestens zwei geplante Places auswählen, ihre beabsichtigte Verbindung und die Vorher/Nachher-Reihenfolge mit Datum, Uhrzeit, Dauer und Wege-/Konfliktwirkung vor dem Schreiben zeigen.
+- Erst nach Bestätigung über journey.v1 und die jeweiligen Owner speichern; veraltete Revision, Teilfehler, Booking-Abhängigkeit und wiederholte Befehle nachvollziehbar behandeln.
+- Im sichtbaren Browser verbinden und mehrfach umordnen, reloaden und unabhängig lesen; Prüfänderungen vollständig zurücksetzen und gezielte Regression belegen.
 
-**Danach:** Weitere P09-Lücken schließen: Einträge verbinden, mehrere Einträge umordnen und weitere Eintragsarten. P10-Erklärungen dabei ergänzen; anschließend die vollständige B1-Nutzerkette und die geltenden Freigabegates abnehmen.
+**Danach:** Weitere P09-Eintragsarten schließen und P10-Erklärungen ergänzen; danach die vollständige B1-Nutzerkette sowie Human↔AI-Parität und die geltenden Freigabegates abnehmen.
 
 **Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, physisches iPhone/Android und echte Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
@@ -30,7 +30,17 @@ Im sichtbaren Browser blieben die Rückwechsel im unveränderten 3-km-Bereich be
 
 Gezielte Regressionen belegen zusätzlich verspätete Antworten, Kategorie-Wechsel während Debounce, erneuten Abruf desselben fehlgeschlagenen Bereichs, gültige leere Ergebnisse sowie Geoapify-Rückfall bis maximal 15 Minuten. Dieser Rückfall bewahrt das ursprüngliche Beobachtungsdatum, gilt nur für identische Suche/Filter/Geografie und nicht für „Jetzt geöffnet“. Der sichtbare Netzausfall wurde nur vorübergehend simuliert und wieder aufgehoben. Keine Buchung oder Timeline wurde geändert. Physische Geräteabnahme bleibt offen.
 
-Nachweise im Arbeitsverzeichnis outputs: places-continuity-browser46.json, places-continuity-error46.png, places-continuity-regression46-release.log und public-byte-proof46.json. Nächster geplanter Abschnitt bleibt P09: geplante Place-Einträge entfernen und nach Reload wiederherstellen.
+Nachweise im Arbeitsverzeichnis outputs: places-continuity-browser46.json, places-continuity-error46.png, places-continuity-regression46-release.log und public-byte-proof46.json. Der nachfolgende P09-Abschnitt Entfernen/Wiederherstellen wurde mit .47 geliefert und separat belegt.
+
+## Nachweis P09 Entfernen/Wiederherstellen .47
+
+Integration läuft auf **13.82.168.47**, Core **4.82.169**, Quelle **8eeba9ada79488760fc55d0de042c107630a7002**, Worker **020f04e8-677c-4027-8cbb-0c5b1847ff38**. **214/214 Safe Regression** und **30/30 öffentliche Dateihashes** sind belegt. Gateway v161, Main-Frontend und der vorhandene Booking-Resolver 2.8.0 / Function v18 blieben unverändert; keine Function, Migration oder Secret-Änderung in diesem Slice.
+
+Geplante Places werden erst nach einer lesbaren Vorschau entfernt. Diese nennt Termin und Dauer sowie die getrennt erhaltenen Ortsdetails, Favoriten und Booking-Fakten. Der Recovery-Beleg liegt im bestehenden Places-Owner-Datensatz und bleibt nach einem Reload sichtbar. Wiederherstellen liest den aktuellen Owner-Stand erneut, prüft Revision, Tageskonflikte und Booking-Gate und schreibt erst nach einer weiteren Bestätigung. Wiederholte Befehle liefern dasselbe fachliche Ergebnis.
+
+Sichtbarer Integrationsnachweis: **Grande Beach Café** am 12.06.2027 um 15:00 Uhr / 90 Minuten wurde entfernt. Nach Reload blieb „Zuletzt entfernt“ verfügbar. Die Wiederherstellung zeigte den ursprünglichen Termin und den aktuellen konfliktfreien Tagesstand. Nach Bestätigung und erneutem Reload stand der Eintrag wieder am ursprünglichen Termin; der Recovery-Hinweis war verschwunden. Belege: `docs/modularization/PCR-P09-TIMELINE-REMOVE-RESTORE-20260904.md`, `tests/p09-timeline-remove-restore.test.cjs`, `outputs/p09-remove-restore-release47-regression-214.log` und `outputs/public-byte-proof47.json`.
+
+P09 und P10 bleiben **TEILWEISE**. Der nächste verbindliche Abschnitt verbindet Timeline-Momente und ordnet mehrere Einträge mit einer bestätigten Vorher/Nachher-Vorschau um.
 
 ## Nachweis der P09-Lieferung .44
 

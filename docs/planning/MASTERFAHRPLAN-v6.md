@@ -3,24 +3,34 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.46**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.47**, Core **4.82.169**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.
+**Zuletzt geliefert:** P09 Entfernen/Wiederherstellen ist in Runtime .47 begrenzt belegt: geplante Places werden erst nach lesbarer Vorschau und Bestätigung entfernt. Ein dauerhafter Recovery-Beleg im Places-Owner-Datensatz überlebt Reloads; die Wiederherstellung prüft ursprünglichen Termin, aktuellen Konfliktstand, Versionsstand und Booking-Gate erneut. Grande Beach Café wurde sichtbar entfernt → neu geladen → wiederhergestellt → erneut neu geladen; Termin, Dauer und Eintrag blieben korrekt. Favorit, Ortsdaten und Booking bleiben getrennt. 214/214 Safe Regression und 30/30 öffentliche Dateihashes stimmen.
 
-**Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
+**Nächster Schritt (GEPLANT): Timeline-Momente verbinden und mehrere Einträge geordnet verschieben.** Einzelne geplante Places können jetzt sicher geändert, entfernt und wiederhergestellt werden; für zusammengehörige Urlaubsmomente fehlen noch eine bewusste Verbindung und ein atomar erklärter Mehrfach-Reorder.
 
 **Abnahme dieses Schritts:**
 
-- Entfernen erst nach lesbarer Vorschau und Bestätigung; Favorit, Ortsdaten und echte Buchungen bleiben fachlich getrennt.
-- Nach Reload Wiederherstellung anbieten, ursprünglichen Termin prüfen und erst nach Bestätigung speichern; veraltete Änderungen und Konflikte berücksichtigen.
-- Sichtbar im Browser entfernen → reloaden → wiederherstellen → erneut reloaden; Ergebnis unabhängig lesen, Prüfdaten zurücksetzen und gezielte Regression belegen.
+- Mindestens zwei geplante Places auswählen, ihre beabsichtigte Verbindung und die Vorher/Nachher-Reihenfolge mit Datum, Uhrzeit, Dauer und Wege-/Konfliktwirkung vor dem Schreiben zeigen.
+- Erst nach Bestätigung über journey.v1 und die jeweiligen Owner speichern; veraltete Revision, Teilfehler, Booking-Abhängigkeit und wiederholte Befehle nachvollziehbar behandeln.
+- Im sichtbaren Browser verbinden und mehrfach umordnen, reloaden und unabhängig lesen; Prüfänderungen vollständig zurücksetzen und gezielte Regression belegen.
 
-**Danach:** Weitere P09-Lücken schließen: Einträge verbinden, mehrere Einträge umordnen und weitere Eintragsarten. P10-Erklärungen dabei ergänzen; anschließend die vollständige B1-Nutzerkette und die geltenden Freigabegates abnehmen.
+**Danach:** Weitere P09-Eintragsarten schließen und P10-Erklärungen ergänzen; danach die vollständige B1-Nutzerkette sowie Human↔AI-Parität und die geltenden Freigabegates abnehmen.
 
 **Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, physisches iPhone/Android und echte Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
+
+## Nachweis P09 Entfernen/Wiederherstellen .47
+
+Integration läuft auf **13.82.168.47**, Core **4.82.169**, Quelle **8eeba9ada79488760fc55d0de042c107630a7002**, Worker **020f04e8-677c-4027-8cbb-0c5b1847ff38**. **214/214 Safe Regression** und **30/30 öffentliche Dateihashes** sind belegt. Gateway v161, Main-Frontend und der vorhandene Booking-Resolver 2.8.0 / Function v18 blieben unverändert; keine Function, Migration oder Secret-Änderung in diesem Slice.
+
+Geplante Places werden erst nach einer lesbaren Vorschau entfernt. Diese nennt Termin und Dauer sowie die getrennt erhaltenen Ortsdetails, Favoriten und Booking-Fakten. Der Recovery-Beleg liegt im bestehenden Places-Owner-Datensatz und bleibt nach einem Reload sichtbar. Wiederherstellen liest den aktuellen Owner-Stand erneut, prüft Revision, Tageskonflikte und Booking-Gate und schreibt erst nach einer weiteren Bestätigung. Wiederholte Befehle liefern dasselbe fachliche Ergebnis.
+
+Sichtbarer Integrationsnachweis: **Grande Beach Café** am 12.06.2027 um 15:00 Uhr / 90 Minuten wurde entfernt. Nach Reload blieb „Zuletzt entfernt“ verfügbar. Die Wiederherstellung zeigte den ursprünglichen Termin und den aktuellen konfliktfreien Tagesstand. Nach Bestätigung und erneutem Reload stand der Eintrag wieder am ursprünglichen Termin; der Recovery-Hinweis war verschwunden. Belege: `docs/modularization/PCR-P09-TIMELINE-REMOVE-RESTORE-20260904.md`, `tests/p09-timeline-remove-restore.test.cjs`, `outputs/p09-remove-restore-release47-regression-214.log` und `outputs/public-byte-proof47.json`.
+
+P09 und P10 bleiben **TEILWEISE**. Der nächste verbindliche Abschnitt verbindet Timeline-Momente und ordnet mehrere Einträge mit einer bestätigten Vorher/Nachher-Vorschau um.
 
 ## Nachweis der P09-Lieferung .44
 
@@ -40,14 +50,14 @@ Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.46. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
+Integration läuft auf 13.82.168.47. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## 1 Wo Luvia heute steht
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.46 und Core 4.82.168. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
+Integration läuft auf App 13.82.168.47 und Core 4.82.169. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -65,7 +75,7 @@ Pin-Auswahl, Vordergrundreihenfolge, gemeinsame Kontur und markierte Passung wur
 
 Die Karte verwendet eine zurückhaltende 35-Grad-Perspektive mit bleibender 2D-Umschaltung. Bedienelemente und Flächen folgen der Reisefarbe. Geh- und Fahrradwege sind aus echten Routengeometrien belegt. Bei der .37-Abnahme ergab derselbe Tagespfad 70 Minuten zu Fuß und 21 Minuten mit dem Rad. Das sind konkrete Prüfergebnisse, keine allgemeingültigen Reisezeiten.
 
-Die aktuelle vollständige Safe Regression ist 213/213 PASS; 30 öffentliche Dateien stimmen mit dem unveränderlichen Quellarchiv überein. Im vorherigen .36-Browserlauf waren warme Stays-Pins nach 1391 ms und die Karte nach 1761 ms sichtbar. Dies ist eine Einzelmessung im Browser und keine zugesicherte mobile Ladezeit. 390 × 844 ohne horizontalen Überlauf ist geprüft; physische native iOS-/Android-Leistung bleibt ungemessen.
+Die aktuelle vollständige Safe Regression ist 214/214 PASS; 30 öffentliche Dateien stimmen mit dem unveränderlichen Quellarchiv überein. Im vorherigen .36-Browserlauf waren warme Stays-Pins nach 1391 ms und die Karte nach 1761 ms sichtbar. Dies ist eine Einzelmessung im Browser und keine zugesicherte mobile Ladezeit. 390 × 844 ohne horizontalen Überlauf ist geprüft; physische native iOS-/Android-Leistung bleibt ungemessen.
 
 ## 3 Was weiterhin offen ist
 
@@ -73,13 +83,13 @@ Echte Bilder für jeden Place sind nicht gelöst. Die verknüpfte Wikidata-/Comm
 
 Hotelpreise, Verfügbarkeit und Buchungsabschluss benötigen echte Booking-Provider. Duffel-Stays- und Booking-Affiliate-Anmeldungen sind als eingereicht dokumentiert; ein neuer Partnerentscheid wurde in der Konsolidierung nicht geprüft. Affiliate-Zulassung ist kein Demand-API-Zugang. Restaurantreservierung, Aktivitäts-/Kultureintritt sowie Create/Modify/Cancel bleiben getrennte positive Abnahmefälle.
 
-Die Kette Suche → Place → Favorit beziehungsweise Planprüfung → unabhängiger Readback → Rücknahme → Reload ist an konkreten Restaurants begrenzt belegt. Zeitänderung und Rücknahme nach Reload sind seit .44 begrenzt belegt. Vollständige Konfliktlösung, Mehrnutzerfälle und die übrigen Golden-Journey-Schritte bleiben offen. Granulare Journey-Befehle und konsistente verständliche Planungserklärungen bleiben P09/P10.
+Die Kette Suche → Place → Favorit beziehungsweise Planprüfung → unabhängiger Readback → Rücknahme → Reload ist an konkreten Restaurants begrenzt belegt. Zeitänderung und Rücknahme nach Reload sind seit .44 begrenzt belegt; Entfernen und Wiederherstellen nach Reload seit .47. Vollständige Mehrnutzer-Konfliktlösung und die übrigen Golden-Journey-Schritte bleiben offen. Granulare Journey-Befehle und konsistente verständliche Planungserklärungen bleiben P09/P10.
 
 Die Action-Registry erfasst inzwischen auch die neuen Timeline-Marker; der vollständige positive AI-Ausführungsnachweis bleibt offen. Die Inventarisierung von 330 Aktionen bedeutet nicht, dass 330 Aktionen produktiv durch den Chat erledigt werden können. Die vollständige Geräte-, Mehrnutzer-, Offline-, GPS- und Reduced-Motion-Matrix sowie fünf unabhängige Nutzertests sind nicht belegt.
 
 ## 4 Verbindliche Reihenfolge der nächsten Arbeit
 
-A1 Dokumentkonsolidierung ist abgeschlossen und wird nach jedem Arbeitsabschnitt gepflegt. A2 besitzt begrenzte sichtbare Scharbeutz-Belege; die vollständige Nutzerkette bleibt offen. A3/P09 ist aktiv: Als Nächstes folgt Entfernen/Wiederherstellen nach Reload, danach die weiteren granularen Journey-Aktionen. A4/P10 begleitet diese Arbeit mit verständlichen Quellen-, Konflikt- und Änderungsbegründungen. A5 Fotos/Partner bleibt offen. A6 bewertet anschließend B1 anhand der tatsächlich erfüllten Gates.
+A1 Dokumentkonsolidierung ist abgeschlossen und wird nach jedem Arbeitsabschnitt gepflegt. A2 besitzt begrenzte sichtbare Scharbeutz-Belege; die vollständige Nutzerkette bleibt offen. A3/P09 ist aktiv: Entfernen/Wiederherstellen nach Reload ist begrenzt belegt; als Nächstes folgen Connect und Mehrfach-Reorder, danach die weiteren granularen Journey-Aktionen. A4/P10 begleitet diese Arbeit mit verständlichen Quellen-, Konflikt- und Änderungsbegründungen. A5 Fotos/Partner bleibt offen. A6 bewertet anschließend B1 anhand der tatsächlich erfüllten Gates.
 
 Jeder Arbeitsabschnitt liefert einen begrenzten, überprüfbaren Nutzerablauf. Ein reproduzierter Fehler wird zuerst lokalisiert und in der zuständigen gemeinsamen Implementierung korrigiert. Der Browsergegenbeleg hat Vorrang vor einem grünen Quelltexttest. Große visuelle Umbauten und riskante Core-Grenzänderungen gehören in getrennte Lieferungen.
 
@@ -294,7 +304,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.46 auf Integration veröffentlicht; Quellarchiv a6bbb898, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.
+13.82.168.47 auf Integration veröffentlicht; unveränderliches Quellarchiv 8eeba9ad, Worker 020f04e8 und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.
 
 **Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
 
@@ -334,9 +344,9 @@ COAST im sichtbaren Chat favorisiert, über places.v1 unabhängig gelesen, nach 
 
 **Stand:** BELEGT BEGRENZT. **Zuständig:** Places und Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Die versteckten Datumsfelder und ein veralteter Standardtag wurden korrigiert. ROOF am 13.06.2027 um 13:00 sichtbar geprüft, bestätigt und unabhängig in der Timeline gelesen. Testplanung zurückgenommen; ursprüngliche Termine nach Reload erhalten.
+Planprüfung und Zeitänderung bleiben erhalten. Seit .47 lassen sich geplante Places erst nach lesbarer Vorschau entfernen und über einen im Places-Owner-Datensatz gespeicherten Recovery-Beleg auch nach Reload wiederherstellen. Datum, Uhrzeit und Dauer werden erneut geprüft; Favorit, Ortsdetails und Booking-Zustand bleiben getrennt. Grande Beach Café wurde sichtbar entfernt, neu geladen, wiederhergestellt und nochmals neu geladen.
 
-**Nächster Abschlussnachweis:** Dauerhaftes Ausplanen/Wiederherstellen nach Reload im nächsten P09-Slice abnehmen; weitere Unterkunfts-/Kategoriepfade und vollständige Konfliktfälle bleiben offen. Zeitänderung und deren Rücknahme sind seit .44 begrenzt belegt.
+**Nächster Abschlussnachweis:** Weitere Unterkunfts-/Kategoriepfade und vollständige Konfliktfälle einschließlich echter Mehrnutzeränderungen abnehmen; dabei dieselben Owner-, Vorschau-, Reload- und Booking-Gates anwenden.
 
 **Erhaltener technischer Umfang:** Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.
 
@@ -374,9 +384,9 @@ Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme off
 
 **Stand:** TEILWEISE. **Zuständig:** Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App .44: geplante Places lassen sich nach Langdruck verschieben sowie mit Tag, Uhrzeit und Dauer vorab prüfen. Bedingtes Speichern schützt vor veralteten Änderungen; Rücknahme liegt im selben Places-Datensatz und bleibt nach Reload verfügbar. Sichtbarer Touch-Browsertest und echter Terminwechsel mit Reload/Rücknahme sind belegt. Buchungen, Besuche und Fotos behalten ihre Owner-Wege.
+App .44: Langdruck, Verschieben sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau, Versionsschutz und dauerhafter Rücknahme. App .47: bestätigtes Entfernen geplanter Places, dauerhaft sichtbarer Recovery-Beleg, Wiederherstellung nach Reload, aktuelle Konfliktvorschau, Booking-Gate, Owner-Readback und idempotente Wiederholung. Grande Beach Café wurde im sichtbaren Browser entfernt, nach Reload wiederhergestellt und nach erneutem Reload am ursprünglichen Termin gelesen. Buchungen, Besuche und Fotos behalten ihre Owner-Wege.
 
-**Nächster Abschlussnachweis:** Als Nächstes geplante Place-Einträge nach bestätigter Vorschau entfernen und nach Reload wiederherstellen; unabhängiger Readback und bereinigte Prüfdaten. Danach Connect, Mehrfach-Reorder und weitere Eintragsarten; physisches iPhone und echte Mehrnutzer-Konflikte separat abnehmen.
+**Nächster Abschlussnachweis:** Als Nächstes geplante Timeline-Momente bewusst verbinden und mehrere geplante Places in einem bestätigten Vorgang umordnen; Vorher/Nachher-Reihenfolge, Zeit- und Wegewirkung sowie Teilfehler verständlich zeigen und nach Reload unabhängig lesen. Danach weitere Eintragsarten; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat abnehmen.
 
 **Erhaltener technischer Umfang:** Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.
 
@@ -384,9 +394,9 @@ App .44: geplante Places lassen sich nach Langdruck verschieben sowie mit Tag, U
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Die Zeitprüfung zeigt bisherigen und neuen Zeitraum, benannte Überschneidungen, ausdrückliche Konfliktbestätigung und einen ehrlichen Speicherstatus. Leere Suche bleibt ehrlich; technischer Kategorievertrag ist keine persönliche Begründung mehr. Vollständige Erklärung aller Aktionen bleibt offen.
+Zeitänderung sowie Entfernen/Wiederherstellen erklären bisherigen und beabsichtigten Zustand, Datum, Uhrzeit, Dauer, Überschneidungen, erhaltene Orts-/Favoriten-/Booking-Fakten und den Speicherstatus. Bei der Wiederherstellung wird die aktuelle Tageslage neu geprüft; Konflikte verlangen ausdrückliche Zustimmung. Leere Suche bleibt ehrlich. Vollständige Erklärung aller Aktionen bleibt offen.
 
-**Nächster Abschlussnachweis:** Verständliche Begründungen über alle verbleibenden Owner-Aktionen und Quellen-/Aktualitätsfälle abnehmen; technische Zwischenmeldungen und falsche Sicherheit vermeiden.
+**Nächster Abschlussnachweis:** Connect und Mehrfach-Reorder mit verständlicher Vorher/Nachher-Reihenfolge, Wege-/Zeitwirkung, Konflikten, Teilfehlern und Owner-Belegen abnehmen; technische Zwischenmeldungen und falsche Sicherheit vermeiden.
 
 **Erhaltener technischer Umfang:** Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.
 
@@ -674,7 +684,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.46: unveränderliches Quellarchiv a6bbb898, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
+13.82.168.47: unveränderliches Quellarchiv 8eeba9ad, 214/214 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
 
