@@ -4343,7 +4343,7 @@ attempt();
 /* ===== core/places/global-place-contracts.js ===== */
 (() => {
 'use strict';
-const VERSION='4.60.0-category-browse-subject';
+const VERSION='4.61.0-category-query-split';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -4472,9 +4472,12 @@ function evidence(place={},goalText='',categoryKey='',preferences={}){const type
 if(sem.stroller||profile.stroller){if(traits.stroller==='confirmed')sentences.push('Die verfügbaren Angaben bestätigen, dass der Ort mit Kinderwagen gut zugänglich ist.');else if(traits.stroller==='not_confirmed')sentences.push('Die verfügbaren Angaben bestätigen keine gute Kinderwagen-Zugänglichkeit.');else sentences.push('Zur Kinderwagen-Zugänglichkeit liegen noch keine ausreichend eindeutigen Angaben vor.');}
 if(sem.accessible||profile.accessible){if(traits.accessible==='confirmed')sentences.push('Die verfügbaren Angaben bestätigen barrierefreie Zugänglichkeit.');else if(traits.accessible==='not_confirmed')sentences.push('Barrierefreie Zugänglichkeit ist nach den verfügbaren Angaben nicht bestätigt.');else sentences.push('Zur Barrierefreiheit liegen noch keine ausreichend eindeutigen Angaben vor.');}
 return Object.freeze({traits,sentences});}
+function isStreetShellName(value=''){const name=clean(value),parts=name.split(/\s+/).filter(Boolean);return parts.length===1&&/(?:straße|strasse|str\.|weg|allee|gasse|damm|ufer|ring)$/i.test(parts[0])}
 function accepts(place,categoryKey,goalText='',preferences={},options={}){
   const intent=intentFor(goalText,categoryKey),resolvedCategory=intent.category||categoryKey,def=category(resolvedCategory),name=clean(place?.name),hay=providerEvidenceText(place),providerTypes=providerCategoryTypeKeys(place),contract=options.evidenceContract||evidenceContract(goalText,categoryKey,options.plan||{},options.destination||'');
   if(!clean(place?.providerPlaceId||place?.id).replace(/^places\//,'')||name.length<2)return false;
+  // Street-only shells (e.g. unnamed OSM recreation_ground → "Ostpreußenstraße") are not venues.
+  if(isStreetShellName(name))return false;
   if(intent.exclude?.test(hay))return false;
   if(def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;
   // Non-food/non-nightlife categories must never keep catering leftovers from a prior

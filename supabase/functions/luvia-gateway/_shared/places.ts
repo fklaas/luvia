@@ -306,6 +306,37 @@ function geoapifyLuviaTypes(categories:any[]=[]){
   }
   return[...types].slice(0,40);
 }
+const GEOAPIFY_GENERIC_TYPE=/^(?:building|wheelchair|access|access_limited|fee|vegetarian|vegan|no_dogs|internet_access|payment|toilets|outdoor|indoor)(?:_|$)/;
+const GEOAPIFY_PRIMARY_RANK=Object.freeze(['restaurant','cafe','bar','bakery','meal_takeaway','lodging','spa','playground','amusement_park','water_park','zoo','museum','beach','park','tourist_attraction','shopping_mall','store','activity','sport','leisure','entertainment','catering']);
+function preferChildCategory(mappedTypes:string[]=[],nativeEvidence:string[]=[]):string{
+  const natives=nativeEvidence.map(value=>String(value||'').toLowerCase());
+  // Child Geoapify paths beat generic parents and building.* noise.
+  if(natives.some(value=>value.startsWith('catering.restaurant')||value==='catering.restaurant'))return'restaurant';
+  if(natives.some(value=>value.startsWith('catering.cafe')))return'cafe';
+  if(natives.some(value=>value.startsWith('catering.bar')))return'bar';
+  if(natives.some(value=>value.startsWith('catering.bakery')))return'bakery';
+  if(natives.some(value=>value.startsWith('catering.fast_food')))return'meal_takeaway';
+  if(natives.some(value=>value.startsWith('accommodation.hotel')||value.startsWith('accommodation')))return'lodging';
+  if(natives.some(value=>value.includes('shopping_mall')))return'shopping_mall';
+  if(natives.some(value=>value.startsWith('entertainment.museum')||value.includes('museum')))return'museum';
+  if(natives.some(value=>value.includes('playground')))return'playground';
+  if(natives.some(value=>value.includes('theme_park')||value.includes('amusement')))return'amusement_park';
+  const ranked=[...mappedTypes].filter(type=>type&&!GEOAPIFY_GENERIC_TYPE.test(type)&&!/[./]/.test(type));
+  ranked.sort((left,right)=>{
+    const li=GEOAPIFY_PRIMARY_RANK.indexOf(left),ri=GEOAPIFY_PRIMARY_RANK.indexOf(right);
+    return (li<0?999:li)-(ri<0?999:ri);
+  });
+  return String(ranked[0]||mappedTypes.find(type=>!GEOAPIFY_GENERIC_TYPE.test(type))||mappedTypes[0]||'');
+}
+function geoapifyHasProviderName(props:any):boolean{
+  return Boolean(
+    geoapifyTextField(props?.name)||
+    geoapifyTextField(props?.names)||
+    geoapifyTextField(props?.names?.default)||
+    geoapifyTextField(props?.names?.de)||
+    geoapifyTextField(props?.names?.en)
+  );
+}
 function geoapifyTextField(value:any):string{
   if(value==null||typeof value==='boolean')return '';
   if(typeof value==='number'&&Number.isFinite(value))return String(value);
@@ -344,18 +375,14 @@ function geoapifyFormattedAddress(props:any):string{
   return candidates.find(value=>value&&value.length>=2&&!/^\[object object\]$/i.test(value))||'';
 }
 function geoapifyPlaceName(props:any,mappedTypes:string[]=[]):string{
-  const street=geoapifyTextField(props.street||props.address?.street);
-  const house=geoapifyTextField(props.housenumber||props.address?.housenumber);
-  const streetLine=[street,house].filter(Boolean).join(' ').trim();
+  // Never promote street/address shells to the place title. Unnamed OSM nodes must
+  // not become pins like "Ostpreußenstraße".
   const candidates=[
     geoapifyTextField(props.name),
     geoapifyTextField(props.names),
     geoapifyTextField(props.names?.default),
     geoapifyTextField(props.names?.de),
     geoapifyTextField(props.names?.en),
-    geoapifyTextField(props.address_line1),
-    streetLine,
-    geoapifyTextField(typeof props.formatted==='string'?props.formatted:null),
     geoapifyTypeLabel(mappedTypes)
   ];
   return candidates.find(value=>value&&value.length>=2&&!/^\[object object\]$/i.test(value)&&!/^(unbenannter ort|unbekannter ort|unknown place|ort)$/i.test(value))||geoapifyTypeLabel(mappedTypes);
@@ -364,6 +391,7 @@ function normalizedPlace(p:any){const components=p.addressComponents||[];const c
 function normalizedGeoapifyPlace(feature:any,options:any={}){
   const f=feature&&typeof feature==='object'?feature:{};
   const props=f.properties&&typeof f.properties==='object'?f.properties:{};
+  if(!geoapifyHasProviderName(props))return null;
   const placeId=String(props.place_id||props.placeId||props.placeID||props.id||f.id||'');
   const id=placeId?`geoapify:${placeId}`:'';
   const latitude=Number(props.lat??props.latitude??props.location?.latitude??props.location?.lat??props.coordinates?.latitude);
@@ -378,7 +406,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const wheelchairAccessibleEntrance=/wheelchair|accessible/.test(textEvidence)?true:null;
   const openNowRaw=props.open_now??props.openNow??props.opening_hours?.open_now??props.openingHours?.open_now;
   const openNow=typeof openNowRaw==='boolean'?openNowRaw:null;
-  const primaryType=String(mappedTypes.find(type=>!/[./]/.test(type))||mappedTypes[0]||options?.includedType||options?.includedPrimaryTypes?.[0]||'');
+  const primaryType=String(preferChildCategory(mappedTypes,nativeEvidence)||options?.includedType||options?.includedPrimaryTypes?.[0]||'');
   const fallbackName=geoapifyPlaceName(props,mappedTypes);
   const formattedAddress=geoapifyFormattedAddress(props);
   const primaryTypeLabel=geoapifyTypeLabel(mappedTypes);
@@ -436,6 +464,10 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const filter=geoapifyRectFilter(restriction?.rectangle||restriction||null)||geoapifyCircleFilter(destination,options,bias);
   const biasParam=(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||geoapifyCircleFilter(destination,options,bias);
   const name=geoapifyNameFilter(textQuery);
+  // Geoapify Places treats some multi-category CSV lists as an intersection
+  // (live Scharbeutz: leisure≈50, but leisure,sport≈1). Always request one
+  // category per call and merge unique place_ids — splitGeoapifyCategories.
+  const categoryBatches=categories.length>1?categories.map(category=>[category]):[categories.length?categories:geoapifyFallbackCategories(options)];
   const buildParams=(cats:string[],useName:boolean)=>{
     const params=new URLSearchParams();
     params.set('apiKey',key);
@@ -450,16 +482,34 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const run=async(cats:string[],useName:boolean)=>{
     const response=await fetch(`${GEOAPIFY_BASE}/places?${buildParams(cats,useName)}`,{headers:{Accept:'application/json'}});
     const body=await response.json().catch(()=>({}));
-    return{response,body};
+    return{response,body,cats};
   };
-  let {response,body}=await run(categories,true);
-  // Category queries like "Restaurant Scharbeutz" must not be sent as Geoapify `name`.
-  // An empty named search is a successful 200 with zero features, not a provider error.
+  const mergeFeatures=(rows:any[][])=>{
+    const byId=new Map<string,any>();
+    for(const features of rows){
+      for(const feature of features){
+        const id=String(feature?.properties?.place_id||feature?.properties?.placeId||feature?.id||'');
+        if(!id||byId.has(id))continue;
+        byId.set(id,feature);
+        if(byId.size>=limit)return[...byId.values()];
+      }
+    }
+    return[...byId.values()];
+  };
+  const runBatches=async(useName:boolean)=>{
+    const settled=await Promise.all(categoryBatches.map(cats=>run(cats,useName)));
+    const failed=settled.find(item=>!item.response.ok);
+    if(failed)return failed;
+    return{
+      response:{ok:true,status:200},
+      body:{features:mergeFeatures(settled.map(item=>Array.isArray(item.body?.features)?item.body.features:[]))},
+      cats:categories
+    };
+  };
+  let {response,body}=await runBatches(true);
   if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
-    ({response,body}=await run(categories,false));
+    ({response,body}=await runBatches(false));
   }
-  // Invalid nested categories 400 the whole request. Fall back to the category family,
-  // then to a single known-good parent bucket so food never hard-fails the map.
   if(!response.ok&&(response.status===400||/invalid|category/i.test(String(body?.message||body?.error||'')))){
     ({response,body}=await run(geoapifyFallbackCategories(options),false));
   }
@@ -469,7 +519,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
       ?['catering']
       :/^(?:accommodation|lodging|hotel)$/.test(key)
         ?['accommodation']
-        :['tourism.sights','leisure.park','catering'];
+        :['tourism.sights','leisure.park'];
     ({response,body}=await run(parent,false));
   }
   if(!response.ok){
@@ -481,8 +531,11 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   }
   const features=Array.isArray(body?.features)?body.features:[];
   metrics.successes++;metrics.providers.geoapify.successes++;metrics.lastSuccessAt=new Date().toISOString();
-  return features.map((feature:any)=>normalizedGeoapifyPlace(feature,options));
+  return features
+    .map((feature:any)=>normalizedGeoapifyPlace(feature,options))
+    .filter((place:any)=>place&&place.providerPlaceId&&place.name&&place.name.length>=2);
 }
+
 function destinationBias(destination:any,explicit:any){if(explicit)return explicit;const l=destination?.location;if(!l)return undefined;const latitude=Number(l.latitude??l.lat),longitude=Number(l.longitude??l.lng);if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return undefined;return{circle:{center:{latitude,longitude},radius:Math.max(1000,Math.min(50000,Number(destination?.searchRadiusMeters)||GEOAPIFY_DEFAULT_RADIUS_METERS))}};}
 function destinationRestriction(destination:any,explicit:any){if(explicit)return explicit;const v=destination?.viewport;if(v&&[v.south,v.west,v.north,v.east].every((x:any)=>Number.isFinite(Number(x))))return{rectangle:{low:{latitude:Number(v.south),longitude:Number(v.west)},high:{latitude:Number(v.north),longitude:Number(v.east)}}};return undefined;}
 function coordinate(value:any){const latitude=Number(value?.latitude??value?.lat),longitude=Number(value?.longitude??value?.lng);return Number.isFinite(latitude)&&Number.isFinite(longitude)?{latitude,longitude}:null;}

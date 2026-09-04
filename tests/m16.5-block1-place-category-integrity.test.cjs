@@ -98,7 +98,7 @@ assert.equal(minigolfContract.categoryBrowse,false,'explicit user subjects are n
     fastQueryLimit:1
   });
   assert.deepEqual(Array.from(activitiesBrowse.places,place=>place.providerPlaceId),['rodelberg'],'category browse must keep valid activity evidence and drop catering.restaurant');
-  assert.equal(activitiesBrowse.evidenceContract?.strict,false,'category browse subjectText must keep evidenceContract non-strict');
+  assert.equal(activitiesBrowse.evidenceContract?.strict,false,'Category Query SplitText must keep evidenceContract non-strict');
   assert.equal(activitiesBrowse.evidenceContract?.categoryBrowse,true,'category browse is marked on the evidence contract');
 
   const ownerDiagnostics=contracts.diagnostics();

@@ -1,5 +1,5 @@
-const BUILD='13.82.168.19';
-const CACHE='luvia-shell-v13.82.168.19-category-browse';
+const BUILD='13.82.168.20';
+const CACHE='luvia-shell-v13.82.168.20-category-query-split';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
