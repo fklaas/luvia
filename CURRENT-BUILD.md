@@ -1,3 +1,7 @@
+# Mobile map startup and trip theme — Integration candidate — 13.82.168.36
+
+Bounded Geoapify destination cache, pending-search status separation, immediate DOM markers, same-trip map resume, parallel runtime downloads, coherent PWA cache identity and lean cache warming. Trip-accent controls and layered panels. Public acceptance pending.
+
 # Trip map experiences — Integration deployed — 13.82.168.35
 
 Source 29bc27a96515385a3c0bbb61a7b3b7134a57252e; Worker 97236e26-56ef-4f3b-8303-98521d85bbea; gateway v151 ACTIVE. Core 4.82.168. Main unchanged.

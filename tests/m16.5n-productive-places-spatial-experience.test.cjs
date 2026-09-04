@@ -209,7 +209,7 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
 assert.match(experience,/id\.startsWith\('geoapify:'\)/,'Geoapify pin previews must skip empty details round-trips that wipe names');
-assert.match(experience,/consumer:places-spatial:v4-surface/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
+assert.match(experience,/consumer:places-spatial:v5-surface/,'offline Places cache must invalidate old unscoped and unnamed cohorts');
 assert.match(css,/\.lv-places-spatial__map-preview\{position:absolute/,'selected-pin preview must be contained by the map on every surface');
 assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute;bottom:12px/,'selected-pin preview must stay inside the map when the page scrolls');
 for(const forbidden of [
@@ -277,7 +277,7 @@ assert.match(css,/nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle c
 assert.match(css,/nth-child\(1\)\{top:9px;animation-delay:\.24s\}/,'the lower chevron must complete the staggered rise');
 assert.doesNotMatch(experience,/projectionState\(container,'loading','Kartenausschnitt/,'a viewport refresh must never return the mounted map to its initial loading state');
 assert.match(experience,/function mapProviderStateMarkup\(view\)/,'provider failures must render an explicit map-level unavailable state instead of a fake empty market');
-assert.match(experience,/runtimeStatus\?\.kind==='error'/,'map projection must honor provider error truth instead of reporting zero coordinate hits');
+assert.match(experience,/status\?\.kind==='error'/,'map projection must honor current provider error truth instead of reporting zero coordinate hits');
 assert.match(experience,/pinBrowserHidden=view\.status\.kind==='error'/,'provider failure must not show a misleading 0/0 pin browser');
 assert.match(css,/\.lv-places-spatial__map-provider-state/,'provider failure must expose a dedicated map overlay with retry');
 assert.match(css,/\.lv-places-spatial__map-message[\s\S]{0,220}bottom:\s*14px/,'map status copy must stay clear of the top toolbar');

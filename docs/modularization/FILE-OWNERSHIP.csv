@@ -2675,3 +2675,6 @@ tests/trip-map-experiences.test.cjs,Quality/Tests,Test,"Trip map behavior and pr
 docs/modularization/PCR-TRIP-MAP-EXPERIENCES-20260904.md,Documentation/Release History,Documentation,"Authorized shared map experience scope and public contract change"
 
 docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,"Measured shared Places and Stays trip experiences acceptance"
+
+docs/modularization/PCR-MAP-MOBILE-SPEED-20260904.md,Documentation/Release History,Documentation,"Mobile map performance and trip theme scope"
+docs/modularization/PROVIDER-ONBOARDING-AND-FREE-BUDGETS-20260904.md,Documentation/Release History,Documentation,Provider onboarding and shared budget rollout

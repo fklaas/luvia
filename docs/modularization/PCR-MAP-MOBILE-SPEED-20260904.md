@@ -1,0 +1,5 @@
+# Mobile map first paint and trip theme
+
+User authorized immediate Places/Stays load and false-empty recovery plus trip-colour panels. Platform entry preloads preserve execution order. Shared Places consumer uses OfflineCachePort for a bounded, geography-validated Geoapify-only projection; no new domain store. Warm resume retains the current map for the same trip/destination. Provider request coalescing remains in the existing discovery adapter. No new provider account, billing change or database migration in this repair.
+
+Acceptance: delayed search never claims empty; known pins precede tile readiness; fresh cached destination avoids a repeat discovery call; changed destination/filter cannot reuse incompatible results; same-trip resume preserves map and cross-trip resume remounts. Visible mobile browser checks, targeted and safe regression, immutable Integration deploy and public byte proof. Main remains unchanged. Provider onboarding and shared budget/identity architecture documented separately; accounts and real entitlements must be verified before live activation.

@@ -1,5 +1,5 @@
-const BUILD='13.82.168.35';
-const CACHE='luvia-shell-v13.82.168.35-local-recovery';
+const BUILD='13.82.168.36';
+const CACHE='luvia-shell-v13.82.168.36-local-recovery';
 const SCOPE=new URL(self.registration.scope);
 const scoped=path=>new URL(path.replace(/^\/+/,''),SCOPE).toString();
 const OFFLINE=scoped('offline.html');
@@ -64,6 +64,9 @@ APP_SHELL.push(scoped('app/luvia-runtime-postcontext-13.82.168.bundle.js'));
 APP_SHELL.push(scoped('app/luvia-runtime-loader.mjs'));
 const CRITICAL_SHELL_PATTERN=/\/(?:index\.html|offline\.html|manifest\.webmanifest|intelligence\/(?:pwa-service|kernel\/version)\.js)$/;
 const CRITICAL_SHELL=APP_SHELL.filter(url=>url===SCOPE||CRITICAL_SHELL_PATTERN.test(new URL(url).pathname));
+// Runtime bundles contain the individual modules. Marketing reels and source
+// copies must not compete with the active map on a mobile connection.
+const WARM_SHELL=APP_SHELL.filter(value=>{const path=new URL(value).pathname;return CRITICAL_SHELL.includes(value)||(/\.css$/.test(path)&&!path.includes('public-landing'))||/\/(?:luvia-runtime-(?:precontext|postcontext)-13\.82\.168\.bundle\.js|luvia-runtime-loader\.mjs|identity-platform-web-adapter\.js|platform-port-adapters\.mjs|platform-port-registry\.mjs|media-storage-web-adapter\.mjs|luvia-trip-context\.js|active-trip-context\.mjs|supabase-2\.112\.4\.js|maplibre-gl-5\.12\.0\.js)$/.test(path)});
 let warmShellPromise=null;
 
 async function precacheShell(cache,urls=APP_SHELL){
@@ -72,6 +75,7 @@ async function precacheShell(cache,urls=APP_SHELL){
     while(cursor<urls.length){
       const url=urls[cursor++];
       try{
+        if(await cache.match(url,{ignoreSearch:true}))continue;
         const response=await fetch(url,{cache:'reload'});
         if(response.ok)await cache.put(url,response);
       }catch{}
@@ -80,7 +84,7 @@ async function precacheShell(cache,urls=APP_SHELL){
   await Promise.all(Array.from({length:Math.min(PRECACHE_CONCURRENCY,urls.length)},fetchNext));
 }
 
-function warmAppShell(){return warmShellPromise||(warmShellPromise=shellCache().then(cache=>precacheShell(cache,APP_SHELL)).finally(()=>{warmShellPromise=null}))}
+function warmAppShell(){return warmShellPromise||(warmShellPromise=shellCache().then(cache=>precacheShell(cache,WARM_SHELL)).finally(()=>{warmShellPromise=null}))}
 
 self.addEventListener('install',event=>{
   event.waitUntil(shellCache().then(cache=>precacheShell(cache,CRITICAL_SHELL)));

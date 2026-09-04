@@ -2,7 +2,7 @@
 'use strict';
 const VERSION='1.12.3-filter-types';
 const PROVIDER_CACHE_MS=180000;
-const providerCache=new Map();
+const providerCache=new Map(),providerFlights=new Map();
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const providerName=value=>{const name=clean(value).toLowerCase();return name.startsWith('google')?'google':name.startsWith('foursquare')?'foursquare':name==='multi'?'multi':name||'unknown'};
@@ -177,7 +177,8 @@ async function recommend(options={}){
     try{
       const selectedTypes=(Array.isArray(options.includedTypes)?options.includedTypes:[]).map(clean).filter(Boolean);
       const includedTypes=selectedTypes.length?selectedTypes:(discoveryRoute.includedTypes||[]);
-      const response=await window.LuviaPlaceEntities.searchPlaces({
+      let flight=providerFlights.get(cacheKey);
+      if(!flight){flight=Promise.resolve().then(()=>window.LuviaPlaceEntities.searchPlaces({
         tripId:options.tripId,
         type:discoveryRoute.primaryType,
         includedType:intent.niche?'':(selectedTypes.length===1?selectedTypes[0]:(selectedTypes.length?'':discoveryRoute.includedType)),
@@ -206,7 +207,8 @@ async function recommend(options={}){
         spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,
         positionContext:options.positionContext||null,
         requestOptions:{timeoutMs:Number(options.providerTimeoutMs)||(options.fastPath===true?2400:12000)}
-      });
+      })).finally(()=>providerFlights.delete(cacheKey));providerFlights.set(cacheKey,flight)}
+      const response=await flight;
       const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
       if(!(response?.data?.places||[]).length&&providers.errors.length)throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während mindestens ein Provider nicht erreichbar war.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
       const rawPlaces=(response?.data?.places||[]).map(place=>({...place,ownerObservedAt,providerObservedAt:place.providerObservedAt||null,providerFactsCached:backendCached,providerReadiness:providers.status}));

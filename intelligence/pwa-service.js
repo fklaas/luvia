@@ -8,7 +8,7 @@ const SW_SCRIPT_URL=new URL('sw.js',APP_ROOT_URL);
 if(BUILD)SW_SCRIPT_URL.searchParams.set('v',BUILD);
 const SW_URL=SW_SCRIPT_URL.toString();
 const SW_SCOPE=APP_ROOT_URL.pathname;
-const EXPECTED_CACHE=BUILD?`luvia-shell-v${BUILD}-quota-stop`:null;
+const EXPECTED_CACHE=BUILD?`luvia-shell-v${BUILD}-local-recovery`:null;
 const workerContainer=globalThis.navigator?.serviceWorker||null;
 const listeners=new Set();
 let registration=null,deferredPrompt=null,updateAvailable=false,lastUpdateCheck=null,lastError=null;

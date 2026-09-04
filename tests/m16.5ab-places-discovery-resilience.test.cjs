@@ -46,5 +46,12 @@ const source=fs.readFileSync(path.join(root,'app/adapters/places-discovery-adapt
   assert.equal(result.aiMeta.ranking.fallback,false);
   assert.match(result.places[0].aiReasons[0],/ruhigen Reisemoment/);
   assert.equal(Object.isFrozen(result.places[0]),false,'the consumer adapter must project a new display object instead of mutating the frozen owner projection');
-  console.log('M16.5AB Places discovery destination and partial-failure resilience: PASS');
+  let pendingCalls=0,finish;
+  sandbox.LuviaPlaceEntities.searchPlaces=()=>{pendingCalls++;return new Promise(resolve=>{finish=resolve})};
+  const warmRequest={text:'same destination',category:'food',destinationContext:{name:'Fresh scope',center:{lat:54,lng:11}},fastPath:true,fastQueryLimit:1,limit:20};
+  const sharedReads=Promise.all([sandbox.LuviaPlacesDiscoveryService.recommend(warmRequest),sandbox.LuviaPlacesDiscoveryService.recommend(warmRequest)]);
+  await Promise.resolve();await Promise.resolve();assert.equal(pendingCalls,1,'concurrent remounts must share one provider read');
+  finish({data:{places:[{id:'shared-place',name:'Shared',location:{latitude:54,longitude:11}}]}});
+  const sharedResults=await sharedReads;assert.equal(sharedResults[0].places[0].id,'shared-place');assert.equal(sharedResults[1].places[0].id,'shared-place');
+  console.log('M16.5AB Places discovery destination, coalescing and partial-failure resilience: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

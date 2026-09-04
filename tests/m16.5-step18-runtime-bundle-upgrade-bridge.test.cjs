@@ -14,7 +14,7 @@ const pwa=read('intelligence/pwa-service.js');
 const ignore=read('.assetsignore');
 
 assert.equal(manifest.schemaVersion,1);
-assert.equal(manifest.currentBuild,'13.82.168.35');
+assert.equal(manifest.currentBuild,'13.82.168.36');
 assert.equal(manifest.policy.minimumRetainedBuilds,3);
 assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123','13.82.124','13.82.125','13.82.126','13.82.127','13.82.128','13.82.129','13.82.130','13.82.135','13.82.136','13.82.137','13.82.138','13.82.139','13.82.140','13.82.141','13.82.142','13.82.143','13.82.144','13.82.145','13.82.146']);
 assert.equal(manifest.policy.currentLoaderUsesCompatibilityBundle,false);
@@ -45,3 +45,11 @@ assert.doesNotMatch(ignore,/^\/?app(?:\/|$)/m,'the Cloudflare asset boundary may
 
 console.log('M16.5 Step 18 runtime bundle upgrade bridge: PASS');
 console.log('Retained split builds: 13.82.121–13.82.130 plus 13.82.135–13.82.146');
+
+const cacheName=worker.match(/const CACHE='([^']+)'/)[1];
+assert.ok(pwa.includes('`luvia-shell-v${BUILD}-local-recovery`'),'PWA cleanup must preserve the service worker cache identity');
+assert.equal(cacheName,`luvia-shell-v${manifest.currentBuild}-local-recovery`);
+const warmContext=vm.createContext({URL,self:{registration:{scope:'https://example.test/'}},caches:{},console});
+vm.runInContext(worker.slice(0,worker.indexOf('async function precacheShell'))+';globalThis.warm=WARM_SHELL;',warmContext);
+assert.ok(warmContext.warm.some(x=>x.includes('runtime-postcontext')));
+assert.ok(!warmContext.warm.some(x=>x.includes('assets/public-landing')||x.includes('place-detail-service.js')),'mobile warming must not download marketing media or bundled source copies');

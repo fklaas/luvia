@@ -39,5 +39,9 @@ selectionState.filters.types=[];selectionScope.syncFilterSelections();assert.equ
  assert.notEqual(cacheKeys[0],cacheKeys.at(-1),'Places and Stays cannot reuse each other’s cached cohort');
  ctx.LuviaPlacesSpatialExperience.unmount();
  const css=read('app/places/places-spatial-experience.css');assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute/);assert.doesNotMatch(css,/\.lv-places-spatial__map-preview\{position:fixed/);
- console.log('Shared Stays/Places mount, destination query, cache isolation, lifecycle and mobile map containment: PASS');
+ const fresh={scope:JSON.stringify({trip:'trip-a',surface:'places',destination:'Scharbeutz',latitude:trip.destinationLat,longitude:trip.destinationLng}),category:'food',query:'Restaurant',savedAt:new Date().toISOString(),results:[{id:'geoapify:warm',name:'Warm place',types:['restaurant'],coordinates:{latitude:trip.destinationLat,longitude:trip.destinationLng}}]};
+ ctx.LuviaPlatformPorts={get:id=>id==='OfflineCachePort'?{read:()=>fresh,write(){}}:null};
+ const beforeWarm=requests.length;await ctx.LuviaPlacesSpatialExperience.mount(root(),trip);await Promise.resolve();assert.equal(requests.length,beforeWarm,'fresh cached destination must paint without a redundant provider request');assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().resultCount,1);
+ ctx.LuviaPlacesSpatialExperience.unmount();
+ console.log('Shared Stays/Places mount, fresh cache, destination query, lifecycle and mobile map containment: PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});
