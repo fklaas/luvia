@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.29.0-local-recovery';
+  const VERSION='1.30.0-search-intent-continuity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -215,9 +215,19 @@
     const latKm=Math.abs(bounds.north-bounds.south)*111.32,lngKm=Math.abs(bounds.east-bounds.west)*111.32*Math.cos(point.latitude*Math.PI/180),radiusMeters=Math.min(50000,Math.max(250,Math.ceil(Math.hypot(latKm,lngKm)*500)));
     return{bounds,center:point,zoom:Number(map.getZoom?.()||0),radiusMeters,key:[bounds.south,bounds.west,bounds.north,bounds.east].map(value=>value.toFixed(4)).join(':')};
   }
+  function beginViewportIntent(descriptor){
+    // Intent changes with the gesture, not when the provider eventually replies.
+    // A category switch during debounce must search the area the user sees.
+    state.activeViewport=descriptor;
+    state.requestToken++;
+    clearTimeout(state.filterRefreshTimer);state.filterRefreshTimer=0;
+    state.error=null;
+    state.status='loading';
+    refreshSearchScope();
+  }
   async function viewportSearch({bounds,center,radiusMeters,query='Orte',userQuery='',type='custom',includedType='',includedTypes=[],category=state.category,trip=state.trip,providers=['auto'],openNow=false,minRating=null,minUserRatingCount=0,priceLevels=[],vegetarianOnly=false,reservableOnly=false,accessibleOnly=false}={}){
     const reader=placesContract()?.reads?.searchViewport;
-    if(!bounds||!center||typeof reader!=='function')return[];
+    if(!bounds||!center||typeof reader!=='function')throw Object.assign(new Error('Places viewport search is not ready.'),{code:'PLACES_VIEWPORT_UNAVAILABLE'});
     const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,category,userQuery,query:clean(query)||'Orte',includedType,includedTypes,strictTypeFiltering:Boolean(includedType||includedTypes.length),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,reservableOnly,accessibleOnly,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
     // A viewport refresh may return a deliberately lean provider projection. Keep
     // already verified preference facts for the same immutable provider identity
@@ -722,7 +732,7 @@
     button.addEventListener('click',()=>onSelect?.(marker.providerPlaceId,marker));
     return markerAnchor(marker,button);
   }
-  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,category=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
+  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportIntent=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,onViewportError=null,category=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
     let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
@@ -747,12 +757,13 @@
       };
       // DOM pins do not need to wait for map tiles or fonts.
       replaceMarkers(currentPlaces);
-      const cancelPending=()=>{viewportRequest++;clearTimeout(viewportTimer)};
+      const cancelPending=()=>{viewportRequest++;clearTimeout(viewportTimer);lastViewportKey=''};
       const queueViewportSearch=event=>{
         // Programmatic fit/ease/resize is not a request to explore another area.
         if(!event?.originalEvent||typeof onViewportSearch!=='function'||!current())return;
         const descriptor=viewportDescriptor(map);if(!descriptor||descriptor.key===lastViewportKey)return;
         lastViewportKey=descriptor.key;const token=++viewportRequest;clearTimeout(viewportTimer);
+        onViewportIntent?.(descriptor);
         projectionRefreshState(container,true,'Neue Pins werden im Hintergrund geladen …');
         viewportTimer=setTimeout(async()=>{
           if(token!==viewportRequest||!current())return;
@@ -773,6 +784,8 @@
             projectionRefreshState(container,false);
           }catch(error){
             if(token!==viewportRequest||!current())return;
+            lastViewportKey='';
+            onViewportError?.(error,descriptor);
             projectionState(container,'ready','Nachladen fehlgeschlagen, bisherige Pins bleiben sichtbar.');
             projectionRefreshState(container,false);
           }
@@ -819,7 +832,7 @@
     try{
       const def=activeSearchDefinition();
       const target=tripGeography(state.trip),initialCenter=COMPOSITION().normalizeCoordinates(target.location||target.center);
-      state.mapProjection=mountProjection(container,ensureVisibleFitResults(),{selectedId:state.selectedId,initialCenter,runtimeStatus:()=>model().status,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportSearch:descriptor=>{const active=activeSearchDefinition();return viewportSearch({...descriptor,query:active.query,userQuery:state.userQuery,type:active.primaryType,includedType:active.includedType,includedTypes:active.includedTypes||[],category:state.category,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible})},projectViewportResults:rows=>ensureVisibleFitResults(rows),onViewportResults:(rows,descriptor)=>{state.activeViewport=descriptor;state.results=(Array.isArray(rows)?rows:[]).filter(place=>placeMatchesActiveCategory(place));const visible=ensureVisibleFitResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;select(state.selectedId,false,false)}});
+      state.mapProjection=mountProjection(container,ensureVisibleFitResults(),{selectedId:state.selectedId,initialCenter,runtimeStatus:()=>model().status,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportIntent:beginViewportIntent,onViewportSearch:descriptor=>{const active=activeSearchDefinition();return viewportSearch({...descriptor,query:active.query,userQuery:state.userQuery,type:active.primaryType,includedType:active.includedType,includedTypes:active.includedTypes||[],category:state.category,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible})},projectViewportResults:rows=>ensureVisibleFitResults(rows),onViewportResults:(rows,descriptor)=>{state.activeViewport=descriptor;state.results=(Array.isArray(rows)?rows:[]).filter(place=>placeMatchesActiveCategory(place));state.status=state.results.length?'ready':'empty';state.error=null;state.lastSearchAt=new Date().toISOString();const visible=ensureVisibleFitResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;select(state.selectedId,false,false)},onViewportError:error=>{state.status=state.results.length?'ready':'error';state.error=state.results.length?null:{code:error?.code||'PLACES_VIEWPORT_UNAVAILABLE',userMessage:'Der Kartenausschnitt konnte gerade nicht geladen werden.'}}});
       state.map=state.mapProjection?.map||null;
       hydrateMapPreview(findPlace(state.selectedId));
     }catch{
@@ -995,10 +1008,13 @@
     const center=tripGeography(state.trip).location;
     if(center){const dy=5000/111320,dx=dy/Math.cos(center.latitude*Math.PI/180);state.map?.fitBounds?.([[center.longitude-dx,center.latitude-dy],[center.longitude+dx,center.latitude+dy]],{padding:70,duration:reducedMotion()?0:350});}
   }
+  function refreshSearchScope(){
+    const scope=state.root?.querySelector('.lv-places-spatial__scope');if(scope)scope.textContent=state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}${state.searchRadiusMeters===5000?' · einschließlich Umgebung':''}`;
+  }
   function updateFilteredMap(){
     syncFilterSelections();
     state.story?.resultsChanged?.();
-    const scope=state.root?.querySelector('.lv-places-spatial__scope');if(scope)scope.textContent=state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}${state.searchRadiusMeters===5000?' · einschließlich Umgebung':''}`;
+    refreshSearchScope();
     const rows=ensureVisibleFitResults(),view=state.mapProjection?.update?.(rows);
     const mapHost=state.root?.querySelector('[data-places-map]');
     if(mapHost&&state.status!=='loading'){

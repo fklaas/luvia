@@ -1,5 +1,7 @@
 # Luvia aktueller Integrationsstand
 
+Releasekandidat **13.82.168.45**: Kontinuität beim Wechsel von Kartenausschnitt und Kategorie. In Abnahme; der nachfolgend belegte öffentliche Stand bleibt bis zur Veröffentlichung .44.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

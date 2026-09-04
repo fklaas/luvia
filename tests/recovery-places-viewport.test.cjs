@@ -14,19 +14,20 @@ class FakeMap{
 class Marker{setLngLat(){return this}addTo(){return this}remove(){}}
 const ctx=vm.createContext({console,Date,Map,Set,Promise,performance,document:{documentElement:node(),createElement:node},MutationObserver:class{observe(){}disconnect(){}},maplibregl:{Map:FakeMap,Marker,NavigationControl:class{}},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:id=>timers.delete(id)});ctx.window=ctx;
 for(const p of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js'])vm.runInContext(read(p),ctx);
-vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey};globalThis.LuviaPlacesSpatialExperience='),ctx);
+vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
 const row=(id,lat=54.02)=>({id,providerPlaceId:id,name:id,primaryType:'restaurant',types:['restaurant'],coordinates:{latitude:lat,longitude:10.75}});
 const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pending)await t.fn()};
 (async()=>{
  ctx.recovery.state.category='food';
- let calls=0,rows=[row('Fresh')],received;
- const projection=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('Old')],{initialCenter:{latitude:54.0225,longitude:10.7544},onViewportSearch:async()=>{calls++;return rows},projectViewportResults:()=>[],onViewportResults:r=>received=r});
+ let calls=0,rows=[row('Fresh')],received,intendedViewport;
+ const projection=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('Old')],{initialCenter:{latitude:54.0225,longitude:10.7544},onViewportIntent:descriptor=>intendedViewport=descriptor,onViewportSearch:async()=>{calls++;return rows},projectViewportResults:()=>[],onViewportResults:r=>received=r});
  assert.ok(projection.map,'real projection must mount');
  assert.equal(projection.view.markers.length,1,'known pins are available before tile readiness');
  const loadingNode=node(),loading=ctx.LuviaPlacesSpatialExperience.mountProjection(loadingNode,[],{initialCenter:{latitude:54.02,longitude:10.75},runtimeStatus:()=>({kind:'loading'})});loading.map.fire('style.load');assert.equal(loadingNode.dataset.mapState,'ready','a usable base map while search is pending must not claim empty');loading.destroy();
  assert.deepEqual(Array.from(projection.map.options.center),[10.7544,54.0225],'camera starts at destination');
  projection.map.fire('load');await tick();assert.equal(calls,0,'load, ease and resize must not spend viewport requests');
  projection.map.fire('moveend',{originalEvent:{}});projection.map.fire('dragend',{originalEvent:{}});projection.map.fire('zoomend',{originalEvent:{}});
+ assert.equal(intendedViewport?.bounds.south,54,'the visible area must become the active intent before debounce or provider completion');
  await tick();assert.equal(calls,1,'one user gesture causes one debounced request');
  assert.equal(received[0].name,'Fresh','fit rendering must preserve the full candidate cohort');assert.equal(projection.view.markers.length,0);
  projection.update(received);assert.equal(projection.view.markers.length,1,'All can restore full cohort after fit-only rendering');
@@ -34,6 +35,12 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  projection.map.shift=.2;rows=[row('Outside old viewport'),row('Inside new viewport',54.22)];projection.map.fire('moveend',{originalEvent:{}});await tick();assert.equal(received.length,1);assert.equal(received[0].name,'Inside new viewport');
  let resolve;const racing=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('New category')],{initialCenter:{latitude:54.02,longitude:10.75},onViewportSearch:()=>new Promise(r=>resolve=r),onViewportResults:()=>assert.fail('cancelled response must never publish')});
  racing.map.fire('load');await tick();racing.map.fire('moveend',{originalEvent:{}});const pending=tick();racing.cancelPending();resolve([row('Stale category')]);await pending;assert.equal(racing.view.markers[0].name,'New category');
+ let retryCalls=0,failViewport=true;
+ const retrying=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('Retained')],{initialCenter:{latitude:54.02,longitude:10.75},onViewportSearch:async()=>{retryCalls++;if(failViewport)throw new Error('transient');return[row('Retried')]}});
+ retrying.map.fire('load');retrying.map.fire('moveend',{originalEvent:{}});await tick();assert.equal(retrying.view.markers[0].name,'Retained','transient failures retain previous pins');
+ failViewport=false;retrying.map.fire('moveend',{originalEvent:{}});await tick();assert.equal(retryCalls,2,'failed area can be retried without moving to a different area');assert.equal(retrying.view.markers[0].name,'Retried');
+ retrying.map.shift=.1;retrying.map.fire('moveend',{originalEvent:{}});retrying.cancelPending();await tick();assert.equal(retryCalls,2);
+ retrying.map.fire('moveend',{originalEvent:{}});await tick();assert.equal(retryCalls,3,'cancelled area is not remembered as a completed search');retrying.destroy();
  const lodging={...row('Hotel'),primaryType:'lodging',types:['lodging','accommodation_hotel']};let hotelRows;
  const hotel=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[lodging],{category:'accommodation',initialCenter:{latitude:54.02,longitude:10.75},onViewportSearch:async()=>[lodging],onViewportResults:rows=>hotelRows=rows});
  hotel.map.fire('style.load');hotel.map.fire('moveend',{originalEvent:{}});await tick();
@@ -45,5 +52,19 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const entry=savedCache.get(ctx.recovery.cacheKey());entry.savedAt='2020-01-01';assert.equal(ctx.recovery.loadCached(),false,'expired data cannot claim current coverage');entry.savedAt=new Date().toISOString();
  st.filters.cuisines=['italian_restaurant'];st.results=[row('geoapify:filtered')];ctx.recovery.saveCached();assert.equal(entry.results[0].name,'geoapify:cached','a filtered result must not overwrite the default destination cohort');st.filters.cuisines=[];
  st.results=[row('google-legacy')];ctx.recovery.saveCached();assert.equal(savedCache.get(ctx.recovery.cacheKey()).results[0].name,'geoapify:cached','cache must not absorb other provider content');
+ // A late destination read must not overwrite a newer camera intent, and a
+ // category change during the viewport debounce must use that camera's bounds.
+ let finishDestination,viewportOptions;
+ st.root={querySelector:()=>null,querySelectorAll:()=>[]};st.mapProjection={cancelPending(){},update(){return{markers:[]}}};st.activeViewport=null;
+ st.categories=[{key:'food',query:'Restaurant',primaryType:'restaurant'},{key:'shopping',query:'Shopping',primaryType:'store'}];
+ ctx.LuviaPlacesContractV1={reads:{recommend:()=>new Promise(resolve=>finishDestination=resolve),searchViewport:async options=>{viewportOptions=options;return{places:[]}}}};
+ const slowDestination=ctx.LuviaPlacesSpatialExperience.search({category:'food',preserveMap:true});
+ const camera={bounds:{south:54.1,north:54.2,west:10.7,east:10.8},center:{latitude:54.15,longitude:10.75},radiusMeters:5000};
+ ctx.recovery.beginViewportIntent(camera);st.results=[row('New viewport',54.15)];
+ finishDestination({places:[row('Old destination')]});assert.equal(await slowDestination,false);assert.equal(st.results[0].name,'New viewport','late destination response cannot replace current viewport pins');
+ await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
+ assert.equal(viewportOptions.bounds,camera.bounds,'category switch uses new viewport before a viewport response has completed');assert.equal(viewportOptions.category,'shopping');
+ ctx.LuviaPlacesContractV1={reads:{}};
+ await assert.rejects(ctx.LuviaPlacesSpatialExperience.viewportSearch(camera),/not ready/,'unavailable contract is not a successful empty result');
  projection.destroy();racing.destroy();hotel.destroy();console.log('Places viewport gestures, empty replacement, fit cohort, Hotel parity and stale response cancellation: PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -99,7 +99,7 @@ async function main() {
 
   assert.ok(
     binding.includes(
-      "./core/trips/active-trip-context.mjs?v=13.82.168.44"
+      "./core/trips/active-trip-context.mjs?v=13.82.168.45"
     ),
     'M5.3 Web Binding must import runtime-neutral Active Trip Context'
   );
@@ -149,7 +149,7 @@ async function main() {
   assert.strictEqual(
     count(
       index,
-      '<script type="module" src="luvia-trip-context.js?v=13.82.168.44"></script>'
+      '<script type="module" src="luvia-trip-context.js?v=13.82.168.45"></script>'
     ),
     1,
     'luvia-trip-context.js must be loaded as an ES module exactly once'
@@ -158,7 +158,7 @@ async function main() {
   assert.strictEqual(
     count(
       index,
-      '<script src="luvia-trip-context.js?v=13.82.168.44"></script>'
+      '<script src="luvia-trip-context.js?v=13.82.168.45"></script>'
     ),
     0,
     'legacy classic luvia-trip-context.js tag must be removed'
@@ -210,7 +210,7 @@ async function main() {
     Date.now();
 
   const importLiteral =
-    "'./core/trips/active-trip-context.mjs?v=13.82.168.44'";
+    "'./core/trips/active-trip-context.mjs?v=13.82.168.45'";
 
   assert.strictEqual(
     count(
