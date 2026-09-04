@@ -68,7 +68,7 @@ assert.match(sheet,/reserveExternalWindow:false/,'route resolution must not expo
 assert.match(sheet,/deferExternalOpen:true/,'an asynchronously resolved external route must wait for a fresh deliberate provider click');
 assert.match(sheet,/onExternalReady:showExternalReady/,'the exact provider route must become a visible in-sheet handoff action');
 assert.match(sheet,/dataset\.lvjsProviderHandoff='true'/,'the provider handoff button must be explicit and addressable');
-assert.match(sheet,/Die Timeline bleibt bis zum Absenden unverändert/,'the visible progress state must explain the non-mutating route check');
+assert.match(sheet,/Die Timeline bleibt unverändert/,'the visible progress state must explain the non-mutating route check');
 assert.match(sheet,/preparePlaceBooking/,'the exact selected Place route must start warming before the booking action is clicked');
 assert.match(sheet,/planButton\.disabled=false/,'a scheduling conflict must remain an actionable control with visible feedback instead of a silent disabled button');
 assert.match(sheet,/data-lvjs-action-state role="status" aria-live="polite"/,'Booking progress and failures must remain visible beside the staged actions even while the scheduler stays hidden');
