@@ -26,7 +26,10 @@
     "disruptionRecovery",
     "destinationTwin",
     "subscribe",
-    "composeProjection"
+    "composeProjection",
+    "previewSchedule",
+    "scheduleEditable",
+    "scheduleRecovery"
   ],
   "commands": [
     "init",
@@ -62,5 +65,13 @@
     "social",
     "intelligence"
   ],
-  "legacyCompatibility": "core/places/timeline-core.js"
+  "legacyCompatibility": "core/places/timeline-core.js",
+  "scheduleEditing": {
+    "surface": "commands.editEntry(entryId, confirmedSchedule)",
+    "sources": ["place-data.planned_at"],
+    "concurrency": "exact source revision under existing Places RLS",
+    "recovery": "single previous schedule receipt on the owner record",
+    "requiresConfirmation": true,
+    "bookingOwnerCheck": true
+  }
 }

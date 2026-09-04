@@ -1,3 +1,9 @@
+# P09 Release Candidate 13.82.168.44
+
+In Prüfung: bestätigte Zeitänderung, Langdruck-Verschiebemodus und dauerhafte Rücknahme. Noch kein neuer öffentlicher Release-Nachweis.
+
+Runtime-Familie: M16.5 Places and Stays Quality.
+
 # Luvia aktueller Integrationsstand
 
 Stand 4. September 2026. B1 verbindet die gemeinsame Places-Suche mit dem Chat und einer sichtbaren Prüfung von Tag und Uhrzeit vor der Planung.

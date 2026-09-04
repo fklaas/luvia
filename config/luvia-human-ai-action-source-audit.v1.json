@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 947,
+  "markerCount": 956,
   "markers": [
     {
       "marker": "data-accent",
@@ -3715,6 +3715,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-journey-schedule-undo",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-journey-selected",
       "category": "Journey, Timeline & Tagesplan",
       "classification": "AKTIONSKANDIDAT",
@@ -5079,6 +5088,42 @@
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "app/public-landing-motion.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-move-hint",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-move-minutes",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-move-mode",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-move-time",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
@@ -7687,6 +7732,42 @@
         "app/memory-worlds-v3.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-schedule-close",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-schedule-consent",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-schedule-preview",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-schedule-status",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-score-help",

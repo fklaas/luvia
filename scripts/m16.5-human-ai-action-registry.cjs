@@ -690,6 +690,17 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  // P09: presentation variants of journey.editor.open, entry time/date/duration,
+  // entry.reorder and journey.undo. No additional semantic action or AI-pass claim.
+  'data-schedule-close': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-schedule-preview': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-schedule-consent': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-schedule-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-move-hint': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-move-mode': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-move-minutes': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-move-time': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-journey-schedule-undo': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-trip-map-action': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-trip-map-input': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-trip-map-host': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
@@ -817,8 +828,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 947);
-  assert.equal(sourceAudit.markerCount, 947);
+  assert.equal(sourceAudit.markers.length, 956);
+  assert.equal(sourceAudit.markerCount, 956);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

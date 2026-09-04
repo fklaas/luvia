@@ -26,7 +26,7 @@ function tripProjection(input){
 function composeProjection(source=provider().snapshot?.()||{},options={}){
   return domain().compose({
     trip:tripProjection(options.trip),
-    entries:Array.isArray(source?.entries)?source.entries:[],
+    entries:Array.isArray(source?.entries)?source.entries.map(entry=>({...entry,calendarDate:entry.startAt&&!Number.isNaN(Date.parse(entry.startAt))?new Date(entry.startAt).toLocaleDateString('sv-SE'):null})):[],
     now:options.now||new Date().toISOString(),
     policy:options.policy||{},
     sourceContract:'journey.web-projection'
@@ -84,7 +84,67 @@ async function removeEntry(identity,options={}){const result=await provider().re
 async function clearEntries(options={}){const result=await provider().clearEntries?.(options);emit('clear-entries',result);return result}
 async function removePhotoMemoryByCluster(clusterId,options={}){const result=await provider().removePhotoMemoryByCluster?.(clusterId,options);emit('remove-photo-memory');return result}
 function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(resolveSourceEntry(identity),node)}
-function editEntry(identity,onDone){return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)})}
+function editEntry(identity,onDone){
+  if(onDone&&typeof onDone==='object')return applySchedule(identity,onDone);
+  return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)});
+}
+function scheduleEditable(identity){return domain().scheduleEditable(typeof identity==='object'?identity:getEntry(identity))}
+function previewSchedule(identity,input={}){
+  const entry=getEntry(identity),trip=activeTrip();
+  if(!entry)throw new Error('Der Timeline-Eintrag ist nicht mehr verfügbar.');
+  const start=new Date(input.startAt),localDate=Number.isNaN(start.getTime())?'':start.toLocaleDateString('sv-SE'),end=new Date(start.getTime()+Number(input.durationMinutes)*60000),localEndDate=Number.isNaN(end.getTime())?'':end.toLocaleDateString('sv-SE');
+  return domain().previewSchedule({...input,localDate,localEndDate,entry,trip,entries:snapshot({trip}).entries});
+}
+function scheduleRecovery(identity){
+  const entry=typeof identity==='object'?identity:getEntry(identity),receipt=entry?.metadata?.scheduleRecovery;
+  if(!receipt||receipt.entryId!==entry.id||!receipt.before?.startAt||receipt.after?.startAt!==entry.startAt||Number(receipt.after?.durationMinutes)!==entry.durationMinutes)return null;
+  return Object.freeze({...receipt,entryId:entry.id,title:entry.title,expectedRevision:entry.sourceRevision});
+}
+const schedulePending=new Map();
+async function applySchedule(identity,input={}){
+  const id=typeof identity==='string'?identity:identity?.id,operationId=String(input.operationId||'');
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte die Zeitänderung zuerst prüfen und bestätigen.');
+  if(schedulePending.has(id)){
+    const pending=schedulePending.get(id);
+    if(pending.operationId===operationId)return pending.promise;
+    throw new Error('Für diesen Eintrag wird gerade eine Änderung gespeichert.');
+  }
+  const promise=(async()=>{
+    const original=getEntry(id),trip=activeTrip();
+    if(!original||original.tripId!==String(trip?.id||trip?.tripId||''))throw new Error('Bitte den Eintrag in der aktiven Reise erneut öffnen.');
+    await hydrate(original.tripId);
+    const entry=getEntry(id);
+    if(entry?.metadata?.scheduleRecovery?.operationId===operationId)return entry.metadata.scheduleRecovery;
+    if(!entry||!input.expectedRevision||entry.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
+    const bookings=globalThis.LuviaBookingContractV1?.reads?.listForTrip;
+    if(!bookings)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
+    const rows=await bookings(entry.tripId);
+    if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===entry.tripPlaceId)||(entry.placeId&&String(row.place_id||row.placeId||'')===entry.placeId)))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+    const preview=previewSchedule(id,input);
+    if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');
+    if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
+    if(!preview.changed)return Object.freeze({unchanged:true,entryId:id});
+    let metadata={...entry.metadata,durationMinutes:preview.after.durationMinutes},receipt;
+    if(input.recoveryOperationId){
+      const recovery=scheduleRecovery(entry);
+      if(!recovery||recovery.operationId!==input.recoveryOperationId||recovery.before.startAt!==preview.after.startAt||Number(recovery.before.durationMinutes)!==preview.after.durationMinutes)throw new Error('Diese Änderung kann nicht mehr unverändert zurückgenommen werden.');
+      metadata.scheduleRecovery=null;
+      if(recovery.before.hadDuration)metadata.durationMinutes=recovery.before.durationValue;else delete metadata.durationMinutes;
+      receipt={operation:'restore-schedule',entryId:id,operationId};
+    }else{
+      receipt={operation:'restore-schedule',operationId,entryId:id,createdAt:new Date().toISOString(),before:{...preview.before,hadDuration:Object.hasOwn(entry.metadata,'durationMinutes'),durationValue:entry.metadata.durationMinutes??null},after:preview.after};
+      metadata.scheduleRecovery=receipt;
+    }
+    if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==entry.tripId)throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+    await writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:entry.sourceRevision,fields:{planned_at:preview.after.startAt,metadata}});
+    await hydrate(entry.tripId);
+    const saved=getEntry(id);
+    if(saved?.startAt!==preview.after.startAt||saved?.durationMinutes!==preview.after.durationMinutes)throw new Error('Die Änderung wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Zeitpunkt prüfen.');
+    return Object.freeze(receipt);
+  })().finally(()=>schedulePending.delete(id));
+  schedulePending.set(id,{operationId,promise});return promise;
+}
 function openPlanningEditor(options,onDone){return provider().openPlanningEditor?.(options,onDone)}
 function offlineProvider(){const api=globalThis.LuviaJourneyOfflinePack;if(!api?.save||!api?.remove)unavailable('LuviaJourneyOfflinePack');return api}
 function externalNavigation(){const api=globalThis.LuviaPlatformPorts?.get?.('ExternalNavigationPort');if(!api?.open)unavailable('ExternalNavigationPort');return api}
@@ -103,6 +163,11 @@ function saveOfflinePack(input={}){const value=resolveDayInput(input);return off
 function removeOfflinePack(input={}){const value=resolveDayInput(input);return Object.freeze({removed:Boolean(offlineProvider().remove(value.trip,value.date)),tripId:String(value.trip.id||value.trip.tripId),date:value.date})}
 async function undo(input={}){
   const operation=String(input.operation||input.receipt?.operation||'');
+  if(operation==='restore-schedule'){
+    const recovery=scheduleRecovery(input.entryId||input.receipt?.entryId);
+    if(!recovery)throw new Error('Für diesen Eintrag gibt es keine unveränderte Zeitänderung zum Zurücknehmen.');
+    return applySchedule(recovery.entryId,{...input,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,recoveryOperationId:recovery.operationId});
+  }
   if(operation==='restore-entry'){
     const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
     return Object.freeze({operation,restored:true,result:await recordEvent(entry)});
@@ -114,7 +179,7 @@ async function undo(input={}){
   throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
 }
 
-const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery});
 const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,

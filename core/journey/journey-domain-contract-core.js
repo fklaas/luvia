@@ -70,6 +70,9 @@ function normalizeEntry(entry={},index=0){
     entityType,
     kind,
     source:text(entry.source,'event'),
+    sourceRevision:text(entry.sourceRevision)||null,
+    dataKey:text(entry.dataKey)||null,
+    calendarDate:parseDay(entry.calendarDate)!==null?text(entry.calendarDate).slice(0,10):null,
     startAt,
     endAt:startAt?endAt(entry,startAt,duration):null,
     durationMinutes:duration,
@@ -118,12 +121,16 @@ function conflict(kind,entries,detail={}){
 function conflictsFor(entries=[],options={}){
   const minimumTransferMinutes=Math.max(0,finite(options.minimumTransferMinutes,DEFAULT_TRANSFER_MINUTES));
   const conflicts=[];
+  // Compare every intersecting interval: a long visit may contain several stops.
+  for(let i=0;i<entries.length;i++)for(let j=i+1;j<entries.length;j++){
+    const a=entries[i],b=entries[j],overlap=Math.min(Date.parse(a.endAt),Date.parse(b.endAt))-Math.max(Date.parse(a.startAt),Date.parse(b.startAt));
+    if(overlap>0)conflicts.push(conflict('overlap',[a,b],{overlapMinutes:Math.ceil(overlap/60000)}));
+  }
   for(let index=0;index<entries.length-1;index+=1){
     const current=entries[index],next=entries[index+1];
     if(!current.startAt||!current.endAt||!next.startAt)continue;
     const gapMinutes=Math.round((Date.parse(next.startAt)-Date.parse(current.endAt))/60000);
     if(gapMinutes<0){
-      conflicts.push(conflict('overlap',[current,next],{overlapMinutes:Math.abs(gapMinutes)}));
       continue;
     }
     const samePlace=Boolean(current.place.placeId&&current.place.placeId===next.place.placeId);
@@ -147,6 +154,21 @@ function dayStatus(day,nowKey){
   if(!day.entries.length)return'open';
   if(day.date===nowKey)return'live';
   return'planned';
+}
+function scheduleEditable(entry={}){
+  return entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus;
+}
+function previewSchedule(input={}){
+  const entry=input.entry||{},trip=tripProjection(input.trip||{}),startAt=validIso(input.startAt),duration=Number(input.durationMinutes),date=text(input.localDate);
+  if(!scheduleEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich bearbeitet.');
+  if(!trip.id||entry.tripId!==trip.id)throw new Error('Dieser Eintrag gehört nicht zur aktiven Reise.');
+  if(!startAt||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isInteger(duration)||duration<15||duration>1440)throw new Error('Bitte gültigen Reisetag, Uhrzeit und eine Dauer von 15 bis 1440 Minuten angeben.');
+  if((trip.startDate&&date<trip.startDate)||(trip.endDate&&date>trip.endDate))throw new Error('Der neue Zeitpunkt muss innerhalb eurer Reise liegen.');
+  if(trip.endDate&&input.localEndDate&&input.localEndDate>trip.endDate)throw new Error('Der Reisemoment endet nach eurer Reise. Bitte Uhrzeit oder Dauer anpassen.');
+  const candidate=normalizeEntry({...entry,startAt,calendarDate:date,endAt:new Date(Date.parse(startAt)+duration*60000).toISOString(),durationMinutes:duration});
+  const entries=[...(input.entries||[]).filter(item=>item.id!==entry.id&&item.tripId===trip.id),candidate].sort((a,b)=>Date.parse(a.startAt)-Date.parse(b.startAt));
+  const conflicts=conflictsFor(entries).filter(item=>item.entryIds.includes(entry.id)).map(item=>({...item,titles:item.entryIds.filter(id=>id!==entry.id).map(id=>entries.find(other=>other.id===id)?.title||'Anderer Reisemoment')}));
+  return immutable({entryId:entry.id,tripId:trip.id,expectedRevision:entry.sourceRevision,before:{startAt:entry.startAt,durationMinutes:entry.durationMinutes},after:{startAt:candidate.startAt,endAt:candidate.endAt,durationMinutes:duration},localDate:date,conflicts,requiresConfirmation:true,changed:entry.startAt!==candidate.startAt||entry.durationMinutes!==duration});
 }
 function openGapsFor(date,entries=[],options={}){
   const startHour=Math.max(0,Math.min(23,finite(options.dayStartHour,8)));
@@ -190,7 +212,7 @@ function compose(input={}){
   const entries=dedupe((Array.isArray(input.entries)?input.entries:[]).map(normalizeEntry));
   const scheduled=entries.filter(entry=>entry.startAt),unscheduled=entries.filter(entry=>!entry.startAt);
   const byDate=new Map();
-  for(const entry of scheduled){const key=dateKey(entry.startAt);if(!byDate.has(key))byDate.set(key,[]);byDate.get(key).push(entry)}
+  for(const entry of scheduled){const key=entry.calendarDate||dateKey(entry.startAt);if(!byDate.has(key))byDate.set(key,[]);byDate.get(key).push(entry)}
   const keys=new Set([...range(trip.startDate,trip.endDate),...byDate.keys()]);
   const days=[...keys].sort().slice(0,MAX_DAYS).map(key=>createDay(key,byDate.get(key)||[],nowKey,input.policy||{}));
   const conflicts=days.flatMap(day=>day.conflicts);
@@ -239,5 +261,5 @@ function diagnostics(){
   });
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,diagnostics});
 })();

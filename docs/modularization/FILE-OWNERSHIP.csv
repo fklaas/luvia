@@ -2717,3 +2717,6 @@ docs/planning/consolidation-validation-2026-09-04.json,Documentation/Release His
 tests/b1-discovery-acceptance.test.cjs,Quality/Tests,Test,Real chat discovery regression and bounded dietary candidate selection
 docs/modularization/PCR-B1-DISCOVERY-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,B1 discovery and truthful status PCR
 tests/planning-current-status.test.cjs,Quality/Tests,Test,Canonical current roadmap and immutable archived evidence validation
+
+tests/p09-timeline-schedule.test.cjs,Journey/Places/Shared Tests,Test/Guardrail,Schedule preview conditional owner write stale conflict and durable recovery
+tests/p09-timeline-touch-browser.test.cjs,Journey/Consumer/Shared Tests,Test/Browser,Visible touch emulation hold drag scroll cancel confirmation and recovery

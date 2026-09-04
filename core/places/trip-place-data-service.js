@@ -26,7 +26,7 @@ async function hydrate(id=tripId()){
 }
 function recordForTripPlace(id){return state.records.find(r=>String(r.trip_place_id)===String(id))||null}
 function recordsForType(type){return state.records.filter(r=>String(r.place_type)===String(type))}
-async function upsert({tripId:id=tripId(),tripPlaceId,placeId,placeType,fields={}}={}){
+async function upsert({tripId:id=tripId(),tripPlaceId,placeId,placeType,fields={},expectedUpdatedAt}={}){
  const canonicalTripId=canonicalUuid(id),canonicalTripPlaceId=canonicalUuid(tripPlaceId);
  if(!canonicalTripId)throw new Error('Die aktive Reise besitzt keine gültige Cloud-ID. Bitte die Reise erneut öffnen.');
  if(!canonicalTripPlaceId)throw new Error('Die Place-Verknüpfung besitzt keine gültige Cloud-ID. Bitte den Ort neu öffnen.');
@@ -34,6 +34,15 @@ async function upsert({tripId:id=tripId(),tripPlaceId,placeId,placeType,fields={
  const c=db(); if(!c?.rpc)throw new Error('Supabase ist nicht verfügbar.');
  const canonicalPlaceId=canonicalUuid(placeId);
  const previous=recordForTripPlace(canonicalTripPlaceId),previousIndex=state.records.findIndex(row=>String(row.trip_place_id)===canonicalTripPlaceId);
+ if(expectedUpdatedAt!==undefined){
+  if(!expectedUpdatedAt||previous?.trip_id!==canonicalTripId||previous?.updated_at!==expectedUpdatedAt)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte die Timeline neu laden und erneut prüfen.');
+  // The owner record is the concurrency boundary. No optimistic success on this path.
+  const {data,error}=await c.from('trip_place_data').update({fields:{...previous.fields,...fields},updated_at:new Date().toISOString()}).eq('trip_id',canonicalTripId).eq('trip_place_id',canonicalTripPlaceId).eq('updated_at',expectedUpdatedAt).select('trip_place_id,updated_at');
+  if(error)throw error;
+  if(!data?.length)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte die Timeline neu laden und erneut prüfen.');
+  await hydrate(canonicalTripId);
+  return data[0];
+ }
  const staged=normalize({
   ...(previous||{}),
   trip_id:canonicalTripId,

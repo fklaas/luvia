@@ -133,6 +133,7 @@ const sensitiveEvidence=place=>({
 });
 function safeReason(reason,place){
   const value=clean(reason),truth=sensitiveEvidence(place),lower=value.toLowerCase();
+  if(/strikten Kategorie- und Qualitätsvertrag/i.test(value))return'';
   if(!value)return'';
   if(/vegan/.test(lower)&&!truth.vegan)return'';
   if(/vegetar/.test(lower)&&!truth.vegetarian&&!truth.vegan)return'';
@@ -467,7 +468,7 @@ function cardMarkup(place,index,input,choices=[]){
 }
 function shellMarkup(input){
   const destination=destinationOf(input.trip)||'eurem Reiseziel',count=desiredCount(input),placesSearch=input.source==='places-search',hotelMap=input.source==='hotel-map',mapResults=placesSearch||hotelMap;
-  const title=hotelMap?`${count} passende Unterkünfte gefunden.`:placesSearch?`${count} passende Orte gefunden.`:'Möglichkeiten für euren freien Moment.';
+  const title=hotelMap?`${count} passende Unterkünfte gefunden.`:placesSearch?`${count} ${count===1?'passender Ort':'passende Orte'} gefunden.`:'Möglichkeiten für euren freien Moment.';
   const copy=hotelMap?'Wischt durch die belegten Hotels. Ein Tipp zeigt Verfügbarkeit, Buchungsweg und Planung für genau diese Unterkunft.':placesSearch?'Wischt seitlich durch die belegten Treffer. Ein Tipp öffnet Termin und nächste Aktion direkt in der Karte.':'Places belegt die Fakten. Luvia gewichtet Profile, Reisegefühl und euren Tag. Ein Tipp wählt; noch wird nichts verändert.';
   const navigation=mapResults&&input.navigation?`<nav class="lvjs-pin-navigation" aria-label="Schnellnavigation zwischen Karten-Pins"><button type="button" data-lvjs-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b>${input.navigation.index+1}</b> / ${input.navigation.count}</span><button type="button" data-lvjs-navigate="next" aria-label="Nächster Pin">→</button></nav>`:'';
   return`<header class="lvjs-header"><div><span>${hotelMap?'Hotels':placesSearch?'Places entdecken':'Luvia'} · ${esc(displayDate(input.targetDate))}</span><h2 data-lvjs-heading>${esc(title)}</h2><p>${esc(copy)}</p></div>${navigation}<button type="button" data-lvjs-close aria-label="${mapResults?'Zurück zur Karte':'Vorschläge schließen'}">×</button></header><div class="lvjs-status" data-lvjs-status role="status" aria-live="polite"><span class="lvjs-loader" aria-hidden="true"></span><div><strong>Luvia prüft ${esc(destination)} …</strong><small>Orte werden gesucht, fachlich gefiltert und für alle Reisenden belegbar gewichtet.</small></div></div><div class="lvjs-results" data-lvjs-results hidden></div><footer class="lvjs-footer"><span data-lvjs-ai-state>Places belegt · Luvia ordnet · ihr bestätigt</span><button type="button" class="lvjs-footer-plan" data-lvjs-plan-selected hidden>Zur Timeline hinzufügen</button><button type="button" data-lvjs-spectrum>Alle Richtungen entdecken</button><button type="button" data-lvjs-retry hidden>Erneut prüfen</button></footer>`;
@@ -643,7 +644,7 @@ function bindPhotoFallbacks(results){
 function paintResults(handle,result,selectedId='',restoredState=null){
   const root=handle.overlay,status=root.querySelector('[data-lvjs-status]'),results=root.querySelector('[data-lvjs-results]'),footer=root.querySelector('[data-lvjs-ai-state]');
   const heading=root.querySelector('[data-lvjs-heading]'),placesSearch=result.input.source==='places-search',hotelMap=result.input.source==='hotel-map',mapResults=placesSearch||hotelMap,actualCount=result.choices.length;
-  if(heading)heading.textContent=hotelMap?`${actualCount} passende ${actualCount===1?'Unterkunft':'Unterkünfte'} gefunden.`:placesSearch?`${actualCount} passende ${actualCount===1?'Ort':'Orte'} gefunden.`:`${actualCount} ${actualCount===1?'Möglichkeit':'Möglichkeiten'} für euren freien Moment.`;
+  if(heading)heading.textContent=hotelMap?`${actualCount} passende ${actualCount===1?'Unterkunft':'Unterkünfte'} gefunden.`:placesSearch?`${actualCount} ${actualCount===1?'passender Ort':'passende Orte'} gefunden.`:`${actualCount} ${actualCount===1?'Möglichkeit':'Möglichkeiten'} für euren freien Moment.`;
   const spectrum=root.querySelector('[data-lvjs-spectrum]');
   if(spectrum){spectrum.hidden=mapResults;spectrum.onclick=()=>{const detail={source:'journey-spectrum',targetDate:result.input.targetDate,startAt:result.input.startAt,endAt:result.input.endAt,destination:destinationOf(result.input.trip),categories:['Essen','Cafés','Bars','Kultur','Sehenswürdigkeiten','Natur','Wellness','Sport','Shopping','Nachtleben','Fotospots','Familie','Events']};globalThis.dispatchEvent(new CustomEvent('luvia:places-discovery-requested',{detail}));if(globalThis.LuviaApp?.show){handle.close('open-places-spectrum');globalThis.LuviaApp.show('places',{payload:detail,source:'journey-spectrum'})}else{spectrum.textContent='Gesamtes Spektrum in Places';spectrum.dataset.requested='true'}}}
   if(result.warning)status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Letzter belegter Vorschlagsstand</strong><small>${esc(result.warning)}</small></div>`;else status.hidden=true;
