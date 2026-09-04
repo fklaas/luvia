@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
-  "sourceBaseline": "466aaa9e38c116409b375ffe07020787a1c2465b",
-  "app": "13.82.168.43",
+  "sourceBaseline": "bc642a06a23e82165648d6a43738430f83b145d6",
+  "app": "13.82.168.44",
   "core": "4.82.168",
-  "runtimeSource": "466aaa9e38c116409b375ffe07020787a1c2465b",
-  "worker": "3a431617-48ba-42cf-adfb-0e3fc27dd9fa",
+  "runtimeSource": "bc642a06a23e82165648d6a43738430f83b145d6",
+  "worker": "093456be-4963-4578-8468-390c3f80ec04",
   "gateway": "v161 ACTIVE",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -112,8 +112,8 @@
       "canonicalTitle": "Granular Journey commands",
       "status": "TEILWEISE",
       "owner": "Journey",
-      "evidence": "Granulare Journey-Befehle bleiben offen. Die konkrete Date-/Time-Übergabe von Place zur Timeline ist repariert und begrenzt sichtbar abgenommen; edit/move/reorder/connect/delete/restore benötigen eigene Produktnachweise.",
-      "nextAcceptance": "Hinzufügen, Bearbeiten, Verschieben, Sortieren, Verbinden, Löschen und Wiederherstellen einzeln über journey.v1 abnehmen.",
+      "evidence": "App .44: geplante Places lassen sich nach Langdruck verschieben sowie mit Tag, Uhrzeit und Dauer vorab prüfen. Bedingtes Speichern schützt vor veralteten Änderungen; Rücknahme liegt im selben Places-Datensatz und bleibt nach Reload verfügbar. Sichtbarer Touch-Browsertest und echter Terminwechsel mit Reload/Rücknahme sind belegt. Buchungen, Besuche und Fotos behalten ihre Owner-Wege.",
+      "nextAcceptance": "Connect, Mehrfach-Reorder, frei erstellte/ältere Ereignisse und dauerhafte Delete/Restore-Abnahme schließen. Physisches iPhone sowie echte gleichzeitige Mehrnutzer-Konflikte gesondert prüfen; P09 bleibt teilweise.",
       "scope": "Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -124,8 +124,8 @@
       "canonicalTitle": "S16.01 Explainable Planning Trace expansion",
       "status": "TEILWEISE",
       "owner": "Intelligence",
-      "evidence": "Leere Suche meldet keinen Erfolg und behauptet keine Nichtexistenz. Quellengebundene Gründe und Planprüfung sind sichtbar; vollständige verständliche Erklärung aller Aktionen bleibt offen.",
-      "nextAcceptance": "Quellen, Aktualität, Annahmen, Konflikte und Ergebnis verständlich zeigen; keine internen Gedankengänge ausgeben.",
+      "evidence": "Die Zeitprüfung zeigt bisherigen und neuen Zeitraum, benannte Überschneidungen, ausdrückliche Konfliktbestätigung und einen ehrlichen Speicherstatus. Leere Suche bleibt ehrlich; technischer Kategorievertrag ist keine persönliche Begründung mehr. Vollständige Erklärung aller Aktionen bleibt offen.",
+      "nextAcceptance": "Verständliche Begründungen über alle verbleibenden Owner-Aktionen und Quellen-/Aktualitätsfälle abnehmen; technische Zwischenmeldungen und falsche Sicherheit vermeiden.",
       "scope": "Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -610,9 +610,9 @@
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     }
   ],
-  "acceptanceUpdate": "Visible B1 counterexample: Chat empty despite successful gateway reads; P03 correction precedes downstream mutation acceptance.",
-  "safeRegression": "212/212 PASS",
-  "publicAssetIdentity": "25/25 MATCH",
+  "acceptanceUpdate": "P09 planned Place scheduling: visible review, touch movement, conditional owner write and reload-persistent recovery accepted in a bounded slice; P09/P10 and B1 remain partial.",
+  "safeRegression": "213/213 PASS",
+  "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",

@@ -1,19 +1,29 @@
 # Luvia Übergabe für die Fortsetzung
 
+## Aktueller P09 Fortschritt
+
+Integration läuft auf **13.82.168.44**, Quelle **bc642a06a23e82165648d6a43738430f83b145d6**, Worker **093456be-4963-4578-8468-390c3f80ec04**. **213/213 Safe Regression**, **30/30 öffentliche Dateihashes**. Gateway v161 und Booking Resolver 2.8.0 / Function v18 bleiben unverändert; kein Main-Frontend-Deploy.
+
+Langes Drücken aktiviert bei geplanten Places einen sichtbaren Verschiebemodus. Ziehen in einen anderen Zeitabschnitt öffnet die Prüfung; Pfeile und „Tag und Uhrzeit“ bieten eine alternative Bedienung. Tag, Uhrzeit, Dauer und konkrete Überschneidungen erscheinen vor der Bestätigung. Speichern erfolgt über journey.v1 → places.v1 mit Prüfung des ursprünglichen Datenstands. Eine echte Buchung führt weiter über Booking. Die letzte Zeitänderung ist direkt am Eintrag auch nach Reload zurücknehmbar.
+
+Sichtbarer Browsernachweis: Grande Beach Café wurde vom 12.06.2027, 15:00 Uhr / 90 Minuten auf den 13.06.2027, 15:15 Uhr / 105 Minuten geändert. Nach Reload blieben Termin und Rücknahme erhalten. Danach wurden alle sechs ursprünglichen Timeline-Zeiten und Dauern wiederhergestellt. Das ist keine unveränderte Datenbank: Aktualisierungszeit und Recovery-Metadaten des geprüften Datensatzes wurden geschrieben. Der Touch-Test lief sichtbar in Edge mit Chromium-Toucheingaben bei 477 × 900; kein physischer iPhone-Test.
+
+P09 und P10 bleiben **TEILWEISE**. Nächster zusammenhängender Abschnitt: Connect, Mehrfach-Reorder, weitere Eintragsarten und dauerhafte Delete/Restore-Wege; dazu Quellen, Konflikte und Resultate verständlich erklären. Fotos und echte Booking-Partner bleiben eigene offene Nachweise.
+
 Stand 4. September 2026. Der Masterfahrplan v6 und der Statusplan unter docs/planning ersetzen die widersprüchlichen aktuellen Abschnitte früherer Handoffs. Historische Originale sind datiert archiviert. Die Anwendung ist nicht neu zu beginnen.
 
 ## Aktueller B1 Fortschritt
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.43. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
+Integration läuft auf 13.82.168.44. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## Aktueller Stand
 
-Repository: C:/Users/fabia/Documents/GitHub/luvia-integration. Ausgangspunkt dieser Konsolidierung: c28621de866a8dee371ca926b5f98f9617d9e295. Aktive Integration: App 13.82.168.43, Core 4.82.168, Frontend-Quelle 466aaa9e38c116409b375ffe07020787a1c2465b, Worker 3a431617-48ba-42cf-adfb-0e3fc27dd9fa, Gateway v161 ACTIVE. Die vorherige HERE-Aktivierung bleibt erhalten. Main bleibt unverändert; kein Main-Frontend-Deploy wurde ausgeführt; die bestehende gemeinsame Booking-Funktion wurde aktualisiert.
+Repository: C:/Users/fabia/Documents/GitHub/luvia-integration. Ausgangspunkt dieser Konsolidierung: c28621de866a8dee371ca926b5f98f9617d9e295. Aktive Integration: App 13.82.168.44, Core 4.82.168, Frontend-Quelle bc642a06a23e82165648d6a43738430f83b145d6, Worker 093456be-4963-4578-8468-390c3f80ec04, Gateway v161 ACTIVE. Die vorherige HERE-Aktivierung bleibt erhalten. Main bleibt unverändert; kein Main-Frontend-Deploy wurde ausgeführt; die bestehende gemeinsame Booking-Funktion wurde aktualisiert.
 
-Die aktuelle Runtime-Abnahme belegt 212/212 Safe Regression und 25/25 öffentliche Dateihashes. Der B1-Bericht grenzt die sichtbaren Produktnachweise ein. Places und Stays verwenden die gleiche Kartentechnik. Zielortsuche, aktive Reise, Filter, Passung, Pins, mobile Darstellung, Reisefarbe und Geh-/Fahrradrouten wurden repariert. Vollständige Ortsfotos, echte Hotelangebote und komplette aktuelle AI-/Timeline-Abnahme fehlen.
+Die aktuelle Runtime-Abnahme belegt 213/213 Safe Regression und 30/30 öffentliche Dateihashes. Der B1-Bericht grenzt die sichtbaren Produktnachweise ein. Places und Stays verwenden die gleiche Kartentechnik. Zielortsuche, aktive Reise, Filter, Passung, Pins, mobile Darstellung, Reisefarbe und Geh-/Fahrradrouten wurden repariert. Vollständige Ortsfotos, echte Hotelangebote und komplette aktuelle AI-/Timeline-Abnahme fehlen.
 
 ## Fahrplan und nächste Arbeit
 

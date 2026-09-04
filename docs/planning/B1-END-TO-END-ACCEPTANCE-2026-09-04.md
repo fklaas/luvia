@@ -1,5 +1,17 @@
 # Sichtbare B1 Abnahme am 4 September 2026
 
+## Aktueller P09 Fortschritt
+
+Integration läuft auf **13.82.168.44**, Quelle **bc642a06a23e82165648d6a43738430f83b145d6**, Worker **093456be-4963-4578-8468-390c3f80ec04**. **213/213 Safe Regression**, **30/30 öffentliche Dateihashes**. Gateway v161 und Booking Resolver 2.8.0 / Function v18 bleiben unverändert; kein Main-Frontend-Deploy.
+
+Langes Drücken aktiviert bei geplanten Places einen sichtbaren Verschiebemodus. Ziehen in einen anderen Zeitabschnitt öffnet die Prüfung; Pfeile und „Tag und Uhrzeit“ bieten eine alternative Bedienung. Tag, Uhrzeit, Dauer und konkrete Überschneidungen erscheinen vor der Bestätigung. Speichern erfolgt über journey.v1 → places.v1 mit Prüfung des ursprünglichen Datenstands. Eine echte Buchung führt weiter über Booking. Die letzte Zeitänderung ist direkt am Eintrag auch nach Reload zurücknehmbar.
+
+Sichtbarer Browsernachweis: Grande Beach Café wurde vom 12.06.2027, 15:00 Uhr / 90 Minuten auf den 13.06.2027, 15:15 Uhr / 105 Minuten geändert. Nach Reload blieben Termin und Rücknahme erhalten. Danach wurden alle sechs ursprünglichen Timeline-Zeiten und Dauern wiederhergestellt. Das ist keine unveränderte Datenbank: Aktualisierungszeit und Recovery-Metadaten des geprüften Datensatzes wurden geschrieben. Der Touch-Test lief sichtbar in Edge mit Chromium-Toucheingaben bei 477 × 900; kein physischer iPhone-Test.
+
+P09 und P10 bleiben **TEILWEISE**. Nächster zusammenhängender Abschnitt: Connect, Mehrfach-Reorder, weitere Eintragsarten und dauerhafte Delete/Restore-Wege; dazu Quellen, Konflikte und Resultate verständlich erklären. Fotos und echte Booking-Partner bleiben eigene offene Nachweise.
+
+Belege: outputs/p09-baseline.json, p09-live-review44.txt, p09-saved44.json, p09-reload-undo44.txt, p09-restored44.json, p09-final-proof44.json, p09-touch/result.json, p09-regression44-release.log und public-byte-proof44.json. Die folgenden .37–.43-Abschnitte bleiben frühere Teilnachweise.
+
 Stand: **BEGRENZTE POSITIVBELEGE — B1 BLEIBT AKTIV**. Die heute reproduzierten P03-Suchlücken, die versteckte Terminprüfung und die verlorene Dauer sind korrigiert. Die Reservierungsprüfung zeigt ihr Ergebnis am auslösenden Button; der zusätzlich entdeckte falsche Zimmerlink für das Restaurant ROOF ist im Booking-Resolver korrigiert. Keine vollständige Golden-Journey-, Partner- oder Hardwareabnahme.
 
 ## Veröffentlicht und geprüft
