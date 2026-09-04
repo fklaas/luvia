@@ -20,10 +20,10 @@ const sw = read('sw.js');
 const brandCompass = read('assets/public-landing/luvia-compass-brand.svg');
 const photoSources = JSON.parse(read('assets/public-landing/travel-photo-sources.json'));
 
-assert.match(index, /app\/public-landing\.css\?v=13\.82\.168\.33" data-luvia-public-landing-style disabled/);
-assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.168\.33" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.168.33') < index.indexOf('app/public-entry.js?v=13.82.168.33'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.168.33') < index.indexOf('app/public-entry.js?v=13.82.168.33'));
+assert.match(index, /app\/public-landing\.css\?v=13\.82\.168\.34" data-luvia-public-landing-style disabled/);
+assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.168\.34" data-luvia-public-landing-style disabled/);
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.168.34') < index.indexOf('app/public-entry.js?v=13.82.168.34'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.168.34') < index.indexOf('app/public-entry.js?v=13.82.168.34'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /AUTH_HASHES = Object\.freeze\(\{ login: '#anmelden', register: '#registrieren' \}\)/);

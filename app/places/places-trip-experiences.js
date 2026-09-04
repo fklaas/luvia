@@ -40,8 +40,8 @@
     if(person.eligible===false)return 'Eine verbindliche Anforderung ist nicht erfüllt.';
     const useful=(person.reasons||[]).find(reason=>!/(?:Ortsdaten greifen|Begriffe aus|keine.*Angaben|noch.*unklar|nicht.*belegt)/i.test(reason));
     const evidence=place.features?.servesVegetarianFood===true?'Vegetarische Optionen sind hinterlegt.':place.accessibilityOptions?.wheelchairAccessibleEntrance===true?'Ein rollstuhlgerechter Eingang ist bestätigt.':'';
-    const positive=person.reliable?(useful||evidence||'Belegte Ortsmerkmale stimmen mit deinen Vorlieben überein.'):'Vorlieben oder Ortsangaben fehlen noch.';
-    return [positive,...(person.unknowns||[]).slice(0,1)].filter(Boolean).join(' ');
+    const positive=person.reliable?(evidence||useful||'Belegte Ortsmerkmale stimmen mit deinen Vorlieben überein.'):'Vorlieben oder Ortsangaben fehlen noch.';
+    return [positive,...(person.unknowns||[]).slice(0,1)].filter(Boolean).join(' ').replace(/\bstroller\b/gi,'Kinderwagen-Zugang').replace(/\bvegetarian\b/gi,'Vegetarische Auswahl').replace(/\bwheelchair\b/gi,'Rollstuhlzugang');
   }
   function fitWindow(window,visit,outbound,inbound,buffer=10){
     if(!window?.available||outbound?.verified!==true||inbound?.verified!==true)return{verified:false,fits:false};
@@ -79,7 +79,7 @@
     const status=()=>`<p class="lv-trip-map-note" role="status">${esc(message||'')}</p>`;
     const button=(action,label,disabled=false)=>`<button type="button" data-trip-map-action="${esc(action)}" ${disabled?'disabled':''}>${esc(label)}</button>`;
     function dayPicker(){return `<label>Reisetag<select data-trip-map-input="date" aria-label="Reisetag">${dates().map(d=>`<option value="${esc(d)}" ${date===d?'selected':''}>${esc(dateLabel(d))}</option>`).join('')}</select></label>`}
-    function card(choice,index){const p=choice.place||choice,photo=(p.photos||[]).find(x=>/^https:\/\//.test(x.uri||x.url||'')),fit=groupMatches(p),insights=p.travelerInsights||[];return `<article class="lv-trip-map-card">${photo?`<img src="${esc(photo.uri||photo.url)}" alt="${esc(p.name)}" loading="lazy">`:''}<div><small>${index+1} · ${fit?'Passt für uns':esc(choice.label||'Zum Entdecken')}</small><h3>${esc(p.name||p.title)}</h3>${photo?.attribution?`<small>${esc(photo.attribution)}</small>`:''}<p>${esc(choice.detail||p.formattedAddress||p.address||'')}</p>${insights.length?`<ul class="lv-trip-map-people">${insights.map(t=>`<li><b>${esc(t.name)}</b> · ${esc(personReason(t,p))}</li>`).join('')}</ul>`:''}${choice.fit?`<p>${choice.fit.fits?`Zeitlich möglich · ${choice.fit.total} Min. mit Wegen und Puffer`:'Zu knapp für dieses Zeitfenster'}</p>`:''}${button(`open:${index}`,'Ansehen & planen')}</div></article>`}
+    function card(choice,index){const p=choice.place||choice,photo=(p.photos||[]).find(x=>/^https:\/\//.test(x.uri||x.url||'')),fit=groupMatches(p),insights=p.travelerInsights||[];return `<article class="lv-trip-map-card">${photo?`<img src="${esc(photo.uri||photo.url)}" alt="${esc(p.name)}" loading="lazy">`:''}<div><small>${index+1} · ${fit?'Passt für uns':esc(choice.label||'Zum Entdecken')}</small><h3>${esc(p.name||p.title)}</h3>${photo?.attribution?`<small>${esc(photo.attribution)}</small>`:''}<p>${esc(choice.detail||p.formattedAddress||p.address||'')}</p>${insights.length?`<ul class="lv-trip-map-people">${insights.map(t=>`<li><b>${esc(t.name)}</b> · ${esc(personReason(t,p))}</li>`).join('')}</ul>`:''}${choice.fit?`<p>${choice.fit.fits?`Zeitlich möglich · ${choice.fit.total} Min. mit Wegen und Puffer`:'Zu knapp für dieses Zeitfenster'}</p>`:''}${button(`open:${index}`,p.timelineEntry?'Geplanten Stopp bearbeiten':'Ansehen & planen')}</div></article>`}
     function content(){
       const current=ctx().selected;
       if(mode==='base')return `<p>Was erreicht ihr von <strong>${esc(current?.name||'diesem Ausgangspunkt')}</strong> aus? Vergleicht Fußwege zu euren geplanten Stopps und passenden Orten.</p>${button('discover',busy?'Umgebung wird geprüft …':'Umgebung & Fußwege prüfen',busy||!point(current))}${comparison.length?`<div class="lv-trip-map-comparison">${comparison.map(c=>`<p><strong>${esc(c.name)}</strong><br>${c.count} geprüfte Ziele · im Mittel ${c.average} Min. zu Fuß</p>`).join('')}</div>`:''}`;
@@ -126,7 +126,7 @@
             }
             if(!origin){message='Bitte zuerst eine Unterkunft oder einen Ausgangspunkt wählen.';return}
             const plannedPlaces=chosenMode==='base'?entries().filter(scheduledEntry).filter(e=>point(e)&&dates().includes(localDate(e.startAt,tz()))).map(e=>({id:`timeline:${e.id}`,name:e.title,coordinates:point(e),timelineEntry:e})):[];
-            const unique=new Map([...plannedPlaces,...rows].filter(p=>id(p)!==id(base)).map(p=>[id(p),p]));
+            const unique=new Map([...plannedPlaces,...rows.filter(p=>!plannedPlaces.some(entry=>samePlannedPlace(p,entry.timelineEntry)))].filter(p=>id(p)!==id(base)).map(p=>[id(p),p]));
             const shortlist=chosenMode==='base'&&baseTargets.length?baseTargets:[...unique.values()].sort((a,b)=>Number(Boolean(b.timelineEntry))-Number(Boolean(a.timelineEntry))||Number(groupMatches(b))-Number(groupMatches(a))||distance(origin,a)-distance(origin,b)).slice(0,chosenMode==='free'?3:4);
             if(chosenMode==='base'&&!baseTargets.length)baseTargets=shortlist;
             const checked=[];
