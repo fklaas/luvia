@@ -1,5 +1,5 @@
-const BUILD = '13.82.168';
-const ASSET_REVISION = `${BUILD}-split9`;
+const BUILD = '13.82.168.18';
+const ASSET_REVISION = `${BUILD}-category-purity`;
 
 function loadClassic(relativeUrl) {
   return new Promise((resolve, reject) => {
