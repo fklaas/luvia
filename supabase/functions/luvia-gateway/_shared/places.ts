@@ -89,6 +89,7 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   french_restaurant:'catering.restaurant.french',
   spanish_restaurant:'catering.restaurant.spanish',
   indian_restaurant:'catering.restaurant.indian',
+  asian_restaurant:'catering.restaurant.asian,catering.restaurant.chinese,catering.restaurant.japanese,catering.restaurant.thai,catering.restaurant.vietnamese,catering.restaurant.korean,catering.restaurant.indian,catering.restaurant.sushi,catering.restaurant.malaysian,catering.restaurant.indonesian',
   chinese_restaurant:'catering.restaurant.chinese',
   japanese_restaurant:'catering.restaurant.japanese',
   thai_restaurant:'catering.restaurant.thai',
@@ -464,6 +465,9 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const mappedTypes=geoapifyLuviaTypes(nativeEvidence);
   const rawCuisine=[props.datasource?.raw?.cuisine,props.catering?.cuisine,props.cuisine].flatMap(value=>Array.isArray(value)?value:String(value||'').split(/[;,]/)).map(value=>String(value).trim().toLowerCase().replace(/[ -]+/g,'_'));
   for(const cuisine of rawCuisine){const canonical=['arab','oriental','middle_eastern'].includes(cuisine)?'middle_eastern':cuisine;if((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[`${canonical}_restaurant`])mappedTypes.push(`${canonical}_restaurant`)}
+  // A broader cuisine includes evidenced children; children never inherit a
+  // specific kitchen from a generic Asian label or business name.
+  if([...rawCuisine,...categories.map((value:string)=>String(value).replace(/^catering\.restaurant\./,''))].some(value=>['asian','chinese','japanese','thai','vietnamese','korean','indian','sushi','malaysian','indonesian'].includes(value)))mappedTypes.push('asian_restaurant');
   const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
   const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
   const servesVeganFood=/vegan/.test(textEvidence)?true:null;

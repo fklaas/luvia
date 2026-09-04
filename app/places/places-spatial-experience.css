@@ -2347,3 +2347,9 @@
 .lvjs-choice-main > .lv-category-image { grid-area:1/1;min-height:0;height:100%; }
 .lv-places-spatial__filter-options button:disabled { opacity:.55;cursor:default;text-decoration:none; }
 .lv-places-spatial__filter-options button > small { display:block;font-size:10px;line-height:1.4; }
+
+/* Empty discovery remains actionable without blocking map gestures. */
+.lv-places-spatial__map-message:has([data-places-empty-actions]){flex-wrap:wrap;border-radius:16px;max-width:min(350px,calc(100% - 28px));font-size:11px;line-height:1.45}
+.lv-places-spatial__map-message:has([data-places-empty-actions])>span{flex:1;min-width:180px}
+[data-places-empty-actions]{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+[data-places-empty-actions] button{pointer-events:auto;min-height:44px;padding:8px 12px;border:1px solid var(--places-line);border-radius:12px;background:var(--places-surface);color:var(--places-ink);font:inherit;cursor:pointer}

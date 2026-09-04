@@ -36,8 +36,8 @@
     const latitude=Number(dest?.location?.latitude??dest?.center?.lat??dest?.latitude??model?.latitude??source.destinationLat??source.latitude);
     const longitude=Number(dest?.location?.longitude??dest?.center?.lng??dest?.longitude??model?.longitude??source.destinationLng??source.longitude);
     const name=destination(source);
-    const radius=Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
-    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000))};
+    const radius=state.searchRadiusMeters||Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
+    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:state.searchRadiusMeters===5000?5000:Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000))};
     if(Number.isFinite(latitude)&&Number.isFinite(longitude)){
       payload.center={lat:latitude,lng:longitude};
       payload.location={latitude,longitude};
@@ -68,7 +68,7 @@
     food:Object.freeze({label:'Restaurant & Küche',types:Object.freeze([
       ['restaurant','Restaurant'],['cafe','Café'],['bar','Bar'],['bakery','Bäckerei'],['meal_takeaway','Imbiss & Take-away'],['food_court','Food Court'],['fine_dining_restaurant','Fine Dining']
     ]),cuisines:Object.freeze([
-      ['italian_restaurant','Italienisch'],['german_restaurant','Deutsch'],['mediterranean_restaurant','Mediterran'],['greek_restaurant','Griechisch'],['french_restaurant','Französisch'],['spanish_restaurant','Spanisch'],['indian_restaurant','Indisch'],['chinese_restaurant','Chinesisch'],['japanese_restaurant','Japanisch'],['thai_restaurant','Thailändisch'],['vietnamese_restaurant','Vietnamesisch'],['korean_restaurant','Koreanisch'],['mexican_restaurant','Mexikanisch'],['middle_eastern_restaurant','Nahöstlich'],['lebanese_restaurant','Libanesisch'],['turkish_restaurant','Türkisch'],['vegetarian_restaurant','Vegetarisch'],['vegan_restaurant','Vegan']
+      ['italian_restaurant','Italienisch'],['german_restaurant','Deutsch'],['mediterranean_restaurant','Mediterran'],['greek_restaurant','Griechisch'],['french_restaurant','Französisch'],['spanish_restaurant','Spanisch'],['indian_restaurant','Indisch'],['asian_restaurant','Asiatisch'],['chinese_restaurant','Chinesisch'],['japanese_restaurant','Japanisch'],['thai_restaurant','Thailändisch'],['vietnamese_restaurant','Vietnamesisch'],['korean_restaurant','Koreanisch'],['mexican_restaurant','Mexikanisch'],['middle_eastern_restaurant','Nahöstlich'],['lebanese_restaurant','Libanesisch'],['turkish_restaurant','Türkisch'],['vegetarian_restaurant','Vegetarisch'],['vegan_restaurant','Vegan']
     ]),subtypes:Object.freeze([]),facts:Object.freeze(['openNow','rating45','vegetarian','reservable','accessible','priceLevel'])}),
     activities:Object.freeze({label:'Aktivität',subtypes:Object.freeze([['','Alle'],['amusement_park','Freizeitpark'],['playground','Spielplatz'],['zoo','Zoo'],['spa','Wellness'],['swimming_pool','Schwimmen']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
     themeparks:Object.freeze({label:'Freizeitpark',subtypes:Object.freeze([['','Alle'],['amusement_park','Themenpark'],['amusement_center','Erlebniscenter'],['water_park','Wasserpark']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
@@ -107,7 +107,7 @@
   const compassMarkup=()=>`<span class="lv-places-spatial__compass" aria-hidden="true"><img src="assets/brand/luvia-living-compass/layers/face.svg" alt=""><img class="is-needle" src="assets/brand/luvia-living-compass/layers/two-ended-needle.svg" alt=""><img src="assets/brand/luvia-living-compass/layers/hub.svg" alt=""></span>`;
 
   const state={
-    root:null,trip:null,surface:'places',activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
+    root:null,trip:null,surface:'places',searchRadiusMeters:0,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
     status:'loading',error:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null
   };
@@ -123,6 +123,7 @@
       });
       if(!usable.length)return false;
       state.results=usable.slice(0,MAX_RESULTS);
+      state.searchRadiusMeters=cached.searchRadiusMeters===5000?5000:0;
       state.query=clean(cached.query)||state.query;
       state.category=clean(cached.category)||state.category;
       state.selectedId=providerId(state.results[0])||null;
@@ -131,7 +132,7 @@
     }catch{return false}
   }
   function saveCached(){
-    try{port('OfflineCachePort')?.write(cacheKey(),{query:state.query,category:state.category,results:state.results.slice(0,MAX_RESULTS),savedAt:new Date().toISOString()})}catch{}
+    try{port('OfflineCachePort')?.write(cacheKey(),{query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results:state.results.slice(0,MAX_RESULTS),savedAt:new Date().toISOString()})}catch{}
   }
   function verifiedFitScore(place){
     const fit=place?.groupFit||place?.preferenceFit||{},score=Number(fit?.score??place?.preferenceScore),coverage=Number(fit?.coverage??place?.preferenceCoverage),reasons=[...(place?.preferenceReasons||[]),...(place?.aiReasons||[]),...(place?._luviaReasons||[])].filter(Boolean);
@@ -597,7 +598,7 @@
     const view=model();
     state.root.innerHTML=`<section class="lv-places-spatial" role="region" aria-label="${state.surface==='accommodation'?'Luvia Unterkünfte':'Luvia Places'}" data-state="${esc(view.status.kind)}" aria-busy="${view.status.busy}">
       <header class="lv-places-spatial__heading">
-        <div class="lv-places-spatial__heading-copy"><h1>${state.surface==='accommodation'?'Wo möchtet ihr übernachten?':'Was möchtet ihr heute entdecken?'}</h1><p>Belegte Orte im sichtbaren Kartenausschnitt · <button type="button" data-view="bookings">Buchungen ansehen</button></p></div>
+        <div class="lv-places-spatial__heading-copy"><h1>${state.surface==='accommodation'?'Wo möchtet ihr übernachten?':'Was möchtet ihr heute entdecken?'}</h1><p><span class="lv-places-spatial__scope">${esc(state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}`)}</span> · <button type="button" data-view="bookings">Buchungen ansehen</button></p></div>
       </header>
       <div class="lv-places-spatial__canvas">
         <section class="lv-places-spatial__map" data-place-map-shell aria-label="Geografisch genaue Luvia-Karte">
@@ -686,7 +687,8 @@
     const status=shell?.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
     if(status){
       if(status.matches?.('[data-places-map-message]'))status.dataset.state=stateName==='unavailable'||stateName==='empty'?'unavailable':stateName==='ready'?'ready':'loading';
-      const copy=status.querySelector?.('span');if(copy)copy.textContent=message;else status.textContent=message;
+      const copy=status.querySelector?.('span');if(copy)copy.textContent=stateName==='empty'&&shell?.querySelector?.('[data-places-map-message]')?emptySearchMessage():message;else status.textContent=message;
+      if(status.matches?.('[data-places-map-message]'))syncEmptySearchActions(status,stateName==='empty');
     }
   }
   function projectionRefreshState(container,busy,message=''){
@@ -695,7 +697,7 @@
     if(busy){shell.dataset.mapRefreshing='true';shell.setAttribute('aria-busy','true')}
     else{delete shell.dataset.mapRefreshing;shell.removeAttribute('aria-busy')}
     const status=shell.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
-    if(status){status.dataset.refreshing=String(Boolean(busy));const copy=status.querySelector?.('span');if(message){if(copy)copy.textContent=message;else status.textContent=message}}
+    if(status){if(busy)status.querySelector?.('[data-places-empty-actions]')?.remove();status.dataset.refreshing=String(Boolean(busy));const copy=status.querySelector?.('span');if(message){if(copy)copy.textContent=message;else status.textContent=message}}
   }
   function projectionMarkerButton(marker,{selectedId=null,onSelect=null}={}){
     const button=document.createElement('button');
@@ -953,13 +955,39 @@
     }
     render();
   }
+  function emptySearchMessage(){
+    if(state.fitOnly)return 'Für diese Auswahl ist die Passung zu euren Vorlieben noch nicht belegt. „Alle“ zeigt auch ungeprüfte Orte.';
+    const scope=state.activeViewport?'im sichtbaren Kartenausschnitt':`im ${tripGeography(state.trip).searchRadiusMeters/1000}-km-Umkreis um ${destination(state.trip)}`;
+    return `Noch keine bestätigten Treffer ${scope}. ${state.category==='food'?'Küchenangaben':'Angaben'} können fehlen; das bedeutet nicht, dass es dort keine solchen Orte gibt.`;
+  }
+  function emptySearchActions(){
+    if(state.fitOnly||state.status==='loading'||state.offline)return '';
+    const canExpand=!state.activeViewport&&tripGeography(state.trip).searchRadiusMeters<5000;
+    const canBroaden=state.category==='food'&&!state.filters.cuisines.includes('asian_restaurant')&&state.filters.cuisines.some(type=>['chinese_restaurant','japanese_restaurant','thai_restaurant','vietnamese_restaurant','korean_restaurant','indian_restaurant'].includes(type));
+    return `${canExpand?'<button type="button" data-places-expand-radius>Im 5-km-Umkreis suchen</button>':''}${canBroaden?'<button type="button" data-places-broaden-cuisine>Alle asiatischen Küchen suchen</button>':''}`;
+  }
+  function syncEmptySearchActions(node,empty){
+    node.querySelector?.('[data-places-empty-actions]')?.remove();
+    const actions=empty?emptySearchActions():'';
+    if(actions)node.insertAdjacentHTML('beforeend',`<div data-places-empty-actions>${actions}</div>`);
+  }
+  async function expandDestinationSearch(){
+    if(state.activeViewport||state.status==='loading'||state.searchRadiusMeters===5000)return;
+    clearTimeout(state.filterRefreshTimer);state.searchRadiusMeters=5000;
+    const definition=activeSearchDefinition();
+    await search({query:definition.query,focus:false,preserveMap:true});
+    if(state.activeViewport||state.searchRadiusMeters!==5000)return;
+    const center=tripGeography(state.trip).location;
+    if(center){const dy=5000/111320,dx=dy/Math.cos(center.latitude*Math.PI/180);state.map?.fitBounds?.([[center.longitude-dx,center.latitude-dy],[center.longitude+dx,center.latitude+dy]],{padding:70,duration:reducedMotion()?0:350});}
+  }
   function updateFilteredMap(){
     syncFilterSelections();
+    const scope=state.root?.querySelector('.lv-places-spatial__scope');if(scope)scope.textContent=state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}${state.searchRadiusMeters===5000?' · einschließlich Umgebung':''}`;
     const rows=ensureVisibleFitResults(),view=state.mapProjection?.update?.(rows);
     const mapHost=state.root?.querySelector('[data-places-map]');
     if(mapHost&&state.status!=='loading'){
       projectionRefreshState(mapHost,false);
-      projectionState(mapHost,rows.length?'ready':'empty',rows.length?`${rows.length} Orte · ${state.fitOnly?'Passend':'Alle'}`:state.fitOnly?'Für diese Orte ist passende Eignung noch nicht belegt. „Alle“ zeigt die übrigen Orte.':'Keine Orte für diese Auswahl.');
+      projectionState(mapHost,rows.length?'ready':'empty',rows.length?`${rows.length} Orte · ${state.fitOnly?'Passend':'Alle'}`:state.fitOnly?'Für diese Orte ist passende Eignung noch nicht belegt. „Alle“ zeigt die übrigen Orte.':emptySearchMessage());
     }
     const count=activeFilterCount(),button=state.root?.querySelector('[data-places-map-tool="filter"]');let badge=button?.querySelector('.lv-places-spatial__map-tool-count');
     if(button){button.setAttribute('aria-label',`Ergebnisse filtern${count?` · ${count} aktiv`:''}`);if(count&&!badge){badge=document.createElement('span');badge.className='lv-places-spatial__map-tool-count';button.append(badge)}else if(!count&&badge){badge.remove();badge=null}}
@@ -1066,6 +1094,8 @@
     bindPreviewGesture();
     if(state.onRootClick)root.removeEventListener?.('click',state.onRootClick);
     state.onRootClick=event=>{
+      if(event.target.closest?.('[data-places-expand-radius]')){expandDestinationSearch();return}
+      if(event.target.closest?.('[data-places-broaden-cuisine]')){state.filters.cuisines=['asian_restaurant'];refreshFilterPanel();applyFilterChange();return}
       const category=event.target.closest?.('[data-places-category]');if(category){event.preventDefault();event.stopPropagation();applyCategory(category.dataset.placesCategory);return}
       const section=event.target.closest?.('[data-places-filter-section]');if(section){state.filterSection=section.dataset.placesFilterSection;refreshFilterPanel({focus:true});return}
       if(event.target.closest?.('[data-places-filter-back]')){state.filterSection=null;refreshFilterPanel({focus:true});return}
@@ -1093,7 +1123,7 @@
     unmount();
     const lifecycleToken=state.lifecycleToken;
     state.surface=surface==='accommodation'?'accommodation':'places';state.category=state.surface==='accommodation'?'accommodation':'food';state.query=state.surface==='accommodation'?'Unterkünfte':'Restaurant';
-    state.root=root;state.trip=trip;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
+    state.root=root;state.trip=trip;state.searchRadiusMeters=0;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
     if(state.planningDraft?.query){state.userQuery=clean(state.planningDraft.query);state.query=state.userQuery}
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');

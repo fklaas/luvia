@@ -1,3 +1,10 @@
+# Cuisine coverage — Integration candidate — 13.82.168.31
+
+Adds Asian cuisine with evidenced child categories, truthful empty-result scope,
+and explicit 5 km destination search. Baseline c7d7120f. No implicit Chinese or
+vegetarian evidence. Local behavioral tests passed; deployment/public acceptance
+pending. See PCR-CUISINE-COVERAGE-20260904.md.
+
 # Cuisine filters and shared map pins — Integration deployed — 13.82.168.30
 
 Explicit cuisine union before provider pagination; shared map pointer handling; unified pin silhouette, stacking and profile-match outline. Source cf2bb94c; Worker 82409a73-9ec9-4649-a86e-c42da97c14af at 100%; gateway v149 ACTIVE. Safe regression 208/208 PASS, public assets 16/16 SHA-256 matches. Visible browser confirmed Italian+German=6, matching labels equal Passend subset, animated outline, selected anchor above other pins, drag and zoom after category switch. [Acceptance](docs/modularization/CUISINE-MAP-PINS-ACCEPTANCE-20260904.md). Main unchanged.

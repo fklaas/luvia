@@ -9,6 +9,7 @@ vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_sha
 const cases={hotel:'accommodation.hotel',apartment:'accommodation.apartment',vacation_rental:'accommodation.chalet',hostel:'accommodation.hostel',campground:'camping.camp_site',restaurant:'catering.restaurant',cafe:'catering.cafe',bar:'catering.bar',bakery:'commercial.food_and_drink.bakery',meal_takeaway:'catering.fast_food',food_court:'catering.food_court',amusement_park:'entertainment.theme_park',amusement_center:'entertainment.activity_park',water_park:'entertainment.water_park',playground:'leisure.playground',zoo:'entertainment.zoo',spa:'leisure.spa',swimming_pool:'sport.swimming_pool',beach:'beach',marina:'maritime.marina',tourist_attraction:'tourism.sights',historical_landmark:'tourism.sights.castle',monument:'tourism.sights.memorial.monument',observation_deck:'tourism.attraction.viewpoint',park:'leisure.park',garden:'leisure.park.garden',museum:'entertainment.museum',art_gallery:'entertainment.culture.gallery',movie_theater:'entertainment.cinema',performing_arts_theater:'entertainment.culture.theatre',shopping_mall:'commercial.shopping_mall',market:'commercial.marketplace',clothing_store:'commercial.clothing.clothes',department_store:'commercial.department_store',night_club:'adult.nightclub',pharmacy:'healthcare.pharmacy',supermarket:'commercial.supermarket',parking:'parking',electric_vehicle_charging_station:'service.vehicle.charging_station',atm:'service.financial.atm',vegetarian_restaurant:'vegetarian.only',vegan_restaurant:'vegan.only'};
 for(const cuisine of ['italian','german','mediterranean','greek','french','spanish','indian','chinese','japanese','thai','vietnamese','korean','mexican','lebanese','turkish'])cases[`${cuisine}_restaurant`]=`catering.restaurant.${cuisine}`;
 cases.middle_eastern_restaurant='catering.restaurant.arab';
+cases.asian_restaurant='catering.restaurant.asian';
 const f=ctx.filters,point={latitude:54.02,longitude:10.75};let tested=0;
 for(const [category,schema]of Object.entries(f.CATEGORY_FILTERS))for(const [group,options]of [['types',schema.types||schema.subtypes||[]],['cuisines',schema.cuisines||[]]])for(const [type]of options){
  if(!type)continue;f.state.category=category;f.state.filters=f.emptyFilters();f.state.filters[group]=[type];
@@ -49,6 +50,14 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  assert.equal(cuisineCalls.length-mixedStart,2);assert.equal(cuisineCalls.at(-2).searchParams.has('conditions'),false,'vegan alternative must not restrict Italian branch');assert.equal(cuisineCalls.at(-1).searchParams.get('conditions'),'vegan.only');
  for(const evidence of [{catering:{cuisine:'italian; greek'}},{cuisine:['italian','greek']},{datasource:{raw:{cuisine:'italian;greek'}}}]){
   const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:'structured',name:'Evidence',lat:54,lon:10,categories:['catering.restaurant'],...evidence}});assert.ok(p.types.includes('italian_restaurant')&&p.types.includes('greek_restaurant'),'explicit structured cuisines survive normalization');
+ }
+ // Independent real-world counterexample: Sai Gon is recorded as Asian, not
+ // Chinese. A broader category must retain it without inventing a child cuisine.
+ const saiGon=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:'sai-gon',name:'Sai Gon',lat:54.0497067,lon:10.7509787,categories:['catering','catering.restaurant','catering.restaurant.asian'],catering:{cuisine:'asian'}}});
+ f.state.filters=f.emptyFilters();f.state.filters.cuisines=['asian_restaurant'];f.state.results=[saiGon];assert.equal(f.filteredResults().length,1);
+ f.state.filters.cuisines=['chinese_restaurant'];assert.equal(f.filteredResults().length,0,'generic Asian must never imply Chinese');
+ for(const cuisine of ['chinese','thai','vietnamese','sushi']){
+  const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:cuisine,name:'Kitchen',lat:54,lon:10,categories:['catering.restaurant',`catering.restaurant.${cuisine}`]}});assert.ok(p.types.includes('asian_restaurant'),`${cuisine} belongs to broader Asian cuisine`);
  }
  const composition=ctx.LuviaPlacesSpatialCompositionCoreV1;
  const preferencePins=composition.compose({places:[{id:'yes',name:'Yes',coordinates:point,preferenceDiscoveryMatch:true,preferenceConstraintState:'verify'},{id:'no',name:'No',coordinates:point,preferenceDiscoveryMatch:false,preferenceScore:95,preferenceFit:{score:95,coverage:100},preferenceReasons:['generic'],preferenceConstraintState:'satisfied'}],runtime:{status:'ready'}}).markers;

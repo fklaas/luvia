@@ -7,7 +7,7 @@ const ctx=vm.createContext({console,URLSearchParams,URL,Date,Map,Set,Promise,per
 vm.runInContext(read('core/places/places-domain-contract-core.js'),ctx);
 vm.runInContext(read('core/places/global-place-contracts.js'),ctx);
 vm.runInContext(read('app/places/places-spatial-composition-core.js'),ctx);
-const ui=read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,tripGeography,ensureVisibleFitResults,activeSearchDefinition};globalThis.LuviaPlacesSpatialExperience=');
+const ui=read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,tripGeography,ensureVisibleFitResults,activeSearchDefinition,emptySearchMessage,emptySearchActions};globalThis.LuviaPlacesSpatialExperience=');
 vm.runInContext(ui,ctx);
 const gw=stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/places.ts').replace(/^import .*?;\r?\n/gm,'').replace(/^export /gm,''));
 vm.runInContext(gw+'\nglobalThis.gatewayRecovery={geoapifyCategoriesFromOptions,geoapifyPlacesSearch};',ctx);
@@ -18,6 +18,8 @@ check('Museum is not a theme park',()=>assert.equal(ctx.LuviaGlobalPlaceContract
 check('Pool remains water experience',()=>assert.equal(ctx.LuviaGlobalPlaceContracts.accepts(place('Pool','swimming_pool',['swimming_pool','activity']),'water','',{}),true));
 check('Spa remains Wellness',()=>assert.equal(ctx.LuviaGlobalPlaceContracts.accepts(place('Therme','spa',['spa','leisure_spa','activity']),'wellness','',{}),true));
 check('Destination browse is local even for old 10 km trips',()=>assert.equal(ctx.recovery.tripGeography({destination:{...geo,searchRadiusMeters:10000,name:'Scharbeutz'}}).searchRadiusMeters,3000));
+check('Only explicit search scope can extend the destination radius',()=>{ctx.recovery.state.searchRadiusMeters=5000;assert.equal(ctx.recovery.tripGeography({destination:geo}).searchRadiusMeters,5000);ctx.recovery.state.searchRadiusMeters=0});
+check('Empty search states coverage and offers explicit alternatives',()=>{const s=ctx.recovery.state;s.trip={destination:{...geo,name:'Scharbeutz'}};s.status='empty';s.filters.cuisines=['chinese_restaurant'];assert.match(ctx.recovery.emptySearchMessage(),/3-km-Umkreis um Scharbeutz/);assert.match(ctx.recovery.emptySearchMessage(),/Küchenangaben können fehlen/);assert.match(ctx.recovery.emptySearchActions(),/data-places-expand-radius/);assert.match(ctx.recovery.emptySearchActions(),/data-places-broaden-cuisine/);s.activeViewport={};assert.match(ctx.recovery.emptySearchMessage(),/sichtbaren Kartenausschnitt/);assert.doesNotMatch(ctx.recovery.emptySearchActions(),/data-places-expand-radius/);s.activeViewport=null;s.filters.cuisines=[]});
 check('Passend stays selected with no verified fits',()=>{ctx.recovery.state.fitOnly=true;ctx.recovery.state.results=[place('Ungeprüft','restaurant',['restaurant'])];assert.equal(ctx.recovery.ensureVisibleFitResults().length,0);assert.equal(ctx.recovery.state.fitOnly,true)});
 check('All restores the unfiltered cohort',()=>{ctx.recovery.state.fitOnly=false;assert.equal(ctx.recovery.ensureVisibleFitResults().length,1)});
 check('Broad Food does not inherit restaurant-only filter',()=>assert.equal(JSON.stringify(ctx.gatewayRecovery.geoapifyCategoriesFromOptions({category:'food',includedType:'restaurant',includedTypes:['restaurant','cafe','bar']})),JSON.stringify(['catering'])));

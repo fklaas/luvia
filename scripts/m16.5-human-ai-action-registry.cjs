@@ -718,6 +718,10 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-places-history-clear': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-places-history-region': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-places-fit-mode': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  // Explicit read-only variants of the existing category-filter/discovery flow.
+  'data-places-broaden-cuisine': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-places-expand-radius': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-places-empty-actions': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-places-filter-back': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
   'data-places-filter-content': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-places-filter-section': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
@@ -808,8 +812,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 939);
-  assert.equal(sourceAudit.markerCount, 939);
+  assert.equal(sourceAudit.markers.length, 942);
+  assert.equal(sourceAudit.markerCount, 942);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');
