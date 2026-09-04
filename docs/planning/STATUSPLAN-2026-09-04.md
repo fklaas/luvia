@@ -5,20 +5,21 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.51**, Core **4.82.173**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** App .49 schließt die P09/P01-First-Paint-Lücke auf stabiler Integration: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix; Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. 217/217 Safe Regression, 30/30 Byte-Gleichheit und ein sichtbarer angemeldeter Reload mit zwei echten Ostseeurlaub-Momenten sind belegt.
+**Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 
-**Nächster Schritt (GEPLANT): Places-Kategorie- und Ausschnittskontinuität unter echten Wiederholungen schließen.** Der zuletzt beobachtete Wechsel zwischen keinen, drei und ungefähr 45 Pins bei derselben Reise und Kategorie widerspricht der bereits vorhandenen lokalen Filtermatrix. Jetzt muss der reale asynchrone Browserpfad mit Provider-, Cache-, Kategorie- und Request-Identität reproduziert und stabilisiert werden.
+**Nächster Schritt (GEPLANT): Alle Filter, Landesküchen, Alle/Passend und echte Place-Fotos schließen.** Die asynchrone Kategorie- und Viewport-Kontinuität ist auf Integration belegt. Der nächste offene Nutzerwert liegt jetzt in der inhaltlichen Richtigkeit jedes angebotenen Filters, der Profilpassung und der echten Bildquelle je Place.
 
 **Abnahme dieses Schritts:**
 
-- Auf der stabilen Integration mindestens fünf sichtbare Wechselzyklen zwischen Shopping, Natur & Erholung, Essen & Trinken und weiteren Kategorien am aktiven Reiseziel Scharbeutz ausführen; jede Runde protokolliert Kategorie, Ausschnitt, Request-ID, Provider/Cache-Herkunft, Dauer und Trefferzahl.
-- Eine ältere, langsamere Antwort darf weder die aktuelle Kategorie noch deren Pins überschreiben; Abbruch, Zusammenführung, Retry und Cache-Freshness werden im echten Browserpfad belegt.
-- Während Nachladen bleiben der letzte gültige Kartenstand und ein eindeutiger Ladehinweis sichtbar. Ein temporärer Providerfehler darf nicht als endgültiges „nichts gefunden“ erscheinen und ein echter leerer Filter bleibt trotzdem ehrlich leer.
-- Mobile und Desktop, Ziehen und Zoomen sowie die gemeinsame technische Basis von Places und Stays sichtbar prüfen; alle Testzustände danach zurücksetzen und vollständige Regression plus öffentliche Byte-Gleichheit belegen.
+- Jede sichtbare Filtermöglichkeit in Places und die entsprechenden Stays-Filter einzeln, kombiniert und nach Reset gegen reale Providerantworten prüfen; alle Landesküchen erhalten positive oder belastbar ehrliche Leerbelege.
+- Alle und Passend verwenden dieselbe Place-Menge und ausschließlich belegte Profilvorlieben. Ein vegetarisches Profil darf ein fleischzentriertes Steakhouse ohne konkrete vegetarische Angebotsevidenz nicht als passend markieren.
+- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos werden als offener Beschaffungszustand protokolliert; Kategorieplatzhalter werden nicht als echtes Place-Foto ausgegeben.
+- Places und Stays auf sichtbarem Desktop und Mobilgerät mit Reiseziel, Zoom, Ziehen, Kategorie-/Filterwechsel, Ladezeit, Provider-/Cache-Spur und Kontingentverbrauch wiederholt abnehmen.
+- Vollständige Safe Regression, 30/30 Byte-Gleichheit, unveränderliches Archiv und exakter Frontend-/Gateway-Rückfall bleiben Releasegate.
 
 **Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** Vollständige P02/P03- und P09/P10-Abnahme, reale Geräte und Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** P02/P03: vollständige Filter-, Landesküchen-, Alle/Passend- und echte Place-Foto-Abnahme. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -44,7 +45,7 @@ Integration läuft auf 13.82.168.51. Der zuvor leere Chat-Suchpfad wurde reparie
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## Verbindlicher aktueller Stand
 
-Integration: App **13.82.168.51**, Core **4.82.173**, Gateway **v161 ACTIVE**. Frontend-Quelle **8eeba9ada79488760fc55d0de042c107630a7002**, Worker **020f04e8-677c-4027-8cbb-0c5b1847ff38**. Die bereits aktivierte HERE-Konfiguration bleibt erhalten. Safe Regression des aktuellen Runtime-Slice: **214/214 PASS**, öffentliche Byteidentität **30/30**. Gateway v161 und Providerbudgets bleiben unverändert.
+Integration: App **13.82.168.51**, Core **4.82.173**, Gateway **v163 ACTIVE**. Frontend-Quelle **6da646bdd774b764cad9e868445a1c921a65c783**, Worker **47496145-d13d-4a59-9e9c-b1785dd9f171**. Die bereits aktivierte HERE-Konfiguration bleibt erhalten. Safe Regression des aktuellen Runtime-Slice: **217/217 PASS**, öffentliche Byteidentität **30/30**. Leere Providerseiten werden nicht festgehalten; breite Kategorien behalten erfolgreiche Teilantworten und führen höchstens einen begrenzten transienten Neuversuch aus.
 
 Main-HEAD **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba** bleibt unverändert. Der dokumentierte Produktionsbuild ist .49; in diesem Dokumentlauf wurde kein neuer Production-HTTP-Beleg erhoben. Keine Produktionsfreigabe und kein übergreifender Design Freeze.
 
@@ -130,9 +131,9 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.51 / Core 4.82.173 auf der stabilen Integration veröffentlicht; unveränderliches Quellarchiv 8ed41a3e250a mit SHA-256 FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE, Worker 71ad570f, 217/217 Safe Regression und 30/30 öffentliche Dateihashes belegt. Der angemeldete stabile Reload zeigte die zwei realen Ostseeurlaub-Momente und keinen falschen fertigen „0 Momente“-Zustand. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.
+13.82.168.51 / Core 4.82.173 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.
 
-**Nächster Abschlussnachweis:** Beim P02/P03-Slice Quellstand, öffentliche Bytes, stabilen Ladezustand, wiederholte Kategorieergebnisse und einen zum Backend passenden Rückfall erneut belegen.
+**Nächster Abschlussnachweis:** Im nächsten P02/P03-Slice vollständige reale Filter-, Landesküchen-, Alle/Passend- und Place-Foto-Matrix auf demselben unveränderlichen Releaseverfahren belegen; .51 als Rückfall erhalten.
 
 **Erhaltener technischer Umfang:** Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.
 
@@ -140,9 +141,9 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Ausschnittskontinuität und sichtbaren Ausfall/Retry; begrenzte Geoapify-Wiederanzeige bei Ausfall gezielt getestet. Vollständige Ortsfotos und alle optionalen Fakten bleiben offen.
+Gateway v163 und App .51 beheben die beobachtete 0/3/45-Diskontinuität an zwei Grenzen: erfolgreiche leere Text-/Viewport-Seiten werden weder server- noch clientseitig zwischengespeichert; breite Kategorien behalten erfolgreiche Geoapify-Eltern, wenn ein paralleler Ergänzungszweig wegen Minutenbudget oder Transport ausfällt. Genau ein cachefreier Neuversuch ist für unerwartet leere oder transiente breite Suchen erlaubt, Filter-Leerstände bleiben ehrlich. Sichtbar im identischen aktiven Scharbeutz-Ausschnitt: Essen 50, Shopping 45, Natur 18, Aktivitäten 7 und direkter Wiederholungswechsel erneut 7; alle mit Viewport, Request-ID, Provider, Cache und Dauer. Stays nutzt denselben Pfad: 49 am Reiseziel, 48 nach Zoom in 1,09 s. Vollständige Filterrealität und echte Fotos jedes Places bleiben offen.
 
-**Nächster Abschlussnachweis:** Scharbeutz in wiederholten sichtbaren Zyklen für Shopping, Natur & Erholung, Essen & Trinken und weitere Kategorien prüfen: identische aktive Reise, Kategorie und Ausschnitt dürfen nicht mehr zwischen 0/3/45 Ergebnissen schwanken. Request-Identität, Stale-Response-Abbruch, Cache/Provider-Herkunft und Fehlermodus protokollieren; realen Place mit Foto separat erhalten.
+**Nächster Abschlussnachweis:** Alle angebotenen Filter mit echten Provider-Antworten prüfen, insbesondere jede Landesküche, kombinierte Filter und Reset. Danach exakte Place-Fotos mit belegter Entity-Zuordnung schließen; graue Platzhalter sind nur ein offener Fehlzustand. Budgetstatus und wiederholte Mobil-/Desktop-Wechsel für Places und Stays protokollieren.
 
 **Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.
 
@@ -150,9 +151,9 @@ Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Aussch
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Freie vegetarische Scharbeutz-Suche und einfache Restaurantanfrage liefern jetzt drei belegte Vorschläge. Chat übernimmt das Profil und den lokalen 3-km-Kontext. Ausschnittswechsel erhält Suchauftrag und Aktionsangebote; temporäres Nachladeversagen mit erhaltenen Pins ebenfalls beobachtet.
+Die Kartenentdeckung übernimmt Reiseziel, aktive Viewport-Geometrie und belegte Profilmerkmale. App .51 verhindert gecachte Nulltreffer, verwirft alte Kategorieantworten und hält breite Suchergebnisse bei partiellen Providerausfällen verfügbar. Der sichtbare Scharbeutz-Zyklus belegt konsistente Kategorien und die gemeinsame Places/Stays-Suchspur. Der vollständige AI-Chat-Nachweis für alle Filterkombinationen, Landesküchen und widersprüchliche Wünsche bleibt offen.
 
-**Nächster Abschlussnachweis:** Die Kategorie- und Ausschnittskontinuität zuerst zusammen mit P02 sichtbar schließen; danach weitere Sprachen, widersprüchliche Wünsche und transiente Provider-/Detailabrufe im AI Chat abnehmen.
+**Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat positiv oder ehrlich leer abnehmen; anschließend Alle/Passend gegen gespeicherte Profilvorlieben prüfen, darunter Vegetarier ohne Steakhouse-Falschpassung, und transiente Detail-/Fotoabrufe im Chat schließen.
 
 **Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
 
@@ -510,9 +511,9 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.51 / Core 4.82.173: unveränderliches Quellarchiv 7eacedc3, QA-Erweiterung be446160, 216/216 Safe Regression und 30/30 öffentliche Asset-Hashes auf der stabilen Integration. Angemeldeter Live-Zyklus mit echter Owner-Mutation, Reload-Recovery, exakter Rücknahme und zweitem Reload bestanden. Main-Frontend, Places-Gateway v161 und Booking-Resolver v18 unverändert.
+13.82.168.51 / Core 4.82.173: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.
 
-**Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Rückfall.
+**Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 
 **Erhaltener technischer Umfang:** Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.
 
