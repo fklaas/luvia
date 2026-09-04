@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3171,
+    "trackedFiles": 3172,
     "visualCandidates": 957,
     "activeEntryReferences": 307,
     "unclassifiedEntryReferences": 0,
@@ -7861,8 +7861,8 @@
       "classes": [
         "motion-source"
       ],
-      "bytes": 2382,
-      "sha256": "29f77bbd23748c4afcfa70b74024375fa9ac487e25ae3f66617282b9ea1b609e"
+      "bytes": 2381,
+      "sha256": "9c5573bea0649beced111477ac0974795ec1e0b20895bb9671447d310ef33af3"
     },
     {
       "path": "tests/m16.5aa-compass-direction-activation.test.cjs",

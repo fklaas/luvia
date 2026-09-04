@@ -49,4 +49,3 @@ console.log('M16.5 exhaustive visual surface inventory: PASS');
 console.log(`Tracked files: ${actual.summary.trackedFiles}`);
 console.log(`Visual candidates: ${actual.summary.visualCandidates}`);
 console.log(`CSS files: ${actual.summary.css.files}`);
-

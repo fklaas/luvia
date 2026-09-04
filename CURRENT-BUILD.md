@@ -1,6 +1,6 @@
-# M16.5 Shared Places / Stays Surface — candidate 13.82.168.29
+# M16.5 Shared Places / Stays Surface — Integration deployed — 13.82.168.29
 
-Hotels mounts the existing Places spatial consumer with accommodation configuration. Initial destination search, categories, filters, profile matching, viewport cache, pins, history and detail handling now share the same active code. The mobile preview stays within the map. Candidate acceptance pending; previous public deployment is documented below.
+Hotels mounts the existing Places spatial consumer with accommodation configuration. Initial destination search, categories, filters, profile matching, viewport cache, pins, history and detail handling now share the same active code. The mobile preview stays within the map; expanded sheets remain on-screen after scrolling. Runtime source 11249e1ce40cf69c51473f6d4d4ad2a627218a9a; Worker 92d3e3b3-3afc-4487-aece-5de4815f6760 at 100%. Controlled regression 208/208 PASS; public bytes 15/15 match. Visible browser acceptance and remaining data limits: [shared Stays acceptance](docs/modularization/STAYS-SHARED-ACCEPTANCE-20260904.md). Gateway v148 unchanged. Main unchanged.
 
 ## M16.5 Places and Stays Quality — Integration deployed — 13.82.168.27
 
