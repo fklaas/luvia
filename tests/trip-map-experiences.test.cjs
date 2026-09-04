@@ -16,10 +16,14 @@ assert.equal(api.localDate('2027-06-11T22:30:00Z','Europe/Berlin'),'2027-06-12')
 assert.equal(api.point({latitude:null,longitude:null}),null,'unknown coordinates must not become zero');
 const route={verified:true,durationMinutes:10};assert.equal(api.fitWindow(gap,30,route,route).fits,true);assert.equal(api.fitWindow(gap,45,route,route).fits,false);
 assert.equal(api.fitWindow(gap,30,{durationMinutes:1},route).verified,false,'unverified or estimated route cannot claim it fits');
-const traveler={reliable:true,eligible:true,score:80},matched={groupFit:{reliable:true,travelerCount:2},travelerInsights:[traveler,traveler]};
+const traveler={reliable:true,eligible:true,match:true,score:80},matched={groupFit:{reliable:true,travelerCount:2},travelerInsights:[traveler,traveler]};
 assert.equal(api.groupMatches(matched),true);assert.equal(api.groupMatches({...matched,travelerInsights:[traveler]}),false);
 assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,eligible:false}]}),false,'hard requirements cannot be averaged away');
 assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,score:25}]}),false);
+assert.equal(api.samePlannedPlace({id:'geoapify:new',name:'Grande Beach Café',coordinates:{latitude:54.02693,longitude:10.75761}},{providerPlaceId:'google-old',title:'Restaurant · Grande Beach Café',metadata:{coordinates:{latitude:54.02693,longitude:10.75761}}}),true,'same named and located venue is recognized across providers');
+assert.equal(api.samePlannedPlace({id:'new',name:'Other Café',coordinates:{latitude:54,longitude:10}},{providerPlaceId:'old',title:'Restaurant · Other Café',metadata:{coordinates:{latitude:55,longitude:10}}}),false,'same name in a different town is not the same venue');
+assert.ok(!api.personReason({reliable:true,reasons:['Die verfügbaren Ortsdaten greifen wichtige Begriffe aus eurer Suche auf: restaurant.']},{features:{servesVegetarianFood:true}}).includes('restaurant'));
+assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,match:false}]}),false,'group match requires canonical positive preference verdict for every traveler');
 ctx.Deno={env:{get:name=>name==='GEOAPIFY_API_KEY'?'test':''}};let calls=0;
 ctx.fetch=async url=>{calls++;assert.equal(new URL(url).searchParams.get('mode'),'walk');return{ok:true,json:async()=>({features:[{geometry:{type:'LineString',coordinates:[[10.7,54],[10.71,54.01]]},properties:{time:600,distance:650}}]})}};
 vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/routes.ts').replace(/^export /gm,''))+'\nglobalThis.routesAction=routesAction;',ctx);

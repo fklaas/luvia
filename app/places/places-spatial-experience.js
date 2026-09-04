@@ -1070,7 +1070,7 @@
     const root=state.root;
     if(!state.story&&globalThis.LuviaTripMapExperiences)state.story=globalThis.LuviaTripMapExperiences.create({
       context:()=>({trip:state.trip,surface:state.surface,category:state.category,geography:tripGeography(state.trip),selected:selectedPlace(),results:filteredResults(),map:state.map}),
-      select:id=>select(id,false,false),
+      select:id=>{if(findPlace(id))select(id,false,false)},
       open:(place,moment)=>globalThis.LuviaJourneySuggestions?.openResults?.({places:[place],selectedId:providerId(place),trip:state.trip,source:'trip-map-experience',...moment}),notify
     });
     state.story?.attach?.(root.querySelector('[data-trip-map-host]'));
