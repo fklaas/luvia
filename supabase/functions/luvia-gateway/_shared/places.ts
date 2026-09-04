@@ -167,9 +167,20 @@ function geoapifyFallbackCategories(options:any={}){
   return [...((GEOAPIFY_CATEGORY_FALLBACK_BY_KEY as any)[key]||GEOAPIFY_CATEGORIES_FALLBACK)];
 }
 
+function geoapifyCuisineSelections(options:any={}){
+  const selected=Array.isArray(options.includedTypes)?options.includedTypes:[];
+  const cuisines=selected.filter((type:string)=>type.endsWith('_restaurant')&&type!=='fine_dining_restaurant'&&(GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[type]);
+  // Default Food taxonomy contains dietary types too; only explicit selections
+  // may turn those into exclusive-diet conditions.
+  return cuisines.some((type:string)=>!['vegetarian_restaurant','vegan_restaurant'].includes(type))||!options.includedType||selected.length===1?cuisines:[];
+}
 function geoapifyCategoriesFromOptions(options:any,textQuery=''){
   const categoryKey=String(options?.category||'').toLowerCase();
   const selectedTypes=Array.isArray(options?.includedTypes)?options.includedTypes:[];
+  const cuisines=geoapifyCuisineSelections(options);
+  const national=cuisines.filter((type:string)=>!['vegetarian_restaurant','vegan_restaurant'].includes(type));
+  if(national.length)return [...new Set(national.flatMap((type:string)=>String((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[type]).split(',')))];
+  if(cuisines.length)return ['catering.restaurant'];
   const strictType=String(options?.strictPlaceType||'').trim()||(selectedTypes.length===1?String(selectedTypes[0]).trim():'')||(!selectedTypes.length||options?.strictTypeFiltering?String(options?.includedType||'').trim():'');
   // One Luvia category → one Geoapify parent family. Subtype filters may refine
   // to a single mapped type; never mix tourism into food or vice versa.
@@ -451,8 +462,8 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const tags=Array.isArray(props.tags)?props.tags:(typeof props.tags==='string'?props.tags.split(',').map(String):[]);
   const nativeEvidence=[...categories,...tags].filter(Boolean).slice(0,30);
   const mappedTypes=geoapifyLuviaTypes(nativeEvidence);
-  const rawCuisine=String(props.datasource?.raw?.cuisine||'').split(';').map(value=>value.trim().toLowerCase());
-  for(const cuisine of rawCuisine)if((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[`${cuisine}_restaurant`])mappedTypes.push(`${cuisine}_restaurant`);
+  const rawCuisine=[props.datasource?.raw?.cuisine,props.catering?.cuisine,props.cuisine].flatMap(value=>Array.isArray(value)?value:String(value||'').split(/[;,]/)).map(value=>String(value).trim().toLowerCase().replace(/[ -]+/g,'_'));
+  for(const cuisine of rawCuisine){const canonical=['arab','oriental','middle_eastern'].includes(cuisine)?'middle_eastern':cuisine;if((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[`${canonical}_restaurant`])mappedTypes.push(`${canonical}_restaurant`)}
   const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
   const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
   const servesVeganFood=/vegan/.test(textEvidence)?true:null;
@@ -562,23 +573,30 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   // Geoapify Places treats some multi-category CSV lists as an intersection
   // (live Scharbeutz: leisure≈50, but leisure,sport≈1). Always request one
   // category per call and merge unique place_ids — splitGeoapifyCategories.
-  const categoryBatches=categories.length>1?categories.map(category=>[category]):[categories.length?categories:geoapifyFallbackCategories(options)];
-  const buildParams=(cats:string[],useName:boolean)=>{
+  const cuisines=geoapifyCuisineSelections(options),dietary=cuisines.filter((type:string)=>['vegetarian_restaurant','vegan_restaurant'].includes(type)),national=cuisines.filter((type:string)=>!dietary.includes(type));
+  // Cuisine siblings are an OR query before pagination. Never substitute the
+  // generic first 50 catering results for a multi-cuisine selection.
+  const categoryBatches:any[]=cuisines.length?[
+    ...(national.length?[{cats:categories,condition:''}]:[]),
+    ...dietary.map((type:string)=>({cats:['catering.restaurant'],condition:type==='vegan_restaurant'?'vegan.only':'vegetarian.only'}))
+  ]:(categories.length>1?categories.map(category=>[category]):[categories.length?categories:geoapifyFallbackCategories(options)]).map(cats=>({cats}));
+  const buildParams=(cats:string[],useName:boolean,condition?:string)=>{
     const params=new URLSearchParams();
     params.set('apiKey',key);
     params.set('categories',cats.join(','));
     if(useName&&name)params.set('name',name);
     if(filter)params.set('filter',filter);
     const selected=options.strictPlaceType||options.includedType||(options.includedTypes?.length===1?options.includedTypes[0]:'');
-    const conditions=[selected==='vegan_restaurant'?'vegan.only':selected==='vegetarian_restaurant'?'vegetarian.only':options.vegetarianOnly?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
+    const diet=condition!==undefined?condition:selected==='vegan_restaurant'?'vegan.only':selected==='vegetarian_restaurant'?'vegetarian.only':'';
+    const conditions=[diet,options.vegetarianOnly&&!diet?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
     if(conditions.length)params.set('conditions',conditions.join(','));
     if(biasParam)params.set('bias',biasParam);
     params.set('limit',String(limit));
     if(options?.languageCode)params.set('lang',String(options.languageCode).slice(0,5));
     return params;
   };
-  const run=async(cats:string[],useName:boolean)=>{
-    const response=await fetch(`${GEOAPIFY_BASE}/places?${buildParams(cats,useName)}`,{headers:{Accept:'application/json'}});
+  const run=async(cats:string[],useName:boolean,condition?:string)=>{
+    const response=await fetch(`${GEOAPIFY_BASE}/places?${buildParams(cats,useName,condition)}`,{headers:{Accept:'application/json'}});
     const body=await response.json().catch(()=>({}));
     return{response,body,cats};
   };
@@ -594,7 +612,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     return[...byId.values()];
   };
   const runBatches=async(useName:boolean)=>{
-    const settled=await Promise.all(categoryBatches.map(cats=>run(cats,useName)));
+    const settled=await Promise.all(categoryBatches.map(batch=>run(batch.cats,useName,batch.condition)));
     const failed=settled.find(item=>!item.response.ok);
     if(failed)return failed;
     return{

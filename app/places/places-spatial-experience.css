@@ -659,7 +659,7 @@
   pointer-events: none;
 }
 
-.lv-places-spatial__map-engine,
+.lv-places-spatial__map-engine { position:absolute;inset:0;width:100%;height:100%;overflow:hidden;opacity:1;visibility:visible;pointer-events:auto; }
 .lv-places-spatial__map-fallback { overflow:hidden;opacity:1;visibility:visible;background:#edf3f3;pointer-events:none; }
 .lv-places-spatial__map-fallback::before,.lv-places-spatial__map-fallback::after,.lv-places-spatial__map-fallback > i { display:none; }
 .lv-places-spatial__map-fallback > span { position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 14px;border:1px solid rgba(185,204,211,.9);border-radius:999px;background:rgba(255,255,255,.94);color:var(--places-muted);box-shadow:0 14px 34px rgba(32,58,72,.11);font-size:10px;font-weight:820;transform:translate(-50%,-50%);white-space:nowrap; }
@@ -2312,6 +2312,32 @@
 @media(max-width:800px){.lv-places-spatial__map-preview{position:absolute;bottom:12px;left:10px;right:10px;max-width:none;margin-inline:0;z-index:24}}
 @media(max-width:390px){.lv-places-spatial__map-preview{bottom:12px}}
 @media(prefers-reduced-motion:reduce){.lv-places-spatial__map-panel{animation:none}.lv-places-spatial__legend{transition:none}.lv-places-spatial__map-preview,.lv-places-spatial__map-preview-cue i,.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"])::before{animation:none}.lv-places-spatial__map-preview{translate:none}}
+
+/* One pin silhouette: the tip and body cannot paint different layers/colours. */
+@property --lv-pin-angle { syntax:'<angle>';initial-value:0deg;inherits:false; }
+.lv-places-spatial__marker-anchor.is-preferred{z-index:7}
+.lv-places-spatial__marker-anchor.is-selected{z-index:10}
+.lv-places-spatial__marker[data-compass-tone="0"]{--lv-pin-color:#ef6254}
+.lv-places-spatial__marker[data-compass-tone="1"]{--lv-pin-color:#f07850}
+.lv-places-spatial__marker[data-compass-tone="2"]{--lv-pin-color:#f19a4c}
+.lv-places-spatial__marker[data-compass-tone="3"]{--lv-pin-color:#f4b34c}
+.lv-places-spatial__marker[data-compass-tone="4"]{--lv-pin-color:#b5b85e}
+.lv-places-spatial__marker[data-compass-tone="5"]{--lv-pin-color:#6aaa70}
+.lv-places-spatial__marker[data-compass-tone="6"]{--lv-pin-color:#2f8c73}
+.lv-places-spatial__marker[data-compass-tone="7"]{--lv-pin-color:#2e9091}
+.lv-places-spatial__marker[data-compass-tone="8"]{--lv-pin-color:#2c93a9}
+.lv-places-spatial__marker[data-compass-tone="9"]{--lv-pin-color:#4f82b3}
+.lv-places-spatial__marker[data-compass-tone="10"]{--lv-pin-color:#756fa9}
+.lv-places-spatial__marker[data-compass-tone="11"]{--lv-pin-color:#a65f8f}
+.lv-places-spatial__marker[data-compass-tone]{border:0;background:transparent!important;box-shadow:none;filter:drop-shadow(0 4px 4px rgba(31,65,86,.24));animation:none;translate:none}
+.lv-places-spatial__marker::after{inset:0 0 -8px;width:auto;height:auto;border:0;border-radius:0;transform:none;background:var(--lv-pin-color,#2c93a9);mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Cpath fill='white' d='M22 1C10.4 1 1 10.4 1 22C1 33 8 39 15 42L22 51L29 42C36 39 43 33 43 22C43 10.4 33.6 1 22 1Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.lv-places-spatial__marker::before,.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"])::before{inset:0 0 -8px;z-index:0;border-radius:0;opacity:1;scale:1;background:#fff;animation:none;transition:none;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Cpath fill='none' stroke='white' stroke-width='2.6' d='M22 1C10.4 1 1 10.4 1 22C1 33 8 39 15 42L22 51L29 42C36 39 43 33 43 22C43 10.4 33.6 1 22 1Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.lv-places-spatial__marker.is-preferred::before{background:conic-gradient(from var(--lv-pin-angle),#ef6254,#f07850,#f19a4c,#f4b34c,#b5b85e,#6aaa70,#2f8c73,#2e9091,#2c93a9,#4f82b3,#756fa9,#a65f8f,#ef6254);animation:lv-pin-spectrum 5s linear infinite}
+.lv-places-spatial__marker.is-preferred,.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"]){box-shadow:none}
+.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"]){scale:1.18;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 6px 5px rgba(31,65,86,.36))}
+.lv-places-spatial__marker>b{top:-18px;left:50%;right:auto;translate:-50% 0;min-width:32px;height:16px;padding:0 5px;border-width:1px;border-radius:8px;font-size:7px;font-weight:700;text-transform:none;background:rgba(255,255,255,.94);color:#375c60;box-shadow:0 2px 4px rgba(31,65,86,.1);pointer-events:none}
+@keyframes lv-pin-spectrum{to{--lv-pin-angle:360deg}}
+@media(prefers-reduced-motion:reduce){.lv-places-spatial__marker.is-preferred::before{animation:none}}
 
 .lv-category-image { display:grid;place-content:center;justify-items:center;gap:8px;width:100%;min-height:110px;background:#f0f4f4;color:#637b83; }
 .lv-category-image > svg { width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.4; }

@@ -105,6 +105,7 @@ function normalizePlace(input){
     distanceMeters:finiteNumber(input.distanceMeters??input.distance_meters),
     aiMatchScore:finiteNumber(input.aiMatchScore??input.ai_match_score??input.discoveryScore),
     preferenceScore:finiteNumber(input.preferenceFit?.score??input.groupFit?.score??input.preferenceScore),
+    preferenceDiscoveryMatch:typeof input.preferenceDiscoveryMatch==='boolean'?input.preferenceDiscoveryMatch:null,
     preferenceCoverage:finiteNumber(input.preferenceFit?.coverage??input.groupFit?.coverage),
     preferenceReasons:stringArray(input.preferenceReasons||input.aiReasons||input._luviaReasons),
     preferenceConstraintState:clean(input.preferenceConstraintState)||null,
@@ -147,7 +148,7 @@ function normalizeResults(input){
 
 function preferredResultIds(results){
   return new Set((Array.isArray(results)?results:[])
-    .filter(result=>result?.coordinates&&result.preferenceScore!=null&&result.preferenceScore>0&&result.preferenceCoverage>0&&result.preferenceReasons.length>0&&(!result.preferenceConstraintState||result.preferenceConstraintState==='satisfied'))
+    .filter(result=>result?.coordinates&&(result.preferenceDiscoveryMatch===true||(result.preferenceDiscoveryMatch==null&&result.preferenceScore!=null&&result.preferenceScore>0&&result.preferenceCoverage>0&&result.preferenceReasons.length>0&&result.preferenceConstraintState==='satisfied')))
     .map(result=>result.providerPlaceId));
 }
 

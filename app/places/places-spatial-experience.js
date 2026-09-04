@@ -649,6 +649,8 @@
   function markerAnchor(marker,button){
     const anchor=document.createElement('div');
     anchor.className='lv-places-spatial__marker-anchor';
+    anchor.classList.toggle('is-selected',button.classList.contains('is-selected'));
+    anchor.classList.toggle('is-preferred',marker.preferred===true);
     anchor.style.setProperty('--places-marker-float-delay',`${-((Math.max(1,Number(marker.rank)||1)-1)*.47).toFixed(2)}s`);
     anchor.append(button);
     return anchor;
@@ -828,6 +830,7 @@
       const selected=marker.dataset.providerPlaceId===id;
       marker.classList.toggle('is-selected',selected);
       marker.setAttribute('aria-pressed',String(selected));
+      marker.closest('.lv-places-spatial__marker-anchor')?.classList.toggle('is-selected',selected);
     });
     const card=[...(state.root?.querySelectorAll('[data-place-card]')||[])].find(item=>item.dataset.placeCard===id);
     if(scroll)card?.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'nearest',inline:'start'});

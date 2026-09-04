@@ -32,6 +32,27 @@ f.state.filters=f.emptyFilters();f.state.filters.priceLevels=['PRICE_LEVEL_MODER
 f.state.filters=f.emptyFilters();f.state.filters.vegetarian=true;f.state.results=[{id:'steak',name:'Kleines Steakhouse',types:['restaurant','vegetarian'],features:{servesVegetarianFood:true}},{id:'coast',name:'COAST',types:['restaurant'],features:{servesVegetarianFood:true}}];assert.deepEqual(Array.from(f.filteredResults(),p=>p.id),['coast'],'generic vegetarian metadata must not make a steakhouse pass the manual filter');
 for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartment:'accommodation.apartment',vacation_rental:'accommodation.chalet',hostel:'accommodation.hostel',campground:'camping.camp_site'})){const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:type,name:type,lat:54,lon:10,categories:[category]}});assert.ok(p.types.includes(type),`accommodation subtype ${type} must survive normalization`)}
 (async()=>{
+ const cuisineCalls=[];
+ ctx.fetch=async url=>{const u=new URL(url);cuisineCalls.push(u);const native=(u.searchParams.get('conditions')||u.searchParams.get('categories')).split(',');return{ok:true,status:200,json:async()=>({features:native.map(category=>({properties:{place_id:category,name:category,lat:54.02,lon:10.75,categories:[category.startsWith('catering.')?'catering.restaurant':category,category]}}))})}};
+ for(const [type]of f.CATEGORY_FILTERS.food.cuisines){
+  const before=cuisineCalls.length;const rows=await ctx.provider.geoapifyPlacesSearch('Cuisine Restaurant',{location:point},{category:'food',includedType:type,includedTypes:[type],userQuery:''},null,null);
+  assert.ok(rows.some(p=>p.types.includes(type)),`${type}: actual provider request and returned normalization must agree`);
+  assert.equal(cuisineCalls.length-before,1,`${type}: one bounded request`);
+ }
+ const start=cuisineCalls.length;
+ const union=await ctx.provider.geoapifyPlacesSearch('Italienisch Deutsch Griechisch Restaurant',{location:point},{category:'food',includedTypes:['italian_restaurant','german_restaurant','greek_restaurant'],userQuery:''},null,null);
+ assert.equal(cuisineCalls.length-start,1,'national cuisine union uses one provider request, not a broad cohort or per-cuisine fanout');
+ assert.deepEqual(cuisineCalls.at(-1).searchParams.get('categories').split(',').sort(),['catering.restaurant.german','catering.restaurant.greek','catering.restaurant.italian']);
+ f.state.category='food';f.state.filters=f.emptyFilters();f.state.filters.types=['restaurant'];f.state.filters.cuisines=['italian_restaurant','german_restaurant','greek_restaurant'];f.state.results=union;
+ assert.equal(f.filteredResults().length,3,'type AND cuisine groups retain each cuisine in an OR selection');
+ const mixedStart=cuisineCalls.length;await ctx.provider.geoapifyPlacesSearch('Italienisch Vegan Restaurant',{location:point},{category:'food',includedTypes:['italian_restaurant','vegan_restaurant'],userQuery:''},null,null);
+ assert.equal(cuisineCalls.length-mixedStart,2);assert.equal(cuisineCalls.at(-2).searchParams.has('conditions'),false,'vegan alternative must not restrict Italian branch');assert.equal(cuisineCalls.at(-1).searchParams.get('conditions'),'vegan.only');
+ for(const evidence of [{catering:{cuisine:'italian; greek'}},{cuisine:['italian','greek']},{datasource:{raw:{cuisine:'italian;greek'}}}]){
+  const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:'structured',name:'Evidence',lat:54,lon:10,categories:['catering.restaurant'],...evidence}});assert.ok(p.types.includes('italian_restaurant')&&p.types.includes('greek_restaurant'),'explicit structured cuisines survive normalization');
+ }
+ const composition=ctx.LuviaPlacesSpatialCompositionCoreV1;
+ const preferencePins=composition.compose({places:[{id:'yes',name:'Yes',coordinates:point,preferenceDiscoveryMatch:true,preferenceConstraintState:'verify'},{id:'no',name:'No',coordinates:point,preferenceDiscoveryMatch:false,preferenceScore:95,preferenceFit:{score:95,coverage:100},preferenceReasons:['generic'],preferenceConstraintState:'satisfied'}],runtime:{status:'ready'}}).markers;
+ assert.equal(preferencePins.find(p=>p.providerPlaceId==='yes').preferred,true);assert.equal(preferencePins.find(p=>p.providerPlaceId==='no').preferred,false,'pin badge obeys the same explicit match verdict as Passend');
  const calls=[];ctx.fetch=async url=>{calls.push(new URL(url));return{ok:true,status:200,json:async()=>({features:[{properties:{feature_type:'details',place_id:'abc',name:'Real Place',lat:54.02,lon:10.75,categories:['catering.restaurant'],wiki_and_media:{image:'https://example.org/real-place.jpg'}}}]})}};
  const detail=await ctx.provider.geoapifyPlaceDetails('geoapify:abc',{enrichMedia:true});assert.equal(detail.name,'Real Place');assert.equal(detail.photos[0].uri,'https://example.org/real-place.jpg');
  await ctx.provider.geoapifyPlaceDetails('geoapify:abc',{enrichMedia:true});assert.equal(calls.length,1,'exact-place media details are cached');
