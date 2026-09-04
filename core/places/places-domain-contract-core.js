@@ -203,6 +203,10 @@ function rows(response){
   if(Array.isArray(response?.data))return response.data;
   return [];
 }
+function localSearchRadius(destination={},requestedRadius){
+  const explicit=Number(requestedRadius),stored=Number(destination?.searchRadiusMeters);
+  return Number.isFinite(explicit)&&explicit>0?Math.max(500,Math.min(50000,explicit)):Math.max(500,Math.min(3000,Number.isFinite(stored)&&stored>0?stored:3000));
+}
 function create(providers={}){
   const call=(name,...args)=>{
     const provider=providers[name];
@@ -237,5 +241,5 @@ function create(providers={}){
   return Object.freeze({version:VERSION,search,getPlace,listPlaces,getDetails,listSaved,recommend,getLifecycle,categories,category,categoryFor,routeDiscovery,createDeepLink,snapshot});
 }
 
-return Object.freeze({version:VERSION,categories,category,categoryFor,routeDiscovery,createDeepLink,projectPlace,projectDetails,projectSaved,create});
+return Object.freeze({version:VERSION,localSearchRadius,categories,category,categoryFor,routeDiscovery,createDeepLink,projectPlace,projectDetails,projectSaved,create});
 })();

@@ -2713,3 +2713,7 @@ docs/planning/status-plan.v1.json,Documentation/Release History,Documentation,Co
 scripts/export-masterplan-docx.py,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
 docs/planning/README.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
 docs/planning/consolidation-validation-2026-09-04.json,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+
+tests/b1-discovery-acceptance.test.cjs,Quality/Tests,Test,Real chat discovery regression and bounded dietary candidate selection
+docs/modularization/PCR-B1-DISCOVERY-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,B1 discovery and truthful status PCR
+tests/planning-current-status.test.cjs,Quality/Tests,Test,Canonical current roadmap and immutable archived evidence validation

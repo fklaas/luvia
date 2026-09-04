@@ -40,14 +40,14 @@ function parseCsv(text) {
 }
 
 const plan = read('docs/modularization/M16.5-DESIGN-INTEGRATION-AND-FEATURE-PRODUCTIZATION-PLAN.md');
-const productReset = read('docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md');
-const fiftyPoint = read('docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md');
-const handout = read('docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
+const productReset = read('docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md');
+const fiftyPoint = read('docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md');
+const handout = read('docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
 const surfaces = parseCsv(read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv'));
 const owners = parseCsv(read('docs/modularization/M16.5-CORE-OWNER-MATRIX.csv'));
 const ownership = read('docs/modularization/FILE-OWNERSHIP.csv');
-const roadmap = read('ROADMAP-LUVIA-CURRENT.md');
-const current = read('CURRENT-BUILD.md');
+const roadmap = read('docs/planning/archive/2026-09-04-before-consolidation/ROADMAP-LUVIA-CURRENT.md');
+const current = read('docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md');
 const runner = read('tests/run-m4.3-safe-regression.cjs');
 
 const allowedStatuses = new Set([
@@ -93,9 +93,9 @@ for (const file of [
   assert(fs.existsSync(file), `current ChatGPT terminal handoff missing ${file}`);
 }
 
-const terminalProtocol = read('docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md');
-const contextBridge = read('docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md');
-const mapSlice = read('docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md');
+const terminalProtocol = read('docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md');
+const contextBridge = read('docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md');
+const mapSlice = read('docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md');
 assert.match(terminalProtocol, /ERGEBNIS AB HIER KOPIEREN/);
 assert.match(terminalProtocol, /--name integration-luvia/);
 assert.match(contextBridge, /Nicht M5 fortsetzen\. Nicht B2 beginnen/);

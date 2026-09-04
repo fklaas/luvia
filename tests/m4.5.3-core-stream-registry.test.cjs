@@ -392,7 +392,7 @@ console.log('M5.1h completed state preserved: PASS');
     );
 
   const _nfrRequired = [
-    'CURRENT-BUILD.md',
+    'docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md',
     'RELEASE-NOTES-NFR-0.md',
     'TEST-RESULTS-NFR-0.md',
     'docs/architecture/MIGRATION-STATE.md',
@@ -417,7 +417,7 @@ console.log('M5.1h completed state preserved: PASS');
 
   const current =
     _nfrRead(
-      'CURRENT-BUILD.md'
+      'docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md'
     );
 
   const release =
@@ -544,7 +544,7 @@ console.log('M5.1h completed state preserved: PASS');
     );
 
   const _m53Required = [
-    'CURRENT-BUILD.md',
+    'docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md',
     'RELEASE-NOTES-M5.3.md',
     'TEST-RESULTS-M5.3.md',
     'docs/architecture/MIGRATION-STATE.md',
@@ -568,7 +568,7 @@ console.log('M5.1h completed state preserved: PASS');
   }
 
   const current =
-    _m53Read('CURRENT-BUILD.md');
+    _m53Read('docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md');
 
   const release =
     _m53Read('RELEASE-NOTES-M5.3.md');
@@ -680,7 +680,7 @@ console.log('M5.1h completed state preserved: PASS');
   const rootM542 = process.cwd();
 
   const currentM542 = fsM542.readFileSync(
-    pathM542.join(rootM542, 'CURRENT-BUILD.md'),
+    pathM542.join(rootM542, 'docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md'),
     'utf8'
   );
 
@@ -772,7 +772,7 @@ console.log('M5.1h completed state preserved: PASS');
   const readM543 = relative => fsM543.readFileSync(pathM543.join(rootM543, ...relative.split('/')), 'utf8');
   const assertM543 = (condition, message) => { if (!condition) throw new Error(message); };
 
-  const currentM543 = readM543('CURRENT-BUILD.md');
+  const currentM543 = readM543('docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md');
   const releaseM543 = readM543('RELEASE-NOTES-M5.4.3.md');
   const resultsM543 = readM543('TEST-RESULTS-M5.4.3.md');
   const migrationM543 = readM543('docs/architecture/MIGRATION-STATE.md');
@@ -805,7 +805,7 @@ console.log('M5.1h completed state preserved: PASS');
 {
   const fs = require('fs');
 
-  const currentBuild = fs.readFileSync('CURRENT-BUILD.md', 'utf8');
+  const currentBuild = fs.readFileSync('docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md', 'utf8');
   const release = fs.readFileSync('RELEASE-NOTES-M5.4.md', 'utf8');
   const results = fs.readFileSync('TEST-RESULTS-M5.4.md', 'utf8');
   const migration = fs.readFileSync('docs/architecture/MIGRATION-STATE.md', 'utf8');
@@ -876,7 +876,7 @@ console.log('M5.1h completed state preserved: PASS');
 
   const currentM5Final =
     readM5Final(
-      'CURRENT-BUILD.md'
+      'docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md'
     );
 
   const releaseM5Final =

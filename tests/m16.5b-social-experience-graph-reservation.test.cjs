@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(file, 'utf8');
 const streams = JSON.parse(read('config/luvia-streams.json'));
 const cores = JSON.parse(read('config/luvia-cores.json'));
 const contract = JSON.parse(read('docs/modularization/contracts/social.v1.json'));
-const roadmap = read('ROADMAP-LUVIA-CURRENT.md');
+const roadmap = read('docs/planning/archive/2026-09-04-before-consolidation/ROADMAP-LUVIA-CURRENT.md');
 const dependencies = read('docs/architecture/DEPENDENCY-RULES.md');
 const ownership = read('docs/modularization/MODULE-OWNERSHIP.md');
 const codeowners = read('.github/CODEOWNERS');

@@ -84,7 +84,7 @@ assert.ok(duffelRollback.includes('duffel_stays'));
 const config=read('supabase/config.toml');
 for(const fn of ['booking-hotel-offer-search','booking-provider-duffel-stays','booking-provider-amadeus-hotels','booking-provider-hotelbeds'])assert.match(config,new RegExp(`\\[functions\\.${fn}\\]\\r?\\nverify_jwt = true`));
 
-const master=read('docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
+const master=read('docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md');
 const step17=read('docs/modularization/M16.5-STEP17-E2E-MATRIX.md');
 for(const provider of ['Duffel','Hotelbeds','KAYAK','Expedia Rapid','Booking.com Demand'])assert.ok(master.includes(provider),`master plan must preserve provider order: ${provider}`);
 assert.match(master,/never\s+claims\s+a\s+universal\s+best-market\s+price/i);

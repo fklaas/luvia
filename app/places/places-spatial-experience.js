@@ -37,7 +37,7 @@
     const longitude=Number(dest?.location?.longitude??dest?.center?.lng??dest?.longitude??model?.longitude??source.destinationLng??source.longitude);
     const name=destination(source);
     const radius=state.searchRadiusMeters||Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
-    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:state.searchRadiusMeters===5000?5000:Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000))};
+    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:placesContract()?.reads?.localSearchRadius?.({searchRadiusMeters:radius},state.searchRadiusMeters||undefined)??(state.searchRadiusMeters===5000?5000:Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000)))};
     if(Number.isFinite(latitude)&&Number.isFinite(longitude)){
       payload.center={lat:latitude,lng:longitude};
       payload.location={latitude,longitude};

@@ -232,8 +232,9 @@
   async function recommend(options={}){
     const response=await discovery().recommend(options||{});
     const places=freezeArray((response?.places||[]).map(source=>{const projected=detailsProjection(source);return projected?Object.freeze({...projected,recommendation:recommendationProjection(source)}):null}).filter(Boolean));
-    return Object.freeze({places,count:places.length,route:domain().routeDiscovery(options),plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null,diversityMeta:response?.diversityMeta?Object.freeze(response.diversityMeta):null,providerDiagnostics:response?.providerDiagnostics?Object.freeze(response.providerDiagnostics):null});
+    return Object.freeze({places,count:places.length,route:response?.plan?.route||domain().routeDiscovery(options),evidenceContract:response?.evidenceContract?Object.freeze(response.evidenceContract):null,selectionMeta:response?.selectionMeta?Object.freeze(response.selectionMeta):null,searchScope:response?.searchScope?Object.freeze(response.searchScope):null,plan:Object.freeze(response?.plan||{}),aiMeta:response?.aiMeta?Object.freeze(response.aiMeta):null,preferenceResolution:response?.preferenceResolution?Object.freeze(response.preferenceResolution):null,preferenceMeta:response?.preferenceMeta?Object.freeze(response.preferenceMeta):null,diversityMeta:response?.diversityMeta?Object.freeze(response.diversityMeta):null,providerDiagnostics:response?.providerDiagnostics?Object.freeze(response.providerDiagnostics):null});
   }
+  function localSearchRadius(destination,requestedRadius){return domain().localSearchRadius(destination,requestedRadius)}
   function categories(){return domain().categories()}
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}
   function createDeepLink(options={}){return domain().createDeepLink(options)}
@@ -375,7 +376,7 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
+    reads:Object.freeze({localSearchRadius,search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
     composition:Object.freeze({selectView}),
     commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
