@@ -4,6 +4,7 @@ const vm=require('node:vm');
 const assert=require('node:assert/strict');
 
 const gateway=fs.readFileSync('supabase/functions/luvia-gateway/_shared/places.ts','utf8');
+const additional=fs.readFileSync('supabase/functions/luvia-gateway/_shared/additional-places.ts','utf8');
 assert.match(gateway,/'chinese-scharbeutz'/,'exact Chinese filter health probe exists');
 assert.match(gateway,/providers:Object\.freeze\(\['auto'\]\)/,'probe uses the live automatic cascade');
 assert.match(gateway,/includedType:'chinese_restaurant'/,'probe carries exact cuisine evidence contract');
@@ -11,6 +12,10 @@ assert.match(gateway,/maxDistanceMeters:5000/,'probe uses the same specialized l
 assert.match(gateway,/tomtom:\{configured:Boolean\(Deno\.env\.get\('TOMTOM_API_KEY'\)\)/,'TomTom configuration is visible without exposing the key');
 assert.match(gateway,/here:\{configured:Boolean\(Deno\.env\.get\('HERE_API_KEY'\)\)/,'HERE configuration is visible without exposing the key');
 assert.match(gateway,/answered:\[\.\.\.new Set\(answered\)\]/,'gateway distinguishes a successful empty answer from provider failure');
+assert.match(gateway,/'nature-scharbeutz'/,'bounded Nature purity health probe exists');
+assert.match(additional,/holiday park\\b\/.test\(text\)\)return\['lodging','vacation_rental'\]/,'HERE Holiday Park is classified as accommodation instead of nature');
+assert.match(additional,/park and ride\\b\/.test\(text\)\)return\['parking'\]/,'HERE Park and Ride cannot enter nature through the word Park');
+assert.match(additional,/camping hiking shop\\b\/.test\(text\)\)return\['store'\]/,'HERE Camping-Hiking Shop cannot enter nature through broad words');
 
 const placesService=fs.readFileSync('intelligence/places-service.js','utf8');
 const discovery=fs.readFileSync('app/adapters/places-discovery-adapter.js','utf8');

@@ -11,7 +11,15 @@ const typeRules:[string,RegExp][]=[
  ['spa',/\bspa\b|\bsauna\b|\bwellness\b/],['amusement_park',/\bamusement park\b|\btheme park\b/],['water_park',/\bwater park\b/],['swimming_pool',/\bswimming pool\b/],['beach',/\bbeach\b/],['marina',/\bmarina\b/],['aquarium',/\baquarium\b/],['zoo',/\bzoo\b/],['bowling_alley',/\bbowling\b/],['playground',/\bplayground\b/],['golf_course',/\bgolf course\b/],['miniature_golf_course',/\bminiature golf\b|\bminigolf\b/],['fitness_center',/\bfitness\b|\bgym\b/],['sports_activity_location',/\bsport/],['tourist_attraction',/\btourist attraction\b|\bimportant tourist\b|\blandmark\b|\bmonument\b|\bmemorial\b/],['museum',/\bmuseum\b/],['art_gallery',/\bart gallery\b/],['performing_arts_theater',/\btheater\b|\btheatre\b/],['concert_hall',/\bconcert hall\b|\bmusic center\b/],['movie_theater',/\bcinema\b|\bmovie theater\b/],['park',/\bpark\b/],['hiking_area',/\bhiking\b|\btrailhead\b/],['shopping_mall',/\bshopping cent|\bshopping mall/],['department_store',/\bdepartment store\b/],['clothing_store',/\bclothing\b|\bfashion\b/],['market',/\bmarket\b/],['store',/\bshop\b|\bstore\b|\bretail\b/]
 ];
 export function additionalTypes(evidence:string[]){
-  const text=evidence.map(token).join(' | '),types=typeRules.filter(([,pattern])=>pattern.test(text)).map(([type])=>type);
+  const text=evidence.map(token).join(' | ');
+  // HERE names several non-nature families with words such as "Park" or
+  // "Hiking". Resolve those exact provider labels before the broad token rules
+  // so holiday rentals, parking and retail never enter a nature cohort.
+  if(/\bholiday park\b/.test(text))return['lodging','vacation_rental'];
+  if(/\bpark and ride\b/.test(text))return['parking'];
+  if(/\bbike park\b/.test(text))return['sports_activity_location'];
+  if(/\bcamping hiking shop\b/.test(text))return['store'];
+  const types=typeRules.filter(([,pattern])=>pattern.test(text)).map(([type])=>type);
   for(const [type,aliases] of Object.entries(cuisines))if(aliases.some(alias=>new RegExp(`\\b${alias}\\b`).test(text)))types.push(`${type}_restaurant`,'restaurant');
   if(types.some(type=>/^(chinese|japanese|thai|vietnamese|korean|indian)_restaurant$/.test(type)))types.push('asian_restaurant');
   if(/hotel motel/.test(text)){
