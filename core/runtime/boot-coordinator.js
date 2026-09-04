@@ -49,11 +49,15 @@
     exposeApp();
     emit('ready',{snapshot});
   }
-  function chooseActiveTrip(){
-    const trips=tripRuntime().getState().trips;
+  function chooseActiveTrip({preferCurrent=true}={}){
+    const current=tripRuntime().getState(),trips=current.trips;
     const profile=win.LuviaProfileService.snapshot().profile||{};
     const cloudPreferred=profile.activeTripId;
-    const chosen=trips.find(t=>String(t.id||t.tripId)===String(cloudPreferred||''))||trips[0]||null;
+    // The Trip owner's valid selection is authoritative on this device.
+    // A stale profile hint must not undo a deliberate selection or an offline
+    // choice. On a fresh device the cloud preference supplies the initial hint.
+    const selected=preferCurrent?trips.find(t=>String(t.id||t.tripId)===String(current.activeTripId||'')):null;
+    const chosen=selected||trips.find(t=>String(t.id||t.tripId)===String(cloudPreferred||''))||trips[0]||null;
     if(chosen&&tripRuntime().getState().activeTripId!==chosen.id)tripCommands().selectActiveTrip(chosen.id,{touch:false,source:'boot-cloud'});
     return {trip:chosen,profile,needsProfileRepair:Boolean(chosen&&String(cloudPreferred||'')!==String(chosen.id||chosen.tripId||''))};
   }
@@ -62,12 +66,13 @@
     return snapshot;
   }
   async function synchronizeAuthenticated(client){
+    const hadLocalSelection=Boolean(tripRuntime().getState().activeTripId);
     win.dispatchEvent(new CustomEvent('luvia:boot-background-sync',{detail:{state:'started'}}));
     await Promise.all([
-      tripRuntime().loadRemote(client,{authoritative:true,ignoreLocalActive:true}),
+      tripRuntime().loadRemote(client,{authoritative:true,ignoreLocalActive:false}),
       win.LuviaProfileService.load(client)
     ]);
-    const selected=chooseActiveTrip();
+    const selected=chooseActiveTrip({preferCurrent:hadLocalSelection});
     if(selected.needsProfileRepair)await win.LuviaProfileService.setActiveTrip(selected.trip.id||selected.trip.tripId);
     const tripId=selected.trip?.id||selected.trip?.tripId||null;
     // Remote hydration continues after first paint. It must never replace the
