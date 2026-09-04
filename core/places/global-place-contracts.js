@@ -19,7 +19,7 @@ const OUTSKIRTS_TERMS=/\b(?:stadtrand|au[sß]erhalb|außerhalb|outskirts|outside
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
 const MEAT_LED_OFFER=/kebab|kebap|d[oö]ner|steak(?:house)?|barbecue|\bbbq\b|grill|hamburger|burger|greek_restaurant|griech(?:isch|e[rsnm]?)/i;
 const AVOID_PREFIX=/(?:\b(?:nicht|kein(?:e[rmns]?)?|ohne|statt|abseits|weg\s+von|not|without|away\s+from|instead\s+of|pas|sans|plut[oô]t\s+que|loin\s+de|no\s+(?:en|a|al|cerca|junto|sobre|directamente)|sin|en\s+vez\s+de|non|senza|invece\s+di|n[aã]o|sem|em\s+vez\s+de|niet|zonder|in\s+plaats\s+van)\b).{0,32}/i;
-const SPECIFIC_STOP_WORDS=new Set('aber also ansehen angebot angebote auswahl bitte bisschen children city der die das den dem des direct directly direkt ein eine einer einem einen etwas euch eure euren eurer für fuer find finde finden gefunden geht gerne heute ich im in into kind kinder kids mal mit mochte möchte moechte nach nahe near noch option optionen ort orte place places restaurant restaurants ruhig ruhige ruhigen scharbeutz sehen soll spielen stadt statt super und uns unsere unseren want was wasser weiter wish wunsch wünsche wuensche zum zur'.split(' '));
+const SPECIFIC_STOP_WORDS=new Set('eher aber also ansehen angebot angebote auswahl bitte bisschen children city der die das den dem des direct directly direkt ein eine einer einem einen etwas euch eure euren eurer für fuer find finde finden gefunden geht gerne heute ich im in into kind kinder kids mal mit mochte möchte moechte nach nahe near noch option optionen ort orte place places restaurant restaurants ruhig ruhige ruhigen scharbeutz sehen soll spielen stadt statt super und uns unsere unseren want was wasser weiter wish wunsch wünsche wuensche zum zur'.split(' '));
 const BROAD_EVIDENCE_TERMS=new Set('activity activities aktivitat aktivitäten aktivitaet attraction business company erlebnis erleben freizeit geschäft geschaft laden möglichkeit möglichkeiten option place places shop store tourist attraction venue'.split(' '));
 const CATEGORY_TYPE_ALIASES=Object.freeze({
   accommodation:Object.freeze(['accommodation','lodging','hotel','hostel','motel','bed_and_breakfast','guest_house','guesthouse','resort','resort_hotel','campground','camping_cabin','private_guest_room','apartment','serviced_apartment','holiday_apartment','apartment_hotel','extended_stay_hotel','holiday_home','vacation_rental','cottage','inn','pension','ferienwohnung']),
@@ -58,7 +58,8 @@ function providerCategoryTypeKeys(place={}){
 }
 function providerTypeMatches(value,accepted){return value===accepted||QUALIFIED_PROVIDER_TYPE_SUFFIXES.has(accepted)&&value.endsWith('_'+accepted)}
 function hasProviderCategoryEvidence(place={},categoryKey='',definition=category(categoryKey)){
-  const canonicalPrimaryType=typeKey(definition?.primaryType),canonicalOwnerTypes=canonicalPrimaryType&&canonicalPrimaryType!=='custom'?[definition.primaryType,...(definition?.domainTypes||[])]:[];
+  const specificCategory=['wellness','themeparks','water','malls'].includes(categoryKey);
+  const canonicalPrimaryType=typeKey(definition?.primaryType),canonicalOwnerTypes=!specificCategory&&canonicalPrimaryType&&canonicalPrimaryType!=='custom'?[definition.primaryType,...(definition?.domainTypes||[])]:[];
   const aliases=[...(definition?.includedTypes||[]),...canonicalOwnerTypes,...(CATEGORY_TYPE_ALIASES[categoryKey]||[])].map(typeKey).filter(Boolean),providerTypes=providerCategoryTypeKeys(place);
   return aliases.some(accepted=>providerTypes.some(value=>providerTypeMatches(value,accepted)));
 }
@@ -136,12 +137,13 @@ function accepts(place,categoryKey,goalText='',preferences={},options={}){
   // Street-only shells (e.g. unnamed OSM recreation_ground → "Ostpreußenstraße") are not venues.
   if(isStreetShellName(name))return false;
   if(intent.exclude?.test(hay))return false;
-  if(def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;
+  const specificAmenity=intent.specificEvidence===true&&Boolean(intent.typeMatch)&&providerTypes.some(value=>intent.typeMatch.test(value));
+  if(!specificAmenity&&def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;
   // Non-food/non-nightlife categories must never keep catering leftovers from a prior
   // search, viewport merge, or broad provider alias collision.
   if(resolvedCategory!=='food'&&resolvedCategory!=='nightlife'){
     const foodOnly=providerTypes.some(value=>/^(?:restaurant|cafe|bakery|meal_takeaway|food_court|catering)(?:_|$)/.test(value)||value.includes('catering_'));
-    if(foodOnly)return false;
+    if(foodOnly&&!specificAmenity)return false;
   }
   // Search terms and model plans may prove the requested subject, but only the
   // provider taxonomy may prove the canonical Places category. In particular,

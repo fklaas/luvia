@@ -1924,6 +1924,8 @@
 .lv-places-spatial__map-message[data-state="unavailable"] > i,
 .lv-places-spatial__map-message[data-state="empty"] > i { background: var(--places-faint); }
 
+.lv-places-spatial__map-preview-open:not(:has(>img)){grid-template-columns:minmax(0,1fr);padding-inline:12px}
+
 .lv-places-spatial__map.is-ready .lv-places-spatial__map-message {
   opacity: 0;
   visibility: hidden;

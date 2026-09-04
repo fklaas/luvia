@@ -124,11 +124,16 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(searched.places[0].rawProviderPayload,undefined,'provider search payload must not leak');
   assert.strictEqual(searched.debug,undefined,'search transport metadata must not leak');
 
-  const viewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5},radiusMeters:5000,maxResultCount:20,maxViewportResults:80});
+  const viewport=await api.searchViewport({query:'Restaurants',type:'restaurant',providers:['google'],bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5},radiusMeters:5000,maxResultCount:20,maxViewportResults:80});
   assert.strictEqual(calls.viewport.length,4,'one viewport must be split into four provider requests');
   assert.strictEqual(viewport.count,4,'deduplicated tile results must all remain visible');
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(viewport.tiles)),{requested:4,fulfilled:4,providerPageSize:20,maximumUniqueResults:80});
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(viewport.tiles)),{requested:4,fulfilled:4,providerPageSize:20,maximumUniqueResults:80,strategy:'four-tile-legacy'});
   assert(viewport.places.every(place=>place.coordinates.latitude>=52&&place.coordinates.latitude<=53&&place.coordinates.longitude>=7&&place.coordinates.longitude<=8));
+
+  const geoViewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5}});
+  assert.strictEqual(calls.viewport.length,5,'default Geoapify browse adds exactly one rectangle read');
+  assert.strictEqual(geoViewport.tiles.strategy,'single-rectangle-geoapify');
+  assert.strictEqual(geoViewport.tiles.providerPageSize,50,'single Geoapify rectangle retains a complete provider page');
 
   const details=await api.getDetails('google-1',{languageCode:'de'});
   assert.strictEqual(details.rating,4.7);

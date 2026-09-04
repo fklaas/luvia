@@ -102,7 +102,8 @@ const positions={
   center:files.index.indexOf('app/control-center/identity-center.js'),
   shell:files.index.indexOf('app/app-shell.js')
 };
-assert(positions.web>=0&&positions.web<positions.auth,'Web Identity ports must load before Auth');
+const runtimeLoader=read('app/luvia-runtime-loader.mjs');
+assert(runtimeLoader.indexOf('identity-platform-web-adapter.js')<runtimeLoader.indexOf('luvia-runtime-precontext-'),'Web Identity ports must load before the Auth-containing precontext bundle');
 assert(positions.identityCore>=0&&positions.identityCore<positions.profile,'Identity Domain Core must load before Profile adapter');
 assert(positions.eventCore>=0&&positions.eventCore<positions.eventAdapter,'Event Core must load before Event adapter');
 assert(positions.eventAdapter>=0&&positions.eventAdapter<positions.identityAdapter,'Event adapter must load before Identity event bridge');

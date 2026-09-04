@@ -50,7 +50,7 @@ const index=read('index.html');
 const sw=read('sw.js');
 assert.match(places,/profilePreferences:context\.profilePreferences/,'productive Places request must receive Identity preferences');
 assert.match(places,/tripComposition:context\.tripComposition/,'productive Places request must receive Trip composition');
-assert.match(places,/destinationContext:destinationContext\(context\.trip\|\|state\.trip\)/,'productive Places request must carry the canonical trip destination into discovery');
+assert.match(places,/destinationContext:geography/,'productive Places request must carry the canonical trip destination into discovery');
 assert.match(places,/Luvia-KI ordnet · Fakten sichern ab/,'Places must disclose successful semantic AI ranking');
 assert.match(places,/Regelbasiert abgesichert · KI gerade nicht verfügbar/,'Places must disclose the safe fallback instead of pretending AI ran');
 const discovery=read('app/adapters/places-discovery-adapter.js');

@@ -1,3 +1,7 @@
+## Recovery 2026-09-04 — App 13.82.168.21 / Core 4.82.168
+
+M16.5 Local Places and Trip Recovery · integration-preview. Local candidate; public acceptance pending. Active Trip hydration preserves the selected membership, initial Places searches use destination coordinates within 3 km, specific categories use exact provider taxonomy, Passend remains selected on empty evidence, and viewport refreshes reject obsolete responses. Runtime build now emits exactly one loader. See docs/modularization/PCR-RECOVERY-TRIP-PLACES-20260904.md for scope and rollback.
+
 <!-- LUVIA:M5.4.1:CLOSEOUT:START -->
 
 ## M16.5 P02/P03 Places Cost & Availability Recovery — local Integration RC 13.82.168

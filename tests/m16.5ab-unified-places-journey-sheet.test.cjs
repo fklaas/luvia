@@ -56,7 +56,7 @@ assert.match(places,/openSheet\(placesFromSnapshot\(place\),providerId\(place\),
 assert.match(sheet,/function openResultsInteractive\(rawInput=\{\}\)/,'the shared sheet must expose a direct-manipulation presentation for map preview swipes');
 assert.match(sheet,/interactiveOrigin/,'the interactive sheet must accept the exact compact-preview and map geometry');
 assert.match(sheet,/--lvjs-sheet-left[\s\S]*--lvjs-sheet-bottom[\s\S]*--lvjs-sheet-width[\s\S]*--lvjs-sheet-height/,'the sheet must interpolate all four map-bound dimensions under the finger');
-assert.match(places,/onViewportSearch:descriptor=>viewportSearch/,'the primary Places map must discover the visible viewport after pan or zoom');
+assert.match(places,/onViewportSearch:descriptor=>\{const active=activeSearchDefinition\(\);return viewportSearch/,'the primary Places map must discover the visible viewport after pan or zoom');
 assert.match(places,/decoratePreferences/,'personal preference evaluation must decorate the complete viewport instead of selecting its contents');
 assert.match(places,/place\?\.distanceReference==='device'/,'Places may only label or sort a distance as nearby when the current device is the explicit reference');
 assert.match(places,/vom aktuellen Standort/,'device GPS distances must name their reference in the visible card');

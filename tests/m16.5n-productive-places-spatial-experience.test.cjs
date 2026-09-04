@@ -209,11 +209,9 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
 assert.match(experience,/id\.startsWith\('geoapify:'\)/,'Geoapify pin previews must skip empty details round-trips that wipe names');
-assert.match(experience,/consumer:places-spatial:v2-named/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
+assert.match(experience,/consumer:places-spatial:v3-local/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
 assert.match(css,/position:fixed/,'selected-pin preview must be viewport-fixed above the living-shell dock');
 assert.match(css,/bottom:calc\(84px \+ env\(safe-area-inset-bottom,0px\)\)/,'selected-pin preview must sit just above Heute\/Planen\/Reise\/Erinnern');
-assert.match(experience,/mergeSparse\(incoming,keep\)/,'a sparse viewport refresh must merge with already loaded pins instead of collapsing to a handful');
-assert.match(experience,/incoming\.length>=Math\.min\(12,Math\.max\(1,keep\.length\)\)/,'viewport refresh may replace only when the new page is dense enough');
 for(const forbidden of [
   'LuviaPlaceCore','LuviaPlaceEntities','LuviaPlacesDomainContractCoreV1','LuviaPlaceDetails',
   'LuviaBookingUI','LuviaBookingCore','LuviaTripContext','LuviaTripStore','LuviaSupabaseService',
@@ -230,8 +228,6 @@ assert.match(experience,/function distanceLabel\(place\)/,'compact cards must ex
 assert.match(experience,/place\?\.distanceReference==='device'/,'distance facts must only be labeled as device distance when a real device-position reference exists');
 assert.match(experience,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct result action must open only the exact Place in the shared sheet');
 assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay behind the public places.v1 owner contract');
-assert.match(experience,/if\(!chosen\.length&&keep\.length\)/,'an empty viewport refresh must keep already visible pins');
-assert.match(experience,/map\.once\('dragend',enable\)/,'automatic viewport search must wait for a deliberate pan or zoom');
 assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
 assert.doesNotMatch(experience,/map\.once\('idle',\(\)=>\{[^}]*map\.on\('moveend',queueViewportSearch\);queueViewportSearch\(\)/,'mounting the map must not spend a provider viewport read before deliberate map interaction');
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
@@ -239,16 +235,15 @@ assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'t
 assert.match(experience,/function mergeKnownPreferenceEvidence\(items,knownItems=state\.results\)/,'viewport refreshes must preserve richer preference evidence by immutable provider identity');
 assert.match(experience,/features:\{\.\.\.\(known\.features\|\|\{\}\),\.\.\.\(place\.features\|\|\{\}\)\}/,'lean viewport payloads must not erase already verified provider features');
 assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
-assert.match(experience,/function revertFitOnlyToAlle\(/,'Passend with an empty preferred cohort must fall back to Alle instead of wiping the map');
-assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse the Passend empty-cohort fallback');
-assert.match(experience,/},800\)/,'viewport refresh must debounce long enough to avoid gateway 429 bursts');
+assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse evidence-based fit filtering');
+assert.match(experience,/},350\)/,'viewport refresh must debounce duplicate user gesture events');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
 assert.match(experience,/providers:\['geoapify'\],fastPath:true/,'initial Places discovery must be Geoapify-first');
 assert.match(experience,/const tripGeography=trip=>/,'Places search must send trip coordinates, not a destination name string');
 assert.match(experience,/const geography=tripGeography\(state\.trip\)/,'recommend must build one geographic destination payload');
 assert.match(experience,/destination:geography/,'recommend must receive a geographic destination payload');
 assert.match(experience,/searchRadiusMeters/,'trip geography must expose a destination search radius');
-assert.match(experience,/maxDistanceMeters:Number\(geography\.searchRadiusMeters\)\|\|10000/,'discovery must hard-cap distance to the trip destination');
+assert.match(experience,/maxDistanceMeters:Number\(geography\.searchRadiusMeters\)\|\|3000/,'discovery must hard-cap distance to the trip destination');
 assert.match(experience,/if\(fallbackCenter\)\{[\s\S]*?easeTo\(\{center:fallbackCenter\.lngLat,zoom:13/,'initial map frame must center the trip destination before fitting outlier pins');
 assert.doesNotMatch(experience,/destination:destination\(state\.trip\)/,'a destination name string must not trigger Google destination.resolve');
 assert.match(experience,/function applyCategory\(/,'category icons must select immediately without waiting for a full remount');
@@ -287,7 +282,7 @@ assert.match(experience,/pinBrowserHidden=view\.status\.kind==='error'/,'provide
 assert.match(css,/\.lv-places-spatial__map-provider-state/,'provider failure must expose a dedicated map overlay with retry');
 assert.match(css,/\.lv-places-spatial__map-message[\s\S]{0,220}bottom:\s*14px/,'map status copy must stay clear of the top toolbar');
 assert.match(experience,/projectionRefreshState\(container,true,'Neue Pins werden im Hintergrund geladen/,'viewport loading must use the non-blocking refresh state');
-assert.match(experience,/projectionState\(container,'ready',updated\.markers\.length\?/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');
+assert.match(experience,/projectionState\(container,updated\.markers\.length\?'ready':'empty'/,'an empty refreshed viewport must preserve the ready base map instead of hiding it');
 assert.match(experience,/mapReady&&!map\.loaded\(\)/,'only an initial renderer failure may replace the not-yet-visible map');
 assert.match(experience,/else if\(event\?\.error\)projectionRefreshState\(container,false/,'runtime tile errors must preserve the visible map and pins');
 assert.match(experience,/nextMarkerInstances=new Map\(\)/,'new pins must be fully staged before the visible marker set is exchanged');

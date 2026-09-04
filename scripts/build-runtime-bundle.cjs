@@ -10,7 +10,10 @@ const manifestPath = path.join(root, 'app', 'luvia-runtime.bundle.manifest.json'
 const legacyBundleRelativePath = 'app/luvia-runtime-13.82.168.bundle.js';
 const preContextBundleRelativePath = 'app/luvia-runtime-precontext-13.82.168.bundle.js';
 const postContextBundleRelativePath = 'app/luvia-runtime-postcontext-13.82.168.bundle.js';
-const bundleMarker = 'data-luvia-runtime-bundle="13.82.168"';
+const versionSource = fs.readFileSync(path.join(root, 'intelligence/kernel/version.js'), 'utf8');
+const build = versionSource.match(/build:'([^']+)'/)?.[1];
+if (!build) throw new Error('Kernel build is missing.');
+const bundleMarker = `data-luvia-runtime-bundle="${build}"`;
 
 const withoutQuery = value => String(value || '').replace(/\?.*$/, '');
 const isBundledSource = source => {
@@ -61,15 +64,19 @@ new vm.Script(postContextBundle, { filename: postContextBundleRelativePath });
 fs.writeFileSync(path.join(root, preContextBundleRelativePath), preContextBundle, 'utf8');
 fs.writeFileSync(path.join(root, postContextBundleRelativePath), postContextBundle, 'utf8');
 
-if (!indexSource.includes(bundleMarker)) {
+{
+  // Rebuild one inert manifest and one executable entry, even after an upgrade.
+  // A version-specific presence check used to append duplicate loaders.
+  indexSource = indexSource.replace(/\s*<template\b[^>]*id="luviaRuntimeSourceManifest"[^>]*>[\s\S]*?<\/template>/g, '')
+    .replace(/\s*<script\b[^>]*src=["']app\/luvia-runtime-loader\.mjs[^"']*["'][^>]*><\/script>/g, '');
   const sourceSet = new Set(manifest.map(item => item.source));
   indexSource = indexSource.replace(/<script\b(?<attributes>[^>]*)\bsrc=["'](?<source>[^"']+)["'](?<tail>[^>]*)><\/script>/g, match => {
     const sourceMatch = match.match(/\bsrc=["']([^"']+)["']/);
     return sourceMatch && sourceSet.has(withoutQuery(sourceMatch[1])) ? '' : match;
   });
   const inertManifest = manifest.map(item => `    ${item.tag}`).join('\n');
-  const insertion = `  <template id="luviaRuntimeSourceManifest" hidden aria-hidden="true">\n${inertManifest}\n  </template>\n  <script type="module" src="app/luvia-runtime-loader.mjs?v=13.82.168-split9" ${bundleMarker}></script>\n`;
-  indexSource = indexSource.replace('</body>', `${insertion}</body>`);
+  const insertion = `  <template id="luviaRuntimeSourceManifest" hidden aria-hidden="true">\n${inertManifest}\n  </template>\n  <script type="module" src="app/luvia-runtime-loader.mjs?v=${build}-local-recovery" ${bundleMarker}></script>\n`;
+  indexSource = indexSource.replace(/\s*<\/body>/, `\n${insertion}</body>`);
   fs.writeFileSync(indexPath, indexSource, 'utf8');
 }
 

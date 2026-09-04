@@ -93,7 +93,7 @@ check('Fall D spatial category switch contracts', () => {
   assert.match(spatial, /subjectText:state\.userQuery\|\|''/);
   assert.match(spatial, /replaceCategory:true/);
   assert.match(spatial, /clearVisibleCategoryResults/);
-  assert.match(spatial, /map\.once\('dragend',enable\)/);
+  assert.match(spatial, /!event\?\.originalEvent/);
 });
 
 check('Fall B provider: split one Geoapify category per request', () => {

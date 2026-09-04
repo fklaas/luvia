@@ -87,7 +87,7 @@
       {south:midLatitude,west:midLongitude,north:viewport.north,east:viewport.east},
       {south:viewport.south,west:viewport.west,north:midLatitude,east:midLongitude},
       {south:viewport.south,west:midLongitude,north:midLatitude,east:viewport.east}
-    ],providerPageSize=Math.min(20,Math.max(1,Number(options.maxResultCount)||20)),viewportLimit=Math.min(80,Math.max(providerPageSize,Number(options.maxViewportResults)||80));
+    ],providerPageSize=Math.min(geoapifyOnly?50:20,Math.max(1,Number(options.maxResultCount)||(geoapifyOnly?50:20))),viewportLimit=Math.min(80,Math.max(providerPageSize,Number(options.maxViewportResults)||80));
     const requestTile=async tile=>{const tileCenter={latitude:(tile.south+tile.north)/2,longitude:(tile.west+tile.east)/2},destination={name:'Sichtbarer Kartenausschnitt',location:tileCenter,viewport:tile,searchRadiusMeters:Math.max(250,Math.min(50000,Number(options.radiusMeters)||5000))/2,canonicalCity:{name:'Sichtbarer Kartenausschnitt',center:{lat:tileCenter.latitude,lng:tileCenter.longitude},viewport:tile}},response=await gateway().textSearch(String(options.query||'Orte'),{...options,providers:requestedProviders.length?requestedProviders:['geoapify'],destination,locationRestriction:{rectangle:{low:{latitude:tile.south,longitude:tile.west},high:{latitude:tile.north,longitude:tile.east}}},strictDestination:true,maxResultCount:providerPageSize});return{response,places:rowsFromSearch(response).map(detailsProjection).filter(Boolean)}};
     const settled=await Promise.allSettled(tiles.map(requestTile)),successful=settled.filter(result=>result.status==='fulfilled');
     if(!successful.length)throw settled.find(result=>result.status==='rejected')?.reason||new Error('PLACES_VIEWPORT_UNAVAILABLE');

@@ -58,12 +58,12 @@ const GEOAPIFY_CATEGORY_FALLBACK_BY_KEY=Object.freeze({
   lodging:Object.freeze(['accommodation']),
   activities:Object.freeze(['entertainment','leisure','sport']),
   activity:Object.freeze(['entertainment','leisure','sport']),
-  themeparks:Object.freeze(['entertainment']),
-  wellness:Object.freeze(['leisure']),
-  water:Object.freeze(['beach','sport']),
+  themeparks:Object.freeze(['entertainment.theme_park','entertainment.water_park','entertainment.activity_park']),
+  wellness:Object.freeze(['leisure.spa']),
+  water:Object.freeze(['beach','sport.swimming_pool','entertainment.water_park']),
   sights:Object.freeze(['tourism.sights']),
   photo:Object.freeze(['tourism.sights','leisure.park']),
-  culture:Object.freeze(['entertainment.museum','entertainment.cinema']),
+  culture:Object.freeze(['entertainment.museum','entertainment.cinema','entertainment.culture']),
   nature:Object.freeze(['natural','leisure.park','beach']),
   shopping:Object.freeze(['commercial']),
   malls:Object.freeze(['commercial.shopping_mall']),
@@ -90,13 +90,13 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   park:'leisure.park',
   garden:'leisure.park',
   beach:'beach',
-  swimming_pool:'sport',
-  water_park:'entertainment',
-  amusement_center:'entertainment',
-  amusement_park:'entertainment',
+  swimming_pool:'sport.swimming_pool',
+  water_park:'entertainment.water_park',
+  amusement_center:'entertainment.activity_park',
+  amusement_park:'entertainment.theme_park',
   playground:'leisure.playground',
   zoo:'entertainment.zoo',
-  spa:'leisure',
+  spa:'leisure.spa',
   museum:'entertainment.museum',
   tourist_attraction:'tourism.sights',
   historical_landmark:'tourism.sights',
@@ -121,9 +121,9 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   food:'catering',
   activities:'entertainment,leisure,sport',
   activity:'entertainment,leisure,sport',
-  themeparks:'entertainment',
-  wellness:'leisure',
-  water:'beach,sport',
+  themeparks:'entertainment.theme_park,entertainment.water_park,entertainment.activity_park',
+  wellness:'leisure.spa',
+  water:'beach,sport.swimming_pool,entertainment.water_park',
   sights:'tourism.sights',
   photo:'tourism.sights,leisure.park',
   culture:'entertainment.museum,entertainment.cinema',
@@ -147,7 +147,8 @@ function geoapifyFallbackCategories(options:any={}){
 
 function geoapifyCategoriesFromOptions(options:any,textQuery=''){
   const categoryKey=String(options?.category||'').toLowerCase();
-  const strictType=String(options?.strictPlaceType||'').trim()||(Array.isArray(options?.includedTypes)&&options.includedTypes.length===1?String(options.includedTypes[0]).trim():'')||String(options?.includedType||'').trim();
+  const selectedTypes=Array.isArray(options?.includedTypes)?options.includedTypes:[];
+  const strictType=String(options?.strictPlaceType||'').trim()||(selectedTypes.length===1?String(selectedTypes[0]).trim():'')||(!selectedTypes.length||options?.strictTypeFiltering?String(options?.includedType||'').trim():'');
   // One Luvia category → one Geoapify parent family. Subtype filters may refine
   // to a single mapped type; never mix tourism into food or vice versa.
   if(categoryKey&&(GEOAPIFY_CATEGORY_FALLBACK_BY_KEY as any)[categoryKey]){
@@ -299,6 +300,11 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key.includes('zoo'))types.add('zoo');
     if(key.includes('theme_park')||key.includes('amusement'))types.add('amusement_park');
     if(key.includes('water_park'))types.add('water_park');
+    if(key==='sport.swimming_pool')types.add('swimming_pool');
+    if(key.startsWith('entertainment.activity_park'))types.add('amusement_center');
+    if(key==='entertainment.cinema')types.add('movie_theater');
+    if(key==='entertainment.culture.theatre')types.add('performing_arts_theater');
+    if(key==='entertainment.culture.gallery')types.add('art_gallery');
     if(key.startsWith('tourism')||key.includes('sights')||key.includes('attraction'))types.add('tourist_attraction');
     if(key.startsWith('entertainment')||key.startsWith('leisure')||key.startsWith('sport'))types.add('activity');
     if(key.startsWith('commercial'))types.add('store');
@@ -462,7 +468,10 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const limit=Math.min(50,Math.max(1,Number(options?.maxResultCount||10)));
   const categories=geoapifyCategoriesFromOptions(options,textQuery);
   const filter=geoapifyRectFilter(restriction?.rectangle||restriction||null)||geoapifyCircleFilter(destination,options,bias);
-  const biasParam=(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||geoapifyCircleFilter(destination,options,bias);
+  const circle=geoapifyCircleFilter(destination,options,bias);
+  const rect=restriction?.rectangle||restriction;
+  const anchor=rect?.low&&rect?.high?{latitude:(Number(rect.low.latitude)+Number(rect.high.latitude))/2,longitude:(Number(rect.low.longitude)+Number(rect.high.longitude))/2}:searchAnchor(destination,options);
+  const biasParam=anchor?`proximity:${anchor.longitude},${anchor.latitude}`:(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||circle;
   const name=geoapifyNameFilter(textQuery);
   // Geoapify Places treats some multi-category CSV lists as an intersection
   // (live Scharbeutz: leisure≈50, but leisure,sport≈1). Always request one
@@ -491,7 +500,6 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
         const id=String(feature?.properties?.place_id||feature?.properties?.placeId||feature?.id||'');
         if(!id||byId.has(id))continue;
         byId.set(id,feature);
-        if(byId.size>=limit)return[...byId.values()];
       }
     }
     return[...byId.values()];
@@ -510,18 +518,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
     ({response,body}=await runBatches(false));
   }
-  if(!response.ok&&(response.status===400||/invalid|category/i.test(String(body?.message||body?.error||'')))){
-    ({response,body}=await run(geoapifyFallbackCategories(options),false));
-  }
-  if(!response.ok&&(response.status===400||/invalid|category/i.test(String(body?.message||body?.error||'')))){
-    const key=String(options?.category||options?.type||'').toLowerCase();
-    const parent=/^(?:food|restaurant|cafe|bar|bakery|nightlife)$/.test(key)||categories.some(value=>String(value).startsWith('catering'))
-      ?['catering']
-      :/^(?:accommodation|lodging|hotel)$/.test(key)
-        ?['accommodation']
-        :['tourism.sights','leisure.park'];
-    ({response,body}=await run(parent,false));
-  }
+  // A taxonomy error is an error, never permission to substitute another family.
   if(!response.ok){
     metrics.failures++;metrics.providers.geoapify.failures++;
     const status=Number(body?.status||response.status||0);
@@ -533,7 +530,9 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   metrics.successes++;metrics.providers.geoapify.successes++;metrics.lastSuccessAt=new Date().toISOString();
   return features
     .map((feature:any)=>normalizedGeoapifyPlace(feature,options))
-    .filter((place:any)=>place&&place.providerPlaceId&&place.name&&place.name.length>=2);
+    .filter((place:any)=>place&&place.providerPlaceId&&place.name&&place.name.length>=2)
+    .sort((a:any,b:any)=>(distanceMeters(anchor,a.location)??Infinity)-(distanceMeters(anchor,b.location)??Infinity))
+    .slice(0,limit);
 }
 
 function destinationBias(destination:any,explicit:any){if(explicit)return explicit;const l=destination?.location;if(!l)return undefined;const latitude=Number(l.latitude??l.lat),longitude=Number(l.longitude??l.lng);if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return undefined;return{circle:{center:{latitude,longitude},radius:Math.max(1000,Math.min(50000,Number(destination?.searchRadiusMeters)||GEOAPIFY_DEFAULT_RADIUS_METERS))}};}
