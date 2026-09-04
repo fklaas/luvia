@@ -568,8 +568,8 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     params.set('categories',cats.join(','));
     if(useName&&name)params.set('name',name);
     if(filter)params.set('filter',filter);
-    const selected=[...(options.includedTypes||[]),options.includedType,options.strictPlaceType].filter(Boolean);
-    const conditions=[selected.includes('vegan_restaurant')?'vegan.only':selected.includes('vegetarian_restaurant')?'vegetarian.only':options.vegetarianOnly?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
+    const selected=options.strictPlaceType||options.includedType||(options.includedTypes?.length===1?options.includedTypes[0]:'');
+    const conditions=[selected==='vegan_restaurant'?'vegan.only':selected==='vegetarian_restaurant'?'vegetarian.only':options.vegetarianOnly?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
     if(conditions.length)params.set('conditions',conditions.join(','));
     if(biasParam)params.set('bias',biasParam);
     params.set('limit',String(limit));

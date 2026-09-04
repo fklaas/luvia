@@ -1,4 +1,4 @@
-# M16.5 Places and Stays Quality — Integration quality candidate — 13.82.168.25
+# M16.5 Places and Stays Quality — Integration quality candidate — 13.82.168.26
 
 Places and accommodations: shared preference browsing, viewport cache, detail cards and category filter repair. Validation in progress; this heading is not deployment evidence.
 
