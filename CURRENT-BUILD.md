@@ -1,12 +1,12 @@
-# Trip map experiences — Integration candidate — 13.82.168.35
+# Trip map experiences — Integration deployed — 13.82.168.35
 
-Feature branch: codex/trip-map-experiences-20260904. Baseline ceae8799, runtime .31. Main unchanged.
+Source 29bc27a96515385a3c0bbb61a7b3b7134a57252e; Worker 97236e26-56ef-4f3b-8303-98521d85bbea; gateway v151 ACTIVE. Core 4.82.168. Main unchanged.
 
-Five shared Places/Stays experiences: origin walking comparison, shared group evidence, Timeline-bounded 90-minute ideas, every trip day and walking routes, user-selected alternatives. Gentle 35-degree default perspective, persistent 2D switch, destination return and source-backed route overlays.
+Five shared Places/Stays experiences: origin walking comparison, shared group evidence, Timeline-bounded 90-minute ideas, every trip day and walking routes, user-selected alternatives. Gentle 35-degree default perspective, persistent 2D switch, destination return, source-backed routes and verified 390-px layout.
 
-All cuisine and type controls remain selectable. Supplemental cuisine coverage includes explicitly tagged cafés/takeaways, cached per scope; typed requests retain beyond-cohort coverage. Negative diet evidence survives. Viewport filters forward accessibility and reservation requirements.
+All 19 cuisine controls and 76 category/subtype cases checked. Scoped supplemental cuisine coverage includes explicitly tagged cafes/takeaways; exact typed requests retain beyond-cohort coverage. Negative diet evidence survives. Viewport filters forward access/reservation requirements.
 
-Validation and live acceptance pending; see PCR-TRIP-MAP-EXPERIENCES-20260904.md. No completeness claim for missing provider facts/photos. No automatic Timeline replacement or invented weather.
+Safe regression 209/209 PASS; live provider audit 62 distinct queries with zero API errors; public bytes 17/17 match. Visible browser checked all five experiences, cuisine controls, Chinese 5 km = Hay-Cheng, shared Stays and final mobile layout. No completeness claim for missing provider facts/photos. [Measured acceptance and limits](docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md).
 
 # Cuisine coverage — Integration deployed — 13.82.168.31
 

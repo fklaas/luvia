@@ -2673,3 +2673,5 @@ docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md,Places/Booking/Journey/Experience/C
 app/places/places-trip-experiences.js,Consumer/Web,Consumer Composition,"Ephemeral trip map experiences through journey.v1 places.v1 and shared preference consumer; no domain persistence"
 tests/trip-map-experiences.test.cjs,Quality/Tests,Test,"Trip map behavior and provider route regression"
 docs/modularization/PCR-TRIP-MAP-EXPERIENCES-20260904.md,Documentation/Release History,Documentation,"Authorized shared map experience scope and public contract change"
+
+docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,"Measured shared Places and Stays trip experiences acceptance"
