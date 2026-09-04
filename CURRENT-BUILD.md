@@ -1,6 +1,8 @@
-# M16.5 Places and Stays Quality — Integration quality candidate — 13.82.168.27
+# M16.5 Places and Stays Quality — Integration deployed — 13.82.168.27
 
-Places and accommodations: shared preference browsing, viewport cache, detail cards and category filter repair. Validation in progress; this heading is not deployment evidence.
+Runtime source 079d07aa3ca5d807c211d90f6f41a20eb4d4e48d. Worker 610b6d75-d8df-4017-ae0e-db235c46e08b at 100%; gateway v148 ACTIVE. Controlled regression 207/207 PASS; public bytes 15/15 match. Visible browser checks confirm the steakhouse exclusion, individual and combined filters, reset, retained active trip and shared accommodation viewport filtering. Exact evidence and limits: [Places/Stays acceptance](docs/modularization/PLACES-STAYS-ACCEPTANCE-20260904.md).
+
+Universal real-place photo coverage and all provider-backed filter facts remain OPEN. Foursquare reports no API credits remaining; Geoapify lacks photos for tested COAST / BEACH INN and lacks ratings, price and open-now facts for the current cohort. Generated category illustrations were removed. No billing change or credit purchase was made. Booking live prices still require provider activation. Main / Production unchanged.
 
 ## Visible acceptance correction — App 13.82.168.22 / Core 4.82.168
 

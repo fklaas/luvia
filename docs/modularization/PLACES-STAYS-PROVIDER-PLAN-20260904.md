@@ -41,10 +41,21 @@ Foursquare's current pricing page separates Pro and Premium calls; free sandbox
 marketing must not be treated as unlimited ongoing production allowance:
 https://foursquare.com/pricing/
 
+Live diagnosis on 2026-09-04: the connected Foursquare account returned no API
+credits remaining for the COAST request. Exact venue media cannot currently be
+validated through that account. A budget/source decision is needed; no credit
+purchase or automatic billing was enabled in this recovery.
+
 Google has provider-specific caching, attribution and map-display rules, with
 EEA-specific terms. It cannot be treated as a drop-in source for a general shared
 POI cache without evaluating the applicable contract:
 https://developers.google.com/maps/documentation/places/web-service/policies
+
+The current EEA service terms specifically restrict ordinary Places API content
+with any map, and list a Places UI Kit exception. Do not silently add Google
+photo enrichment to the existing map-linked custom cards. Evaluate billing
+jurisdiction, applicable terms and the UI Kit as a separate integration decision:
+https://cloud.google.com/terms/maps-platform/eea/maps-service-terms
 
 Product improvements worth prioritizing: visible result count and source age;
 pin clustering at regional zoom; retain selected pin when new data arrives;
