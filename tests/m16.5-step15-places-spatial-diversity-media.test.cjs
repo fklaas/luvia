@@ -51,6 +51,8 @@ assert.equal(contracts.spatialAssessment(unknown,german).state,'unknown');
 assert.equal(contracts.accepts(beach,'food','Restaurant im Zentrum statt am Strand',{}),false,'a provider-confirmed beach result must not survive a centre-not-beach constraint');
 assert.equal(contracts.accepts(unknown,'food','Restaurant im Zentrum statt am Strand',{}),true,'unknown spatial evidence must remain visible rather than be invented or silently discarded');
 assert.ok(contracts.queryCascade({text:'Restaurant im Zentrum statt am Strand',category:'food'},'Scharbeutz',{}).some(query=>/Stadtzentrum/.test(query)));
+assert.equal(contracts.queryCascade({text:'Restaurant',category:'food'},{name:'Scharbeutz',location:{latitude:54.02,longitude:10.75}},{}).some(query=>query.includes('[object Object]')),false,'a destination payload must not stringify into Geoapify name filters');
+assert.ok(contracts.queryCascade({text:'Restaurant',category:'food'},{name:'Scharbeutz'},{}).some(query=>/Scharbeutz/.test(query)));
 const projectedPlace=actionContract.normalizePlace({...central,spatialConstraint:contracts.spatialAssessment(central,german)});
 assert.equal(projectedPlace.spatialConstraint.state,'confirmed','the bounded Places spatial evidence must survive the Intelligence owner projection');
 assert.equal(projectedPlace.spatialConstraint.requested.prefer.includes('center'),true);

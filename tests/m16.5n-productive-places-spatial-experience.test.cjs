@@ -208,6 +208,12 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
 }
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
+assert.match(experience,/id\.startsWith\('geoapify:'\)/,'Geoapify pin previews must skip empty details round-trips that wipe names');
+assert.match(experience,/consumer:places-spatial:v2-named/,'offline Places cache must not keep Unbenannter Ort titles after the naming fix');
+assert.match(css,/position:fixed/,'selected-pin preview must be viewport-fixed above the living-shell dock');
+assert.match(css,/bottom:calc\(84px \+ env\(safe-area-inset-bottom,0px\)\)/,'selected-pin preview must sit just above Heute\/Planen\/Reise\/Erinnern');
+assert.match(experience,/mergeSparse\(incoming,keep\)/,'a sparse viewport refresh must merge with already loaded pins instead of collapsing to a handful');
+assert.match(experience,/incoming\.length>=Math\.min\(12,Math\.max\(1,keep\.length\)\)/,'viewport refresh may replace only when the new page is dense enough');
 for(const forbidden of [
   'LuviaPlaceCore','LuviaPlaceEntities','LuviaPlacesDomainContractCoreV1','LuviaPlaceDetails',
   'LuviaBookingUI','LuviaBookingCore','LuviaTripContext','LuviaTripStore','LuviaSupabaseService',
@@ -224,6 +230,8 @@ assert.match(experience,/function distanceLabel\(place\)/,'compact cards must ex
 assert.match(experience,/place\?\.distanceReference==='device'/,'distance facts must only be labeled as device distance when a real device-position reference exists');
 assert.match(experience,/await openResultSheet\(\[findPlace\(id\)\]\.filter\(Boolean\),id\)/,'a direct result action must open only the exact Place in the shared sheet');
 assert.match(experience,/reads\?\.searchViewport/,'viewport discovery must stay behind the public places.v1 owner contract');
+assert.match(experience,/if\(!chosen\.length&&keep\.length\)/,'an empty viewport refresh must keep already visible pins');
+assert.match(experience,/map\.once\('dragend',enable\)/,'automatic viewport search must wait for a deliberate pan or zoom');
 assert.match(experience,/map\.on\('moveend',queueViewportSearch\)/,'panning or zooming must trigger a debounced live viewport read');
 assert.doesNotMatch(experience,/map\.once\('idle',\(\)=>\{[^}]*map\.on\('moveend',queueViewportSearch\);queueViewportSearch\(\)/,'mounting the map must not spend a provider viewport read before deliberate map interaction');
 assert.match(experience,/maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS/,'each viewport must combine four complete provider pages instead of a personalized 20-result subset');
@@ -231,13 +239,40 @@ assert.match(experience,/function preferredPlaceIds\(source=state\.results\)/,'t
 assert.match(experience,/function mergeKnownPreferenceEvidence\(items,knownItems=state\.results\)/,'viewport refreshes must preserve richer preference evidence by immutable provider identity');
 assert.match(experience,/features:\{\.\.\.\(known\.features\|\|\{\}\),\.\.\.\(place\.features\|\|\{\}\)\}/,'lean viewport payloads must not erase already verified provider features');
 assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'Passend must not impose an arbitrary five-place ceiling');
+assert.match(experience,/function revertFitOnlyToAlle\(/,'Passend with an empty preferred cohort must fall back to Alle instead of wiping the map');
+assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse the Passend empty-cohort fallback');
+assert.match(experience,/},800\)/,'viewport refresh must debounce long enough to avoid gateway 429 bursts');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
-assert.match(experience,/const shouldDeepen=raw\.length<INITIAL_VISIBLE_RESULTS/,'deep provider discovery must be cost-gated behind insufficient visible breadth');
-assert.match(experience,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.request,fastPath:false,queryVariantLimit:5,providerTimeoutMs:8000,candidateLimit:60/,'bounded deep discovery must remain available for an insufficient fast result');
+assert.match(experience,/providers:\['geoapify'\],fastPath:true/,'initial Places discovery must be Geoapify-first');
+assert.match(experience,/const tripGeography=trip=>/,'Places search must send trip coordinates, not a destination name string');
+assert.match(experience,/const geography=tripGeography\(state\.trip\)/,'recommend must build one geographic destination payload');
+assert.match(experience,/destination:geography/,'recommend must receive a geographic destination payload');
+assert.match(experience,/searchRadiusMeters/,'trip geography must expose a destination search radius');
+assert.match(experience,/maxDistanceMeters:Number\(geography\.searchRadiusMeters\)\|\|10000/,'discovery must hard-cap distance to the trip destination');
+assert.match(experience,/if\(fallbackCenter\)\{[\s\S]*?easeTo\(\{center:fallbackCenter\.lngLat,zoom:13/,'initial map frame must center the trip destination before fitting outlier pins');
+assert.doesNotMatch(experience,/destination:destination\(state\.trip\)/,'a destination name string must not trigger Google destination.resolve');
+assert.match(experience,/function applyCategory\(/,'category icons must select immediately without waiting for a full remount');
+assert.match(experience,/replaceCategory:true/,'category switches must explicitly replace the previous category result set');
+assert.match(experience,/function clearVisibleCategoryResults\(/,'category switches must clear previous pins before the next search settles');
+assert.match(experience,/function placeMatchesActiveCategory\(/,'map and viewport must gate pins against the active Places category');
+assert.match(experience,/After a category switch, never keep foreign-category pins/,'failed category refresh must not restore restaurant pins under Aktivitäten');
+assert.match(experience,/Labels follow the active search category/,'preview labels must follow the active category instead of type-guessing food first');
+assert.match(experience,/\.filter\(place=>placeMatchesActiveCategory\(place,state\.category\)\)/,'recommend results must be category-gated before they become map pins');
+assert.match(experience,/Do not reuse the category default query as a subject/,'category purity must not invent subject terms from the default category query');
+assert.match(experience,/if\(state\.onRootClick\)root\.removeEventListener\?\.\('click',state\.onRootClick\)/,'Places clicks must not stack duplicate category listeners after each render');
+assert.match(experience,/candidateLimit:MAX_RESULTS,limit:MAX_RESULTS/,'the map must ask for a full Geoapify page instead of 12 pins');
+assert.match(experience,/includedTypes:selectedTypes/,'multi-select type filters must reach recommend');
+assert.match(css,/min-height:36px/,'category rows must be large enough to tap on a phone');
+assert.match(css,/bottom:calc\(84px \+ env\(safe-area-inset-bottom,0px\)\)/,'the preview card must sit just above the shell dock so it can be pulled up');
+assert.match(experience,/Map-first: do not fan out deep multi-query discovery/,'deep multi-query discovery must stay disabled after first useful map pins');
+assert.doesNotMatch(experience,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'fast Places map paint must not automatically start a deep multi-query provider fan-out');
 assert.doesNotMatch(experience,/enrichCards\(raw\.slice\(0,INITIAL_VISIBLE_RESULTS\)\),\s*contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'a full fast result must not automatically multiply provider searches');
+assert.match(experience,/decoratePreferences\(\(response\?\.places\|\|\[\]\)\.slice\(0,MAX_RESULTS\),state\.trip\)/,'initial Places results must receive preference decoration before Alle\/Passend filtering');
 assert.match(experience,/!state\.fitOnly\|\|preferred\.has\(providerId\(place\)\)/,'Passend must actually remove non-matching pins instead of only changing the pressed toggle');
 assert.match(experience,/classList\.toggle\('is-preferred',marker\.preferred===true\)/,'personal fit must be a pin marker and must not remove other provider results');
 assert.match(css,/\.lv-places-spatial__marker\.is-preferred > b/,'a personally fitting pin must have a visible Compass marker');
+assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*position:absolute[^}]*max-width:min\(420px,calc\(100% - 24px\)\)/,'desktop preview bar must stay inside the map shell');
+assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:fixed/,'mobile preview bar may leave the map shell only above the dock');
 assert.match(css,/\.lv-places-spatial__map-preview\{[^}]*border:2px solid transparent[^}]*conic-gradient\(from 0deg,#ef6254 0deg,#f4b34c 72deg,#2f8c73 154deg,#2c93a9 222deg,#756fa9 292deg,#a65f8f 328deg,#ef6254 360deg\) border-box/,'the selected-pin preview must carry the complete ordered Compass spectrum around its border');
 assert.match(css,/@keyframes lv-places-preview-cue-wave/,'the three preview chevrons need their own motion rather than inheriting only the preview float');
 assert.match(css,/nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper chevron must lead the staggered rise');
