@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3231,
-    "visualCandidates": 969,
+    "trackedFiles": 3232,
+    "visualCandidates": 970,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -8766,6 +8766,18 @@
       "sha256": "af324448a8d69838e4a7ce6f48fe8d541ea06c3b44718912ac155b7975071343"
     },
     {
+      "path": "tests/p09-timeline-connect-reorder-browser.test.cjs",
+      "classes": [
+        "accessibility-source",
+        "dom-rendering-source",
+        "interaction-source",
+        "navigation-source",
+        "overlay-source"
+      ],
+      "bytes": 10231,
+      "sha256": "af03111f0692670a24a7db594a924a672ae7b69a60110996f3f5db6dc0569e32"
+    },
+    {
       "path": "tests/p09-timeline-connect-reorder.test.cjs",
       "classes": [
         "visual-source-candidate"
@@ -8965,8 +8977,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 29265,
-      "sha256": "3bbede2de1c2e280cd467b9d2c9608996cfba38dae8ada14d58e9ba0ef34ceeb"
+      "bytes": 29304,
+      "sha256": "95b44b99fbec36de79cccfced6343422a71c7767d13ce5911869f6f3fcbb7c8d"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

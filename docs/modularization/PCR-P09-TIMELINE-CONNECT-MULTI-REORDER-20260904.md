@@ -44,9 +44,10 @@ No migration, Edge Function, provider, secret, RLS or authorization change. Conn
 ## Test and acceptance plan
 
 1. Browserless contract test for preview-without-write, ordering, confirmation, stale revision, Booking gate, conflict consent, per-owner readback, reload recovery, restore and idempotency.
-2. Existing Journey, Human↔AI registry, failure-matrix, visual-inventory and release gates.
-3. Controlled Safe Regression with the new P09 test in the evergreen allowlist.
-4. Visible Integration browser sequence: select two same-day Places → reverse the proposed order → confirm → reload → verify connection/order → restore → reload → verify the original schedule and absence of recovery residue.
+2. Visible headed mobile Edge test: select two same-day Places → reverse the proposed order → confirm → reload → verify connection/order → restore → reload → verify the original schedule and absence of recovery residue.
+3. Existing Journey, Human↔AI registry, failure-matrix, visual-inventory and release gates.
+4. Controlled Safe Regression with both P09 tests in the evergreen allowlist.
+5. Visible Integration browser sequence against the authenticated Integration owner state after the stable Cloudflare alias serves the accepted asset version.
 
 ## Rollout and rollback
 
