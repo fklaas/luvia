@@ -1,6 +1,6 @@
 # Luvia aktueller Integrationsstand
 
-Lokaler B1 Release Candidate **13.82.168.41** – M16.5 Places and Stays Quality. Öffentliche Abnahme noch ausstehend. Der folgende Block beschreibt den zuletzt veröffentlichten Stand.
+Lokaler B1 Release Candidate **13.82.168.42** – M16.5 Places and Stays Quality. Öffentliche Abnahme noch ausstehend. Der folgende Block beschreibt den zuletzt veröffentlichten Stand.
 
 Stand 4. September 2026. Die vorherigen Current-Abschnitte sind unverändert im [Dokumentarchiv](docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md) erhalten. Sie sind keine weiteren aktiven Build-Zeiger.
 
