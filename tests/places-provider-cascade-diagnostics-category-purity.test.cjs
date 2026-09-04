@@ -12,6 +12,7 @@ assert.match(gateway,/maxDistanceMeters:5000/,'probe uses the same specialized l
 assert.match(gateway,/tomtom:\{configured:Boolean\(Deno\.env\.get\('TOMTOM_API_KEY'\)\)/,'TomTom configuration is visible without exposing the key');
 assert.match(gateway,/here:\{configured:Boolean\(Deno\.env\.get\('HERE_API_KEY'\)\)/,'HERE configuration is visible without exposing the key');
 assert.match(gateway,/answered:\[\.\.\.new Set\(answered\)\]/,'gateway distinguishes a successful empty answer from provider failure');
+assert.match(gateway,/if\(excluded\.length\)list=list\.filter/,'gateway removes explicitly excluded provider types before returning or caching results');
 assert.match(gateway,/'nature-scharbeutz'/,'bounded Nature purity health probe exists');
 assert.match(additional,/holiday park\\b\/.test\(text\)\)return\['lodging','vacation_rental'\]/,'HERE Holiday Park is classified as accommodation instead of nature');
 assert.match(additional,/rv parks\?\\b\/.test\(text\)\)return\['lodging','campground'\]/,'HERE RV Parks are classified as accommodation instead of nature');

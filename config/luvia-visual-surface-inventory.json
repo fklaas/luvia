@@ -6702,8 +6702,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 83606,
-      "sha256": "bfc9e53e1ca77c049e216c004fd38344b0d8970a1cf61e3b51b35d70db96afe1"
+      "bytes": 84238,
+      "sha256": "08cc92cc9ac9e7a6f81bbb2ec5561b7272b2304b3e84a1e0a27a518efe40fb0b"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7787,8 +7787,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 8105,
-      "sha256": "e2a6f9ed5ce8a922b58b37fc849dc385974f40bf93e1b23a84d3e7e80df15e33"
+      "bytes": 8104,
+      "sha256": "e8656c2da2fbbb29324b45304d1145afb00192fc8b0c0ad7bf482e476d32d007"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",
@@ -8907,8 +8907,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 3406,
-      "sha256": "ec75f47cb8e895c51a144d9d34fddfb277c6281310279e7ad7b3b5af61c97e4c"
+      "bytes": 3560,
+      "sha256": "395a3d852e073513af86c6dc4ca0492273175785391080a3738eb2966c0d85af"
     },
     {
       "path": "tests/places-stays-quality.test.cjs",

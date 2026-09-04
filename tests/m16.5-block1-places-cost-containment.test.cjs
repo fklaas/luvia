@@ -57,7 +57,7 @@ assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order mu
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
 assert.match(gateway,/v2\.14\.1-empty-continuity/,'gateway cache must invalidate after empty-result continuity hardening');
-assert.match(gateway,/version:'4\.34\.7-nature-wellness-separation'/,'gateway health version must expose provider answer truth and Nature/Wellness separation');
+assert.match(gateway,/version:'4\.34\.8-provider-exclusion-truth'/,'gateway health version must expose provider answer truth and server-side exclusion truth');
 assert.match(gateway,/ttl>0&&!forceRefresh\?cached\(key\):null/,'forceRefresh must bypass a gateway cache hit');
 assert.match(gateway,/if\(ttl>0&&!searchEmpty\)store\(key,result,ttl\)/,'successful empty provider pages must never be cached as geographic truth');
 assert.match(gateway,/skippedEmpty:searchEmpty,forced:forceRefresh/,'cache diagnostics must disclose forced and skipped-empty reads');
