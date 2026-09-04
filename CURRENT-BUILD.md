@@ -1,6 +1,6 @@
 # Luvia aktueller Integrationsstand
 
-Veröffentlicht **13.82.168.52**, Core **4.82.174**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: budgetbewusste Landesküchenabfragen, ehrliche Filterfehler ohne maskierte leere Karte und gemeinsame `Alle/Passend`-Projektion für Places und Stays. **.51** bleibt der direkte getestete Code-Rückfallstand.
+Releasekandidat **13.82.168.53**, Core **4.82.175**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: die normalen Places-, Stays-, Viewport- und Timeline-Suchen verwenden den budgetverwalteten Geoapify-TomTom-HERE-Fallback. Der veröffentlichte Integrationsstand bleibt bis zur sichtbaren Abnahme **.52**.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt

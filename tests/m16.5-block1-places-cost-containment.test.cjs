@@ -8,8 +8,17 @@ const gateway=read('supabase/functions/luvia-gateway/_shared/places.ts');
 const adapter=read('core/platform/places-contract-adapter.js');
 const discovery=read('app/adapters/places-discovery-adapter.js');
 const spatial=read('app/places/places-spatial-experience.js');
+const service=read('intelligence/places-service.js');
+const entities=read('intelligence/place-entity-service.js');
+const stays=read('modules/accommodations/accommodation-module.js');
+const suggestions=read('app/journey/journey-suggestion-sheet.js');
 assert.match(discovery,/providers:options\.providers\|\|\['auto'\]/,'Places discovery must default to budget-managed discovery');
 assert.match(spatial,/providers=\['auto'\]/,'viewport refresh must default to budget-managed discovery');
+assert.match(service,/Array\.isArray\(options\.providers\)\?options\.providers:\['auto'\]/,'Places service must keep automatic fallback enabled when callers omit providers');
+assert.match(entities,/options\.providers\.length\?options\.providers:\['auto'\]/,'Place entity reads must keep automatic fallback enabled');
+assert.match(adapter,/Array\.isArray\(options\.providers\)\?options\.providers:\['auto'\]/,'viewport owner reads must keep automatic fallback enabled');
+assert.equal((stays.match(/providers:\['auto'\]/g)||[]).length,2,'Stays initial and viewport reads must share the managed cascade');
+assert.match(suggestions,/providers:\['auto'\]/,'Journey suggestions must share the managed cascade');
 
 assert.ok(/locationRestriction[\s\S]{0,240}rectangle|rectangle[\s\S]{0,240}locationRestriction|locationBias[\s\S]{0,240}rectangle/.test(adapter),'viewport search must remain rectangle-qualified for the bounded owner contract');
 assert.match(adapter,/geoapifyOnly|four-tile-legacy|single-rectangle-geoapify/,'viewport strategy must remain explicit for Geoapify vs Google/Foursquare');
@@ -48,7 +57,7 @@ assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order mu
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
 assert.match(gateway,/v2\.14\.1-empty-continuity/,'gateway cache must invalidate after empty-result continuity hardening');
-assert.match(gateway,/version:'4\.34\.1-empty-continuity'/,'gateway health version must reflect empty-result continuity hardening');
+assert.match(gateway,/version:'4\.34\.3-filter-budget-truth'/,'gateway health version must reflect filter budget truth hardening');
 assert.match(gateway,/ttl>0&&!forceRefresh\?cached\(key\):null/,'forceRefresh must bypass a gateway cache hit');
 assert.match(gateway,/if\(ttl>0&&!searchEmpty\)store\(key,result,ttl\)/,'successful empty provider pages must never be cached as geographic truth');
 assert.match(gateway,/skippedEmpty:searchEmpty,forced:forceRefresh/,'cache diagnostics must disclose forced and skipped-empty reads');

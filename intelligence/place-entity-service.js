@@ -1,12 +1,12 @@
 (function(){
 'use strict';
-const VERSION='4.17.0';
+const VERSION='4.17.1-budget-cascade-default';
 const TYPES=['restaurant','accommodation','attraction','photo_spot','activity','shopping','nature','family','mobility','transit','custom'];
 const TYPE_TO_GOOGLE={restaurant:'restaurant',accommodation:'lodging',attraction:'tourist_attraction',photo_spot:'tourist_attraction',activity:'amusement_center',shopping:'shopping_mall',nature:'park',family:'amusement_park',mobility:'transit_station',transit:'transit_station',custom:''};
 const clean=v=>String(v??'').trim();
 const tripId=v=>{const trip=(window.LuviaTripContractV1||window.LuviaTripContract)?.getActiveTrip?.()||{};return clean(v||trip.tripId||trip.id||'')};
 function assertType(type){const t=clean(type).toLowerCase();if(!TYPES.includes(t))throw new Error('Nicht unterstützter Place-Typ: '+t);return t;}
-async function searchPlaces(options={}){const type=assertType(options.type||options.primaryType||'custom');const query=clean(options.query||defaultQuery(type));const includedType=Object.prototype.hasOwnProperty.call(options,'includedType')?clean(options.includedType):clean(TYPE_TO_GOOGLE[type]);const response=await window.LuviaPlaces.textSearch(query,{...options,includedType,providers:Array.isArray(options.providers)&&options.providers.length?options.providers:['geoapify'],category:options.category||type,strictDestination:options.strictDestination!==false});if(Array.isArray(response?.data?.places))response.data.places=response.data.places.map(p=>{
+async function searchPlaces(options={}){const type=assertType(options.type||options.primaryType||'custom');const query=clean(options.query||defaultQuery(type));const includedType=Object.prototype.hasOwnProperty.call(options,'includedType')?clean(options.includedType):clean(TYPE_TO_GOOGLE[type]);const response=await window.LuviaPlaces.textSearch(query,{...options,includedType,providers:Array.isArray(options.providers)&&options.providers.length?options.providers:['auto'],category:options.category||type,strictDestination:options.strictDestination!==false});if(Array.isArray(response?.data?.places))response.data.places=response.data.places.map(p=>{
   // Keep the provider's own type. Overwriting every hit with the search type
   // (e.g. restaurant) made museums/sights pass the food category gate.
   const providerType=clean(p.primaryType||p.primary_type).toLowerCase();

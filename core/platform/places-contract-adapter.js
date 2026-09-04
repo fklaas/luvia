@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.5.1-live-viewport-continuity';
+  const RUNTIME_VERSION='1.5.2-budget-cascade-viewport';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -127,7 +127,7 @@
     const bounds=options.bounds||{},center=options.center||{};
     if(![bounds.south,bounds.west,bounds.north,bounds.east,center.latitude,center.longitude].every(value=>Number.isFinite(Number(value))))throw new Error('PLACES_VIEWPORT_REQUIRED');
     const viewport={south:Number(bounds.south),west:Number(bounds.west),north:Number(bounds.north),east:Number(bounds.east)},midLatitude=(viewport.south+viewport.north)/2,midLongitude=(viewport.west+viewport.east)/2;
-    const requestedProviders=(Array.isArray(options.providers)?options.providers:['geoapify']).map(value=>String(value||'').toLowerCase()).filter(Boolean);
+    const requestedProviders=(Array.isArray(options.providers)?options.providers:['auto']).map(value=>String(value||'').toLowerCase()).filter(Boolean);
     const geoapifyOnly=!requestedProviders.length||requestedProviders.every(name=>name==='auto'||name==='geoapify'||name.startsWith('geoapify'));
     // Geoapify accepts one rectangle filter efficiently. Google/Foursquare keep the
     // established four-tile fan-out for viewport coverage.
@@ -137,7 +137,7 @@
       {south:viewport.south,west:viewport.west,north:midLatitude,east:midLongitude},
       {south:viewport.south,west:midLongitude,north:midLatitude,east:viewport.east}
     ],providerPageSize=Math.min(geoapifyOnly?50:20,Math.max(1,Number(options.maxResultCount)||(geoapifyOnly?50:20))),viewportLimit=Math.min(80,Math.max(providerPageSize,Number(options.maxViewportResults)||80));
-    const requestTile=async tile=>{const tileCenter={latitude:(tile.south+tile.north)/2,longitude:(tile.west+tile.east)/2},destination={name:'Sichtbarer Kartenausschnitt',location:tileCenter,viewport:tile,searchRadiusMeters:Math.max(250,Math.min(50000,Number(options.radiusMeters)||5000))/2,canonicalCity:{name:'Sichtbarer Kartenausschnitt',center:{lat:tileCenter.latitude,lng:tileCenter.longitude},viewport:tile}},response=await gateway().textSearch(String(options.query||'Orte'),{...options,providers:requestedProviders.length?requestedProviders:['geoapify'],destination,locationRestriction:{rectangle:{low:{latitude:tile.south,longitude:tile.west},high:{latitude:tile.north,longitude:tile.east}}},strictDestination:true,maxResultCount:providerPageSize});return{response,places:rowsFromSearch(response).map(detailsProjection).filter(Boolean)}};
+    const requestTile=async tile=>{const tileCenter={latitude:(tile.south+tile.north)/2,longitude:(tile.west+tile.east)/2},destination={name:'Sichtbarer Kartenausschnitt',location:tileCenter,viewport:tile,searchRadiusMeters:Math.max(250,Math.min(50000,Number(options.radiusMeters)||5000))/2,canonicalCity:{name:'Sichtbarer Kartenausschnitt',center:{lat:tileCenter.latitude,lng:tileCenter.longitude},viewport:tile}},response=await gateway().textSearch(String(options.query||'Orte'),{...options,providers:requestedProviders.length?requestedProviders:['auto'],destination,locationRestriction:{rectangle:{low:{latitude:tile.south,longitude:tile.west},high:{latitude:tile.north,longitude:tile.east}}},strictDestination:true,maxResultCount:providerPageSize});return{response,places:rowsFromSearch(response).map(detailsProjection).filter(Boolean)}};
     const settled=await Promise.allSettled(tiles.map(requestTile)),successful=settled.filter(result=>result.status==='fulfilled');
     if(!successful.length)throw settled.find(result=>result.status==='rejected')?.reason||new Error('PLACES_VIEWPORT_UNAVAILABLE');
     const byId=new Map();for(const result of successful)for(const place of result.value.places){const id=clean(place?.providerPlaceId||place?.id)?.replace(/^places\//,'');const point=place?.coordinates||place?.location||{};if(!id||!Number.isFinite(Number(point.latitude??point.lat))||!Number.isFinite(Number(point.longitude??point.lng))||Number(point.latitude??point.lat)<viewport.south||Number(point.latitude??point.lat)>viewport.north||Number(point.longitude??point.lng)<viewport.west||Number(point.longitude??point.lng)>viewport.east)continue;if(!byId.has(id))byId.set(id,place)}

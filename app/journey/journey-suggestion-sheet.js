@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.24.0-preserve-place-names';
+const VERSION='1.24.1-budget-cascade-default';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -352,7 +352,7 @@ async function load(rawInput={},options={}){
     tripId:tripId(input.trip),
     text:queryFor(category,input),query:queryFor(category,input),category,
     destination:geography.location?geography:destinationOf(input.trip),destinationContext:geography,
-     candidateLimit:fast?36:48,limit:fast?12:16,fastPath:fast,providers:['geoapify'],
+     candidateLimit:fast?36:48,limit:fast?12:16,fastPath:fast,providers:['auto'],
     profilePreferences:input.snapshot.profilePreferences||{},
     profileContext:{groupTravelers:input.groupContext.travelers.map(item=>({name:item.name,role:item.role,sharedSignals:item.signals})),groupCoverage:{covered:input.groupContext.coveredTravelers,total:input.groupContext.totalTravelers}},
     tripComposition:input.snapshot.tripComposition||{},trip:input.trip,
