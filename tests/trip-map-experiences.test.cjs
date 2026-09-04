@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{stripTypeScriptTypes}=require('node:module');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const ctx=vm.createContext({console,Date,Intl,Map,Set,Promise,URL,URLSearchParams,AbortSignal,setTimeout,clearTimeout,setInterval,clearInterval});
+const ctx=vm.createContext({console,Date,Intl,Map,Set,Promise,URL,URLSearchParams,AbortSignal,setTimeout,clearTimeout,setInterval,clearInterval,queueMicrotask});
 vm.runInContext(read('app/places/places-trip-experiences.js'),ctx);const api=ctx.LuviaTripMapExperiences;
 const start='2027-06-12T08:00:00Z',next={id:'next',title:'Mittagessen',startAt:'2027-06-12T09:00:00Z',endAt:'2027-06-12T10:00:00Z'};
 let gap=api.freeWindow([next],start);assert.equal(gap.minutes,60,'next Timeline appointment caps the 90-minute budget');
@@ -37,8 +37,8 @@ vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_sha
  ctx.fetch=async()=>({ok:false});await assert.rejects(()=>ctx.routesAction('routes.compute',{...input,destination:{latitude:54.02,longitude:10.71}}));
  // Full consumer lifecycle: all dates retained, changes invalidate old requests,
  // unmount removes subscriptions and never performs any domain write.
- let listener,unsubscribed=false;const callbacks={},host={innerHTML:'',addEventListener:(event,fn)=>callbacks[event]=fn,removeEventListener:()=>{},contains:()=>true};
- ctx.LuviaJourneyContractV1={reads:{snapshot:()=>({days:[{date:'2026-08-31'},...Array.from({length:8},(_,i)=>({date:`2027-06-${12+i}`}))],entries:[next]}),subscribe:fn=>{listener=fn;return()=>unsubscribed=true}}};
+ let listener,unsubscribed=false,journeyRevision=0;const callbacks={},host={innerHTML:'',addEventListener:(event,fn)=>callbacks[event]=fn,removeEventListener:()=>{},contains:()=>true};
+ ctx.LuviaJourneyContractV1={reads:{snapshot:()=>({days:[{date:'2026-08-31'},...Array.from({length:8},(_,i)=>({date:`2027-06-${12+i}`}))],entries:[{...next,title:next.title+journeyRevision}]}),subscribe:fn=>{listener=fn;return()=>unsubscribed=true}}};
  let resolve;ctx.LuviaJourneySuggestions={assessGroup:()=>new Promise(r=>resolve=r)};
  const consumer=api.create({context:()=>({trip:{id:'trip',startDate:'2027-06-12',endDate:'2027-06-19',timeZone:'Europe/Berlin'},results:[]})});consumer.attach(host);
  const click=value=>callbacks.click({target:{closest:()=>({dataset:{tripMapAction:value}})}});
@@ -46,7 +46,9 @@ vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_sha
  assert.ok(!host.innerHTML.includes('2026-08-31'),'old visited places cannot become the first trip day');
  click('next-day');assert.ok(host.innerHTML.includes('value="2027-06-13" selected'));
  click('mode:group');click('discover');click('mode:day');resolve([{name:'Stale result',groupFit:{}}]);await new Promise(r=>setTimeout(r,0));assert.ok(!host.innerHTML.includes('Stale result'));
- listener();assert.ok(host.innerHTML.includes('Timeline wurde aktualisiert'));
+ listener();assert.ok(!host.innerHTML.includes('Timeline wurde aktualisiert'),'unchanged hydration does not discard a preview');
+ journeyRevision++;listener();assert.ok(host.innerHTML.includes('Timeline wurde aktualisiert'));
  consumer.destroy();assert.equal(unsubscribed,true);
+ const resumed=api.create({context:()=>({trip:{id:'trip',startDate:'2027-06-12',endDate:'2027-06-19',timeZone:'Europe/Berlin'},results:[]})});resumed.attach(host);assert.ok(host.innerHTML.includes('value="2027-06-13" selected'),'Shell resume preserves the chosen day');assert.ok(host.innerHTML.includes('aria-label="Diesen Tag erleben" aria-busy='));resumed.destroy();
  console.log('Trip map: timeline windows, all trip days, timezone/DST, group requirements, real route cache/errors and lifecycle: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

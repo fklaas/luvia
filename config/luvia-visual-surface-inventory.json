@@ -1438,8 +1438,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 3048595,
-      "sha256": "3cffe708c4bde5771b298f2ad67df6f03ab010ff242f6ced8e35a341fcbfc05e"
+      "bytes": 3050253,
+      "sha256": "1625a81f1abcdba07dd329590682e9957330ff3e16c479d15130dbe11967c091"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -2179,8 +2179,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 108066,
-      "sha256": "6d96021e764c80f0583d7c452447a1ecc07c58a75dda7bb71739981a817453b1"
+      "bytes": 108136,
+      "sha256": "bd1f2fda4b31d5361ed1165fc3c9f71f146d75ca758c92311dd2fc9f1f55bb7e"
     },
     {
       "path": "app/places/places-trip-experiences.js",
@@ -2192,8 +2192,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 25701,
-      "sha256": "89ff825a10ce01870bdfa5a1e6401a98510936058eb27be3afba334a314fb39a"
+      "bytes": 27289,
+      "sha256": "2b95e25ce22a8ef3bc010d91db36abe277c34edd8f17c841569eee27d1dd665c"
     },
     {
       "path": "app/product-module-manifests.js",
@@ -8907,12 +8907,13 @@
     {
       "path": "tests/trip-map-experiences.test.cjs",
       "classes": [
+        "accessibility-source",
         "dom-rendering-source",
         "interaction-source",
         "navigation-source"
       ],
-      "bytes": 6695,
-      "sha256": "ca339de5bf9a2560b021344bb53bf7ff1c311dc7b73cdebb989952682f9d2077"
+      "bytes": 7282,
+      "sha256": "5db8f277127e4e8200fbf721550e43312ea416af3fc0cf3c032ec3fa79222e8b"
     },
     {
       "path": "tests/user-preference-core.test.cjs",

@@ -828,6 +828,7 @@
     state.mapMarkers.clear();
   }
   function select(id,scroll=false,moveMap=true){
+    const selectionChanged=state.selectedId!==id;
     state.selectedId=id;
     state.root?.querySelectorAll('[data-place-card]').forEach(card=>{
       const selected=card.dataset.placeCard===id;
@@ -848,7 +849,7 @@
     refreshMapBrowser();
     refreshMapPreview();
     hydrateMapPreview(findPlace(id));
-    state.story?.selectionChanged?.();
+    if(selectionChanged)state.story?.selectionChanged?.();
   }
   function findPlace(id){return state.results.find(place=>providerId(place)===id)||state.history.find(place=>providerId(place)===id)||null}
   function openMaps(place){

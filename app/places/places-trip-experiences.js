@@ -49,9 +49,17 @@
     return{verified:Number.isFinite(total),fits:Number.isFinite(total)&&total<=window.minutes,total,remaining:window.minutes-total};
   }
   const modes=[['base','Wie wäre unser Urlaub von hier aus?','Von hier aus'],['group','Passt für uns','Für uns'],['free','Wir haben noch 90 Minuten','90 Minuten'],['day','Diesen Tag erleben','Tag erleben'],['other','Heute lieber anders','Plan B']];
+  // Shell resume may remount the same route. Preserve this short-lived consumer
+  // projection; no Timeline, Trip or preference truth is written here.
+  const uiSessions=new Map();
+  ['luvia:user-preferences-changed','luvia:identity.preferences.changed','luvia:profile-changed'].forEach(name=>globalThis.addEventListener?.(name,()=>uiSessions.clear()));
   function create({context,select,open,notify}){
     let host=null,mode='',date='',time='',visit=45,scenario='different',alive=true,token=0,busy=false,message='',choices=[],group=[],routes=[],window=null,comparison=[],dayIndex=0,subscription=null,timer=null,renderedMap=null,markers=[];
-    const cache=new Map();let baseTargets=[];
+    const initial=context(),sessionKey=JSON.stringify([initial.trip?.id||initial.trip?.tripId,initial.surface,initial.geography]),saved=uiSessions.get(sessionKey);
+    const previous=saved&&Date.now()-saved.at<120000?saved:null;
+    const cache=previous?.cache||new Map();let baseTargets=previous?.baseTargets||[],resume=previous?.busy===true;
+    if(previous){mode=previous.mode;date=previous.date;time=previous.time;visit=previous.visit;scenario=previous.scenario;message=previous.message;choices=previous.choices;group=previous.group;routes=previous.routes;window=previous.window;comparison=previous.comparison;dayIndex=previous.dayIndex}
+    function remember(){if(uiSessions.size>=4&&!uiSessions.has(sessionKey))uiSessions.delete(uiSessions.keys().next().value);uiSessions.set(sessionKey,{at:Date.now(),mode,date,time,visit,scenario,message,choices,group,routes,window,comparison,dayIndex,busy,cache,baseTargets})}
     const ctx=()=>context(),journey=()=>globalThis.LuviaJourneyContractV1?.reads,places=()=>globalThis.LuviaPlacesContractV1?.reads;
     const tz=()=>zone(ctx().trip);
     function graph(){try{return journey()?.snapshot?.({trip:ctx().trip})||{days:[],entries:[]}}catch{return{days:[],entries:[]}}}
@@ -155,9 +163,11 @@
       if(action==='previous-day'||action==='next-day'){const all=dates();date=all[Math.max(0,Math.min(all.length-1,all.indexOf(date)+(action==='next-day'?1:-1)))];invalidate();render();paintMap()}
     }
     function change(event){const key=event.target.dataset.tripMapInput;if(!key)return;const value=event.target.value;if(key==='date')date=value;if(key==='time')time=value;if(key==='visit')visit=Number(value);if(key==='scenario')scenario=value;invalidate();render();paintMap()}
-    try{subscription=journey()?.subscribe?.(()=>{if(!alive)return;invalidate();message=mode?'Die Timeline wurde aktualisiert. Bitte die Vorschläge erneut prüfen.':'';render();paintMap()})}catch{}
+    const journeyFingerprint=()=>JSON.stringify(entries().map(e=>[e.id,e.title,e.startAt,e.endAt,e.status,e.metadata?.bookingStatus,point(e)]));
+    let lastJourney=journeyFingerprint();
+    try{subscription=journey()?.subscribe?.(()=>{if(!alive)return;const current=journeyFingerprint();if(current===lastJourney)return;lastJourney=current;invalidate();message=mode?'Die Timeline wurde aktualisiert. Bitte die Vorschläge erneut prüfen.':'';render();paintMap()})}catch{}
     timer=setInterval(()=>{if(mode==='free'&&date===localDate(Date.now(),tz())&&window&&Date.parse(window.startAt)<Date.now()){invalidate();time=localTime(Date.now(),tz());message='Die Startzeit ist vergangen. Bitte das aktuelle Zeitfenster erneut prüfen.';render()}},60000);
-    return Object.freeze({attach(node){if(host){host.removeEventListener('click',click);host.removeEventListener('change',change)}host=node;if(host){host.addEventListener('click',click);host.addEventListener('change',change);render()}},selectionChanged(){if(mode==='base'){invalidate();render()}},resultsChanged(){if(mode==='group'){invalidate();render()}},paintMap,destroy(){alive=false;++token;clearInterval(timer);subscription?.();clearMap();if(host){host.removeEventListener('click',click);host.removeEventListener('change',change)}host=null}});
+    return Object.freeze({attach(node){if(host){host.removeEventListener('click',click);host.removeEventListener('change',change)}host=node;if(host){host.addEventListener('click',click);host.addEventListener('change',change);render();if(resume){resume=false;queueMicrotask(()=>{if(alive&&mode)discover()})}}},selectionChanged(){if(mode==='base'){invalidate();render()}},resultsChanged(){if(mode==='group'){invalidate();render()}},paintMap,destroy(){remember();alive=false;++token;clearInterval(timer);subscription?.();clearMap();if(host){host.removeEventListener('click',click);host.removeEventListener('change',change)}host=null}});
   }
   globalThis.LuviaTripMapExperiences=Object.freeze({version:'1.0.1',create,freeWindow,fitWindow,groupMatches,samePlannedPlace,personReason,instant,localDate,point});
 })();
