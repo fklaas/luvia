@@ -2670,16 +2670,13 @@ docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md,All Core Owner Streams,Documentation
 docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md,Platform/Documentation/Release,Documentation/Handoff,PowerShell command result evidence and deployment safety protocol for user-executed normal-ChatGPT work
 docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md,All Core Owner Streams,Documentation/Handoff,Closed M5 through M16 boundaries M16.5 redesign Product Reset and six-block context bridge
 docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md,Places/Booking/Journey/Experience/Consumer,Documentation/Handoff,Current public 13.82.167 shared Places Hotel map preview gesture acceptance and remaining user-visible work
-app/places/places-trip-experiences.js,Consumer/Web,Consumer Composition,"Ephemeral trip map experiences through journey.v1 places.v1 and shared preference consumer; no domain persistence"
-tests/trip-map-experiences.test.cjs,Quality/Tests,Test,"Trip map behavior and provider route regression"
-docs/modularization/PCR-TRIP-MAP-EXPERIENCES-20260904.md,Documentation/Release History,Documentation,"Authorized shared map experience scope and public contract change"
-
-docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,"Measured shared Places and Stays trip experiences acceptance"
-
-docs/modularization/PCR-MAP-MOBILE-SPEED-20260904.md,Documentation/Release History,Documentation,"Mobile map performance and trip theme scope"
+app/places/places-trip-experiences.js,Consumer/Web,Consumer Composition,Ephemeral trip map experiences through journey.v1 places.v1 and shared preference consumer; no domain persistence
+tests/trip-map-experiences.test.cjs,Quality/Tests,Test,Trip map behavior and provider route regression
+docs/modularization/PCR-TRIP-MAP-EXPERIENCES-20260904.md,Documentation/Release History,Documentation,Authorized shared map experience scope and public contract change
+docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured shared Places and Stays trip experiences acceptance
+docs/modularization/PCR-MAP-MOBILE-SPEED-20260904.md,Documentation/Release History,Documentation,Mobile map performance and trip theme scope
 docs/modularization/PROVIDER-ONBOARDING-AND-FREE-BUDGETS-20260904.md,Documentation/Release History,Documentation,Provider onboarding and shared budget rollout
 docs/modularization/MAP-MOBILE-SPEED-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured mobile map performance and trip theme acceptance
-
 supabase/functions/luvia-gateway/_shared/provider-budget.ts,Platform/Places Infrastructure,Provider Accounting,Service-role atomic Places provider budget transport
 supabase/functions/luvia-gateway/_shared/provider-routes.ts,Places,Provider Adapter,Budget-managed verified walking cycling and driving routes
 supabase/functions/luvia-gateway/_shared/additional-places.ts,Places,Provider Adapter,TomTom and HERE scoped category discovery and details
@@ -2693,3 +2690,26 @@ supabase/functions/luvia-gateway/_shared/here-taxonomy.json,Places,Provider Refe
 docs/modularization/PROVIDER-BUDGET-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured provider rollout and explicit remaining limits
 docs/modularization/PCR-HERE-ACTIVATION-20260904.md,Documentation/Release History,Documentation,Bounded HERE live acceptance and shared pool activation
 supabase/migrations/20260904170000_here_shared_free_budget.sql,Platform/Places Infrastructure,Database Migration,Shared HERE free budget preserving prior reservations
+HANDOFF-CODEX-CURRENT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/MASTERFAHRPLAN-v6.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/STATUSPLAN-2026-09-04.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/HANDOFF-NORMAL-CHATGPT-CURRENT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/README.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/ROADMAP-LUVIA-CURRENT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/README.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/archive/2026-09-04-before-consolidation/manifest.json,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/source-provenance-2026-09-04.json,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/status-plan.v1.json,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+scripts/export-masterplan-docx.py,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/README.md,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth
+docs/planning/consolidation-validation-2026-09-04.json,Documentation/Release History,Documentation,Consolidated planning evidence and export; no domain or runtime truth

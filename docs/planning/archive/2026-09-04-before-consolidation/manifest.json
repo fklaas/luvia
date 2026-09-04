@@ -1,0 +1,98 @@
+[
+  {
+    "path": "CURRENT-BUILD.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "6204cdd3d4b44908c8e0d172a2e415f824bd6b9f8c9263bcbb6a4f6b693ca63f",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "dec59ce7780167e5bd296ed9b81853f9641a8d4181f4df47357531d5dacbc0ec",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "ROADMAP-LUVIA-CURRENT.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "eaf2b4c3e0f9f4ccfa394d62fb28e8bc74009da16376a1edce10c67b752a9dc2",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "891222fb8d5b274eed6e4a55970ac7f903f045400e16ed38045d83f3b848331d",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "HANDOFF-NORMAL-CHATGPT-CURRENT.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "111a206ef9d3338ddd6a02182c01b20a6079be98f60d1673d5d54d13e1cfebe1",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "111a206ef9d3338ddd6a02182c01b20a6079be98f60d1673d5d54d13e1cfebe1",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/handoffs/README.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "39591c46f8ba154d9ac76eb28be1b676c303f205f162d3910c4e642461b35110",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "39591c46f8ba154d9ac76eb28be1b676c303f205f162d3910c4e642461b35110",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "7fefb01472958ed582b64224def35475b3c72d4ec7d0a57b9d2326f00c906ffe",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "7fefb01472958ed582b64224def35475b3c72d4ec7d0a57b9d2326f00c906ffe",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "2fe174d66fd08bf9f478764b6e8d83ede7fb48a8886a9727b69903960cf47387",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "2fe174d66fd08bf9f478764b6e8d83ede7fb48a8886a9727b69903960cf47387",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "af65af624a6f308c114991dcf9dca9b72ba2208530ed1d3f710e14aec78f742a",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "af65af624a6f308c114991dcf9dca9b72ba2208530ed1d3f710e14aec78f742a",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "6ab911646fb33ac98da3e23970280bed347e9413136566953ce2b64e6793bbca",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "6ab911646fb33ac98da3e23970280bed347e9413136566953ce2b64e6793bbca",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "0d27afad3f3ad9f1a51df29d7429ef312168884adb36d600465b8b7440bbf706",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "0d27afad3f3ad9f1a51df29d7429ef312168884adb36d600465b8b7440bbf706",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "0d9eaab0b6d500c3c9ec49506f64ab78e3aed8721d8b61e23caa55b99f71f195",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "0d9eaab0b6d500c3c9ec49506f64ab78e3aed8721d8b61e23caa55b99f71f195",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "20567c82edb04a78bda4713424adabc40400daf759da0bcfc533386ac38cc03e",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "20567c82edb04a78bda4713424adabc40400daf759da0bcfc533386ac38cc03e",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  },
+  {
+    "path": "docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md",
+    "baseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
+    "sha256": "a3981dc39b2dbefa38c0e99ed2746524d945e8af22fe6be19fd3ef6a6d0e1d46",
+    "role": "historical reference; superseded operational status",
+    "contentSha256LF": "a3981dc39b2dbefa38c0e99ed2746524d945e8af22fe6be19fd3ef6a6d0e1d46",
+    "hashNote": "sha256 is the captured worktree byte hash; contentSha256LF is stable across Git CRLF normalization."
+  }
+]

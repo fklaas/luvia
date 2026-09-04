@@ -1,10 +1,10 @@
 # Verbindliches ChatGPT↔PowerShell-Protokoll
 
-Stand: 2026-09-04
+Stand: 2026-09-03
 
 ## Grundmodell
 
-Dieses Protokoll gilt ausschließlich für Sitzungen ohne eigene geeignete Werkzeuge. In diesem Modus besitzt der Chat keinen direkten Zugriff auf Repository,
+Der normale ChatGPT-Chat besitzt keinen direkten Zugriff auf Repository,
 Terminal, Browser, Cloudflare oder Supabase. Er analysiert, plant und formuliert
 exakte Befehle. Der Nutzer führt sie in PowerShell aus und kopiert die Ausgabe
 zurück. Erst diese zurückkopierte Ausgabe ist Evidenz.
@@ -35,7 +35,7 @@ Befehlsblöcke im Voraus aus und behauptet nie ein Ergebnis, bevor es vorliegt.
 
 ## Erster Bootstrap-Befehl im neuen Chat
 
-Wenn keine eigenen Werkzeuge vorhanden sind, liefert der erste Schritt diesen read-only Kontextabruf:
+Der erste ChatGPT-Schritt muss genau diesen read-only Kontextabruf liefern:
 
 **TERMINAL — AB HIER KOPIEREN**
 
@@ -134,7 +134,3 @@ nach eindeutiger Zielprüfung ausgeführt.
 - kein Production-Deploy als Nebenwirkung eines Integration-Befehls;
 - keine erfundenen PASS-, Provider-, Preis-, Buchungs- oder
   Nutzerakzeptanzbehauptungen.
-
-## Aktuelle Quellen
-
-Der Bootstrap liest den neu konsolidierten HANDOFF-NORMAL-CHATGPT-CURRENT.md. Danach folgen docs/planning/STATUSPLAN-2026-09-04.md und MASTERFAHRPLAN-v6.md. Mit eigenen geeigneten Werkzeugen gilt der direkte Arbeitsmodus; dieses manuelle Ausgabeprotokoll ist dann nicht erforderlich.

@@ -1,0 +1,1026 @@
+# Luvia Masterfahrplan Version 6
+
+Arbeitsfassung vom 4. September 2026 für Fabian und die weiterführenden Entwicklungsaufgaben. Diese Fassung ersetzt die widersprüchlichen aktuellen Statusabschnitte des Masterfahrplans v5 und der bekannten Handoffs. Sie fasst den gültigen Umfang zusammen, erhält P01–P50 und den Gesamtweg bis M22 und trennt gelieferte Technik von noch ausstehender Produktabnahme.
+
+Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre historischen Build-, Start- und Pending-Aussagen werden nicht als aktuelle Arbeitsanweisung übernommen. Der Quellenabgleich am Ende ordnet alle ursprünglichen Hauptkapitel und Fortschreibungen dieser Fassung zu. Es wird kein früheres Dokument rückwirkend als abgenommen umgeschrieben.
+
+## Neuer sichtbarer B1 Gegenbeleg
+
+Der aktuelle Scharbeutz-Lauf auf .37 zeigt eine noch offene Verbindung zwischen AI-Chat und Places: Die Karte liefert Orte; die freie Restaurantanfrage scheitert zunächst. Ein begrenzter Retry liefert drei erfolgreiche Gateway-Antworten mit jeweils 20 Geoapify-Orten, während der Chat anschließend leer bleibt. Auch die einfache Anfrage „Zeige mir Restaurants in Scharbeutz“ endet leer. Zusätzlich steht unter dem leeren Ergebnis eine unpassende Erfolgsmeldung. Der Chat verwendet einen 20-km-Default, die Karte zeigt 3 km. Diese Beobachtungen grenzen den Fehler ein, beweisen aber noch nicht die Ursache der finalen Ausfilterung.
+
+Damit ist A2 begonnen, nicht abgeschlossen. Vor Favorit-/Timeline-Mutationen ist nun zuerst die P03-Übergabe samt Filter-/Evidenzpfad zu korrigieren. Geeignetheit darf dabei nicht durch ungeprüfte Freigabe aller Rohorte ersetzt werden. Der vollständige Beleg und die noch nicht ausgeführten Schritte stehen in docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md. Dieser Dokumentlauf deployt keine Runtime-Korrektur.
+
+
+## 1 Wo Luvia heute steht
+
+Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
+
+Integration läuft auf App 13.82.168.37 und Core 4.82.168. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die spätere HERE-Aktivierung änderte die Konfiguration; sie ist kein neuer Frontend-Build.
+
+B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
+
+Der vollständige Status mit Zuständigkeit, Umfang und nächstem Abschlussnachweis folgt im Paketkatalog. Es gibt bewusst keine erfundene Gesamtprozentzahl und kein Enddatum ohne gemessenen Durchsatz und bestätigten Umfang.
+
+## 2 Was die Reparatur geliefert hat
+
+Die aktive Reise bleibt beim Reload erhalten; die erste Places-Suche richtet sich nach dem festgelegten Reiseziel. Scharbeutz ist der aktuelle reale Prüffall. Verschieben und Zoomen verwenden begrenzte Ausschnittsabfragen, verwerfen überholte Antworten und ersetzen nicht bei jedem Abruf die gemountete Karte.
+
+Places und Stays verwenden dieselbe räumliche Implementierung für Karten, Pins, Suche, Kategorien, Filter, Profilpassung, Verlauf und Detailübergang. Die Unterkunftsseite bleibt fachlich eine Unterkunftsansicht. POI-Ergebnisse sind kein Beleg für freie Zimmer, buchbare Tarife oder Reservierungen.
+
+19 Küchenoptionen und 76 Kategorie-/Untertypfälle wurden gezielt geprüft. Eine fehlende belegte Eigenschaft bleibt unbekannt. Ein Steakhouse erhält keine vegetarische Eignung aus seinem Namen oder seiner allgemeinen Kategorie. Ein leerer Filter bedeutet keine bewiesene Nichtexistenz entsprechender Orte im gesamten Reiseziel.
+
+Pin-Auswahl, Vordergrundreihenfolge, gemeinsame Kontur und markierte Passung wurden korrigiert. Die fünf Kartenfunktionen lauten: Wie wäre unser Urlaub von hier aus, Passt für uns, Wir haben noch 90 Minuten, Diesen Tag erleben und Heute lieber anders. Das 90-Minuten-Fenster bezieht bestehende Timeline-Termine ein. Diese Produktansätze sind keine vollständigen Abschlüsse von Day Rehearsal, Gruppenverhandlung oder Destination Digital Twin.
+
+Die Karte verwendet eine zurückhaltende 35-Grad-Perspektive mit bleibender 2D-Umschaltung. Bedienelemente und Flächen folgen der Reisefarbe. Geh- und Fahrradwege sind aus echten Routengeometrien belegt. Bei der .37-Abnahme ergab derselbe Tagespfad 70 Minuten zu Fuß und 21 Minuten mit dem Rad. Das sind konkrete Prüfergebnisse, keine allgemeingültigen Reisezeiten.
+
+Die letzte vollständige Safe Regression ist 210/210 PASS; 18 öffentliche Dateien stimmen mit dem unveränderlichen Quellarchiv überein. Im vorherigen .36-Browserlauf waren warme Stays-Pins nach 1391 ms und die Karte nach 1761 ms sichtbar. Dies ist eine Einzelmessung im Browser und keine zugesicherte mobile Ladezeit. 390 × 844 ohne horizontalen Überlauf ist geprüft; physische native iOS-/Android-Leistung bleibt ungemessen.
+
+## 3 Was weiterhin offen ist
+
+Echte Bilder für jeden Place sind nicht gelöst. Die verknüpfte Wikidata-/Commons-Anreicherung darf nur eine eindeutig zugeordnete Entität mit nutzbaren Rechten zeigen. Sie ist fixturegeprüft; beim letzten Holstentor-Versuch wurde kein neuer Livefotobeleg erzeugt. Generierte Illustrationen und fremde Symbolfotos dürfen nicht als tatsächlicher Ort erscheinen. Fehlt ein verifiziertes Foto, muss die Oberfläche das ehrlich und gestalterisch zurückhaltend behandeln.
+
+Hotelpreise, Verfügbarkeit und Buchungsabschluss benötigen echte Booking-Provider. Duffel-Stays- und Booking-Affiliate-Anmeldungen sind als eingereicht dokumentiert; ein neuer Partnerentscheid wurde in der Konsolidierung nicht geprüft. Affiliate-Zulassung ist kein Demand-API-Zugang. Restaurantreservierung, Aktivitäts-/Kultureintritt sowie Create/Modify/Cancel bleiben getrennte positive Abnahmefälle.
+
+Die vollständige aktuelle Kette AI-Chat → Place → Favorit → Timeline → Änderung → Rücknahme → Reload fehlt. P04/P05 sind für konkret registrierte Abläufe auf .139 belegt. Das ersetzt keine erneute Prüfung nach den späteren Kartenänderungen. Granulare Journey-Befehle und konsistente verständliche Planungserklärungen bleiben P09/P10.
+
+Die Action-Registry benötigt den Abgleich mit den neuen Kartenfunktionen. Die Inventarisierung von 330 Aktionen bedeutet nicht, dass 330 Aktionen produktiv durch den Chat erledigt werden können. Die vollständige Geräte-, Mehrnutzer-, Offline-, GPS- und Reduced-Motion-Matrix sowie fünf unabhängige Nutzertests sind nicht belegt.
+
+## 4 Verbindliche Reihenfolge der nächsten Arbeit
+
+A1 schließt die Dokumentkonsolidierung mit Statusplan, Masterfahrplan, Quellenerhalt und synchronisierten Handoffs. A2 prüft die echte Scharbeutz-Golden-Journey auf Integration sichtbar im Browser. A3 schließt aus diesem Ablauf abgeleitete Journey-Lücken in P09. A4 schließt P10 mit verständlichen Quellen-, Konflikt- und Änderungsbegründungen. A5 führt parallel die fachlich unabhängigen Foto- und Partnerzugänge weiter. A6 bewertet B1 anhand der tatsächlich erfüllten Gates.
+
+Jeder Arbeitsabschnitt liefert einen begrenzten, überprüfbaren Nutzerablauf. Ein reproduzierter Fehler wird zuerst lokalisiert und in der zuständigen gemeinsamen Implementierung korrigiert. Der Browsergegenbeleg hat Vorrang vor einem grünen Quelltexttest. Große visuelle Umbauten und riskante Core-Grenzänderungen gehören in getrennte Lieferungen.
+
+### Produktgates
+
+G0 verlangt korrekte Entität, Herkunft und Ergebnisstatus. G1 verlangt die gemeinsame visuelle und räumliche Bedienbarkeit, einschließlich der echten Touch-Abnahme für den endgültigen Freeze. G2 verlangt eine vollständige Golden Journey. G3 verlangt fünf unabhängige Nutzerläufe vor breiterem Ausbau von B2. Externe Partnerblockaden dürfen als klar begrenzter Hold dokumentiert werden; sie dürfen keine unbenutzbare sichtbare Funktion als fertig erscheinen lassen und nicht alle unabhängige Arbeit blockieren.
+
+### Der konkrete Golden Journey Ablauf
+
+1. Aktive Reise und Daten aus dem Trip-Owner anzeigen und beim Reload erhalten.
+2. Echte Places am Reiseziel aus einer nachvollziehbaren Quelle finden.
+3. Im richtigen Kartenausschnitt den exakten Pin auswählen.
+4. Details derselben Entität mit Foto oder ehrlicher Datenlücke öffnen.
+5. Passung mit belegten Vorlieben und unbekannten Eigenschaften erklären.
+6. Weg, Zeit und belegten Reservierungs-/Eintrittsbedarf prüfen.
+7. Favorisieren und auf einen konkreten Reisetag mit Uhrzeit planen.
+8. Nur eine verifizierte Anbieterroute öffnen; Kostenaktionen brauchen eigene konkrete Freigabe.
+9. Weitergeleitet, ausstehend und bestätigt sauber unterscheiden.
+10. Zurück, Reload und mobile Darstellung ohne Zustandsverlust prüfen.
+11. Den nächsten sinnvollen Schritt aus dem echten Tagesplan anbieten.
+12. Einen Besuch bewusst in einen Memory-Entwurf überführen.
+
+## 5 Karten und Anbieter als gemeinsame Infrastruktur
+
+Die Basiskarte und die Orts-, Routen-, Foto- und Buchungsdaten sind unterschiedliche Leistungen. Zehn Schlüssel bilden keine zehn austauschbaren Anbieter. Der Router wählt nach benötigter Fähigkeit, räumlicher und fachlicher Abdeckung, Belegqualität, zulässiger Nutzung, Budget und Fehlerzustand.
+
+Discovery versucht Geoapify, dann TomTom, dann HERE, wenn zuvor kein geeigneter Treffer oder ein Fehler vorliegt. Sobald brauchbare Ergebnisse vorliegen, endet die Kaskade. Routing verwendet ORS, TomTom, Geoapify und HERE. WALK und BICYCLE sind in der Oberfläche angeboten; ein backendseitiger DRIVE-Modus ist kein abgenommener Fahrmodus im Produkt.
+
+Atomare Reservierungen im Backend zählen die Anfrage vor dem Anbieteraufruf. Sie gelten über Instanzen hinweg, sind nur für den Service-Owner zugänglich und besitzen Tages-/Monats-/Minutengrenzen. Gleichzeitige identische Abrufe werden zusammengeführt; zulässige Zwischenspeicherung und ein begrenzter Ausschnitt schützen die Kontingente. Keine breite Anbieterabfrage bei jedem Kartenpixel.
+
+| Dienst | Aktuelle interne Luvia Grenze | Zweck |
+|---|---|---|
+| Geoapify | 2200 Credits am Tag und 60 je Minute | Discovery und ergänzende Details oder Wege |
+| TomTom Search v2 | 150 am Tag und 1500 im Monat und 25 je Minute | Alternative Ortsentdeckung |
+| TomTom Routing | 1000 am Tag und 12000 im Monat und 25 je Minute | Alternative Wege |
+| ORS von HeiGIT | 1200 am Tag und 20 je Minute | Gehwege und Fahrradwege |
+| HERE gemeinsamer Pool | 500 am Tag und 10000 im Monat und 10 je Minute | Suche Details und Wege gemeinsam |
+| Google und Foursquare | 0 per Policy | Bis zu ausdrücklicher Budgetentscheidung deaktiviert |
+
+Geoapify-Abrechnung wird intern nach Operation gewichtet: Suchseiten ceil(limit/20), Details 5, Routing 2. Die Werte sind konservative Luvia-Konfiguration, keine Garantie über das tatsächliche Gratiskontingent des Kontos. Externe Nutzung desselben Schlüssels und der individuelle HERE-Abrechnungstarif sind nicht verifiziert. RPS-Anzeigen im HERE-Portal zeigen technische Raten; sie sind kein Gratisrestguthaben.
+
+Die Migrationen 20260904160000 und 20260904170000 sind bereits ausgeführt und bleiben unverändert. Die zweite Migration vereinigt HERE unter einem Pool und erhält vorherige Zähler. Änderungen erhalten eine neue Migration. Ein Rückfall löscht keine Buchhaltung. Secrets stehen nur im Backend; sie werden weder in Handoffs noch in Diagnoseausgaben oder Frontend-Bundles kopiert.
+
+Neue Anbieter werden erst nach Fähigkeitstest, Produktzugang, Nutzungs-/Cachingbedingungen, Kostenmodell, Normalisierung, Negativfällen und sichtbarer gemeinsamer Consumer-Abnahme aktiviert. Bilder brauchen einen eigenen Identitäts- und Rechtepfad. Preise und Reservierungen bleiben beim Booking-Owner. Die aktuelle Providerintegration ist somit eine erste belastbare Ergänzung, kein abgeschlossener Zehn-Anbieter-Ausbau.
+
+## 6 Architektur und Zuständigkeiten
+
+Eine fachliche Wahrheit hat genau einen Owner. Consumer und Experience verwenden öffentliche Verträge. Sie besitzen keine parallelen privaten Stores. Intelligence versteht und orchestriert, schreibt fremde Domänen aber nur durch deren öffentliche Commands. Native und Web verwenden dieselben fachlichen Verträge.
+
+| Owner | Eigene Wahrheit oder Verantwortung |
+|---|---|
+| Platform | Runtime Ports Auth-Transport Navigation und Integrationsmechanik |
+| Trip | Reise Lebenszyklus aktive Reise und Reiseziel |
+| Places | Ortsentdeckung Kategorien Ortsidentität und belegte Ortsmerkmale |
+| Booking | Angebote Reservierungen Eintritt Providerzustände und Buchungsbelege |
+| Journey | Tagesgraph Reihenfolge Verbindungen Konflikte und Timeline |
+| Identity | explizite persönliche Vorlieben und Identitätsprojektion |
+| Media | Medienassets und deren Beschaffung Speicherung und Transfer |
+| Memory | Erinnerung Erzählung und Lebenszyklus mit Media-Referenzen |
+| Experience | gemeinsame visuelle und Interaktionsbausteine |
+| Intelligence | Interpretation Planung eigene Modelle und sichere Orchestrierung |
+| Events | gemeinsame versionierte Eventumschläge und Kompatibilität |
+| Collaboration | künftig Mitgliedschaften Einladungen Rollen und Gruppenrechte |
+| Social | künftig freigegebene Beziehungen Inspiration und Experience Graph |
+| Attention | künftig Benachrichtigungsabsicht Priorisierung und Zustellung |
+| Wallet | künftig sensible Reisedokumente Freigaben und Lebenszyklus |
+| Reviews | künftig eigene Bewertungen Moderation und transparente Reputation |
+| Admin | künftig administrative Rechte Governance und Audit |
+
+Journey ist bereits eine eigenständige browserlose Grenze. core/places/timeline-core.js ist nur ein klassifizierter Kompatibilitätsprovider hinter journey.v1; neue Consumer greifen nicht direkt darauf zu. Bestehende Collaboration-Dateien sind Kompatibilität und kein fertig implementierter Membership-Core. Universal Search wird ein abgeleiteter Index, kein weiterer Domain-Owner.
+
+Places-Kategorien bleiben deklarativ. Provider-Taxonomien und deutsche Oberflächenbegriffe werden nachvollziehbar normalisiert. Unbekannt, widersprüchlich und ausdrücklich negativ sind unterschiedliche Zustände. Mehrfachauswahl innerhalb und zwischen Filtergruppen muss dokumentierte Semantik besitzen; fehlt eine Anbieterfähigkeit, wird sie nicht über Namen geraten.
+
+## 7 Vollständiger Weg bis zur Veröffentlichung
+
+### M0 bis M16 Geschlossene Grundlagen
+
+Die Modularisierung und Core-Grenzen einschließlich Platform, Trip, Places, Booking, Media, Identity, Intelligence, Experience, Journey und Memory sind dokumentiert abgeschlossen. Die historische Migration ist kein Anlass für einen Neustart. Konkrete neue Regressionen öffnen einen begrenzten Korrekturslice, nicht rückwirkend alle Meilensteine.
+
+### M16 5 Produktisierung und gemeinsame Abnahme
+
+Der laufende Schritt verbindet reale Nutzeraufgaben, konsistentes Design, AI-Aktionen und überprüfbare Quellen. Alle vorhandenen Bereiche, Landing/Auth, getrenntes Profil- und Trip-Onboarding, Places, Stays, Booking, Reise/Timeline, Erinnerungen und gemeinsame Navigation müssen die anwendbaren vertikalen Gates erfüllen. Living Compass und bereits geschlossene Shell-Geometrie bleiben geschützte Grundlagen. Content-Produktion und echte Medien werden quellen- und rechtegebunden geführt.
+
+### M17 Gemeinsame Produktsprache vollständig ausrollen
+
+Nach dem gemeinsamen Design Freeze werden freigegebene Tokens, Reisefarben, Typografie, Abstände, Zustände, Bewegung und Komponenten über die gesamte App ausgerollt. Die AI-Oberflächen übernehmen dieselbe Produktsprache. Es entsteht kein zweites Designsystem neben Experience. Jede vertikale Lieferung bleibt rückrollbar und auf Web sowie nativen Ports vorbereitbar.
+
+### M18 Bestehende Domänen und neue Fähigkeiten ausbauen
+
+Die folgenden acht Abschnitte bleiben vollständig im Gesamtplan. Neue fachliche Owner werden erst mit Contract, Zustandsmodell, Sicherheitsregeln und Tests produktiv. Datenbank- und native Adapter folgen derselben Grenze; ein UI-Prototyp ersetzt keine Mitgliedschaft, Benachrichtigungszustellung oder administrative Berechtigung.
+
+M18.1 baut Collaboration und Membership: Einladen, annehmen, ablehnen, widerrufen, Rollen ändern, verlassen, entfernen und Owner-Transfer. M18.2 baut Attention mit Inbox, Ruhezeiten, Prioritäten, Deduplizierung und Zustellbelegen. M18.3 baut die sichere Travel Wallet mit Dokumenten, Versionen, Gültigkeit, Freigaben, OCR und bewusstem Export. M18.4 ergänzt Bewertungen, Moderation und nachvollziehbare Reputation.
+
+M18.5 ist verpflichtende Administration: eng begrenzte Rollen und Rechte, Audit, Support, genehmigungspflichtige kritische Änderungen und zeitlich begrenzter Notfallzugang. M18.6 baut den Social Experience Graph mit Travel Twins, Social Compass, Echoes, Drops, Fork my Trip und verifizierten Erfahrungen. M18.7 ergänzt universelle Suche über erlaubte Owner-Projektionen. M18.8 vervollständigt Luvia Intelligence II als systemweite Orchestrierung.
+
+### M19 Zuverlässigkeit und Synchronisation
+
+Offline-/Reconnect-Verhalten, Versionskonflikte, Wiederherstellung, Last, Telemetrie und AI-Evals werden über alle beteiligten Streams gehärtet. Reale Unterschiede zwischen lokal gespeichert, synchronisiert, ausstehend und unbekannt müssen sichtbar bleiben. Eine CRDT-Entscheidung braucht definierte Owner und Rechte; sie ist kein allgemeiner Freibrief für fremde Datenkopien.
+
+### M20 Native Auslieferungsgrundlage
+
+Zuerst wird eine ADR für den konkreten nativen Ansatz getroffen. Danach folgen echte iOS-/Android-Builds, dieselben fachlichen Verträge, Auth-/SecureStorage-/Permission-/Location-/Media-/Push-Ports, Build-Pipelines, Signierung sowie TestFlight- und Play-Internal-Distribution. Ein schmaler Browser oder eine PWA allein erfüllt diesen Meilenstein nicht.
+
+### M21 Native Produktqualität
+
+Reale Geräte prüfen Start, Karten, Medien, Timeline, Synchronisation, Hintergrund-/Vordergrundwechsel, Akku, Speicher, Barrierefreiheit und Datenschutz. Voice, Kamera und native Assistenz verwenden die definierten Ports. Die Webfunktion darf nicht als zweites unabhängiges Fachsystem weiterlaufen.
+
+### M21 5 Vollständige Funktionsabnahme
+
+Jede sichtbare und konditionale Funktion wird in einer vollständigen Matrix inventarisiert. Zuerst erfolgen autonome reproduzierbare Tests, danach gezielte Nutzerabnahme der offenen Geräte- und Erlebnisfragen. Alle betroffenen Tabellen, RPCs, Edge Functions, Buckets, Provider und Berechtigungen erhalten ihren konkreten Beleg. HTTP 200 oder einzelne erfolgreiche Reads reichen dafür nicht.
+
+### M22 Gestufte Veröffentlichung
+
+Production, App Store und Play Store werden nach expliziter Releaseentscheidung gestuft freigegeben. Voraussetzungen sind vollständige kritische Gates, überprüfbare Builds, Monitoring, Datenschutz-/Storeangaben, Daten- und Backendkompatibilität sowie ein getesteter Rückfall. Der aktuelle Dokument- und Integrationsauftrag ist keine vorgezogene Production-Freigabe.
+
+## 8 Die neue Luvia AI
+
+Die vorhandene AI ist eine echte technische Grundlage mit Registry, öffentlichen Owner-Aktionen, Vorschauen, Bestätigungen, Belegen und Recovery. Sie ist noch nicht die vollständig orchestrierende Endausbaustufe. Der B0-Abschluss beschreibt die Steuerungsregeln, B1 die erste vollständige reale Handlungskette, P34–P36 die breitere Sprach-, Aktions- und Sicherheitsabdeckung und M18.8 die systemweite Evolution.
+
+Intelligence II benötigt einen vollständigen Capability-Katalog über alle bestehenden und neuen Owner. Kontext umfasst die aktive Reise, Zeit, Wetter, freigegebene Gruppenmerkmale, explizite Vorlieben und zulässige Social-Projektionen. Tools werden nach Fähigkeit, Datenschutz, Kosten, Latenz und Zuverlässigkeit gewählt. Ergebnisse enthalten Quellen und Unsicherheit; dauerhafte Personalisierung ist korrigierbar und löschbar.
+
+Proaktive Unterstützung erhält Zustimmung, einen nachvollziehbaren Anlass und eine einfache Abschaltmöglichkeit. Voice, Kamera und Dokumente liefern kontrollierte Eingaben statt direkter Datenbankänderungen. Große Planungen werden in getrennte Owner-Kommandos mit erwarteter Version, Idempotenz, Bestätigung und Beleg zerlegt. Eine Erklärung zeigt entscheidungsrelevante Fakten und Regeln, nicht private interne Gedankengänge.
+
+Administrative Hochrisikobefehle, Dokumentfreigabe, Veröffentlichung, Beziehungen und Buchungen bleiben besonders kontrolliert. Das Modell darf sich keine Rechte erteilen, seine eigenen Vorschläge nicht selbst freigeben und fremde Tabellen oder Provider nicht direkt verändern. Evals prüfen Verständnis, Toolwahl, Planqualität, unbelegte Behauptungen, unerlaubte Aktionen, Wiederholungen, Latenz, Kosten und Nutzerkorrekturen.
+
+## 9 Zusammenarbeit Social und Administration
+
+Die Benutzer-/Mitreisendenverwaltung liegt bei Collaboration und bleibt von Identity getrennt. Ein Profil ist keine Mitgliedschaft, eine sichtbare Reise keine Schreibberechtigung. Einladungen benötigen Ablauf und Widerruf, Rollenwechsel nachvollziehbare Belege und konkurrierende Änderungen einen kontrollierten Versionskonflikt. Diese Grundlage kommt vor verbindlichen sozialen Gruppenaktionen.
+
+Social bildet relevante Reiseerfahrungen ab. Travel Twins verwenden freigegebene Ähnlichkeitsprojektionen; private Modelle bleiben in Identity beziehungsweise Intelligence. Echoes verknüpfen freigegebene Erinnerungen mit Orten, Drops haben ein bewusstes Publikum. Fork my Trip erstellt durch Trip einen neuen Plan und bewahrt bei Social lediglich Herkunft und Verbindung. Buchungen und Provisionen bleiben Booking-Wahrheit. Eine Follower-/Like-Rangliste ist nicht das Ziel.
+
+Admin ist eine Pflichtfunktion für einen sicher betreibbaren Dienst. Serverseitige Default-Deny-Regeln, minimale Rechte, Vier-Augen-Freigabe bei höchsten Risiken, Schutz des letzten Superadmins und unveränderliche Audit-Belege sind Bestandteil des Umfangs. Eine versteckte Adminroute ist keine Berechtigung. Offline sind administrative Daten höchstens redigierte Leseprojektionen; kritische Änderungen benötigen Online-Policy und Owner-Beleg.
+
+Der detaillierte bestehende M18-Blueprint wird im technischen Anhang erhalten. Damit gehen die bereits ausgearbeiteten Vertrags-, Datenschutz-, Geräte- und Testanforderungen durch die kürzere neue Arbeitsfassung nicht verloren.
+
+## 10 Arbeitsweise Daten und Veröffentlichungen
+
+Vor Änderungen werden Branch, HEAD, Remote, Divergenz, Worktree und Datei-Ownership geprüft. Git ist die Entwicklungsbasis; DOCX und ZIP sind Übergabe-/Releaseartefakte. Die zwanzig Streams bleiben an den registrierten Core-Grenzen ausgerichtet. Es wird keine zweite Fachwahrheit aufgebaut und keine fremde laufende Arbeit überschrieben.
+
+Ein sinnvoller Slice folgt Contract → Core → Adapter → Consumer → AI → Tests → sichtbare Abnahme → Commit → immutable Integration-Version → Bytebeleg → Rückfall. Mutationen folgen Vorschau → konkrete Bestätigung → Owner-Command → Owner-Receipt → Recovery; Rücknahme oder Kompensation wird separat und mit ihren Grenzen erklärt. Reine Dokumentänderungen brauchen keinen erfundenen App-Versionssprung.
+
+Supabase-Migrationen sind nach Deployment unveränderlich. Neue Daten-/Rechtestrukturen werden additiv und mit RLS-Negativfällen geplant. Service-Secrets bleiben serverseitig; sensible Nutzerdaten erscheinen nicht in Logs oder Handoffs. Ein positives Gateway-Ergebnis beweist nur den tatsächlich ausgeführten Pfad, nicht die vollständige Cloud-Verkabelung.
+
+Native First bedeutet browserlose Fachkerne und Plattformports für Netzwerk, Auth, Storage, Lifecycle, Benachrichtigungen, Ort, Geräteberechtigungen und Medien. Webadapter dürfen keine DOM-Abhängigkeit in den Core einschleusen. Offline-Ergebnisse erhalten Quelle, Alter und Status. Kritische nicht bestätigte Fremdmutationen bleiben ausstehend oder unbekannt.
+
+Rollback verbindet Frontend, Gateway und Konfiguration. Für .37 verweist der Provider-Abnahmebericht auf .36 plus passenden Gateway-Quellstand beziehungsweise deaktivierbare neue Policies. Zähler und Migrationsevidenz bleiben erhalten. Ein bloßer Frontend-Rückfall ist keine Behauptung über wiederhergestellte Providerzustände.
+
+## 11 Definition von fertig
+
+Eine sichtbare Funktion erfüllt ihren echten Nutzerzweck, besitzt die richtige Owner-Grenze, nachvollziehbare Daten und verständliche Fehlerzustände. Maus, Touch, Tastatur, Reload, Rückweg, Berechtigungen, Offlinezustand und Reduced Motion werden soweit relevant geprüft. Neue UI-Aktionen erhalten eine Registry-Entscheidung und dieselben Regeln im Chat. Falsche Providerdaten werden weder ergänzt noch sprachlich als sicher umgedeutet.
+
+Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbeleg bleibt Teilbeleg. Physische Tests werden als solche bezeichnet. Externe Holds nennen konkret den fehlenden Zugang, dessen Wirkung und die weiter ausführbare Arbeit. Abschluss, Deploy, Push oder Production-Verifikation werden nur mit tatsächlichem Nachweis dokumentiert.
+
+## 12 P01 bis P50 mit aktuellem Status
+
+| Paket | Block | Stand | Ergebnis |
+|---|---|---|---|
+| P01 | B1 | ERHALTUNGSGATE | Integration und Rückfallstand |
+| P02 | B1 | TEILWEISE | Anbieter und Datenqualität |
+| P03 | B1 | TEILWEISE | Ortsentdeckung im AI Chat |
+| P04 | B1 | BELEGT BEGRENZT | Favorisieren und zurücknehmen |
+| P05 | B1 | BELEGT BEGRENZT | Planen und ausplanen |
+| P06 | B1 | TEILWEISE | Buchungsbedarf und Weiterleitung |
+| P07 | B1 | EXTERN ABHAENGIG | Buchung ausführen |
+| P08 | B1 | EXTERN ABHAENGIG | Buchung ändern und stornieren |
+| P09 | B1 | TEILWEISE | Timeline gezielt bearbeiten |
+| P10 | B1 | TEILWEISE | Planung verständlich erklären |
+| P11 | B2 | VORBEREITET | Unsicherheit von Wegen |
+| P12 | B2 | VORBEREITET | Einen Tag vorab durchspielen |
+| P13 | B2 | VORBEREITET | Bei Störungen umplanen |
+| P14 | B2 | VORBEREITET | Standort bewusst freigeben |
+| P15 | B2 | TEILWEISE | Vorlieben richtig speichern |
+| P16 | B2 | VORBEREITET | Aus bewusstem Feedback lernen |
+| P17 | B2 | TEILWEISE | Reise vollständig verwalten |
+| P18 | B2 | VORBEREITET | Erinnerungen und Geschichten |
+| P19 | B2 | VORBEREITET | Abgeleitetes Reisezielmodell |
+| P20 | B2 | OFFEN | Verifizierte Veranstaltungsquellen |
+| P21 | B3 | VORBEREITET | Veranstaltungen verlässlich normalisieren |
+| P22 | B3 | VORBEREITET | Veranstaltungskalender |
+| P23 | B3 | VORBEREITET | Zeit und Karte gemeinsam filtern |
+| P24 | B3 | OFFEN | Vom Event zur Erinnerung |
+| P25 | B3 | OFFEN | Kultureller Kontext |
+| P26 | B3 | OFFEN | Freie Zeit sinnvoll entdecken |
+| P27 | B3 | VORBEREITET | Gemeinsame und unterschiedliche Wünsche |
+| P28 | B3 | VORBEREITET | Alternativen bei schlechtem Wetter |
+| P29 | B3 | VORBEREITET | Änderungen bei Ort und Veranstaltung |
+| P30 | B3 | VORBEREITET | Tagesplan mit Quellen abgleichen |
+| P31 | B4 | VORBEREITET | Veranstaltungen räumlich und zeitlich verbinden |
+| P32 | B4 | OFFEN | Veranstaltungsprodukt öffentlich abnehmen |
+| P33 | B4 | OFFEN | Veranstaltungen vollständig im Chat |
+| P34 | B4 | TEILWEISE | Mehrere Wünsche und Sprachen |
+| P35 | B4 | TEILWEISE | Alle Bedienaktionen auch über AI |
+| P36 | B4 | TEILWEISE | Unsichere Aktionen zuverlässig verhindern |
+| P37 | B4 | OFFEN | Vollständige Bedienmatrix |
+| P38 | B4 | OFFEN | Offline Konflikte verbindlich entscheiden |
+| P39 | B4 | ERHALTUNGSGATE | Jeden Slice reproduzierbar veröffentlichen |
+| P40 | B4 | SPAETERES GATE | Alternative Urlaubsverläufe vergleichen |
+| P41 | B5 | SPAETERES GATE | Eigene Reiseregeln verbindlich machen |
+| P42 | B5 | SPAETERES GATE | Jede wesentliche Aussage belegen |
+| P43 | B5 | SPAETERES GATE | Mobilität und Energie berücksichtigen |
+| P44 | B5 | SPAETERES GATE | Private Gruppenwünsche fair abstimmen |
+| P45 | B5 | SPAETERES GATE | Reiseassistenz ohne Netz |
+| P46 | B5 | SPAETERES GATE | Kamera und Audio in nächste Schritte übersetzen |
+| P47 | B5 | SPAETERES GATE | Aktuelle Lage am Reiseziel verstehen |
+| P48 | B5 | SPAETERES GATE | Auswirkungen von Reisevarianten vergleichen |
+| P49 | B5 | SPAETERES GATE | Große Reiseunterbrechungen bewältigen |
+| P50 | B5 | SPAETERES GATE | Reisenachweise und Anspruchsunterlagen |
+
+## Ausführbarer Paketkatalog
+
+### P01 Integration und Rückfallstand
+
+**Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+.37 ist veröffentlicht; letzte spätere Änderung ist HERE-Konfiguration c28621de.
+
+**Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
+
+**Erhaltener technischer Umfang:** Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.
+
+### P02 Anbieter und Datenqualität
+
+**Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Geoapify, TomTom, HERE und ORS live geprüft; vollständige Ortsfotos und alle optionalen Fakten offen.
+
+**Nächster Abschlussnachweis:** Echten Place mit Foto, Herkunft, Fehlermodus und budgetbegrenztem Abruf sichtbar prüfen.
+
+**Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.
+
+### P03 Ortsentdeckung im AI Chat
+
+**Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Auf .37 neu sichtbar: freie und einfache Scharbeutz-Restaurantanfrage im Chat leer; Retry-Gateway liefert 20 Rohorte. Ursache finaler Auswahl offen. B1-End-to-End nicht bestanden.
+
+**Nächster Abschlussnachweis:** Freie Suchanfrage zu Scharbeutz, belegte Vorlieben, exakte Details und passende Rückfrage prüfen.
+
+**Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
+
+### P04 Favorisieren und zurücknehmen
+
+**Stand:** BELEGT BEGRENZT. **Zuständig:** Places. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Favorite und Unfavorite für registrierte Zeilen öffentlich auf .139 abgenommen.
+
+**Nächster Abschlussnachweis:** Aktuell Favorit setzen, unabhängig lesen, entfernen, neu laden und Ursprungszustand wiederherstellen.
+
+**Erhaltener technischer Umfang:** Close Preview, explicit confirmation, `places.v1` command, Receipt, recovery, persistence and separately confirmed Undo.
+
+### P05 Planen und ausplanen
+
+**Stand:** BELEGT BEGRENZT. **Zuständig:** Places und Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Plan und Unplan für registrierte Zeilen öffentlich auf .139 abgenommen.
+
+**Nächster Abschlussnachweis:** Tag und Zeit erhalten; Vorschau, Bestätigung, Timeline, Undo und Reload erneut durchlaufen.
+
+**Erhaltener technischer Umfang:** Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.
+
+### P06 Buchungsbedarf und Weiterleitung
+
+**Stand:** TEILWEISE. **Zuständig:** Booking. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Universelle Admission-Entscheidung und exakte Weiterleitung vorhanden; positive Partnerpfade nicht vollständig belegt.
+
+**Nächster Abschlussnachweis:** Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen.
+
+**Erhaltener technischer Umfang:** Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity.
+
+### P07 Buchung ausführen
+
+**Stand:** EXTERN ABHAENGIG. **Zuständig:** Booking. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Kein aktuell belegter vollständiger positiver Live-Buchungsabschluss.
+
+**Nächster Abschlussnachweis:** Erst aktivierten Partner, echte Konditionen und Owner-Beleg testen; keine kostenpflichtige Testbuchung automatisch abschließen.
+
+**Erhaltener technischer Umfang:** Execute only supported provider-backed creation with idempotency, refreshed terms, explicit confirmation and provider/owner receipts.
+
+### P08 Buchung ändern und stornieren
+
+**Stand:** EXTERN ABHAENGIG. **Zuständig:** Booking. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme offen.
+
+**Nächster Abschlussnachweis:** Gebühren, unbekannten Ausgang, Wiederholung und unterstützte Kompensation mit Testangeboten prüfen.
+
+**Erhaltener technischer Umfang:** Expose consequences and fees before confirmation; reconcile unknown provider outcomes and compensate only where supported.
+
+### P09 Timeline gezielt bearbeiten
+
+**Stand:** TEILWEISE. **Zuständig:** Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Day Graph, Verträge und Teilaktionen vorhanden; vollständige granulare Produktkette offen.
+
+**Nächster Abschlussnachweis:** Hinzufügen, Bearbeiten, Verschieben, Sortieren, Verbinden, Löschen und Wiederherstellen einzeln über journey.v1 abnehmen.
+
+**Erhaltener technischer Umfang:** Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.
+
+### P10 Planung verständlich erklären
+
+**Stand:** TEILWEISE. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Planning Trace und Projektionen vorhanden; konsistente lesbare Erklärung aller aktuellen Aktionen offen.
+
+**Nächster Abschlussnachweis:** Quellen, Aktualität, Annahmen, Konflikte und Ergebnis verständlich zeigen; keine internen Gedankengänge ausgeben.
+
+**Erhaltener technischer Umfang:** Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.
+
+### P11 Unsicherheit von Wegen
+
+**Stand:** VORBEREITET. **Zuständig:** Journey und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Reale Geh- und Fahrradrouten sind geliefert; Unsicherheitsprodukt ist damit nicht abgeschlossen.
+
+**Nächster Abschlussnachweis:** Bandbreite und Quellenalter sichtbar; Puffer nur nach bestätigtem Journey-Befehl.
+
+**Erhaltener technischer Umfang:** Real uncertainty bands, source age, missing live evidence and a separately confirmed Journey buffer command.
+
+### P12 Einen Tag vorab durchspielen
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence und Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Tagesprojektionen und Kartenidee vorhanden; vollständige Tagesprobe offen.
+
+**Nächster Abschlussnachweis:** Besten, erwarteten und ungünstigen Ablauf anhand belegter Grenzen vergleichen.
+
+**Erhaltener technischer Umfang:** Simulate feasible best/expected/worst days and apply selected revisions only through confirmed owner commands.
+
+### P13 Bei Störungen umplanen
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence und betroffene Owner. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Recovery-Grundlagen vorhanden; durchgängiger Live-Ausfallfall offen.
+
+**Nächster Abschlussnachweis:** Sichtbare Änderungsvorschläge und getrennte Owner-Belege ohne stille Reparatur.
+
+**Erhaltener technischer Umfang:** Generate evidence-backed recovery proposals and correlated per-owner receipts without silent repair.
+
+### P14 Standort bewusst freigeben
+
+**Stand:** VORBEREITET. **Zuständig:** Platform Location und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Deny-Pfad geprüft; echte Hardware- und Widerrufsmatrix offen.
+
+**Nächster Abschlussnachweis:** Präzise, grob, manuell, verweigert, widerrufen und offline auf Geräten prüfen.
+
+**Erhaltener technischer Umfang:** Prove precise/coarse/manual/denied/ revoked/expired location, purpose limitation, no implicit persistence and offline fallback.
+
+### P15 Vorlieben richtig speichern
+
+**Stand:** TEILWEISE. **Zuständig:** Identity und Trip. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Profil und Reise sind getrennt; aktuelle Kartenpassung nutzt belegte Merkmale.
+
+**Nächster Abschlussnachweis:** Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung abnehmen.
+
+**Erhaltener technischer Umfang:** Distinguish request-only, Trip-scoped and durable preferences; protect sensitive traits and confirm every durable write.
+
+### P16 Aus bewusstem Feedback lernen
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Feedback-Konzept und Teilgrundlagen; vollständiger produktiver Lebenszyklus offen.
+
+**Nächster Abschlussnachweis:** Explizites Ergebnis, Grund, Zweck, Ablauf, Korrektur und Vergessen prüfen.
+
+**Erhaltener technischer Umfang:** Learn only from an explicit outcome and reason, with scope, expiry, correction and deletion.
+
+### P17 Reise vollständig verwalten
+
+**Stand:** TEILWEISE. **Zuständig:** Trip. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Erstellung und aktive Auswahl vorhanden; Reload-Reparatur belegt.
+
+**Nächster Abschlussnachweis:** Alle Lebenszyklusaktionen mit Abhängigkeitsvorschau und Rücknahme schließen.
+
+**Erhaltener technischer Umfang:** Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts.
+
+### P18 Erinnerungen und Geschichten
+
+**Stand:** VORBEREITET. **Zuständig:** Memory und Media. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Getrennte Owner vorhanden; komplette neue Produktabnahme offen.
+
+**Nächster Abschlussnachweis:** Erstellen bis Wiederherstellen mit Quellen und unveränderter Media-Zuständigkeit.
+
+**Erhaltener technischer Umfang:** Create, edit, connect, share, archive, remove and restore source-labelled memories without copying Media truth.
+
+### P19 Abgeleitetes Reisezielmodell
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Twin-Projektionen vorhanden; vollständiger belegter Lebenszyklus offen.
+
+**Nächster Abschlussnachweis:** Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen.
+
+**Erhaltener technischer Umfang:** Build an expiring, derived and fully provenance-labelled model without becoming destination truth.
+
+### P20 Verifizierte Veranstaltungsquellen
+
+**Stand:** OFFEN. **Zuständig:** Places Event Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Quellen- und Lizenzfreigabe bleibt ein eigenes Gate.
+
+**Nächster Abschlussnachweis:** Quellen, Attribution, Bilderrechte, Aktualität und erlaubtes Caching vor Ingestion festlegen.
+
+**Erhaltener technischer Umfang:** Define accepted providers, licences, attribution, cache/freshness, image rights and any separately authorized infrastructure boundary before live event ingestion.
+
+### P21 Veranstaltungen verlässlich normalisieren
+
+**Stand:** VORBEREITET. **Zuständig:** Places und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Fixtures und fehlende-Quelle-Pfade vorhanden; positive Quelle offen.
+
+**Nächster Abschlussnachweis:** Keine synthetischen Events; Feldquellen, Konflikte, Dubletten und Geometrie prüfen.
+
+**Erhaltener technischer Umfang:** Normalize provider-native claims, field provenance, freshness, deduplication, conflicts and verified geometry with zero synthetic events.
+
+### P22 Veranstaltungskalender
+
+**Stand:** VORBEREITET. **Zuständig:** Journey und Experience. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Kalender-/Eventgrundlagen vorhanden; kompletter öffentlicher Ablauf offen.
+
+**Nächster Abschlussnachweis:** Tag, Woche und Reisezeitraum mit Karte, Details und Timeline testen.
+
+**Erhaltener technischer Umfang:** Deliver day, week, Trip range, filters, Timeline, Compass-coloured MapLibre and bottom-up details.
+
+### P23 Zeit und Karte gemeinsam filtern
+
+**Stand:** VORBEREITET. **Zuständig:** Experience und Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Time-Brush-Teile lokal geprüft.
+
+**Nächster Abschlussnachweis:** Zeitfenster, Kartenausschnitt und Liste per Maus, Touch und Tastatur synchron abnehmen.
+
+**Erhaltener technischer Umfang:** Synchronize time range, map extent, pins, list, pointer, touch, keyboard and Reduced Motion.
+
+### P24 Vom Event zur Erinnerung
+
+**Stand:** OFFEN. **Zuständig:** Memory. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Durchgängige echte Veranstaltungskette nicht belegt.
+
+**Nächster Abschlussnachweis:** Besuch und Medien bewusst auswählen; Memory-Befehl mit bestätigtem Ergebnis.
+
+**Erhaltener technischer Umfang:** Connect a verified event and explicitly selected visit/media evidence to a confirmed Memory command.
+
+### P25 Kultureller Kontext
+
+**Stand:** OFFEN. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Quellengebundener Produktumfang erhalten.
+
+**Nächster Abschlussnachweis:** Attributierbare Informationen und ehrliches Fehlen von Wissen zeigen.
+
+**Erhaltener technischer Umfang:** Provide attributable, source/version-bound context; unavailable evidence remains unavailable rather than generated.
+
+### P26 Freie Zeit sinnvoll entdecken
+
+**Stand:** OFFEN. **Zuständig:** Journey und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+90-Minuten-Kartenfunktion ist Grundlage, kein vollständiges Eventprodukt.
+
+**Nächster Abschlussnachweis:** Nur verifizierte Events anbieten; freie Zeit auch bewusst frei lassen.
+
+**Erhaltener technischer Umfang:** Rank optional verified events inside an open Journey window with an honest “keep free” outcome.
+
+### P27 Gemeinsame und unterschiedliche Wünsche
+
+**Stand:** VORBEREITET. **Zuständig:** Collaboration und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Für-uns-Lesemodell vorhanden; Mitreisenden-Owner-Ausbau ausstehend.
+
+**Nächster Abschlussnachweis:** Einwilligung, Minderheiten und fehlende Profile ohne erfundene Gruppenfreigabe prüfen.
+
+**Erhaltener technischer Umfang:** Explain consented common ground and minority impact while Collaboration writes remain owner-gated.
+
+### P28 Alternativen bei schlechtem Wetter
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence Booking Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Vorschlagsgrundlagen vorhanden; echter Event- und Wetterablauf offen.
+
+**Nächster Abschlussnachweis:** Vorhersage von Absage unterscheiden; Buchung und Tagesplan separat bestätigen.
+
+**Erhaltener technischer Umfang:** Distinguish forecast risk from official cancellation and require separate Booking/Journey confirmations.
+
+### P29 Änderungen bei Ort und Veranstaltung
+
+**Stand:** VORBEREITET. **Zuständig:** Places Event Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Drift-Konzept und Fixtures vorhanden.
+
+**Nächster Abschlussnachweis:** Belegte Orts-, Zeit- und Statusänderung von Quellenausfall unterscheiden.
+
+**Erhaltener technischer Umfang:** Detect source-backed time, status, venue and coordinate changes; outage is unknown, not cancellation.
+
+### P30 Tagesplan mit Quellen abgleichen
+
+**Stand:** VORBEREITET. **Zuständig:** Journey und Booking. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Reconciliation-Grundlagen vorhanden.
+
+**Nächster Abschlussnachweis:** Sichtbare Differenz und getrennte bestätigte Befehle mit Versionskontrolle.
+
+**Erhaltener technischer Umfang:** Reconcile verified schedules with Journey and Booking through visible diffs and separately confirmed commands.
+
+### P31 Veranstaltungen räumlich und zeitlich verbinden
+
+**Stand:** VORBEREITET. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Abgeleitete Graph-Grundlagen; vollständige Live-Evidenz offen.
+
+**Nächster Abschlussnachweis:** Nur referenzierte Owner-Fakten; Ablauf und Invalidierung sämtlicher Kanten.
+
+**Erhaltener technischer Umfang:** Derive expiring event/place/time/journey/ route/booking/weather/memory edges from owner/source evidence only.
+
+### P32 Veranstaltungsprodukt öffentlich abnehmen
+
+**Stand:** OFFEN. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Positive aktuelle S16.09 bis S16.12 Gesamtmatrix fehlt.
+
+**Nächster Abschlussnachweis:** Live-Quellen, Bilder, Karte, Wetter, Drift und offline zusammen belegen.
+
+**Erhaltener technischer Umfang:** Prove live sources, images, map, brushing, drift, weather recovery and offline/freshness states.
+
+### P33 Veranstaltungen vollständig im Chat
+
+**Stand:** OFFEN. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Einzelne Grundpfade; produktive Gesamtabdeckung offen.
+
+**Nächster Abschlussnachweis:** Suchen, erklären, planen, buchen, vorschlagen und erinnern über richtige Owner.
+
+**Erhaltener technischer Umfang:** Search, refine, explain, open, plan, book, propose to a group and save to Memory through the existing chat.
+
+### P34 Mehrere Wünsche und Sprachen
+
+**Stand:** TEILWEISE. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Semantische Routing-Grundlagen vorhanden; alle Owner nicht erschlossen.
+
+**Nächster Abschlussnachweis:** Gemischte Sprache, Umgangssprache, relative Zeiten und widersprüchliche Wünsche testen.
+
+**Erhaltener technischer Umfang:** Preserve mixed-language, colloquial, relative and conflicting wishes across every owner.
+
+### P35 Alle Bedienaktionen auch über AI
+
+**Stand:** TEILWEISE. **Zuständig:** Intelligence und Domain Owner. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+330 Inventarzeilen; nur 7 als PUBLIC_E2E_PASS klassifiziert.
+
+**Nächster Abschlussnachweis:** Neue Kartenaktionen inventarisieren; jede ausführbare Mutation vollständig prüfen oder explizit sperren.
+
+**Erhaltener technischer Umfang:** Every supported user action has an owner command and the complete mutation protocol or an explicit block.
+
+### P36 Unsichere Aktionen zuverlässig verhindern
+
+**Stand:** TEILWEISE. **Zuständig:** Domain Owner und Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+B0-Sicherheitskontrollen belegt; laufendes Gate für jeden Ausbau.
+
+**Nächster Abschlussnachweis:** Fremde Daten, veraltete Vorschau, Doppelklick, Teilausfall und verweigerte Rechte testen.
+
+**Erhaltener technischer Umfang:** Cover foreign data, stale preview, duplicate execution, partial failure, offline and privacy denial.
+
+### P37 Vollständige Bedienmatrix
+
+**Stand:** OFFEN. **Zuständig:** Integration und Platform. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Aktuelle Browser-Teilabnahmen vorhanden; physische Gesamtmatrix offen.
+
+**Nächster Abschlussnachweis:** Desktop, iOS, Android, Tastatur, Offline, GPS, Gruppe und Reduced Motion schließen.
+
+**Erhaltener technischer Umfang:** Real desktop/mobile/touch/keyboard/reload/back/ Reduced-Motion/cold-warm/offline-reconnect/GPS/group/provider evidence.
+
+### P38 Offline Konflikte verbindlich entscheiden
+
+**Stand:** OFFEN. **Zuständig:** Journey Collaboration Platform. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
+
+**Nächster Abschlussnachweis:** ADR mit Owner, Schema, Rechten und Konfliktstrategie vor Umsetzung.
+
+**Erhaltener technischer Umfang:** Separately authorize the Journey/ Collaboration owner, schema, rights, conflict and reconciliation design.
+
+### P39 Jeden Slice reproduzierbar veröffentlichen
+
+**Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
+
+.37 besitzt Quell-, Worker- und 18-Dateien-Bytebeleg.
+
+**Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
+
+**Erhaltener technischer Umfang:** Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.
+
+### P40 Alternative Urlaubsverläufe vergleichen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Intelligence und Journey. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Frontier-Umfang erhalten; kein abgeschlossenes Produkt.
+
+**Nächster Abschlussnachweis:** Probabilistische Szenarien, Randbedingungen und erklärbare Auswahl nach späteren Daten- und Owner-Gates.
+
+**Erhaltener technischer Umfang:** Simulate alternative future Trip branches using probabilistic graphs, Monte Carlo, constraints and Pareto fronts; selection creates owner previews and never an automatic mutation.
+
+### P41 Eigene Reiseregeln verbindlich machen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Intelligence und Domain Owner. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Frontier-Umfang erhalten.
+
+**Nächster Abschlussnachweis:** Versionierte harte und weiche Regeln mit verständlichem Konfliktnachweis.
+
+**Erhaltener technischer Umfang:** Compile user-authored hard and soft rules into a versioned policy DSL and expose understandable policy proof/violation results before every plan and command.
+
+### P42 Jede wesentliche Aussage belegen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Platform und Domain Owner. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Bestehende Evidenzgrundlagen ersetzen noch kein vollständiges Mesh.
+
+**Nächster Abschlussnachweis:** Quellenalter, Hash, Widerspruch und abhängige Invalidierung über Owner hinweg prüfen.
+
+**Erhaltener technischer Umfang:** Track every material claim with owner, source, observation/freshness, evidence class, hash, contradiction and downstream dependency invalidation.
+
+### P43 Mobilität und Energie berücksichtigen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Intelligence Identity Journey. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Sensibler Zukunftsumfang; keine implizite Gesundheitserfassung.
+
+**Nächster Abschlussnachweis:** Mit ausdrücklicher Einwilligung Wege, Hitze, Pausen und Belastung modellieren; keine Diagnose.
+
+**Erhaltener technischer Umfang:** With explicit consent, simulate mobility, surfaces, steps, lifts, heat, sensory load, rests and fatigue; never diagnose or silently infer sensitive traits.
+
+### P44 Private Gruppenwünsche fair abstimmen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Collaboration und Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt echten Membership-Owner und Datenschutzmodell.
+
+**Nächster Abschlussnachweis:** Verständliche Fairness und private Aggregation ohne Offenlegung einzelner Einschränkungen.
+
+**Erhaltener technischer Umfang:** Use secure aggregation and explainable fairness objectives such as minimax regret and Nash welfare without disclosing private member constraints.
+
+### P45 Reiseassistenz ohne Netz
+
+**Stand:** SPAETERES GATE. **Zuständig:** Platform Intelligence Domain Owner. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt M19 und native Infrastruktur.
+
+**Nächster Abschlussnachweis:** Verschlüsselte, ablaufende Ortskapseln mit Quellen und kontrolliertem späterem Abgleich.
+
+**Erhaltener technischer Umfang:** Provide encrypted Destination Capsules containing a local intent model, owner projections, map/routing data, translations, verified snapshots and conflict-aware reconciliation.
+
+### P46 Kamera und Audio in nächste Schritte übersetzen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Platform Media Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt native Ports und Zustimmung.
+
+**Nächster Abschlussnachweis:** Menü, Fahrplan oder Ticket als belegte Aussage mit Owner-Vorschau; keine direkte Mutation.
+
+**Erhaltener technischer Umfang:** Convert consented camera/audio input such as a menu, poster, timetable, ticket or announcement into redacted, verified claims and owner previews—not direct truth or mutation.
+
+### P47 Aktuelle Lage am Reiseziel verstehen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Places und Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt lizenzierte aktuelle Felddaten.
+
+**Nächster Abschlussnachweis:** Gemessen, vorhergesagt und unbekannt bei Andrang, Wetter und Zugänglichkeit unterscheiden.
+
+**Erhaltener technischer Umfang:** Project measured, predicted and unknown crowd, transit, weather, wind, heat, noise and accessibility states as a source-labelled spatio-temporal MapLibre field.
+
+### P48 Auswirkungen von Reisevarianten vergleichen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Frontier-Umfang erhalten; kein erfundener universeller Nachhaltigkeitsscore.
+
+**Nächster Abschlussnachweis:** Komfort, Kosten, Zugang, lokale Wirkung und Umwelt als nachvollziehbare Zielkonflikte zeigen.
+
+**Erhaltener technischer Umfang:** Compare comfort, price, accessibility, local benefit, crowd displacement and environmental impact as an auditable Pareto space without a fabricated universal score.
+
+### P49 Große Reiseunterbrechungen bewältigen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Booking Journey Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt echte Providerkommandos und Kompensationen.
+
+**Nächster Abschlussnachweis:** Befristete Optionen, korrelierte Belege und bestätigte providerabhängige Wiederherstellung.
+
+**Erhaltener technischer Umfang:** Coordinate major disruptions through provider-aware saga orchestration, expiring options, correlated receipts and lawful compensating commands after explicit confirmation.
+
+### P50 Reisenachweise und Anspruchsunterlagen
+
+**Stand:** SPAETERES GATE. **Zuständig:** Travel Wallet Booking Intelligence. **Einordnung:** Nach zugehörigem M18 M19 M21 Gate.
+
+Benötigt sichere Dokumenten- und Buchungsgrundlagen.
+
+**Nächster Abschlussnachweis:** Verschlüsselte Belegchronik; Nutzer prüft und versendet Anträge selbst.
+
+**Erhaltener technischer Umfang:** Build an encrypted, hash-linked evidence chronology from Booking/provider/owner receipts and prepare source-backed claim packages that the user must review and submit.
+
+## Nachweise und Grenzen
+
+Maßgebliche Messberichte im Repository sind PROVIDER-BUDGET-ACCEPTANCE-20260904, MAP-MOBILE-SPEED-ACCEPTANCE-20260904, TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904, CUISINE-MAP-PINS-ACCEPTANCE-20260904 und STAYS-SHARED-ACCEPTANCE-20260904 unter docs/modularization. Die älteren P04/P05-Belege stehen im archivierten B1-Handout und Ausführungsplan.
+
+Lokale Belege liegen unter C:/Users/fabia/Documents/ChatGPT/Luvia/outputs: regression37-release.log, public-byte-proof37.json, provider-cuisine-audit37.json, here-live-activation37.json, here-final-activation37.json sowie stays-bicycle37.png, stays-walk37.png und places-mobile-bicycle37.png. Die Livebilder zeigen Wege, nicht die vollständige Versorgung mit Ortsfotos.
+
+Vollständige echte Place-Fotos, positive Hotelpreise/Buchbarkeit, vollständige AI-Mutationsabdeckung, physische iOS/Android-Abnahme, echte Mehrnutzerprüfung und die vollständige Golden Journey bleiben offen. Die neue verknüpfte Bildanreicherung ist fixturegeprüft; beim letzten Holstentor-Versuch wurde kein neuer Livefotobeleg gewonnen.
+
+Die bestehende AI-Registry enthält 330 semantische Aktionen und 24 Runtime-Aktionen. Sie klassifiziert 7 Zeilen PUBLIC_E2E_PASS, 58 REGISTERED_PARTIAL, 1 PARTIAL, 229 MISSING, 14 NATIVE_CHAT, 10 NOT_REQUIRED und 11 NOT_APPLICABLE. 246 öffentliche Owner-Bindungen und 947 Datenmarker haben andere Nenner. Neue Kartenaktionen müssen gegen dieses ältere Inventar abgeglichen werden; die Zahlen beweisen keine vollständige aktuelle Abdeckung.
+
+## 13 Erhaltener technischer M18 Blueprint
+
+Der folgende technische Anhang erhält die detaillierten bestehenden Zielverträge. Seine Zukunftsformen sind Sollumfang, keine aktuelle Implementierungsbehauptung. Zahlen zur aktuellen Registry stehen ausschließlich im Statusabschnitt.
+
+## M18 Core blueprints
+
+All six new Cores follow the same owner-first delivery sequence: read-only
+inventory and ADR; public Contract, Commands, Events and state machine;
+browserless policy tests; explicitly scoped persistence/security changes under the applicable user authorization;
+Web and native adapters; Experience/Intelligence integration; regression,
+Preview, Production and twenty-stream closeout. Consumers never write private
+owner persistence, and every mutation carries actor, scope, idempotency,
+expected version, correlation and an owner receipt.
+
+### M18.1 Collaboration / Membership Core
+
+- Owns collaboration spaces, memberships, invitations, roles, grants, join
+  requests and audit history; Identity, Trip, Journey, Booking and Media remain
+  independent owners referenced only through IDs and Contracts.
+- Publishes `collaboration.membership.v1`, membership projections and events;
+  commands cover invite, accept/decline/revoke, role change, remove, leave and
+  owner transfer with explicit risk/confirmation policy.
+- Enforces deny-by-default server authorization, RLS, expiring hashed invite
+  tokens, replay protection and auditable role transitions.
+- Uses DeepLink, Sharing, Notification, Network, Lifecycle, SecureStorage and
+  OfflineCache Ports. Offline state is a read model; critical changes remain
+  pending until an owner receipt confirms them.
+- Acceptance includes the complete role/permission matrix, RLS negative cases,
+  invite expiry/revoke/replay, races/idempotency, offline/reconnect, deep-link
+  F5, accessibility, browserless smoke and Production provenance.
+
+### M18.2 Attention / Notification Intent Core
+
+- Owns attention policies, channel preferences, quiet hours, semantic
+  notification intents, scheduling, dedupe, Inbox/read/snooze state and
+  delivery receipts; originating Domain facts remain with their owners.
+- Publishes `attention.notification-intent.v1`. Domain owners request semantic
+  intents with source, urgency, expiry, dedupe key and Deep-Link Intent instead
+  of embedding provider-specific push behavior.
+- Deterministic policy covers consent, local timezone/DST, quiet hours,
+  frequency caps, grouping, suppression reason and security priority.
+- Notification, Lifecycle, Network and DeepLink Ports isolate push, e-mail,
+  in-app and future providers. Minimal lock-screen payloads, token rotation,
+  retention and unknown-delivery recovery are mandatory.
+- Acceptance includes timezone/DST, opt-in/out, multi-device, dedupe/retry,
+  provider outage, offline/reconnect, deep links, rate limits, accessibility,
+  browserless policy smoke and real delivery receipts.
+
+### M18.3 Travel Wallet / Documents Core — priority
+
+- Owns secure travel documents, versions, classification, validity,
+  verification claims, share grants, expiry/checklist projections and encrypted
+  asset references; Booking, Trip, Identity and Media keep their own Truth.
+- Publishes `travel-wallet.documents.v1` with redacted snapshots and
+  capability-based reads. Commands cover import/capture, classify, correct,
+  replace, verify, link, share/revoke, archive and two-stage deletion.
+- Covers ID/passport references, visa/entry material, tickets/boarding passes,
+  confirmations, insurance and specially governed health evidence through a
+  declarative document-type registry.
+- Requires threat modelling and data classification, encryption/key rotation,
+  short-lived signed URLs, MIME/size/malware checks, EXIF redaction, RLS,
+  step-up authentication and absolute exclusion from logs/analytics/ledgers.
+- Uses SecureStorage, MediaPicker/Capture/Storage, Permission, Device,
+  OfflineCache, Network and Sharing Ports. Offline cache is encrypted,
+  selective, expiring and remotely revocable; version/hash conflicts are
+  explicit.
+- OCR, extraction, translation and reminders require consent, field provenance
+  and confidence. Raw documents do not go to external models by default;
+  sharing, overwrite, revoke and deletion never execute autonomously.
+- Acceptance includes IDOR/RLS, signed URL expiry, malware/MIME, log redaction,
+  OCR confidence, version conflicts, offline/revoke, export/deletion proof,
+  backup/restore, native protection capabilities, browserless state smoke and
+  independent security/privacy approval.
+
+### M18.4 Reviews / Reputation Core
+
+- Owns Luvia reviews, revisions, rating dimensions, publication/moderation
+  state, reports, appeals, helpful votes and transparent reputation
+  projections. Places/Booking remain owners; provider reviews are attributed
+  read models, never copied Luvia Truth.
+- Publishes `reviews.reputation.v1`; commands cover draft, publish, edit,
+  withdraw, report, vote, moderation and appeal. Verified visits are evidence,
+  not a hidden requirement or global social score.
+- Aggregates expose sample size, dimensions, recency and uncertainty.
+  Moderation has reason codes, human review and appeal; AI may assist but not
+  make final high-risk decisions.
+- Privacy includes lawful attribution/pseudonymization, minimum Identity
+  projection, media consent, blocking/reporting and protection against leaking
+  sensitive travel or presence data.
+- Acceptance includes RLS/ownership, revision history, aggregate correctness,
+  spam/rate-limit/Sybil scenarios, moderation/appeal, deletion, offline drafts,
+  media safety, accessibility, browserless policy smoke, load and Production
+  rollback evidence.
+
+### M18.5 Admin / Governance Core — mandatory
+
+- Owns platform-administrative roles, capability grants, resource scopes,
+  policy versions, delegations, approval requests, time-boxed break-glass
+  sessions and immutable administrative audit receipts. Identity owns the
+  person/authentication context; Collaboration owns trip/group membership;
+  managed Domain Cores retain their own Truth and invariants.
+- Publishes `admin.governance.v1` and `admin.audit.v1`. Canonical models include
+  AdminPrincipalRef, AdminRole, Capability, ResourceScope, PolicyRule,
+  RoleAssignment, Delegation, ApprovalRequest, BreakGlassSession, AuditEntry
+  and AdminActionReceipt.
+- Commands cover create/update/retire role, grant/revoke assignment, delegate,
+  request/approve/deny high-risk change, suspend/reactivate subject, revoke
+  sessions and open/close break-glass. Every command carries actor, purpose,
+  scope, reason, idempotency key, expected version and correlation.
+- Default deny, least privilege and separation of duties are server-enforced.
+  Client visibility, cached projection, JWT convenience claim or hidden route
+  is never sufficient authorization. Self-grant/self-escalation is forbidden;
+  the last Superadmin cannot be removed or weakened without a recoverable,
+  independently approved successor.
+- Highest-risk changes require step-up authentication, explicit reason,
+  dual control/four-eyes approval, expiry and immutable audit evidence.
+  Break-glass is exceptional, time-boxed, narrowly scoped, alerted and reviewed;
+  it is not a permanent Superadmin shortcut.
+- Administrative UI is a dedicated Experience surface: overview, user and
+  principal directory, roles, permission matrix, scopes, pending approvals,
+  audit explorer, incident/break-glass console and system-health projections.
+  The UI calls Admin commands and foreign owner commands; it never writes
+  tables directly or becomes a second Domain owner.
+- Intelligence may explain access, draft policy changes and flag anomalies.
+  It may never grant/revoke Superadmin, approve its own proposal, open
+  break-glass, suspend/delete accounts or autonomously perform highest-risk
+  administrative actions.
+- Native First uses AuthSession, SecureStorage, Device, Permission, Network,
+  Lifecycle, Notification and DeepLink Ports. Offline Admin state is redacted
+  read-only cache; mutation fails closed until online policy and owner receipts
+  are available.
+- Persistence/RLS/RPC/Edge work is a separately approved security migration.
+  Acceptance includes full permission matrix, negative privilege-escalation
+  and IDOR/RLS tests, concurrent grant/revoke, last-Superadmin protection,
+  dual-control races, audit tamper evidence, break-glass expiry, session
+  revocation, offline deny, reload/deep-link, accessibility, browserless policy
+  smoke, Preview/Production provenance and independent security review.
+
+### M18.6 Social / Experience Graph Core — strategic
+
+- Product position: Luvia is not a classic feed/follower/like network. It is a
+  Social Travel Intelligence Network that answers which consented experiences
+  from trusted or behaviorally compatible people are relevant to the active
+  trip and can be transformed into owner-confirmed action.
+- Owns consented Experience Graph edges and lifecycle, circles/relationships,
+  visibility and blocking, Travel Twin relationship state, Experience Drops,
+  Echo eligibility/delivery state, Trip Fork provenance and inspiration
+  signals. It does not copy Trip, Places, Booking, Memory, Media, Identity,
+  Reviews, Collaboration, Attention or monetization truth.
+- Publishes `social.experience-graph.v1`; `social.v1` remains the compatibility
+  name. Public projections cover relevant experiences, relationship/circle
+  state, privacy-safe compatibility evidence, Echo/Drop/Fork provenance and
+  inspiration receipts—never a hidden global popularity score.
+- Anti-vanity is a binding product invariant: no follower race, public like
+  count, engagement feed or influencer override. Relevance is explained using
+  trust, context, recency, verified evidence and similarity with uncertainty.
+- Travel DNA remains split correctly: Identity owns explicit preferences;
+  Intelligence owns inferred behavioral models and match calculation; Social
+  consumes only a privacy-safe vector/projection and owns durable consented
+  relationship state, not the private model.
+- Travel Twins: Intelligence calculates explainable compatibility; Social
+  governs discovery consent, candidate visibility, dismissal/blocking and any
+  accepted connection. Match percentages include provenance, uncertainty and
+  minimum-sample gates.
+- Luvia Echoes: Memory owns source memories; Places owns location references;
+  Social owns the consented person-to-experience connection and Echo lifecycle;
+  Attention owns notification intent/delivery and Platform LocationPort owns
+  device location access.
+- Experience Drops: Social owns the message, audience and lifecycle while
+  Places/Media/Identity are referenced by public IDs/projections. Audiences are
+  private, family, friends, circle or moderated community; precise presence is
+  never inferred or exposed without consent.
+- Fork my Trip: Intelligence adapts an inspiration projection; Trip creates the
+  new trip through its owner command; Social stores provenance/credit only.
+  No booking, schedule or traveler truth is copied as Social truth.
+- Social Compass and Social Booking combine Social relevance with Places,
+  Booking and Journey public contracts. Booking owns availability,
+  reservation, provider status, partner attribution and commission; Social
+  supplies inspiration provenance and never calls providers or Booking tables.
+- Verified Experience is an evidence-backed attestation referencing owner
+  receipts with consent. Reviews owns authored review/moderation truth; Social
+  may rank relevance but cannot convert evidence into an undisclosed rating.
+- Group Intelligence remains Collaboration + Intelligence + Journey: members
+  and votes are Collaboration truth, preference reasoning is Intelligence and
+  the plan is committed through Journey/Trip owner commands.
+- Safety/privacy requires explicit audience and reuse consent, purpose binding,
+  blocking/reporting, child/minor protection, location minimization, retention,
+  deletion propagation, export, anti-Sybil/rate limits, moderation and no raw
+  private Identity/Memory/Booking payload in graph or model logs.
+- M16.5 designs Social as relevant in-context cards, Compass explanations,
+  Travel Twin evidence, Echoes, Drops and Fork provenance—never a generic
+  Social tab or endless feed. Implementation starts only after the shared
+  Corporate Design Freeze and a dedicated Social threat/consent model.
+- Acceptance includes graph ownership/consent matrices, RLS/IDOR negatives,
+  visibility/block/delete propagation, Twin evals and fairness, provenance,
+  Echo geo/privacy gates, Fork idempotency, verified-evidence integrity,
+  moderation, offline/reload, accessibility, browserless policy smoke,
+  Production provenance and twenty-stream synchronization.
+
+### M18.7 Universal Search / Projection Index
+
+Universal Search is explicitly not a Domain owner. It consumes approved events
+and stores source owner, entity ID, version, visibility and freshness. Search
+returns owner references; authorization, details and commands resolve through
+the owner. Reindex, tombstones, erasure propagation, ranking evals and offline
+search projections are mandatory gates.
+
+### M18.8 Luvia Intelligence Product Evolution II
+
+M8.5-M16 already delivered a real Intelligence foundation, not merely a UI
+mockup: browserless owner Core, capability/tool policy, model routing,
+evidence, Rich Results, Action Ledger, R0-R3 confirmation/recovery and 24 typed runtime actions in the current registry. The restaurant/day/
+Booking chat is the first production vertical slice.
+
+Evolution II turns that foundation into the system-wide Luvia assistant after
+the missing owners expose safe contracts:
+
+- complete Capability/Tool Registry across Trip, Places, Booking, Journey,
+  Memory, Identity, Collaboration, Social, Attention, Wallet, Reviews and
+  authorized Admin explanation/draft tools;
+- natural-language commands and multi-step plans with explicit owner,
+  capability, risk, confirmation, idempotency, receipts and recovery for every
+  action;
+- context aggregation over public projections, active trip, time, weather,
+  group constraints, Travel DNA projection and Social relevance without
+  copying foreign Domain Truth;
+- proactive but consented day, booking, conflict, document, attention and
+  location-aware signals with explainable timing and easy suppression;
+- controlled personalization and Intelligence Memory with provenance,
+  correction, forgetting, export and privacy boundaries;
+- model routing by capability, latency, privacy, cost and reliability plus
+  deterministic fallback and unknown-outcome reconciliation;
+- Voice and Multimodal input/output, camera/document handoff and native iOS/
+  Android command surfaces through Platform Ports;
+- cards, maps, media, comparisons, confirmations and owner receipts directly
+  in the conversational surface instead of text-only answers;
+- offline/degraded planning, resumable tasks and cross-device continuity
+  without pretending that an unconfirmed foreign mutation succeeded;
+- complete eval/telemetry for intent accuracy, tool selection, plan quality,
+  hallucination, unsafe action, confirmation, latency, cost, accessibility,
+  personalization and user correction.
+
+Intelligence remains an orchestrator. High-risk Admin, Wallet, identity,
+publication, relationship, booking and destructive actions remain owner- and
+policy-controlled; no model receives direct foreign table/provider authority.
+
+
+## 14 Quellenabgleich und Pflege
+
+Diese Konsolidierung beruht auf Git-Stand c28621de, den gemessenen .37- und HERE-Abnahmen, den vorhandenen Architektur-/Owner-Registries und den vier vom Nutzer übergebenen Hauptquellen. Die Original-DOCX und eingefügten Handoffs werden unverändert als historische Referenz aufbewahrt. Dateihashes und Zuordnung werden im Quellennachweis geführt.
+
+Die bisherigen Masterkapitel 1–3 zu Ziel, Grenzen und Status werden durch Kapitel 1–4 ersetzt. Kapitel 4–5 zur Architektur und zum Gesamtweg leben in Kapitel 6–9 fort. Kapitel 6–8 und 14–19 zu Builds, Git, Dokumentation, Tests, Streams, Legacy, Risiken, Zeit und Abschluss werden durch Kapitel 10–11 und die aktuelle Git-Evidenz geführt. Kapitel 9–12 zu Experience, AI, Places und Journey bleiben in Kapitel 2, 6, 8 und dem Paketkatalog erhalten. Kapitel 13 zu Supabase liegt in Kapitel 5 und 10. Kapitel 20 ist historischer M6-Einstieg. Kapitel 21 und Anhang E zu Native First liegen in Kapitel 7, 10 und den beibehaltenen Architektur-Guardrails.
+
+Anhänge A–F bleiben als historische Versions-, Commit-, Kernprinzipien- und Übergabereferenz erhalten; aktuelle Einstiegspunkte stehen in den neuen Handoffs. Anhänge G–W dokumentieren frühere Meilensteinfortschreibungen und werden nicht als neue Starts wiederholt. Die in v5 zuletzt angehängten Roadmap-, Product-Reset-, P01–P50-, B0/B1- und Map-Abschnitte sind durch die aktuellen aktiven Dokumente ersetzt. Der vollständige ursprüngliche technische Text bleibt im Quellenarchiv auffindbar.
+
+Aktuelle Statusdaten werden in docs/planning/status-plan.v1.json gepflegt. Der lesbare Statusplan, Masterfahrplan und die Handoffs dürfen nur Nachweise daraus oder aus ihren verlinkten Abnahmeberichten übernehmen. Historische Nachweise bleiben datiert. Bei jedem fachlichen Slice werden betroffene P-Pakete, nächste Abnahme, Providergrenzen und Releasebelege gemeinsam aktualisiert. Ein neuer Chat beginnt beim aktiven Handoff und prüft den tatsächlichen Git-Stand, statt einen alten Anhang als Gegenwart zu lesen.

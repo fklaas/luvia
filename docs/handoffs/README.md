@@ -1,27 +1,12 @@
-# Luvia handoff index
+# Luvia aktive Handoffs
 
-Stand: 2026-09-03
+Stand 4. September 2026. Dieser Einstieg verweist auf die konsolidierte aktive Fassung statt einen weiteren widersprüchlichen Status zu führen.
 
-Diese Mappe ist die kanonische Übergabe vom Codex-gestützten Arbeitsmodus in
-einen normalen ChatGPT-Chat, in dem der Nutzer alle PowerShell-Befehle selbst
-ausführt.
+- [Aktiver Arbeitsumfang](../../HANDOFF-CODEX-CURRENT.md)
+- [Ergänzender Nachweis und Status](../../HANDOFF-NORMAL-CHATGPT-CURRENT.md)
 
-## Reihenfolge
+Integration App 13.82.168.37 / Core 4.82.168 / Gateway v161 ACTIVE. B0-Steuerungsgrundlage geschlossen, B1 aktiv. P04/P05 begrenzt öffentlich belegt; aktuelle komplette Golden Journey und P09/P10 offen. Fotos, positive Buchungspartner und physische Hardware bleiben benannte Lücken. Main/Production unverändert.
 
-1. `../../HANDOFF-NORMAL-CHATGPT-CURRENT.md` — kompakte aktuelle Wahrheit.
-2. `STARTPROMPT-NORMAL-CHATGPT.md` — vollständig kopierbarer Startprompt.
-3. `CHATGPT-TERMINAL-PROTOCOL.md` — verbindliches Befehls-/Ergebnisformat.
-4. `M5-TO-CURRENT-CONTEXT-BRIDGE.md` — fehlender Kontext für den alten Chat.
-5. `CURRENT-MAP-MINI-INFO-SLICE.md` — exakt offene Arbeit und Abnahme.
+Die alten Ausführungs- und Evidenztexte bleiben unter docs/planning/archive/2026-09-04-before-consolidation mit ursprünglichem relativen Dateipfad erhalten. Ihre historischen Versionen, Providerreihenfolgen und lokalen Pending-Aussagen sind keine aktuelle Steuerung.
 
-## Statusregel
-
-Historische Übergabeordner, Release-ZIPs und exportierte Arbeitsbäume bleiben
-Evidenz. Sie werden nicht nachträglich umgeschrieben und sind keine
-Entwicklungsbasis. Die aktuelle Wahrheit lebt im Git-Repository auf Branch
-`integration`, in `CURRENT-BUILD.md`, im Product Reset Masterplan und in dieser
-Handoff-Mappe.
-
-`13.82.168` ist öffentlich auf Integration geprüft, aber Karte, Mini-Info und
-Drag-Gefühl sind ausdrücklich noch nicht durch den Nutzer abgenommen. Genau dort
-wird weitergearbeitet.
+Zuerst den zum tatsächlichen Werkzeugzugriff passenden Handoff lesen. STARTPROMPT-NORMAL-CHATGPT.md ist kopierbar. CHATGPT-TERMINAL-PROTOCOL.md gilt nur für Sitzungen ohne eigene Werkzeuge. Quellen und Master-Pakete stehen unter docs/planning.

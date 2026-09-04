@@ -47,6 +47,6 @@ Der Nutzer hat direkte Projektarbeit an Git, Supabase, Funktionen und Secrets au
 
 Dokumentierte Browserabnahmen sind keine Hardwaremessung. Neue Ergebnisse nur nach gemessener Evidenz als PASS markieren. Bei einer neuen konkreten UI-Regression den begrenzten Owner-Slice reparieren; nicht allein aufgrund grüner Tests für abgeschlossen erklären.
 
-## Modus normaler ChatGPT Chat
+## Modus Codex mit Werkzeugen
 
-Wenn diese Sitzung keine Datei-, Terminal- oder Browserwerkzeuge besitzt, führt Fabian begrenzte PowerShell-Blöcke aus und kopiert die Ausgabe zurück. Es gilt das Format aus docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md. Vor einer Rückmeldung keine Ergebnisse behaupten. Verfügt die Sitzung tatsächlich über geeignete Werkzeuge, dürfen diese unter der vorhandenen Nutzerautorisierung direkt verwendet werden; die alte Aussage „ChatGPT hat niemals Zugriff“ ist keine technische Tatsache für jede Sitzung.
+Die vorhandenen Werkzeuge direkt verwenden, unabhängige Reads bündeln und notwendige Arbeit bis zu einem konkreten überprüfbaren Ergebnis durchführen. Sichtbare Browserabnahmen sind ausdrücklich gewünscht. Funktionstests möglichst mit wiederherstellbaren Daten, keine realen kostenpflichtigen Buchungen ausführen. Jede weiterführende Aufgabe beginnt mit dem tatsächlichen Git- und Browserzustand. Ein Fortschrittsbericht ist keine Abnahme und kein asynchrones Versprechen ohne laufende Aufgabe.
