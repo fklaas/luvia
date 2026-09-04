@@ -55,7 +55,7 @@ window.LuviaPlaceCore={
   async recordVisit(placeId,patch){calls.visit.push({placeId,patch});return{id:'v1',tripId:'t1',placeId,state:'visited',arrivedAt:'2026-08-13T12:00:00.000Z',leftAt:null,durationSeconds:120,detectionSource:'manual',isAutomatic:false,isConfirmed:true,correction:{private:'must-not-leak'},participantId:'private-user'}}
 };
 window.LuviaPlaces={
-  async textSearch(query,options){const location=options.destination.location,id=`tile-${location.latitude}-${location.longitude}`;calls.viewport.push({query,options});return{data:{places:[{id:`places/${id}`,providerPlaceId:`places/${id}`,displayName:`Treffer ${id}`,formattedAddress:'Im Kartenausschnitt',location}],providers:{requested:['google'],used:['google']}}}},
+  async textSearch(query,options){const location=options.destination.location,id=`tile-${location.latitude}-${location.longitude}`;calls.viewport.push({query,options});const places=query==='Empty'?[]:[{id:`places/${id}`,providerPlaceId:`places/${id}`,displayName:`Treffer ${id}`,formattedAddress:'Im Kartenausschnitt',location}];return{data:{places,providers:{requested:options.providers||['google'],used:options.providers||['google'],mode:'fixture'}},meta:{requestId:`viewport-${calls.viewport.length}`,durationMs:12,cache:{hit:false}}}},
   async autocomplete(query,options){calls.autocomplete.push({query,options});return{data:{sessionToken:'places-session-1',suggestions:[{placeId:'places/copenhagen',text:'Kopenhagen, Dänemark'},{description:'ohne id'}]}}},
   async details(placeId,options){
     calls.details.push({placeId,options});
@@ -95,7 +95,7 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.5.0-live-viewport');
+assert.strictEqual(api.runtimeVersion,'1.5.1-live-viewport-continuity');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
 assert.deepStrictEqual(Object.keys(api.reads),['localSearchRadius','search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
@@ -134,6 +134,19 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(calls.viewport.length,5,'default Geoapify browse adds exactly one rectangle read');
   assert.strictEqual(geoViewport.tiles.strategy,'single-rectangle-geoapify');
   assert.strictEqual(geoViewport.tiles.providerPageSize,50,'single Geoapify rectangle retains a complete provider page');
+  assert.strictEqual(geoViewport.requestDiagnostics[0].requestId,'viewport-5','viewport diagnostics expose a bounded request identity');
+  assert.strictEqual(geoViewport.requestDiagnostics[0].durationMs,12);
+  assert.strictEqual(geoViewport.cache.hit,false);
+  const cachedGeoViewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5}});
+  assert.strictEqual(calls.viewport.length,5,'a nonempty exact rectangle may be reused');
+  assert.strictEqual(cachedGeoViewport.cache.hit,true);
+  const refreshedGeoViewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5},forceRefresh:true});
+  assert.strictEqual(calls.viewport.length,6,'forceRefresh must bypass a successful local viewport cache');
+  assert.strictEqual(refreshedGeoViewport.cache.forced,true);
+  const emptyRequest={query:'Empty',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5}};
+  assert.strictEqual((await api.searchViewport(emptyRequest)).count,0);
+  assert.strictEqual((await api.searchViewport(emptyRequest)).count,0);
+  assert.strictEqual(calls.viewport.length,8,'successful empty rectangles must never be retained as local truth');
 
   const details=await api.getDetails('google-1',{languageCode:'de'});
   assert.strictEqual(details.rating,4.7);

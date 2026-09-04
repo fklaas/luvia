@@ -54,16 +54,23 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  st.results=[row('google-legacy')];ctx.recovery.saveCached();assert.equal(savedCache.get(ctx.recovery.cacheKey()).results[0].name,'geoapify:cached','cache must not absorb other provider content');
  // A late destination read must not overwrite a newer camera intent, and a
  // category change during the viewport debounce must use that camera's bounds.
- let finishDestination,viewportOptions;
- st.root={querySelector:()=>null,querySelectorAll:()=>[]};st.mapProjection={cancelPending(){},update(){return{markers:[]}}};st.activeViewport=null;
+ let finishDestination,viewportOptions=[];const traceMap={dataset:{}};
+ st.root={querySelector:selector=>selector.includes('[data-places-map]')?traceMap:null,querySelectorAll:()=>[]};st.mapProjection={cancelPending(){},update(){return{markers:[]}}};st.activeViewport=null;
  st.categories=[{key:'food',query:'Restaurant',primaryType:'restaurant'},{key:'shopping',query:'Shopping',primaryType:'store'}];
- ctx.LuviaPlacesContractV1={reads:{recommend:()=>new Promise(resolve=>finishDestination=resolve),searchViewport:async options=>{viewportOptions=options;return{places:[]}}}};
+ const shopping={...row('Shopping recovered',54.15),primaryType:'store',types:['store','commercial']};
+ ctx.LuviaPlacesContractV1={reads:{recommend:()=>new Promise(resolve=>finishDestination=resolve),searchViewport:async options=>{viewportOptions.push(options);return{places:options.forceRefresh?[shopping]:[]}}}};
  const slowDestination=ctx.LuviaPlacesSpatialExperience.search({category:'food',preserveMap:true});
  const camera={bounds:{south:54.1,north:54.2,west:10.7,east:10.8},center:{latitude:54.15,longitude:10.75},radiusMeters:5000};
  ctx.recovery.beginViewportIntent(camera);st.results=[row('New viewport',54.15)];
  finishDestination({places:[row('Old destination')]});assert.equal(await slowDestination,false);assert.equal(st.results[0].name,'New viewport','late destination response cannot replace current viewport pins');
  await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
- assert.equal(viewportOptions.bounds,camera.bounds,'category switch uses new viewport before a viewport response has completed');assert.equal(viewportOptions.category,'shopping');
+ assert.equal(viewportOptions.length,2,'an unexpected broad empty category read gets one bounded continuity retry');
+ assert.equal(viewportOptions[0].bounds,camera.bounds,'category switch uses new viewport before a viewport response has completed');assert.equal(viewportOptions[0].category,'shopping');
+ assert.equal(viewportOptions[1].forceRefresh,true,'continuity retry bypasses browser and gateway cache');
+ assert.equal(st.results[0].name,'Shopping recovered');assert.equal(traceMap.dataset.searchAttempt,'empty-retry');assert.equal(traceMap.dataset.searchResultCount,'1');
+ viewportOptions=[];st.filters.types=['shopping_mall'];ctx.LuviaPlacesContractV1.reads.searchViewport=async options=>{viewportOptions.push(options);return{places:[]}};
+ await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
+ assert.equal(viewportOptions.length,1,'a legitimately empty filtered viewport must not spend a continuity retry');st.filters.types=[];
  ctx.LuviaPlacesContractV1={reads:{}};
  await assert.rejects(ctx.LuviaPlacesSpatialExperience.viewportSearch(camera),/not ready/,'unavailable contract is not a successful empty result');
  const failureCopy={textContent:''},failureStatus={dataset:{},matches:()=>true,querySelector:selector=>selector==='span'?failureCopy:null,insertAdjacentHTML(_where,html){this.actions=html}};

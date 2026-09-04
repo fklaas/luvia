@@ -18,8 +18,8 @@ for(const name of ['Kleines Steakhouse','Steakhaus','Grillhaus','Kebab Grill']){
 assert.equal(ranked({...food,features:{servesVegetarianFood:false}}),undefined,'explicit conflicts remain blocked');
 const access=core.rankPlaces({profilePreferences:{accessibilityNeeds:['wheelchair'],travelInterests:['culinary']},candidates:[{...food,types:['restaurant','wheelchair_limited']}]}).places[0];
 assert.equal(access.preferenceDiscoveryMatch,false,'limited wheelchair metadata is not verified accessibility');
-let calls=0,full=false;
-ctx.LuviaPlaces={details(){},async textSearch(){calls++;await Promise.resolve();return{places:full?Array.from({length:50},(_,i)=>({...food,id:`geoapify:${i}`})):[food]}}};
+let calls=0,full=false,empty=false;
+ctx.LuviaPlaces={details(){},async textSearch(){calls++;await Promise.resolve();return{places:empty?[]:full?Array.from({length:50},(_,i)=>({...food,id:`geoapify:${i}`})):[food]}}};
 const request={bounds:{south:54,west:10.7,north:54.1,east:10.8},center:{latitude:54.05,longitude:10.75},category:'food',providers:['geoapify']};
 (async()=>{
  const api=ctx.LuviaPlacesContractV1.reads;
@@ -28,7 +28,9 @@ const request={bounds:{south:54,west:10.7,north:54.1,east:10.8},center:{latitude
  const inner={...request,bounds:{south:54.01,west:10.72,north:54.03,east:10.78}};
  assert.equal((await api.searchViewport(inner)).count,1);assert.equal(calls,1,'complete larger region covers zoom-in');
  await api.searchViewport({...request,category:'accommodation'});assert.equal(calls,2,'categories never contaminate each other');
- full=true;await api.searchViewport({...request,query:'full'});await api.searchViewport({...inner,query:'full'});assert.equal(calls,4,'truncated page cannot establish coverage');
+ empty=true;const emptyRequest={...request,category:'nature',query:'empty'};await api.searchViewport(emptyRequest);await api.searchViewport(emptyRequest);assert.equal(calls,4,'empty viewport reads are not cached');
+ empty=false;await api.searchViewport({...request,forceRefresh:true});assert.equal(calls,5,'forced refresh bypasses a successful local cache');
+ full=true;await api.searchViewport({...request,query:'full'});await api.searchViewport({...inner,query:'full'});assert.equal(calls,7,'truncated page cannot establish coverage');
  vm.runInContext(read('app/journey/journey-suggestion-sheet.js').replace('globalThis.LuviaJourneySuggestions=','globalThis.quality={displayDate,cuisineLabels};globalThis.LuviaJourneySuggestions='),ctx);
  assert.equal(ctx.quality.displayDate('2026-09-04'),'04.09.2026');
  assert.equal(ctx.quality.cuisineLabels({types:['catering','wheelchair_limited','italian_restaurant','vegan']}),'Italienisch · Vegan');

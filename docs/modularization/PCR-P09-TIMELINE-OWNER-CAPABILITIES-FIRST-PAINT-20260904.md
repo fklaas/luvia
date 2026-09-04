@@ -50,7 +50,7 @@ No migration, table, RLS, Edge Function, provider, secret or authorization chang
 
 ## Rollout and rollback
 
-Published on stable Integration as App `13.82.168.49`, Core `4.82.171`, Worker `71ad570f-e4a3-42ed-b13f-0f504bfea4e5`, immutable runtime source `8ed41a3e250a82fe6bb9c9a0d37fe399f797712b` and archive SHA-256 `FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE`. Main/Production, database, Functions and secrets remained unchanged. Exact code rollback is App `13.82.168.48`, Core `4.82.170`, Worker `42df591a-d2d2-4075-b315-003f1499431c`, source `7eacedc32e997de27d781adbf51d14bb55486907`.
+Published on stable Integration as App `13.82.168.50`, Core `4.82.172`, Worker `71ad570f-e4a3-42ed-b13f-0f504bfea4e5`, immutable runtime source `8ed41a3e250a82fe6bb9c9a0d37fe399f797712b` and archive SHA-256 `FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE`. Main/Production, database, Functions and secrets remained unchanged. Exact code rollback is App `13.82.168.48`, Core `4.82.170`, Worker `42df591a-d2d2-4075-b315-003f1499431c`, source `7eacedc32e997de27d781adbf51d14bb55486907`.
 
 ## Acceptance evidence
 

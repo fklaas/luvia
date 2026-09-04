@@ -10,7 +10,8 @@ for(const forbidden of ['Tickets prüfen','Eintritt noch ungeklärt','data-book-
 assert.match(moduleSource,/function openHotelSheet\(selected,[\s\S]*?places:\[selected\],selectedId:providerId\(selected\)/,'one Hotel pin must open exactly one Hotel in the shared sheet');
 assert.doesNotMatch(moduleSource,/function openHotelSheet\(selected,choices=/,'the Hotel pin contract must not carry the complete search result list into the sheet');
 assert.doesNotMatch(moduleSource,/LuviaPlaceDetail(?!s)|data-hotel-detail-booking/,'the retired Hotel detail card must not remain in the consumer bundle');
-assert.match(moduleSource,/onViewportSearch:descriptor=>spatial\.viewportSearch/,'Hotel map panning and zooming must use the shared live viewport contract');
+assert.match(moduleSource,/reader=spatial\.viewportSearchWithContinuity\|\|spatial\.viewportSearch/,'Hotel map panning and zooming must use the shared continuity-hardened viewport contract');
+assert.match(moduleSource,/continuityEligible:!hotelSubtype\(\)&&hotelFilterCount\(\)===0/,'only the broad unfiltered Hotel viewport may spend one continuity retry');
 assert.match(moduleSource,/onSelect:id=>focusHotel\(id,\{move:false\}\)/,'selecting a Hotel pin must not programmatically move the map and trigger another provider viewport read');
 assert.match(moduleSource,/maxResultCount:80/,'the initial Hotel map must request the complete bounded provider result set');
 assert.match(moduleSource,/maxResultCount:80[\s\S]*strictDestination:true/,'Hotel discovery must request a bounded complete provider page without claiming mathematical completeness');

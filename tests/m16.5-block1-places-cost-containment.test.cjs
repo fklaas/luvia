@@ -47,8 +47,11 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.14\.0-free-budget/,'gateway cache must invalidate after the Geoapify-first hard cut');
-assert.match(gateway,/version:'4\.34\.0-free-budget'/,'gateway health version must reflect Geoapify-first');
+assert.match(gateway,/v2\.14\.1-empty-continuity/,'gateway cache must invalidate after empty-result continuity hardening');
+assert.match(gateway,/version:'4\.34\.1-empty-continuity'/,'gateway health version must reflect empty-result continuity hardening');
+assert.match(gateway,/ttl>0&&!forceRefresh\?cached\(key\):null/,'forceRefresh must bypass a gateway cache hit');
+assert.match(gateway,/if\(ttl>0&&!searchEmpty\)store\(key,result,ttl\)/,'successful empty provider pages must never be cached as geographic truth');
+assert.match(gateway,/skippedEmpty:searchEmpty,forced:forceRefresh/,'cache diagnostics must disclose forced and skipped-empty reads');
 assert.match(gateway,/One Luvia category → one Geoapify parent family/,'category mapping must keep Luvia categories exclusive');
 assert.equal((gateway.match(/searchFields\(options\)/g)||[]).length,2,'text and nearby search must both route FieldMask selection through one policy');
 
