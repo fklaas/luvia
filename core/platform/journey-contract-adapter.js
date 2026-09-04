@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.4.0-durable-remove-restore';
+const RUNTIME_VERSION='1.5.0-connected-multi-reorder';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -103,6 +103,36 @@ function previewRestore(identity){
   const preview=domain().previewSchedule({entry,trip,entries:snapshot({trip}).entries,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,localDate,localEndDate});
   return Object.freeze({...preview,recoveryId:recovery.recoveryId,expectedRevision:recovery.expectedRevision});
 }
+function selectedEntries(ids=[]){return ids.map(id=>getEntry(id)).filter(Boolean)}
+function previewConnectionReorder(input={}){
+  const orderIds=(input.orderIds||input.entryIds||[]).map(String),entries=selectedEntries(orderIds),trip=activeTrip();
+  return domain().previewConnectionPlan({trip,entries,allEntries:snapshot({trip}).entries,orderIds,operation:'connect-and-reorder'});
+}
+function connectionRecoveries(options={}){
+  const groups=new Map();
+  for(const entry of list(options)){
+    const recovery=entry.metadata?.timelineConnectionRecovery,connection=entry.metadata?.timelineConnection;
+    if(!recovery?.operationId||connection?.operationId!==recovery.operationId)continue;
+    const key=String(recovery.connectionId||connection.connectionId||recovery.operationId);
+    if(!groups.has(key))groups.set(key,{recoveryId:key,connectionId:key,operationId:recovery.operationId,tripId:entry.tripId,memberIds:[...(recovery.memberIds||connection.memberIds||[])],createdAt:recovery.createdAt,members:[],expectedRevisions:{}});
+    const group=groups.get(key);group.members.push({entryId:entry.id,title:entry.title,currentStartAt:entry.startAt,currentDurationMinutes:entry.durationMinutes,before:{...(recovery.before||{})}});group.expectedRevisions[entry.id]=entry.sourceRevision;
+  }
+  return Object.freeze([...groups.values()].filter(group=>group.memberIds.length>=2&&group.memberIds.every(id=>group.members.some(member=>member.entryId===id))).map(group=>Object.freeze({...group,memberIds:Object.freeze([...group.memberIds]),members:Object.freeze(group.members.map(member=>Object.freeze({...member,before:Object.freeze({...member.before})}))),expectedRevisions:Object.freeze({...group.expectedRevisions})})));
+}
+function connectionRecovery(identity,options={}){const id=typeof identity==='object'?identity.recoveryId||identity.connectionId||identity.operationId:identity;return connectionRecoveries(options).find(item=>[item.recoveryId,item.connectionId,item.operationId].some(value=>String(value)===String(id)))||null}
+function connectionRestoreReceipt(identity,operationId){
+  const id=String(identity||'');
+  for(const entry of list()){
+    const receipt=entry.metadata?.timelineConnectionLastRestore;
+    if(receipt&&[receipt.connectionId,receipt.recoveryId,receipt.groupOperationId].some(value=>String(value||'')===id)&&(!operationId||receipt.operationId===operationId))return Object.freeze({...receipt,replayed:true});
+  }
+  return null;
+}
+function previewConnectionRestore(identity){
+  const recovery=connectionRecovery(identity),trip=activeTrip();if(!recovery)throw new Error('Diese Gruppenänderung kann nicht mehr unverändert zurückgenommen werden.');
+  const entries=selectedEntries(recovery.memberIds),targets=recovery.members.map(member=>({entryId:member.entryId,startAt:member.before.startAt,durationMinutes:member.before.durationMinutes})),orderIds=[...recovery.members].sort((left,right)=>Date.parse(left.before.startAt)-Date.parse(right.before.startAt)).map(member=>member.entryId);
+  return Object.freeze({...domain().previewConnectionPlan({trip,entries,allEntries:snapshot({trip}).entries,orderIds,targets,operation:'restore-connection-reorder'}),recoveryId:recovery.recoveryId,groupOperationId:recovery.operationId,expectedRevisions:recovery.expectedRevisions});
+}
 async function hydrate(tripId){const result=await provider().hydrate?.(tripId);return emit('hydrate',result)}
 async function init(){ensureBridge();await provider().init?.();return emit('init')}
 async function recordEvent(input={}){const result=await provider().record?.(input);emit('record-event',result);return result}
@@ -111,6 +141,11 @@ async function assertNoLinkedBooking(entry){
   const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
   const rows=await reader(entry.tripId);
   if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId))||(entry.placeId&&String(row.place_id||row.placeId||'')===String(entry.placeId))))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+}
+async function assertNoLinkedBookings(entries=[]){
+  const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
+  const rows=await reader(entries[0]?.tripId);
+  for(const entry of entries)if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId))||(entry.placeId&&String(row.place_id||row.placeId||'')===String(entry.placeId))))throw new Error(`„${String(entry.title||'Dieser Ort').replace(/^.*?·\s*/,'')}“ hat eine Buchung. Bitte zuerst „Buchung verwalten“ verwenden.`);
 }
 async function removePlannedPlace(identity,input={}){
   const id=typeof identity==='string'?identity:identity?.id,operationId=String(input.operationId||'');
@@ -158,6 +193,51 @@ async function restoreRemovedEntry(identity,input={}){
     return Object.freeze(restoreReceipt);
   })().finally(()=>restorePending.delete(key));
   restorePending.set(key,{operationId,promise});return promise;
+}
+const connectionPending=new Map(),connectionRestorePending=new Map();
+async function connectAndReorderEntries(input={}){
+  const operationId=String(input.operationId||''),orderIds=(input.orderIds||input.entryIds||[]).map(String),key=orderIds.slice().sort().join('|');
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte Verbindung und Reihenfolge zuerst prüfen und bestätigen.');
+  if(connectionPending.has(key)){const pending=connectionPending.get(key);if(pending.operationId===operationId)return pending.promise;throw new Error('Diese Timeline-Momente werden gerade gespeichert.');}
+  const promise=(async()=>{
+    const initial=selectedEntries(orderIds);if(initial.length!==orderIds.length)throw new Error('Mindestens ein ausgewählter Timeline-Moment ist nicht mehr verfügbar.');
+    const tripId=initial[0].tripId;await hydrate(tripId);let entries=selectedEntries(orderIds);
+    if(entries.length!==orderIds.length)throw new Error('Mindestens ein ausgewählter Timeline-Moment wurde inzwischen entfernt.');
+    if(entries.every(entry=>entry.metadata?.timelineConnection?.operationId===operationId))return Object.freeze({operation:'connect-and-reorder',operationId,connectionId:entries[0].metadata.timelineConnection.connectionId,entryIds:Object.freeze([...orderIds]),replayed:true});
+    const preview=previewConnectionReorder({orderIds}),expected=input.expectedRevisions||{};
+    for(const entry of entries)if(!expected[entry.id]||expected[entry.id]!==entry.sourceRevision)throw new Error(`„${String(entry.title||'Ein Eintrag').replace(/^.*?·\s*/,'')}“ wurde inzwischen geändert. Bitte die Vorschau neu öffnen.`);
+    if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');
+    if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
+    await assertNoLinkedBookings(entries);if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    const connectionId=String(input.connectionId||`timeline-connection:${operationId}`),createdAt=new Date().toISOString(),writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');const applied=[];
+    try{
+      for(const target of preview.after){
+        const entry=entries.find(item=>item.id===target.entryId),source=resolveSourceEntry(entry.id),ownerMetadata=source?.fields?.metadata&&typeof source.fields.metadata==='object'?source.fields.metadata:entry.metadata||{},before=preview.before.find(item=>item.entryId===entry.id),connection={connectionId,operationId,memberIds:[...orderIds],order:target.order,memberCount:orderIds.length,updatedAt:createdAt},recovery={operation:'restore-connection-reorder',connectionId,operationId,memberIds:[...orderIds],createdAt,before:{startAt:before.startAt,durationMinutes:before.durationMinutes,hadDuration:Object.hasOwn(ownerMetadata,'durationMinutes'),durationValue:ownerMetadata.durationMinutes??null,connection:ownerMetadata.timelineConnection||null},after:{startAt:target.startAt,durationMinutes:target.durationMinutes,order:target.order}};
+        await writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:entry.sourceRevision,fields:{planned_at:target.startAt,metadata:{...ownerMetadata,durationMinutes:target.durationMinutes,timelineConnection:connection,timelineConnectionRecovery:recovery,timelineConnectionLastRestore:null}}});applied.push(entry.id);
+      }
+    }catch(cause){await hydrate(tripId).catch(()=>{});const error=new Error(`${applied.length} von ${orderIds.length} Timeline-Momenten wurden gespeichert. Bitte neu laden; Luvia zeigt den tatsächlichen Stand und überschreibt nichts still.`);error.code='JOURNEY_PARTIAL_GROUP_WRITE';error.appliedEntryIds=applied;error.cause=cause;throw error}
+    await hydrate(tripId);entries=selectedEntries(orderIds);if(entries.some(entry=>entry.metadata?.timelineConnection?.operationId!==operationId)||preview.after.some(target=>entries.find(entry=>entry.id===target.entryId)?.startAt!==target.startAt))throw new Error('Die gemeinsame Reihenfolge wurde noch nicht vollständig bestätigt. Bitte die Timeline neu laden.');
+    return Object.freeze({operation:'connect-and-reorder',operationId,connectionId,entryIds:Object.freeze([...orderIds]),appliedEntryIds:Object.freeze([...applied]),createdAt});
+  })().finally(()=>connectionPending.delete(key));connectionPending.set(key,{operationId,promise});return promise;
+}
+async function restoreConnectionReorder(identity,input={}){
+  const operationId=String(input.operationId||''),initial=connectionRecovery(identity),past=connectionRestoreReceipt(identity,operationId);
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte die Rücknahme zuerst prüfen und bestätigen.');if(!initial&&past)return past;if(!initial)throw new Error('Diese Gruppenänderung kann nicht mehr unverändert zurückgenommen werden.');
+  const key=initial.connectionId;if(connectionRestorePending.has(key)){const pending=connectionRestorePending.get(key);if(pending.operationId===operationId)return pending.promise;throw new Error('Diese Rücknahme wird gerade gespeichert.');}
+  const promise=(async()=>{
+    await hydrate(initial.tripId);const recovery=connectionRecovery(key),replayed=connectionRestoreReceipt(key,operationId);if(!recovery&&replayed)return replayed;if(!recovery)throw new Error('Die Gruppenänderung wurde inzwischen geändert. Bitte neu laden.');
+    const preview=previewConnectionRestore(key),entries=selectedEntries(recovery.memberIds),expected=input.expectedRevisions||{};for(const entry of entries)if(!expected[entry.id]||expected[entry.id]!==entry.sourceRevision)throw new Error('Mindestens ein verbundener Moment wurde inzwischen geändert. Bitte neu laden.');
+    if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
+    await assertNoLinkedBookings(entries);if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(recovery.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    const restoredAt=new Date().toISOString(),restoreReceipt={operation:'restore-connection-reorder',operationId,connectionId:key,recoveryId:key,groupOperationId:recovery.operationId,memberIds:[...recovery.memberIds],restoredAt},writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');const applied=[];
+    try{
+      for(const member of recovery.members){
+        const entry=entries.find(item=>item.id===member.entryId),source=resolveSourceEntry(entry.id),metadata=source?.fields?.metadata&&typeof source.fields.metadata==='object'?{...source.fields.metadata}:{...entry.metadata},before=member.before;if(before.hadDuration)metadata.durationMinutes=before.durationValue;else delete metadata.durationMinutes;metadata.timelineConnection=before.connection||null;metadata.timelineConnectionRecovery=null;metadata.timelineConnectionLastRestore=restoreReceipt;
+        await writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:entry.sourceRevision,fields:{planned_at:before.startAt,metadata}});applied.push(entry.id);
+      }
+    }catch(cause){await hydrate(recovery.tripId).catch(()=>{});const error=new Error(`${applied.length} von ${recovery.memberIds.length} Rücknahmen wurden gespeichert. Bitte neu laden und den tatsächlichen Stand prüfen.`);error.code='JOURNEY_PARTIAL_GROUP_RESTORE';error.appliedEntryIds=applied;error.cause=cause;throw error}
+    await hydrate(recovery.tripId);const restored=selectedEntries(recovery.memberIds);if(recovery.members.some(member=>restored.find(entry=>entry.id===member.entryId)?.startAt!==member.before.startAt)||connectionRecovery(key))throw new Error('Die frühere Reihenfolge wurde noch nicht vollständig bestätigt. Bitte neu laden.');return Object.freeze(restoreReceipt);
+  })().finally(()=>connectionRestorePending.delete(key));connectionRestorePending.set(key,{operationId,promise});return promise;
 }
 async function removeEntry(identity,options={}){const source=resolveSourceEntry(identity);if(domain().removalEditable(source)||sourceRemovalRecovery(identity))return removePlannedPlace(source,options);const result=await provider().removeEntry?.(source,options);emit('remove-entry');return result}
 async function clearEntries(options={}){const result=await provider().clearEntries?.(options);emit('clear-entries',result);return result}
@@ -259,8 +339,8 @@ async function undo(input={}){
   throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
 }
 
-const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery});
-const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore});
+const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
   version:VERSION,
@@ -268,8 +348,8 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,
-  init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore,
+  init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
     version:VERSION,

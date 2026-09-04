@@ -7,7 +7,7 @@ const cp=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 const args=Object.fromEntries(process.argv.slice(2).map(value=>value.split('=',2)).filter(parts=>parts.length===2));
 const from=String(args['--from']||''),to=String(args['--to']||''),coreFrom=String(args['--core-from']||''),coreTo=String(args['--core-to']||'');
-if(!/^\d+\.\d+\.\d+$/.test(from)||!/^\d+\.\d+\.\d+$/.test(to)||!/^\d+\.\d+\.\d+$/.test(coreFrom)||!/^\d+\.\d+\.\d+$/.test(coreTo))throw new Error('Usage: node scripts/bump-runtime-release.cjs --from=x.y.z --to=x.y.z --core-from=x.y.z --core-to=x.y.z');
+if(!/^\d+(?:\.\d+){2,3}$/.test(from)||!/^\d+(?:\.\d+){2,3}$/.test(to)||!/^\d+\.\d+\.\d+$/.test(coreFrom)||!/^\d+\.\d+\.\d+$/.test(coreTo))throw new Error('Usage: node scripts/bump-runtime-release.cjs --from=x.y.z[.n] --to=x.y.z[.n] --core-from=x.y.z --core-to=x.y.z');
 if(from===to||coreFrom===coreTo)throw new Error('Source and target versions must differ.');
 
 const textExtensions=new Set(['.cjs','.css','.html','.js','.json','.md','.mjs','.ts']);

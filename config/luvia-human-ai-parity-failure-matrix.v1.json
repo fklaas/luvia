@@ -9,7 +9,7 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "BA75AFC958361D6F83C0E5F9AB3F03008DCE819B3E51CA838E5BD938A8391564"
+        "sha256": "B8E7C48A231342F7CAFCFA61E805889A6B388AC2465B23873D508FC978AD6381"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
   "sourceBaseline": "8eeba9ada79488760fc55d0de042c107630a7002",
-  "app": "13.82.168.47",
-  "core": "4.82.169",
+  "app": "13.82.168.48",
+  "core": "4.82.170",
   "runtimeSource": "8eeba9ada79488760fc55d0de042c107630a7002",
   "worker": "020f04e8-677c-4027-8cbb-0c5b1847ff38",
   "gateway": "v161 ACTIVE",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.47 auf Integration veröffentlicht; unveränderliches Quellarchiv 8eeba9ad, Worker 020f04e8 und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.",
+      "evidence": "13.82.168.48 auf Integration veröffentlicht; unveränderliches Quellarchiv 8eeba9ad, Worker 020f04e8 und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.",
       "nextAcceptance": "Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.47: unveränderliches Quellarchiv 8eeba9ad, 214/214 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.",
+      "evidence": "13.82.168.48: unveränderliches Quellarchiv 8eeba9ad, 214/214 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.",
       "nextAcceptance": "Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"

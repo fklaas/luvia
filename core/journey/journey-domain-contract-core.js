@@ -3,7 +3,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.2.0-durable-removal-preview';
+const RUNTIME_VERSION='1.3.0-connected-multi-reorder-preview';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -161,6 +161,31 @@ function scheduleEditable(entry={}){
 function removalEditable(entry={}){
   return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.tripPlaceId);
 }
+function connectionEditable(entry={}){
+  return removalEditable(entry);
+}
+function previewConnectionPlan(input={}){
+  const trip=tripProjection(input.trip||{}),selected=Array.isArray(input.entries)?input.entries:[],allEntries=Array.isArray(input.allEntries)?input.allEntries:[],ids=selected.map(entry=>entry.id),unique=[...new Set(ids)];
+  if(!trip.id||selected.some(entry=>entry.tripId!==trip.id))throw new Error('Alle ausgewählten Einträge müssen zur aktiven Reise gehören.');
+  if(selected.length<2||unique.length!==selected.length||selected.length>12)throw new Error('Bitte zwei bis zwölf unterschiedliche Timeline-Momente auswählen.');
+  if(selected.some(entry=>!connectionEditable(entry)))throw new Error('Nur bestätigte Places ohne eigene Buchung können gemeinsam geordnet werden.');
+  const days=[...new Set(selected.map(entry=>entry.calendarDate||dateKey(entry.startAt)))];
+  if(days.length!==1||!days[0])throw new Error('Gemeinsam verbundene Momente müssen am selben Reisetag liegen.');
+  const requested=Array.isArray(input.orderIds)?input.orderIds.map(String):[],orderIds=requested.length?requested:unique;
+  if(orderIds.length!==unique.length||new Set(orderIds).size!==unique.length||orderIds.some(id=>!unique.includes(id)))throw new Error('Die neue Reihenfolge enthält nicht genau die ausgewählten Momente.');
+  const slots=[...selected].sort((left,right)=>Date.parse(left.startAt)-Date.parse(right.startAt)||left.id.localeCompare(right.id)).map(entry=>entry.startAt);
+  const explicitTargets=new Map((Array.isArray(input.targets)?input.targets:[]).map(item=>[String(item.entryId),item]));
+  const after=orderIds.map((id,index)=>{
+    const entry=selected.find(item=>item.id===id),target=explicitTargets.get(id),startAt=validIso(target?.startAt)||slots[index],duration=Math.max(15,finite(target?.durationMinutes,entry.durationMinutes));
+    return normalizeEntry({...entry,startAt,endAt:new Date(Date.parse(startAt)+duration*60000).toISOString(),durationMinutes:duration,calendarDate:dateKey(startAt)});
+  });
+  const combined=dedupe([...allEntries.filter(entry=>!unique.includes(entry.id)),...after]);
+  const conflicts=conflictsFor(combined).filter(item=>item.entryIds.some(id=>unique.includes(id))).map(item=>({...item,titles:item.entryIds.filter(id=>!unique.includes(id)||item.entryIds.length===1).map(id=>combined.find(other=>other.id===id)?.title||'Anderer Reisemoment')}));
+  const before=selected.map(entry=>({entryId:entry.id,title:entry.title,startAt:entry.startAt,durationMinutes:entry.durationMinutes,expectedRevision:entry.sourceRevision}));
+  const beforeOrder=[...selected].sort((left,right)=>Date.parse(left.startAt)-Date.parse(right.startAt)||left.id.localeCompare(right.id)).map(entry=>entry.id);
+  const alreadyConnected=selected.every((entry,index)=>entry.metadata?.timelineConnection?.memberIds?.join('|')===orderIds.join('|')&&Number(entry.metadata?.timelineConnection?.order)===orderIds.indexOf(entry.id));
+  return immutable({operation:text(input.operation,'connect-and-reorder'),tripId:trip.id,date:days[0],entryIds:unique,orderIds,beforeOrder,before,after:after.map((entry,index)=>({entryId:entry.id,title:entry.title,startAt:entry.startAt,endAt:entry.endAt,durationMinutes:entry.durationMinutes,order:index})),expectedRevisions:Object.fromEntries(before.map(item=>[item.entryId,item.expectedRevision])),conflicts,requiresConfirmation:true,changed:beforeOrder.join('|')!==orderIds.join('|')||!alreadyConnected,effects:{momentsConnected:input.operation!=='restore-connection-reorder',scheduleReordered:beforeOrder.join('|')!==orderIds.join('|'),placeFactsPreserved:true,favoritesPreserved:true,bookingPreserved:true,routeRequiresRefresh:true}});
+}
 function previewRemoval(input={}){
   const entry=input.entry||{},trip=tripProjection(input.trip||{});
   if(!removalEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich entfernt.');
@@ -279,5 +304,5 @@ function diagnostics(){
   });
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,removalEditable,previewRemoval,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,removalEditable,previewRemoval,connectionEditable,previewConnectionPlan,diagnostics});
 })();

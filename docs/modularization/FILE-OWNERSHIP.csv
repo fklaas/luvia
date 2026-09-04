@@ -2724,3 +2724,5 @@ scripts/sync-planning-status.cjs,Documentation/Release History,Documentation Too
 docs/modularization/PCR-PLACES-CATEGORY-CONTINUITY-20260904.md,Documentation/Release History,Documentation,Bounded map request continuity change and release evidence
 docs/modularization/PCR-P09-TIMELINE-REMOVE-RESTORE-20260904.md,Documentation/Release History,Documentation,Bounded additive Journey contract change for durable planned Place removal and restoration
 tests/p09-timeline-remove-restore.test.cjs,Journey/Places/Consumer Shared Tests,Test/Guardrail,Durable planned Place removal reload recovery conflict gate owner readback and idempotency
+docs/modularization/PCR-P09-TIMELINE-CONNECT-MULTI-REORDER-20260904.md,Documentation/Release History,Documentation,Bounded additive Journey connect multi-reorder and durable group recovery PCR
+tests/p09-timeline-connect-reorder.test.cjs,Journey/Places/Consumer Shared Tests,Test/Guardrail,Connected same-day multi-reorder preview conditional owner writes reload recovery restore and idempotency

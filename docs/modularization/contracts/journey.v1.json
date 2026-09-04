@@ -29,13 +29,24 @@
     "composeProjection",
     "previewSchedule",
     "scheduleEditable",
-    "scheduleRecovery"
+    "scheduleRecovery",
+    "previewRemoval",
+    "previewRestore",
+    "removalRecoveries",
+    "removalRecovery",
+    "previewConnectionReorder",
+    "connectionRecoveries",
+    "connectionRecovery",
+    "previewConnectionRestore"
   ],
   "commands": [
     "init",
     "hydrate",
     "recordEvent",
     "removeEntry",
+    "restoreRemovedEntry",
+    "connectAndReorderEntries",
+    "restoreConnectionReorder",
     "clearEntries",
     "removePhotoMemoryByCluster",
     "openPhotoMemory",
@@ -71,6 +82,16 @@
     "sources": ["place-data.planned_at"],
     "concurrency": "exact source revision under existing Places RLS",
     "recovery": "single previous schedule receipt on the owner record",
+    "requiresConfirmation": true,
+    "bookingOwnerCheck": true
+  },
+  "connectionReorder": {
+    "surface": "commands.connectAndReorderEntries(confirmedPreview)",
+    "sources": ["place-data.planned_at", "place-data.metadata.timelineConnection"],
+    "constraints": "two-to-twelve planned Places on one active-trip day",
+    "concurrency": "exact per-entry source revision under existing Places RLS",
+    "partialFailure": "surface applied count and require owner reload; never claim atomic database commit",
+    "recovery": "shared per-entry recovery receipt on owner records, durable across reload",
     "requiresConfirmation": true,
     "bookingOwnerCheck": true
   }
