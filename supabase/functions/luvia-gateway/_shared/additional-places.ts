@@ -53,7 +53,7 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
   if(!anchor||!Number.isFinite(lat)||!Number.isFinite(lng))throw new Error('DESTINATION_REQUIRED');
   const radius=Math.max(100,Math.min(50000,Number(options.maxDistanceMeters||destination.searchRadiusMeters)||3000)),limit=Math.min(50,Math.max(1,Number(options.maxResultCount)||30)),rect=restriction?.rectangle;
   const requested=(options.includedTypes?.length?options.includedTypes:[options.includedType]).filter(Boolean);
-  const cuisineTypes=requested.filter((t:string)=>t.endsWith('_restaurant')&&Object.hasOwn(cuisines,t.replace(/_restaurant$/,'')));
+  const cuisineTypes=options.strictTypeFiltering===true?requested.filter((t:string)=>t.endsWith('_restaurant')&&Object.hasOwn(cuisines,t.replace(/_restaurant$/,''))):[];
   const required=cuisineTypes.length?cuisineTypes:requested;
   const normalizeRows=(rows:any[])=>rows.map(row=>normalizeAdditional(provider,row)).filter(place=>place&&(!required.length||required.some((type:string)=>place.types.includes(type))));
   let data:any;
@@ -80,7 +80,7 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
   }
   const params=new URLSearchParams({apiKey:secret(provider),at:`${lat},${lng}`,limit:String(limit),lang:'en-US',q:String(options.userQuery||query||'restaurant')});
   params.set('in',rect?`bbox:${rect.low.longitude},${rect.low.latitude},${rect.high.longitude},${rect.high.latitude}`:`circle:${lat},${lng};r=${radius}`);
-  const foodTypes=hereTaxonomy.foodTypes.filter(c=>additionalTypes([c.name]).some(t=>required.includes(t)&&t.endsWith('_restaurant'))).map(c=>c.id.endsWith('-000')?c.id.split('-')[0]:c.id);
+  const foodTypes=cuisineTypes.length?hereTaxonomy.foodTypes.filter(c=>additionalTypes([c.name]).some(t=>cuisineTypes.includes(t)&&t.endsWith('_restaurant'))).map(c=>c.id.endsWith('-000')?c.id.split('-')[0]:c.id):[];
   if(cuisineTypes.length&&!foodTypes.length)return[];
   const categories=hereTaxonomy.categories.filter(c=>additionalTypes([c.name]).some(t=>required.includes(t))).map(c=>c.id);
   const family=foodTypes.length?['100-1000']:categories;
