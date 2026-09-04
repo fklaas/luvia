@@ -107,8 +107,8 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   shopping_mall:'commercial.shopping_mall',
   market:'commercial',
   store:'commercial',
-  clothing_store:'commercial',
-  department_store:'commercial',
+  clothing_store:'commercial.clothing',
+  department_store:'commercial.department_store',
   night_club:'entertainment',
   pharmacy:'healthcare.pharmacy',
   supermarket:'commercial.supermarket',
@@ -308,6 +308,9 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key.startsWith('tourism')||key.includes('sights')||key.includes('attraction'))types.add('tourist_attraction');
     if(key.startsWith('entertainment')||key.startsWith('leisure')||key.startsWith('sport'))types.add('activity');
     if(key.startsWith('commercial'))types.add('store');
+    if(key.startsWith('commercial.clothing'))types.add('clothing_store');
+    if(key==='commercial.department_store')types.add('department_store');
+    if(key==='commercial.marketplace')types.add('market');
     if(key.includes('shopping_mall'))types.add('shopping_mall');
   }
   return[...types].slice(0,40);
@@ -409,7 +412,10 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
   const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
   const servesVeganFood=/vegan/.test(textEvidence)?true:null;
-  const wheelchairAccessibleEntrance=/wheelchair|accessible/.test(textEvidence)?true:null;
+  const raw=props.datasource?.raw||{};
+  const wheelchair=String(raw.wheelchair||'').toLowerCase();
+  const wheelchairAccessibleEntrance=wheelchair==='no'?false:wheelchair==='limited'||nativeEvidence.includes('wheelchair.limited')?null:wheelchair==='yes'||nativeEvidence.includes('wheelchair.yes')?true:null;
+  const stroller=String(raw.stroller||'').toLowerCase();
   const openNowRaw=props.open_now??props.openNow??props.opening_hours?.open_now??props.openingHours?.open_now;
   const openNow=typeof openNowRaw==='boolean'?openNowRaw:null;
   const primaryType=String(preferChildCategory(mappedTypes,nativeEvidence)||options?.includedType||options?.includedPrimaryTypes?.[0]||'');
@@ -439,9 +445,9 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     businessStatus:null,
     openNow,
     openingHours:props.opening_hours||props.openingHours||null,
-    website:props.website||null,
+    website:props.website||raw.website||raw['contact:website']||null,
     mapsUri:null,
-    phone:props.phone||null,
+    phone:props.phone||raw.phone||raw['contact:phone']||null,
     photos:[],
     editorialSummary:null,
     reviews:[],
@@ -455,7 +461,8 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
       reservable:null,
       servesVegetarianFood,
       servesVeganFood,
-      goodForChildren:null
+      goodForChildren:null,
+      strollerAccessible:stroller==='yes'?true:stroller==='no'?false:null
     },
     raw:props
   };

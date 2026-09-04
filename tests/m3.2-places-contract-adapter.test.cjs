@@ -127,7 +127,7 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   const viewport=await api.searchViewport({query:'Restaurants',type:'restaurant',providers:['google'],bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5},radiusMeters:5000,maxResultCount:20,maxViewportResults:80});
   assert.strictEqual(calls.viewport.length,4,'one viewport must be split into four provider requests');
   assert.strictEqual(viewport.count,4,'deduplicated tile results must all remain visible');
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(viewport.tiles)),{requested:4,fulfilled:4,providerPageSize:20,maximumUniqueResults:80,strategy:'four-tile-legacy'});
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(viewport.tiles)),{requested:4,fulfilled:4,providerPageSize:20,maximumUniqueResults:80,complete:true,strategy:'four-tile-legacy'});
   assert(viewport.places.every(place=>place.coordinates.latitude>=52&&place.coordinates.latitude<=53&&place.coordinates.longitude>=7&&place.coordinates.longitude<=8));
 
   const geoViewport=await api.searchViewport({query:'Restaurants',type:'restaurant',bounds:{south:52,west:7,north:53,east:8},center:{latitude:52.5,longitude:7.5}});

@@ -32,5 +32,10 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  projection.map.shift=.2;rows=[row('Outside old viewport'),row('Inside new viewport',54.22)];projection.map.fire('moveend',{originalEvent:{}});await tick();assert.equal(received.length,1);assert.equal(received[0].name,'Inside new viewport');
  let resolve;const racing=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('New category')],{initialCenter:{latitude:54.02,longitude:10.75},onViewportSearch:()=>new Promise(r=>resolve=r),onViewportResults:()=>assert.fail('cancelled response must never publish')});
  racing.map.fire('load');await tick();racing.map.fire('moveend',{originalEvent:{}});const pending=tick();racing.cancelPending();resolve([row('Stale category')]);await pending;assert.equal(racing.view.markers[0].name,'New category');
- projection.destroy();racing.destroy();console.log('Places viewport gestures, empty replacement, fit cohort and stale response cancellation: PASS');
+ const lodging={...row('Hotel'),primaryType:'lodging',types:['lodging','accommodation_hotel']};let hotelRows;
+ const hotel=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[lodging],{category:'accommodation',initialCenter:{latitude:54.02,longitude:10.75},onViewportSearch:async()=>[lodging],onViewportResults:rows=>hotelRows=rows});
+ hotel.map.fire('style.load');hotel.map.fire('moveend',{originalEvent:{}});await tick();
+ assert.equal(hotelRows.length,1,'Hotel viewport must ignore the currently selected Places food category');
+ assert.equal(hotel.view.markers[0].name,'Hotel');
+ projection.destroy();racing.destroy();hotel.destroy();console.log('Places viewport gestures, empty replacement, fit cohort, Hotel parity and stale response cancellation: PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});

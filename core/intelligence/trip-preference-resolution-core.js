@@ -147,9 +147,9 @@ function evidence(place,constraint){
   }
   if(constraint.kind==='accessibility'){
     if(/wheelchair|rollstuhl|step.free|stufenlos/.test(value)){
-      const positive=features.wheelchairAccessible===true||access.wheelchairAccessibleEntrance===true||access.wheelchairAccessibleSeating===true||TAGS.accessible.test(hay);
+      const positive=features.wheelchairAccessible===true||access.wheelchairAccessibleEntrance===true||access.wheelchairAccessibleSeating===true;
       const negative=features.wheelchairAccessible===false||access.wheelchairAccessibleEntrance===false;
-      return{state:positive?'confirmed':negative?'conflict':'unknown'};
+      return{state:negative?'conflict':positive?'confirmed':'unknown'};
     }
     if(/quiet|ruhig/.test(value))return{state:TAGS.quiet.test(hay)?'confirmed':'unknown'};
     return{state:TAGS.accessible.test(hay)?'confirmed':'unknown'};
@@ -256,7 +256,11 @@ function rankCandidate(place,resolution,index=0,input={}){
   }
   delta=Math.max(-30,Math.min(40,Math.round(delta)));
   const fit=fitScore(place,resolution,input);eligible=eligible&&fit.eligible;
-  return{place:{...clone(place),preferenceScore:fit.score??delta,preferenceFit:fit,preferenceScoreDelta:delta,preferenceReasons:[...new Set(reasons)].slice(0,5),preferenceWarnings:[...new Set(warnings)].slice(0,4),preferenceConstraintState:eligible?(warnings.length?'verify':'satisfied'):'blocked',preferenceMatchedSignals:[...new Set(matched)],preferenceResolutionVersion:VERSION},eligible,index};
+  // Browsing is not admission approval. A missing stroller fact remains a
+  // visible warning, while diet/access requirements still require evidence.
+  const requiredFactsKnown=(resolution.hardConstraints||[]).every(constraint=>constraint.kind==='family'||['confirmed','not-applicable'].includes(evidence(place,constraint).state));
+  const preferenceDiscoveryMatch=eligible&&requiredFactsKnown&&matched.some(tag=>Number(resolution.weights?.[tag])>0);
+  return{place:{...clone(place),preferenceDiscoveryMatch,preferenceScore:fit.score??delta,preferenceFit:fit,preferenceScoreDelta:delta,preferenceReasons:[...new Set(reasons)].slice(0,5),preferenceWarnings:[...new Set(warnings)].slice(0,4),preferenceConstraintState:eligible?(warnings.length?'verify':'satisfied'):'blocked',preferenceMatchedSignals:[...new Set(matched)],preferenceResolutionVersion:VERSION},eligible,index};
 }
 function rankPlaces(input={}){
   const resolution=input.resolution?.kind==='derived-trip-preference-resolution'?input.resolution:resolve(input);

@@ -55,7 +55,7 @@ assert.match(hotelCss,/\.hotel-pin-history/);
 
 assert.match(sheet,/Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),3200,place\)\)\)/,'provider photo hydration must precede the first exact-pin card paint within a bound');
 assert.match(sheet,/loading="eager" fetchpriority="high"/);
-assert.match(sheet,/Kein Anbieterfoto/,'missing real media must have an honest fallback rather than an invented image');
+assert.match(sheet,/categoryPlaceholder/,'missing real media must have an honest fallback rather than an invented image');
 assert.match(sheet,/setTimeout\(\(\)=>\{if\(!handle\.overlay\?\.isConnected\)return;results\.querySelectorAll\('\[data-lvjs-staged-actions\]'\)/,'card actions must enter after the sheet instead of competing with its first paint');
 assert.match(sheet,/data-lvjs-details/);
 assert.match(sheet,/function openProviderDetails\(place,input\)/);

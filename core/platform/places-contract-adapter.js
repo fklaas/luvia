@@ -74,7 +74,33 @@
     const response=await gw.details(placeId,options||{});
     return detailsProjection(response?.data?.place||response?.data||response);
   }
+  const viewportCache=new Map(),viewportPending=new Map(),VIEWPORT_TTL=15*60*1000;
+  const containsBounds=(outer,inner)=>outer.south<=inner.south&&outer.west<=inner.west&&outer.north>=inner.north&&outer.east>=inner.east;
   async function searchViewport(options={}){
+    const providers=options.providers||['geoapify'];
+    if(!providers.every(value=>String(value).toLowerCase()==='geoapify'))return requestViewport(options);
+    const {bounds,center,radiusMeters,requestOptions,...filters}=options;
+    if(!bounds||!center)return requestViewport(options);
+    const stable=value=>Array.isArray(value)?value.map(stable):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,stable(value[key])])):value;
+    const signature=JSON.stringify(stable(filters)),key=signature+JSON.stringify(bounds),now=Date.now();
+    for(const [id,entry] of viewportCache){
+      if(now-entry.at>VIEWPORT_TTL){viewportCache.delete(id);continue}
+      if(entry.signature!==signature||!(id===key||(entry.complete&&containsBounds(entry.result.viewport.bounds,bounds))))continue;
+      const places=freezeArray(entry.result.places.filter(place=>{const c=place.coordinates||place.location||{},lat=Number(c.latitude??c.lat),lng=Number(c.longitude??c.lng);return lat>=bounds.south&&lat<=bounds.north&&lng>=bounds.west&&lng<=bounds.east}));
+      return Object.freeze({...entry.result,places,count:places.length,viewport:Object.freeze({bounds:Object.freeze({...bounds}),center:Object.freeze({...center})}),tiles:Object.freeze({...entry.result.tiles,requested:0,fulfilled:0}),cache:Object.freeze({hit:true,ageMs:now-entry.at})});
+    }
+    if(viewportPending.has(key))return viewportPending.get(key);
+    const pending=requestViewport(options).then(result=>{
+      // A full page is potentially truncated; it cannot prove coverage of a
+      // different rectangle. Exact repeated reads may still reuse that page.
+      const complete=result.tiles.complete===true;
+      viewportCache.set(key,{signature,result,complete,at:Date.now()});
+      while(viewportCache.size>32)viewportCache.delete(viewportCache.keys().next().value);
+      return result;
+    }).finally(()=>viewportPending.delete(key));
+    viewportPending.set(key,pending);return pending;
+  }
+  async function requestViewport(options={}){
     const bounds=options.bounds||{},center=options.center||{};
     if(![bounds.south,bounds.west,bounds.north,bounds.east,center.latitude,center.longitude].every(value=>Number.isFinite(Number(value))))throw new Error('PLACES_VIEWPORT_REQUIRED');
     const viewport={south:Number(bounds.south),west:Number(bounds.west),north:Number(bounds.north),east:Number(bounds.east)},midLatitude=(viewport.south+viewport.north)/2,midLongitude=(viewport.west+viewport.east)/2;
@@ -93,7 +119,7 @@
     if(!successful.length)throw settled.find(result=>result.status==='rejected')?.reason||new Error('PLACES_VIEWPORT_UNAVAILABLE');
     const byId=new Map();for(const result of successful)for(const place of result.value.places){const id=clean(place?.providerPlaceId||place?.id)?.replace(/^places\//,'');const point=place?.coordinates||place?.location||{};if(!id||!Number.isFinite(Number(point.latitude??point.lat))||!Number.isFinite(Number(point.longitude??point.lng))||Number(point.latitude??point.lat)<viewport.south||Number(point.latitude??point.lat)>viewport.north||Number(point.longitude??point.lng)<viewport.west||Number(point.longitude??point.lng)>viewport.east)continue;if(!byId.has(id))byId.set(id,place)}
     const places=freezeArray([...byId.values()].slice(0,viewportLimit)),providerDiagnostics=freezeArray(successful.map(result=>Object.freeze(result.value.response?.data?.providers||{})));
-    return Object.freeze({places,count:places.length,viewport:Object.freeze({bounds:Object.freeze(viewport),center:Object.freeze({latitude:Number(center.latitude),longitude:Number(center.longitude)})}),tiles:Object.freeze({requested:tiles.length,fulfilled:successful.length,providerPageSize,maximumUniqueResults:viewportLimit,strategy:geoapifyOnly?'single-rectangle-geoapify':'four-tile-legacy'}),providerDiagnostics});
+    return Object.freeze({places,count:places.length,viewport:Object.freeze({bounds:Object.freeze(viewport),center:Object.freeze({latitude:Number(center.latitude),longitude:Number(center.longitude)})}),tiles:Object.freeze({requested:tiles.length,fulfilled:successful.length,providerPageSize,maximumUniqueResults:viewportLimit,complete:successful.length===tiles.length&&successful.every(result=>result.value.places.length<providerPageSize),strategy:geoapifyOnly?'single-rectangle-geoapify':'four-tile-legacy'}),providerDiagnostics});
   }
   async function suggestDestinations(query,options={}){
     const api=gateway();

@@ -137,9 +137,10 @@
     if(!Number.isFinite(score)||score<=0||score>100||!Number.isFinite(coverage)||coverage<=0||!reasons.length)return null;
     return score;
   }
+  function isPreferredPlace(place){return place?.preferenceDiscoveryMatch===true||(place?.preferenceDiscoveryMatch==null&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState==='satisfied')}
   function preferredPlaceIds(source=state.results){
     return new Set((Array.isArray(source)?source:[])
-      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState==='satisfied')
+      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&isPreferredPlace(place))
       .map(providerId));
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&Number.isFinite(Number(place?.distanceMeters));
@@ -166,27 +167,28 @@
     return /vegan/.test(raw)?'Vegan':/vegetar/.test(raw)?'Vegetarisch':'';
   }
   function requiresVegetarianEvidence(){
-    return state.category==='food'&&Boolean(state.filters.vegetarian||/^(?:Vegetarisch|Vegan)$/.test(profileDietaryFocus()));
+    return state.category==='food'&&Boolean(state.filters.vegetarian);
   }
   function hasVegetarianProviderEvidence(place){
     const types=placeTypeSet(place),text=clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...types].join(' ')).toLowerCase();
     return place?.features?.servesVegetarianFood===true||types.has('vegetarian_restaurant')||types.has('vegan_restaurant')||/vegetar|vegan|plant[ _-]?based|pflanzenk[uü]che/.test(text);
   }
   function activeSearchDefinition(){
-    const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'?profileDietaryFocus():'';
+    const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'&&state.filters.vegetarian?'Vegetarisch':'';
     const guided=[dietary,...labels,state.category==='food'&&labels.length?'Restaurant':''].filter(Boolean).join(' ');
     const query=[clean(state.userQuery),guided].filter(Boolean).join(' ')||definition.query;
     return{...definition,includedType:selected.length===1?selected[0]:'',includedTypes:selected,query};
   }
   function notify(message,type='success'){globalThis.LuviaUIKit?.toast?.(message,{type})}
 
-  function decoratePreferences(items,trip=state.trip){
+  function decoratePreferences(items,trip=state.trip,{category=state.category,query=state.query}={}){
     const places=Array.isArray(items)?items:[],contract=globalThis.LuviaIntelligenceContractV1,context=preferenceContext()?.snapshot?.()||{};
     const resolver=contract?.reads?.resolveTripPreferences||contract?.resolveTripPreferences,ranker=contract?.reads?.rankPlaceCandidates||contract?.rankPlaceCandidates;
     if(typeof resolver!=='function'||typeof ranker!=='function'||!places.length)return places;
     try{
-      const payload={profilePreferences:context.profilePreferences||{},tripComposition:context.tripComposition||{},trip:context.trip||trip||{}},resolution=resolver(payload),ranked=ranker({...payload,resolution,candidates:places,query:state.query,category:state.category}),byId=new Map((ranked?.places||[]).map(place=>[providerId(place),place]));
-      return places.map(place=>byId.get(providerId(place))||place);
+      const payload={profilePreferences:context.profilePreferences||{},tripComposition:trip?.composition||context.tripComposition||{},trip:trip||context.trip||{}},resolution=resolver(payload),ranked=ranker({...payload,resolution,candidates:places,query,category}),byId=new Map((ranked?.places||[]).map(place=>[providerId(place),place]));
+      const blocked=new Set(ranked?.meta?.blockedProviderPlaceIds||[]);
+      return places.map(place=>byId.get(providerId(place))||(blocked.has(providerId(place))?{...place,preferenceDiscoveryMatch:false,preferenceConstraintState:'blocked'}:place));
     }catch{return places}
   }
   function mergeKnownPreferenceEvidence(items,knownItems=state.results){
@@ -213,8 +215,8 @@
     // already verified preference facts for the same immutable provider identity
     // before ranking again, otherwise switching to "Passend" can lose pins that
     // were verified by the richer discovery response moments earlier.
-    const candidates=mergeKnownPreferenceEvidence((response?.places||[]).slice(0,MAX_RESULTS));
-    const rows=decoratePreferences(candidates,trip);
+    const candidates=mergeKnownPreferenceEvidence((response?.places||[]).slice(0,MAX_RESULTS),category===state.category?state.results:[]);
+    const rows=decoratePreferences(candidates,trip,{category,query});
     return rows.filter(place=>(!vegetarianOnly||hasVegetarianProviderEvidence(place))&&(!reservableOnly||place.features?.reservable===true)&&(!accessibleOnly||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&placeMatchesActiveCategory(place,category));
   }
 
@@ -278,7 +280,7 @@
     if(categoryChanged)clearVisibleCategoryResults({message:`${categoryDefinition().label} wird geladen · vorherige Pins werden entfernt.`});
     else if(!silent||!state.results.length){
       state.status='loading';
-      if(state.results.length&&state.mapProjection)projectionRefreshState(state.root?.querySelector('[data-places-map]'),true,'Neue Orte werden geladen · die aktuelle Karte bleibt sichtbar.');
+      if(state.mapProjection)projectionRefreshState(state.root?.querySelector('[data-places-map]'),true,'Neue Orte werden geladen · die aktuelle Karte bleibt sichtbar.');
       else render();
     }
     try{
@@ -300,7 +302,7 @@
         destinationContext:geography,
         candidateLimit:60,
         limit:MAX_RESULTS,
-        profilePreferences:context.profilePreferences||{},
+        profilePreferences:{},
         tripComposition:context.tripComposition||{},
         trip:state.trip,
         momentContext:state.planningDraft||null,
@@ -424,7 +426,7 @@
       <button type="button" data-places-map-tool="search" aria-label="Orte suchen" aria-pressed="${state.mapPanel==='search'}" title="Suchen">${icon('search')}</button>
       <button type="button" data-places-map-tool="categories" aria-label="Place-Kategorie auswählen" aria-pressed="${state.mapPanel==='categories'}" title="Kategorien">${icon('grid')}</button>
       <button type="button" data-places-map-tool="filter" aria-label="Ergebnisse filtern${filterCount?` · ${filterCount} aktiv`:''}" aria-pressed="${state.mapPanel==='filter'}" title="Filter">${icon('filter')}${filterCount?`<span class="lv-places-spatial__map-tool-count">${filterCount}</span>`:''}</button>
-      <span class="lv-places-spatial__legend-anchor"><button type="button" class="lv-places-spatial__legend-trigger" aria-label="Kartenlegende" aria-describedby="places-map-legend" title="Legende">${icon('info')}</button><span class="lv-places-spatial__legend" id="places-map-legend" role="tooltip"><b>So liest du die Karte</b><span>Die Pinfarben folgen dem vollständigen Luvia-Kompass. „Passt“ erscheint nur bei belegten Vorlieben und erfüllten festen Anforderungen. „Alle“ zeigt auch noch ungeklärte Orte.</span></span></span>
+      <span class="lv-places-spatial__legend-anchor"><button type="button" class="lv-places-spatial__legend-trigger" aria-label="Kartenlegende" aria-describedby="places-map-legend" title="Legende">${icon('info')}</button><span class="lv-places-spatial__legend" id="places-map-legend" role="tooltip"><b>So liest du die Karte</b><span>Die Pinfarben folgen dem vollständigen Luvia-Kompass. „Passend“ zeigt Orte mit belegten Profiltreffern. Offene Eigenschaften wie Kinderwagenzugang stehen in den Details. „Alle“ zeigt die gesamte Kategorie.</span></span></span>
     </div>`;
   }
   function mapDiscoveryPanelsMarkup(){
@@ -495,10 +497,14 @@
     const image=state.images.get(providerId(place))||place?.image||null;
     return clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri||place?.photoUri||place?.imageUrl);
   }
+  function categoryPlaceholder(category='places',compact=false){
+    const slots={food:0,activities:1,themeparks:2,wellness:3,water:4,sights:5,sightseeing:5,photo:6,culture:7,nature:8,shopping:9,malls:10,nightlife:11,practical:12,accommodation:13,cafe:14,places:15},slot=slots[category]??15;
+    return `<span class="lv-category-image${compact?' is-compact':''}" role="img" aria-label="Kategorieillustration · kein Foto dieses Ortes" style="background-position:${(slot%4)*100/3}% ${Math.floor(slot/4)*100/3}%"><small>Illustration</small></span>`;
+  }
   function mapPreviewMarkup(place=findPlace(state.selectedId)){
     const imageUrl=mapPreviewImage(place);
     if(!place)return'<span class="lv-places-spatial__map-preview-empty">Pin auswählen</span>';
-    return `<span class="lv-places-spatial__map-preview-cue" aria-hidden="true"><i></i><i></i><i></i></span><button type="button" class="lv-places-spatial__map-preview-open" data-places-preview-open value="${esc(providerId(place))}" aria-label="Details zu ${esc(place.name||'ausgewähltem Ort')} öffnen oder nach oben ziehen">${imageUrl?`<img src="${esc(imageUrl)}" alt="${esc(place.name||'Ausgewählter Ort')}" loading="eager" fetchpriority="high" decoding="async">`:''}<span><small>${esc(placeCategoryLabel(place))}</small><strong>${esc(place.name||'Ausgewählter Ort')}</strong></span></button>`;
+    return `<span class="lv-places-spatial__map-preview-cue" aria-hidden="true"><i></i><i></i><i></i></span><button type="button" class="lv-places-spatial__map-preview-open" data-places-preview-open value="${esc(providerId(place))}" aria-label="Details zu ${esc(place.name||'ausgewähltem Ort')} öffnen oder nach oben ziehen">${imageUrl?`<img src="${esc(imageUrl)}" alt="${esc(place.name||'Ausgewählter Ort')}" loading="eager" fetchpriority="high" decoding="async">`:categoryPlaceholder(state.category,true)}<span><small>${esc(placeCategoryLabel(place))}</small><strong>${esc(place.name||'Ausgewählter Ort')}</strong></span></button>`;
   }
   function refreshMapPreview(){
     const preview=state.root?.querySelector('.lv-places-spatial__map-preview');
@@ -580,7 +586,7 @@
       </header>
       <div class="lv-places-spatial__canvas">
         <section class="lv-places-spatial__map" data-place-map-shell aria-label="Geografisch genaue Luvia-Karte">
-          <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Räumliche Ergebnisansicht</span></div>
+          <div class="lv-places-spatial__map-fallback" data-places-map-fallback aria-hidden="true"><i></i><i></i><i></i><span>${icon('map')} Karte wird geladen …</span></div>
           <div class="lv-places-spatial__map-engine" data-places-map role="group" aria-label="Karte mit ${view.counts.markers} koordinatenverifizierten Orten"></div>
           <div class="lv-places-spatial__map-message" data-places-map-message role="status" aria-live="polite" data-state="${view.status.kind==='error'?'unavailable':'loading'}"><i></i><span>${view.status.kind==='error'?esc(view.status.message):'Karte wird aus den echten Ortskoordinaten aufgebaut …'}</span></div>
           ${mapProviderStateMarkup(view)}
@@ -688,7 +694,7 @@
     button.addEventListener('click',()=>onSelect?.(marker.providerPlaceId,marker));
     return markerAnchor(marker,button);
   }
-  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
+  function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,category=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
     let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
@@ -699,7 +705,7 @@
     if(!globalThis.maplibregl){projectionState(container,'unavailable','MapLibre ist gerade nicht verfügbar: Die verifizierte Liste bleibt verfügbar.');return Object.freeze({view,map:null,destroy})}
     try{
       const compactMap=globalThis.matchMedia?.('(max-width: 800px)')?.matches,first=fallbackCenter||view.markers[0];
-      map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:0,interactive:true,attributionControl:true,fadeDuration:reducedMotion()||compactMap?0:320});
+      map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:0,interactive:true,attributionControl:{customAttribution:'Orte: <a href="https://www.geoapify.com/" target="_blank" rel="noopener">Geoapify</a>'},fadeDuration:reducedMotion()||compactMap?0:320});
       installMissingStyleImageFallback(map,current);
       map.addControl(new globalThis.maplibregl.NavigationControl({showCompass:false,showZoom:true}),'top-left');
       const replaceMarkers=nextPlaces=>{
@@ -726,7 +732,7 @@
             const bounds=descriptor.bounds;
             const incoming=(Array.isArray(raw)?raw:[]).filter(place=>{
               const c=COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location);
-              return c&&c.latitude>=bounds.south&&c.latitude<=bounds.north&&c.longitude>=bounds.west&&c.longitude<=bounds.east&&placeMatchesActiveCategory(place);
+              return c&&c.latitude>=bounds.south&&c.latitude<=bounds.north&&c.longitude>=bounds.west&&c.longitude<=bounds.east&&placeMatchesActiveCategory(place,category||state.category);
             });
             // Keep the full candidate cohort, project fit only for rendering.
             // A successful empty read replaces old pins just like a nonempty read.
@@ -742,8 +748,8 @@
           }
         },350);
       };
-      map.on('load',()=>{
-        if(!current())return;
+      const onMapReady=()=>{
+        if(!current()||mapReady)return;
         mapReady=true;
         styleCorporateMap(map);
         replaceMarkers(currentPlaces);
@@ -763,7 +769,8 @@
         }
         if(typeof onViewportSearch==='function'){map.on('moveend',queueViewportSearch);map.on('dragend',queueViewportSearch);map.on('zoomend',queueViewportSearch);}
         setTimeout(()=>{if(current())map.resize()},100);
-      });
+      };
+      map.on('style.load',onMapReady);map.on('load',onMapReady);
       map.on('error',event=>{if(!current())return;if(!mapReady&&!map.loaded())projectionState(container,'unavailable','Kartendaten sind noch nicht verfügbar.');else if(event?.error)projectionRefreshState(container,false,'Ein Teil der Kartendaten lädt verzögert · Karte und vorhandene Pins bleiben sichtbar.')});
       disconnectObserver=new MutationObserver(()=>{if(!container.isConnected)destroy()});
       disconnectObserver.observe(document.documentElement,{childList:true,subtree:true});
@@ -982,6 +989,8 @@
     state.filterSection=null;
     state.category=def.key;
     state.query=def.query;
+    const filterTitle=state.root?.querySelector('[data-places-map-panel="filter"] .lv-places-spatial__map-panel-head small');
+    if(filterTitle)filterTitle.textContent=`Filter · ${def.label}`;
     state.root?.querySelectorAll('[data-places-category]').forEach(button=>{
       const on=button.dataset.placesCategory===def.key;
       button.classList.toggle('is-active',on);
@@ -1074,7 +1083,7 @@
     })||null;
     render();
     bindPreferenceRefresh();
-    loadSaved(lifecycleToken).then(changed=>{if(changed&&lifecycleToken===state.lifecycleToken&&state.root===root)render()});
+    loadSaved(lifecycleToken).then(changed=>{if(changed&&lifecycleToken===state.lifecycleToken&&state.root===root)updateFilteredMap()});
     await Promise.resolve();
     if(lifecycleToken!==state.lifecycleToken||state.root!==root)return false;
     if(!state.offline)search({focus:false});
@@ -1098,5 +1107,5 @@
   }
   function diagnostics(){return{version:VERSION,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,viewportSearch,decoratePreferences,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,search,viewportSearch,decoratePreferences,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();
