@@ -1,9 +1,11 @@
-# Cuisine coverage — Integration candidate — 13.82.168.31
+# Cuisine coverage — Integration deployed — 13.82.168.31
 
 Adds Asian cuisine with evidenced child categories, truthful empty-result scope,
 and explicit 5 km destination search. Baseline c7d7120f. No implicit Chinese or
-vegetarian evidence. Local behavioral tests passed; deployment/public acceptance
-pending. See PCR-CUISINE-COVERAGE-20260904.md.
+vegetarian evidence. Source 1d4a2c53, Worker c56d03ac-a502-488e-b642-a27e0aa11353,
+gateway v150 ACTIVE. Regression 208/208 plus final scope checks; public assets
+16/16 match. Visible Asian 5 km = Sai Gon, Hay-Cheng, Samoa; Chinese = Hay-Cheng.
+See [acceptance](docs/modularization/CUISINE-COVERAGE-ACCEPTANCE-20260904.md).
 
 # Cuisine filters and shared map pins — Integration deployed — 13.82.168.30
 
