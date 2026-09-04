@@ -36,7 +36,8 @@ assert.match(runtimeSource,/preferenceOwner:'identity\.v1'/,'Places discovery mu
 assert.match(dashboard,/data-ai-place-open/,'each inline Place result must expose the shared typed detail sheet');
 assert.match(dashboard,/data-ai-place-map/,'each Places response must expose a shared MapLibre projection');
 assert.match(dashboard,/data-map-renderer="maplibre"/,'the inline map must retain an inspectable renderer contract without technical consumer copy');
-assert.match(dashboard,/Luvia Karte · Live-Kartenausschnitt/,'the inline map must visibly use the shared Luvia viewport contract');
+assert.match(dashboard,/Luvia Karte · Deine Suche/,'the inline map must preserve the original discovery request');
+assert.match(dashboard,/readPlaceViewport\(result,descriptor\)/,'map gestures must reuse the original query and evidence gates');
 assert.match(dashboard,/result\.kind==='place_collection'\?placeMapMarkup\(result\):/,'the inline AI Places result must not duplicate pins in a separate result grid');
 assert.match(dashboard,/\.slice\(0,3\)/,'each wish must render no more than three Places cards');
 assert.match(dashboard,/data-ai-place-detail-layer/,'AI Place selection must preserve the chat and open a second Living Sheet');

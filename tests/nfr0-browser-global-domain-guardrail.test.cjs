@@ -29,7 +29,7 @@ const patterns = [
   // Treat the browser global `location` and `window.location` as debt, but do
   // not mistake an ordinary domain value such as `place.location` for a
   // browser dependency.
-  ['LOCATION', /(?<![A-Za-z0-9_$.'"])(?:window\.)?location\b/g],
+  ['LOCATION', /(?<![A-Za-z0-9_$.'"])(?:window\.)?location\b(?!\s*:)/g],
   ['HISTORY', /(?<![A-Za-z0-9_$])(?:window\.)?history\.(?:pushState|replaceState|back|forward|go|state|length|scrollRestoration)\b/g],
   ['MATCH_MEDIA', /\bmatchMedia\s*\(/g],
   ['GEOLOCATION', /\bgeolocation\b/g],
@@ -128,6 +128,11 @@ const allowed = new Set([
 ]);
 
 const currentDebt = {};
+
+// Domain coordinates in an object key are not the browser Location global.
+const locationPattern=patterns.find(([token])=>token==='LOCATION')[1];
+assert.equal('const destination={location:center};'.match(locationPattern),null);
+assert.equal('location.href; window.location.reload();'.match(locationPattern)?.length,2);
 
 for (const file of files) {
   if (

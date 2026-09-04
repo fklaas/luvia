@@ -118,6 +118,20 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.deepEqual(JSON.parse(JSON.stringify(profiledRecommend[1].preferences)),{dietaryPreferences:['vegetarian'],travelPace:'balanced'});
   assert.equal(profiledRecommend[1].query,'A suitable restaurant');
 
+  const viewport={center:{latitude:54.02,longitude:10.75},bounds:{south:54.01,north:54.03,west:10.74,east:10.76},radiusMeters:1500};
+  const refreshed=await runtime.readPlaceViewport(profiledPlaces.results[0],viewport);
+  const viewportRequest=calls.filter(call=>call[0]==='recommend').at(-1)[1];
+  assert.equal(viewportRequest.query,'A suitable restaurant');
+  assert.equal(viewportRequest.strictPlaceType,'restaurant');
+  assert.equal(viewportRequest.requirePreferenceEvidence,true);
+  assert.equal(viewportRequest.fastPath,true);
+  assert.equal(viewportRequest.destinationContext.viewport.north,54.03);
+  assert.equal(viewportRequest.maxDistanceMeters,1500);
+  assert.equal(viewportRequest.preferences.dietaryPreferences[0],'vegetarian');
+  assert.ok(refreshed.items[0].actions.some(action=>action.actionId==='places.place.favorite'));
+  assert.ok(refreshed.items[0].actions.some(action=>action.actionId==='places.place.plan'));
+  await assert.rejects(()=>runtime.readPlaceViewport({...profiledPlaces.results[0],evidence:{...profiledPlaces.results[0].evidence,tripId:'old-trip'}},viewport),error=>error.code==='PLACES_SEARCH_CONTEXT_EXPIRED');
+
   const explicitPlaces=await runtime.runMessage('Find a vegan restaurant.',{compiledIntent:{
     contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'read',clause:'A vegan restaurant',categoryHints:['food'],temporalHint:{},entityHints:{preferencePatch:{dietaryPreferences:['vegan']}},missingInputs:[]}]
   }});

@@ -44,18 +44,18 @@ for(const asset of ['luvia-logo.svg','favicon.svg','favicon.ico','icon-192.png',
 }
 
 assert.match(version,/core:'4\.82\.168'/);
-assert.match(version,/build:'13\.82\.168\.38'/);
+assert.match(version,/build:'13\.82\.168\.39'/);
 assert.match(version,/name:'M16\.5 Places and Stays Quality'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.match(worker,/const CACHE='luvia-shell-v13.82.168.38-local-recovery'/);
+assert.match(worker,/const CACHE='luvia-shell-v13.82.168.39-local-recovery'/);
 assert.equal(index.includes('?v=13.82.49'),false,'active entry must not retain the previous runtime cache key');
-assert.ok(index.includes('app/app-shell.js?v=13.82.168.38'));
-assert.ok(index.includes('app/today/today-experience.js?v=13.82.168.38'));
-assert.ok(index.includes('core/experience/experience-contract-core.js?v=13.82.168.38'));
+assert.ok(index.includes('app/app-shell.js?v=13.82.168.39'));
+assert.ok(index.includes('app/today/today-experience.js?v=13.82.168.39'));
+assert.ok(index.includes('core/experience/experience-contract-core.js?v=13.82.168.39'));
 
 for(const file of ['luvia-logo.svg','favicon.svg','favicon.ico','icon-192.png','icon-512.png','manifest.webmanifest','docs/modularization/PCR-M16.5G-GLOBAL-LIVING-COMPASS-RELEASE.md','tests/m16.5g-global-living-compass-release.test.cjs'])assert.ok(ownership.includes(file),`ownership registry misses ${file}`);
 assert.match(pcr,/No schema, RPC, RLS, bucket, Edge Function or secret mutation/);
 
 console.log('M16.5G Global Living Compass / Platform release: PASS');
 console.log('Root logo / favicon / PWA icons: OFFICIAL COMPASS');
-console.log('App / Core: 13.82.168.38 / 4.82.168');
+console.log('App / Core: 13.82.168.39 / 4.82.168');
