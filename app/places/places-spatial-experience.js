@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.0-search-error-continuity';
+  const VERSION='1.31.1-provider-partial-continuity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -233,7 +233,7 @@
   function attachViewportTrace(rows,trace){try{Object.defineProperty(rows,'viewportTrace',{value:trace,enumerable:false})}catch{}return rows}
   function publishTraceToHost(host,trace){
     if(!host)return;
-    const values={searchKind:trace?.kind,searchCategory:trace?.category,searchViewport:trace?.viewportKey,searchRequestId:trace?.requestId,searchProvider:trace?.provider,searchCache:trace?String(Boolean(trace.cacheHit)):null,searchDurationMs:trace?.durationMs==null?null:String(trace.durationMs),searchResultCount:trace?.resultCount==null?null:String(trace.resultCount),searchAttempt:trace?.attempt};
+    const values={searchKind:trace?.kind,searchCategory:trace?.category,searchViewport:trace?.viewportKey,searchRequestId:trace?.requestId,searchProvider:trace?.provider,searchCache:trace?String(Boolean(trace.cacheHit)):null,searchDurationMs:trace?.durationMs==null?null:String(trace.durationMs),searchResultCount:trace?.resultCount==null?null:String(trace.resultCount),searchAttempt:trace?.attempt,searchError:trace?.errorCode};
     for(const [key,value] of Object.entries(values)){if(value==null||value==='')delete host.dataset[key];else host.dataset[key]=value}
   }
   function publishSearchTrace(trace=state.lastSearchTrace){
@@ -243,7 +243,7 @@
   async function viewportSearch({bounds,center,radiusMeters,key='',query='Orte',userQuery='',type='custom',includedType='',includedTypes=[],category=state.category,trip=state.trip,providers=['auto'],openNow=false,minRating=null,minUserRatingCount=0,priceLevels=[],vegetarianOnly=false,reservableOnly=false,accessibleOnly=false,forceRefresh=false,continuityAttempt='initial',continuityEligible=null}={}){
     const reader=placesContract()?.reads?.searchViewport;
     if(!bounds||!center||typeof reader!=='function')throw Object.assign(new Error('Places viewport search is not ready.'),{code:'PLACES_VIEWPORT_UNAVAILABLE'});
-    const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,category,userQuery,query:clean(query)||'Orte',includedType,includedTypes,strictTypeFiltering:Boolean(includedType||includedTypes.length),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,reservableOnly,accessibleOnly,forceRefresh,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
+    const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,category,userQuery,query:clean(query)||'Orte',includedType,includedTypes,strictTypeFiltering:Boolean(includedType||includedTypes.length),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,reservableOnly,accessibleOnly,forceRefresh,sortBy:'relevance',requestOptions:{timeoutMs:10000}});
     // A viewport refresh may return a deliberately lean provider projection. Keep
     // already verified preference facts for the same immutable provider identity
     // before ranking again, otherwise switching to "Passend" can lose pins that
@@ -254,8 +254,13 @@
   }
   const CONTINUITY_RETRY_CATEGORIES=new Set(['food','activities','nature','shopping','accommodation']);
   function shouldRetryEmptyViewport(options={}){const unfiltered=typeof options.continuityEligible==='boolean'?options.continuityEligible:activeFilterCount()===0;return CONTINUITY_RETRY_CATEGORIES.has(options.category||state.category)&&!clean(options.userQuery)&&unfiltered}
+  function transientViewportFailure(error){const code=clean(error?.code);return [502,503,504].includes(Number(error?.status))||/BACKEND_TIMEOUT|NETWORK_UNAVAILABLE|PLACES_(?:ALL_PROVIDERS_FAILED|PROVIDER_READ_UNAVAILABLE)|PROVIDER_(?:TRANSPORT_ERROR|READ_UNAVAILABLE)/.test(code)}
   async function viewportSearchWithContinuity(options={},isCurrent=()=>true){
-    const first=await viewportSearch(options);
+    let first;
+    try{first=await viewportSearch(options)}catch(error){
+      if(!isCurrent()||!shouldRetryEmptyViewport(options)||!transientViewportFailure(error))throw error;
+      return viewportSearch({...options,forceRefresh:true,continuityAttempt:'transient-retry'});
+    }
     if(first.length||!isCurrent()||!shouldRetryEmptyViewport(options))return first;
     return viewportSearch({...options,forceRefresh:true,continuityAttempt:'empty-retry'});
   }
@@ -364,7 +369,7 @@
         maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,
         sortBy:'distance'
       };
-      const response=state.activeViewport&&preserveMap?{places:await viewportSearchWithContinuity({...state.activeViewport,...activeDefinition,category:state.category,trip:state.trip,userQuery:state.userQuery,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels},()=>token===state.requestToken)}:await contract.reads.recommend({...request,providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
+      const response=state.activeViewport&&preserveMap?{places:await viewportSearchWithContinuity({...state.activeViewport,query:activeDefinition.query,type:activeDefinition.primaryType,includedType:activeDefinition.includedType,includedTypes:activeDefinition.includedTypes||[],category:state.category,trip:state.trip,userQuery:state.userQuery,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels},()=>token===state.requestToken)}:await contract.reads.recommend({...request,providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
       if(token!==state.requestToken)return false;
       const raw=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),state.trip)
         .map(place=>({...place,distanceReference:positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':'destination'}))
@@ -409,6 +414,7 @@
         state.selectedId=null;
         state.error={userMessage:error?.publicMessage||null,code:error?.code||'PLACES_SEARCH_FAILED',status:Number(error?.status)||null};
         state.status='error';
+        publishSearchTrace(Object.freeze({kind:'viewport',category:state.category,viewportKey:state.activeViewport?.key||'',resultCount:0,attempt:'error',errorCode:state.error.code,requestId:error?.requestId||'',provider:'',cacheHit:false,durationMs:null}));
         if(state.mapProjection){
           try{state.mapProjection.update?.([])}catch{}
           const mapHost=state.root?.querySelector?.('[data-places-map]');

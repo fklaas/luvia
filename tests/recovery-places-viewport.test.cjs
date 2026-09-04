@@ -60,7 +60,7 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const shopping={...row('Shopping recovered',54.15),primaryType:'store',types:['store','commercial']};
  ctx.LuviaPlacesContractV1={reads:{recommend:()=>new Promise(resolve=>finishDestination=resolve),searchViewport:async options=>{viewportOptions.push(options);return{places:options.forceRefresh?[shopping]:[]}}}};
  const slowDestination=ctx.LuviaPlacesSpatialExperience.search({category:'food',preserveMap:true});
- const camera={bounds:{south:54.1,north:54.2,west:10.7,east:10.8},center:{latitude:54.15,longitude:10.75},radiusMeters:5000};
+ const camera={bounds:{south:54.1,north:54.2,west:10.7,east:10.8},center:{latitude:54.15,longitude:10.75},radiusMeters:5000,key:'54.1000:10.7000:54.2000:10.8000'};
  ctx.recovery.beginViewportIntent(camera);st.results=[row('New viewport',54.15)];
  finishDestination({places:[row('Old destination')]});assert.equal(await slowDestination,false);assert.equal(st.results[0].name,'New viewport','late destination response cannot replace current viewport pins');
  await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
@@ -68,6 +68,11 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  assert.equal(viewportOptions[0].bounds,camera.bounds,'category switch uses new viewport before a viewport response has completed');assert.equal(viewportOptions[0].category,'shopping');
  assert.equal(viewportOptions[1].forceRefresh,true,'continuity retry bypasses browser and gateway cache');
  assert.equal(st.results[0].name,'Shopping recovered');assert.equal(traceMap.dataset.searchAttempt,'empty-retry');assert.equal(traceMap.dataset.searchResultCount,'1');
+ viewportOptions=[];let transient=true;ctx.LuviaPlacesContractV1.reads.searchViewport=async options=>{viewportOptions.push(options);if(transient){transient=false;throw Object.assign(new Error('provider interrupted'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',status:503})}return{places:[shopping]}};
+ await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
+ assert.equal(viewportOptions.length,2,'an unfiltered transient provider interruption gets one bounded continuity retry');
+ assert.equal(viewportOptions[1].forceRefresh,true);assert.equal(st.results[0].name,'Shopping recovered');assert.equal(traceMap.dataset.searchAttempt,'transient-retry');
+ assert.equal(traceMap.dataset.searchViewport,camera.key,'the trace retains the camera viewport key instead of the category key');
  viewportOptions=[];st.filters.types=['shopping_mall'];ctx.LuviaPlacesContractV1.reads.searchViewport=async options=>{viewportOptions.push(options);return{places:[]}};
  await ctx.LuviaPlacesSpatialExperience.search({category:'shopping',query:'Shopping',preserveMap:true,replaceCategory:true});
  assert.equal(viewportOptions.length,1,'a legitimately empty filtered viewport must not spend a continuity retry');st.filters.types=[];

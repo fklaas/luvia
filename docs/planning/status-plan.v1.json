@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
   "sourceBaseline": "8ed41a3e250a82fe6bb9c9a0d37fe399f797712b",
-  "app": "13.82.168.50",
-  "core": "4.82.172",
+  "app": "13.82.168.51",
+  "core": "4.82.173",
   "runtimeSource": "8ed41a3e250a82fe6bb9c9a0d37fe399f797712b",
   "worker": "71ad570f-e4a3-42ed-b13f-0f504bfea4e5",
   "gateway": "v161 ACTIVE",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.50 / Core 4.82.172 auf der stabilen Integration veröffentlicht; unveränderliches Quellarchiv 8ed41a3e250a mit SHA-256 FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE, Worker 71ad570f, 217/217 Safe Regression und 30/30 öffentliche Dateihashes belegt. Der angemeldete stabile Reload zeigte die zwei realen Ostseeurlaub-Momente und keinen falschen fertigen „0 Momente“-Zustand. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.",
+      "evidence": "13.82.168.51 / Core 4.82.173 auf der stabilen Integration veröffentlicht; unveränderliches Quellarchiv 8ed41a3e250a mit SHA-256 FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE, Worker 71ad570f, 217/217 Safe Regression und 30/30 öffentliche Dateihashes belegt. Der angemeldete stabile Reload zeigte die zwei realen Ostseeurlaub-Momente und keinen falschen fertigen „0 Momente“-Zustand. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.",
       "nextAcceptance": "Beim P02/P03-Slice Quellstand, öffentliche Bytes, stabilen Ladezustand, wiederholte Kategorieergebnisse und einen zum Backend passenden Rückfall erneut belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.50 / Core 4.82.172: unveränderliches Quellarchiv 7eacedc3, QA-Erweiterung be446160, 216/216 Safe Regression und 30/30 öffentliche Asset-Hashes auf der stabilen Integration. Angemeldeter Live-Zyklus mit echter Owner-Mutation, Reload-Recovery, exakter Rücknahme und zweitem Reload bestanden. Main-Frontend, Places-Gateway v161 und Booking-Resolver v18 unverändert.",
+      "evidence": "13.82.168.51 / Core 4.82.173: unveränderliches Quellarchiv 7eacedc3, QA-Erweiterung be446160, 216/216 Safe Regression und 30/30 öffentliche Asset-Hashes auf der stabilen Integration. Angemeldeter Live-Zyklus mit echter Owner-Mutation, Reload-Recovery, exakter Rücknahme und zweitem Reload bestanden. Main-Frontend, Places-Gateway v161 und Booking-Resolver v18 unverändert.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"

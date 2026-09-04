@@ -63,6 +63,10 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  for(const cuisine of ['chinese','thai','vietnamese','sushi']){
   const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:cuisine,name:'Kitchen',lat:54,lon:10,categories:['catering.restaurant',`catering.restaurant.${cuisine}`]}});assert.ok(p.types.includes('asian_restaurant'),`${cuisine} belongs to broader Asian cuisine`);
  }
+ const partialCalls=[];ctx.fetch=async url=>{const u=new URL(url),category=u.searchParams.get('categories');partialCalls.push(category);if(category==='entertainment')throw Object.assign(new Error('supplement unavailable'),{code:'PROVIDER_BUDGET_DENIED',status:503});return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:category,name:category,lat:54.02,lon:10.75,categories:[category]}}]})}};
+ const partialActivities=await ctx.provider.geoapifyPlacesSearch('Aktivitäten Erlebnisse Freizeit',{location:point},{category:'activities',userQuery:'',maxResultCount:50},null,null);
+ assert.deepEqual(partialCalls.sort(),['entertainment','leisure','sport'],'all broad category parents are requested independently');
+ assert.equal(partialActivities.length,2,'one failed broad-category supplement must retain successful sibling results');
  const composition=ctx.LuviaPlacesSpatialCompositionCoreV1;
  const preferencePins=composition.compose({places:[{id:'yes',name:'Yes',coordinates:point,preferenceDiscoveryMatch:true,preferenceConstraintState:'verify'},{id:'no',name:'No',coordinates:point,preferenceDiscoveryMatch:false,preferenceScore:95,preferenceFit:{score:95,coverage:100},preferenceReasons:['generic'],preferenceConstraintState:'satisfied'}],runtime:{status:'ready'}}).markers;
  assert.equal(preferencePins.find(p=>p.providerPlaceId==='yes').preferred,true);assert.equal(preferencePins.find(p=>p.providerPlaceId==='no').preferred,false,'pin badge obeys the same explicit match verdict as Passend');
