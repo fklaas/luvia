@@ -17,7 +17,7 @@ All commercial requests pass through service-role atomic database reservations. 
 | TomTom Search v2 / details | 150 | 1,500 | 25 | Active |
 | TomTom routing | 1,000 | 12,000 | 25 | Active |
 | HeiGIT openrouteservice | 1,200 | — | 20 | Active |
-| HERE search / routing | 0 | 0 | 10, inactive | Disabled: account verification and allowance unconfirmed |
+| HERE shared search / details / routing | 500 | 10000 | 10 | Active after bounded live acceptance; see activation update |
 | Google / Foursquare | 0 | 0 | 10, inactive | Disabled pending product/credit/entitlement confirmation |
 
 These are conservative Luvia limits, not readings from provider billing systems. Shared keys used outside Luvia still require reconciliation. UTC windows are configured. Geoapify reserves ceil(limit/20) search credits, 5 for details and 2 for routing. The deployed TomTom adapter uses Search v2 (public free allowance 2,500/month), not Orbis Discover (a different product/allowance). Routing public allowance is 20,000/month. HeiGIT Standard was visibly confirmed as 0 EUR, Directions 2,000/day and 40/minute. No paid plan was activated.
@@ -26,7 +26,7 @@ These are conservative Luvia limits, not readings from provider billing systems.
 
 All 19 kitchen controls have native category normalization and live TomTom requests around Scharbeutz, radius 5 km. Bounded pages are not complete inventories. Examples: Italian 10, German 20 (page cap), Greek 7, Mediterranean 1, Indian 1, Chinese 1 (Hay-Cheng), Japanese 1, Vietnamese 1, Asian 5. Zero results in a source mean no verified match returned in this scope, not that a cuisine does not exist. The final audit found and fixed TomTom's missing vegan taxonomy falling back to a broad restaurant search. Unsupported cuisine mappings return no unverified results; no API cost is incurred for this unsupported mapping. Selected cuisine evidence also filters unrelated provider rows. A business name cannot establish vegan or vegetarian suitability.
 
-Photo enrichment uses an exact linked Wikidata P18 / Commons file and requires image URL, attribution and license. No stock picture, nearby business or same-name venue is substituted. An unlinked place causes no speculative image-name search. TomTom/HERE search keys are not a general free photo library. Full photo coverage remains unresolved and needs suitable licensed venue/tourism sources. HERE query shaping is fixture-tested; HERE credentials are not live-verified while policy is disabled.
+Photo enrichment uses an exact linked Wikidata P18 / Commons file and requires image URL, attribution and license. No stock picture, nearby business or same-name venue is substituted. An unlinked place causes no speculative image-name search. TomTom/HERE search keys are not a general free photo library. Full photo coverage remains unresolved and needs suitable licensed venue/tourism sources. HERE query shaping is fixture-tested and subsequently live-verified in the activation update below.
 
 ## Verification
 
@@ -59,3 +59,11 @@ Evidence artifacts are in C:/Users/fabia/Documents/ChatGPT/Luvia/outputs: provid
 - [Openrouteservice restrictions](https://openrouteservice.org/restrictions/)
 
 Rollback: return frontend to .36 and redeploy its gateway source, or disable the new provider policies. Keep accounting rows; no destructive migration rollback.
+
+## HERE activation, 2026-09-04 after .37 release
+
+The user's screenshots confirm organization access and a created app. Three bounded authenticated gateway probes succeeded: Chinese browse returned Saigon Asia Bistro (Scharbeutz) and China Restaurant Haycheng (Timmendorfer Strand) within 5 km; WALK returned 369 m / 369 s; BICYCLE returned 522 m / 275 s. All geometry and cuisine evidence passed existing validation. Subsequent detail and Stays probes check the same adapter and shared policy. Evidence: `outputs/here-live-activation37.json` and `outputs/here-final-activation37.json` in the Luvia task output directory.
+
+Migration 20260904170000 combines both old HERE pools into `here-location-services`, active at 500/day, 10000/month, 10/minute. It locks policy ownership and carries forward all prior window counters; retired policies and original usage remain for audit. Transactional rollback-only acceptance verified one active owner, search and routing sharing the same bucket, preserved counters and no authenticated RPC mutation privilege. Frontend .37 and gateway v161 already support this configuration, so neither is redeployed.
+
+The nine additional account screenshots show technical rate rules (e.g. Browse 300/s and Discover 100/s), not included free volumes. Rule descriptions such as Small Paid Segment do not alone establish the user's subscribed billing plan. [HERE's current Limited Plan page](https://www.here.com/get-started/pricing/rps-limits-excluded-use-cases) documents 1000 daily requests for customers without payment information. The Luvia cap is a conservative operational limit based on this public plan; the individual billing tier and external usage remain unverified. No paid plan was enabled. [HERE distinguishes account rate limits](https://docs.here.com/here-kb/docs/where-can-i-find-the-requests-per-second-rps-queries-per-second-qps-limits-for-my-here-account) from [Billing & Usage reports](https://docs.here.com/usage/docs/cost-management-usage-service).

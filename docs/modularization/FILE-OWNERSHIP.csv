@@ -2691,3 +2691,5 @@ docs/modularization/PCR-PROVIDER-BUDGET-ROUTING-20260904.md,Documentation/Releas
 supabase/functions/luvia-gateway/_shared/tomtom-taxonomy.json,Places,Provider Reference,Verified TomTom category IDs without repeated live taxonomy requests
 supabase/functions/luvia-gateway/_shared/here-taxonomy.json,Places,Provider Reference,Official HERE category and food type IDs
 docs/modularization/PROVIDER-BUDGET-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured provider rollout and explicit remaining limits
+docs/modularization/PCR-HERE-ACTIVATION-20260904.md,Documentation/Release History,Documentation,Bounded HERE live acceptance and shared pool activation
+supabase/migrations/20260904170000_here_shared_free_budget.sql,Platform/Places Infrastructure,Database Migration,Shared HERE free budget preserving prior reservations

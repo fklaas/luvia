@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3194,
+    "trackedFiles": 3196,
     "visualCandidates": 963,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
@@ -6693,8 +6693,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 80185,
-      "sha256": "04380a030fc9a687530fc78d04327c681799965b11ce92229bc3f1e3d6f2fd6c"
+      "bytes": 80183,
+      "sha256": "a0674e0696cc85dda697366bf48fa6eb06df4ade2b9ce3475ee8234b8f9cd335"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
