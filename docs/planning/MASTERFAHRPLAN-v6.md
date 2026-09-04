@@ -5,21 +5,22 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.52**, Core **4.82.174**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
+**Zuletzt geliefert:** App .52 stabilisiert den nächsten P02/P03-Teil auf Integration: erfolgreiche Landesküchenfilter sparen den sofortigen 500er-Abruf, echte Nulltreffer dürfen genau eine begrenzte Kohorte nutzen, und fehlgeschlagene Filter können sich nicht mehr hinter alten, unpassenden Rohresultaten als leere fertige Karte verbergen. Sichtbar: Italienisch 7; Kleines Steakhouse ohne Passt; Stays Alle 50 → Passend 14 → Alle 50. Ein ungecachter chinesischer Abruf traf auf den belegten erschöpften Geoapify-Tagespool und zeigte korrekt Fehler plus Wiederholung. Gateway v164, Worker 3fb07cb9, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 
-**Nächster Schritt (GEPLANT): Alle Filter, Landesküchen, Alle/Passend und echte Place-Fotos schließen.** Die asynchrone Kategorie- und Viewport-Kontinuität ist auf Integration belegt. Der nächste offene Nutzerwert liegt jetzt in der inhaltlichen Richtigkeit jedes angebotenen Filters, der Profilpassung und der echten Bildquelle je Place.
+**Nächster Schritt (GEPLANT): Providerübergreifende Filterevidenz, Alle/Passend und echte Place-Fotos schließen.** Die Karten- und Fehlerwahrheit ist stabilisiert. Der sichtbare PROVIDER_BUDGET_DENIED-Nachweis zeigt jetzt die verbleibende Produktlücke: ungecachte Spezialfilter müssen auch bei erschöpftem Primärpool durch gemeinsame Taxonomie, Cache und alternative Gratisanbieter belastbar beantwortet werden.
 
 **Abnahme dieses Schritts:**
 
-- Jede sichtbare Filtermöglichkeit in Places und die entsprechenden Stays-Filter einzeln, kombiniert und nach Reset gegen reale Providerantworten prüfen; alle Landesküchen erhalten positive oder belastbar ehrliche Leerbelege.
+- Jede sichtbare Places-Filteroption und jede Landesküche erhält einen providerübergreifenden Suchplan; positive Treffer, belegte Nulltreffer, Budgetausfall und Reset werden sichtbar sowie über den AI Chat geprüft.
+- Geoapify, TomTom und HERE verwenden kompatible Küchen-/Kategorieevidenz und abgestufte Kosten. Ein erschöpfter Primärpool darf vorhandene frische Evidenz oder einen verfügbaren Alternativanbieter nicht verdecken.
 - Alle und Passend verwenden dieselbe Place-Menge und ausschließlich belegte Profilvorlieben. Ein vegetarisches Profil darf ein fleischzentriertes Steakhouse ohne konkrete vegetarische Angebotsevidenz nicht als passend markieren.
-- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos werden als offener Beschaffungszustand protokolliert; Kategorieplatzhalter werden nicht als echtes Place-Foto ausgegeben.
-- Places und Stays auf sichtbarem Desktop und Mobilgerät mit Reiseziel, Zoom, Ziehen, Kategorie-/Filterwechsel, Ladezeit, Provider-/Cache-Spur und Kontingentverbrauch wiederholt abnehmen.
+- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos bleiben ein sichtbarer Beschaffungszustand und werden nie als echtes Ortsfoto ausgegeben.
+- Places und Stays werden auf sichtbarem Desktop und physischem Mobilgerät mit Reiseziel, Zoom, Ziehen, Filtern, Ladezeit, Cache-/Provider-Spur und Budgetzustand wiederholt abgenommen.
 - Vollständige Safe Regression, 30/30 Byte-Gleichheit, unveränderliches Archiv und exakter Frontend-/Gateway-Rückfall bleiben Releasegate.
 
 **Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** P02/P03: vollständige Filter-, Landesküchen-, Alle/Passend- und echte Place-Foto-Abnahme. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** P02/P03: providerübergreifende Vollabnahme aller Filter und Landesküchen, vollständiges Alle/Passend sowie echte Place-Fotos. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -306,9 +307,9 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.52 / Core 4.82.174 auf der stabilen Integration veröffentlicht; Runtime-Quelle 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip mit SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Worker 47496145, Gateway v163 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar angenommen wurden wiederholte Places-Kategoriezyklen im selben Scharbeutz-Ausschnitt sowie Stays am Reiseziel und nach Zoom. Rückfall ist .50 / Worker 1b4c5bda / Gateway v162 aus release50-b5f14f7fa8fe.zip; Main bleibt c4b6d174 unverändert.
+13.82.168.52 / Core 4.82.174 auf der stabilen Integration veröffentlicht; Runtime-Quelle b12996c4e3c3, unveränderliches Archiv release52-b12996c4e3c3.zip mit SHA-256 6AAA01ADC05DDCDC7BB9A98099D6A74636D8548665E83010B412E2FBF3CE6265, Worker 3fb07cb9, Gateway v164 ACTIVE, 217/217 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar belegt sind Italienisch mit 7 Treffern, ein ehrlicher Providerfehler statt einer maskierten leeren Karte sowie Stays Alle 50, Passend 14 und zurück zu Alle 50. Rückfall ist .51 / Worker 47496145 / Gateway v163 aus release51-6da646bdd774.zip; Main bleibt c4b6d174 unverändert.
 
-**Nächster Abschlussnachweis:** Im nächsten P02/P03-Slice vollständige reale Filter-, Landesküchen-, Alle/Passend- und Place-Foto-Matrix auf demselben unveränderlichen Releaseverfahren belegen; .51 als Rückfall erhalten.
+**Nächster Abschlussnachweis:** Im nächsten P02/P03-Slice die vollständige providerübergreifende Filter-, Landesküchen-, Alle/Passend- und Place-Foto-Matrix belegen; .51 als Rückfall erhalten.
 
 **Erhaltener technischer Umfang:** Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.
 
@@ -316,9 +317,9 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Gateway v163 und App .51 beheben die beobachtete 0/3/45-Diskontinuität an zwei Grenzen: erfolgreiche leere Text-/Viewport-Seiten werden weder server- noch clientseitig zwischengespeichert; breite Kategorien behalten erfolgreiche Geoapify-Eltern, wenn ein paralleler Ergänzungszweig wegen Minutenbudget oder Transport ausfällt. Genau ein cachefreier Neuversuch ist für unerwartet leere oder transiente breite Suchen erlaubt, Filter-Leerstände bleiben ehrlich. Sichtbar im identischen aktiven Scharbeutz-Ausschnitt: Essen 50, Shopping 45, Natur 18, Aktivitäten 7 und direkter Wiederholungswechsel erneut 7; alle mit Viewport, Request-ID, Provider, Cache und Dauer. Stays nutzt denselben Pfad: 49 am Reiseziel, 48 nach Zoom in 1,09 s. Vollständige Filterrealität und echte Fotos jedes Places bleiben offen.
+Gateway v164 und App .52 machen Landesküchenabrufe budgetbewusst: eine erfolgreiche strukturierte Küchensuche verwendet bei 50 Treffern genau eine präzise Anfrage mit 3 Budgeteinheiten; die 25 Einheiten teure 500er-catering-Kohorte läuft nur nach einem echten strukturierten Nulltreffer. Ein fehlgeschlagener Filterabruf darf alte Pins nur erhalten, wenn sie den aktiven Filter erfüllen; ein abgeschlossener Roh-Nulltreffer wird ehrlich leer. Automatisiert sind 76 Kategorie-/Subtype-Zuordnungen, alle 19 Küchen, Faktenfilter, Kombinationen und Reset belegt. Sichtbar lieferte Italienisch 7 Orte. Ein ungecachter chinesischer Abruf zeigte statt einer maskierten leeren Karte den Wiederholungsfehler; die öffentliche Gateway-Diagnose belegte PROVIDER_BUDGET_DENIED, weil der konservative Geoapify-Tagespool bereits ausgeschöpft war. Stays lieferte Alle 50, Passend 14 und erneut Alle 50. Vollständige providerübergreifende Filterrealität und echte Fotos jedes Places bleiben offen.
 
-**Nächster Abschlussnachweis:** Alle angebotenen Filter mit echten Provider-Antworten prüfen, insbesondere jede Landesküche, kombinierte Filter und Reset. Danach exakte Place-Fotos mit belegter Entity-Zuordnung schließen; graue Platzhalter sind nur ein offener Fehlzustand. Budgetstatus und wiederholte Mobil-/Desktop-Wechsel für Places und Stays protokollieren.
+**Nächster Abschlussnachweis:** Jede sichtbare Filteroption und Landesküche mit einem providerübergreifenden, budgetbewussten Suchplan positiv oder belastbar ehrlich abnehmen. TomTom/HERE-Taxonomie und gecachte Evidenz müssen einen erschöpften Geoapify-Pool abfedern. Danach exakte Place-Fotos mit belegter Entity-Zuordnung schließen und Budgetstatus bei wiederholten Mobil-/Desktop-Wechseln protokollieren.
 
 **Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.
 
@@ -326,9 +327,9 @@ Gateway v163 und App .51 beheben die beobachtete 0/3/45-Diskontinuität an zwei 
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Die Kartenentdeckung übernimmt Reiseziel, aktive Viewport-Geometrie und belegte Profilmerkmale. App .51 verhindert gecachte Nulltreffer, verwirft alte Kategorieantworten und hält breite Suchergebnisse bei partiellen Providerausfällen verfügbar. Der sichtbare Scharbeutz-Zyklus belegt konsistente Kategorien und die gemeinsame Places/Stays-Suchspur. Der vollständige AI-Chat-Nachweis für alle Filterkombinationen, Landesküchen und widersprüchliche Wünsche bleibt offen.
+App .52 übernimmt Reiseziel, Viewport und belegte Profilmerkmale in dieselbe Places/Stays-Projektion. Der breite Food-Satz zeigte 50 Orte; „Kleines Steakhouse“ trug für das vegetarische Profil keine Passt-Kennzeichnung. Stays wechselte sichtbar zwischen Alle 50 und ausschließlich 14 belegten Passend-Treffern und wieder zurück auf 50. Bei einem erschöpften Providerbudget wird kein stiller Erfolg mehr behauptet. Die vollständige positive UI- und AI-Chat-Abnahme aller Landesküchen, Filterkombinationen und widersprüchlichen Wünsche bleibt offen.
 
-**Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat positiv oder ehrlich leer abnehmen; anschließend Alle/Passend gegen gespeicherte Profilvorlieben prüfen, darunter Vegetarier ohne Steakhouse-Falschpassung, und transiente Detail-/Fotoabrufe im Chat schließen.
+**Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; Alle/Passend vollständig gegen gespeicherte Profilvorlieben prüfen, darunter Vegetarier ohne Steakhouse-Falschpassung, und transiente Detail-/Fotoabrufe im Chat schließen.
 
 **Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
 
@@ -686,7 +687,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.52 / Core 4.82.174: Runtime 6da646bdd774, unveränderliches Archiv release51-6da646bdd774.zip, SHA-256 11350A9DE522F4F2CC059AC8E2074DD116D96213845D109F2E6E18EA1FF5C0C1, Gateway v163, Worker 47496145, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Places-Reiseziel, aktiver Viewport, wiederholte Kategoriefolge und Stays-Zoom bestanden. Main unverändert; exakter Rückfall auf .50 / Gateway v162 vorhanden.
+13.82.168.52 / Core 4.82.174: Runtime b12996c4e3c3, unveränderliches Archiv release52-b12996c4e3c3.zip, SHA-256 6AAA01ADC05DDCDC7BB9A98099D6A74636D8548665E83010B412E2FBF3CE6265, Gateway v164 ACTIVE, Worker 3fb07cb9, 217/217 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Italienisch 7; ein erschöpftes Providerbudget erscheint als expliziter Fehler mit Wiederholung; Stays Alle 50, Passend 14, Alle 50. Main unverändert; exakter Rückfall auf .51 / Gateway v163 vorhanden.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 

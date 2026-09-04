@@ -5,21 +5,22 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.52**, Core **4.82.174**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** App .51 stabilisiert P02/P03 auf Integration: leere Providerseiten werden nicht mehr festgehalten; breite Kategorien behalten erfolgreiche Teilantworten, statt wegen eines ausgefallenen Ergänzungszweigs auf null zu fallen; genau ein begrenzter cachefreier Neuversuch bleibt möglich. Der sichtbare gleiche Scharbeutz-Ausschnitt lieferte Essen 50, Shopping 45, Natur 18 und Aktivitäten 7, auch beim direkten Wiederholungswechsel. Stays lieferte 49 am Reiseziel und 48 nach Zoom in 1,09 s über dieselbe Technik. Gateway v163, Worker 47496145, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
+**Zuletzt geliefert:** App .52 stabilisiert den nächsten P02/P03-Teil auf Integration: erfolgreiche Landesküchenfilter sparen den sofortigen 500er-Abruf, echte Nulltreffer dürfen genau eine begrenzte Kohorte nutzen, und fehlgeschlagene Filter können sich nicht mehr hinter alten, unpassenden Rohresultaten als leere fertige Karte verbergen. Sichtbar: Italienisch 7; Kleines Steakhouse ohne Passt; Stays Alle 50 → Passend 14 → Alle 50. Ein ungecachter chinesischer Abruf traf auf den belegten erschöpften Geoapify-Tagespool und zeigte korrekt Fehler plus Wiederholung. Gateway v164, Worker 3fb07cb9, 217/217 Regression und 30/30 Byte-Gleichheit sind belegt.
 
-**Nächster Schritt (GEPLANT): Alle Filter, Landesküchen, Alle/Passend und echte Place-Fotos schließen.** Die asynchrone Kategorie- und Viewport-Kontinuität ist auf Integration belegt. Der nächste offene Nutzerwert liegt jetzt in der inhaltlichen Richtigkeit jedes angebotenen Filters, der Profilpassung und der echten Bildquelle je Place.
+**Nächster Schritt (GEPLANT): Providerübergreifende Filterevidenz, Alle/Passend und echte Place-Fotos schließen.** Die Karten- und Fehlerwahrheit ist stabilisiert. Der sichtbare PROVIDER_BUDGET_DENIED-Nachweis zeigt jetzt die verbleibende Produktlücke: ungecachte Spezialfilter müssen auch bei erschöpftem Primärpool durch gemeinsame Taxonomie, Cache und alternative Gratisanbieter belastbar beantwortet werden.
 
 **Abnahme dieses Schritts:**
 
-- Jede sichtbare Filtermöglichkeit in Places und die entsprechenden Stays-Filter einzeln, kombiniert und nach Reset gegen reale Providerantworten prüfen; alle Landesküchen erhalten positive oder belastbar ehrliche Leerbelege.
+- Jede sichtbare Places-Filteroption und jede Landesküche erhält einen providerübergreifenden Suchplan; positive Treffer, belegte Nulltreffer, Budgetausfall und Reset werden sichtbar sowie über den AI Chat geprüft.
+- Geoapify, TomTom und HERE verwenden kompatible Küchen-/Kategorieevidenz und abgestufte Kosten. Ein erschöpfter Primärpool darf vorhandene frische Evidenz oder einen verfügbaren Alternativanbieter nicht verdecken.
 - Alle und Passend verwenden dieselbe Place-Menge und ausschließlich belegte Profilvorlieben. Ein vegetarisches Profil darf ein fleischzentriertes Steakhouse ohne konkrete vegetarische Angebotsevidenz nicht als passend markieren.
-- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos werden als offener Beschaffungszustand protokolliert; Kategorieplatzhalter werden nicht als echtes Place-Foto ausgegeben.
-- Places und Stays auf sichtbarem Desktop und Mobilgerät mit Reiseziel, Zoom, Ziehen, Kategorie-/Filterwechsel, Ladezeit, Provider-/Cache-Spur und Kontingentverbrauch wiederholt abnehmen.
+- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos bleiben ein sichtbarer Beschaffungszustand und werden nie als echtes Ortsfoto ausgegeben.
+- Places und Stays werden auf sichtbarem Desktop und physischem Mobilgerät mit Reiseziel, Zoom, Ziehen, Filtern, Ladezeit, Cache-/Provider-Spur und Budgetzustand wiederholt abgenommen.
 - Vollständige Safe Regression, 30/30 Byte-Gleichheit, unveränderliches Archiv und exakter Frontend-/Gateway-Rückfall bleiben Releasegate.
 
 **Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** P02/P03: vollständige Filter-, Landesküchen-, Alle/Passend- und echte Place-Foto-Abnahme. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** P02/P03: providerübergreifende Vollabnahme aller Filter und Landesküchen, vollständiges Alle/Passend sowie echte Place-Fotos. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
