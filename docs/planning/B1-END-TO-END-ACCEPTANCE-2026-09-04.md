@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.44**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.46**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
 
-**Zuletzt geliefert:** Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.
+**Zuletzt geliefert:** Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.
 
 **Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
 
@@ -21,6 +21,16 @@
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
+
+## Kartenkontinuität .46 – aktueller Zusatznachweis
+
+Integration App **13.82.168.46**, Quelle **a6bbb89896882b3c941e5007ed8e2f44023503d1**, Worker **06c66b30-b8db-4e45-9567-bc080b453dbc**. **213/213 Safe Regression**, **30/30 öffentliche Dateihashes**.
+
+Im sichtbaren Browser blieben die Rückwechsel im unveränderten 3-km-Bereich bei Shopping 46 und Natur 16. Ein gezielt unterbrochener Shopping-Abruf endete mit sichtbarer Retry-Aktion; nach Aufhebung der Netzsperre kamen über Retry 46 Pins zurück. Ein tatsächlicher Drag über freie Kartenfläche aktivierte sofort den sichtbaren Ausschnitt; die nachfolgenden Natur-/Shopping-Anfragen verwendeten dieselben neuen Rechteckgrenzen. Stays zeigte 49 Pins am Reiseziel und dieselbe gemeinsame Implementierung 1.31.0. Die Counts sind datierte Ergebnisse dieser Suchgebiete, keine Vollständigkeitsbehauptung über Scharbeutz.
+
+Gezielte Regressionen belegen zusätzlich verspätete Antworten, Kategorie-Wechsel während Debounce, erneuten Abruf desselben fehlgeschlagenen Bereichs, gültige leere Ergebnisse sowie Geoapify-Rückfall bis maximal 15 Minuten. Dieser Rückfall bewahrt das ursprüngliche Beobachtungsdatum, gilt nur für identische Suche/Filter/Geografie und nicht für „Jetzt geöffnet“. Der sichtbare Netzausfall wurde nur vorübergehend simuliert und wieder aufgehoben. Keine Buchung oder Timeline wurde geändert. Physische Geräteabnahme bleibt offen.
+
+Nachweise im Arbeitsverzeichnis outputs: places-continuity-browser46.json, places-continuity-error46.png, places-continuity-regression46-release.log und public-byte-proof46.json. Nächster geplanter Abschnitt bleibt P09: geplante Place-Einträge entfernen und nach Reload wiederherstellen.
 
 ## Nachweis der P09-Lieferung .44
 

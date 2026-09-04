@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
-  "sourceBaseline": "bc642a06a23e82165648d6a43738430f83b145d6",
-  "app": "13.82.168.44",
+  "sourceBaseline": "a6bbb89896882b3c941e5007ed8e2f44023503d1",
+  "app": "13.82.168.46",
   "core": "4.82.168",
-  "runtimeSource": "bc642a06a23e82165648d6a43738430f83b145d6",
-  "worker": "093456be-4963-4578-8468-390c3f80ec04",
+  "runtimeSource": "a6bbb89896882b3c941e5007ed8e2f44023503d1",
+  "worker": "06c66b30-b8db-4e45-9567-bc080b453dbc",
   "gateway": "v161 ACTIVE",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 unverändert.",
+      "evidence": "13.82.168.46 auf Integration veröffentlicht; Quellarchiv a6bbb898, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.",
       "nextAcceptance": "Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -28,7 +28,7 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "Geoapify, TomTom, HERE und ORS live geprüft; vollständige Ortsfotos und alle optionalen Fakten offen.",
+      "evidence": "Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Ausschnittskontinuität und sichtbaren Ausfall/Retry; begrenzte Geoapify-Wiederanzeige bei Ausfall gezielt getestet. Vollständige Ortsfotos und alle optionalen Fakten bleiben offen.",
       "nextAcceptance": "Echten Place mit Foto, Herkunft, Fehlermodus und budgetbegrenztem Abruf sichtbar prüfen.",
       "scope": "Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.44: unveränderliches Quellarchiv bc642a06, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.",
+      "evidence": "13.82.168.46: unveränderliches Quellarchiv a6bbb898, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.",
       "nextAcceptance": "Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -610,7 +610,7 @@
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     }
   ],
-  "acceptanceUpdate": "P09 planned Place scheduling: visible review, touch movement, conditional owner write and reload-persistent recovery accepted in a bounded slice; P09/P10 and B1 remain partial.",
+  "acceptanceUpdate": "Places category/viewport intent continuity, bounded Geoapify recovery and visible failure/retry accepted in .46. P09/P10 and B1 remain partial; next is planned Place remove/restore after reload.",
   "safeRegression": "213/213 PASS",
   "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -640,7 +640,7 @@
   ],
   "currentWork": {
     "stage": "M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.",
-    "delivered": "Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.",
+    "delivered": "Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.",
     "nextStep": {
       "id": "P09-remove-restore",
       "package": "P09",

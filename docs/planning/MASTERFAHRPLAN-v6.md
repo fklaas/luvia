@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.44**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.46**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
 
-**Zuletzt geliefert:** Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.
+**Zuletzt geliefert:** Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.
 
 **Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
 
@@ -40,14 +40,14 @@ Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.44. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
+Integration läuft auf 13.82.168.46. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## 1 Wo Luvia heute steht
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.44 und Core 4.82.168. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
+Integration läuft auf App 13.82.168.46 und Core 4.82.168. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Die HERE-Konfiguration bleibt erhalten; die aktuellen Frontend- und Booking-Korrekturen sind im B1-Bericht belegt.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -294,7 +294,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 unverändert.
+13.82.168.46 auf Integration veröffentlicht; Quellarchiv a6bbb898, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.
 
 **Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
 
@@ -304,7 +304,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Geoapify, TomTom, HERE und ORS live geprüft; vollständige Ortsfotos und alle optionalen Fakten offen.
+Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Ausschnittskontinuität und sichtbaren Ausfall/Retry; begrenzte Geoapify-Wiederanzeige bei Ausfall gezielt getestet. Vollständige Ortsfotos und alle optionalen Fakten bleiben offen.
 
 **Nächster Abschlussnachweis:** Echten Place mit Foto, Herkunft, Fehlermodus und budgetbegrenztem Abruf sichtbar prüfen.
 
@@ -674,7 +674,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44: unveränderliches Quellarchiv bc642a06, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
+13.82.168.46: unveränderliches Quellarchiv a6bbb898, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
 

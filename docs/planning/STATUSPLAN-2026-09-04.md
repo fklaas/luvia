@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-04:** Integration **13.82.168.44**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+**Stand 2026-09-04:** Integration **13.82.168.46**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
 
-**Zuletzt geliefert:** Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.
+**Zuletzt geliefert:** Places und Stays verwenden den sofort gewählten Kartenbereich; verspätete Antworten überschreiben ihn nicht. Fehlgeschlagene Kategorieabfragen beenden den Ladezustand und bieten Retry. Kürzlich verifizierte Geoapify-Treffer derselben Suche können bei Ausfall markiert wiederangezeigt werden. Sichtbarer Test: Shopping 46 / Natur 16 bei gleichem 3-km-Bereich; unterbrochener Abruf → Retry → 46 Shopping-Pins; Stays 49. Runtime .46: 213/213 Regression, 30/30 öffentliche Dateihashes. Die zuvor gelieferte P09-Zeitänderung mit Rücknahme nach Reload bleibt erhalten.
 
 **Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
 
@@ -38,12 +38,12 @@ M0–M16 sind dokumentiert geschlossen. M16.5 bleibt aktiv: Schritte 01–14 ges
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.44. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
+Integration läuft auf 13.82.168.46. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## Verbindlicher aktueller Stand
 
-Integration: App **13.82.168.44**, Core **4.82.168**, Gateway **v161 ACTIVE**. Frontend-Quelle **bc642a06a23e82165648d6a43738430f83b145d6**, Worker **093456be-4963-4578-8468-390c3f80ec04**. Die bereits aktivierte HERE-Konfiguration bleibt erhalten. Safe Regression des aktuellen Runtime-Slice: **213/213 PASS**, öffentliche Byteidentität **30/30**. Gateway v161 und Providerbudgets bleiben unverändert.
+Integration: App **13.82.168.46**, Core **4.82.168**, Gateway **v161 ACTIVE**. Frontend-Quelle **a6bbb89896882b3c941e5007ed8e2f44023503d1**, Worker **06c66b30-b8db-4e45-9567-bc080b453dbc**. Die bereits aktivierte HERE-Konfiguration bleibt erhalten. Safe Regression des aktuellen Runtime-Slice: **213/213 PASS**, öffentliche Byteidentität **30/30**. Gateway v161 und Providerbudgets bleiben unverändert.
 
 Main-HEAD **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba** bleibt unverändert. Der dokumentierte Produktionsbuild ist .49; in diesem Dokumentlauf wurde kein neuer Production-HTTP-Beleg erhoben. Keine Produktionsfreigabe und kein übergreifender Design Freeze.
 
@@ -129,7 +129,7 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 unverändert.
+13.82.168.46 auf Integration veröffentlicht; Quellarchiv a6bbb898, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 und Main-Frontend unverändert.
 
 **Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
 
@@ -139,7 +139,7 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Geoapify, TomTom, HERE und ORS live geprüft; vollständige Ortsfotos und alle optionalen Fakten offen.
+Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Ausschnittskontinuität und sichtbaren Ausfall/Retry; begrenzte Geoapify-Wiederanzeige bei Ausfall gezielt getestet. Vollständige Ortsfotos und alle optionalen Fakten bleiben offen.
 
 **Nächster Abschlussnachweis:** Echten Place mit Foto, Herkunft, Fehlermodus und budgetbegrenztem Abruf sichtbar prüfen.
 
@@ -509,7 +509,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44: unveränderliches Quellarchiv bc642a06, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
+13.82.168.46: unveränderliches Quellarchiv a6bbb898, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
 
