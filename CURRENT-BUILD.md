@@ -1,6 +1,8 @@
-# Mobile map startup and trip theme — Integration candidate — 13.82.168.36
+# Mobile map startup and trip theme — Integration deployed — 13.82.168.36
 
-Bounded Geoapify destination cache, pending-search status separation, immediate DOM markers, same-trip map resume, parallel runtime downloads, coherent PWA cache identity and lean cache warming. Trip-accent controls and layered panels. Public acceptance pending.
+Source 314e149e726015c1fae7ed7eb38f350702d833ca; Worker f29f3790-790b-4453-bd89-c3a67e920ac4; Core 4.82.168. Gateway v151 and Main unchanged.
+
+Bounded Geoapify destination cache, pending-search status separation, immediate DOM markers, same-trip map resume, parallel runtime downloads, coherent PWA cache identity and lean cache warming. Trip-accent controls and layered panels. Safe regression 209/209 PASS; public bytes 18/18 match. Visible browser warm Stays reload: pins observed at 1391 ms, map ready at 1761 ms. Responsive layout verified at 390 px; physical mobile/native performance remains unmeasured. Profile hydration can still trigger a background search. [Acceptance and limits](docs/modularization/MAP-MOBILE-SPEED-ACCEPTANCE-20260904.md). [Provider onboarding and budget rollout](docs/modularization/PROVIDER-ONBOARDING-AND-FREE-BUDGETS-20260904.md).
 
 # Trip map experiences — Integration deployed — 13.82.168.35
 
