@@ -1,6 +1,8 @@
-# Provider budgets and routing — Integration candidate — 13.82.168.37
+# Provider budgets and routing — Integration deployed — 13.82.168.37
 
-Atomic provider reservations, TomTom/HERE adapters, HeiGIT pedestrian and bicycle routes, shared mode selection and linked-image enrichment. Database accounting applied; final acceptance pending. HERE remains disabled until account quota verified.
+Source 978e3d00bef46dee9f84e51c94ee14b5299e7133; Worker c8d1d1c2-0849-4de7-800a-15d7782767ab; gateway v161 ACTIVE; Core 4.82.168. Main unchanged.
+
+Atomic provider reservations, Geoapify/TomTom search cascade, prepared HERE adapter, HeiGIT pedestrian and bicycle routes, shared mode selection and exact linked-image enrichment. HERE remains disabled until account/quota confirmation. Safe regression 210/210 PASS; public assets 18/18 match the immutable release. Live audit covers all 19 cuisine options, with unsupported TomTom vegan taxonomy returning no generic restaurants. Visible Places/Stays day route: bicycle 21 min, walking 70 min; 390 px layout has no horizontal page overflow. Full venue photo coverage remains unresolved; the new linked-image path is fixture-tested, not proven by a new live image in this acceptance. [Measured acceptance and limits](docs/modularization/PROVIDER-BUDGET-ACCEPTANCE-20260904.md).
 
 # Mobile map startup and trip theme — Integration deployed — 13.82.168.36
 

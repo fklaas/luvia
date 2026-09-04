@@ -30,12 +30,22 @@ Photo enrichment uses an exact linked Wikidata P18 / Commons file and requires i
 
 ## Verification
 
-- Safe regression: 210/210 PASS before final taxonomy guard; final rerun recorded below when released.
+- Safe regression: final release rerun 210/210 PASS, including the final taxonomy guard (`regression37-release.log`).
 - Deno check of the complete gateway entry point: PASS.
 - Provider tests: denied allowance, 429 cooldown, two concurrent identical bike calls using one provider request, warm cache, all 19 native cuisine mappings, unsupported vegan handling, HERE browse/foodTypes request, unrelated result rejection, exact linked media/license and no speculative lookup: PASS.
 - Database acceptance in BEGIN/ROLLBACK: shared operation pool, denied reservation leaves all windows unchanged, remaining quota, cooldown, disabled policy and role privileges: PASS.
 - A separate five-process Supabase CLI concurrency probe timed out while initializing CLI login roles. Temporary policy/usage rows were removed and absence verified. This experiment is not claimed as a passed database concurrency test. Reservation serialization is implemented by PostgreSQL row locks.
 - Live TomTom search/category and real walking/cycling geometry: PASS. HeiGIT live mode results, visible consumer acceptance and immutable public asset verification are recorded in the release addendum.
+
+## Deployed release and visible acceptance
+
+Runtime source 978e3d00bef46dee9f84e51c94ee14b5299e7133, archived from Git into `release37-clean`; Worker c8d1d1c2-0849-4de7-800a-15d7782767ab. Gateway v161 ACTIVE from the same source. All 18 public asset hashes match that immutable archive (`public-byte-proof37.json`).
+
+Visible Stays and Places tests used the existing Ostseeurlaub trip and its June 12 Timeline stops, without changing the trip or Timeline. Stays WALK: one verified route, 70 minutes. Stays and Places BICYCLE: one verified route, 21 minutes. Both show openrouteservice/HeiGIT/OSM attribution. The 390x844 responsive view retains the route picker and trip-colored controls; document width is exactly 390, no page overflow. The temporary viewport override was reset. Screenshots: `stays-bicycle37.png`, `stays-walk37.png`, `places-mobile-bicycle37.png`. These are browser tests, not measurements on physical native iOS/Android devices.
+
+Direct HeiGIT probe: 373.3 m / 268.8 s WALK and 368.2 m / 133.3 s BICYCLE, both verified LineStrings. TomTom returned independent walking/cycling geometry. The final vegan retest returns zero places and no provider errors, rather than unverified generic restaurants. `provider-modes37.json`, `provider-cuisine-audit37.json` and `provider-budget37.json` record these results.
+
+The attempted bounded Holstentor discovery did not retrieve the exact landmark, so it did not establish a live image proof. Linked-image enrichment has unit/fixture acceptance, not a new live photograph acceptance. No full image coverage claim is made.
 
 Evidence artifacts are in C:/Users/fabia/Documents/ChatGPT/Luvia/outputs: provider-cuisine-audit37.json, regression37-final.log and subsequent release proof files. No API keys are stored in these artifacts.
 
