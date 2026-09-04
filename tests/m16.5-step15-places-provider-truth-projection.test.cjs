@@ -87,6 +87,23 @@ function serviceHarness(){
       },
       meta:{cache:{hit:false}}
     };
+    if(mode==='answered-empty-with-partial-errors')return{
+      ok:true,
+      data:{
+        places:[],
+        providers:{
+          requested:['auto'],
+          attempted:['geoapify','tomtom','here'],
+          answered:['here'],
+          used:[],
+          errors:[
+            {provider:'geoapify',code:'PROVIDER_BUDGET_DENIED',message:'Geoapify budget reserved'},
+            {provider:'tomtom',code:'PROVIDER_BUDGET_DENIED',message:'TomTom budget reserved'}
+          ]
+        }
+      },
+      meta:{cache:{hit:false}}
+    };
     return{
       ok:true,
       data:{places:[],providers:{requested:['google','foursquare'],used:[],errors:[]}},
@@ -175,6 +192,13 @@ function projectionHarness(sourcePlace){
   const empty=await service.sandbox.LuviaPlaces.textSearch('Ein wirklich nicht vorhandener Ort',{spatialConstraints,positionContext});
   assert.deepEqual(Array.from(empty.data.places),[],'a provider-confirmed empty result is a truthful successful empty state');
   assert.deepEqual(Array.from(empty.data.providers.errors),[]);
+
+  service.setMode('answered-empty-with-partial-errors');
+  const answeredEmpty=await service.sandbox.LuviaPlaces.textSearch('Chinesisch Restaurant',{spatialConstraints,positionContext});
+  assert.deepEqual(Array.from(answeredEmpty.data.places),[],'a successful HERE answer remains a truthful empty result when earlier providers were budget denied');
+  assert.deepEqual(Array.from(answeredEmpty.data.providers.answered),['here']);
+  assert.equal(answeredEmpty.data.providers.status,'empty');
+  assert.equal(answeredEmpty.data.providers.errors.length,2,'budget diagnostics remain inspectable without becoming a false outage');
 
   const projection=projectionHarness(normalized);
   const domainProjection=projection.sandbox.LuviaPlacesDomainContractCoreV1.projectDetails(normalized);

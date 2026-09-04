@@ -1,6 +1,6 @@
 # Luvia aktueller Integrationsstand
 
-Releasekandidat **13.82.168.56**, Core **4.82.178**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: die normalen Places-, Stays-, Viewport- und Timeline-Suchen verwenden den budgetverwalteten Geoapify-TomTom-HERE-Fallback. Eine dreistufige automatische Suche darf bis zum letzten Anbieter laufen; ein heute angezeigter Cachebestand erhält ein frisches Sitzungsfenster, während sein ursprünglicher Provider-Zeitpunkt für Transparenz und Hintergrundaktualisierung erhalten bleibt. Der veröffentlichte Integrationsstand bleibt bis zur sichtbaren Abnahme **.52**.
+Releasekandidat **13.82.168.57**, Core **4.82.179**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Geoapify, TomTom und HERE unterscheiden jetzt zwischen einem echten Provider-Ausfall und einer erfolgreich beantworteten Suche ohne Treffer. Ausdrücklich gewählte Landesküchen suchen einmalig im begrenzten 5-km-Umkreis; breite Kategorien bleiben bei 3 km. Natur und Erholung schließt Unterkunftstypen aus. Der veröffentlichte Integrationsstand bleibt bis zur sichtbaren Abnahme **.52**.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt

@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.1-cascade-timeout-recovery';
+const VERSION='1.14.2-provider-answer-truth';
 const PROVIDER_CACHE_MS=180000;
 const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
@@ -8,8 +8,8 @@ const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const providerName=value=>{const name=clean(value).toLowerCase();return name.startsWith('google')?'google':name.startsWith('foursquare')?'foursquare':name==='multi'?'multi':name||'unknown'};
 const safeProviderMeta=(value={},places=[])=>{
-  const requested=[...new Set((value.requested||[]).map(providerName).filter(name=>name!=='unknown'))],used=[...new Set((value.used||places.flatMap(place=>Object.keys(place.providerRefs||{}))).map(providerName).filter(name=>name!=='unknown'))],errors=(value.errors||[]).slice(0,4).map(error=>({provider:providerName(error?.provider),code:clean(error?.code||'PROVIDER_ERROR').slice(0,80)})),status=clean(value.status)||(places.length?(errors.length?'partial':'ready'):(errors.length?'unavailable':'empty'));
-  return{requested,used,errors,status,degraded:errors.length>0};
+  const requested=[...new Set((value.requested||[]).map(providerName).filter(name=>name!=='unknown'))],attempted=[...new Set((value.attempted||[]).map(providerName).filter(name=>name!=='unknown'))],answered=[...new Set((value.answered||[]).map(providerName).filter(name=>name!=='unknown'))],used=[...new Set((value.used||places.flatMap(place=>Object.keys(place.providerRefs||{}))).map(providerName).filter(name=>name!=='unknown'))],errors=(value.errors||[]).slice(0,4).map(error=>({provider:providerName(error?.provider),code:clean(error?.code||'PROVIDER_ERROR').slice(0,80)})),status=clean(value.status)||(places.length?(errors.length?'partial':'ready'):(answered.length?'empty':errors.length?'unavailable':'empty'));
+  return{requested,attempted,answered,used,errors,status,degraded:errors.length>0};
 };
 const destinationLabel=value=>value&&typeof value==='object'?clean(value.name||value.displayName||value.destinationName||value.formattedAddress):clean(value);
 const destinationFingerprint=value=>{const source=value&&typeof value==='object'?value:{name:value},coordinates=source?.center||source?.location||source?.coordinates||{};return{id:clean(source?.id||source?.placeId),name:clean(source?.name||source?.displayName),countryCode:clean(source?.countryCode),radius:Number(source?.searchRadiusMeters)||null,viewport:source?.viewport||null,latitude:Number.isFinite(Number(coordinates.latitude??coordinates.lat))?Number(coordinates.latitude??coordinates.lat):null,longitude:Number.isFinite(Number(coordinates.longitude??coordinates.lng))?Number(coordinates.longitude??coordinates.lng):null}};
@@ -31,10 +31,10 @@ function providerRequestTimeout(options={}){
   return requested.includes('auto')?Math.max(24000,configured):configured||fallback;
 }
 function aggregateProviderDiagnostics(attempts=[]){
-  const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
-  for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
-  const uniqueErrors=[...new Map(errors.map(error=>[`${error.provider}:${error.code}`,error])).values()].slice(0,8),status=used.size?(uniqueErrors.length?'partial':'ready'):(uniqueErrors.length?'unavailable':successfulAttempts?'empty':'unknown');
-  return{requested:[...requested],used:[...used],errors:uniqueErrors,status,degraded:uniqueErrors.length>0,successfulAttempts,cachedAttempts,attemptCount:attempts.length};
+  const requested=new Set(),attemptedProviders=new Set(),answered=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
+  for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.attempted||[])attemptedProviders.add(provider);for(const provider of attempt.providers?.answered||[])answered.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
+  const uniqueErrors=[...new Map(errors.map(error=>[`${error.provider}:${error.code}`,error])).values()].slice(0,8),status=used.size?(uniqueErrors.length?'partial':'ready'):(answered.size?'empty':uniqueErrors.length?'unavailable':successfulAttempts?'empty':'unknown');
+  return{requested:[...requested],attempted:[...attemptedProviders],answered:[...answered],used:[...used],errors:uniqueErrors,status,degraded:uniqueErrors.length>0,successfulAttempts,cachedAttempts,attemptCount:attempts.length};
 }
 const uniquePlaces=items=>{
   const byId=new Map(),result=[];
@@ -222,7 +222,7 @@ async function recommend(options={}){
       })).finally(()=>providerFlights.delete(cacheKey));providerFlights.set(cacheKey,flight)}
       const response=await flight;
       const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
-      if(!(response?.data?.places||[]).length&&providers.errors.length)throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während mindestens ein Provider nicht erreichbar war.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
+      if(!(response?.data?.places||[]).length&&providers.status==='unavailable')throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während keine Ortsquelle belastbar geantwortet hat.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
       const rawPlaces=(response?.data?.places||[]).map(place=>({...place,ownerObservedAt,providerObservedAt:place.providerObservedAt||null,providerFactsCached:backendCached,providerReadiness:providers.status}));
       if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now()});else providerCache.delete(cacheKey);
       const places=rawPlaces.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query]}));

@@ -1,9 +1,9 @@
-/* Release 13.82.168.56 - Core 4.82.178 */
+/* Release 13.82.168.57 - Core 4.82.179 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.178';
-  const BUILD='13.82.168.56';
+  const CORE='4.82.179';
+  const BUILD='13.82.168.57';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){

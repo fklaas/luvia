@@ -1,7 +1,7 @@
 /* Generated before LuviaTripContext by scripts/build-runtime-bundle.cjs. Domain ownership remains in the original source files. */
 
 /* ===== intelligence/kernel/version.js ===== */
-(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.178',build:'13.82.168.56',name:'M16.5 Places and Stays Quality',channel:'integration-preview',builtAt:'2026-09-04T21:24:56.158Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
+(()=>{'use strict';window.LuviaKernelVersion=Object.freeze({core:'4.82.179',build:'13.82.168.57',name:'M16.5 Places and Stays Quality',channel:'integration-preview',builtAt:'2026-09-04T22:55:00.000Z'});window.LuviaCoreVersion=window.LuviaKernelVersion;window.LUVIA_RELEASE=window.LuviaKernelVersion;})();
 
 ;
 

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.2-filter-budget-truth';
+  const VERSION='1.31.3-specialized-local-radius';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -29,6 +29,7 @@
   const providerId=place=>clean(place?.providerPlaceId||place?.provider_place_id||place?.id).replace(/^places\//,'');
   const tripId=trip=>clean(trip?.id||trip?.tripId);
   const destination=trip=>clean(trip?.destination?.name||trip?.destination?.formattedAddress||trip?.destinationName||trip?.name)||'eurem Reiseziel';
+  const specializedLocalRadius=()=>state.category==='food'&&(state.filters.cuisines||[]).length?5000:0;
   const tripGeography=trip=>{
     const source=trip&&typeof trip==='object'?trip:{};
     const dest=source.destination&&typeof source.destination==='object'?source.destination:null;
@@ -36,8 +37,9 @@
     const latitude=Number(dest?.location?.latitude??dest?.center?.lat??dest?.latitude??model?.latitude??source.destinationLat??source.latitude);
     const longitude=Number(dest?.location?.longitude??dest?.center?.lng??dest?.longitude??model?.longitude??source.destinationLng??source.longitude);
     const name=destination(source);
-    const radius=state.searchRadiusMeters||Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
-    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:placesContract()?.reads?.localSearchRadius?.({searchRadiusMeters:radius},state.searchRadiusMeters||undefined)??(state.searchRadiusMeters===5000?5000:Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000)))};
+    const requestedRadius=state.searchRadiusMeters||specializedLocalRadius();
+    const radius=requestedRadius||Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
+    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:placesContract()?.reads?.localSearchRadius?.({searchRadiusMeters:radius},requestedRadius||undefined)??(requestedRadius?Math.max(500,Math.min(5000,requestedRadius)):Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000)))};
     if(Number.isFinite(latitude)&&Number.isFinite(longitude)){
       payload.center={lat:latitude,lng:longitude};
       payload.location={latitude,longitude};
