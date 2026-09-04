@@ -14,7 +14,7 @@ class FakeMap{
 class Marker{setLngLat(){return this}addTo(){return this}remove(){}}
 const ctx=vm.createContext({console,Date,Map,Set,Promise,performance,document:{documentElement:node(),createElement:node},MutationObserver:class{observe(){}disconnect(){}},maplibregl:{Map:FakeMap,Marker,NavigationControl:class{}},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:id=>timers.delete(id)});ctx.window=ctx;
 for(const p of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js'])vm.runInContext(read(p),ctx);
-vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
+vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,categoryCohortKey,rememberCategoryCohort,restoreCategoryCohort,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
 const row=(id,lat=54.02)=>({id,providerPlaceId:id,name:id,primaryType:'restaurant',types:['restaurant'],coordinates:{latitude:lat,longitude:10.75}});
 const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pending)await t.fn()};
 (async()=>{
@@ -52,6 +52,10 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const entry=savedCache.get(ctx.recovery.cacheKey());entry.savedAt='2020-01-01';assert.equal(ctx.recovery.loadCached(),false,'expired data cannot claim current coverage');entry.savedAt=new Date().toISOString();
  st.filters.cuisines=['italian_restaurant'];st.results=[row('geoapify:filtered')];ctx.recovery.saveCached();assert.equal(entry.results[0].name,'geoapify:cached','a filtered result must not overwrite the default destination cohort');st.filters.cuisines=[];
  st.results=[row('google-legacy')];ctx.recovery.saveCached();assert.equal(savedCache.get(ctx.recovery.cacheKey()).results[0].name,'geoapify:cached','cache must not absorb other provider content');
+ st.category='food';st.query='Restaurant';st.results=[row('geoapify:food-cohort')];st.status='ready';st.lastSearchAt=new Date().toISOString();assert.equal(ctx.recovery.rememberCategoryCohort(),true);
+ st.category='shopping';st.query='Shopping';st.results=[{...row('geoapify:shopping-cohort'),primaryType:'store',types:['store']}];
+ assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'returning to a recent category restores its exact destination cohort immediately');
+ assert.equal(st.results[0].name,'geoapify:food-cohort');assert.equal(st.status,'ready');
  // A late destination read must not overwrite a newer camera intent, and a
  // category change during the viewport debounce must use that camera's bounds.
  let finishDestination,viewportOptions=[];const traceMap={dataset:{}};

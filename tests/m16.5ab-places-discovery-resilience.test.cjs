@@ -34,6 +34,7 @@ const source=fs.readFileSync(path.join(root,'app/adapters/places-discovery-adapt
   const destinationContext={destinationName:'Scharbeutz',countryCode:'DE'};
   const result=await sandbox.LuviaPlacesDiscoveryService.recommend({text:'ruhiger Ort',category:'food',destination:'Scharbeutz',destinationContext,candidateLimit:20,limit:1,profilePreferences:{travelInterests:['culture']},tripComposition:{feelings:['quiet']},momentContext:{query:'Ruhiger Ort',targetDate:'2026-08-29'}});
   assert.equal(calls.length,2,'the cascade must continue after one failed provider query');
+  assert.equal(calls[0].requestOptions.timeoutMs,24000,'the automatic free-provider cascade must outlive its bounded sequential provider attempts');
   assert.equal(calls[0].destination,destinationContext,'the canonical trip destination must reach every provider query');
   assert.equal(calls[1].destination,destinationContext);
   assert.equal(result.places.length,1);

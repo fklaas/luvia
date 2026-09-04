@@ -109,10 +109,10 @@
   const state={
     story:null,root:null,trip:null,surface:'places',searchRadiusMeters:0,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
     status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
-    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,lastSearchTrace:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null
+    requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,lastSearchTrace:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null,categoryCohorts:new Map()
   };
 
-  const MAP_CACHE_FRESH_MS=5*60*1000,MAP_CACHE_MAX_MS=24*60*60*1000;
+  const MAP_CACHE_FRESH_MS=5*60*1000,MAP_CACHE_MAX_MS=24*60*60*1000,CATEGORY_COHORT_MAX_MS=15*60*1000;
   function cacheScope(trip=state.trip){const g=tripGeography(trip),c=COMPOSITION().normalizeCoordinates(g.location||g.center);return JSON.stringify({trip:tripId(trip),surface:state.surface,destination:destination(trip),latitude:c?.latitude,longitude:c?.longitude})}
   function cacheKey(){return `consumer:places-spatial:v5-surface:${state.surface}:${tripId(state.trip)||'active'}`}
   function loadCached(){
@@ -135,6 +135,19 @@
     const results=state.results.filter(p=>providerId(p).startsWith('geoapify:')).slice(0,MAX_RESULTS);
     if(!results.length)return;
     try{port('OfflineCachePort')?.write(cacheKey(),{scope:cacheScope(),query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results,savedAt:state.lastSearchAt||new Date().toISOString()})}catch{}
+  }
+  function categoryCohortKey(category=state.category,query=state.query){return JSON.stringify({scope:cacheScope(),category:clean(category),query:clean(query),radius:state.searchRadiusMeters===5000?5000:0})}
+  function rememberCategoryCohort(){
+    if(state.activeViewport||state.userQuery||activeFilterCount()||!state.results.length||!['ready','loading'].includes(state.status))return false;
+    const key=categoryCohortKey(),savedAt=state.lastSearchAt||new Date().toISOString();
+    state.categoryCohorts.set(key,{results:state.results.slice(0,MAX_RESULTS),savedAt,preferenceResolution:state.preferenceResolution,aiDecision:state.aiDecision});
+    while(state.categoryCohorts.size>24)state.categoryCohorts.delete(state.categoryCohorts.keys().next().value);
+    return true;
+  }
+  function restoreCategoryCohort(category,query){
+    const key=categoryCohortKey(category,query),cohort=state.categoryCohorts.get(key),age=Date.now()-Date.parse(cohort?.savedAt||'');
+    if(!cohort||!Number.isFinite(age)||age<0||age>CATEGORY_COHORT_MAX_MS||!Array.isArray(cohort.results)||!cohort.results.length){if(cohort)state.categoryCohorts.delete(key);return false}
+    state.results=decoratePreferences(cohort.results.slice(0,MAX_RESULTS),state.trip);state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cohort.savedAt;state.preferenceResolution=cohort.preferenceResolution||null;state.aiDecision=cohort.aiDecision||null;state.status='ready';state.error=null;state.readNotice='Bereits geladene Orte · Aktualisierung läuft im Hintergrund.';return true;
   }
   function verifiedFitScore(place){
     const fit=place?.groupFit||place?.preferenceFit||{},score=Number(fit?.score??place?.preferenceScore),coverage=Number(fit?.coverage??place?.preferenceCoverage),reasons=[...(place?.preferenceReasons||[]),...(place?.aiReasons||[]),...(place?._luviaReasons||[])].filter(Boolean);
@@ -383,6 +396,7 @@
       state.status=state.results.length?'ready':'empty';
       state.readNotice=response?.plan?.attempts?.some(attempt=>attempt.stale)?'Zuletzt geladene Orte · Aktualisieren ist gerade nicht möglich.':null;
       state.lastSearchAt=(state.readNotice?response?.plan?.attempts?.find(attempt=>attempt.stale)?.ownerObservedAt:null)||new Date().toISOString();
+      rememberCategoryCohort();
       saveCached();
       const keepMap=Boolean(preserveMap&&state.mapProjection)||Boolean(state.mapProjection);
       if(keepMap)updateFilteredMap();else render();
@@ -1131,10 +1145,12 @@
     const filterHost=state.root?.querySelector('[data-places-filter-content]');
     if(filterHost)filterHost.innerHTML=filterMarkup();
     syncFilterSelections();
-    // Category switches must purge previous pins immediately. preserveMap alone
-    // previously left restaurant markers visible under Aktivitäten.
-    clearVisibleCategoryResults({message:`${def.label} wird geladen · vorherige Pins werden entfernt.`});
-    search({query:def.query,category:def.key,preserveMap:true,replaceCategory:true,focus:false});
+    // Reuse only an exact, recent cohort for this category and destination. This
+    // keeps known correct pins visible while the provider cascade refreshes in
+    // the background, without ever showing the previous category under a new label.
+    const restored=restoreCategoryCohort(def.key,def.query);
+    if(restored){updateFilteredMap();projectionRefreshState(state.root?.querySelector('[data-places-map]'),true,`${def.label} wird im Hintergrund aktualisiert.`)}
+    search({query:def.query,category:def.key,preserveMap:true,replaceCategory:!restored,focus:false});
   }
   function bind(){
     const root=state.root;
@@ -1227,6 +1243,7 @@
     const networkPort=port('NetworkPort');
     state.offline=networkPort?.isOnline?.()===false;
     const restored=loadCached();
+    if(restored)rememberCategoryCohort();
     state.networkUnsubscribe=networkPort?.subscribe?.(snapshot=>{
       const wasOffline=state.offline;
       state.offline=snapshot?.online===false;

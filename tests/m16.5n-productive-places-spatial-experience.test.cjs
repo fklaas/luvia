@@ -247,7 +247,8 @@ assert.match(experience,/maxDistanceMeters:Number\(geography\.searchRadiusMeters
 assert.match(experience,/if\(fallbackCenter\)\{[\s\S]*?easeTo\(\{center:fallbackCenter\.lngLat,zoom:13/,'initial map frame must center the trip destination before fitting outlier pins');
 assert.doesNotMatch(experience,/destination:destination\(state\.trip\)/,'a destination name string must not trigger Google destination.resolve');
 assert.match(experience,/function applyCategory\(/,'category icons must select immediately without waiting for a full remount');
-assert.match(experience,/replaceCategory:true/,'category switches must explicitly replace the previous category result set');
+assert.match(experience,/const restored=restoreCategoryCohort\(def\.key,def\.query\)/,'category switches may reuse only the exact recent cohort for the requested category');
+assert.match(experience,/replaceCategory:!restored/,'category switches must replace foreign results while an exact restored cohort stays visible during refresh');
 assert.match(experience,/function clearVisibleCategoryResults\(/,'category switches must clear previous pins before the next search settles');
 assert.match(experience,/function placeMatchesActiveCategory\(/,'map and viewport must gate pins against the active Places category');
 assert.match(experience,/After a category switch, never keep foreign-category pins/,'failed category refresh must not restore restaurant pins under Aktivitäten');

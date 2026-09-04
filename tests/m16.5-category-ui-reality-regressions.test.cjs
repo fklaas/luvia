@@ -91,7 +91,8 @@ check('Fall C multi-category exclusivity', () => {
 check('Fall D spatial category switch contracts', () => {
   const spatial = read('app/places/places-spatial-experience.js');
   assert.match(spatial, /subjectText:state\.userQuery\|\|''/);
-  assert.match(spatial, /replaceCategory:true/);
+  assert.match(spatial, /const restored=restoreCategoryCohort\(def\.key,def\.query\)/);
+  assert.match(spatial, /replaceCategory:!restored/);
   assert.match(spatial, /clearVisibleCategoryResults/);
   assert.match(spatial, /!event\?\.originalEvent/);
 });
@@ -99,7 +100,7 @@ check('Fall D spatial category switch contracts', () => {
 check('Fall B provider: split one Geoapify category per request', () => {
   const gateway = read('supabase/functions/luvia-gateway/_shared/places.ts');
   assert.match(gateway, /splitGeoapifyCategories/, 'gateway must document split category fetches');
-  assert.match(gateway, /categoryBatches=categories\.length>1\?categories\.map/, 'multi-category allowlists must not be joined into one CSV request');
+  assert.match(gateway, /categories\.length>1\?categories\.map\(category=>\[category\]\)/, 'multi-category allowlists must not be joined into one CSV request');
 });
 
 check('Primary type must prefer catering.restaurant over building', () => {

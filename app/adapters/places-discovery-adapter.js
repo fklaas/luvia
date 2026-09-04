@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.0-bounded-error-recovery';
+const VERSION='1.14.1-cascade-timeout-recovery';
 const PROVIDER_CACHE_MS=180000;
 const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
@@ -23,6 +23,13 @@ function providerDestination(options={}){
   return candidates.find(hasGeography)||candidates.find(hasDestinationIdentity)||options.destination||active||null;
 }
 const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,vegetarianOnly:options.vegetarianOnly===true,accessibleOnly:options.accessibleOnly===true,reservableOnly:options.reservableOnly===true,priceLevels:options.priceLevels||[],minUserRatingCount:options.minUserRatingCount||0,query,candidateLimit:Number(options.candidateLimit)||20,limit:Number(options.limit)||5,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['auto']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+function providerRequestTimeout(options={}){
+  const requested=(options.providers||['auto']).map(providerName),configured=Math.max(0,Number(options.providerTimeoutMs)||0),fallback=options.fastPath===true?2400:12000;
+  // `auto` can legally walk Geoapify -> TomTom -> HERE. Each provider owns a
+  // bounded server timeout, so the browser must not abort the gateway before
+  // the final free provider can answer.
+  return requested.includes('auto')?Math.max(24000,configured):configured||fallback;
+}
 function aggregateProviderDiagnostics(attempts=[]){
   const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
   for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
@@ -211,7 +218,7 @@ async function recommend(options={}){
         intentContext:{text:goal.text,category:goal.category,niche:Boolean(intent.niche),variants:plan.queries,aiPlan:plan.ai||null},
         spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,
         positionContext:options.positionContext||null,
-        requestOptions:{timeoutMs:Number(options.providerTimeoutMs)||(options.fastPath===true?2400:12000)}
+        requestOptions:{timeoutMs:providerRequestTimeout(options)}
       })).finally(()=>providerFlights.delete(cacheKey));providerFlights.set(cacheKey,flight)}
       const response=await flight;
       const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
@@ -225,9 +232,9 @@ async function recommend(options={}){
       // A temporary network failure must not erase a previously verified cohort.
       // Reuse only this exact query/filter/area and only bounded Geoapify data;
       // never claim a stale opening-hours result is currently open.
-      if(cached&&age>=0&&age<PROVIDER_RECOVERY_MS&&!options.openNow&&cached.places.length&&cached.places.every(place=>providerId(place).startsWith('geoapify:'))){
+      if(cached&&age>=0&&age<PROVIDER_RECOVERY_MS&&!options.openNow&&cached.places.length&&cached.places.every(place=>/^(?:geoapify|tomtom|here):/.test(providerId(place)))){
         const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],ownerObservedAt:place.ownerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true,providerReadiness:'stale'}));
-        const providers={...cached.providers,status:'partial',degraded:true,errors:[...(cached.providers.errors||[]),{provider:'geoapify',code:clean(error?.code||'PLACES_QUERY_FAILED').slice(0,80)}]};
+        const providers={...cached.providers,status:'partial',degraded:true,errors:[...(cached.providers.errors||[]),{provider:'auto',code:clean(error?.code||'PLACES_QUERY_FAILED').slice(0,80)}]};
         return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,stale:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers}};
       }
       return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED',cached:false,providers:safeProviderMeta(error?.providerDiagnostics||{})}};
