@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
-  "sourceBaseline": "c28621de866a8dee371ca926b5f98f9617d9e295",
-  "app": "13.82.168.37",
+  "sourceBaseline": "466aaa9e38c116409b375ffe07020787a1c2465b",
+  "app": "13.82.168.43",
   "core": "4.82.168",
-  "runtimeSource": "978e3d00bef46dee9f84e51c94ee14b5299e7133",
-  "worker": "c8d1d1c2-0849-4de7-800a-15d7782767ab",
+  "runtimeSource": "466aaa9e38c116409b375ffe07020787a1c2465b",
+  "worker": "3a431617-48ba-42cf-adfb-0e3fc27dd9fa",
   "gateway": "v161 ACTIVE",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": ".37 ist veröffentlicht; letzte spätere Änderung ist HERE-Konfiguration c28621de.",
+      "evidence": "13.82.168.43 auf Integration veröffentlicht; Quellarchiv, Worker und 25 öffentliche Dateihashes belegt. Gateway v161 unverändert.",
       "nextAcceptance": "Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -40,8 +40,8 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "Auf .37 neu sichtbar: freie und einfache Scharbeutz-Restaurantanfrage im Chat leer; Retry-Gateway liefert 20 Rohorte. Ursache finaler Auswahl offen. B1-End-to-End nicht bestanden.",
-      "nextAcceptance": "Freie Suchanfrage zu Scharbeutz, belegte Vorlieben, exakte Details und passende Rückfrage prüfen.",
+      "evidence": "Freie vegetarische Scharbeutz-Suche und einfache Restaurantanfrage liefern jetzt drei belegte Vorschläge. Chat übernimmt das Profil und den lokalen 3-km-Kontext. Ausschnittswechsel erhält Suchauftrag und Aktionsangebote; temporäres Nachladeversagen mit erhaltenen Pins ebenfalls beobachtet.",
+      "nextAcceptance": "Weitere Sprachen, Kategorien, widersprüchliche Wünsche und transienten Provider-/Detailabruf gezielt abnehmen; keine vollständige P03-Abnahme aus zwei Restaurantsätzen ableiten.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -52,8 +52,8 @@
       "canonicalTitle": "Places Favorite/Unfavorite",
       "status": "BELEGT_BEGRENZT",
       "owner": "Places",
-      "evidence": "Favorite und Unfavorite für registrierte Zeilen öffentlich auf .139 abgenommen.",
-      "nextAcceptance": "Aktuell Favorit setzen, unabhängig lesen, entfernen, neu laden und Ursprungszustand wiederherstellen.",
+      "evidence": "COAST im sichtbaren Chat favorisiert, über places.v1 unabhängig gelesen, nach erneuter Vorschau zurückgenommen und nach Reload ursprünglichen Favoritenstand verifiziert. Begrenzter aktueller Positivbeleg; kein vollständiger Mehrnutzer-/Offline-Abschluss.",
+      "nextAcceptance": "Favorit über positive Reload-Phase, zweiten Nutzer und Offline/Reconcile abnehmen.",
       "scope": "Close Preview, explicit confirmation, `places.v1` command, Receipt, recovery, persistence and separately confirmed Undo.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -64,8 +64,8 @@
       "canonicalTitle": "Places Plan/Unplan",
       "status": "BELEGT_BEGRENZT",
       "owner": "Places und Journey",
-      "evidence": "Plan und Unplan für registrierte Zeilen öffentlich auf .139 abgenommen.",
-      "nextAcceptance": "Tag und Zeit erhalten; Vorschau, Bestätigung, Timeline, Undo und Reload erneut durchlaufen.",
+      "evidence": "Die versteckten Datumsfelder und ein veralteter Standardtag wurden korrigiert. ROOF am 13.06.2027 um 13:00 sichtbar geprüft, bestätigt und unabhängig in der Timeline gelesen. Testplanung zurückgenommen; ursprüngliche Termine nach Reload erhalten.",
+      "nextAcceptance": "Änderung, Konfliktlösung, dauerhafte Rücknahme und weitere Unterkunfts-/Kategoriepfade abnehmen; bestehenden kurzen Undo-Zeitraum verbessern.",
       "scope": "Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -76,7 +76,7 @@
       "canonicalTitle": "Universal Booking Read/Open",
       "status": "TEILWEISE",
       "owner": "Booking",
-      "evidence": "Universelle Admission-Entscheidung und exakte Weiterleitung vorhanden; positive Partnerpfade nicht vollständig belegt.",
+      "evidence": "ROOF: Reservierungsprüfung reagiert direkt am auslösenden Button. Der Booking-Resolver verwirft Hotelzimmerwege für Tischreservierungen und findet den belegten Reservierungsbereich auf der offiziellen Restaurantseite. Live read-only geprüft; E-Mail-/manueller Fallback und Retry automatisiert geprüft. Keine Anfrage versendet; vollständige positive Partner- und Buchungslifecycle-Abnahme offen.",
       "nextAcceptance": "Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen.",
       "scope": "Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -112,7 +112,7 @@
       "canonicalTitle": "Granular Journey commands",
       "status": "TEILWEISE",
       "owner": "Journey",
-      "evidence": "Day Graph, Verträge und Teilaktionen vorhanden; vollständige granulare Produktkette offen.",
+      "evidence": "Granulare Journey-Befehle bleiben offen. Die konkrete Date-/Time-Übergabe von Place zur Timeline ist repariert und begrenzt sichtbar abgenommen; edit/move/reorder/connect/delete/restore benötigen eigene Produktnachweise.",
       "nextAcceptance": "Hinzufügen, Bearbeiten, Verschieben, Sortieren, Verbinden, Löschen und Wiederherstellen einzeln über journey.v1 abnehmen.",
       "scope": "Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -124,7 +124,7 @@
       "canonicalTitle": "S16.01 Explainable Planning Trace expansion",
       "status": "TEILWEISE",
       "owner": "Intelligence",
-      "evidence": "Planning Trace und Projektionen vorhanden; konsistente lesbare Erklärung aller aktuellen Aktionen offen.",
+      "evidence": "Leere Suche meldet keinen Erfolg und behauptet keine Nichtexistenz. Quellengebundene Gründe und Planprüfung sind sichtbar; vollständige verständliche Erklärung aller Aktionen bleibt offen.",
       "nextAcceptance": "Quellen, Aktualität, Annahmen, Konflikte und Ergebnis verständlich zeigen; keine internen Gedankengänge ausgeben.",
       "scope": "Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": ".37 besitzt Quell-, Worker- und 18-Dateien-Bytebeleg.",
+      "evidence": "13.82.168.43: immutable Quelle 466aaa9e, 212/212 Safe Regression, 25/25 öffentliche Asset-Hashes. Main und Places-Gateway unverändert; Booking-Resolver 2.8.0 separat aktualisiert.",
       "nextAcceptance": "Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -610,5 +610,14 @@
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     }
   ],
-  "acceptanceUpdate": "Visible B1 counterexample: Chat empty despite successful gateway reads; P03 correction precedes downstream mutation acceptance."
+  "acceptanceUpdate": "Visible B1 counterexample: Chat empty despite successful gateway reads; P03 correction precedes downstream mutation acceptance.",
+  "safeRegression": "212/212 PASS",
+  "publicAssetIdentity": "25/25 MATCH",
+  "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
+  "bookingResolver": {
+    "version": "2.8.0-venue-service-reservation-anchor",
+    "functionVersion": 18,
+    "source": "17749f8c654804d0656e2da914e302409789fb34",
+    "scope": "existing shared Supabase function booking-route-resolve"
+  }
 }

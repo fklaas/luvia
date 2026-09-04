@@ -2,22 +2,22 @@
 
 M0–M16 sind dokumentiert geschlossen. M16.5 bleibt aktiv: Schritte 01–14 geschlossen, Schritte 15–18 in Arbeit. B0 ist als Human↔AI-Steuerungsgrundlage auf .135 öffentlich geschlossen. Das ist kein Abschluss aller Bedienaktionen durch AI. B1 ist der aktive Produktblock. B2–B4 besitzen teils Grundlagen; die Gesamtblöcke sind nicht abgenommen. P40–P50 bleiben erhalten und folgen den jeweils erforderlichen späteren Roadmap-Gates.
 
-## Neuer sichtbarer B1 Gegenbeleg
+## Aktueller B1 Fortschritt
 
-Der aktuelle Scharbeutz-Lauf auf .37 zeigt eine noch offene Verbindung zwischen AI-Chat und Places: Die Karte liefert Orte; die freie Restaurantanfrage scheitert zunächst. Ein begrenzter Retry liefert drei erfolgreiche Gateway-Antworten mit jeweils 20 Geoapify-Orten, während der Chat anschließend leer bleibt. Auch die einfache Anfrage „Zeige mir Restaurants in Scharbeutz“ endet leer. Zusätzlich steht unter dem leeren Ergebnis eine unpassende Erfolgsmeldung. Der Chat verwendet einen 20-km-Default, die Karte zeigt 3 km. Diese Beobachtungen grenzen den Fehler ein, beweisen aber noch nicht die Ursache der finalen Ausfilterung.
+Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Damit ist A2 begonnen, nicht abgeschlossen. Vor Favorit-/Timeline-Mutationen ist nun zuerst die P03-Übergabe samt Filter-/Evidenzpfad zu korrigieren. Geeignetheit darf dabei nicht durch ungeprüfte Freigabe aller Rohorte ersetzt werden. Der vollständige Beleg und die noch nicht ausgeführten Schritte stehen in docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md. Dieser Dokumentlauf deployt keine Runtime-Korrektur.
+Integration läuft auf 13.82.168.43. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
-
+Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## Verbindlicher aktueller Stand
 
-Integration: App **13.82.168.37**, Core **4.82.168**, Gateway **v161 ACTIVE**. Frontend-Quelle **978e3d00bef46dee9f84e51c94ee14b5299e7133**, Worker **c8d1d1c2-0849-4de7-800a-15d7782767ab**. Spätere HERE-Konfiguration aus **c28621de866a8dee371ca926b5f98f9617d9e295** benötigt keinen weiteren Frontend-Deploy. Letzte gemessene Safe Regression: **210/210 PASS**, öffentliche Byteidentität **18/18**. Diese Werte stammen aus der .37-Abnahme und wurden für die Dokumentüberarbeitung nicht als neuer Test ausgegeben.
+Integration: App **13.82.168.43**, Core **4.82.168**, Gateway **v161 ACTIVE**. Frontend-Quelle **466aaa9e38c116409b375ffe07020787a1c2465b**, Worker **3a431617-48ba-42cf-adfb-0e3fc27dd9fa**. Die bereits aktivierte HERE-Konfiguration bleibt erhalten. Safe Regression des aktuellen Runtime-Slice: **212/212 PASS**, öffentliche Byteidentität **25/25**. Gateway v161 und Providerbudgets bleiben unverändert.
 
 Main-HEAD **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba** bleibt unverändert. Der dokumentierte Produktionsbuild ist .49; in diesem Dokumentlauf wurde kein neuer Production-HTTP-Beleg erhoben. Keine Produktionsfreigabe und kein übergreifender Design Freeze.
 
 ## Status richtig lesen
 
-- BELEGT BEGRENZT: konkreter älterer öffentlicher Ablauf nachgewiesen; aktuelle Gesamtregression nicht dadurch automatisch abgenommen.
+- BELEGT BEGRENZT: konkreter datierter öffentlicher Ablauf nachgewiesen; aktuelle Gesamtregression nicht dadurch automatisch abgenommen.
 - TEILWEISE: produktive Teile vorhanden, benannte Abschlussnachweise fehlen.
 - VORBEREITET: Architektur, Verträge oder Fixtures vorhanden; kein vollständiger Live-Produktnachweis.
 - OFFEN: kein vollständiger Nachweis für das Arbeitspaket.
@@ -97,7 +97,7 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-.37 ist veröffentlicht; letzte spätere Änderung ist HERE-Konfiguration c28621de.
+13.82.168.43 auf Integration veröffentlicht; Quellarchiv, Worker und 25 öffentliche Dateihashes belegt. Gateway v161 unverändert.
 
 **Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
 
@@ -117,9 +117,9 @@ Geoapify, TomTom, HERE und ORS live geprüft; vollständige Ortsfotos und alle o
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Auf .37 neu sichtbar: freie und einfache Scharbeutz-Restaurantanfrage im Chat leer; Retry-Gateway liefert 20 Rohorte. Ursache finaler Auswahl offen. B1-End-to-End nicht bestanden.
+Freie vegetarische Scharbeutz-Suche und einfache Restaurantanfrage liefern jetzt drei belegte Vorschläge. Chat übernimmt das Profil und den lokalen 3-km-Kontext. Ausschnittswechsel erhält Suchauftrag und Aktionsangebote; temporäres Nachladeversagen mit erhaltenen Pins ebenfalls beobachtet.
 
-**Nächster Abschlussnachweis:** Freie Suchanfrage zu Scharbeutz, belegte Vorlieben, exakte Details und passende Rückfrage prüfen.
+**Nächster Abschlussnachweis:** Weitere Sprachen, Kategorien, widersprüchliche Wünsche und transienten Provider-/Detailabruf gezielt abnehmen; keine vollständige P03-Abnahme aus zwei Restaurantsätzen ableiten.
 
 **Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
 
@@ -127,9 +127,9 @@ Auf .37 neu sichtbar: freie und einfache Scharbeutz-Restaurantanfrage im Chat le
 
 **Stand:** BELEGT BEGRENZT. **Zuständig:** Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Favorite und Unfavorite für registrierte Zeilen öffentlich auf .139 abgenommen.
+COAST im sichtbaren Chat favorisiert, über places.v1 unabhängig gelesen, nach erneuter Vorschau zurückgenommen und nach Reload ursprünglichen Favoritenstand verifiziert. Begrenzter aktueller Positivbeleg; kein vollständiger Mehrnutzer-/Offline-Abschluss.
 
-**Nächster Abschlussnachweis:** Aktuell Favorit setzen, unabhängig lesen, entfernen, neu laden und Ursprungszustand wiederherstellen.
+**Nächster Abschlussnachweis:** Favorit über positive Reload-Phase, zweiten Nutzer und Offline/Reconcile abnehmen.
 
 **Erhaltener technischer Umfang:** Close Preview, explicit confirmation, `places.v1` command, Receipt, recovery, persistence and separately confirmed Undo.
 
@@ -137,9 +137,9 @@ Favorite und Unfavorite für registrierte Zeilen öffentlich auf .139 abgenommen
 
 **Stand:** BELEGT BEGRENZT. **Zuständig:** Places und Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Plan und Unplan für registrierte Zeilen öffentlich auf .139 abgenommen.
+Die versteckten Datumsfelder und ein veralteter Standardtag wurden korrigiert. ROOF am 13.06.2027 um 13:00 sichtbar geprüft, bestätigt und unabhängig in der Timeline gelesen. Testplanung zurückgenommen; ursprüngliche Termine nach Reload erhalten.
 
-**Nächster Abschlussnachweis:** Tag und Zeit erhalten; Vorschau, Bestätigung, Timeline, Undo und Reload erneut durchlaufen.
+**Nächster Abschlussnachweis:** Änderung, Konfliktlösung, dauerhafte Rücknahme und weitere Unterkunfts-/Kategoriepfade abnehmen; bestehenden kurzen Undo-Zeitraum verbessern.
 
 **Erhaltener technischer Umfang:** Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.
 
@@ -147,7 +147,7 @@ Plan und Unplan für registrierte Zeilen öffentlich auf .139 abgenommen.
 
 **Stand:** TEILWEISE. **Zuständig:** Booking. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Universelle Admission-Entscheidung und exakte Weiterleitung vorhanden; positive Partnerpfade nicht vollständig belegt.
+ROOF: Reservierungsprüfung reagiert direkt am auslösenden Button. Der Booking-Resolver verwirft Hotelzimmerwege für Tischreservierungen und findet den belegten Reservierungsbereich auf der offiziellen Restaurantseite. Live read-only geprüft; E-Mail-/manueller Fallback und Retry automatisiert geprüft. Keine Anfrage versendet; vollständige positive Partner- und Buchungslifecycle-Abnahme offen.
 
 **Nächster Abschlussnachweis:** Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen.
 
@@ -177,7 +177,7 @@ Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme off
 
 **Stand:** TEILWEISE. **Zuständig:** Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Day Graph, Verträge und Teilaktionen vorhanden; vollständige granulare Produktkette offen.
+Granulare Journey-Befehle bleiben offen. Die konkrete Date-/Time-Übergabe von Place zur Timeline ist repariert und begrenzt sichtbar abgenommen; edit/move/reorder/connect/delete/restore benötigen eigene Produktnachweise.
 
 **Nächster Abschlussnachweis:** Hinzufügen, Bearbeiten, Verschieben, Sortieren, Verbinden, Löschen und Wiederherstellen einzeln über journey.v1 abnehmen.
 
@@ -187,7 +187,7 @@ Day Graph, Verträge und Teilaktionen vorhanden; vollständige granulare Produkt
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Planning Trace und Projektionen vorhanden; konsistente lesbare Erklärung aller aktuellen Aktionen offen.
+Leere Suche meldet keinen Erfolg und behauptet keine Nichtexistenz. Quellengebundene Gründe und Planprüfung sind sichtbar; vollständige verständliche Erklärung aller Aktionen bleibt offen.
 
 **Nächster Abschlussnachweis:** Quellen, Aktualität, Annahmen, Konflikte und Ergebnis verständlich zeigen; keine internen Gedankengänge ausgeben.
 
@@ -477,7 +477,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-.37 besitzt Quell-, Worker- und 18-Dateien-Bytebeleg.
+13.82.168.43: immutable Quelle 466aaa9e, 212/212 Safe Regression, 25/25 öffentliche Asset-Hashes. Main und Places-Gateway unverändert; Booking-Resolver separat aktualisiert.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
 

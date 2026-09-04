@@ -1,36 +1,60 @@
 # Sichtbare B1 Abnahme am 4 September 2026
 
-Stand: **BEGONNEN / NEUER GEGENBELEG / KEIN B1 ABSCHLUSS**. Öffentliche Integration App 13.82.168.37, bestehende Reise Ostseeurlaub in Scharbeutz, 12.–19. Juni 2027. Sichtbarer In-App-Browser, vorhandene angemeldete Sitzung. Kein physischer Gerätetest.
+Stand: **BEGRENZTE POSITIVBELEGE — B1 BLEIBT AKTIV**. Die heute reproduzierten P03-Suchlücken, die versteckte Terminprüfung und die verlorene Dauer sind korrigiert. Die Reservierungsprüfung zeigt ihr Ergebnis am auslösenden Button; der zusätzlich entdeckte falsche Zimmerlink für das Restaurant ROOF ist im Booking-Resolver korrigiert. Keine vollständige Golden-Journey-, Partner- oder Hardwareabnahme.
 
-## Tatsächlich ausgeführt
+## Veröffentlicht und geprüft
 
-| Schritt | Beobachtung | Einordnung |
+Frontend **13.82.168.43**, Core **4.82.168**, Quelle **466aaa9e38c116409b375ffe07020787a1c2465b**, Worker **3a431617-48ba-42cf-adfb-0e3fc27dd9fa**. 25/25 öffentliche Asset-Hashes stimmen mit dem unveränderlichen .43-Quellarchiv überein. Frontend Safe Regression: 212/212 PASS.
+
+Booking-Resolver **2.8.0-venue-service-reservation-anchor**, bestehende Supabase-Funktion **booking-route-resolve v18**, Quelle **17749f8c654804d0656e2da914e302409789fb34**. Auch der abschließende Backend-Slice besteht 212/212 Safe Regression. Die gemeinsame Backend-Funktion wurde aktualisiert; das Main-Frontend wurde nicht veröffentlicht. Places-Gateway v161, Providerbudgets, Secrets und Schemas bleiben unverändert. Main-HEAD c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba bleibt unverändert.
+
+## Sichtbare Produktnachweise
+
+Testumgebung: vorhandene angemeldete Sitzung im sichtbaren Codex In-App-Browser. Aktive Reise Ostseeurlaub, Scharbeutz, 12.–19. Juni 2027; bestätigte vegetarische Profilvorliebe. Kein physisches iPhone-/Android-Gerät. Die öffentlichen Versionen .39, .41, .42 und .43 wurden im Verlauf bewusst einzeln nachgeladen.
+
+| Ablauf | Beobachtung | Grenze |
 |---|---|---|
-| Places öffnen | Scharbeutz, 3 km, 50 koordinatenverifizierte Orte; einzelne belegte Passungen | Positiver aktueller Karten-Read |
-| AI Chat öffnen | Echter Compass-Dialog sichtbar und bedienbar | PASS für diesen Einstieg |
-| Freie Anfrage | „Finde für unseren Ostseeurlaub in Scharbeutz ein vegetarisch geeignetes Restaurant am Wasser.“ | Richtige sichtbare Wunschzusammenfassung |
-| Erster Abruf | „Orte und Umgebung konnte ich nicht zuverlässig laden“ | Fehler sichtbar; Ursache des ersten Ausfalls nicht abschließend bestimmt |
-| Einmal Erneut versuchen | Drei Gateway-Text-Search-Antworten HTTP 200, ok:true, jeweils 20 Geoapify-Orte und keine Providerfehler | Anbieterantwort vorhanden; kein vollständiger Sucherfolg im Consumer |
-| Darstellung nach Retry | „Noch kein verlässlicher Ort gefunden“ bei gleichzeitigem Status „Die passenden Informationen sind da“ | Widersprüchliche Erfolgsmeldung; leerer Chat-Endpfad |
-| Einfachere Vergleichsanfrage | „Zeige mir Restaurants in Scharbeutz.“ endet ebenfalls mit leerem Ergebnis | B1-Suche nicht als abgenommen markierbar |
-| Unabhängiger Journey-Read | „Zeige mir den Tagesplan für den 12. Juni 2027.“ zeigt 2 echte Momente, Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 | PASS für diesen lesenden Tagesplanpfad; keine Mutation |
-| Normaler Reload | Ostseeurlaub bleibt aktiv; Scharbeutz und 50 Kartenorte wieder sichtbar | PASS für Reiseerhalt und erneuten Karten-Read; kein vollständiger Mutations-Reload-Beleg |
+| Freie vegetarische Anfrage am Wasser auf .39 | „Finde für unseren Ostseeurlaub in Scharbeutz ein vegetarisch geeignetes Restaurant am Wasser.“ liefert drei Vorschläge: Grande Beach Café, COAST, Diercksen. Der erste Gateway-Abruf berücksichtigt 50 Kandidaten. | Kein Beleg für jede Küche, Sprache oder Kategorie. |
+| Ausschnittswechsel auf .39 | Nach weiterem Zoomen erscheinen Grande Beach Café, COAST und ROOF mit erhaltenem Suchauftrag und Aktionsangeboten. | Ein vorheriger Nachladeversuch scheitert vorübergehend; vorhandene Pins bleiben erhalten. Details liefern vereinzelt 503. Die Ausfallursachen sind noch nicht vollständig geklärt. |
+| Einfache Anfrage auf .41 | „Zeige mir Restaurants in Scharbeutz.“ liefert drei Vorschläge und zeigt die Berücksichtigung gespeicherter Vorlieben. | Zwei reale Suchsätze schließen P03 nicht vollständig. |
+| COAST Details und Favorit | Exakter Name, Adresse, Website und vegetarische Belege gelesen. Favorit nach Vorschau bestätigt, unabhängig über places.v1 gelesen, nach separater Rücknahmevorschau wieder entfernt. Ursprünglicher Favoritenstand nach Reload geprüft. | Positive Favorite-Reload-Phase, zweiter Nutzer und Offline-Reconcile fehlen. |
+| Terminprüfung auf .41 | ROOF: sichtbarer Reisetag, Uhrzeit und Dauer; vor Bestätigung kein Schreiben. Datum auf 13.06.2027, Uhrzeit auf 13:00 geändert, 90 Minuten bestätigt. | Kein vollständiger Konflikt-, Verschieben- oder Gruppenabstimmungstest. |
+| Dauer und Reload auf .42 | Unabhängiger journey.v1-Read zeigt 13.06.2027 11:00Z bis 12:30Z, entsprechend 13:00–14:30 lokal, 90 Minuten. Testplanung über places.v1 zurückgenommen; nach Reload ursprüngliche sechs Einträge erhalten. | Die Oberfläche für dauerhafte Rücknahme und sämtliche P09-Befehle bleiben offen. |
+| Reservierung prüfen auf .43 | ROOF-Detailkarte per Pin geöffnet. Klick zeigt direkt am Button „Reservierungsseite von ROOF gefunden“ und fokussiert „Reservierungsseite öffnen“. Reisefarbe bleibt erhalten. | Gefundener Weg bedeutet keine Tischverfügbarkeit. |
+| Richtiger Booking-Weg mit Resolver 2.8.0 | Live-Read bindet ROOF an https://www.bayside.de/restaurants-und-bars/roof/#teburio. Die echte Restaurantseite enthält dort den Bereich Tischreservierung. Prüfung benötigt eine Quellseite. | Keine Reservierung abgeschickt, kein verbindliches Angebot, kein positiver Partnervertrag belegt. |
 
-Die Diagnostik zeigt beim Retry einen 20-km-Default im Chat-Suchkontext, während die Karte 3 km zeigt. Außerdem enthält der Suchtext doppelte Orts-/Wunschbestandteile. Die drei Anbieterantworten enthalten dieselben 20 Ortsnamen. Das belegt Unterschiede in den Abrufpfaden; es beweist noch nicht die genaue Ursache der späteren leeren Auswahl. Die 20 Rohorte wurden nicht sämtlich auf vegetarische Eignung oder Lage am Wasser verifiziert. Die Lösung darf deshalb nicht einfach ungeprüfte Orte als passend freischalten.
+## Behobene Ursachen
 
-## Unmittelbar nächster Korrekturslice
+Der korrigierte Zielbereich wurde zusätzlich in einem sichtbaren Browsertab geöffnet. Dort lädt das echte Teburio-Widget mit „Online Reservierung“, Personen- und Datumsauswahl. Das Ziel wurde lesend geöffnet; weder das Formular abgesendet noch eine externe Übergabe als Buchung gespeichert. Beleg: b1-roof-reservation-section.txt.
 
-1. P03-Übergabe von Intelligence über places.v1 bis zur finalen Eignungs-/Kartenauswahl verfolgen. Request-Constraints, Providerfilter, Deduplizierung, Mindestbelege und ausgeschlossene IDs vergleichen.
-2. Den gemeinsamen räumlichen und fachlichen Suchvertrag verwenden; gleiche konkrete Nutzeranforderung darf nicht still verschiedene Ortsradien oder veraltete Filterlogik erhalten.
-3. Bei leerem Ergebnis ehrlich sagen, welche Belege fehlen. Keine pauschale Erfolgsmeldung „Informationen sind da“ aus einem abgeschlossenen Promise ableiten.
-4. Danach denselben sichtbaren Satz und den einfachen Vergleich erneut testen. Erst bei einem belegten geeigneten Treffer Details, Favorit, Planen, Änderung und Undo fortsetzen.
+Die Chat-Suche betrachtete zunächst nur 20 Rohkandidaten, obwohl geeignete Treffer außerhalb dieses Fensters lagen. Sichtbare Auswahl und Kandidatenfenster sind jetzt getrennt. Der lokale Suchkontext beträgt wie auf der Karte standardmäßig 3 km. Explizite Radien bleiben möglich. Allgemeine Suchwörter einschließlich des vom Chat verwendeten „anzeigen“ werden nicht als Merkmale eines konkreten Ortes behandelt. Profilabhängige Empfehlungen benötigen belegte Ernährungseignung; unbekannte Angaben werden nicht freigegeben.
 
-## Noch nicht in diesem Lauf abgenommen
+Beim Ausschnittswechsel wurde der konkrete Suchauftrag durch eine allgemeine Kategorie ersetzt. Der öffentliche Runtime-Pfad führt jetzt dieselben Constraints, Kategorie und Aktionsangebote weiter und prüft die aktive Reise. Leere Ergebnisse melden keinen Erfolg und beweisen keine Nichtexistenz am Zielort.
 
-Favorit/Unfavorite, Plan/Unplan, granulare Timeline-Mutationen, Konfliktvorschau, unabhängiger Readback, Undo und vollständiger Reload-Endzustand sind nach dem gescheiterten Suchschritt **NICHT AUSGEFÜHRT**. Ihre .139-Belege bleiben historische Teilbelege. Keine Buchung, Nachricht an Anbieter, bezahlte Aktion oder Änderung an Reise-/Timeline-Daten wurde aus diesem Test vorgenommen.
+Die Planoberfläche verwendete veraltete Tageshinweise und versteckte Terminangaben. Sie zeigt jetzt Tag, Uhrzeit und Dauer vor dem bestehenden Owner-Kommando. Vorgaben außerhalb der Reise werden korrigiert; der erste Klick öffnet die Prüfung. Die Dauer war zwar im Places-Datensatz gespeichert, ging aber in dessen bestehender Timeline-Projektion verloren. Diese Projektion reicht die belegten 90 Minuten jetzt korrekt an Journey weiter.
 
-Screenshot und sichtbarer Dialogtext: C:/Users/fabia/Documents/ChatGPT/Luvia/outputs/b1-chat-counterexample-20260904.png und b1-chat-counterexample-20260904.txt. Die Gateway-Messung bezieht sich auf genau diesen Retry; sie ist keine allgemeine Aussage über alle Anbieter oder alle Anfragen. Keine Zugangsdaten sind im Beleg gespeichert.
+Der Booking-Aufruf war kein vollständiger No-op: Sein Ergebnis stand außerhalb des aktuellen Ausschnitts, während am Button eine alte Fortschrittsmeldung stehen blieb. Das Ergebnis steht jetzt am Auslöser und der nächste Schritt erhält den Fokus. Technische Fehler, manueller Kontakt und externe Übergabe erhalten unterscheidbare Texte. Ein blockiertes Anbieterfenster bleibt erneut bedienbar. Der Completion-State des E-Mail-Callbacks verweist wieder auf den gültigen Sheet-Zustand.
 
-Der positive Journey-Read ist separat in b1-journey-read-20260904.png und b1-journey-read-20260904.txt im selben Ausgabeverzeichnis dokumentiert. Die Testnachrichten wurden im realen Chat gesendet; Reise, Profil, Favoriten und Timeline wurden nicht verändert.
+Der zusätzliche Live-Read zeigte einen schwereren Fehler: ROOF wurde über dieselbe Hausadresse an eine Junior-Suite-Seite gebunden. Booking prüft jetzt zusätzlich die Art des Angebots. Ein Restaurant darf keinen Zimmerbuchungsweg übernehmen; eine Unterkunft keinen Tischbuchungsweg. Gültige Reservierungsanker innerhalb der konkreten offiziellen Ortsseite werden gefunden und beim Öffnen erhalten. Ein allgemeiner Speisekartenlink im Footer macht einen tatsächlichen Reservierungsbereich nicht mehr ungültig.
 
-Dieser Gegenbeleg ordnet die Arbeit innerhalb des bereits akzeptierten A2-Abschnitts neu: zuerst P03-Lücke schließen, anschließend die vollständige Golden Journey sowie P09/P10. Der Dokument-Slice verändert keinen produktiven Runtime-Code und behauptet keinen neuen Deployment-Erfolg.
+## Automatisiert geprüfte Booking-Fälle
+
+Bestehende Tests und zusätzliche Gegenbeispiele prüfen Ortsidentität, falsche Schwesterhotels, unpassende Zimmerwege für Restaurants, gültige Hotelwege, belegte Providerbindungen, echte Reservierungsanker und fehlende Anker. Ein unpassender Hotelweg verhindert den verifizierten E-Mail-Fallback nicht. Fehlende Wege bleiben manuell; technische Fehler behaupten nicht, dass kein Kontakt existiert. Der UI-Test prüft Ergebnisplatzierung, nicht mutierende Vorschau und Retry nach blockiertem Fenster. Das sind kontrollierte Testfälle und keine live versendeten E-Mails.
+
+## Testdaten und Rücknahme
+
+Der versehentlich aus dem alten Standardtag entstandene ROOF-Testplan wurde bereits vor der .40-Korrektur entfernt. Auch der bewusst bestätigte Termin am 13. Juni wurde nach der .42-Prüfung wieder über das Owner-Kommando entfernt. Die ursprünglichen sechs Journey-Einträge einschließlich ihrer Startzeiten sind erhalten; bestehende Altdaten vom 31. August 2026 wurden nicht bereinigt. Die bestehende Quelle liefert nun auch deren bereits gespeicherte Dauer korrekt.
+
+DAS LEO bleibt der einzige ursprüngliche Favorit. COAST und ROOF bleiben als neu entdeckte, nicht favorisierte und nicht eingeplante Ortsdatensätze erhalten. Testchat-Verlauf und Pin-Verlauf sind ebenfalls nachvollziehbar. Deshalb wird keine vollständig unveränderte Datenbank behauptet. Keine E-Mail, kostenpflichtige Buchung oder echte Reservierungsanfrage wurde aus dieser Abnahme versendet.
+
+## Nächste Arbeit
+
+1. Offene A2-Fälle: positive Persistenz nach Reload, gezielte Konflikt-/Änderungsschritte und dauerhafte Rücknahme. Vorübergehende Provider-/Detailfehler gesondert lokalisieren.
+2. A3/P09: add, edit, move, reorder, connect, delete und restore über journey.v1 jeweils mit sichtbarer Vorschau, Bestätigung und Readback schließen.
+3. A4/P10: verständliche Begründungen für Planung, Änderungen, Konflikte und fehlende Belege. Technische Formulierungen in Place-Erklärungen und Singulartexte bleiben als konkrete Restpunkte erfasst.
+4. A5: echte Ortsfotos und positive Booking-Partnerzugänge. Stays-Angebote, Mehrnutzer, Offline, vollständige Geräteprüfung und sämtliche Landes-/Spezialküchen benötigen eigene Nachweise.
+5. A6: B1 erst nach den vollständigen Gates schließen. P01–P50 und M17–M22 bleiben im Masterfahrplan erhalten.
+
+## Belegdateien
+
+Belege liegen unter C:/Users/fabia/Documents/ChatGPT/Luvia/outputs: b1-generic-search41.txt, b1-viewport39.txt, b1-plan-review41.txt, b1-plan-read41.json, b1-plan-read42.json, b1-restored42.json, b1-booking43.txt, b1-booking43.png, b1-booking-route43.json (falscher alter Zielweg), b1-booking-route28.json (korrigierter Live-Weg), b1-final-browser-evidence.json, public-byte-proof43.json, b1-regression43.log und b1-regression-booking28-verified.log. Die ursprüngliche .37-Gegenbeobachtung bleibt im Git-Verlauf und in b1-chat-counterexample-20260904.txt dokumentiert.

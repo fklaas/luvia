@@ -1,23 +1,28 @@
 # Luvia aktueller Integrationsstand
 
-Lokaler B1 Release Candidate **13.82.168.43** – M16.5 Places and Stays Quality. Öffentliche Abnahme noch ausstehend. Der folgende Block beschreibt den zuletzt veröffentlichten Stand.
+Stand 4. September 2026. B1 verbindet die gemeinsame Places-Suche mit dem Chat und einer sichtbaren Prüfung von Tag und Uhrzeit vor der Planung.
 
-Stand 4. September 2026. Die vorherigen Current-Abschnitte sind unverändert im [Dokumentarchiv](docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md) erhalten. Sie sind keine weiteren aktiven Build-Zeiger.
-
-- App: **13.82.168.37**
+- App: **13.82.168.43**
 - Core: **4.82.168**
 - Channel: **integration-preview**
-- Runtime source: **978e3d00bef46dee9f84e51c94ee14b5299e7133**
-- Worker: **c8d1d1c2-0849-4de7-800a-15d7782767ab**
-- Gateway: **v161 ACTIVE**
-- Nachfolgende HERE-Konfiguration: **c28621de866a8dee371ca926b5f98f9617d9e295**
-- Letzte gemessene Runtime-Regressionsabnahme: **210/210 PASS**; öffentliche Asset-Identität **18/18**.
-- Main bleibt **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba**; keine Production-Änderung durch diesen Dokument-Slice.
+- Runtime source: **466aaa9e38c116409b375ffe07020787a1c2465b**
+- Worker: **3a431617-48ba-42cf-adfb-0e3fc27dd9fa**
+- Gateway: **v161 ACTIVE**, unverändert
+- Safe Regression: **212/212 PASS**
+- Öffentliche Asset-Identität: **25/25 MATCH** gegen das unveränderliche Releasearchiv
+- Main: **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba**, unverändert
 
-Places und Stays verwenden dieselbe aktive räumliche Technik. Aktive Reise, Zielortsuche, Kategorie-/Küchenfilter, belegte Passung, Pin-Auswahl, Kartenbedienung und mobile Layouts wurden gezielt repariert. Fünf gemeinsame Kartenfunktionen und Geh-/Fahrradrouten sind öffentlich teilabgenommen. Reale Hardware-Abnahme und volle Ortsfotoabdeckung bleiben offen.
+## Aktueller B1 Fortschritt
 
-Discovery: Geoapify → TomTom → HERE. Routing: ORS → TomTom → Geoapify → HERE. Atomare Backend-Budgetreservierungen verhindern eine unkontrollierte Kaskade. Google und Foursquare sind policy-deaktiviert. Anbietergrenzen sind Luvia-eigene Limits, kein verifiziertes Restguthaben.
+Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Die gemessenen Details und Einschränkungen stehen im [Provider-Abnahmebericht](docs/modularization/PROVIDER-BUDGET-ACCEPTANCE-20260904.md). Der [Statusplan](docs/planning/STATUSPLAN-2026-09-04.md) steuert P01–P50. Der [Masterfahrplan v6](docs/planning/MASTERFAHRPLAN-v6.md) steuert M0–M22.
+Integration läuft auf 13.82.168.43. Der zuvor leere Chat-Suchpfad wurde repariert: Kandidatenfenster und sichtbare Auswahl sind getrennt, der lokale Zielortkontext bleibt erhalten, allgemeine Suchverben werden nicht als Ortsmerkmale behandelt und vegetarische Empfehlungen benötigen belegte Eignung. Beim Ausschnittswechsel bleiben Suchauftrag und Aktionsangebote erhalten. Leere Ergebnisse werden ehrlich erklärt.
 
-B0 ist als Steuerungsgrundlage geschlossen. B1 bleibt aktiv; P09/P10 und die vollständige Golden Journey sind offen. Weder ein Buchungsanbieter noch ein vollständiger Design Freeze wird durch den Karten-Release behauptet.
+Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
+
+
+Places und Stays teilen die räumliche Technik. Neben dem Frontend wurde die bestehende gemeinsame Funktion booking-route-resolve aktualisiert. Providerbudgets, Secrets und Datenbankschemas bleiben unverändert. Discovery verwendet Geoapify → TomTom → HERE; Routing ORS → TomTom → Geoapify → HERE. Grenzen sind interne Limits, kein Kontorestguthaben.
+
+Aktive Steuerung: [Statusplan](docs/planning/STATUSPLAN-2026-09-04.md), [Masterfahrplan](docs/planning/MASTERFAHRPLAN-v6.md) und [sichtbare Abnahme](docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md). Der [historische Buildtext](docs/planning/archive/2026-09-04-before-consolidation/CURRENT-BUILD.md) bleibt unverändert.
+
+Rückfall: Integration auf das Quellarchiv der letzten kompatiblen Frontend-Version zurücksetzen; Backend v161 und Budgetzähler erhalten. Kein Main-Frontend-Deploy; die oben benannte Booking-Funktion gehört zum gemeinsamen Backend. B1 bleibt aktiv; P09/P10 und die vollständige Golden Journey sind nicht geschlossen.
