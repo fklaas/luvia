@@ -54,8 +54,8 @@ a destructive reset of the working tree. Existing untracked files are excluded.
   Taverna Rhodos preview agreed. Previous malformed counter attribute is fixed.
 - Real Zoom-in: zoomend + moveend caused exactly one rectangle search, max 50;
   36 provider rows returned and all 36 fell within requested bounds.
-- Browser instrumentation restored; no provider credentials or domain records
-  were altered. Normal pin-view history and active-trip preference reflect testing.
+- Browser instrumentation restored. No provider credentials, Journey items or
+  bookings were altered. Pin-view history and active-trip preference reflect testing.
 
 Artifacts: C:/Users/fabia/Documents/ChatGPT/Luvia/outputs/recovery-review-2026-09-04/
 contains both release archives, v143 Edge backup, controlled test logs and JSON
