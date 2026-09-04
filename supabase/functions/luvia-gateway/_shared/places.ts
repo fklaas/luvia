@@ -75,20 +75,38 @@ const GEOAPIFY_CATEGORY_FALLBACK_BY_KEY=Object.freeze({
 const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   restaurant:'catering.restaurant',
   cafe:'catering.cafe',
-  bakery:'catering.bakery',
+  bakery:'commercial.food_and_drink.bakery',
   bar:'catering.bar',
   meal_takeaway:'catering.fast_food',
-  food_court:'catering',
+  food_court:'catering.food_court',
   fine_dining_restaurant:'catering.restaurant',
   vegetarian_restaurant:'catering.restaurant',
   vegan_restaurant:'catering.restaurant',
-  italian_restaurant:'catering.restaurant',
-  german_restaurant:'catering.restaurant',
+  italian_restaurant:'catering.restaurant.italian',
+  german_restaurant:'catering.restaurant.german',
+  mediterranean_restaurant:'catering.restaurant.mediterranean',
+  greek_restaurant:'catering.restaurant.greek',
+  french_restaurant:'catering.restaurant.french',
+  spanish_restaurant:'catering.restaurant.spanish',
+  indian_restaurant:'catering.restaurant.indian',
+  chinese_restaurant:'catering.restaurant.chinese',
+  japanese_restaurant:'catering.restaurant.japanese',
+  thai_restaurant:'catering.restaurant.thai',
+  vietnamese_restaurant:'catering.restaurant.vietnamese',
+  korean_restaurant:'catering.restaurant.korean',
+  mexican_restaurant:'catering.restaurant.mexican',
+  middle_eastern_restaurant:'catering.restaurant.arab,catering.restaurant.oriental',
+  lebanese_restaurant:'catering.restaurant.lebanese',
+  turkish_restaurant:'catering.restaurant.turkish',
   accommodation:'accommodation',
   hotel:'accommodation.hotel',
   lodging:'accommodation',
+  apartment:'accommodation.apartment',
+  vacation_rental:'accommodation.chalet',
+  hostel:'accommodation.hostel',
+  campground:'camping.camp_site',
   park:'leisure.park',
-  garden:'leisure.park',
+  garden:'leisure.park.garden',
   beach:'beach',
   swimming_pool:'sport.swimming_pool',
   water_park:'entertainment.water_park',
@@ -98,23 +116,27 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   zoo:'entertainment.zoo',
   spa:'leisure.spa',
   museum:'entertainment.museum',
+  art_gallery:'entertainment.culture.gallery',
+  movie_theater:'entertainment.cinema',
+  performing_arts_theater:'entertainment.culture.theatre',
+  marina:'maritime.marina',
   tourist_attraction:'tourism.sights',
   historical_landmark:'tourism.sights',
-  monument:'tourism.sights',
-  observation_deck:'tourism.sights',
+  monument:'tourism.sights.memorial.monument',
+  observation_deck:'tourism.attraction.viewpoint',
   hiking_area:'natural',
   shopping:'commercial',
   shopping_mall:'commercial.shopping_mall',
-  market:'commercial',
+  market:'commercial.marketplace',
   store:'commercial',
   clothing_store:'commercial.clothing',
   department_store:'commercial.department_store',
-  night_club:'entertainment',
+  night_club:'adult.nightclub',
   pharmacy:'healthcare.pharmacy',
   supermarket:'commercial.supermarket',
   parking:'parking',
-  electric_vehicle_charging_station:'service',
-  atm:'service',
+  electric_vehicle_charging_station:'service.vehicle.charging_station',
+  atm:'service.financial.atm',
   laundry:'commercial',
   // Parent `catering` is the reliable food bucket. Nested lists previously 400'd
   // the whole Places map for the default Restaurant category.
@@ -287,11 +309,31 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(!key)continue;
     types.add(key.replace(/[./]+/g,'_'));
     if(key.startsWith('catering.restaurant')||key==='catering')types.add('restaurant');
+    if(key.startsWith('catering.restaurant.')){const cuisine=key.slice('catering.restaurant.'.length);types.add(`${cuisine}_restaurant`);if(['arab','oriental'].includes(cuisine))types.add('middle_eastern_restaurant')}
     if(key.startsWith('catering.cafe'))types.add('cafe');
     if(key.startsWith('catering.bar'))types.add('bar');
-    if(key.startsWith('catering.bakery'))types.add('bakery');
+    if(key.startsWith('catering.bakery')||key==='commercial.food_and_drink.bakery')types.add('bakery');
+    if(key==='catering.food_court')types.add('food_court');
     if(key.startsWith('catering.fast_food'))types.add('meal_takeaway');
     if(key.startsWith('accommodation'))types.add('lodging');
+    if(key==='accommodation.hotel')types.add('hotel');
+    if(key==='accommodation.apartment')types.add('apartment');
+    if(key==='accommodation.chalet')types.add('vacation_rental');
+    if(key==='accommodation.hostel')types.add('hostel');
+    if(key.startsWith('camping.')){types.add('campground');types.add('lodging')}
+    if(key==='vegetarian.only')types.add('vegetarian_restaurant');
+    if(key==='vegan.only')types.add('vegan_restaurant');
+    if(key==='leisure.park.garden')types.add('garden');
+    if(key==='maritime.marina')types.add('marina');
+    if(key==='adult.nightclub')types.add('night_club');
+    if(key.startsWith('tourism.sights.'))types.add('historical_landmark');
+    if(key==='tourism.sights.memorial.monument')types.add('monument');
+    if(key==='tourism.attraction.viewpoint')types.add('observation_deck');
+    if(key==='healthcare.pharmacy'||key==='commercial.health_and_beauty.pharmacy')types.add('pharmacy');
+    if(key==='commercial.supermarket')types.add('supermarket');
+    if(key.startsWith('parking'))types.add('parking');
+    if(key==='service.vehicle.charging_station')types.add('electric_vehicle_charging_station');
+    if(key==='service.financial.atm')types.add('atm');
     if(key.includes('spa')||key.includes('sauna')||key.includes('wellness'))types.add('spa');
     if(key.includes('playground'))types.add('playground');
     if(key.includes('park')&&!key.includes('parking'))types.add('park');
@@ -409,6 +451,8 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const tags=Array.isArray(props.tags)?props.tags:(typeof props.tags==='string'?props.tags.split(',').map(String):[]);
   const nativeEvidence=[...categories,...tags].filter(Boolean).slice(0,30);
   const mappedTypes=geoapifyLuviaTypes(nativeEvidence);
+  const rawCuisine=String(props.datasource?.raw?.cuisine||'').split(';').map(value=>value.trim().toLowerCase());
+  for(const cuisine of rawCuisine)if((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[`${cuisine}_restaurant`])mappedTypes.push(`${cuisine}_restaurant`);
   const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
   const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
   const servesVeganFood=/vegan/.test(textEvidence)?true:null;
@@ -438,7 +482,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     viewport:null,
     primaryType:primaryType||'',
     primaryTypeLabel:primaryTypeLabel||'',
-    types:[...new Set([...mappedTypes,...nativeEvidence])],
+    types:[...new Set([...mappedTypes,...nativeEvidence])].filter(type=>! /^(?:vegetarian|vegan|wheelchair)(?:$|[._])/.test(type)||type==='vegetarian_restaurant'||type==='vegan_restaurant'),
     rating:null,
     userRatingCount:null,
     priceLevel:null,
@@ -458,7 +502,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     fuelOptions:null,
     subDestinations:[],
     features:{
-      reservable:null,
+      reservable:['yes','required','recommended'].includes(String(raw.reservation||''))?true:raw.reservation==='no'?false:null,
       servesVegetarianFood,
       servesVeganFood,
       goodForChildren:null,
@@ -466,6 +510,40 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     },
     raw:props
   };
+}
+
+async function geoapifyPlaceDetails(rawId:string,options:any={}){
+  const key=getGeoapifyKey();if(!key)throw Object.assign(new Error('Geoapify ist nicht konfiguriert.'),{code:'GEOAPIFY_NOT_CONFIGURED',status:503});
+  const cacheKey=`geoapify-details-media-v1:${rawId}:${options.enrichMedia===true}`,hit=cached(cacheKey);if(hit)return hit;
+  const params=new URLSearchParams({id:rawId.slice(9),features:'details',lang:String(options.languageCode||'de'),apiKey:key});
+  metrics.requests++;metrics.providers.geoapify.requests++;
+  const response=await fetch(`${GEOAPIFY_BASE}/place-details?${params}`,{signal:AbortSignal.timeout(5000)});
+  if(!response.ok)throw Object.assign(new Error('Die Ortsdetails sind gerade nicht verfügbar.'),{code:'GEOAPIFY_DETAILS_UNAVAILABLE',status:response.status});
+  const body=await response.json(),feature=(body.features||[]).find((f:any)=>f.properties?.feature_type==='details')||body.features?.[0];
+  if(!feature)return null;
+  const props=feature.properties||{},place:any=normalizedGeoapifyPlace({...feature,properties:{...props,place_id:rawId.slice(9)}});
+  if(!place)return null;
+  place.provider='geoapify';place.editorialSummary=props.description||null;
+  const media=props.wiki_and_media||{};
+  // Only media explicitly linked to this exact provider entity is considered.
+  // Never use nearby/brand pictures as a substitute for this place.
+  if(/^https:\/\//i.test(String(media.image||''))){place.photos=[{uri:media.image,attribution:'Bild aus dem verknüpften Ortseintrag',sourceUrl:media.image}]}
+  else if(/^File:/i.test(String(media.wikimedia_commons||''))){
+    try{
+      const query=new URLSearchParams({action:'query',format:'json',titles:media.wikimedia_commons,prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'960'}),res=await fetch(`https://commons.wikimedia.org/w/api.php?${query}`,{headers:{'User-Agent':'Luvia/1.0 (place photo attribution)'},signal:AbortSignal.timeout(3000)}),json=await res.json(),page:any=Object.values(json.query?.pages||{})[0],info=page?.imageinfo?.[0];
+      if(info?.url){const meta=info.extmetadata||{},plain=(v:any)=>String(v||'').replace(/<[^>]*>/g,'').slice(0,180);place.photos=[{uri:info.thumburl||info.url,attribution:[plain(meta.Artist?.value),plain(meta.LicenseShortName?.value)].filter(Boolean).join(' · '),attributionUrl:info.descriptionurl,sourceUrl:info.descriptionurl}]}
+    }catch{}
+  }
+  if(!place.photos.length&&options.enrichMedia===true&&getFoursquareKey()){
+    try{
+      const rows=await foursquareSearch(place.name,{location:place.location},{maxResultCount:3,maxDistanceMeters:1000});
+      const normalized=(value:any)=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const match=rows.find((candidate:any)=>normalized(candidate.name)===normalized(place.name)&&candidate.location&&place.location&&distanceMeters(candidate.location,place.location)<=120&&candidate.photos?.length);
+      if(match){place.photos=match.photos;place.providerRefs={geoapify:rawId,foursquare:match.id};place.evidence=[{provider:'foursquare',kind:'exact-name-and-coordinate-photo-match'}]}
+    }catch{}
+  }
+  metrics.successes++;metrics.providers.geoapify.successes++;
+  store(cacheKey,place,30*60_000);return place;
 }
 
 async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any,restriction:any,bias:any){
@@ -479,7 +557,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const rect=restriction?.rectangle||restriction;
   const anchor=rect?.low&&rect?.high?{latitude:(Number(rect.low.latitude)+Number(rect.high.latitude))/2,longitude:(Number(rect.low.longitude)+Number(rect.high.longitude))/2}:searchAnchor(destination,options);
   const biasParam=anchor?`proximity:${anchor.longitude},${anchor.latitude}`:(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||circle;
-  const name=geoapifyNameFilter(textQuery);
+  const name=geoapifyNameFilter(options.userQuery!==undefined?options.userQuery:textQuery);
   // Geoapify Places treats some multi-category CSV lists as an intersection
   // (live Scharbeutz: leisure≈50, but leisure,sport≈1). Always request one
   // category per call and merge unique place_ids — splitGeoapifyCategories.
@@ -490,6 +568,9 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     params.set('categories',cats.join(','));
     if(useName&&name)params.set('name',name);
     if(filter)params.set('filter',filter);
+    const selected=[...(options.includedTypes||[]),options.includedType,options.strictPlaceType].filter(Boolean);
+    const conditions=[selected.includes('vegan_restaurant')?'vegan.only':selected.includes('vegetarian_restaurant')?'vegetarian.only':options.vegetarianOnly?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
+    if(conditions.length)params.set('conditions',conditions.join(','));
     if(biasParam)params.set('bias',biasParam);
     params.set('limit',String(limit));
     if(options?.languageCode)params.set('lang',String(options.languageCode).slice(0,5));
@@ -685,7 +766,7 @@ if(action==='places.text-search'){
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}
 else if(action==='places.autocomplete'){const sessionToken=normalizePlacesSessionToken(options.sessionToken);const body=cleanObject({input:String(payload?.input||''),languageCode,regionCode,sessionToken,locationBias:destinationBias(payload?.destination,options.locationBias),includedPrimaryTypes:options.includedType?[options.includedType]:undefined});const raw=await google('/places:autocomplete',{method:'POST',body:JSON.stringify(body)});result={sessionToken,suggestions:(raw.suggestions||[]).map((s:any)=>({placeId:s.placePrediction?.placeId||null,text:s.placePrediction?.text?.text||s.queryPrediction?.text?.text||'',types:s.placePrediction?.types||[],distanceMeters:s.placePrediction?.distanceMeters??null,raw:s}))};}
-else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){result={place:{id:rawId,providerPlaceId:rawId,name:'',displayName:'',provider:'geoapify',source:'geoapify_places_details_unavailable',photos:[],types:[]}}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
+else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){const place=await geoapifyPlaceDetails(rawId,options);result=place?{place}:{place:null,reason:'geoapify_places_details_unavailable',preserveSeed:true}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
 else if(action==='places.photo'){const name=String(payload?.photoName||'');const qs=new URLSearchParams({skipHttpRedirect:'true',maxWidthPx:String(payload?.maxWidthPx||800)});if(payload?.maxHeightPx)qs.set('maxHeightPx',String(payload.maxHeightPx));const raw=await google(`/${name}/media?${qs}`,{method:'GET'});result={photoUri:raw.photoUri||null,name:raw.name||name};}
 else throw Object.assign(new Error('Places-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
 if(ttl>0)store(key,result,ttl);return{data:result,cache:{hit:false,key,ttlMs:ttl}};}

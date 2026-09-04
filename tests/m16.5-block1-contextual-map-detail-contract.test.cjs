@@ -19,7 +19,7 @@ for(const token of ["themeparks:{key:'themeparks'","wellness:{key:'wellness'","w
 assert.match(places,/filter\(category=>category\.key!=='accommodation'&&category\.primaryType!=='accommodation'\)/,'Hotels must remain outside the Places consumer category rail');
 for(const token of ['vegetarian','reservable','accessible','priceLevels','subtype'])assert.ok(places.includes(token),`missing contextual Places filter: ${token}`);
 assert.match(places,/includedTypes:selectedTypes/,'multi-select type and cuisine filters must reach the provider owner request');
-assert.equal((places.match(/vegetarianOnly:requiresVegetarianEvidence\(\)/g)||[]).length,2,'provider-backed vegetarian filtering must automatically reach discovery and viewport owner requests from either Profile or manual filters');
+assert.equal((places.match(/vegetarianOnly:requiresVegetarianEvidence\(\)/g)||[]).length,3,'manual vegetarian filters must reach destination discovery, retained viewport filtering and viewport gestures');
 assert.match(places,/maxViewportResults:MAX_RESULTS/,'Places must compose the bounded 80-result viewport contract rather than expose a 20-item UI shortlist');
 assert.match(places,/data-places-history-region/);
 assert.match(places,/state\.history=.*\.slice\(0,6\)/);
@@ -53,7 +53,7 @@ assert.doesNotMatch(hotels,/LuviaPlaceDetail(?!s)|openLoading\(\{typeLabel:'Unte
 assert.match(hotelCss,/\.hotel-filter-reveal/);
 assert.match(hotelCss,/\.hotel-pin-history/);
 
-assert.match(sheet,/Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),3200,place\)\)\)/,'provider photo hydration must precede the first exact-pin card paint within a bound');
+assert.match(sheet,/Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),350,place\)\)\)/,'provider photo hydration must precede the first exact-pin card paint within a bound');
 assert.match(sheet,/loading="eager" fetchpriority="high"/);
 assert.match(sheet,/categoryPlaceholder/,'missing real media must have an honest fallback rather than an invented image');
 assert.match(sheet,/setTimeout\(\(\)=>\{if\(!handle\.overlay\?\.isConnected\)return;results\.querySelectorAll\('\[data-lvjs-staged-actions\]'\)/,'card actions must enter after the sheet instead of competing with its first paint');

@@ -17,7 +17,13 @@ Geoapify viewport reads gain bounded session caching and in-flight coalescing.
 Only complete responses may cover smaller rectangles. Other providers retain
 their existing policy; no Google data is persisted through this cache.
 Places and accommodations pass explicit category, cohort and preference context.
-Shared card fixes cover category illustrations, dates and a single planning CTA.
+Shared card fixes cover real venue media, dates and a single planning CTA.
+Rejected category illustrations are removed. Exact-entity photo enrichment runs
+only on detail open, with bounded caching and source attribution. Generic
+vegetarian options cannot override steakhouse/meat-led conflicts. The filter
+matrix covers each provider-supported subtype, facts, AND/OR and reset.
+Unsupported subtype and unavailable rating/price controls are not actionable.
+Geoapify request mappings, detail reads and normalized facts are Places-owned.
 
 Validation: executable preference/cache/category/parity regressions, controlled
 safe suite, generated asset verification and visible Integration browser checks.

@@ -38,6 +38,8 @@
   function photoProvider(source={},photo={}){
     const signature=`${photo?.name||''} ${photo?.uri||photo?.url||''} ${source?.provider||''} ${source?.source||''}`.toLowerCase();
     if(/foursquare|4sqi|fsq:/.test(signature))return'Foursquare';
+    if(/wikimedia/.test(signature))return'Wikimedia Commons';
+    if(/geoapify/.test(signature))return'Geoapify';
     if(/google|places\/.+\/photos\//.test(signature))return'Google Maps';
     if(String(source?.provider||'').toLowerCase()==='multi')return'Mehrere Places-Provider';
     return'Places Provider';
@@ -147,25 +149,28 @@
       latitude:number(coordinates.latitude),longitude:number(coordinates.longitude)
     });
   }
+  const cardReads=new Map();
   async function getCard(placeId,options={}){
+    const id=clean(placeId)?.replace(/^places\//,'');
+    const seed=options.source||options.place;
+    if(!id?.startsWith('geoapify:')||clean(seed?.providerPlaceId||seed?.id)?.replace(/^places\//,'')!==id)return readCard(placeId,options);
+    const existing=cardReads.get(id);if(existing&&Date.now()-existing.at<existing.ttl)return existing.promise;
+    const entry={at:Date.now(),ttl:30*60_000,promise:null};
+    const promise=readCard(placeId,options).then(result=>{if(!result?.image?.url)entry.ttl=2*60_000;return result}).catch(error=>{cardReads.delete(id);throw error});
+    entry.promise=promise;cardReads.set(id,entry);while(cardReads.size>64)cardReads.delete(cardReads.keys().next().value);
+    return promise;
+  }
+  async function readCard(placeId,options={}){
     const seeded=options?.source||options?.place||null,seedId=clean(seeded?.providerPlaceId||seeded?.id)?.replace(/^places\//,''),requestedId=clean(placeId)?.replace(/^places\//,'');
     const {source:_source,place:_place,...detailOptions}=options||{},seedMatches=Boolean(seeded&&seedId===requestedId),seedHasPhoto=Array.isArray(seeded?.photos)&&seeded.photos.some(usablePhoto);
-    // Geoapify search already carries the display name. The gateway has no Places
-    // Details equivalent yet, so a null/empty details call must never wipe identity.
-    if(requestedId.startsWith('geoapify:')){
-      // Without a seeded search hit, there is no Geoapify details payload yet.
-      // Returning an empty projected place would overwrite real names with
-      // "Unbenannter Ort" in suggestion/result sheets.
-      if(!seedMatches)return Object.freeze({place:null,image:null});
-      return Object.freeze({place:detailsProjection(seeded)||null,image:null});
-    }
+    if(requestedId.startsWith('geoapify:')&&!seedMatches)return Object.freeze({place:null,image:null});
     let response=null;
     // Apply Google Premium cost guard: block repeat enrichment when we already have full data.
     // Exception: if the seed has no photos, always allow the gateway call for media hydration.
     const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:');
     const premiumAllowed=!isPremiumId||!seedHasPhoto||consumePremiumDetailsQuota(requestedId);
     if((!seedMatches||!seedHasPhoto)&&premiumAllowed){
-      try{response=await gateway().details(placeId,detailOptions)}catch(error){if(!seedMatches)throw error}
+      try{response=await gateway().details(placeId,{...detailOptions,enrichMedia:true})}catch(error){if(!seedMatches)throw error}
       // Mark premium id as consumed after a successful gateway call.
       if(isPremiumId&&response)consumePremiumDetailsQuota(requestedId);
     }

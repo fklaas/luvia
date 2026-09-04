@@ -297,7 +297,7 @@ function queryFor(category,input){
 function cacheKey(input){return[tripId(input.trip),input.targetDate,clean(input.startAt),input.query,...input.excludeProviderPlaceIds].join('|')}
 const imageUrl=place=>safeHttpUrl(place?.image?.url||place?.photoUri||place?.imageUrl||place?.photos?.[0]?.uri)||'';
 function imageAttribution(place){
-  const image=place?.image||{},credit=clean(image.credit||place?.photoCredit),license=clean(image.license||place?.photoLicense),sourceUrl=clean(image.sourceUrl||place?.photoSourceUrl);
+  const image=place?.image||{},credit=clean(image.credit||image.attribution||place?.photoCredit),license=clean(image.license||place?.photoLicense),sourceUrl=clean(image.attributionUrl||image.sourceUrl||place?.photoSourceUrl);
   if(!credit&&!license&&!sourceUrl)return null;
   return{credit:credit||'Fotoquelle',license,sourceUrl};
 }
@@ -309,8 +309,7 @@ async function within(promise,timeoutMs,fallback){
 async function enrich(place){
   const api=contracts().places,id=providerId(place);
   if(!id||!api?.reads?.getCard)return place;
-  // Geoapify search already carries the title; there is no photo details path yet.
-  if(id.startsWith('geoapify:'))return{...place,name:placeDisplayName(place)};
+
   try{
     const card=await api.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
     const merged={...place,...(card?.place||{}),image:card?.image||place.image||null};
@@ -439,13 +438,14 @@ function providerDetailRows(place,input){
   const add=(label,value)=>{const text=clean(value);if(text)rows.push([label,text])};
   add('Kategorie',visualLabel(visual));
   if(['food','cafe'].includes(visual)){add('Küche',cuisineLabels(place));add('Ernährung',[features.servesVegetarianFood===true?'Vegetarische Gerichte verfügbar':'',features.servesVeganFood===true?'Vegane Gerichte verfügbar':''].filter(Boolean).join(' · '));}
+  add('Über diesen Ort',place.editorialSummary?.text||place.editorialSummary);
   add('Preisniveau',priceLabel(place));add('Bewertung',ratings(place));add('Jetzt',openingLabel(place,input));add('Öffnungszeiten',openingDescriptions(place));
   if(admission?.relevant)add(visual==='accommodation'?'Buchung':'Reservierung / Eintritt',[admission.notice?.label,admission.notice?.detail].filter(Boolean).join(' · '));
   const services=[features.dineIn===true||place.dineIn===true?'Vor Ort':'',features.takeout===true||place.takeout===true?'Außer Haus':'',features.delivery===true||place.delivery===true?'Lieferung':'',features.outdoorSeating===true||place.outdoorSeating===true?'Außensitzplätze':''].filter(Boolean);add('Angebot',services.join(' · '));
   const payments=[payment.acceptsCreditCards===true?'Kreditkarte':'',payment.acceptsDebitCards===true?'EC-/Debitkarte':'',payment.acceptsCashOnly===true?'Nur Bargeld':'',payment.acceptsNfc===true?'Kontaktlos':''].filter(Boolean);add('Zahlung',payments.join(' · '));
   const accessFacts=[access.wheelchairAccessibleEntrance===true?'Rollstuhlgerechter Eingang':'',access.wheelchairAccessibleParking===true?'Rollstuhlparkplatz':'',access.wheelchairAccessibleRestroom===true?'Rollstuhl-WC':'',access.wheelchairAccessibleSeating===true?'Rollstuhlgerechte Sitzplätze':''].filter(Boolean);add('Barrierefreiheit',accessFacts.join(' · '));
   add('Noch zu prüfen',(place.preferenceWarnings||[]).map(text=>text.replace(/^stroller:/,'Kinderwagen:').replace(/^vegetarian:/,'Vegetarisches Angebot:')).join(' '));
-  add('Adresse',place.formattedAddress||place.address);add('Telefon',place.nationalPhoneNumber||place.internationalPhoneNumber||place.phoneNumber);
+  add('Adresse',place.formattedAddress||place.address);add('Telefon',place.nationalPhoneNumber||place.internationalPhoneNumber||place.phoneNumber||place.phone);
   return rows;
 }
 function openProviderDetails(place,input){
@@ -628,6 +628,9 @@ async function reconcileApprovedProposals(){
   const collaboration=globalThis.LuviaJourneyPlaceProposals;if(!collaboration?.list)return;
   const proposals=await collaboration.list(undefined,{openOnly:true}).catch(()=>[]);for(const proposal of proposals.filter(row=>row.status==='approved'&&row.application_status!=='applied'))await applyApprovedProposal(proposal).catch(error=>console.warn('[LuviaJourneyProposalApply]',error));
 }
+function bindPhotoFallbacks(results){
+  results.querySelectorAll('img[data-lvjs-image]').forEach(img=>{img.onerror=()=>{const card=img.closest('[data-suggestion-choice]'),template=document.createElement('template');template.innerHTML=globalThis.LuviaPlacesSpatialExperience?.categoryPlaceholder?.(card?.dataset.suggestionCategory)?.replace('<span ','<span data-lvjs-image ')||'<span data-lvjs-image>Ortsfoto nicht verfügbar</span>';img.replaceWith(template.content.firstElementChild);card?.querySelector('.lvjs-photo-credit')?.remove()};if(img.complete&&img.naturalWidth===0)img.onerror()});
+}
 function paintResults(handle,result,selectedId='',restoredState=null){
   const root=handle.overlay,status=root.querySelector('[data-lvjs-status]'),results=root.querySelector('[data-lvjs-results]'),footer=root.querySelector('[data-lvjs-ai-state]');
   const heading=root.querySelector('[data-lvjs-heading]'),placesSearch=result.input.source==='places-search',hotelMap=result.input.source==='hotel-map',mapResults=placesSearch||hotelMap,actualCount=result.choices.length;
@@ -636,6 +639,7 @@ function paintResults(handle,result,selectedId='',restoredState=null){
   if(spectrum){spectrum.hidden=mapResults;spectrum.onclick=()=>{const detail={source:'journey-spectrum',targetDate:result.input.targetDate,startAt:result.input.startAt,endAt:result.input.endAt,destination:destinationOf(result.input.trip),categories:['Essen','Cafés','Bars','Kultur','Sehenswürdigkeiten','Natur','Wellness','Sport','Shopping','Nachtleben','Fotospots','Familie','Events']};globalThis.dispatchEvent(new CustomEvent('luvia:places-discovery-requested',{detail}));if(globalThis.LuviaApp?.show){handle.close('open-places-spectrum');globalThis.LuviaApp.show('places',{payload:detail,source:'journey-spectrum'})}else{spectrum.textContent='Gesamtes Spektrum in Places';spectrum.dataset.requested='true'}}}
   if(result.warning)status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Letzter belegter Vorschlagsstand</strong><small>${esc(result.warning)}</small></div>`;else status.hidden=true;
   results.hidden=false;results.innerHTML=result.choices.map((place,index)=>cardMarkup(place,index,result.input,result.choices)).join('');
+  bindPhotoFallbacks(results);
   const routeCandidate=result.choices.find(place=>providerId(place)===selectedId)||result.choices[0];
   if(routeCandidate&&mapResults)Promise.resolve(contracts().booking?.reads?.preparePlaceBooking?.(routeCandidate)).catch(()=>{});
   setTimeout(()=>{if(!handle.overlay?.isConnected)return;results.querySelectorAll('[data-lvjs-staged-actions]').forEach((actions,index)=>{actions.hidden=false;setTimeout(()=>actions.classList.add('is-visible'),Math.min(index,4)*80)})},700);
@@ -724,6 +728,9 @@ function patchEnrichedResults(handle,currentResult,enrichedResult){
     if(nextImage&&image?.tagName!=='IMG'){
       const node=document.createElement('img');node.dataset.lvjsImage='true';node.src=nextImage;node.alt=place.name||'Reiseort';node.loading='eager';node.decoding='async';node.className='lvjs-image-reveal';image.replaceWith(node);
     }else if(nextImage&&image?.tagName==='IMG'&&image.getAttribute('src')!==nextImage)image.setAttribute('src',nextImage);
+    const attribution=imageAttribution(place);card.querySelector('.lvjs-photo-credit')?.remove();
+    if(nextImage&&attribution)card.querySelector('.lvjs-choice-copy')?.insertAdjacentHTML('beforeend',`<span class="lvjs-photo-credit">${esc(attribution.credit)}${attribution.license?` · ${esc(attribution.license)}`:''}</span>`);
+    bindPhotoFallbacks(card);
     const facts=card.querySelector('[data-lvjs-facts]');if(facts)facts.innerHTML=placeFacts(place,currentResult.input).map(fact=>`<b>${esc(fact)}</b>`).join('');
     const fit=card.querySelector('[data-lvjs-fit]');if(fit)fit.textContent=displayReason(place,currentResult.input);
     const match=matchLabel(place),matchHost=card.querySelector('[data-lvjs-match]');
@@ -762,7 +769,7 @@ function openResults(rawInput={}){
   const status=mounted.overlay.querySelector('[data-lvjs-status]');status.innerHTML='<span class="lvjs-loader" aria-hidden="true"></span><div><strong>Ergebnisse werden für alle Reisenden eingeordnet …</strong><small>Google- und Provider-Fakten bleiben die einzige Ortswahrheit.</small></div>';
   (async()=>{try{
     input.groupContext=await sharedPreferenceContext(input,{fast:true});
-    const photoReady=await Promise.all(rawInput.places.map(place=>within(enrich(place),3200,place)));
+    const photoReady=await Promise.all(rawInput.places.map(place=>within(enrich(place),350,place)));
     const firstChoices=await rankForTravelers(photoReady,input.groupContext,input,{useAI:false});
     const first={input,choices:firstChoices,ai:{ranking:false,fallback:true},count:firstChoices.length,loadedAt:Date.now(),phase:'provider-facts',warning:''};
     if(!mounted.overlay?.isConnected)return;paintResults(mounted,first,rawInput.selectedId||'');

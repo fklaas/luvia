@@ -82,7 +82,7 @@ assert.match(read('app/journey/journey-day-composer.css'),/grid-template-rows:au
 
 assert.match(sheet,/function openResults\(/,'the result sheet must mount synchronously so direct manipulation can start before its asynchronous enrichment');
 assert.match(sheet,/sharedPreferenceContext\(input,\{fast:true\}\)/,'Places search results must paint from provider facts and the bounded local preference projection');
-assert.match(sheet,/const photoReady=await Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),3200,place\)\)\)/,'the exact selected Place must receive a bounded provider-photo attempt before first paint');
+assert.match(sheet,/const photoReady=await Promise\.all\(rawInput\.places\.map\(place=>within\(enrich\(place\),350,place\)\)\)/,'the exact selected Place must receive a bounded provider-photo attempt before first paint');
 assert.match(sheet,/rankForTravelers\(photoReady,input\.groupContext,input,\{useAI:false\}\)/,'AI explanation must not delay the first photo-ready Places result sheet');
 assert.match(sheet,/LuviaPlacesResultEnrichment/,'full traveler and AI enrichment must repaint the already visible Places sheet in the background');
 assert.match(sheet,/Ein Tipp wählt/);

@@ -11,6 +11,10 @@ assert.equal(ranked(food).preferenceDiscoveryMatch,true,'verified vegetarian off
 assert.equal(ranked(food).preferenceConstraintState,'verify','unknown stroller access is never approved');
 assert.ok(ranked(food).preferenceWarnings.some(x=>x.includes('stroller')));
 assert.equal(ranked({...food,features:{}}).preferenceDiscoveryMatch,false,'unknown dietary offer cannot match');
+for(const name of ['Kleines Steakhouse','Steakhaus','Grillhaus','Kebab Grill']){
+ const result=ranked({...food,name,types:['restaurant','catering','vegetarian','vegan','wheelchair_limited'],features:{servesVegetarianFood:true,servesVeganFood:true}});
+ assert.equal(result.preferenceDiscoveryMatch,false,`${name}: generic provider diet options cannot override a meat-led main offer`);
+}
 assert.equal(ranked({...food,features:{servesVegetarianFood:false}}),undefined,'explicit conflicts remain blocked');
 const access=core.rankPlaces({profilePreferences:{accessibilityNeeds:['wheelchair'],travelInterests:['culinary']},candidates:[{...food,types:['restaurant','wheelchair_limited']}]}).places[0];
 assert.equal(access.preferenceDiscoveryMatch,false,'limited wheelchair metadata is not verified accessibility');

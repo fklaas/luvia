@@ -17,7 +17,7 @@ const ROOT = path.resolve(__dirname, '..');
  * been executed successfully against the M4.3 working baseline.
  */
 const SUITE = Object.freeze([
-  ...['places-stays-quality','recovery-active-trip-reload','recovery-places-locality','recovery-places-viewport','recovery-runtime-build'].map(name=>({category:'Recovery behavioral gates',test:`tests/${name}.test.cjs`})),
+  ...['places-filter-matrix','places-stays-quality','recovery-active-trip-reload','recovery-places-locality','recovery-places-viewport','recovery-runtime-build'].map(name=>({category:'Recovery behavioral gates',test:`tests/${name}.test.cjs`})),
   {
     category: 'Release',
     test: 'tests/release-version-consistency.test.cjs'

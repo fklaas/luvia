@@ -2313,9 +2313,11 @@
 @media(max-width:390px){.lv-places-spatial__map-preview{bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
 @media(prefers-reduced-motion:reduce){.lv-places-spatial__map-panel{animation:none}.lv-places-spatial__legend{transition:none}.lv-places-spatial__map-preview,.lv-places-spatial__map-preview-cue i,.lv-places-spatial__marker:is(.is-selected,[aria-pressed="true"])::before{animation:none}.lv-places-spatial__map-preview{translate:none}}
 
-/* One generated category atlas, shared by Places and accommodation cards. */
-.lv-category-image { display:block;position:relative;width:100%;aspect-ratio:1;background-image:url('../../assets/places/category-atlas.png');background-size:400% 400%;background-repeat:no-repeat;overflow:hidden; }
-.lv-category-image > small { position:absolute;bottom:10px;left:10px;padding:3px 7px;border-radius:7px;background:rgba(255,255,255,.88);color:#24424b;font:10px/1.4 sans-serif; }
-.lv-category-image.is-compact { width:58px;height:58px;flex:0 0 58px;border-radius:12px; }
+.lv-category-image { display:grid;place-content:center;justify-items:center;gap:8px;width:100%;min-height:110px;background:#f0f4f4;color:#637b83; }
+.lv-category-image > svg { width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.4; }
+.lv-category-image > small { font:12px/1.4 sans-serif; }
+.lv-category-image.is-compact { width:58px;height:50px;min-height:0;border-radius:11px; }
 .lv-category-image.is-compact > small { display:none; }
-.lvjs-choice-main > .lv-category-image { grid-area:1/1;min-height:0;height:100%;aspect-ratio:auto; }
+.lvjs-choice-main > .lv-category-image { grid-area:1/1;min-height:0;height:100%; }
+.lv-places-spatial__filter-options button:disabled { opacity:.55;cursor:default;text-decoration:none; }
+.lv-places-spatial__filter-options button > small { display:block;font-size:10px;line-height:1.4; }

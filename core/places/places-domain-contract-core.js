@@ -168,6 +168,8 @@ function projectDetails(input){
     distanceMeters:number(source.distanceMeters),
     distanceSource:clean(source.distanceSource)||null,
     photos:photoProjection(source.photos),
+    editorialSummary:clean(source.editorialSummary?.text||source.editorialSummary)||null,
+    openingHours:source.openingHours||source.regularOpeningHours||null,
     discoveryQueries:[...(source.discoveryQueries||[])].map(String),
     spatialConstraint:source.spatialConstraint&&typeof source.spatialConstraint==='object'?source.spatialConstraint:null,
     aiMatchScore:number(source.aiMatchScore),

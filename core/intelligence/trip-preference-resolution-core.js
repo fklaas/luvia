@@ -125,19 +125,22 @@ function resolve(input={}){
 
 function evidence(place,constraint){
   const features=place.features||{},access=place.accessibilityOptions||place.accessibility||{},hay=textOf(place),value=constraint.value;
+  // Provider conditions such as "vegetarian" mean available options, not a
+  // vegetarian-led venue. They must not override a steak/grill main offer.
+  const offerText=textOf({...place,types:(place.types||[]).filter(type=>! /^(?:vegetarian|vegan)(?:[._](?:yes|no))?$/.test(String(type).toLowerCase()))});
   if(constraint.kind==='dietary'){
     if(!FOOD.test(hay))return{state:'not-applicable'};
     if(/vegan/.test(value)){
       if(features.servesVeganFood===false)return{state:'conflict'};
       if(features.servesVegetarianFood===false)return{state:'conflict'};
-      if(VEGAN_FOCUS.test(hay))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
+      if(VEGAN_FOCUS.test(offerText))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
       if(MEAT_LED_OFFER.test(hay))return{state:'unknown',reason:'Das erkennbare Hauptangebot ist nicht vegan ausgerichtet; einzelne Optionen reichen für „Passend“ nicht aus.'};
       if(features.servesVeganFood===true)return{state:'confirmed',strength:'provider-feature',source:'provider-feature'};
       return{state:'unknown',reason:'Eine verlässlich vegane Auswahl ist nicht ausdrücklich belegt.'};
     }
     if(/vegetar/.test(value)){
       if(features.servesVegetarianFood===false)return{state:'conflict'};
-      if(VEGETARIAN_FOCUS.test(hay))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
+      if(VEGETARIAN_FOCUS.test(offerText))return{state:'confirmed',strength:'focus',source:'provider-category-or-description'};
       if(MEAT_LED_OFFER.test(hay))return{state:'unknown',reason:'Das erkennbare Hauptangebot ist fleischzentriert; eine einzelne vegetarische Option genügt nicht für „Passend“.'};
       if(features.servesVegetarianFood===true)return{state:'confirmed',strength:'provider-feature',source:'provider-feature'};
       return{state:'unknown',reason:'Eine verlässlich vegetarische Auswahl ist nicht ausdrücklich belegt.'};

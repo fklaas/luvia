@@ -27,8 +27,12 @@ Recommended next infrastructure slice:
    updates and a canonical provider-identity merge. Evaluate Overture and
    Foursquare Open Source Places separately from their paid APIs.
 4. Media enrichment only for a selected place, with a short budget and source/
-   author attribution. Category illustrations remain visible while no real photo
-   is available. A photo must never be presented as evidence for another venue.
+   author attribution. The rejected category illustrations are removed. Missing
+   venue photos use a small neutral unavailable state, never a substitute image.
+   Geoapify details links exact-entity images/Commons references; Foursquare photo
+   fallback requires exact normalized name and coordinates within 120 metres.
+   Coverage and Premium entitlement remain provider-dependent; no universal
+   real-photo coverage is claimed.
 5. Shared Places/Stays acceptance: destination, category, All/Fit, viewport,
    photos, dates and exact planning target. Booking price/availability remains
    a separate live Booking-owner read.
