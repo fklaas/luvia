@@ -1,6 +1,6 @@
 # Luvia aktueller Integrationsstand
 
-Releasekandidat **13.82.168.57**, Core **4.82.179**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Geoapify, TomTom und HERE unterscheiden jetzt zwischen einem echten Provider-Ausfall und einer erfolgreich beantworteten Suche ohne Treffer. Ausdrücklich gewählte Landesküchen suchen einmalig im begrenzten 5-km-Umkreis; breite Kategorien bleiben bei 3 km. Natur und Erholung schließt Unterkunftstypen aus. Der veröffentlichte Integrationsstand bleibt bis zur sichtbaren Abnahme **.52**.
+Releasekandidat **13.82.168.58**, Core **4.82.180**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Geoapify, TomTom und HERE unterscheiden zwischen einem echten Provider-Ausfall und einer erfolgreich beantworteten Suche ohne Treffer. Ausdrücklich gewählte Landesküchen suchen einmalig im begrenzten 5-km-Umkreis; breite Kategorien bleiben bei 3 km. Natur und Erholung schließt Unterkunfts- sowie Spa-Typen aus; Wellness bleibt eine eigene Kategorie. Der veröffentlichte Integrationsstand bleibt bis zur sichtbaren Abnahme **.57**.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt

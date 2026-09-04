@@ -16,6 +16,7 @@ export function additionalTypes(evidence:string[]){
   // "Hiking". Resolve those exact provider labels before the broad token rules
   // so holiday rentals, parking and retail never enter a nature cohort.
   if(/\bholiday park\b/.test(text))return['lodging','vacation_rental'];
+  if(/\brv parks?\b/.test(text))return['lodging','campground'];
   if(/\bpark and ride\b/.test(text))return['parking'];
   if(/\bbike park\b/.test(text))return['sports_activity_location'];
   if(/\bcamping hiking shop\b/.test(text))return['store'];

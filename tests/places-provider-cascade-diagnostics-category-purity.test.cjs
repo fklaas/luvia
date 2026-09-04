@@ -14,6 +14,7 @@ assert.match(gateway,/here:\{configured:Boolean\(Deno\.env\.get\('HERE_API_KEY'\
 assert.match(gateway,/answered:\[\.\.\.new Set\(answered\)\]/,'gateway distinguishes a successful empty answer from provider failure');
 assert.match(gateway,/'nature-scharbeutz'/,'bounded Nature purity health probe exists');
 assert.match(additional,/holiday park\\b\/.test\(text\)\)return\['lodging','vacation_rental'\]/,'HERE Holiday Park is classified as accommodation instead of nature');
+assert.match(additional,/rv parks\?\\b\/.test\(text\)\)return\['lodging','campground'\]/,'HERE RV Parks are classified as accommodation instead of nature');
 assert.match(additional,/park and ride\\b\/.test\(text\)\)return\['parking'\]/,'HERE Park and Ride cannot enter nature through the word Park');
 assert.match(additional,/camping hiking shop\\b\/.test\(text\)\)return\['store'\]/,'HERE Camping-Hiking Shop cannot enter nature through broad words');
 
@@ -31,6 +32,8 @@ vm.createContext(context);
 vm.runInContext(source,context);
 const core=context.LuviaPlacesDomainContractCoreV1;
 const nature=core.category('nature');
+assert.equal(nature.includedTypes.includes('spa'),false,'Nature does not duplicate the dedicated Wellness & Spa category');
+assert.equal(nature.excludedTypes.includes('spa'),true,'Nature actively rejects spa-only results');
 for(const type of ['lodging','accommodation','hotel','apartment','vacation_rental','campground']){
   assert(nature.excludedTypes.includes(type),`nature must exclude ${type}`);
 }
