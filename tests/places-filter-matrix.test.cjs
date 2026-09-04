@@ -42,5 +42,12 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  for(const key of ['accessibleOnly','reservableOnly','vegetarianOnly'])assert.equal(sent.at(-1).payload.options[key],true,`${key} must reach the actual gateway payload`);
  assert.equal(sent.at(-1).payload.options.userQuery,'');assert.equal(sent.at(-1).payload.options.strictPlaceType,'vegetarian_restaurant');assert.equal(sent.at(-1).payload.options.minUserRatingCount,100);
  await ctx.LuviaPlaces.details('geoapify:abc',{enrichMedia:true});assert.equal(sent.at(-1).payload.options.enrichMedia,true,'photo enrichment must survive the transport boundary');
+ const nativeFixtures=[['Cafe',['catering','catering.cafe']],['Bakery',['commercial','commercial.food_and_drink','commercial.food_and_drink.bakery']],['Theme park',['entertainment','entertainment.theme_park']],['Garden',['leisure','leisure.park','leisure.park.garden']]].map(([name,categories])=>ctx.provider.normalizedGeoapifyPlace({properties:{place_id:name,name,lat:54.02,lon:10.75,categories}}));
+ ctx.LuviaBackend.request=async()=>({ok:true,data:{places:nativeFixtures}});
+ const carried=(await ctx.LuviaPlaces.textSearch('Fixture',{destination:{location:point}})).data.places;
+ assert.equal(carried.find(p=>p.name==='Cafe').types.includes('restaurant'),false,'catering parent must not turn cafes into restaurants');
+ assert.equal(carried.find(p=>p.name==='Bakery').types.includes('restaurant'),false,'legacy food regex must not turn bakeries into restaurants');
+ assert.equal(carried.find(p=>p.name==='Theme park').types.includes('park'),false,'theme parks must not pass the nature park filter');
+ assert.equal(carried.find(p=>p.name==='Garden').types.includes('park'),true,'a real park garden retains its parent');
  console.log(`Filter matrix: ${tested} category/subtype mappings, all fact filters, combinations/reset, distance and exact-place media: PASS`);
 })().catch(error=>{console.error(error);process.exitCode=1});

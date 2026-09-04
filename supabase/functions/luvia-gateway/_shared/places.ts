@@ -235,7 +235,7 @@ async function foursquare(path:string,params:Record<string,unknown>={}){
 }
 async function foursquareWithFieldFallback(path:string,params:Record<string,unknown>,fallbackFields:string[]){
   try{return await foursquare(path,params)}catch(error:any){
-    if(![400,403].includes(Number(error?.status))||!params.fields)throw error;
+    if(![400,403].includes(Number(error?.status))||!params.fields||/credits|billing|payment/i.test(String(error?.message||'')))throw error;
     metrics.providers.foursquare.fieldFallbacks++;
     try{return await foursquare(path,{...params,fields:fallbackFields.join(',')})}catch(fallbackError:any){
       if(![400,403].includes(Number(fallbackError?.status)))throw fallbackError;
@@ -308,7 +308,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     const key=String(raw||'').toLowerCase();
     if(!key)continue;
     types.add(key.replace(/[./]+/g,'_'));
-    if(key.startsWith('catering.restaurant')||key==='catering')types.add('restaurant');
+    if(key.startsWith('catering.restaurant'))types.add('restaurant');
     if(key.startsWith('catering.restaurant.')){const cuisine=key.slice('catering.restaurant.'.length);types.add(`${cuisine}_restaurant`);if(['arab','oriental'].includes(cuisine))types.add('middle_eastern_restaurant')}
     if(key.startsWith('catering.cafe'))types.add('cafe');
     if(key.startsWith('catering.bar'))types.add('bar');
@@ -326,7 +326,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key==='leisure.park.garden')types.add('garden');
     if(key==='maritime.marina')types.add('marina');
     if(key==='adult.nightclub')types.add('night_club');
-    if(key.startsWith('tourism.sights.'))types.add('historical_landmark');
+    if(/^tourism\.sights\.(?:castle|ruins|ruines|archaeological|fort|memorial)/.test(key))types.add('historical_landmark');
     if(key==='tourism.sights.memorial.monument')types.add('monument');
     if(key==='tourism.attraction.viewpoint')types.add('observation_deck');
     if(key==='healthcare.pharmacy'||key==='commercial.health_and_beauty.pharmacy')types.add('pharmacy');
@@ -336,7 +336,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key==='service.financial.atm')types.add('atm');
     if(key.includes('spa')||key.includes('sauna')||key.includes('wellness'))types.add('spa');
     if(key.includes('playground'))types.add('playground');
-    if(key.includes('park')&&!key.includes('parking'))types.add('park');
+    if(key==='park'||key.startsWith('leisure.park'))types.add('park');
     if(key.includes('beach'))types.add('beach');
     if(key.includes('museum'))types.add('museum');
     if(key.includes('zoo'))types.add('zoo');
@@ -472,6 +472,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     name:fallbackName,
     displayName:fallbackName,
     resourceName:placeId?`geoapify/${placeId}`:null,
+    provider:'geoapify',
     languageCode:String(props.lang||options?.languageCode||'').slice(0,5),
     formattedAddress,
     shortAddress:geoapifyTextField(props.address_line1)||geoapifyTextField(props.street)||geoapifyTextField(props.address?.street)||geoapifyTextField(props.city)||'',

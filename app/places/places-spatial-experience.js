@@ -387,6 +387,7 @@
     return `<p class="lv-places-spatial__status is-${esc(view.status.kind)}" role="${esc(ariaRole)}" aria-live="${esc(view.status.ariaLive)}">${view.status.busy?'<i aria-hidden="true"></i>':''}<span>${esc(view.status.message)}</span>${view.status.canRetry?'<button type="button" data-places-retry>Erneut versuchen</button>':''}</p>`;
   }
   function filterAvailability(key){
+    if(state.filters[key]===true||state.sort===key)return '';
     const rows=state.results||[];
     const predicates={openNow:p=>typeof p.openNow==='boolean',rated:p=>p.rating!=null&&Number(p.rating)>0,rating45:p=>p.rating!=null&&Number(p.rating)>0,rating:p=>p.rating!=null&&Number(p.rating)>0,price:p=>Boolean(p.priceLevel),reservable:p=>typeof p.features?.reservable==='boolean',nearby:hasReferenceDistance,distance:hasReferenceDistance};
     if(['fine_dining_restaurant','hiking_area','concert_hall'].includes(key))return 'Die aktuelle Ortsquelle liefert hierfür keine verlässliche Einordnung.';
@@ -419,9 +420,9 @@
     if(!active)return `<div class="lv-places-spatial__filter-reveal is-open"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(categoryDefinition().label)} filtern"><nav class="lv-places-spatial__filter-sections" aria-label="Filterbereiche">${sections.map(section=>`<button type="button" data-places-filter-section="${esc(section.key)}"><span>${esc(section.label)}</span><small>${section.count?`${section.count} aktiv`:'Auswählen'}</small><i aria-hidden="true">›</i></button>`).join('')}</nav>${activeFilterCount()?'<button type="button" class="lv-places-spatial__filter-reset" data-places-filter-reset>Alle Filter zurücksetzen</button>':''}</aside></div>`;
     const buttons=active.options.map(([value,label])=>{
       if(active.key==='facts')return filterOption(value,label);
-      if(active.key==='sort')return `<button type="button" ${filterAvailability(value)?'disabled':''} title="${esc(filterAvailability(value))}" data-places-sort="${esc(value)}" aria-pressed="${state.sort===value}">${esc(label)}</button>`;
-      if(active.key==='price')return `<button type="button" ${filterAvailability('price')?'disabled':''} title="${esc(filterAvailability('price'))}" data-places-price="${esc(value)}" aria-pressed="${(state.filters.priceLevels||[]).includes(value)}">${esc(label)}</button>`;
-      return `<button type="button" ${filterAvailability(value)?'disabled':''} title="${esc(filterAvailability(value))}" data-places-subtype="${esc(value)}" data-places-subtype-group="${esc(active.key)}" aria-pressed="${(state.filters[active.key]||[]).includes(value)}">${esc(label)}</button>`;
+      if(active.key==='sort')return `<button type="button" ${filterAvailability(value)?'disabled':''} title="${esc(filterAvailability(value))}" data-places-sort="${esc(value)}" aria-pressed="${state.sort===value}">${esc(label)}${filterAvailability(value)?`<small>${esc(filterAvailability(value))}</small>`:''}</button>`;
+      if(active.key==='price')return `<button type="button" ${filterAvailability('price')?'disabled':''} title="${esc(filterAvailability('price'))}" data-places-price="${esc(value)}" aria-pressed="${(state.filters.priceLevels||[]).includes(value)}">${esc(label)}${filterAvailability('price')?`<small>${esc(filterAvailability('price'))}</small>`:''}</button>`;
+      return `<button type="button" ${filterAvailability(value)?'disabled':''} title="${esc(filterAvailability(value))}" data-places-subtype="${esc(value)}" data-places-subtype-group="${esc(active.key)}" aria-pressed="${(state.filters[active.key]||[]).includes(value)}">${esc(label)}${filterAvailability(value)?`<small>${esc(filterAvailability(value))}</small>`:''}</button>`;
     }).join('');
     return `<div class="lv-places-spatial__filter-reveal is-open"><aside class="lv-places-spatial__filter-panel" aria-label="${esc(active.label)} filtern"><header class="lv-places-spatial__filter-detail-head"><button type="button" data-places-filter-back aria-label="Zurück zu den Filterbereichen">←</button><strong>${esc(active.label)}</strong><small>Mehrfachauswahl</small></header><div class="lv-places-spatial__filter-options">${buttons}</div></aside></div>`;
   }
