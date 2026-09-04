@@ -2720,3 +2720,4 @@ tests/planning-current-status.test.cjs,Quality/Tests,Test,Canonical current road
 
 tests/p09-timeline-schedule.test.cjs,Journey/Places/Shared Tests,Test/Guardrail,Schedule preview conditional owner write stale conflict and durable recovery
 tests/p09-timeline-touch-browser.test.cjs,Journey/Consumer/Shared Tests,Test/Browser,Visible touch emulation hold drag scroll cancel confirmation and recovery
+scripts/sync-planning-status.cjs,Documentation/Release History,Documentation Tooling,Projects canonical planning status into active roadmaps and handoffs; no domain or runtime truth

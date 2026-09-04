@@ -1,6 +1,28 @@
 # Luvia Statusplan 4 September 2026
 
-## Aktueller P09 Fortschritt
+<!-- LUVIA-CURRENT-STATUS:START -->
+## Aktueller Stand und nächster Schritt
+
+**Stand 2026-09-04:** Integration **13.82.168.44**, Core **4.82.168**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.
+
+**Zuletzt geliefert:** Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.
+
+**Nächster Schritt (GEPLANT): Geplante Place-Einträge entfernen und nach Reload wiederherstellen.** Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.
+
+**Abnahme dieses Schritts:**
+
+- Entfernen erst nach lesbarer Vorschau und Bestätigung; Favorit, Ortsdaten und echte Buchungen bleiben fachlich getrennt.
+- Nach Reload Wiederherstellung anbieten, ursprünglichen Termin prüfen und erst nach Bestätigung speichern; veraltete Änderungen und Konflikte berücksichtigen.
+- Sichtbar im Browser entfernen → reloaden → wiederherstellen → erneut reloaden; Ergebnis unabhängig lesen, Prüfdaten zurücksetzen und gezielte Regression belegen.
+
+**Danach:** Weitere P09-Lücken schließen: Einträge verbinden, mehrere Einträge umordnen und weitere Eintragsarten. P10-Erklärungen dabei ergänzen; anschließend die vollständige B1-Nutzerkette und die geltenden Freigabegates abnehmen.
+
+**Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, physisches iPhone/Android und echte Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+
+Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
+<!-- LUVIA-CURRENT-STATUS:END -->
+
+## Nachweis der P09-Lieferung .44
 
 Integration läuft auf **13.82.168.44**, Quelle **bc642a06a23e82165648d6a43738430f83b145d6**, Worker **093456be-4963-4578-8468-390c3f80ec04**. **213/213 Safe Regression**, **30/30 öffentliche Dateihashes**. Gateway v161 und Booking Resolver 2.8.0 / Function v18 bleiben unverändert; kein Main-Frontend-Deploy.
 
@@ -8,7 +30,7 @@ Langes Drücken aktiviert bei geplanten Places einen sichtbaren Verschiebemodus.
 
 Sichtbarer Browsernachweis: Grande Beach Café wurde vom 12.06.2027, 15:00 Uhr / 90 Minuten auf den 13.06.2027, 15:15 Uhr / 105 Minuten geändert. Nach Reload blieben Termin und Rücknahme erhalten. Danach wurden alle sechs ursprünglichen Timeline-Zeiten und Dauern wiederhergestellt. Das ist keine unveränderte Datenbank: Aktualisierungszeit und Recovery-Metadaten des geprüften Datensatzes wurden geschrieben. Der Touch-Test lief sichtbar in Edge mit Chromium-Toucheingaben bei 477 × 900; kein physischer iPhone-Test.
 
-P09 und P10 bleiben **TEILWEISE**. Nächster zusammenhängender Abschnitt: Connect, Mehrfach-Reorder, weitere Eintragsarten und dauerhafte Delete/Restore-Wege; dazu Quellen, Konflikte und Resultate verständlich erklären. Fotos und echte Booking-Partner bleiben eigene offene Nachweise.
+P09 und P10 bleiben **TEILWEISE**. Die aktuelle Reihenfolge und der nächste konkrete Abschlussnachweis stehen im gemeinsamen Statusabschnitt am Dokumentanfang.
 
 M0–M16 sind dokumentiert geschlossen. M16.5 bleibt aktiv: Schritte 01–14 geschlossen, Schritte 15–18 in Arbeit. B0 ist als Human↔AI-Steuerungsgrundlage auf .135 öffentlich geschlossen. Das ist kein Abschluss aller Bedienaktionen durch AI. B1 ist der aktive Produktblock. B2–B4 besitzen teils Grundlagen; die Gesamtblöcke sind nicht abgenommen. P40–P50 bleiben erhalten und folgen den jeweils erforderlichen späteren Roadmap-Gates.
 
@@ -39,12 +61,12 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 ## Die nächsten Arbeitsabschnitte
 
-1. A1 Dokumentkonsolidierung: ein Statusmodell, ein aktiver Gesamtfahrplan, synchronisierte Handoffs, erhaltene historische Quellen.
-2. A2 B1 Ende zu Ende: reale Scharbeutz-Anfrage im AI-Chat → exakter Place → Pin → Details → Favorit → Tag/Zeit → Änderung → Rücknahme → Reload. Places und Stays teilen die räumliche Technik. Bilder, Vorlieben und Gruppenlücken werden ausdrücklich ausgewiesen.
-3. A3 P09: jede granulare Journey-Aktion über journey.v1, mit Version, Bestätigung, Beleg und Wiederherstellung. Erst konkrete Fehler aus A2 korrigieren, dann fehlende Aktionen schließen.
-4. A4 P10: lesbare Begründung der Vorschläge und Änderungen. Quellen, Unsicherheit und Konflikte erklären; technische Diagnose nur auf Wunsch.
-5. A5 Begleitend: echte Ortsfotos und positive Buchungspartnerpfade. Weder neue API-Schlüssel noch Affiliate-Zugang ersetzen Livepreise oder Reservierungsbelege.
-6. A6 B1 Gate bewerten; B2 erst nach den anwendbaren Produkt- und Nutzergates breiter ausrollen. Spätere M18-Owner werden nicht vorgezogen, um offene B1-Funktionen zu kaschieren.
+1. A1 Dokumentkonsolidierung — ABGESCHLOSSEN, laufende Pflege: ein Statusmodell, synchronisierte Fahrpläne/Handoffs und erhaltene historische Quellen.
+2. A2 B1 Ende zu Ende — TEILWEISE BELEGT: reale Scharbeutz-Anfrage im AI-Chat → exakter Place → Pin → Details → Favorit → Tag/Zeit → Änderung → Rücknahme → Reload. Places und Stays teilen die räumliche Technik. Bilder, Vorlieben und Gruppenlücken werden ausdrücklich ausgewiesen.
+3. A3 P09 — AKTIV: zunächst geplante Place-Einträge entfernen und nach Reload wiederherstellen. Danach Connect, Mehrfach-Reorder und weitere Eintragsarten; jeweils mit Version, Bestätigung und Beleg über journey.v1.
+4. A4 P10 — TEILWEISE, BEGLEITEND: lesbare Begründung der Vorschläge und Änderungen. Quellen, Unsicherheit und Konflikte erklären; technische Diagnose nur auf Wunsch.
+5. A5 — OFFEN, BEGLEITEND: echte Ortsfotos und positive Buchungspartnerpfade. Weder neue API-Schlüssel noch Affiliate-Zugang ersetzen Livepreise oder Reservierungsbelege.
+6. A6 — AUSSTEHEND: B1 Gate bewerten; B2 erst nach den anwendbaren Produkt- und Nutzergates breiter ausrollen. Spätere M18-Owner werden nicht vorgezogen, um offene B1-Funktionen zu kaschieren.
 
 ## P01 bis P50
 
@@ -107,7 +129,7 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 25 öffentliche Dateihashes belegt. Gateway v161 unverändert.
+13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 unverändert.
 
 **Nächster Abschlussnachweis:** Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.
 
@@ -149,7 +171,7 @@ COAST im sichtbaren Chat favorisiert, über places.v1 unabhängig gelesen, nach 
 
 Die versteckten Datumsfelder und ein veralteter Standardtag wurden korrigiert. ROOF am 13.06.2027 um 13:00 sichtbar geprüft, bestätigt und unabhängig in der Timeline gelesen. Testplanung zurückgenommen; ursprüngliche Termine nach Reload erhalten.
 
-**Nächster Abschlussnachweis:** Änderung, Konfliktlösung, dauerhafte Rücknahme und weitere Unterkunfts-/Kategoriepfade abnehmen; bestehenden kurzen Undo-Zeitraum verbessern.
+**Nächster Abschlussnachweis:** Dauerhaftes Ausplanen/Wiederherstellen nach Reload im nächsten P09-Slice abnehmen; weitere Unterkunfts-/Kategoriepfade und vollständige Konfliktfälle bleiben offen. Zeitänderung und deren Rücknahme sind seit .44 begrenzt belegt.
 
 **Erhaltener technischer Umfang:** Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.
 
@@ -189,7 +211,7 @@ Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme off
 
 App .44: geplante Places lassen sich nach Langdruck verschieben sowie mit Tag, Uhrzeit und Dauer vorab prüfen. Bedingtes Speichern schützt vor veralteten Änderungen; Rücknahme liegt im selben Places-Datensatz und bleibt nach Reload verfügbar. Sichtbarer Touch-Browsertest und echter Terminwechsel mit Reload/Rücknahme sind belegt. Buchungen, Besuche und Fotos behalten ihre Owner-Wege.
 
-**Nächster Abschlussnachweis:** Connect, Mehrfach-Reorder, frei erstellte/ältere Ereignisse und dauerhafte Delete/Restore-Abnahme schließen. Physisches iPhone sowie echte gleichzeitige Mehrnutzer-Konflikte gesondert prüfen; P09 bleibt teilweise.
+**Nächster Abschlussnachweis:** Als Nächstes geplante Place-Einträge nach bestätigter Vorschau entfernen und nach Reload wiederherstellen; unabhängiger Readback und bereinigte Prüfdaten. Danach Connect, Mehrfach-Reorder und weitere Eintragsarten; physisches iPhone und echte Mehrnutzer-Konflikte separat abnehmen.
 
 **Erhaltener technischer Umfang:** Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.
 
@@ -449,7 +471,7 @@ Semantische Routing-Grundlagen vorhanden; alle Owner nicht erschlossen.
 
 330 Inventarzeilen; nur 7 als PUBLIC_E2E_PASS klassifiziert.
 
-**Nächster Abschlussnachweis:** Neue Kartenaktionen inventarisieren; jede ausführbare Mutation vollständig prüfen oder explizit sperren.
+**Nächster Abschlussnachweis:** Inventarisierte Aktionen, einschließlich neuer Timeline-Bedienung, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.
 
 **Erhaltener technischer Umfang:** Every supported user action has an owner command and the complete mutation protocol or an explicit block.
 
@@ -487,7 +509,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.44: immutable Quelle 466aaa9e, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main und Places-Gateway unverändert; Booking-Resolver separat aktualisiert.
+13.82.168.44: unveränderliches Quellarchiv bc642a06, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.
 

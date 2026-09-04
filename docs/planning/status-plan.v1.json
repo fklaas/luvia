@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.43 auf Integration veröffentlicht; Quellarchiv, Worker und 25 öffentliche Dateihashes belegt. Gateway v161 unverändert.",
+      "evidence": "13.82.168.44 auf Integration veröffentlicht; Quellarchiv, Worker und 30 öffentliche Dateihashes belegt. Gateway v161 unverändert.",
       "nextAcceptance": "Bei jedem Slice Quellstand, öffentliche Bytes und zum Backend passenden Rückfall belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -65,7 +65,7 @@
       "status": "BELEGT_BEGRENZT",
       "owner": "Places und Journey",
       "evidence": "Die versteckten Datumsfelder und ein veralteter Standardtag wurden korrigiert. ROOF am 13.06.2027 um 13:00 sichtbar geprüft, bestätigt und unabhängig in der Timeline gelesen. Testplanung zurückgenommen; ursprüngliche Termine nach Reload erhalten.",
-      "nextAcceptance": "Änderung, Konfliktlösung, dauerhafte Rücknahme und weitere Unterkunfts-/Kategoriepfade abnehmen; bestehenden kurzen Undo-Zeitraum verbessern.",
+      "nextAcceptance": "Dauerhaftes Ausplanen/Wiederherstellen nach Reload im nächsten P09-Slice abnehmen; weitere Unterkunfts-/Kategoriepfade und vollständige Konfliktfälle bleiben offen. Zeitänderung und deren Rücknahme sind seit .44 begrenzt belegt.",
       "scope": "Close trip/day/time selection, conflict preview, `places.v1` command, Timeline projection, Receipt, recovery and Undo.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -113,7 +113,7 @@
       "status": "TEILWEISE",
       "owner": "Journey",
       "evidence": "App .44: geplante Places lassen sich nach Langdruck verschieben sowie mit Tag, Uhrzeit und Dauer vorab prüfen. Bedingtes Speichern schützt vor veralteten Änderungen; Rücknahme liegt im selben Places-Datensatz und bleibt nach Reload verfügbar. Sichtbarer Touch-Browsertest und echter Terminwechsel mit Reload/Rücknahme sind belegt. Buchungen, Besuche und Fotos behalten ihre Owner-Wege.",
-      "nextAcceptance": "Connect, Mehrfach-Reorder, frei erstellte/ältere Ereignisse und dauerhafte Delete/Restore-Abnahme schließen. Physisches iPhone sowie echte gleichzeitige Mehrnutzer-Konflikte gesondert prüfen; P09 bleibt teilweise.",
+      "nextAcceptance": "Als Nächstes geplante Place-Einträge nach bestätigter Vorschau entfernen und nach Reload wiederherstellen; unabhängiger Readback und bereinigte Prüfdaten. Danach Connect, Mehrfach-Reorder und weitere Eintragsarten; physisches iPhone und echte Mehrnutzer-Konflikte separat abnehmen.",
       "scope": "Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -425,7 +425,7 @@
       "status": "TEILWEISE",
       "owner": "Intelligence und Domain Owner",
       "evidence": "330 Inventarzeilen; nur 7 als PUBLIC_E2E_PASS klassifiziert.",
-      "nextAcceptance": "Neue Kartenaktionen inventarisieren; jede ausführbare Mutation vollständig prüfen oder explizit sperren.",
+      "nextAcceptance": "Inventarisierte Aktionen, einschließlich neuer Timeline-Bedienung, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.",
       "scope": "Every supported user action has an owner command and the complete mutation protocol or an explicit block.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.43: immutable Quelle 466aaa9e, 212/212 Safe Regression, 25/25 öffentliche Asset-Hashes. Main und Places-Gateway unverändert; Booking-Resolver 2.8.0 separat aktualisiert.",
+      "evidence": "13.82.168.44: unveränderliches Quellarchiv bc642a06, 213/213 Safe Regression, 30/30 öffentliche Asset-Hashes. Main-Frontend und Places-Gateway unverändert; vorhandener gemeinsamer Booking-Resolver 2.8.0 / Function v18.",
       "nextAcceptance": "Jeder neue Runtime-Slice: Tests, neue immutable Version und passender Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -619,5 +619,41 @@
     "functionVersion": 18,
     "source": "17749f8c654804d0656e2da914e302409789fb34",
     "scope": "existing shared Supabase function booking-route-resolve"
+  },
+  "currentDocuments": [
+    "CURRENT-BUILD.md",
+    "ROADMAP-LUVIA-CURRENT.md",
+    "HANDOFF-CODEX-CURRENT.md",
+    "HANDOFF-NORMAL-CHATGPT-CURRENT.md",
+    "docs/planning/MASTERFAHRPLAN-v6.md",
+    "docs/planning/STATUSPLAN-2026-09-04.md",
+    "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
+    "docs/planning/README.md",
+    "docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md",
+    "docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md",
+    "docs/handoffs/README.md",
+    "docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md",
+    "docs/modularization/LUVIA-FIFTY-POINT-OWNER-FIRST-EXECUTION-PLAN.md",
+    "docs/modularization/LUVIA-PRODUCT-RESET-MASTERPLAN-2026.md",
+    "docs/modularization/M16.5-BLOCK0-TO-BLOCK5-MASTER-HANDOUT.md",
+    "docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md"
+  ],
+  "currentWork": {
+    "stage": "M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 teilweise umgesetzt.",
+    "delivered": "Geplante Places per Langdruck bearbeiten, Zeitänderung vorab prüfen und nach Reload zurücknehmen. Sichtbarer Touch-Browsertest sowie echter Terminwechsel mit Reload und Wiederherstellung belegt; sechs ursprüngliche Timeline-Einträge erhalten. Runtime .44: 213/213 Regression, 30/30 öffentliche Dateihashes.",
+    "nextStep": {
+      "id": "P09-remove-restore",
+      "package": "P09",
+      "status": "GEPLANT",
+      "title": "Geplante Place-Einträge entfernen und nach Reload wiederherstellen",
+      "reason": "Die letzte Zeitänderung besitzt bereits dauerhafte Rücknahme; Entfernen bietet bisher nur eine kurze Rücknahme-Meldung.",
+      "acceptance": [
+        "Entfernen erst nach lesbarer Vorschau und Bestätigung; Favorit, Ortsdaten und echte Buchungen bleiben fachlich getrennt.",
+        "Nach Reload Wiederherstellung anbieten, ursprünglichen Termin prüfen und erst nach Bestätigung speichern; veraltete Änderungen und Konflikte berücksichtigen.",
+        "Sichtbar im Browser entfernen → reloaden → wiederherstellen → erneut reloaden; Ergebnis unabhängig lesen, Prüfdaten zurücksetzen und gezielte Regression belegen."
+      ]
+    },
+    "after": "Weitere P09-Lücken schließen: Einträge verbinden, mehrere Einträge umordnen und weitere Eintragsarten. P10-Erklärungen dabei ergänzen; anschließend die vollständige B1-Nutzerkette und die geltenden Freigabegates abnehmen.",
+    "open": "Vollständige P09/P10- und Human↔AI-Abnahme, physisches iPhone/Android und echte Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten."
   }
 }

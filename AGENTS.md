@@ -63,3 +63,9 @@ Before mutation, verify worktree, branch, HEAD, tracking, live remote, divergenc
 After mutation, verify exact changed files, syntax, targeted tests, controlled regression and relevant guardrails.
 
 Do not use force push, hard reset or broad destructive cleanup as normal recovery mechanisms.
+
+## Planning continuity
+
+The user requires every progress report and active roadmap/handoff to name the current status and the next concrete step. After each completed slice, update `docs/planning/status-plan.v1.json` with measured evidence, remaining scope and exactly one next step with acceptance criteria. Preserve partial statuses until their full gates pass.
+
+Run `node scripts/sync-planning-status.cjs --write` to project that status into every active document listed in `currentDocuments`, then run `node tests/planning-current-status.test.cjs`. Also review surrounding prose for outdated claims. Dated exports and archived evidence remain historical snapshots; any new export must use the synchronized current source. In the final response, state what is delivered, what remains open and what comes next.

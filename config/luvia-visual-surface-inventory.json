@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3225,
-    "visualCandidates": 966,
+    "trackedFiles": 3226,
+    "visualCandidates": 967,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -6444,6 +6444,14 @@
       ],
       "bytes": 9194,
       "sha256": "9215c5f67dc6e14f97e3c959fb75c9507673712c659371dbf438fc5bab99a217"
+    },
+    {
+      "path": "scripts/sync-planning-status.cjs",
+      "classes": [
+        "visual-source-candidate"
+      ],
+      "bytes": 4563,
+      "sha256": "07a63acd86d0f9f57a5206b183bc538804bbad18db5086d9d7ef24272731f169"
     },
     {
       "path": "smart-photo-moments.css",
