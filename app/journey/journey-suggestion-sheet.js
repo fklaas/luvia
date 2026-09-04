@@ -789,7 +789,7 @@ function openResultsInteractive(rawInput={}){
   const origin=rawInput.interactiveOrigin,source=origin?.source,map=origin?.map,viewport=origin?.viewport;
   let morph=null;
   if(source&&map&&Number(source.width)>0&&Number(source.height)>0&&Number(map.width)>0&&Number(map.height)>0){
-    const viewportHeight=Number(viewport?.height)||innerHeight,targetLeft=Number(map.left),targetBottom=Math.max(0,viewportHeight-Number(map.bottom)),targetWidth=Number(map.width),targetHeight=Math.max(Number(source.height),Number(map.height)),originBottom=Math.max(0,viewportHeight-Number(source.bottom));
+    const viewportHeight=Number(viewport?.height)||innerHeight,targetLeft=Number(map.left),targetWidth=Number(map.width),targetHeight=Math.min(Math.max(Number(source.height),Number(map.height)),viewportHeight),targetBottom=Math.min(Math.max(0,viewportHeight-Number(map.bottom)),viewportHeight-targetHeight),originBottom=Math.max(0,viewportHeight-Number(source.bottom));
     overlay.dataset.lvjsOriginMorph='true';
     morph={left:Number(source.left),bottom:originBottom,width:Number(source.width),height:Number(source.height),deltaLeft:targetLeft-Number(source.left),deltaBottom:targetBottom-originBottom,deltaWidth:targetWidth-Number(source.width),deltaHeight:targetHeight-Number(source.height)};
   }

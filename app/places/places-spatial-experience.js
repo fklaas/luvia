@@ -951,6 +951,7 @@
     render();
   }
   function updateFilteredMap(){
+    syncFilterSelections();
     const rows=ensureVisibleFitResults(),view=state.mapProjection?.update?.(rows);
     const mapHost=state.root?.querySelector('[data-places-map]');
     if(mapHost&&state.status!=='loading'){
@@ -994,6 +995,10 @@
     if(current.has(value))current.delete(value);else current.add(value);
     state.filters[key]=[...current];
   }
+  function syncFilterSelections(){
+    state.root?.querySelectorAll('[data-places-subtype]').forEach(button=>button.setAttribute('aria-pressed',String((state.filters[button.dataset.placesSubtypeGroup]||[]).includes(button.dataset.placesSubtype))));
+    if(state.surface==='accommodation')state.root?.querySelectorAll('[data-places-category="accommodation"]').forEach(button=>button.setAttribute('aria-pressed',String(!state.filters.types.length)));
+  }
   function applyFilterChange({network=true}={}){
     updateFilteredMap();
     if(network)scheduleFilterSearch();
@@ -1015,6 +1020,7 @@
     });
     const filterHost=state.root?.querySelector('[data-places-filter-content]');
     if(filterHost)filterHost.innerHTML=filterMarkup();
+    syncFilterSelections();
     // Category switches must purge previous pins immediately. preserveMap alone
     // previously left restaurant markers visible under Aktivitäten.
     clearVisibleCategoryResults({message:`${def.label} wird geladen · vorherige Pins werden entfernt.`});

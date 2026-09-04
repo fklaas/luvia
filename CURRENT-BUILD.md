@@ -1,4 +1,4 @@
-# M16.5 Shared Places / Stays Surface — candidate 13.82.168.28
+# M16.5 Shared Places / Stays Surface — candidate 13.82.168.29
 
 Hotels mounts the existing Places spatial consumer with accommodation configuration. Initial destination search, categories, filters, profile matching, viewport cache, pins, history and detail handling now share the same active code. The mobile preview stays within the map. Candidate acceptance pending; previous public deployment is documented below.
 

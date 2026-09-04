@@ -8,6 +8,23 @@ ctx.LuviaPlatformPorts={get:id=>id==='OfflineCachePort'?{read:key=>{cacheKeys.pu
 ctx.LuviaPlacesContractV1={reads:{categories:()=>categories,listSaved:async()=>[],recommend:async request=>{requests.push(request);return{places:[]}}}};
 for(const file of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js','app/places/places-spatial-experience.js','modules/accommodations/accommodation-module.js'])vm.runInContext(read(file),ctx);
 const trip={id:'trip-a',destinationName:'Scharbeutz',destinationLat:54.0224961,destinationLng:10.7544158};
+// A scrolled map must never push the expanded sheet's close control above the viewport.
+const sheetSource=read('app/journey/journey-suggestion-sheet.js');
+const interactiveSource=sheetSource.slice(sheetSource.indexOf('function openResultsInteractive('),sheetSource.indexOf('function diagnostics()',sheetSource.indexOf('function openResultsInteractive(')));
+for(const map of [{left:10,bottom:407,width:370,height:610},{left:10,bottom:900,width:370,height:610},{left:10,bottom:500,width:370,height:1000}]){
+ const styles=new Map(),overlay={isConnected:true,dataset:{},style:{setProperty:(k,v)=>styles.set(k,v)}};
+ const scope=vm.createContext({openResults:()=>overlay,activeHandle:{close(){}},innerHeight:720,setTimeout(){}});
+ vm.runInContext(interactiveSource,scope);scope.openResultsInteractive({interactiveOrigin:{source:{left:10,bottom:390,width:370,height:70},map,viewport:{height:720}}}).settle(true);
+ const height=parseFloat(styles.get('--lvjs-sheet-height')),bottom=parseFloat(styles.get('--lvjs-sheet-bottom'));
+ assert.ok(height>0&&bottom>=0&&720-bottom-height>=0,'expanded sheet including header must fit in the visible screen');
+}
+// Both entry points show the same subtype state, including reset to all.
+const spatialSource=read('app/places/places-spatial-experience.js'),selectionSource=spatialSource.slice(spatialSource.indexOf('  function syncFilterSelections('),spatialSource.indexOf('  function applyFilterChange('));
+const all={setAttribute:(k,v)=>{all[k]=v}},typeButtons=[1,2].map(()=>({dataset:{placesSubtypeGroup:'types',placesSubtype:'apartment'},setAttribute(k,v){this[k]=v}}));
+const selectionState={surface:'accommodation',filters:{types:['apartment']},root:{querySelectorAll:s=>s==='[data-places-subtype]'?typeButtons:[all]}};
+const selectionScope=vm.createContext({state:selectionState});vm.runInContext(selectionSource,selectionScope);selectionScope.syncFilterSelections();
+assert.equal(all['aria-pressed'],'false');assert.ok(typeButtons.every(b=>b['aria-pressed']==='true'));
+selectionState.filters.types=[];selectionScope.syncFilterSelections();assert.equal(all['aria-pressed'],'true');assert.ok(typeButtons.every(b=>b['aria-pressed']==='false'));
 (async()=>{
  const stays=root();await ctx.LuviaAccommodations.mount({roots:[stays]},{trip});await Promise.resolve();
  assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().surface,'accommodation');
