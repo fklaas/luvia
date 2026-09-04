@@ -5,20 +5,20 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.49**, Core **4.82.171**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** Releasekandidat .49 schließt die bisherige P09/P01-First-Paint-Lücke lokal: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix. Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. Gezielte Core-, Browser-, Registry- und Visual-Gates sind grün; stabile Veröffentlichung und vollständige Regression laufen.
+**Zuletzt geliefert:** App .49 schließt die P09/P01-First-Paint-Lücke auf stabiler Integration: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix; Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. 217/217 Safe Regression, 30/30 Byte-Gleichheit und ein sichtbarer angemeldeter Reload mit zwei echten Ostseeurlaub-Momenten sind belegt.
 
-**Nächster Schritt (IN ABNAHME): Release .49 unveränderlich veröffentlichen und Timeline-First-Paint öffentlich abnehmen.** Die Laufzeitänderung ist lokal belegt. Vor dem Wechsel zum nächsten Sachblock müssen vollständige Regression, Quellidentität und der angemeldete stabile Reload denselben Stand bestätigen.
+**Nächster Schritt (GEPLANT): Places-Kategorie- und Ausschnittskontinuität unter echten Wiederholungen schließen.** Der zuletzt beobachtete Wechsel zwischen keinen, drei und ungefähr 45 Pins bei derselben Reise und Kategorie widerspricht der bereits vorhandenen lokalen Filtermatrix. Jetzt muss der reale asynchrone Browserpfad mit Provider-, Cache-, Kategorie- und Request-Identität reproduziert und stabilisiert werden.
 
 **Abnahme dieses Schritts:**
 
-- Alle 217 zugelassenen Safe-Regression-Prüfungen einschließlich der neuen Core- und sichtbaren Mobile-Matrix bestehen.
-- Integration wird ausschließlich aus dem festgeschriebenen .49-Quellarchiv veröffentlicht; Main, Datenbank, Functions und Secrets bleiben unverändert.
-- Die ausgewählten öffentlichen Dateien stimmen bytegenau mit dem Archiv überein.
-- Ein angemeldeter Reload zeigt sofort einen eindeutigen Ladezustand und danach die realen Owner-Einträge; kein falscher Zustand „0 Momente / Offen“ erscheint als fertiger Tag.
+- Auf der stabilen Integration mindestens fünf sichtbare Wechselzyklen zwischen Shopping, Natur & Erholung, Essen & Trinken und weiteren Kategorien am aktiven Reiseziel Scharbeutz ausführen; jede Runde protokolliert Kategorie, Ausschnitt, Request-ID, Provider/Cache-Herkunft, Dauer und Trefferzahl.
+- Eine ältere, langsamere Antwort darf weder die aktuelle Kategorie noch deren Pins überschreiben; Abbruch, Zusammenführung, Retry und Cache-Freshness werden im echten Browserpfad belegt.
+- Während Nachladen bleiben der letzte gültige Kartenstand und ein eindeutiger Ladehinweis sichtbar. Ein temporärer Providerfehler darf nicht als endgültiges „nichts gefunden“ erscheinen und ein echter leerer Filter bleibt trotzdem ehrlich leer.
+- Mobile und Desktop, Ziehen und Zoomen sowie die gemeinsame technische Basis von Places und Stays sichtbar prüfen; alle Testzustände danach zurücksetzen und vollständige Regression plus öffentliche Byte-Gleichheit belegen.
 
-**Danach:** Unmittelbar danach P02/P03: die gemeldete Places-Kategorie- und Ausschnittskontinuität in sichtbaren Wiederholungszyklen für Shopping, Natur & Erholung und weitere Kategorien reproduzieren, Ursachen beheben und 0/3/45-Schwankungen ausschließen. Danach folgen die positiven delegierten P09-Wege für Booking, Visit und Memory.
+**Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, reale Geräte und Mehrnutzerfälle; die gemeldete Places-Kategorie-/Ausschnittskontinuität bleibt als P02/P03-Wiederholungsmatrix aktiv; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** Vollständige P02/P03- und P09/P10-Abnahme, reale Geräte und Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -305,9 +305,9 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Stabile Integration weiterhin 13.82.168.48 / Core 4.82.170 aus unveränderlichem Quellstand 7eacedc3, Worker 42df591a und 30/30 öffentlichen Dateihashes. App 13.82.168.49 / Core 4.82.171 ist als lokaler Releasekandidat gebaut und noch nicht als stabile Integration abgenommen. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.
+13.82.168.49 / Core 4.82.171 auf der stabilen Integration veröffentlicht; unveränderliches Quellarchiv 8ed41a3e250a mit SHA-256 FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE, Worker 71ad570f, 217/217 Safe Regression und 30/30 öffentliche Dateihashes belegt. Der angemeldete stabile Reload zeigte die zwei realen Ostseeurlaub-Momente und keinen falschen fertigen „0 Momente“-Zustand. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.
 
-**Nächster Abschlussnachweis:** Releasekandidat .49 vollständig regressieren, aus einem unveränderlichen Quellarchiv nur auf Integration veröffentlichen und dort öffentlichen Bytebeleg sowie den wahrheitsgemäßen Timeline-First-Paint angemeldet sichtbar prüfen.
+**Nächster Abschlussnachweis:** Beim P02/P03-Slice Quellstand, öffentliche Bytes, stabilen Ladezustand, wiederholte Kategorieergebnisse und einen zum Backend passenden Rückfall erneut belegen.
 
 **Erhaltener technischer Umfang:** Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.
 
@@ -317,7 +317,7 @@ Stabile Integration weiterhin 13.82.168.48 / Core 4.82.170 aus unveränderlichem
 
 Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Ausschnittskontinuität und sichtbaren Ausfall/Retry; begrenzte Geoapify-Wiederanzeige bei Ausfall gezielt getestet. Vollständige Ortsfotos und alle optionalen Fakten bleiben offen.
 
-**Nächster Abschlussnachweis:** Echten Place mit Foto, Herkunft, Fehlermodus und budgetbegrenztem Abruf sichtbar prüfen.
+**Nächster Abschlussnachweis:** Scharbeutz in wiederholten sichtbaren Zyklen für Shopping, Natur & Erholung, Essen & Trinken und weitere Kategorien prüfen: identische aktive Reise, Kategorie und Ausschnitt dürfen nicht mehr zwischen 0/3/45 Ergebnissen schwanken. Request-Identität, Stale-Response-Abbruch, Cache/Provider-Herkunft und Fehlermodus protokollieren; realen Place mit Foto separat erhalten.
 
 **Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.
 
@@ -327,7 +327,7 @@ Geoapify, TomTom, HERE und ORS zuvor live geprüft. .46 belegt Kategorie-/Aussch
 
 Freie vegetarische Scharbeutz-Suche und einfache Restaurantanfrage liefern jetzt drei belegte Vorschläge. Chat übernimmt das Profil und den lokalen 3-km-Kontext. Ausschnittswechsel erhält Suchauftrag und Aktionsangebote; temporäres Nachladeversagen mit erhaltenen Pins ebenfalls beobachtet.
 
-**Nächster Abschlussnachweis:** Weitere Sprachen, Kategorien, widersprüchliche Wünsche und transienten Provider-/Detailabruf gezielt abnehmen; keine vollständige P03-Abnahme aus zwei Restaurantsätzen ableiten.
+**Nächster Abschlussnachweis:** Die Kategorie- und Ausschnittskontinuität zuerst zusammen mit P02 sichtbar schließen; danach weitere Sprachen, widersprüchliche Wünsche und transiente Provider-/Detailabrufe im AI Chat abnehmen.
 
 **Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
 
@@ -385,9 +385,9 @@ Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme off
 
 **Stand:** TEILWEISE. **Zuständig:** Journey. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben. Releasekandidat .49 ergänzt eine explizite Owner-Fähigkeitsmatrix für geplante Places, Buchungen, bestätigte Besuche und Memories; direkte Timeline-Aktionen erscheinen nur für zugelassene Place-Pläne. Ein Verhaltenstest belegt parallele Owner-Reads, den sofortigen Stale-Trip-Clear und den wahrheitsgemäßen Ladezustand. Öffentliche Integration-Abnahme steht noch aus.
+App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben. App .49 ergänzt und veröffentlicht eine explizite Owner-Fähigkeitsmatrix für geplante Places, Buchungen, bestätigte Besuche und Memories; direkte Timeline-Aktionen erscheinen nur für zugelassene Place-Pläne. Ein Verhaltenstest belegt parallele Owner-Reads, den sofortigen Stale-Trip-Clear und den wahrheitsgemäßen Ladezustand. Der sichtbare 477×900-Test prüft alle vier Owner-Fälle; der angemeldete stabile Reload zeigte zwei reale Place-Pläne mit „Plan direkt bearbeitbar“ und keinen falschen fertigen „0 Momente“-Zustand.
 
-**Nächster Abschlussnachweis:** Release .49 auf stabiler Integration sichtbar abnehmen. Danach die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.
+**Nächster Abschlussnachweis:** Nach dem unmittelbar folgenden P02/P03-Kontinuitätsblock die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.
 
 **Erhaltener technischer Umfang:** Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.
 
@@ -395,9 +395,9 @@ App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rüc
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge, erhaltene Owner-Fakten und Speicherstatus. Konflikte verlangen ausdrückliche Zustimmung; Booking-Abhängigkeiten blockieren vor dem Schreiben. Der .48-Live-Zyklus zeigte Vorher/Nachher, aktuellen Owner-Readback, Reload-Recovery und exakte Rücknahme in Nutzertext. Der .49-Kandidat erklärt zusätzlich je Eintrag den zuständigen Owner sowie direkt mögliche, weitergeleitete und bewusst geschützte Aktionen in lesbarer Sprache.
+Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge, erhaltene Owner-Fakten und Speicherstatus. Konflikte verlangen ausdrückliche Zustimmung; Booking-Abhängigkeiten blockieren vor dem Schreiben. Der .48-Live-Zyklus zeigte Vorher/Nachher, aktuellen Owner-Readback, Reload-Recovery und exakte Rücknahme in Nutzertext. App .49 erklärt zusätzlich je Eintrag den zuständigen Owner sowie direkt mögliche, weitergeleitete und bewusst geschützte Aktionen in lesbarer Sprache.
 
-**Nächster Abschlussnachweis:** Öffentliche .49-Erklärung sichtbar abnehmen; danach die positiven Booking-, Visit- und Memory-Verwaltungswege mit Ergebnis und Recovery in derselben Sprache schließen.
+**Nächster Abschlussnachweis:** Nach P02/P03 die positiven Booking-, Visit- und Memory-Verwaltungswege mit Ergebnis, Fehlerfall und Recovery in derselben Sprache schließen.
 
 **Erhaltener technischer Umfang:** Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.
 

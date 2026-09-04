@@ -5,20 +5,20 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.49**, Core **4.82.171**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** Releasekandidat .49 schließt die bisherige P09/P01-First-Paint-Lücke lokal: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix. Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. Gezielte Core-, Browser-, Registry- und Visual-Gates sind grün; stabile Veröffentlichung und vollständige Regression laufen.
+**Zuletzt geliefert:** App .49 schließt die P09/P01-First-Paint-Lücke auf stabiler Integration: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix; Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. 217/217 Safe Regression, 30/30 Byte-Gleichheit und ein sichtbarer angemeldeter Reload mit zwei echten Ostseeurlaub-Momenten sind belegt.
 
-**Nächster Schritt (IN ABNAHME): Release .49 unveränderlich veröffentlichen und Timeline-First-Paint öffentlich abnehmen.** Die Laufzeitänderung ist lokal belegt. Vor dem Wechsel zum nächsten Sachblock müssen vollständige Regression, Quellidentität und der angemeldete stabile Reload denselben Stand bestätigen.
+**Nächster Schritt (GEPLANT): Places-Kategorie- und Ausschnittskontinuität unter echten Wiederholungen schließen.** Der zuletzt beobachtete Wechsel zwischen keinen, drei und ungefähr 45 Pins bei derselben Reise und Kategorie widerspricht der bereits vorhandenen lokalen Filtermatrix. Jetzt muss der reale asynchrone Browserpfad mit Provider-, Cache-, Kategorie- und Request-Identität reproduziert und stabilisiert werden.
 
 **Abnahme dieses Schritts:**
 
-- Alle 217 zugelassenen Safe-Regression-Prüfungen einschließlich der neuen Core- und sichtbaren Mobile-Matrix bestehen.
-- Integration wird ausschließlich aus dem festgeschriebenen .49-Quellarchiv veröffentlicht; Main, Datenbank, Functions und Secrets bleiben unverändert.
-- Die ausgewählten öffentlichen Dateien stimmen bytegenau mit dem Archiv überein.
-- Ein angemeldeter Reload zeigt sofort einen eindeutigen Ladezustand und danach die realen Owner-Einträge; kein falscher Zustand „0 Momente / Offen“ erscheint als fertiger Tag.
+- Auf der stabilen Integration mindestens fünf sichtbare Wechselzyklen zwischen Shopping, Natur & Erholung, Essen & Trinken und weiteren Kategorien am aktiven Reiseziel Scharbeutz ausführen; jede Runde protokolliert Kategorie, Ausschnitt, Request-ID, Provider/Cache-Herkunft, Dauer und Trefferzahl.
+- Eine ältere, langsamere Antwort darf weder die aktuelle Kategorie noch deren Pins überschreiben; Abbruch, Zusammenführung, Retry und Cache-Freshness werden im echten Browserpfad belegt.
+- Während Nachladen bleiben der letzte gültige Kartenstand und ein eindeutiger Ladehinweis sichtbar. Ein temporärer Providerfehler darf nicht als endgültiges „nichts gefunden“ erscheinen und ein echter leerer Filter bleibt trotzdem ehrlich leer.
+- Mobile und Desktop, Ziehen und Zoomen sowie die gemeinsame technische Basis von Places und Stays sichtbar prüfen; alle Testzustände danach zurücksetzen und vollständige Regression plus öffentliche Byte-Gleichheit belegen.
 
-**Danach:** Unmittelbar danach P02/P03: die gemeldete Places-Kategorie- und Ausschnittskontinuität in sichtbaren Wiederholungszyklen für Shopping, Natur & Erholung und weitere Kategorien reproduzieren, Ursachen beheben und 0/3/45-Schwankungen ausschließen. Danach folgen die positiven delegierten P09-Wege für Booking, Visit und Memory.
+**Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, reale Geräte und Mehrnutzerfälle; die gemeldete Places-Kategorie-/Ausschnittskontinuität bleibt als P02/P03-Wiederholungsmatrix aktiv; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** Vollständige P02/P03- und P09/P10-Abnahme, reale Geräte und Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

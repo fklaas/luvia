@@ -1,7 +1,7 @@
 # PCR — P09 Timeline owner capabilities and truthful first paint
 
 Date: 2026-09-04
-Status: release candidate for bounded Integration acceptance
+Status: bounded Integration acceptance complete
 
 ## Problem
 
@@ -50,8 +50,12 @@ No migration, table, RLS, Edge Function, provider, secret or authorization chang
 
 ## Rollout and rollback
 
-Target: stable Integration only, App `13.82.168.49`, Core `4.82.171`. Main/Production is outside this slice. Until stable acceptance is recorded, the exact rollback remains App `13.82.168.48`, Core `4.82.170`, Worker `42df591a-d2d2-4075-b315-003f1499431c`, runtime source `7eacedc32e997de27d781adbf51d14bb55486907`.
+Published on stable Integration as App `13.82.168.49`, Core `4.82.171`, Worker `71ad570f-e4a3-42ed-b13f-0f504bfea4e5`, immutable runtime source `8ed41a3e250a82fe6bb9c9a0d37fe399f797712b` and archive SHA-256 `FF650D1A9BFED36E0855D2FCDC7AE99F78A6638F21B308D1B43E12B20A65B9EE`. Main/Production, database, Functions and secrets remained unchanged. Exact code rollback is App `13.82.168.48`, Core `4.82.170`, Worker `42df591a-d2d2-4075-b315-003f1499431c`, source `7eacedc32e997de27d781adbf51d14bb55486907`.
 
 ## Acceptance evidence
 
-Pending release build, full Safe Regression, immutable public-byte proof and authenticated stable Integration reload.
+- Safe Regression: `217/217` PASS.
+- Public stable Integration bytes: `30/30` match the immutable `.49` archive.
+- Visible headed Edge test at 477×900: truthful loading state plus planned Place, Booking, confirmed Visit and Memory capability cases; no browser errors.
+- Authenticated stable Integration reload on `Ostseeurlaub`: two real entries returned at Grande Beach Café 15:00 and Restaurant Brechtmann 20:00, both showed `Plan direkt bearbeitbar`, and the completed page did not contain `0 Momente`.
+- The live reload proves the final stable owner projection. The transient loading surface itself is visibly covered by the headed mobile test because the public navigation completed before an intermediate frame could be captured.
