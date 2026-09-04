@@ -46,8 +46,11 @@ Deno.serve(async(req:Request)=>{
 
   const forwarded=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   const clientKey=forwarded||req.headers.get('cf-connecting-ip')||'unknown';
-  const rate=enforceRateLimit(`${clientKey}:${action}`,action==='system.health'?60:PLACES_ACTIONS.has(action)?45:PLACE_ENTITY_ACTIONS.has(action)?40:RESTAURANT_ACTIONS.has(action)?30:SCHEDULE_ACTIONS.has(action)?60:ROUTES_ACTIONS.has(action)?40:RECOMMENDATION_ACTIONS.has(action)?60:30,60_000);
-  if(!rate.allowed)return errorResponse(429,'RATE_LIMITED','Zu viele Anfragen.',id,{...cors,'Retry-After':String(rate.retryAfter)});
+  const skipRateLimit=action==='places.text-search'||action==='places.nearby-search'||action==='destination.resolve'||action==='places.health';
+  if(!skipRateLimit){
+    const rate=enforceRateLimit(`${clientKey}:${action}`,action==='system.health'?60:PLACES_ACTIONS.has(action)?120:PLACE_ENTITY_ACTIONS.has(action)?40:RESTAURANT_ACTIONS.has(action)?30:SCHEDULE_ACTIONS.has(action)?60:ROUTES_ACTIONS.has(action)?40:RECOMMENDATION_ACTIONS.has(action)?60:30,60_000);
+    if(!rate.allowed)return errorResponse(429,'RATE_LIMITED','Zu viele Anfragen.',id,{...cors,'Retry-After':String(rate.retryAfter)});
+  }
 
   const supabaseUrl=Deno.env.get('SUPABASE_URL')||'';
   const anonKey=Deno.env.get('SUPABASE_ANON_KEY')||'';
@@ -115,7 +118,7 @@ Deno.serve(async(req:Request)=>{
     return jsonResponse(200,{ok:true,data,meta:{requestId:id,action,durationMs}},cors);
   }catch(error){
     log('error','gateway.request.failed',{requestId:id,action,userId,error:error instanceof Error?error.message:String(error)});
-    const e=error as {status?:number;code?:string;message?:string};
-    return errorResponse(e.status||500,e.code||'INTERNAL_ERROR',e.message||'Die Anfrage konnte nicht verarbeitet werden.',id,cors);
+    const e=error as {status?:number;code?:string;message?:string;providerErrors?:unknown};
+    return errorResponse(e.status||500,e.code||'INTERNAL_ERROR',e.message||'Die Anfrage konnte nicht verarbeitet werden.',id,cors,e.providerErrors?{providerErrors:e.providerErrors}:{});
   }
 });

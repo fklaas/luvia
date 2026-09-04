@@ -46,6 +46,18 @@ assert.equal(
   'destination-service must not bypass the narrow destination command via TripExperience'
 );
 
+assert.match(target, /function usableCenter/);
+assert.doesNotMatch(
+  target,
+  /destination\.center&&destination\.countryCode&&!options\.refresh/,
+  'existing coordinates must not wait for countryCode before skipping destination.resolve'
+);
+assert.doesNotMatch(
+  target,
+  /queueMicrotask\(\(\)=>ensureActiveResolved/,
+  'boot must not call destination.resolve through Google geocoding'
+);
+
 assert(
   /LuviaLegacyParisMigrator/.test(target),
   'legacy Paris compatibility mirror must remain present in this slice'

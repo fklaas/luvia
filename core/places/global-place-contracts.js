@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.58.0-hard-dietary-gate';
+const VERSION='4.59.0-category-purity';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -23,7 +23,13 @@ const SPECIFIC_STOP_WORDS=new Set('aber also ansehen angebot angebote auswahl bi
 const BROAD_EVIDENCE_TERMS=new Set('activity activities aktivitat aktivitäten aktivitaet attraction business company erlebnis erleben freizeit geschäft geschaft laden möglichkeit möglichkeiten option place places shop store tourist attraction venue'.split(' '));
 const CATEGORY_TYPE_ALIASES=Object.freeze({
   accommodation:Object.freeze(['accommodation','lodging','hotel','hostel','motel','bed_and_breakfast','guest_house','guesthouse','resort','resort_hotel','campground','camping_cabin','private_guest_room','apartment','serviced_apartment','holiday_apartment','apartment_hotel','extended_stay_hotel','holiday_home','vacation_rental','cottage','inn','pension','ferienwohnung']),
-  nightlife:Object.freeze(['night_club','nightclub','nightlife_spot','dance_club','discotheque','disco','bar','beer_bar','cocktail_bar','sports_bar','tiki_bar','wine_bar','lounge_bar','pub','concert_hall','live_music_venue','music_venue','jazz_club','comedy_club','karaoke_bar'])
+  nightlife:Object.freeze(['night_club','nightclub','nightlife_spot','dance_club','discotheque','disco','bar','beer_bar','cocktail_bar','sports_bar','tiki_bar','wine_bar','lounge_bar','pub','concert_hall','live_music_venue','music_venue','jazz_club','comedy_club','karaoke_bar']),
+  food:Object.freeze(['restaurant','cafe','bar','bakery','meal_takeaway','food_court','catering','catering_restaurant','catering_cafe','catering_bar','catering_bakery','catering_fast_food']),
+  activities:Object.freeze(['activity','entertainment','leisure','sport','amusement_park','amusement_center','playground','zoo','spa','swimming_pool','water_park']),
+  wellness:Object.freeze(['spa','leisure_spa','sauna','wellness']),
+  nature:Object.freeze(['park','garden','beach','hiking_area','natural','leisure_park','nature']),
+  sights:Object.freeze(['tourist_attraction','tourism','tourism_sights','historical_landmark','monument','attraction']),
+  culture:Object.freeze(['museum','art_gallery','movie_theater','performing_arts_theater','concert_hall','entertainment_museum','entertainment_culture','culture'])
 });
 const QUALIFIED_PROVIDER_TYPE_SUFFIXES=new Set(['restaurant','hotel','hostel','motel']);
 const clean=v=>String(v??'').trim();
@@ -70,7 +76,8 @@ function spatialIntent(text=''){
 function semanticSignals(text=''){const q=String(text).toLowerCase(),spatial=spatialIntent(text);return Object.freeze({hidden:/nicht jeder tourist|geheimtipp|hidden gem|abseits.*tourist|wenig bekannt|unbekannt|locals? kennen|insider|überseh/.test(q),quiet:/ruhig|entspannt|wenig los|ohne trubel|still/.test(q),romantic:/romant|date|hochzeitstag|zu zweit/.test(q),view:/aussicht|blick|view|panorama|rooftop/.test(q),family:/kind|baby|famil/.test(q),stroller:/kinderwagen|buggy/.test(q),local:/lokal|local|authentisch|viertel|nachbarschaft/.test(q),budget:/günstig|preiswert|budget|nicht teuer/.test(q),accessible:/barrierefrei|rollstuhl|accessible/.test(q),vegetarian:/vegetar/.test(q),vegan:/vegan/.test(q),photo:/foto|fotospot|instagram|fotograf/.test(q),spatial});}
 function normalizedPreferences(preferences={}){return window.LuviaPreferenceSchema?.normalizePreferences?.(preferences)||preferences||{}}
 function profileSignals(preferences={}){const p=normalizedPreferences(preferences),raw=JSON.stringify(p).toLowerCase(),labels=(window.LuviaPreferenceSchema?.summary?.(p)||[]).map(x=>x.label).filter(Boolean);return Object.freeze({raw,labels,dietary:[...(p.dietaryPreferences||[])],family:p.familyPreferences||{},accessibility:[...(p.accessibilityNeeds||p.accessibilityPreferences?.needs||[])],styles:[...(p.travelStyles||[])],interests:[...(p.travelInterests||[])],activities:[...(p.activityPreferences||[])],dining:[...(p.diningPreferences||[])],atmosphere:[...(p.atmospherePreferences||[])],pace:p.travelPace||p.travelPreferences?.pace||null,budget:p.budgetPreference||p.travelPreferences?.budget||null,vegetarian:/vegetar/.test(raw),vegan:/vegan/.test(raw),stroller:/kinderwagen|buggy|stroller/.test(raw),withChildren:/kind|baby|family|famil/.test(raw),accessible:/barriere|rollstuhl|accessible/.test(raw)});}
-function queryCascade(goal={},destination='',preferences={},options={}){const text=clean(goal.text),intent=intentFor(text,goal.category),def=category(intent.category||goal.category),profile=profileSignals(preferences),spatial=spatialIntent(text),strictRestaurant=options.strictPlaceType==='restaurant';let variants=strictRestaurant?[text,'Restaurant','Local restaurant','Full-service restaurant']:[text,...intent.queries,...def.synonyms];if(spatial.prefer.includes('center'))variants=[text,strictRestaurant?'Restaurant Stadtzentrum':`${def.label} Stadtzentrum`,strictRestaurant?'Restaurant city centre':`${def.label} city centre`,...variants];if(spatial.prefer.includes('waterfront'))variants=[text,strictRestaurant?'Restaurant am Wasser':`${def.label} am Wasser`,strictRestaurant?'Waterfront restaurant':`${def.label} waterfront`,...variants];if(spatial.prefer.includes('outskirts'))variants=[text,strictRestaurant?'Restaurant am Stadtrand':`${def.label} am Stadtrand`,...variants];if(intent.key==='hidden_gem')variants=[text,`echter Geheimtipp ${def.label}`,`wenig bekannter ${def.label}`,`lieu insolite ${def.label}`,`off the beaten path ${def.label}`,`local favorite ${def.label}`,...variants];if((intent.category==='food'||goal.category==='food')&&profile.vegetarian&&!/vegetar|vegan/i.test(text))variants=[text,'Vegetarisches Restaurant',...variants];return [...new Set(variants.map(v=>`${v} ${destination}`.trim()).filter(Boolean))].slice(0,14)}
+function destinationLabel(destination=''){return destination&&typeof destination==='object'?clean(destination.name||destination.displayName||destination.destinationName||destination.formattedAddress):clean(destination)}
+function queryCascade(goal={},destination='',preferences={},options={}){const text=clean(goal.text),place=destinationLabel(destination),intent=intentFor(text,goal.category),def=category(intent.category||goal.category),profile=profileSignals(preferences),spatial=spatialIntent(text),strictRestaurant=options.strictPlaceType==='restaurant';let variants=strictRestaurant?[text,'Restaurant','Local restaurant','Full-service restaurant']:[text,...intent.queries,...def.synonyms];if(spatial.prefer.includes('center'))variants=[text,strictRestaurant?'Restaurant Stadtzentrum':`${def.label} Stadtzentrum`,strictRestaurant?'Restaurant city centre':`${def.label} city centre`,...variants];if(spatial.prefer.includes('waterfront'))variants=[text,strictRestaurant?'Restaurant am Wasser':`${def.label} am Wasser`,strictRestaurant?'Waterfront restaurant':`${def.label} waterfront`,...variants];if(spatial.prefer.includes('outskirts'))variants=[text,strictRestaurant?'Restaurant am Stadtrand':`${def.label} am Stadtrand`,...variants];if(intent.key==='hidden_gem')variants=[text,`echter Geheimtipp ${def.label}`,`wenig bekannter ${def.label}`,`lieu insolite ${def.label}`,`off the beaten path ${def.label}`,`local favorite ${def.label}`,...variants];if((intent.category==='food'||goal.category==='food')&&profile.vegetarian&&!/vegetar|vegan/i.test(text))variants=[text,'Vegetarisches Restaurant',...variants];return [...new Set(variants.map(v=>`${v} ${place}`.trim()).filter(Boolean))].slice(0,14)}
 function reviewCount(place={}){
   const value=place?.userRatingCount??place?.user_rating_count??place?.ratingCount;
   if(value==null||value==='')return null;
@@ -111,6 +118,12 @@ function accepts(place,categoryKey,goalText='',preferences={},options={}){
   if(!clean(place?.providerPlaceId||place?.id).replace(/^places\//,'')||name.length<2)return false;
   if(intent.exclude?.test(hay))return false;
   if(def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;
+  // Non-food/non-nightlife categories must never keep catering leftovers from a prior
+  // search, viewport merge, or broad provider alias collision.
+  if(resolvedCategory!=='food'&&resolvedCategory!=='nightlife'){
+    const foodOnly=providerTypes.some(value=>/^(?:restaurant|cafe|bakery|meal_takeaway|food_court|catering)(?:_|$)/.test(value)||value.includes('catering_'));
+    if(foodOnly)return false;
+  }
   // Search terms and model plans may prove the requested subject, but only the
   // provider taxonomy may prove the canonical Places category. In particular,
   // a venue name containing "Hotel" is not accommodation evidence.

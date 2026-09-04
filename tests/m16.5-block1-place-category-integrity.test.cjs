@@ -44,6 +44,8 @@ const clubNameOnly={id:'shop',providerPlaceId:'shop',name:'Tonfink Night Club Fa
 for(const place of [nightClub,danceClub,cocktailBar,concertHall])assert.equal(contracts.accepts(place,'nightlife','Nachtleben in Lübeck',{}, {destination:'Lübeck'}),true,`${place.name} must remain valid nightlife provider evidence`);
 assert.equal(contracts.accepts(clubNameOnly,'nightlife','Nachtleben in Lübeck',{}, {destination:'Lübeck'}),false,'nightlife wording in a name must not make a store a nightlife venue');
 assert.equal(contracts.accepts({...googleHotel,name:'Night Club Package Hotel'},'nightlife','Nachtleben in Lübeck',{}, {destination:'Lübeck'}),false,'a hotel promotion must not enter nightlife results');
+assert.equal(contracts.accepts({id:'la-vie',providerPlaceId:'la-vie',name:'La Vie',primaryType:'restaurant',types:['restaurant','catering','catering.restaurant']},'activities','',{}),false,'a catering restaurant must never survive an activities category gate');
+assert.equal(contracts.accepts({id:'spa',providerPlaceId:'spa',name:'Ostsee Therme',primaryType:'spa',types:['spa','leisure']},'activities','',{}),true,'provider leisure/spa evidence must remain valid for activities');
 
 (async()=>{
   const calls=[];

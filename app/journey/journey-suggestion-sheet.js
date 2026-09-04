@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.23.0-interactive-map-preview-sheet';
+const VERSION='1.24.0-preserve-place-names';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -26,14 +26,31 @@ const timeValue=value=>{
 const dateValue=value=>clean(value).slice(0,10)||new Date().toISOString().slice(0,10);
 const destinationOf=trip=>trip?.destination?.name||trip?.destination?.formattedAddress||trip?.destinationName||trip?.destination||'';
 const destinationContext=trip=>{
-  const destination=trip?.destination||{};
+  const destination=trip?.destination&&typeof trip.destination==='object'?trip.destination:{};
+  const center=destination.location||destination.center||destination.coordinates||{};
+  const latitude=Number(center.latitude??center.lat??destination.latitude??destination.lat??trip?.destinationLat);
+  const longitude=Number(center.longitude??center.lng??destination.longitude??destination.lng??trip?.destinationLng);
+  const location=Number.isFinite(latitude)&&Number.isFinite(longitude)?{latitude,longitude}:null;
   return{
     name:clean(destination.name||trip?.destinationName),
+    displayName:clean(destination.displayName||destination.name||trip?.destinationName),
     formattedAddress:clean(destination.formattedAddress||destination.address||trip?.destinationName),
     placeId:clean(destination.placeId||destination.providerPlaceId||trip?.destinationPlaceId),
-    latitude:Number.isFinite(Number(destination.latitude??destination.lat))?Number(destination.latitude??destination.lat):null,
-    longitude:Number.isFinite(Number(destination.longitude??destination.lng))?Number(destination.longitude??destination.lng):null
+    countryCode:clean(destination.countryCode||trip?.countryCode),
+    latitude:location?location.latitude:null,
+    longitude:location?location.longitude:null,
+    location,
+    center:location,
+    coordinates:location,
+    viewport:destination.viewport||null,
+    searchRadiusMeters:Number(destination.searchRadiusMeters)||20000
   };
+};
+const isGenericPlaceName=value=>!clean(value)||/^(unbenannter ort|unbekannter ort|unknown place|ort|\[object object\])$/i.test(clean(value));
+const placeDisplayName=place=>{
+  const candidates=[place?.name,place?.displayName?.text,place?.displayName,place?.shortAddress,place?.address,place?.formattedAddress,place?.primaryTypeLabel];
+  for(const candidate of candidates){const title=clean(candidate);if(title&&!isGenericPlaceName(title))return title}
+  return clean(place?.name)||'Unbenannter Ort';
 };
 const providerTypeText=place=>[place?.primaryType,place?.primary_type,place?.type,place?.category,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(value=>clean(value).toLowerCase()).filter(Boolean).join(' ');
 const dominantTypeText=place=>{
@@ -291,10 +308,16 @@ async function within(promise,timeoutMs,fallback){
 async function enrich(place){
   const api=contracts().places,id=providerId(place);
   if(!id||!api?.reads?.getCard)return place;
+  // Geoapify search already carries the title; there is no photo details path yet.
+  if(id.startsWith('geoapify:'))return{...place,name:placeDisplayName(place)};
   try{
-    const card=await api.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720});
-    return{...place,...(card?.place||{}),image:card?.image||place.image||null};
-  }catch{return place}
+    const card=await api.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
+    const merged={...place,...(card?.place||{}),image:card?.image||place.image||null};
+    if(isGenericPlaceName(merged.name)&&!isGenericPlaceName(place.name))merged.name=place.name;
+    else merged.name=placeDisplayName(merged);
+    if(isGenericPlaceName(merged.address)&&clean(place.address||place.formattedAddress))merged.address=place.address||place.formattedAddress;
+    return merged;
+  }catch{return{...place,name:placeDisplayName(place)}}
 }
 function desiredCount(input){
   if(Number(input.requestedCount)>0)return Math.min(18,Number(input.requestedCount));
@@ -318,11 +341,11 @@ async function load(rawInput={},options={}){
   const api=contracts().places;
   if(!api?.reads?.recommend)throw Object.assign(new Error('Places ist noch nicht vollständig bereit.'),{code:'PLACES_CONTRACT_UNAVAILABLE'});
   input.groupContext=await sharedPreferenceContext(input,{fast});
-  const categories=categoryPlan(input),requestDescriptors=categories.map(category=>({category,promise:api.reads.recommend({
+  const geography=destinationContext(input.trip),requestDescriptors=categoryPlan(input).map(category=>({category,promise:api.reads.recommend({
     tripId:tripId(input.trip),
     text:queryFor(category,input),query:queryFor(category,input),category,
-    destination:destinationOf(input.trip),destinationContext:destinationContext(input.trip),
-     candidateLimit:fast?24:36,limit:fast?6:8,fastPath:fast,
+    destination:geography.location?geography:destinationOf(input.trip),destinationContext:geography,
+     candidateLimit:fast?36:48,limit:fast?12:16,fastPath:fast,providers:['geoapify'],
     profilePreferences:input.snapshot.profilePreferences||{},
     profileContext:{groupTravelers:input.groupContext.travelers.map(item=>({name:item.name,role:item.role,sharedSignals:item.signals})),groupCoverage:{covered:input.groupContext.coveredTravelers,total:input.groupContext.totalTravelers}},
     tripComposition:input.snapshot.tripComposition||{},trip:input.trip,
@@ -422,14 +445,14 @@ function providerDetailRows(place,input){
 }
 function openProviderDetails(place,input){
   const ui=globalThis.LuviaUI;if(!ui?.mount)return null;const rows=providerDetailRows(place,input),website=safeHttpUrl(place.websiteUri||place.website),mapsRoute=safeHttpUrl(place.googleMapsUri||place.mapsUrl),route=mapsRoute||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([place.name,place.formattedAddress||place.address].filter(Boolean).join(' '))}`,menu=safeHttpUrl(place.menuUrl||place.menu_url),content=document.createElement('section');
-  content.className='lvjs-provider-detail-sheet';content.innerHTML=`<header><div><small>${esc(visualLabel(visualCategory(place)))} · belegte Details</small><h2>${esc(place.name||'Ort')}</h2><p>Nur verfügbare Angaben der Ortsquelle; fehlende Eigenschaften werden nicht ergänzt.</p></div><button type="button" data-lvjs-detail-close aria-label="Details schließen">×</button></header><div class="lvjs-provider-detail-body">${rows.length?`<dl>${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`:'<p class="lvjs-provider-detail-empty">Die Ortsquelle liefert für diesen Ort aktuell keine weiteren belegten Details.</p>'}${whyMarkup(place,input)}</div>${website||route||menu?`<nav aria-label="Externe Informationen">${route?`<a href="${esc(route)}" target="_blank" rel="noopener noreferrer">Route</a>`:''}${website?`<a href="${esc(website)}" target="_blank" rel="noopener noreferrer">Website</a>`:''}${menu?`<a href="${esc(menu)}" target="_blank" rel="noopener noreferrer">Speisekarte</a>`:''}</nav>`:''}`;
+  content.className='lvjs-provider-detail-sheet';content.innerHTML=`<header><div><small>${esc(visualLabel(visualCategory(place)))} · belegte Details</small><h2>${esc(placeDisplayName(place))}</h2><p>Nur verfügbare Angaben der Ortsquelle; fehlende Eigenschaften werden nicht ergänzt.</p></div><button type="button" data-lvjs-detail-close aria-label="Details schließen">×</button></header><div class="lvjs-provider-detail-body">${rows.length?`<dl>${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`:'<p class="lvjs-provider-detail-empty">Die Ortsquelle liefert für diesen Ort aktuell keine weiteren belegten Details.</p>'}${whyMarkup(place,input)}</div>${website||route||menu?`<nav aria-label="Externe Informationen">${route?`<a href="${esc(route)}" target="_blank" rel="noopener noreferrer">Route</a>`:''}${website?`<a href="${esc(website)}" target="_blank" rel="noopener noreferrer">Website</a>`:''}${menu?`<a href="${esc(menu)}" target="_blank" rel="noopener noreferrer">Speisekarte</a>`:''}</nav>`:''}`;
   return ui.mount({name:'places.provider-details',kind:'sheet',content,className:'lvjs-provider-detail-overlay',closeSelector:'[data-lvjs-detail-close]',initialFocus:'[data-lvjs-detail-close]',label:`Details zu ${place.name||'Ort'}`}).overlay;
 }
 function cardMarkup(place,index,input,choices=[]){
   const id=providerId(place),visual=visualCategory(place),image=imageUrl(place),attribution=imageAttribution(place),facts=placeFacts(place,input),match=matchLabel(place),admission=admissionFor(place),alternative=Number(input.requestedCount)>1?nearestAlternative(place,choices):null;
   const credit=attribution?`<span class="lvjs-photo-credit">${esc(attribution.credit)}${attribution.license?` · ${esc(attribution.license)}`:''}</span>`:'';
   const bookingLabel=visual==='accommodation'?'Buchung prüfen':admission?.action?.available?admission.action.label:'Reservierung prüfen';
-  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="false">${image?`<img data-lvjs-image src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="eager" fetchpriority="high" decoding="async">`:'<span class="lvjs-choice-placeholder" data-lvjs-image role="img" aria-label="Kein belegtes Anbieterfoto verfügbar"><b>✦</b><small>Kein Anbieterfoto</small></span>'}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(place.name||'Unbenannter Ort')}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em><span class="lvjs-choice-facts" data-lvjs-facts>${facts.map(fact=>`<b>${esc(fact)}</b>`).join('')}</span>${stayPriceMarkup(place,input)}${match?`<span class="lvjs-choice-match" data-lvjs-match><b>${esc(match)}</b><small>belegt</small></span>`:''}<span class="lvjs-traveler-fit" data-lvjs-fit>${esc(displayReason(place,input))}</span>${credit}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button><div class="lvjs-staged-actions" data-lvjs-staged-actions hidden><button type="button" data-lvjs-details="${esc(id)}">Details</button>${admission?.action?.available?`<button type="button" class="is-booking" data-lvjs-booking="${esc(id)}">${esc(bookingLabel)}</button>`:''}<button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Zur Timeline</button><p class="lvjs-action-state" data-lvjs-action-state role="status" aria-live="polite" hidden></p></div><form class="lvjs-choice-scheduler" data-lvjs-scheduler="${esc(id)}" hidden><input name="date" type="hidden" value="${esc(input.targetDate)}"><input name="time" type="hidden" value="${esc(timeValue(input.startAt))}"><input name="duration" type="hidden" value="${esc(durationFor(place))}"><p data-lvjs-card-plan>Die Standardzeit wird gegen euren Reisetag geprüft.</p>${alternative?`<button class="lvjs-nearby-action" type="button" data-lvjs-nearby="${esc(id)}">Alternative · ${esc(alternativeCause(place,alternative))}</button>`:''}<div class="lvjs-card-state" data-lvjs-card-state aria-live="polite"></div></form></article>`;
+  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="false">${image?`<img data-lvjs-image src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="eager" fetchpriority="high" decoding="async">`:'<span class="lvjs-choice-placeholder" data-lvjs-image role="img" aria-label="Kein belegtes Anbieterfoto verfügbar"><b>✦</b><small>Kein Anbieterfoto</small></span>'}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(placeDisplayName(place))}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em><span class="lvjs-choice-facts" data-lvjs-facts>${facts.map(fact=>`<b>${esc(fact)}</b>`).join('')}</span>${stayPriceMarkup(place,input)}${match?`<span class="lvjs-choice-match" data-lvjs-match><b>${esc(match)}</b><small>belegt</small></span>`:''}<span class="lvjs-traveler-fit" data-lvjs-fit>${esc(displayReason(place,input))}</span>${credit}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button><div class="lvjs-staged-actions" data-lvjs-staged-actions hidden><button type="button" data-lvjs-details="${esc(id)}">Details</button>${admission?.action?.available?`<button type="button" class="is-booking" data-lvjs-booking="${esc(id)}">${esc(bookingLabel)}</button>`:''}<button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Zur Timeline</button><p class="lvjs-action-state" data-lvjs-action-state role="status" aria-live="polite" hidden></p></div><form class="lvjs-choice-scheduler" data-lvjs-scheduler="${esc(id)}" hidden><input name="date" type="hidden" value="${esc(input.targetDate)}"><input name="time" type="hidden" value="${esc(timeValue(input.startAt))}"><input name="duration" type="hidden" value="${esc(durationFor(place))}"><p data-lvjs-card-plan>Die Standardzeit wird gegen euren Reisetag geprüft.</p>${alternative?`<button class="lvjs-nearby-action" type="button" data-lvjs-nearby="${esc(id)}">Alternative · ${esc(alternativeCause(place,alternative))}</button>`:''}<div class="lvjs-card-state" data-lvjs-card-state aria-live="polite"></div></form></article>`;
 }
 function shellMarkup(input){
   const destination=destinationOf(input.trip)||'eurem Reiseziel',count=desiredCount(input),placesSearch=input.source==='places-search',hotelMap=input.source==='hotel-map',mapResults=placesSearch||hotelMap;

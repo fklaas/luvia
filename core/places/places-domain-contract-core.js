@@ -25,10 +25,10 @@ const immutable=value=>{
 const CATEGORIES=immutable({
   food:{key:'food',icon:'🍽️',label:'Essen & Trinken',type:'restaurant',primaryType:'restaurant',domainTypes:['restaurant'],includedType:'restaurant',includedTypes:['restaurant','cafe','bakery','bar','meal_takeaway','vegetarian_restaurant','vegan_restaurant'],excludedTypes:['hospital','movie_theater','locality'],query:'Restaurants Cafés Bars Essen',keywords:['essen','restaurant','nudeln','pasta','vegetar','vegan','café','cafe','frühstück','bar','trinken'],synonyms:['Restaurant','Café','Bistro','Essen']},
   accommodation:{key:'accommodation',icon:'🏨',label:'Unterkünfte',type:'accommodation',primaryType:'accommodation',domainTypes:['accommodation'],includedType:'lodging',includedTypes:['lodging','hotel','hostel','motel','bed_and_breakfast','guest_house','resort_hotel','campground'],excludedTypes:['restaurant','hospital','locality'],query:'Hotels Unterkünfte Hostels Apartments',keywords:['hotel','unterkunft','hostel','apartment','übernachten','zimmer','resort','pension'],synonyms:['Hotel','Unterkunft','Hostel','Apartment','Bed and Breakfast']},
-  activities:{key:'activities',icon:'🎟️',label:'Aktivitäten',type:'activity',primaryType:'activity',domainTypes:['activity','attraction','family'],includedType:'',includedTypes:['amusement_park','amusement_center','aquarium','bowling_alley','escape_room','fitness_center','gym','playground','skating_rink','spa','sports_activity_location','stadium','swimming_pool','water_park','zoo','tourist_attraction'],excludedTypes:['hospital','store','locality'],query:'Aktivitäten Erlebnisse Freizeit',keywords:['aktivität','aktivitäten','unternehmen','erleben','freizeit','indoor','outdoor','spielen','spaß'],synonyms:['Aktivität','Erlebnis','Freizeit','Freizeitzentrum','Sport und Freizeit']},
-  themeparks:{key:'themeparks',icon:'🎢',label:'Freizeitparks',type:'activity',primaryType:'activity',domainTypes:['activity','attraction','family'],includedType:'amusement_park',includedTypes:['amusement_park','amusement_center','water_park'],excludedTypes:['hospital','store','locality'],query:'Freizeitparks Themenparks Erlebnisparks',keywords:['freizeitpark','themenpark','erlebnispark','achterbahn'],synonyms:['Freizeitpark','Themenpark','Erlebnispark']},
-  wellness:{key:'wellness',icon:'♨️',label:'Wellness & Spa',type:'activity',primaryType:'activity',domainTypes:['activity','nature'],includedType:'spa',includedTypes:['spa'],excludedTypes:['hospital','locality'],query:'Wellness Spa Sauna Erholung',keywords:['wellness','spa','sauna','massage'],synonyms:['Wellness','Spa','Sauna']},
-  water:{key:'water',icon:'🌊',label:'Wassererlebnisse',type:'activity',primaryType:'activity',domainTypes:['activity','nature'],includedType:'',includedTypes:['water_park','swimming_pool','beach','marina'],excludedTypes:['hospital','locality'],query:'Wassererlebnisse Schwimmen Strand Wassersport',keywords:['wasserpark','wassersport','schwimmen','strandbad'],synonyms:['Wasserpark','Schwimmen','Wassersport']},
+  activities:{key:'activities',icon:'🎟️',label:'Aktivitäten',type:'activity',primaryType:'activity',domainTypes:['activity','attraction','family'],includedType:'',includedTypes:['amusement_park','amusement_center','aquarium','bowling_alley','escape_room','fitness_center','gym','playground','skating_rink','spa','sports_activity_location','stadium','swimming_pool','water_park','zoo','tourist_attraction'],excludedTypes:['hospital','store','locality','restaurant','cafe','bakery','meal_takeaway','food_court','catering','lodging','hotel','hostel'],query:'Aktivitäten Erlebnisse Freizeit',keywords:['aktivität','aktivitäten','unternehmen','erleben','freizeit','indoor','outdoor','spielen','spaß'],synonyms:['Aktivität','Erlebnis','Freizeit','Freizeitzentrum','Sport und Freizeit']},
+  themeparks:{key:'themeparks',icon:'🎢',label:'Freizeitparks',type:'activity',primaryType:'activity',domainTypes:['activity','attraction','family'],includedType:'amusement_park',includedTypes:['amusement_park','amusement_center','water_park'],excludedTypes:['hospital','store','locality','restaurant','cafe','bakery','meal_takeaway','catering','lodging','hotel'],query:'Freizeitparks Themenparks Erlebnisparks',keywords:['freizeitpark','themenpark','erlebnispark','achterbahn'],synonyms:['Freizeitpark','Themenpark','Erlebnispark']},
+  wellness:{key:'wellness',icon:'♨️',label:'Wellness & Spa',type:'activity',primaryType:'activity',domainTypes:['activity','nature'],includedType:'spa',includedTypes:['spa'],excludedTypes:['hospital','locality','restaurant','cafe','bakery','meal_takeaway','catering','lodging','hotel'],query:'Wellness Spa Sauna Erholung',keywords:['wellness','spa','sauna','massage'],synonyms:['Wellness','Spa','Sauna']},
+  water:{key:'water',icon:'🌊',label:'Wassererlebnisse',type:'activity',primaryType:'activity',domainTypes:['activity','nature'],includedType:'',includedTypes:['water_park','swimming_pool','beach','marina'],excludedTypes:['hospital','locality','restaurant','cafe','bakery','meal_takeaway','catering','lodging','hotel'],query:'Wassererlebnisse Schwimmen Strand Wassersport',keywords:['wasserpark','wassersport','schwimmen','strandbad'],synonyms:['Wasserpark','Schwimmen','Wassersport']},
   sights:{key:'sights',icon:'🏛️',label:'Sehenswürdigkeiten',type:'attraction',primaryType:'attraction',domainTypes:['attraction'],includedType:'tourist_attraction',includedTypes:['tourist_attraction','historical_landmark','monument','observation_deck'],excludedTypes:['restaurant','hospital'],query:'Sehenswürdigkeiten Wahrzeichen besondere Orte',keywords:['sehenswürdigkeit','wahrzeichen','besichtigen','aussicht','historisch'],synonyms:['Sehenswürdigkeit','Wahrzeichen','Aussichtspunkt']},
   photo:{key:'photo',icon:'📸',label:'Fotospots',type:'photo_spot',primaryType:'photo_spot',domainTypes:['photo_spot','attraction','nature'],includedType:'tourist_attraction',includedTypes:['tourist_attraction','historical_landmark','monument','observation_deck','park','garden','natural_feature'],excludedTypes:['hospital'],query:'Fotospots besondere Perspektiven Aussicht Architektur',keywords:['foto','fotospot','fotografieren','instagram','perspektive','aussicht','architektur'],synonyms:['Fotospot','Fotoort','Aussicht','Architektur']},
   culture:{key:'culture',icon:'🎭',label:'Kultur',type:'attraction',primaryType:'attraction',domainTypes:['attraction','activity'],includedType:'',includedTypes:['museum','movie_theater','art_gallery','performing_arts_theater','concert_hall'],excludedTypes:['hospital','restaurant'],query:'Museen Kino Theater Kultur',keywords:['museum','kino','film','theater','galerie','kultur','konzert'],synonyms:['Museum','Kino','Theater','Galerie']},
@@ -77,39 +77,74 @@ function coordinatesProjection(input){
   if(latitude < -90||latitude > 90||longitude < -180||longitude > 180)return null;
   return immutable({latitude,longitude});
 }
+function placeTitle(input={}){
+  const candidates=[
+    input.name,
+    input.displayName?.text,
+    input.displayName,
+    input.shortAddress,
+    input.address,
+    input.formattedAddress,
+    input.formatted_address,
+    input.primaryTypeLabel
+  ];
+  for(const candidate of candidates){
+    const title=clean(candidate);
+    if(title&&title.length>=2&&!/^\[object object\]$/i.test(title))return title;
+  }
+  return 'Unbenannter Ort';
+}
+function detailsSource(input){
+  if(!input||typeof input!=='object')return null;
+  const nested=input.place&&typeof input.place==='object'?input.place:null;
+  if(!nested)return input;
+  const nestedTitle=placeTitle(nested);
+  const outerTitle=placeTitle(input);
+  const nestedHasIdentity=Boolean(providerId(nested.providerPlaceId||nested.provider_place_id||nested.id)||(nestedTitle&&nestedTitle!=='Unbenannter Ort'));
+  if(!nestedHasIdentity)return input;
+  return {
+    ...input,
+    ...nested,
+    name:nestedTitle!=='Unbenannter Ort'?nestedTitle:outerTitle,
+    displayName:nested.displayName||input.displayName||nested.name||input.name,
+    formattedAddress:nested.formattedAddress||nested.formatted_address||input.formattedAddress||input.formatted_address||input.address,
+    address:nested.address||input.address||nested.formattedAddress||input.formattedAddress
+  };
+}
 function projectPlace(input){
   if(!input||typeof input!=='object')return null;
-  const id=clean(input.id||input.placeId||input.place_id||input.providerPlaceId||input.provider_place_id);
+  const source=detailsSource(input)||input;
+  const id=clean(source.id||source.placeId||source.place_id||source.providerPlaceId||source.provider_place_id);
   if(!id)return null;
   return immutable({
     id,
-    tripId:clean(input.tripId||input.trip_id)||null,
-    tripPlaceId:clean(input.tripPlaceId||input.trip_place_id)||null,
-    providerPlaceId:providerId(input.providerPlaceId||input.provider_place_id||input.sourceId||input.source_id||id)||null,
-    primaryType:clean(input.primaryType||input.primary_type)||'custom',
-    roles:[...(input.roles||[])].map(String),
-    name:clean(input.name||input.displayName?.text||input.displayName)||'Unbenannter Ort',
-    description:clean(input.description||input.editorialSummary?.text||input.editorialSummary),
-    coordinates:coordinatesProjection(input.coordinates||input.position||input['loca'+'tion']||{latitude:input.latitude,longitude:input.longitude}),
-    address:clean(input.address||input.formattedAddress||input.formatted_address),
-    lifecycle:clean(input.lifecycle||input.lifecycleStatus||input.lifecycle_status||input.status)||'discovered',
-    isFavorite:typeof input.isFavorite==='boolean'?input.isFavorite:(typeof input.is_favorite==='boolean'?input.is_favorite:null),
-    capabilities:[...(input.capabilities||[])].map(String),
-    bookingDomains:[...(input.bookingDomains||[])].map(String),
-    createdAt:clean(input.createdAt||input.created_at)||null,
-    updatedAt:clean(input.updatedAt||input.updated_at)||null
+    tripId:clean(source.tripId||source.trip_id)||null,
+    tripPlaceId:clean(source.tripPlaceId||source.trip_place_id)||null,
+    providerPlaceId:providerId(source.providerPlaceId||source.provider_place_id||source.sourceId||source.source_id||id)||null,
+    primaryType:clean(source.primaryType||source.primary_type)||'custom',
+    roles:[...(source.roles||[])].map(String),
+    name:placeTitle(source),
+    description:clean(source.description||source.editorialSummary?.text||source.editorialSummary),
+    coordinates:coordinatesProjection(source.coordinates||source.position||source['loca'+'tion']||{latitude:source.latitude,longitude:source.longitude}),
+    address:clean(source.address||source.formattedAddress||source.formatted_address||source.shortAddress),
+    lifecycle:clean(source.lifecycle||source.lifecycleStatus||source.lifecycle_status||source.status)||'discovered',
+    isFavorite:typeof source.isFavorite==='boolean'?source.isFavorite:(typeof source.is_favorite==='boolean'?source.is_favorite:null),
+    capabilities:[...(source.capabilities||[])].map(String),
+    bookingDomains:[...(source.bookingDomains||[])].map(String),
+    createdAt:clean(source.createdAt||source.created_at)||null,
+    updatedAt:clean(source.updatedAt||source.updated_at)||null
   });
 }
 function projectDetails(input){
   if(!input||typeof input!=='object')return null;
-  const source=input.place||input;
+  const source=detailsSource(input)||input;
   const base=projectPlace(source);
   const id=providerId(source.providerPlaceId||source.provider_place_id||source.id||source.name)||base?.providerPlaceId||null;
   return immutable({
     ...(base||{}),
     providerPlaceId:id,
-    name:base?.name||clean(source.displayName?.text||source.displayName||source.name)||'Unbenannter Ort',
-    address:base?.address||clean(source.formattedAddress||source.formatted_address),
+    name:base?.name||placeTitle(source),
+    address:base?.address||clean(source.formattedAddress||source.formatted_address||source.shortAddress),
     rating:number(source.rating),
     userRatingCount:number(source.userRatingCount||source.user_rating_count),
     priceLevel:clean(source.priceLevel||source.price_level)||null,

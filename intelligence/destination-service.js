@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const VERSION='3.0.2-core-destination';
+  const VERSION='3.0.3-skip-resolved-center';
   const REGISTRY_KEY='luvia:destinations:v2.12.3.1';
   const CACHE_KEY='luvia:destination-cache:v2.12.3.1';
   const MIGRATION_KEY='luvia:destination-migration:v2.12.3.1';
@@ -16,6 +16,11 @@
   const clean=value=>{const text=String(value||'').trim().replace(/\s+/g,' ');return !text||PLACEHOLDER.test(text)?'':text};
   const slug=value=>clean(value).toLocaleLowerCase('de-DE').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const number=value=>{const parsed=Number(value);return Number.isFinite(parsed)?parsed:null};
+  function usableCenter(destination){
+    const source=destination?.center||destination?.location||destination?.coordinates||{};
+    const lat=number(source.latitude??source.lat),lng=number(source.longitude??source.lng);
+    return lat!==null&&lng!==null?{lat,lng}:null;
+  }
 
   const COUNTRY_META=Object.freeze({
     DE:{languages:['de'],currency:'EUR'},FR:{languages:['fr'],currency:'EUR'},BE:{languages:['nl','fr','de'],currency:'EUR'},NL:{languages:['nl'],currency:'EUR'},LU:{languages:['lb','fr','de'],currency:'EUR'},AT:{languages:['de'],currency:'EUR'},CH:{languages:['de','fr','it'],currency:'CHF'},ES:{languages:['es'],currency:'EUR'},PT:{languages:['pt'],currency:'EUR'},IT:{languages:['it'],currency:'EUR'},IE:{languages:['en','ga'],currency:'EUR'},GB:{languages:['en'],currency:'GBP'},DK:{languages:['da'],currency:'DKK'},SE:{languages:['sv'],currency:'SEK'},NO:{languages:['no'],currency:'NOK'},FI:{languages:['fi','sv'],currency:'EUR'},IS:{languages:['is'],currency:'ISK'},PL:{languages:['pl'],currency:'PLN'},CZ:{languages:['cs'],currency:'CZK'},SK:{languages:['sk'],currency:'EUR'},HU:{languages:['hu'],currency:'HUF'},SI:{languages:['sl'],currency:'EUR'},HR:{languages:['hr'],currency:'EUR'},GR:{languages:['el'],currency:'EUR'},CY:{languages:['el','tr'],currency:'EUR'},MT:{languages:['mt','en'],currency:'EUR'},EE:{languages:['et'],currency:'EUR'},LV:{languages:['lv'],currency:'EUR'},LT:{languages:['lt'],currency:'EUR'},RO:{languages:['ro'],currency:'RON'},BG:{languages:['bg'],currency:'BGN'},TR:{languages:['tr'],currency:'TRY'},US:{languages:['en'],currency:'USD'},CA:{languages:['en','fr'],currency:'CAD'},MX:{languages:['es'],currency:'MXN'},BR:{languages:['pt'],currency:'BRL'},JP:{languages:['ja'],currency:'JPY'},CN:{languages:['zh'],currency:'CNY'},KR:{languages:['ko'],currency:'KRW'},AU:{languages:['en'],currency:'AUD'},NZ:{languages:['en','mi'],currency:'NZD'},AE:{languages:['ar'],currency:'AED'},MA:{languages:['ar','fr'],currency:'MAD'},EG:{languages:['ar'],currency:'EGP'},TH:{languages:['th'],currency:'THB'},ID:{languages:['id'],currency:'IDR'},IN:{languages:['hi','en'],currency:'INR'},ZA:{languages:['en'],currency:'ZAR'}
@@ -67,8 +72,9 @@
     const name=clean(object.name||object.city||trip?.destinationName||(typeof trip?.destination==='string'?trip.destination:'')||trip?.city||trip?.location);
     const country=clean(object.country||trip?.country||trip?.countryName);
     const countryCode=clean(object.countryCode||object.country_code||trip?.countryCode).toUpperCase();
-    const lat=number(object.center?.lat??object.center?.latitude??object.location?.lat??object.location?.latitude??object.latitude??object.lat??trip?.destinationLat??trip?.latitude);
-    const lng=number(object.center?.lng??object.center?.longitude??object.location?.lng??object.location?.longitude??object.longitude??object.lng??trip?.destinationLng??trip?.longitude);
+    const model=trip?.destinationModel&&typeof trip.destinationModel==='object'?trip.destinationModel:{};
+    const lat=number(object.center?.lat??object.center?.latitude??object.location?.lat??object.location?.latitude??object.latitude??object.lat??model.latitude??trip?.destinationLat??trip?.latitude);
+    const lng=number(object.center?.lng??object.center?.longitude??object.location?.lng??object.location?.longitude??object.longitude??object.lng??model.longitude??trip?.destinationLng??trip?.longitude);
     const placeId=clean(object.placeId||object.place_id||trip?.destinationPlaceId||trip?.googlePlaceId);
     const id=clean(object.id||object.destinationId||trip?.destinationId)||slug([name,countryCode||country].filter(Boolean).join('-'));
     const center=lat!==null&&lng!==null?{lat,lng}:null;
@@ -132,7 +138,7 @@
   async function resolveLocation(input,options={}){
     const destination=canonical(input);
     if(!destination.name)throw Object.assign(new Error('Ein Reiseziel ist erforderlich.'),{code:'DESTINATION_NAME_REQUIRED'});
-    if(destination.center&&destination.countryCode&&!options.refresh)return destination;
+    if(usableCenter(destination)&&!options.refresh)return destination;
     if(!window.LuviaBackend?.request)throw Object.assign(new Error('Das sichere Backend ist nicht verfügbar.'),{code:'BACKEND_UNAVAILABLE'});
     const key=destination.id||slug(destination.displayName||destination.name);
     if(pending.has(key)&&!options.refresh)return pending.get(key);
@@ -150,8 +156,8 @@
     })().catch(error=>{state.resolutionFailures++;state.lastError=error?.message||String(error);emit('resolve-failed',{destination,error:{code:error?.code||'DESTINATION_RESOLVE_FAILED',message:state.lastError}});throw error;}).finally(()=>pending.delete(key));
     pending.set(key,task);return task;
   }
-  async function ensureResolved(input,options={}){const destination=resolve(input,options);if(destination.center&&destination.countryCode&&!options.refresh)return destination;return resolveLocation(destination,options);}
-  async function ensureActiveResolved(options={}){const active=getActive({refresh:true});if(!active?.isUsable)return active;if(!options.refresh&&Date.now()<(state.nextResolveAt||0))return active;try{const result=await ensureResolved(active,options);state.nextResolveAt=0;return result}catch(error){state.nextResolveAt=Date.now()+30000;state.lastError=error?.message||String(error);return clone(active)}}
+  async function ensureResolved(input,options={}){const destination=resolve(input,options);if(usableCenter(destination)&&!options.refresh)return destination;return resolveLocation(destination,options);}
+  async function ensureActiveResolved(options={}){const active=getActive({refresh:true});if(!active?.isUsable)return active;if(!options.refresh&&usableCenter(active))return active;if(!options.refresh&&Date.now()<(state.nextResolveAt||0))return active;try{const result=await ensureResolved(active,options);state.nextResolveAt=0;return result}catch(error){state.nextResolveAt=Date.now()+30000;state.lastError=error?.message||String(error);return clone(active)}}
   function persistActiveDestination(destination){
     const reads=tripReads(),active=reads?.getActiveTrip?.()||null;
     const tripId=destination?.tripId||active?.tripId||active?.id||identity()?.tripId;if(!tripId)return false;
@@ -172,7 +178,7 @@
   function list(){return registry().map(clone)}
   function remove(id){const items=registry(),next=items.filter(item=>item.id!==id);if(next.length===items.length)return false;saveRegistry(next);emit('removed',{id});return true}
   function getActive(options={}){if(state.active&&!options.refresh)return clone(state.active);state.active=resolve(activeTrip(),options);return clone(state.active)}
-  function refresh(){const previous=state.active?.id||state.active?.displayName;state.active=resolve(activeTrip(),{refresh:true});if(previous!==state.active.id||previous!==state.active.displayName)emit('context-changed',{destination:state.active});queueMicrotask(()=>ensureActiveResolved().catch(()=>{}));return clone(state.active)}
+  function refresh(){const previous=state.active?.id||state.active?.displayName;state.active=resolve(activeTrip(),{refresh:true});if(previous!==state.active.id||previous!==state.active.displayName)emit('context-changed',{destination:state.active});return clone(state.active)}
   function migrateTrips(){
     const trips=tripRegistry(),updated=[];let changed=0;
     const next=trips.map(trip=>{const destination=canonical(trip);if(!destination.isUsable)return trip;register(destination,{source:'trip-migration'});const existing=trip.destination_context||trip.destinationContext;if(existing?.schemaVersion===5)return trip;changed++;updated.push(trip.tripId||trip.tripName||destination.name);return {...trip,destination_context:{...destination,tripId:undefined,validation:undefined,location:undefined},destinationName:destination.name};});
@@ -183,7 +189,7 @@
     if(!navigator.onLine||!window.LuviaData?.list)return {loaded:0,source:'local'};
     try{const result=await window.LuviaData.list('destinations',{scope:'global'});let loaded=0;(result.data||[]).forEach(row=>{try{register({id:row.id,name:row.name,country:row.country,countryCode:row.country_code,placeId:row.google_place_id,center:row.latitude!=null&&row.longitude!=null?{lat:row.latitude,lng:row.longitude}:null,viewport:row.viewport,timezone:row.timezone,timezoneName:row.timezone_name,languageCodes:row.language_codes,currency:row.currency,locale:row.locale,flagEmoji:row.flag_emoji,searchRadiusMeters:row.search_radius_meters,provider:row.provider,source:'database'},{source:'database'});loaded++}catch{}});return{loaded,source:result.source||'supabase'}}catch(error){state.lastError=error.message;return{loaded:0,source:'local',warning:error.message}}
   }
-  async function init(){if(state.initialized)return snapshot();migrateTrips();await loadRemoteRegistry();state.active=resolve(activeTrip());state.initialized=true;const reads=tripReads();if(!state.tripSubscription&&reads?.subscribe){state.tripSubscription=reads.subscribe(()=>{state.active=resolve(activeTrip(),{refresh:true});emit('context-changed',{destination:state.active,source:'trip-contract'});});}emit('ready',{destination:state.active});queueMicrotask(()=>ensureActiveResolved().catch(()=>{}));return snapshot()}
+  async function init(){if(state.initialized)return snapshot();migrateTrips();await loadRemoteRegistry();state.active=resolve(activeTrip());state.initialized=true;const reads=tripReads();if(!state.tripSubscription&&reads?.subscribe){state.tripSubscription=reads.subscribe(()=>{state.active=resolve(activeTrip(),{refresh:true});emit('context-changed',{destination:state.active,source:'trip-contract'});});}emit('ready',{destination:state.active});return snapshot()}
   function diagnostics(){const active=getActive();return{version:VERSION,status:state.initialized?'ready':'created',active,registryCount:registry().length,cacheCount:Object.keys(cache()).length,cacheHits:state.cacheHits,cacheMisses:state.cacheMisses,resolutions:state.resolutions,resolutionFailures:state.resolutionFailures,lastResolvedAt:state.lastResolvedAt,pendingResolutions:pending.size,lastMigration:state.lastMigration||parse(localStorage.getItem(MIGRATION_KEY),null),lastError:state.lastError}}
   function snapshot(){return diagnostics()}
   function subscribe(listener){if(typeof listener!=='function')return()=>{};listeners.add(listener);listener({type:'snapshot',at:now(),destination:getActive()});return()=>listeners.delete(listener)}

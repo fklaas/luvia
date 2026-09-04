@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.12.0-preference-evidence-breadth';
+const VERSION='1.12.3-filter-types';
 const PROVIDER_CACHE_MS=180000;
 const providerCache=new Map();
 const clean=value=>String(value??'').trim();
@@ -10,8 +10,9 @@ const safeProviderMeta=(value={},places=[])=>{
   const requested=[...new Set((value.requested||[]).map(providerName).filter(name=>name!=='unknown'))],used=[...new Set((value.used||places.flatMap(place=>Object.keys(place.providerRefs||{}))).map(providerName).filter(name=>name!=='unknown'))],errors=(value.errors||[]).slice(0,4).map(error=>({provider:providerName(error?.provider),code:clean(error?.code||'PROVIDER_ERROR').slice(0,80)})),status=clean(value.status)||(places.length?(errors.length?'partial':'ready'):(errors.length?'unavailable':'empty'));
   return{requested,used,errors,status,degraded:errors.length>0};
 };
+const destinationLabel=value=>value&&typeof value==='object'?clean(value.name||value.displayName||value.destinationName||value.formattedAddress):clean(value);
 const destinationFingerprint=value=>{const source=value&&typeof value==='object'?value:{name:value},coordinates=source?.center||source?.location||source?.coordinates||{};return{id:clean(source?.id||source?.placeId),name:clean(source?.name||source?.displayName),countryCode:clean(source?.countryCode),latitude:Number.isFinite(Number(coordinates.latitude??coordinates.lat))?Number(coordinates.latitude??coordinates.lat):null,longitude:Number.isFinite(Number(coordinates.longitude??coordinates.lng))?Number(coordinates.longitude??coordinates.lng):null}};
-const hasGeography=value=>{if(!value||typeof value!=='object')return false;const source=value.center||value.location||value.coordinates||{},latitude=Number(source.latitude??source.lat),longitude=Number(source.longitude??source.lng),viewport=value.viewport;return Number.isFinite(latitude)&&Number.isFinite(longitude)||Boolean(viewport&&[viewport.south,viewport.west,viewport.north,viewport.east].every(item=>Number.isFinite(Number(item))))};
+const hasGeography=value=>{if(!value||typeof value!=='object')return false;const source=value.center||value.location||value.coordinates||{},latitude=Number(source.latitude??source.lat??value.destinationLat??value.latitude),longitude=Number(source.longitude??source.lng??value.destinationLng??value.longitude),viewport=value.viewport;return Number.isFinite(latitude)&&Number.isFinite(longitude)||Boolean(viewport&&[viewport.south,viewport.west,viewport.north,viewport.east].every(item=>Number.isFinite(Number(item))))};
 const hasDestinationIdentity=value=>Boolean(value&&typeof value==='object'&&clean(value.id||value.placeId||value.name||value.displayName||value.destinationName||value.city||value.countryCode));
 function providerDestination(options={}){
   const tripDestination=options.trip?.destination&&typeof options.trip.destination==='object'?options.trip.destination:null;
@@ -20,7 +21,7 @@ function providerDestination(options={}){
   const candidates=[options.destinationContext,tripDestination,options.trip,explicitDestination,active];
   return candidates.find(hasGeography)||candidates.find(hasDestinationIdentity)||options.destination||active||null;
 }
-const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,strictPlaceType:clean(options.strictPlaceType)||null,query,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['google','foursquare']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,query,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['geoapify']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
 function aggregateProviderDiagnostics(attempts=[]){
   const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
   for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
@@ -88,7 +89,7 @@ async function aiPlan(options,discoveryRoute,queries,resolution){
         domain:'places',
         query:options.text||options.query||discoveryRoute.query,
         category:discoveryRoute.category,
-        destination:options.destination||'',
+        destination:destinationLabel(options.destination),
         includedTypes:discoveryRoute.includedTypes,
         labels:{category:discoveryRoute.label},
         profileContext:aiPreferenceContext(options,resolution),
@@ -97,7 +98,7 @@ async function aiPlan(options,discoveryRoute,queries,resolution){
         positionContext:options.positionContext||null
       }
     },{fallback:true});
-    const searchPlans=(response?.data?.searchPlans||[]).map(item=>({query:clean(item?.query),includedTypes:[...(item?.includedTypes||[])].map(clean).filter(Boolean).slice(0,12),weight:Number(item?.weight)||0})).filter(item=>item.query),planned=searchPlans.map(item=>`${item.query} ${options.destination||''}`.trim());
+    const searchPlans=(response?.data?.searchPlans||[]).map(item=>({query:clean(item?.query),includedTypes:[...(item?.includedTypes||[])].map(clean).filter(Boolean).slice(0,12),weight:Number(item?.weight)||0})).filter(item=>item.query),planned=searchPlans.map(item=>`${item.query} ${destinationLabel(options.destination)}`.trim());
     return{
       queries:[...new Set([(queries||[])[0],...planned,...(queries||[]).slice(1)].filter(Boolean))].slice(0,14),
       ai:{fallback:Boolean(response?.meta?.fallback),summary:response?.data?.reasoningSummary||'',preferredSignals:response?.data?.preferredSignals||[],mustHave:response?.data?.mustHave||[],excludedSignals:response?.data?.excludedSignals||[],searchPlans}
@@ -144,20 +145,21 @@ async function recommend(options={}){
   const goal={text:clean(options.text||options.query)||requestedRoute.query,category:requestedRoute.category};
   const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
   const discoveryRoute=intent.category&&intent.category!==goal.category?route({...options,category:intent.category,text:goal.text,query:goal.text}):requestedRoute;
-  const baseQueries=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,options.destination||'',options.preferences||options.profilePreferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${options.destination||''}`.trim()];
-  const deterministic=[...new Set([baseQueries[0],...preferenceQueryVariants(goal,discoveryRoute,resolvedPreferences,options.destination),...baseQueries.slice(1)].filter(Boolean))];
+  const searchDestination=destinationLabel(options.destination);
+  const baseQueries=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,searchDestination,options.preferences||options.profilePreferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${searchDestination}`.trim()];
+  const deterministic=[...new Set([baseQueries[0],...preferenceQueryVariants(goal,discoveryRoute,resolvedPreferences,searchDestination),...baseQueries.slice(1)].filter(Boolean))];
   const plan=options.fastPath===true?{queries:deterministic,ai:null}:await aiPlan(options,discoveryRoute,deterministic,resolvedPreferences);
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
-  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(goal.text,goal.category,plan.ai||{},options.destination||'')||null;
+  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(goal.text,goal.category,plan.ai||{},searchDestination)||null;
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
   const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
   const requestedLimit=Math.min(60,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
-  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:options.destination||''})!==false};
+  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
   const eligibleCandidates=()=>uniquePlaces(candidates).filter(accepts);
   const hasEnoughCandidates=()=>eligibleCandidates().length>=diversityTarget;
-  const providerCandidateWindow=requestedLimit>=12?Math.min(20,requestedLimit):Math.min(20,Math.max(options.strictPlaceType==='restaurant'?20:12,requestedLimit*4));
+  const providerCandidateWindow=Math.min(50,Math.max(20,Number(options.limit||20)));
   const attempts=[];
   let lastError=null;
   const providerRequest=async(query,strictDestination)=>{
@@ -168,16 +170,20 @@ async function recommend(options={}){
       return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers:cached.providers}};
     }
     try{
+      const selectedTypes=(Array.isArray(options.includedTypes)?options.includedTypes:[]).map(clean).filter(Boolean);
+      const includedTypes=selectedTypes.length?selectedTypes:(discoveryRoute.includedTypes||[]);
       const response=await window.LuviaPlaceEntities.searchPlaces({
         tripId:options.tripId,
         type:discoveryRoute.primaryType,
-        includedType:intent.niche?'':discoveryRoute.includedType,
-        strictTypeFiltering:options.strictPlaceType==='restaurant',
+        includedType:intent.niche?'':(selectedTypes.length===1?selectedTypes[0]:(selectedTypes.length?'':discoveryRoute.includedType)),
+        includedTypes,
+        category:discoveryRoute.category,
+        strictTypeFiltering:options.strictPlaceType==='restaurant'&&selectedTypes.length<=1,
         query,
         destination:providerDestination(options),
         maxResultCount:providerCandidateWindow,
         strictDestination,
-        providers:options.providers||['google','foursquare'],
+        providers:options.providers||['geoapify'],
         languageCode:options.languageCode||globalThis.document?.documentElement?.lang||'de',
         regionCode:options.regionCode||'',
         openNow:options.openNow===true,
@@ -220,7 +226,7 @@ async function recommend(options={}){
   let aiRanking={available:Boolean(window.LuviaAI?.rankCandidates),used:false,fallback:null,error:null};
   if(options.fastPath!==true&&window.LuviaAI?.rankCandidates&&ranked.length){
     try{
-      ranked=await window.LuviaAI.rankCandidates({domain:'places',contract:{query:goal.text,category:goal.category,destination:options.destination||'',profileContext:aiPreferenceContext(options,resolvedPreferences),semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(goal.text)||{},spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,aiSearchPlan:plan.ai||null,positionContext:options.positionContext||null},candidates:ranked});
+      ranked=await window.LuviaAI.rankCandidates({domain:'places',contract:{query:goal.text,category:goal.category,destination:searchDestination,profileContext:aiPreferenceContext(options,resolvedPreferences),semanticSignals:window.LuviaGlobalPlaceContracts?.semanticSignals?.(goal.text)||{},spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,aiSearchPlan:plan.ai||null,positionContext:options.positionContext||null},candidates:ranked});
       aiRanking={available:true,used:ranked.some(place=>place.aiMatchScore!=null),fallback:ranked.some(place=>place.aiRankingFallback===true),error:null};
     }catch(error){aiRanking={available:true,used:false,fallback:true,error:error?.code||'AI_RANKING_FAILED'}}
   }

@@ -77,18 +77,23 @@
   async function searchViewport(options={}){
     const bounds=options.bounds||{},center=options.center||{};
     if(![bounds.south,bounds.west,bounds.north,bounds.east,center.latitude,center.longitude].every(value=>Number.isFinite(Number(value))))throw new Error('PLACES_VIEWPORT_REQUIRED');
-    const viewport={south:Number(bounds.south),west:Number(bounds.west),north:Number(bounds.north),east:Number(bounds.east)},midLatitude=(viewport.south+viewport.north)/2,midLongitude=(viewport.west+viewport.east)/2,tiles=[
+    const viewport={south:Number(bounds.south),west:Number(bounds.west),north:Number(bounds.north),east:Number(bounds.east)},midLatitude=(viewport.south+viewport.north)/2,midLongitude=(viewport.west+viewport.east)/2;
+    const requestedProviders=(Array.isArray(options.providers)?options.providers:['geoapify']).map(value=>String(value||'').toLowerCase()).filter(Boolean);
+    const geoapifyOnly=!requestedProviders.length||requestedProviders.every(name=>name==='geoapify'||name.startsWith('geoapify'));
+    // Geoapify accepts one rectangle filter efficiently. Google/Foursquare keep the
+    // established four-tile fan-out for viewport coverage.
+    const tiles=geoapifyOnly?[viewport]:[
       {south:midLatitude,west:viewport.west,north:viewport.north,east:midLongitude},
       {south:midLatitude,west:midLongitude,north:viewport.north,east:viewport.east},
       {south:viewport.south,west:viewport.west,north:midLatitude,east:midLongitude},
       {south:viewport.south,west:midLongitude,north:midLatitude,east:viewport.east}
     ],providerPageSize=Math.min(20,Math.max(1,Number(options.maxResultCount)||20)),viewportLimit=Math.min(80,Math.max(providerPageSize,Number(options.maxViewportResults)||80));
-    const requestTile=async tile=>{const tileCenter={latitude:(tile.south+tile.north)/2,longitude:(tile.west+tile.east)/2},destination={name:'Sichtbarer Kartenausschnitt',location:tileCenter,viewport:tile,searchRadiusMeters:Math.max(250,Math.min(50000,Number(options.radiusMeters)||5000))/2,canonicalCity:{name:'Sichtbarer Kartenausschnitt',center:{lat:tileCenter.latitude,lng:tileCenter.longitude},viewport:tile}},response=await gateway().textSearch(String(options.query||'Orte'),{...options,destination,locationRestriction:{rectangle:{low:{latitude:tile.south,longitude:tile.west},high:{latitude:tile.north,longitude:tile.east}}},strictDestination:true,maxResultCount:providerPageSize});return{response,places:rowsFromSearch(response).map(detailsProjection).filter(Boolean)}};
+    const requestTile=async tile=>{const tileCenter={latitude:(tile.south+tile.north)/2,longitude:(tile.west+tile.east)/2},destination={name:'Sichtbarer Kartenausschnitt',location:tileCenter,viewport:tile,searchRadiusMeters:Math.max(250,Math.min(50000,Number(options.radiusMeters)||5000))/2,canonicalCity:{name:'Sichtbarer Kartenausschnitt',center:{lat:tileCenter.latitude,lng:tileCenter.longitude},viewport:tile}},response=await gateway().textSearch(String(options.query||'Orte'),{...options,providers:requestedProviders.length?requestedProviders:['geoapify'],destination,locationRestriction:{rectangle:{low:{latitude:tile.south,longitude:tile.west},high:{latitude:tile.north,longitude:tile.east}}},strictDestination:true,maxResultCount:providerPageSize});return{response,places:rowsFromSearch(response).map(detailsProjection).filter(Boolean)}};
     const settled=await Promise.allSettled(tiles.map(requestTile)),successful=settled.filter(result=>result.status==='fulfilled');
     if(!successful.length)throw settled.find(result=>result.status==='rejected')?.reason||new Error('PLACES_VIEWPORT_UNAVAILABLE');
-    const byId=new Map();for(const result of successful)for(const place of result.value.places){const id=clean(place?.providerPlaceId||place?.id)?.replace(/^places\//,'');const point=place?.coordinates||{};if(!id||!Number.isFinite(Number(point.latitude))||!Number.isFinite(Number(point.longitude))||Number(point.latitude)<viewport.south||Number(point.latitude)>viewport.north||Number(point.longitude)<viewport.west||Number(point.longitude)>viewport.east)continue;if(!byId.has(id))byId.set(id,place)}
+    const byId=new Map();for(const result of successful)for(const place of result.value.places){const id=clean(place?.providerPlaceId||place?.id)?.replace(/^places\//,'');const point=place?.coordinates||place?.location||{};if(!id||!Number.isFinite(Number(point.latitude??point.lat))||!Number.isFinite(Number(point.longitude??point.lng))||Number(point.latitude??point.lat)<viewport.south||Number(point.latitude??point.lat)>viewport.north||Number(point.longitude??point.lng)<viewport.west||Number(point.longitude??point.lng)>viewport.east)continue;if(!byId.has(id))byId.set(id,place)}
     const places=freezeArray([...byId.values()].slice(0,viewportLimit)),providerDiagnostics=freezeArray(successful.map(result=>Object.freeze(result.value.response?.data?.providers||{})));
-    return Object.freeze({places,count:places.length,viewport:Object.freeze({bounds:Object.freeze(viewport),center:Object.freeze({latitude:Number(center.latitude),longitude:Number(center.longitude)})}),tiles:Object.freeze({requested:tiles.length,fulfilled:successful.length,providerPageSize,maximumUniqueResults:viewportLimit}),providerDiagnostics});
+    return Object.freeze({places,count:places.length,viewport:Object.freeze({bounds:Object.freeze(viewport),center:Object.freeze({latitude:Number(center.latitude),longitude:Number(center.longitude)})}),tiles:Object.freeze({requested:tiles.length,fulfilled:successful.length,providerPageSize,maximumUniqueResults:viewportLimit,strategy:geoapifyOnly?'single-rectangle-geoapify':'four-tile-legacy'}),providerDiagnostics});
   }
   async function suggestDestinations(query,options={}){
     const api=gateway();
@@ -119,6 +124,15 @@
   async function getCard(placeId,options={}){
     const seeded=options?.source||options?.place||null,seedId=clean(seeded?.providerPlaceId||seeded?.id)?.replace(/^places\//,''),requestedId=clean(placeId)?.replace(/^places\//,'');
     const {source:_source,place:_place,...detailOptions}=options||{},seedMatches=Boolean(seeded&&seedId===requestedId),seedHasPhoto=Array.isArray(seeded?.photos)&&seeded.photos.some(usablePhoto);
+    // Geoapify search already carries the display name. The gateway has no Places
+    // Details equivalent yet, so a null/empty details call must never wipe identity.
+    if(requestedId.startsWith('geoapify:')){
+      // Without a seeded search hit, there is no Geoapify details payload yet.
+      // Returning an empty projected place would overwrite real names with
+      // "Unbenannter Ort" in suggestion/result sheets.
+      if(!seedMatches)return Object.freeze({place:null,image:null});
+      return Object.freeze({place:detailsProjection(seeded)||null,image:null});
+    }
     let response=null;
     // Apply Google Premium cost guard: block repeat enrichment when we already have full data.
     // Exception: if the seed has no photos, always allow the gateway call for media hydration.
@@ -129,8 +143,10 @@
       // Mark premium id as consumed after a successful gateway call.
       if(isPremiumId&&response)consumePremiumDetailsQuota(requestedId);
     }
-    const detailed=response?.data?.place||response?.data||response||null;
-    const source=detailed?{...(seeded||{}),...detailed,photos:Array.isArray(detailed.photos)&&detailed.photos.length?detailed.photos:(seeded?.photos||[])}:seeded;
+    const detailed=response?.data?.place||null;
+    const source=detailed&&typeof detailed==='object'
+      ?{...(seeded||{}),...detailed,name:detailed.name||seeded?.name,displayName:detailed.displayName||seeded?.displayName,formattedAddress:detailed.formattedAddress||seeded?.formattedAddress,photos:Array.isArray(detailed.photos)&&detailed.photos.length?detailed.photos:(seeded?.photos||[])}
+      :seeded;
     const place=detailsProjection(source);
     if(!place)return Object.freeze({place:null,image:null});
     const photo=Array.isArray(source?.photos)?source.photos[0]:null;

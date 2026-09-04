@@ -6,8 +6,16 @@ const read=file=>fs.readFileSync(file,'utf8').replace(/\r\n?/g,'\n');
 const backend=read('intelligence/backend-service.js');
 const gateway=read('supabase/functions/luvia-gateway/_shared/places.ts');
 const adapter=read('core/platform/places-contract-adapter.js');
+const discovery=read('app/adapters/places-discovery-adapter.js');
+const spatial=read('app/places/places-spatial-experience.js');
+assert.match(discovery,/providers:options\.providers\|\|\['geoapify'\]/,'Places discovery must default to Geoapify-first');
+assert.match(spatial,/providers=\['geoapify'\]/,'viewport refresh must default to Geoapify');
 
-assert.ok(/locationRestriction[\s\S]{0,240}rectangle|rectangle[\s\S]{0,240}locationRestriction|locationBias[\s\S]{0,240}rectangle/.test(adapter),'viewport search must remain rectangle-qualified for the bounded four-tile owner contract');
+assert.ok(/locationRestriction[\s\S]{0,240}rectangle|rectangle[\s\S]{0,240}locationRestriction|locationBias[\s\S]{0,240}rectangle/.test(adapter),'viewport search must remain rectangle-qualified for the bounded owner contract');
+assert.match(adapter,/geoapifyOnly|four-tile-legacy|single-rectangle-geoapify/,'viewport strategy must remain explicit for Geoapify vs Google/Foursquare');
+assert.match(backend,/const RATE_LIMIT_COOLDOWN_MS=3\*1000/,'plain Places 429 must use a short cooldown instead of a 30-minute quota lock');
+assert.match(backend,/isPlacesRateLimit/,'Places rate-limit handling must stay distinct from quota exhaustion');
+assert.doesNotMatch(backend,/return status===429\|\|\/quota\|rate\.\\?limit/,'plain HTTP 429 must not be classified as a long quota failure');
 
 assert.match(backend,/const NO_TRANSIENT_RETRY_ACTIONS=new Set\(\['places\.text-search','places\.nearby-search'\]\);/,'Places provider searches must opt out of generic transient replay');
 assert.ok(backend.includes("if(NO_TRANSIENT_RETRY_ACTIONS.has(safeAction)&&TRANSIENT_STATUS.has(response.status))break;"),'502/503/504 must not automatically replay a Places provider search');
@@ -27,9 +35,21 @@ assert.ok(atmosphereLine.includes('places.servesVegetarianFood'),'verified veget
 assert.equal(atmosphereLine.includes('places.goodForChildren'),false,'vegetarian evidence must not pull unrelated Atmosphere fields');
 
 assert.match(gateway,/if\(options\?\.richEvidence===true\)return SEARCH_FIELDS/,'an explicit richEvidence opt-in must remain available for owner-backed ranking');
-assert.match(gateway,/fallbackReason!=='google_quota'/,'a Google quota failure must not spend Foursquare credits as an automatic fallback');
+assert.match(gateway,/object object/,'Geoapify must ignore a stringified destination object as a place name');
+assert.match(gateway,/const limit=Math.min\(50,/,'Geoapify discovery must return a full page instead of 20 places');
+assert.match(gateway,/function geoapifyLuviaTypes/,'Geoapify OSM categories must map onto Places type evidence');
+assert.match(discovery,/const destinationLabel=value=>/,'discovery queries must use a destination name, not the destination object');
+assert.match(discovery,/queryCascade\?\.\(goal,searchDestination/,'query cascade must receive the destination label');
+assert.match(gateway,/provider:'geoapify',source:'automatic-geocoding'/,'resolved destinations must be Geoapify-owned');
 assert.match(backend,/const QUOTA_CIRCUIT_MS=30\*60\*1000/,'exhausted Places quota must open a long client circuit instead of retrying every five seconds');
-assert.match(backend,/places_all_providers_failed/,'complete provider failure must be treated as a quota-class stop');
+assert.match(backend,/if\(\/places_all_providers_failed\|provider_read_incomplete\|provider_read_unavailable\/\.test\(text\)\)return false/,'PLACES_ALL_PROVIDERS_FAILED must not open the 30-minute Places quota circuit');
+assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute quota lock/,'circuit policy must document why all-provider failure is not a quota lock');
+assert.match(gateway,/providerOrder:'geoapify_primary'/,'live Places order must be Geoapify-first');
+assert.match(gateway,/:\['geoapify'\],providerErrors/,'gateway text-search default providers must be Geoapify-only');
+assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
+assert.match(gateway,/v2\.13\.0-geoapify-first/,'gateway cache must invalidate after the Geoapify-first hard cut');
+assert.match(gateway,/version:'4\.33\.0-geoapify-first'/,'gateway health version must reflect Geoapify-first');
+assert.match(gateway,/One Luvia category → one Geoapify parent family/,'category mapping must keep Luvia categories exclusive');
 assert.equal((gateway.match(/searchFields\(options\)/g)||[]).length,2,'text and nearby search must both route FieldMask selection through one policy');
 
 const richLine=gateway.split('\n').find(line=>line.startsWith('const SEARCH_FIELDS='))||'';

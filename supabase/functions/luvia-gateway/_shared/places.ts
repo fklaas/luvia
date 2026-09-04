@@ -46,53 +46,145 @@ function geoapifyBiasFromRestriction(restriction:any){
   return filter;
 }
 
-const GEOAPIFY_CATEGORIES_FALLBACK=Object.freeze(['tourism.sights']);
+const GEOAPIFY_DEFAULT_RADIUS_METERS=10000;
+// Only use categories that Geoapify Places accepts. Invalid tokens (e.g. some
+// nested catering/sport values) make the whole request 400 — and if the
+// category-scoped fallback repeats them, food discovery dies while lodging works.
+const GEOAPIFY_CATEGORIES_FALLBACK=Object.freeze(['catering','tourism.sights','leisure.park']);
+const GEOAPIFY_CATEGORY_FALLBACK_BY_KEY=Object.freeze({
+  food:Object.freeze(['catering']),
+  restaurant:Object.freeze(['catering.restaurant','catering.cafe','catering.bar']),
+  accommodation:Object.freeze(['accommodation']),
+  lodging:Object.freeze(['accommodation']),
+  activities:Object.freeze(['entertainment','leisure','sport']),
+  activity:Object.freeze(['entertainment','leisure','sport']),
+  themeparks:Object.freeze(['entertainment']),
+  wellness:Object.freeze(['leisure']),
+  water:Object.freeze(['beach','sport']),
+  sights:Object.freeze(['tourism.sights']),
+  photo:Object.freeze(['tourism.sights','leisure.park']),
+  culture:Object.freeze(['entertainment.museum','entertainment.cinema']),
+  nature:Object.freeze(['natural','leisure.park','beach']),
+  shopping:Object.freeze(['commercial']),
+  malls:Object.freeze(['commercial.shopping_mall']),
+  nightlife:Object.freeze(['catering.bar','entertainment']),
+  practical:Object.freeze(['commercial','healthcare.pharmacy','parking']),
+  attraction:Object.freeze(['tourism.sights']),
+  custom:Object.freeze(['catering','tourism.sights','leisure.park'])
+});
 const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   restaurant:'catering.restaurant',
   cafe:'catering.cafe',
   bakery:'catering.bakery',
   bar:'catering.bar',
-  meal_takeaway:'catering.meal_takeaway',
+  meal_takeaway:'catering.fast_food',
+  food_court:'catering',
   fine_dining_restaurant:'catering.restaurant',
   vegetarian_restaurant:'catering.restaurant',
   vegan_restaurant:'catering.restaurant',
-  accommodation:'accommodation.hotel',
+  italian_restaurant:'catering.restaurant',
+  german_restaurant:'catering.restaurant',
+  accommodation:'accommodation',
   hotel:'accommodation.hotel',
-  lodging:'accommodation.hotel',
+  lodging:'accommodation',
   park:'leisure.park',
   garden:'leisure.park',
-  beach:'tourism.beach',
-  swimming_pool:'leisure.swimming_pool',
-  amusement_center:'leisure.amusement_center',
-  amusement_park:'leisure.amusement_park',
-  zoo:'leisure.zoo',
-  spa:'leisure.spas',
-  museum:'tourism.museum',
+  beach:'beach',
+  swimming_pool:'sport',
+  water_park:'entertainment',
+  amusement_center:'entertainment',
+  amusement_park:'entertainment',
+  playground:'leisure.playground',
+  zoo:'entertainment.zoo',
+  spa:'leisure',
+  museum:'entertainment.museum',
   tourist_attraction:'tourism.sights',
   historical_landmark:'tourism.sights',
   monument:'tourism.sights',
   observation_deck:'tourism.sights',
-  shopping:'shopping.shopping_mall',
-  shopping_mall:'shopping.shopping_mall',
-  market:'shopping.market',
-  store:'shopping.store',
-  pharmacy:'health.pharmacy',
+  hiking_area:'natural',
+  shopping:'commercial',
+  shopping_mall:'commercial.shopping_mall',
+  market:'commercial',
+  store:'commercial',
+  clothing_store:'commercial',
+  department_store:'commercial',
+  night_club:'entertainment',
+  pharmacy:'healthcare.pharmacy',
   supermarket:'commercial.supermarket',
-  parking:'amenity.parking',
-  electric_vehicle_charging_station:'public_service.ev_charging_station',
-  atm:'amenity.atm',
-  laundry:'services.laundry'
+  parking:'parking',
+  electric_vehicle_charging_station:'service',
+  atm:'service',
+  laundry:'commercial',
+  // Parent `catering` is the reliable food bucket. Nested lists previously 400'd
+  // the whole Places map for the default Restaurant category.
+  food:'catering',
+  activities:'entertainment,leisure,sport',
+  activity:'entertainment,leisure,sport',
+  themeparks:'entertainment',
+  wellness:'leisure',
+  water:'beach,sport',
+  sights:'tourism.sights',
+  photo:'tourism.sights,leisure.park',
+  culture:'entertainment.museum,entertainment.cinema',
+  nature:'natural,leisure.park,beach',
+  malls:'commercial.shopping_mall',
+  nightlife:'catering.bar,entertainment',
+  practical:'commercial,healthcare.pharmacy,parking',
+  attraction:'tourism.sights',
+  custom:'catering,tourism.sights,leisure.park'
+});
+const GEOAPIFY_CATEGORIES_BY_INTENT=Object.freeze({
+  minigolf:'sport,entertainment,leisure',
+  restaurant:'catering',
+  hotel:'accommodation'
 });
 
-function geoapifyCategoriesFromOptions(options:any){
-  const tokens=[...(Array.isArray(options?.includedTypes)?options.includedTypes:[]),options?.includedType, ...(Array.isArray(options?.includedPrimaryTypes)?options.includedPrimaryTypes:[])].filter(Boolean);
+function geoapifyFallbackCategories(options:any={}){
+  const key=String(options?.category||options?.type||'').toLowerCase();
+  return [...((GEOAPIFY_CATEGORY_FALLBACK_BY_KEY as any)[key]||GEOAPIFY_CATEGORIES_FALLBACK)];
+}
+
+function geoapifyCategoriesFromOptions(options:any,textQuery=''){
+  const categoryKey=String(options?.category||'').toLowerCase();
+  const strictType=String(options?.strictPlaceType||'').trim()||(Array.isArray(options?.includedTypes)&&options.includedTypes.length===1?String(options.includedTypes[0]).trim():'')||String(options?.includedType||'').trim();
+  // One Luvia category → one Geoapify parent family. Subtype filters may refine
+  // to a single mapped type; never mix tourism into food or vice versa.
+  if(categoryKey&&(GEOAPIFY_CATEGORY_FALLBACK_BY_KEY as any)[categoryKey]){
+    if(strictType&&(GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[strictType]){
+      return String((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[strictType]).split(',').map((part:string)=>part.trim()).filter(Boolean).slice(0,3);
+    }
+    return [...(GEOAPIFY_CATEGORY_FALLBACK_BY_KEY as any)[categoryKey]].slice(0,3);
+  }
+  const tokens=[...(Array.isArray(options?.includedTypes)?options.includedTypes:[]),options?.includedType, ...(Array.isArray(options?.includedPrimaryTypes)?options.includedPrimaryTypes:[]),options?.type].filter(Boolean);
   const categories=new Set<string>();
+  const add=value=>{for(const part of String(value||'').split(',').map(item=>item.trim()).filter(Boolean))categories.add(part)};
   for(const token of tokens){
     const key=String(token).trim();
     const mapped=(GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[key];
-    if(mapped)categories.add(mapped);
+    if(mapped)add(mapped);
   }
-  return categories.size?[...categories].slice(0,6):GEOAPIFY_CATEGORIES_FALLBACK;
+  const query=String(textQuery||'').toLowerCase();
+  if(/mini[ -]?golf|putt[ -]?putt/.test(query))add(GEOAPIFY_CATEGORIES_BY_INTENT.minigolf);
+  if(/restaurant|café|cafe|imbiss|essen/.test(query))add(GEOAPIFY_CATEGORIES_BY_INTENT.restaurant);
+  if(/hotel|unterkunft|apartment/.test(query))add(GEOAPIFY_CATEGORIES_BY_INTENT.hotel);
+  return categories.size?[...categories].slice(0,3):geoapifyFallbackCategories(options);
+}
+function geoapifyNameFilter(textQuery:string){
+  const query=String(textQuery||'').replace(/\s+/g,' ').trim();
+  if(!query)return '';
+  if(/\[object object\]/i.test(query))return '';
+  if(query.split(' ').length>3||query.length>40)return '';
+  if(/\b(?:ruhig(?:e[nrs]?)?|am wasser|orte|aktivit|unterkunft|sehensw|entdeck|restaurants?|caf[eé]s?|bars?|essen|hotels?|imbiss)\b/i.test(query))return '';
+  return query;
+}
+function geoapifyCircleFilter(destination:any,options:any,bias:any){
+  const center=bias?.circle?.center||destination?.location||destination?.canonicalCity?.center||destination?.center||destination?.coordinates||null;
+  const latitude=Number(center?.latitude??center?.lat);
+  const longitude=Number(center?.longitude??center?.lng);
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return null;
+  const radius=Math.round(Number(options?.maxDistanceMeters||bias?.circle?.radius||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS));
+  return `circle:${longitude},${latitude},${Math.max(500,Math.min(50000,Number.isFinite(radius)?radius:GEOAPIFY_DEFAULT_RADIUS_METERS))}`;
 }
 
 function base64Url(bytes:Uint8Array){let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
@@ -187,6 +279,87 @@ async function resolveTimezone(latitude:number,longitude:number){
 }
 function normalizedViewport(v:any){if(!v)return null;const low=v.low||v.southwest||{};const high=v.high||v.northeast||{};const south=Number(low.latitude),west=Number(low.longitude),north=Number(high.latitude),east=Number(high.longitude);return [south,west,north,east].every(Number.isFinite)?{south,west,north,east}:null;}
 function addressPart(components:any[],type:string){return components?.find(c=>Array.isArray(c.types)&&c.types.includes(type))||null;}
+function geoapifyLuviaTypes(categories:any[]=[]){
+  const types=new Set<string>();
+  for(const raw of categories){
+    const key=String(raw||'').toLowerCase();
+    if(!key)continue;
+    types.add(key.replace(/[./]+/g,'_'));
+    if(key.startsWith('catering.restaurant')||key==='catering')types.add('restaurant');
+    if(key.startsWith('catering.cafe'))types.add('cafe');
+    if(key.startsWith('catering.bar'))types.add('bar');
+    if(key.startsWith('catering.bakery'))types.add('bakery');
+    if(key.startsWith('catering.fast_food'))types.add('meal_takeaway');
+    if(key.startsWith('accommodation'))types.add('lodging');
+    if(key.includes('spa')||key.includes('sauna')||key.includes('wellness'))types.add('spa');
+    if(key.includes('playground'))types.add('playground');
+    if(key.includes('park')&&!key.includes('parking'))types.add('park');
+    if(key.includes('beach'))types.add('beach');
+    if(key.includes('museum'))types.add('museum');
+    if(key.includes('zoo'))types.add('zoo');
+    if(key.includes('theme_park')||key.includes('amusement'))types.add('amusement_park');
+    if(key.includes('water_park'))types.add('water_park');
+    if(key.startsWith('tourism')||key.includes('sights')||key.includes('attraction'))types.add('tourist_attraction');
+    if(key.startsWith('entertainment')||key.startsWith('leisure')||key.startsWith('sport'))types.add('activity');
+    if(key.startsWith('commercial'))types.add('store');
+    if(key.includes('shopping_mall'))types.add('shopping_mall');
+  }
+  return[...types].slice(0,40);
+}
+function geoapifyTextField(value:any):string{
+  if(value==null||typeof value==='boolean')return '';
+  if(typeof value==='number'&&Number.isFinite(value))return String(value);
+  if(typeof value==='string')return value.trim();
+  if(typeof value==='object'){
+    for(const key of ['text','name','default','de','en','fr','nl','it','es']){
+      const nested=geoapifyTextField((value as any)[key]);
+      if(nested)return nested;
+    }
+  }
+  return '';
+}
+function geoapifyTypeLabel(types:string[]=[]){
+  const labels:Record<string,string>={
+    restaurant:'Restaurant',cafe:'Café',bar:'Bar',bakery:'Bäckerei',meal_takeaway:'Imbiss',
+    lodging:'Unterkunft',spa:'Wellness',playground:'Spielplatz',park:'Park',beach:'Strand',
+    museum:'Museum',zoo:'Zoo',amusement_park:'Freizeitpark',water_park:'Wasserpark',
+    tourist_attraction:'Sehenswürdigkeit',activity:'Aktivität',store:'Geschäft',shopping_mall:'Einkaufszentrum'
+  };
+  for(const type of types){if(labels[type])return labels[type]}
+  return 'Ort';
+}
+function geoapifyFormattedAddress(props:any):string{
+  const street=geoapifyTextField(props.street||props.address?.street);
+  const house=geoapifyTextField(props.housenumber||props.address?.housenumber);
+  const streetLine=[street,house].filter(Boolean).join(' ').trim();
+  const candidates=[
+    geoapifyTextField(typeof props.formatted==='string'?props.formatted:props.formatted?.address),
+    geoapifyTextField(props.formatted_address),
+    geoapifyTextField(props.address?.full),
+    geoapifyTextField(props.address_line2),
+    streetLine,
+    geoapifyTextField(props.address_line1),
+    [geoapifyTextField(props.postcode),geoapifyTextField(props.city||props.address?.city)].filter(Boolean).join(' ')
+  ];
+  return candidates.find(value=>value&&value.length>=2&&!/^\[object object\]$/i.test(value))||'';
+}
+function geoapifyPlaceName(props:any,mappedTypes:string[]=[]):string{
+  const street=geoapifyTextField(props.street||props.address?.street);
+  const house=geoapifyTextField(props.housenumber||props.address?.housenumber);
+  const streetLine=[street,house].filter(Boolean).join(' ').trim();
+  const candidates=[
+    geoapifyTextField(props.name),
+    geoapifyTextField(props.names),
+    geoapifyTextField(props.names?.default),
+    geoapifyTextField(props.names?.de),
+    geoapifyTextField(props.names?.en),
+    geoapifyTextField(props.address_line1),
+    streetLine,
+    geoapifyTextField(typeof props.formatted==='string'?props.formatted:null),
+    geoapifyTypeLabel(mappedTypes)
+  ];
+  return candidates.find(value=>value&&value.length>=2&&!/^\[object object\]$/i.test(value)&&!/^(unbenannter ort|unbekannter ort|unknown place|ort)$/i.test(value))||geoapifyTypeLabel(mappedTypes);
+}
 function normalizedPlace(p:any){const components=p.addressComponents||[];const country=addressPart(components,'country');return{id:p.id||String(p.name||'').replace(/^places\//,''),resourceName:p.name||p.id?`places/${p.id||String(p.name).replace(/^places\//,'')}`:null,name:p.displayName?.text||'',displayName:p.displayName?.text||'',languageCode:p.displayName?.languageCode||'',formattedAddress:p.formattedAddress||'',shortAddress:p.shortFormattedAddress||'',addressComponents:components,country:country?.longText||'',countryCode:String(country?.shortText||'').toUpperCase(),location:p.location||null,viewport:normalizedViewport(p.viewport),primaryType:p.primaryType||'',primaryTypeLabel:p.primaryTypeDisplayName?.text||'',types:p.types||[],rating:p.rating??null,userRatingCount:p.userRatingCount??null,priceLevel:p.priceLevel||null,businessStatus:p.businessStatus||null,openNow:p.currentOpeningHours?.openNow??null,openingHours:p.currentOpeningHours||p.regularOpeningHours||null,website:p.websiteUri||null,mapsUri:p.googleMapsUri||null,phone:p.internationalPhoneNumber||p.nationalPhoneNumber||null,photos:(p.photos||[]).map((x:any)=>({name:x.name,widthPx:x.widthPx,heightPx:x.heightPx,authorAttributions:x.authorAttributions||[]})),editorialSummary:p.editorialSummary?.text||null,reviews:p.reviews||[],accessibility:p.accessibilityOptions||null,accessibilityOptions:p.accessibilityOptions||null,parkingOptions:p.parkingOptions||null,evChargeOptions:p.evChargeOptions||null,fuelOptions:p.fuelOptions||null,subDestinations:p.subDestinations||[],features:{servesVegetarianFood:p.servesVegetarianFood??null,goodForChildren:p.goodForChildren??null,goodForGroups:p.goodForGroups??null,menuForChildren:p.menuForChildren??null,breakfast:p.servesBreakfast??null,lunch:p.servesLunch??null,dinner:p.servesDinner??null,beer:p.servesBeer??null,wine:p.servesWine??null,takeout:p.takeout??null,delivery:p.delivery??null,dineIn:p.dineIn??null,reservable:p.reservable??null},raw:p};}
 function normalizedGeoapifyPlace(feature:any,options:any={}){
   const f=feature&&typeof feature==='object'?feature:{};
@@ -198,23 +371,26 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const categories=Array.isArray(props.categories)?props.categories:(typeof props.categories==='string'?props.categories.split(',').map(String):[]);
   const tags=Array.isArray(props.tags)?props.tags:(typeof props.tags==='string'?props.tags.split(',').map(String):[]);
   const nativeEvidence=[...categories,...tags].filter(Boolean).slice(0,30);
-  const textEvidence=String(nativeEvidence.join(' ')).toLowerCase();
+  const mappedTypes=geoapifyLuviaTypes(nativeEvidence);
+  const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
   const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
   const servesVeganFood=/vegan/.test(textEvidence)?true:null;
   const wheelchairAccessibleEntrance=/wheelchair|accessible/.test(textEvidence)?true:null;
   const openNowRaw=props.open_now??props.openNow??props.opening_hours?.open_now??props.openingHours?.open_now;
   const openNow=typeof openNowRaw==='boolean'?openNowRaw:null;
-  const primaryType=String(options?.includedType||options?.includedPrimaryTypes?.[0]||'');
-  const primaryTypeLabel='';
+  const primaryType=String(mappedTypes.find(type=>!/[./]/.test(type))||mappedTypes[0]||options?.includedType||options?.includedPrimaryTypes?.[0]||'');
+  const fallbackName=geoapifyPlaceName(props,mappedTypes);
+  const formattedAddress=geoapifyFormattedAddress(props);
+  const primaryTypeLabel=geoapifyTypeLabel(mappedTypes);
   return{
     id:id||null,
     providerPlaceId:id||null,
-    name:String(props.name||props.address?.street||props.address_line1||''),
-    displayName:String(props.name||props.address?.street||props.address_line1||''),
+    name:fallbackName,
+    displayName:fallbackName,
     resourceName:placeId?`geoapify/${placeId}`:null,
     languageCode:String(props.lang||options?.languageCode||'').slice(0,5),
-    formattedAddress:String(props.formatted?.address||props.formatted_address||props.address?.full||props.address_line2||props.address?.street||''),
-    shortAddress:String(props.address_line1||props.address?.street||props.address?.suburb||''),
+    formattedAddress,
+    shortAddress:geoapifyTextField(props.address_line1)||geoapifyTextField(props.street)||geoapifyTextField(props.address?.street)||geoapifyTextField(props.city)||'',
     addressComponents:[],
     country:String((props.country??props.address?.country)||''),
     countryCode:String((props.country_code??props.countryCode)||'').toUpperCase(),
@@ -222,7 +398,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     viewport:null,
     primaryType:primaryType||'',
     primaryTypeLabel:primaryTypeLabel||'',
-    types:nativeEvidence,
+    types:[...new Set([...mappedTypes,...nativeEvidence])],
     rating:null,
     userRatingCount:null,
     priceLevel:null,
@@ -255,28 +431,47 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const key=getGeoapifyKey();
   if(!key)throw Object.assign(new Error('Geoapify API key ist nicht konfiguriert.'),{code:'GEOAPIFY_NOT_CONFIGURED',status:503});
   metrics.requests++;metrics.providers.geoapify.requests++;metrics.lastRequestAt=new Date().toISOString();
-  const limit=Math.min(20,Math.max(1,Number(options?.maxResultCount||10)));
-  const categories=geoapifyCategoriesFromOptions(options);
-  const filter=geoapifyRectFilter(restriction?.rectangle||restriction||null);
-  const biasParam=(bias||geoapifyBiasFromRestriction(restriction))||null;
-  const params=new URLSearchParams();
-  params.set('apiKey',key);
-  params.set('categories',categories.join(','));
-  if(textQuery)params.set('name',textQuery);
-  if(filter)params.set('filter',filter);
-  if(biasParam){
-    // `bias` can be passed as-is if we already built the rect/circle string.
-    if(typeof biasParam==='string')params.set('bias',biasParam);
-    else if(biasParam?.circle?.center){
-      const c=biasParam.circle.center;
-      const r=Math.round(Number(biasParam.circle.radius||2000));
-      params.set('bias',`circle:${c.longitude},${c.latitude},${Math.max(100,Math.min(50000,r))}`);
-    }
+  const limit=Math.min(50,Math.max(1,Number(options?.maxResultCount||10)));
+  const categories=geoapifyCategoriesFromOptions(options,textQuery);
+  const filter=geoapifyRectFilter(restriction?.rectangle||restriction||null)||geoapifyCircleFilter(destination,options,bias);
+  const biasParam=(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||geoapifyCircleFilter(destination,options,bias);
+  const name=geoapifyNameFilter(textQuery);
+  const buildParams=(cats:string[],useName:boolean)=>{
+    const params=new URLSearchParams();
+    params.set('apiKey',key);
+    params.set('categories',cats.join(','));
+    if(useName&&name)params.set('name',name);
+    if(filter)params.set('filter',filter);
+    if(biasParam)params.set('bias',biasParam);
+    params.set('limit',String(limit));
+    if(options?.languageCode)params.set('lang',String(options.languageCode).slice(0,5));
+    return params;
+  };
+  const run=async(cats:string[],useName:boolean)=>{
+    const response=await fetch(`${GEOAPIFY_BASE}/places?${buildParams(cats,useName)}`,{headers:{Accept:'application/json'}});
+    const body=await response.json().catch(()=>({}));
+    return{response,body};
+  };
+  let {response,body}=await run(categories,true);
+  // Category queries like "Restaurant Scharbeutz" must not be sent as Geoapify `name`.
+  // An empty named search is a successful 200 with zero features, not a provider error.
+  if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
+    ({response,body}=await run(categories,false));
   }
-  params.set('limit',String(limit));
-  if(options?.languageCode)params.set('lang',String(options.languageCode).slice(0,5));
-  const response=await fetch(`${GEOAPIFY_BASE}/places?${params}`,{headers:{Accept:'application/json'}});
-  const body=await response.json().catch(()=>({}));
+  // Invalid nested categories 400 the whole request. Fall back to the category family,
+  // then to a single known-good parent bucket so food never hard-fails the map.
+  if(!response.ok&&(response.status===400||/invalid|category/i.test(String(body?.message||body?.error||'')))){
+    ({response,body}=await run(geoapifyFallbackCategories(options),false));
+  }
+  if(!response.ok&&(response.status===400||/invalid|category/i.test(String(body?.message||body?.error||'')))){
+    const key=String(options?.category||options?.type||'').toLowerCase();
+    const parent=/^(?:food|restaurant|cafe|bar|bakery|nightlife)$/.test(key)||categories.some(value=>String(value).startsWith('catering'))
+      ?['catering']
+      :/^(?:accommodation|lodging|hotel)$/.test(key)
+        ?['accommodation']
+        :['tourism.sights','leisure.park','catering'];
+    ({response,body}=await run(parent,false));
+  }
   if(!response.ok){
     metrics.failures++;metrics.providers.geoapify.failures++;
     const status=Number(body?.status||response.status||0);
@@ -288,50 +483,75 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   metrics.successes++;metrics.providers.geoapify.successes++;metrics.lastSuccessAt=new Date().toISOString();
   return features.map((feature:any)=>normalizedGeoapifyPlace(feature,options));
 }
-function destinationBias(destination:any,explicit:any){if(explicit)return explicit;const l=destination?.location;if(!l)return undefined;const latitude=Number(l.latitude??l.lat),longitude=Number(l.longitude??l.lng);if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return undefined;return{circle:{center:{latitude,longitude},radius:Math.max(1000,Math.min(50000,Number(destination?.searchRadiusMeters)||20000))}};}
+function destinationBias(destination:any,explicit:any){if(explicit)return explicit;const l=destination?.location;if(!l)return undefined;const latitude=Number(l.latitude??l.lat),longitude=Number(l.longitude??l.lng);if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return undefined;return{circle:{center:{latitude,longitude},radius:Math.max(1000,Math.min(50000,Number(destination?.searchRadiusMeters)||GEOAPIFY_DEFAULT_RADIUS_METERS))}};}
 function destinationRestriction(destination:any,explicit:any){if(explicit)return explicit;const v=destination?.viewport;if(v&&[v.south,v.west,v.north,v.east].every((x:any)=>Number.isFinite(Number(x))))return{rectangle:{low:{latitude:Number(v.south),longitude:Number(v.west)},high:{latitude:Number(v.north),longitude:Number(v.east)}}};return undefined;}
 function coordinate(value:any){const latitude=Number(value?.latitude??value?.lat),longitude=Number(value?.longitude??value?.lng);return Number.isFinite(latitude)&&Number.isFinite(longitude)?{latitude,longitude}:null;}
 function distanceMeters(a:any,b:any){const x=coordinate(a),y=coordinate(b);if(!x||!y)return null;const rad=(v:number)=>v*Math.PI/180,dLat=rad(y.latitude-x.latitude),dLng=rad(y.longitude-x.longitude),lat1=rad(x.latitude),lat2=rad(y.latitude);const h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;return Math.round(6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h)));}
 function cityCandidate(candidates:any[]){const priorities=['locality','administrative_area_level_2','administrative_area_level_1','postal_town','country'];for(const type of priorities){const hit=candidates.find((x:any)=>x.primaryType===type||x.types?.includes(type));if(hit)return hit;}return candidates.find((x:any)=>x.location)||null;}
 function landmarkCandidate(candidates:any[],city:any){return candidates.find((x:any)=>x.id!==city?.id&&['tourist_attraction','point_of_interest','establishment','premise'].includes(x.primaryType))||null;}
 function searchAnchor(destination:any,options:any){const landmark=options?.landmarkContext||destination?.landmarkContext;if(landmark?.center||landmark?.location)return coordinate(landmark.center||landmark.location);return coordinate(destination?.canonicalCity?.center||destination?.location||destination?.center);}
-function postProcessPlaces(places:any[],destination:any,options:any){const anchor=searchAnchor(destination,options);let list=places.map(p=>({...p,distanceMeters:anchor?distanceMeters(anchor,p.location):null,distanceSource:options?.landmarkContext||destination?.landmarkContext?'landmark':'canonical-city'}));if(options?.vegetarianOnly){list=list.filter(p=>p.features?.servesVegetarianFood!==false);list.sort((a,b)=>Number(b.features?.servesVegetarianFood===true)-Number(a.features?.servesVegetarianFood===true));}if(Number(options?.minUserRatingCount)>0){const min=Number(options.minUserRatingCount);list=list.filter(p=>p.userRatingCount!=null&&Number(p.userRatingCount)>=min);}if(Number(options?.maxDistanceMeters)>0)list=list.filter(p=>p.distanceMeters!=null&&p.distanceMeters<=Number(options.maxDistanceMeters));const sort=String(options?.sortBy||'relevance');if(sort==='distance')list.sort((a,b)=>(a.distanceMeters??Infinity)-(b.distanceMeters??Infinity));else if(sort==='rating')list.sort((a,b)=>{const ar=a.rating!=null?Number(a.rating):null,br=b.rating!=null?Number(b.rating):null;if(ar!=null&&br!=null){const diff=br-ar;if(diff!==0)return diff;}else if(ar!=null)return-1;else if(br!=null)return 1;const auc=a.userRatingCount!=null?Number(a.userRatingCount):null,buc=b.userRatingCount!=null?Number(b.userRatingCount):null;if(auc!=null&&buc!=null){const diff=buc-auc;if(diff!==0)return diff;}else if(auc!=null)return-1;else if(buc!=null)return 1;return 0;});else if(sort==='reviews')list.sort((a,b)=>{const auc=a.userRatingCount!=null?Number(a.userRatingCount):null,buc=b.userRatingCount!=null?Number(b.userRatingCount):null;if(auc==null&&buc==null)return 0;if(auc==null)return 1;if(buc==null)return-1;return buc-auc;});return list;}
+function effectiveMaxDistanceMeters(destination:any,options:any){
+  const explicit=Number(options?.maxDistanceMeters);
+  if(Number.isFinite(explicit)&&explicit>0)return Math.min(50000,Math.max(500,Math.round(explicit)));
+  if(options?.strictDestination===false)return 0;
+  const destinationRadius=Number(destination?.searchRadiusMeters||destination?.canonicalCity?.searchRadiusMeters);
+  if(Number.isFinite(destinationRadius)&&destinationRadius>0)return Math.min(50000,Math.max(500,Math.round(destinationRadius)));
+  return searchAnchor(destination,options)?GEOAPIFY_DEFAULT_RADIUS_METERS:0;
+}
+function postProcessPlaces(places:any[],destination:any,options:any){const anchor=searchAnchor(destination,options);let list=places.map(p=>({...p,distanceMeters:anchor?distanceMeters(anchor,p.location):null,distanceSource:options?.landmarkContext||destination?.landmarkContext?'landmark':'canonical-city'}));if(options?.vegetarianOnly){list=list.filter(p=>p.features?.servesVegetarianFood!==false);list.sort((a,b)=>Number(b.features?.servesVegetarianFood===true)-Number(a.features?.servesVegetarianFood===true));}if(Number(options?.minUserRatingCount)>0){const min=Number(options.minUserRatingCount);list=list.filter(p=>p.userRatingCount!=null&&Number(p.userRatingCount)>=min);}const maxDistance=effectiveMaxDistanceMeters(destination,options);if(maxDistance>0)list=list.filter(p=>p.distanceMeters!=null&&p.distanceMeters<=maxDistance);const sort=String(options?.sortBy||'relevance');if(sort==='distance')list.sort((a,b)=>(a.distanceMeters??Infinity)-(b.distanceMeters??Infinity));else if(sort==='rating')list.sort((a,b)=>{const ar=a.rating!=null?Number(a.rating):null,br=b.rating!=null?Number(b.rating):null;if(ar!=null&&br!=null){const diff=br-ar;if(diff!==0)return diff;}else if(ar!=null)return-1;else if(br!=null)return 1;const auc=a.userRatingCount!=null?Number(a.userRatingCount):null,buc=b.userRatingCount!=null?Number(b.userRatingCount):null;if(auc!=null&&buc!=null){const diff=buc-auc;if(diff!==0)return diff;}else if(auc!=null)return-1;else if(buc!=null)return 1;return 0;});else if(sort==='reviews')list.sort((a,b)=>{const auc=a.userRatingCount!=null?Number(a.userRatingCount):null,buc=b.userRatingCount!=null?Number(b.userRatingCount):null;if(auc==null&&buc==null)return 0;if(auc==null)return 1;if(buc==null)return-1;return buc-auc;});return list;}
+async function geoapifyGeocode(query:string,languageCode:string,regionCode?:string){
+  const key=getGeoapifyKey();
+  if(!key)throw Object.assign(new Error('Geoapify API Key ist nicht konfiguriert.'),{code:'GEOAPIFY_NOT_CONFIGURED',status:503,provider:'geoapify'});
+  const url=new URL('https://api.geoapify.com/v1/geocode/search');
+  url.searchParams.set('text',query);
+  url.searchParams.set('lang',String(languageCode||'de').slice(0,2));
+  url.searchParams.set('limit','1');
+  url.searchParams.set('format','geojson');
+  url.searchParams.set('apiKey',key);
+  if(regionCode)url.searchParams.set('filter',`countrycode:${String(regionCode).toLowerCase()}`);
+  metrics.requests++;metrics.providers.geoapify.requests++;metrics.lastRequestAt=new Date().toISOString();
+  const response=await fetch(url);
+  const body=await response.json().catch(()=>({}));
+  if(!response.ok){
+    metrics.failures++;metrics.providers.geoapify.failures++;
+    const message=body?.message||body?.error||`Geoapify Geocoding fehlgeschlagen (${response.status}).`;
+    throw Object.assign(new Error(String(message)),{code:'GEOAPIFY_PROVIDER_ERROR',status:response.status,provider:'geoapify'});
+  }
+  metrics.successes++;metrics.providers.geoapify.successes++;metrics.lastSuccessAt=new Date().toISOString();
+  return body;
+}
 async function resolveDestination(payload:any){
   const query=String(payload?.query||'').trim();
   if(query.length<2)throw Object.assign(new Error('Reiseziel muss mindestens zwei Zeichen enthalten.'),{code:'DESTINATION_QUERY_INVALID',status:400});
   const languageCode=String(payload?.languageCode||'de');
   const regionCode=payload?.regionCode?String(payload.regionCode).toUpperCase():undefined;
   const forceRefresh=payload?.forceRefresh===true||payload?.refresh===true;
-  const key=`destination.resolve:v2.12.3.1:${hash({query,languageCode,regionCode})}`;
+  const key=`destination.resolve:v2.12.3.2-geoapify:${hash({query,languageCode,regionCode})}`;
   const hit=forceRefresh?null:cached(key);
   if(hit)return{data:hit,cache:{hit:true,key,ttlMs:7*24*60*60_000}};
-  const body=cleanObject({textQuery:query,languageCode,regionCode,maxResultCount:5});
-  const raw=await google('/places:searchText',{method:'POST',body:JSON.stringify(body)},DESTINATION_FIELDS);
-  const candidates=raw.places||[];
-  const p=cityCandidate(candidates);
-  const landmark=landmarkCandidate(candidates,p);
-  if(!p?.location)throw Object.assign(new Error('Reiseziel wurde nicht gefunden.'),{code:'DESTINATION_NOT_FOUND',status:404});
-  const country=addressPart(p.addressComponents||[],'country');
-  const locality=addressPart(p.addressComponents||[],'locality')||addressPart(p.addressComponents||[],'administrative_area_level_2');
-  const name=p.displayName?.text||locality?.longText||query;
-  const latitude=Number(p.location.latitude),longitude=Number(p.location.longitude);
-  const timezone=await resolveTimezone(latitude,longitude);
-  const countryCode=String(country?.shortText||'').toUpperCase();
-  const viewport=normalizedViewport(p.viewport);
+  const raw=await geoapifyGeocode(query,languageCode,regionCode);
+  const feature=Array.isArray(raw?.features)?raw.features[0]:null;
+  const properties=feature?.properties||{};
+  const latitude=Number(properties.lat??feature?.geometry?.coordinates?.[1]);
+  const longitude=Number(properties.lon??feature?.geometry?.coordinates?.[0]);
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude))throw Object.assign(new Error('Reiseziel wurde nicht gefunden.'),{code:'DESTINATION_NOT_FOUND',status:404});
+  const countryCode=String(properties.country_code||regionCode||'').toUpperCase();
+  const name=String(properties.city||properties.town||properties.village||properties.name||query);
+  const displayName=String(properties.formatted||name);
+  const bbox=Array.isArray(properties.bbox)?properties.bbox:null;
+  const viewport=bbox&&bbox.length===4?{west:Number(bbox[0]),south:Number(bbox[1]),east:Number(bbox[2]),north:Number(bbox[3])}:null;
   const regional=COUNTRY_META[countryCode]||{languages:[],currency:''};
   const result={destination:{
-    schemaVersion:5,id:String(p.id||'').replace(/^places\//,''),name,displayName:p.formattedAddress||name,
-    country:country?.longText||'',countryCode,placeId:String(p.id||'').replace(/^places\//,''),
+    schemaVersion:5,id:String(properties.place_id||''),name,displayName,
+    country:String(properties.country||''),countryCode,placeId:String(properties.place_id||''),
     center:{lat:latitude,lng:longitude},location:{latitude,longitude},viewport,
     searchRadiusMeters:viewportRadius(viewport,{lat:latitude,lng:longitude}),radiusSource:viewport?'viewport':'default',
-    timezone:timezone.ok?timezone.timezone:'',timezoneName:timezone.ok?timezone.timezoneName:'',
-    timezoneStatus:timezone.status,timezoneError:timezone.ok?'':timezone.message,
+    timezone:'',timezoneName:'',timezoneStatus:'skipped',timezoneError:'',
     languageCodes:regional.languages,currency:regional.currency,
     locale:regional.languages[0]&&countryCode?`${regional.languages[0]}-${countryCode}`:'de-DE',
-    flagEmoji:flagEmoji(countryCode),provider:'google-places',source:'automatic-geocoding',
-    primaryType:p.primaryType||null,canonicalCity:{name,placeId:String(p.id||'').replace(/^places\//,''),center:{lat:latitude,lng:longitude},viewport,country:country?.longText||'',countryCode},
-    landmarkContext:landmark?.location?{name:landmark.displayName?.text||'',placeId:String(landmark.id||'').replace(/^places\//,''),primaryType:landmark.primaryType||'',center:{lat:Number(landmark.location.latitude),lng:Number(landmark.location.longitude)},viewport:normalizedViewport(landmark.viewport),source:'destination-resolve'}:null,
-    resolvedAt:new Date().toISOString(),rawType:p.primaryType||null
+    flagEmoji:flagEmoji(countryCode),provider:'geoapify',source:'automatic-geocoding',
+    primaryType:properties.result_type||null,canonicalCity:{name,placeId:String(properties.place_id||''),center:{lat:latitude,lng:longitude},viewport,country:String(properties.country||''),countryCode},
+    landmarkContext:null,resolvedAt:new Date().toISOString(),rawType:properties.result_type||null
   }};
   metrics.resolutions++;
   store(key,result,7*24*60*60_000);
@@ -340,7 +560,7 @@ async function resolveDestination(payload:any){
 
 export async function placesAction(action:string,payload:any){
 if(action==='destination.resolve')return resolveDestination(payload);
-const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const key=`${action}:${hash(payload)}`;const hit=ttl>0?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
+const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const key=`${action}:v2.13.0-geoapify-first:${hash(payload)}`;const hit=ttl>0?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
 if(action==='places.health'){
   const requestedProbe=String(payload?.diagnosticProbe||'').trim().toLowerCase();
   const probe=HEALTH_PROBES[requestedProbe as keyof typeof HEALTH_PROBES]||null;
@@ -353,18 +573,22 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.31.0-geoapify-slice',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary_no_fallback',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'legacy'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'legacy_fallback',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.33.0-geoapify-first',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
-  const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
+  const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
+  // Hard cut: live Places discovery is Geoapify-only. Google/Foursquare remain
+  // reachable only when a caller explicitly opts in after quota/credits recover.
   const providers=Array.isArray(options.providers)&&options.providers.length?options.providers:['geoapify'],providerErrors:any[]=[],attempted:string[]=[];
   let geoapifyPlaces:any[]=[],googlePlaces:any[]=[],foursquarePlaces:any[]=[],fallbackReason:string|null=null;
-  let processed:any[]=[],fallbackUsed=false,mode='geoapify_primary_no_fallback';
-  if(providers.includes('geoapify')){
+  let processed:any[]=[],fallbackUsed=false,mode='geoapify_primary';
+  const wantsGeoapify=providers.includes('geoapify')||(!providers.includes('google')&&!providers.includes('foursquare'));
+  const wantsLegacy=providers.includes('google')||providers.includes('foursquare');
+  if(wantsGeoapify){
     attempted.push('geoapify');
     if(getGeoapifyKey()){
       try{
-        geoapifyPlaces=await geoapifyPlacesSearch(String(payload?.query||textQuery),effectiveDestination,{...options,languageCode,regionCode},restriction,bias);
+        geoapifyPlaces=await geoapifyPlacesSearch(String(payload?.query||textQuery),effectiveDestination,{...options,languageCode,regionCode,category:options.category||payload?.type||options.type,type:payload?.type||options.type},restriction,bias);
         geoapifyPlaces=geoapifyPlaces.map((p:any)=>({
           ...p,
           provider:'geoapify',
@@ -380,9 +604,11 @@ if(action==='places.text-search'){
       fallbackReason='geoapify_not_configured';
       providerErrors.push({provider:'geoapify',message:'Geoapify API key ist nicht konfiguriert.',code:'GEOAPIFY_NOT_CONFIGURED'});
     }
-    processed=postProcessPlaces(geoapifyPlaces,destination,options);
-  }else{
-    // Legacy discovery: Google primary with Foursquare fallback.
+    processed=postProcessPlaces(geoapifyPlaces,destination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS});
+    mode='geoapify_primary';
+  }
+  if(wantsLegacy&&!processed.length){
+    // Explicit opt-in only — not used by the default Spatial/Hotels path.
     if(providers.includes('google')&&getKey()){
       attempted.push('google');
       const body=cleanObject({textQuery,languageCode,regionCode,maxResultCount:Math.min(20,options.maxResultCount||10),includedType:options.includedType||undefined,strictTypeFiltering:Boolean(options.strictTypeFiltering&&options.includedType),openNow:options.openNow||undefined,minRating:options.minRating||undefined,priceLevels:options.priceLevels||undefined,locationRestriction:restriction,locationBias:bias,rankPreference:options.rankPreference||undefined});
@@ -390,20 +616,18 @@ if(action==='places.text-search'){
       catch(error:any){fallbackReason=isQuotaError(error)?'google_quota':'google_failed';providerErrors.push({provider:'google',message:error?.message||String(error),code:error?.code||'PROVIDER_ERROR'})}
     }else if(providers.includes('google'))fallbackReason='google_not_configured';
     const googleEligible=postProcessPlaces(googlePlaces,destination,options);if(providers.includes('google')&&!fallbackReason&&!googleEligible.length)fallbackReason='google_no_eligible_result';
-    const useFoursquare=providers.includes('foursquare')&&getFoursquareKey()&&fallbackReason!=='google_quota'&&(!providers.includes('google')||Boolean(fallbackReason));
+    const useFoursquare=providers.includes('foursquare')&&getFoursquareKey()&&(!providers.includes('google')||Boolean(fallbackReason));
     if(useFoursquare){attempted.push('foursquare');try{foursquarePlaces=await foursquareSearch(String(payload?.query||textQuery),effectiveDestination,options)}catch(error:any){providerErrors.push({provider:'foursquare',message:error?.message||String(error),code:error?.code||'PROVIDER_ERROR'})}}
     const foursquareIsFallback=providers.includes('google')&&attempted.includes('foursquare'),all=googleEligible.length&&!fallbackReason?googlePlaces:foursquarePlaces,merged=mergeProviderPlaces(all),legacyProcessed=postProcessPlaces(merged,destination,options);
-    processed=legacyProcessed;
-    fallbackUsed=foursquareIsFallback;
-    mode='google_primary_foursquare_fallback';
+    if(legacyProcessed.length){processed=legacyProcessed;fallbackUsed=Boolean(wantsGeoapify);mode=wantsGeoapify?'geoapify_then_legacy':'google_primary_foursquare_fallback';}
   }
   if(attempted.length&&providerErrors.length===attempted.length&&!processed.length)throw Object.assign(new Error('Keine verbundene Ortsquelle konnte die Suche beantworten.'),{code:'PLACES_ALL_PROVIDERS_FAILED',status:503,providerErrors});
-  result={places:processed,providers:{mode,requested:providers,attempted,used:[...new Set(processed.flatMap((p:any)=>Object.keys(p.providerRefs||{})))],fallbackUsed,fallbackReason:fallbackUsed?fallbackReason:null,errors:providerErrors},searchContext:{destination,canonicalCity:destination?.canonicalCity||null,landmarkContext:landmark,restriction:restriction||null,bias:bias||null,anchor:searchAnchor(destination,options),profileContext:options.profileContext||null,intentContext:options.intentContext||null,filters:{openNow:Boolean(options.openNow),minRating:options.minRating||null,priceLevels:options.priceLevels||[],vegetarianOnly:Boolean(options.vegetarianOnly),minUserRatingCount:options.minUserRatingCount||0,maxDistanceMeters:Number(options.maxDistanceMeters)||0},sortBy:options.sortBy||'relevance'}};
+  result={places:processed,providers:{mode,requested:providers,attempted,used:[...new Set(processed.flatMap((p:any)=>Object.keys(p.providerRefs||{})))],fallbackUsed,fallbackReason:fallbackUsed?fallbackReason:null,errors:providerErrors},searchContext:{destination,canonicalCity:destination?.canonicalCity||null,landmarkContext:landmark,restriction:restriction||null,bias:bias||null,anchor:searchAnchor(destination,options),profileContext:options.profileContext||null,intentContext:options.intentContext||null,filters:{openNow:Boolean(options.openNow),minRating:options.minRating||null,priceLevels:options.priceLevels||[],vegetarianOnly:Boolean(options.vegetarianOnly),minUserRatingCount:options.minUserRatingCount||0,maxDistanceMeters:effectiveMaxDistanceMeters(destination,options)||Number(options.maxDistanceMeters)||0},sortBy:options.sortBy||'relevance'}};
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}
 else if(action==='places.autocomplete'){const sessionToken=normalizePlacesSessionToken(options.sessionToken);const body=cleanObject({input:String(payload?.input||''),languageCode,regionCode,sessionToken,locationBias:destinationBias(payload?.destination,options.locationBias),includedPrimaryTypes:options.includedType?[options.includedType]:undefined});const raw=await google('/places:autocomplete',{method:'POST',body:JSON.stringify(body)});result={sessionToken,suggestions:(raw.suggestions||[]).map((s:any)=>({placeId:s.placePrediction?.placeId||null,text:s.placePrediction?.text?.text||s.queryPrediction?.text?.text||'',types:s.placePrediction?.types||[],distanceMeters:s.placePrediction?.distanceMeters??null,raw:s}))};}
-else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
+else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){result={place:{id:rawId,providerPlaceId:rawId,name:'',displayName:'',provider:'geoapify',source:'geoapify_places_details_unavailable',photos:[],types:[]}}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
 else if(action==='places.photo'){const name=String(payload?.photoName||'');const qs=new URLSearchParams({skipHttpRedirect:'true',maxWidthPx:String(payload?.maxWidthPx||800)});if(payload?.maxHeightPx)qs.set('maxHeightPx',String(payload.maxHeightPx));const raw=await google(`/${name}/media?${qs}`,{method:'GET'});result={photoUri:raw.photoUri||null,name:raw.name||name};}
 else throw Object.assign(new Error('Places-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
 if(ttl>0)store(key,result,ttl);return{data:result,cache:{hit:false,key,ttlMs:ttl}};}
-export function placesDiagnostics(){return{configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary_no_fallback',providers:{geoapify:Boolean(getGeoapifyKey()),google:Boolean(getKey()),foursquare:Boolean(getFoursquareKey()),foursquareApiVersion:FOURSQUARE_API_VERSION,foursquareMappingVersion:FOURSQUARE_MAPPING_VERSION},metrics:{...metrics},cache:{entries:cache.size}};}
+export function placesDiagnostics(){return{configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary',providers:{geoapify:Boolean(getGeoapifyKey()),google:Boolean(getKey()),foursquare:Boolean(getFoursquareKey()),foursquareApiVersion:FOURSQUARE_API_VERSION,foursquareMappingVersion:FOURSQUARE_MAPPING_VERSION},metrics:{...metrics},cache:{entries:cache.size}};}
