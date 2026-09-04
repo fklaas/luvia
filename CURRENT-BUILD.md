@@ -1,3 +1,7 @@
+## Visible acceptance correction — App 13.82.168.22 / Core 4.82.168
+
+M16.5 Local Places and Trip Recovery · integration-preview. Public .21 confirmed Ostseeurlaub reload, local Scharbeutz Food and exact BREEZE SPA. Final correction exposes the empty-fit status, fixes the malformed pin counter attribute, and synchronizes marker selection after cohort changes. Acceptance in progress.
+
 ## Recovery 2026-09-04 — App 13.82.168.21 / Core 4.82.168
 
 M16.5 Local Places and Trip Recovery · integration-preview. Local candidate; public acceptance pending. Active Trip hydration preserves the selected membership, initial Places searches use destination coordinates within 3 km, specific categories use exact provider taxonomy, Passend remains selected on empty evidence, and viewport refreshes reject obsolete responses. Runtime build now emits exactly one loader. See docs/modularization/PCR-RECOVERY-TRIP-PLACES-20260904.md for scope and rollback.

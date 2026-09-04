@@ -17,16 +17,16 @@ const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5L-PRODUCTIVE-PLAN-COMPASS-RUNTIME-RELEASE.md');
 
 assert.match(version,/core:'4\.82\.168'/);
-assert.match(version,/build:'13\.82\.168\.21'/);
+assert.match(version,/build:'13\.82\.168\.22'/);
 assert.match(version,/name:'M16\.5 Local Places and Trip Recovery'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.21-local-recovery'"));
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.22-local-recovery'"));
 assert.equal(/\?v=13\.82\.51/.test(index),false,'active entry retains the previous cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
-  assert.ok(index.includes(`${asset}?v=13.82.168.21`),`active entry release key missing for ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.168.22`),`active entry release key missing for ${asset}`);
 }
 
-assert.match(shell,/version:'13\.82\.168\.21'/);
+assert.match(shell,/version:'13\.82\.168\.22'/);
 assert.match(shell,/function planCompassBrandSource/);
 assert.match(hubs,/data-plan-compass-stage/);
 assert.equal(parity.binding,true);
