@@ -5,19 +5,20 @@
 
 **Stand 2026-09-04:** Integration **13.82.168.48**, Core **4.82.170**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** P09 Entfernen/Wiederherstellen ist in Runtime .47 begrenzt belegt: geplante Places werden erst nach lesbarer Vorschau und Bestätigung entfernt. Ein dauerhafter Recovery-Beleg im Places-Owner-Datensatz überlebt Reloads; die Wiederherstellung prüft ursprünglichen Termin, aktuellen Konfliktstand, Versionsstand und Booking-Gate erneut. Grande Beach Café wurde sichtbar entfernt → neu geladen → wiederhergestellt → erneut neu geladen; Termin, Dauer und Eintrag blieben korrekt. Favorit, Ortsdaten und Booking bleiben getrennt. 214/214 Safe Regression und 30/30 öffentliche Dateihashes stimmen.
+**Zuletzt geliefert:** P09 Verbinden und Mehrfach-Reorder ist in Runtime .48 begrenzt belegt. Zwei geplante Places lassen sich nach Auswahl und lesbarer Vorher/Nachher-Prüfung als gemeinsamer Weg ordnen. Owner-Revisionen, Booking-Gate, Konfliktzustimmung, ehrlicher Teilfehler und eine reloadfeste Rücknahme sind umgesetzt. Der sichtbare 477×900-Browsertest und der angemeldete Live-Zyklus auf der stabilen Integration bestanden einschließlich zweier Reloads und exakter Wiederherstellung. 216/216 Safe Regression und 30/30 öffentliche Dateihashes stimmen. Beim ersten echten Reload erschien die Timeline kurz leer, bevor die zwei Owner-Einträge eintrafen; dieser First-Paint bleibt offen.
 
-**Nächster Schritt (GEPLANT): Timeline-Momente verbinden und mehrere Einträge geordnet verschieben.** Einzelne geplante Places können jetzt sicher geändert, entfernt und wiederhergestellt werden; für zusammengehörige Urlaubsmomente fehlen noch eine bewusste Verbindung und ein atomar erklärter Mehrfach-Reorder.
+**Nächster Schritt (GEPLANT): Weitere Timeline-Eintragstypen sicher bearbeiten und den kurz leeren First-Paint schließen.** Place-Einträge besitzen jetzt sichere Einzel- und Gruppenänderungen. Buchungen, bestätigte Besuche und Memory-/Foto-Momente brauchen dieselbe sichtbare Fähigkeitslogik über ihre jeweiligen Owner; zugleich darf die Timeline beim Reload nicht vorübergehend wie ein wirklich leerer Reisetag wirken.
 
 **Abnahme dieses Schritts:**
 
-- Mindestens zwei geplante Places auswählen, ihre beabsichtigte Verbindung und die Vorher/Nachher-Reihenfolge mit Datum, Uhrzeit, Dauer und Wege-/Konfliktwirkung vor dem Schreiben zeigen.
-- Erst nach Bestätigung über journey.v1 und die jeweiligen Owner speichern; veraltete Revision, Teilfehler, Booking-Abhängigkeit und wiederholte Befehle nachvollziehbar behandeln.
-- Im sichtbaren Browser verbinden und mehrfach umordnen, reloaden und unabhängig lesen; Prüfänderungen vollständig zurücksetzen und gezielte Regression belegen.
+- Für Booking-, Visit- und Memory-/Foto-Einträge pro Aktion sichtbar festlegen, was erlaubt, nur weiterleitbar oder bewusst gesperrt ist; keine Owner-Wahrheit in Journey kopieren.
+- Erlaubte Bearbeitung, Verbindung, Reihenfolge, Entfernen und Wiederherstellen jeweils mit Vorher/Nachher, aktueller Revision, Abhängigkeiten, Bestätigung, Readback und reloadfester Rücknahme ausführen.
+- Beim Reload sofort den letzten verlässlichen Tagesstand oder einen eindeutigen Ladezustand zeigen; niemals kurz „0 Momente / Offen“ als scheinbaren Endzustand anzeigen, wenn Owner-Daten noch geladen werden.
+- Den kombinierten Ablauf sichtbar bei mobiler Breite und Desktop prüfen, Teständerungen vollständig zurücksetzen und Safe Regression sowie öffentliche Byte-Gleichheit erneut belegen.
 
-**Danach:** Weitere P09-Eintragsarten schließen und P10-Erklärungen ergänzen; danach die vollständige B1-Nutzerkette sowie Human↔AI-Parität und die geltenden Freigabegates abnehmen.
+**Danach:** P09/P10 mit physischem iPhone/Android und echten Mehrnutzerkonflikten nachschärfen; danach die vollständige B1-Nutzerkette samt Human↔AI-Parität und geltenden Freigabegates schließen.
 
-**Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, physisches iPhone/Android und echte Mehrnutzerfälle; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** Vollständige P09/P10- und Human↔AI-Abnahme, reale Geräte und Mehrnutzerfälle; die gemeldete Places-Kategorie-/Ausschnittskontinuität bleibt als P02/P03-Wiederholungsmatrix aktiv; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

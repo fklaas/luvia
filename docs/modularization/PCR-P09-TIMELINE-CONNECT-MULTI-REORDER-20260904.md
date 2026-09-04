@@ -1,7 +1,7 @@
 # PCR — P09 Timeline connect and multi-reorder
 
 Date: 2026-09-04
-Status: release candidate for bounded Integration acceptance
+Status: bounded Integration acceptance complete
 
 ## Problem
 
@@ -51,4 +51,11 @@ No migration, Edge Function, provider, secret, RLS or authorization change. Conn
 
 ## Rollout and rollback
 
-Publish as one Integration preview build after all gates pass. Main/Production promotion is outside this slice. The previous accepted rollback is App `13.82.168.47`, Core `4.82.169`, source `8eeba9ada79488760fc55d0de042c107630a7002`; additive metadata remains inert on that runtime.
+Published on the stable Integration host as App `13.82.168.48`, Core `4.82.170`, Worker `42df591a-d2d2-4075-b315-003f1499431c`, immutable runtime source `7eacedc32e997de27d781adbf51d14bb55486907`. Main/Production promotion is outside this slice. The previous accepted rollback is App `13.82.168.47`, Core `4.82.169`, source `8eeba9ada79488760fc55d0de042c107630a7002`; additive metadata remains inert on that runtime.
+
+## Acceptance evidence
+
+- Safe Regression: `216/216` PASS, including the browserless contract test and the visible headed mobile Edge test.
+- Public stable Integration bytes: `30/30` match the immutable `.48` archive.
+- Authenticated live Owner cycle on `Ostseeurlaub`: select Grande Beach Café and Restaurant Brechtmann, review and reverse the order, persist, reload, verify both connection badges and the recovery surface, restore the original order, reload again and verify Grande Beach Café at 15:00 and Restaurant Brechtmann at 20:00 with no connection or recovery residue.
+- The first live reload briefly projected an empty day before the two Owner entries arrived. No data was lost, but that misleading first paint is retained as an explicit P01/P09 follow-up rather than accepted as finished performance.
