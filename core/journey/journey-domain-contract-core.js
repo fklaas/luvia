@@ -3,7 +3,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.3.0-connected-multi-reorder-preview';
+const RUNTIME_VERSION='1.4.0-owner-capability-matrix';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -164,6 +164,47 @@ function removalEditable(entry={}){
 function connectionEditable(entry={}){
   return removalEditable(entry);
 }
+function capability(id,state,label,route,reason){return immutable({id,state,label,route,reason})}
+function entryCapabilities(input={}){
+  const entry=input?.provenance?input:normalizeEntry(input),sourceOwner=entry.provenance.owner,metadata=entry.metadata||{};
+  const booked=sourceOwner==='booking'||Boolean(metadata.bookingId||metadata.bookingStatus||metadata.bookingReceipt),memory=sourceOwner==='media'||entry.kind==='photo_memory'||entry.entityType==='photo_memory',visit=entry.source==='gps'||entry.kind==='visited',direct=scheduleEditable(entry);
+  let mode='owner-readonly',owner=sourceOwner,label='Im ursprünglichen Bereich verwalten',summary='Dieser Moment bleibt sichtbar, wird aber über seinen zuständigen Bereich geändert.';
+  const actions={
+    open:capability('open','available',memory?'Erinnerung öffnen':'Details öffnen',entry.provenance.sourceContract,'Der belegte Moment kann hier geöffnet werden.'),
+    manage:capability('manage','delegated','Im ursprünglichen Bereich verwalten',entry.provenance.mutationRoute,'Änderungen bleiben beim zuständigen Owner.'),
+    editSchedule:capability('editSchedule','locked','Zeit hier nicht änderbar',entry.provenance.mutationRoute,'Die Timeline darf diesen Owner-Zeitpunkt nicht überschreiben.'),
+    connectReorder:capability('connectReorder','locked','Nicht gemeinsam umordnen',entry.provenance.mutationRoute,'Dieser Moment ist nicht für eine Place-Gruppenänderung freigegeben.'),
+    remove:capability('remove','locked','Nicht direkt entfernen',entry.provenance.mutationRoute,'Entfernen erfolgt nur über den zuständigen Owner.'),
+    restore:capability('restore','locked','Keine Timeline-Rücknahme',entry.provenance.mutationRoute,'Für diesen Owner liegt keine Journey-Rücknahme vor.')
+  };
+  if(direct){
+    mode='planned-place';owner='places';label='Plan direkt bearbeitbar';summary='Zeit, Reihenfolge und Entfernung werden vorab geprüft und bleiben nach Reload rücknehmbar.';
+    actions.manage=capability('manage','available','Place-Plan verwalten','places.plan','Der bestehende Places-Owner-Datensatz bleibt maßgeblich.');
+    actions.editSchedule=capability('editSchedule','available','Zeit ändern','places.plan','Vorher/Nachher, Konflikte und aktuelle Revision werden geprüft.');
+    actions.connectReorder=capability('connectReorder','available','Verbinden und ordnen','places.plan','Zwei bis zwölf bestätigte Places desselben Tages können gemeinsam geprüft werden.');
+    actions.remove=capability('remove','available','Aus Timeline entfernen','places.plan','Place, Favorit und Ortsfakten bleiben erhalten.');
+    actions.restore=capability('restore','available','Änderung zurücknehmen','places.plan','Der Recovery-Beleg wird im bestehenden Owner-Datensatz gelesen.');
+  }else if(booked){
+    mode='booking';owner='booking';label='Buchung schützt diesen Termin';summary='Öffnen und Buchung verwalten sind möglich. Zeit, Reihenfolge und Entfernen laufen ausschließlich über Booking.';
+    actions.manage=capability('manage','available','Buchung verwalten','booking.reservation','Status, Konditionen und Änderungen werden vom Booking Owner geprüft.');
+    actions.editSchedule=capability('editSchedule','delegated','Zeit über Buchung ändern','booking.reservation','Eine bestätigte Buchungszeit wird nicht als einfacher Timeline-Wert überschrieben.');
+    actions.remove=capability('remove','delegated','Über Buchung stornieren oder entfernen','booking.reservation','Eine Buchung wird niemals durch Timeline-Löschen verändert.');
+    actions.restore=capability('restore','delegated','Booking-Ausgang prüfen','booking.reservation','Rücknahme und Kompensation richten sich nach dem Provider-Ausgang.');
+  }else if(visit){
+    mode='confirmed-visit';owner='places';label='Bestätigter Besuch';summary='Der erlebte Zeitpunkt bleibt als Besuchsnachweis erhalten. Korrektur oder Entfernen gehört zum Besuchsverlauf.';
+    actions.manage=capability('manage','delegated','Besuch verwalten','places.visit','GPS- und Bestätigungsnachweis bleiben beim Places Visit Owner.');
+    actions.remove=capability('remove','delegated','Besuch dort entfernen','places.visit','Journey löscht keinen bestätigten Besuch still aus dem Verlauf.');
+    actions.restore=capability('restore','delegated','Besuch dort wiederherstellen','places.visit','Eine Wiederherstellung braucht den ursprünglichen Besuchsnachweis.');
+  }else if(memory){
+    mode='memory';owner='media';label='Erinnerung im Memory-Bereich';summary='Fotos und Erinnerung bleiben unverändert; Auswahl, Bearbeitung und Entfernen erfolgen im Memory-/Media-Bereich.';
+    actions.manage=capability('manage','delegated','Erinnerung verwalten','media.memory','Media bleibt Owner der Fotos; Journey zeigt nur die zeitliche Projektion.');
+    actions.remove=capability('remove','delegated','Im Memory-Bereich entfernen','media.memory','Journey löscht weder Bilder noch die zugrunde liegende Erinnerung.');
+    actions.restore=capability('restore','delegated','Im Memory-Bereich wiederherstellen','media.memory','Wiederherstellung folgt dem Media-Owner-Beleg.');
+  }else if(sourceOwner==='journey'){
+    mode='journey-owned';owner='journey';label='Journey-Eintrag aus ursprünglichem Plan';summary='Dieser ältere Journey-Eintrag bleibt lesbar und wird bis zur vollständigen Recovery-Migration in seinem Planungsbereich verwaltet.';
+  }
+  return immutable({entryId:entry.id,mode,owner,sourceOwner,label,summary,actions});
+}
 function previewConnectionPlan(input={}){
   const trip=tripProjection(input.trip||{}),selected=Array.isArray(input.entries)?input.entries:[],allEntries=Array.isArray(input.allEntries)?input.allEntries:[],ids=selected.map(entry=>entry.id),unique=[...new Set(ids)];
   if(!trip.id||selected.some(entry=>entry.tripId!==trip.id))throw new Error('Alle ausgewählten Einträge müssen zur aktiven Reise gehören.');
@@ -304,5 +345,5 @@ function diagnostics(){
   });
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,removalEditable,previewRemoval,connectionEditable,previewConnectionPlan,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,removalEditable,previewRemoval,connectionEditable,previewConnectionPlan,entryCapabilities,diagnostics});
 })();

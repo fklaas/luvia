@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-04",
   "sourceBaseline": "7eacedc32e997de27d781adbf51d14bb55486907",
-  "app": "13.82.168.48",
-  "core": "4.82.170",
+  "app": "13.82.168.49",
+  "core": "4.82.171",
   "runtimeSource": "7eacedc32e997de27d781adbf51d14bb55486907",
   "worker": "42df591a-d2d2-4075-b315-003f1499431c",
   "gateway": "v161 ACTIVE",
@@ -16,8 +16,8 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.48 / Core 4.82.170 auf der stabilen Integration veröffentlicht; unveränderliches Quellarchiv 7eacedc3, Worker 42df591a, 30/30 öffentliche Dateihashes und der angemeldete Live-Owner-Zyklus belegt. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.",
-      "nextAcceptance": "Beim nächsten Slice Quellstand, öffentliche Bytes, klaren Ladezustand und zum Backend passenden Rückfall belegen; die beim ersten Reload kurz leere Timeline-Projektion ohne Verlust des später eintreffenden Owner-Stands beseitigen.",
+      "evidence": "Stabile Integration weiterhin 13.82.168.48 / Core 4.82.170 aus unveränderlichem Quellstand 7eacedc3, Worker 42df591a und 30/30 öffentlichen Dateihashes. App 13.82.168.49 / Core 4.82.171 ist als lokaler Releasekandidat gebaut und noch nicht als stabile Integration abgenommen. Gateway v161, Booking-Resolver v18 und Main-Frontend unverändert.",
+      "nextAcceptance": "Releasekandidat .49 vollständig regressieren, aus einem unveränderlichen Quellarchiv nur auf Integration veröffentlichen und dort öffentlichen Bytebeleg sowie den wahrheitsgemäßen Timeline-First-Paint angemeldet sichtbar prüfen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -112,8 +112,8 @@
       "canonicalTitle": "Granular Journey commands",
       "status": "TEILWEISE",
       "owner": "Journey",
-      "evidence": "App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben.",
-      "nextAcceptance": "Als Nächstes die bisher erhaltenen Owner-Wege für Buchungen, bestätigte Besuche und Memory-/Foto-Momente als konkrete P09-Fähigkeitsmatrix schließen: nur fachlich erlaubte Aktionen anbieten, jede Änderung vorab erklären, nach Reload unabhängig lesen und vollständig zurücknehmen. Dabei den kurz leeren Timeline-First-Paint beseitigen; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat abnehmen.",
+      "evidence": "App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben. Releasekandidat .49 ergänzt eine explizite Owner-Fähigkeitsmatrix für geplante Places, Buchungen, bestätigte Besuche und Memories; direkte Timeline-Aktionen erscheinen nur für zugelassene Place-Pläne. Ein Verhaltenstest belegt parallele Owner-Reads, den sofortigen Stale-Trip-Clear und den wahrheitsgemäßen Ladezustand. Öffentliche Integration-Abnahme steht noch aus.",
+      "nextAcceptance": "Release .49 auf stabiler Integration sichtbar abnehmen. Danach die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.",
       "scope": "Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -124,8 +124,8 @@
       "canonicalTitle": "S16.01 Explainable Planning Trace expansion",
       "status": "TEILWEISE",
       "owner": "Intelligence",
-      "evidence": "Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge, erhaltene Owner-Fakten und Speicherstatus. Konflikte verlangen ausdrückliche Zustimmung; Booking-Abhängigkeiten blockieren vor dem Schreiben. Der .48-Live-Zyklus zeigte Vorher/Nachher, aktuellen Owner-Readback, Reload-Recovery und exakte Rücknahme in Nutzertext.",
-      "nextAcceptance": "Die gleiche Erklärqualität auf Buchungen, bestätigte Besuche und Memory-/Foto-Momente ausweiten; nicht erlaubte Aktionen und Teilfehler konkret benennen, ohne technische Zwischenzustände oder falsche Sicherheit.",
+      "evidence": "Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge, erhaltene Owner-Fakten und Speicherstatus. Konflikte verlangen ausdrückliche Zustimmung; Booking-Abhängigkeiten blockieren vor dem Schreiben. Der .48-Live-Zyklus zeigte Vorher/Nachher, aktuellen Owner-Readback, Reload-Recovery und exakte Rücknahme in Nutzertext. Der .49-Kandidat erklärt zusätzlich je Eintrag den zuständigen Owner sowie direkt mögliche, weitergeleitete und bewusst geschützte Aktionen in lesbarer Sprache.",
+      "nextAcceptance": "Öffentliche .49-Erklärung sichtbar abnehmen; danach die positiven Booking-, Visit- und Memory-Verwaltungswege mit Ergebnis und Recovery in derselben Sprache schließen.",
       "scope": "Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.48 / Core 4.82.170: unveränderliches Quellarchiv 7eacedc3, QA-Erweiterung be446160, 216/216 Safe Regression und 30/30 öffentliche Asset-Hashes auf der stabilen Integration. Angemeldeter Live-Zyklus mit echter Owner-Mutation, Reload-Recovery, exakter Rücknahme und zweitem Reload bestanden. Main-Frontend, Places-Gateway v161 und Booking-Resolver v18 unverändert.",
+      "evidence": "13.82.168.49 / Core 4.82.171: unveränderliches Quellarchiv 7eacedc3, QA-Erweiterung be446160, 216/216 Safe Regression und 30/30 öffentliche Asset-Hashes auf der stabilen Integration. Angemeldeter Live-Zyklus mit echter Owner-Mutation, Reload-Recovery, exakter Rücknahme und zweitem Reload bestanden. Main-Frontend, Places-Gateway v161 und Booking-Resolver v18 unverändert.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,21 +640,21 @@
   ],
   "currentWork": {
     "stage": "M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.",
-    "delivered": "P09 Verbinden und Mehrfach-Reorder ist in Runtime .48 begrenzt belegt. Zwei geplante Places lassen sich nach Auswahl und lesbarer Vorher/Nachher-Prüfung als gemeinsamer Weg ordnen. Owner-Revisionen, Booking-Gate, Konfliktzustimmung, ehrlicher Teilfehler und eine reloadfeste Rücknahme sind umgesetzt. Der sichtbare 477×900-Browsertest und der angemeldete Live-Zyklus auf der stabilen Integration bestanden einschließlich zweier Reloads und exakter Wiederherstellung. 216/216 Safe Regression und 30/30 öffentliche Dateihashes stimmen. Beim ersten echten Reload erschien die Timeline kurz leer, bevor die zwei Owner-Einträge eintrafen; dieser First-Paint bleibt offen.",
+    "delivered": "Releasekandidat .49 schließt die bisherige P09/P01-First-Paint-Lücke lokal: sechs Timeline-Datenquellen starten ohne serielle Place-Wartezeit; beim Reisewechsel werden alte Einträge sofort entfernt; während eines ungeklärten Owner-Reads erscheint kein falscher leerer Tag. Geplante Places, Buchungen, bestätigte Besuche und Memories erhalten eine lesbare Owner-Fähigkeitsmatrix. Direktbearbeitung bleibt auf zugelassene Place-Pläne begrenzt. Gezielte Core-, Browser-, Registry- und Visual-Gates sind grün; stabile Veröffentlichung und vollständige Regression laufen.",
     "nextStep": {
-      "id": "P09-owner-entry-types-and-first-paint",
+      "id": "P09-owner-capabilities-release49-acceptance",
       "package": "P09",
-      "status": "GEPLANT",
-      "title": "Weitere Timeline-Eintragstypen sicher bearbeiten und den kurz leeren First-Paint schließen",
-      "reason": "Place-Einträge besitzen jetzt sichere Einzel- und Gruppenänderungen. Buchungen, bestätigte Besuche und Memory-/Foto-Momente brauchen dieselbe sichtbare Fähigkeitslogik über ihre jeweiligen Owner; zugleich darf die Timeline beim Reload nicht vorübergehend wie ein wirklich leerer Reisetag wirken.",
+      "status": "IN ABNAHME",
+      "title": "Release .49 unveränderlich veröffentlichen und Timeline-First-Paint öffentlich abnehmen",
+      "reason": "Die Laufzeitänderung ist lokal belegt. Vor dem Wechsel zum nächsten Sachblock müssen vollständige Regression, Quellidentität und der angemeldete stabile Reload denselben Stand bestätigen.",
       "acceptance": [
-        "Für Booking-, Visit- und Memory-/Foto-Einträge pro Aktion sichtbar festlegen, was erlaubt, nur weiterleitbar oder bewusst gesperrt ist; keine Owner-Wahrheit in Journey kopieren.",
-        "Erlaubte Bearbeitung, Verbindung, Reihenfolge, Entfernen und Wiederherstellen jeweils mit Vorher/Nachher, aktueller Revision, Abhängigkeiten, Bestätigung, Readback und reloadfester Rücknahme ausführen.",
-        "Beim Reload sofort den letzten verlässlichen Tagesstand oder einen eindeutigen Ladezustand zeigen; niemals kurz „0 Momente / Offen“ als scheinbaren Endzustand anzeigen, wenn Owner-Daten noch geladen werden.",
-        "Den kombinierten Ablauf sichtbar bei mobiler Breite und Desktop prüfen, Teständerungen vollständig zurücksetzen und Safe Regression sowie öffentliche Byte-Gleichheit erneut belegen."
+        "Alle 217 zugelassenen Safe-Regression-Prüfungen einschließlich der neuen Core- und sichtbaren Mobile-Matrix bestehen.",
+        "Integration wird ausschließlich aus dem festgeschriebenen .49-Quellarchiv veröffentlicht; Main, Datenbank, Functions und Secrets bleiben unverändert.",
+        "Die ausgewählten öffentlichen Dateien stimmen bytegenau mit dem Archiv überein.",
+        "Ein angemeldeter Reload zeigt sofort einen eindeutigen Ladezustand und danach die realen Owner-Einträge; kein falscher Zustand „0 Momente / Offen“ erscheint als fertiger Tag."
       ]
     },
-    "after": "P09/P10 mit physischem iPhone/Android und echten Mehrnutzerkonflikten nachschärfen; danach die vollständige B1-Nutzerkette samt Human↔AI-Parität und geltenden Freigabegates schließen.",
+    "after": "Unmittelbar danach P02/P03: die gemeldete Places-Kategorie- und Ausschnittskontinuität in sichtbaren Wiederholungszyklen für Shopping, Natur & Erholung und weitere Kategorien reproduzieren, Ursachen beheben und 0/3/45-Schwankungen ausschließen. Danach folgen die positiven delegierten P09-Wege für Booking, Visit und Memory.",
     "open": "Vollständige P09/P10- und Human↔AI-Abnahme, reale Geräte und Mehrnutzerfälle; die gemeldete Places-Kategorie-/Ausschnittskontinuität bleibt als P02/P03-Wiederholungsmatrix aktiv; verifizierte Ortsfotos und positive Booking-Partnerpfade. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten."
   },
   "qaCommit": "be446160"

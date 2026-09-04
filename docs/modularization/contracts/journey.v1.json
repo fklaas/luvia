@@ -20,6 +20,7 @@
     "getDay",
     "entriesForDate",
     "listConflicts",
+    "entryCapabilities",
     "planTrust",
     "routeUncertainty",
     "rehearseDay",

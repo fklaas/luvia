@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.5.0-connected-multi-reorder';
+const RUNTIME_VERSION='1.6.0-owner-capabilities-readiness';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -24,13 +24,14 @@ function tripProjection(input){
   });
 }
 function composeProjection(source=provider().snapshot?.()||{},options={}){
-  return domain().compose({
+  const composed=domain().compose({
     trip:tripProjection(options.trip),
     entries:Array.isArray(source?.entries)?source.entries.map(entry=>({...entry,calendarDate:entry.startAt&&!Number.isNaN(Date.parse(entry.startAt))?new Date(entry.startAt).toLocaleDateString('sv-SE'):null})):[],
     now:options.now||new Date().toISOString(),
     policy:options.policy||{},
     sourceContract:'journey.web-projection'
   });
+  return Object.freeze({...composed,readiness:Object.freeze({hydrated:source?.hydrated===true,loading:source?.loading===true,lastError:source?.lastError||null,lastUpdatedAt:source?.lastUpdatedAt||null})});
 }
 function emit(reason='changed',source){
   lastReason=reason;
@@ -55,6 +56,7 @@ function getEntry(identity,options={}){const id=typeof identity==='string'?ident
 function getDay(date,options={}){return listDays(options).find(day=>day.date===String(date||'').slice(0,10))||null}
 function entriesForDate(date,options={}){return getDay(date,options)?.entries||Object.freeze([])}
 function listConflicts(options={}){return snapshot(options).conflicts}
+function entryCapabilities(identity,options={}){const entry=typeof identity==='object'&&identity?.id?identity:getEntry(identity,options);return entry?domain().entryCapabilities(entry):null}
 function planTrust(identity,options={}){
   const entry=typeof identity==='object'&&identity?.id?identity:getEntry(identity,options);
   if(!entry)return null;
@@ -339,7 +341,7 @@ async function undo(input={}){
   throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
 }
 
-const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore});
 const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
@@ -348,7 +350,7 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore,
   init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,

@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='5.5.0-durable-removal-recovery';
+const VERSION='5.6.0-hydration-continuity';
 const root=window;
 const calendarVisibleByTrip=new Map();const boundRoots=new WeakSet();
 let state={tripId:null,loading:false,hydrated:false,entries:[],days:[],lastUpdatedAt:null,lastError:null,members:{},places:{}};
@@ -34,12 +34,12 @@ function projectPlaceData(source=root.LuviaTripPlaceData?.snapshot?.()){
  emit('owner-local-projection');return snapshot();
 }
 async function hydrate(tripId=activeTripId()){
- state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;
+ const previousTripId=state.tripId,changedTrip=Boolean(previousTripId&&tripId&&String(previousTripId)!==String(tripId));state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;if(changedTrip)state.entries=[];emit('hydrate-start');
  if(!tripId){state.entries=[];state.loading=false;state.hydrated=true;emit();return snapshot()}
  const database=client();if(!database?.from){state.loading=false;state.lastError='Keine Cloud-Verbindung für Timeline verfügbar.';emit();throw new Error(state.lastError)}
  try{
-  await window.LuviaTripPlaceData?.hydrate?.(tripId);
-  const [scheduleRows,eventRows,visitRows,tripPlaces,members]=await Promise.all([
+  const [,scheduleRows,eventRows,visitRows,tripPlaces,members]=await Promise.all([
+   window.LuviaTripPlaceData?.hydrate?.(tripId),
    database.from('trip_schedule_events').select('*').eq('trip_id',tripId).order('event_date').order('start_time'),
    database.from('timeline_events').select('*').eq('trip_id',tripId).order('occurred_at'),
    database.from('place_visits').select('*').eq('trip_id',tripId).order('arrived_at'),

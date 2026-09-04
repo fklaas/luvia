@@ -2727,3 +2727,5 @@ tests/p09-timeline-remove-restore.test.cjs,Journey/Places/Consumer Shared Tests,
 docs/modularization/PCR-P09-TIMELINE-CONNECT-MULTI-REORDER-20260904.md,Documentation/Release History,Documentation,Bounded additive Journey connect multi-reorder and durable group recovery PCR
 tests/p09-timeline-connect-reorder.test.cjs,Journey/Places/Consumer Shared Tests,Test/Guardrail,Connected same-day multi-reorder preview conditional owner writes reload recovery restore and idempotency
 tests/p09-timeline-connect-reorder-browser.test.cjs,Journey/Places/Consumer Shared Tests,Test/Browser,Visible mobile connect reorder reload recovery and exact restore acceptance
+tests/p09-timeline-owner-capabilities-first-paint.test.cjs,Journey/Booking/Places/Media/Consumer Shared Tests,Test/Browser,Truthful loading projection and visible per-owner Timeline capability matrix
+docs/modularization/PCR-P09-TIMELINE-OWNER-CAPABILITIES-FIRST-PAINT-20260904.md,Documentation/Release History,Documentation,Bounded additive Timeline owner capability and truthful first-paint PCR

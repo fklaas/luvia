@@ -717,6 +717,8 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-group-up': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-journey-connection-recoveries': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-journey-restore-connection': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-entry-capabilities': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-journey-loading': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-body': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
   'data-lvjt-group-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
@@ -851,8 +853,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 979);
-  assert.equal(sourceAudit.markerCount, 979);
+  assert.equal(sourceAudit.markers.length, 981);
+  assert.equal(sourceAudit.markerCount, 981);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');
