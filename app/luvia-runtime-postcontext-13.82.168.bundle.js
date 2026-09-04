@@ -4343,7 +4343,7 @@ attempt();
 /* ===== core/places/global-place-contracts.js ===== */
 (() => {
 'use strict';
-const VERSION='4.59.0-category-purity';
+const VERSION='4.60.0-category-browse-subject';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -4378,26 +4378,42 @@ const QUALIFIED_PROVIDER_TYPE_SUFFIXES=new Set(['restaurant','hotel','hostel','m
 const clean=v=>String(v??'').trim();
 const fold=v=>clean(v).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de-DE').replace(/ß/g,'ss');
 const words=v=>fold(v).match(/[\p{L}\d]+/gu)||[];
-const stem=v=>fold(v).replace(/(?:ern|em|en|er|es|e|n|s)$/,'');
+const stem=v=>{let s=fold(v);for(let i=0;i<4;i++){const next=s.replace(/(?:ern|em|en|er|es|ungen|ung|e|n|s)$/,'');if(next===s||next.length<4)break;s=next}return s};
 const typeKey=v=>fold(v).replace(/[^\p{L}\d]+/gu,'_').replace(/^_+|_+$/g,'');
 function category(key){return UI_CATEGORIES[key]||UI_CATEGORIES.activities}
 function intentFor(text='',categoryKey=''){const value=String(text);for(const [key,intent] of Object.entries(INTENTS)){if(intent.patterns.some(rx=>rx.test(value)))return {key,...intent,category:key==='hidden_gem'?(categoryKey||'activities'):intent.category}}return {key:'generic',category:categoryKey||'activities',label:category(categoryKey).label,queries:[],match:null,exclude:null,niche:false}}
-function specificTerms(value='',destination=''){const destinationTerms=new Set(words(destination).flatMap(token=>[token,stem(token)])),categoryTerms=new Set(Object.values(UI_CATEGORIES).flatMap(def=>words([def.label,...(def.synonyms||[]),...(def.keywords||[])].join(' '))).flatMap(token=>[token,stem(token)])),terms=[];for(const raw of words(value)){const token=stem(raw);if(token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||destinationTerms.has(raw)||destinationTerms.has(token)||categoryTerms.has(raw)||categoryTerms.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw))continue;terms.push(token)}return[...new Set(terms)]}
+function categoryVocabulary(categoryKey=''){const def=category(categoryKey);return new Set(words([def.label,def.query,...(def.synonyms||[]),...(def.keywords||[])].join(' ')).flatMap(token=>[token,stem(token)]))}
+function isCategoryBrowseSubject(goalText='',categoryKey=''){
+  const text=clean(goalText);if(!text)return true;
+  const def=category(categoryKey);if(fold(text)===fold(def.query))return true;
+  const vocab=categoryVocabulary(categoryKey),tokens=words(text);
+  return Boolean(tokens.length)&&tokens.every(raw=>{
+    const token=stem(raw);
+    return token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||vocab.has(raw)||vocab.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw);
+  });
+}
+function specificTerms(value='',destination='',categoryKey=''){const destinationTerms=new Set(words(destination).flatMap(token=>[token,stem(token)])),categoryTerms=new Set([...Object.values(UI_CATEGORIES).flatMap(def=>words([def.label,...(def.synonyms||[]),...(def.keywords||[])].join(' ')).flatMap(token=>[token,stem(token)])),...categoryVocabulary(categoryKey)]),terms=[];for(const raw of words(value)){const token=stem(raw);if(token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||destinationTerms.has(raw)||destinationTerms.has(token)||categoryTerms.has(raw)||categoryTerms.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw))continue;terms.push(token)}return[...new Set(terms)]}
 function providerEvidenceText(place={}){return [place?.name,place?.displayName?.text,place?.editorialSummary?.text,place?.editorialSummary,place?.description,place?.primaryType,place?.primary_type,place?.primaryTypeLabel,place?.primary_type_label,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(clean).filter(Boolean).join(' ')}
 function providerCategoryTypeKeys(place={}){
   const values=[place?.primaryType,place?.primary_type,place?.primaryTypeLabel,place?.primary_type_label,place?.primaryTypeDisplayName?.text,place?.primaryTypeDisplayName,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(clean).filter(Boolean),keys=[];
   for(const value of values){keys.push(typeKey(value));for(const segment of value.split(/[>\/|]+/))keys.push(typeKey(segment))}
   return [...new Set(keys.filter(Boolean))];
 }
-function providerTypeMatches(value,accepted){return value===accepted||QUALIFIED_PROVIDER_TYPE_SUFFIXES.has(accepted)&&value.endsWith(`_${accepted}`)}
+function providerTypeMatches(value,accepted){return value===accepted||QUALIFIED_PROVIDER_TYPE_SUFFIXES.has(accepted)&&value.endsWith('_'+accepted)}
 function hasProviderCategoryEvidence(place={},categoryKey='',definition=category(categoryKey)){
   const canonicalPrimaryType=typeKey(definition?.primaryType),canonicalOwnerTypes=canonicalPrimaryType&&canonicalPrimaryType!=='custom'?[definition.primaryType,...(definition?.domainTypes||[])]:[];
   const aliases=[...(definition?.includedTypes||[]),...canonicalOwnerTypes,...(CATEGORY_TYPE_ALIASES[categoryKey]||[])].map(typeKey).filter(Boolean),providerTypes=providerCategoryTypeKeys(place);
   return aliases.some(accepted=>providerTypes.some(value=>providerTypeMatches(value,accepted)));
 }
 function evidenceContract(goalText='',categoryKey='',plan={},destination=''){
-  const intent=intentFor(goalText,categoryKey),searchPlans=Array.isArray(plan?.searchPlans)?plan.searchPlans:[],aiQueries=searchPlans.map(item=>item?.query),aiTypes=searchPlans.flatMap(item=>item?.includedTypes||[]),rawTerms=specificTerms(goalText,destination),expandedTerms=specificTerms([...intent.queries,...aiQueries,...aiTypes].join(' '),destination),strict=intent.specificEvidence===true||intent.key!=='generic'&&Boolean(intent.match)||rawTerms.length>0;
-  return Object.freeze({version:1,intentKey:intent.key,category:intent.category||categoryKey,strict,rawTerms:Object.freeze(rawTerms),expandedTerms:Object.freeze([...new Set([...rawTerms,...expandedTerms])]),fulfillmentMode:intent.fulfillmentMode||'venue',requiresInventoryVerification:intent.requiresInventoryVerification===true,claimPolicy:intent.requiresInventoryVerification===true?'provider-place-category-only-inventory-unverified':'provider-place-evidence-required'});
+  const intent=intentFor(goalText,categoryKey),searchPlans=Array.isArray(plan?.searchPlans)?plan.searchPlans:[],aiQueries=searchPlans.map(item=>item?.query),aiTypes=searchPlans.flatMap(item=>item?.includedTypes||[]);
+  // Category default/browse queries are taxonomy routes, not open-vocabulary subjects.
+  // Stem collisions like Erlebnisse→erlebniss must never empty the Activities map.
+  const browse=isCategoryBrowseSubject(goalText,intent.category||categoryKey);
+  const rawTerms=browse?[]:specificTerms(goalText,destination,intent.category||categoryKey);
+  const expandedTerms=browse?[]:specificTerms([...intent.queries,...aiQueries,...aiTypes].join(' '),destination,intent.category||categoryKey);
+  const strict=!browse&&(intent.specificEvidence===true||intent.key!=='generic'&&Boolean(intent.match)||rawTerms.length>0);
+  return Object.freeze({version:1,intentKey:intent.key,category:intent.category||categoryKey,strict,rawTerms:Object.freeze(rawTerms),expandedTerms:Object.freeze([...new Set([...rawTerms,...expandedTerms])]),fulfillmentMode:intent.fulfillmentMode||'venue',requiresInventoryVerification:intent.requiresInventoryVerification===true,claimPolicy:intent.requiresInventoryVerification===true?'provider-place-category-only-inventory-unverified':'provider-place-evidence-required',categoryBrowse:browse===true});
 }
 function matchesEvidenceContract(place={},contract={},intent={}){
   const hay=providerEvidenceText(place),normalized=fold(hay),hayTokens=new Set(words(hay).flatMap(token=>[token,stem(token)]));
@@ -4634,20 +4650,25 @@ async function recommend(options={}){
   const requestedRoute=route(options);
   const resolvedPreferences=preferenceResolution(options);
   const goal={text:clean(options.text||options.query)||requestedRoute.query,category:requestedRoute.category};
-  const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
+  // Category browse queries are provider taxonomy routes. Only an explicit user
+  // subject (subjectText / userQuery) may activate the open-vocabulary evidence gate.
+  const subjectText=Object.prototype.hasOwnProperty.call(options,'subjectText')
+    ?clean(options.subjectText)
+    :(Object.prototype.hasOwnProperty.call(options,'userQuery')?clean(options.userQuery):goal.text);
+  const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(subjectText||goal.text,goal.category)||{};
   const discoveryRoute=intent.category&&intent.category!==goal.category?route({...options,category:intent.category,text:goal.text,query:goal.text}):requestedRoute;
   const searchDestination=destinationLabel(options.destination);
   const baseQueries=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,searchDestination,options.preferences||options.profilePreferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${searchDestination}`.trim()];
   const deterministic=[...new Set([baseQueries[0],...preferenceQueryVariants(goal,discoveryRoute,resolvedPreferences,searchDestination),...baseQueries.slice(1)].filter(Boolean))];
   const plan=options.fastPath===true?{queries:deterministic,ai:null}:await aiPlan(options,discoveryRoute,deterministic,resolvedPreferences);
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
-  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(goal.text,goal.category,plan.ai||{},searchDestination)||null;
+  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(subjectText,goal.category,plan.ai||{},searchDestination)||null;
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
   const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
   const requestedLimit=Math.min(60,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
-  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
+  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,subjectText,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
   const eligibleCandidates=()=>uniquePlaces(candidates).filter(accepts);
   const hasEnoughCandidates=()=>eligibleCandidates().length>=diversityTarget;
   const providerCandidateWindow=Math.min(50,Math.max(20,Number(options.limit||20)));
@@ -18108,7 +18129,7 @@ return Object.freeze({
 (() => {
   'use strict';
 
-  const VERSION='1.27.0-category-purity';
+  const VERSION='1.28.0-category-browse';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -18407,10 +18428,15 @@ return Object.freeze({
       const context=preferenceContext()?.snapshot?.()||{},positionContext=globalThis.LuviaTravelContext?.snapshot?.()?.location||null;
       const activeDefinition=activeSearchDefinition(),selectedTypes=selectedFilterTypes();
       const geography=tripGeography(state.trip);
+      // First paint always searches the trip destination only. Broader coverage
+      // comes solely from deliberate map pan/zoom viewport reads.
       const request={
         tripId:tripId(state.trip),
         text:state.query,
         query:state.query,
+        // Do not reuse the category default query as a subject gate.
+        subjectText:state.userQuery||'',
+        userQuery:state.userQuery||'',
         category:state.category,
         destination:geography,
         destinationContext:geography,

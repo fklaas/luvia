@@ -22,8 +22,8 @@ const photoSources = JSON.parse(read('assets/public-landing/travel-photo-sources
 
 assert.match(index, /app\/public-landing\.css\?v=13\.82\.168\.18" data-luvia-public-landing-style disabled/);
 assert.match(index, /app\/public-landing-experience-motion\.css\?v=13\.82\.168\.18" data-luvia-public-landing-style disabled/);
-assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.168.18') < index.indexOf('app/public-entry.js?v=13.82.168.18'));
-assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.168.18') < index.indexOf('app/public-entry.js?v=13.82.168.18'));
+assert.ok(index.indexOf('app/public-landing-motion.js?v=13.82.168.19') < index.indexOf('app/public-entry.js?v=13.82.168.19'));
+assert.ok(index.indexOf('app/public-landing-experience-motion.js?v=13.82.168.19') < index.indexOf('app/public-entry.js?v=13.82.168.19'));
 
 assert.match(entry, /fetch\(TEMPLATE_URL, \{ cache: 'no-store'/);
 assert.match(entry, /AUTH_HASHES = Object\.freeze\(\{ login: '#anmelden', register: '#registrieren' \}\)/);

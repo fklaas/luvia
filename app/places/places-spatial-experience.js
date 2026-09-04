@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.27.0-category-purity';
+  const VERSION='1.28.0-category-browse';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -300,10 +300,15 @@
       const context=preferenceContext()?.snapshot?.()||{},positionContext=globalThis.LuviaTravelContext?.snapshot?.()?.location||null;
       const activeDefinition=activeSearchDefinition(),selectedTypes=selectedFilterTypes();
       const geography=tripGeography(state.trip);
+      // First paint always searches the trip destination only. Broader coverage
+      // comes solely from deliberate map pan/zoom viewport reads.
       const request={
         tripId:tripId(state.trip),
         text:state.query,
         query:state.query,
+        // Do not reuse the category default query as a subject gate.
+        subjectText:state.userQuery||'',
+        userQuery:state.userQuery||'',
         category:state.category,
         destination:geography,
         destinationContext:geography,

@@ -18,12 +18,12 @@ const pcr=read('docs/modularization/PCR-M16.5L-PRODUCTIVE-PLAN-COMPASS-RUNTIME-R
 
 assert.match(version,/core:'4\.82\.168'/);
 assert.match(version,/build:'13\.82\.168\.18'/);
-assert.match(version,/name:'M16\.5 Places Category Purity'/);
+assert.match(version,/name:'M16\.5 Places Category Browse Subject'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.18-category-purity'"));
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.19-category-browse'"));
 assert.equal(/\?v=13\.82\.51/.test(index),false,'active entry retains the previous cache key');
 for(const asset of ['app/app-shell.css','app/app-shell.js','app/module-hubs.css','app/module-hubs.js','intelligence/kernel/version.js']){
-  assert.ok(index.includes(`${asset}?v=13.82.168.18`),`active entry release key missing for ${asset}`);
+  assert.ok(index.includes(`${asset}?v=13.82.168.19`),`active entry release key missing for ${asset}`);
 }
 
 assert.match(shell,/version:'13\.82\.168\.18'/);

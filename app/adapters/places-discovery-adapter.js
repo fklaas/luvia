@@ -143,20 +143,25 @@ async function recommend(options={}){
   const requestedRoute=route(options);
   const resolvedPreferences=preferenceResolution(options);
   const goal={text:clean(options.text||options.query)||requestedRoute.query,category:requestedRoute.category};
-  const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(goal.text,goal.category)||{};
+  // Category browse queries are provider taxonomy routes. Only an explicit user
+  // subject (subjectText / userQuery) may activate the open-vocabulary evidence gate.
+  const subjectText=Object.prototype.hasOwnProperty.call(options,'subjectText')
+    ?clean(options.subjectText)
+    :(Object.prototype.hasOwnProperty.call(options,'userQuery')?clean(options.userQuery):goal.text);
+  const intent=window.LuviaGlobalPlaceContracts?.intentFor?.(subjectText||goal.text,goal.category)||{};
   const discoveryRoute=intent.category&&intent.category!==goal.category?route({...options,category:intent.category,text:goal.text,query:goal.text}):requestedRoute;
   const searchDestination=destinationLabel(options.destination);
   const baseQueries=window.LuviaGlobalPlaceContracts?.queryCascade?.(goal,searchDestination,options.preferences||options.profilePreferences||{},{strictPlaceType:options.strictPlaceType||null})||[`${goal.text} ${searchDestination}`.trim()];
   const deterministic=[...new Set([baseQueries[0],...preferenceQueryVariants(goal,discoveryRoute,resolvedPreferences,searchDestination),...baseQueries.slice(1)].filter(Boolean))];
   const plan=options.fastPath===true?{queries:deterministic,ai:null}:await aiPlan(options,discoveryRoute,deterministic,resolvedPreferences);
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
-  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(goal.text,goal.category,plan.ai||{},searchDestination)||null;
+  const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(subjectText,goal.category,plan.ai||{},searchDestination)||null;
   const candidates=[];
   const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
   const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
   const requestedLimit=Math.min(60,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit*3,requestedLimit+6));
-  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,goal.text,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
+  const accepts=place=>{const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,subjectText,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
   const eligibleCandidates=()=>uniquePlaces(candidates).filter(accepts);
   const hasEnoughCandidates=()=>eligibleCandidates().length>=diversityTarget;
   const providerCandidateWindow=Math.min(50,Math.max(20,Number(options.limit||20)));

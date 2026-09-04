@@ -259,6 +259,8 @@ assert.match(experience,/After a category switch, never keep foreign-category pi
 assert.match(experience,/Labels follow the active search category/,'preview labels must follow the active category instead of type-guessing food first');
 assert.match(experience,/\.filter\(place=>placeMatchesActiveCategory\(place,state\.category\)\)/,'recommend results must be category-gated before they become map pins');
 assert.match(experience,/Do not reuse the category default query as a subject/,'category purity must not invent subject terms from the default category query');
+assert.match(experience,/subjectText:state\.userQuery\|\|''/,'spatial recommend must pass empty subjectText for category browse');
+assert.match(experience,/First paint always searches the trip destination only/,'initial search stays destination-scoped');
 assert.match(experience,/if\(state\.onRootClick\)root\.removeEventListener\?\.\('click',state\.onRootClick\)/,'Places clicks must not stack duplicate category listeners after each render');
 assert.match(experience,/candidateLimit:MAX_RESULTS,limit:MAX_RESULTS/,'the map must ask for a full Geoapify page instead of 12 pins');
 assert.match(experience,/includedTypes:selectedTypes/,'multi-select type filters must reach recommend');

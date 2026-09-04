@@ -47,6 +47,20 @@ assert.equal(contracts.accepts({...googleHotel,name:'Night Club Package Hotel'},
 assert.equal(contracts.accepts({id:'la-vie',providerPlaceId:'la-vie',name:'La Vie',primaryType:'restaurant',types:['restaurant','catering','catering.restaurant']},'activities','',{}),false,'a catering restaurant must never survive an activities category gate');
 assert.equal(contracts.accepts({id:'spa',providerPlaceId:'spa',name:'Ostsee Therme',primaryType:'spa',types:['spa','leisure']},'activities','',{}),true,'provider leisure/spa evidence must remain valid for activities');
 
+// Category default queries are browse/taxonomy routes — never open-vocabulary subjects.
+// Regression: Erlebnisse→erlebniss previously made strict=true and wiped every activity pin.
+const activitiesBrowseGoal='Aktivitäten Erlebnisse Freizeit';
+const activitiesBrowseContract=contracts.evidenceContract(activitiesBrowseGoal,'activities',{},'Scharbeutz');
+assert.equal(activitiesBrowseContract.strict,false,'activities category default query must not activate a strict subject gate');
+assert.deepEqual([...(activitiesBrowseContract.rawTerms||[])],[],'activities category default query must not invent subject terms like erlebniss');
+assert.equal(activitiesBrowseContract.categoryBrowse,true,'activities category default query is classified as category browse');
+const rodelberg={id:'rodelberg',providerPlaceId:'rodelberg',name:'Rodelberg',primaryType:'sport',types:['sport','activity']};
+assert.equal(contracts.accepts(rodelberg,'activities',activitiesBrowseGoal,{},{evidenceContract:activitiesBrowseContract}),true,'valid sport evidence must survive the activities category default query');
+assert.equal(contracts.accepts({id:'la-vie-browse',providerPlaceId:'la-vie-browse',name:'La Vie',primaryType:'catering',types:['catering','restaurant','catering.restaurant']},'activities',activitiesBrowseGoal,{},{evidenceContract:activitiesBrowseContract}),false,'catering.restaurant must still be rejected under activities browse');
+const minigolfContract=contracts.evidenceContract('Minigolf','activities',{},'Scharbeutz');
+assert.equal(minigolfContract.strict,true,'explicit user subjects like Minigolf must keep the strict evidence gate');
+assert.equal(minigolfContract.categoryBrowse,false,'explicit user subjects are not category browse');
+
 (async()=>{
   const calls=[];
   let dataset=[auraBeach,googleHotel,foursquareHotel,ownerHotel];
@@ -68,6 +82,24 @@ assert.equal(contracts.accepts({id:'spa',providerPlaceId:'spa',name:'Ostsee Ther
   assert.deepEqual(Array.from(nightlife.places,place=>place.providerPlaceId).sort(),['bar','club','dance','music']);
   assert.equal(calls.at(-1).includedType,'','nightlife stays broad at provider retrieval because it legitimately spans several provider types');
   assert.equal(calls.at(-1).strictTypeFiltering,false,'nightlife correctness is enforced by the multi-type post-filter rather than one narrow provider type');
+
+  dataset=[
+    {id:'rodelberg',providerPlaceId:'rodelberg',name:'Rodelberg',primaryType:'sport',types:['sport','activity']},
+    {id:'la-vie',providerPlaceId:'la-vie',name:'La Vie',primaryType:'catering',types:['catering','restaurant','catering.restaurant']}
+  ];
+  const activitiesBrowse=await sandbox.LuviaPlacesDiscoveryService.recommend({
+    text:'Aktivitäten Erlebnisse Freizeit',
+    query:'Aktivitäten Erlebnisse Freizeit',
+    subjectText:'',
+    category:'activities',
+    destination:'Scharbeutz',
+    limit:8,
+    fastPath:true,
+    fastQueryLimit:1
+  });
+  assert.deepEqual(Array.from(activitiesBrowse.places,place=>place.providerPlaceId),['rodelberg'],'category browse must keep valid activity evidence and drop catering.restaurant');
+  assert.equal(activitiesBrowse.evidenceContract?.strict,false,'category browse subjectText must keep evidenceContract non-strict');
+  assert.equal(activitiesBrowse.evidenceContract?.categoryBrowse,true,'category browse is marked on the evidence contract');
 
   const ownerDiagnostics=contracts.diagnostics();
   const adapterDiagnostics=sandbox.LuviaPlacesDiscoveryService.diagnostics();

@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.59.0-category-purity';
+const VERSION='4.60.0-category-browse-subject';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -35,26 +35,42 @@ const QUALIFIED_PROVIDER_TYPE_SUFFIXES=new Set(['restaurant','hotel','hostel','m
 const clean=v=>String(v??'').trim();
 const fold=v=>clean(v).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de-DE').replace(/ß/g,'ss');
 const words=v=>fold(v).match(/[\p{L}\d]+/gu)||[];
-const stem=v=>fold(v).replace(/(?:ern|em|en|er|es|e|n|s)$/,'');
+const stem=v=>{let s=fold(v);for(let i=0;i<4;i++){const next=s.replace(/(?:ern|em|en|er|es|ungen|ung|e|n|s)$/,'');if(next===s||next.length<4)break;s=next}return s};
 const typeKey=v=>fold(v).replace(/[^\p{L}\d]+/gu,'_').replace(/^_+|_+$/g,'');
 function category(key){return UI_CATEGORIES[key]||UI_CATEGORIES.activities}
 function intentFor(text='',categoryKey=''){const value=String(text);for(const [key,intent] of Object.entries(INTENTS)){if(intent.patterns.some(rx=>rx.test(value)))return {key,...intent,category:key==='hidden_gem'?(categoryKey||'activities'):intent.category}}return {key:'generic',category:categoryKey||'activities',label:category(categoryKey).label,queries:[],match:null,exclude:null,niche:false}}
-function specificTerms(value='',destination=''){const destinationTerms=new Set(words(destination).flatMap(token=>[token,stem(token)])),categoryTerms=new Set(Object.values(UI_CATEGORIES).flatMap(def=>words([def.label,...(def.synonyms||[]),...(def.keywords||[])].join(' '))).flatMap(token=>[token,stem(token)])),terms=[];for(const raw of words(value)){const token=stem(raw);if(token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||destinationTerms.has(raw)||destinationTerms.has(token)||categoryTerms.has(raw)||categoryTerms.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw))continue;terms.push(token)}return[...new Set(terms)]}
+function categoryVocabulary(categoryKey=''){const def=category(categoryKey);return new Set(words([def.label,def.query,...(def.synonyms||[]),...(def.keywords||[])].join(' ')).flatMap(token=>[token,stem(token)]))}
+function isCategoryBrowseSubject(goalText='',categoryKey=''){
+  const text=clean(goalText);if(!text)return true;
+  const def=category(categoryKey);if(fold(text)===fold(def.query))return true;
+  const vocab=categoryVocabulary(categoryKey),tokens=words(text);
+  return Boolean(tokens.length)&&tokens.every(raw=>{
+    const token=stem(raw);
+    return token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||vocab.has(raw)||vocab.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw);
+  });
+}
+function specificTerms(value='',destination='',categoryKey=''){const destinationTerms=new Set(words(destination).flatMap(token=>[token,stem(token)])),categoryTerms=new Set([...Object.values(UI_CATEGORIES).flatMap(def=>words([def.label,...(def.synonyms||[]),...(def.keywords||[])].join(' ')).flatMap(token=>[token,stem(token)])),...categoryVocabulary(categoryKey)]),terms=[];for(const raw of words(value)){const token=stem(raw);if(token.length<4||SPECIFIC_STOP_WORDS.has(raw)||SPECIFIC_STOP_WORDS.has(token)||BROAD_EVIDENCE_TERMS.has(raw)||BROAD_EVIDENCE_TERMS.has(token)||destinationTerms.has(raw)||destinationTerms.has(token)||categoryTerms.has(raw)||categoryTerms.has(token)||CENTER_TERMS.test(raw)||WATERFRONT_TERMS.test(raw)||OUTSKIRTS_TERMS.test(raw))continue;terms.push(token)}return[...new Set(terms)]}
 function providerEvidenceText(place={}){return [place?.name,place?.displayName?.text,place?.editorialSummary?.text,place?.editorialSummary,place?.description,place?.primaryType,place?.primary_type,place?.primaryTypeLabel,place?.primary_type_label,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(clean).filter(Boolean).join(' ')}
 function providerCategoryTypeKeys(place={}){
   const values=[place?.primaryType,place?.primary_type,place?.primaryTypeLabel,place?.primary_type_label,place?.primaryTypeDisplayName?.text,place?.primaryTypeDisplayName,...(place?.types||[]),...(place?.providerNativeTypes||[])].map(clean).filter(Boolean),keys=[];
   for(const value of values){keys.push(typeKey(value));for(const segment of value.split(/[>\/|]+/))keys.push(typeKey(segment))}
   return [...new Set(keys.filter(Boolean))];
 }
-function providerTypeMatches(value,accepted){return value===accepted||QUALIFIED_PROVIDER_TYPE_SUFFIXES.has(accepted)&&value.endsWith(`_${accepted}`)}
+function providerTypeMatches(value,accepted){return value===accepted||QUALIFIED_PROVIDER_TYPE_SUFFIXES.has(accepted)&&value.endsWith('_'+accepted)}
 function hasProviderCategoryEvidence(place={},categoryKey='',definition=category(categoryKey)){
   const canonicalPrimaryType=typeKey(definition?.primaryType),canonicalOwnerTypes=canonicalPrimaryType&&canonicalPrimaryType!=='custom'?[definition.primaryType,...(definition?.domainTypes||[])]:[];
   const aliases=[...(definition?.includedTypes||[]),...canonicalOwnerTypes,...(CATEGORY_TYPE_ALIASES[categoryKey]||[])].map(typeKey).filter(Boolean),providerTypes=providerCategoryTypeKeys(place);
   return aliases.some(accepted=>providerTypes.some(value=>providerTypeMatches(value,accepted)));
 }
 function evidenceContract(goalText='',categoryKey='',plan={},destination=''){
-  const intent=intentFor(goalText,categoryKey),searchPlans=Array.isArray(plan?.searchPlans)?plan.searchPlans:[],aiQueries=searchPlans.map(item=>item?.query),aiTypes=searchPlans.flatMap(item=>item?.includedTypes||[]),rawTerms=specificTerms(goalText,destination),expandedTerms=specificTerms([...intent.queries,...aiQueries,...aiTypes].join(' '),destination),strict=intent.specificEvidence===true||intent.key!=='generic'&&Boolean(intent.match)||rawTerms.length>0;
-  return Object.freeze({version:1,intentKey:intent.key,category:intent.category||categoryKey,strict,rawTerms:Object.freeze(rawTerms),expandedTerms:Object.freeze([...new Set([...rawTerms,...expandedTerms])]),fulfillmentMode:intent.fulfillmentMode||'venue',requiresInventoryVerification:intent.requiresInventoryVerification===true,claimPolicy:intent.requiresInventoryVerification===true?'provider-place-category-only-inventory-unverified':'provider-place-evidence-required'});
+  const intent=intentFor(goalText,categoryKey),searchPlans=Array.isArray(plan?.searchPlans)?plan.searchPlans:[],aiQueries=searchPlans.map(item=>item?.query),aiTypes=searchPlans.flatMap(item=>item?.includedTypes||[]);
+  // Category default/browse queries are taxonomy routes, not open-vocabulary subjects.
+  // Stem collisions like Erlebnisse→erlebniss must never empty the Activities map.
+  const browse=isCategoryBrowseSubject(goalText,intent.category||categoryKey);
+  const rawTerms=browse?[]:specificTerms(goalText,destination,intent.category||categoryKey);
+  const expandedTerms=browse?[]:specificTerms([...intent.queries,...aiQueries,...aiTypes].join(' '),destination,intent.category||categoryKey);
+  const strict=!browse&&(intent.specificEvidence===true||intent.key!=='generic'&&Boolean(intent.match)||rawTerms.length>0);
+  return Object.freeze({version:1,intentKey:intent.key,category:intent.category||categoryKey,strict,rawTerms:Object.freeze(rawTerms),expandedTerms:Object.freeze([...new Set([...rawTerms,...expandedTerms])]),fulfillmentMode:intent.fulfillmentMode||'venue',requiresInventoryVerification:intent.requiresInventoryVerification===true,claimPolicy:intent.requiresInventoryVerification===true?'provider-place-category-only-inventory-unverified':'provider-place-evidence-required',categoryBrowse:browse===true});
 }
 function matchesEvidenceContract(place={},contract={},intent={}){
   const hay=providerEvidenceText(place),normalized=fold(hay),hayTokens=new Set(words(hay).flatMap(token=>[token,stem(token)]));
