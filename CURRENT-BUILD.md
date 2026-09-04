@@ -1,5 +1,7 @@
 # Luvia aktueller Integrationsstand
 
+Releasekandidat **13.82.168.47**, Core **4.82.169**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Geplante Places sicher aus der Timeline entfernen und über einen Cloud-Beleg auch nach Reload wiederherstellen. .46 bleibt bis zur Abnahme der veröffentlichte Integrationsstand.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

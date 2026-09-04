@@ -3,7 +3,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.2.0-durable-removal-preview';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -158,6 +158,24 @@ function dayStatus(day,nowKey){
 function scheduleEditable(entry={}){
   return entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus;
 }
+function removalEditable(entry={}){
+  return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.tripPlaceId);
+}
+function previewRemoval(input={}){
+  const entry=input.entry||{},trip=tripProjection(input.trip||{});
+  if(!removalEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich entfernt.');
+  if(!trip.id||entry.tripId!==trip.id)throw new Error('Dieser Eintrag gehört nicht zur aktiven Reise.');
+  return immutable({
+    operation:'remove-planned-place',
+    entryId:entry.id,
+    tripId:entry.tripId,
+    tripPlaceId:entry.tripPlaceId,
+    expectedRevision:entry.sourceRevision,
+    requiresConfirmation:true,
+    before:{startAt:entry.startAt,endAt:entry.endAt,durationMinutes:entry.durationMinutes,title:entry.title,entityType:entry.entityType},
+    effects:{timelineMomentRemoved:true,placeLinkPreserved:true,placeFactsPreserved:true,favoritePreserved:true,bookingPreserved:true}
+  });
+}
 function previewSchedule(input={}){
   const entry=input.entry||{},trip=tripProjection(input.trip||{}),startAt=validIso(input.startAt),duration=Number(input.durationMinutes),date=text(input.localDate);
   if(!scheduleEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich bearbeitet.');
@@ -261,5 +279,5 @@ function diagnostics(){
   });
 }
 
-return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,diagnostics});
+return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,compose,previewSchedule,scheduleEditable,removalEditable,previewRemoval,diagnostics});
 })();

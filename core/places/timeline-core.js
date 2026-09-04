@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='5.4.1';
+const VERSION='5.5.0-durable-removal-recovery';
 const root=window;
 const calendarVisibleByTrip=new Map();const boundRoots=new WeakSet();
 let state={tripId:null,loading:false,hydrated:false,entries:[],days:[],lastUpdatedAt:null,lastError:null,members:{},places:{}};
@@ -90,6 +90,25 @@ async function clearEntries({entityType,tripId=state.tripId||activeTripId()}={})
 function snapshot(){return clone(state)}
 function list(filter={}){return state.entries.filter(e=>(!filter.tripId||String(e.tripId)===String(filter.tripId))&&(!filter.entityType||e.entityType===filter.entityType))}
 function entriesForDate(date){return state.entries.filter(e=>dayKey(e.startAt)===date)}
+function removalRecoveries({tripId=state.tripId||activeTripId()}={}){
+ const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
+ for(const record of records){
+  if(tripId&&String(record.trip_id)!==String(tripId))continue;
+  const fields=record.fields&&typeof record.fields==='object'?record.fields:{},metadata=fields.metadata&&typeof fields.metadata==='object'?fields.metadata:{},receipt=metadata.timelineRemovalRecovery;
+  if(!receipt?.recoveryId||fields.planned_at||String(receipt.tripPlaceId||'')!==String(record.trip_place_id||''))continue;
+  out.push({...clone(receipt),expectedRevision:record.updated_at||null,ownerMetadata:clone(metadata)});
+ }
+ return out.sort((left,right)=>String(right.removedAt||'').localeCompare(String(left.removedAt||'')));
+}
+function removalRestoreReceipts({tripId=state.tripId||activeTripId()}={}){
+ const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
+ for(const record of records){
+  if(tripId&&String(record.trip_id)!==String(tripId))continue;
+  const metadata=record.fields?.metadata,receipt=metadata&&typeof metadata==='object'?metadata.timelineRemovalLastRestore:null;
+  if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:record.updated_at||null});
+ }
+ return out;
+}
 function dateRange(trip){const candidates=[trip?.startDate,trip?.endDate,state.days[0]?.date,state.days.at(-1)?.date].filter(Boolean).map(v=>new Date(v));const valid=candidates.filter(d=>!Number.isNaN(d.getTime()));const start=valid.length?new Date(Math.min(...valid)):new Date(),end=valid.length?new Date(Math.max(...valid)):new Date(start),out=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))out.push(new Date(d));return out.slice(0,62)}
 function calendarTripKey(trip){return String(trip?.id||trip?.tripId||state.tripId||'active')}
 function calendarVisibleCount(trip,total){const key=calendarTripKey(trip),stored=Number(calendarVisibleByTrip.get(key)||7);return Math.max(7,Math.min(total||7,stored))}
@@ -184,5 +203,5 @@ function subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)}
 async function init(){const id=activeTripId();await window.LuviaTripPlaceData?.init?.();projectPlaceData();await hydrate(id).catch(()=>{});subscribeRealtime(id);return diagnostics()}
 function diagnostics(){return{version:VERSION,status:state.hydrated?'ready':'loading',runtimeRole:'journey-web-compatibility-adapter',publicContract:'journey.v1',journeyTruth:false,foreignDomainTruth:false,cloudAuthoritative:true,localPersistence:false,tripId:state.tripId,hydrated:state.hydrated,loading:state.loading,eventCount:state.entries.length,days:state.days.length,realtimeChannels:channels.length,realtime:channels.length>0,metrics:{queued:0},lastError:state.lastError,placeDataSource:'trip_place_data',gpsRules:{linkedPlacesOnly:true,minStaySeconds:300,states:['visited','left']}}}
 root.addEventListener('luvia:trip-changed',e=>{const id=e.detail?.tripId||e.detail?.id||activeTripId();if(!id)return;hydrate(id).then(()=>{if(activeTripId()===id)subscribeRealtime(id)}).catch(()=>{})});root.addEventListener('luvia:trip-place-data-changed',e=>projectPlaceData(e.detail));root.addEventListener('luvia:place-plan-changed',()=>{projectPlaceData();setTimeout(()=>hydrate().catch(()=>{}),0)});root.addEventListener('luvia:place-visit-changed',()=>hydrate().catch(()=>{}));root.addEventListener('luvia:memory-bridge-applied',e=>hydrate(e.detail?.tripId||activeTripId()).catch(()=>{}));
-window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
+window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,removalRecoveries,removalRestoreReceipts,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
 })();

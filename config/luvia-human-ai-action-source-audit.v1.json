@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.4",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 956,
+  "markerCount": 963,
   "markers": [
     {
       "marker": "data-accent",
@@ -3706,6 +3706,24 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-journey-removal-recoveries",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-journey-restore-entry",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
       "marker": "data-journey-result",
       "category": "Journey, Timeline & Tagesplan",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4674,6 +4692,33 @@
         "app/journey/journey-day-composer.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvjt-restore-close",
+      "category": "Navigation & Oberfläche",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvjt-restore-confirm",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvjt-restore-status",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-lvjt-undo-toast",
@@ -7297,6 +7342,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-removal-recovery",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-replay",
       "category": "Navigation & Oberfläche",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -7332,6 +7386,15 @@
         "core/places/places-final-foundation.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-restore-consent",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-result-card",

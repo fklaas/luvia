@@ -2722,3 +2722,5 @@ tests/p09-timeline-schedule.test.cjs,Journey/Places/Shared Tests,Test/Guardrail,
 tests/p09-timeline-touch-browser.test.cjs,Journey/Consumer/Shared Tests,Test/Browser,Visible touch emulation hold drag scroll cancel confirmation and recovery
 scripts/sync-planning-status.cjs,Documentation/Release History,Documentation Tooling,Projects canonical planning status into active roadmaps and handoffs; no domain or runtime truth
 docs/modularization/PCR-PLACES-CATEGORY-CONTINUITY-20260904.md,Documentation/Release History,Documentation,Bounded map request continuity change and release evidence
+docs/modularization/PCR-P09-TIMELINE-REMOVE-RESTORE-20260904.md,Documentation/Release History,Documentation,Bounded additive Journey contract change for durable planned Place removal and restoration
+tests/p09-timeline-remove-restore.test.cjs,Journey/Places/Consumer Shared Tests,Test/Guardrail,Durable planned Place removal reload recovery conflict gate owner readback and idempotency

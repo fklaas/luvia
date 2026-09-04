@@ -701,6 +701,13 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-move-minutes': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-move-time': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-journey-schedule-undo': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-journey-removal-recoveries': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-journey-restore-entry': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-lvjt-restore-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-lvjt-restore-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-lvjt-restore-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-removal-recovery': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-restore-consent': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-trip-map-action': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-trip-map-input': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-trip-map-host': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
@@ -828,8 +835,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 956);
-  assert.equal(sourceAudit.markerCount, 956);
+  assert.equal(sourceAudit.markers.length, 963);
+  assert.equal(sourceAudit.markerCount, 963);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

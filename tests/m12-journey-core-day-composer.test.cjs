@@ -31,7 +31,7 @@ assert.ok(core,'Journey Domain Contract Core did not publish its browserless sur
 assert.deepEqual(JSON.parse(JSON.stringify(core.diagnostics())),{
   contractId:'journey.v1',
   version:'1',
-  runtimeVersion:'1.1.0',
+  runtimeVersion:'1.2.0-durable-removal-preview',
   browserless:true,
   truth:'derived-day-graph-and-conflict-policy',
   foreignDomainTruth:false,
@@ -116,7 +116,7 @@ const index=read('index.html');
 const order=[corePath,'core/places/timeline-core.js',adapterPath,composerPath,'app/app-shell.js'].map(file=>index.indexOf(file));
 assert.ok(order.every(index=>index>=0),'M12 runtime files must all be loaded');
 assert.deepEqual(order,[...order].sort((a,b)=>a-b),'Journey Core, compatibility runtime, contract, composer and App Shell load order is invalid');
-assert.ok(index.includes(`${composerCssPath}?v=13.82.168.46`));
+assert.ok(index.includes(`${composerCssPath}?v=13.82.168.47`));
 
 for(const token of ['LuviaJourneyContractV1','contractId:CONTRACT_ID','composeProjection','const reads=Object.freeze','const commands=Object.freeze','legacyCompatibility:true'])assert.ok(adapterSource.includes(token),`Journey adapter missing ${token}`);
 assert.equal((adapterSource.match(/LuviaTimelineCore/g)||[]).length<=2,true,'Journey adapter must contain one compatibility-provider boundary, not scattered private access');
@@ -141,7 +141,7 @@ assert.equal(widgets.includes('LuviaTimelineCore?.renderCalendar'),false);
 const composer=read(composerPath),css=read(composerCssPath),legacy=read('core/places/timeline-core.js');
 for(const token of ['journey.day-composer','journey.day-detail','LuviaJourneyContractV1','LuviaExperienceContractV1','LuviaUI','data-journey-date'])assert.ok(composer.includes(token),`Day Composer missing ${token}`);
 for(const token of ['function syncTimelineSelection(root,date)','selectedLabel.textContent=`Timeline · ${fmtLongDate(day.date)}`','contextValues[0].textContent=fmtLongDate(day.date)','syncTimelineSelection(root,date)'])assert.ok(composer.includes(token),`Timeline selection must refresh visible day context: ${token}`);
-for(const token of ["externalAction(links.mapsUrl,'Route','route'","externalAction(links.menuUrl,'Speisekarte','menu'","externalAction(links.website,'Website','website'",'data-journey-entry-delete','bookingForEntry','LuviaBookingManagementSheet.open','Nur dieser bestätigte Timeline-Zeitpunkt wird entfernt. Der Place bleibt in eurer Reise erhalten.','verified-public-source','ExternalNavigationPort'])assert.ok(composer.includes(token),`Day Composer missing safe rich Timeline behavior: ${token}`);
+for(const token of ["externalAction(links.mapsUrl,'Route','route'","externalAction(links.menuUrl,'Speisekarte','menu'","externalAction(links.website,'Website','website'",'data-journey-entry-delete','bookingForEntry','LuviaBookingManagementSheet.open','Dieser bestätigte Termin wird aus dem Tagesplan genommen.','Place, Ortsdetails, Favoritenstatus und Reiseverknüpfung','verified-public-source','ExternalNavigationPort'])assert.ok(composer.includes(token),`Day Composer missing safe rich Timeline behavior: ${token}`);
 assert.doesNotMatch(composer,/target="_blank"[^>]*data-journey-entry-link/,'Timeline Place actions must not bypass ExternalNavigationPort through raw anchors.');
 assert.ok(css.includes('min-height:48px'));
 assert.match(css,/\.lvj-entry-actions button\{min-height:48px/);

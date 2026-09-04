@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.3.0-owner-action-bundle';
+const RUNTIME_VERSION='1.4.0-durable-remove-restore';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -77,10 +77,89 @@ function resolveSourceEntry(identity){
   const entries=provider().snapshot?.()?.entries||[];
   return entries.find(entry=>String(entry.id)===String(id))||identity||null;
 }
+function sourceRemovalRecoveries(options={}){return provider().removalRecoveries?.(options)||[]}
+function publicRemovalRecovery(value){
+  if(!value)return null;const {ownerMetadata,...recovery}=value;
+  return Object.freeze({...recovery,before:Object.freeze({...recovery.before})});
+}
+function recoveryMatches(value,identity){
+  const id=typeof identity==='object'?identity?.recoveryId||identity?.entryId||identity?.tripPlaceId:identity;
+  return Boolean(id)&&[value?.recoveryId,value?.entryId,value?.tripPlaceId].some(candidate=>String(candidate||'')===String(id));
+}
+function sourceRemovalRecovery(identity,options={}){return sourceRemovalRecoveries(options).find(value=>recoveryMatches(value,identity))||null}
+function removalRecoveries(options={}){return Object.freeze(sourceRemovalRecoveries(options).map(publicRemovalRecovery))}
+function removalRecovery(identity,options={}){return publicRemovalRecovery(sourceRemovalRecovery(identity,options))}
+function sourceRemovalRestoreReceipt(identity,options={}){return(provider().removalRestoreReceipts?.(options)||[]).find(value=>recoveryMatches(value,identity))||null}
+function previewRemoval(identity){
+  const entry=typeof identity==='object'?identity:getEntry(identity),trip=activeTrip();
+  if(!entry)throw new Error('Der Timeline-Eintrag ist nicht mehr verfügbar.');
+  return domain().previewRemoval({entry,trip});
+}
+function previewRestore(identity){
+  const recovery=removalRecovery(identity),trip=activeTrip();
+  if(!recovery)throw new Error('Diese Wiederherstellung ist nicht mehr verfügbar.');
+  const entry={id:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,entityType:recovery.entityType,source:'place-data',dataKey:'planned_at',sourceRevision:recovery.expectedRevision,title:recovery.before.title,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,metadata:{}};
+  const start=new Date(recovery.before.startAt),localDate=Number.isNaN(start.getTime())?'':start.toLocaleDateString('sv-SE'),end=new Date(start.getTime()+Number(recovery.before.durationMinutes)*60000),localEndDate=Number.isNaN(end.getTime())?'':end.toLocaleDateString('sv-SE');
+  const preview=domain().previewSchedule({entry,trip,entries:snapshot({trip}).entries,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,localDate,localEndDate});
+  return Object.freeze({...preview,recoveryId:recovery.recoveryId,expectedRevision:recovery.expectedRevision});
+}
 async function hydrate(tripId){const result=await provider().hydrate?.(tripId);return emit('hydrate',result)}
 async function init(){ensureBridge();await provider().init?.();return emit('init')}
 async function recordEvent(input={}){const result=await provider().record?.(input);emit('record-event',result);return result}
-async function removeEntry(identity,options={}){const result=await provider().removeEntry?.(resolveSourceEntry(identity),options);emit('remove-entry');return result}
+const removalPending=new Map(),restorePending=new Map();
+async function assertNoLinkedBooking(entry){
+  const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
+  const rows=await reader(entry.tripId);
+  if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId))||(entry.placeId&&String(row.place_id||row.placeId||'')===String(entry.placeId))))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+}
+async function removePlannedPlace(identity,input={}){
+  const id=typeof identity==='string'?identity:identity?.id,operationId=String(input.operationId||'');
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte das Entfernen zuerst prüfen und bestätigen.');
+  if(removalPending.has(id)){const pending=removalPending.get(id);if(pending.operationId===operationId)return pending.promise;throw new Error('Für diesen Eintrag wird gerade eine Änderung gespeichert.');}
+  const promise=(async()=>{
+    let original=getEntry(id),existing=sourceRemovalRecovery(id);
+    if(!original&&existing?.operationId===operationId)return publicRemovalRecovery(existing);
+    if(!original)throw new Error('Der Timeline-Eintrag ist nicht mehr verfügbar.');
+    await hydrate(original.tripId);const sourceOriginal=resolveSourceEntry(id);original=getEntry(id);existing=sourceRemovalRecovery(id);
+    if(!original&&existing?.operationId===operationId)return publicRemovalRecovery(existing);
+    if(!original||!input.expectedRevision||original.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
+    const preview=previewRemoval(original);await assertNoLinkedBooking(original);
+    if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(original.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    const recoveryId=`timeline-remove:${original.tripPlaceId}:${operationId}`,receipt={operation:'restore-planned-place',recoveryId,operationId,entryId:original.id,tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,entityType:original.entityType,dataKey:'planned_at',removedAt:new Date().toISOString(),before:{...preview.before}};
+    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+    const ownerMetadata=sourceOriginal?.fields?.metadata&&typeof sourceOriginal.fields.metadata==='object'?sourceOriginal.fields.metadata:original.metadata;
+    await writer({tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,placeType:original.entityType,expectedUpdatedAt:original.sourceRevision,fields:{planned_at:null,metadata:{...ownerMetadata,timelineRemovalRecovery:receipt,timelineRemovalLastRestore:null}}});
+    await hydrate(original.tripId);const saved=sourceRemovalRecovery(recoveryId);
+    if(!saved||getEntry(id))throw new Error('Das Entfernen wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Eintrag prüfen.');
+    return publicRemovalRecovery(saved);
+  })().finally(()=>removalPending.delete(id));
+  removalPending.set(id,{operationId,promise});return promise;
+}
+async function restoreRemovedEntry(identity,input={}){
+  const operationId=String(input.operationId||''),initial=sourceRemovalRecovery(identity),past=sourceRemovalRestoreReceipt(identity,{tripId:input.tripId});
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte die Wiederherstellung zuerst prüfen und bestätigen.');
+  if(!initial&&past?.operationId===operationId)return Object.freeze({...past,replayed:true});
+  if(!initial)throw new Error('Diese Wiederherstellung ist nicht mehr verfügbar.');
+  const key=initial.recoveryId;if(restorePending.has(key)){const pending=restorePending.get(key);if(pending.operationId===operationId)return pending.promise;throw new Error('Diese Wiederherstellung wird gerade gespeichert.');}
+  const promise=(async()=>{
+    await hydrate(initial.tripId);let recovery=sourceRemovalRecovery(key),last=sourceRemovalRestoreReceipt(key,{tripId:initial.tripId});
+    if(!recovery&&last?.operationId===operationId)return Object.freeze({...last,replayed:true});
+    if(!recovery||!input.expectedRevision||recovery.expectedRevision!==input.expectedRevision)throw new Error('Der entfernte Eintrag wurde inzwischen geändert. Bitte die Timeline neu laden.');
+    const preview=previewRestore(key);
+    if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');
+    if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
+    await assertNoLinkedBooking(recovery);
+    if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(recovery.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    const restoreReceipt={operation:'restore-planned-place',recoveryId:key,operationId,removalOperationId:recovery.operationId,entryId:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,restoredAt:new Date().toISOString(),restoredStartAt:recovery.before.startAt};
+    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+    await writer({tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,placeType:recovery.entityType,expectedUpdatedAt:recovery.expectedRevision,fields:{planned_at:recovery.before.startAt,metadata:{...(recovery.ownerMetadata||{}),timelineRemovalRecovery:null,timelineRemovalLastRestore:restoreReceipt}}});
+    await hydrate(recovery.tripId);const restored=getEntry(recovery.entryId);
+    if(!restored||restored.startAt!==recovery.before.startAt||sourceRemovalRecovery(key))throw new Error('Die Wiederherstellung wurde noch nicht bestätigt. Bitte die Timeline neu laden.');
+    return Object.freeze(restoreReceipt);
+  })().finally(()=>restorePending.delete(key));
+  restorePending.set(key,{operationId,promise});return promise;
+}
+async function removeEntry(identity,options={}){const source=resolveSourceEntry(identity);if(domain().removalEditable(source)||sourceRemovalRecovery(identity))return removePlannedPlace(source,options);const result=await provider().removeEntry?.(source,options);emit('remove-entry');return result}
 async function clearEntries(options={}){const result=await provider().clearEntries?.(options);emit('clear-entries',result);return result}
 async function removePhotoMemoryByCluster(clusterId,options={}){const result=await provider().removePhotoMemoryByCluster?.(clusterId,options);emit('remove-photo-memory');return result}
 function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(resolveSourceEntry(identity),node)}
@@ -168,6 +247,7 @@ async function undo(input={}){
     if(!recovery)throw new Error('Für diesen Eintrag gibt es keine unveränderte Zeitänderung zum Zurücknehmen.');
     return applySchedule(recovery.entryId,{...input,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,recoveryOperationId:recovery.operationId});
   }
+  if(operation==='restore-planned-place')return restoreRemovedEntry(input.recoveryId||input.receipt?.recoveryId,input);
   if(operation==='restore-entry'){
     const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
     return Object.freeze({operation,restored:true,result:await recordEvent(entry)});
@@ -179,8 +259,8 @@ async function undo(input={}){
   throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
 }
 
-const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery});
-const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery});
+const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
   version:VERSION,
@@ -188,8 +268,8 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,
-  init,hydrate,record:recordEvent,recordEvent,removeEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,
+  init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
     version:VERSION,

@@ -130,7 +130,8 @@ assert.match(journeyComposer,/data-journey-entry-delete/,'Places-owned Timeline 
 assert.match(journeyComposer,/lvjt-plan-trust/,'each Timeline entry must expose compact plan trust');
 assert.match(journeyComposer,/function showUndo\(/,'Timeline mutations must expose a time-bounded undo action');
 assert.match(journeyComposer,/data-journey-balance=/,'day balance may offer at most one focused correction on the day pulse');
-assert.match(journeyComposer,/Nur dieser bestätigte Timeline-Zeitpunkt wird entfernt\. Der Place bleibt in eurer Reise erhalten\./,'removing a Timeline entry must only remove the Journey-owned schedule position');
+assert.match(journeyComposer,/Dieser bestätigte Termin wird aus dem Tagesplan genommen\./,'removing a Timeline entry must only remove its schedule position');
+assert.match(journeyComposer,/Place, Ortsdetails, Favoritenstatus und Reiseverknüpfung/,'removing a Timeline entry must preserve Places-owned identity and lifecycle truth');
 assert.match(journeyComposer,/LuviaBookingManagementSheet\?\.open|LuviaBookingManagementSheet\.open/,'an existing booking must open its dedicated Living Sheet instead of being silently mutated with a Timeline deletion');
 assert.match(appShell,/view==='timeline'/,'App Shell must route to Timeline without treating Today as Timeline');
 assert.doesNotMatch(appShell,/action==='timeline'\)return show\('today'/,'Timeline may no longer route back into Today');
