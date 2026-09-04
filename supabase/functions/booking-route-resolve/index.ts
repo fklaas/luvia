@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const VERSION='2.7.0-venue-property-identity';
+const VERSION='2.8.0-venue-service-reservation-anchor';
 const FETCH_TIMEOUT_MS=6500;
 const BROWSER_UA='Mozilla/5.0 (compatible; LuviaBooking/2.5; +https://myluvia.app) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151 Safari/537.36';
 const DEFAULT_ORIGINS=['https://myluvia.app','https://www.myluvia.app','https://integration-luvia.njwnrvwbv5.workers.dev','https://luvia.njwnrvwbv5.workers.dev','http://localhost:3000','http://localhost:5500','http://127.0.0.1:5500'];
@@ -156,12 +156,23 @@ async function fetchPage(url:string,venueName:string,identityHost:string,diagnos
   }
   diagnostics.push(last);return null;
 }
+function bookingServiceMismatch(placeType:string,url:string,primary=''){
+  const lodging=/^(hotel|lodging|accommodation|hostel|motel|resort_hotel|guest_house|bed_and_breakfast)$/.test(placeType);
+  const provider=providerFor(url),path=normalize(new URL(url).pathname),heading=normalize(primary);
+  const lodgingTarget=['bookingcom_affiliate','expedia_affiliate','hotelscom_affiliate','vrbo_affiliate','agoda_affiliate','tripcom_affiliate'].includes(provider||'')||/\b(hotelzimmer|zimmer|rooms?|suites?|suiten|unterkunfte|accommodations?|check in|check out)\b/.test(path+' '+heading);
+  const diningTarget=['opentable','thefork','resy','sevenrooms','quandoo','zenchef','tock','covermanager','resdiary','tablecheck','formitable','aleno','simpleerb'].includes(provider||'')||/\b(tischreservierung|table booking|restaurant reservation)\b/.test(path+' '+heading);
+  return lodging?diningTarget:lodgingTarget;
+}
 async function validateHandoff(url:string,identity:VenueIdentity,context:{sourceIdentityVerified?:boolean,sourceUrl?:string,trustedProviderBinding?:boolean}={}){
   const u=safeHttpUrl(url);if(!u)return {ok:false,reason:'INVALID_URL',finalUrl:url,status:0};
+  if(bookingServiceMismatch(identity.placeType,url))return {ok:false,reason:'BOOKING_SERVICE_MISMATCH',finalUrl:url,status:0};
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),5000);
   try{
     const res=await fetch(u.toString(),{redirect:'follow',signal:controller.signal,headers:{'user-agent':BROWSER_UA,'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8','accept-language':'de-DE,de;q=0.9,en;q=0.8,fr;q=0.7'}});
-    const finalUrl=res.url||u.toString();
+    const destination=new URL(res.url||u.toString());
+    if(u.hash&&destination.origin===u.origin&&destination.pathname===u.pathname)destination.hash=u.hash;
+    const finalUrl=destination.toString();
+    if(bookingServiceMismatch(identity.placeType,finalUrl))return {ok:false,reason:'BOOKING_SERVICE_MISMATCH',finalUrl,status:res.status};
     if([404,410].includes(res.status)||res.status>=500)return {ok:false,reason:`HTTP_${res.status}`,finalUrl,status:res.status};
     if(isLegalUrl(finalUrl))return {ok:false,reason:'LEGAL_REDIRECT',finalUrl,status:res.status};
     if(isNavigationTarget(finalUrl))return {ok:false,reason:'NAVIGATION_REDIRECT',finalUrl,status:res.status};
@@ -179,9 +190,10 @@ async function validateHandoff(url:string,identity:VenueIdentity,context:{source
       return {ok:proof.verified,reason:proof.verified?'REACHABLE_NON_HTML_IDENTITY_VERIFIED':proof.reason,finalUrl,status:res.status,identity:proof};
     }
     const html=(await res.text()).slice(0,600_000);
+    if(bookingServiceMismatch(identity.placeType,finalUrl,htmlIdentitySurface(html,'')))return {ok:false,reason:'BOOKING_SERVICE_MISMATCH',finalUrl,status:res.status};
     const visible=html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
     if(BROKEN_HANDOFF_HINT.test(visible))return {ok:false,reason:'BROKEN_WIDGET_OR_PAGE',finalUrl,status:res.status};
-    if(isNonBookingContent(finalUrl,visible))return {ok:false,reason:'NON_BOOKING_PROVIDER_CONTENT',finalUrl,status:res.status};
+    if(isNonBookingContent(finalUrl,htmlIdentitySurface(html,'')))return {ok:false,reason:'NON_BOOKING_PROVIDER_CONTENT',finalUrl,status:res.status};
     const provider=providerFor(finalUrl);
     const proof=routeIdentityEvidence(finalUrl,identity,{...context,html,visible});
     const providerVenueSpecific=Boolean(provider&&proof.verified);
@@ -217,7 +229,7 @@ function resourceLinks(base:string,html:string){
     {tag:'iframe',rx:/<iframe\b[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi},
     {tag:'form',rx:/<form\b[^>]*action\s*=\s*["']([^"']+)["'][^>]*>/gi}
   ];
-  for(const {tag,rx} of patterns){for(const m of html.matchAll(rx)){const href=clean(m[1]);if(!href||href.startsWith('mailto:')||href.startsWith('tel:')||href.startsWith('#'))continue;try{const u=new URL(href,base);if(!safeHttpUrl(u.toString()))continue;const text=tag==='a'?clean((m[2]||'').replace(/<[^>]+>/g,' ')).replace(/\s+/g,' '):tag;out.push({url:u.toString(),text,sameOrigin:u.origin===origin,provider:providerFor(u.toString()),tag})}catch{}}}
+  for(const {tag,rx} of patterns){for(const m of html.matchAll(rx)){const href=clean(m[1]);if(!href||href.startsWith('mailto:')||href.startsWith('tel:'))continue;try{const u=new URL(href,base);if(!safeHttpUrl(u.toString()))continue;const text=tag==='a'?clean((m[2]||'').replace(/<[^>]+>/g,' ')).replace(/\s+/g,' '):tag;if(href.startsWith('#')&&(!hasReservationIntent('',text)||![...html.matchAll(/\bid=[\"']([^\"']+)[\"']/gi)].some(anchor=>anchor[1]===decodeURIComponent(u.hash.slice(1)))))continue;out.push({url:u.toString(),text,sameOrigin:u.origin===origin,provider:providerFor(u.toString()),tag})}catch{}}}
   for(const m of html.matchAll(/<(?:iframe|a|button)\b[^>]*(?:data-src|data-lazy-src|data-href|data-url)\s*=\s*["']([^"']+)["'][^>]*>/gi)){try{const u=new URL(clean(m[1]),base);if(!safeHttpUrl(u.toString()))continue;out.push({url:u.toString(),text:'lazy booking resource',sameOrigin:u.origin===origin,provider:providerFor(u.toString()),tag:'lazy'})}catch{}}
   for(const m of html.matchAll(/(?:window\.open|location(?:\.href)?\s*=)\s*\(?\s*["'](https?:\/\/[^"']+)["']/gi)){try{const u=new URL(clean(m[1]));if(!safeHttpUrl(u.toString()))continue;out.push({url:u.toString(),text:'script booking target',sameOrigin:u.origin===origin,provider:providerFor(u.toString()),tag:'script'})}catch{}}
   for(const m of html.matchAll(/["'](?:target|url)["']\s*:\s*["'](https?:\/\/[^"']+)["']/gi)){try{const u=new URL(clean(m[1]).replace(/\\\//g,'/'));if(!safeHttpUrl(u.toString()))continue;if(!providerFor(u.toString())&&!hasReservationIntent(u.toString()))continue;out.push({url:u.toString(),text:'structured booking action',sameOrigin:u.origin===origin,provider:providerFor(u.toString()),tag:'jsonld'})}catch{}}
@@ -279,7 +291,7 @@ async function discoverRoute(input:{name:string,website:string,reservationUrl?:s
   const tryExternal=async()=>{const uniqueNow=candidates.filter((v,i,a)=>a.findIndex(x=>x.kind===v.kind&&x.contactValue===v.contactValue)===i);const external=[...uniqueNow].filter(c=>c.kind==='booking_provider'||c.kind==='reservation_link').sort((a,b)=>b.score-a.score||b.confidence-a.confidence);for(const candidate of external){const health=await validateHandoff(candidate.contactValue,identity,{sourceIdentityVerified:candidate.evidence?.sourceIdentityVerified===true,sourceUrl:candidate.sourceUrl});const finalProvider=providerFor(health.finalUrl)||candidate.provider;const googleDetected=candidate.provider==='google_reserve'||isGoogleReserve(candidate.contactValue);const partner=googleDetected&&finalProvider&&finalProvider!=='google_reserve'?finalProvider:null;candidate.evidence={...candidate.evidence,handoffValidation:health.reason,handoffStatus:health.status,finalUrl:health.finalUrl,identityVerified:Boolean(health.identity?.verified),identityReason:health.identity?.reason||health.reason,googleReserveDetected:googleDetected,googlePartnerIdentified:partner,...(googleDetected?{googleReserveUrl:candidate.contactValue}: {})};if(health.ok){if(partner){candidate.provider=partner;candidate.contactValue=health.finalUrl;}return {candidate,health,uniqueNow,googleDetected,partner};}rejected.push({url:candidate.contactValue,reason:health.reason,status:health.status})}return null};
   collect(first);
   const immediate=await tryExternal();if(immediate)return {...baseResult,identityVerified:true,identityReason:immediate.health.identity?.reason||immediate.health.reason,resolved:true,channel:'external_link',provider:immediate.candidate.provider,value:immediate.health.finalUrl,kind:immediate.candidate.kind,reason:immediate.googleDetected?'GOOGLE_RESERVE_HANDOFF':'VERIFIED_BOOKING_ROUTE_FAST',pages,candidates:immediate.uniqueNow,best:immediate.candidate,rejected,enginesDetected:[...engines],existingContactVerified,googleReserveDetected:immediate.googleDetected||engines.has('google_reserve'),googlePartnerIdentified:immediate.partner,googleExternalBookingLink:immediate.googleDetected?immediate.health.finalUrl:null};
-  const crawl=[...new Set([...crawlLinks(first.url,first.html),...guessedDiscoveryPages(first.url)])].slice(0,16);const extra=(await Promise.all(crawl.map(link=>fetchPage(link,venueName,new URL(first.url).hostname,fetchDiagnostics)))).filter(Boolean) as {url:string,html:string,fetchDiagnostics:FetchDiagnostic}[];for(const page of extra){pages.push(page);for(const id of detectedEngines(page))engines.add(id);collect(page)}
+  const crawl=[...new Set([...crawlLinks(first.url,first.html),...guessedDiscoveryPages(first.url)])].filter(link=>!bookingServiceMismatch(placeType,link)).slice(0,16);const extra=(await Promise.all(crawl.map(link=>fetchPage(link,venueName,new URL(first.url).hostname,fetchDiagnostics)))).filter(Boolean) as {url:string,html:string,fetchDiagnostics:FetchDiagnostic}[];for(const page of extra){pages.push(page);for(const id of detectedEngines(page))engines.add(id);collect(page)}
   const afterCrawl=await tryExternal();if(afterCrawl)return {...baseResult,identityVerified:true,identityReason:afterCrawl.health.identity?.reason||afterCrawl.health.reason,resolved:true,channel:'external_link',provider:afterCrawl.candidate.provider,value:afterCrawl.health.finalUrl,kind:afterCrawl.candidate.kind,reason:afterCrawl.googleDetected?'GOOGLE_RESERVE_HANDOFF':'VERIFIED_BOOKING_ROUTE',pages,candidates:afterCrawl.uniqueNow,best:afterCrawl.candidate,rejected,enginesDetected:[...engines],existingContactVerified,googleReserveDetected:afterCrawl.googleDetected||engines.has('google_reserve'),googlePartnerIdentified:afterCrawl.partner,googleExternalBookingLink:afterCrawl.googleDetected?afterCrawl.health.finalUrl:null};
   const unique=candidates.filter((v,i,a)=>a.findIndex(x=>x.kind===v.kind&&x.contactValue===v.contactValue)===i);const emailCandidates=unique.filter(c=>c.kind==='public_reservation_email'||c.kind==='public_contact_email');const bestEmail=bestCandidate(emailCandidates);
   if(bestEmail)return {...baseResult,identityVerified:true,identityReason:'VERIFIED_OFFICIAL_SOURCE_BINDING',resolved:true,channel:'email',provider:bestEmail.provider,value:bestEmail.contactValue,kind:bestEmail.kind,reason:'VERIFIED_EMAIL_FALLBACK',pages,candidates:unique,best:bestEmail,rejected,enginesDetected:[...engines],existingContactVerified,googleReserveDetected:engines.has('google_reserve')};

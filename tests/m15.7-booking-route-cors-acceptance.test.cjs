@@ -4,7 +4,7 @@ const path=require('node:path');
 
 const source=fs.readFileSync(path.resolve(__dirname,'../supabase/functions/booking-route-resolve/index.ts'),'utf8');
 
-assert.match(source,/const VERSION='2\.7\.0-venue-property-identity'/);
+assert.match(source,/const VERSION='2\.8\.0-venue-service-reservation-anchor'/);
 for(const origin of [
   'https://myluvia.app',
   'https://www.myluvia.app',

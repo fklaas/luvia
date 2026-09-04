@@ -58,8 +58,19 @@ assert.equal(api.hasVenueIdentifier('https://www.booking.com/'),false,'a provide
     name:'Beach Lounge',placeType:'night_club',address:'Strandallee 130 (Seebrücke), 23683 Scharbeutz',providerPlaceId:'places/beach-lounge',website:'https://arosahotels.de/beach-lounge'
   });
   assert.equal(wrongLounge.resolved,false,'Beach Lounge must never inherit another A-ROSA property');
-  assert(wrongLounge.rejected.some(item=>item.reason==='CONFLICTING_TARGET_PROPERTY'));
-  assert(calls.includes('https://arosahotels.de/hotels/straubinger-grand-hotel/zimmer'));
+  assert(wrongLounge.rejected.some(item=>['CONFLICTING_TARGET_PROPERTY','BOOKING_SERVICE_MISMATCH'].includes(item.reason)));
+  assert(!calls.includes('https://arosahotels.de/hotels/straubinger-grand-hotel/zimmer'),'obviously incompatible room route is rejected without a quota-consuming validation fetch');
+
+  const roofUrl='https://www.bayside.de/restaurants-und-bars/roof/';
+  const roofInput={name:'ROOF',placeType:'restaurant',address:'Strandallee 130a, 23683 Scharbeutz',providerPlaceId:'places/roof',website:roofUrl};
+  fetchMap(edge,{[roofUrl]:{html:'<title>Restaurant ROOF</title><h1>ROOF</h1><a href="/hotelzimmer/junior-suite/">Junior Suite buchen</a><a href="#missing">Tisch reservieren</a><a href="#teburio">Tischreservierung</a><div id="teburio">Tischreservierung ROOF</div><p>Strandallee 130a, 23683 Scharbeutz</p>'},[roofUrl+'#teburio']:{html:'<title>Restaurant ROOF</title><h1>Tischreservierung ROOF</h1><div id="teburio">Tisch reservieren</div><footer><a href="/speisekarte/">Speisekarte</a></footer>'}});
+  const roof=await api.discoverRoute(roofInput);
+  assert.equal(roof.resolved,true);assert.equal(roof.value,roofUrl+'#teburio','same-page reservation section must be discoverable and survive handoff');
+
+  assert(!roof.candidates.some(item=>item.contactValue.endsWith('#missing')),'a nonexistent anchor is not a reservation route');
+  fetchMap(edge,{[roofUrl]:{html:'<title>ROOF</title><h1>ROOF</h1><a href="/hotelzimmer/junior-suite/">Junior Suite buchen</a><a href="mailto:reservierung@bayside.de">Kontakt</a><p>Strandallee 130a, 23683 Scharbeutz</p>'}});
+  const roofEmail=await api.discoverRoute(roofInput);assert.equal(roofEmail.channel,'email','incompatible hotel route must not prevent a verified contact fallback');
+  const wrongService=await api.validateHandoff('https://www.booking.com/hotel/de/roof.html',api.venueIdentity(roofInput));assert.equal(wrongService.reason,'BOOKING_SERVICE_MISMATCH');
 
   fetchMap(edge,{
     'https://arosahotels.de/travemuende':{html:'<title>Grand SPA Resort A-ROSA Travemünde</title><h1>A-ROSA Travemünde</h1><a href="https://arosahotels.de/hotels/straubinger-grand-hotel/zimmer">Zimmer buchen</a>'},
