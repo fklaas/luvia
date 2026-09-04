@@ -2353,3 +2353,43 @@
 .lv-places-spatial__map-message:has([data-places-empty-actions])>span{flex:1;min-width:180px}
 [data-places-empty-actions]{display:flex;flex-wrap:wrap;gap:6px;width:100%}
 [data-places-empty-actions] button{pointer-events:auto;min-height:44px;padding:8px 12px;border:1px solid var(--places-line);border-radius:12px;background:var(--places-surface);color:var(--places-ink);font:inherit;cursor:pointer}
+
+/* Shared Places / Stays trip experiences. */
+.lv-places-spatial__view-controls{position:absolute;left:12px;top:142px;display:grid;gap:8px;z-index:9;pointer-events:none}
+.lv-places-spatial__view-controls button{pointer-events:auto;min-height:44px;min-width:44px;border:1px solid var(--places-line);border-radius:14px;background:var(--places-surface);color:var(--places-ink);display:flex;align-items:center;justify-content:center;gap:7px;font:600 12px/1.3 inherit;padding:8px;box-shadow:0 3px 14px rgb(31 65 86 / 8%)}
+.lv-places-spatial__view-controls svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5}
+.lv-places-spatial .maplibregl-ctrl-group button{width:44px;height:44px}
+.lv-trip-map-experiences{margin:16px 0 20px;color:var(--places-ink)}
+.lv-trip-map-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:thin;padding:5px 2px 10px}
+.lv-trip-map-tabs button{flex:1 0 auto;min-height:46px;padding:10px 18px;border:1px solid var(--places-line);border-radius:24px;background:var(--places-surface);color:var(--places-ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.lv-trip-map-tabs button[aria-pressed=true]{background:var(--places-ink);color:var(--places-surface);border-color:var(--places-ink)}
+.lv-trip-map-panel{border:1px solid var(--places-line);border-radius:24px;padding:22px;background:var(--places-surface);box-shadow:0 12px 32px rgb(31 65 86 / 5%)}
+.lv-trip-map-title{display:flex;gap:16px;justify-content:space-between;align-items:flex-start}
+.lv-trip-map-title h2{font-size:clamp(20px,2vw,27px);line-height:1.2;margin:2px 0 12px;letter-spacing:-.025em}
+.lv-trip-map-panel p{font-size:14px;line-height:1.65;margin:8px 0 16px;max-width:78ch}
+.lv-trip-map-panel button{min-height:44px;padding:10px 15px;border:1px solid var(--places-line);border-radius:13px;background:var(--places-surface);color:var(--places-ink);font:inherit;font-size:13px;cursor:pointer}
+.lv-trip-map-panel button:disabled{opacity:.45;cursor:default}
+.lv-trip-map-panel button:focus-visible,.lv-trip-map-tabs button:focus-visible{outline:3px solid var(--places-ink);outline-offset:3px}
+.lv-trip-map-fields{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:16px 0}
+.lv-trip-map-fields label{display:grid;gap:6px;font-size:12px;flex:1 1 140px}
+.lv-trip-map-fields select,.lv-trip-map-fields input{min-height:44px;max-width:100%;border:1px solid var(--places-line);border-radius:12px;padding:10px;background:var(--places-surface);color:var(--places-ink);font:inherit}
+.lv-trip-map-panel small{font-size:11px;line-height:1.5;opacity:.8}
+.lv-trip-map-note:empty{display:none}
+.lv-trip-map-note{padding-top:10px}
+.lv-trip-map-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin-top:16px}
+.lv-trip-map-card{border:1px solid var(--places-line);border-radius:18px;overflow:hidden;background:linear-gradient(140deg,rgb(207 232 238 / 22%),transparent)}
+.lv-trip-map-card>div{padding:16px}
+.lv-trip-map-card h3{font-size:18px;line-height:1.3;margin:7px 0 8px}
+.lv-trip-map-card>img{width:100%;height:145px;object-fit:cover}
+.lv-trip-map-people{padding-left:17px;font-size:12px;line-height:1.6}
+.lv-trip-map-people li{margin-bottom:6px}
+.lv-trip-map-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:12px 0}
+.lv-trip-map-comparison p{padding:12px;border:1px solid var(--places-line);border-radius:14px;margin:0}
+.lv-trip-map-day{padding-left:24px;margin:18px 0;max-height:350px;overflow:auto}
+.lv-trip-map-day li{padding:6px 4px;border-left:2px solid var(--places-line)}
+.lv-trip-map-day li.is-current{border-color:var(--places-ink)}
+.lv-trip-map-day small{display:block;padding:4px 15px}
+.lv-trip-map-stop{width:36px;height:36px;border:3px solid white;border-radius:50%;background:#2c93a9;color:white;font-weight:700;box-shadow:0 3px 9px rgb(31 65 86 / 25%);z-index:11;cursor:pointer}
+@media(max-width:600px){.lv-trip-map-panel{padding:17px;border-radius:20px}.lv-trip-map-title{flex-wrap:wrap;gap:4px}.lv-trip-map-tabs button{padding-inline:14px}.lv-places-spatial__view-controls span{display:none}}
+
+.lv-places-spatial__marker-anchor.is-selected{z-index:12}

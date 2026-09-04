@@ -10,11 +10,13 @@ const cases={hotel:'accommodation.hotel',apartment:'accommodation.apartment',vac
 for(const cuisine of ['italian','german','mediterranean','greek','french','spanish','indian','chinese','japanese','thai','vietnamese','korean','mexican','lebanese','turkish'])cases[`${cuisine}_restaurant`]=`catering.restaurant.${cuisine}`;
 cases.middle_eastern_restaurant='catering.restaurant.arab';
 cases.asian_restaurant='catering.restaurant.asian';
+cases.fine_dining_restaurant='catering.restaurant';cases.hiking_area='natural';cases.concert_hall='entertainment.culture';
+const rawFixtures={fine_dining_restaurant:{dining:'fine_dining'},hiking_area:{information:'trailhead'},concert_hall:{amenity:'concert_hall'}};
 const f=ctx.filters,point={latitude:54.02,longitude:10.75};let tested=0;
 for(const [category,schema]of Object.entries(f.CATEGORY_FILTERS))for(const [group,options]of [['types',schema.types||schema.subtypes||[]],['cuisines',schema.cuisines||[]]])for(const [type]of options){
  if(!type)continue;f.state.category=category;f.state.filters=f.emptyFilters();f.state.filters[group]=[type];
  if(!cases[type]){assert.ok(f.filterAvailability(type),`${category}/${type} must explain unavailable provider support`);continue}
- const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:type,name:'Fixture',lat:point.latitude,lon:point.longitude,categories:[cases[type]]}});
+ const p=ctx.provider.normalizedGeoapifyPlace({properties:{place_id:type,name:'Fixture',lat:point.latitude,lon:point.longitude,categories:[cases[type]],datasource:{raw:rawFixtures[type]||{}}}});
  assert.ok(p.types.includes(type),`${category}/${type} must map ${cases[type]}`);
  f.state.results=[{...p,coordinates:point},{id:'wrong',name:'Wrong',types:['unrelated'],coordinates:point}];
  assert.equal(f.filteredResults().length,1,`${category}/${type} must exclude a wrong type`);tested++;
@@ -38,8 +40,9 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  for(const [type]of f.CATEGORY_FILTERS.food.cuisines){
   const before=cuisineCalls.length;const rows=await ctx.provider.geoapifyPlacesSearch('Cuisine Restaurant',{location:point},{category:'food',includedType:type,includedTypes:[type],userQuery:''},null,null);
   assert.ok(rows.some(p=>p.types.includes(type)),`${type}: actual provider request and returned normalization must agree`);
-  assert.equal(cuisineCalls.length-before,1,`${type}: one bounded request`);
+  assert.equal(cuisineCalls.length-before,type==='italian_restaurant'?2:1,`${type}: typed query plus one shared cohort for the first cuisine only`);
  }
+ assert.equal(cuisineCalls.filter(u=>u.searchParams.get('limit')==='500').length,1,'all cuisines share one bounded catering cohort per scope');
  const start=cuisineCalls.length;
  const union=await ctx.provider.geoapifyPlacesSearch('Italienisch Deutsch Griechisch Restaurant',{location:point},{category:'food',includedTypes:['italian_restaurant','german_restaurant','greek_restaurant'],userQuery:''},null,null);
  assert.equal(cuisineCalls.length-start,1,'national cuisine union uses one provider request, not a broad cohort or per-cuisine fanout');

@@ -183,7 +183,7 @@ async function recommend(options={}){
         includedType:intent.niche?'':(selectedTypes.length===1?selectedTypes[0]:(selectedTypes.length?'':discoveryRoute.includedType)),
         includedTypes,
         category:discoveryRoute.category,
-        strictTypeFiltering:options.strictPlaceType==='restaurant'&&selectedTypes.length<=1,
+        strictTypeFiltering:selectedTypes.length>0||options.strictPlaceType==='restaurant',
         query,
         userQuery:options.userQuery,
         destination:providerDestination(options),

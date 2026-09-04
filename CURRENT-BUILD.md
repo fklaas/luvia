@@ -1,3 +1,13 @@
+# Trip map experiences — Integration candidate — 13.82.168.32
+
+Feature branch: codex/trip-map-experiences-20260904. Baseline ceae8799, runtime .31. Main unchanged.
+
+Five shared Places/Stays experiences: origin walking comparison, shared group evidence, Timeline-bounded 90-minute ideas, every trip day and walking routes, user-selected alternatives. Gentle 35-degree default perspective, persistent 2D switch, destination return and source-backed route overlays.
+
+All cuisine and type controls remain selectable. Supplemental cuisine coverage includes explicitly tagged cafés/takeaways, cached per scope; typed requests retain beyond-cohort coverage. Negative diet evidence survives. Viewport filters forward accessibility and reservation requirements.
+
+Validation and live acceptance pending; see PCR-TRIP-MAP-EXPERIENCES-20260904.md. No completeness claim for missing provider facts/photos. No automatic Timeline replacement or invented weather.
+
 # Cuisine coverage — Integration deployed — 13.82.168.31
 
 Adds Asian cuisine with evidenced child categories, truthful empty-result scope,

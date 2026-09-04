@@ -56,6 +56,19 @@
     if(Array.isArray(response?.data))return response.data;
     return [];
   }
+  const walkingRoutes=new Map();
+  async function getRoute(origin,destination){
+    const coordinate=p=>{const lat=p?.latitude??p?.lat,lng=p?.longitude??p?.lng;if(lat==null||lng==null||!Number.isFinite(Number(lat))||!Number.isFinite(Number(lng))||Math.abs(Number(lat))>90||Math.abs(Number(lng))>180)throw new TypeError('Ungültige Routenkoordinaten.');return{latitude:Number(lat),longitude:Number(lng)}};
+    const a=coordinate(origin),b=coordinate(destination),id=JSON.stringify([a,b]),cached=walkingRoutes.get(id);
+    if(cached&&cached.expires>Date.now())return cached.promise;
+    const promise=Promise.resolve().then(()=>gateway().route(a,b,{provider:'geoapify',modes:['WALK']})).then(response=>{
+      const route=(response?.data?.routes||response?.routes)?.walk?.[0];
+      if(route?.verified!==true||route?.provider!=='geoapify'||!route.geometry||!Number.isFinite(route.durationMinutes))throw new Error('Fußweg derzeit nicht verfügbar.');
+      return Object.freeze({...route,observedAt:response?.data?.generatedAt||new Date().toISOString()});
+    }).catch(error=>{walkingRoutes.delete(id);throw error});
+    if(walkingRoutes.size>=128)walkingRoutes.delete(walkingRoutes.keys().next().value);
+    walkingRoutes.set(id,{expires:Date.now()+30*60*1000,promise});return promise;
+  }
   async function search(options={}){
     const response=await core().search(options||{});
     const places=freezeArray(rowsFromSearch(response).map(placeProjection).filter(Boolean));
@@ -361,11 +374,11 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({search,searchViewport,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
+    reads:Object.freeze({search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
     composition:Object.freeze({selectView}),
     commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,searchViewport,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,
+    search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,
     selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
     snapshot,
     diagnostics:()=>Object.freeze({

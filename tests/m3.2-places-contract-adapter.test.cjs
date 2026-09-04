@@ -98,7 +98,7 @@ assert.strictEqual(api.version,'1');
 assert.strictEqual(api.runtimeVersion,'1.5.0-live-viewport');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['search','searchViewport','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
+assert.deepStrictEqual(Object.keys(api.reads),['search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits']);
 assert.deepStrictEqual(Object.keys(api.composition),['selectView']);
 assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','rejectVisit','setLocationEnabled','refreshLocation','openDiscovery','openWebsite','openPhone','openMaps']);
 

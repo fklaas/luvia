@@ -1,0 +1,48 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{stripTypeScriptTypes}=require('node:module');
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const ctx=vm.createContext({console,Date,Intl,Map,Set,Promise,URL,URLSearchParams,AbortSignal,setTimeout,clearTimeout,setInterval,clearInterval});
+vm.runInContext(read('app/places/places-trip-experiences.js'),ctx);const api=ctx.LuviaTripMapExperiences;
+const start='2027-06-12T08:00:00Z',next={id:'next',title:'Mittagessen',startAt:'2027-06-12T09:00:00Z',endAt:'2027-06-12T10:00:00Z'};
+let gap=api.freeWindow([next],start);assert.equal(gap.minutes,60,'next Timeline appointment caps the 90-minute budget');
+assert.equal(api.freeWindow([{title:'Ongoing',startAt:'2027-06-12T07:00:00Z',endAt:'2027-06-12T08:30:00Z'}],start).available,false);
+assert.equal(api.freeWindow([{title:'Missing end',startAt:'2027-06-12T07:00:00Z'}],start).available,false,'unknown event duration is not free time');
+assert.equal(api.freeWindow([{...next,status:'cancelled'}],start).minutes,90);
+assert.equal(api.freeWindow([{entityType:'hotel',startAt:'2027-06-11T12:00:00Z',endAt:'2027-06-19T10:00:00Z'}],start).minutes,90,'an overnight stay does not occupy the entire holiday');
+assert.equal(api.freeWindow([],null).available,false);
+assert.equal(api.instant('2027-06-12','10:00','Europe/Berlin'),new Date(start).toISOString(),'destination time converted to UTC');
+assert.equal(api.instant('2027-03-28','02:30','Europe/Berlin'),null,'DST gap rejected instead of shifting appointments');
+assert.equal(api.localDate('2027-06-11T22:30:00Z','Europe/Berlin'),'2027-06-12');
+assert.equal(api.point({latitude:null,longitude:null}),null,'unknown coordinates must not become zero');
+const route={verified:true,durationMinutes:10};assert.equal(api.fitWindow(gap,30,route,route).fits,true);assert.equal(api.fitWindow(gap,45,route,route).fits,false);
+assert.equal(api.fitWindow(gap,30,{durationMinutes:1},route).verified,false,'unverified or estimated route cannot claim it fits');
+const traveler={reliable:true,eligible:true,score:80},matched={groupFit:{reliable:true,travelerCount:2},travelerInsights:[traveler,traveler]};
+assert.equal(api.groupMatches(matched),true);assert.equal(api.groupMatches({...matched,travelerInsights:[traveler]}),false);
+assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,eligible:false}]}),false,'hard requirements cannot be averaged away');
+assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,score:25}]}),false);
+ctx.Deno={env:{get:name=>name==='GEOAPIFY_API_KEY'?'test':''}};let calls=0;
+ctx.fetch=async url=>{calls++;assert.equal(new URL(url).searchParams.get('mode'),'walk');return{ok:true,json:async()=>({features:[{geometry:{type:'LineString',coordinates:[[10.7,54],[10.71,54.01]]},properties:{time:600,distance:650}}]})}};
+vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/routes.ts').replace(/^export /gm,''))+'\nglobalThis.routesAction=routesAction;',ctx);
+(async()=>{
+ const input={provider:'geoapify',origin:{latitude:54,longitude:10.7},destination:{latitude:54.01,longitude:10.71},modes:['WALK']};
+ const [a,b]=await Promise.all([ctx.routesAction('routes.compute',input),ctx.routesAction('routes.compute',input)]);
+ assert.equal(a.data.routes.walk[0].verified,true);assert.equal(b.data.provider,'geoapify');assert.equal(calls,1,'concurrent routes coalesce');
+ await ctx.routesAction('routes.compute',input);assert.equal(calls,1,'route cache avoids provider quota');
+ await assert.rejects(()=>ctx.routesAction('routes.compute',{...input,origin:{latitude:999,longitude:10}}));
+ await assert.rejects(()=>ctx.routesAction('routes.compute',{...input,modes:['DRIVE']}));
+ ctx.fetch=async()=>({ok:false});await assert.rejects(()=>ctx.routesAction('routes.compute',{...input,destination:{latitude:54.02,longitude:10.71}}));
+ // Full consumer lifecycle: all dates retained, changes invalidate old requests,
+ // unmount removes subscriptions and never performs any domain write.
+ let listener,unsubscribed=false;const callbacks={},host={innerHTML:'',addEventListener:(event,fn)=>callbacks[event]=fn,removeEventListener:()=>{},contains:()=>true};
+ ctx.LuviaJourneyContractV1={reads:{snapshot:()=>({days:[{date:'2026-08-31'},...Array.from({length:8},(_,i)=>({date:`2027-06-${12+i}`}))],entries:[next]}),subscribe:fn=>{listener=fn;return()=>unsubscribed=true}}};
+ let resolve;ctx.LuviaJourneySuggestions={assessGroup:()=>new Promise(r=>resolve=r)};
+ const consumer=api.create({context:()=>({trip:{id:'trip',startDate:'2027-06-12',endDate:'2027-06-19',timeZone:'Europe/Berlin'},results:[]})});consumer.attach(host);
+ const click=value=>callbacks.click({target:{closest:()=>({dataset:{tripMapAction:value}})}});
+ click('mode:day');assert.ok(host.innerHTML.includes('2027-06-19'),'all trip dates are selectable');
+ assert.ok(!host.innerHTML.includes('2026-08-31'),'old visited places cannot become the first trip day');
+ click('next-day');assert.ok(host.innerHTML.includes('value="2027-06-13" selected'));
+ click('mode:group');click('discover');click('mode:day');resolve([{name:'Stale result',groupFit:{}}]);await new Promise(r=>setTimeout(r,0));assert.ok(!host.innerHTML.includes('Stale result'));
+ listener();assert.ok(host.innerHTML.includes('Timeline wurde aktualisiert'));
+ consumer.destroy();assert.equal(unsubscribed,true);
+ console.log('Trip map: timeline windows, all trip days, timezone/DST, group requirements, real route cache/errors and lifecycle: PASS');
+})().catch(error=>{console.error(error);process.exitCode=1});

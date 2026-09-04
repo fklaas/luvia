@@ -126,6 +126,8 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   monument:'tourism.sights.memorial.monument',
   observation_deck:'tourism.attraction.viewpoint',
   hiking_area:'natural',
+  concert_hall:'entertainment.culture',
+  fine_dining_restaurant:'catering.restaurant',
   shopping:'commercial',
   shopping_mall:'commercial.shopping_mall',
   market:'commercial.marketplace',
@@ -182,6 +184,7 @@ function geoapifyCategoriesFromOptions(options:any,textQuery=''){
   const national=cuisines.filter((type:string)=>!['vegetarian_restaurant','vegan_restaurant'].includes(type));
   if(national.length)return [...new Set(national.flatMap((type:string)=>String((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[type]).split(',')))];
   if(cuisines.length)return ['catering.restaurant'];
+  if(options.strictTypeFiltering&&selectedTypes.length>1)return [...new Set(selectedTypes.flatMap((type:string)=>String((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[type]||'').split(',')).filter(Boolean))];
   const strictType=String(options?.strictPlaceType||'').trim()||(selectedTypes.length===1?String(selectedTypes[0]).trim():'')||(!selectedTypes.length||options?.strictTypeFiltering?String(options?.includedType||'').trim():'');
   // One Luvia category → one Geoapify parent family. Subtype filters may refine
   // to a single mapped type; never mix tourism into food or vice versa.
@@ -463,15 +466,21 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const tags=Array.isArray(props.tags)?props.tags:(typeof props.tags==='string'?props.tags.split(',').map(String):[]);
   const nativeEvidence=[...categories,...tags].filter(Boolean).slice(0,30);
   const mappedTypes=geoapifyLuviaTypes(nativeEvidence);
-  const rawCuisine=[props.datasource?.raw?.cuisine,props.catering?.cuisine,props.cuisine].flatMap(value=>Array.isArray(value)?value:String(value||'').split(/[;,]/)).map(value=>String(value).trim().toLowerCase().replace(/[ -]+/g,'_'));
+  const rawCuisine=[props.datasource?.raw?.cuisine,props.catering?.cuisine,props.cuisine].flatMap(value=>(Array.isArray(value)?value:[value]).flatMap(item=>String(item||'').split(/[;,]/))).map(value=>String(value).trim().toLowerCase().replace(/[ -]+/g,'_'));
   for(const cuisine of rawCuisine){const canonical=['arab','oriental','middle_eastern'].includes(cuisine)?'middle_eastern':cuisine;if((GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[`${canonical}_restaurant`])mappedTypes.push(`${canonical}_restaurant`)}
   // A broader cuisine includes evidenced children; children never inherit a
   // specific kitchen from a generic Asian label or business name.
   if([...rawCuisine,...categories.map((value:string)=>String(value).replace(/^catering\.restaurant\./,''))].some(value=>['asian','chinese','japanese','thai','vietnamese','korean','indian','sushi','malaysian','indonesian'].includes(value)))mappedTypes.push('asian_restaurant');
   const textEvidence=String([...nativeEvidence,...mappedTypes].join(' ')).toLowerCase();
-  const servesVegetarianFood=/vegetarian|vegan/.test(textEvidence)?true:null;
-  const servesVeganFood=/vegan/.test(textEvidence)?true:null;
   const raw=props.datasource?.raw||{};
+  const diet=(value:any,positive:boolean)=>value===false||String(value).toLowerCase()==='no'?false:value===true||['yes','only'].includes(String(value).toLowerCase())||positive?true:null;
+  const servesVeganFood=diet(raw['diet:vegan']??props.catering?.diet?.vegan,/vegan/.test(textEvidence));
+  const servesVegetarianFood=diet(raw['diet:vegetarian']??props.catering?.diet?.vegetarian,/vegetarian|vegan/.test(textEvidence)||servesVeganFood===true);
+  if(raw.dining==='fine_dining'||raw.fine_dining==='yes')mappedTypes.push('fine_dining_restaurant');
+  if(raw.amenity==='concert_hall'||raw.amenity==='music_venue')mappedTypes.push('concert_hall');
+  if(raw.route==='hiking'||raw.information==='trailhead')mappedTypes.push('hiking_area');
+  if(raw['diet:vegetarian']==='only'&&servesVegetarianFood===true)mappedTypes.push('vegetarian_restaurant');
+  if(raw['diet:vegan']==='only'&&servesVeganFood===true)mappedTypes.push('vegan_restaurant');
   const wheelchair=String(raw.wheelchair||'').toLowerCase();
   const wheelchairAccessibleEntrance=wheelchair==='no'?false:wheelchair==='limited'||nativeEvidence.includes('wheelchair.limited')?null:wheelchair==='yes'||nativeEvidence.includes('wheelchair.yes')?true:null;
   const stroller=String(raw.stroller||'').toLowerCase();
@@ -504,7 +513,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
     priceLevel:null,
     businessStatus:null,
     openNow,
-    openingHours:props.opening_hours||props.openingHours||null,
+    openingHours:props.opening_hours||props.openingHours||raw.opening_hours||null,
     website:props.website||raw.website||raw['contact:website']||null,
     mapsUri:null,
     phone:props.phone||raw.phone||raw['contact:phone']||null,
@@ -562,6 +571,19 @@ async function geoapifyPlaceDetails(rawId:string,options:any={}){
   store(cacheKey,place,30*60_000);return place;
 }
 
+const cuisineCohorts=new Map<string,{expires:number,promise:Promise<any[]>}>();
+async function geoapifyCuisineCohort(apiKey:string,filter:string,language:string){
+  const id=JSON.stringify([filter,language]),cached=cuisineCohorts.get(id);
+  if(cached&&cached.expires>Date.now())return cached.promise;
+  const promise=(async()=>{
+    const params=new URLSearchParams({apiKey,categories:'catering',filter,limit:'500',lang:language||'de'});
+    const response=await fetch(`${GEOAPIFY_BASE}/places?${params}`,{signal:AbortSignal.timeout(4500)});
+    if(!response.ok)throw new Error('CUISINE_COHORT_UNAVAILABLE');
+    const body=await response.json();return Array.isArray(body.features)?body.features:[];
+  })().catch(error=>{cuisineCohorts.delete(id);throw error});
+  if(cuisineCohorts.size>=32)cuisineCohorts.delete(cuisineCohorts.keys().next().value!);
+  cuisineCohorts.set(id,{expires:Date.now()+30*60_000,promise});return promise;
+}
 async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any,restriction:any,bias:any){
   const key=getGeoapifyKey();
   if(!key)throw Object.assign(new Error('Geoapify API key ist nicht konfiguriert.'),{code:'GEOAPIFY_NOT_CONFIGURED',status:503});
@@ -625,6 +647,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
       cats:categories
     };
   };
+  const cohortPromise=cuisines.length&&filter?geoapifyCuisineCohort(key,filter,String(options.languageCode||'de')).catch(()=>[]):null;
   let {response,body}=await runBatches(true);
   if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
     ({response,body}=await runBatches(false));
@@ -637,7 +660,14 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     metrics.lastError={provider:'geoapify',status,code:body?.error?.code||body?.code||'GEOAPIFY_PROVIDER_ERROR',message};
     throw Object.assign(new Error(message),{code:'GEOAPIFY_PROVIDER_ERROR',status,provider:'geoapify'});
   }
-  const features=Array.isArray(body?.features)?body.features:[];
+  let features=Array.isArray(body?.features)?body.features:[];
+  if(cuisines.length&&filter){
+    // Bounded supplement can fail without disguising a successful typed query.
+    try{const cohort=await cohortPromise||[];
+      const eligible=cohort.filter((feature:any)=>{const p=normalizedGeoapifyPlace(feature,options);return p&&cuisines.some((type:string)=>p.types.includes(type))&&(!name||p.name.toLowerCase().includes(name.toLowerCase()))});
+      features=mergeFeatures([features,eligible]);
+    }catch{}
+  }
   metrics.successes++;metrics.providers.geoapify.successes++;metrics.lastSuccessAt=new Date().toISOString();
   return features
     .map((feature:any)=>normalizedGeoapifyPlace(feature,options))

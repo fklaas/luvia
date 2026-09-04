@@ -690,6 +690,11 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  'data-trip-map-action': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-trip-map-input': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-trip-map-host': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-places-perspective': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-places-recenter': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-hotel-filter': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-hotel-filter-panel': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-hotel-filter-reset': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
@@ -812,8 +817,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 942);
-  assert.equal(sourceAudit.markerCount, 942);
+  assert.equal(sourceAudit.markers.length, 947);
+  assert.equal(sourceAudit.markerCount, 947);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

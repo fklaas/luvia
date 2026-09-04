@@ -810,5 +810,12 @@ function bindProposalSync(){
 globalThis.addEventListener('luvia:journey-place-proposal-changed',event=>{const proposal=event.detail?.proposal;if(proposal?.status==='approved'&&proposal.application_status!=='applied')applyApprovedProposal(proposal).catch(error=>console.warn('[LuviaJourneyProposalApply]',error));if(globalThis.LuviaApp?.activeView?.()==='timeline'||globalThis.LuviaApp?.activeView==null)queueMicrotask(()=>globalThis.LuviaApp?.show?.('timeline',{force:true,animate:false,source:'journey-proposal-local-projection'}))});
 ['luvia:trip.changed','luvia:trip.active.changed','luvia:auth-ready'].forEach(name=>globalThis.addEventListener(name,()=>{bindProposalSync();reconcileApprovedProposals()}));
 globalThis.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{bindProposalSync();reconcileApprovedProposals()},400));
-globalThis.LuviaJourneySuggestions=Object.freeze({version:VERSION,load,open,openResults,openResultsInteractive,diagnostics});
+async function assessGroup(places,{trip,targetDate}={}){
+  const snapshot=contracts().context?.snapshot?.()||{},input={trip,snapshot,targetDate,query:'Gemeinsame Ortsvorlieben'};
+  const group=await sharedPreferenceContext(input);
+  const ranked=await rankForTravelers(places,group,input,{useAI:false});
+  const total=Math.max(Number(group.totalTravelers)||0,(group.travelers||[]).length);
+  return ranked.map(place=>({...place,groupFit:{...place.groupFit,travelerCount:total,reliable:place.groupFit?.reliable===true&&place.travelerInsights.length===total}}));
+}
+globalThis.LuviaJourneySuggestions=Object.freeze({version:VERSION,load,open,openResults,openResultsInteractive,assessGroup,diagnostics});
 })();

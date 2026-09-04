@@ -22,10 +22,37 @@ async function compute(origin:any,destination:any,travelMode:'DRIVE'|'WALK'|'BIC
 }
 export async function routesAction(action:string,payload:any){
   if(action!=='routes.compute')throw Object.assign(new Error('Routes-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
+  if(payload?.provider==='geoapify')return geoapifyWalkingRoute(payload);
   const modes=(payload?.modes||['WALK','DRIVE','BICYCLE']).filter((m:string)=>['WALK','DRIVE','BICYCLE','TRANSIT'].includes(m));
   const cacheKey=JSON.stringify([payload?.origin,payload?.destination,modes,payload?.departureTime,payload?.transitPreferences]);const found=cache.get(cacheKey);if(found&&found.expires>Date.now())return{data:found.value};
   const settled=await Promise.allSettled(modes.map((mode:string)=>compute(payload.origin,payload.destination,mode as any,payload)));
   const routes:any={};modes.forEach((mode:string,index:number)=>{const result=settled[index];routes[mode.toLowerCase()]=result.status==='fulfilled'?result.value:[]});
   const available=Object.values(routes).some((list:any)=>Array.isArray(list)&&list.length);if(!available){const rejected=settled.find(x=>x.status==='rejected') as PromiseRejectedResult|undefined;throw rejected?.reason||new Error('Route nicht verfügbar.');}
   const value={routes,provider:'google-routes',generatedAt:new Date().toISOString(),warnings:{bicycle:'Fahrradrouten können je nach Region unvollständige Radwege enthalten.'}};cache.set(cacheKey,{expires:Date.now()+180000,value});return{data:value};
+}
+
+// Explicit walking provider for the shared OpenFreeMap consumer. Other route
+// clients keep their existing provider. No automatic multi-mode fanout.
+const walkingPending=new Map<string,Promise<any>>();
+async function geoapifyWalkingRoute(payload:any){
+  const from=point(payload.origin).location.latLng,to=point(payload.destination).location.latLng;
+  for(const p of [from,to])if(Math.abs(p.latitude)>90||Math.abs(p.longitude)>180)throw new Error('INVALID_ROUTE_COORDINATES');
+  if(payload.modes?.some((mode:string)=>mode!=='WALK'))throw new Error('GEOAPIFY_WALK_ONLY');
+  const id=JSON.stringify(['geoapify-walk',from,to]),cached=cache.get(id);
+  if(cached&&cached.expires>Date.now())return{data:cached.value};
+  if(walkingPending.has(id))return walkingPending.get(id);
+  const request=(async()=>{
+    const apiKey=Deno.env.get('GEOAPIFY_API_KEY')||Deno.env.get('GEOAPIFY_KEY');
+    if(!apiKey)throw new Error('GEOAPIFY_NOT_CONFIGURED');
+    const params=new URLSearchParams({apiKey,waypoints:`${from.latitude},${from.longitude}|${to.latitude},${to.longitude}`,mode:'walk',lang:'de',units:'metric'});
+    const response=await fetch(`https://api.geoapify.com/v1/routing?${params}`,{signal:AbortSignal.timeout(6500)});
+    if(!response.ok)throw Object.assign(new Error('Der Fußweg konnte gerade nicht geprüft werden.'),{code:'ROUTE_UNAVAILABLE'});
+    const raw=await response.json(),feature=raw.features?.[0],p=feature?.properties;
+    if(!feature?.geometry||!Number.isFinite(p?.time)||!Number.isFinite(p?.distance))throw new Error('ROUTE_UNAVAILABLE');
+    const route={mode:'WALK',distanceMeters:p.distance,durationSeconds:p.time,durationMinutes:Math.ceil(p.time/60),geometry:feature.geometry,legs:p.legs||[],provider:'geoapify',verified:true};
+    const value={routes:{walk:[route]},provider:'geoapify',generatedAt:new Date().toISOString()};
+    if(cache.size>=256)cache.delete(cache.keys().next().value!);
+    cache.set(id,{expires:Date.now()+30*60_000,value});return{data:value};
+  })();
+  walkingPending.set(id,request);try{return await request}finally{walkingPending.delete(id)}
 }

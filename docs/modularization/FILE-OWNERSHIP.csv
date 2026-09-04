@@ -2670,3 +2670,6 @@ docs/handoffs/STARTPROMPT-NORMAL-CHATGPT.md,All Core Owner Streams,Documentation
 docs/handoffs/CHATGPT-TERMINAL-PROTOCOL.md,Platform/Documentation/Release,Documentation/Handoff,PowerShell command result evidence and deployment safety protocol for user-executed normal-ChatGPT work
 docs/handoffs/M5-TO-CURRENT-CONTEXT-BRIDGE.md,All Core Owner Streams,Documentation/Handoff,Closed M5 through M16 boundaries M16.5 redesign Product Reset and six-block context bridge
 docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md,Places/Booking/Journey/Experience/Consumer,Documentation/Handoff,Current public 13.82.167 shared Places Hotel map preview gesture acceptance and remaining user-visible work
+app/places/places-trip-experiences.js,Consumer/Web,Consumer Composition,"Ephemeral trip map experiences through journey.v1 places.v1 and shared preference consumer; no domain persistence"
+tests/trip-map-experiences.test.cjs,Quality/Tests,Test,"Trip map behavior and provider route regression"
+docs/modularization/PCR-TRIP-MAP-EXPERIENCES-20260904.md,Documentation/Release History,Documentation,"Authorized shared map experience scope and public contract change"
