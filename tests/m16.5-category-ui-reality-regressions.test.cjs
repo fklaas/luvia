@@ -76,6 +76,13 @@ check('Fall B+ reject street-fallback activity pin', () => {
   assert.equal(C.accepts(ostpreussen, 'activities', '', {}), false);
 });
 
+check('Fall B++ reject provider category/name contradictions', () => {
+  const administration = place({ id: 'verwaltung', name: 'Gemeindeverwaltung Timmendorfer Strand', primaryType: 'park', types: ['park'], providerNativeTypes: ['Park'] });
+  const beachChairRental = place({ id: 'strandkorb', name: 'Strandkorbvermietung Bade', primaryType: 'lodging', types: ['lodging'], providerNativeTypes: ['Accommodation'] });
+  assert.equal(C.accepts(administration, 'nature', '', {}), false, 'an administration must not become a nature venue from one provider misclassification');
+  assert.equal(C.accepts(beachChairRental, 'accommodation', '', {}), false, 'a beach-chair rental must not become a stay from one provider misclassification');
+});
+
 check('Fall C multi-category exclusivity', () => {
   const hybrid = place({
     id: 'hybrid',

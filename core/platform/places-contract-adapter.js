@@ -171,10 +171,12 @@
     });
   }
   const cardReads=new Map();
+  const SELECTED_MEDIA_PROVIDER_PREFIXES=Object.freeze(['geoapify:','tomtom:','here:','fsq:']);
   async function getCard(placeId,options={}){
     const id=clean(placeId)?.replace(/^places\//,'');
     const seed=options.source||options.place;
-    if(!id?.startsWith('geoapify:')||clean(seed?.providerPlaceId||seed?.id)?.replace(/^places\//,'')!==id)return readCard(placeId,options);
+    const selectedProviderRead=SELECTED_MEDIA_PROVIDER_PREFIXES.some(prefix=>id?.startsWith(prefix));
+    if(!selectedProviderRead||clean(seed?.providerPlaceId||seed?.id)?.replace(/^places\//,'')!==id)return readCard(placeId,options);
     const existing=cardReads.get(id);if(existing&&Date.now()-existing.at<existing.ttl)return existing.promise;
     const entry={at:Date.now(),ttl:30*60_000,promise:null};
     const promise=readCard(placeId,options).then(result=>{if(!result?.image?.url)entry.ttl=2*60_000;return result}).catch(error=>{cardReads.delete(id);throw error});

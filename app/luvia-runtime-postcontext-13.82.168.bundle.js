@@ -4367,6 +4367,10 @@ const WATERFRONT_TERMS=/\b(?:am\s+wasser|by\s+the\s+water|strand[a-zäöüß]*|b
 const OUTSKIRTS_TERMS=/\b(?:stadtrand|au[sß]erhalb|außerhalb|outskirts|outside\s+(?:town|the\s+city)|p[eé]riph[eé]rie|fuera\s+del\s+centro|periferia|buiten\s+het\s+centrum)\b/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
 const MEAT_LED_OFFER=/kebab|kebap|d[oö]ner|steak(?:house)?|barbecue|\bbbq\b|grill|hamburger|burger|greek_restaurant|griech(?:isch|e[rsnm]?)/i;
+const CATEGORY_NAME_EXCLUSIONS=Object.freeze({
+  nature:/\b(?:gemeindeverwaltung|stadtverwaltung|rathaus|b[uü]rgerb[uü]ro|ordnungsamt)\b/i,
+  accommodation:/\bstrandkorb(?:vermietung|verleih)\b/i
+});
 const AVOID_PREFIX=/(?:\b(?:nicht|kein(?:e[rmns]?)?|ohne|statt|abseits|weg\s+von|not|without|away\s+from|instead\s+of|pas|sans|plut[oô]t\s+que|loin\s+de|no\s+(?:en|a|al|cerca|junto|sobre|directamente)|sin|en\s+vez\s+de|non|senza|invece\s+di|n[aã]o|sem|em\s+vez\s+de|niet|zonder|in\s+plaats\s+van)\b).{0,32}/i;
 const SPECIFIC_STOP_WORDS=new Set('zeige zeigen zeig anzeigen auflisten ausgeben darstellen suche suchen such entdecken entdecke empfehlen empfiehl vorschlagen vorschläge show list display search looking recommend please rather suitable euer unseren urlaub eher aber also ansehen angebot angebote auswahl bitte bisschen children city der die das den dem des direct directly direkt ein eine einer einem einen etwas euch eure euren eurer für fuer find finde finden gefunden geht gerne heute ich im in into kind kinder kids mal mit mochte möchte moechte nach nahe near noch option optionen ort orte place places restaurant restaurants ruhig ruhige ruhigen sehen soll spielen stadt statt super und uns unsere unseren want was wasser weiter wish wunsch wünsche wuensche zum zur'.split(' '));
 const BROAD_EVIDENCE_TERMS=new Set('activity activities aktivitat aktivitäten aktivitaet attraction business company erlebnis erleben freizeit geschäft geschaft laden möglichkeit möglichkeiten option place places shop store tourist attraction venue'.split(' '));
@@ -4493,6 +4497,7 @@ function accepts(place,categoryKey,goalText='',preferences={},options={}){
   if(!clean(place?.providerPlaceId||place?.id).replace(/^places\//,'')||name.length<2)return false;
   // Street-only shells (e.g. unnamed OSM recreation_ground → "Ostpreußenstraße") are not venues.
   if(isStreetShellName(name))return false;
+  if(CATEGORY_NAME_EXCLUSIONS[resolvedCategory]?.test(name))return false;
   if(intent.exclude?.test(hay))return false;
   const specificAmenity=intent.specificEvidence===true&&Boolean(intent.typeMatch)&&providerTypes.some(value=>intent.typeMatch.test(value));
   if(!specificAmenity&&def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;
@@ -17357,12 +17362,12 @@ window.LuviaAIMemoryBridge=Object.freeze({version:VERSION,build:BUILD,buildConte
 ;
 
 /* ===== core/diagnostics/media-readiness.js ===== */
-/* Release 13.82.168.58 - Core 4.82.180 */
+/* Release 13.82.168.59 - Core 4.82.181 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.180';
-  const BUILD='13.82.168.58';
+  const CORE='4.82.181';
+  const BUILD='13.82.168.59';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -18976,7 +18981,7 @@ return Object.freeze({
     sights:Object.freeze({label:'Sehenswürdigkeit',subtypes:Object.freeze([['','Alle'],['tourist_attraction','Attraktion'],['historical_landmark','Historisch'],['monument','Denkmal'],['observation_deck','Aussicht']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
     photo:Object.freeze({label:'Motiv',subtypes:Object.freeze([['','Alle'],['observation_deck','Aussicht'],['historical_landmark','Architektur'],['park','Natur'],['garden','Garten']]),facts:Object.freeze(['rating45','accessible'])}),
     culture:Object.freeze({label:'Kulturort',subtypes:Object.freeze([['','Alle'],['museum','Museum'],['art_gallery','Galerie'],['movie_theater','Kino'],['performing_arts_theater','Theater'],['concert_hall','Konzert']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['spa','Erholung']]),facts:Object.freeze(['rating45','accessible'])}),
+    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['natural_feature','Naturgebiet']]),facts:Object.freeze(['rating45','accessible'])}),
     shopping:Object.freeze({label:'Einkaufen',subtypes:Object.freeze([['','Alle'],['shopping_mall','Center'],['market','Markt'],['clothing_store','Mode'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     malls:Object.freeze({label:'Einkaufszentrum',subtypes:Object.freeze([['','Alle'],['shopping_mall','Shopping Center'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bar'],['night_club','Club'],['concert_hall','Live-Musik']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
@@ -19498,9 +19503,8 @@ return Object.freeze({
   async function hydrateMapPreview(place){
     const id=providerId(place),contract=placesContract();
     if(!id||state.images.has(id)||!contract?.reads?.getCard)return;
-    // Geoapify pins already carry search names and have no photo media path yet.
-    // Skipping details avoids latency and keeps titles intact.
-    if(id.startsWith('geoapify:'))return;
+    // Photo reads stay on-demand for the selected immutable provider identity.
+    // The gateway may enrich only an exact same-name, same-coordinate match.
     try{
       const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
       if(!card?.image)return;
@@ -21320,10 +21324,12 @@ globalThis.LuviaGlobalContracts?.register?.({id:CONTRACT_ID,version:VERSION,requ
     });
   }
   const cardReads=new Map();
+  const SELECTED_MEDIA_PROVIDER_PREFIXES=Object.freeze(['geoapify:','tomtom:','here:','fsq:']);
   async function getCard(placeId,options={}){
     const id=clean(placeId)?.replace(/^places\//,'');
     const seed=options.source||options.place;
-    if(!id?.startsWith('geoapify:')||clean(seed?.providerPlaceId||seed?.id)?.replace(/^places\//,'')!==id)return readCard(placeId,options);
+    const selectedProviderRead=SELECTED_MEDIA_PROVIDER_PREFIXES.some(prefix=>id?.startsWith(prefix));
+    if(!selectedProviderRead||clean(seed?.providerPlaceId||seed?.id)?.replace(/^places\//,'')!==id)return readCard(placeId,options);
     const existing=cardReads.get(id);if(existing&&Date.now()-existing.at<existing.ttl)return existing.promise;
     const entry={at:Date.now(),ttl:30*60_000,promise:null};
     const promise=readCard(placeId,options).then(result=>{if(!result?.image?.url)entry.ttl=2*60_000;return result}).catch(error=>{cardReads.delete(id);throw error});
@@ -28763,7 +28769,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,timelineRenderFrame=0,todayRenderTimer=0,todayLastHtml='',timelineLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false,pwaRegistrationScheduled=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null,navigationCompassMotionCleanup=null;
   const activeCompassAnimations=new Set();
-  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.58',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.59',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
@@ -28776,7 +28782,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
     emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
   });
-  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.58')}`;
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.59')}`;
   function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
     const current=()=>window[descriptor.global];
     if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
@@ -29653,7 +29659,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
 
   window.addEventListener('click',event=>{if(!event.target.closest?.('[data-pf-edit-preferences]'))return;event.preventDefault();event.stopPropagation();window.LuviaProfileFoundation?.close?.();window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:profileOnboardingReturnTo(activeView)});},true);
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-changed',refreshTimelineProjection);window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.58',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.59',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();
 

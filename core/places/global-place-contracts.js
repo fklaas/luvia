@@ -18,6 +18,10 @@ const WATERFRONT_TERMS=/\b(?:am\s+wasser|by\s+the\s+water|strand[a-zäöüß]*|b
 const OUTSKIRTS_TERMS=/\b(?:stadtrand|au[sß]erhalb|außerhalb|outskirts|outside\s+(?:town|the\s+city)|p[eé]riph[eé]rie|fuera\s+del\s+centro|periferia|buiten\s+het\s+centrum)\b/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
 const MEAT_LED_OFFER=/kebab|kebap|d[oö]ner|steak(?:house)?|barbecue|\bbbq\b|grill|hamburger|burger|greek_restaurant|griech(?:isch|e[rsnm]?)/i;
+const CATEGORY_NAME_EXCLUSIONS=Object.freeze({
+  nature:/\b(?:gemeindeverwaltung|stadtverwaltung|rathaus|b[uü]rgerb[uü]ro|ordnungsamt)\b/i,
+  accommodation:/\bstrandkorb(?:vermietung|verleih)\b/i
+});
 const AVOID_PREFIX=/(?:\b(?:nicht|kein(?:e[rmns]?)?|ohne|statt|abseits|weg\s+von|not|without|away\s+from|instead\s+of|pas|sans|plut[oô]t\s+que|loin\s+de|no\s+(?:en|a|al|cerca|junto|sobre|directamente)|sin|en\s+vez\s+de|non|senza|invece\s+di|n[aã]o|sem|em\s+vez\s+de|niet|zonder|in\s+plaats\s+van)\b).{0,32}/i;
 const SPECIFIC_STOP_WORDS=new Set('zeige zeigen zeig anzeigen auflisten ausgeben darstellen suche suchen such entdecken entdecke empfehlen empfiehl vorschlagen vorschläge show list display search looking recommend please rather suitable euer unseren urlaub eher aber also ansehen angebot angebote auswahl bitte bisschen children city der die das den dem des direct directly direkt ein eine einer einem einen etwas euch eure euren eurer für fuer find finde finden gefunden geht gerne heute ich im in into kind kinder kids mal mit mochte möchte moechte nach nahe near noch option optionen ort orte place places restaurant restaurants ruhig ruhige ruhigen sehen soll spielen stadt statt super und uns unsere unseren want was wasser weiter wish wunsch wünsche wuensche zum zur'.split(' '));
 const BROAD_EVIDENCE_TERMS=new Set('activity activities aktivitat aktivitäten aktivitaet attraction business company erlebnis erleben freizeit geschäft geschaft laden möglichkeit möglichkeiten option place places shop store tourist attraction venue'.split(' '));
@@ -144,6 +148,7 @@ function accepts(place,categoryKey,goalText='',preferences={},options={}){
   if(!clean(place?.providerPlaceId||place?.id).replace(/^places\//,'')||name.length<2)return false;
   // Street-only shells (e.g. unnamed OSM recreation_ground → "Ostpreußenstraße") are not venues.
   if(isStreetShellName(name))return false;
+  if(CATEGORY_NAME_EXCLUSIONS[resolvedCategory]?.test(name))return false;
   if(intent.exclude?.test(hay))return false;
   const specificAmenity=intent.specificEvidence===true&&Boolean(intent.typeMatch)&&providerTypes.some(value=>intent.typeMatch.test(value));
   if(!specificAmenity&&def.excludedTypes.some(excluded=>providerTypes.some(value=>providerTypeMatches(value,typeKey(excluded)))))return false;

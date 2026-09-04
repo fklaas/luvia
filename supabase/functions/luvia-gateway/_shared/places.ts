@@ -7,7 +7,7 @@ const BASE='https://places.googleapis.com/v1';
 const FOURSQUARE_BASE='https://places-api.foursquare.com';
 const TIMEZONE_BASE='https://maps.googleapis.com/maps/api/timezone/json';
 const cache=new Map<string,{expires:number,value:unknown}>();
-const metrics={requests:0,successes:0,failures:0,cacheHits:0,resolutions:0,timezoneRequests:0,timezoneFailures:0,lastRequestAt:null as string|null,lastSuccessAt:null as string|null,lastError:null as unknown,providers:{google:{requests:0,successes:0,failures:0},foursquare:{requests:0,successes:0,failures:0,fieldFallbacks:0},geoapify:{requests:0,successes:0,failures:0}}};
+const metrics={requests:0,successes:0,failures:0,cacheHits:0,resolutions:0,timezoneRequests:0,timezoneFailures:0,lastRequestAt:null as string|null,lastSuccessAt:null as string|null,lastError:null as unknown,providers:{google:{requests:0,successes:0,failures:0},foursquare:{requests:0,successes:0,failures:0,fieldFallbacks:0,exactMediaAttempts:0,exactMediaMatches:0,exactMediaMisses:0,exactMediaFailures:0},geoapify:{requests:0,successes:0,failures:0}}};
 const HEALTH_PROBES=Object.freeze({
   'minigolf-scharbeutz':Object.freeze({query:'Minigolf',destination:Object.freeze({name:'Scharbeutz',countryCode:'DE',location:Object.freeze({latitude:54.0214,longitude:10.7536}),canonicalCity:Object.freeze({name:'Scharbeutz'}),searchRadiusMeters:15000})}),
   'minigolf-chat-scharbeutz':Object.freeze({query:'Minigolf in Scharbeutz Scharbeutz',destination:Object.freeze({name:'Scharbeutz',countryCode:'DE',location:Object.freeze({latitude:54.0214,longitude:10.7536}),canonicalCity:Object.freeze({name:'Scharbeutz'}),searchRadiusMeters:15000})}),
@@ -294,6 +294,30 @@ export function foursquareQuery(query:string,destination:any){
 }
 async function foursquareSearch(query:string,destination:any,options:any){const anchor=searchAnchor(destination,options);const near=destination?.canonicalCity?.name||destination?.name||'';const params:any={query:foursquareQuery(query,destination),limit:Math.min(50,Math.max(1,Number(options?.maxResultCount||10))),sort:'RELEVANCE',fields:FOURSQUARE_SEARCH_FIELDS.join(',')};if(anchor)params.ll=`${anchor.latitude},${anchor.longitude}`;else if(near)params.near=near;const radius=foursquareRadius(destination,options,anchor),categoryFilter=foursquareCategoryFilter(options);if(radius)params.radius=radius;if(categoryFilter)params.fsq_category_ids=categoryFilter;if(options?.openNow)params.open_now=true;const raw=await foursquareWithFieldFallback('/places/search',params,[...FOURSQUARE_PRO_FIELDS,'distance']);const rows=raw.results||raw.places||[];return rows.map((place:any)=>normalizeFoursquarePlace(place,{evidenceKind:'place-search'}));}
 
+function exactMediaName(value:any){return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function exactMediaCandidate(place:any,candidate:any){return Boolean(exactMediaName(place?.name)&&exactMediaName(candidate?.name)===exactMediaName(place?.name)&&candidate?.location&&place?.location&&(distanceMeters(candidate.location,place.location)??Infinity)<=120)}
+async function enrichExactFoursquareMedia(place:any){
+  if(!place||place.photos?.length||!getFoursquareKey()||!exactMediaName(place.name)||!coordinate(place.location))return place;
+  metrics.providers.foursquare.exactMediaAttempts++;
+  try{
+    const rows=await foursquareSearch(place.name,{location:place.location},{maxResultCount:3,maxDistanceMeters:1000});
+    const candidates=rows.filter((candidate:any)=>exactMediaCandidate(place,candidate));
+    let match=candidates.find((candidate:any)=>candidate.photos?.length)||null;
+    if(!match&&candidates[0]){
+      const fsqId=String(candidates[0].id||'').replace(/^fsq:/,'');
+      if(fsqId){
+        const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);
+        const detail=normalizeFoursquarePlace(raw,{evidenceKind:'place-details'});
+        if(exactMediaCandidate(place,detail)&&detail.photos?.length)match=detail;
+      }
+    }
+    if(!match){metrics.providers.foursquare.exactMediaMisses++;return place}
+    metrics.providers.foursquare.exactMediaMatches++;
+    const fsqId=String(match.id||'').replace(/^fsq:/,'');
+    return{...place,photos:match.photos,providerRefs:{...(place.providerRefs||{}),foursquare:fsqId},evidence:[...(place.evidence||[]),{provider:'foursquare',kind:'exact-name-and-coordinate-photo-match',providerPlaceId:fsqId,maxDistanceMeters:120}]};
+  }catch{metrics.providers.foursquare.exactMediaFailures++;return place}
+}
+
 async function resolveTimezone(latitude:number,longitude:number){
   const key=getKey();
   if(!key)return{ok:false,status:'KEY_MISSING',message:'GOOGLE_PLACES_API_KEY fehlt.'};
@@ -358,6 +382,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key.startsWith('parking'))types.add('parking');
     if(key==='service.vehicle.charging_station')types.add('electric_vehicle_charging_station');
     if(key==='service.financial.atm')types.add('atm');
+    if(key==='natural'||key.startsWith('natural.'))types.add('natural_feature');
     if(key.includes('spa')||key.includes('sauna')||key.includes('wellness'))types.add('spa');
     if(key.includes('playground'))types.add('playground');
     if(key==='park'||key.startsWith('leisure.park'))types.add('park');
@@ -548,7 +573,7 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
 
 async function geoapifyPlaceDetails(rawId:string,options:any={}){
   const key=getGeoapifyKey();if(!key)throw Object.assign(new Error('Geoapify ist nicht konfiguriert.'),{code:'GEOAPIFY_NOT_CONFIGURED',status:503});
-  const cacheKey=`geoapify-details-media-v1:${rawId}:${options.enrichMedia===true}`,hit=cached(cacheKey);if(hit)return hit;
+  const cacheKey=`geoapify-details-media-v2:${rawId}:${options.enrichMedia===true}`,hit=cached(cacheKey);if(hit)return hit;
   const params=new URLSearchParams({id:rawId.slice(9),features:'details',lang:String(options.languageCode||'de'),apiKey:key});
   metrics.requests++;metrics.providers.geoapify.requests++;
   const response=await providerFetch('geoapify','details',5,`${GEOAPIFY_BASE}/place-details?${params}`,{signal:AbortSignal.timeout(5000)});
@@ -568,16 +593,8 @@ async function geoapifyPlaceDetails(rawId:string,options:any={}){
       if(info?.url){const meta=info.extmetadata||{},plain=(v:any)=>String(v||'').replace(/<[^>]*>/g,'').slice(0,180);place.photos=[{uri:info.thumburl||info.url,attribution:[plain(meta.Artist?.value),plain(meta.LicenseShortName?.value)].filter(Boolean).join(' · '),attributionUrl:info.descriptionurl,sourceUrl:info.descriptionurl}]}
     }catch{}
   }
-  if(!place.photos.length&&options.enrichMedia===true&&getFoursquareKey()){
-    try{
-      const rows=await foursquareSearch(place.name,{location:place.location},{maxResultCount:3,maxDistanceMeters:1000});
-      const normalized=(value:any)=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-      const match=rows.find((candidate:any)=>normalized(candidate.name)===normalized(place.name)&&candidate.location&&place.location&&(distanceMeters(candidate.location,place.location)??Infinity)<=120&&candidate.photos?.length);
-      if(match){place.photos=match.photos;place.providerRefs={geoapify:rawId,foursquare:match.id};place.evidence=[{provider:'foursquare',kind:'exact-name-and-coordinate-photo-match'}]}
-    }catch{}
-  }
   metrics.successes++;metrics.providers.geoapify.successes++;
-  const enriched=await enrichLinkedMedia(place);store(cacheKey,enriched,30*60_000);return enriched;
+  const linked=await enrichLinkedMedia(place),enriched=options.enrichMedia===true?await enrichExactFoursquareMedia(linked):linked;store(cacheKey,enriched,30*60_000);return enriched;
 }
 
 const cuisineCohorts=new Map<string,{expires:number,promise:Promise<any[]>}>();
@@ -784,7 +801,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.34.9-broad-food-cascade',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.35.0-exact-selected-media',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m'}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
@@ -850,7 +867,7 @@ if(action==='places.text-search'){
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}
 else if(action==='places.autocomplete'){const sessionToken=normalizePlacesSessionToken(options.sessionToken);const body=cleanObject({input:String(payload?.input||''),languageCode,regionCode,sessionToken,locationBias:destinationBias(payload?.destination,options.locationBias),includedPrimaryTypes:options.includedType?[options.includedType]:undefined});const raw=await google('/places:autocomplete',{method:'POST',body:JSON.stringify(body)});result={sessionToken,suggestions:(raw.suggestions||[]).map((s:any)=>({placeId:s.placePrediction?.placeId||null,text:s.placePrediction?.text?.text||s.queryPrediction?.text?.text||'',types:s.placePrediction?.types||[],distanceMeters:s.placePrediction?.distanceMeters??null,raw:s}))};}
-else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('tomtom:')||rawId.startsWith('here:')){result={place:await enrichLinkedMedia(await additionalDetails(rawId))}}else if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){const place=await geoapifyPlaceDetails(rawId,options);result=place?{place}:{place:null,reason:'geoapify_places_details_unavailable',preserveSeed:true}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
+else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('tomtom:')||rawId.startsWith('here:')){const linked=await enrichLinkedMedia(await additionalDetails(rawId));result={place:options.enrichMedia===true?await enrichExactFoursquareMedia(linked):linked}}else if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){const place=await geoapifyPlaceDetails(rawId,options);result=place?{place}:{place:null,reason:'geoapify_places_details_unavailable',preserveSeed:true}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
 else if(action==='places.photo'){const name=String(payload?.photoName||'');const qs=new URLSearchParams({skipHttpRedirect:'true',maxWidthPx:String(payload?.maxWidthPx||800)});if(payload?.maxHeightPx)qs.set('maxHeightPx',String(payload.maxHeightPx));const raw=await google(`/${name}/media?${qs}`,{method:'GET'});result={photoUri:raw.photoUri||null,name:raw.name||name};}
 else throw Object.assign(new Error('Places-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
 const searchEmpty=['places.text-search','places.nearby-search'].includes(action)&&Array.isArray(result?.places)&&result.places.length===0;

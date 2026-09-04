@@ -79,7 +79,7 @@
     sights:Object.freeze({label:'Sehenswürdigkeit',subtypes:Object.freeze([['','Alle'],['tourist_attraction','Attraktion'],['historical_landmark','Historisch'],['monument','Denkmal'],['observation_deck','Aussicht']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
     photo:Object.freeze({label:'Motiv',subtypes:Object.freeze([['','Alle'],['observation_deck','Aussicht'],['historical_landmark','Architektur'],['park','Natur'],['garden','Garten']]),facts:Object.freeze(['rating45','accessible'])}),
     culture:Object.freeze({label:'Kulturort',subtypes:Object.freeze([['','Alle'],['museum','Museum'],['art_gallery','Galerie'],['movie_theater','Kino'],['performing_arts_theater','Theater'],['concert_hall','Konzert']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['spa','Erholung']]),facts:Object.freeze(['rating45','accessible'])}),
+    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['natural_feature','Naturgebiet']]),facts:Object.freeze(['rating45','accessible'])}),
     shopping:Object.freeze({label:'Einkaufen',subtypes:Object.freeze([['','Alle'],['shopping_mall','Center'],['market','Markt'],['clothing_store','Mode'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     malls:Object.freeze({label:'Einkaufszentrum',subtypes:Object.freeze([['','Alle'],['shopping_mall','Shopping Center'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bar'],['night_club','Club'],['concert_hall','Live-Musik']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
@@ -601,9 +601,8 @@
   async function hydrateMapPreview(place){
     const id=providerId(place),contract=placesContract();
     if(!id||state.images.has(id)||!contract?.reads?.getCard)return;
-    // Geoapify pins already carry search names and have no photo media path yet.
-    // Skipping details avoids latency and keeps titles intact.
-    if(id.startsWith('geoapify:'))return;
+    // Photo reads stay on-demand for the selected immutable provider identity.
+    // The gateway may enrich only an exact same-name, same-coordinate match.
     try{
       const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
       if(!card?.image)return;

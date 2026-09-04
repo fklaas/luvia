@@ -208,7 +208,8 @@ for(const required of ['LuviaPlacesSpatialCompositionCoreV1','LuviaPlacesContrac
 }
 assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/,'places.v1 category registries must be normalized before array-based Experience selection');
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
-assert.match(experience,/id\.startsWith\('geoapify:'\)/,'Geoapify pin previews must skip empty details round-trips that wipe names');
+assert.doesNotMatch(experience,/if\(id\.startsWith\('geoapify:'\)\)return/,'selected Geoapify pins must reach the exact-place media path');
+assert.match(experience,/getCard\(id,\{maxWidthPx:960,maxHeightPx:720,source:place\}\)/,'selected-pin media must preserve the search seed across a details read');
 assert.match(experience,/consumer:places-spatial:v5-surface/,'offline Places cache must invalidate old unscoped and unnamed cohorts');
 assert.match(css,/\.lv-places-spatial__map-preview\{position:absolute/,'selected-pin preview must be contained by the map on every surface');
 assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute;bottom:12px/,'selected-pin preview must stay inside the map when the page scrolls');

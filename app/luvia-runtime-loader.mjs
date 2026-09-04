@@ -1,4 +1,4 @@
-const BUILD = '13.82.168.58';
+const BUILD = '13.82.168.59';
 const ASSET_REVISION = `${BUILD}-local-recovery`;
 
 function loadClassic(relativeUrl) {
