@@ -2679,3 +2679,15 @@ docs/modularization/TRIP-MAP-EXPERIENCES-ACCEPTANCE-20260904.md,Documentation/Re
 docs/modularization/PCR-MAP-MOBILE-SPEED-20260904.md,Documentation/Release History,Documentation,"Mobile map performance and trip theme scope"
 docs/modularization/PROVIDER-ONBOARDING-AND-FREE-BUDGETS-20260904.md,Documentation/Release History,Documentation,Provider onboarding and shared budget rollout
 docs/modularization/MAP-MOBILE-SPEED-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured mobile map performance and trip theme acceptance
+
+supabase/functions/luvia-gateway/_shared/provider-budget.ts,Platform/Places Infrastructure,Provider Accounting,Service-role atomic Places provider budget transport
+supabase/functions/luvia-gateway/_shared/provider-routes.ts,Places,Provider Adapter,Budget-managed verified walking cycling and driving routes
+supabase/functions/luvia-gateway/_shared/additional-places.ts,Places,Provider Adapter,TomTom and HERE scoped category discovery and details
+supabase/functions/luvia-gateway/_shared/place-media.ts,Places/Media Integration,Provider Adapter,Exact linked Wikimedia entity image attribution
+supabase/migrations/20260904160000_places_provider_budgets.sql,Platform/Places Infrastructure,Database Migration,Service-role budget policy and atomic shared counters
+tests/provider-orchestration.test.cjs,Quality/Tests,Test,Budget denial route fallback taxonomy and real entity media regression
+tests/fixtures/provider-budget-acceptance.sql,Quality/Tests,Test Fixture,Rollback-only database accounting and privilege acceptance
+docs/modularization/PCR-PROVIDER-BUDGET-ROUTING-20260904.md,Documentation/Release History,Documentation,Shared provider routing and budget PCR
+supabase/functions/luvia-gateway/_shared/tomtom-taxonomy.json,Places,Provider Reference,Verified TomTom category IDs without repeated live taxonomy requests
+supabase/functions/luvia-gateway/_shared/here-taxonomy.json,Places,Provider Reference,Official HERE category and food type IDs
+docs/modularization/PROVIDER-BUDGET-ACCEPTANCE-20260904.md,Documentation/Release History,Documentation,Measured provider rollout and explicit remaining limits

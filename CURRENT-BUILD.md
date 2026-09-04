@@ -1,3 +1,7 @@
+# Provider budgets and routing — Integration candidate — 13.82.168.37
+
+Atomic provider reservations, TomTom/HERE adapters, HeiGIT pedestrian and bicycle routes, shared mode selection and linked-image enrichment. Database accounting applied; final acceptance pending. HERE remains disabled until account quota verified.
+
 # Mobile map startup and trip theme — Integration deployed — 13.82.168.36
 
 Source 314e149e726015c1fae7ed7eb38f350702d833ca; Worker f29f3790-790b-4453-bd89-c3a67e920ac4; Core 4.82.168. Gateway v151 and Main unchanged.

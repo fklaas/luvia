@@ -21,7 +21,7 @@ function providerDestination(options={}){
   const candidates=[options.destinationContext,tripDestination,options.trip,explicitDestination,active];
   return candidates.find(hasGeography)||candidates.find(hasDestinationIdentity)||options.destination||active||null;
 }
-const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,vegetarianOnly:options.vegetarianOnly===true,accessibleOnly:options.accessibleOnly===true,reservableOnly:options.reservableOnly===true,priceLevels:options.priceLevels||[],minUserRatingCount:options.minUserRatingCount||0,query,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['geoapify']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,vegetarianOnly:options.vegetarianOnly===true,accessibleOnly:options.accessibleOnly===true,reservableOnly:options.reservableOnly===true,priceLevels:options.priceLevels||[],minUserRatingCount:options.minUserRatingCount||0,query,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['auto']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
 function aggregateProviderDiagnostics(attempts=[]){
   const requested=new Set(),used=new Set(),errors=[];let successfulAttempts=0,cachedAttempts=0;
   for(const attempt of attempts){for(const provider of attempt.providers?.requested||[])requested.add(provider);for(const provider of attempt.providers?.used||[])used.add(provider);for(const error of attempt.providers?.errors||[])errors.push(error);if(attempt.ok)successfulAttempts++;if(attempt.cached)cachedAttempts++}
@@ -190,7 +190,7 @@ async function recommend(options={}){
         destination:providerDestination(options),
         maxResultCount:providerCandidateWindow,
         strictDestination,
-        providers:options.providers||['geoapify'],
+        providers:options.providers||['auto'],
         languageCode:options.languageCode||globalThis.document?.documentElement?.lang||'de',
         regionCode:options.regionCode||'',
         openNow:options.openNow===true,

@@ -1,0 +1,45 @@
+'use strict';
+const assert=require('node:assert/strict'),{pathToFileURL}=require('node:url'),path=require('node:path');
+const mod=name=>import(pathToFileURL(path.resolve(__dirname,`../supabase/functions/luvia-gateway/_shared/${name}.ts`)));
+globalThis.Deno={env:{get:name=>name==='SUPABASE_URL'?'https://test.supabase.co':'fixture-key'}};
+const ok=data=>new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}});
+(async()=>{
+ const {providerFetch}=await mod('provider-budget');let calls=[];
+ globalThis.fetch=async(url,init)=>{calls.push(String(url));return ok({allowed:false,reason:'budget_exhausted'})};
+ await assert.rejects(()=>providerFetch('tomtom','search',1,'https://api.tomtom.com/test'),e=>e.code==='PROVIDER_BUDGET_DENIED');assert.equal(calls.length,1,'no paid request after denied reservation');
+ globalThis.fetch=async(url,init)=>{calls.push(String(url));if(String(url).includes('/rpc/'))return ok({allowed:true});return new Response('{}',{status:429})};
+ calls=[];await providerFetch('tomtom','search',1,'https://api.tomtom.com/test');assert.equal(calls.length,3,'429 records central cooldown, attempted unit stays consumed');
+ const {managedRoutes,routePoint,flexibleLine}=await mod('provider-routes');
+ for(const p of [{latitude:null,longitude:1},{latitude:'',longitude:1},{latitude:91,longitude:1}])assert.throws(()=>routePoint(p));
+ assert.deepEqual(flexibleLine('BFoz5xJ67i1B1B7PzIhaxL7Y'),[[8.69821,50.10228],[8.69567,50.10201],[8.6915,50.10063],[8.68752,50.09878]],'HERE reference flexible polyline preserves lon/lat order');
+ let reserved=[],providerCalls=[];
+ globalThis.fetch=async(url,init)=>{
+  if(String(url).includes('luvia_reserve')){const body=JSON.parse(init.body);reserved.push(body);return ok({allowed:body.p_provider!=='openrouteservice'})}
+  if(String(url).includes('/rpc/'))return ok(null);
+  providerCalls.push(String(url));return ok({routes:[{summary:{lengthInMeters:650,travelTimeInSeconds:300},legs:[{points:[{latitude:54,longitude:10.7},{latitude:54.01,longitude:10.71}]}]}]});
+ };
+ const input={origin:{latitude:54,longitude:10.7},destination:{latitude:54.01,longitude:10.71},modes:['BICYCLE'],provider:'auto'};
+ const [a,b]=await Promise.all([managedRoutes(input),managedRoutes(input)]);assert.equal(a.data.routes.bicycle[0].provider,'tomtom');assert.equal(b.data.routes.bicycle[0].verified,true);assert.equal(providerCalls.length,1,'pending requests coalesce');assert.match(providerCalls[0],/travelMode=bicycle/);assert.equal(reserved.length,2,'denied ORS falls through once to TomTom');
+ await managedRoutes(input);assert.equal(providerCalls.length,1,'warm route costs no new provider call');
+ await assert.rejects(()=>managedRoutes({...input,modes:['TRANSIT']}));
+ const {additionalTypes,normalizeAdditional,additionalSearch,providerCatalog}=await mod('additional-places');
+ calls=[];globalThis.fetch=async(url,init)=>{calls.push(String(url));if(String(url).includes('/rpc/'))return ok({allowed:true});return ok({results:[],items:[{id:'here:Chinese',resultType:'place',title:'Chinese fixture',position:{lat:54,lng:10},categories:[{name:'Restaurant'}],foodTypes:[{name:'Chinese'}]},{id:'here:Steak',resultType:'place',title:'Unrelated steak fixture',position:{lat:54,lng:10},categories:[{name:'Restaurant'}],foodTypes:[{name:'Steak House'}]}]})};
+ const catalog=await providerCatalog();assert.equal(catalog.tomtom.categories.length,610);assert.equal(calls.length,0,'reference taxonomy never spends live API quota');
+ const anchor={location:{latitude:54,longitude:10}};
+ assert.deepEqual(await additionalSearch('tomtom','restaurant',anchor,{includedTypes:['restaurant','vegan_restaurant']},null),[]);assert.equal(calls.length,0,'unsupported vegan taxonomy never queries generic restaurants');
+ const hereChinese=await additionalSearch('here','restaurant',anchor,{includedTypes:['restaurant','chinese_restaurant']},null);
+ assert.equal(hereChinese.length,1,'native cuisine evidence filters out unrelated provider rows');assert(hereChinese[0].types.includes('chinese_restaurant'));
+ const hereUrl=new URL(calls.find(url=>url.includes('hereapi.com')));assert.equal(hereUrl.pathname,'/v1/browse');assert(hereUrl.searchParams.get('foodTypes'));assert.equal(hereUrl.searchParams.has('q'),false);assert.equal(calls.length,2,'one reservation and one search; no taxonomy request');
+ const names=['Italian','German','Mediterranean','Greek','French','Spanish','Indian','Chinese','Japanese','Thai','Vietnamese','Korean','Mexican','Middle Eastern','Lebanese','Turkish','Asian','Vegetarian','Vegan'];
+ for(const cuisine of names)assert(additionalTypes([`${cuisine} Restaurant`]).some(t=>t.endsWith('_restaurant')),cuisine+' has evidenced cuisine mapping');
+ const steak=normalizeAdditional('tomtom',{id:'1',poi:{name:'Vegetarian Heaven',classifications:[{code:'RESTAURANT',names:[{name:'Steak House'}]}]},position:{lat:54,lon:10}});
+ assert.equal(steak.features.servesVegetarianFood,null,'business name does not invent vegetarian evidence');assert(!steak.types.includes('vegetarian_restaurant'));
+ const chinese=normalizeAdditional('here',{id:'here:1',title:'Example',position:{lat:54,lng:10},categories:[{name:'Restaurant'}],foodTypes:[{name:'Chinese'}]});assert(chinese.types.includes('chinese_restaurant'));assert(chinese.types.includes('asian_restaurant'));
+ assert.equal(normalizeAdditional('tomtom',{id:'2',poi:{name:'Example'},position:{lat:null,lon:10}}),null);
+ const {enrichLinkedMedia,linkedWiki}=await mod('place-media');assert.equal(linkedWiki({raw:{wikidata:'https://private.invalid'}}).wikidata,null);
+ providerCalls=[];globalThis.fetch=async(url)=>{providerCalls.push(String(url));if(String(url).includes('wikidata.org'))return ok({entities:{Q123:{claims:{P18:[{mainsnak:{datavalue:{value:'Exact place.jpg'}}}]}}}});return ok({query:{pages:{1:{imageinfo:[{url:'https://upload.wikimedia.org/exact.jpg',descriptionurl:'https://commons.wikimedia.org/wiki/File:Exact_place.jpg',extmetadata:{Artist:{value:'Photographer'},LicenseShortName:{value:'CC BY-SA 4.0'}}}]}}}})};
+ const unlinked=await enrichLinkedMedia({name:'Example',photos:[]});assert.equal(providerCalls.length,0,'no speculative image-name search');assert.equal(unlinked.photos.length,0);
+ const photo=await enrichLinkedMedia({name:'Example',photos:[],raw:{wikidata:'Q123'}});assert.equal(photo.photos[0].verified,true);assert.match(photo.photos[0].attribution,/Photographer/);assert.equal(providerCalls.length,2);
+ await enrichLinkedMedia({photos:[],raw:{wikidata:'Q123'}});assert.equal(providerCalls.length,2,'linked image cache reuses same entity');
+ console.log('Provider orchestration: reservations, denied cost, fallback, bike geometry/cache, 19 cuisines and exact images: PASS');
+})().catch(e=>{console.error(e);process.exitCode=1});

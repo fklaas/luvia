@@ -108,13 +108,13 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
   assert.match(source,/status:'failed'/);
   assert.match(source,/providerErrors:\(error\?\.providerErrors\|\|\[\]\)/);
-  assert.match(source,/providerOrder:'geoapify_primary'/,'provider order must be Geoapify-first');
+  assert.match(source,/providerOrder:'free_budget_cascade'/,'provider order must be Geoapify-first');
   assert.match(source,/function geoapifyCircleFilter/,'Geoapify discovery must send a circle filter when no viewport rectangle exists');
   assert.match(source,/function geoapifyNameFilter/,'descriptive discovery phrases must not be sent as Geoapify name filters');
   assert.match(source,/function geoapifyPlaceName/,'Geoapify features must map real OSM names instead of collapsing to Unbenannter Ort');
   assert.match(source,/function geoapifyTextField/,'Geoapify name/address fields must never String\(object\) into \[object Object\]');
-  assert.match(source,/v2\.13\.0-geoapify-first/,'gateway search cache must invalidate after the Geoapify-first hard cut');
-  assert.match(source,/version:'4\.33\.0/);
+  assert.match(source,/v2\.14\.0-free-budget/,'gateway search cache must invalidate after the Geoapify-first hard cut');
+  assert.match(source,/version:'4\.34\.0/);
   assert.match(source,/food:'catering'/,'default food category must map to parent catering');
   assert.match(source,/GEOAPIFY_DEFAULT_RADIUS_METERS=10000/,'destination search must default to a 10km circle, not 20km');
   assert.match(source,/function effectiveMaxDistanceMeters/,'post-processing must hard-cap distance when a destination anchor exists');

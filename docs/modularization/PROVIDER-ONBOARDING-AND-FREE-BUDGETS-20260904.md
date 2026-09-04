@@ -1,5 +1,7 @@
 # Luvia: Anbieter einrichten und Gratis-Budgets gemeinsam nutzen
 
+**Update Integration .37:** TomTom Search v2 und Routing, HeiGIT-Fuß-/Fahrradrouten und die zentrale Budgetreservierung sind implementiert. HERE bleibt bis zur Kontobestätigung deaktiviert. Der tatsächliche TomTom-Adapter nutzt Search v2 mit öffentlich 2.500 kostenlosen Suchaufrufen pro Monat, nicht die unten als ursprüngliche Option beschriebene Orbis-API. Die früheren Implementierungsschritte unten sind als Onboarding-Plan zu lesen; der verbindliche aktuelle Stand und die lokalen Limits stehen in der [Provider-Abnahme](PROVIDER-BUDGET-ACCEPTANCE-20260904.md).
+
 Stand: 04.09.2026. Diese Anleitung trennt vorhandene Anbindungen, neue Konten und offene Datenimporte. Ein hinterlegter Schlüssel aktiviert allein noch keine neue Integration. Die hier vorgeschlagenen neuen Secret-Namen werden beim jeweiligen Adapter verwendet. Kein bezahlter Tarif wurde durch diese Anleitung aktiviert.
 
 ## Einmalig: Schlüssel übergeben

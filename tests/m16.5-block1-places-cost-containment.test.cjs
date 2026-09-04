@@ -8,8 +8,8 @@ const gateway=read('supabase/functions/luvia-gateway/_shared/places.ts');
 const adapter=read('core/platform/places-contract-adapter.js');
 const discovery=read('app/adapters/places-discovery-adapter.js');
 const spatial=read('app/places/places-spatial-experience.js');
-assert.match(discovery,/providers:options\.providers\|\|\['geoapify'\]/,'Places discovery must default to Geoapify-first');
-assert.match(spatial,/providers=\['geoapify'\]/,'viewport refresh must default to Geoapify');
+assert.match(discovery,/providers:options\.providers\|\|\['auto'\]/,'Places discovery must default to budget-managed discovery');
+assert.match(spatial,/providers=\['auto'\]/,'viewport refresh must default to budget-managed discovery');
 
 assert.ok(/locationRestriction[\s\S]{0,240}rectangle|rectangle[\s\S]{0,240}locationRestriction|locationBias[\s\S]{0,240}rectangle/.test(adapter),'viewport search must remain rectangle-qualified for the bounded owner contract');
 assert.match(adapter,/geoapifyOnly|four-tile-legacy|single-rectangle-geoapify/,'viewport strategy must remain explicit for Geoapify vs Google/Foursquare');
@@ -44,11 +44,11 @@ assert.match(gateway,/provider:'geoapify',source:'automatic-geocoding'/,'resolve
 assert.match(backend,/const QUOTA_CIRCUIT_MS=30\*60\*1000/,'exhausted Places quota must open a long client circuit instead of retrying every five seconds');
 assert.match(backend,/if\(\/places_all_providers_failed\|provider_read_incomplete\|provider_read_unavailable\/\.test\(text\)\)return false/,'PLACES_ALL_PROVIDERS_FAILED must not open the 30-minute Places quota circuit');
 assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute quota lock/,'circuit policy must document why all-provider failure is not a quota lock');
-assert.match(gateway,/providerOrder:'geoapify_primary'/,'live Places order must be Geoapify-first');
-assert.match(gateway,/:\['geoapify'\],providerErrors/,'gateway text-search default providers must be Geoapify-only');
+assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
+assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.13\.0-geoapify-first/,'gateway cache must invalidate after the Geoapify-first hard cut');
-assert.match(gateway,/version:'4\.33\.0-geoapify-first'/,'gateway health version must reflect Geoapify-first');
+assert.match(gateway,/v2\.14\.0-free-budget/,'gateway cache must invalidate after the Geoapify-first hard cut');
+assert.match(gateway,/version:'4\.34\.0-free-budget'/,'gateway health version must reflect Geoapify-first');
 assert.match(gateway,/One Luvia category → one Geoapify parent family/,'category mapping must keep Luvia categories exclusive');
 assert.equal((gateway.match(/searchFields\(options\)/g)||[]).length,2,'text and nearby search must both route FieldMask selection through one policy');
 

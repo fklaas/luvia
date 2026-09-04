@@ -1,0 +1,2512 @@
+{
+  "source": "https://docs.here.com/geocoding-and-search/docs/",
+  "fetchedAt": "2026-09-04T13:56:48.760Z",
+  "categories": [
+    {
+      "id": "100-1000-0000",
+      "name": "Restaurant"
+    },
+    {
+      "id": "100-1000-0001",
+      "name": "Casual Dining"
+    },
+    {
+      "id": "100-1000-0002",
+      "name": "Fine Dining"
+    },
+    {
+      "id": "100-1000-0003",
+      "name": "Take Out and Delivery Only"
+    },
+    {
+      "id": "100-1000-0004",
+      "name": "Food Market-Stall"
+    },
+    {
+      "id": "100-1000-0005",
+      "name": "Taqueria"
+    },
+    {
+      "id": "100-1000-0006",
+      "name": "Deli"
+    },
+    {
+      "id": "100-1000-0007",
+      "name": "Cafeteria"
+    },
+    {
+      "id": "100-1000-0008",
+      "name": "Bistro"
+    },
+    {
+      "id": "100-1000-0009",
+      "name": "Fast Food"
+    },
+    {
+      "id": "100-1000-0050",
+      "name": "Family Restaurant"
+    },
+    {
+      "id": "100-1100-0000",
+      "name": "Coffee-Tea"
+    },
+    {
+      "id": "100-1100-0010",
+      "name": "Coffee Shop"
+    },
+    {
+      "id": "100-1100-0331",
+      "name": "Tea House"
+    },
+    {
+      "id": "200-2000-0000",
+      "name": "Nightlife-Entertainment"
+    },
+    {
+      "id": "200-2000-0011",
+      "name": "Bar or Pub"
+    },
+    {
+      "id": "200-2000-0012",
+      "name": "Night Club"
+    },
+    {
+      "id": "200-2000-0013",
+      "name": "Dancing"
+    },
+    {
+      "id": "200-2000-0014",
+      "name": "Karaoke"
+    },
+    {
+      "id": "200-2000-0015",
+      "name": "Live Entertainment-Music"
+    },
+    {
+      "id": "200-2000-0016",
+      "name": "Billiards-Pool Hall"
+    },
+    {
+      "id": "200-2000-0017",
+      "name": "Video Arcade-Game Room"
+    },
+    {
+      "id": "200-2000-0018",
+      "name": "Jazz Club"
+    },
+    {
+      "id": "200-2000-0019",
+      "name": "Beer Garden"
+    },
+    {
+      "id": "200-2000-0306",
+      "name": "Adult Entertainment"
+    },
+    {
+      "id": "200-2000-0368",
+      "name": "Cocktail Lounge"
+    },
+    {
+      "id": "200-2100-0019",
+      "name": "Cinema"
+    },
+    {
+      "id": "200-2200-0000",
+      "name": "Theatre, Music and Culture"
+    },
+    {
+      "id": "200-2200-0020",
+      "name": "Performing Arts"
+    },
+    {
+      "id": "200-2300-0000",
+      "name": "Gambling-Lottery-Betting"
+    },
+    {
+      "id": "200-2300-0021",
+      "name": "Casino"
+    },
+    {
+      "id": "200-2300-0022",
+      "name": "Lottery Booth"
+    },
+    {
+      "id": "300-3000-0000",
+      "name": "Landmark-Attraction"
+    },
+    {
+      "id": "300-3000-0023",
+      "name": "Tourist Attraction"
+    },
+    {
+      "id": "300-3000-0024",
+      "name": "Gallery"
+    },
+    {
+      "id": "300-3000-0025",
+      "name": "Historical Monument"
+    },
+    {
+      "id": "300-3000-0030",
+      "name": "Castle"
+    },
+    {
+      "id": "300-3000-0065",
+      "name": "Winery"
+    },
+    {
+      "id": "300-3000-0350",
+      "name": "Brewery"
+    },
+    {
+      "id": "300-3000-0351",
+      "name": "Distillery"
+    },
+    {
+      "id": "300-3000-0450",
+      "name": "Hot Spring"
+    },
+    {
+      "id": "300-3100-0000",
+      "name": "Museum"
+    },
+    {
+      "id": "300-3100-0026",
+      "name": "Science Museum"
+    },
+    {
+      "id": "300-3100-0027",
+      "name": "Children's Museum"
+    },
+    {
+      "id": "300-3100-0028",
+      "name": "History Museum"
+    },
+    {
+      "id": "300-3100-0029",
+      "name": "Art Museum"
+    },
+    {
+      "id": "300-3200-0000",
+      "name": "Religious Place"
+    },
+    {
+      "id": "300-3200-0030",
+      "name": "Church"
+    },
+    {
+      "id": "300-3200-0031",
+      "name": "Temple"
+    },
+    {
+      "id": "300-3200-0032",
+      "name": "Synagogue"
+    },
+    {
+      "id": "300-3200-0033",
+      "name": "Ashram"
+    },
+    {
+      "id": "300-3200-0034",
+      "name": "Mosque"
+    },
+    {
+      "id": "300-3200-0035",
+      "name": "Shrine"
+    },
+    {
+      "id": "300-3200-0309",
+      "name": "Other Place of Worship"
+    },
+    {
+      "id": "300-3200-0375",
+      "name": "Gurdwara"
+    },
+    {
+      "id": "300-3200-0376",
+      "name": "Pagoda"
+    },
+    {
+      "id": "350-3500-0233",
+      "name": "Body of Water"
+    },
+    {
+      "id": "350-3500-0234",
+      "name": "Reservoir"
+    },
+    {
+      "id": "350-3500-0235",
+      "name": "Waterfall"
+    },
+    {
+      "id": "350-3500-0300",
+      "name": "Bay-Harbor"
+    },
+    {
+      "id": "350-3500-0302",
+      "name": "River"
+    },
+    {
+      "id": "350-3500-0303",
+      "name": "Canal"
+    },
+    {
+      "id": "350-3500-0304",
+      "name": "Lake"
+    },
+    {
+      "id": "350-3510-0236",
+      "name": "Mountain or Hill"
+    },
+    {
+      "id": "350-3510-0237",
+      "name": "Mountain Passes"
+    },
+    {
+      "id": "350-3510-0238",
+      "name": "Mountain Peaks"
+    },
+    {
+      "id": "350-3520-0224",
+      "name": "Undersea Feature"
+    },
+    {
+      "id": "350-3522-0239",
+      "name": "Forest, Heath or Other Vegetation"
+    },
+    {
+      "id": "350-3550-0336",
+      "name": "Natural and Geographical"
+    },
+    {
+      "id": "400-4000-4580",
+      "name": "Public Sports Airport"
+    },
+    {
+      "id": "400-4000-4581",
+      "name": "Airport"
+    },
+    {
+      "id": "400-4000-4582",
+      "name": "Airport Terminal"
+    },
+    {
+      "id": "400-4100-0035",
+      "name": "Train Station"
+    },
+    {
+      "id": "400-4100-0036",
+      "name": "Bus Station"
+    },
+    {
+      "id": "400-4100-0037",
+      "name": "Underground Train-Subway"
+    },
+    {
+      "id": "400-4100-0038",
+      "name": "Commuter Rail Station"
+    },
+    {
+      "id": "400-4100-0039",
+      "name": "Commuter Train"
+    },
+    {
+      "id": "400-4100-0040",
+      "name": "Public Transit Access"
+    },
+    {
+      "id": "400-4100-0041",
+      "name": "Transportation Service"
+    },
+    {
+      "id": "400-4100-0042",
+      "name": "Bus Stop"
+    },
+    {
+      "id": "400-4100-0043",
+      "name": "Local Transit"
+    },
+    {
+      "id": "400-4100-0044",
+      "name": "Ferry Terminal"
+    },
+    {
+      "id": "400-4100-0045",
+      "name": "Boat Ferry"
+    },
+    {
+      "id": "400-4100-0046",
+      "name": "Rail Ferry"
+    },
+    {
+      "id": "400-4100-0047",
+      "name": "Taxi Stand"
+    },
+    {
+      "id": "400-4100-0051",
+      "name": "Rideshare Pickup"
+    },
+    {
+      "id": "400-4100-0225",
+      "name": "Highway Entrance"
+    },
+    {
+      "id": "400-4100-0226",
+      "name": "Highway Exit"
+    },
+    {
+      "id": "400-4100-0326",
+      "name": "Tollbooth"
+    },
+    {
+      "id": "400-4100-0337",
+      "name": "Lightrail"
+    },
+    {
+      "id": "400-4100-0338",
+      "name": "Water Transit"
+    },
+    {
+      "id": "400-4100-0339",
+      "name": "Monorail"
+    },
+    {
+      "id": "400-4100-0340",
+      "name": "Aerial Tramway"
+    },
+    {
+      "id": "400-4100-0341",
+      "name": "Bus Rapid Transit"
+    },
+    {
+      "id": "400-4100-0342",
+      "name": "Inclined Rail"
+    },
+    {
+      "id": "400-4100-0347",
+      "name": "Bicycle Sharing Location"
+    },
+    {
+      "id": "400-4100-0348",
+      "name": "Bicycle Parking"
+    },
+    {
+      "id": "400-4200-0048",
+      "name": "Weigh Station"
+    },
+    {
+      "id": "400-4200-0049",
+      "name": "Cargo Center"
+    },
+    {
+      "id": "400-4200-0050",
+      "name": "Rail Yard"
+    },
+    {
+      "id": "400-4200-0051",
+      "name": "Seaport-Harbour"
+    },
+    {
+      "id": "400-4200-0052",
+      "name": "Airport Cargo"
+    },
+    {
+      "id": "400-4200-0240",
+      "name": "Couriers"
+    },
+    {
+      "id": "400-4200-0241",
+      "name": "Cargo Transportation"
+    },
+    {
+      "id": "400-4200-0311",
+      "name": "Delivery Entrance"
+    },
+    {
+      "id": "400-4200-0312",
+      "name": "Loading Dock"
+    },
+    {
+      "id": "400-4200-0313",
+      "name": "Loading Zone"
+    },
+    {
+      "id": "400-4300-0000",
+      "name": "Rest Area"
+    },
+    {
+      "id": "400-4300-0199",
+      "name": "Complete Rest Area"
+    },
+    {
+      "id": "400-4300-0200",
+      "name": "Parking and Restroom Only Rest Area"
+    },
+    {
+      "id": "400-4300-0201",
+      "name": "Parking Only Rest Area"
+    },
+    {
+      "id": "400-4300-0202",
+      "name": "Motorway Service Rest Area"
+    },
+    {
+      "id": "400-4300-0251",
+      "name": "Roadside Station"
+    },
+    {
+      "id": "400-4300-0308",
+      "name": "Scenic Overlook Rest Area"
+    },
+    {
+      "id": "500-5000-0000",
+      "name": "Hotel or Motel"
+    },
+    {
+      "id": "500-5000-0053",
+      "name": "Hotel"
+    },
+    {
+      "id": "500-5000-0054",
+      "name": "Motel"
+    },
+    {
+      "id": "500-5100-0000",
+      "name": "Lodging"
+    },
+    {
+      "id": "500-5100-0055",
+      "name": "Hostel"
+    },
+    {
+      "id": "500-5100-0056",
+      "name": "Campground"
+    },
+    {
+      "id": "500-5100-0057",
+      "name": "Guest House"
+    },
+    {
+      "id": "500-5100-0058",
+      "name": "Bed and Breakfast"
+    },
+    {
+      "id": "500-5100-0059",
+      "name": "Holiday Park"
+    },
+    {
+      "id": "500-5100-0060",
+      "name": "Short-Time Motel"
+    },
+    {
+      "id": "500-5100-0061",
+      "name": "Ryokan"
+    },
+    {
+      "id": "550-5510-0000",
+      "name": "Outdoor-Recreation"
+    },
+    {
+      "id": "550-5510-0202",
+      "name": "Park-Recreation Area"
+    },
+    {
+      "id": "550-5510-0203",
+      "name": "Sports Field"
+    },
+    {
+      "id": "550-5510-0204",
+      "name": "Garden"
+    },
+    {
+      "id": "550-5510-0205",
+      "name": "Beach"
+    },
+    {
+      "id": "550-5510-0206",
+      "name": "Recreation Center"
+    },
+    {
+      "id": "550-5510-0227",
+      "name": "Ski Lift"
+    },
+    {
+      "id": "550-5510-0242",
+      "name": "Scenic Point"
+    },
+    {
+      "id": "550-5510-0358",
+      "name": "Off Road Trailhead"
+    },
+    {
+      "id": "550-5510-0359",
+      "name": "Trailhead"
+    },
+    {
+      "id": "550-5510-0374",
+      "name": "Off-Road Vehicle Area"
+    },
+    {
+      "id": "550-5510-0378",
+      "name": "Campsite"
+    },
+    {
+      "id": "550-5510-0379",
+      "name": "Outdoor Service"
+    },
+    {
+      "id": "550-5510-0380",
+      "name": "Ranger Station"
+    },
+    {
+      "id": "550-5510-0387",
+      "name": "Bicycle Service"
+    },
+    {
+      "id": "550-5520-0000",
+      "name": "Leisure"
+    },
+    {
+      "id": "550-5520-0207",
+      "name": "Amusement Park"
+    },
+    {
+      "id": "550-5520-0208",
+      "name": "Zoo"
+    },
+    {
+      "id": "550-5520-0209",
+      "name": "Wild Animal Park"
+    },
+    {
+      "id": "550-5520-0210",
+      "name": "Wildlife Refuge"
+    },
+    {
+      "id": "550-5520-0211",
+      "name": "Aquarium"
+    },
+    {
+      "id": "550-5520-0212",
+      "name": "Ski Resort"
+    },
+    {
+      "id": "550-5520-0228",
+      "name": "Animal Park"
+    },
+    {
+      "id": "550-5520-0357",
+      "name": "Water Park"
+    },
+    {
+      "id": "600-6000-0061",
+      "name": "Convenience Store"
+    },
+    {
+      "id": "600-6100-0062",
+      "name": "Shopping Mall"
+    },
+    {
+      "id": "600-6200-0063",
+      "name": "Department Store"
+    },
+    {
+      "id": "600-6300-0064",
+      "name": "Food-Beverage Specialty Store"
+    },
+    {
+      "id": "600-6300-0066",
+      "name": "Grocery"
+    },
+    {
+      "id": "600-6300-0067",
+      "name": "Specialty Food Store"
+    },
+    {
+      "id": "600-6300-0068",
+      "name": "Wine and Liquor"
+    },
+    {
+      "id": "600-6300-0244",
+      "name": "Bakery and Baked Goods Store"
+    },
+    {
+      "id": "600-6300-0245",
+      "name": "Sweet Shop"
+    },
+    {
+      "id": "600-6300-0246",
+      "name": "Doughnut Shop"
+    },
+    {
+      "id": "600-6300-0363",
+      "name": "Butcher"
+    },
+    {
+      "id": "600-6300-0364",
+      "name": "Dairy Goods"
+    },
+    {
+      "id": "600-6400-0000",
+      "name": "Drugstore or Pharmacy"
+    },
+    {
+      "id": "600-6400-0069",
+      "name": "Drugstore"
+    },
+    {
+      "id": "600-6400-0070",
+      "name": "Pharmacy"
+    },
+    {
+      "id": "600-6500-0072",
+      "name": "Consumer Electronics Store"
+    },
+    {
+      "id": "600-6500-0073",
+      "name": "Mobile Retailer"
+    },
+    {
+      "id": "600-6500-0074",
+      "name": "Mobile Service Center"
+    },
+    {
+      "id": "600-6500-0075",
+      "name": "Computer and Software"
+    },
+    {
+      "id": "600-6500-0076",
+      "name": "Entertainment Electronics"
+    },
+    {
+      "id": "600-6600-0000",
+      "name": "Hardware, House and Garden"
+    },
+    {
+      "id": "600-6600-0077",
+      "name": "Home Improvement"
+    },
+    {
+      "id": "600-6600-0078",
+      "name": "Home Specialty Store"
+    },
+    {
+      "id": "600-6600-0079",
+      "name": "Floor and Carpet"
+    },
+    {
+      "id": "600-6600-0080",
+      "name": "Furniture Store"
+    },
+    {
+      "id": "600-6600-0082",
+      "name": "Garden Center"
+    },
+    {
+      "id": "600-6600-0083",
+      "name": "Glass and Window"
+    },
+    {
+      "id": "600-6600-0084",
+      "name": "Lumber"
+    },
+    {
+      "id": "600-6600-0085",
+      "name": "Major Appliance"
+    },
+    {
+      "id": "600-6600-0310",
+      "name": "Power Equipment Dealer"
+    },
+    {
+      "id": "600-6600-0319",
+      "name": "Paint Store"
+    },
+    {
+      "id": "600-6700-0000",
+      "name": "Other Bookshop"
+    },
+    {
+      "id": "600-6700-0087",
+      "name": "Bookstore"
+    },
+    {
+      "id": "600-6800-0000",
+      "name": "Clothing and Accessories"
+    },
+    {
+      "id": "600-6800-0089",
+      "name": "Men's Apparel"
+    },
+    {
+      "id": "600-6800-0090",
+      "name": "Women's Apparel"
+    },
+    {
+      "id": "600-6800-0091",
+      "name": "Children's Apparel"
+    },
+    {
+      "id": "600-6800-0092",
+      "name": "Shoes-Footwear"
+    },
+    {
+      "id": "600-6800-0093",
+      "name": "Specialty Clothing Store"
+    },
+    {
+      "id": "600-6900-0000",
+      "name": "Consumer Goods"
+    },
+    {
+      "id": "600-6900-0094",
+      "name": "Sporting Goods Store"
+    },
+    {
+      "id": "600-6900-0095",
+      "name": "Office Supply and Services Store"
+    },
+    {
+      "id": "600-6900-0096",
+      "name": "Specialty Store"
+    },
+    {
+      "id": "600-6900-0097",
+      "name": "Pet Supply"
+    },
+    {
+      "id": "600-6900-0098",
+      "name": "Wholesale Store"
+    },
+    {
+      "id": "600-6900-0099",
+      "name": "General Merchandise"
+    },
+    {
+      "id": "600-6900-0100",
+      "name": "Discount Store"
+    },
+    {
+      "id": "600-6900-0101",
+      "name": "Flowers and Jewelry"
+    },
+    {
+      "id": "600-6900-0102",
+      "name": "Variety Store"
+    },
+    {
+      "id": "600-6900-0103",
+      "name": "Gift, Antique and Art"
+    },
+    {
+      "id": "600-6900-0105",
+      "name": "Record, CD and Video"
+    },
+    {
+      "id": "600-6900-0106",
+      "name": "Video and Game Rental"
+    },
+    {
+      "id": "600-6900-0107",
+      "name": "Cigar and Tobacco Shop"
+    },
+    {
+      "id": "600-6900-0108",
+      "name": "Vaping Store"
+    },
+    {
+      "id": "600-6900-0246",
+      "name": "Bicycle and Bicycle Accessories Shop"
+    },
+    {
+      "id": "600-6900-0247",
+      "name": "Market"
+    },
+    {
+      "id": "600-6900-0248",
+      "name": "Motorcycle Accessories"
+    },
+    {
+      "id": "600-6900-0249",
+      "name": "Non-Store Retailers"
+    },
+    {
+      "id": "600-6900-0250",
+      "name": "Pawnshop"
+    },
+    {
+      "id": "600-6900-0251",
+      "name": "Used-Second Hand Merchandise Stores"
+    },
+    {
+      "id": "600-6900-0305",
+      "name": "Adult Shop"
+    },
+    {
+      "id": "600-6900-0307",
+      "name": "Arts and Crafts Supplies"
+    },
+    {
+      "id": "600-6900-0355",
+      "name": "Florist"
+    },
+    {
+      "id": "600-6900-0356",
+      "name": "Jeweler"
+    },
+    {
+      "id": "600-6900-0358",
+      "name": "Toy Store"
+    },
+    {
+      "id": "600-6900-0387",
+      "name": "Golf Shop"
+    },
+    {
+      "id": "600-6900-0388",
+      "name": "Hunting-Fishing Shop"
+    },
+    {
+      "id": "600-6900-0389",
+      "name": "Running-Walking Shop"
+    },
+    {
+      "id": "600-6900-0390",
+      "name": "Skate Shop"
+    },
+    {
+      "id": "600-6900-0391",
+      "name": "Ski Shop"
+    },
+    {
+      "id": "600-6900-0392",
+      "name": "Snowboard Shop"
+    },
+    {
+      "id": "600-6900-0393",
+      "name": "Surf Shop"
+    },
+    {
+      "id": "600-6900-0394",
+      "name": "BMX Shop"
+    },
+    {
+      "id": "600-6900-0395",
+      "name": "Camping-Hiking Shop"
+    },
+    {
+      "id": "600-6900-0396",
+      "name": "Canoe-Kayak Shop"
+    },
+    {
+      "id": "600-6900-0397",
+      "name": "Cross Country Ski Shop"
+    },
+    {
+      "id": "600-6900-0398",
+      "name": "Tack Shop"
+    },
+    {
+      "id": "600-6950-0000",
+      "name": "Hair and Beauty"
+    },
+    {
+      "id": "600-6950-0399",
+      "name": "Barber"
+    },
+    {
+      "id": "600-6950-0400",
+      "name": "Nail Salon"
+    },
+    {
+      "id": "600-6950-0401",
+      "name": "Hair Salon"
+    },
+    {
+      "id": "700-7000-0107",
+      "name": "Bank"
+    },
+    {
+      "id": "700-7010-0108",
+      "name": "ATM"
+    },
+    {
+      "id": "700-7050-0109",
+      "name": "Money Transferring Service"
+    },
+    {
+      "id": "700-7050-0110",
+      "name": "Check Cashing Service-Currency Exchange"
+    },
+    {
+      "id": "700-7100-0000",
+      "name": "Communication-Media"
+    },
+    {
+      "id": "700-7100-0134",
+      "name": "Telephone Service"
+    },
+    {
+      "id": "700-7200-0000",
+      "name": "Commercial Services"
+    },
+    {
+      "id": "700-7200-0252",
+      "name": "Advertising-Marketing, PR and Market Research"
+    },
+    {
+      "id": "700-7200-0253",
+      "name": "Catering and Other Food Services"
+    },
+    {
+      "id": "700-7200-0254",
+      "name": "Construction"
+    },
+    {
+      "id": "700-7200-0255",
+      "name": "Customer Care-Service Center"
+    },
+    {
+      "id": "700-7200-0256",
+      "name": "Engineering and Scientific Services"
+    },
+    {
+      "id": "700-7200-0257",
+      "name": "Farming"
+    },
+    {
+      "id": "700-7200-0258",
+      "name": "Food Production"
+    },
+    {
+      "id": "700-7200-0259",
+      "name": "Human Resources and Recruiting Services"
+    },
+    {
+      "id": "700-7200-0260",
+      "name": "Investigation Services"
+    },
+    {
+      "id": "700-7200-0261",
+      "name": "IT and Office Equipment Services"
+    },
+    {
+      "id": "700-7200-0262",
+      "name": "Landscaping Services"
+    },
+    {
+      "id": "700-7200-0263",
+      "name": "Locksmiths and Security Systems Services"
+    },
+    {
+      "id": "700-7200-0264",
+      "name": "Management and Consulting Services"
+    },
+    {
+      "id": "700-7200-0265",
+      "name": "Manufacturing"
+    },
+    {
+      "id": "700-7200-0266",
+      "name": "Mining, Quarrying and Other Extraction"
+    },
+    {
+      "id": "700-7200-0267",
+      "name": "Modeling Agencies"
+    },
+    {
+      "id": "700-7200-0268",
+      "name": "Motorcycle Service and Maintenance"
+    },
+    {
+      "id": "700-7200-0269",
+      "name": "Organizations and Societies"
+    },
+    {
+      "id": "700-7200-0270",
+      "name": "Entertainment and Recreation"
+    },
+    {
+      "id": "700-7200-0271",
+      "name": "Finance and Insurance"
+    },
+    {
+      "id": "700-7200-0272",
+      "name": "Healthcare and Healthcare Support Services"
+    },
+    {
+      "id": "700-7200-0274",
+      "name": "Rental and Leasing"
+    },
+    {
+      "id": "700-7200-0275",
+      "name": "Repair and Maintenance Services"
+    },
+    {
+      "id": "700-7200-0276",
+      "name": "Printing and Publishing"
+    },
+    {
+      "id": "700-7200-0277",
+      "name": "Specialty Trade Contractors"
+    },
+    {
+      "id": "700-7200-0278",
+      "name": "Towing Service"
+    },
+    {
+      "id": "700-7200-0279",
+      "name": "Translation and Interpretation Services"
+    },
+    {
+      "id": "700-7200-0324",
+      "name": "Apartment Rental-Flat Rental"
+    },
+    {
+      "id": "700-7200-0328",
+      "name": "B2B Sales and Services"
+    },
+    {
+      "id": "700-7200-0329",
+      "name": "B2B Restaurant Services"
+    },
+    {
+      "id": "700-7200-0330",
+      "name": "Aviation"
+    },
+    {
+      "id": "700-7200-0342",
+      "name": "Interior and Exterior Design"
+    },
+    {
+      "id": "700-7200-0344",
+      "name": "Property Management"
+    },
+    {
+      "id": "700-7200-0345",
+      "name": "Financial Investment Firm"
+    },
+    {
+      "id": "700-7200-0351",
+      "name": "Warehouse"
+    },
+    {
+      "id": "700-7200-0352",
+      "name": "Fulfillment and Distribution Center"
+    },
+    {
+      "id": "700-7250-0136",
+      "name": "Business Facility"
+    },
+    {
+      "id": "700-7300-0110",
+      "name": "Police Box"
+    },
+    {
+      "id": "700-7300-0111",
+      "name": "Police Station"
+    },
+    {
+      "id": "700-7300-0112",
+      "name": "Police Services-Security"
+    },
+    {
+      "id": "700-7300-0113",
+      "name": "Fire Department"
+    },
+    {
+      "id": "700-7300-0280",
+      "name": "Ambulance Services"
+    },
+    {
+      "id": "700-7400-0000",
+      "name": "Consumer Services"
+    },
+    {
+      "id": "700-7400-0133",
+      "name": "Travel Agent-Ticketing"
+    },
+    {
+      "id": "700-7400-0137",
+      "name": "Dry Cleaning and Laundry"
+    },
+    {
+      "id": "700-7400-0138",
+      "name": "Attorney"
+    },
+    {
+      "id": "700-7400-0140",
+      "name": "Boating"
+    },
+    {
+      "id": "700-7400-0141",
+      "name": "Business Service"
+    },
+    {
+      "id": "700-7400-0142",
+      "name": "Funeral Director"
+    },
+    {
+      "id": "700-7400-0143",
+      "name": "Mover"
+    },
+    {
+      "id": "700-7400-0144",
+      "name": "Photography"
+    },
+    {
+      "id": "700-7400-0145",
+      "name": "Real Estate Services"
+    },
+    {
+      "id": "700-7400-0146",
+      "name": "Repair Service"
+    },
+    {
+      "id": "700-7400-0147",
+      "name": "Social Service"
+    },
+    {
+      "id": "700-7400-0148",
+      "name": "Storage"
+    },
+    {
+      "id": "700-7400-0149",
+      "name": "Tailor and Alteration"
+    },
+    {
+      "id": "700-7400-0150",
+      "name": "Tax Service"
+    },
+    {
+      "id": "700-7400-0151",
+      "name": "Utilities"
+    },
+    {
+      "id": "700-7400-0152",
+      "name": "Waste and Sanitary"
+    },
+    {
+      "id": "700-7400-0281",
+      "name": "Bicycle Service and Maintenance"
+    },
+    {
+      "id": "700-7400-0282",
+      "name": "Bill Payment Service"
+    },
+    {
+      "id": "700-7400-0283",
+      "name": "Body Piercing and Tattoos"
+    },
+    {
+      "id": "700-7400-0284",
+      "name": "Wedding Services and Bridal Studio"
+    },
+    {
+      "id": "700-7400-0285",
+      "name": "Internet Cafe"
+    },
+    {
+      "id": "700-7400-0286",
+      "name": "Kindergarten and Childcare"
+    },
+    {
+      "id": "700-7400-0287",
+      "name": "Maid Services"
+    },
+    {
+      "id": "700-7400-0288",
+      "name": "Marriage and Match Making Services"
+    },
+    {
+      "id": "700-7400-0289",
+      "name": "Public Administration"
+    },
+    {
+      "id": "700-7400-0292",
+      "name": "Wellness Center and Services"
+    },
+    {
+      "id": "700-7400-0293",
+      "name": "Pet Care"
+    },
+    {
+      "id": "700-7400-0327",
+      "name": "Legal Services"
+    },
+    {
+      "id": "700-7400-0343",
+      "name": "Tanning Salon"
+    },
+    {
+      "id": "700-7400-0352",
+      "name": "Recycling Center"
+    },
+    {
+      "id": "700-7400-0365",
+      "name": "Electrical"
+    },
+    {
+      "id": "700-7400-0366",
+      "name": "Plumbing"
+    },
+    {
+      "id": "700-7450-0114",
+      "name": "Post Office"
+    },
+    {
+      "id": "700-7450-0115",
+      "name": "Postal Collection Box"
+    },
+    {
+      "id": "700-7460-0115",
+      "name": "Tourist Information"
+    },
+    {
+      "id": "700-7600-0000",
+      "name": "Fueling Station"
+    },
+    {
+      "id": "700-7600-0116",
+      "name": "Petrol-Gasoline Station"
+    },
+    {
+      "id": "700-7600-0322",
+      "name": "EV Charging Station for passenger cars"
+    },
+    {
+      "id": "700-7600-0323",
+      "name": "EV Charging Station for Trucks"
+    },
+    {
+      "id": "700-7600-0324",
+      "name": "EV Charging Station for 2-wheelers and Light Vehicles"
+    },
+    {
+      "id": "700-7600-0325",
+      "name": "EV Battery Swap Station"
+    },
+    {
+      "id": "700-7600-0444",
+      "name": "Hydrogen Fuel Station"
+    },
+    {
+      "id": "700-7800-0118",
+      "name": "Automobile Dealership-New Cars"
+    },
+    {
+      "id": "700-7800-0119",
+      "name": "Automobile Dealership-Used Cars"
+    },
+    {
+      "id": "700-7800-0120",
+      "name": "Motorcycle Dealership"
+    },
+    {
+      "id": "700-7800-0200",
+      "name": "EV Dealership-New Vehicles"
+    },
+    {
+      "id": "700-7850-0000",
+      "name": "Car Repair-Service"
+    },
+    {
+      "id": "700-7850-0121",
+      "name": "Car Wash-Detailing"
+    },
+    {
+      "id": "700-7850-0122",
+      "name": "Car Repair"
+    },
+    {
+      "id": "700-7850-0123",
+      "name": "Auto Parts"
+    },
+    {
+      "id": "700-7850-0124",
+      "name": "Emission Testing"
+    },
+    {
+      "id": "700-7850-0125",
+      "name": "Tire Repair"
+    },
+    {
+      "id": "700-7850-0126",
+      "name": "Truck Repair"
+    },
+    {
+      "id": "700-7850-0127",
+      "name": "Van Repair"
+    },
+    {
+      "id": "700-7850-0128",
+      "name": "Road Assistance"
+    },
+    {
+      "id": "700-7850-0129",
+      "name": "Automobile Club"
+    },
+    {
+      "id": "700-7850-0200",
+      "name": "EV Repair"
+    },
+    {
+      "id": "700-7851-0117",
+      "name": "Rental Car Agency"
+    },
+    {
+      "id": "700-7851-0127",
+      "name": "Carshare Location"
+    },
+    {
+      "id": "700-7900-0000",
+      "name": "Truck-Semi Dealer-Services"
+    },
+    {
+      "id": "700-7900-0130",
+      "name": "Truck Dealership"
+    },
+    {
+      "id": "700-7900-0131",
+      "name": "Truck Parking"
+    },
+    {
+      "id": "700-7900-0132",
+      "name": "Truck Stop-Plaza"
+    },
+    {
+      "id": "700-7900-0323",
+      "name": "Truck Wash"
+    },
+    {
+      "id": "800-8000-0000",
+      "name": "Hospital or Health Care Facility"
+    },
+    {
+      "id": "800-8000-0154",
+      "name": "Dentist-Dental Office"
+    },
+    {
+      "id": "800-8000-0155",
+      "name": "Family-General Practice Physicians"
+    },
+    {
+      "id": "800-8000-0156",
+      "name": "Psychiatric Institute"
+    },
+    {
+      "id": "800-8000-0157",
+      "name": "Nursing Home"
+    },
+    {
+      "id": "800-8000-0158",
+      "name": "Medical Services-Clinics"
+    },
+    {
+      "id": "800-8000-0159",
+      "name": "Hospital"
+    },
+    {
+      "id": "800-8000-0160",
+      "name": "Urgent Care Center"
+    },
+    {
+      "id": "800-8000-0161",
+      "name": "Optical"
+    },
+    {
+      "id": "800-8000-0162",
+      "name": "Veterinarian"
+    },
+    {
+      "id": "800-8000-0325",
+      "name": "Hospital Emergency Room"
+    },
+    {
+      "id": "800-8000-0340",
+      "name": "Therapist"
+    },
+    {
+      "id": "800-8000-0341",
+      "name": "Chiropractor"
+    },
+    {
+      "id": "800-8000-0367",
+      "name": "Blood Bank"
+    },
+    {
+      "id": "800-8000-0400",
+      "name": "COVID-19 Testing Site"
+    },
+    {
+      "id": "800-8000-0401",
+      "name": "Vaccination Site"
+    },
+    {
+      "id": "800-8100-0000",
+      "name": "Government or Community Facility"
+    },
+    {
+      "id": "800-8100-0163",
+      "name": "City Hall"
+    },
+    {
+      "id": "800-8100-0164",
+      "name": "Embassy"
+    },
+    {
+      "id": "800-8100-0165",
+      "name": "Military Base"
+    },
+    {
+      "id": "800-8100-0168",
+      "name": "County Council"
+    },
+    {
+      "id": "800-8100-0169",
+      "name": "Civic-Community Center"
+    },
+    {
+      "id": "800-8100-0170",
+      "name": "Courthouse"
+    },
+    {
+      "id": "800-8100-0171",
+      "name": "Government Office"
+    },
+    {
+      "id": "800-8100-0172",
+      "name": "Border Crossing"
+    },
+    {
+      "id": "800-8200-0000",
+      "name": "Education Facility"
+    },
+    {
+      "id": "800-8200-0173",
+      "name": "Higher Education"
+    },
+    {
+      "id": "800-8200-0295",
+      "name": "Training and Development"
+    },
+    {
+      "id": "800-8200-0360",
+      "name": "Coaching Institute"
+    },
+    {
+      "id": "800-8200-0361",
+      "name": "Fine Arts"
+    },
+    {
+      "id": "800-8200-0362",
+      "name": "Language Studies"
+    },
+    {
+      "id": "800-8250-0000",
+      "name": "School"
+    },
+    {
+      "id": "800-8250-0287",
+      "name": "Primary School"
+    },
+    {
+      "id": "800-8250-0288",
+      "name": "Secondary School"
+    },
+    {
+      "id": "800-8300-0000",
+      "name": "Other Library"
+    },
+    {
+      "id": "800-8300-0175",
+      "name": "Library"
+    },
+    {
+      "id": "800-8400-0000",
+      "name": "Event Spaces"
+    },
+    {
+      "id": "800-8400-0139",
+      "name": "Banquet Hall"
+    },
+    {
+      "id": "800-8400-0176",
+      "name": "Convention-Exhibition Center"
+    },
+    {
+      "id": "800-8500-0000",
+      "name": "Parking"
+    },
+    {
+      "id": "800-8500-0177",
+      "name": "Parking Garage-Parking House"
+    },
+    {
+      "id": "800-8500-0178",
+      "name": "Parking Lot"
+    },
+    {
+      "id": "800-8500-0179",
+      "name": "Park and Ride"
+    },
+    {
+      "id": "800-8500-0200",
+      "name": "Motorcycle, Moped and Scooter Parking"
+    },
+    {
+      "id": "800-8500-0315",
+      "name": "Cellphone Parking Lot"
+    },
+    {
+      "id": "800-8600-0000",
+      "name": "Sports Facility-Venue"
+    },
+    {
+      "id": "800-8600-0180",
+      "name": "Sports Complex-Stadium"
+    },
+    {
+      "id": "800-8600-0181",
+      "name": "Ice Skating Rink"
+    },
+    {
+      "id": "800-8600-0182",
+      "name": "Swimming Pool"
+    },
+    {
+      "id": "800-8600-0183",
+      "name": "Tennis Court"
+    },
+    {
+      "id": "800-8600-0184",
+      "name": "Bowling Center"
+    },
+    {
+      "id": "800-8600-0185",
+      "name": "Indoor Ski"
+    },
+    {
+      "id": "800-8600-0186",
+      "name": "Hockey"
+    },
+    {
+      "id": "800-8600-0187",
+      "name": "Racquetball Court"
+    },
+    {
+      "id": "800-8600-0188",
+      "name": "Shooting Range"
+    },
+    {
+      "id": "800-8600-0189",
+      "name": "Soccer Club"
+    },
+    {
+      "id": "800-8600-0190",
+      "name": "Squash Court"
+    },
+    {
+      "id": "800-8600-0191",
+      "name": "Fitness-Health Club"
+    },
+    {
+      "id": "800-8600-0192",
+      "name": "Indoor Sports"
+    },
+    {
+      "id": "800-8600-0193",
+      "name": "Golf Course"
+    },
+    {
+      "id": "800-8600-0194",
+      "name": "Golf Practice Range"
+    },
+    {
+      "id": "800-8600-0195",
+      "name": "Race Track"
+    },
+    {
+      "id": "800-8600-0196",
+      "name": "Sporting Instruction and Camps"
+    },
+    {
+      "id": "800-8600-0197",
+      "name": "Sports Activities"
+    },
+    {
+      "id": "800-8600-0199",
+      "name": "Basketball"
+    },
+    {
+      "id": "800-8600-0200",
+      "name": "Badminton"
+    },
+    {
+      "id": "800-8600-0314",
+      "name": "Rugby"
+    },
+    {
+      "id": "800-8600-0316",
+      "name": "Diving Center"
+    },
+    {
+      "id": "800-8600-0376",
+      "name": "Bike Park"
+    },
+    {
+      "id": "800-8600-0377",
+      "name": "BMX Track"
+    },
+    {
+      "id": "800-8600-0381",
+      "name": "Running Track"
+    },
+    {
+      "id": "800-8700-0000",
+      "name": "Facilities"
+    },
+    {
+      "id": "800-8700-0166",
+      "name": "Cemetery"
+    },
+    {
+      "id": "800-8700-0167",
+      "name": "Crematorium"
+    },
+    {
+      "id": "800-8700-0198",
+      "name": "Public Restroom-Toilets"
+    },
+    {
+      "id": "800-8700-0296",
+      "name": "Clubhouse"
+    },
+    {
+      "id": "800-8700-0298",
+      "name": "Registration Office"
+    },
+    {
+      "id": "800-8700-0333",
+      "name": "Student Housing"
+    },
+    {
+      "id": "900-9100-0000",
+      "name": "City, Town or Village"
+    },
+    {
+      "id": "900-9200-0000",
+      "name": "Outdoor Area-Complex"
+    },
+    {
+      "id": "900-9200-0218",
+      "name": "Industrial Zone"
+    },
+    {
+      "id": "900-9200-0219",
+      "name": "Marina"
+    },
+    {
+      "id": "900-9200-0220",
+      "name": "RV Parks"
+    },
+    {
+      "id": "900-9200-0299",
+      "name": "Collective Community"
+    },
+    {
+      "id": "900-9200-0301",
+      "name": "Island"
+    },
+    {
+      "id": "900-9200-0386",
+      "name": "Meeting Point"
+    },
+    {
+      "id": "900-9300-0000",
+      "name": "Building"
+    },
+    {
+      "id": "900-9300-0221",
+      "name": "Residential Area-Building"
+    },
+    {
+      "id": "900-9400-0000",
+      "name": "Administrative Region-Streets"
+    },
+    {
+      "id": "900-9400-0399",
+      "name": "Administrative Region"
+    },
+    {
+      "id": "900-9400-0400",
+      "name": "Postal Area"
+    },
+    {
+      "id": "900-9400-0401",
+      "name": "Street or Square"
+    },
+    {
+      "id": "900-9400-0402",
+      "name": "Intersection"
+    }
+  ],
+  "foodTypes": [
+    {
+      "id": "101-000",
+      "name": "American"
+    },
+    {
+      "id": "101-001",
+      "name": "American-Californian"
+    },
+    {
+      "id": "101-002",
+      "name": "American-Southwestern"
+    },
+    {
+      "id": "101-003",
+      "name": "American-Barbecue/Southern"
+    },
+    {
+      "id": "101-004",
+      "name": "American-Creole"
+    },
+    {
+      "id": "101-020",
+      "name": "American-Southern"
+    },
+    {
+      "id": "101-039",
+      "name": "American-Native American"
+    },
+    {
+      "id": "101-040",
+      "name": "American-Soul Food"
+    },
+    {
+      "id": "101-070",
+      "name": "American-Cajun"
+    },
+    {
+      "id": "102-000",
+      "name": "Mexican"
+    },
+    {
+      "id": "102-005",
+      "name": "Mexican-Yucateca"
+    },
+    {
+      "id": "102-006",
+      "name": "Mexican-Oaxaquena"
+    },
+    {
+      "id": "102-007",
+      "name": "Mexican-Veracruzana"
+    },
+    {
+      "id": "102-008",
+      "name": "Mexican-Poblana"
+    },
+    {
+      "id": "103-000",
+      "name": "Canadian"
+    },
+    {
+      "id": "150-000",
+      "name": "Australian"
+    },
+    {
+      "id": "151-000",
+      "name": "Hawaiian/Polynesian"
+    },
+    {
+      "id": "152-000",
+      "name": "Caribbean"
+    },
+    {
+      "id": "153-000",
+      "name": "Cuban"
+    },
+    {
+      "id": "200-000",
+      "name": "Asian"
+    },
+    {
+      "id": "201-000",
+      "name": "Chinese"
+    },
+    {
+      "id": "201-009",
+      "name": "Chinese-Szechuan"
+    },
+    {
+      "id": "201-010",
+      "name": "Chinese-Cantonese"
+    },
+    {
+      "id": "201-041",
+      "name": "Chinese-Shanghai"
+    },
+    {
+      "id": "201-042",
+      "name": "Chinese-Beijing"
+    },
+    {
+      "id": "201-043",
+      "name": "Chinese-Hunan/Hubei"
+    },
+    {
+      "id": "201-044",
+      "name": "Chinese-Jiangsu/Zhejiang"
+    },
+    {
+      "id": "201-045",
+      "name": "Chinese-Shandong"
+    },
+    {
+      "id": "201-046",
+      "name": "Chinese-Northeastern"
+    },
+    {
+      "id": "201-047",
+      "name": "Chinese-Inner Mongolian"
+    },
+    {
+      "id": "201-048",
+      "name": "Chinese-Yunnan/Guizhou"
+    },
+    {
+      "id": "201-049",
+      "name": "Chinese-Taiwanese"
+    },
+    {
+      "id": "201-050",
+      "name": "Chinese-Guangxi"
+    },
+    {
+      "id": "201-051",
+      "name": "Chinese-Jiangxi"
+    },
+    {
+      "id": "201-052",
+      "name": "Chinese-Northwestern"
+    },
+    {
+      "id": "201-053",
+      "name": "Chinese-Porridge"
+    },
+    {
+      "id": "201-054",
+      "name": "Chinese-Islamic"
+    },
+    {
+      "id": "201-055",
+      "name": "Chinese-Hot Pot"
+    },
+    {
+      "id": "202-000",
+      "name": "Indian"
+    },
+    {
+      "id": "202-011",
+      "name": "Indian-Tandoori"
+    },
+    {
+      "id": "202-012",
+      "name": "Indian-Punjabi"
+    },
+    {
+      "id": "202-013",
+      "name": "Indian-Rajasthani"
+    },
+    {
+      "id": "202-014",
+      "name": "Indian-Mughlai"
+    },
+    {
+      "id": "202-015",
+      "name": "Indian-Bengali"
+    },
+    {
+      "id": "202-016",
+      "name": "Indian-Goan"
+    },
+    {
+      "id": "202-017",
+      "name": "Indian-Jain"
+    },
+    {
+      "id": "202-018",
+      "name": "Indian-Konkani"
+    },
+    {
+      "id": "202-019",
+      "name": "Indian-Gujarati"
+    },
+    {
+      "id": "202-020",
+      "name": "Indian-Parsi"
+    },
+    {
+      "id": "202-021",
+      "name": "Indian-South Indian"
+    },
+    {
+      "id": "202-022",
+      "name": "Indian-Maharashtrian"
+    },
+    {
+      "id": "202-023",
+      "name": "Indian-North Indian"
+    },
+    {
+      "id": "202-024",
+      "name": "Indian-Malvani"
+    },
+    {
+      "id": "202-025",
+      "name": "Indian-Hyderabadi"
+    },
+    {
+      "id": "203-000",
+      "name": "Japanese"
+    },
+    {
+      "id": "203-010",
+      "name": "Japanese-Fish/Other Seafood"
+    },
+    {
+      "id": "203-011",
+      "name": "Japanese-Unagi/Anago"
+    },
+    {
+      "id": "203-026",
+      "name": "Japanese-Sushi"
+    },
+    {
+      "id": "203-027",
+      "name": "Japanese-Sushi Train"
+    },
+    {
+      "id": "203-030",
+      "name": "Japanese-Hibachi"
+    },
+    {
+      "id": "203-031",
+      "name": "Japanese-Yakitori/Chicken"
+    },
+    {
+      "id": "203-032",
+      "name": "Japanese-Yakiniku"
+    },
+    {
+      "id": "203-033",
+      "name": "Japanese-Jingisukan"
+    },
+    {
+      "id": "203-040",
+      "name": "Japanese-Rice Bowl"
+    },
+    {
+      "id": "203-045",
+      "name": "Japanese-Curry"
+    },
+    {
+      "id": "203-050",
+      "name": "Japanese-Tempura/Other Fried Food"
+    },
+    {
+      "id": "203-051",
+      "name": "Japanese-Okonomiyaki"
+    },
+    {
+      "id": "203-052",
+      "name": "Japanese-Takoyaki"
+    },
+    {
+      "id": "203-053",
+      "name": "Japanese-Tonkatsu"
+    },
+    {
+      "id": "203-060",
+      "name": "Japanese-Ramen"
+    },
+    {
+      "id": "203-061",
+      "name": "Japanese-Udon/Other Noodles"
+    },
+    {
+      "id": "203-065",
+      "name": "Japanese-Gyoza"
+    },
+    {
+      "id": "203-070",
+      "name": "Japanese-Sukiyaki"
+    },
+    {
+      "id": "203-071",
+      "name": "Japanese-Shabushabu"
+    },
+    {
+      "id": "203-072",
+      "name": "Japanese-Chanko"
+    },
+    {
+      "id": "203-080",
+      "name": "Japanese-Kaiseki"
+    },
+    {
+      "id": "203-081",
+      "name": "Japanese-Izakaya"
+    },
+    {
+      "id": "204-000",
+      "name": "Southeast Asian"
+    },
+    {
+      "id": "205-000",
+      "name": "Thai"
+    },
+    {
+      "id": "206-000",
+      "name": "Vietnamese"
+    },
+    {
+      "id": "207-000",
+      "name": "Korean"
+    },
+    {
+      "id": "208-000",
+      "name": "Pakistani"
+    },
+    {
+      "id": "209-000",
+      "name": "Malaysian"
+    },
+    {
+      "id": "210-000",
+      "name": "Bruneian"
+    },
+    {
+      "id": "211-000",
+      "name": "Indonesian"
+    },
+    {
+      "id": "212-000",
+      "name": "Filipino"
+    },
+    {
+      "id": "250-000",
+      "name": "Middle Eastern"
+    },
+    {
+      "id": "251-000",
+      "name": "Azerbaijani"
+    },
+    {
+      "id": "252-000",
+      "name": "Turkish"
+    },
+    {
+      "id": "253-000",
+      "name": "Lebanese"
+    },
+    {
+      "id": "254-000",
+      "name": "Yemeni"
+    },
+    {
+      "id": "255-000",
+      "name": "Burmese"
+    },
+    {
+      "id": "256-000",
+      "name": "Cambodian"
+    },
+    {
+      "id": "257-000",
+      "name": "Singaporean"
+    },
+    {
+      "id": "258-000",
+      "name": "Sri Lankan"
+    },
+    {
+      "id": "259-000",
+      "name": "Tibetan"
+    },
+    {
+      "id": "300-000",
+      "name": "European"
+    },
+    {
+      "id": "301-000",
+      "name": "French"
+    },
+    {
+      "id": "301-027",
+      "name": "French-Alsatian"
+    },
+    {
+      "id": "301-028",
+      "name": "French-Auvergnate"
+    },
+    {
+      "id": "301-029",
+      "name": "French-Basque"
+    },
+    {
+      "id": "301-030",
+      "name": "French-Corse"
+    },
+    {
+      "id": "301-031",
+      "name": "French-Lyonnaise"
+    },
+    {
+      "id": "301-032",
+      "name": "French-Provencale"
+    },
+    {
+      "id": "301-033",
+      "name": "French-Sud-ouest"
+    },
+    {
+      "id": "302-000",
+      "name": "German"
+    },
+    {
+      "id": "303-000",
+      "name": "Greek"
+    },
+    {
+      "id": "304-000",
+      "name": "Italian"
+    },
+    {
+      "id": "305-000",
+      "name": "Irish"
+    },
+    {
+      "id": "306-000",
+      "name": "Austrian"
+    },
+    {
+      "id": "307-000",
+      "name": "Belgian"
+    },
+    {
+      "id": "308-000",
+      "name": "British Isles"
+    },
+    {
+      "id": "309-000",
+      "name": "Dutch"
+    },
+    {
+      "id": "310-000",
+      "name": "Swiss"
+    },
+    {
+      "id": "311-000",
+      "name": "Spanish"
+    },
+    {
+      "id": "311-034",
+      "name": "Spanish-Tapas"
+    },
+    {
+      "id": "313-000",
+      "name": "Portuguese"
+    },
+    {
+      "id": "314-000",
+      "name": "Maltese"
+    },
+    {
+      "id": "315-000",
+      "name": "Sicilian"
+    },
+    {
+      "id": "350-000",
+      "name": "Scandinavian"
+    },
+    {
+      "id": "351-000",
+      "name": "Finnish"
+    },
+    {
+      "id": "352-000",
+      "name": "Swedish"
+    },
+    {
+      "id": "353-000",
+      "name": "Norwegian"
+    },
+    {
+      "id": "354-000",
+      "name": "Danish"
+    },
+    {
+      "id": "370-000",
+      "name": "East European"
+    },
+    {
+      "id": "371-000",
+      "name": "Hungarian"
+    },
+    {
+      "id": "372-000",
+      "name": "Mediterranean"
+    },
+    {
+      "id": "373-000",
+      "name": "Baltic"
+    },
+    {
+      "id": "374-000",
+      "name": "Belorusian"
+    },
+    {
+      "id": "375-000",
+      "name": "Ukrainian"
+    },
+    {
+      "id": "376-000",
+      "name": "Polish"
+    },
+    {
+      "id": "377-000",
+      "name": "Russian"
+    },
+    {
+      "id": "378-000",
+      "name": "Bohemian"
+    },
+    {
+      "id": "379-000",
+      "name": "Balkan"
+    },
+    {
+      "id": "380-000",
+      "name": "Caucasian"
+    },
+    {
+      "id": "381-000",
+      "name": "Romanian"
+    },
+    {
+      "id": "382-000",
+      "name": "Armenian"
+    },
+    {
+      "id": "400-000",
+      "name": "South American"
+    },
+    {
+      "id": "401-000",
+      "name": "Surinamese"
+    },
+    {
+      "id": "402-000",
+      "name": "Venezuelan"
+    },
+    {
+      "id": "403-000",
+      "name": "Latin American"
+    },
+    {
+      "id": "404-000",
+      "name": "Argentinean"
+    },
+    {
+      "id": "405-000",
+      "name": "Chilean"
+    },
+    {
+      "id": "406-000",
+      "name": "Brazilian"
+    },
+    {
+      "id": "406-035",
+      "name": "Brazilian-Baiana"
+    },
+    {
+      "id": "406-036",
+      "name": "Brazilian-Capixaba"
+    },
+    {
+      "id": "406-037",
+      "name": "Brazilian-Mineira"
+    },
+    {
+      "id": "406-038",
+      "name": "Brazilian-Bakery"
+    },
+    {
+      "id": "407-000",
+      "name": "Peruvian"
+    },
+    {
+      "id": "500-000",
+      "name": "African"
+    },
+    {
+      "id": "501-000",
+      "name": "Moroccan"
+    },
+    {
+      "id": "502-000",
+      "name": "Egyptian"
+    },
+    {
+      "id": "503-000",
+      "name": "Ethiopian"
+    },
+    {
+      "id": "504-000",
+      "name": "Seychellois"
+    },
+    {
+      "id": "505-000",
+      "name": "South African"
+    },
+    {
+      "id": "506-000",
+      "name": "North African"
+    },
+    {
+      "id": "600-000",
+      "name": "Oceanic"
+    },
+    {
+      "id": "800-050",
+      "name": "Fast Food"
+    },
+    {
+      "id": "800-056",
+      "name": "Steak House"
+    },
+    {
+      "id": "800-057",
+      "name": "Pizza"
+    },
+    {
+      "id": "800-058",
+      "name": "Snacks and Beverages"
+    },
+    {
+      "id": "800-059",
+      "name": "Hot Dogs"
+    },
+    {
+      "id": "800-060",
+      "name": "Sandwich"
+    },
+    {
+      "id": "800-061",
+      "name": "Breakfast"
+    },
+    {
+      "id": "800-062",
+      "name": "Chicken"
+    },
+    {
+      "id": "800-063",
+      "name": "Ice Cream"
+    },
+    {
+      "id": "800-064",
+      "name": "International"
+    },
+    {
+      "id": "800-065",
+      "name": "Continental"
+    },
+    {
+      "id": "800-066",
+      "name": "Fusion"
+    },
+    {
+      "id": "800-067",
+      "name": "Burgers"
+    },
+    {
+      "id": "800-068",
+      "name": "Creperie"
+    },
+    {
+      "id": "800-069",
+      "name": "Pastries"
+    },
+    {
+      "id": "800-071",
+      "name": "Fondue"
+    },
+    {
+      "id": "800-072",
+      "name": "Brunch"
+    },
+    {
+      "id": "800-073",
+      "name": "Bistro"
+    },
+    {
+      "id": "800-074",
+      "name": "BrewPub"
+    },
+    {
+      "id": "800-075",
+      "name": "Seafood"
+    },
+    {
+      "id": "800-076",
+      "name": "Vegan"
+    },
+    {
+      "id": "800-077",
+      "name": "Vegetarian"
+    },
+    {
+      "id": "800-078",
+      "name": "Grill"
+    },
+    {
+      "id": "800-079",
+      "name": "Jewish/Kosher"
+    },
+    {
+      "id": "800-080",
+      "name": "Soup"
+    },
+    {
+      "id": "800-081",
+      "name": "Lunch"
+    },
+    {
+      "id": "800-082",
+      "name": "Dinner"
+    },
+    {
+      "id": "800-083",
+      "name": "Natural/Healthy"
+    },
+    {
+      "id": "800-084",
+      "name": "Organic"
+    },
+    {
+      "id": "800-085",
+      "name": "Noodles"
+    },
+    {
+      "id": "800-086",
+      "name": "Halal"
+    },
+    {
+      "id": "800-087",
+      "name": "Kebab"
+    }
+  ]
+}

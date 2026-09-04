@@ -9,6 +9,8 @@ import { recommendationAction, recommendationDiagnostics } from './_shared/recom
 import { scheduleAction } from './_shared/schedule.ts';
 import { routesAction } from './_shared/routes.ts';
 import { placeEntityAction } from './_shared/place-entities.ts';
+import {providerStatus} from './_shared/provider-budget.ts';
+import {providerCatalog} from './_shared/additional-places.ts';
 
 type GatewayBody={action?:string;payload?:unknown;context?:Record<string,unknown>};
 const ACTION_PATTERN=/^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/;
@@ -74,6 +76,12 @@ Deno.serve(async(req:Request)=>{
   try{
     let data:unknown;
     switch(action){
+      case 'providers.catalog':
+        data=await providerCatalog();
+        break;
+      case 'providers.status':
+        data=await providerStatus();
+        break;
       case 'system.health':
         data={status:'ok',service:'luvia-gateway',version:'4.64.0',build:'13.64.0',core:'4.64.0',time:new Date().toISOString(),authenticated:Boolean(userId),places:placesDiagnostics(),restaurants:restaurantDiagnostics(),recommendations:recommendationDiagnostics()};
         break;

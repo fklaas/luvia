@@ -26,7 +26,8 @@ assert.ok(!api.personReason({reliable:true,reasons:['Die verfügbaren Ortsdaten 
 assert.equal(api.groupMatches({...matched,travelerInsights:[traveler,{...traveler,match:false}]}),false,'group match requires canonical positive preference verdict for every traveler');
 ctx.Deno={env:{get:name=>name==='GEOAPIFY_API_KEY'?'test':''}};let calls=0;
 ctx.fetch=async url=>{calls++;assert.equal(new URL(url).searchParams.get('mode'),'walk');return{ok:true,json:async()=>({features:[{geometry:{type:'LineString',coordinates:[[10.7,54],[10.71,54.01]]},properties:{time:600,distance:650}}]})}};
-vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/routes.ts').replace(/^export /gm,''))+'\nglobalThis.routesAction=routesAction;',ctx);
+ctx.providerFetch=(_p,_o,_u,url,init)=>ctx.fetch(url,init);
+vm.runInContext(stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/routes.ts').replace(/^import .*?;\r?\n/gm,'').replace(/^export /gm,''))+'\nglobalThis.routesAction=routesAction;',ctx);
 (async()=>{
  const input={provider:'geoapify',origin:{latitude:54,longitude:10.7},destination:{latitude:54.01,longitude:10.71},modes:['WALK']};
  const [a,b]=await Promise.all([ctx.routesAction('routes.compute',input),ctx.routesAction('routes.compute',input)]);

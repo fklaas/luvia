@@ -215,7 +215,7 @@
     const latKm=Math.abs(bounds.north-bounds.south)*111.32,lngKm=Math.abs(bounds.east-bounds.west)*111.32*Math.cos(point.latitude*Math.PI/180),radiusMeters=Math.min(50000,Math.max(250,Math.ceil(Math.hypot(latKm,lngKm)*500)));
     return{bounds,center:point,zoom:Number(map.getZoom?.()||0),radiusMeters,key:[bounds.south,bounds.west,bounds.north,bounds.east].map(value=>value.toFixed(4)).join(':')};
   }
-  async function viewportSearch({bounds,center,radiusMeters,query='Orte',userQuery='',type='custom',includedType='',includedTypes=[],category=state.category,trip=state.trip,providers=['geoapify'],openNow=false,minRating=null,minUserRatingCount=0,priceLevels=[],vegetarianOnly=false,reservableOnly=false,accessibleOnly=false}={}){
+  async function viewportSearch({bounds,center,radiusMeters,query='Orte',userQuery='',type='custom',includedType='',includedTypes=[],category=state.category,trip=state.trip,providers=['auto'],openNow=false,minRating=null,minUserRatingCount=0,priceLevels=[],vegetarianOnly=false,reservableOnly=false,accessibleOnly=false}={}){
     const reader=placesContract()?.reads?.searchViewport;
     if(!bounds||!center||typeof reader!=='function')return[];
     const response=await reader({tripId:tripId(trip),bounds,center,radiusMeters,type,category,userQuery,query:clean(query)||'Orte',includedType,includedTypes,strictTypeFiltering:Boolean(includedType||includedTypes.length),maxResultCount:PROVIDER_PAGE_SIZE,maxViewportResults:MAX_RESULTS,providers,openNow,minRating,minUserRatingCount,priceLevels,vegetarianOnly,reservableOnly,accessibleOnly,sortBy:'relevance',requestOptions:{timeoutMs:8000}});
@@ -329,7 +329,7 @@
         maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,
         sortBy:'distance'
       };
-      const response=state.activeViewport&&preserveMap?{places:await viewportSearch({...state.activeViewport,...activeDefinition,category:state.category,trip:state.trip,userQuery:state.userQuery,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels})}:await contract.reads.recommend({...request,providers:['geoapify'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
+      const response=state.activeViewport&&preserveMap?{places:await viewportSearch({...state.activeViewport,...activeDefinition,category:state.category,trip:state.trip,userQuery:state.userQuery,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels})}:await contract.reads.recommend({...request,providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
       if(token!==state.requestToken)return false;
       const raw=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),state.trip)
         .map(place=>({...place,distanceReference:positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':'destination'}))
@@ -733,7 +733,7 @@
     if(!globalThis.maplibregl){projectionState(container,'unavailable','MapLibre ist gerade nicht verfügbar: Die verifizierte Liste bleibt verfügbar.');return Object.freeze({view,map:null,destroy})}
     try{
       const compactMap=globalThis.matchMedia?.('(max-width: 800px)')?.matches,first=fallbackCenter||view.markers[0];
-      map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:port('OfflineCachePort')?.read('consumer:places-map-perspective')==='2d'?0:35,interactive:true,attributionControl:{customAttribution:'Orte: <a href="https://www.geoapify.com/" target="_blank" rel="noopener">Geoapify</a>'},fadeDuration:reducedMotion()||compactMap?0:320});
+      map=new globalThis.maplibregl.Map({container,style:MAP_STYLE,center:first.lngLat,zoom:13,bearing:0,pitch:port('OfflineCachePort')?.read('consumer:places-map-perspective')==='2d'?0:35,interactive:true,attributionControl:{customAttribution:'Ortsquellen: <a href="https://www.geoapify.com/" target="_blank" rel="noopener">Geoapify</a> · <a href="https://www.tomtom.com/" target="_blank" rel="noopener">© TomTom</a> · <a href="https://www.here.com/" target="_blank" rel="noopener">© HERE</a>'},fadeDuration:reducedMotion()||compactMap?0:320});
       installMissingStyleImageFallback(map,current);
       map.addControl(new globalThis.maplibregl.NavigationControl({showCompass:false,showZoom:true}),'top-left');
       const replaceMarkers=nextPlaces=>{

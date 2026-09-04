@@ -30,7 +30,7 @@ selectionState.filters.types=[];selectionScope.syncFilterSelections();assert.equ
  assert.equal(ctx.LuviaPlacesSpatialExperience.diagnostics().surface,'accommodation');
  assert.equal(requests.length,1,'one shared initial discovery; no competing Hotel or live-offer search');
  assert.equal(requests[0].category,'accommodation');assert.equal(requests[0].maxDistanceMeters,3000);assert.equal(requests[0].destination.location.latitude,trip.destinationLat);
- assert.equal(requests[0].userQuery,'');assert.deepEqual(Array.from(requests[0].providers),['geoapify']);
+ assert.equal(requests[0].userQuery,'');assert.deepEqual(Array.from(requests[0].providers),['auto']);
  assert.match(stays.innerHTML,/Wo möchtet ihr übernachten/);assert.match(stays.innerHTML,/data-places-map/);assert.match(stays.innerHTML,/data-places-history-region/);
  assert.doesNotMatch(stays.innerHTML,/hotel-hero|hotel-stay|Wann und für wen|Geplante Aufenthalte|Steakhouse/);
  const normal=root();await ctx.LuviaPlacesSpatialExperience.mount(normal,trip);await Promise.resolve();

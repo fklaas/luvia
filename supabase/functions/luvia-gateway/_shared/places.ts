@@ -1,4 +1,7 @@
 import {FOURSQUARE_API_VERSION,FOURSQUARE_MAPPING_VERSION,FOURSQUARE_PRO_FIELDS,FOURSQUARE_SEARCH_FIELDS,FOURSQUARE_DETAILS_FIELDS,normalizeFoursquarePlace,boundedFoursquareError} from './foursquare-place-mapping.ts';
+import {providerFetch} from './provider-budget.ts';
+import {additionalSearch,additionalDetails} from './additional-places.ts';
+import {enrichLinkedMedia} from './place-media.ts';
 
 const BASE='https://places.googleapis.com/v1';
 const FOURSQUARE_BASE='https://places-api.foursquare.com';
@@ -127,7 +130,7 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   observation_deck:'tourism.attraction.viewpoint',
   hiking_area:'natural',
   concert_hall:'entertainment.culture',
-  fine_dining_restaurant:'catering.restaurant',
+
   shopping:'commercial',
   shopping_mall:'commercial.shopping_mall',
   market:'commercial.marketplace',
@@ -196,7 +199,7 @@ function geoapifyCategoriesFromOptions(options:any,textQuery=''){
   }
   const tokens=[...(Array.isArray(options?.includedTypes)?options.includedTypes:[]),options?.includedType, ...(Array.isArray(options?.includedPrimaryTypes)?options.includedPrimaryTypes:[]),options?.type].filter(Boolean);
   const categories=new Set<string>();
-  const add=value=>{for(const part of String(value||'').split(',').map(item=>item.trim()).filter(Boolean))categories.add(part)};
+  const add=(value:any)=>{for(const part of String(value||'').split(',').map(item=>item.trim()).filter(Boolean))categories.add(part)};
   for(const token of tokens){
     const key=String(token).trim();
     const mapped=(GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE as any)[key];
@@ -232,7 +235,7 @@ function normalizePlacesSessionToken(value:unknown){const token=String(value||''
 const cleanObject=(value:any):any=>{if(Array.isArray(value))return value.map(cleanObject);if(value&&typeof value==='object'){const out:any={};for(const[k,v]of Object.entries(value)){if(v!==undefined&&v!==null&&v!==''&&!(Array.isArray(v)&&!v.length))out[k]=cleanObject(v);}return out;}return value;};
 function cached(key:string){const item=cache.get(key);if(!item)return null;if(item.expires<Date.now()){cache.delete(key);return null;}metrics.cacheHits++;return item.value;}
 function store(key:string,value:unknown,ttlMs:number){cache.set(key,{expires:Date.now()+ttlMs,value});if(cache.size>250){const first=cache.keys().next().value;if(first)cache.delete(first);}}
-async function google(path:string,init:RequestInit,fieldMask?:string){const key=getKey();if(!key)throw Object.assign(new Error('Google Places API Key ist nicht konfiguriert.'),{code:'PLACES_NOT_CONFIGURED',status:503});metrics.requests++;metrics.providers.google.requests++;metrics.lastRequestAt=new Date().toISOString();const headers=new Headers(init.headers);headers.set('Content-Type','application/json');headers.set('X-Goog-Api-Key',key);if(fieldMask)headers.set('X-Goog-FieldMask',fieldMask);const response=await fetch(`${BASE}${path}`,{...init,headers});const body=await response.json().catch(()=>({}));if(!response.ok){metrics.failures++;metrics.providers.google.failures++;metrics.lastError=body;const message=body?.error?.message||`Google Places Anfrage fehlgeschlagen (${response.status}).`;throw Object.assign(new Error(message),{code:'PLACES_PROVIDER_ERROR',status:response.status,provider:body});}metrics.successes++;metrics.providers.google.successes++;metrics.lastSuccessAt=new Date().toISOString();return body;}
+async function google(path:string,init:RequestInit,fieldMask?:string){const key=getKey();if(!key)throw Object.assign(new Error('Google Places API Key ist nicht konfiguriert.'),{code:'PLACES_NOT_CONFIGURED',status:503});metrics.requests++;metrics.providers.google.requests++;metrics.lastRequestAt=new Date().toISOString();const headers=new Headers(init.headers);headers.set('Content-Type','application/json');headers.set('X-Goog-Api-Key',key);if(fieldMask)headers.set('X-Goog-FieldMask',fieldMask);const response=await providerFetch('google',path.includes('search')?'search':path.includes('autocomplete')?'autocomplete':path.includes('/media')?'photo':'details',1,`${BASE}${path}`,{...init,headers});const body=await response.json().catch(()=>({}));if(!response.ok){metrics.failures++;metrics.providers.google.failures++;metrics.lastError=body;const message=body?.error?.message||`Google Places Anfrage fehlgeschlagen (${response.status}).`;throw Object.assign(new Error(message),{code:'PLACES_PROVIDER_ERROR',status:response.status,provider:body});}metrics.successes++;metrics.providers.google.successes++;metrics.lastSuccessAt=new Date().toISOString();return body;}
 
 async function foursquare(path:string,params:Record<string,unknown>={}){
   const key=getFoursquareKey();
@@ -243,12 +246,12 @@ async function foursquare(path:string,params:Record<string,unknown>={}){
     qs.set(name,Array.isArray(value)?value.join(','):String(value));
   }
   metrics.requests++;metrics.providers.foursquare.requests++;metrics.lastRequestAt=new Date().toISOString();
-  const response=await fetch(`${FOURSQUARE_BASE}${path}${qs.size?`?${qs}`:''}`,{headers:{Accept:'application/json',Authorization:`Bearer ${key}`,'X-Places-Api-Version':FOURSQUARE_API_VERSION}});
+  const response=await providerFetch('foursquare',path.includes('/search')?'search':path.includes('/photos')?'photo':'details',1,`${FOURSQUARE_BASE}${path}${qs.size?`?${qs}`:''}`,{headers:{Accept:'application/json',Authorization:`Bearer ${key}`,'X-Places-Api-Version':FOURSQUARE_API_VERSION}});
   const body=await response.json().catch(()=>({}));
   if(!response.ok){const diagnostic=boundedFoursquareError(body);metrics.failures++;metrics.providers.foursquare.failures++;metrics.lastError={provider:'foursquare',status:response.status,...diagnostic};throw Object.assign(new Error(diagnostic.message||`Foursquare Anfrage fehlgeschlagen (${response.status}).`),{code:'FOURSQUARE_PROVIDER_ERROR',status:response.status,provider:diagnostic});}
   metrics.successes++;metrics.providers.foursquare.successes++;metrics.lastSuccessAt=new Date().toISOString();return body;
 }
-async function foursquareWithFieldFallback(path:string,params:Record<string,unknown>,fallbackFields:string[]){
+async function foursquareWithFieldFallback(path:string,params:Record<string,unknown>,fallbackFields:readonly string[]){
   try{return await foursquare(path,params)}catch(error:any){
     if(![400,403].includes(Number(error?.status))||!params.fields||/credits|billing|payment/i.test(String(error?.message||'')))throw error;
     metrics.providers.foursquare.fieldFallbacks++;
@@ -291,7 +294,7 @@ async function resolveTimezone(latitude:number,longitude:number){
   metrics.timezoneRequests++;
   try{
     const params=new URLSearchParams({location:`${latitude},${longitude}`,timestamp:String(Math.floor(Date.now()/1000)),key,language:'de'});
-    const response=await fetch(`${TIMEZONE_BASE}?${params.toString()}`,{headers:{Accept:'application/json'}});
+    const response=await providerFetch('google','timezone',1,`${TIMEZONE_BASE}?${params.toString()}`,{headers:{Accept:'application/json'}});
     const body=await response.json().catch(()=>({status:'INVALID_RESPONSE'}));
     console.log('[luvia-gateway][timezone] response',{
       httpStatus:response.status,
@@ -542,7 +545,7 @@ async function geoapifyPlaceDetails(rawId:string,options:any={}){
   const cacheKey=`geoapify-details-media-v1:${rawId}:${options.enrichMedia===true}`,hit=cached(cacheKey);if(hit)return hit;
   const params=new URLSearchParams({id:rawId.slice(9),features:'details',lang:String(options.languageCode||'de'),apiKey:key});
   metrics.requests++;metrics.providers.geoapify.requests++;
-  const response=await fetch(`${GEOAPIFY_BASE}/place-details?${params}`,{signal:AbortSignal.timeout(5000)});
+  const response=await providerFetch('geoapify','details',5,`${GEOAPIFY_BASE}/place-details?${params}`,{signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Object.assign(new Error('Die Ortsdetails sind gerade nicht verfügbar.'),{code:'GEOAPIFY_DETAILS_UNAVAILABLE',status:response.status});
   const body=await response.json(),feature=(body.features||[]).find((f:any)=>f.properties?.feature_type==='details')||body.features?.[0];
   if(!feature)return null;
@@ -563,12 +566,12 @@ async function geoapifyPlaceDetails(rawId:string,options:any={}){
     try{
       const rows=await foursquareSearch(place.name,{location:place.location},{maxResultCount:3,maxDistanceMeters:1000});
       const normalized=(value:any)=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-      const match=rows.find((candidate:any)=>normalized(candidate.name)===normalized(place.name)&&candidate.location&&place.location&&distanceMeters(candidate.location,place.location)<=120&&candidate.photos?.length);
+      const match=rows.find((candidate:any)=>normalized(candidate.name)===normalized(place.name)&&candidate.location&&place.location&&(distanceMeters(candidate.location,place.location)??Infinity)<=120&&candidate.photos?.length);
       if(match){place.photos=match.photos;place.providerRefs={geoapify:rawId,foursquare:match.id};place.evidence=[{provider:'foursquare',kind:'exact-name-and-coordinate-photo-match'}]}
     }catch{}
   }
   metrics.successes++;metrics.providers.geoapify.successes++;
-  store(cacheKey,place,30*60_000);return place;
+  const enriched=await enrichLinkedMedia(place);store(cacheKey,enriched,30*60_000);return enriched;
 }
 
 const cuisineCohorts=new Map<string,{expires:number,promise:Promise<any[]>}>();
@@ -577,7 +580,7 @@ async function geoapifyCuisineCohort(apiKey:string,filter:string,language:string
   if(cached&&cached.expires>Date.now())return cached.promise;
   const promise=(async()=>{
     const params=new URLSearchParams({apiKey,categories:'catering',filter,limit:'500',lang:language||'de'});
-    const response=await fetch(`${GEOAPIFY_BASE}/places?${params}`,{signal:AbortSignal.timeout(4500)});
+    const response=await providerFetch('geoapify','search',25,`${GEOAPIFY_BASE}/places?${params}`,{signal:AbortSignal.timeout(4500)});
     if(!response.ok)throw new Error('CUISINE_COHORT_UNAVAILABLE');
     const body=await response.json();return Array.isArray(body.features)?body.features:[];
   })().catch(error=>{cuisineCohorts.delete(id);throw error});
@@ -622,7 +625,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     return params;
   };
   const run=async(cats:string[],useName:boolean,condition?:string)=>{
-    const response=await fetch(`${GEOAPIFY_BASE}/places?${buildParams(cats,useName,condition)}`,{headers:{Accept:'application/json'}});
+    const response=await providerFetch('geoapify','search',Math.ceil(limit/20),`${GEOAPIFY_BASE}/places?${buildParams(cats,useName,condition)}`,{headers:{Accept:'application/json'}});
     const body=await response.json().catch(()=>({}));
     return{response,body,cats};
   };
@@ -703,7 +706,7 @@ async function geoapifyGeocode(query:string,languageCode:string,regionCode?:stri
   url.searchParams.set('apiKey',key);
   if(regionCode)url.searchParams.set('filter',`countrycode:${String(regionCode).toLowerCase()}`);
   metrics.requests++;metrics.providers.geoapify.requests++;metrics.lastRequestAt=new Date().toISOString();
-  const response=await fetch(url);
+  const response=await providerFetch('geoapify','geocode',1,url.toString());
   const body=await response.json().catch(()=>({}));
   if(!response.ok){
     metrics.failures++;metrics.providers.geoapify.failures++;
@@ -753,10 +756,10 @@ async function resolveDestination(payload:any){
 
 export async function placesAction(action:string,payload:any){
 if(action==='destination.resolve')return resolveDestination(payload);
-const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const key=`${action}:v2.13.0-geoapify-first:${hash(payload)}`;const hit=ttl>0?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
+const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const key=`${action}:v2.14.0-free-budget:${hash(payload)}`;const hit=ttl>0?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
 if(action==='places.health'){
   const requestedProbe=String(payload?.diagnosticProbe||'').trim().toLowerCase();
-  const probe=HEALTH_PROBES[requestedProbe as keyof typeof HEALTH_PROBES]||null;
+  const probe:any=HEALTH_PROBES[requestedProbe as keyof typeof HEALTH_PROBES]||null;
   let diagnosticProbe:any=null;
   if(probe){
     try{
@@ -766,16 +769,16 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.33.0-geoapify-first',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.34.0-free-budget',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'opt_in_disabled_default',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
-  // Hard cut: live Places discovery is Geoapify-only. Google/Foursquare remain
-  // reachable only when a caller explicitly opts in after quota/credits recover.
-  const providers=Array.isArray(options.providers)&&options.providers.length?options.providers:['geoapify'],providerErrors:any[]=[],attempted:string[]=[];
+  // Automatic search keeps Geoapify first and uses bounded budgeted alternatives.
+  // Explicit providers remain subject to the same server-side budget policy.
+  const providers=Array.isArray(options.providers)&&options.providers.length?options.providers:['auto'],providerErrors:any[]=[],attempted:string[]=[];
   let geoapifyPlaces:any[]=[],googlePlaces:any[]=[],foursquarePlaces:any[]=[],fallbackReason:string|null=null;
   let processed:any[]=[],fallbackUsed=false,mode='geoapify_primary';
-  const wantsGeoapify=providers.includes('geoapify')||(!providers.includes('google')&&!providers.includes('foursquare'));
+  const wantsGeoapify=providers.includes('geoapify')||providers.includes('auto');
   const wantsLegacy=providers.includes('google')||providers.includes('foursquare');
   if(wantsGeoapify){
     attempted.push('geoapify');
@@ -800,6 +803,17 @@ if(action==='places.text-search'){
     processed=postProcessPlaces(geoapifyPlaces,destination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS});
     mode='geoapify_primary';
   }
+  if(!processed.length){
+    for(const provider of (providers.includes('auto')?['tomtom','here']:providers.filter((p:string)=>p==='tomtom'||p==='here'))){
+      attempted.push(provider);
+      try{
+        const rows=await additionalSearch(provider as 'tomtom'|'here',String(payload.query||textQuery),effectiveDestination,{...options,category:options.category||payload.type},restriction);
+        const rect=restriction?.rectangle;
+        processed=postProcessPlaces(rows,effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}).filter((p:any)=>!rect||(p.location.latitude>=rect.low.latitude&&p.location.latitude<=rect.high.latitude&&p.location.longitude>=rect.low.longitude&&p.location.longitude<=rect.high.longitude));
+        if(processed.length){fallbackUsed=attempted.length>1;mode='free_budget_cascade';break}
+      }catch(error:any){providerErrors.push({provider,code:error.code||'PROVIDER_ERROR',message:'Zusätzliche Ortsquelle derzeit nicht verfügbar.'})}
+    }
+  }
   if(wantsLegacy&&!processed.length){
     // Explicit opt-in only — not used by the default Spatial/Hotels path.
     if(providers.includes('google')&&getKey()){
@@ -819,8 +833,8 @@ if(action==='places.text-search'){
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}
 else if(action==='places.autocomplete'){const sessionToken=normalizePlacesSessionToken(options.sessionToken);const body=cleanObject({input:String(payload?.input||''),languageCode,regionCode,sessionToken,locationBias:destinationBias(payload?.destination,options.locationBias),includedPrimaryTypes:options.includedType?[options.includedType]:undefined});const raw=await google('/places:autocomplete',{method:'POST',body:JSON.stringify(body)});result={sessionToken,suggestions:(raw.suggestions||[]).map((s:any)=>({placeId:s.placePrediction?.placeId||null,text:s.placePrediction?.text?.text||s.queryPrediction?.text?.text||'',types:s.placePrediction?.types||[],distanceMeters:s.placePrediction?.distanceMeters??null,raw:s}))};}
-else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){const place=await geoapifyPlaceDetails(rawId,options);result=place?{place}:{place:null,reason:'geoapify_places_details_unavailable',preserveSeed:true}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
+else if(action==='places.details'){const rawId=String(payload?.placeId||'').replace(/^places\//,'');if(rawId.startsWith('tomtom:')||rawId.startsWith('here:')){result={place:await enrichLinkedMedia(await additionalDetails(rawId))}}else if(rawId.startsWith('fsq:')){const fsqId=rawId.slice(4);const raw=await foursquareWithFieldFallback(`/places/${encodeURIComponent(fsqId)}`,{fields:FOURSQUARE_DETAILS_FIELDS.join(',')},FOURSQUARE_PRO_FIELDS);result={place:normalizeFoursquarePlace(raw,{evidenceKind:'place-details'})}}else if(rawId.startsWith('geoapify:')){const place=await geoapifyPlaceDetails(rawId,options);result=place?{place}:{place:null,reason:'geoapify_places_details_unavailable',preserveSeed:true}}else{const id=encodeURIComponent(rawId);const raw=await google(`/places/${id}?languageCode=${encodeURIComponent(languageCode)}&regionCode=${encodeURIComponent(regionCode)}`,{method:'GET'},DETAIL_FIELDS);result={place:normalizedPlace(raw)}};}
 else if(action==='places.photo'){const name=String(payload?.photoName||'');const qs=new URLSearchParams({skipHttpRedirect:'true',maxWidthPx:String(payload?.maxWidthPx||800)});if(payload?.maxHeightPx)qs.set('maxHeightPx',String(payload.maxHeightPx));const raw=await google(`/${name}/media?${qs}`,{method:'GET'});result={photoUri:raw.photoUri||null,name:raw.name||name};}
 else throw Object.assign(new Error('Places-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
 if(ttl>0)store(key,result,ttl);return{data:result,cache:{hit:false,key,ttlMs:ttl}};}
-export function placesDiagnostics(){return{configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'geoapify_primary',providers:{geoapify:Boolean(getGeoapifyKey()),google:Boolean(getKey()),foursquare:Boolean(getFoursquareKey()),foursquareApiVersion:FOURSQUARE_API_VERSION,foursquareMappingVersion:FOURSQUARE_MAPPING_VERSION},metrics:{...metrics},cache:{entries:cache.size}};}
+export function placesDiagnostics(){return{configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()),providerOrder:'free_budget_cascade',providers:{geoapify:Boolean(getGeoapifyKey()),google:Boolean(getKey()),foursquare:Boolean(getFoursquareKey()),foursquareApiVersion:FOURSQUARE_API_VERSION,foursquareMappingVersion:FOURSQUARE_MAPPING_VERSION},metrics:{...metrics},cache:{entries:cache.size}};}

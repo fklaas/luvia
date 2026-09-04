@@ -238,7 +238,7 @@ assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'P
 assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse evidence-based fit filtering');
 assert.match(experience,/},350\)/,'viewport refresh must debounce duplicate user gesture events');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
-assert.match(experience,/providers:\['geoapify'\],fastPath:true/,'initial Places discovery must be Geoapify-first');
+assert.match(experience,/providers:\['auto'\],fastPath:true/,'initial Places discovery must be Geoapify-first');
 assert.match(experience,/const tripGeography=trip=>/,'Places search must send trip coordinates, not a destination name string');
 assert.match(experience,/const geography=tripGeography\(state\.trip\)/,'recommend must build one geographic destination payload');
 assert.match(experience,/destination:geography/,'recommend must receive a geographic destination payload');

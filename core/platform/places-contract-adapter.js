@@ -39,7 +39,7 @@
     const signature=`${photo?.name||''} ${photo?.uri||photo?.url||''} ${source?.provider||''} ${source?.source||''}`.toLowerCase();
     if(/foursquare|4sqi|fsq:/.test(signature))return'Foursquare';
     if(/wikimedia/.test(signature))return'Wikimedia Commons';
-    if(/geoapify/.test(signature))return'Geoapify';
+    if(/geoapify/.test(signature))return'Geoapify';if(/tomtom/.test(signature))return'TomTom';if(/here/.test(signature))return'HERE';
     if(/google|places\/.+\/photos\//.test(signature))return'Google Maps';
     if(String(source?.provider||'').toLowerCase()==='multi')return'Mehrere Places-Provider';
     return'Places Provider';
@@ -57,13 +57,14 @@
     return [];
   }
   const walkingRoutes=new Map();
-  async function getRoute(origin,destination){
+  async function getRoute(origin,destination,options={}){
+    const mode=String(options.mode||'WALK').toUpperCase();if(!['WALK','BICYCLE','DRIVE'].includes(mode))throw new TypeError('Verkehrsmittel nicht unterstützt.');
     const coordinate=p=>{const lat=p?.latitude??p?.lat,lng=p?.longitude??p?.lng;if(lat==null||lng==null||!Number.isFinite(Number(lat))||!Number.isFinite(Number(lng))||Math.abs(Number(lat))>90||Math.abs(Number(lng))>180)throw new TypeError('Ungültige Routenkoordinaten.');return{latitude:Number(lat),longitude:Number(lng)}};
-    const a=coordinate(origin),b=coordinate(destination),id=JSON.stringify([a,b]),cached=walkingRoutes.get(id);
+    const a=coordinate(origin),b=coordinate(destination),id=JSON.stringify([a,b,mode]),cached=walkingRoutes.get(id);
     if(cached&&cached.expires>Date.now())return cached.promise;
-    const promise=Promise.resolve().then(()=>gateway().route(a,b,{provider:'geoapify',modes:['WALK']})).then(response=>{
-      const route=(response?.data?.routes||response?.routes)?.walk?.[0];
-      if(route?.verified!==true||route?.provider!=='geoapify'||!route.geometry||!Number.isFinite(route.durationMinutes))throw new Error('Fußweg derzeit nicht verfügbar.');
+    const promise=Promise.resolve().then(()=>gateway().route(a,b,{provider:'auto',modes:[mode]})).then(response=>{
+      const route=(response?.data?.routes||response?.routes)?.[mode.toLowerCase()]?.[0];
+      if(route?.verified!==true||!['geoapify','tomtom','here','openrouteservice'].includes(route?.provider)||!route.geometry||!Number.isFinite(route.durationMinutes))throw new Error('Fußweg derzeit nicht verfügbar.');
       return Object.freeze({...route,observedAt:response?.data?.generatedAt||new Date().toISOString()});
     }).catch(error=>{walkingRoutes.delete(id);throw error});
     if(walkingRoutes.size>=128)walkingRoutes.delete(walkingRoutes.keys().next().value);
@@ -81,7 +82,7 @@
     const gw=gateway();
     const id=clean(placeId)?.replace(/^places\//,'');
     // Google Premium details are on-demand only. Gate to 1 request per id per session.
-    const isPremiumId=id&&!id.startsWith('fsq:')&&!id.startsWith('geoapify:');
+    const isPremiumId=id&&!id.startsWith('fsq:')&&!id.startsWith('geoapify:')&&!id.startsWith('tomtom:')&&!id.startsWith('here:');
     if(isPremiumId&&!consumePremiumDetailsQuota(id)){
       // Quota exhausted for this id this session; skip the Premium call.
       return null;
@@ -93,7 +94,7 @@
   const containsBounds=(outer,inner)=>outer.south<=inner.south&&outer.west<=inner.west&&outer.north>=inner.north&&outer.east>=inner.east;
   async function searchViewport(options={}){
     const providers=options.providers||['geoapify'];
-    if(!providers.every(value=>String(value).toLowerCase()==='geoapify'))return requestViewport(options);
+    if(!providers.every(value=>['geoapify','auto'].includes(String(value).toLowerCase())))return requestViewport(options);
     const {bounds,center,radiusMeters,requestOptions,...filters}=options;
     if(!bounds||!center)return requestViewport(options);
     const stable=value=>Array.isArray(value)?value.map(stable):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,stable(value[key])])):value;
@@ -120,7 +121,7 @@
     if(![bounds.south,bounds.west,bounds.north,bounds.east,center.latitude,center.longitude].every(value=>Number.isFinite(Number(value))))throw new Error('PLACES_VIEWPORT_REQUIRED');
     const viewport={south:Number(bounds.south),west:Number(bounds.west),north:Number(bounds.north),east:Number(bounds.east)},midLatitude=(viewport.south+viewport.north)/2,midLongitude=(viewport.west+viewport.east)/2;
     const requestedProviders=(Array.isArray(options.providers)?options.providers:['geoapify']).map(value=>String(value||'').toLowerCase()).filter(Boolean);
-    const geoapifyOnly=!requestedProviders.length||requestedProviders.every(name=>name==='geoapify'||name.startsWith('geoapify'));
+    const geoapifyOnly=!requestedProviders.length||requestedProviders.every(name=>name==='auto'||name==='geoapify'||name.startsWith('geoapify'));
     // Geoapify accepts one rectangle filter efficiently. Google/Foursquare keep the
     // established four-tile fan-out for viewport coverage.
     const tiles=geoapifyOnly?[viewport]:[
@@ -180,7 +181,7 @@
     let response=null;
     // Apply Google Premium cost guard: block repeat enrichment when we already have full data.
     // Exception: if the seed has no photos, always allow the gateway call for media hydration.
-    const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:');
+    const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:')&&!requestedId.startsWith('tomtom:')&&!requestedId.startsWith('here:');
     const premiumAllowed=!isPremiumId||!seedHasPhoto||consumePremiumDetailsQuota(requestedId);
     if((!seedMatches||!seedHasPhoto)&&premiumAllowed){
       try{response=await gateway().details(placeId,{...detailOptions,enrichMedia:true})}catch(error){if(!seedMatches)throw error}

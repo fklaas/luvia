@@ -9,6 +9,7 @@ vm.runInContext(read('core/places/global-place-contracts.js'),ctx);
 vm.runInContext(read('app/places/places-spatial-composition-core.js'),ctx);
 const ui=read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,tripGeography,ensureVisibleFitResults,activeSearchDefinition,emptySearchMessage,emptySearchActions};globalThis.LuviaPlacesSpatialExperience=');
 vm.runInContext(ui,ctx);
+ctx.providerFetch=(_p,_o,_u,url,init)=>ctx.fetch(url,init);ctx.enrichLinkedMedia=async p=>p;
 const gw=stripTypeScriptTypes(read('supabase/functions/luvia-gateway/_shared/places.ts').replace(/^import .*?;\r?\n/gm,'').replace(/^export /gm,''));
 vm.runInContext(gw+'\nglobalThis.gatewayRecovery={geoapifyCategoriesFromOptions,geoapifyPlacesSearch};',ctx);
 const geo={location:{latitude:54.0224961,longitude:10.7544158},searchRadiusMeters:3000};

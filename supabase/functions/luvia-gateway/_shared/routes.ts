@@ -1,3 +1,5 @@
+import {providerFetch} from './provider-budget.ts';
+import {managedRoutes} from './provider-routes.ts';
 const ROUTES_BASE='https://routes.googleapis.com/directions/v2:computeRoutes';
 const cache=new Map<string,{expires:number,value:any}>();
 function key(){const value=Deno.env.get('GOOGLE_MAPS_API_KEY')||Deno.env.get('GOOGLE_PLACES_API_KEY')||'';if(!value)throw Object.assign(new Error('Google Maps API Key fehlt.'),{code:'GOOGLE_MAPS_KEY_MISSING',status:503});return value;}
@@ -16,12 +18,13 @@ async function compute(origin:any,destination:any,travelMode:'DRIVE'|'WALK'|'BIC
     if(Array.isArray(pref.allowedTravelModes)&&pref.allowedTravelModes.length)body.transitPreferences.allowedTravelModes=pref.allowedTravelModes;
   }
   const mask='routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.steps.travelMode,routes.legs.steps.distanceMeters,routes.legs.steps.staticDuration,routes.legs.steps.navigationInstruction.instructions,routes.legs.steps.transitDetails,routes.travelAdvisory.transitFare,routes.localizedValues';
-  const response=await fetch(ROUTES_BASE,{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':key(),'X-Goog-FieldMask':mask},body:JSON.stringify(body)});
+  const response=await providerFetch('google','route',1,ROUTES_BASE,{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':key(),'X-Goog-FieldMask':mask},body:JSON.stringify(body)});
   const raw=await response.json().catch(()=>({}));if(!response.ok)throw Object.assign(new Error(raw?.error?.message||`Routes API ${response.status}`),{code:'ROUTES_PROVIDER_ERROR',status:response.status>=500?502:400});
   return (raw?.routes||[]).map((r:any)=>normalize(r,travelMode));
 }
 export async function routesAction(action:string,payload:any){
   if(action!=='routes.compute')throw Object.assign(new Error('Routes-Aktion unbekannt.'),{code:'ACTION_NOT_FOUND',status:404});
+  if(payload?.provider!=='google'&&payload?.provider!=='geoapify')return managedRoutes(payload);
   if(payload?.provider==='geoapify')return geoapifyWalkingRoute(payload);
   const modes=(payload?.modes||['WALK','DRIVE','BICYCLE']).filter((m:string)=>['WALK','DRIVE','BICYCLE','TRANSIT'].includes(m));
   const cacheKey=JSON.stringify([payload?.origin,payload?.destination,modes,payload?.departureTime,payload?.transitPreferences]);const found=cache.get(cacheKey);if(found&&found.expires>Date.now())return{data:found.value};
@@ -45,7 +48,7 @@ async function geoapifyWalkingRoute(payload:any){
     const apiKey=Deno.env.get('GEOAPIFY_API_KEY')||Deno.env.get('GEOAPIFY_KEY');
     if(!apiKey)throw new Error('GEOAPIFY_NOT_CONFIGURED');
     const params=new URLSearchParams({apiKey,waypoints:`${from.latitude},${from.longitude}|${to.latitude},${to.longitude}`,mode:'walk',lang:'de',units:'metric'});
-    const response=await fetch(`https://api.geoapify.com/v1/routing?${params}`,{signal:AbortSignal.timeout(6500)});
+    const response=await providerFetch('geoapify','route',2,`https://api.geoapify.com/v1/routing?${params}`,{signal:AbortSignal.timeout(6500)});
     if(!response.ok)throw Object.assign(new Error('Der Fußweg konnte gerade nicht geprüft werden.'),{code:'ROUTE_UNAVAILABLE'});
     const raw=await response.json(),feature=raw.features?.[0],p=feature?.properties;
     if(!feature?.geometry||!Number.isFinite(p?.time)||!Number.isFinite(p?.distance))throw new Error('ROUTE_UNAVAILABLE');
