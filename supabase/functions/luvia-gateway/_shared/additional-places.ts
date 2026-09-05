@@ -63,6 +63,11 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
   const normalizeRows=(rows:any[])=>rows.map(row=>({row,place:normalizeAdditional(provider,row)})).filter(({row,place})=>{
     if(!place||required.length&&!required.some((type:string)=>place.types.includes(type)))return false;
     if(provider!=='here'||!cuisineTypes.length)return true;
+    // For national cuisines a secondary tag is too broad for an exclusive
+    // filter. Dietary food types are different: HERE explicitly attaching
+    // Vegetarian or Vegan already proves that the venue serves that option,
+    // even when its primary food type is German, Italian, etc.
+    if(cuisineTypes.some((type:string)=>type==='vegetarian_restaurant'||type==='vegan_restaurant'))return true;
     // HERE may attach the requested cuisine as a secondary food type to a broad
     // restaurant result. For an exclusive cuisine filter, accept only the
     // provider's primary food-type evidence; otherwise almost every restaurant

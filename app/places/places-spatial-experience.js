@@ -319,14 +319,14 @@
     // Google can return the explicit servesVegetarianFood field.
     if(preferredPlaceIds(state.results).size){const count=preferredPlaceIds(state.results).size;publishProfileEvidenceDiagnostics({state:'free-provider-hit',focus,provider:'free-cascade',returned:0,eligible:count,before:count,after:count,error:''});return false}
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
-    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     try{
       const response=await contract.reads.recommend({
         // The ordinary map remains on the free-provider cascade. This one
         // cached profile read starts with Google because its Places response
         // carries an explicit vegetarian fact; Foursquare remains the bounded
         // fallback when Google has no eligible result.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['here','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -353,7 +353,7 @@
     const key=profileEvidenceCohortKey(focus);
     if(state.preferenceEvidenceKey===key||state.preferenceEvidenceInflight)return;
     state.preferenceEvidenceKey=key;
-    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     const warmToken=++state.preferenceEvidenceToken;
     const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:500}):setTimeout(callback,80);
     schedule(()=>{
