@@ -239,7 +239,7 @@ assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'P
 assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse evidence-based fit filtering');
 assert.match(experience,/},350\)/,'viewport refresh must debounce duplicate user gesture events');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
-assert.match(experience,/providers:\['auto'\],fastPath:true/,'initial Places discovery must be Geoapify-first');
+assert.match(experience,/const searchProviders=requiresDietaryProviderEvidence\(\)\?\['geoapify','google','foursquare'\]:\['auto'\]/,'initial Places discovery must stay on the free automatic cascade unless a dietary fact was explicitly requested');
 assert.match(experience,/const tripGeography=trip=>/,'Places search must send trip coordinates, not a destination name string');
 assert.match(experience,/const geography=tripGeography\(state\.trip\)/,'recommend must build one geographic destination payload');
 assert.match(experience,/destination:geography/,'recommend must receive a geographic destination payload');
@@ -317,6 +317,8 @@ assert.match(experience,/distance\/Math\.min\(440,Math\.max\(220,innerHeight\*\.
 assert.match(experience,/function warmProfileEvidence\(searchToken=state\.requestToken\)/,'a profile dietary requirement must start one bounded evidence read after the broad Alle cohort is visible');
 assert.match(experience,/mergeExactProviderEvidence\(state\.results,response\?\.places\|\|\[\]\)/,'profile evidence may decorate only immutable provider identities already present in Alle');
 assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
+assert.match(experience,/providers:\['geoapify','google','foursquare'\]/,'profile evidence must try the free source first and use the bounded richer fallback only for the requested fact');
+assert.match(experience,/exact-normalized-name-and-max-25m-profile-evidence/,'cross-provider profile evidence requires an exact normalized name and a strict 25 m coordinate match');
 assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper preview chevron must start the independent rise sequence');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle preview chevron must follow after the equal stagger');

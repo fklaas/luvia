@@ -201,6 +201,7 @@
   function requiresVegetarianEvidence(){
     return state.category==='food'&&(Boolean(state.filters.vegetarian)||(state.filters.cuisines||[]).includes('vegetarian_restaurant'));
   }
+  function requiresDietaryProviderEvidence(){return requiresVegetarianEvidence()||state.category==='food'&&(state.filters.cuisines||[]).includes('vegan_restaurant')}
   const meatLedVenue=place=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...placeTypeSet(place)].join(' ')).toLowerCase());
   function hasVegetarianProviderEvidence(place){
     const types=placeTypeSet(place);
@@ -269,6 +270,14 @@
     }
     return keys;
   }
+  const normalizedProviderName=place=>clean(place?.name||place?.displayName).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  function strictCrossProviderIdentity(left,right){
+    if(!normalizedProviderName(left)||normalizedProviderName(left)!==normalizedProviderName(right))return false;
+    const a=COMPOSITION().normalizeCoordinates(left?.coordinates||left?.location),b=COMPOSITION().normalizeCoordinates(right?.coordinates||right?.location);
+    if(!a||!b)return false;
+    const rad=value=>value*Math.PI/180,dLat=rad(b.latitude-a.latitude),dLng=rad(b.longitude-a.longitude),lat1=rad(a.latitude),lat2=rad(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))<=25;
+  }
   function verifiedObjectMerge(current={},incoming={}){
     const merged={...(current||{})};
     for(const [key,value] of Object.entries(incoming||{}))if(value!==null&&value!==undefined&&value!=='')merged[key]=value;
@@ -278,13 +287,15 @@
     const evidenceByKey=new Map();
     for(const evidence of (Array.isArray(evidenceRows)?evidenceRows:[]))for(const key of exactProviderKeys(evidence))if(!evidenceByKey.has(key))evidenceByKey.set(key,evidence);
     return (Array.isArray(cohort)?cohort:[]).map(place=>{
-      const evidence=[...exactProviderKeys(place)].map(key=>evidenceByKey.get(key)).find(Boolean);
+      const exactEvidence=[...exactProviderKeys(place)].map(key=>evidenceByKey.get(key)).find(Boolean);
+      const crossProviderEvidence=exactEvidence?null:(Array.isArray(evidenceRows)?evidenceRows:[]).find(row=>strictCrossProviderIdentity(place,row));
+      const evidence=exactEvidence||crossProviderEvidence;
       if(!evidence)return place;
       return{
         ...place,
         types:[...new Set([...(place.types||[]),...(evidence.types||[])])],
         providerRefs:{...(place.providerRefs||{}),...(evidence.providerRefs||{})},
-        evidence:[...new Set([...(place.evidence||[]),...(evidence.evidence||[])])],
+        evidence:[...(place.evidence||[]),...(evidence.evidence||[]),...(crossProviderEvidence?[{provider:'multi',kind:'exact-normalized-name-and-max-25m-profile-evidence'}]:[])],
         features:verifiedObjectMerge(place.features,evidence.features),
         accessibilityOptions:verifiedObjectMerge(place.accessibilityOptions,evidence.accessibilityOptions),
         providerFactsCached:place.providerFactsCached===true||evidence.providerFactsCached===true,
@@ -301,7 +312,7 @@
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
     try{
       const response=await contract.reads.recommend({
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['geoapify','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -474,7 +485,8 @@
         maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,
         sortBy:'distance'
       };
-      const response=state.activeViewport&&preserveMap?{places:await viewportSearchWithContinuity({...state.activeViewport,query:activeDefinition.query,type:activeDefinition.primaryType,includedType:activeDefinition.includedType,includedTypes:activeDefinition.includedTypes||[],category:state.category,trip:state.trip,userQuery:state.userQuery,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels},()=>token===state.requestToken)}:await contract.reads.recommend({...request,providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
+      const searchProviders=requiresDietaryProviderEvidence()?['geoapify','google','foursquare']:['auto'];
+      const response=state.activeViewport&&preserveMap?{places:await viewportSearchWithContinuity({...state.activeViewport,query:activeDefinition.query,type:activeDefinition.primaryType,includedType:activeDefinition.includedType,includedTypes:activeDefinition.includedTypes||[],category:state.category,trip:state.trip,userQuery:state.userQuery,providers:searchProviders,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels},()=>token===state.requestToken)}:await contract.reads.recommend({...request,providers:searchProviders,fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
       if(token!==state.requestToken)return false;
       const raw=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),state.trip)
         .map(place=>({...place,distanceReference:positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':'destination'}))
@@ -498,7 +510,6 @@
       const selected=findPlace(state.selectedId);
       if(selected)hydrateMapPreview(selected);
       warmInitialPhotos(token);
-      warmProfileEvidence(token);
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
@@ -1376,7 +1387,7 @@
       else if(wasOffline)search({focus:false});
     })||null;
     render();
-    if(restored){const selected=findPlace(state.selectedId);if(selected)hydrateMapPreview(selected);warmInitialPhotos(state.requestToken);warmProfileEvidence(state.requestToken)}
+    if(restored){const selected=findPlace(state.selectedId);if(selected)hydrateMapPreview(selected);warmInitialPhotos(state.requestToken)}
     bindPreferenceRefresh();
     loadSaved(lifecycleToken).then(changed=>{if(changed&&lifecycleToken===state.lifecycleToken&&state.root===root)updateFilteredMap()});
     await Promise.resolve();

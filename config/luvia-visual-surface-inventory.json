@@ -2201,8 +2201,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 129360,
-      "sha256": "45a7812670b46987a4fecd70d3f6de127706bc509e074b4e49653767a64810cf"
+      "bytes": 130764,
+      "sha256": "8cd112a0fe390e6f6f85cbb31243f7af0c053f6e5b72f0c4fb9b3eec0dc9557f"
     },
     {
       "path": "app/places/places-trip-experiences.js",
@@ -6704,8 +6704,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 95103,
-      "sha256": "aebfb1bf850afbc159c2eb35429107b2368b9478f7a99f3a890f10b9f6218995"
+      "bytes": 95841,
+      "sha256": "16d20a25d618bd0978fabc369a254780cf487f00305291d84fe71333d248ea40"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -8185,8 +8185,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 43242,
-      "sha256": "91a42a3b339f2b7a1884a1a7671eb66f08a4c3ff091a71203aa0c3ef3eb78d7b"
+      "bytes": 43749,
+      "sha256": "24c43e57a153d1f24329687d1604d27e6276f2c505f7dd347396b066b77c030d"
     },
     {
       "path": "tests/m16.5p-productive-places-runtime-release.test.cjs",
@@ -8901,8 +8901,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 25884,
-      "sha256": "4fa4eabba474d9e9c8aaae559743e94412306b460d4787fc9c3c57f4724d5a9a"
+      "bytes": 27875,
+      "sha256": "6c68e82c528bc670f8ed2deb9cc1edeec7dabda3d8351278ecb33806717dd652"
     },
     {
       "path": "tests/places-foundation-reliability-v13.26.1.test.cjs",
