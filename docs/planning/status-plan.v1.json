@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-05",
-  "sourceBaseline": "6503e700",
-  "app": "13.82.168.84",
-  "core": "4.82.206",
-  "runtimeSource": "6503e700a583f9aabe49fd1f3733c8e97be7519d",
-  "worker": "ffb176c3-0015-44d0-8a66-e59c68c16a63",
-  "gateway": "v196 ACTIVE / 4.64.20",
+  "sourceBaseline": "PENDING",
+  "app": "13.82.168.85",
+  "core": "4.82.207",
+  "runtimeSource": "PENDING_RELEASE_COMMIT",
+  "worker": "89e712c7-c8ce-43fb-856f-229fc5055ee3",
+  "gateway": "v202 ACTIVE / 4.64.20 / Places 4.38.1-here-dietary-evidence",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
     {
@@ -16,8 +16,8 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Integration läuft mit App 13.82.168.84 / Core 4.82.206 aus Runtime-Commit 6503e700a583f9aabe49fd1f3733c8e97be7519d auf Worker ffb176c3-0015-44d0-8a66-e59c68c16a63 bei 100 Prozent Traffic. Gateway v196 / 4.64.20 bleibt unverändert aktiv und meldet Health-Build 13.82.168.79 / Core 4.82.201; die angewendete Geoapify-Free-Reserve bleibt erhalten. Das saubere Git-Archiv luvia-integration-13.82.168.84-6503e700.zip hat 88.742.067 Bytes und SHA-256 4608310968FFD1DC160D59826D1461AD4D8CADCFFA18CF83A7DC3BC9C3D10B25. 225/225 Safe Regression, 3/3 NFR-0 und 30/30 öffentliche Bytevergleiche sind belegt. Sichtbar: Food 50, Shopping 21, Natur 11, Nachtleben 17, Aktivitäten 29, Italienisch 11, Chinesisch 2, Stays 49; responsive Places/Stays 390 x 844 ohne Überlauf. Passend enthält kein Steakhouse und erklärt die fehlende positive Evidenz. Frontend-Rückfall ist .80 / Worker d18bca99-eee3-4807-a0ee-0b57474e0ba1, danach .79 / Worker c572b36d-f8c7-4193-8022-b1a030101f25; Gateway-Rückfall bleibt v195. Main bleibt c4b6d174 unverändert. PCR: docs/modularization/PCR-P02-P03-CUISINE-BUDGET-WARMSTART-20260905.md.",
-      "nextAcceptance": "Release .81 erhalten, stabile und unveränderliche Assets sowie den Frontend-Rückfall .80 weiter belegbar halten; P02/P03-Restnachweise separat führen.",
+      "evidence": "Integrationskandidat App 13.82.168.85 / Core 4.82.207 ist gebaut und mit 226/226 Safe Regression belegt; Veröffentlichung, Archiv und öffentliche Bytegleichheit folgen nach dem sauberen Runtime-Commit. Bis dahin bleibt App .84 auf Worker 89e712c7-c8ce-43fb-856f-229fc5055ee3 der aktive Frontendstand. Gateway v202 / 4.64.20 ist aktiv und meldet Places-Health 4.38.1-here-dietary-evidence. Additive Google-/Foursquare-Budgetregeln und Diagnose-Cooldown-Resets sind angewendet. Main bleibt c4b6d174 unverändert. PCR: docs/modularization/PCR-P02-P03-POSITIVE-FOOD-FIT-20260905.md.",
+      "nextAcceptance": "App .85 aus dem sauberen Commit ausschließlich auf integration-luvia veröffentlichen, Archiv, Stable/Immutable-Bytes, sichtbare Oberfläche und exakten Rückfall belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -28,8 +28,8 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "App .81 besitzt einen zentralen Filtervertrag für 14 Kategorien, 82 Typ-/Untertypabbildungen, 19 Landesküchen und alle sichtbaren Faktenfilter. Karte, Timeline und AI Chat kompilieren daraus dieselben includedTypes, Ernährungs-, Zugänglichkeits-, Reservierungs-, Öffnungs-, Bewertungs-, Preis-, Distanz- und Sortieranforderungen. Normale Kartenabrufe bleiben auf der kostenlosen auto-Kaskade; nur ein ausdrücklicher Passend-Ernährungsnachweis darf nach Geoapify, TomTom und HERE begrenzt Google/Foursquare nutzen. Temporäre 429/502/503/504- und Providerfehler erhalten genau einen Wiederholungsversuch. Fleischzentrierte Orte werden ohne dedizierten Ernährungsbeleg verworfen. Sichtbar lief die Kategorienfolge mit Food 50, Shopping 21, Natur 11, Nachtleben 17 und Aktivitäten 29; Italienisch lieferte 11, Chinesisch die echten Orte Saigon Asia Bistro und China Restaurant Haycheng. Stays lieferte 49 Pins mit derselben Karte. Responsive Places/Stays bei 390 x 844: kein horizontaler Überlauf, Kurzinfo innerhalb der Karte. Passend zeigt ohne positiven Ernährungsbeleg 0 und kein Steakhouse. Automatisierte Filter-, Provider-, Budget-, Medienidentitäts- und Paritätstests sind grün. Positive Profilbreite, vollständige sichtbare UI-/AI-Matrix, breite echte Fototrefferquote und physische Mobilzeiten bleiben offen.",
-      "nextAcceptance": "Restabnahme fortführen: positive profilgerechte Providerbelege, jede UI-/AI-Filteroption mit identischen Place-IDs oder belegtem Nullfall, breite exakte Place-/Stays-Fotos und physische iPhone-/Android-Zeiten dokumentieren. Dieser Rest blockiert den Start von P09/P10 nicht.",
+      "evidence": "App .85 führt den positiven Profil-Ernährungsnachweis über HERE, danach begrenzt Google und Foursquare. HERE sekundäre Vegetarian/Vegan Food-Types gelten als positiver Verfügbarkeitsfakt; nationale Landesküchen erfordern weiter den primären HERE-Food-Type. Foursquare bildet die offizielle Kategorie Vegan and Vegetarian Restaurant ab. Google-search ist auf 4/min, 25/Tag und 800/Monat begrenzt; Foursquare-search auf 2/min, 12/Tag und 300/Monat, Details/Fotos bleiben deaktiviert. Der öffentliche Befund ist eindeutig: HERE antwortet, liefert in 8 km und 15 km um Scharbeutz aber 0 explizite vegetarische Orte; Google endet mit 403 Permission; Foursquare mit 429 ohne API-Credits. Der gemeinsame Filtervertrag für 14 Kategorien, 82 Typ-/Untertypen, 19 Landesküchen und alle Faktenfilter bleibt grün. Ein Steakhaus ohne dedizierte vegetarische Klassifikation bleibt ausgeschlossen. 226/226 Safe Regression PASS. Positive sichtbare Providerbreite, vollständige UI-/AI-Matrix, breite exakte Fotos und physische Mobilzeiten bleiben offen.",
+      "nextAcceptance": "Im Google-Cloud-Projekt Places API (New), Billing und API-Key-Beschränkung so prüfen, dass der vorhandene Key eine Place-Suche ausführen darf; danach mindestens einen realen vegetarischen Scharbeutz-Treffer mit identischer Provider-ID und Begründung in Karte, Timeline und AI Chat sichtbar abnehmen.",
       "scope": "Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -40,8 +40,8 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "Kartenoberfläche, Timeline-Vorschläge und AI Chat verwenden places.v1 sowie denselben zentralen Filtercompiler. Automatisiert sind 19 Landesküchen, sämtliche sichtbaren Typ-/Untertyp- und Faktenfilter sowie konkrete AI-Owner-Aufrufe mit denselben includedTypes und Grenzen belegt. Timeline übergibt denselben Profil- und Reisekontext. Die sichtbare Kartenabnahme belegt stabile Kategorien, elf italienische und zwei chinesische Orte sowie den fail-closed Passend-Zustand ohne Steakhouse. Die vollständige positive Realabnahme jeder Option im AI Chat und die identische Timeline-Kandidatenmenge bleiben offen.",
-      "nextAcceptance": "Den verbleibenden UI-/AI-Paritätsnachweis mit identischen Place-IDs, Reisezielradius, Passend-Gründen, Providerbelegen und verständlichen Nullfällen weiterführen; P09/P10 darf parallel als aktiver Arbeitsblock beginnen.",
+      "evidence": "Karte, Timeline-Vorschläge und AI Chat konsumieren denselben places.v1-Filtervertrag und denselben providerbelegten Alle-/Passend-Bestand. Separat gefundene Ernährungsbelege werden nur über identische Providerreferenz oder exakt gleichen normalisierten Namen innerhalb 25 Metern verbunden. Der negative Steakhouse-Fall und positive Google-, HERE- und Foursquare-Fixtures sind automatisiert grün. Der öffentliche positive Realbeleg fehlt, weil HERE 0 explizite Treffer liefert, Google 403 und Foursquare 429 zurückgeben.",
+      "nextAcceptance": "Nach der Google-Freigabe denselben realen positiven Ernährungsort in Places, Timeline-Vorschlag und AI Chat mit gleicher Provider-ID, gleichem Reisezielradius und verständlichem Passend-Grund belegen.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -620,7 +620,7 @@
       "sequence": "P02/P03 Kategorie- und Filtervollständigkeit; P09/P10 Timeline-Karte und Bedienung; P12/P15/P17 Trip Composer und Vormerken; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität; spätere P40/P44/P47 und M18 Intelligence II."
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.84 / Core 4.82.206 bündelt den gemeinsamen Filtervertrag, die positive Profil-Evidenzsuche und die Kartenkontinuität. Alle 14 Kategorien, 82 Typ-/Untertypabbildungen, 19 Landesküchen sowie Fakten-, Kombinations-, Reset-, Distanz-, Budget- und Medienidentitätsregeln werden zentral für Karte, Timeline und AI Chat kompiliert. Normale Kartenabrufe bleiben auf Geoapify, TomTom und HERE; Google und Foursquare werden nur beim ausdrücklichen, belegpflichtigen Profilnachweis zugelassen. Ein transient leerer Kategorienwechsel wird genau einmal wiederholt. Sichtbar auf Integration: Food 50, Shopping 21, Natur 11, Nachtleben 17, Aktivitäten 29, Italienisch 11, Chinesisch 2 echte Orte, Stays 49. Places und Stays sind bei 390 x 844 ohne horizontales Überlaufen und mit Kurzinfo innerhalb der Karte. Passend bleibt ohne belegten positiven Ernährungsort ehrlich leer und schließt das Steakhouse aus. 225/225 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Bytevergleiche sind grün. Breite echte Fototreffer, positive Profilbreite, vollständige sichtbare UI-/AI-Matrix und physische Mobilzeiten bleiben P02/P03-Restabnahme.",
+  "acceptanceUpdate": "App 13.82.168.85 / Core 4.82.207 ergänzt die kostenlose HERE-first-Ernährungsevidenz und die begrenzten Google-/Foursquare-Fallbacks. HERE Vegetarian/Vegan Food-Types, die offizielle Foursquare Vegan-and-Vegetarian-Kategorie und Google servesVegetarianFood fließen in denselben Alle-/Passend-Bestand; allgemeine oder fleischzentrierte Orte werden nicht geraten. Öffentliche Diagnose: HERE ist erreichbar, liefert bei Scharbeutz in 8/15 km 0 explizite Treffer; Google antwortet 403 Permission; Foursquare 429 keine Credits. 226/226 Safe Regression PASS. Der Frontendkandidat .85 ist vor Veröffentlichung; aktiver Frontend-Rückfall bleibt .84. Main und Production unverändert.",
   "safeRegression": "225/225 PASS",
   "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -650,24 +650,24 @@
     "docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv; B1/P09 und P10 sind der aktive Arbeitsblock. P02/P03 haben den gemeinsamen Filter-, Profil- und Kontinuitätsrelease geliefert und bleiben nur für positive Providerbreite, vollständige sichtbare UI-/AI-/Fotoabnahme und physische Mobilmessung teilweise offen. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 ist teilweise belegt.",
-    "delivered": "App 13.82.168.84 / Core 4.82.206 läuft auf Integration über Worker ffb176c3-0015-44d0-8a66-e59c68c16a63 bei 100 Prozent Traffic; Gateway v196 / 4.64.20 bleibt auf Health-Build 13.82.168.79 unverändert aktiv. Der gemeinsame Filtercompiler deckt 14 Kategorien, 82 Typ-/Untertypabbildungen, 19 Landesküchen und alle Faktenfilter für Karte, Timeline und AI Chat ab. Sichtbar: Food 50, Shopping 21, Natur 11, Nachtleben 17, Aktivitäten 29, Italienisch 11, Chinesisch 2, Stays 49; Places und Stays bei 390 x 844 ohne horizontalen Überlauf. Passend erfindet keinen Steakhouse-Treffer. 225/225 Safe Regression, 3/3 NFR-0 und 30/30 öffentliche Bytevergleiche sind grün. Main und Production bleiben unverändert.",
+    "stage": "M16.5 Schritte 15–18 aktiv; B1/P02 und P03 sind für den positiven Passend-Realbeleg erneut der aktive Abschlussblock. P09/P10 bleiben teilweise geliefert und werden nach diesem externen Gate fortgesetzt. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 ist teilweise belegt.",
+    "delivered": "Gateway v202 / 4.64.20 mit Places-Health 4.38.1-here-dietary-evidence ist aktiv. HERE-, Google- und Foursquare-Ernährungsbelege, strenge Identitätsverbindung, Steakhouse-Ausschluss und begrenzte Providerbudgets sind implementiert. App-Kandidat 13.82.168.85 / Core 4.82.207 ist gebaut; 226/226 Safe Regression PASS. Öffentliche Providerdiagnose: HERE 0 explizite Treffer, Google 403, Foursquare 429. Main und Production bleiben unverändert.",
     "nextStep": {
-      "id": "P09-P10-positive-owner-management",
-      "package": "P09",
+      "id": "P02-P03-google-positive-food-fit",
+      "package": "P02",
       "status": "AKTIV",
-      "title": "Booking-, Besuchs- und Memory-Momente positiv verwalten",
-      "reason": "Der gebündelte P02/P03-Vertrag ist veröffentlicht und seine verbleibenden externen beziehungsweise breitebezogenen Nachweise sind klar abgegrenzt. Der nächste wertvollste Produktabschluss ist die bereits vorbereitete Timeline-Fähigkeitsmatrix mit echten positiven Owner-Verwaltungswegen.",
+      "title": "Google Places für den positiven Ernährungsbeleg freischalten und sichtbar abnehmen",
+      "reason": "Die Anwendung, der gemeinsame Filtervertrag und die Negativregeln sind grün; aktuell verhindert die Google-403-Berechtigung den praktisch breitesten positiven servesVegetarianFood-Nachweis, während HERE keine lokalen Fakten liefert und Foursquare keine Credits besitzt.",
       "acceptance": [
-        "Ein gebuchter Timeline-Eintrag liest den aktuellen Booking-Owner-Stand und öffnet den passenden Ändern-/Stornieren-Weg; nicht unterstützte oder unbekannte Providerzustände bleiben ohne falsche Erfolgsmeldung stehen.",
-        "Ein bestätigter Besuch lässt sich über den zuständigen Owner nachvollziehbar verwalten, ohne Booking- oder Places-Fakten umzudeuten.",
-        "Memory- und Foto-Momente lassen sich mit lesbarer Vorschau bearbeiten, entfernen und nach Reload exakt wiederherstellen; Dateiverweise und Journey-Reihenfolge bleiben konsistent.",
-        "Oberfläche und AI Chat verwenden für jede unterstützte Aktion dieselbe Eingabeprüfung, Vorschau, ausdrückliche Bestätigung, Owner-Readback, Receipt, Teilfehler- und Recovery-Sprache.",
-        "Sichtbare Desktop- und responsive Mobilabnahme, vollständige Safe Regression, öffentliche Bytegleichheit, sauberes Archiv und unveränderter Main-Stand bilden das Releasegate."
+        "Google Places API (New), aktives Billing und API-Key-Beschränkungen im richtigen Google-Cloud-Projekt sind geprüft; der bestehende Server-Key darf ausschließlich die benötigte Places-Suche ausführen.",
+        "Der öffentliche Health-Probe wechselt von HTTP 403 zu einer erfolgreichen, begrenzten Google-Antwort ohne Schlüssel- oder Rohdatenoffenlegung.",
+        "Essen & Trinken zeigt für das vegetarische Profil mindestens einen realen „Passt“-Pin und weiterhin kein unbewiesenes Steakhouse.",
+        "Places, Timeline und AI Chat zeigen für den Treffer dieselbe Provider-ID, denselben Reisezielradius und einen lesbaren providerbelegten Passend-Grund.",
+        "Stable und Immutable Integration, Bytegleichheit, Regression und unveränderter Main-Stand sind belegt."
       ]
     },
-    "after": "Danach P12/P15/P17 mit dem gemeinsamen Trip Composer für Reisestart, Geführt, Schnellstart, KI-Entwurf und Vormerken; anschließend P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.",
-    "open": "P02/P03-Rest: positive profilgerechte Providerbreite, vollständige sichtbare UI-/AI-Matrix, breite echte Place-/Stays-Fotos und physische Mobilzeiten. P09/P10 aktiv: positive Booking-/Visit-/Memory-Owner-Wege und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten."
+    "after": "Danach P09/P10 mit positiven Booking-, Visit- und Memory-Verwaltungswegen; anschließend P12/P15/P17 Trip Composer, P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.",
+    "open": "P02/P03 aktiv: positiver Google-Realbeleg sowie vollständige UI-/AI-/Foto- und physische Mobilabnahme. P09/P10 bleiben teilweise: positive Booking-/Visit-/Memory-Owner-Wege und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten."
   },
-  "qaCommit": "6503e700"
+  "qaCommit": "PENDING"
 }

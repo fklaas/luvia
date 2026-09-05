@@ -60,7 +60,7 @@ assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order mu
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
 assert.match(gateway,/v2\.16\.3-cuisine-budget-continuity/,'gateway cache must invalidate after the cuisine budget continuity contract enters the public surface');
-assert.match(gateway,/version:'4\.37\.8-cuisine-budget-continuity'/,'gateway health version must expose the current dietary evidence and bounded cuisine budget contract');
+assert.match(gateway,/version:'4\.38\.1-here-dietary-evidence'/,'gateway health version must expose the current dietary evidence cascade and bounded provider budgets');
 assert.match(gateway,/aliasMediaIdentity:'contained_distinctive_name_and_max_25m'/,'safe provider-name variants require a much tighter coordinate proof');
 assert.match(gateway,/priority:'on_demand_dietary_fallback_and_exact_selected_media'/,'Foursquare use must stay on-demand for dietary fallback or exact selected media instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');
