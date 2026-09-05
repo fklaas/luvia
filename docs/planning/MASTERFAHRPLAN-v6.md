@@ -59,7 +59,7 @@ Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer we
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.63 und Core 4.82.185 mit Gateway v170. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; die aktuelle Provider-Kontinuität ist im P02/P03-Bericht belegt.
+Zum Zeitpunkt der ursprünglichen Konsolidierung lief Integration auf App 13.82.168.63 und Core 4.82.185 mit Gateway v170. Dieser Absatz bleibt als Ausgangsbeleg erhalten; der verbindliche heutige Stand steht im synchronisierten Statusabschnitt am Dokumentanfang. Die damaligen Kartenreparaturen waren ein Teil der aktiven B1-Arbeit. Geoapify, TomTom und HERE bildeten die aktive budgetbewusste Kaskade.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -77,7 +77,7 @@ Pin-Auswahl, Vordergrundreihenfolge, gemeinsame Kontur und markierte Passung wur
 
 Die Karte verwendet eine zurückhaltende 35-Grad-Perspektive mit bleibender 2D-Umschaltung. Bedienelemente und Flächen folgen der Reisefarbe. Geh- und Fahrradwege sind aus echten Routengeometrien belegt. Bei der .37-Abnahme ergab derselbe Tagespfad 70 Minuten zu Fuß und 21 Minuten mit dem Rad. Das sind konkrete Prüfergebnisse, keine allgemeingültigen Reisezeiten.
 
-Die aktuelle vollständige Safe Regression ist 217/217 PASS; 30 öffentliche Dateien stimmen mit dem unveränderlichen .51-Quellarchiv überein. Im sichtbaren .51-Browserlauf lieferte derselbe Scharbeutz-Ausschnitt Essen 50, Shopping 45, Natur 18 und Aktivitäten 7; der direkte Wiederholungswechsel blieb stabil. Stays lieferte 49 Ergebnisse am Reiseziel und nach sichtbarem Zoom 48 Ergebnisse in 1091 ms. Das sind datierte Einzelmessungen und keine zugesicherte mobile Ladezeit oder Vollständigkeitsbehauptung. 390 × 844 ohne horizontalen Überlauf ist geprüft; physische native iOS-/Android-Leistung bleibt ungemessen.
+Der damalige vollständige Safe-Regression-Lauf war 217/217 PASS; 30 öffentliche Dateien stimmten mit dem unveränderlichen .51-Quellarchiv überein. Im sichtbaren .51-Browserlauf lieferte derselbe Scharbeutz-Ausschnitt Essen 50, Shopping 45, Natur 18 und Aktivitäten 7; der direkte Wiederholungswechsel blieb stabil. Stays lieferte 49 Ergebnisse am Reiseziel und nach sichtbarem Zoom 48 Ergebnisse in 1091 ms. Das sind datierte historische Einzelmessungen und keine zugesicherte mobile Ladezeit oder Vollständigkeitsbehauptung. 390 × 844 ohne horizontalen Überlauf wurde damals geprüft; physische native iOS-/Android-Leistung bleibt ungemessen.
 
 ## 3 Was weiterhin offen ist
 
