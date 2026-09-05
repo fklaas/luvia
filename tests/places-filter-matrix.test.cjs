@@ -29,11 +29,13 @@ assert.deepEqual(Array.from(f.filteredResults(),p=>p.id),['yes'],'OR within one 
 f.state.filters=f.emptyFilters();assert.equal(f.filteredResults().length,2,'reset restores full cohort');
 f.state.sort='distance';assert.equal(f.filteredResults()[0].id,'other','distance sort works without device permission');
 f.state.filters=f.emptyFilters();f.state.filters.cuisines=['spanish_restaurant'];f.state.results=[
- {id:'here:primary-spanish',types:['restaurant','spanish_restaurant'],raw:{foodTypes:[{name:'Spanish',primary:true}]}},
- {id:'here:secondary-spanish',types:['restaurant','german_restaurant','spanish_restaurant'],raw:{foodTypes:[{name:'German',primary:true},{name:'Spanish',primary:false}]}},
+ {id:'here:primary-spanish',types:['restaurant','spanish_restaurant'],providerPrimaryFoodTypes:['Spanish']},
+ {id:'here:secondary-spanish',types:['restaurant','german_restaurant','spanish_restaurant'],providerPrimaryFoodTypes:['German']},
  {id:'geoapify:spanish',types:['restaurant','spanish_restaurant']}
 ];
 assert.deepEqual(Array.from(f.filteredResults(),p=>p.id),['here:primary-spanish','geoapify:spanish'],'the client must reject HERE secondary cuisine tags before and after the provider refresh');
+const projectedCuisine=ctx.LuviaPlacesDomainContractCoreV1.projectDetails({id:'here:projected-spanish',provider:'here',types:['restaurant','spanish_restaurant'],providerPrimaryFoodTypes:['Spanish']});
+assert.deepEqual(Array.from(projectedCuisine.providerPrimaryFoodTypes),['Spanish'],'the public places.v1 projection must preserve primary provider cuisine evidence');
 for(const key of ['openNow','rated','rating45','reservable','accessible','vegetarian']){
  f.state.sort='fit';f.state.filters=f.emptyFilters();f.state.filters[key]=true;
  const yes={id:'yes',types:['restaurant'],openNow:true,rating:4.8,features:{reservable:true,servesVegetarianFood:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},no={id:'no',types:['restaurant'],openNow:false,rating:3,features:{reservable:false,servesVegetarianFood:false},accessibilityOptions:{wheelchairAccessibleEntrance:false}},unknown={id:'unknown',types:['restaurant']};

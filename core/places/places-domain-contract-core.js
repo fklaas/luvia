@@ -161,6 +161,7 @@ function projectDetails(input){
     providerRefs:providerRefsProjection(source.providerRefs),
     providerEvidence:evidenceProjection(source.evidence||source.providerEvidence),
     providerNativeTypes:[...(source.providerNativeTypes||[])].map(String).slice(0,50),
+    providerPrimaryFoodTypes:[...(source.providerPrimaryFoodTypes||[])].map(String).slice(0,20),
     providerObservedAt:clean(source.providerObservedAt)||null,
     ownerObservedAt:clean(source.ownerObservedAt)||null,
     providerFactsCached:source.providerFactsCached===true,

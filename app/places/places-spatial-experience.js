@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.7-primary-cuisine-evidence';
+  const VERSION='1.31.8-primary-cuisine-contract-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -173,7 +173,8 @@
   function hasPrimaryCuisineEvidence(place,type){
     const aliases=HERE_PRIMARY_CUISINE_ALIASES[type];
     if(!aliases||!providerId(place).startsWith('here:'))return true;
-    const primary=(place?.raw?.foodTypes||[]).filter(item=>item?.primary===true).map(item=>normalizedEvidence(item?.name||item?.id));
+    const projected=(place?.providerPrimaryFoodTypes||[]).map(normalizedEvidence);
+    const primary=projected.length?projected:(place?.raw?.foodTypes||[]).filter(item=>item?.primary===true).map(item=>normalizedEvidence(item?.name||item?.id));
     return primary.some(value=>aliases.some(alias=>{const expected=normalizedEvidence(alias);return value===expected||value.includes(expected)}));
   }
   function matchesTypeGroup(place,values=[]){if(!values.length)return true;const types=placeTypeSet(place);return values.some(value=>types.has(value)&&hasPrimaryCuisineEvidence(place,value)&&(value!=='vegetarian_restaurant'||place.features?.servesVegetarianFood!==false)&&(value!=='vegan_restaurant'||place.features?.servesVeganFood!==false))}

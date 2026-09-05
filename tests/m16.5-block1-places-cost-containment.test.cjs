@@ -58,8 +58,8 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.14\.3-primary-cuisine-evidence/,'gateway cache must invalidate after strict cuisine-evidence hardening');
-assert.match(gateway,/version:'4\.36\.3-primary-cuisine-evidence'/,'gateway health version must expose exact selected-place photos, quota-bounded nightlife supplementation and strict primary cuisine evidence');
+assert.match(gateway,/v2\.14\.4-primary-cuisine-contract/,'gateway cache must invalidate after primary cuisine evidence enters the public contract');
+assert.match(gateway,/version:'4\.36\.4-primary-cuisine-contract'/,'gateway health version must expose exact selected-place photos, quota-bounded nightlife supplementation and projected primary cuisine evidence');
 assert.match(gateway,/priority:'on_demand_exact_selected_media'/,'Foursquare media use must stay on-demand instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');
 assert.match(gateway,/photoEndpoint:'one_popular_photo_after_exact_identity'/,'one dedicated photo read is allowed only after exact identity matching');
