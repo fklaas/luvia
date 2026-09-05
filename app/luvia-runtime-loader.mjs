@@ -1,7 +1,9 @@
-const BUILD = '13.82.168.76';
+const BUILD = '13.82.168.77';
 const ASSET_REVISION = `${BUILD}-local-recovery`;
 const CLASSIC_LOAD_ATTEMPTS = 2;
 const CLASSIC_RETRY_DELAY_MS = 250;
+const MODULE_LOAD_ATTEMPTS = 2;
+const MODULE_RETRY_DELAY_MS = 250;
 
 const wait = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 
@@ -25,6 +27,21 @@ async function loadClassic(relativeUrl) {
     } catch (error) {
       lastError = error;
       if (attempt < CLASSIC_LOAD_ATTEMPTS) await wait(CLASSIC_RETRY_DELAY_MS);
+    }
+  }
+  throw lastError;
+}
+
+async function importModule(relativeUrl) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= MODULE_LOAD_ATTEMPTS; attempt += 1) {
+    const source = new URL(relativeUrl, import.meta.url);
+    if (attempt > 1) source.searchParams.set('runtimeAttempt', String(attempt));
+    try {
+      return await import(source.href);
+    } catch (error) {
+      lastError = error;
+      if (attempt < MODULE_LOAD_ATTEMPTS) await wait(MODULE_RETRY_DELAY_MS);
     }
   }
   throw lastError;
@@ -65,14 +82,14 @@ function showRuntimeFailure(error) {
 async function bootRuntime() {
   // Identity Web ports must exist before the physical port registry is created.
   await loadClassic(`./adapters/identity-platform-web-adapter.js?v=${ASSET_REVISION}`);
-  await import(`./adapters/platform-port-adapters.mjs?v=${ASSET_REVISION}`);
-  await import(`./adapters/media-storage-web-adapter.mjs?v=${ASSET_REVISION}`);
+  await importModule(`./adapters/platform-port-adapters.mjs?v=${ASSET_REVISION}`);
+  await importModule(`./adapters/media-storage-web-adapter.mjs?v=${ASSET_REVISION}`);
 
   // Supabase remains its own vendor asset. The Trip web binding has one hard
   // ordering boundary: state/store first, binding second, every consumer third.
   await loadClassic(`../vendor/supabase/supabase-2.112.4.js?v=${ASSET_REVISION}`);
   await loadClassic(`./luvia-runtime-precontext-13.82.168.bundle.js?v=${ASSET_REVISION}`);
-  await import(`../luvia-trip-context.js?v=${ASSET_REVISION}`);
+  await importModule(`../luvia-trip-context.js?v=${ASSET_REVISION}`);
   if (!globalThis.LuviaTripContext) {
     throw new Error('Luvia Runtime: Trip Context Binding wurde nicht initialisiert.');
   }
