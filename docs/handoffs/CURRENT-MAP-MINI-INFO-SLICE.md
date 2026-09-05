@@ -3,24 +3,23 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.79**, Core **4.82.201**. M16.5, Schritte 15–18 aktiv; B1/P02 und P03 in Arbeit. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 Ende-zu-Ende-Abnahme ist teilweise belegt; P09 und P10 bleiben teilweise umgesetzt.
+**Stand 2026-09-05:** Integration **13.82.168.81**, Core **4.82.203**. M16.5 Schritte 15–18 aktiv; B1/P09 und P10 sind der aktive Arbeitsblock. P02/P03 haben den gemeinsamen Filter-, Profil- und Kontinuitätsrelease geliefert und bleiben nur für positive Providerbreite, vollständige sichtbare UI-/AI-/Fotoabnahme und physische Mobilmessung teilweise offen. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 ist teilweise belegt.
 
-**Zuletzt geliefert:** App 13.82.168.79 / Core 4.82.201 läuft auf Integration über Worker c572b36d-f8c7-4193-8022-b1a030101f25 bei 100 Prozent Traffic; Gateway v196 / 4.64.20 meldet denselben Build. Landesküchen bleiben nach schnellen Wechseln innerhalb des freien Providerbudgets, Profil-Evidenz nutzt dieselbe Kaskade, und ein fertiger Places-/Stays-Warmstart beendet seinen Ladezustand. Sichtbar: Stays 49 ready; Vietnamesisch 0 als ehrlicher Nullfall, danach Türkisch 2; Passend ohne Steakhouse-Falschpositiv und mit erklärter Evidenzlücke. 224/224 Safe Regression, 3/3 NFR-0 und 30/30 öffentliche Dateihashes sind grün. Main und Production bleiben unverändert.
+**Zuletzt geliefert:** App 13.82.168.81 / Core 4.82.203 läuft auf Integration über Worker ffb176c3-0015-44d0-8a66-e59c68c16a63 bei 100 Prozent Traffic; Gateway v196 / 4.64.20 bleibt auf Health-Build 13.82.168.79 unverändert aktiv. Der gemeinsame Filtercompiler deckt 14 Kategorien, 82 Typ-/Untertypabbildungen, 19 Landesküchen und alle Faktenfilter für Karte, Timeline und AI Chat ab. Sichtbar: Food 50, Shopping 21, Natur 11, Nachtleben 17, Aktivitäten 29, Italienisch 11, Chinesisch 2, Stays 49; Places und Stays bei 390 x 844 ohne horizontalen Überlauf. Passend erfindet keinen Steakhouse-Treffer. 225/225 Safe Regression, 3/3 NFR-0 und 30/30 öffentliche Bytevergleiche sind grün. Main und Production bleiben unverändert.
 
-**Nächster Schritt (AKTIV): Restliche Filter-, Foto- und Mobilmatrix schließen.** Der akute Provider-Budgetstopp, der falsche Warmstart-Ladezustand und der konkrete Steakhouse-Falschpositivfall sind behoben und sichtbar belegt. Offen bleiben eine nützliche positive profilgerechte Trefferbreite, die vollständige positive beziehungsweise providerbelegte Nullfall-Abnahme jeder Filteroption über Oberfläche und AI Chat, breite exakte Fotoabdeckung und Messwerte von physischen Mobilgeräten.
+**Nächster Schritt (AKTIV): Booking-, Besuchs- und Memory-Momente positiv verwalten.** Der gebündelte P02/P03-Vertrag ist veröffentlicht und seine verbleibenden externen beziehungsweise breitebezogenen Nachweise sind klar abgegrenzt. Der nächste wertvollste Produktabschluss ist die bereits vorbereitete Timeline-Fähigkeitsmatrix mit echten positiven Owner-Verwaltungswegen.
 
 **Abnahme dieses Schritts:**
 
-- Jede sichtbare Kategorie-, Untertyp-, Fakten- und Landesküchenoption wird über Places und Stays betätigt; Kombination und Reset liefern reproduzierbar dieselben kanonischen Place-Identitäten oder einen providerbelegten verständlichen Nullfall.
-- Dieselben Anfragen über den AI Chat verwenden dieselbe Kandidatenmenge, denselben Reisezielradius, dieselben Passend-Gründe und dieselben Providerbelege wie die Kartenoberfläche und die Timeline-Vorschläge.
-- Überraschende Landesküchen- und Profilklassifikationen werden mit einer zweiten Quelle oder einer dedizierten Providerklassifikation gegengeprüft; fleischzentrierte Orte erhalten ohne konkrete Ernährungsbelege kein vegetarisches oder veganes Passt.
-- Jede Detailkarte versucht ein exakt zum realen Ort gehörendes Bild mit Attribution; Trefferquote, ehrliche Bildlücke und Ablehnung benachbarter oder namensfremder Medien werden protokolliert.
-- Kaltstart, Warmstart, Reisewechsel, Zoom, Ziehen, Kategorienwechsel und sichtbare Pin-Zeit werden auf einem physischen Mobilgerät gemessen und gegen die Desktop-Abnahme gehalten.
-- Vollständige Safe Regression, 30/30 Byte-Gleichheit, unveränderliches Archiv und exakter Frontend-, Gateway- und Budget-Rückfall bleiben Releasegate.
+- Ein gebuchter Timeline-Eintrag liest den aktuellen Booking-Owner-Stand und öffnet den passenden Ändern-/Stornieren-Weg; nicht unterstützte oder unbekannte Providerzustände bleiben ohne falsche Erfolgsmeldung stehen.
+- Ein bestätigter Besuch lässt sich über den zuständigen Owner nachvollziehbar verwalten, ohne Booking- oder Places-Fakten umzudeuten.
+- Memory- und Foto-Momente lassen sich mit lesbarer Vorschau bearbeiten, entfernen und nach Reload exakt wiederherstellen; Dateiverweise und Journey-Reihenfolge bleiben konsistent.
+- Oberfläche und AI Chat verwenden für jede unterstützte Aktion dieselbe Eingabeprüfung, Vorschau, ausdrückliche Bestätigung, Owner-Readback, Receipt, Teilfehler- und Recovery-Sprache.
+- Sichtbare Desktop- und responsive Mobilabnahme, vollständige Safe Regression, öffentliche Bytegleichheit, sauberes Archiv und unveränderter Main-Stand bilden das Releasegate.
 
-**Danach:** Danach P09/P10 mit den positiven Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente schließen; anschließend P12/P15/P17 den gemeinsamen Trip Composer mit Reisestart, Geführt, Schnellstart, KI-Entwurf und Vormerken umsetzen.
+**Danach:** Danach P12/P15/P17 mit dem gemeinsamen Trip Composer für Reisestart, Geführt, Schnellstart, KI-Entwurf und Vormerken; anschließend P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.
 
-**Weiter offen:** P02/P03: positive profilgerechte Trefferbreite, restliche sichtbare Filtermatrix über UI/AI Chat, zweite Quellenprüfung überraschender Klassifikationen, breite echte Place-Fotos und physische Mobilzeiten. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
+**Weiter offen:** P02/P03-Rest: positive profilgerechte Providerbreite, vollständige sichtbare UI-/AI-Matrix, breite echte Place-/Stays-Fotos und physische Mobilzeiten. P09/P10 aktiv: positive Booking-/Visit-/Memory-Owner-Wege und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
