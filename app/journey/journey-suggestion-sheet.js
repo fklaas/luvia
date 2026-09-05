@@ -330,7 +330,8 @@ async function enrich(place){
 
   try{
     const card=await api.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
-    const merged={...place,...(card?.place||{}),image:card?.image||place.image||null};
+    const ownerFit=place?.profileFit?.owner==='places'?place.profileFit:null;
+    const merged={...place,...(card?.place||{}),profileFit:ownerFit||card?.place?.profileFit||place.profileFit||null,image:card?.image||place.image||null};
     if(isGenericPlaceName(merged.name)&&!isGenericPlaceName(place.name))merged.name=place.name;
     else merged.name=placeDisplayName(merged);
     if(isGenericPlaceName(merged.address)&&clean(place.address||place.formattedAddress))merged.address=place.address||place.formattedAddress;
@@ -387,7 +388,7 @@ async function load(rawInput={},options={}){
       });
     }else responses=await Promise.all(requestDescriptors.map(async({category,promise})=>{try{return{status:'fulfilled',value:await promise,category}}catch(reason){return{status:'rejected',reason,category}}}));
   }
-  const successfulResponses=responses.filter(item=>item.status==='fulfilled'),successful=successfulResponses.map(item=>item.value),excluded=new Set(input.excludeProviderPlaceIds),rows=successfulResponses.flatMap(item=>(item.value?.places||[]).map(place=>({...place,requestedCategory:item.category||place.requestedCategory}))).filter(place=>!excluded.has(providerId(place))).map(place=>({...place,distanceReference:input.positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':null}));
+  const successfulResponses=responses.filter(item=>item.status==='fulfilled'),successful=successfulResponses.map(item=>item.value),excluded=new Set(input.excludeProviderPlaceIds),rows=successfulResponses.flatMap(item=>(item.value?.places||[]).map(place=>({...place,requestedCategory:item.category||place.requestedCategory}))).filter(place=>!excluded.has(providerId(place))&&(!sharedDiscovery||input.source==='hotel-map'||place.profileFit?.state==='matched')).map(place=>({...place,distanceReference:input.positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':null}));
   if(!rows.length){
     const prior=existing||[...cache.values()].find(item=>item.input?.trip&&tripId(item.input.trip)===tripId(input.trip));
     if(prior)return{...prior,input,cached:true,stale:true,warning:'Die Live-Suche ist gerade nicht erreichbar. Ihr seht den letzten erfolgreichen, noch nicht bestätigten Vorschlagsstand.'};

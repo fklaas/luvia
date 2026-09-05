@@ -3,21 +3,21 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.94**, Core **4.82.213**. M16.5 Schritte 15–18 aktiv. P02 Passend ist öffentlich stabil; der P03 Cross-Surface-Slice steht als App .94 / Core 4.82.213 unmittelbar vor seiner öffentlichen AI-Chat-Abnahme. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft öffentlich fail-closed; App .95 / Core 4.82.214 schließt vor der öffentlichen P03-Abnahme den gefundenen Places/Timeline-profileFit-Widerspruch. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** Auf App .93 sind Places und Timeline sichtbar auf derselben aktiven Place-Kohorte: 11 vegetarisch belegte Passend-Pins, kein Steakhouse-Falschpositiv, dieselbe kanonische HERE-ID und derselbe lesbare Profilgrund bei null zusätzlichen Timeline-Provider-Reads. App .94 ergänzt den fehlenden lokalen Chat-Intent für den realen Satz mit flektiertem „vegetarische Restaurants“; fokussierte P03-, Semantik-, Orchestrierungs-, Release-, Inventur- und NFR-0-Gates sind grün.
+**Zuletzt geliefert:** App .94 verarbeitet den exakten AI-Satz öffentlich und verwendet dafür die aktive Places-Kohorte ohne neue Provider-Reads. Der sichtbare Gegenbeleg einer Timeline-Karte mit identischer Place-ID, aber widersprüchlichem blocked-Zustand ist in App .95 behoben. 230/230 Safe Regression, 3/3 NFR-0, Release-, Architektur-, Plan- und Inventurgates sind grün.
 
-**Nächster Schritt (AKTIV): App .94 veröffentlichen und dieselbe Passend-ID im AI Chat sichtbar belegen.** Der letzte reale Gegenbeleg lag nur noch im lokalen Fallback des Chats: Ohne Live-KI wurde „vegetarische Restaurants“ wegen deutscher Flexion nicht als Places-Read erkannt. Der Kandidat behebt genau diese Lücke.
+**Nächster Schritt (AKTIV): App .95 veröffentlichen und die eine Passend-Entscheidung sichtbar über Places, Timeline und AI belegen.** Der öffentliche AI-Fallback funktioniert bereits. Vor Abschluss muss der jetzt behobene Timeline-Gegenbeleg auf dem immutable Integration-Worker sichtbar verschwinden.
 
 **Abnahme dieses Schritts:**
 
-- Der öffentliche Integration-Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch bei nicht verfügbarer Live-KI als lokalen sicheren Places-Read.
-- Places, Timeline und AI Chat zeigen mindestens eine identische kanonische Place-/Provider-ID und denselben lesbaren vegetarischen Passend-Grund.
-- AI Chat weist für die wiederverwendete aktive Place-Kohorte Provider-Read-Zähler 0 aus.
-- Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; weder Chat noch Timeline erfinden eine Passung.
+- Places zeigt ausschließlich vom Places-Owner als matched projizierte Passend-Pins; ein Steakhouse oder eine blockierte Altzeile bleibt ausgeschlossen.
+- Timeline übernimmt mindestens eine identische kanonische Place-/Provider-ID mit profileFit=matched und demselben lesbaren vegetarischen Grund.
+- AI Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ und verwendet dieselbe aktive Place-Kohorte.
+- Timeline und AI weisen für die Wiederverwendung Provider-Read-Zähler 0 aus.
 - Safe Regression 230/230, NFR-0 3/3, Stable/Immutable-Asset-Identität und Rückfallarchiv sind grün.
 
-**Danach:** Nach dem öffentlichen P03-Beleg wird die offene P02/P03-Vollständigkeit für alle Kategorien, Landes- und Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
+**Danach:** Nach dem öffentlichen P03-Paritätsbeleg wird die offene P02/P03-Vollständigkeit für alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen, Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
 
 **Weiter offen:** P02 bleibt teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P03 ist bis zum öffentlichen Chat-Beleg aktiv. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert.
 
@@ -306,7 +306,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Öffentlich läuft App 13.82.168.93 / Core 4.82.212 vollständig auf Integration-Worker 53f63ec9-19b1-4f6d-9ac1-2acf73f5866f aus Runtime-Commit f2661961. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem sauberen Archiv überein. Das Rückfallarchiv luvia-integration-13.82.168.93-f2661961.zip ist mit SHA-256 35E7C278E8EA8A7FC761D85AAB2F5EC5F5AC877B32BD84E77A9C429096927922 gesichert. App .94 / Core 4.82.213 ist der lokal vollständig getestete Nachfolgekandidat; Main und Production bleiben unverändert.
+Öffentlich läuft App 13.82.168.94 / Core 4.82.213 vollständig auf Integration-Worker 2b9af715-17de-44a0-ac0f-01276f5525ea aus Runtime-Commit 8fc53623. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem sauberen Archiv überein. Das Rückfallarchiv luvia-integration-13.82.168.94-8fc53623.zip ist mit SHA-256 63DCEA36CFC9120F5F3BD29C6C573E330D1D01E3D5B104DC8AFE93B72503A386 gesichert. App .95 / Core 4.82.214 ist der lokal mit 230/230 Safe Regression und 3/3 NFR-0 getestete Nachfolgekandidat; Main und Production bleiben unverändert.
 
 **Nächster Abschlussnachweis:** Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.
 
@@ -316,9 +316,9 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App .92 stellt Passend wieder reproduzierbar her: sichtbar 50 Orte unter Alle, 11 koordinaten- und profilbelegte Orte unter Passend und nach Rückkehr 52 Orte, weil zwei zusätzliche OSM-Orte übernommen wurden. Alle 11 passenden Pins tragen Passt; Erdmann’s Kleines Steakhaus bleibt für das vegetarische Profil ausgeschlossen. Evidenz wird höchstens einem räumlich nächsten Place-Owner innerhalb 120 m zugeordnet, sodass Provider-Dubletten keine doppelten Passend-Treffer mehr erzeugen. Der signierte Edge-Proxy hedgt drei aktuelle öffentliche OSM-Overpass-Instanzen gestaffelt, bricht Verlierer ab und hält erfolgreiche Evidenz sechs Stunden im Cloudflare-Cache. Apple bleibt ohne Entwicklerprogramm geparkt; kostenpflichtige Provider werden für diesen positiven Pfad nicht benötigt.
+Öffentlich zeigt App .94 in der aktuellen 3-km-Kohorte 50 Orte unter Alle und 9 durch Ortsfakten belegte vegetarische Orte unter Passend; Erdmann’s Kleines Steakhaus bleibt ausgeschlossen. Der exakte Wert ist an den aktuellen Provider- und Cachebestand gebunden und darf deshalb wechseln, die Owner-Regel bleibt fail-closed. Geoapify/OSM liefert positive Ernährungsbelege zuerst; HERE, Google und Foursquare bleiben begrenzte Fallbacks. App .95 entfernt zusätzlich einen gefundenen Paritätsfehler: Ein älteres positives Ranking-Flag kann einen von places.v1 blockierten Ort weder in Places noch in Timeline oder AI wiederbeleben. Apple bleibt ohne Entwicklerprogramm geparkt.
 
-**Nächster Abschlussnachweis:** Die jetzt belegte Passend-Identität ohne zweite Suche in Timeline-Vorschlägen, AI Chat und Stay wiederverwenden; danach die noch offene vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft weiter schließen.
+**Nächster Abschlussnachweis:** App .95 öffentlich über alle drei Verbraucher abnehmen; danach die noch offene vollständige Kategorie-, Landes-/Sachfilter-, echte Foto- und Providerbudget-Bereitschaft schließen.
 
 **Erhaltener technischer Umfang:** Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.
 
@@ -326,9 +326,9 @@ App .92 stellt Passend wieder reproduzierbar her: sichtbar 50 Orte unter Alle, 1
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App .93 beweist öffentlich 11 streng belegte Passend-Orte im 3-km-Reisezielbereich. Places und Timeline verwenden sichtbar dieselbe kanonische HERE-ID here:pds:place:276aabd1-127840c202d902c76d63024fe2fe10b0, denselben lesbaren vegetarischen Profilgrund und null zusätzliche Provider-Reads. Der öffentliche AI-Chat erkannte den flektierten deutschen Satz bei ausgefallener Live-KI noch nicht lokal. App .94 behebt diese reale Lücke im deterministischen Lese-Compiler; der fokussierte Cross-Surface-Test belegt dieselbe owner-projizierte ID, denselben Grund und null Provider-Reads. Die öffentliche AI-Chat-Abnahme des Kandidaten ist noch ausstehend.
+App .94 verarbeitet öffentlich den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch ohne Live-KI als lokalen Places-Read und liefert drei Orte aus der aktiven Places-Kohorte bei Provider-Read-Zähler 0. Strand-Creperie erscheint in Places, Timeline und AI mit derselben HERE-ID; im sichtbaren Timeline-DOM wurde jedoch eine widersprüchliche erneute Einstufung als blockiert gefunden. App .95 verlegt die Entscheidung vollständig in den Places-Owner, filtert fitOnly nach dessen profileFit-Projektion, bewahrt sie bei der Kartenanreicherung und verwirft defensive Fremdzeilen. Der Gegenfall mit altem positivem Flag und Owner-Block ist automatisiert belegt.
 
-**Nächster Abschlussnachweis:** App .94 ausschließlich auf Integration veröffentlichen und im sichtbaren Browser den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ gegen die bestehende Places-Kohorte ausführen. Derselbe Ort muss mit identischer Provider-ID, identischem Profilgrund und Provider-Read-Zähler 0 in Places, Timeline und AI Chat erscheinen.
+**Nächster Abschlussnachweis:** App .95 ausschließlich auf Integration veröffentlichen und sichtbar belegen, dass Places, Timeline und AI Chat dieselbe kanonische ID, denselben matched-Zustand, denselben vegetarischen Grund und Provider-Read-Zähler 0 verwenden; blockierte oder unbelegte Zeilen dürfen nirgends als Passend erscheinen.
 
 **Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.
 

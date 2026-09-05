@@ -3,21 +3,21 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.94**, Core **4.82.213**. M16.5 Schritte 15–18 aktiv. P02 Passend ist öffentlich stabil; der P03 Cross-Surface-Slice steht als App .94 / Core 4.82.213 unmittelbar vor seiner öffentlichen AI-Chat-Abnahme. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft öffentlich fail-closed; App .95 / Core 4.82.214 schließt vor der öffentlichen P03-Abnahme den gefundenen Places/Timeline-profileFit-Widerspruch. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** Auf App .93 sind Places und Timeline sichtbar auf derselben aktiven Place-Kohorte: 11 vegetarisch belegte Passend-Pins, kein Steakhouse-Falschpositiv, dieselbe kanonische HERE-ID und derselbe lesbare Profilgrund bei null zusätzlichen Timeline-Provider-Reads. App .94 ergänzt den fehlenden lokalen Chat-Intent für den realen Satz mit flektiertem „vegetarische Restaurants“; fokussierte P03-, Semantik-, Orchestrierungs-, Release-, Inventur- und NFR-0-Gates sind grün.
+**Zuletzt geliefert:** App .94 verarbeitet den exakten AI-Satz öffentlich und verwendet dafür die aktive Places-Kohorte ohne neue Provider-Reads. Der sichtbare Gegenbeleg einer Timeline-Karte mit identischer Place-ID, aber widersprüchlichem blocked-Zustand ist in App .95 behoben. 230/230 Safe Regression, 3/3 NFR-0, Release-, Architektur-, Plan- und Inventurgates sind grün.
 
-**Nächster Schritt (AKTIV): App .94 veröffentlichen und dieselbe Passend-ID im AI Chat sichtbar belegen.** Der letzte reale Gegenbeleg lag nur noch im lokalen Fallback des Chats: Ohne Live-KI wurde „vegetarische Restaurants“ wegen deutscher Flexion nicht als Places-Read erkannt. Der Kandidat behebt genau diese Lücke.
+**Nächster Schritt (AKTIV): App .95 veröffentlichen und die eine Passend-Entscheidung sichtbar über Places, Timeline und AI belegen.** Der öffentliche AI-Fallback funktioniert bereits. Vor Abschluss muss der jetzt behobene Timeline-Gegenbeleg auf dem immutable Integration-Worker sichtbar verschwinden.
 
 **Abnahme dieses Schritts:**
 
-- Der öffentliche Integration-Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch bei nicht verfügbarer Live-KI als lokalen sicheren Places-Read.
-- Places, Timeline und AI Chat zeigen mindestens eine identische kanonische Place-/Provider-ID und denselben lesbaren vegetarischen Passend-Grund.
-- AI Chat weist für die wiederverwendete aktive Place-Kohorte Provider-Read-Zähler 0 aus.
-- Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; weder Chat noch Timeline erfinden eine Passung.
+- Places zeigt ausschließlich vom Places-Owner als matched projizierte Passend-Pins; ein Steakhouse oder eine blockierte Altzeile bleibt ausgeschlossen.
+- Timeline übernimmt mindestens eine identische kanonische Place-/Provider-ID mit profileFit=matched und demselben lesbaren vegetarischen Grund.
+- AI Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ und verwendet dieselbe aktive Place-Kohorte.
+- Timeline und AI weisen für die Wiederverwendung Provider-Read-Zähler 0 aus.
 - Safe Regression 230/230, NFR-0 3/3, Stable/Immutable-Asset-Identität und Rückfallarchiv sind grün.
 
-**Danach:** Nach dem öffentlichen P03-Beleg wird die offene P02/P03-Vollständigkeit für alle Kategorien, Landes- und Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
+**Danach:** Nach dem öffentlichen P03-Paritätsbeleg wird die offene P02/P03-Vollständigkeit für alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen, Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
 
 **Weiter offen:** P02 bleibt teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P03 ist bis zum öffentlichen Chat-Beleg aktiv. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert.
 
@@ -95,12 +95,12 @@ Angewendete additive Policy-Migrationen:
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
 - `20260905210000_openstreetmap_dietary_evidence_budget.sql`
 
-Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.213` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
+Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.214` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
 
 ## Öffentlicher Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.213`
+- Core: `4.82.214`
 - Runtime-Commit: `51a2f1743e5c6296699d9525f5ddb9e9e0e84a7c`
 - Integration-Worker: `81e43a21-667a-4e60-bb81-1ab946e4a482`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`

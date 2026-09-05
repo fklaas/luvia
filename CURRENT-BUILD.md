@@ -1,25 +1,25 @@
 # Luvia aktueller Integrationsstand
 
-Integrationskandidat: **13.82.168.94**, Core **4.82.213**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Places veröffentlicht seinen aktiven, providerbelegten Kandidatensatz jetzt über `places.v1`. Timeline-Vorschläge und AI Chat verwenden dadurch dieselbe kanonische Place-ID, denselben Profilbeleg und denselben lesbaren Passend-Grund, ohne dafür eine zweite Provider-Suche auszulösen. Vegetarische und vegane Passung bleibt fail-closed; ein fleischzentrierter Ort wird ohne dedizierte vegetarische oder vegane Klassifikation nicht als passend markiert. Stay nutzt dieselbe technische Projektion mit eigener Unterkunftskategorie, sodass Ernährungsfakten nicht in Unterkünfte auslaufen. Der Kandidat ist vor der öffentlichen Integration-Veröffentlichung; Gateway- und Worker-Identität werden nach dem Deploy in den gemeinsamen Status geschrieben. Main und Production bleiben unverändert.
+Integrationskandidat: **13.82.168.95**, Core **4.82.214**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. `places.v1` entscheidet die belegte Passung jetzt einmalig für Karte, Timeline und AI Chat. Ein Verbraucher übernimmt dieselbe kanonische Place-ID, denselben `profileFit`-Zustand und denselben lesbaren Grund; er darf eine bereits vom Places-Owner blockierte Zeile weder anzeigen noch durch ein älteres positives Ranking-Flag wiederbeleben. Die aktive Kohorte wird ohne zusätzliche Provider-Suche wiederverwendet. Vegetarische und vegane Passung bleibt fail-closed; Stay verwendet dieselbe technische Projektion mit eigener Unterkunftskategorie. Der Kandidat ist vor der öffentlichen Integration-Veröffentlichung; Gateway- und Worker-Identität werden nach dem Deploy in den gemeinsamen Status geschrieben. Main und Production bleiben unverändert.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.94**, Core **4.82.213**. M16.5 Schritte 15–18 aktiv. P02 Passend ist öffentlich stabil; der P03 Cross-Surface-Slice steht als App .94 / Core 4.82.213 unmittelbar vor seiner öffentlichen AI-Chat-Abnahme. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft öffentlich fail-closed; App .95 / Core 4.82.214 schließt vor der öffentlichen P03-Abnahme den gefundenen Places/Timeline-profileFit-Widerspruch. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** Auf App .93 sind Places und Timeline sichtbar auf derselben aktiven Place-Kohorte: 11 vegetarisch belegte Passend-Pins, kein Steakhouse-Falschpositiv, dieselbe kanonische HERE-ID und derselbe lesbare Profilgrund bei null zusätzlichen Timeline-Provider-Reads. App .94 ergänzt den fehlenden lokalen Chat-Intent für den realen Satz mit flektiertem „vegetarische Restaurants“; fokussierte P03-, Semantik-, Orchestrierungs-, Release-, Inventur- und NFR-0-Gates sind grün.
+**Zuletzt geliefert:** App .94 verarbeitet den exakten AI-Satz öffentlich und verwendet dafür die aktive Places-Kohorte ohne neue Provider-Reads. Der sichtbare Gegenbeleg einer Timeline-Karte mit identischer Place-ID, aber widersprüchlichem blocked-Zustand ist in App .95 behoben. 230/230 Safe Regression, 3/3 NFR-0, Release-, Architektur-, Plan- und Inventurgates sind grün.
 
-**Nächster Schritt (AKTIV): App .94 veröffentlichen und dieselbe Passend-ID im AI Chat sichtbar belegen.** Der letzte reale Gegenbeleg lag nur noch im lokalen Fallback des Chats: Ohne Live-KI wurde „vegetarische Restaurants“ wegen deutscher Flexion nicht als Places-Read erkannt. Der Kandidat behebt genau diese Lücke.
+**Nächster Schritt (AKTIV): App .95 veröffentlichen und die eine Passend-Entscheidung sichtbar über Places, Timeline und AI belegen.** Der öffentliche AI-Fallback funktioniert bereits. Vor Abschluss muss der jetzt behobene Timeline-Gegenbeleg auf dem immutable Integration-Worker sichtbar verschwinden.
 
 **Abnahme dieses Schritts:**
 
-- Der öffentliche Integration-Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch bei nicht verfügbarer Live-KI als lokalen sicheren Places-Read.
-- Places, Timeline und AI Chat zeigen mindestens eine identische kanonische Place-/Provider-ID und denselben lesbaren vegetarischen Passend-Grund.
-- AI Chat weist für die wiederverwendete aktive Place-Kohorte Provider-Read-Zähler 0 aus.
-- Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; weder Chat noch Timeline erfinden eine Passung.
+- Places zeigt ausschließlich vom Places-Owner als matched projizierte Passend-Pins; ein Steakhouse oder eine blockierte Altzeile bleibt ausgeschlossen.
+- Timeline übernimmt mindestens eine identische kanonische Place-/Provider-ID mit profileFit=matched und demselben lesbaren vegetarischen Grund.
+- AI Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ und verwendet dieselbe aktive Place-Kohorte.
+- Timeline und AI weisen für die Wiederverwendung Provider-Read-Zähler 0 aus.
 - Safe Regression 230/230, NFR-0 3/3, Stable/Immutable-Asset-Identität und Rückfallarchiv sind grün.
 
-**Danach:** Nach dem öffentlichen P03-Beleg wird die offene P02/P03-Vollständigkeit für alle Kategorien, Landes- und Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
+**Danach:** Nach dem öffentlichen P03-Paritätsbeleg wird die offene P02/P03-Vollständigkeit für alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen, Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
 
 **Weiter offen:** P02 bleibt teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P03 ist bis zum öffentlichen Chat-Beleg aktiv. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert.
 

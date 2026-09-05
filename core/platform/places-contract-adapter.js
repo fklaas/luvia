@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.7.0-active-discovery-read';
+  const RUNTIME_VERSION='1.8.0-owner-profile-fit-read';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -246,9 +246,12 @@
   function getActiveDiscovery(options={}){
     const source=globalThis.LuviaPlacesSpatialExperience?.getSharedDiscoverySnapshot?.(options||{});
     if(!source)return null;
-    const places=freezeArray((source.places||[]).map(place=>{const projected=detailsProjection(place);if(!projected)return null;return Object.freeze({...projected,requestCategory:clean(source.category),profileFit:domain().profileFitProjection(place,{focus:source.profileFocus,category:source.category})})}).filter(Boolean));
+    const projectedPlaces=(source.places||[]).map(place=>{const projected=detailsProjection(place);if(!projected)return null;return Object.freeze({...projected,requestCategory:clean(source.category),profileFit:domain().profileFitProjection(place,{focus:source.profileFocus,category:source.category})})}).filter(Boolean);
+    const places=freezeArray(options.fitOnly===true?projectedPlaces.filter(place=>place.profileFit?.state==='matched'):projectedPlaces);
+    if(options.fitOnly===true&&!places.length)return null;
     return Object.freeze({id:clean(source.id),owner:'places',contractId:CONTRACT_ID,surface:clean(source.surface),tripId:clean(source.tripId),destination:clean(source.destination),category:clean(source.category),query:clean(source.query),searchRadiusMeters:number(source.searchRadiusMeters),profileFocus:clean(source.profileFocus),places,count:places.length,fitCount:places.filter(place=>place.profileFit?.state==='matched').length,observedAt:clean(source.observedAt),recordedAt:clean(source.recordedAt),consumerProviderReads:0});
   }
+  function getProfileFit(place,context={}){return domain().profileFitProjection(place,context||{})}
   function localSearchRadius(destination,requestedRadius){return domain().localSearchRadius(destination,requestedRadius)}
   function categories(){return domain().categories()}
   function routeDiscovery(options={}){return domain().routeDiscovery(options)}
@@ -400,11 +403,11 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({localSearchRadius,search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getActiveDiscovery,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery}),
+    reads:Object.freeze({localSearchRadius,search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getActiveDiscovery,getProfileFit,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery}),
     composition:Object.freeze({selectView}),
     commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,updateVisit,removeVisit,restoreVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
     events:Object.freeze(['places.changed','place.lifecycle.changed','place.visit.changed','place.plan.changed','place.favorite.changed']),
-    search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getActiveDiscovery,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery,
+    search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getActiveDiscovery,getProfileFit,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery,
     selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,updateVisit,removeVisit,restoreVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
     snapshot,
     diagnostics:()=>Object.freeze({

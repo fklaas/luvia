@@ -1,4 +1,4 @@
-const BUILD = '13.82.168.94';
+const BUILD = '13.82.168.95';
 const ASSET_REVISION = `${BUILD}-local-recovery`;
 const CLASSIC_LOAD_ATTEMPTS = 2;
 const CLASSIC_RETRY_DELAY_MS = 250;

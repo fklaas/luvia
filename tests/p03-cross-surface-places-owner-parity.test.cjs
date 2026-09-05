@@ -23,6 +23,7 @@ const basePlaces=Array.from({length:4},(_,index)=>({
   preferenceReasons:['Vegetarisches Angebot belegt.'],
   profileFit:{owner:'places',contractId:'places.v1',providerPlaceId:`geoapify:veg-${index+1}`,state:'matched',focus:'vegetarisch',score:88-index,coverage:72,reason:FIT_REASON,providerEvidence:true}
 }));
+const blockedPlace={...basePlaces[0],id:'places/geoapify:blocked-1',providerPlaceId:'geoapify:blocked-1',name:'Widersprüchlicher Altbestand',preferenceDiscoveryMatch:true,preferenceConstraintState:'blocked',profileFit:{...basePlaces[0].profileFit,providerPlaceId:'geoapify:blocked-1',state:'matched'}};
 
 function testOwnerProjection(){
   const context={console,Object,Array,Map,Set,String,Number,Boolean,Math,JSON,Date,RegExp,addEventListener(){},dispatchEvent(){}};
@@ -37,20 +38,22 @@ function testOwnerProjection(){
   assert.equal(steak.state,'blocked','a meat-led venue without a dedicated vegetarian type must stay blocked');
   const stay=owner.profileFitProjection({...basePlaces[0],providerPlaceId:'here:stay-1',primaryType:'hotel',types:['hotel']},{focus:'Vegetarisch',category:'accommodation'});
   assert.notEqual(stay.state,'matched','food fit must never leak into the Stay cohort');
-  const source={id:'places:trip-1:places:food:1',surface:'places',tripId:'trip-1',destination:'Scharbeutz',category:'food',query:'Restaurant',searchRadiusMeters:3000,profileFocus:'Vegetarisch',places:basePlaces,observedAt:'2026-09-05T18:00:00.000Z',recordedAt:'2026-09-05T18:00:01.000Z'};
+  const source={id:'places:trip-1:places:food:1',surface:'places',tripId:'trip-1',destination:'Scharbeutz',category:'food',query:'Restaurant',searchRadiusMeters:3000,profileFocus:'Vegetarisch',places:[...basePlaces,blockedPlace],observedAt:'2026-09-05T18:00:00.000Z',recordedAt:'2026-09-05T18:00:01.000Z'};
   context.LuviaPlacesSpatialExperience={getSharedDiscoverySnapshot:()=>source};
   vm.runInContext(read('core/platform/places-contract-adapter.js'),context,{filename:'places-contract-adapter.js'});
   const publicRead=context.LuviaPlacesContractV1.reads.getActiveDiscovery({tripId:'trip-1',fitOnly:true});
   assert.equal(publicRead.owner,'places');
   assert.equal(publicRead.contractId,'places.v1');
   assert.equal(publicRead.consumerProviderReads,0);
+  assert.equal(publicRead.count,basePlaces.length,'fitOnly must apply the owner projection after adapting a shared snapshot');
+  assert.equal(publicRead.places.some(place=>place.providerPlaceId===blockedPlace.providerPlaceId),false,'a stale positive ranking flag must not revive an owner-blocked Place');
   assert.equal(publicRead.places[0].providerPlaceId,basePlaces[0].providerPlaceId);
   assert.equal(publicRead.places[0].profileFit.reason,FIT_REASON);
 }
 
 async function testTimelineReuse(){
   let providerReads=0;
-  const shared={id:'places:trip-1:places:food:7',owner:'places',contractId:'places.v1',surface:'places',tripId:'trip-1',destination:'Scharbeutz',category:'food',places:basePlaces,count:basePlaces.length,fitCount:basePlaces.length,observedAt:'2026-09-05T18:00:00.000Z',consumerProviderReads:0};
+  const shared={id:'places:trip-1:places:food:7',owner:'places',contractId:'places.v1',surface:'places',tripId:'trip-1',destination:'Scharbeutz',category:'food',places:[...basePlaces,blockedPlace],count:basePlaces.length+1,fitCount:basePlaces.length,observedAt:'2026-09-05T18:00:00.000Z',consumerProviderReads:0};
   const context={console,setTimeout,clearTimeout,Date,Promise,Map,Set,WeakMap,AbortController,addEventListener(){},dispatchEvent(){return true},matchMedia:()=>({matches:true}),
     LuviaPlacesContractV1:{reads:{getActiveDiscovery:options=>options.tripId==='trip-1'&&options.fitOnly===true?shared:null,recommend:async()=>{providerReads++;throw new Error('provider search must not run')},getCard:async(_id,options)=>({place:options.source,image:null})}},
     LuviaJourneyContractV1:{reads:{getGraph:()=>({days:[]}),getDay:()=>({entries:[]})}},
@@ -64,6 +67,7 @@ async function testTimelineReuse(){
   assert.equal(result.sharedDiscovery.providerReadCount,0);
   assert.equal(result.choices.length,3);
   assert.equal(result.choices.every(place=>place.profileFit?.reason===FIT_REASON),true);
+  assert.equal(result.choices.some(place=>place.providerPlaceId===blockedPlace.providerPlaceId),false,'Timeline must reject a non-matched row even if an invalid fitOnly implementation returns it');
   assert.equal(new Set(result.choices.map(place=>place.providerPlaceId)).size,3);
 }
 

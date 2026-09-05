@@ -145,9 +145,16 @@
     return score;
   }
   function isPreferredPlace(place){return place?.preferenceDiscoveryMatch===true||(place?.preferenceDiscoveryMatch==null&&verifiedFitScore(place)!=null&&place?.preferenceConstraintState==='satisfied')}
+  function ownerProfileFit(place,category=state.category,focus=category==='food'?profileDietaryFocus():''){
+    try{return globalThis.LuviaPlacesContractV1?.reads?.getProfileFit?.(place,{category,focus})||null}catch{return null}
+  }
+  function ownerMatchedPlace(place,category=state.category,focus=category==='food'?profileDietaryFocus():''){
+    const fit=ownerProfileFit(place,category,focus);
+    return fit?fit.state==='matched':isPreferredPlace(place);
+  }
   function preferredPlaceIds(source=state.results){
     return new Set((Array.isArray(source)?source:[])
-      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&isPreferredPlace(place))
+      .filter(place=>Boolean(COMPOSITION().normalizeCoordinates(place?.coordinates||place?.location))&&ownerMatchedPlace(place))
       .map(providerId));
   }
   const hasDeviceDistance=place=>place?.distanceReference==='device'&&place?.distanceMeters!=null&&Number.isFinite(Number(place.distanceMeters));
@@ -213,11 +220,7 @@
   }
   const sharedDestinationKey=value=>clean(value).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
   function snapshotPreferred(place,category=state.category,focus=profileDietaryFocus()){
-    if(!isPreferredPlace(place))return false;
-    if(category!=='food')return true;
-    if(focus==='Vegan')return hasVeganProviderEvidence(place);
-    if(focus==='Vegetarisch')return hasVegetarianProviderEvidence(place);
-    return true;
+    return ownerMatchedPlace(place,category,focus);
   }
   function recordSharedDiscoverySnapshot(trigger='update'){
     if(!state.trip||!state.results.length)return null;
