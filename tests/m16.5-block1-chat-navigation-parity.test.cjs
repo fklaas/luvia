@@ -4,6 +4,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const read = file => fs.readFileSync(file, 'utf8');
+const dashboardSource = read('core/ai/ai-dashboard-service.js');
+const navigationPreflightIndex = dashboardSource.indexOf('const directNavigation=deterministicNavigation(request)');
+const compilerBlockIndex = dashboardSource.indexOf("if(compiled&&['blocked','conflicted'].includes(compiled.status))");
+assert.match(dashboardSource, /const VERSION='4\.37\.1-deterministic-navigation-preflight'/);
+assert.match(dashboardSource, /actionRuntime\(\)\.runMessage\(request,\{surface,compiledIntent:compiled,sourceMessage:request\}\)/);
+assert.ok(navigationPreflightIndex >= 0 && navigationPreflightIndex < compilerBlockIndex,
+  'the visible Chat submit path must execute registered navigation before blocking an optional compiler result');
 const events = [];
 const context = {
   console, Object, Array, Map, Set, WeakSet, Error, TypeError, String, Boolean, Number, Math, JSON, Date, RegExp, Promise, Intl,

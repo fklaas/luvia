@@ -1,6 +1,6 @@
 # Luvia aktueller Integrationsstand
 
-Auf Integration veröffentlicht: **13.82.168.63**, Core **4.82.185**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Timeline-Vorschläge verwenden dieselbe `places.v1`-Kartenprojektion wie Places und Stays. Belegte Teilresultate bleiben sichtbar und werden im Hintergrund ergänzt; providerübergreifende Datensätze desselben realen Orts werden anhand von Name, üblichen Namensvarianten und räumlicher Nähe zusammengeführt. Der iOS-artige Langdruckmodus macht verschiebbare Timeline-Einträge durch eine dezente Bewegung erkennbar. Gateway v173, Datenbank, Secrets, Main und Production bleiben unverändert.
+Release-Kandidat für Integration: **13.82.168.64**, Core **4.82.186**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Timeline-Vorschläge verwenden dieselbe `places.v1`-Kartenprojektion wie Places und Stays. Belegte Teilresultate bleiben sichtbar und werden im Hintergrund ergänzt; providerübergreifende Datensätze desselben realen Orts werden anhand von Name, üblichen Namensvarianten und räumlicher Nähe zusammengeführt. Der iOS-artige Langdruckmodus macht verschiebbare Timeline-Einträge durch eine dezente Bewegung erkennbar. Gateway v173, Datenbank, Secrets, Main und Production bleiben unverändert.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
