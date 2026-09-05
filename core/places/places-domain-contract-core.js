@@ -135,6 +135,35 @@ function projectPlace(input){
     updatedAt:clean(source.updatedAt||source.updated_at)||null
   });
 }
+function profileFitProjection(input,context={}){
+  if(!input||typeof input!=='object')return null;
+  const source=detailsSource(input)||input,id=providerId(source.providerPlaceId||source.provider_place_id||source.id);
+  if(!id)return null;
+  const focus=clean(context.focus||source.profileFit?.focus).toLowerCase(),categoryKey=clean(context.category||source.requestedCategory||source.requestCategory||source.category).toLowerCase();
+  const types=new Set([source.primaryType,source.primary_type,source.category,...(source.types||[])].map(value=>clean(value).toLowerCase()).filter(Boolean));
+  const providerText=clean([...(source.providerPrimaryFoodTypes||[]),...(source.providerNativeTypes||[]),...(source.types||[]),source.editorialSummary?.text||source.editorialSummary].filter(Boolean).join(' ')).toLowerCase();
+  const meatLed=/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([source.name,source.primaryType,source.primaryTypeLabel,...types].join(' ')).toLowerCase());
+  const dedicatedVegetarian=types.has('vegetarian_restaurant')||types.has('vegan_restaurant'),dedicatedVegan=types.has('vegan_restaurant');
+  const vegetarianEvidence=source.features?.servesVegetarianFood!==false&&(dedicatedVegetarian||source.features?.servesVegetarianFood===true||/vegetar|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/.test(providerText));
+  const veganEvidence=source.features?.servesVeganFood!==false&&(dedicatedVegan||source.features?.servesVeganFood===true||/vegan|plant[ _-]?based|rein pflanzlich|pflanzenk[uü]che/.test(providerText));
+  const score=number(source.preferenceFit?.score??source.groupFit?.score??source.preferenceScore),coverage=number(source.preferenceFit?.coverage??source.groupFit?.coverage??source.preferenceCoverage);
+  const reasons=[...(source.preferenceReasons||[]),...(source.recommendation?.reasons||[]),...(source.aiReasons||[])].map(clean).filter(Boolean);
+  const blocked=source.preferenceDiscoveryMatch===false||clean(source.preferenceConstraintState||source.recommendation?.constraintState).toLowerCase()==='blocked';
+  const categoryEligible=categoryKey!=='accommodation'||[...types].some(value=>/hotel|lodging|hostel|motel|campground|accommodation|guest_house|bed_and_breakfast|resort|vacation_rental|holiday_home/.test(value));
+  let state='unknown',reason='',facts=[];
+  if(categoryKey==='food'&&focus==='vegetarisch'){
+    const matched=!blocked&&vegetarianEvidence&&(!meatLed||dedicatedVegetarian);
+    state=matched?'matched':blocked||meatLed?'blocked':'unknown';
+    if(matched){reason='Vegetarische Auswahl ist in den Ortsdaten ausdrücklich belegt.';facts=['Vegetarische Auswahl'];}
+  }else if(categoryKey==='food'&&focus==='vegan'){
+    const matched=!blocked&&veganEvidence&&(!meatLed||dedicatedVegan);
+    state=matched?'matched':blocked||meatLed?'blocked':'unknown';
+    if(matched){reason='Vegane Auswahl ist in den Ortsdaten ausdrücklich belegt.';facts=['Vegane Auswahl'];}
+  }else if(!['vegetarisch','vegan'].includes(focus)&&categoryEligible&&!blocked&&source.preferenceDiscoveryMatch===true&&score!=null&&score>0&&coverage!=null&&coverage>0&&reasons.length){
+    state='matched';reason=reasons[0];facts=reasons.slice(0,3);
+  }else if(blocked)state='blocked';
+  return immutable({owner:'places',contractId:'places.v1',providerPlaceId:id,state,focus:focus||'profile',score,coverage,reason:reason||null,facts:facts.map(label=>({code:clean(label).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),label,source:'provider'})),providerEvidence:state==='matched',observedAt:clean(source.ownerObservedAt||source.providerObservedAt)||null});
+}
 function projectDetails(input){
   if(!input||typeof input!=='object')return null;
   const source=detailsSource(input)||input;
@@ -175,7 +204,15 @@ function projectDetails(input){
     spatialConstraint:source.spatialConstraint&&typeof source.spatialConstraint==='object'?source.spatialConstraint:null,
     aiMatchScore:number(source.aiMatchScore),
     aiReasons:[...(source.aiReasons||source._luviaReasons||[])].map(String),
-    aiUnknowns:[...(source.aiUnknowns||[])].map(String)
+    aiUnknowns:[...(source.aiUnknowns||[])].map(String),
+    preferenceDiscoveryMatch:typeof source.preferenceDiscoveryMatch==='boolean'?source.preferenceDiscoveryMatch:null,
+    preferenceConstraintState:clean(source.preferenceConstraintState)||null,
+    preferenceScore:number(source.preferenceScore),
+    preferenceCoverage:number(source.preferenceCoverage),
+    preferenceReasons:[...(source.preferenceReasons||[])].map(String),
+    preferenceWarnings:[...(source.preferenceWarnings||[])].map(String),
+    preferenceResolutionVersion:clean(source.preferenceResolutionVersion)||null,
+    profileFit:source.profileFit&&typeof source.profileFit==='object'?source.profileFit:profileFitProjection(source,{focus:source.profileFit?.focus,category:source.requestedCategory||source.requestCategory||source.category})
   });
 }
 function projectSaved(input){
@@ -242,5 +279,5 @@ function create(providers={}){
   return Object.freeze({version:VERSION,search,getPlace,listPlaces,getDetails,listSaved,recommend,getLifecycle,categories,category,categoryFor,routeDiscovery,createDeepLink,snapshot});
 }
 
-return Object.freeze({version:VERSION,localSearchRadius,categories,category,categoryFor,routeDiscovery,createDeepLink,projectPlace,projectDetails,projectSaved,create});
+return Object.freeze({version:VERSION,localSearchRadius,categories,category,categoryFor,routeDiscovery,createDeepLink,projectPlace,projectDetails,projectSaved,profileFitProjection,create});
 })();

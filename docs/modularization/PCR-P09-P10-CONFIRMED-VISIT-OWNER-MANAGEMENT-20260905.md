@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.92**, Core **4.82.211**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
+**Stand 2026-09-05:** Integration **13.82.168.93**, Core **4.82.212**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** App .92, Gateway v220 und Places 4.38.7-osm-edge-proxy liefern verlässlich 11 belegte passende Orte im gleichen 3-km-Reisezielbereich wie Alle. Sichtbar wurden 50 Alle → 11 Passend → 52 Alle belegt; alle Passend-Pins waren markiert, das Steakhaus ausgeschlossen und Provider-Dubletten erhielten keinen zweiten Passend-Status. Der kostenlose signierte OSM-Pfad nutzt gestaffelte Ausweichinstanzen, Abbruch der Verlierer und sechs Stunden Cache. Stable und immutable Worker stimmen 30/30 mit dem ausgelieferten Commit überein. Safe Regression 229/229 und NFR-0 3/3 sind grün.
 
@@ -70,7 +70,7 @@ Die Änderung wurde über den angemeldeten Supabase SQL Editor ausgeführt. Eine
 ## Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.211`
+- Core: `4.82.212`
 - Runtime-Commit: `2e613197b7b44a83c79b592bda45ae2e8a39d51a`
 - Integration-Worker: `1d936ac3-fd72-40ca-a5f4-513f414b74d2`
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`

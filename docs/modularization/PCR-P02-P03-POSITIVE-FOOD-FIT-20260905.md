@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.92**, Core **4.82.211**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
+**Stand 2026-09-05:** Integration **13.82.168.93**, Core **4.82.212**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** App .92, Gateway v220 und Places 4.38.7-osm-edge-proxy liefern verlässlich 11 belegte passende Orte im gleichen 3-km-Reisezielbereich wie Alle. Sichtbar wurden 50 Alle → 11 Passend → 52 Alle belegt; alle Passend-Pins waren markiert, das Steakhaus ausgeschlossen und Provider-Dubletten erhielten keinen zweiten Passend-Status. Der kostenlose signierte OSM-Pfad nutzt gestaffelte Ausweichinstanzen, Abbruch der Verlierer und sechs Stunden Cache. Stable und immutable Worker stimmen 30/30 mit dem ausgelieferten Commit überein. Safe Regression 229/229 und NFR-0 3/3 sind grün.
 
@@ -95,12 +95,12 @@ Angewendete additive Policy-Migrationen:
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
 - `20260905210000_openstreetmap_dietary_evidence_budget.sql`
 
-Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.211` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
+Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.212` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
 
 ## Öffentlicher Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.211`
+- Core: `4.82.212`
 - Runtime-Commit: `51a2f1743e5c6296699d9525f5ddb9e9e0e84a7c`
 - Integration-Worker: `81e43a21-667a-4e60-bb81-1ab946e4a482`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`

@@ -711,6 +711,16 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  // P03: inspectable, read-only proof that Places, Timeline and Chat reuse one
+  // canonical entity/evidence cohort without adding a new user action.
+  'data-ai-fit-reason': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ai-owner-place-id': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ai-profile-fit': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ai-provider-read-count': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ai-shared-discovery': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lvjs-fit-reason': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lvjs-owner-place-id': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lvjs-profile-fit': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   // P09: presentation variants of journey.editor.open, entry time/date/duration,
   // entry.reorder and journey.undo. No additional semantic action or AI-pass claim.
   'data-schedule-close': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
@@ -889,8 +899,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 996);
-  assert.equal(sourceAudit.markerCount, 996);
+  assert.equal(sourceAudit.markers.length, 1004);
+  assert.equal(sourceAudit.markerCount, 1004);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

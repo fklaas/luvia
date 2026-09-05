@@ -679,6 +679,10 @@ const SUITE = Object.freeze([
     test: 'tests/p03-ai-places-multicategory-result-contract.test.cjs'
   },
   {
+    category: 'M16.5 / P03 Cross-surface Places Owner Parity',
+    test: 'tests/p03-cross-surface-places-owner-parity.test.cjs'
+  },
+  {
     category: 'M16.5 / Runtime Bundle Upgrade Bridge',
     test: 'tests/m16.5-step18-runtime-bundle-upgrade-bridge.test.cjs'
   },

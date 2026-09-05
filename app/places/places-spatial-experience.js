@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.36.5-single-owner-profile-evidence-cache';
+  const VERSION='1.37.0-shared-owner-discovery';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -97,6 +97,9 @@
     status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),imageInflight:new Map(),photoWarmToken:0,preferenceEvidenceKey:'',preferenceEvidenceInflight:null,preferenceEvidenceToken:0,preferenceEvidence:{state:'idle',focus:'',provider:'',returned:0,eligible:0,before:0,after:0,error:''},saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,lastSearchTrace:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null,categoryCohorts:new Map()
   };
+  const sharedDiscoverySnapshots=new Map();
+  const SHARED_DISCOVERY_MAX_MS=10*60*1000;
+  let sharedDiscoverySequence=0;
 
   const MAP_CACHE_FRESH_MS=5*60*1000,MAP_CACHE_MAX_MS=24*60*60*1000,CATEGORY_COHORT_MAX_MS=15*60*1000;
   function cacheScope(trip=state.trip){const g=tripGeography(trip),c=COMPOSITION().normalizeCoordinates(g.location||g.center);return JSON.stringify({trip:tripId(trip),surface:state.surface,destination:destination(trip),latitude:c?.latitude,longitude:c?.longitude})}
@@ -113,7 +116,7 @@
       state.searchRadiusMeters=cachedRadius>=500&&cachedRadius<=10000?cachedRadius:0;
       state.query=clean(cached.query)||state.query;
       state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cached.savedAt;
-      state.status=state.offline?'offline':'ready';return true;
+      state.status=state.offline?'offline':'ready';recordSharedDiscoverySnapshot('offline-cache');return true;
     }catch{return false}
   }
   function saveCached(){
@@ -134,7 +137,7 @@
   function restoreCategoryCohort(category,query){
     const key=categoryCohortKey(category,query),cohort=state.categoryCohorts.get(key),age=Date.now()-Date.parse(cohort?.savedAt||'');
     if(!cohort||!Number.isFinite(age)||age<0||age>CATEGORY_COHORT_MAX_MS||!Array.isArray(cohort.results)||!cohort.results.length){if(cohort)state.categoryCohorts.delete(key);return false}
-    state.results=decoratePreferences(cohort.results.slice(0,MAX_RESULTS),state.trip);state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cohort.sourceSavedAt||cohort.savedAt;state.preferenceResolution=cohort.preferenceResolution||null;state.aiDecision=cohort.aiDecision||null;state.status='ready';state.error=null;state.readNotice='Bereits geladene Orte · Aktualisierung läuft im Hintergrund.';return true;
+    state.results=decoratePreferences(cohort.results.slice(0,MAX_RESULTS),state.trip);state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cohort.sourceSavedAt||cohort.savedAt;state.preferenceResolution=cohort.preferenceResolution||null;state.aiDecision=cohort.aiDecision||null;state.status='ready';state.error=null;state.readNotice='Bereits geladene Orte · Aktualisierung läuft im Hintergrund.';recordSharedDiscoverySnapshot('category-cache');return true;
   }
   function verifiedFitScore(place){
     const fit=place?.groupFit||place?.preferenceFit||{},score=Number(fit?.score??place?.preferenceScore),coverage=Number(fit?.coverage??place?.preferenceCoverage),reasons=[...(place?.preferenceReasons||[]),...(place?.aiReasons||[]),...(place?._luviaReasons||[])].filter(Boolean);
@@ -207,6 +210,40 @@
     if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVeganFood===false)return false;
     return dedicated||place?.features?.servesVeganFood===true||/vegan|plant[ _-]?based|rein pflanzlich|pflanzenk[uü]che/.test(providerDietaryEvidenceText(place));
+  }
+  const sharedDestinationKey=value=>clean(value).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
+  function snapshotPreferred(place,category=state.category,focus=profileDietaryFocus()){
+    if(!isPreferredPlace(place))return false;
+    if(category!=='food')return true;
+    if(focus==='Vegan')return hasVeganProviderEvidence(place);
+    if(focus==='Vegetarisch')return hasVegetarianProviderEvidence(place);
+    return true;
+  }
+  function recordSharedDiscoverySnapshot(trigger='update'){
+    if(!state.trip||!state.results.length)return null;
+    const focus=state.category==='food'?profileDietaryFocus():'',observedAt=state.lastSearchAt||new Date().toISOString();
+    const places=state.results.slice(0,MAX_RESULTS).map(place=>Object.freeze({...place,requestCategory:state.category})).filter(place=>providerId(place));
+    if(!places.length)return null;
+    const id=`places:${tripId(state.trip)||'active'}:${state.surface}:${state.category}:${++sharedDiscoverySequence}`,key=[tripId(state.trip),state.surface,state.category].join('|'),activeDestinationName=destination(state.trip);
+    const snapshot=Object.freeze({id,owner:'places',contractId:'places.v1',surface:state.surface,tripId:tripId(state.trip)||null,destination:activeDestinationName,destinationKey:sharedDestinationKey(activeDestinationName),category:state.category,query:activeSearchDefinition().query,searchRadiusMeters:Number(tripGeography(state.trip).searchRadiusMeters)||null,profileFocus:focus||null,places:Object.freeze(places),count:places.length,fitCount:places.filter(place=>snapshotPreferred(place,state.category,focus)).length,observedAt,recordedAt:new Date().toISOString(),trigger,consumerProviderReads:0});
+    sharedDiscoverySnapshots.set(key,snapshot);while(sharedDiscoverySnapshots.size>24)sharedDiscoverySnapshots.delete(sharedDiscoverySnapshots.keys().next().value);
+    return snapshot;
+  }
+  function getSharedDiscoverySnapshot(options={}){
+    const now=Date.now(),maxAgeMs=Math.max(1000,Math.min(SHARED_DISCOVERY_MAX_MS,Number(options.maxAgeMs)||SHARED_DISCOVERY_MAX_MS)),requestedTrip=clean(options.tripId),requestedDestination=sharedDestinationKey(options.destination),requestedCategory=clean(options.category).toLowerCase(),requestedSurface=clean(options.surface).toLowerCase();
+    const candidates=[...sharedDiscoverySnapshots.values()].filter(snapshot=>{
+      const age=now-Date.parse(snapshot.recordedAt||snapshot.observedAt||'');
+      if(!Number.isFinite(age)||age<0||age>maxAgeMs)return false;
+      if(requestedTrip&&snapshot.tripId!==requestedTrip)return false;
+      if(requestedDestination&&snapshot.destinationKey!==requestedDestination)return false;
+      if(requestedCategory&&snapshot.category!==requestedCategory)return false;
+      if(requestedSurface&&snapshot.surface!==requestedSurface)return false;
+      return true;
+    }).sort((left,right)=>Date.parse(right.recordedAt)-Date.parse(left.recordedAt));
+    const snapshot=candidates[0];if(!snapshot)return null;
+    const places=options.fitOnly===true?snapshot.places.filter(place=>snapshotPreferred(place,snapshot.category,snapshot.profileFocus)):snapshot.places;
+    if(options.fitOnly===true&&!places.length)return null;
+    return Object.freeze({...snapshot,places:Object.freeze(places),count:places.length,reusedAt:new Date().toISOString(),consumerProviderReads:0});
   }
   function activeSearchDefinition(){
     const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'&&state.filters.vegetarian?'Vegetarisch':'';
@@ -345,7 +382,7 @@
       state.results=decoratePreferences(mergeProfileEvidenceCohort(state.results,evidenceRows,focus),state.trip);
       const after=preferredPlaceIds(state.results).size;
       publishProfileEvidenceDiagnostics({state:after>before?'ready':'empty',focus,provider,returned:evidenceRows.length,eligible,before,after,error:''});
-      rememberCategoryCohort();saveCached();
+      rememberCategoryCohort();saveCached();recordSharedDiscoverySnapshot('profile-evidence');
       if(state.mapProjection)updateFilteredMap();else render();
       publishProfileEvidenceDiagnostics();
       return after>before;
@@ -535,7 +572,7 @@
       state.status=state.results.length?'ready':'empty';
       state.readNotice=response?.plan?.attempts?.some(attempt=>attempt.stale)?'Zuletzt geladene Orte · Aktualisieren ist gerade nicht möglich.':null;
       state.lastSearchAt=(state.readNotice?response?.plan?.attempts?.find(attempt=>attempt.stale)?.ownerObservedAt:null)||new Date().toISOString();
-      rememberCategoryCohort();
+      recordSharedDiscoverySnapshot('destination-search');rememberCategoryCohort();
       saveCached();
       const keepMap=Boolean(preserveMap&&state.mapProjection)||Boolean(state.mapProjection);
       if(keepMap)updateFilteredMap();else render();
@@ -1046,7 +1083,7 @@
     try{
       const def=activeSearchDefinition();
       const target=tripGeography(state.trip),initialCenter=COMPOSITION().normalizeCoordinates(target.location||target.center);
-      state.mapProjection=mountProjection(container,ensureVisibleFitResults(),{selectedId:state.selectedId,initialCenter,runtimeStatus:()=>model().status,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportIntent:beginViewportIntent,onViewportSearch:descriptor=>{const active=activeSearchDefinition(),category=state.category;return viewportSearchWithContinuity({...descriptor,query:active.query,userQuery:state.userQuery,type:active.primaryType,includedType:active.includedType,includedTypes:active.includedTypes||[],category,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible},()=>state.category===category&&state.activeViewport?.key===descriptor.key)},projectViewportResults:rows=>ensureVisibleFitResults(rows),onViewportResults:(rows,descriptor,_view,trace)=>{state.activeViewport=descriptor;state.results=(Array.isArray(rows)?rows:[]).filter(place=>placeMatchesActiveCategory(place));state.status=state.results.length?'ready':'empty';state.error=null;state.lastSearchAt=new Date().toISOString();publishSearchTrace(trace);const visible=ensureVisibleFitResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;select(state.selectedId,false,false)},onViewportError:error=>{state.status=state.results.length?'ready':'error';state.error=state.results.length?null:{code:error?.code||'PLACES_VIEWPORT_UNAVAILABLE',userMessage:'Der Kartenausschnitt konnte gerade nicht geladen werden.'}}});
+      state.mapProjection=mountProjection(container,ensureVisibleFitResults(),{selectedId:state.selectedId,initialCenter,runtimeStatus:()=>model().status,label:`${def.label} · Live-Kartenausschnitt`,onSelect:id=>{const place=findPlace(id);select(id,false,false);rememberViewed(place)},onViewportIntent:beginViewportIntent,onViewportSearch:descriptor=>{const active=activeSearchDefinition(),category=state.category;return viewportSearchWithContinuity({...descriptor,query:active.query,userQuery:state.userQuery,type:active.primaryType,includedType:active.includedType,includedTypes:active.includedTypes||[],category,trip:state.trip,openNow:state.filters.openNow,minRating:state.filters.rating45?4.5:(state.filters.rated?0.1:null),priceLevels:state.filters.priceLevels||[],vegetarianOnly:requiresVegetarianEvidence(),reservableOnly:state.filters.reservable,accessibleOnly:state.filters.accessible},()=>state.category===category&&state.activeViewport?.key===descriptor.key)},projectViewportResults:rows=>ensureVisibleFitResults(rows),onViewportResults:(rows,descriptor,_view,trace)=>{state.activeViewport=descriptor;state.results=(Array.isArray(rows)?rows:[]).filter(place=>placeMatchesActiveCategory(place));state.status=state.results.length?'ready':'empty';state.error=null;state.lastSearchAt=new Date().toISOString();publishSearchTrace(trace);const visible=ensureVisibleFitResults();state.selectedId=visible.some(place=>providerId(place)===state.selectedId)?state.selectedId:providerId(visible[0])||null;recordSharedDiscoverySnapshot('viewport-search');select(state.selectedId,false,false)},onViewportError:error=>{state.status=state.results.length?'ready':'error';state.error=state.results.length?null:{code:error?.code||'PLACES_VIEWPORT_UNAVAILABLE',userMessage:'Der Kartenausschnitt konnte gerade nicht geladen werden.'}}});
       state.map=state.mapProjection?.map||null;
       publishSearchTrace();
       hydrateMapPreview(findPlace(state.selectedId));
@@ -1435,7 +1472,7 @@
   }
   function resume(trip){
     if(!state.root?.isConnected||!state.map||!trip||tripId(trip)!==tripId(state.trip)||cacheScope(trip)!==cacheScope())return false;
-    state.trip=trip;state.results=decoratePreferences(state.results,trip);state.map.resize?.();updateFilteredMap();
+    state.trip=trip;state.results=decoratePreferences(state.results,trip);recordSharedDiscoverySnapshot('resume');state.map.resize?.();updateFilteredMap();
     if(!state.offline&&state.status!=='loading'&&Date.now()-Date.parse(state.lastSearchAt||'1970-01-01')>=MAP_CACHE_FRESH_MS)search({focus:false,silent:true,preserveMap:true});
     return true;
   }
@@ -1458,7 +1495,7 @@
     if(state.root)state.root.innerHTML='';
     state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.imageInflight.clear();state.saved.clear();
   }
-  function diagnostics(){return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),profileEvidence:{...state.preferenceEvidence},ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
+  function diagnostics(){const shared=getSharedDiscoverySnapshot({tripId:tripId(state.trip),surface:state.surface});return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),profileEvidence:{...state.preferenceEvidence},sharedDiscovery:shared?{id:shared.id,category:shared.category,count:shared.count,fitCount:shared.fitCount,observedAt:shared.observedAt,consumerProviderReads:0}:null,ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,transientDestinationFailure,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,getSharedDiscoverySnapshot,transientDestinationFailure,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

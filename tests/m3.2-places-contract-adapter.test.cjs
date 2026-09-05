@@ -95,10 +95,10 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.6.0-visit-owner-management');
+assert.strictEqual(api.runtimeVersion,'1.7.0-active-discovery-read');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.visit.changed','place.plan.changed','place.favorite.changed']);
-assert.deepStrictEqual(Object.keys(api.reads),['localSearchRadius','search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits','getVisit','visitRecoveries','visitRecovery']);
+assert.deepStrictEqual(Object.keys(api.reads),['localSearchRadius','search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getActiveDiscovery','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits','getVisit','visitRecoveries','visitRecovery']);
 assert.deepStrictEqual(Object.keys(api.composition),['selectView']);
 assert.deepStrictEqual(Object.keys(api.commands),['importPlace','favorite','unfavorite','toggleFavorite','clearFavorites','plan','unplan','updateLifecycle','confirmVisit','rejectVisit','updateVisit','removeVisit','restoreVisit','setLocationEnabled','refreshLocation','openDiscovery','openWebsite','openPhone','openMaps']);
 

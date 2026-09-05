@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.5",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 996,
+  "markerCount": 1004,
   "markers": [
     {
       "marker": "data-accent",
@@ -219,6 +219,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-ai-fit-reason",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "core/ai/ai-dashboard-service.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-ai-intent-graph",
       "category": "Luvia AI Chat",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -230,6 +239,15 @@
     {
       "marker": "data-ai-owner-action",
       "category": "Luvia AI Chat",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "core/ai/ai-dashboard-service.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-ai-owner-place-id",
+      "category": "Places & Ortsentdeckung",
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [
         "core/ai/ai-dashboard-service.js"
@@ -336,6 +354,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-ai-profile-fit",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "core/ai/ai-dashboard-service.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-ai-projection",
       "category": "Luvia AI Chat",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -348,6 +375,15 @@
       "marker": "data-ai-prompt",
       "category": "Luvia AI Chat",
       "classification": "INTERAKTIONSPRIMITIVE",
+      "sources": [
+        "core/ai/ai-dashboard-service.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-ai-provider-read-count",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [
         "core/ai/ai-dashboard-service.js"
       ],
@@ -433,6 +469,15 @@
         "core/ai/ai-dashboard-service.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-ai-shared-discovery",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "core/ai/ai-dashboard-service.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-ai-signal-row",
@@ -4622,6 +4667,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-lvjs-fit-reason",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-lvjs-heading",
       "category": "Navigation & Oberfläche",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4694,6 +4748,15 @@
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
+      "marker": "data-lvjs-owner-place-id",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-lvjs-plan",
       "category": "Navigation & Oberfläche",
       "classification": "AKTIONSKANDIDAT",
@@ -4710,6 +4773,15 @@
         "app/journey/journey-suggestion-sheet.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-lvjs-profile-fit",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/journey/journey-suggestion-sheet.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
       "marker": "data-lvjs-results",

@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.92**, Core **4.82.211**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
+**Stand 2026-09-05:** Integration **13.82.168.93**, Core **4.82.212**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** App .92, Gateway v220 und Places 4.38.7-osm-edge-proxy liefern verlässlich 11 belegte passende Orte im gleichen 3-km-Reisezielbereich wie Alle. Sichtbar wurden 50 Alle → 11 Passend → 52 Alle belegt; alle Passend-Pins waren markiert, das Steakhaus ausgeschlossen und Provider-Dubletten erhielten keinen zweiten Passend-Status. Der kostenlose signierte OSM-Pfad nutzt gestaffelte Ausweichinstanzen, Abbruch der Verlierer und sechs Stunden Cache. Stable und immutable Worker stimmen 30/30 mit dem ausgelieferten Commit überein. Safe Regression 229/229 und NFR-0 3/3 sind grün.
 
@@ -306,7 +306,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Öffentlich läuft App 13.82.168.92 / Core 4.82.211 vollständig auf Integration-Worker 176585b9-55a7-47a5-a77d-b553d5186b4f aus Runtime-Commit 0ee7b489. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem lokalen Commit überein. Das Rückfallarchiv luvia-integration-13.82.168.92-0ee7b489.zip ist mit SHA-256 FA36FDBAFDE07D133E32D16CB037CF88546A833F826D0BC9FBC53B314F786B04 gesichert. Gateway v220 / 4.64.26 und Places 4.38.7-osm-edge-proxy sind ACTIVE. Main und Production bleiben unverändert.
+Öffentlich läuft App 13.82.168.93 / Core 4.82.212 vollständig auf Integration-Worker 176585b9-55a7-47a5-a77d-b553d5186b4f aus Runtime-Commit 0ee7b489. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem lokalen Commit überein. Das Rückfallarchiv luvia-integration-13.82.168.93-0ee7b489.zip ist mit SHA-256 FA36FDBAFDE07D133E32D16CB037CF88546A833F826D0BC9FBC53B314F786B04 gesichert. Gateway v220 / 4.64.26 und Places 4.38.7-osm-edge-proxy sind ACTIVE. Main und Production bleiben unverändert.
 
 **Nächster Abschlussnachweis:** Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.
 

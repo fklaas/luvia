@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.25.2-shared-map-entity-continuity';
+const VERSION='1.26.0-places-owner-cohort';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -359,29 +359,34 @@ async function load(rawInput={},options={}){
   const api=contracts().places;
   if(!api?.reads?.recommend)throw Object.assign(new Error('Places ist noch nicht vollständig bereit.'),{code:'PLACES_CONTRACT_UNAVAILABLE'});
   input.groupContext=await sharedPreferenceContext(input,{fast});
-  const geography=destinationContext(input.trip),requestDescriptors=categoryPlan(input).map(category=>({category,promise:api.reads.recommend({
-    tripId:tripId(input.trip),
-    text:queryFor(category,input),query:queryFor(category,input),category,
-    destination:geography.location?geography:destinationOf(input.trip),destinationContext:geography,
-     candidateLimit:fast?36:48,limit:fast?12:16,fastPath:fast,providers:['auto'],
-    profilePreferences:input.snapshot.profilePreferences||{},
-    profileContext:{groupTravelers:input.groupContext.travelers.map(item=>({name:item.name,role:item.role,sharedSignals:item.signals})),groupCoverage:{covered:input.groupContext.coveredTravelers,total:input.groupContext.totalTravelers}},
-    tripComposition:input.snapshot.tripComposition||{},trip:input.trip,
-    momentContext:{kind:'timeline-open-window',targetDate:input.targetDate,startAt:input.startAt,endAt:input.endAt,query:input.query,reasons:input.reasons,weather:input.weather||null},positionContext:input.positionContext||null
-  })})),requests=requestDescriptors.map(item=>item.promise);
+  const geography=destinationContext(input.trip),sharedDiscovery=typeof api.reads.getActiveDiscovery==='function'?api.reads.getActiveDiscovery({tripId:tripId(input.trip),destination:destinationOf(input.trip),surface:input.source==='hotel-map'?'accommodation':'places',fitOnly:input.source!=='hotel-map',maxAgeMs:10*60*1000}):null;
   let responses;
-  if(fast){
-    responses=await new Promise(resolve=>{
-      const settled=[];let completed=0,finished=false;
-      const finish=()=>{if(finished)return;finished=true;clearTimeout(timer);resolve(settled.slice())};
-      const timer=setTimeout(finish,2800);
-      requestDescriptors.forEach(({category,promise})=>Promise.resolve(promise).then(value=>{
-        settled.push({status:'fulfilled',value,category});completed++;
-        const successful=settled.filter(item=>item.status==='fulfilled'&&item.value?.places?.length),places=uniquePlaces(successful.flatMap(item=>(item.value?.places||[]).map(place=>({...place,requestedCategory:item.category})))),groups=new Set(places.map(categoryGroup)),minimumResponses=Math.min(4,requestDescriptors.length),minimumGroups=Math.min(4,desiredCount(input));
-        if((successful.length>=minimumResponses&&groups.size>=minimumGroups&&places.length>=desiredCount(input))||completed===requestDescriptors.length)finish();
-      },reason=>{settled.push({status:'rejected',reason,category});completed++;if(completed===requestDescriptors.length)finish()}));
-    });
-  }else responses=await Promise.all(requestDescriptors.map(async({category,promise})=>{try{return{status:'fulfilled',value:await promise,category}}catch(reason){return{status:'rejected',reason,category}}}));
+  if(sharedDiscovery?.places?.length){
+    responses=[{status:'fulfilled',category:sharedDiscovery.category,value:{places:sharedDiscovery.places,route:{category:sharedDiscovery.category},plan:{attempts:[]},observedAt:sharedDiscovery.observedAt,sharedDiscovery,providerDiagnostics:{status:'ready',requested:[],used:[],errors:[]}}}];
+  }else{
+    const requestDescriptors=categoryPlan(input).map(category=>({category,promise:api.reads.recommend({
+      tripId:tripId(input.trip),
+      text:queryFor(category,input),query:queryFor(category,input),category,
+      destination:geography.location?geography:destinationOf(input.trip),destinationContext:geography,
+      candidateLimit:fast?36:48,limit:fast?12:16,fastPath:fast,providers:['auto'],
+      profilePreferences:input.snapshot.profilePreferences||{},
+      profileContext:{groupTravelers:input.groupContext.travelers.map(item=>({name:item.name,role:item.role,sharedSignals:item.signals})),groupCoverage:{covered:input.groupContext.coveredTravelers,total:input.groupContext.totalTravelers}},
+      tripComposition:input.snapshot.tripComposition||{},trip:input.trip,
+      momentContext:{kind:'timeline-open-window',targetDate:input.targetDate,startAt:input.startAt,endAt:input.endAt,query:input.query,reasons:input.reasons,weather:input.weather||null},positionContext:input.positionContext||null
+    })}));
+    if(fast){
+      responses=await new Promise(resolve=>{
+        const settled=[];let completed=0,finished=false;
+        const finish=()=>{if(finished)return;finished=true;clearTimeout(timer);resolve(settled.slice())};
+        const timer=setTimeout(finish,2800);
+        requestDescriptors.forEach(({category,promise})=>Promise.resolve(promise).then(value=>{
+          settled.push({status:'fulfilled',value,category});completed++;
+          const successful=settled.filter(item=>item.status==='fulfilled'&&item.value?.places?.length),places=uniquePlaces(successful.flatMap(item=>(item.value?.places||[]).map(place=>({...place,requestedCategory:item.category})))),groups=new Set(places.map(categoryGroup)),minimumResponses=Math.min(4,requestDescriptors.length),minimumGroups=Math.min(4,desiredCount(input));
+          if((successful.length>=minimumResponses&&groups.size>=minimumGroups&&places.length>=desiredCount(input))||completed===requestDescriptors.length)finish();
+        },reason=>{settled.push({status:'rejected',reason,category});completed++;if(completed===requestDescriptors.length)finish()}));
+      });
+    }else responses=await Promise.all(requestDescriptors.map(async({category,promise})=>{try{return{status:'fulfilled',value:await promise,category}}catch(reason){return{status:'rejected',reason,category}}}));
+  }
   const successfulResponses=responses.filter(item=>item.status==='fulfilled'),successful=successfulResponses.map(item=>item.value),excluded=new Set(input.excludeProviderPlaceIds),rows=successfulResponses.flatMap(item=>(item.value?.places||[]).map(place=>({...place,requestedCategory:item.category||place.requestedCategory}))).filter(place=>!excluded.has(providerId(place))).map(place=>({...place,distanceReference:input.positionContext&&Number.isFinite(Number(place.distanceMeters))?'device':null}));
   if(!rows.length){
     const prior=existing||[...cache.values()].find(item=>item.input?.trip&&tripId(item.input.trip)===tripId(input.trip));
@@ -399,7 +404,7 @@ async function load(rawInput={},options={}){
    const choices=diversify(personallyRanked,count);
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
    const digitalTwin=contracts().journey?.reads?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
-   const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:partialWarning,attempts:responses.length,successfulAttempts:successful.length};
+   const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:partialWarning,attempts:responses.length,successfulAttempts:successful.length,sourceCohort:sharedDiscovery?'places-active-discovery':'places-owner-search',sharedDiscovery:sharedDiscovery?{id:sharedDiscovery.id,owner:'places.v1',category:sharedDiscovery.category,providerReadCount:0,placeIds:sharedDiscovery.places.map(providerId)}:null};
   cache.set(key,result);return result;
 }
 function reasonFor(place,input){
@@ -412,6 +417,7 @@ function reasonFor(place,input){
   return facts.length?`Belegt sind ${facts.slice(0,2).join(' und ')}. Eine persönliche Passung wird erst mit ausreichend freigegebenen Präferenzdaten behauptet.`:'Für diesen Ort liegen noch nicht genug belegte Merkmale für eine persönliche Kurzbegründung vor.';
 }
 function displayReason(place,input){
+  if(place?.profileFit?.state==='matched'&&clean(place.profileFit.reason))return clean(place.profileFit.reason);
   const insights=place?.travelerInsights||[],current=insights.find(item=>item.isCurrent)||insights[0];
   if(current&&!current.reliable){
     const unknown=clean(current.unknowns?.[0]);
@@ -479,7 +485,7 @@ function cardMarkup(place,index,input,choices=[]){
   const id=providerId(place),visual=visualCategory(place),image=imageUrl(place),attribution=imageAttribution(place),facts=placeFacts(place,input),match=matchLabel(place),admission=admissionFor(place),alternative=Number(input.requestedCount)>1?nearestAlternative(place,choices):null;
   const credit=attribution?`<span class="lvjs-photo-credit">${esc(attribution.credit)}${attribution.license?` · ${esc(attribution.license)}`:''}</span>`:'';
   const bookingLabel=visual==='accommodation'?'Buchung prüfen':admission?.action?.available?admission.action.label:'Reservierung prüfen';
-  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="false">${image?`<img data-lvjs-image src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="eager" fetchpriority="high" decoding="async">`:(globalThis.LuviaPlacesSpatialExperience?.categoryPlaceholder?.(visual)?.replace('<span ','<span data-lvjs-image ')||'<span class="lvjs-choice-placeholder" role="img" aria-label="Kategorieillustration"></span>')}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(placeDisplayName(place))}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em><span class="lvjs-choice-facts" data-lvjs-facts>${facts.map(fact=>`<b>${esc(fact)}</b>`).join('')}</span>${stayPriceMarkup(place,input)}${match?`<span class="lvjs-choice-match" data-lvjs-match><b>${esc(match)}</b><small>belegt</small></span>`:''}<span class="lvjs-traveler-fit" data-lvjs-fit>${esc(displayReason(place,input))}</span>${credit}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button><div class="lvjs-staged-actions" data-lvjs-staged-actions hidden><button type="button" data-lvjs-details="${esc(id)}">Details</button>${admission?.action?.available?`<button type="button" class="is-booking" data-lvjs-booking="${esc(id)}">${esc(bookingLabel)}</button>`:''}<button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Zur Timeline</button><p class="lvjs-action-state" data-lvjs-action-state role="status" aria-live="polite" hidden></p></div><form class="lvjs-choice-scheduler" data-lvjs-scheduler="${esc(id)}" hidden><div class="lvjs-choice-schedule-fields"><label>Reisetag<input name="date" type="date" required min="${esc(clean(input.trip?.startDate||input.trip?.start_date).slice(0,10))}" max="${esc(clean(input.trip?.endDate||input.trip?.end_date).slice(0,10))}" value="${esc(input.targetDate)}"></label><label>Uhrzeit<input name="time" type="time" required value="${esc(timeValue(input.startAt))}"></label><label>Dauer in Minuten<input name="duration" type="number" min="30" max="1440" step="15" value="${esc(durationFor(place))}"></label></div><button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Termin bestätigen</button><p data-lvjs-card-plan>Die Standardzeit wird gegen euren Reisetag geprüft.</p>${alternative?`<button class="lvjs-nearby-action" type="button" data-lvjs-nearby="${esc(id)}">Alternative · ${esc(alternativeCause(place,alternative))}</button>`:''}<div class="lvjs-card-state" data-lvjs-card-state aria-live="polite"></div></form></article>`;
+  return`<article class="lvjs-choice" data-suggestion-choice="${esc(id)}" data-lvjs-owner-place-id="${esc(id)}" data-lvjs-profile-fit="${esc(place?.profileFit?.state||'unknown')}" data-lvjs-fit-reason="${esc(place?.profileFit?.reason||'')}" data-choice-index="${index}" data-suggestion-category="${esc(visual)}"><button type="button" class="lvjs-choice-main" data-suggestion-select="${esc(id)}" aria-pressed="false">${image?`<img data-lvjs-image src="${esc(image)}" alt="${esc(place.name||'Reiseort')}" loading="eager" fetchpriority="high" decoding="async">`:(globalThis.LuviaPlacesSpatialExperience?.categoryPlaceholder?.(visual)?.replace('<span ','<span data-lvjs-image ')||'<span class="lvjs-choice-placeholder" role="img" aria-label="Kategorieillustration"></span>')}<span class="lvjs-choice-copy"><small>${esc(visualIcon(visual))} ${esc(visualLabel(visual))}</small><strong>${esc(placeDisplayName(place))}</strong><em>${esc(place.formattedAddress||place.address||'Am Reiseziel')}</em><span class="lvjs-choice-facts" data-lvjs-facts>${facts.map(fact=>`<b>${esc(fact)}</b>`).join('')}</span>${stayPriceMarkup(place,input)}${match?`<span class="lvjs-choice-match" data-lvjs-match><b>${esc(match)}</b><small>belegt</small></span>`:''}<span class="lvjs-traveler-fit" data-lvjs-fit>${esc(displayReason(place,input))}</span>${credit}</span><span class="lvjs-choice-check" aria-hidden="true">✓</span></button><div class="lvjs-staged-actions" data-lvjs-staged-actions hidden><button type="button" data-lvjs-details="${esc(id)}">Details</button>${admission?.action?.available?`<button type="button" class="is-booking" data-lvjs-booking="${esc(id)}">${esc(bookingLabel)}</button>`:''}<button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Zur Timeline</button><p class="lvjs-action-state" data-lvjs-action-state role="status" aria-live="polite" hidden></p></div><form class="lvjs-choice-scheduler" data-lvjs-scheduler="${esc(id)}" hidden><div class="lvjs-choice-schedule-fields"><label>Reisetag<input name="date" type="date" required min="${esc(clean(input.trip?.startDate||input.trip?.start_date).slice(0,10))}" max="${esc(clean(input.trip?.endDate||input.trip?.end_date).slice(0,10))}" value="${esc(input.targetDate)}"></label><label>Uhrzeit<input name="time" type="time" required value="${esc(timeValue(input.startAt))}"></label><label>Dauer in Minuten<input name="duration" type="number" min="30" max="1440" step="15" value="${esc(durationFor(place))}"></label></div><button type="button" class="is-primary" data-lvjs-plan="${esc(id)}">Termin bestätigen</button><p data-lvjs-card-plan>Die Standardzeit wird gegen euren Reisetag geprüft.</p>${alternative?`<button class="lvjs-nearby-action" type="button" data-lvjs-nearby="${esc(id)}">Alternative · ${esc(alternativeCause(place,alternative))}</button>`:''}<div class="lvjs-card-state" data-lvjs-card-state aria-live="polite"></div></form></article>`;
 }
 function shellMarkup(input){
   const destination=destinationOf(input.trip)||'eurem Reiseziel',count=desiredCount(input),placesSearch=input.source==='places-search',hotelMap=input.source==='hotel-map',mapResults=placesSearch||hotelMap;
@@ -675,6 +681,7 @@ function bindPhotoFallbacks(results){
 }
 function paintResults(handle,result,selectedId='',restoredState=null){
   const root=handle.overlay,status=root.querySelector('[data-lvjs-status]'),results=root.querySelector('[data-lvjs-results]'),footer=root.querySelector('[data-lvjs-ai-state]');
+  if(result.sharedDiscovery?.id){root.dataset.lvjsSharedDiscovery=result.sharedDiscovery.id;root.dataset.lvjsProviderReadCount=String(result.sharedDiscovery.providerReadCount||0)}else{delete root.dataset.lvjsSharedDiscovery;delete root.dataset.lvjsProviderReadCount}
   const heading=root.querySelector('[data-lvjs-heading]'),placesSearch=result.input.source==='places-search',hotelMap=result.input.source==='hotel-map',mapResults=placesSearch||hotelMap,actualCount=result.choices.length;
   if(heading)heading.textContent=hotelMap?`${actualCount} passende ${actualCount===1?'Unterkunft':'Unterkünfte'} gefunden.`:placesSearch?`${actualCount} ${actualCount===1?'passender Ort':'passende Orte'} gefunden.`:`${actualCount} ${actualCount===1?'Möglichkeit':'Möglichkeiten'} für euren freien Moment.`;
   const spectrum=root.querySelector('[data-lvjs-spectrum]');
