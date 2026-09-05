@@ -1,8 +1,9 @@
 const OVERPASS_ENDPOINTS=Object.freeze([
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter'
+  Object.freeze({url:'https://maps.mail.ru/osm/tools/overpass/api/interpreter',method:'POST'}),
+  Object.freeze({url:'https://overpass-api.de/api/interpreter',method:'GET'}),
+  Object.freeze({url:'https://overpass.private.coffee/api/interpreter',method:'GET'})
 ]);
-const HEDGE_DELAY_MS=1200;
+const HEDGE_DELAY_MS=900;
 const REQUEST_TIMEOUT_MS=6500;
 const CACHE_SECONDS=6*60*60;
 
@@ -25,7 +26,8 @@ function overpassQuery({lat,lon,radius,veganOnly}){
 async function readEndpoint(endpoint,query,controller){
   const timeout=setTimeout(()=>controller.abort('overpass-timeout'),REQUEST_TIMEOUT_MS);
   try{
-    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','User-Agent':'Luvia/1.0 dietary-place-evidence'},body:new URLSearchParams({data:query}).toString(),signal:controller.signal,redirect:'error'});
+    const isPost=endpoint.method==='POST',url=isPost?endpoint.url:`${endpoint.url}?data=${encodeURIComponent(query)}`;
+    const response=await fetch(url,{method:endpoint.method,headers:isPost?{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','User-Agent':'Luvia/1.0 dietary-place-evidence'}:{'User-Agent':'Luvia/1.0 dietary-place-evidence'},body:isPost?new URLSearchParams({data:query}).toString():undefined,signal:controller.signal,redirect:'follow'});
     const body=await response.json().catch(()=>({}));
     if(!response.ok||!Array.isArray(body?.elements))throw new Error(`OVERPASS_${response.status}`);
     return body.elements;
@@ -34,12 +36,13 @@ async function readEndpoint(endpoint,query,controller){
 
 async function hedgedElements(query){
   const controllers=OVERPASS_ENDPOINTS.map(()=>new AbortController());
-  let fallbackStarted=false,startFallback=()=>{};
-  const primary=readEndpoint(OVERPASS_ENDPOINTS[0],query,controllers[0]).catch(error=>{startFallback();throw error});
-  const fallback=new Promise((resolve,reject)=>{startFallback=()=>{if(fallbackStarted)return;fallbackStarted=true;readEndpoint(OVERPASS_ENDPOINTS[1],query,controllers[1]).then(resolve,reject)}});
-  const hedge=setTimeout(startFallback,HEDGE_DELAY_MS);
-  try{const result=await Promise.any([primary,fallback]);controllers.forEach(controller=>controller.abort('overpass-winner-selected'));return result}
-  finally{clearTimeout(hedge)}
+  const reads=OVERPASS_ENDPOINTS.map((endpoint,index)=>new Promise((resolve,reject)=>{
+    const start=()=>readEndpoint(endpoint,query,controllers[index]).then(resolve,reject);
+    if(index===0)start();else setTimeout(start,HEDGE_DELAY_MS*index);
+  }));
+  const result=await Promise.any(reads);
+  controllers.forEach(controller=>controller.abort('overpass-winner-selected'));
+  return result;
 }
 
 async function dietaryProxy(request,env,ctx){

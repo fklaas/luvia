@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.36.2-scope-bound-profile-evidence';
+  const VERSION='1.36.3-cross-provider-evidence-identity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -263,12 +263,14 @@
     return keys;
   }
   const normalizedProviderName=place=>clean(place?.name||place?.displayName).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const providerIdentityName=place=>normalizedProviderName(place).replace(/\beis ?cafe\b/g,' eis ').split(/\s+/).filter(token=>token&&!['der','die','das','cafe','restaurant','bistro','gasthaus','gaststatte'].includes(token)).join('');
   function strictCrossProviderIdentity(left,right){
-    if(!normalizedProviderName(left)||normalizedProviderName(left)!==normalizedProviderName(right))return false;
+    const leftName=providerIdentityName(left),rightName=providerIdentityName(right);
+    if(!leftName||leftName!==rightName)return false;
     const a=COMPOSITION().normalizeCoordinates(left?.coordinates||left?.location),b=COMPOSITION().normalizeCoordinates(right?.coordinates||right?.location);
     if(!a||!b)return false;
     const rad=value=>value*Math.PI/180,dLat=rad(b.latitude-a.latitude),dLng=rad(b.longitude-a.longitude),lat1=rad(a.latitude),lat2=rad(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))<=25;
+    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))<=120;
   }
   function verifiedObjectMerge(current={},incoming={}){
     const merged={...(current||{})};
@@ -287,7 +289,7 @@
         ...place,
         types:[...new Set([...(place.types||[]),...(evidence.types||[])])],
         providerRefs:{...(place.providerRefs||{}),...(evidence.providerRefs||{})},
-        evidence:[...(place.evidence||[]),...(evidence.evidence||[]),...(crossProviderEvidence?[{provider:'multi',kind:'exact-normalized-name-and-max-25m-profile-evidence'}]:[])],
+        evidence:[...(place.evidence||[]),...(evidence.evidence||[]),...(crossProviderEvidence?[{provider:'multi',kind:'canonical-name-and-max-120m-profile-evidence'}]:[])],
         features:verifiedObjectMerge(place.features,evidence.features),
         accessibilityOptions:verifiedObjectMerge(place.accessibilityOptions,evidence.accessibilityOptions),
         providerFactsCached:place.providerFactsCached===true||evidence.providerFactsCached===true,

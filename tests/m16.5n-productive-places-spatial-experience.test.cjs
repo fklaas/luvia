@@ -325,7 +325,7 @@ assert.match(experience,/strictPlaceType:evidenceType,strictDestination:true,max
 assert.match(experience,/function transientDestinationFailure\(error\)/,'destination category reads must classify transient provider failures consistently');
 assert.match(experience,/!state\.results\.length&&retryable&&!_retriedTransient/,'a blank category may retry a transient failure exactly once');
 assert.match(experience,/state\.root\?\.dataset\)state\.root\.dataset\.state=state\.status;\s*state\.root\?\.setAttribute\?\.\('aria-busy',String\(state\.status==='loading'\)\)/,'a completed warm-start search must clear the visible region busy state without remounting the map');
-assert.match(experience,/exact-normalized-name-and-max-25m-profile-evidence/,'cross-provider profile evidence requires an exact normalized name and a strict 25 m coordinate match');
+assert.match(experience,/canonical-name-and-max-120m-profile-evidence/,'cross-provider profile evidence requires a canonical provider name and a strict 120 m coordinate match');
 assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper preview chevron must start the independent rise sequence');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle preview chevron must follow after the equal stagger');
