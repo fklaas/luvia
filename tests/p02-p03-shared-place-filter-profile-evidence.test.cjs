@@ -51,7 +51,7 @@ assert.equal(vegan.vegetarianOnly,false,'vegan evidence must use the exact provi
 vm.runInContext(read('app/places/places-spatial-experience.js'),sandbox,{filename:'places-spatial-experience.js'});
 const spatialSource=read('app/places/places-spatial-experience.js');
 assert.match(spatialSource,/if\(preferredPlaceIds\(state\.results\)\.size\)\{[^}]*free-provider-hit/,'a verified free-provider fit must prevent an unnecessary paid evidence read');
-assert.match(spatialSource,/providers:\['here','google','foursquare'\]/,'a missing free-provider fact must use HERE dietary evidence before the bounded Google and Foursquare fallbacks');
+assert.match(spatialSource,/providers:\['geoapify','here','google','foursquare'\]/,'a missing profile fact must use free Geoapify/OSM dietary evidence before HERE and bounded Google/Foursquare fallbacks');
 for(const attribute of ['fitEvidenceState','fitEvidenceFocus','fitEvidenceProvider','fitEvidenceReturned','fitEvidenceEligible','fitEvidenceBefore','fitEvidenceAfter','fitEvidenceError'])assert.ok(spatialSource.includes(attribute),`visible browser diagnostics must publish ${attribute}`);
 assert.ok(spatialSource.includes("?'skipped-no-profile-focus'"),'a missing Identity dietary focus must be distinguishable from a provider-empty result');
 assert.ok(spatialSource.includes("state:after>before?'ready':'empty'"),'positive and empty evidence reads must be distinguishable');

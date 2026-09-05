@@ -313,20 +313,20 @@
     if(state.category!=='food'||!focus||!state.results.length||!contract?.reads?.recommend){publishProfileEvidenceDiagnostics({state:!focus?'skipped-no-profile-focus':'skipped-unavailable',focus,provider:'',returned:0,eligible:0,before:0,after:0,error:''});return false}
     // The retained free-provider cohort already had its chance to prove a fit.
     // When it contains a verified candidate, keep that result and spend no
-    // additional provider budget. Otherwise use the bounded evidence providers
-    // directly: restarting with `auto` can stop on a non-empty HERE cohort whose
-    // restaurants have no dietary facts, leaving "Passend" empty even though
-    // Google can return the explicit servesVegetarianFood field.
+    // additional provider budget. Otherwise use the evidence providers directly.
+    // Geoapify/OSM remains first because its explicit diet tags can prove the
+    // profile fit without touching a bounded provider quota. HERE, Google and
+    // Foursquare are fallbacks only when that free evidence cohort is empty.
     if(preferredPlaceIds(state.results).size){const count=preferredPlaceIds(state.results).size;publishProfileEvidenceDiagnostics({state:'free-provider-hit',focus,provider:'free-cascade',returned:0,eligible:count,before:count,after:count,error:''});return false}
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
-    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     try{
       const response=await contract.reads.recommend({
         // The ordinary map remains on the free-provider cascade. This one
-        // cached profile read starts with free HERE dietary evidence, then
-        // reaches the tightly budgeted Google and Foursquare evidence sources
-        // only when HERE cannot prove a positive fit.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['here','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        // cached profile read starts with free Geoapify/OSM dietary evidence,
+        // then reaches HERE and the tightly budgeted Google/Foursquare sources
+        // only when no free provider can prove a positive fit.
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['geoapify','here','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -340,7 +340,7 @@
       return after>before;
     }catch(error){
       if(key===state.preferenceEvidenceKey)state.preferenceEvidenceKey='';
-      publishProfileEvidenceDiagnostics({state:'error',focus,provider:'google,foursquare',returned:0,eligible:0,before:preferredPlaceIds(state.results).size,after:preferredPlaceIds(state.results).size,error:clean(error?.code||error?.message||'PROFILE_EVIDENCE_UNAVAILABLE').slice(0,120)});
+      publishProfileEvidenceDiagnostics({state:'error',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:preferredPlaceIds(state.results).size,after:preferredPlaceIds(state.results).size,error:clean(error?.code||error?.message||'PROFILE_EVIDENCE_UNAVAILABLE').slice(0,120)});
       console.warn('[PlacesSpatial] Bounded profile evidence refresh unavailable.',error?.code||error?.message||error);
       return false;
     }finally{
@@ -353,7 +353,7 @@
     const key=profileEvidenceCohortKey(focus);
     if(state.preferenceEvidenceKey===key||state.preferenceEvidenceInflight)return;
     state.preferenceEvidenceKey=key;
-    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     const warmToken=++state.preferenceEvidenceToken;
     const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:500}):setTimeout(callback,80);
     schedule(()=>{

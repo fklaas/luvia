@@ -17556,12 +17556,12 @@ window.LuviaAIMemoryBridge=Object.freeze({version:VERSION,build:BUILD,buildConte
 ;
 
 /* ===== core/diagnostics/media-readiness.js ===== */
-/* Release 13.82.168.86 - Core 4.82.208 */
+/* Release 13.82.168.87 - Core 4.82.209 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.208';
-  const BUILD='13.82.168.86';
+  const CORE='4.82.209';
+  const BUILD='13.82.168.87';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -19409,20 +19409,20 @@ return Object.freeze({
     if(state.category!=='food'||!focus||!state.results.length||!contract?.reads?.recommend){publishProfileEvidenceDiagnostics({state:!focus?'skipped-no-profile-focus':'skipped-unavailable',focus,provider:'',returned:0,eligible:0,before:0,after:0,error:''});return false}
     // The retained free-provider cohort already had its chance to prove a fit.
     // When it contains a verified candidate, keep that result and spend no
-    // additional provider budget. Otherwise use the bounded evidence providers
-    // directly: restarting with `auto` can stop on a non-empty HERE cohort whose
-    // restaurants have no dietary facts, leaving "Passend" empty even though
-    // Google can return the explicit servesVegetarianFood field.
+    // additional provider budget. Otherwise use the evidence providers directly.
+    // Geoapify/OSM remains first because its explicit diet tags can prove the
+    // profile fit without touching a bounded provider quota. HERE, Google and
+    // Foursquare are fallbacks only when that free evidence cohort is empty.
     if(preferredPlaceIds(state.results).size){const count=preferredPlaceIds(state.results).size;publishProfileEvidenceDiagnostics({state:'free-provider-hit',focus,provider:'free-cascade',returned:0,eligible:count,before:count,after:count,error:''});return false}
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
-    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'requesting',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     try{
       const response=await contract.reads.recommend({
         // The ordinary map remains on the free-provider cascade. This one
-        // cached profile read starts with free HERE dietary evidence, then
-        // reaches the tightly budgeted Google and Foursquare evidence sources
-        // only when HERE cannot prove a positive fit.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['here','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        // cached profile read starts with free Geoapify/OSM dietary evidence,
+        // then reaches HERE and the tightly budgeted Google/Foursquare sources
+        // only when no free provider can prove a positive fit.
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['geoapify','here','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -19436,7 +19436,7 @@ return Object.freeze({
       return after>before;
     }catch(error){
       if(key===state.preferenceEvidenceKey)state.preferenceEvidenceKey='';
-      publishProfileEvidenceDiagnostics({state:'error',focus,provider:'google,foursquare',returned:0,eligible:0,before:preferredPlaceIds(state.results).size,after:preferredPlaceIds(state.results).size,error:clean(error?.code||error?.message||'PROFILE_EVIDENCE_UNAVAILABLE').slice(0,120)});
+      publishProfileEvidenceDiagnostics({state:'error',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:preferredPlaceIds(state.results).size,after:preferredPlaceIds(state.results).size,error:clean(error?.code||error?.message||'PROFILE_EVIDENCE_UNAVAILABLE').slice(0,120)});
       console.warn('[PlacesSpatial] Bounded profile evidence refresh unavailable.',error?.code||error?.message||error);
       return false;
     }finally{
@@ -19449,7 +19449,7 @@ return Object.freeze({
     const key=profileEvidenceCohortKey(focus);
     if(state.preferenceEvidenceKey===key||state.preferenceEvidenceInflight)return;
     state.preferenceEvidenceKey=key;
-    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
+    publishProfileEvidenceDiagnostics({state:'scheduled',focus,provider:'geoapify,here,google,foursquare',returned:0,eligible:0,before:0,after:0,error:''});
     const warmToken=++state.preferenceEvidenceToken;
     const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:500}):setTimeout(callback,80);
     schedule(()=>{
@@ -29148,7 +29148,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,timelineRenderFrame=0,todayRenderTimer=0,todayLastHtml='',timelineLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false,pwaRegistrationScheduled=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null,navigationCompassMotionCleanup=null;
   const activeCompassAnimations=new Set();
-  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.86',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.87',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
@@ -29161,7 +29161,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
     emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
   });
-  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.86')}`;
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.87')}`;
   function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
     const current=()=>window[descriptor.global];
     if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
@@ -30038,7 +30038,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
 
   window.addEventListener('click',event=>{if(!event.target.closest?.('[data-pf-edit-preferences]'))return;event.preventDefault();event.stopPropagation();window.LuviaProfileFoundation?.close?.();window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:profileOnboardingReturnTo(activeView)});},true);
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-changed',refreshTimelineProjection);window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.86',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.87',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();
 
