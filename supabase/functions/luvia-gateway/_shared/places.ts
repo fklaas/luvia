@@ -709,7 +709,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   // generic first 50 catering results for a multi-cuisine selection.
   const categoryBatches:any[]=cuisines.length?[
     ...(national.length?[{cats:categories,condition:''}]:[]),
-    ...dietary.map((type:string)=>({cats:['catering.restaurant'],condition:type==='vegan_restaurant'?'vegan.only':'vegetarian.only'}))
+    ...dietary.map((type:string)=>({cats:['catering.restaurant'],condition:type==='vegan_restaurant'?'vegan':'vegetarian'}))
   ]:(categories.length>1?categories.map(category=>[category]):[categories.length?categories:geoapifyFallbackCategories(options)]).map(cats=>({cats}));
   const buildParams=(cats:string[],useName:boolean,condition?:string)=>{
     const params=new URLSearchParams();
@@ -718,7 +718,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     if(useName&&name)params.set('name',name);
     if(filter)params.set('filter',filter);
     const selected=options.strictPlaceType||options.includedType||(options.includedTypes?.length===1?options.includedTypes[0]:'');
-    const diet=condition!==undefined?condition:selected==='vegan_restaurant'?'vegan.only':selected==='vegetarian_restaurant'?'vegetarian.only':'';
+    const diet=condition!==undefined?condition:selected==='vegan_restaurant'?'vegan':selected==='vegetarian_restaurant'?'vegetarian':'';
     const conditions=[diet,options.vegetarianOnly&&!diet?'vegetarian':'',options.accessibleOnly?'wheelchair.yes':''].filter(Boolean);
     if(conditions.length)params.set('conditions',conditions.join(','));
     if(biasParam)params.set('bias',biasParam);
@@ -773,7 +773,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     throw Object.assign(new Error(message),{code:'GEOAPIFY_PROVIDER_ERROR',status,provider:'geoapify'});
   }
   let features=Array.isArray(body?.features)?body.features:[];
-  const matchesCuisineEvidence=(place:any)=>!cuisines.length||cuisines.some((type:string)=>place?.types?.includes(type));
+  const matchesCuisineEvidence=(place:any)=>!cuisines.length||cuisines.some((type:string)=>type==='vegetarian_restaurant'?place?.features?.servesVegetarianFood===true:type==='vegan_restaurant'?place?.features?.servesVeganFood===true:place?.types?.includes(type));
   let normalized=features
     .map((feature:any)=>normalizedGeoapifyPlace(feature,options))
     .filter((place:any)=>place&&place.providerPlaceId&&place.name&&place.name.length>=2&&matchesCuisineEvidence(place));
@@ -784,7 +784,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     // cuisine category without attaching that cuisine to the feature; those are
     // not valid filter matches and must not suppress the bounded rescue read.
     try{const cohort=await geoapifyCuisineCohort(key,filter,String(options.languageCode||'de'));
-      const eligible=cohort.filter((feature:any)=>{const p=normalizedGeoapifyPlace(feature,options);return p&&cuisines.some((type:string)=>p.types.includes(type))&&(!name||p.name.toLowerCase().includes(name.toLowerCase()))});
+      const eligible=cohort.filter((feature:any)=>{const p=normalizedGeoapifyPlace(feature,options);return p&&matchesCuisineEvidence(p)&&(!name||p.name.toLowerCase().includes(name.toLowerCase()))});
       normalized=mergeFeatures([eligible])
         .map((feature:any)=>normalizedGeoapifyPlace(feature,options))
         .filter((place:any)=>place&&place.providerPlaceId&&place.name&&place.name.length>=2&&matchesCuisineEvidence(place));
@@ -886,7 +886,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.37.2-fit-media-warmup',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.37.3-exact-profile-evidence',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.32.0-explicit-cuisine-search-ring';
+  const VERSION='1.33.0-exact-profile-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -113,7 +113,7 @@
 
   const state={
     story:null,root:null,trip:null,surface:'places',searchRadiusMeters:0,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),imageInflight:new Map(),photoWarmToken:0,saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
+    status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),imageInflight:new Map(),photoWarmToken:0,preferenceEvidenceKey:'',preferenceEvidenceInflight:null,preferenceEvidenceToken:0,saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,lastSearchTrace:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null,categoryCohorts:new Map()
   };
 
@@ -178,7 +178,7 @@
     const primary=projected.length?projected:(place?.raw?.foodTypes||[]).filter(item=>item?.primary===true).map(item=>normalizedEvidence(item?.name||item?.id));
     return primary.some(value=>aliases.some(alias=>{const expected=normalizedEvidence(alias);return value===expected||value.includes(expected)}));
   }
-  function matchesTypeGroup(place,values=[]){if(!values.length)return true;const types=placeTypeSet(place);return values.some(value=>types.has(value)&&hasPrimaryCuisineEvidence(place,value)&&(value!=='vegetarian_restaurant'||place.features?.servesVegetarianFood!==false)&&(value!=='vegan_restaurant'||place.features?.servesVeganFood!==false))}
+  function matchesTypeGroup(place,values=[]){if(!values.length)return true;const types=placeTypeSet(place);return values.some(value=>value==='vegetarian_restaurant'?hasVegetarianProviderEvidence(place):value==='vegan_restaurant'?hasVeganProviderEvidence(place):types.has(value)&&hasPrimaryCuisineEvidence(place,value))}
   function activeFilterCount(){return['openNow','rated','rating45','nearby','vegetarian','reservable','accessible'].filter(key=>Boolean(state.filters[key])).length+(state.filters.priceLevels||[]).length+(state.filters.types||[]).length+(state.filters.cuisines||[]).length}
   function filteredResults(source=state.results){const preferred=state.fitOnly?preferredPlaceIds(source):null,rows=(Array.isArray(source)?source:[]).filter(place=>(!state.fitOnly||preferred.has(providerId(place)))&&matchesTypeGroup(place,state.filters.types)&&matchesTypeGroup(place,state.filters.cuisines)&&(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasReferenceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||hasVegetarianProviderEvidence(place))&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!(state.filters.priceLevels||[]).length||state.filters.priceLevels.includes(normalizedPriceLevel(place.priceLevel))));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasReferenceDistance(left)?Number(left.distanceMeters):Infinity)-(hasReferenceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function ensureVisibleFitResults(source=state.results){
@@ -199,14 +199,21 @@
     return /vegan/.test(raw)?'Vegan':/vegetar/.test(raw)?'Vegetarisch':'';
   }
   function requiresVegetarianEvidence(){
-    return state.category==='food'&&Boolean(state.filters.vegetarian);
+    return state.category==='food'&&(Boolean(state.filters.vegetarian)||(state.filters.cuisines||[]).includes('vegetarian_restaurant'));
   }
+  const meatLedVenue=place=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...placeTypeSet(place)].join(' ')).toLowerCase());
   function hasVegetarianProviderEvidence(place){
-    const types=placeTypeSet(place),text=clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...types].join(' ')).toLowerCase();
+    const types=placeTypeSet(place);
     const dedicated=types.has('vegetarian_restaurant')||types.has('vegan_restaurant');
-    if(!dedicated&&/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(text))return false;
+    if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVegetarianFood===false)return false;
     return dedicated||place?.features?.servesVegetarianFood===true;
+  }
+  function hasVeganProviderEvidence(place){
+    const types=placeTypeSet(place),dedicated=types.has('vegan_restaurant');
+    if(meatLedVenue(place)&&!dedicated)return false;
+    if(place?.features?.servesVeganFood===false)return false;
+    return dedicated||place?.features?.servesVeganFood===true;
   }
   function activeSearchDefinition(){
     const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'&&state.filters.vegetarian?'Vegetarisch':'';
@@ -252,6 +259,77 @@
     state.readNotice=null;
     state.status='loading';
     refreshSearchScope();
+  }
+  function exactProviderKeys(place){
+    const keys=new Set(),id=providerId(place);
+    if(id)keys.add(id);
+    for(const [provider,rawId] of Object.entries(place?.providerRefs||{})){
+      const value=clean(rawId).replace(/^places\//,'');
+      if(value)keys.add(`${clean(provider).toLowerCase()}:${value}`);
+    }
+    return keys;
+  }
+  function verifiedObjectMerge(current={},incoming={}){
+    const merged={...(current||{})};
+    for(const [key,value] of Object.entries(incoming||{}))if(value!==null&&value!==undefined&&value!=='')merged[key]=value;
+    return merged;
+  }
+  function mergeExactProviderEvidence(cohort,evidenceRows){
+    const evidenceByKey=new Map();
+    for(const evidence of (Array.isArray(evidenceRows)?evidenceRows:[]))for(const key of exactProviderKeys(evidence))if(!evidenceByKey.has(key))evidenceByKey.set(key,evidence);
+    return (Array.isArray(cohort)?cohort:[]).map(place=>{
+      const evidence=[...exactProviderKeys(place)].map(key=>evidenceByKey.get(key)).find(Boolean);
+      if(!evidence)return place;
+      return{
+        ...place,
+        types:[...new Set([...(place.types||[]),...(evidence.types||[])])],
+        providerRefs:{...(place.providerRefs||{}),...(evidence.providerRefs||{})},
+        evidence:[...new Set([...(place.evidence||[]),...(evidence.evidence||[])])],
+        features:verifiedObjectMerge(place.features,evidence.features),
+        accessibilityOptions:verifiedObjectMerge(place.accessibilityOptions,evidence.accessibilityOptions),
+        providerFactsCached:place.providerFactsCached===true||evidence.providerFactsCached===true,
+        ownerObservedAt:evidence.ownerObservedAt||place.ownerObservedAt||null
+      };
+    });
+  }
+  function profileEvidenceCohortKey(focus=profileDietaryFocus()){
+    return [cacheScope(),state.category,focus,...state.results.map(providerId).filter(Boolean)].join('|');
+  }
+  async function hydrateProfileEvidence(searchToken=state.requestToken,focus=profileDietaryFocus(),key=profileEvidenceCohortKey(focus)){
+    const contract=placesContract();
+    if(state.category!=='food'||!focus||!state.results.length||!contract?.reads?.recommend)return false;
+    const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
+    try{
+      const response=await contract.reads.recommend({
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+      });
+      if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
+      const before=preferredPlaceIds(state.results).size;
+      state.results=decoratePreferences(mergeExactProviderEvidence(state.results,response?.places||[]),state.trip);
+      const after=preferredPlaceIds(state.results).size;
+      rememberCategoryCohort();saveCached();
+      if(state.mapProjection)updateFilteredMap();else render();
+      return after>before;
+    }catch(error){
+      if(key===state.preferenceEvidenceKey)state.preferenceEvidenceKey='';
+      console.warn('[PlacesSpatial] Bounded profile evidence refresh unavailable.',error?.code||error?.message||error);
+      return false;
+    }finally{
+      if(key===state.preferenceEvidenceKey)state.preferenceEvidenceInflight=null;
+    }
+  }
+  function warmProfileEvidence(searchToken=state.requestToken){
+    const focus=profileDietaryFocus();
+    if(state.category!=='food'||!focus||!state.results.length)return;
+    const key=profileEvidenceCohortKey(focus);
+    if(state.preferenceEvidenceKey===key||state.preferenceEvidenceInflight)return;
+    state.preferenceEvidenceKey=key;
+    const warmToken=++state.preferenceEvidenceToken;
+    const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:500}):setTimeout(callback,80);
+    schedule(()=>{
+      if(warmToken!==state.preferenceEvidenceToken||searchToken!==state.requestToken||!state.root?.isConnected)return;
+      state.preferenceEvidenceInflight=hydrateProfileEvidence(searchToken,focus,key);
+    });
   }
   function viewportTrace(response,{category,viewportKey,resultCount,attempt}){
     const providerRows=response?.providerDiagnostics||[],requestRows=response?.requestDiagnostics||[],providers=[...new Set(providerRows.flatMap(row=>row?.used?.length?row.used:row?.attempted||[]).map(clean).filter(Boolean))];
@@ -420,6 +498,7 @@
       const selected=findPlace(state.selectedId);
       if(selected)hydrateMapPreview(selected);
       warmInitialPhotos(token);
+      warmProfileEvidence(token);
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
@@ -620,13 +699,14 @@
     // The gateway may enrich only an exact same-name, same-coordinate match.
     const task=(async()=>{try{
       const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
-      if(!card?.image)return null;
-      const nextPlace={...place,...(card.place||{}),image:card.image};
+      if(!card?.place&&!card?.image)return null;
+      const nextPlace={...place,...(card.place||{}),features:verifiedObjectMerge(place.features,card?.place?.features),accessibilityOptions:verifiedObjectMerge(place.accessibilityOptions,card?.place?.accessibilityOptions),image:card.image||place.image||null};
       if(!clean(nextPlace.name)||/^(unbenannter ort|unbekannter ort)$/i.test(clean(nextPlace.name)))nextPlace.name=place.name;
-      state.images.set(id,card.image);
-      state.results=state.results.map(row=>providerId(row)===id?nextPlace:row);
+      if(card.image)state.images.set(id,card.image);
+      state.results=decoratePreferences(state.results.map(row=>providerId(row)===id?nextPlace:row),state.trip);
       if(refreshSelected&&state.selectedId===id)refreshMapPreview();
-      return card.image;
+      if(state.fitOnly&&state.mapProjection)updateFilteredMap();
+      return card.image||null;
     }catch{return null}finally{state.imageInflight.delete(id)}})();
     state.imageInflight.set(id,task);
     return task;
@@ -1243,6 +1323,7 @@
       state.fitOnly=button.dataset.placesFitMode==='fit';
       root.querySelectorAll('[data-places-fit-mode]').forEach(item=>item.setAttribute('aria-pressed',String((item.dataset.placesFitMode==='fit')===state.fitOnly)));
       updateFilteredMap();
+      warmProfileEvidence(state.requestToken);
     }));
     root.querySelectorAll('[data-places-map-navigate]').forEach(button=>button.addEventListener('click',()=>navigateMap(button.dataset.placesMapNavigate)));
     bindPreviewGesture();
@@ -1278,7 +1359,7 @@
     unmount();
     const lifecycleToken=state.lifecycleToken;
     state.surface=surface==='accommodation'?'accommodation':'places';state.category=state.surface==='accommodation'?'accommodation':'food';state.query=state.surface==='accommodation'?'Unterkünfte':'Restaurant';
-    state.root=root;state.trip=trip;state.lastSearchAt=null;state.searchRadiusMeters=0;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.imageInflight.clear();state.photoWarmToken++;state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
+    state.root=root;state.trip=trip;state.lastSearchAt=null;state.searchRadiusMeters=0;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.imageInflight.clear();state.photoWarmToken++;state.preferenceEvidenceKey='';state.preferenceEvidenceInflight=null;state.preferenceEvidenceToken++;state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
     if(state.planningDraft?.query){state.userQuery=clean(state.planningDraft.query);state.query=state.userQuery}
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
@@ -1295,7 +1376,7 @@
       else if(wasOffline)search({focus:false});
     })||null;
     render();
-    if(restored){const selected=findPlace(state.selectedId);if(selected)hydrateMapPreview(selected);warmInitialPhotos(state.requestToken)}
+    if(restored){const selected=findPlace(state.selectedId);if(selected)hydrateMapPreview(selected);warmInitialPhotos(state.requestToken);warmProfileEvidence(state.requestToken)}
     bindPreferenceRefresh();
     loadSaved(lifecycleToken).then(changed=>{if(changed&&lifecycleToken===state.lifecycleToken&&state.root===root)updateFilteredMap()});
     await Promise.resolve();

@@ -314,7 +314,9 @@ assert.match(experience,/controller=openSheet\(placesFromSnapshot\(gesturePlace\
 assert.match(experience,/if\(distance<1&&!controller\)return;if\(!controller&&!beginInteractive\(\)\)return/,'a tap must remain a tap while the first upward pixel starts direct manipulation');
 assert.match(experience,/progress>=\.16\|\|releaseVelocity>\.34/,'the sheet must settle from a forgiving distance or upward-velocity threshold');
 assert.match(experience,/distance\/Math\.min\(440,Math\.max\(220,innerHeight\*\.5\)\)/,'finger distance must map continuously to sheet progress on compact and large viewports');
-assert.match(experience,/requiresVegetarianEvidence\(\)/,'a profile dietary requirement must constrain provider retrieval even without a manually selected filter');
+assert.match(experience,/function warmProfileEvidence\(searchToken=state\.requestToken\)/,'a profile dietary requirement must start one bounded evidence read after the broad Alle cohort is visible');
+assert.match(experience,/mergeExactProviderEvidence\(state\.results,response\?\.places\|\|\[\]\)/,'profile evidence may decorate only immutable provider identities already present in Alle');
+assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
 assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper preview chevron must start the independent rise sequence');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(2\)\{top:5px;animation-delay:\.12s\}/,'the middle preview chevron must follow after the equal stagger');
