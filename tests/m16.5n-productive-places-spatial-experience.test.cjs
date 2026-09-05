@@ -321,6 +321,7 @@ assert.match(experience,/filter\(place=>focus==='Vegan'\?hasVeganProviderEvidenc
 assert.match(experience,/decoratePreferences\(mergeProfileEvidenceCohort\(state\.results,evidenceRows,focus\),state\.trip\)/,'a separately found positive dietary venue must enter the same cohort used by both Alle and Passend');
 assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
 assert.match(experience,/strictPlaceType:evidenceType[\s\S]{0,500}providers:\['geoapify','openstreetmap','here','google','foursquare'\]/,'only the explicit profile-evidence read may start free Geoapify\/OSM, then HERE and the bounded exact-evidence providers after the retained cohort could not prove a fit');
+assert.match(experience,/strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number\(geography\.searchRadiusMeters\)\|\|3000/,'profile evidence must never silently expand beyond the active destination scope');
 assert.match(experience,/function transientDestinationFailure\(error\)/,'destination category reads must classify transient provider failures consistently');
 assert.match(experience,/!state\.results\.length&&retryable&&!_retriedTransient/,'a blank category may retry a transient failure exactly once');
 assert.match(experience,/state\.root\?\.dataset\)state\.root\.dataset\.state=state\.status;\s*state\.root\?\.setAttribute\?\.\('aria-busy',String\(state\.status==='loading'\)\)/,'a completed warm-start search must clear the visible region busy state without remounting the map');

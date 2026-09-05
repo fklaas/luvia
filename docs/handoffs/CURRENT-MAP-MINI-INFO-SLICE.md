@@ -3,23 +3,23 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Realbeleg ist geliefert; P02/P03 bleiben für vollständige Filter- und Flächenparität aktiv. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt.
+**Stand 2026-09-05:** Integration **13.82.168.89**, Core **4.82.211**. M16.5 Schritte 15–18 aktiv. P02/P03 bleibt der aktive Abschlussblock; der positive Passend-Pfad steht, der sichtbare Mengen-/Radiusvertrag wird gerade geschlossen. Apple ist geparkt.
 
-**Zuletzt geliefert:** App 13.82.168.88 / Core 4.82.210 läuft aus Commit 51a2f174 auf Integration-Worker 81e43a21. Gateway v206 liefert über den kostenlosen, budgetierten OpenStreetMap-Evidenzpfad 25 vegetarisch oder vegan belegte Scharbeutz-Orte. Sichtbar wurden Alle 50, Passend 25, Passt-Pins, Zoom, Pinwechsel und Detail-Score bedient; Erdmann’s Kleines Steakhaus fehlt korrekt. 229/229 Safe Regression, NFR-0 3/3 und 30/30 Bytebelege sind grün. Apple, Main und Production blieben unverändert.
+**Zuletzt geliefert:** App .88, Gateway v206 und der kostenlose OSM-Evidenzpfad liefern öffentlich 25 vegetarisch oder vegan belegte Treffer ohne Steakhouse-Falschpositiv. Der sichtbare Test zeigte Alle 50, Passend 25, Passt-Pins, Zoom und Pinwechsel. Als letzte Wahrheitslücke wurde erkannt, dass die Evidenzsuche bis 8 km reichen konnte, während die Seite 3 km auswies. Kandidat .89 verwendet nun für beide Modi denselben `geography.searchRadiusMeters`-Wert. 229/229 Safe Regression und NFR-0 3/3 sind für den korrigierten Kandidaten grün.
 
-**Nächster Schritt (AKTIV): Passend-ID und Begründung in Timeline und AI Chat sichtbar angleichen.** Die Places-Karte liefert den positiven Realbeleg; jetzt müssen alle Place-verwendenden Oberflächen nachweisen, dass sie exakt denselben Kandidaten und denselben providerbelegten Profilgrund verwenden.
+**Nächster Schritt (AKTIV): App .89 veröffentlichen und den identischen Alle-/Passend-Radius sichtbar belegen.** Passend ist positiv, darf aber keinen größeren Suchraum verwenden als die sichtbare Alle-Menge. Der Code ist angeglichen; jetzt fehlt nur der öffentliche Bedienbeleg.
 
 **Abnahme dieses Schritts:**
 
-- Ein öffentlich sichtbarer Passend-Ort aus Places erscheint in Timeline-Vorschlägen und AI Chat mit derselben kanonischen Provider-ID.
-- Der vegetarische oder vegane Passend-Grund bleibt providerbelegt und wird in allen drei Oberflächen gleich und verständlich formuliert.
-- Timeline und AI Chat starten keine getrennte Place-Suche und verändern weder Kategorie, Entfernung noch Profilfakten.
-- Stay belegt dieselbe technische Provider-, Karten-, Filter-, Cache- und Kostenschutzarchitektur für Unterkunftsmerkmale.
-- Safe Regression, NFR-0, öffentliche Bytegleichheit und sichtbare Bedienung bleiben grün; Main und Production bleiben unverändert.
+- App 13.82.168.89 / Core 4.82.211 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.
+- Alle und Passend verwenden denselben angezeigten Reisezielradius von 3 km.
+- Passend zeigt mehrere echte, ausdrücklich vegetarisch oder vegan belegte Orte innerhalb dieses Bereichs.
+- Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; Pinwechsel und Kartenzoom bleiben bedienbar.
+- 229/229 Safe Regression, NFR-0 und öffentliche Asset-Identität sind grün; Main und Production bleiben unverändert.
 
-**Danach:** Danach folgt die vollständige öffentliche Kategorie-/Filtermatrix für P02/P03; anschließend der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.
+**Danach:** Nach dem Radiusbeleg folgt als ein gemeinsamer P03-Slice die identische Provider-ID und Begründung in Timeline-Vorschlägen und AI Chat sowie die technische Stay-Parität.
 
-**Weiter offen:** P02/P03 aktiv: Flächenparität in Timeline, AI Chat und Stay sowie vollständige Kategorie-/Filtermatrix; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist bis zu einem späteren ausdrücklichen Bezahl- und iOS-Veröffentlichungsentscheid geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen: Die Supabase-Free-Plan-Schonfrist wegen des Egress-Overruns im vorherigen Zyklus endet am 07.09.2026; der aktuelle Zyklus 23.08.–23.09.2026 lag zuletzt bei 2,359/5 GB Egress und 63.540/500.000 Edge-Function-Aufrufen.
+**Weiter offen:** P02/P03 aktiv: 3-km-Mengenvertrag, danach Flächenparität in Timeline, AI Chat und Stay sowie vollständige Kategorie-/Filtermatrix; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

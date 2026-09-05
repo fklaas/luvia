@@ -52,6 +52,7 @@ vm.runInContext(read('app/places/places-spatial-experience.js'),sandbox,{filenam
 const spatialSource=read('app/places/places-spatial-experience.js');
 assert.match(spatialSource,/if\(preferredPlaceIds\(state\.results\)\.size\)\{[^}]*free-provider-hit/,'a verified free-provider fit must prevent an unnecessary paid evidence read');
 assert.match(spatialSource,/providers:\['geoapify','openstreetmap','here','google','foursquare'\]/,'a missing profile fact must use free Geoapify/OSM dietary evidence before HERE and bounded Google/Foursquare fallbacks');
+assert.match(spatialSource,/strictDestination:true,maxDistanceMeters:Number\(geography\.searchRadiusMeters\)\|\|3000/,'profile evidence must stay inside the same destination radius shown by the broad Alle cohort');
 for(const attribute of ['fitEvidenceState','fitEvidenceFocus','fitEvidenceProvider','fitEvidenceReturned','fitEvidenceEligible','fitEvidenceBefore','fitEvidenceAfter','fitEvidenceError'])assert.ok(spatialSource.includes(attribute),`visible browser diagnostics must publish ${attribute}`);
 assert.ok(spatialSource.includes("?'skipped-no-profile-focus'"),'a missing Identity dietary focus must be distinguishable from a provider-empty result');
 assert.ok(spatialSource.includes("state:after>before?'ready':'empty'"),'positive and empty evidence reads must be distinguishable');
