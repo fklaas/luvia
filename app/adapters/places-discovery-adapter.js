@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.2-provider-answer-truth';
+const VERSION='1.14.3-degraded-cohort-continuity';
 const PROVIDER_CACHE_MS=180000;
 const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
@@ -182,7 +182,7 @@ async function recommend(options={}){
   const providerRequest=async(query,strictDestination)=>{
     const cacheKey=cacheFingerprint(options,discoveryRoute,query,strictDestination);
     const cached=providerCache.get(cacheKey);
-    if(cached&&Date.now()-cached.loadedAt<PROVIDER_CACHE_MS){
+    if(cached&&Date.now()-cached.loadedAt<(Number(cached.ttlMs)||PROVIDER_CACHE_MS)){
       const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],ownerObservedAt:place.ownerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true}));
       return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers:cached.providers}};
     }
@@ -224,7 +224,12 @@ async function recommend(options={}){
       const ownerObservedAt=new Date().toISOString(),backendCached=Boolean(response?.meta?.cache?.hit||response?.cache?.hit),providers=safeProviderMeta(response?.data?.providers||{},response?.data?.places||[]);
       if(!(response?.data?.places||[]).length&&providers.status==='unavailable')throw Object.assign(new Error('Places lieferte keinen belastbaren Treffer, während keine Ortsquelle belastbar geantwortet hat.'),{code:'PLACES_PROVIDER_READ_UNAVAILABLE',providerDiagnostics:providers});
       const rawPlaces=(response?.data?.places||[]).map(place=>({...place,ownerObservedAt,providerObservedAt:place.providerObservedAt||null,providerFactsCached:backendCached,providerReadiness:providers.status}));
-      if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now()});else providerCache.delete(cacheKey);
+      const age=cached?Date.now()-cached.loadedAt:Infinity;
+      if(providers.degraded&&cached&&age>=0&&age<PROVIDER_RECOVERY_MS&&!options.openNow&&cached.places.length>rawPlaces.length&&cached.places.every(place=>/^(?:geoapify|tomtom|here):/.test(providerId(place)))){
+        const places=cached.places.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query],ownerObservedAt:place.ownerObservedAt||new Date(cached.loadedAt).toISOString(),providerFactsCached:true,providerReadiness:'stale'}));
+        return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:true,stale:true,ownerObservedAt:new Date(cached.loadedAt).toISOString(),providers:{...providers,status:'partial',degraded:true}}};
+      }
+      if(rawPlaces.length)providerCache.set(cacheKey,{places:rawPlaces,providers,loadedAt:Date.now(),ttlMs:providers.degraded?30_000:PROVIDER_CACHE_MS});else providerCache.delete(cacheKey);
       const places=rawPlaces.filter(place=>!rejected.has(providerId(place))).map(place=>({...place,discoveryQueries:[query]}));
       return{places,attempt:{query,strictDestination,ok:true,count:places.length,cached:backendCached,ownerObservedAt,providers}};
     }catch(error){

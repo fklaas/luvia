@@ -58,14 +58,14 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.14\.4-primary-cuisine-contract/,'gateway cache must invalidate after primary cuisine evidence enters the public contract');
-assert.match(gateway,/version:'4\.36\.4-primary-cuisine-contract'/,'gateway health version must expose exact selected-place photos, quota-bounded nightlife supplementation and projected primary cuisine evidence');
+assert.match(gateway,/v2\.15\.0-cuisine-diagnostics/,'gateway cache must invalidate after the complete cuisine diagnostic contract enters the public surface');
+assert.match(gateway,/version:'4\.37\.1-degraded-cohort-continuity'/,'gateway health version must expose the complete cuisine diagnostics and degraded-cohort continuity contract');
 assert.match(gateway,/priority:'on_demand_exact_selected_media'/,'Foursquare media use must stay on-demand instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');
 assert.match(gateway,/photoEndpoint:'one_popular_photo_after_exact_identity'/,'one dedicated photo read is allowed only after exact identity matching');
 assert.match(gateway,/ttl>0&&!forceRefresh\?cached\(key\):null/,'forceRefresh must bypass a gateway cache hit');
-assert.match(gateway,/if\(ttl>0&&!searchEmpty\)store\(key,result,ttl\)/,'successful empty provider pages must never be cached as geographic truth');
-assert.match(gateway,/skippedEmpty:searchEmpty,forced:forceRefresh/,'cache diagnostics must disclose forced and skipped-empty reads');
+assert.match(gateway,/const effectiveTtl=searchEmpty\?0:searchDegraded\?30_000:ttl/,'empty provider pages must remain uncached and degraded positive pages must expire quickly');
+assert.match(gateway,/skippedEmpty:searchEmpty,degraded:searchDegraded,forced:forceRefresh/,'cache diagnostics must disclose forced, degraded and skipped-empty reads');
 assert.match(gateway,/One Luvia category → one Geoapify parent family/,'category mapping must keep Luvia categories exclusive');
 assert.equal((gateway.match(/searchFields\(options\)/g)||[]).length,2,'text and nearby search must both route FieldMask selection through one policy');
 

@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.5",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 983,
+  "markerCount": 984,
   "markers": [
     {
       "marker": "data-accent",
@@ -8377,6 +8377,15 @@
       "sources": [
         "core/trips/trip-creator.js",
         "core/trips/trip-experience.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-target-radius",
+      "category": "Places & Ortsentdeckung",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/places/places-spatial-experience.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },

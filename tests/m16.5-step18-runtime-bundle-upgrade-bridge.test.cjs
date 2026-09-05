@@ -14,7 +14,7 @@ const pwa=read('intelligence/pwa-service.js');
 const ignore=read('.assetsignore');
 
 assert.equal(manifest.schemaVersion,1);
-assert.equal(manifest.currentBuild,'13.82.168.69');
+assert.equal(manifest.currentBuild,'13.82.168.70');
 assert.equal(manifest.policy.minimumRetainedBuilds,3);
 assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.82.122','13.82.123','13.82.124','13.82.125','13.82.126','13.82.127','13.82.128','13.82.129','13.82.130','13.82.135','13.82.136','13.82.137','13.82.138','13.82.139','13.82.140','13.82.141','13.82.142','13.82.143','13.82.144','13.82.145','13.82.146']);
 assert.equal(manifest.policy.currentLoaderUsesCompatibilityBundle,false);

@@ -48,9 +48,9 @@ Deno.serve(async(req:Request)=>{
 
   const forwarded=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   const clientKey=forwarded||req.headers.get('cf-connecting-ip')||'unknown';
-  const skipRateLimit=action==='places.text-search'||action==='places.nearby-search'||action==='destination.resolve'||action==='places.health';
+  const skipRateLimit=action==='places.text-search'||action==='places.nearby-search'||action==='destination.resolve';
   if(!skipRateLimit){
-    const rate=enforceRateLimit(`${clientKey}:${action}`,action==='system.health'?60:PLACES_ACTIONS.has(action)?120:PLACE_ENTITY_ACTIONS.has(action)?40:RESTAURANT_ACTIONS.has(action)?30:SCHEDULE_ACTIONS.has(action)?60:ROUTES_ACTIONS.has(action)?40:RECOMMENDATION_ACTIONS.has(action)?60:30,60_000);
+    const rate=enforceRateLimit(`${clientKey}:${action}`,action==='system.health'?60:action==='places.health'?30:PLACES_ACTIONS.has(action)?120:PLACE_ENTITY_ACTIONS.has(action)?40:RESTAURANT_ACTIONS.has(action)?30:SCHEDULE_ACTIONS.has(action)?60:ROUTES_ACTIONS.has(action)?40:RECOMMENDATION_ACTIONS.has(action)?60:30,60_000);
     if(!rate.allowed)return errorResponse(429,'RATE_LIMITED','Zu viele Anfragen.',id,{...cors,'Retry-After':String(rate.retryAfter)});
   }
 
@@ -83,7 +83,7 @@ Deno.serve(async(req:Request)=>{
         data=await providerStatus();
         break;
       case 'system.health':
-        data={status:'ok',service:'luvia-gateway',version:'4.64.8',build:'13.82.168.69',core:'4.82.191',time:new Date().toISOString(),authenticated:Boolean(userId),places:placesDiagnostics(),restaurants:restaurantDiagnostics(),recommendations:recommendationDiagnostics()};
+        data={status:'ok',service:'luvia-gateway',version:'4.64.11',build:'13.82.168.70',core:'4.82.192',time:new Date().toISOString(),authenticated:Boolean(userId),places:placesDiagnostics(),restaurants:restaurantDiagnostics(),recommendations:recommendationDiagnostics()};
         break;
       default:
         if(PLACES_ACTIONS.has(action)){

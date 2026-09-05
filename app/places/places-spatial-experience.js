@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.9-primary-cuisine-cache-v7';
+  const VERSION='1.32.0-explicit-cuisine-search-ring';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -39,7 +39,7 @@
     const name=destination(source);
     const requestedRadius=state.searchRadiusMeters||specializedLocalRadius();
     const radius=requestedRadius||Math.round(Number(dest?.searchRadiusMeters||model?.searchRadiusMeters||3000));
-    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:placesContract()?.reads?.localSearchRadius?.({searchRadiusMeters:radius},requestedRadius||undefined)??(requestedRadius?Math.max(500,Math.min(5000,requestedRadius)):Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000)))};
+    const payload={name,displayName:name,countryCode:clean(dest?.countryCode||model?.countryCode||source.countryCode),searchRadiusMeters:placesContract()?.reads?.localSearchRadius?.({searchRadiusMeters:radius},requestedRadius||undefined)??(requestedRadius?Math.max(500,Math.min(10000,requestedRadius)):Math.max(500,Math.min(3000,Number.isFinite(radius)?radius:3000)))};
     if(Number.isFinite(latitude)&&Number.isFinite(longitude)){
       payload.center={lat:latitude,lng:longitude};
       payload.location={latitude,longitude};
@@ -128,7 +128,8 @@
       if(!usable.length)return false;
       state.category=clean(cached.category)||state.category;
       state.results=decoratePreferences(usable.slice(0,MAX_RESULTS),state.trip);
-      state.searchRadiusMeters=cached.searchRadiusMeters===5000?5000:0;
+      const cachedRadius=Math.round(Number(cached.searchRadiusMeters)||0);
+      state.searchRadiusMeters=cachedRadius>=500&&cachedRadius<=10000?cachedRadius:0;
       state.query=clean(cached.query)||state.query;
       state.selectedId=providerId(state.results[0])||null;state.lastSearchAt=cached.savedAt;
       state.status=state.offline?'offline':'ready';return true;
@@ -141,7 +142,7 @@
     if(!results.length)return;
     try{port('OfflineCachePort')?.write(cacheKey(),{scope:cacheScope(),query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results,savedAt:state.lastSearchAt||new Date().toISOString()})}catch{}
   }
-  function categoryCohortKey(category=state.category){return JSON.stringify({scope:cacheScope(),category:clean(category),radius:state.searchRadiusMeters===5000?5000:0})}
+  function categoryCohortKey(category=state.category){return JSON.stringify({scope:cacheScope(),category:clean(category),radius:Math.max(0,Math.min(10000,Math.round(Number(state.searchRadiusMeters)||0)))})}
   function rememberCategoryCohort(){
     if(state.activeViewport||state.userQuery||activeFilterCount()||!state.results.length||!['ready','loading'].includes(state.status))return false;
     const key=categoryCohortKey(),savedAt=new Date().toISOString();
@@ -1059,9 +1060,11 @@
   }
   function emptySearchActions(){
     if(state.fitOnly||state.status==='loading'||state.offline)return '';
-    const canExpand=!state.activeViewport&&tripGeography(state.trip).searchRadiusMeters<5000;
+    const currentRadius=tripGeography(state.trip).searchRadiusMeters;
+    const targetRadius=currentRadius<5000?5000:10000;
+    const canExpand=!state.activeViewport&&currentRadius<10000;
     const canBroaden=state.category==='food'&&!state.filters.cuisines.includes('asian_restaurant')&&state.filters.cuisines.some(type=>['chinese_restaurant','japanese_restaurant','thai_restaurant','vietnamese_restaurant','korean_restaurant','indian_restaurant'].includes(type));
-    return `${canExpand?'<button type="button" data-places-expand-radius>Im 5-km-Umkreis suchen</button>':''}${canBroaden?'<button type="button" data-places-broaden-cuisine>Alle asiatischen Küchen suchen</button>':''}`;
+    return `${canExpand?`<button type="button" data-places-expand-radius data-target-radius="${targetRadius}">Im ${targetRadius/1000}-km-Umkreis suchen</button>`:''}${canBroaden?'<button type="button" data-places-broaden-cuisine>Alle asiatischen Küchen suchen</button>':''}`;
   }
   function syncEmptySearchActions(node,empty){
     node.querySelector?.('[data-places-empty-actions]')?.remove();
@@ -1069,16 +1072,19 @@
     if(actions)node.insertAdjacentHTML('beforeend',`<div data-places-empty-actions>${actions}</div>`);
   }
   async function expandDestinationSearch(){
-    if(state.activeViewport||state.status==='loading'||state.searchRadiusMeters===5000)return;
-    clearTimeout(state.filterRefreshTimer);state.searchRadiusMeters=5000;
+    if(state.activeViewport||state.status==='loading')return;
+    const currentRadius=tripGeography(state.trip).searchRadiusMeters;
+    const targetRadius=currentRadius<5000?5000:currentRadius<10000?10000:currentRadius;
+    if(targetRadius===currentRadius)return;
+    clearTimeout(state.filterRefreshTimer);state.searchRadiusMeters=targetRadius;
     const definition=activeSearchDefinition();
     await search({query:definition.query,focus:false,preserveMap:true});
-    if(state.activeViewport||state.searchRadiusMeters!==5000)return;
+    if(state.activeViewport||state.searchRadiusMeters!==targetRadius)return;
     const center=tripGeography(state.trip).location;
-    if(center){const dy=5000/111320,dx=dy/Math.cos(center.latitude*Math.PI/180);state.map?.fitBounds?.([[center.longitude-dx,center.latitude-dy],[center.longitude+dx,center.latitude+dy]],{padding:70,duration:reducedMotion()?0:350});}
+    if(center){const dy=targetRadius/111320,dx=dy/Math.cos(center.latitude*Math.PI/180);state.map?.fitBounds?.([[center.longitude-dx,center.latitude-dy],[center.longitude+dx,center.latitude+dy]],{padding:70,duration:reducedMotion()?0:350});}
   }
   function refreshSearchScope(){
-    const scope=state.root?.querySelector('.lv-places-spatial__scope');if(scope)scope.textContent=state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}${state.searchRadiusMeters===5000?' · einschließlich Umgebung':''}`;
+    const scope=state.root?.querySelector('.lv-places-spatial__scope');if(scope)scope.textContent=state.activeViewport?'Im sichtbaren Kartenausschnitt':`${tripGeography(state.trip).searchRadiusMeters/1000} km um ${destination(state.trip)}${state.searchRadiusMeters>=5000?' · einschließlich Umgebung':''}`;
   }
   function updateFilteredMap(){
     syncFilterSelections();
@@ -1141,6 +1147,7 @@
   }
   function applyCategory(key){
     const def=categoryDefinition(key);
+    state.searchRadiusMeters=0;
     state.filters=emptyFilters();
     state.userQuery='';
     state.filterSection=null;

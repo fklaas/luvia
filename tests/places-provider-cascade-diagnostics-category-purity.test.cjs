@@ -15,6 +15,13 @@ assert.match(gateway,/answered:\[\.\.\.new Set\(answered\)\]/,'gateway distingui
 assert.match(gateway,/if\(excluded\.length\)list=list\.filter/,'gateway removes explicitly excluded provider types before returning or caching results');
 assert.match(gateway,/'nature-scharbeutz'/,'bounded Nature purity health probe exists');
 assert.match(gateway,/'food-scharbeutz'/,'bounded broad Food cascade health probe exists');
+const cuisineHealthBlock=gateway.slice(gateway.indexOf('const CUISINE_HEALTH_TYPES'),gateway.indexOf('const CUISINE_HEALTH_PROBES'));
+const cuisineTypes=[...cuisineHealthBlock.matchAll(/'([a-z_]+_restaurant)'/g)].map(match=>match[1]);
+assert.equal(new Set(cuisineTypes).size,19,'all 19 visible cuisine filters have a bounded health probe');
+for(const type of ['italian_restaurant','german_restaurant','mediterranean_restaurant','greek_restaurant','french_restaurant','spanish_restaurant','indian_restaurant','asian_restaurant','chinese_restaurant','japanese_restaurant','thai_restaurant','vietnamese_restaurant','korean_restaurant','mexican_restaurant','middle_eastern_restaurant','lebanese_restaurant','turkish_restaurant','vegetarian_restaurant','vegan_restaurant'])assert(cuisineTypes.includes(type),`health matrix must include ${type}`);
+assert.match(gateway,/maxResultCount:50,maxDistanceMeters:5000/,'every generated cuisine probe matches the real 50-result 5 km consumer window');
+assert.doesNotMatch(gateway.slice(gateway.indexOf('const CUISINE_HEALTH_PROBES'),gateway.indexOf('const HEALTH_PROBES')),/forceRefresh:true/,'repeated public cuisine diagnostics reuse their five-minute server cache');
+assert.match(gateway,/searchDegraded[\s\S]*30_000/,'degraded positive gateway cohorts are cached only briefly');
 assert.match(additional,/options\.strictTypeFiltering===true\?requested\.filter/,'only an explicitly selected cuisine activates provider cuisine mode');
 assert.match(additional,/holiday park\\b\/.test\(text\)\)return\['lodging','vacation_rental'\]/,'HERE Holiday Park is classified as accommodation instead of nature');
 assert.match(additional,/rv parks\?\\b\/.test\(text\)\)return\['lodging','campground'\]/,'HERE RV Parks are classified as accommodation instead of nature');
@@ -28,6 +35,7 @@ assert.match(placesService,/answered\.length\?'empty':errors\.length\?'unavailab
 assert.match(discovery,/providers\.status==='unavailable'/,'discovery fails only when no provider answered');
 assert.match(discovery,/answered\.size\?'empty':uniqueErrors\.length\?'unavailable'/,'aggregated discovery truth preserves a successful empty provider answer');
 assert.match(spatial,/specializedLocalRadius=.*cuisines.*5000/,'an explicit cuisine filter searches the bounded 5 km Scharbeutz area');
+assert.match(spatial,/currentRadius<5000\?5000:currentRadius<10000\?10000/,'only an explicit empty-state action expands the fixed destination search to 10 km');
 
 const source=fs.readFileSync('core/places/places-domain-contract-core.js','utf8');
 const context={window:{}};
