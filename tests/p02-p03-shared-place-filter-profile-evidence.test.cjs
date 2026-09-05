@@ -50,8 +50,12 @@ assert.equal(vegan.vegetarianOnly,false,'vegan evidence must use the exact provi
 
 vm.runInContext(read('app/places/places-spatial-experience.js'),sandbox,{filename:'places-spatial-experience.js'});
 const spatialSource=read('app/places/places-spatial-experience.js');
-assert.match(spatialSource,/if\(preferredPlaceIds\(state\.results\)\.size\)return false/,'a verified free-provider fit must prevent an unnecessary paid evidence read');
+assert.match(spatialSource,/if\(preferredPlaceIds\(state\.results\)\.size\)\{[^}]*free-provider-hit/,'a verified free-provider fit must prevent an unnecessary paid evidence read');
 assert.match(spatialSource,/providers:\['google','foursquare'\]/,'a missing free-provider fact must use the bounded explicit-evidence path instead of restarting the exhausted automatic cascade');
+for(const attribute of ['fitEvidenceState','fitEvidenceFocus','fitEvidenceProvider','fitEvidenceReturned','fitEvidenceEligible','fitEvidenceBefore','fitEvidenceAfter','fitEvidenceError'])assert.ok(spatialSource.includes(attribute),`visible browser diagnostics must publish ${attribute}`);
+assert.ok(spatialSource.includes("?'skipped-no-profile-focus'"),'a missing Identity dietary focus must be distinguishable from a provider-empty result');
+assert.ok(spatialSource.includes("state:after>before?'ready':'empty'"),'positive and empty evidence reads must be distinguishable');
+assert.ok(spatialSource.includes("state:'error'"),'provider failures must remain distinguishable from a truthful empty result');
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:503}),true);
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({code:'PLACES_ALL_PROVIDERS_FAILED'}),true);
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:400,code:'VALIDATION_FAILED'}),false);
