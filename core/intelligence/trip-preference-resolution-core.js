@@ -262,7 +262,13 @@ function rankCandidate(place,resolution,index=0,input={}){
   // Browsing is not admission approval. A missing stroller fact remains a
   // visible warning, while diet/access requirements still require evidence.
   const requiredFactsKnown=(resolution.hardConstraints||[]).every(constraint=>constraint.kind==='family'||['confirmed','not-applicable'].includes(evidence(place,constraint).state));
-  const preferenceDiscoveryMatch=eligible&&requiredFactsKnown&&matched.some(tag=>Number(resolution.weights?.[tag])>0);
+  // A verified hard profile requirement is itself a positive personal match.
+  // Otherwise a traveler whose only stored preference is vegetarian/vegan or
+  // accessibility can receive an empty `Passend` cohort even when the provider
+  // explicitly confirms that requirement. Non-applicable constraints do not
+  // create a match, and every required applicable fact still has to be known.
+  const verifiedRequirementMatch=fit.hardConstraints.applicable>0&&fit.hardConstraints.confirmed===fit.hardConstraints.applicable&&!fit.hardConstraints.conflict;
+  const preferenceDiscoveryMatch=eligible&&requiredFactsKnown&&(verifiedRequirementMatch||matched.some(tag=>Number(resolution.weights?.[tag])>0));
   return{place:{...clone(place),preferenceDiscoveryMatch,preferenceScore:fit.score??delta,preferenceFit:fit,preferenceScoreDelta:delta,preferenceReasons:[...new Set(reasons)].slice(0,5),preferenceWarnings:[...new Set(warnings)].slice(0,4),preferenceConstraintState:eligible?(warnings.length?'verify':'satisfied'):'blocked',preferenceMatchedSignals:[...new Set(matched)],preferenceResolutionVersion:VERSION},eligible,index};
 }
 function rankPlaces(input={}){

@@ -16,6 +16,10 @@ for(const name of ['Kleines Steakhouse','Steakhaus','Grillhaus','Kebab Grill']){
  assert.equal(result.preferenceDiscoveryMatch,false,`${name}: generic provider diet options cannot override a meat-led main offer`);
 }
 assert.equal(ranked({...food,features:{servesVegetarianFood:false}}),undefined,'explicit conflicts remain blocked');
+const dietaryOnly=core.rankPlaces({profilePreferences:{dietaryPreferences:['vegetarian']},candidates:[food]}).places[0];
+assert.equal(dietaryOnly.preferenceDiscoveryMatch,true,'a verified dietary requirement is a positive profile match even without soft interest weights');
+const dietaryOnlySteak=core.rankPlaces({profilePreferences:{dietaryPreferences:['vegetarian']},candidates:[{...food,name:"Erdmann's Kleines Steakhaus",features:{servesVegetarianFood:true}}]}).places[0];
+assert.equal(dietaryOnlySteak.preferenceDiscoveryMatch,false,'a meat-led venue never becomes passend from a generic vegetarian option flag');
 const access=core.rankPlaces({profilePreferences:{accessibilityNeeds:['wheelchair'],travelInterests:['culinary']},candidates:[{...food,types:['restaurant','wheelchair_limited']}]}).places[0];
 assert.equal(access.preferenceDiscoveryMatch,false,'limited wheelchair metadata is not verified accessibility');
 let calls=0,full=false,empty=false;

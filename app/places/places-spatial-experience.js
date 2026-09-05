@@ -113,7 +113,7 @@
 
   const state={
     story:null,root:null,trip:null,surface:'places',searchRadiusMeters:0,activeViewport:null,categories:[],category:'food',query:'Restaurant',userQuery:'',results:[],visibleLimit:MAX_RESULTS,
-    status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
+    status:'loading',error:null,readNotice:null,offline:false,selectedId:null,images:new Map(),imageInflight:new Map(),photoWarmToken:0,saved:new Map(),map:null,mapMarkers:new Map(),filters:emptyFilters(),sort:'fit',fitOnly:false,filterOpen:false,filterSection:null,mapPanel:null,history:[],
     requestToken:0,lifecycleToken:0,renderToken:0,networkUnsubscribe:null,preferenceHandlers:[],preferenceRefreshTimer:0,filterRefreshTimer:0,planningHandle:null,mapProjection:null,lastSearchAt:null,lastSearchTrace:null,preferenceResolution:null,aiDecision:null,planningDraft:null,onRootClick:null,categoryCohorts:new Map()
   };
 
@@ -311,7 +311,7 @@
     const contract=placesContract();
     if(!contract?.reads?.getCard)return items;
     const enriched=[...items];let cursor=0;
-    const worker=async()=>{while(cursor<items.length){const index=cursor++,place=items[index],id=providerId(place);try{const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720});if(card?.image)state.images.set(id,card.image);enriched[index]={...place,...(card?.place||{}),image:card?.image||place.image||null}}catch{enriched[index]=place}}};
+    const worker=async()=>{while(cursor<items.length){const index=cursor++,place=items[index],id=providerId(place);try{const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});if(card?.image)state.images.set(id,card.image);enriched[index]={...place,...(card?.place||{}),image:card?.image||place.image||null}}catch{enriched[index]=place}}};
     await Promise.all([worker(),worker(),worker()]);
     return enriched;
   }
@@ -414,10 +414,12 @@
       saveCached();
       const keepMap=Boolean(preserveMap&&state.mapProjection)||Boolean(state.mapProjection);
       if(keepMap)updateFilteredMap();else render();
-      // Map-first: do not fan out deep multi-query discovery or bulk detail/photo
-      // enrichment after first useful pins. That path was the main 429 + remount lag.
+      // Map-first: do not fan out deep multi-query discovery. Warm only the first
+      // three exact entities after useful pins exist; the shared card cache and
+      // gateway budget policy coalesce them and stop provider quota bursts.
       const selected=findPlace(state.selectedId);
       if(selected)hydrateMapPreview(selected);
+      warmInitialPhotos(token);
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
@@ -610,20 +612,36 @@
     preview.innerHTML=mapPreviewMarkup(place);
     preview.hidden=!place;
   }
-  async function hydrateMapPreview(place){
+  async function hydratePlaceImage(place,{refreshSelected=true}={}){
     const id=providerId(place),contract=placesContract();
-    if(!id||state.images.has(id)||!contract?.reads?.getCard)return;
+    if(!id||state.images.has(id)||!contract?.reads?.getCard)return state.images.get(id)||null;
+    if(state.imageInflight.has(id))return state.imageInflight.get(id);
     // Photo reads stay on-demand for the selected immutable provider identity.
     // The gateway may enrich only an exact same-name, same-coordinate match.
-    try{
+    const task=(async()=>{try{
       const card=await contract.reads.getCard(id,{maxWidthPx:960,maxHeightPx:720,source:place});
-      if(!card?.image)return;
+      if(!card?.image)return null;
       const nextPlace={...place,...(card.place||{}),image:card.image};
       if(!clean(nextPlace.name)||/^(unbenannter ort|unbekannter ort)$/i.test(clean(nextPlace.name)))nextPlace.name=place.name;
       state.images.set(id,card.image);
       state.results=state.results.map(row=>providerId(row)===id?nextPlace:row);
-      if(state.selectedId===id)refreshMapPreview();
-    }catch{}
+      if(refreshSelected&&state.selectedId===id)refreshMapPreview();
+      return card.image;
+    }catch{return null}finally{state.imageInflight.delete(id)}})();
+    state.imageInflight.set(id,task);
+    return task;
+  }
+  async function hydrateMapPreview(place){return hydratePlaceImage(place,{refreshSelected:true})}
+  function warmInitialPhotos(searchToken=state.requestToken){
+    const warmToken=++state.photoWarmToken;
+    const rows=filteredResults().filter(place=>providerId(place)&&!state.images.has(providerId(place))).slice(0,3);
+    const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:900}):setTimeout(callback,250);
+    schedule(async()=>{
+      for(const place of rows){
+        if(warmToken!==state.photoWarmToken||searchToken!==state.requestToken||!state.root?.isConnected)return;
+        await hydratePlaceImage(place,{refreshSelected:true});
+      }
+    });
   }
   function refreshMapBrowser(){
     const browser=state.root?.querySelector('[data-places-map-browser]');if(!browser)return;
@@ -1143,7 +1161,11 @@
   }
   function applyFilterChange({network=true}={}){
     updateFilteredMap();
-    if(network)scheduleFilterSearch();
+    if(network){
+      const selected=selectedFilterTypes().map(filterTypeLabel).filter(Boolean).slice(0,2).join(' · '),label=selected||categoryDefinition().label;
+      projectionRefreshState(state.root?.querySelector('[data-places-map]'),true,`${label} wird aus den Ortsquellen geladen.`);
+      scheduleFilterSearch();
+    }
   }
   function applyCategory(key){
     const def=categoryDefinition(key);
@@ -1215,6 +1237,9 @@
     root.querySelectorAll('[data-places-map-panel-close]').forEach(button=>button.addEventListener('click',()=>setMapPanel(null)));
     root.querySelector('[data-place-map-shell] [data-places-map]')?.addEventListener('click',event=>{if(event.target.closest?.('.lv-places-spatial__map-panels,.lv-places-spatial__map-tools,.lv-places-spatial__map-preview'))return;if(state.mapPanel)setMapPanel(null)});
     root.querySelectorAll('[data-places-fit-mode]').forEach(button=>button.addEventListener('click',()=>{
+      // Re-evaluate the retained provider cohort against the latest Identity
+      // snapshot. Toggling the view must never trigger a new provider search.
+      state.results=decoratePreferences(state.results,state.trip);
       state.fitOnly=button.dataset.placesFitMode==='fit';
       root.querySelectorAll('[data-places-fit-mode]').forEach(item=>item.setAttribute('aria-pressed',String((item.dataset.placesFitMode==='fit')===state.fitOnly)));
       updateFilteredMap();
@@ -1253,7 +1278,7 @@
     unmount();
     const lifecycleToken=state.lifecycleToken;
     state.surface=surface==='accommodation'?'accommodation':'places';state.category=state.surface==='accommodation'?'accommodation':'food';state.query=state.surface==='accommodation'?'Unterkünfte':'Restaurant';
-    state.root=root;state.trip=trip;state.lastSearchAt=null;state.searchRadiusMeters=0;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
+    state.root=root;state.trip=trip;state.lastSearchAt=null;state.searchRadiusMeters=0;state.activeViewport=null;state.visibleLimit=MAX_RESULTS;state.status='loading';state.error=null;state.filters=emptyFilters();state.sort='fit';state.fitOnly=false;state.filterOpen=false;state.filterSection=null;state.mapPanel=null;state.userQuery='';state.history=[];state.images.clear();state.imageInflight.clear();state.photoWarmToken++;state.saved.clear();state.preferenceResolution=null;state.aiDecision=null;state.planningDraft=state.surface==='places'?(preferenceContext()?.consumeDraft?.()||null):null;
     if(state.planningDraft?.query){state.userQuery=clean(state.planningDraft.query);state.query=state.userQuery}
     const contract=placesContract();
     if(!contract?.reads?.categories)throw new Error('places.v1 ist nicht verfügbar.');
@@ -1270,6 +1295,7 @@
       else if(wasOffline)search({focus:false});
     })||null;
     render();
+    if(restored){const selected=findPlace(state.selectedId);if(selected)hydrateMapPreview(selected);warmInitialPhotos(state.requestToken)}
     bindPreferenceRefresh();
     loadSaved(lifecycleToken).then(changed=>{if(changed&&lifecycleToken===state.lifecycleToken&&state.root===root)updateFilteredMap()});
     await Promise.resolve();
@@ -1289,6 +1315,7 @@
     state.lifecycleToken++;
     state.renderToken++;
     state.requestToken++;
+    state.photoWarmToken++;
     destroyMap();
     state.networkUnsubscribe?.();state.networkUnsubscribe=null;
     clearTimeout(state.preferenceRefreshTimer);state.preferenceRefreshTimer=0;
@@ -1299,7 +1326,7 @@
     if(state.root&&state.onRootClick)state.root.removeEventListener?.('click',state.onRootClick);
     state.onRootClick=null;
     if(state.root)state.root.innerHTML='';
-    state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.saved.clear();
+    state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.imageInflight.clear();state.saved.clear();
   }
   function diagnostics(){return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
