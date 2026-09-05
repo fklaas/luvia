@@ -64,11 +64,11 @@ Sichtbares Artefakt: `C:\Users\fabia\Documents\ChatGPT\Luvia\outputs\release71-v
 - Runtime-Loader-, Release-, Start-, Visual- und Human-/AI-Paritätsgates: **PASS**
 - Human-/AI-Register: **330** semantische Aktionen, **24** Runtime-Aktionen, **984** aktive Quellmarker
 - Öffentliche Byte-Gleichheit zwischen sauberem Archiv, Stable und Immutable: **30/30 PASS**
-- Gateway-Livehealth: **4.64.12**, App **13.82.168.71**, Core **4.82.193**, Status **ok**
+- Gateway-Livehealth: **4.64.12**, App **13.82.168.72**, Core **4.82.194**, Status **ok**
 
 ## Releasebeleg
 
-- App **13.82.168.71**, Core **4.82.193**
+- App **13.82.168.72**, Core **4.82.194**
 - Runtime-Commit **ad0a5c3c47daf53dc8f82919204841864d3c6325**
 - Gateway **v186 ACTIVE**, Function-ID **ae8f0801-2325-4125-b1a9-4c57f81770ce**
 - Integration Worker **e56752e2-78a8-41ba-b488-1e2d0f0e5a8e**, 100 Prozent Traffic
@@ -84,7 +84,7 @@ Sichtbares Artefakt: `C:\Users\fabia\Documents\ChatGPT\Luvia\outputs\release71-v
 
 Der unmittelbare App-Rückfall ist **13.82.168.70**:
 
-`npx wrangler versions deploy f51fffd3-7d03-4b1a-bfbc-93c88d6f9f1c@100 --name integration-luvia --message "Rollback App 13.82.168.71 to 13.82.168.70" --yes`
+`npx wrangler versions deploy f51fffd3-7d03-4b1a-bfbc-93c88d6f9f1c@100 --name integration-luvia --message "Rollback App 13.82.168.72 to 13.82.168.70" --yes`
 
 Der unmittelbare Gateway-Rückfall ist **v185**. Main bleibt auf Commit **c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba**; Production erhielt keinen Traffic- oder Codewechsel.
 

@@ -40,7 +40,7 @@ assert.match(placesCss,/\.lv-places-spatial__map-tools/);
 assert.doesNotMatch(places,/lv-places-spatial__map-toolbar/,'fit, count, arrows and discovery icons must remain in one shared map bar');
 assert.doesNotMatch(places,/lv-places-spatial__map-story/,'the large informational map box must be removed from the productive Places DOM');
 assert.match(places,/class="lv-places-spatial__map-preview"/,'the map must expose one full-width selected-pin preview');
-assert.match(places,/contract\.reads\.getCard\(id,\{maxWidthPx:960,maxHeightPx:720\}\)/,'the selected-pin preview must hydrate its exact provider card photo');
+assert.match(places,/contract\.reads\.getCard\(id,\{maxWidthPx:960,maxHeightPx:720,source:place\}\)/,'the selected-pin preview and bounded warmup must hydrate only their exact provider card photo');
 assert.match(places,/select\(providerId\(place\),false,false\);rememberViewed\(place\)/,'arrow navigation must stay locked to the current pin set instead of moving the viewport');
 assert.match(placesCss,/\.lv-places-spatial__map-preview/);
 
