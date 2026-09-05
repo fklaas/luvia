@@ -751,6 +751,8 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-hotel-pin-history': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjs-detail-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
   'data-lvjs-details': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-lvjs-map': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lvjs-map-shell': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjs-navigate': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
   'data-lvjs-action-state': ['Buchung & Anbieterkommunikation', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjs-staged-actions': ['Navigation & Oberfläche', 'STATUS/EINGABE/PROJEKTION'],
@@ -798,7 +800,7 @@ function materializeSourceAudit() {
         : 'Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert.',
     };
   });
-  const audit = { ...previous, version: '1.0.4', markerCount: markers.length, markers };
+  const audit = { ...previous, version: '1.0.5', markerCount: markers.length, markers };
   fs.writeFileSync(SOURCE_AUDIT_PATH, `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
   console.log(`WROTE ${path.relative(ROOT, SOURCE_AUDIT_PATH).replace(/\\/g, '/')} (${markers.length} deliberate markers)`);
 }
@@ -853,8 +855,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 981);
-  assert.equal(sourceAudit.markerCount, 981);
+  assert.equal(sourceAudit.markers.length, 983);
+  assert.equal(sourceAudit.markerCount, 983);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

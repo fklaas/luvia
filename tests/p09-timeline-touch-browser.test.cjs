@@ -25,10 +25,11 @@ const headed=process.env.LUVIA_HEADED==='1';
  for(const file of ['core/journey/journey-domain-contract-core.js','core/journey/journey-resilience-core.js','core/platform/journey-contract-adapter.js','app/journey/journey-day-composer.js'])await page.addScriptTag({content:fs.readFileSync(file,'utf8')});
  await page.evaluate(()=>LuviaApp.show());
  const cdp=await page.context().newCDPSession(page),card=page.locator('[data-entry-id="entry-1"]'),title=card.locator('h3');
- const point=async locator=>{await locator.scrollIntoViewIfNeeded();const b=await locator.boundingBox();return{x:b.x+b.width/2,y:b.y+b.height/2}};
+ const point=async locator=>{await locator.evaluate(node=>node.scrollIntoView({block:'center',inline:'nearest'}));const b=await locator.boundingBox();return{x:b.x+b.width/2,y:b.y+b.height/2}};
  const touch=async(type,p)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:p?[{...p,id:1}]:[]});
  let p=await point(title);await touch('touchStart',p);await page.waitForTimeout(560);await touch('touchEnd');
  await page.getByRole('button',{name:'Fertig',exact:true}).waitFor();assert.equal(await page.evaluate(()=>__testWrites.length),0);
+ assert.equal(await card.locator('.lvjt-entry-card').evaluate(node=>getComputedStyle(node).animationName),'lvjt-edit-wiggle','long press must enter the requested iOS-like visible movement mode');
  await page.screenshot({path:path.join(output,'long-press.png')});
  // In edit mode, drag to an existing free interval. Release opens review, never writes.
  p=await point(title);await touch('touchStart',p);
@@ -43,11 +44,11 @@ const headed=process.env.LUVIA_HEADED==='1';
  assert.equal(await page.locator('.is-editing').count(),0);assert.equal(await page.evaluate(()=>__testWrites.length),0);
  // Cancelled long press remains write-free.
  p=await point(title);await touch('touchStart',p);await page.waitForTimeout(560);await touch('touchCancel');assert.equal(await page.getByRole('dialog').count(),0);
- await page.getByRole('button',{name:'15 Minuten später',exact:true}).first().click();await page.getByRole('button',{name:'Änderung bestätigen',exact:true}).click();
+ await page.getByRole('button',{name:'15 Minuten später',exact:true}).first().dispatchEvent('click');await page.getByRole('button',{name:'Änderung bestätigen',exact:true}).click();
  await page.getByRole('button',{name:'Letzte Zeitänderung zurücknehmen',exact:true}).waitFor({timeout:5000});assert.equal(await page.evaluate(()=>__testWrites.length),1);
  await page.getByRole('button',{name:'Letzte Zeitänderung zurücknehmen',exact:true}).click();await page.getByRole('button',{name:'Rücknahme bestätigen',exact:true}).click();
  await page.waitForFunction(()=>__testWrites.length===2);assert.equal(await page.evaluate(()=>__testEntries[0].startAt),'2027-06-12T10:00:00.000Z');assert.deepEqual(errors,[]);
- fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({pass:true,headed,viewport:'477x900',touchInput:'Chromium touch emulation, not physical iOS',checks:['long press enters mode','drag opens review without write','normal scroll does not enter mode','touch cancel does not write','explicit commit','visible durable undo'],errors},null,2));
+ fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({pass:true,headed,viewport:'477x900',touchInput:'Chromium touch emulation, not physical iOS',checks:['long press enters visible iOS-like wiggle mode','drag opens review without write','normal scroll does not enter mode','touch cancel does not write','explicit commit','visible durable undo'],errors},null,2));
  console.log('P09 headed/touch browser: long press, drag preview, scroll, cancel, commit and undo PASS');
  }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});

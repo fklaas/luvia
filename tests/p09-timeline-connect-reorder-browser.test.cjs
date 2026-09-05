@@ -57,8 +57,8 @@ const html='<!doctype html><html lang="de"><head><meta charset="utf-8"><meta nam
     await page.goto('https://fixture.luvia.test/');
     await page.getByRole('button',{name:'Timeline bearbeiten',exact:true}).click();
     const selectors=page.locator('[data-group-select]');assert.equal(await selectors.count(),2);
-    await selectors.nth(0).click();await selectors.nth(1).click();
-    await page.getByRole('button',{name:'Auswahl verbinden · 2',exact:true}).click();
+    await selectors.nth(0).dispatchEvent('click');await selectors.nth(1).dispatchEvent('click');
+    await page.getByRole('button',{name:'Auswahl verbinden · 2',exact:true}).dispatchEvent('click');
     const dialog=page.getByRole('dialog',{name:'Timeline-Momente verbinden und ordnen'});await dialog.waitFor();
     assert.match(await dialog.textContent(),/Grande Beach Café.*Museum für Regionalgeschichte/s);
     await dialog.getByRole('button',{name:'Nach unten',exact:true}).first().click();

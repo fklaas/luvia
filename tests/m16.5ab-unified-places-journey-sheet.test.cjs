@@ -90,6 +90,12 @@ assert.match(sheet,/data-lvjs-heading/,'the visible result count must be patched
 assert.match(sheet,/actualCount=result\.choices\.length/,'the sheet may not claim a desired count that the provider did not return');
 assert.match(sheet,/Alle Richtungen entdecken/,'a time-window shortlist must retain a path into the complete Places spectrum');
 assert.match(sheet,/luvia:places-discovery-requested/,'the spectrum bridge must expose its complete category intent to the Places owner');
+assert.match(sheet,/handleMaps=new WeakMap/,'the shared Timeline map projection must have a disposable consumer lifecycle');
+assert.match(sheet,/spatial\.mountProjection\(container,result\.choices/,'Timeline suggestions must reuse the Places v1 projection instead of implementing another map');
+assert.match(sheet,/Timeline-Vorschläge · Places v1/,'the visible Timeline map must disclose its owner projection');
+assert.match(sheet,/Luvia zeigt diesen sicheren Teilstand sofort und sucht im Hintergrund weiter/,'one or two provider-backed suggestions must remain visible while enrichment continues');
+assert.doesNotMatch(sheet,/JOURNEY_SUGGESTIONS_INCOMPLETE/,'a valid partial Places result must not collapse into a false total failure');
+assert.match(composerCss,/\.lvjs-map-shell/,'the shared map projection must have a bounded visible Timeline surface');
 assert.match(sheet,/const selectedIds=new Set/);
 assert.match(sheet,/scheduleFor\(chosen,plans,result\.input\)/);
 assert.match(sheet,/transferBetween\(previous,place,input,'selection'\)/);

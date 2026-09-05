@@ -77,7 +77,8 @@ assert.match(journeyComposer,/LuviaJourneySuggestions\?\.open/,'Timeline gaps mu
 assert.doesNotMatch(journeyComposer,/show\?\.\('places'/,'Timeline may no longer redirect a gap to the raw Places search');
 assert.match(suggestionSheet,/reads\?\.recommend|reads\.recommend/,'the suggestion sheet must ask Places for real provider candidates');
 for(const category of ['nature','culture','activities','food','sightseeing','photo','shopping','nightlife','accommodation'])assert.match(suggestionSheet,new RegExp(`${category}:`),`the shared suggestion owner must search the ${category} category instead of collapsing everything into restaurants`);
-assert.match(suggestionSheet,/if\(unique\.length<Math\.min\(3,count\)\)/,'a sheet promising multiple choices must reject an incomplete one-card result');
+assert.match(suggestionSheet,/const partialWarning=unique\.length<Math\.min\(3,count\)/,'a partial provider-backed result must be identified without being discarded');
+assert.match(suggestionSheet,/Luvia zeigt diesen sicheren Teilstand sofort und sucht im Hintergrund weiter/,'a partial provider-backed result must remain visible while enrichment continues');
 assert.match(suggestionSheet,/function desiredCount\(input\)/,'the number of suggestions must follow the actual free-day capacity');
 assert.match(suggestionSheet,/if\(entries===0\)return Math\.min\(6,paceMaximum\)/,'an empty day must expose a broad but bounded six-category result instead of the old hard-coded four-card deck');
 assert.match(suggestionSheet,/planningPolicy:\{\.\.\.\(dayGuidance\.policy\|\|\{\}\)/,'the suggestion sheet must receive the derived travel-pace planning policy');

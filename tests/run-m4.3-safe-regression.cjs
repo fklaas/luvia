@@ -503,6 +503,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-unified-places-journey-sheet.test.cjs'
   },
   {
+    category: 'M16.5 / Journey Suggestion Partial Continuity',
+    test: 'tests/journey-suggestion-partial-continuity.test.cjs'
+  },
+  {
     category: 'M16.5 / Living Compass AI Owner Orchestration',
     test: 'tests/m16.5ab-living-compass-ai-owner-orchestration.test.cjs'
   },

@@ -1,10 +1,11 @@
 (()=>{
 'use strict';
 
-const VERSION='1.24.1-budget-cascade-default';
+const VERSION='1.25.0-shared-map-partial-continuity';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
+const handleMaps=new WeakMap();
 let activeHandle=null;
 let proposalUnsubscribe=null;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -380,17 +381,16 @@ async function load(rawInput={},options={}){
   }
    const count=desiredCount(input),unique=[],seen=new Set();
    for(const row of rows){const id=providerId(row);if(!id||seen.has(id))continue;seen.add(id);unique.push(row);if(unique.length>=18)break}
-   if(unique.length<Math.min(3,count)){
-    const failed=responses.find(item=>item.status==='rejected');
-    throw Object.assign(new Error(`Luvia konnte gerade nur ${unique.length} von 3 fachlich belegbaren Möglichkeiten zusammenstellen. Bitte versucht es erneut.`),{code:failed?.reason?.code||'JOURNEY_SUGGESTIONS_INCOMPLETE'});
-  }
+   const partialWarning=unique.length<Math.min(3,count)
+     ?`Places hat ${unique.length===1?'eine belegte Möglichkeit':`${unique.length} belegte Möglichkeiten`} geliefert. Luvia zeigt diesen sicheren Teilstand sofort und sucht im Hintergrund weiter.`
+     :'';
    const firstCandidates=fast?diversify(unique,Math.min(unique.length,Math.max(count,6))):unique;
    const enriched=fast?await within(Promise.all(firstCandidates.map(enrich)),1600,firstCandidates):await Promise.all(unique.map(enrich));
    const personallyRanked=await rankForTravelers(enriched,input.groupContext,input,{useAI:!fast});
    const choices=diversify(personallyRanked,count);
   const ai={planning:successful.some(item=>item?.plan?.ai&&!item.plan.ai.fallback),ranking:successful.some(item=>item?.aiMeta?.ranking?.used),fallback:successful.every(item=>item?.aiMeta?.ranking?.fallback===true||item?.plan?.ai?.fallback===true)};
    const digitalTwin=contracts().journey?.reads?.destinationTwin?.({generatedAt:new Date().toISOString(),places:choices,entries:input.day?.entries||[],weather:input.weather||null})||null;
-   const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:'',attempts:responses.length,successfulAttempts:successful.length};
+   const result={input,choices,ai,digitalTwin,count,loadedAt:Date.now(),cached:false,stale:false,phase:fast?'provider-facts':'ai-enriched',warning:partialWarning,attempts:responses.length,successfulAttempts:successful.length};
   cache.set(key,result);return result;
 }
 function reasonFor(place,input){
@@ -471,7 +471,24 @@ function shellMarkup(input){
   const title=hotelMap?`${count} passende Unterkünfte gefunden.`:placesSearch?`${count} ${count===1?'passender Ort':'passende Orte'} gefunden.`:'Möglichkeiten für euren freien Moment.';
   const copy=hotelMap?'Wischt durch die belegten Hotels. Ein Tipp zeigt Verfügbarkeit, Buchungsweg und Planung für genau diese Unterkunft.':placesSearch?'Wischt seitlich durch die belegten Treffer. Ein Tipp öffnet Termin und nächste Aktion direkt in der Karte.':'Places belegt die Fakten. Luvia gewichtet Profile, Reisegefühl und euren Tag. Ein Tipp wählt; noch wird nichts verändert.';
   const navigation=mapResults&&input.navigation?`<nav class="lvjs-pin-navigation" aria-label="Schnellnavigation zwischen Karten-Pins"><button type="button" data-lvjs-navigate="previous" aria-label="Vorheriger Pin">←</button><span><b>${input.navigation.index+1}</b> / ${input.navigation.count}</span><button type="button" data-lvjs-navigate="next" aria-label="Nächster Pin">→</button></nav>`:'';
-  return`<header class="lvjs-header"><div><span>${hotelMap?'Hotels':placesSearch?'Places entdecken':'Luvia'} · ${esc(displayDate(input.targetDate))}</span><h2 data-lvjs-heading>${esc(title)}</h2><p>${esc(copy)}</p></div>${navigation}<button type="button" data-lvjs-close aria-label="${mapResults?'Zurück zur Karte':'Vorschläge schließen'}">×</button></header><div class="lvjs-status" data-lvjs-status role="status" aria-live="polite"><span class="lvjs-loader" aria-hidden="true"></span><div><strong>Luvia prüft ${esc(destination)} …</strong><small>Orte werden gesucht, fachlich gefiltert und für alle Reisenden belegbar gewichtet.</small></div></div><div class="lvjs-results" data-lvjs-results hidden></div><footer class="lvjs-footer"><span data-lvjs-ai-state>Places belegt · Luvia ordnet · ihr bestätigt</span><button type="button" class="lvjs-footer-plan" data-lvjs-plan-selected hidden>Zur Timeline hinzufügen</button><button type="button" data-lvjs-spectrum>Alle Richtungen entdecken</button><button type="button" data-lvjs-retry hidden>Erneut prüfen</button></footer>`;
+  return`<header class="lvjs-header"><div><span>${hotelMap?'Hotels':placesSearch?'Places entdecken':'Luvia'} · ${esc(displayDate(input.targetDate))}</span><h2 data-lvjs-heading>${esc(title)}</h2><p>${esc(copy)}</p></div>${navigation}<button type="button" data-lvjs-close aria-label="${mapResults?'Zurück zur Karte':'Vorschläge schließen'}">×</button></header><div class="lvjs-status" data-lvjs-status role="status" aria-live="polite"><span class="lvjs-loader" aria-hidden="true"></span><div><strong>Luvia prüft ${esc(destination)} …</strong><small>Orte werden gesucht, fachlich gefiltert und für alle Reisenden belegbar gewichtet.</small></div></div><section class="lvjs-map-shell" data-lvjs-map-shell data-place-map-shell ${mapResults?'hidden':''}><div class="lvjs-map-projection" data-lvjs-map aria-label="Vorschlagskarte für den freien Moment"></div><p class="lvjs-map-state" data-place-map-status role="status" aria-live="polite"><i aria-hidden="true"></i><span>Belegte Vorschläge werden auf der gemeinsamen Places-Karte eingeordnet.</span></p></section><div class="lvjs-results" data-lvjs-results hidden></div><footer class="lvjs-footer"><span data-lvjs-ai-state>Places belegt · Luvia ordnet · ihr bestätigt</span><button type="button" class="lvjs-footer-plan" data-lvjs-plan-selected hidden>Zur Timeline hinzufügen</button><button type="button" data-lvjs-spectrum>Alle Richtungen entdecken</button><button type="button" data-lvjs-retry hidden>Erneut prüfen</button></footer>`;
+}
+
+function releaseSuggestionMap(handle){
+  const projection=handleMaps.get(handle);handleMaps.delete(handle);
+  try{projection?.destroy?.()}catch{}
+}
+function mountSuggestionMap(handle,result,onSelect){
+  releaseSuggestionMap(handle);
+  const root=handle?.overlay,mapShell=root?.querySelector?.('[data-lvjs-map-shell]'),container=root?.querySelector?.('[data-lvjs-map]');
+  const mapResults=result.input.source==='places-search'||result.input.source==='hotel-map';
+  if(mapResults||!mapShell||!container)return null;
+  mapShell.hidden=false;
+  const spatial=globalThis.LuviaPlacesSpatialExperience,geography=destinationContext(result.input.trip),selectedId=providerId(result.choices[0]);
+  if(!spatial?.mountProjection){mapShell.dataset.state='unavailable';const copy=mapShell.querySelector('[data-place-map-status] span');if(copy)copy.textContent='Die gemeinsame Places-Karte ist gerade noch nicht bereit; die belegte Vorschlagsliste bleibt verfügbar.';return null}
+  const projection=spatial.mountProjection(container,result.choices,{selectedId,initialCenter:geography.location,label:'Timeline-Vorschläge · Places v1',onSelect:id=>onSelect?.(id)});
+  handleMaps.set(handle,projection);
+  return projection;
 }
 async function openBooking(place,button,form,handle,result,viewState,actionState){
   const booking=contracts().booking;
@@ -659,6 +676,9 @@ function paintResults(handle,result,selectedId='',restoredState=null){
   handleState.set(handle,stateSnapshot);
   const ensurePlan=place=>{const id=providerId(place);if(!plans.has(id))plans.set(id,initialPlan(place,result.input));return plans.get(id)};
   const schedulerFor=id=>[...results.querySelectorAll('[data-lvjs-scheduler]')].find(node=>node.dataset.lvjsScheduler===id)||null;
+  const focusMapPin=id=>root.querySelectorAll('[data-lvjs-map-shell] [data-provider-place-id]').forEach(marker=>{const selected=marker.dataset.providerPlaceId===id;marker.classList.toggle('is-selected',selected);marker.setAttribute('aria-pressed',String(selected));marker.closest('.lv-places-spatial__marker-anchor')?.classList.toggle('is-selected',selected)});
+  const focusSuggestion=id=>{const card=results.querySelector(`[data-suggestion-choice="${CSS.escape(id)}"]`);if(!card)return;results.querySelectorAll('[data-suggestion-choice]').forEach(item=>item.classList.toggle('is-current',item===card));focusMapPin(id);card.scrollIntoView?.({behavior:globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches?'auto':'smooth',block:'nearest',inline:'center'});result.input.onSelectionChange?.(id,result.choices.find(place=>providerId(place)===id))};
+  mountSuggestionMap(handle,result,focusSuggestion);
   const groupDecision=Number(result.input.groupContext?.totalTravelers||result.input.groupContext?.travelers?.length||1)>1;
   const sync=()=>{
     const chosen=selectedPlaces();chosen.forEach(ensurePlan);const schedule=scheduleFor(chosen,plans,result.input),byId=new Map(schedule.map(item=>[providerId(item.place),item]));
@@ -723,13 +743,15 @@ function paintResults(handle,result,selectedId='',restoredState=null){
     if(event.target.closest?.('details,.lvjs-choice-scheduler'))return;const button=event.target.closest?.('[data-suggestion-select]');if(!button)return;const id=button.dataset.suggestionSelect,place=result.choices.find(item=>providerId(item)===id);if(selectedIds.has(id)){selectedIds.delete(id)}else{selectedIds.add(id);ensurePlan(place);result.input.onSelectionChange?.(id,place)}sync();queueMicrotask(()=>schedulerFor(id)?.querySelector('[name=date]')?.focus())
   },{signal:eventController.signal});
   results.addEventListener('input',event=>{const scheduler=event.target.closest?.('[data-lvjs-scheduler]');if(!scheduler)return;const id=scheduler.dataset.lvjsScheduler,plan=plans.get(id)||initialPlan(result.choices.find(place=>providerId(place)===id),result.input);plan.date=dateValue(scheduler.querySelector('[name=date]').value);plan.time=clean(scheduler.querySelector('[name=time]').value)||timeValue(result.input.startAt);plan.duration=Number(scheduler.querySelector('[name=duration]').value)||durationFor(result.choices.find(place=>providerId(place)===id));plan.manual=true;plans.set(id,plan);sync()},{signal:eventController.signal});
-  let scrollFrame=0;results.addEventListener('scroll',()=>{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(()=>{const cards=[...results.querySelectorAll('.lvjs-choice')];if(!cards.length)return;const nearest=cards.reduce((best,card)=>Math.abs(card.offsetLeft-results.scrollLeft)<Math.abs(best.offsetLeft-results.scrollLeft)?card:best,cards[0]);cards.forEach(card=>card.classList.toggle('is-current',card===nearest));const id=nearest.dataset.suggestionChoice,place=result.choices.find(item=>providerId(item)===id);result.input.onSelectionChange?.(id,place)})},{signal:eventController.signal,passive:true});
+  let scrollFrame=0;results.addEventListener('scroll',()=>{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(()=>{const cards=[...results.querySelectorAll('.lvjs-choice')];if(!cards.length)return;const nearest=cards.reduce((best,card)=>Math.abs(card.offsetLeft-results.scrollLeft)<Math.abs(best.offsetLeft-results.scrollLeft)?card:best,cards[0]);cards.forEach(card=>card.classList.toggle('is-current',card===nearest));const id=nearest.dataset.suggestionChoice,place=result.choices.find(item=>providerId(item)===id);focusMapPin(id);result.input.onSelectionChange?.(id,place)})},{signal:eventController.signal,passive:true});
   sync();
 }
 function patchEnrichedResults(handle,currentResult,enrichedResult){
   if(!handle?.overlay?.isConnected)return currentResult;
-  const results=handle.overlay.querySelector('[data-lvjs-results]'),footer=handle.overlay.querySelector('[data-lvjs-ai-state]');
+  const results=handle.overlay.querySelector('[data-lvjs-results]'),footer=handle.overlay.querySelector('[data-lvjs-ai-state]'),status=handle.overlay.querySelector('[data-lvjs-status]');
   if(!results)return currentResult;
+  const currentIds=(currentResult.choices||[]).map(providerId),nextIds=(enrichedResult.choices||[]).map(providerId),changed=currentIds.length!==nextIds.length||currentIds.some((id,index)=>id!==nextIds[index]);
+  if(changed){const restored=handleState.get(handle)?.()||null,selected=restored?.selectedIds?.[0]||nextIds[0]||'';paintResults(handle,enrichedResult,selected,restored);return enrichedResult}
   const byId=new Map((enrichedResult.choices||[]).map(place=>[providerId(place),place]));
   currentResult.choices=currentResult.choices.map(place=>byId.has(providerId(place))?{...place,...byId.get(providerId(place))}:place);
   currentResult.ai=enrichedResult.ai||currentResult.ai;
@@ -750,6 +772,8 @@ function patchEnrichedResults(handle,currentResult,enrichedResult){
     if(matchHost){matchHost.querySelector('b').textContent=match;matchHost.hidden=!match}else if(match){fit?.insertAdjacentHTML('beforebegin',`<span class="lvjs-choice-match" data-lvjs-match><b>${esc(match)}</b><small>belegt</small></span>`)}
     const why=card.querySelector('[data-lvjs-why]'),template=document.createElement('template');template.innerHTML=whyMarkup(place,currentResult.input);if(why)why.replaceWith(template.content.firstElementChild);
   }
+  if(status){if(enrichedResult.warning){status.hidden=false;status.innerHTML=`<span aria-hidden="true">!</span><div><strong>Belegter Teilstand</strong><small>${esc(enrichedResult.warning)}</small></div>`}else status.hidden=true}
+  handleMaps.get(handle)?.update?.(currentResult.choices);
   if(footer)footer.textContent=currentResult.ai?.ranking?'Belegbar berechnet · KI erklärt · ihr bestätigt':'Provider-Fakten belegt · persönliche Begründung nur bei ausreichender Evidenz';
   return currentResult;
 }
@@ -767,7 +791,7 @@ function open(rawInput={}){
   if(!ui?.mount)throw new Error('Overlay Host v1 ist noch nicht bereit.');
   activeHandle?.close?.('replace');
   const content=document.createElement('section');content.className='lvjs-sheet';content.dataset.journeySuggestionSheet='true';content.innerHTML=shellMarkup(input);
-  let mounted=null;mounted=ui.mount({name:'journey.suggestions',kind:'sheet',content,className:'lvjs-overlay',closeOnEscape:false,closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Luvia Vorschläge für den Reisetag',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});mounted.overlay.addEventListener('keydown',event=>{if(event.key!=='Escape')return;event.preventDefault();event.stopPropagation();const bookingBack=mounted.overlay.querySelector('[data-booking-close][aria-label="Zurück zu den Vorschlägen"]');bookingBack?bookingBack.click():mounted.close('escape')},true);activeHandle=mounted;hydrate(mounted,input);return mounted.overlay;
+  let mounted=null;mounted=ui.mount({name:'journey.suggestions',kind:'sheet',content,className:'lvjs-overlay',closeOnEscape:false,closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Luvia Vorschläge für den Reisetag',onClose:()=>{releaseSuggestionMap(mounted);handleControllers.get(mounted)?.abort?.();if(activeHandle?.id===mounted.id)activeHandle=null}});mounted.overlay.addEventListener('keydown',event=>{if(event.key!=='Escape')return;event.preventDefault();event.stopPropagation();const bookingBack=mounted.overlay.querySelector('[data-booking-close][aria-label="Zurück zu den Vorschlägen"]');bookingBack?bookingBack.click():mounted.close('escape')},true);activeHandle=mounted;hydrate(mounted,input);return mounted.overlay;
 }
 function openResults(rawInput={}){
   const input=currentInput({...rawInput,source:rawInput.source||'places-search',requestedCount:(rawInput.places||[]).length}),ui=globalThis.LuviaUI;
@@ -778,7 +802,7 @@ function openResults(rawInput={}){
   // enters, while a click still remains the only operation that opens it.
   if(routeCandidate)Promise.resolve(contracts().booking?.reads?.preparePlaceBooking?.(routeCandidate)).catch(()=>{});
   activeHandle?.close?.('replace');const content=document.createElement('section');content.className='lvjs-sheet';content.dataset.journeySuggestionSheet='true';content.innerHTML=shellMarkup(input);let mounted=null;
-  mounted=ui.mount({name:'places.search-results',kind:'sheet',content,className:'lvjs-overlay',closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Places Suchergebnisse',onClose:()=>{if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted;
+  mounted=ui.mount({name:'places.search-results',kind:'sheet',content,className:'lvjs-overlay',closeSelector:'[data-lvjs-close]',initialFocus:'[data-lvjs-close]',label:'Places Suchergebnisse',onClose:()=>{releaseSuggestionMap(mounted);handleControllers.get(mounted)?.abort?.();if(activeHandle?.id===mounted.id)activeHandle=null}});activeHandle=mounted;
   const status=mounted.overlay.querySelector('[data-lvjs-status]');status.innerHTML='<span class="lvjs-loader" aria-hidden="true"></span><div><strong>Ergebnisse werden für alle Reisenden eingeordnet …</strong><small>Google- und Provider-Fakten bleiben die einzige Ortswahrheit.</small></div>';
   (async()=>{try{
     input.groupContext=await sharedPreferenceContext(input,{fast:true});
