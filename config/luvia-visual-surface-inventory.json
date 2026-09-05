@@ -6705,8 +6705,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 100770,
-      "sha256": "fb279ab20c0a25988bcea7528965f7c52956b873770f009b04997cd5b2bab4e3"
+      "bytes": 101596,
+      "sha256": "9133119153a429f197c1b2cd31a431ec3a84c098e857a16fe89041e6293a8ed8"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7798,8 +7798,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 9466,
-      "sha256": "22639a92e4799b40f35cac0c6be4af7a3123f0fe715fda5b0a4cd9b051e3e7d0"
+      "bytes": 10211,
+      "sha256": "894131bb16a0764730fcc0638060b96b378dd6ec4f920c9391248ec1b2372577"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",

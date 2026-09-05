@@ -3,24 +3,24 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.86**, Core **4.82.208**. M16.5 Schritte 15–18 aktiv. P09/P10 Visit- und Memory-Verwaltung sind geliefert; der nächste externe Abschlussblock bleibt B1/P02–P03 für einen positiven Google-Places-Ernährungsbeleg. A1 Dokumentkonsolidierung wird mit diesem Release fortgeschrieben; A2 ist teilweise belegt.
+**Stand 2026-09-05:** Integration **13.82.168.86**, Core **4.82.208**. M16.5 Schritte 15–18 aktiv. P09/P10 Visit- und Memory-Verwaltung sind geliefert; B1/P02–P03 bleibt für den positiven Google-Places-Ernährungsbeleg aktiv. Die API selbst ist laut Nutzerbestätigung bereits aktiv; der aktuelle Abschlussblock liegt jetzt bei Key-Beschränkung, Key-Projekt-/Billing-Zuordnung und anschließendem Realbeleg.
 
-**Zuletzt geliefert:** App 13.82.168.86 / Core 4.82.208 läuft auf Integration über Worker 1d936ac3-fd72-40ca-a5f4-513f414b74d2 bei 100 Prozent Traffic. Bestätigte Besuche werden über den Places Visit Owner revisionssicher gelesen, korrigiert, entfernt und nach Reload wiederhergestellt; doppelte Legacy-Projektionen sind unterdrückt und private Felder bleiben aus dem öffentlichen Vertrag. Die Supabase-Constraint ist für neun Visit-Zustände verifiziert. Sichtbarer 477×900-Browsertest, öffentlicher Timeline-/Places-Nachweis, 227/227 Safe Regression und 30/30 öffentliche Bytevergleiche PASS. Sauberes Archiv: 88.771.845 Bytes, SHA-256 3A8E4592EDF325F40AC7A7BC84BBACBFBFBB8E2E56356F6A0A6CDAD3F0CF7239. Der Standard-Worker wurde nach einer falschen Zieladressierung aus dem unveränderten Main-Commit wiederhergestellt und bytegleich geprüft; Git-Main blieb unverändert.
+**Zuletzt geliefert:** App 13.82.168.86 / Core 4.82.208 läuft auf Integration über Worker 1d936ac3-fd72-40ca-a5f4-513f414b74d2. Gateway v204 / 4.64.21 ist ACTIVE und reduziert Google-Permission-Fehler sicher auf Status, Grund und Dienst. Das unveränderte Supabase-Secret ist vorhanden. Nach kontrolliertem Cooldown-Reset erreichte der Live-Probe places.googleapis.com und belegte HTTP 403 / PERMISSION_DENIED. Alle zeigt 50 reale Essen-&-Trinken-Pins; Passend bleibt ohne erfundenen Positivbeleg 0/0. Visit-/Memory-Owner, Supabase-Visit-Constraint, sichtbarer 477×900-Browsertest, 30/30 öffentliche Bytevergleiche, 227/227 Safe Regression nach der Diagnose und der unveränderte Main-Inhalt bleiben belegt.
 
-**Nächster Schritt (AKTIV): Google Places für den positiven Ernährungsbeleg freischalten und sichtbar abnehmen.** Vertrag, Negativregeln und providerübergreifende Kaskade sind grün. Google besitzt laut Nutzerangabe 1.000 Aufrufe pro Tag, antwortet am öffentlichen Gateway aber noch mit 403; HERE liefert lokal keine expliziten Ernährungsfakten und Foursquare besitzt keine Credits.
+**Nächster Schritt (AKTIV): Bestehenden Google-Key mit Places API (New) und Supabase-Serveraufruf abgleichen.** Places API (New) ist laut Nutzerbestätigung aktiv und das unveränderte Secret erreicht Google. Der echte Search-Aufruf wird jedoch von places.googleapis.com mit HTTP 403 / PERMISSION_DENIED abgewiesen.
 
 **Abnahme dieses Schritts:**
 
-- Im bereits geöffneten Google-Cloud-Projekt anmelden und das richtige Projekt bestätigen.
-- Places API (New), aktives Billing und eine ausschließlich auf die benötigte Places-Suche beschränkte Server-Key-Konfiguration prüfen.
-- Der öffentliche Health-Probe wechselt von HTTP 403 zu einer erfolgreichen, budgetierten Google-Antwort ohne Schlüssel- oder Rohdatenoffenlegung.
-- Essen & Trinken zeigt für das vegetarische Profil mindestens einen realen Passt-Pin und weiterhin kein unbewiesenes Steakhouse.
-- Places, Timeline und AI Chat zeigen dieselbe Provider-ID, denselben Reisezielradius und einen lesbaren providerbelegten Passend-Grund.
-- Stable und Immutable Integration, Bytegleichheit, Regression und der unveränderte Git-Main-Stand sind belegt.
+- Im Projekt des bestehenden Schlüssels die API-Beschränkung auf Places API (New) prüfen.
+- Die Anwendungseinschränkung muss einen serverseitigen Aufruf aus Supabase Edge Functions zulassen; eine reine Browser-Referrer-Beschränkung ist dafür ungeeignet.
+- Projektzugehörigkeit des Schlüssels und aktives Billing dieses Schlüsselprojekts sind bestätigt.
+- Der öffentliche Health-Probe antwortet ohne PERMISSION_DENIED und ohne Offenlegung des Schlüssels oder von Consumer-Metadaten.
+- Essen & Trinken zeigt mindestens einen realen vegetarischen Passt-Pin; Places, Timeline und AI Chat teilen Provider-ID, Reisezielradius und Passend-Grund.
+- Safe Regression, Stable/Immutable-Identität und unveränderter Git-Main-Stand sind erneut belegt.
 
 **Danach:** Danach der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme; anschließend P12/P15/P17 Trip Composer, P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.
 
-**Weiter offen:** P02/P03 aktiv: positive Google-Freigabe und öffentlicher Ernährungsbeleg sowie vollständige UI-/AI-/Foto- und physische Mobilabnahme. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
+**Weiter offen:** P02/P03 aktiv: bestehende Google-Key-Beschränkung beziehungsweise Key-Projekt-/Billing-Zuordnung korrigieren und positiven öffentlichen Ernährungsbeleg abnehmen. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
