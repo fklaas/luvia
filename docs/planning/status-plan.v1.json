@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
   "sourceBaseline": "0ee7b489",
-  "app": "13.82.168.95",
-  "core": "4.82.214",
+  "app": "13.82.168.96",
+  "core": "4.82.215",
   "runtimeSource": "4230167d3b1653791985b35f79054fffea5055fc",
   "worker": "fd162519-c4de-487c-9800-2672b3bed937",
   "gateway": "v223 ACTIVE / 4.64.29 / Places 4.38.7-osm-edge-proxy",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Öffentlich läuft App 13.82.168.95 / Core 4.82.214 vollständig auf Integration-Worker fd162519-c4de-487c-9800-2672b3bed937 aus Runtime-Commit 4230167d. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem sauberen Archiv überein. Das Rückfallarchiv luvia-integration-13.82.168.95-4230167d.zip ist mit SHA-256 4C32CCFAEA10DBAE3C135BDA46F636AA1743408819CA0D325DE21DBAC42BA0BB gesichert. Gateway v223 ist ACTIVE und meldet 4.64.29. Safe Regression 230/230 und NFR-0 3/3 sind grün; Main und Production bleiben unverändert.",
+      "evidence": "Der letzte vollständig öffentlich belegte Stand ist App 13.82.168.95 / Core 4.82.214 auf Integration-Worker fd162519-c4de-487c-9800-2672b3bed937 aus Runtime-Commit 4230167d. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem Archiv luvia-integration-13.82.168.95-4230167d.zip (SHA-256 4C32CCFAEA10DBAE3C135BDA46F636AA1743408819CA0D325DE21DBAC42BA0BB) überein; Gateway v223 meldet 4.64.29. Kandidat .96 / Core 4.82.215 ist lokal gebaut und wartet auf den neuen öffentlichen Beleg. Main und Production bleiben unverändert.",
       "nextAcceptance": "Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -28,7 +28,7 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "Öffentlich zeigt App .95 in der aktuellen 3-km-Kohorte 50 Orte unter Alle und 9 durch Ortsfakten belegte vegetarische Orte unter Passend; Erdmann’s Kleines Steakhaus bleibt ausgeschlossen. Der exakte Wert ist an den aktuellen Provider- und Cachebestand gebunden und darf deshalb wechseln, die Owner-Regel bleibt fail-closed. Das sichtbare Host-Telemetrie-Gate bestätigt 9/9 geeignete Owner-Zeilen, provider=free-cascade und mapState=ready. Geoapify/OSM liefert positive Ernährungsbelege zuerst; HERE, Google und Foursquare bleiben begrenzte Fallbacks. Ein älteres positives Ranking-Flag kann einen von places.v1 blockierten Ort weder in Places noch in Timeline oder AI wiederbeleben. Apple bleibt ohne Entwicklerprogramm geparkt.",
+      "evidence": "Der öffentliche Stand .95 hält vegetarische Passung fail-closed und schließt das Steakhouse aus. Kandidat .96 ergänzt vor den budgetierten TomTom-/HERE-Fallbacks eine authentifizierte, sechs Stunden gecachte OSM-Kontinuitätsebene für alle 14 Luvia-Kategorien. Der Worker akzeptiert keine freie Overpass-Abfrage, sondern nur eine Whitelist, maximal 15 km und 250 Zeilen. Alle 19 Landesküchen sind normalisiert; Sachfilter lassen fehlende Öffnungs-, Bewertungs-, Preis-, Reservierungs- oder Barrierefreiheitsfakten nicht passieren. Exakt verknüpfte OSM-/Wikimedia-Bilder behalten Identität und Herkunft. Öffentliche Deployment-, Browser- und Byteabnahme ist noch offen; Apple bleibt geparkt.",
       "nextAcceptance": "Alle 14 Kategorien, 82 Zuordnungen, sämtliche sichtbaren Sachfilter und 19 Landesküchen gegen reale Providerproben abnehmen; echte Place-Fotos samt Herkunft und das Providerbudget einschließlich des Google-Limits von 1.000 Aufrufen pro Tag belegen; dieselben Regeln auf Places und Stays prüfen.",
       "scope": "Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -40,7 +40,7 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "App .95 verarbeitet öffentlich den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch ohne Live-KI als lokalen Places-Read und liefert drei Orte aus der aktiven Places-Kohorte bei Provider-Read-Zähler 0. Places zeigt 9 streng belegte Passend-Pins. Timeline zeigt vier Vorschläge mit profileFit=matched und dem lesbaren Grund „Vegetarische Auswahl ist in den Ortsdaten ausdrücklich belegt.“; keine blockierte Zeile bleibt sichtbar. Strand-Creperie erscheint in Places, Timeline und AI mit derselben HERE-ID here:pds:place:276aabd1-127840c202d902c76d63024fe2fe10b0 und derselben Shared-Discovery-Kohorte. Die Timeline- und AI-Wiederverwendung erzeugt jeweils 0 Provider-Reads. Der Gegenfall mit altem positivem Flag und Owner-Block ist zusätzlich automatisiert belegt.",
+      "evidence": "Die öffentliche .95-Owner-Parität zwischen Places, Timeline und AI bleibt belegt. Kandidat .96 erweitert denselben places.v1-Kandidatenpfad um eine budgetschonende OSM-Kategorie- und Landesküchenkontinuität, ohne eine zweite Kartenlogik oder neue Consumer-Suche zu eröffnen. Fehlende Providerfakten bleiben unbekannt und können deshalb weder Passend noch strikte Sachfilter fälschlich erfüllen. Die öffentliche End-to-End-Abnahme dieses erweiterten Kandidaten steht noch aus.",
       "nextAcceptance": "Die nachgewiesene Owner-Parität auf alle 14 Kategorien, 82 Zuordnungen, sämtliche sichtbaren Filter und 19 Landesküchen erweitern; leere, teilweise und widersprüchliche Providerantworten sowie echte Ortsbilder prüfen und Places/Stays gleich abnehmen.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,8 +640,8 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.95 / Core 4.82.214 ist auf Integration veröffentlicht. places.v1 besitzt die einzige profileFit-Entscheidung für Karte, Timeline und AI Chat; fitOnly wird nach der Owner-Projektion gefiltert, die Timeline bewahrt diesen Zustand und entfernt widersprüchliche Fremdzeilen. Sichtbar belegt sind 9 strikt passende Places, kein Steakhouse, vier matched Timeline-Vorschläge mit lesbarem vegetarischem Grund und der exakte AI-Satz mit drei Ergebnissen. Strand-Creperie hat auf allen Flächen dieselbe HERE-ID und Shared-Discovery-Kohorte; Timeline und AI erzeugen bei der Wiederverwendung 0 Provider-Reads. Worker fd162519-c4de-487c-9800-2672b3bed937, Gateway v223 und 30/30 öffentliche Byte-Identität sind belegt. Main und Production bleiben unverändert.",
-  "safeRegression": "230/230 PASS after canonical owner-profileFit parity fix; NFR-0 3/3 PASS",
+  "acceptanceUpdate": "Integrationskandidat App 13.82.168.96 / Core 4.82.215 ist gebaut. Er ergänzt eine authentifizierte, sechs Stunden gecachte und auf 15 km sowie 250 Datensätze begrenzte OSM-Kontinuitätsebene für 14 Kategorien und 19 Landesküchen. Sachfilter bleiben bei fehlenden Fakten fail-closed, exakte OSM-Bildreferenzen können mit identitätsgeprüftem Seed angereichert werden. Öffentliche Worker-/Gateway-/Browserabnahme steht noch aus; Main und Production bleiben unverändert.",
+  "safeRegression": "231/231 PASS for App 13.82.168.96 candidate; NFR-0 3/3 PASS",
   "publicAssetIdentity": "30/30 MATCH on stable and immutable public .95 against clean archive",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -673,8 +673,8 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. P02 Passend läuft auf App .95 / Core 4.82.214 öffentlich fail-closed; der P03-Owner-Paritätsabschnitt ist über Places, Timeline und AI sichtbar bestanden. P02/P03 bleiben für die vollständige Breite teilweise. Apple bleibt geparkt.",
-    "delivered": "App .95 verarbeitet den exakten AI-Satz öffentlich mit drei Treffern und verwendet dieselbe aktive Places-Kohorte ohne neue Provider-Reads. Places zeigt 9 strikt belegte Passend-Pins und schließt das Steakhouse aus. Timeline zeigt vier matched Vorschläge mit demselben lesbaren Ernährungsgrund; Strand-Creperie besitzt über Places, Timeline und AI dieselbe HERE-ID. 230/230 Safe Regression, 3/3 NFR-0, 30/30 Stable-/Immutable-Byte-Identität, Gateway v223 und Rückfallarchiv sind grün.",
+    "stage": "M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.215 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.",
+    "delivered": "Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.",
     "nextStep": {
       "id": "P02-P03-category-filter-photo-provider-completeness",
       "package": "P02",

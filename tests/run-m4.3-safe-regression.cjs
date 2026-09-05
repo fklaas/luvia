@@ -823,6 +823,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-local-server-module-mime.test.cjs'
   },
   {
+    category: 'P02 / Cached OSM category continuity',
+    test: 'tests/p02-osm-category-continuity.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

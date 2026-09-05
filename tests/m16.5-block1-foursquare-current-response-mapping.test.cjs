@@ -116,7 +116,7 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/'minigolf-scharbeutz'/);
   assert.match(source,/'minigolf-chat-scharbeutz'/);
   assert.match(source,/'hotels-scharbeutz'/);
-  assert.match(source,/options:Object\.freeze\(\{includedType:'lodging'\}\)/);
+  assert.match(source,/'hotels-scharbeutz'.*category:'accommodation'.*includedType:'lodging'.*strictTypeFiltering:true/s);
   assert.match(source,/\.\.\.\(probe\.options\|\|\{\}\)/);
   assert.match(source,/'beach-supplies-scharbeutz'/);
   assert.match(source,/availableDiagnosticProbes:Object\.keys\(HEALTH_PROBES\)/);
@@ -127,8 +127,8 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/function geoapifyNameFilter/,'descriptive discovery phrases must not be sent as Geoapify name filters');
   assert.match(source,/function geoapifyPlaceName/,'Geoapify features must map real OSM names instead of collapsing to Unbenannter Ort');
   assert.match(source,/function geoapifyTextField/,'Geoapify name/address fields must never String\(object\) into \[object Object\]');
-  assert.match(source,/v2\.16\.6-osm-edge-proxy/,'gateway search cache must invalidate after the authenticated OSM edge transport enters the public surface');
-  assert.match(source,/version:'4\.38\.7-osm-edge-proxy'/);
+  assert.match(source,/v2\.16\.7-osm-category-continuity/,'gateway search cache must invalidate after the cached OSM category transport enters the public surface');
+  assert.match(source,/version:'4\.38\.8-osm-category-continuity'/);
   assert.match(source,/exactMediaIdentity:'normalized_name_and_max_120m'/);
   assert.match(source,/\/places\/\$\{encodeURIComponent\(fsqId\)\}\/photos/);
   assert.match(source,/food:'catering'/,'default food category must map to parent catering');

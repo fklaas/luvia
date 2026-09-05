@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft auf App .95 / Core 4.82.214 öffentlich fail-closed; der P03-Owner-Paritätsabschnitt ist über Places, Timeline und AI sichtbar bestanden. P02/P03 bleiben für die vollständige Breite teilweise. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.96**, Core **4.82.215**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.215 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** App .95 verarbeitet den exakten AI-Satz öffentlich mit drei Treffern und verwendet dieselbe aktive Places-Kohorte ohne neue Provider-Reads. Places zeigt 9 strikt belegte Passend-Pins und schließt das Steakhouse aus. Timeline zeigt vier matched Vorschläge mit demselben lesbaren Ernährungsgrund; Strand-Creperie besitzt über Places, Timeline und AI dieselbe HERE-ID. 230/230 Safe Regression, 3/3 NFR-0, 30/30 Stable-/Immutable-Byte-Identität, Gateway v223 und Rückfallarchiv sind grün.
+**Zuletzt geliefert:** Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.
 
 **Nächster Schritt (AKTIV): Kategorie-, Filter-, Foto- und Provider-Vollständigkeit schließen.** Die Owner-Parität ist öffentlich belegt. Jetzt muss dieselbe Verlässlichkeit über die gesamte Places- und Stays-Breite gelten, statt nur für den vegetarischen Restaurantpfad.
 

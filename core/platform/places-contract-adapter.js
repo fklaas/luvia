@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.8.0-owner-profile-fit-read';
+  const RUNTIME_VERSION='1.9.0-osm-exact-media';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -171,7 +171,7 @@
     });
   }
   const cardReads=new Map();
-  const SELECTED_MEDIA_PROVIDER_PREFIXES=Object.freeze(['geoapify:','tomtom:','here:','fsq:']);
+  const SELECTED_MEDIA_PROVIDER_PREFIXES=Object.freeze(['geoapify:','tomtom:','here:','fsq:','openstreetmap:']);
   async function getCard(placeId,options={}){
     const id=clean(placeId)?.replace(/^places\//,'');
     const seed=options.source||options.place;
@@ -190,10 +190,10 @@
     let response=null;
     // Apply Google Premium cost guard: block repeat enrichment when we already have full data.
     // Exception: if the seed has no photos, always allow the gateway call for media hydration.
-    const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:')&&!requestedId.startsWith('tomtom:')&&!requestedId.startsWith('here:');
+    const isPremiumId=requestedId&&!requestedId.startsWith('fsq:')&&!requestedId.startsWith('geoapify:')&&!requestedId.startsWith('tomtom:')&&!requestedId.startsWith('here:')&&!requestedId.startsWith('openstreetmap:');
     const premiumAllowed=!isPremiumId||!seedHasPhoto||consumePremiumDetailsQuota(requestedId);
     if((!seedMatches||!seedHasPhoto)&&premiumAllowed){
-      try{response=await gateway().details(placeId,{...detailOptions,enrichMedia:true})}catch(error){if(!seedMatches)throw error}
+      try{response=await gateway().details(placeId,{...detailOptions,enrichMedia:true,providerPlaceSeed:seedMatches?seeded:undefined})}catch(error){if(!seedMatches)throw error}
       // Mark premium id as consumed after a successful gateway call.
       if(isPremiumId&&response)consumePremiumDetailsQuota(requestedId);
     }

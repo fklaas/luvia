@@ -22,7 +22,7 @@ assert.match(suggestions,/providers:\['auto'\]/,'Journey suggestions must share 
 
 assert.ok(/locationRestriction[\s\S]{0,240}rectangle|rectangle[\s\S]{0,240}locationRestriction|locationBias[\s\S]{0,240}rectangle/.test(adapter),'viewport search must remain rectangle-qualified for the bounded owner contract');
 assert.match(adapter,/geoapifyOnly|four-tile-legacy|single-rectangle-geoapify/,'viewport strategy must remain explicit for Geoapify vs Google/Foursquare');
-assert.match(adapter,/SELECTED_MEDIA_PROVIDER_PREFIXES=Object\.freeze\(\['geoapify:','tomtom:','here:','fsq:'\]\)/,'selected-place media misses must be cached across every free provider identity');
+assert.match(adapter,/SELECTED_MEDIA_PROVIDER_PREFIXES=Object\.freeze\(\['geoapify:','tomtom:','here:','fsq:','openstreetmap:'\]\)/,'selected-place media misses must be cached across every free provider identity');
 assert.match(adapter,/if\(!result\?\.image\?\.url\)entry\.ttl=2\*60_000/,'a selected place without an exact photo must use a short negative cache instead of spending quota on every selection');
 assert.match(backend,/const RATE_LIMIT_COOLDOWN_MS=3\*1000/,'plain Places 429 must use a short cooldown instead of a 30-minute quota lock');
 assert.match(backend,/isPlacesRateLimit/,'Places rate-limit handling must stay distinct from quota exhaustion');
@@ -59,8 +59,8 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.16\.6-osm-edge-proxy/,'gateway cache must invalidate after the authenticated OSM edge transport enters the public surface');
-assert.match(gateway,/version:'4\.38\.7-osm-edge-proxy'/,'gateway health version must expose the resilient bounded OSM dietary evidence contract');
+assert.match(gateway,/v2\.16\.7-osm-category-continuity/,'gateway cache must invalidate after the cached OSM category transport enters the public surface');
+assert.match(gateway,/version:'4\.38\.8-osm-category-continuity'/,'gateway health version must expose the bounded OSM category and dietary evidence contract');
 assert.match(gateway,/function boundedGoogleError/,'Google failures must be reduced to a safe diagnostic projection');
 assert.match(gateway,/providerStatus:String\(error\?\.status\|\|'UNKNOWN'\)/,'the safe Google projection must retain the provider status');
 assert.match(gateway,/reason:String\(info\?\.reason\|\|error\?\.status\|\|'unknown'\)\.slice\(0,80\)/,'the safe Google projection must retain a bounded machine-readable permission reason');

@@ -95,7 +95,7 @@ assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.8.0-owner-profile-fit-read');
+assert.strictEqual(api.runtimeVersion,'1.9.0-osm-exact-media');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.visit.changed','place.plan.changed','place.favorite.changed']);
 assert.deepStrictEqual(Object.keys(api.reads),['localSearchRadius','search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getActiveDiscovery','getProfileFit','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits','getVisit','visitRecoveries','visitRecovery']);
