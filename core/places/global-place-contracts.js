@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const VERSION='4.61.0-category-query-split';
+const VERSION='4.61.1-nightlife-provider-taxonomy';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -27,7 +27,7 @@ const SPECIFIC_STOP_WORDS=new Set('zeige zeigen zeig anzeigen auflisten ausgeben
 const BROAD_EVIDENCE_TERMS=new Set('activity activities aktivitat aktivitäten aktivitaet attraction business company erlebnis erleben freizeit geschäft geschaft laden möglichkeit möglichkeiten option place places shop store tourist attraction venue'.split(' '));
 const CATEGORY_TYPE_ALIASES=Object.freeze({
   accommodation:Object.freeze(['accommodation','lodging','hotel','hostel','motel','bed_and_breakfast','guest_house','guesthouse','resort','resort_hotel','campground','camping_cabin','private_guest_room','apartment','serviced_apartment','holiday_apartment','apartment_hotel','extended_stay_hotel','holiday_home','vacation_rental','cottage','inn','pension','ferienwohnung']),
-  nightlife:Object.freeze(['night_club','nightclub','nightlife_spot','dance_club','discotheque','disco','bar','beer_bar','cocktail_bar','sports_bar','tiki_bar','wine_bar','lounge_bar','pub','concert_hall','live_music_venue','music_venue','jazz_club','comedy_club','karaoke_bar']),
+  nightlife:Object.freeze(['night_club','nightclub','nightlife_spot','dance_club','discotheque','disco','bar','beach_bar','beer_bar','cocktail_bar','sports_bar','tiki_bar','wine_bar','lounge','lounge_bar','pub','taproom','biergarten','concert_hall','live_music_venue','music_venue','jazz_club','comedy_club','karaoke_bar','casino']),
   food:Object.freeze(['restaurant','cafe','bar','bakery','meal_takeaway','food_court','catering','catering_restaurant','catering_cafe','catering_bar','catering_bakery','catering_fast_food']),
   activities:Object.freeze(['activity','entertainment','leisure','sport','amusement_park','amusement_center','playground','zoo','spa','swimming_pool','water_park']),
   wellness:Object.freeze(['spa','leisure_spa','sauna','wellness']),

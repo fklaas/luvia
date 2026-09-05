@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.3-specialized-local-radius';
+  const VERSION='1.31.4-nightlife-provider-breadth';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -61,7 +61,7 @@
     nature:{icon:'map',hint:'Strand · Park · Wandern'},
     shopping:{icon:'wallet',hint:'Markt · Boutique · Feinkost'},
     malls:{icon:'wallet',hint:'Shopping Center · Kaufhaus'},
-    nightlife:{icon:'spark',hint:'Bar · Club · Live-Musik'},
+    nightlife:{icon:'spark',hint:'Bar · Pub · Club · Live-Musik'},
     practical:{icon:'route',hint:'Apotheke · Parken · Laden'}
   });
   const emptyFilters=()=>({openNow:false,rated:false,rating45:false,nearby:false,vegetarian:false,reservable:false,accessible:false,priceLevels:[],types:[],cuisines:[]});
@@ -82,7 +82,7 @@
     nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['natural_feature','Naturgebiet']]),facts:Object.freeze(['rating45','accessible'])}),
     shopping:Object.freeze({label:'Einkaufen',subtypes:Object.freeze([['','Alle'],['shopping_mall','Center'],['market','Markt'],['clothing_store','Mode'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     malls:Object.freeze({label:'Einkaufszentrum',subtypes:Object.freeze([['','Alle'],['shopping_mall','Shopping Center'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
-    nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bar'],['night_club','Club'],['concert_hall','Live-Musik']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
+    nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bars & Pubs'],['cocktail_bar','Cocktailbars'],['wine_bar','Weinbars'],['night_club','Clubs & Diskotheken'],['lounge_bar','Lounges'],['live_music_venue','Live-Musik'],['comedy_club','Comedy'],['karaoke_bar','Karaoke'],['casino','Casinos']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
     practical:Object.freeze({label:'Praktischer Ort',subtypes:Object.freeze([['','Alle'],['pharmacy','Apotheke'],['supermarket','Supermarkt'],['parking','Parken'],['electric_vehicle_charging_station','Laden'],['atm','Geldautomat']]),facts:Object.freeze(['openNow','nearby','accessible'])})
   });
   const icons=Object.freeze({
@@ -267,7 +267,7 @@
     const rows=decoratePreferences(candidates,trip,{category,query}).map(place=>({...place,distanceReference:'map-center'})).filter(place=>(!vegetarianOnly||hasVegetarianProviderEvidence(place))&&(!reservableOnly||place.features?.reservable===true)&&(!accessibleOnly||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&placeMatchesActiveCategory(place,category));
     return attachViewportTrace(rows,viewportTrace(response,{category,viewportKey:key,resultCount:rows.length,attempt:continuityAttempt}));
   }
-  const CONTINUITY_RETRY_CATEGORIES=new Set(['food','activities','nature','shopping','accommodation']);
+  const CONTINUITY_RETRY_CATEGORIES=new Set(['food','activities','nature','shopping','nightlife','accommodation']);
   function shouldRetryEmptyViewport(options={}){const unfiltered=typeof options.continuityEligible==='boolean'?options.continuityEligible:activeFilterCount()===0;return CONTINUITY_RETRY_CATEGORIES.has(options.category||state.category)&&!clean(options.userQuery)&&unfiltered}
   function transientViewportFailure(error){const code=clean(error?.code);return [502,503,504].includes(Number(error?.status))||/BACKEND_TIMEOUT|NETWORK_UNAVAILABLE|PLACES_(?:ALL_PROVIDERS_FAILED|PROVIDER_READ_UNAVAILABLE)|PROVIDER_(?:TRANSPORT_ERROR|READ_UNAVAILABLE)/.test(code)}
   async function viewportSearchWithContinuity(options={},isCurrent=()=>true){

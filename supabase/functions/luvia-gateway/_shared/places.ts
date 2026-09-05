@@ -76,7 +76,7 @@ const GEOAPIFY_CATEGORY_FALLBACK_BY_KEY=Object.freeze({
   nature:Object.freeze(['natural','leisure.park','beach']),
   shopping:Object.freeze(['commercial']),
   malls:Object.freeze(['commercial.shopping_mall']),
-  nightlife:Object.freeze(['catering.bar','entertainment']),
+  nightlife:Object.freeze(['catering.bar','catering.pub','adult.nightclub','adult.casino','entertainment.culture']),
   practical:Object.freeze(['commercial','healthcare.pharmacy','parking']),
   attraction:Object.freeze(['tourism.sights']),
   custom:Object.freeze(['catering','tourism.sights','leisure.park'])
@@ -144,6 +144,28 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   clothing_store:'commercial.clothing',
   department_store:'commercial.department_store',
   night_club:'adult.nightclub',
+  nightclub:'adult.nightclub',
+  nightlife_spot:'adult.nightclub',
+  dance_club:'adult.nightclub',
+  discotheque:'adult.nightclub',
+  disco:'adult.nightclub',
+  pub:'catering.pub',
+  beer_bar:'catering.bar',
+  cocktail_bar:'catering.bar',
+  sports_bar:'catering.bar',
+  tiki_bar:'catering.bar',
+  wine_bar:'catering.bar',
+  lounge:'catering.bar',
+  lounge_bar:'catering.bar',
+  beach_bar:'catering.bar',
+  taproom:'catering.taproom',
+  biergarten:'catering.biergarten',
+  live_music_venue:'entertainment.culture',
+  music_venue:'entertainment.culture',
+  jazz_club:'entertainment.culture',
+  comedy_club:'entertainment.culture',
+  karaoke_bar:'adult.nightclub',
+  casino:'adult.casino',
   pharmacy:'healthcare.pharmacy',
   supermarket:'commercial.supermarket',
   parking:'parking',
@@ -163,7 +185,7 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   culture:'entertainment.museum,entertainment.cinema',
   nature:'natural,leisure.park,beach',
   malls:'commercial.shopping_mall',
-  nightlife:'catering.bar,entertainment',
+  nightlife:'catering.bar,catering.pub,adult.nightclub,adult.casino,entertainment.culture',
   practical:'commercial,healthcare.pharmacy,parking',
   attraction:'tourism.sights',
   custom:'catering,tourism.sights,leisure.park'
@@ -173,6 +195,15 @@ const GEOAPIFY_CATEGORIES_BY_INTENT=Object.freeze({
   restaurant:'catering',
   hotel:'accommodation'
 });
+// Most categories stay on the cheapest successful provider. Nightlife is a
+// deliberate exception: provider taxonomies split bars, clubs, live venues and
+// casinos differently, so a tiny primary answer is a partial inventory rather
+// than proof that the destination has no more evening venues.
+const PROVIDER_BREADTH_FLOOR_BY_CATEGORY=Object.freeze({nightlife:12});
+export function providerBreadthTarget(category:any,providers:any=['auto']){
+  const requested=Array.isArray(providers)&&providers.length?providers:['auto'];
+  return requested.includes('auto')?Number((PROVIDER_BREADTH_FLOOR_BY_CATEGORY as any)[String(category||'').toLowerCase()]||0):0;
+}
 
 function geoapifyFallbackCategories(options:any={}){
   const key=String(options?.category||options?.type||'').toLowerCase();
@@ -364,6 +395,8 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key.startsWith('catering.restaurant.')){const cuisine=key.slice('catering.restaurant.'.length);types.add(`${cuisine}_restaurant`);if(['arab','oriental'].includes(cuisine))types.add('middle_eastern_restaurant')}
     if(key.startsWith('catering.cafe'))types.add('cafe');
     if(key.startsWith('catering.bar'))types.add('bar');
+    if(key==='catering.pub'){types.add('pub');types.add('bar')}
+    if(key==='catering.taproom'||key==='catering.biergarten'){types.add('pub');types.add('bar')}
     if(key.startsWith('catering.bakery')||key==='commercial.food_and_drink.bakery')types.add('bakery');
     if(key==='catering.food_court')types.add('food_court');
     if(key.startsWith('catering.fast_food'))types.add('meal_takeaway');
@@ -378,6 +411,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key==='leisure.park.garden')types.add('garden');
     if(key==='maritime.marina')types.add('marina');
     if(key==='adult.nightclub')types.add('night_club');
+    if(key==='adult.casino')types.add('casino');
     if(/^tourism\.sights\.(?:castle|ruins|ruines|archaeological|fort|memorial)/.test(key))types.add('historical_landmark');
     if(key==='tourism.sights.memorial.monument')types.add('monument');
     if(key==='tourism.attraction.viewpoint')types.add('observation_deck');
@@ -411,7 +445,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
   return[...types].slice(0,40);
 }
 const GEOAPIFY_GENERIC_TYPE=/^(?:building|wheelchair|access|access_limited|fee|vegetarian|vegan|no_dogs|internet_access|payment|toilets|outdoor|indoor)(?:_|$)/;
-const GEOAPIFY_PRIMARY_RANK=Object.freeze(['restaurant','cafe','bar','bakery','meal_takeaway','lodging','spa','playground','amusement_park','water_park','zoo','museum','beach','park','tourist_attraction','shopping_mall','store','activity','sport','leisure','entertainment','catering']);
+const GEOAPIFY_PRIMARY_RANK=Object.freeze(['restaurant','cafe','cocktail_bar','wine_bar','pub','bar','night_club','lounge_bar','live_music_venue','jazz_club','comedy_club','karaoke_bar','casino','bakery','meal_takeaway','lodging','spa','playground','amusement_park','water_park','zoo','museum','beach','park','tourist_attraction','shopping_mall','store','activity','sport','leisure','entertainment','catering']);
 function preferChildCategory(mappedTypes:string[]=[],nativeEvidence:string[]=[]):string{
   const natives=nativeEvidence.map(value=>String(value||'').toLowerCase());
   // Child Geoapify paths beat generic parents and building.* noise.
@@ -455,7 +489,7 @@ function geoapifyTextField(value:any):string{
 }
 function geoapifyTypeLabel(types:string[]=[]){
   const labels:Record<string,string>={
-    restaurant:'Restaurant',cafe:'Café',bar:'Bar',bakery:'Bäckerei',meal_takeaway:'Imbiss',
+    restaurant:'Restaurant',cafe:'Café',bar:'Bar',pub:'Pub',cocktail_bar:'Cocktailbar',wine_bar:'Weinbar',night_club:'Club',lounge_bar:'Lounge',live_music_venue:'Live-Musik',jazz_club:'Jazzclub',comedy_club:'Comedy-Club',karaoke_bar:'Karaoke',casino:'Casino',bakery:'Bäckerei',meal_takeaway:'Imbiss',
     lodging:'Unterkunft',spa:'Wellness',playground:'Spielplatz',park:'Park',beach:'Strand',
     museum:'Museum',zoo:'Zoo',amusement_park:'Freizeitpark',water_park:'Wasserpark',
     tourist_attraction:'Sehenswürdigkeit',activity:'Aktivität',store:'Geschäft',shopping_mall:'Einkaufszentrum'
@@ -516,6 +550,16 @@ function normalizedGeoapifyPlace(feature:any,options:any={}){
   const servesVegetarianFood=diet(raw['diet:vegetarian']??props.catering?.diet?.vegetarian,/vegetarian|vegan/.test(textEvidence)||servesVeganFood===true);
   if(raw.dining==='fine_dining'||raw.fine_dining==='yes')mappedTypes.push('fine_dining_restaurant');
   if(raw.amenity==='concert_hall'||raw.amenity==='music_venue')mappedTypes.push('concert_hall');
+  if(raw.amenity==='music_venue'||raw.amenity==='live_music')mappedTypes.push('live_music_venue');
+  if(raw.amenity==='nightclub'||raw.amenity==='dance_club'||raw.leisure==='dance')mappedTypes.push('night_club');
+  if(raw.amenity==='pub'){mappedTypes.push('pub');mappedTypes.push('bar')}
+  if(raw.amenity==='bar')mappedTypes.push('bar');
+  if(raw.lounge==='yes'||raw.bar==='lounge'||raw.amenity==='lounge')mappedTypes.push('lounge_bar');
+  if(raw.amenity==='casino')mappedTypes.push('casino');
+  if(raw.amenity==='karaoke_box'||raw.amenity==='karaoke')mappedTypes.push('karaoke_bar');
+  if(raw.amenity==='comedy_club')mappedTypes.push('comedy_club');
+  if(raw.bar==='cocktail'||raw.cocktails==='yes')mappedTypes.push('cocktail_bar');
+  if(raw.bar==='wine'||raw.wine==='yes')mappedTypes.push('wine_bar');
   if(raw.route==='hiking'||raw.information==='trailhead')mappedTypes.push('hiking_area');
   if(raw['diet:vegetarian']==='only'&&servesVegetarianFood===true)mappedTypes.push('vegetarian_restaurant');
   if(raw['diet:vegan']==='only'&&servesVeganFood===true)mappedTypes.push('vegan_restaurant');
@@ -805,7 +849,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.35.1-exact-photo-endpoint',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',photoEndpoint:'one_popular_photo_after_exact_identity'}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.36.0-nightlife-breadth-supplement',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'opt_in_disabled_default'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'explicit-reviewed-taxonomy-only',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',photoEndpoint:'one_popular_photo_after_exact_identity'}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
@@ -813,7 +857,7 @@ if(action==='places.text-search'){
   // Explicit providers remain subject to the same server-side budget policy.
   const providers=Array.isArray(options.providers)&&options.providers.length?options.providers:['auto'],providerErrors:any[]=[],attempted:string[]=[],answered:string[]=[];
   let geoapifyPlaces:any[]=[],googlePlaces:any[]=[],foursquarePlaces:any[]=[],fallbackReason:string|null=null;
-  let processed:any[]=[],fallbackUsed=false,mode='geoapify_primary';
+  let processed:any[]=[],fallbackUsed=false,supplementUsed=false,supplementReason:string|null=null,mode='geoapify_primary';
   const wantsGeoapify=providers.includes('geoapify')||providers.includes('auto');
   const wantsLegacy=providers.includes('google')||providers.includes('foursquare');
   if(wantsGeoapify){
@@ -840,15 +884,25 @@ if(action==='places.text-search'){
     processed=postProcessPlaces(geoapifyPlaces,destination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS});
     mode='geoapify_primary';
   }
-  if(!processed.length){
+  const categoryKey=String(options.category||payload?.type||options.type||'').toLowerCase();
+  const breadthTarget=providerBreadthTarget(categoryKey,providers);
+  const primaryResultCount=processed.length;
+  if(!processed.length||breadthTarget>0&&processed.length<breadthTarget){
     for(const provider of (providers.includes('auto')?['tomtom','here']:providers.filter((p:string)=>p==='tomtom'||p==='here'))){
       attempted.push(provider);
       try{
         const rows=await additionalSearch(provider as 'tomtom'|'here',String(payload.query||textQuery),effectiveDestination,{...options,category:options.category||payload.type},restriction);
         answered.push(provider);
         const rect=restriction?.rectangle;
-        processed=postProcessPlaces(rows,effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}).filter((p:any)=>!rect||(p.location.latitude>=rect.low.latitude&&p.location.latitude<=rect.high.latitude&&p.location.longitude>=rect.low.longitude&&p.location.longitude<=rect.high.longitude));
-        if(processed.length){fallbackUsed=attempted.length>1;mode='free_budget_cascade';break}
+        const additionalProcessed=postProcessPlaces(rows,effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}).filter((p:any)=>!rect||(p.location.latitude>=rect.low.latitude&&p.location.latitude<=rect.high.latitude&&p.location.longitude>=rect.low.longitude&&p.location.longitude<=rect.high.longitude));
+        if(additionalProcessed.length){
+          const before=processed.length;
+          processed=processed.length?postProcessPlaces(mergeProviderPlaces([...processed,...additionalProcessed]),effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}):additionalProcessed;
+          if(primaryResultCount>0&&processed.length>before){supplementUsed=true;supplementReason='category_breadth_floor';mode='free_budget_supplement'}
+          if(primaryResultCount===0&&processed.length){fallbackUsed=true;fallbackReason=fallbackReason||'geoapify_empty';mode='free_budget_cascade'}
+        }
+        if(processed.length&&breadthTarget===0)break;
+        if(breadthTarget>0&&processed.length>=breadthTarget)break;
       }catch(error:any){providerErrors.push({provider,code:error.code||'PROVIDER_ERROR',message:'Zusätzliche Ortsquelle derzeit nicht verfügbar.'})}
     }
   }
@@ -867,7 +921,7 @@ if(action==='places.text-search'){
     if(legacyProcessed.length){processed=legacyProcessed;fallbackUsed=Boolean(wantsGeoapify);mode=wantsGeoapify?'geoapify_then_legacy':'google_primary_foursquare_fallback';}
   }
   if(attempted.length&&providerErrors.length===attempted.length&&!processed.length)throw Object.assign(new Error('Keine verbundene Ortsquelle konnte die Suche beantworten.'),{code:'PLACES_ALL_PROVIDERS_FAILED',status:503,providerErrors});
-  result={places:processed,providers:{mode,requested:providers,attempted:[...new Set(attempted)],answered:[...new Set(answered)],used:[...new Set(processed.flatMap((p:any)=>Object.keys(p.providerRefs||{})))],fallbackUsed,fallbackReason:fallbackUsed?fallbackReason:null,errors:providerErrors},searchContext:{destination,canonicalCity:destination?.canonicalCity||null,landmarkContext:landmark,restriction:restriction||null,bias:bias||null,anchor:searchAnchor(destination,options),profileContext:options.profileContext||null,intentContext:options.intentContext||null,filters:{openNow:Boolean(options.openNow),minRating:options.minRating||null,priceLevels:options.priceLevels||[],vegetarianOnly:Boolean(options.vegetarianOnly),minUserRatingCount:options.minUserRatingCount||0,maxDistanceMeters:effectiveMaxDistanceMeters(destination,options)||Number(options.maxDistanceMeters)||0},sortBy:options.sortBy||'relevance'}};
+  result={places:processed,providers:{mode,requested:providers,attempted:[...new Set(attempted)],answered:[...new Set(answered)],used:[...new Set(processed.flatMap((p:any)=>Object.keys(p.providerRefs||{})))],fallbackUsed,fallbackReason:fallbackUsed?fallbackReason:null,supplementUsed,supplementReason:supplementUsed?supplementReason:null,breadthTarget:breadthTarget||null,primaryResultCount,errors:providerErrors},searchContext:{destination,canonicalCity:destination?.canonicalCity||null,landmarkContext:landmark,restriction:restriction||null,bias:bias||null,anchor:searchAnchor(destination,options),profileContext:options.profileContext||null,intentContext:options.intentContext||null,filters:{openNow:Boolean(options.openNow),minRating:options.minRating||null,priceLevels:options.priceLevels||[],vegetarianOnly:Boolean(options.vegetarianOnly),minUserRatingCount:options.minUserRatingCount||0,maxDistanceMeters:effectiveMaxDistanceMeters(destination,options)||Number(options.maxDistanceMeters)||0},sortBy:options.sortBy||'relevance'}};
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}
 else if(action==='places.autocomplete'){const sessionToken=normalizePlacesSessionToken(options.sessionToken);const body=cleanObject({input:String(payload?.input||''),languageCode,regionCode,sessionToken,locationBias:destinationBias(payload?.destination,options.locationBias),includedPrimaryTypes:options.includedType?[options.includedType]:undefined});const raw=await google('/places:autocomplete',{method:'POST',body:JSON.stringify(body)});result={sessionToken,suggestions:(raw.suggestions||[]).map((s:any)=>({placeId:s.placePrediction?.placeId||null,text:s.placePrediction?.text?.text||s.queryPrediction?.text?.text||'',types:s.placePrediction?.types||[],distanceMeters:s.placePrediction?.distanceMeters??null,raw:s}))};}

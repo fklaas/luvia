@@ -48,6 +48,36 @@ for (const file of [
   assert.equal(events.find(event => event.type === 'luvia:navigate-request').detail.intent.route, 'hotels');
 
   events.length = 0;
+  const blockedStayAlias = await runtime.runMessage('Öffne Stays für unsere Reise in Scharbeutz.', {
+    surface: 'global-chat',
+    compiledIntent: {
+      contractId: 'intelligence.travel-orchestration.v1',
+      status: 'blocked',
+      intents: [],
+    },
+  });
+  assert.equal(blockedStayAlias.handled, true,'a deterministic navigation gesture must survive a blocked optional compiler result');
+  assert.equal(blockedStayAlias.results[0].evidence.status, 'opened');
+  assert.equal(events.find(event => event.type === 'luvia:navigate-request').detail.intent.route, 'hotels');
+
+  events.length = 0;
+  const conflictedPlaces = await runtime.runMessage('Öffne Places für unsere Reise in Scharbeutz.', {
+    surface: 'global-chat',
+    compiledIntent: {
+      contractId: 'intelligence.travel-orchestration.v1',
+      status: 'conflicted',
+      intents: [],
+    },
+  });
+  assert.equal(conflictedPlaces.handled, true);
+  assert.equal(events.find(event => event.type === 'luvia:navigate-request').detail.intent.route, 'places');
+
+  events.length = 0;
+  const searchHotels = await runtime.runMessage('Finde Hotels in Scharbeutz.', { surface: 'global-chat' });
+  assert.equal(events.some(event => event.type === 'luvia:navigate-request'), false,'a place search must not be reinterpreted as navigation');
+  assert.notEqual(searchHotels.results?.[0]?.evidence?.status, 'opened');
+
+  events.length = 0;
   const tripSelection = await runtime.runMessage('Ich will eine andere Reise auswählen.', {
     surface: 'global-chat',
     compiledIntent: {

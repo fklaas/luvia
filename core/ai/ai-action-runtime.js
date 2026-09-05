@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.21.0-destination-bound-requirement-read';
+const VERSION='1.21.1-deterministic-navigation-first';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -388,12 +388,16 @@ async function causalFeedbackResults(message,compiled,options={}){
 }
 async function runMessage(message,options={}){
   const compiled=options.compiledIntent||null;
-  if(compiled&&['blocked','conflicted'].includes(compiled.status))return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
+  // A direct user gesture that names a registered Luvia area is deterministic
+  // Navigation truth. Resolve it before an optional model/compiler result so a
+  // blocked or conflicted AI interpretation cannot swallow "Öffne Places/Stays".
+  const deterministicNavigation=actionCore().routeIntents?.(message)?.find(route=>route.actionId==='navigation.route.open')||null;
+  if(compiled&&['blocked','conflicted'].includes(compiled.status)&&!deterministicNavigation)return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
   if(compiled?.status==='compiled'){
     try{const preview=await semanticPlaceMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Änderung konnte nicht vorbereitet werden',message:cause?.message||'Der genannte Ort konnte nicht eindeutig mit dem zuständigen Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(placeMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
     try{const preview=await semanticBookingPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'booking',title:'Buchung konnte nicht vorbereitet werden',message:cause?.message||'Die Buchung konnte nicht eindeutig und sicher mit dem Booking Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(bookingMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
   }
-  const routes=compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean)),contextResult=contextGateResult(compiled,options),feedbackResults=await causalFeedbackResults(message,compiled,options),preResults=[...(contextResult?[contextResult]:[]),...feedbackResults];if(!routes.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes:[],compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
+  const routes=deterministicNavigation?[deterministicNavigation]:compiledRoutes(message,compiled)||(actionCore().routeIntents?.(message)||[actionCore().routeIntent(message)].filter(Boolean)),contextResult=contextGateResult(compiled,options),feedbackResults=await causalFeedbackResults(message,compiled,options),preResults=[...(contextResult?[contextResult]:[]),...feedbackResults];if(!routes.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes:[],compiledStatus:compiled?.status||null,clarificationRequired:compiled?.status==='needs-clarification'});
   const requests=routes.map(route=>actionCore().createActionRequest(route.actionId,route.input,{surface:options.surface||'global-chat'})).filter(request=>actionCore().canAutoRun(request.actionId));if(!requests.length)return actionCore().immutable({handled:Boolean(preResults.length),results:preResults,routes});
   const results=[...preResults];let error=false;
   for(const request of requests){emit('read-started',{actionId:request.actionId});try{const handler=runtimeHandlers[request.actionId],result=handler?await handler(request,options):null;if(result){results.push(result);emit('read-completed',{actionId:request.actionId,resultKind:result.kind})}}catch(cause){error=true;results.push(actionCore().normalizeResult({kind:'error',owner:request.owner,title:`${request.owner} ist gerade nicht erreichbar`,message:cause?.message||'Der zuständige Luvia Core konnte diesen Teil der Anfrage nicht ausführen.',evidence:{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED',ownerContract:request.ownerContract,automaticMutation:false},meta:{retryable:false,readRecovery:{kind:'owner-read',actionId:request.actionId,owner:request.owner,ownerContract:request.ownerContract,query:request.input?.query||message,canRetry:true,canRefine:true,noMutation:true}}}));emit('read-failed',{actionId:request.actionId,code:cause?.code||'AI_ACTION_FAILED'})}}
