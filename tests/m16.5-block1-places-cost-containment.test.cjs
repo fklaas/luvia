@@ -60,7 +60,12 @@ assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order mu
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
 assert.match(gateway,/v2\.16\.3-cuisine-budget-continuity/,'gateway cache must invalidate after the cuisine budget continuity contract enters the public surface');
-assert.match(gateway,/version:'4\.38\.1-here-dietary-evidence'/,'gateway health version must expose the current dietary evidence cascade and bounded provider budgets');
+assert.match(gateway,/version:'4\.38\.2-google-permission-diagnostics'/,'gateway health version must expose the bounded Google permission diagnostic');
+assert.match(gateway,/function boundedGoogleError/,'Google failures must be reduced to a safe diagnostic projection');
+assert.match(gateway,/providerStatus:String\(error\?\.status\|\|'UNKNOWN'\)/,'the safe Google projection must retain the provider status');
+assert.match(gateway,/reason:String\(info\?\.reason\|\|error\?\.status\|\|'unknown'\)\.slice\(0,80\)/,'the safe Google projection must retain a bounded machine-readable permission reason');
+assert.match(gateway,/service:String\(info\?\.metadata\?\.service\|\|'places\.googleapis\.com'\)/,'the safe Google projection must identify the rejected service without exposing credentials');
+assert.doesNotMatch(gateway,/provider:body/,'raw Google provider responses must not cross the bounded error contract');
 assert.match(gateway,/aliasMediaIdentity:'contained_distinctive_name_and_max_25m'/,'safe provider-name variants require a much tighter coordinate proof');
 assert.match(gateway,/priority:'on_demand_dietary_fallback_and_exact_selected_media'/,'Foursquare use must stay on-demand for dietary fallback or exact selected media instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');
