@@ -3,23 +3,24 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft öffentlich fail-closed; App .95 / Core 4.82.214 schließt vor der öffentlichen P03-Abnahme den gefundenen Places/Timeline-profileFit-Widerspruch. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.95**, Core **4.82.214**. M16.5 Schritte 15–18 aktiv. P02 Passend läuft auf App .95 / Core 4.82.214 öffentlich fail-closed; der P03-Owner-Paritätsabschnitt ist über Places, Timeline und AI sichtbar bestanden. P02/P03 bleiben für die vollständige Breite teilweise. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** App .94 verarbeitet den exakten AI-Satz öffentlich und verwendet dafür die aktive Places-Kohorte ohne neue Provider-Reads. Der sichtbare Gegenbeleg einer Timeline-Karte mit identischer Place-ID, aber widersprüchlichem blocked-Zustand ist in App .95 behoben. 230/230 Safe Regression, 3/3 NFR-0, Release-, Architektur-, Plan- und Inventurgates sind grün.
+**Zuletzt geliefert:** App .95 verarbeitet den exakten AI-Satz öffentlich mit drei Treffern und verwendet dieselbe aktive Places-Kohorte ohne neue Provider-Reads. Places zeigt 9 strikt belegte Passend-Pins und schließt das Steakhouse aus. Timeline zeigt vier matched Vorschläge mit demselben lesbaren Ernährungsgrund; Strand-Creperie besitzt über Places, Timeline und AI dieselbe HERE-ID. 230/230 Safe Regression, 3/3 NFR-0, 30/30 Stable-/Immutable-Byte-Identität, Gateway v223 und Rückfallarchiv sind grün.
 
-**Nächster Schritt (AKTIV): App .95 veröffentlichen und die eine Passend-Entscheidung sichtbar über Places, Timeline und AI belegen.** Der öffentliche AI-Fallback funktioniert bereits. Vor Abschluss muss der jetzt behobene Timeline-Gegenbeleg auf dem immutable Integration-Worker sichtbar verschwinden.
+**Nächster Schritt (AKTIV): Kategorie-, Filter-, Foto- und Provider-Vollständigkeit schließen.** Die Owner-Parität ist öffentlich belegt. Jetzt muss dieselbe Verlässlichkeit über die gesamte Places- und Stays-Breite gelten, statt nur für den vegetarischen Restaurantpfad.
 
 **Abnahme dieses Schritts:**
 
-- Places zeigt ausschließlich vom Places-Owner als matched projizierte Passend-Pins; ein Steakhouse oder eine blockierte Altzeile bleibt ausgeschlossen.
-- Timeline übernimmt mindestens eine identische kanonische Place-/Provider-ID mit profileFit=matched und demselben lesbaren vegetarischen Grund.
-- AI Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ und verwendet dieselbe aktive Place-Kohorte.
-- Timeline und AI weisen für die Wiederverwendung Provider-Read-Zähler 0 aus.
-- Safe Regression 230/230, NFR-0 3/3, Stable/Immutable-Asset-Identität und Rückfallarchiv sind grün.
+- Alle 14 sichtbaren Kategorien und 82 kanonischen Zuordnungen liefern auf Desktop und Mobile konsistente Ergebnisse; Zoomen, Ziehen und schneller Kategorienwechsel bleiben bedienbar.
+- Jeder sichtbare Sachfilter und alle 19 Landesküchen werden gegen reale positive, negative, leere und teilweise Providerproben geprüft; UI-Label, aktive Kategorie und tatsächlich gefilterte Kohorte stimmen überein.
+- Passend bleibt für jede Kategorie owner-basiert und fail-closed; widersprüchliche oder unbelegte Orte erscheinen nicht als passend.
+- Detail-Sheets verwenden echte, dem exakten Place zuordenbare Bilder mit Herkunft; fehlende Bilder werden ehrlich und hochwertig behandelt, ohne irreführende Fremdort-Fotos.
+- Provider-Kaskade, Cache, Deduplizierung, Timeouts und Quoten sind messbar; Google bleibt bei höchstens 1.000 Aufrufen pro Tag, begrenzte Anbieter werden erst nach Cache und kostenlosen Quellen beansprucht.
+- Places und Stays bestehen dieselbe Karten-, Pin-, Such-, Filter-, Passend- und Mobilabnahme; Safe Regression, NFR-0, sichtbarer Browserbeleg und immutable Release-Identität sind grün.
 
-**Danach:** Nach dem öffentlichen P03-Paritätsbeleg wird die offene P02/P03-Vollständigkeit für alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen, Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
+**Danach:** Nach P02/P03-Vollständigkeit folgt P09/P10: gemeinsame Places-Karte in allen Timeline-Vorschlägen, physische Langdruck-/Wackelmodus-Abnahme, 90-Minuten-Routenfluss sowie Booking- und Visit-AI-Parität.
 
-**Weiter offen:** P02 bleibt teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P03 ist bis zum öffentlichen Chat-Beleg aktiv. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert.
+**Weiter offen:** P02/P03 bleiben teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert und über diese Blöcke sequenziert.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
