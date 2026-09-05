@@ -10,6 +10,7 @@ node_modules/**
 # M4.4 deployment-private artifacts
 .assetsignore
 wrangler.jsonc
+cloudflare-worker.js
 
 # Source / development directories
 /supabase

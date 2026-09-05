@@ -70,7 +70,7 @@ export function normalizeOsmDietaryElement(element:any,destination:any={}){
 }
 
 export function osmDietaryConfiguration(){
-  return Object.freeze({configured:true,priority:'free_dietary_evidence_fallback',scope:'explicit_diet_tags_only',automaticCascade:true,endpointFailover:'hedged_independent_instances',endpointCount:OVERPASS_ENDPOINTS.length,cacheTtlHours:CACHE_TTL_MS/3_600_000,attribution:'© OpenStreetMap contributors'});
+  return Object.freeze({configured:true,priority:'free_dietary_evidence_fallback',scope:'explicit_diet_tags_only',automaticCascade:true,transport:Deno.env.get('OSM_DIETARY_PROXY_URL')&&Deno.env.get('OSM_DIETARY_PROXY_TOKEN')?'authenticated_edge_proxy':'direct_instance_failover',endpointFailover:'hedged_independent_instances',endpointCount:OVERPASS_ENDPOINTS.length,cacheTtlHours:CACHE_TTL_MS/3_600_000,attribution:'© OpenStreetMap contributors'});
 }
 
 async function overpassElements(query:string){
@@ -106,6 +106,15 @@ async function overpassElements(query:string){
   }finally{clearTimeout(hedge)}
 }
 
+async function proxyElements(center:{latitude:number;longitude:number},radius:number,veganOnly:boolean){
+  const endpoint=clean(Deno.env.get('OSM_DIETARY_PROXY_URL')),tokenValue=clean(Deno.env.get('OSM_DIETARY_PROXY_TOKEN'));
+  if(!endpoint||!tokenValue)return null;
+  const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Luvia-Provider-Token':tokenValue},body:JSON.stringify({latitude:center.latitude,longitude:center.longitude,radius,veganOnly}),signal:AbortSignal.timeout(10000)});
+  const body=await response.json().catch(()=>({}));
+  if(!response.ok||body?.ok!==true||!Array.isArray(body?.elements))throw Object.assign(new Error('Der OSM-Evidenzproxy antwortet gerade nicht.'),{code:'OSM_DIETARY_PROXY_ERROR',status:response.status,provider:'openstreetmap'});
+  return body.elements;
+}
+
 export async function osmDietarySearch(destination:any={},options:any={}){
   const center=coordinate(destination?.location||destination?.center||destination?.canonicalCity?.center);
   if(!center)throw Object.assign(new Error('Für OSM-Ernährungshinweise fehlen Zielkoordinaten.'),{code:'OSM_DIETARY_LOCATION_REQUIRED',status:400,provider:'openstreetmap'});
@@ -124,7 +133,7 @@ export async function osmDietarySearch(destination:any={},options:any={}){
     :`nwr${area}[amenity~"${amenity}"]["diet:vegetarian"~"^(yes|only)$"];nwr${area}[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`;
   const query=`[out:json][timeout:7];(${statements});out center tags;`;
   const promise=(async()=>{
-    const elements=await overpassElements(query);
+    const elements=await proxyElements(center,radius,veganOnly)||await overpassElements(query);
     const rows=elements.map((element:any)=>normalizeOsmDietaryElement(element,destination)).filter((place:any)=>place&&distanceMeters(center,place.location)<=radius);
     const unique=[...new Map(rows.map((place:any)=>[place.providerPlaceId,place])).values()];
     return unique.slice(0,Math.max(1,Math.min(50,Number(options?.maxResultCount)||40)));

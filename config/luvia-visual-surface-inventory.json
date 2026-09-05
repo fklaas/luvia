@@ -4,8 +4,8 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3266,
-    "visualCandidates": 980,
+    "trackedFiles": 3267,
+    "visualCandidates": 981,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -2702,6 +2702,14 @@
       ],
       "bytes": 8798,
       "sha256": "9175b1b798298e4beba48f90e27023620834f5cb779f03e615749498cfad0a71"
+    },
+    {
+      "path": "cloudflare-worker.js",
+      "classes": [
+        "interaction-source"
+      ],
+      "bytes": 5079,
+      "sha256": "b54678fa8223be8e3e5fca0fdf5c95e6cd22bed7f15fe9750f4b94e049667508"
     },
     {
       "path": "console.html",
@@ -6705,8 +6713,8 @@
         "dom-rendering-source",
         "interaction-source"
       ],
-      "bytes": 10574,
-      "sha256": "2123e34f48a1ab511fbbea63b2c9eb6bb19c2f7e08ac914567476a03733aeeea"
+      "bytes": 11634,
+      "sha256": "20d47907d9f67620352adb6c9b5602e4a5d3c176752ccd7adc7f14a65e6c521f"
     },
     {
       "path": "supabase/functions/luvia-gateway/_shared/places.ts",
@@ -6714,8 +6722,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 103986,
-      "sha256": "80c909c0e4114d26894879b357cd48e48932ad376d9d652ecfd3451857035657"
+      "bytes": 103974,
+      "sha256": "0aca8d77f7e7b58d5e7b284c0da272d84139197aa98c360fcd3461e68cc03343"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7807,8 +7815,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 10213,
-      "sha256": "e490b0f85b393054bbbba5f93f0b6e71e24058d63a9e9de59c7e3fcaa0a788f1"
+      "bytes": 10194,
+      "sha256": "5432b141dabf598d29579780b897e781a4f1a7f7f9b5d624eda67d78917e3701"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",
