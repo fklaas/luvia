@@ -28,6 +28,12 @@ f.state.results=[{id:'yes',types:['restaurant','italian_restaurant'],rating:4.8,
 assert.deepEqual(Array.from(f.filteredResults(),p=>p.id),['yes'],'OR within one group, AND across groups');
 f.state.filters=f.emptyFilters();assert.equal(f.filteredResults().length,2,'reset restores full cohort');
 f.state.sort='distance';assert.equal(f.filteredResults()[0].id,'other','distance sort works without device permission');
+f.state.filters=f.emptyFilters();f.state.filters.cuisines=['spanish_restaurant'];f.state.results=[
+ {id:'here:primary-spanish',types:['restaurant','spanish_restaurant'],raw:{foodTypes:[{name:'Spanish',primary:true}]}},
+ {id:'here:secondary-spanish',types:['restaurant','german_restaurant','spanish_restaurant'],raw:{foodTypes:[{name:'German',primary:true},{name:'Spanish',primary:false}]}},
+ {id:'geoapify:spanish',types:['restaurant','spanish_restaurant']}
+];
+assert.deepEqual(Array.from(f.filteredResults(),p=>p.id),['here:primary-spanish','geoapify:spanish'],'the client must reject HERE secondary cuisine tags before and after the provider refresh');
 for(const key of ['openNow','rated','rating45','reservable','accessible','vegetarian']){
  f.state.sort='fit';f.state.filters=f.emptyFilters();f.state.filters[key]=true;
  const yes={id:'yes',types:['restaurant'],openNow:true,rating:4.8,features:{reservable:true,servesVegetarianFood:true},accessibilityOptions:{wheelchairAccessibleEntrance:true}},no={id:'no',types:['restaurant'],openNow:false,rating:3,features:{reservable:false,servesVegetarianFood:false},accessibilityOptions:{wheelchairAccessibleEntrance:false}},unknown={id:'unknown',types:['restaurant']};
@@ -67,6 +73,10 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  const rescueCalls=[];ctx.fetch=async url=>{const u=new URL(url);rescueCalls.push(u);if(u.searchParams.get('limit')==='500')return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:'raw-cuisine',name:'Raw cuisine',lat:54.02,lon:10.75,categories:['catering.restaurant'],catering:{cuisine:'italian'}}}]})};return{ok:true,status:200,json:async()=>({features:[]})}};
  const rescued=await ctx.provider.geoapifyPlacesSearch('Italienisch Restaurant',{location:point},{category:'food',includedType:'italian_restaurant',includedTypes:['italian_restaurant'],userQuery:''},null,null);
  assert.equal(rescueCalls.length,2,'a genuine typed zero performs one bounded cohort rescue');assert.equal(rescued.length,1);assert.ok(rescued[0].types.includes('italian_restaurant'));
+ const falsePositiveCalls=[];ctx.fetch=async url=>{const u=new URL(url);falsePositiveCalls.push(u);if(u.searchParams.get('limit')==='500')return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:'evidenced-spanish',name:'Taberna Española',lat:54.02,lon:10.75,categories:['catering.restaurant'],catering:{cuisine:'spanish'}}}]})};return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:'generic-one',name:'Generic Restaurant',lat:54.02,lon:10.75,categories:['catering.restaurant']}},{properties:{place_id:'generic-two',name:'Another Restaurant',lat:54.021,lon:10.751,categories:['catering.restaurant']}}]})}};
+ const strictSpanish=await ctx.provider.geoapifyPlacesSearch('Spanisch Restaurant',{location:{latitude:54.031,longitude:10.761}},{category:'food',includedType:'spanish_restaurant',includedTypes:['spanish_restaurant'],userQuery:''},null,null);
+ assert.equal(falsePositiveCalls.length,2,'non-evidenced cuisine rows trigger one bounded cohort rescue');
+ assert.deepEqual(Array.from(strictSpanish,p=>p.name),['Taberna Española'],'a cuisine filter never relabels generic restaurants as the selected national cuisine');
  const partialCalls=[];ctx.fetch=async url=>{const u=new URL(url),category=u.searchParams.get('categories');partialCalls.push(category);if(category==='entertainment')throw Object.assign(new Error('supplement unavailable'),{code:'PROVIDER_BUDGET_DENIED',status:503});return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:category,name:category,lat:54.02,lon:10.75,categories:[category]}}]})}};
  const partialActivities=await ctx.provider.geoapifyPlacesSearch('Aktivitäten Erlebnisse Freizeit',{location:point},{category:'activities',userQuery:'',maxResultCount:50},null,null);
  assert.deepEqual(partialCalls.sort(),['entertainment','leisure','sport'],'all broad category parents are requested independently');

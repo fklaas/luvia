@@ -59,7 +59,16 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
   const requested=(options.includedTypes?.length?options.includedTypes:[options.includedType]).filter(Boolean);
   const cuisineTypes=options.strictTypeFiltering===true?requested.filter((t:string)=>t.endsWith('_restaurant')&&Object.hasOwn(cuisines,t.replace(/_restaurant$/,''))):[];
   const required=cuisineTypes.length?cuisineTypes:requested;
-  const normalizeRows=(rows:any[])=>rows.map(row=>normalizeAdditional(provider,row)).filter(place=>place&&(!required.length||required.some((type:string)=>place.types.includes(type))));
+  const normalizeRows=(rows:any[])=>rows.map(row=>({row,place:normalizeAdditional(provider,row)})).filter(({row,place})=>{
+    if(!place||required.length&&!required.some((type:string)=>place.types.includes(type)))return false;
+    if(provider!=='here'||!cuisineTypes.length)return true;
+    // HERE may attach the requested cuisine as a secondary food type to a broad
+    // restaurant result. For an exclusive cuisine filter, accept only the
+    // provider's primary food-type evidence; otherwise almost every restaurant
+    // can be relabelled as Spanish, German, Italian, etc.
+    const primaryCuisineTypes=additionalTypes((row?.foodTypes||[]).filter((foodType:any)=>foodType?.primary===true).map((foodType:any)=>foodType?.name));
+    return cuisineTypes.some((type:string)=>primaryCuisineTypes.includes(type));
+  }).map(({place})=>place);
   let data:any;
   if(provider==='tomtom'){
     const key=secret(provider),params=new URLSearchParams({key,limit:String(limit),language:'en-GB'});

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.6-multi-provider-cache-v6';
+  const VERSION='1.31.7-primary-cuisine-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -65,6 +65,9 @@
     practical:{icon:'route',hint:'Apotheke · Parken · Laden'}
   });
   const emptyFilters=()=>({openNow:false,rated:false,rating45:false,nearby:false,vegetarian:false,reservable:false,accessible:false,priceLevels:[],types:[],cuisines:[]});
+  const HERE_PRIMARY_CUISINE_ALIASES=Object.freeze({
+    italian_restaurant:['italian','italienisch'],german_restaurant:['german','deutsch'],mediterranean_restaurant:['mediterranean','mediterran'],greek_restaurant:['greek','griechisch'],french_restaurant:['french','franzosisch'],spanish_restaurant:['spanish','spanisch'],indian_restaurant:['indian','indisch'],asian_restaurant:['asian','asiatisch'],chinese_restaurant:['chinese','chinesisch'],japanese_restaurant:['japanese','japanisch'],thai_restaurant:['thai','thailandisch'],vietnamese_restaurant:['vietnamese','vietnamesisch'],korean_restaurant:['korean','koreanisch'],mexican_restaurant:['mexican','mexikanisch'],middle_eastern_restaurant:['middle eastern','middle_eastern','nahostlich','arabian'],lebanese_restaurant:['lebanese','libanesisch'],turkish_restaurant:['turkish','turkisch'],vegetarian_restaurant:['vegetarian','vegetarisch'],vegan_restaurant:['vegan']
+  });
   const CATEGORY_FILTERS=Object.freeze({
     accommodation:Object.freeze({label:'Unterkunftsart',types:Object.freeze([['hotel','Hotel'],['apartment','Apartment'],['vacation_rental','Ferienhaus'],['hostel','Hostel'],['campground','Camping']]),subtypes:Object.freeze([]),facts:Object.freeze(['rating45','accessible'])}),
     food:Object.freeze({label:'Restaurant & Küche',types:Object.freeze([
@@ -166,7 +169,14 @@
   const hasReferenceDistance=place=>['device','destination','map-center'].includes(place?.distanceReference)&&place?.distanceMeters!=null&&Number.isFinite(Number(place.distanceMeters));
   const normalizedPriceLevel=value=>({0:'PRICE_LEVEL_FREE',1:'PRICE_LEVEL_INEXPENSIVE',2:'PRICE_LEVEL_MODERATE',3:'PRICE_LEVEL_EXPENSIVE',4:'PRICE_LEVEL_VERY_EXPENSIVE'}[clean(value)]||clean(value).toUpperCase());
   function placeTypeSet(place){return new Set([place?.primaryType,place?.primary_type,place?.category,...(place?.types||[])].map(clean).filter(Boolean))}
-  function matchesTypeGroup(place,values=[]){if(!values.length)return true;const types=placeTypeSet(place);return values.some(value=>types.has(value)&&(value!=='vegetarian_restaurant'||place.features?.servesVegetarianFood!==false)&&(value!=='vegan_restaurant'||place.features?.servesVeganFood!==false))}
+  const normalizedEvidence=value=>clean(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\s-]+/g,'_');
+  function hasPrimaryCuisineEvidence(place,type){
+    const aliases=HERE_PRIMARY_CUISINE_ALIASES[type];
+    if(!aliases||!providerId(place).startsWith('here:'))return true;
+    const primary=(place?.raw?.foodTypes||[]).filter(item=>item?.primary===true).map(item=>normalizedEvidence(item?.name||item?.id));
+    return primary.some(value=>aliases.some(alias=>{const expected=normalizedEvidence(alias);return value===expected||value.includes(expected)}));
+  }
+  function matchesTypeGroup(place,values=[]){if(!values.length)return true;const types=placeTypeSet(place);return values.some(value=>types.has(value)&&hasPrimaryCuisineEvidence(place,value)&&(value!=='vegetarian_restaurant'||place.features?.servesVegetarianFood!==false)&&(value!=='vegan_restaurant'||place.features?.servesVeganFood!==false))}
   function activeFilterCount(){return['openNow','rated','rating45','nearby','vegetarian','reservable','accessible'].filter(key=>Boolean(state.filters[key])).length+(state.filters.priceLevels||[]).length+(state.filters.types||[]).length+(state.filters.cuisines||[]).length}
   function filteredResults(source=state.results){const preferred=state.fitOnly?preferredPlaceIds(source):null,rows=(Array.isArray(source)?source:[]).filter(place=>(!state.fitOnly||preferred.has(providerId(place)))&&matchesTypeGroup(place,state.filters.types)&&matchesTypeGroup(place,state.filters.cuisines)&&(!state.filters.openNow||place.openNow===true)&&(!state.filters.rated||Number(place.rating)>0)&&(!state.filters.rating45||Number(place.rating)>=4.5)&&(!state.filters.nearby||(hasReferenceDistance(place)&&Number(place.distanceMeters)<=5000))&&(!state.filters.vegetarian||hasVegetarianProviderEvidence(place))&&(!state.filters.reservable||place.features?.reservable===true)&&(!state.filters.accessible||place.accessibilityOptions?.wheelchairAccessibleEntrance===true)&&(!(state.filters.priceLevels||[]).length||state.filters.priceLevels.includes(normalizedPriceLevel(place.priceLevel))));return rows.sort((left,right)=>state.sort==='rating'?Number(right.rating||0)-Number(left.rating||0):state.sort==='distance'?(hasReferenceDistance(left)?Number(left.distanceMeters):Infinity)-(hasReferenceDistance(right)?Number(right.distanceMeters):Infinity):(verifiedFitScore(right)??Number(right.discoveryScore??right.rating??0))-(verifiedFitScore(left)??Number(left.discoveryScore??left.rating??0)))}
   function ensureVisibleFitResults(source=state.results){

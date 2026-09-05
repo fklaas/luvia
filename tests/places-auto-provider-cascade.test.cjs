@@ -27,7 +27,7 @@ const options=latitude=>({
   locationRestriction:{rectangle:{low:{latitude:latitude-.08,longitude:10.65},high:{latitude:latitude+.08,longitude:10.85}}}
 });
 const tomtomRow={id:'tt-chinese',poi:{name:'China Garten',classifications:[{code:'RESTAURANT',names:[{name:'Chinese Restaurant'}]}]},address:{freeformAddress:'Strandallee 1, Scharbeutz'},position:{lat:54.0215,lon:10.7537}};
-const hereRow={id:'here:chinese',resultType:'place',title:'China Restaurant Ming',position:{lat:54.1215,lng:10.7537},address:{label:'Seestraße 2, Scharbeutz'},categories:[{name:'Restaurant'}],foodTypes:[{name:'Chinese'}]};
+const hereRow={id:'here:chinese',resultType:'place',title:'China Restaurant Ming',position:{lat:54.1215,lng:10.7537},address:{label:'Seestraße 2, Scharbeutz'},categories:[{name:'Restaurant'}],foodTypes:[{name:'Chinese',primary:true}]};
 
 (async()=>{
   const calls=[];
