@@ -3,24 +3,25 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.58**, Core **4.82.180**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-05:** Integration **13.82.168.59**, Core **4.82.181**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
-**Zuletzt geliefert:** App .58 / Gateway v170 stabilisiert die Places- und Stays-Providerkaskade auf Integration. Erfolgreiche leere Antworten und Providerfehler sind getrennt; HERE übernimmt nach budgetbedingt abgewiesenen Geoapify-/TomTom-Vorrängen. Sichtbar: Food 50 → Shopping 21 → Natur 12 → Shopping 21 → Food 50, Chinesisch 2, Shopping Alle/Passend/Alle 21/6/21 und Stays 50/25/50. Food Passend markiert kein Steakhouse falsch. Gateway-Proben liefern Food 12, Chinesisch 2 und Natur 12 ohne Unterkunfts-/Spa-Typen. 220/220 Regression und 30/30 Byte-Gleichheit sind belegt.
+**Zuletzt geliefert:** App .59 / Gateway v172 stabilisiert Kategorie-Reinheit und ausgewählte echte Ortsmedien auf Integration. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Food Passend 0 markiert das Steakhouse nicht, Natur enthält keine Verwaltung und Stays 49/27/49 keine Strandkorbvermietung. Der Exact-Photo-Pfad verlangt identischen Namen und höchstens 120 Meter, ruft danach höchstens ein beliebtes Foto ab und übernimmt kein nahes Fremdbild. Eine von sechs geprüften Unterkünften erhielt ein providerverknüpftes Bild. 220/220 Safe Regression und 30/30 öffentliche Dateien sind belegt.
 
-**Nächster Schritt (GEPLANT): Reale Filtermatrix, positive Profilevidenz und echte Place-Fotos schließen.** Die Providerkaskade und Kategorie-Kontinuität sind stabilisiert. Offen sind die reale Abnahme jeder Filteroption über UI und AI Chat, belastbare positive vegetarische Treffer, zwei bekannte Kategorie-Randtreffer und exakt zugeordnete Ortsfotos.
+**Nächster Schritt (AKTIV): Reale Filtermatrix, positive Profilevidenz und echte Place-Fotos schließen.** Providerkaskade, Kategorienwechsel, bekannte Randtreffer und ein sicherer Exact-Photo-Pfad sind stabilisiert. Offen sind die reale Abnahme jeder Filteroption über UI und AI Chat, positive vegetarische Treffer, die Differenz Shopping 21 gegenüber dem früheren Soll 45 sowie ausreichend echte Bilder.
 
 **Abnahme dieses Schritts:**
 
 - Jede sichtbare Places-Filteroption und jede Landesküche erhält einen providerübergreifenden Suchplan; positive Treffer, belegte Nulltreffer, Budgetausfall und Reset werden sichtbar sowie über den AI Chat geprüft.
 - Geoapify, TomTom und HERE verwenden kompatible Küchen-/Kategorieevidenz und abgestufte Kosten. Die öffentliche Diagnose muss Food, Spezialküche und Kategorieausschlüsse weiterhin unabhängig von einem erschöpften Primärpool belegen.
-- Alle und Passend verwenden dieselbe Place-Menge und ausschließlich belegte Profilvorlieben. Ein vegetarisches Profil darf ein fleischzentriertes Steakhouse ohne konkrete vegetarische Angebotsevidenz nicht als passend markieren.
-- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Fehlende Fotos bleiben ein sichtbarer Beschaffungszustand und werden nie als echtes Ortsfoto ausgegeben.
+- Alle und Passend verwenden dieselbe Place-Menge und ausschließlich belegte Profilvorlieben. Ein vegetarisches Profil darf ein fleischzentriertes Steakhouse ohne konkrete vegetarische Angebotsevidenz nicht als passend markieren und muss belegte positive Orte finden.
+- Die stabile Shopping-Menge wird gegen das frühere Soll 45 analysiert; fehlende Provider-Segmente werden ergänzt, ohne Fremdkategorien oder unkontrollierten Anfragefächer.
+- Jede Detailkarte versucht ein exakt zum Provider-Place gehörendes Foto mit Attribution zu laden. Weitere Medienquellen dürfen nur nach belegter Entity-Zuordnung ergänzen; ein fehlendes Bild bleibt ehrlich sichtbar.
 - Places und Stays werden auf sichtbarem Desktop und physischem Mobilgerät mit Reiseziel, Zoom, Ziehen, Filtern, Ladezeit, Cache-/Provider-Spur und Budgetzustand wiederholt abgenommen.
 - Vollständige Safe Regression, 30/30 Byte-Gleichheit, unveränderliches Archiv und exakter Frontend-/Gateway-Rückfall bleiben Releasegate.
 
 **Danach:** Danach P09/P10 mit positiven delegierten Verwaltungswegen für Booking, bestätigte Besuche und Memory-/Foto-Momente fortsetzen; anschließend physische iPhone-/Android- und echte Mehrnutzerkonflikte nachschärfen und die vollständige B1-Nutzerkette schließen.
 
-**Weiter offen:** P02/P03: reale Vollabnahme aller Filter und Landesküchen über UI/AI Chat, positive vegetarische Profilevidenz, bekannte Kategorie-Randtreffer und echte Place-Fotos. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
+**Weiter offen:** P02/P03: reale Vollabnahme aller Filter und Landesküchen über UI/AI Chat, positive vegetarische Profilevidenz, Shopping-Vollständigkeit und breite echte Place-Fotos. P09/P10: positive Booking-/Visit-/Memory-Owner-Wege. Reale Geräte und Mehrnutzerfälle bleiben offen; M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt im Gesamtplan bis M22 erhalten.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -41,7 +42,7 @@ M0–M16 sind dokumentiert geschlossen. M16.5 bleibt aktiv: Schritte 01–14 ges
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.58 / Core 4.82.180 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
+Integration läuft auf 13.82.168.59 / Core 4.82.181 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## Verbindlicher aktueller Stand
@@ -132,9 +133,9 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.58 / Core 4.82.180 auf Integration veröffentlicht; Runtime-Quelle 2a1889ee459f, unveränderliches Archiv release58-2a1889ee459f.zip mit SHA-256 77BE6D483B4697576EA105262B288E0D1D354CD80D5D97961E7BA582ABB485C2, Worker 4c6b1b02, Gateway v170 ACTIVE aus Quelle 542608355893, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 12 → Shopping 21 → Food 50; Chinesisch 2; Shopping Alle 21 → Passend 6 → Alle 21; Stays Alle 50 → Passend 25 → Alle 50. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
+13.82.168.59 / Core 4.82.181 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
 
-**Nächster Abschlussnachweis:** Den P02/P03-Restblock aus realer Filter-/Foto-Matrix, positiver vegetarischer Profilevidenz und bekannten Kategorie-Randtreffern schließen; .57/v169 als Rückfall erhalten.
+**Nächster Abschlussnachweis:** Den P02/P03-Restblock aus realer Filter-/Foto-Matrix und positiver vegetarischer Profilevidenz weiterführen; .57/v169 als Rückfall erhalten und das 220/220-Gate bei jedem weiteren Slice erneut ausführen.
 
 **Erhaltener technischer Umfang:** Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.
 
@@ -142,17 +143,17 @@ Die Kennzeichnungen sind keine Prozentrechnung. Ein API-200 ist keine Produktabn
 
 **Stand:** TEILWEISE. **Zuständig:** Places und Gateway. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Gateway v170 und App .58 betreiben die Reihenfolge Geoapify → TomTom → HERE budgetbewusst und unterscheiden Providerfehler von einer erfolgreichen leeren Antwort. Öffentliche Scharbeutz-Proben lieferten über HERE nach abgewiesenen Vorrangbudgets breite Food-Ergebnisse 12, Chinesisch 2 und Natur 12 ohne Unterkunfts-/Spa-Typen. Die breite Food-Suche bleibt trotz standardmäßiger Vegetarisch-/Vegan-Typen im vollständigen Restaurantfamilienmodus; nur eine ausdrücklich gewählte Landesküche aktiviert den engen 5-km-Küchenmodus. Automatisiert sind alle 19 Küchen sowie Kategorie-, Fakten-, Kombinations- und Resetverträge belegt. Sichtbar blieb die Folge Food 50 → Shopping 21 → Natur 12 → Shopping 21 → Food 50 stabil; Chinesisch zeigte 2 Orte. Vollständige UI-/Chat-Filterrealität, positive vegetarische Evidenz und echte Fotos jedes Places bleiben offen. Sichtbare Randtreffer Gemeindeverwaltung in Natur und Strandkorbvermietung in Stays sind für die nächste Taxonomie-Runde protokolliert.
+Gateway v172 und App .59 betreiben Geoapify → TomTom → HERE budgetbewusst und unterscheiden Providerfehler von erfolgreichen leeren Antworten. Öffentliche v172-Proben wurden diesmal schon von Geoapify beantwortet: Food 12, Chinesisch 1 und Natur 12. Der historische v170/HERE-Probelauf mit Chinesisch 2 bleibt als providerabhängige Momentaufnahme erhalten. Automatisiert sind alle 19 Küchen, Faktenfilter, Kombinationen, Reset, Kategorie-Reinheit und Stays-Parität belegt. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Natur enthielt keine Verwaltung und Stays keine Strandkorbvermietung. Ausgewählte Places dürfen Foursquare-Medien nur nach identischem normalisiertem Namen und höchstens 120 Metern ergänzen; nach dieser Prüfung ruft v172 höchstens ein beliebtes Place-Foto ab. Ein Foto erschien in einer Stichprobe von sechs Stays, fünf blieben ehrlich ohne Foto. Vollständige UI-/Chat-Filterrealität, positive vegetarische Evidenz, Shopping-Vollständigkeit und breite echte Fotoabdeckung bleiben offen.
 
-**Nächster Abschlussnachweis:** Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen, bekannte Kategorie-Randtreffer entfernen und danach exakte Place-Fotos mit belegter Entity-Zuordnung und Attribution schließen; Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.
+**Nächster Abschlussnachweis:** Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen; stabile Shopping-Abdeckung gegen das frühere Soll 45 untersuchen, positive vegetarische Evidenz beschaffen und die echte Bildabdeckung mit weiteren exakt identifizierten Medienquellen erweitern. Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.
 
-**Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Current sources are Geoapify, TomTom and HERE; Google and Foursquare are policy-disabled pending budget and product approval.
+**Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Active search sources are Geoapify, TomTom and HERE; Foursquare is limited to on-demand exact selected-place media; Google remains opt-in disabled pending budget and product approval.
 
 ### P03 Ortsentdeckung im AI Chat
 
 **Stand:** TEILWEISE. **Zuständig:** Intelligence und Places. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App .58 übernimmt Reiseziel, Viewport und belegte Profilmerkmale in dieselbe Places/Stays-Projektion. Sichtbar: Shopping Alle 21 → Passend 6 → Alle 21 und Stays Alle 50 → Passend 25 → Alle 50. Food Alle 50 → Passend 0 → Alle 50 bleibt ehrlich: kein Steakhouse-Falschpositiv, aber noch keine belastbare positive vegetarische Evidence in den geladenen Providerdatensätzen. Chinesisch lieferte 2 echte Orte im 5-km-Kreis. Die vollständige positive UI- und AI-Chat-Abnahme aller Landesküchen, Filterkombinationen, positiven vegetarischen Treffer und widersprüchlichen Wünsche bleibt offen.
+App .59 übernimmt Reiseziel, Viewport und belegte Profilmerkmale in dieselbe Places/Stays-Projektion. Sichtbar: Food Alle 50 → Passend 0; Erdmanns Kleines Steakhaus besitzt weder die bevorzugte Klasse noch die zugängliche Passend-Kennzeichnung. Stays Alle 49 → Passend 27 → Alle 49. Der Food-Nullstand verhindert Falschpositive, zeigt aber zugleich die fehlende positive vegetarische Provider-Evidenz. Die vollständige positive UI- und AI-Chat-Abnahme aller Landesküchen, Filterkombinationen und widersprüchlichen Wünsche bleibt offen.
 
 **Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; positive vegetarische Profilevidenz ohne Steakhouse-Falschpassung beschaffen und transiente Detail-/Fotoabrufe im Chat schließen.
 
@@ -512,7 +513,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.58 / Core 4.82.180: Runtime 2a1889ee459f, unveränderliches Archiv release58-2a1889ee459f.zip, SHA-256 77BE6D483B4697576EA105262B288E0D1D354CD80D5D97961E7BA582ABB485C2, Gateway v170 ACTIVE, Worker 4c6b1b02, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/12/21/50, Chinesisch 2, Shopping 21/6/21 und Stays 50/25/50. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
+13.82.168.59 / Core 4.82.181: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 

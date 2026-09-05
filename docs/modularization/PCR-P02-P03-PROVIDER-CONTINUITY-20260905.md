@@ -1,53 +1,54 @@
-# PCR P02/P03 – Provider-Kontinuität und Kartenwahrheit
+# PCR P02/P03 – Provider-Kontinuität, Kartenwahrheit und exakte Ortsmedien
 
-Stand: 5. September 2026. Dieser Bericht belegt den angenommenen Integrationsstand der Places- und Stays-Karten nach der Wiederherstellung des Mehranbieter-Fallbacks. Er ersetzt keine noch offene Vollabnahme aller sichtbaren Filter und Ortsfotos.
+Stand: 5. September 2026. Dieser Bericht belegt den aktuellen Integrationsstand der Places- und Stays-Karten nach der Wiederherstellung des Mehranbieter-Fallbacks, der Bereinigung bekannter Kategorie-Randtreffer und der ersten exakten Ortsmedienkette. Er ersetzt keine noch offene Vollabnahme aller sichtbaren Filter und Ortsfotos.
 
 ## Veröffentlichter Stand
 
-- App `13.82.168.58`, Core `4.82.180`, Integration Worker `4c6b1b02-aba9-4ddc-b3b8-08f000b7b4a9`.
-- Frontend-Runtime `2a1889ee459f4cd9dbb4843880dc8bde06d8a81b`.
-- Gateway v170 ACTIVE, Health-Version `4.34.9-broad-food-cascade`, Gateway-Quelle `542608355893aa8813aa9d82d77d679fb7a5e26f`.
-- Unveränderliches Archiv `release58-2a1889ee459f.zip`, SHA-256 `77BE6D483B4697576EA105262B288E0D1D354CD80D5D97961E7BA582ABB485C2`.
+- App `13.82.168.59`, Core `4.82.181`, Integration Worker `563afd24-2b2a-4c71-8b49-eb88ff1ffbe0`.
+- Frontend-Runtime `fac7b348` und Gateway-Quelle `7c288d89`.
+- Gateway v172 ACTIVE, Health-Version `4.35.1-exact-photo-endpoint`.
+- Unveränderliches Frontend-Archiv `release59-fac7b348.zip`, SHA-256 `DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F`.
 - Main blieb bei `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`.
 
 ## Was repariert wurde
 
-Geoapify, TomTom und HERE unterscheiden nun zwischen einem Providerfehler und einer erfolgreichen Suche ohne Treffer. Ein verfügbarer Alternativanbieter übernimmt nach budgetbedingt abgewiesenen Vorranganbietern. Provider-Ausschlüsse werden vor Rückgabe und Cache erzwungen. Natur schließt Unterkünfte und Spa aus; Wellness bleibt separat. Ausdrücklich gewählte Landesküchen verwenden eine begrenzte 5-km-Suche. Die breite Kategorie Essen und Trinken bleibt eine 3-km-Suche über die gesamte Restaurantfamilie und wird nicht durch die standardmäßig mitgeführten Typen Vegetarisch und Vegan zu einer Spezialküchensuche verengt.
+Geoapify, TomTom und HERE unterscheiden nun zwischen einem Providerfehler und einer erfolgreichen Suche ohne Treffer. Ein verfügbarer Alternativanbieter übernimmt nach budgetbedingt abgewiesenen Vorranganbietern. Provider-Ausschlüsse werden vor Rückgabe und Cache erzwungen. Natur schließt Unterkünfte, Spa und Verwaltungsstellen aus; Wellness bleibt separat. Stays verwirft Strandkorbvermietungen. Ausdrücklich gewählte Landesküchen verwenden eine begrenzte 5-km-Suche. Die breite Kategorie Essen und Trinken bleibt eine 3-km-Suche über die gesamte Restaurantfamilie und wird nicht durch die standardmäßig mitgeführten Typen Vegetarisch und Vegan zu einer Spezialküchensuche verengt.
+
+Für die ausgewählte Detailkarte fragt die App Medien nur bei Bedarf ab. Gateway v172 darf Foursquare genau einmal nach dem normalisierten identischen Namen und höchstens 120 Metern Distanz als Bildquelle ergänzen. Falls die Suche kein Foto enthält, folgt nach dieser Identitätsprüfung genau ein Abruf des beliebtesten Fotos über den aktuellen Place-Photos-Endpunkt. Der ursprüngliche Provider-Ort, seine Referenz und seine Evidenz bleiben erhalten; ein nahes Bild mit abweichendem Ortsnamen wird verworfen. Geoapify-eigene, mit dem exakten Ortseintrag verknüpfte Wikimedia-Medien bleiben ebenfalls zulässig.
 
 ## Öffentliche Gateway-Belege
 
-Die begrenzten Diagnoseproben liefen über den veröffentlichten Gateway v170. Geoapify und TomTom wurden budgetbewusst versucht; HERE antwortete und lieferte die verwendeten Daten.
+Die folgenden begrenzten Diagnoseproben liefen nach dem sichtbaren Browsertest über den veröffentlichten Gateway v172. Geoapify beantwortete alle drei Proben selbst; TomTom und HERE wurden deshalb nicht verbraucht.
 
 - `food-scharbeutz`: 12 Orte, breite Food-Suche erfolgreich.
-- `chinese-scharbeutz`: 2 belegte Treffer – China Restaurant Haycheng und Saigon Asia Bistro.
+- `chinese-scharbeutz`: 1 belegter enger Treffer – Hay-Cheng. Der historische v170/HERE-Beleg mit 2 Treffern bleibt als providerabhängige Momentaufnahme erhalten.
 - `nature-scharbeutz`: 12 Orte; kein zurückgegebener Unterkunfts-, Camping- oder Spa-Typ.
 
 Maschinenlesbare Belege:
 
-- `outputs/release58-gateway170-food-scharbeutz.json`
-- `outputs/release58-gateway170-chinese-scharbeutz.json`
-- `outputs/release58-gateway170-nature-scharbeutz.json`
+- `outputs/release59-gateway172-food-scharbeutz.json`
+- `outputs/release59-gateway172-chinese-scharbeutz.json`
+- `outputs/release59-gateway172-nature-scharbeutz.json`
 
 ## Sichtbare Browserabnahme
 
 Die veröffentlichte Integration wurde in einem sichtbaren Browser mit der aktiven Reise Ostseeurlaub und dem Ziel Scharbeutz geprüft.
 
-- Kategorienfolge: Essen und Trinken 50 → Shopping 21 → Natur und Erholung 12 → Shopping 21 → Essen und Trinken 50. Food blieb nach weiteren sechs Sekunden bei 50; kein nachträglicher Nullzustand.
-- Chinesisch: 5 km um Scharbeutz, 2 Pins, keine Providerfehlermeldung.
-- Natur: 12 Pins; in den sichtbaren Markern keine Hotels, Apartments, Ferienunterkünfte, Campingplätze oder Spas.
-- Shopping: Alle 21 → Passend 6 → Alle 21.
-- Essen und Trinken: Alle 50 → Passend 0 → Alle 50. Das Steakhouse wird nicht als passend ausgegeben. Der Nullstand ist gegenwärtig ehrlich, weil die geladenen Food-Datensätze keine belastbare positive vegetarische Profilevidenz enthalten.
-- Stays: Alle 50 → Passend 25 → Alle 50; Zielort Scharbeutz. Die Kurzvorschau ist ein Nachfahre des geografischen Kartencontainers.
+- Kategorienfolge auf .59: Essen und Trinken 50 → Shopping 21 → Natur und Erholung 11 → Shopping 21 → Essen und Trinken 50. Kein Wechsel erzeugte einen vorübergehenden oder dauerhaften Nullzustand.
+- Natur: 11 sichtbare Pins; keine Gemeindeverwaltung, kein Rathaus sowie keine Unterkunft oder Spa in den sichtbaren Markern.
+- Essen und Trinken: Alle 50 → Passend 0. Das Steakhouse besitzt weder die bevorzugte Pin-Klasse noch die zugängliche Passend-Kennzeichnung. Der Nullstand ist gegenwärtig ehrlich, weil die geladenen Food-Datensätze keine belastbare positive vegetarische Profilevidenz enthalten.
+- Stays: Alle 49 → Passend 27 → Alle 49; Zielort Scharbeutz und keine Strandkorbvermietung in den sichtbaren Markern.
+- Medien-Stichprobe: Der ausgewählte Food-Ort sowie fünf von sechs nacheinander geöffneten Stays blieben ohne Foto. Bei einem Stay wurde ein providerverknüpftes Wikimedia-Foto geladen. Die Kette funktioniert, die Abdeckung ist noch klar unzureichend.
 
 ## Automatisierte Abnahme und Releaseidentität
 
-- Safe Regression: 220/220 PASS nach Gateway-Quelle v170.
-- Frontend-Release .58: 30/30 öffentliche Dateien bytegleich; immutable Worker-Präfix `4c6b1b02`.
-- Vollständige Provider-Orchestrierung belegt Budgetreservierung, Fallback, 19 Landesküchen, native Küchenevidenz und exakte Bildzuordnung als Vertrag.
+- Frontend-Release .59: 30/30 öffentliche Dateien bytegleich; immutable Worker-Präfix `563afd24`.
+- Fokussierte Abnahmen belegen Filtermatrix, Provider-Orchestrierung, Budgetkaskade, 19 Landesküchen, native Küchenevidenz, Kategorie-Reinheit, Stays-Parität und die exakte Bildzuordnung einschließlich des eigenen Photo-Endpunkts.
+- Safe Regression: 220/220 PASS auf dem konsolidierten .59/v172-Stand. Ein früherer Lauf mit erwarteten veralteten Status-/Inventargates wurde nicht als Schlussbeleg verwendet.
 
 ## Verbleibende Grenzen
 
-P02/P03 bleiben TEILWEISE. Jede sichtbare Filteroption muss noch einmal über das reale UI und den AI-Chat positiv oder ehrlich leer abgenommen werden. Positive vegetarische Food-Evidenz muss providerübergreifend beschafft werden, damit Passend nicht nur Falschpositive verhindert, sondern geeignete Orte zuverlässig findet. Echte, exakt zum Provider-Place gehörende Fotos mit Attribution bleiben der wichtigste Datenblock. Sichtbar aufgefallene Randtreffer – Gemeindeverwaltung in Natur und eine Strandkorbvermietung bei Stays – werden in der nächsten Taxonomie-Runde bereinigt. Wiederholte physische Mobiltests für Zoom, Ziehen, Ladezeit und Cachezustand bleiben erforderlich.
+P02/P03 bleiben TEILWEISE. Jede sichtbare Filteroption muss noch einmal über das reale UI und den AI-Chat positiv oder ehrlich leer abgenommen werden. Positive vegetarische Food-Evidenz muss providerübergreifend beschafft werden, damit Passend nicht nur Falschpositive verhindert, sondern geeignete Orte zuverlässig findet. Echte, exakt zum Provider-Place gehörende Fotos mit Attribution bleiben der wichtigste Datenblock; die aktuelle Stichprobe reicht dafür noch nicht. Die sichtbare Shopping-Abdeckung von 21 Orten ist stabil, liegt aber unter dem früher berichteten Sollwert 45 und bleibt deshalb fachlich offen. Wiederholte physische Mobiltests für Zoom, Ziehen, Ladezeit und Cachezustand bleiben erforderlich.
 
 ## Nächster verbindlicher Schritt
 
