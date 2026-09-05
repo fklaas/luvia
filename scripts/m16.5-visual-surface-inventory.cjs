@@ -55,7 +55,11 @@ function trackedFiles() {
     .split('\0')
     .filter(Boolean)
     .map(normalize)
-    .filter(relative => !LOCAL_ONLY_ARTIFACTS.has(relative) && !relative.startsWith('.wrangler/'))
+    .filter(relative =>
+      !LOCAL_ONLY_ARTIFACTS.has(relative) &&
+      !relative.startsWith('.wrangler/') &&
+      !relative.startsWith('test-results/')
+    )
     .sort((a, b) => a.localeCompare(b));
 }
 
