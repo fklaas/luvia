@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.4-nightlife-provider-breadth';
+  const VERSION='1.31.5-multi-provider-resume-cohort';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -121,7 +121,7 @@
     try{
       const cached=port('OfflineCachePort')?.read(cacheKey(),null),age=Date.now()-Date.parse(cached?.savedAt||'');
       if(state.planningDraft?.query||!cached||cached.scope!==cacheScope()||!Number.isFinite(age)||age<0||age>MAP_CACHE_MAX_MS||!Array.isArray(cached.results)||!state.categories.some(item=>item.key===cached.category))return false;
-      const usable=cached.results.filter(place=>{const title=clean(place?.name||place?.displayName);return title&&!/^(unbenannter ort|unbekannter ort|unknown place|\[object object\])$/i.test(title)&&providerId(place).startsWith('geoapify:')&&COMPOSITION().normalizeCoordinates(place.coordinates||place.location)});
+      const usable=cached.results.filter(place=>{const title=clean(place?.name||place?.displayName);return title&&!/^(unbenannter ort|unbekannter ort|unknown place|\[object object\])$/i.test(title)&&/^(?:geoapify|tomtom|here):/.test(providerId(place))&&COMPOSITION().normalizeCoordinates(place.coordinates||place.location)});
       if(!usable.length)return false;
       state.category=clean(cached.category)||state.category;
       state.results=decoratePreferences(usable.slice(0,MAX_RESULTS),state.trip);
@@ -134,7 +134,7 @@
   function saveCached(){
     // Only an unfiltered destination cohort can seed a later default mount.
     if(state.activeViewport||state.userQuery||state.readNotice||activeFilterCount()||!state.results.length)return;
-    const results=state.results.filter(p=>providerId(p).startsWith('geoapify:')).slice(0,MAX_RESULTS);
+    const results=state.results.filter(p=>/^(?:geoapify|tomtom|here):/.test(providerId(p))).slice(0,MAX_RESULTS);
     if(!results.length)return;
     try{port('OfflineCachePort')?.write(cacheKey(),{scope:cacheScope(),query:state.query,category:state.category,searchRadiusMeters:state.searchRadiusMeters,results,savedAt:state.lastSearchAt||new Date().toISOString()})}catch{}
   }
