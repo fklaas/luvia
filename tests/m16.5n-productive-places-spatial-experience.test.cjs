@@ -198,6 +198,7 @@ for(const file of expectedExperienceFiles){
 }
 
 const experience=read('app/places/places-spatial-experience.js');
+const filterContracts=read('core/places/global-place-contracts.js');
 const css=read('app/places/places-spatial-experience.css');
 const shell=read('modules/places-shell.js');
 const index=read('index.html');
@@ -315,7 +316,9 @@ assert.match(experience,/if\(distance<1&&!controller\)return;if\(!controller&&!b
 assert.match(experience,/progress>=\.16\|\|releaseVelocity>\.34/,'the sheet must settle from a forgiving distance or upward-velocity threshold');
 assert.match(experience,/distance\/Math\.min\(440,Math\.max\(220,innerHeight\*\.5\)\)/,'finger distance must map continuously to sheet progress on compact and large viewports');
 assert.match(experience,/function warmProfileEvidence\(searchToken=state\.requestToken\)/,'a profile dietary requirement must start one bounded evidence read after the broad Alle cohort is visible');
-assert.match(experience,/mergeExactProviderEvidence\(state\.results,response\?\.places\|\|\[\]\)/,'profile evidence may decorate only immutable provider identities already present in Alle');
+assert.match(experience,/function mergeProfileEvidenceCohort\(cohort,evidenceRows,focus='Vegetarisch'\)/,'profile evidence must join the shared Alle/Passend cohort through one exact-identity owner helper');
+assert.match(experience,/filter\(place=>focus==='Vegan'\?hasVeganProviderEvidence\(place\):hasVegetarianProviderEvidence\(place\)\)/,'only provider-evidenced dietary venues may extend the shared cohort');
+assert.match(experience,/mergeProfileEvidenceCohort\(state\.results,response\?\.places\|\|\[\],focus\)/,'a separately found positive dietary venue must enter the same cohort used by both Alle and Passend');
 assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
 assert.match(experience,/strictPlaceType:evidenceType[\s\S]{0,500}providers:\['auto'\]/,'profile evidence must use the same budget-managed free cascade as visible map discovery');
 assert.match(experience,/state\.root\?\.dataset\)state\.root\.dataset\.state=state\.status;\s*state\.root\?\.setAttribute\?\.\('aria-busy',String\(state\.status==='loading'\)\)/,'a completed warm-start search must clear the visible region busy state without remounting the map');
@@ -356,7 +359,8 @@ assert.match(experience,/data-places-filter-back/,'a filter detail list must rep
 assert.match(experience,/data-places-subtype-group/,'type and cuisine filters must retain their independent group identity');
 assert.match(experience,/toggleFilterArray\('priceLevels'/,'price levels must support multi-selection');
 assert.match(experience,/toggleFilterArray\(group/,'type and cuisine values must support multi-selection');
-for(const cuisine of ['Mediterran','Griechisch','Französisch','Spanisch','Indisch','Chinesisch','Japanisch','Thailändisch','Vietnamesisch','Koreanisch','Mexikanisch','Libanesisch','Türkisch'])assert.ok(experience.includes(cuisine),`expanded cuisine filter missing: ${cuisine}`);
+assert.match(experience,/LuviaGlobalPlaceContracts\?\.filterDefinitions/,'the visible filter UI must consume the canonical Places filter definition');
+for(const cuisine of ['Mediterran','Griechisch','Französisch','Spanisch','Indisch','Chinesisch','Japanisch','Thailändisch','Vietnamesisch','Koreanisch','Mexikanisch','Libanesisch','Türkisch'])assert.ok(filterContracts.includes(cuisine),`expanded cuisine filter missing from the owner contract: ${cuisine}`);
 assert.match(experience,/profileDietaryFocus/,'filtered discovery queries must continue to carry the active hard dietary preference');
 assert.match(experience,/matchesTypeGroup\(place,state\.filters\.types\).*matchesTypeGroup\(place,state\.filters\.cuisines\)/,'local result projection must combine filter groups while allowing alternatives inside each group');
 assert.match(experience,/class="lv-places-spatial__legend-trigger"[^>]+aria-describedby="places-map-legend"/,'the ranking legend must be available from its map icon by hover or keyboard focus');
@@ -443,6 +447,7 @@ assert.ok(index.indexOf('app/places/places-spatial-experience.js')<index.indexOf
   };
   const runtimeContext={
     LuviaPlacesSpatialCompositionCoreV1:core,
+    LuviaPlacesDomainContractCoreV1:{categories:()=>categories},
     LuviaPlacesContractV1:{
       reads:{
         categories:()=>categories,
@@ -462,7 +467,9 @@ assert.ok(index.indexOf('app/places/places-spatial-experience.js')<index.indexOf
     matchMedia:()=>({matches:true}),
     document:{documentElement:{classList:{contains:()=>false}}}
   };
+  runtimeContext.window=runtimeContext;
   vm.createContext(runtimeContext);
+  vm.runInContext(filterContracts,runtimeContext,{filename:'core/places/global-place-contracts.js'});
   vm.runInContext(experience,runtimeContext,{filename:'app/places/places-spatial-experience.js'});
   const pendingMount=runtimeContext.LuviaPlacesSpatialExperience.mount(runtimeRoot,{id:'trip-a',destination:{name:'Scharbeutz'}});
   runtimeContext.LuviaPlacesSpatialExperience.unmount();

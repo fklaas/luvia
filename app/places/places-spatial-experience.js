@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.33.0-exact-profile-evidence';
+  const VERSION='1.34.0-shared-filter-profile-union';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -68,26 +68,7 @@
   const HERE_PRIMARY_CUISINE_ALIASES=Object.freeze({
     italian_restaurant:['italian','italienisch'],german_restaurant:['german','deutsch'],mediterranean_restaurant:['mediterranean','mediterran'],greek_restaurant:['greek','griechisch'],french_restaurant:['french','franzosisch'],spanish_restaurant:['spanish','spanisch'],indian_restaurant:['indian','indisch'],asian_restaurant:['asian','asiatisch'],chinese_restaurant:['chinese','chinesisch'],japanese_restaurant:['japanese','japanisch'],thai_restaurant:['thai','thailandisch'],vietnamese_restaurant:['vietnamese','vietnamesisch'],korean_restaurant:['korean','koreanisch'],mexican_restaurant:['mexican','mexikanisch'],middle_eastern_restaurant:['middle eastern','middle_eastern','nahostlich','arabian'],lebanese_restaurant:['lebanese','libanesisch'],turkish_restaurant:['turkish','turkisch'],vegetarian_restaurant:['vegetarian','vegetarisch'],vegan_restaurant:['vegan']
   });
-  const CATEGORY_FILTERS=Object.freeze({
-    accommodation:Object.freeze({label:'Unterkunftsart',types:Object.freeze([['hotel','Hotel'],['apartment','Apartment'],['vacation_rental','Ferienhaus'],['hostel','Hostel'],['campground','Camping']]),subtypes:Object.freeze([]),facts:Object.freeze(['rating45','accessible'])}),
-    food:Object.freeze({label:'Restaurant & Küche',types:Object.freeze([
-      ['restaurant','Restaurant'],['cafe','Café'],['bar','Bar'],['bakery','Bäckerei'],['meal_takeaway','Imbiss & Take-away'],['food_court','Food Court'],['fine_dining_restaurant','Fine Dining']
-    ]),cuisines:Object.freeze([
-      ['italian_restaurant','Italienisch'],['german_restaurant','Deutsch'],['mediterranean_restaurant','Mediterran'],['greek_restaurant','Griechisch'],['french_restaurant','Französisch'],['spanish_restaurant','Spanisch'],['indian_restaurant','Indisch'],['asian_restaurant','Asiatisch'],['chinese_restaurant','Chinesisch'],['japanese_restaurant','Japanisch'],['thai_restaurant','Thailändisch'],['vietnamese_restaurant','Vietnamesisch'],['korean_restaurant','Koreanisch'],['mexican_restaurant','Mexikanisch'],['middle_eastern_restaurant','Nahöstlich'],['lebanese_restaurant','Libanesisch'],['turkish_restaurant','Türkisch'],['vegetarian_restaurant','Vegetarisch'],['vegan_restaurant','Vegan']
-    ]),subtypes:Object.freeze([]),facts:Object.freeze(['openNow','rating45','vegetarian','reservable','accessible','priceLevel'])}),
-    activities:Object.freeze({label:'Aktivität',subtypes:Object.freeze([['','Alle'],['amusement_park','Freizeitpark'],['playground','Spielplatz'],['zoo','Zoo'],['spa','Wellness'],['swimming_pool','Schwimmen']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    themeparks:Object.freeze({label:'Freizeitpark',subtypes:Object.freeze([['','Alle'],['amusement_park','Themenpark'],['amusement_center','Erlebniscenter'],['water_park','Wasserpark']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    wellness:Object.freeze({label:'Wellness',subtypes:Object.freeze([['','Alle'],['spa','Spa & Wellness']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
-    water:Object.freeze({label:'Wassererlebnis',subtypes:Object.freeze([['','Alle'],['water_park','Wasserpark'],['swimming_pool','Schwimmbad'],['beach','Strand'],['marina','Hafen']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    sights:Object.freeze({label:'Sehenswürdigkeit',subtypes:Object.freeze([['','Alle'],['tourist_attraction','Attraktion'],['historical_landmark','Historisch'],['monument','Denkmal'],['observation_deck','Aussicht']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    photo:Object.freeze({label:'Motiv',subtypes:Object.freeze([['','Alle'],['observation_deck','Aussicht'],['historical_landmark','Architektur'],['park','Natur'],['garden','Garten']]),facts:Object.freeze(['rating45','accessible'])}),
-    culture:Object.freeze({label:'Kulturort',subtypes:Object.freeze([['','Alle'],['museum','Museum'],['art_gallery','Galerie'],['movie_theater','Kino'],['performing_arts_theater','Theater'],['concert_hall','Konzert']]),facts:Object.freeze(['openNow','rating45','accessible'])}),
-    nature:Object.freeze({label:'Naturort',subtypes:Object.freeze([['','Alle'],['beach','Strand'],['park','Park'],['garden','Garten'],['hiking_area','Wandern'],['natural_feature','Naturgebiet']]),facts:Object.freeze(['rating45','accessible'])}),
-    shopping:Object.freeze({label:'Einkaufen',subtypes:Object.freeze([['','Alle'],['shopping_mall','Center'],['market','Markt'],['clothing_store','Mode'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
-    malls:Object.freeze({label:'Einkaufszentrum',subtypes:Object.freeze([['','Alle'],['shopping_mall','Shopping Center'],['department_store','Kaufhaus']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
-    nightlife:Object.freeze({label:'Abendort',subtypes:Object.freeze([['','Alle'],['bar','Bars & Pubs'],['cocktail_bar','Cocktailbars'],['wine_bar','Weinbars'],['night_club','Clubs & Diskotheken'],['lounge_bar','Lounges'],['live_music_venue','Live-Musik'],['comedy_club','Comedy'],['karaoke_bar','Karaoke'],['casino','Casinos']]),facts:Object.freeze(['openNow','rating45','accessible','priceLevel'])}),
-    practical:Object.freeze({label:'Praktischer Ort',subtypes:Object.freeze([['','Alle'],['pharmacy','Apotheke'],['supermarket','Supermarkt'],['parking','Parken'],['electric_vehicle_charging_station','Laden'],['atm','Geldautomat']]),facts:Object.freeze(['openNow','nearby','accessible'])})
-  });
+  const CATEGORY_FILTERS=globalThis.LuviaGlobalPlaceContracts?.filterDefinitions||Object.freeze({});
   const icons=Object.freeze({
     search:'<circle cx="10.5" cy="10.5" r="6.2"/><path d="m15.2 15.2 4.3 4.3"/>',
     heart:'<path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10Z"/>',
@@ -302,6 +283,16 @@
       };
     });
   }
+  function mergeProfileEvidenceCohort(cohort,evidenceRows,focus='Vegetarisch'){
+    const merged=mergeExactProviderEvidence(cohort,evidenceRows),eligible=(Array.isArray(evidenceRows)?evidenceRows:[]).filter(place=>focus==='Vegan'?hasVeganProviderEvidence(place):hasVegetarianProviderEvidence(place)),knownKeys=new Set(merged.flatMap(place=>[...exactProviderKeys(place)]));
+    const additions=[];
+    for(const place of eligible){
+      const keys=[...exactProviderKeys(place)];
+      if(keys.some(key=>knownKeys.has(key))||merged.some(existing=>strictCrossProviderIdentity(existing,place))||additions.some(existing=>strictCrossProviderIdentity(existing,place)))continue;
+      additions.push(place);for(const key of keys)knownKeys.add(key);
+    }
+    return [...merged,...additions].slice(0,MAX_RESULTS);
+  }
   function profileEvidenceCohortKey(focus=profileDietaryFocus()){
     return [cacheScope(),state.category,focus,...state.results.map(providerId).filter(Boolean)].join('|');
   }
@@ -315,7 +306,7 @@
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
-      state.results=decoratePreferences(mergeExactProviderEvidence(state.results,response?.places||[]),state.trip);
+      state.results=decoratePreferences(mergeProfileEvidenceCohort(state.results,response?.places||[],focus),state.trip);
       const after=preferredPlaceIds(state.results).size;
       rememberCategoryCohort();saveCached();
       if(state.mapProjection)updateFilteredMap();else render();
@@ -1428,5 +1419,5 @@
   }
   function diagnostics(){return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

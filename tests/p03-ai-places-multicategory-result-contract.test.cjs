@@ -33,6 +33,7 @@ const context={
   dispatchEvent(){},
   LuviaTripContractV1:{getActiveTrip(){return{id:'trip-p03',destination:{name:'Scharbeutz'}}}},
   LuviaIdentityContractV1:{getPreferences(){return{travelPace:'balanced'}}},
+  LuviaPlacesDomainContractCoreV1:{categories(){return Object.fromEntries(['food','culture','activities'].map(key=>[key,{key,label:key,query:key,synonyms:[],keywords:[],includedTypes:[],domainTypes:[],excludedTypes:[],primaryType:'custom'}]))}},
   LuviaPlacesContractV1:{
     reads:{
       async recommend(input){
@@ -69,8 +70,10 @@ const context={
   }
 };
 context.globalThis=context;
+context.window=context;
 vm.createContext(context);
 for(const file of [
+  'core/places/global-place-contracts.js',
   'core/intelligence/intelligence-action-contract-core.js',
   'core/intelligence/intelligence-action-ledger-core.js',
   'core/ai/ai-action-runtime.js'
@@ -114,6 +117,10 @@ function containsVerifiedTrue(value,seen=new WeakSet()){
   const requestedCategories=ownerCalls.map(call=>call.category);
   assert.deepEqual(requestedCategories.sort(),['culture','food'],'both requested Place categories must reach the public Places owner read');
   assert.equal(ownerCalls.every(call=>call.limit>=1&&call.limit<=3),true,'each owner category read must be bounded to one through three candidates');
+  const foodCall=ownerCalls.find(call=>call.category==='food'),cultureCall=ownerCalls.find(call=>call.category==='culture');
+  assert.deepEqual([...foodCall.includedTypes],['restaurant'],'the AI restaurant clause must compile through the shared Places filter contract');
+  assert.deepEqual([...cultureCall.includedTypes],['museum'],'the AI museum clause must compile through the same filter contract');
+  assert.equal(result.evidence.compiledFilters.food.source,'places-filter-contract-v1');
 
   assert.equal(
     result.items.every(item=>['food','culture'].includes(item.requestCategory)),true,
