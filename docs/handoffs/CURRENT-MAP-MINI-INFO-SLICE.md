@@ -3,19 +3,19 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.87**, Core **4.82.209**. M16.5 Schritte 15–18 aktiv. P02/P03 ist der aktive Abschlussblock für den positiven Passend-Realbeleg. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt und aus dem aktiven Plan entfernt.
+**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. P02/P03 ist der aktive Abschlussblock für den positiven Passend-Realbeleg. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt und aus dem aktiven Plan entfernt.
 
-**Zuletzt geliefert:** Der Integrationskandidat 13.82.168.87 / Core 4.82.209 ist gebaut. Er nutzt Geoapify/OSM zuerst für belegte vegetarische und vegane Passung und greift erst bei einem echten Nullergebnis auf HERE sowie die begrenzten Google-/Foursquare-Wege zurück. Alle bleibt breit; Steakhouse- und Identitätsregeln bleiben streng. Die gezielten Tests und die aktualisierten statischen Inventargates sind grün. Öffentlich läuft bis zur Abnahme weiterhin App .86 auf Worker 1d936ac3-fd72-40ca-a5f4-513f414b74d2; Gateway v205 bleibt aktiv. Apple bleibt deaktiviert und auf späteren ausdrücklichen Entscheid geparkt.
+**Zuletzt geliefert:** Gateway v206 / 4.64.23 ist auf Integration aktiv und liefert in der realen Scharbeutz-Diagnose 25 ausdrücklich vegetarisch oder vegan belegte OpenStreetMap-Orte. App 13.82.168.88 / Core 4.82.210 ist gebaut; sie bindet diese kostenlose Evidenz in denselben Alle-/Passend-Bestand ein und behält die strikte Steakhouse-Ausschlussregel. 229/229 Safe Regression und NFR-0 3/3 sind grün. Öffentlich läuft bis zur App-Abnahme weiterhin .87 auf Worker e0e393dd-701c-4fc6-afc2-58f88ee35996. Apple bleibt deaktiviert und geparkt.
 
-**Nächster Schritt (AKTIV): Kostenlose Passend-Evidenz veröffentlichen und sichtbar abnehmen.** Der gemeinsame Datenpfad ist korrigiert; jetzt muss der echte angemeldete Scharbeutz-Fall beweisen, dass Geoapify/OSM einen positiven, belastbaren Treffer liefert und keine falschen Orte zulässt.
+**Nächster Schritt (AKTIV): App .88 veröffentlichen und OpenStreetMap-Passend sichtbar abnehmen.** Der reale Gateway-Beleg ist positiv; jetzt muss dieselbe providerbelegte Menge im angemeldeten Scharbeutz-UI als Pins erscheinen und bei Alle/Passend stabil umschalten.
 
 **Abnahme dieses Schritts:**
 
-- App 13.82.168.87 / Core 4.82.209 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.
+- App 13.82.168.88 / Core 4.82.210 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.
 - Alle zeigt in Essen & Trinken weiterhin den breiten realen Place-Bestand ohne zusätzliche kostenpflichtige Ernährungsabfragen.
-- Passend zeigt mindestens einen echten Ort mit vegetarischer oder veganer Provider-Evidenz oder weist einen realen lokalen Nullbestand mitsamt verwendeter Quellen eindeutig aus.
-- Erdmann’s Kleines Steakhaus und andere fleischzentrierte Orte ohne dedizierten Ernährungsbeleg erscheinen nicht als passend.
-- Ein sichtbarer Browserlauf belegt Quelle, Trefferzahl, Pin-Identität und Karteninteraktion; Safe Regression und öffentliche Asset-Identität sind grün.
+- Passend zeigt mehrere echte Orte mit ausdrücklicher vegetarischer oder veganer OpenStreetMap-Evidenz.
+- Erdmann’s Kleines Steakhaus und andere fleischzentrierte Orte ohne dedizierten Ernährungstyp erscheinen nicht als passend.
+- Ein sichtbarer Browserlauf belegt Quelle, Trefferzahl, Pin-Identität und Karteninteraktion; 229/229 Safe Regression und öffentliche Asset-Identität sind grün.
 - Main, Production, Apple-Policy, Provider-Secrets und Nutzerdaten bleiben unverändert.
 
 **Danach:** Nach dem positiven Places-Beleg dieselbe Place-ID und denselben Grund in Stay, Timeline-Vorschlägen und AI Chat abnehmen; danach der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.

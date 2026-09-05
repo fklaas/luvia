@@ -82,7 +82,7 @@
     const gw=gateway();
     const id=clean(placeId)?.replace(/^places\//,'');
     // Google Premium details are on-demand only. Gate to 1 request per id per session.
-    const isPremiumId=id&&!id.startsWith('fsq:')&&!id.startsWith('geoapify:')&&!id.startsWith('tomtom:')&&!id.startsWith('here:');
+    const isPremiumId=id&&!id.startsWith('fsq:')&&!id.startsWith('geoapify:')&&!id.startsWith('openstreetmap:')&&!id.startsWith('tomtom:')&&!id.startsWith('here:');
     if(isPremiumId&&!consumePremiumDetailsQuota(id)){
       // Quota exhausted for this id this session; skip the Premium call.
       return null;

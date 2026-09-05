@@ -10,6 +10,7 @@ const googleEvidence=read('supabase/migrations/20260905153000_google_verified_pr
 const googleDiagnosticReset=read('supabase/migrations/20260905170000_google_fit_diagnostic_cooldown_reset.sql');
 const foursquareEvidence=read('supabase/migrations/20260905173000_foursquare_verified_dietary_evidence_budget.sql');
 const foursquareDiagnosticReset=read('supabase/migrations/20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql');
+const osmEvidence=read('supabase/migrations/20260905210000_openstreetmap_dietary_evidence_budget.sql');
 const budget=read('supabase/functions/luvia-gateway/_shared/provider-budget.ts');
 const places=read('supabase/functions/luvia-gateway/_shared/places.ts');
 
@@ -44,7 +45,11 @@ assert.doesNotMatch(foursquareDiagnosticReset,/delete\s+from\s+public\.places_pr
 assert.match(foursquareDiagnosticReset,/FOURSQUARE_DIETARY_DIAGNOSTIC_COOLDOWN_NOT_RESET/,'the Foursquare diagnostic reset must fail closed');
 assert.match(places,/'vegetarian-foursquare-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['foursquare'\]\)/,'the bounded Foursquare evidence lane must have an exact public health probe');
 assert.match(places,/'vegetarian-here-8km-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['here'\]\)/,'the free HERE dietary path must have the exact production-radius probe');
-assert.match(places,/version:'4\.38\.3-apple-renderer-contract'/,'the deployed gateway must identify the active Apple renderer contract');
+assert.match(osmEvidence,/values\s*\([\s\S]{0,180}'openstreetmap-dietary-evidence','openstreetmap',array\['search'\],true,500,0,6,'UTC'/,'the free dietary evidence lane must have a dedicated, search-only, bounded provider budget');
+assert.match(osmEvidence,/provider=excluded\.provider,operations=excluded\.operations,enabled=true/,'the OpenStreetMap upsert must preserve the dedicated provider and search-only operation');
+assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i,'OpenStreetMap activation must retain every reserved provider unit');
+assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
+assert.match(places,/version:'4\.38\.4-osm-dietary-evidence'/,'the deployed gateway must identify the active free dietary evidence contract');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 
 console.log('Provider budget free reserve and diagnostic truth: PASS');
