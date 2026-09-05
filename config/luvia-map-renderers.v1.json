@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "canonicalMapContract": "places.v1",
+  "visibleSurfacePolicy": {
+    "maximumConcurrentRenderers": 1,
+    "singleMapSlot": true,
+    "preserveLuviaChromeAcrossRendererChanges": true
+  },
+  "releasePolicy": {
+    "currentPrimary": "maplibre",
+    "targetPrimary": "apple-mapkit",
+    "fallback": "maplibre",
+    "targetActivationRequires": [
+      "apple_credentials_configured",
+      "mapkit_js_loads_on_desktop_and_mobile",
+      "pin_filter_sheet_timeline_chat_parity",
+      "apple_attribution_visible",
+      "provider_display_licenses_verified",
+      "visible_acceptance_passed"
+    ]
+  },
+  "renderers": {
+    "maplibre": {
+      "status": "active",
+      "allowedProviderData": ["geoapify", "here", "tomtom", "foursquare", "google"],
+      "forbiddenProviderData": ["apple"],
+      "appleDataPurgeBeforeActivation": true
+    },
+    "apple-mapkit": {
+      "status": "prepared",
+      "allowedProviderData": ["apple"],
+      "conditionalProviderData": ["geoapify", "here", "tomtom", "foursquare", "google"],
+      "providerLicenseVerificationRequired": true,
+      "appleDataStorage": "transient-only",
+      "durableApplePlacePersistence": false,
+      "unsupportedEvidence": ["place-photos", "ratings", "national-cuisine", "dietary-fit"]
+    }
+  },
+  "fallbackTransition": {
+    "renderersNeverOverlap": true,
+    "removeAppleMapDataBeforeMapLibre": true,
+    "reloadFallbackEligibleProviderCohort": true,
+    "preserveSelectedCategoryAndViewport": true
+  }
+}
