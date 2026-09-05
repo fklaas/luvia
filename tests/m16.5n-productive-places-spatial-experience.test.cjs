@@ -211,7 +211,7 @@ assert.match(experience,/normalizeCategories\(contract\.reads\.categories\(\)\)/
 assert.match(experience,/\.getCard\(/,'compact Place media enrichment must use a public places.v1 read');
 assert.doesNotMatch(experience,/if\(id\.startsWith\('geoapify:'\)\)return/,'selected Geoapify pins must reach the exact-place media path');
 assert.match(experience,/getCard\(id,\{maxWidthPx:960,maxHeightPx:720,source:place\}\)/,'selected-pin media must preserve the search seed across a details read');
-assert.match(experience,/consumer:places-spatial:v7-primary-cuisine-evidence/,'offline Places cache must invalidate cohorts that predate projected primary cuisine evidence');
+assert.match(experience,/consumer:places-spatial:v8-single-owner-profile-evidence/,'offline Places cache must invalidate cohorts that predate single-owner profile evidence');
 assert.match(css,/\.lv-places-spatial__map-preview\{position:absolute/,'selected-pin preview must be contained by the map on every surface');
 assert.match(css,/@media\(max-width:800px\)\{\.lv-places-spatial__map-preview\{position:absolute;bottom:12px/,'selected-pin preview must stay inside the map when the page scrolls');
 for(const forbidden of [

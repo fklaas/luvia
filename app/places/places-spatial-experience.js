@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.36.4-single-owner-profile-evidence';
+  const VERSION='1.36.5-single-owner-profile-evidence-cache';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -100,7 +100,7 @@
 
   const MAP_CACHE_FRESH_MS=5*60*1000,MAP_CACHE_MAX_MS=24*60*60*1000,CATEGORY_COHORT_MAX_MS=15*60*1000;
   function cacheScope(trip=state.trip){const g=tripGeography(trip),c=COMPOSITION().normalizeCoordinates(g.location||g.center);return JSON.stringify({trip:tripId(trip),surface:state.surface,destination:destination(trip),latitude:c?.latitude,longitude:c?.longitude})}
-  function cacheKey(){return `consumer:places-spatial:v7-primary-cuisine-evidence:${state.surface}:${tripId(state.trip)||'active'}`}
+  function cacheKey(){return `consumer:places-spatial:v8-single-owner-profile-evidence:${state.surface}:${tripId(state.trip)||'active'}`}
   function loadCached(){
     try{
       const cached=port('OfflineCachePort')?.read(cacheKey(),null),age=Date.now()-Date.parse(cached?.savedAt||'');
