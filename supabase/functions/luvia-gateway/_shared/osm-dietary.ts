@@ -6,11 +6,11 @@ import {providerFetch} from './provider-budget.ts';
 // successful response wins and the six-hour evidence cache prevents repeated
 // reads for the same destination/radius/profile focus.
 const OVERPASS_ENDPOINTS=Object.freeze([
-  'https://lz4.overpass-api.de/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
   'https://overpass.private.coffee/api/interpreter'
 ]);
-const OVERPASS_HEDGE_DELAY_MS=2500;
-const OVERPASS_REQUEST_TIMEOUT_MS=8000;
+const OVERPASS_HEDGE_DELAY_MS=1200;
+const OVERPASS_REQUEST_TIMEOUT_MS=6500;
 const CACHE_TTL_MS=6*60*60_000;
 const cache=new Map<string,{expires:number,promise:Promise<any[]>}>();
 let preferredEndpointIndex=0;
@@ -22,6 +22,12 @@ const coordinate=(value:any)=>{
 };
 const token=(value:any)=>clean(value).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
 const dietYes=(value:any)=>['yes','only'].includes(clean(value).toLowerCase());
+const radians=(value:number)=>value*Math.PI/180;
+function distanceMeters(left:any,right:any){
+  const a=coordinate(left),b=coordinate(right);if(!a||!b)return Infinity;
+  const dLat=radians(b.latitude-a.latitude),dLon=radians(b.longitude-a.longitude),lat1=radians(a.latitude),lat2=radians(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+  return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+}
 
 function address(tags:any={}){
   const street=[clean(tags['addr:street']),clean(tags['addr:housenumber'])].filter(Boolean).join(' ');
@@ -108,14 +114,18 @@ export async function osmDietarySearch(destination:any={},options:any={}){
   const radius=Math.max(500,Math.min(15000,Math.round(Number(options?.maxDistanceMeters||destination?.searchRadiusMeters||8000))));
   const key=JSON.stringify([Number(center.latitude).toFixed(4),Number(center.longitude).toFixed(4),radius,veganOnly?'vegan':'vegetarian']);
   const hit=cache.get(key);if(hit&&hit.expires>Date.now())return hit.promise;
-  const amenity='^(restaurant|cafe|fast_food|bar|pub|biergarten)$';
+  // A small bounding box uses Overpass indexes far more efficiently than two
+  // repeated around filters. The exact circular radius is applied again below.
+  const latitudeDelta=radius/111320,longitudeDelta=radius/(111320*Math.max(.2,Math.cos(radians(center.latitude))));
+  const bounds=[center.latitude-latitudeDelta,center.longitude-longitudeDelta,center.latitude+latitudeDelta,center.longitude+longitudeDelta].map(value=>value.toFixed(6)).join(',');
+  const amenity='^(restaurant|cafe|fast_food|bar|pub|biergarten)$',area=`(${bounds})`;
   const statements=veganOnly
-    ?`nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`
-    :`nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegetarian"~"^(yes|only)$"];nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`;
+    ?`nwr${area}[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`
+    :`nwr${area}[amenity~"${amenity}"]["diet:vegetarian"~"^(yes|only)$"];nwr${area}[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`;
   const query=`[out:json][timeout:7];(${statements});out center tags;`;
   const promise=(async()=>{
     const elements=await overpassElements(query);
-    const rows=elements.map((element:any)=>normalizeOsmDietaryElement(element,destination)).filter(Boolean);
+    const rows=elements.map((element:any)=>normalizeOsmDietaryElement(element,destination)).filter((place:any)=>place&&distanceMeters(center,place.location)<=radius);
     const unique=[...new Map(rows.map((place:any)=>[place.providerPlaceId,place])).values()];
     return unique.slice(0,Math.max(1,Math.min(50,Number(options?.maxResultCount)||40)));
   })().catch(error=>{cache.delete(key);throw error});
