@@ -320,7 +320,9 @@ assert.match(experience,/function mergeProfileEvidenceCohort\(cohort,evidenceRow
 assert.match(experience,/filter\(place=>focus==='Vegan'\?hasVeganProviderEvidence\(place\):hasVegetarianProviderEvidence\(place\)\)/,'only provider-evidenced dietary venues may extend the shared cohort');
 assert.match(experience,/mergeProfileEvidenceCohort\(state\.results,response\?\.places\|\|\[\],focus\)/,'a separately found positive dietary venue must enter the same cohort used by both Alle and Passend');
 assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
-assert.match(experience,/strictPlaceType:evidenceType[\s\S]{0,500}providers:\['auto'\]/,'profile evidence must use the same budget-managed free cascade as visible map discovery');
+assert.match(experience,/strictPlaceType:evidenceType[\s\S]{0,500}providers:\['auto','google','foursquare'\]/,'only the explicit profile-evidence read may admit the bounded exact-evidence fallbacks after the free cascade');
+assert.match(experience,/function transientDestinationFailure\(error\)/,'destination category reads must classify transient provider failures consistently');
+assert.match(experience,/!state\.results\.length&&retryable&&!_retriedTransient/,'a blank category may retry a transient failure exactly once');
 assert.match(experience,/state\.root\?\.dataset\)state\.root\.dataset\.state=state\.status;\s*state\.root\?\.setAttribute\?\.\('aria-busy',String\(state\.status==='loading'\)\)/,'a completed warm-start search must clear the visible region busy state without remounting the map');
 assert.match(experience,/exact-normalized-name-and-max-25m-profile-evidence/,'cross-provider profile evidence requires an exact normalized name and a strict 25 m coordinate match');
 assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');

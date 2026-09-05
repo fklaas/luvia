@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.34.0-shared-filter-profile-union';
+  const VERSION='1.35.0-shared-filter-profile-continuity';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -302,7 +302,10 @@
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
     try{
       const response=await contract.reads.recommend({
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        // The ordinary map remains on the free-provider cascade. Google and
+        // Foursquare are admitted only for this explicit, evidence-bearing
+        // profile read when the free sources cannot prove the dietary fit.
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -361,6 +364,7 @@
   const CONTINUITY_RETRY_CATEGORIES=new Set(['food','activities','nature','shopping','nightlife','accommodation']);
   function shouldRetryEmptyViewport(options={}){const unfiltered=typeof options.continuityEligible==='boolean'?options.continuityEligible:activeFilterCount()===0;return CONTINUITY_RETRY_CATEGORIES.has(options.category||state.category)&&!clean(options.userQuery)&&unfiltered}
   function transientViewportFailure(error){const code=clean(error?.code);return [502,503,504].includes(Number(error?.status))||/BACKEND_TIMEOUT|NETWORK_UNAVAILABLE|PLACES_(?:ALL_PROVIDERS_FAILED|PROVIDER_READ_UNAVAILABLE)|PROVIDER_(?:TRANSPORT_ERROR|READ_UNAVAILABLE)/.test(code)}
+  function transientDestinationFailure(error){const code=clean(error?.code);return [429,502,503,504].includes(Number(error?.status))||/RATE_LIMITED|RATE_LIMIT_COOLDOWN|BACKEND_CIRCUIT_OPEN|BACKEND_TIMEOUT|NETWORK_UNAVAILABLE|PLACES_(?:ALL_PROVIDERS_FAILED|PROVIDER_READ_UNAVAILABLE)|PROVIDER_(?:TRANSPORT_ERROR|READ_UNAVAILABLE)/.test(code)}
   async function viewportSearchWithContinuity(options={},isCurrent=()=>true){
     let first;
     try{first=await viewportSearch(options)}catch(error){
@@ -419,7 +423,7 @@
       refreshMapPreview();
     }else if(state.root)render();
   }
-  async function search({query=state.query,userQuery=state.userQuery,category=state.category,focus=true,silent=false,preserveMap=false,replaceCategory=false,_retriedRateLimit=false}={}){
+  async function search({query=state.query,userQuery=state.userQuery,category=state.category,focus=true,silent=false,preserveMap=false,replaceCategory=false,_retriedTransient=false}={}){
     const contract=placesContract();
     const token=++state.requestToken;
     const nextCategory=categoryDefinition(category).key;
@@ -508,11 +512,11 @@
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
-      const rateLimited=error?.status===429||error?.code==='RATE_LIMITED'||error?.code==='RATE_LIMIT_COOLDOWN'||error?.code==='BACKEND_CIRCUIT_OPEN';
-      if(!state.results.length&&rateLimited&&!_retriedRateLimit){
-        await new Promise(resolve=>setTimeout(resolve,1800));
+      const retryable=transientDestinationFailure(error);
+      if(!state.results.length&&retryable&&!_retriedTransient){
+        await new Promise(resolve=>setTimeout(resolve,1200));
         if(token!==state.requestToken)return false;
-        return search({query,category,focus:false,silent:true,preserveMap,replaceCategory,_retriedRateLimit:true});
+        return search({query,userQuery,category,focus:false,silent:true,preserveMap,replaceCategory,_retriedTransient:true});
       }
       // After a category switch, never keep foreign-category pins from the previous search.
       if(filteredResults(state.results).length&&!categoryChanged&&!replaceCategory){
@@ -1419,5 +1423,5 @@
   }
   function diagnostics(){return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,transientDestinationFailure,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

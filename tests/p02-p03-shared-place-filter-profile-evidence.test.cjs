@@ -49,6 +49,11 @@ assert.equal(vegan.includedType,'vegan_restaurant');
 assert.equal(vegan.vegetarianOnly,false,'vegan evidence must use the exact provider type instead of weakening to vegetarian-only');
 
 vm.runInContext(read('app/places/places-spatial-experience.js'),sandbox,{filename:'places-spatial-experience.js'});
+const spatialSource=read('app/places/places-spatial-experience.js');
+assert.match(spatialSource,/providers:\['auto','google','foursquare'\]/,'explicit profile evidence may use the bounded exact-evidence fallbacks');
+assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:503}),true);
+assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({code:'PLACES_ALL_PROVIDERS_FAILED'}),true);
+assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:400,code:'VALIDATION_FAILED'}),false);
 const base=[{id:'here:steak',providerPlaceId:'here:steak',name:'Scharbeutzer Steakhaus',types:['restaurant'],features:{servesVegetarianFood:true},coordinates:{latitude:54.02,longitude:10.75}}];
 const evidence=[{id:'geo:veg',providerPlaceId:'geo:veg',name:'Grüne Kombüse',types:['vegetarian_restaurant'],features:{servesVegetarianFood:true},coordinates:{latitude:54.021,longitude:10.751}}];
 const joined=sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,evidence,'Vegetarisch');
