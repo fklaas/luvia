@@ -1,8 +1,19 @@
 import {providerFetch} from './provider-budget.ts';
 
-const OVERPASS_ENDPOINT='https://overpass-api.de/api/interpreter';
+// Public Overpass instances can be temporarily saturated independently. Keep
+// the read on the same OpenStreetMap dataset, but hedge one bounded request
+// across two independently operated, officially listed instances. The first
+// successful response wins and the six-hour evidence cache prevents repeated
+// reads for the same destination/radius/profile focus.
+const OVERPASS_ENDPOINTS=Object.freeze([
+  'https://lz4.overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter'
+]);
+const OVERPASS_HEDGE_DELAY_MS=2500;
+const OVERPASS_REQUEST_TIMEOUT_MS=8000;
 const CACHE_TTL_MS=6*60*60_000;
 const cache=new Map<string,{expires:number,promise:Promise<any[]>}>();
+let preferredEndpointIndex=0;
 
 const clean=(value:any)=>String(value??'').trim();
 const coordinate=(value:any)=>{
@@ -53,7 +64,40 @@ export function normalizeOsmDietaryElement(element:any,destination:any={}){
 }
 
 export function osmDietaryConfiguration(){
-  return Object.freeze({configured:true,priority:'free_dietary_evidence_fallback',scope:'explicit_diet_tags_only',automaticCascade:true,cacheTtlHours:CACHE_TTL_MS/3_600_000,attribution:'© OpenStreetMap contributors'});
+  return Object.freeze({configured:true,priority:'free_dietary_evidence_fallback',scope:'explicit_diet_tags_only',automaticCascade:true,endpointFailover:'hedged_independent_instances',endpointCount:OVERPASS_ENDPOINTS.length,cacheTtlHours:CACHE_TTL_MS/3_600_000,attribution:'© OpenStreetMap contributors'});
+}
+
+async function overpassElements(query:string){
+  const order=[...OVERPASS_ENDPOINTS.keys()].map(offset=>(preferredEndpointIndex+offset)%OVERPASS_ENDPOINTS.length);
+  const controllers=order.map(()=>new AbortController());
+  let fallbackStarted=false,startFallback:()=>void=()=>{};
+  const read=async(index:number,controller:AbortController)=>{
+    const endpoint=OVERPASS_ENDPOINTS[index],timeout=setTimeout(()=>controller.abort('overpass-timeout'),OVERPASS_REQUEST_TIMEOUT_MS);
+    try{
+      const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','User-Agent':'Luvia/1.0 dietary-place-evidence'},body:new URLSearchParams({data:query}).toString(),signal:controller.signal});
+      const body=await response.json().catch(()=>({}));
+      if(!response.ok||!Array.isArray(body?.elements))throw Object.assign(new Error('OpenStreetMap-Ernährungshinweise sind auf dieser Instanz gerade nicht erreichbar.'),{code:'OSM_DIETARY_PROVIDER_ERROR',status:response.status,provider:'openstreetmap',endpoint});
+      preferredEndpointIndex=index;
+      return body.elements;
+    }finally{clearTimeout(timeout)}
+  };
+  const primary=read(order[0],controllers[0]).catch(error=>{startFallback();throw error});
+  const fallback=new Promise<any[]>((resolve,reject)=>{
+    startFallback=()=>{
+      if(fallbackStarted)return;
+      fallbackStarted=true;
+      read(order[1],controllers[1]).then(resolve,reject);
+    };
+  });
+  const hedge=setTimeout(startFallback,OVERPASS_HEDGE_DELAY_MS);
+  try{
+    const elements=await Promise.any([primary,fallback]);
+    clearTimeout(hedge);
+    controllers.forEach(controller=>controller.abort('overpass-winner-selected'));
+    return elements;
+  }catch{
+    throw Object.assign(new Error('OpenStreetMap-Ernährungshinweise sind gerade nicht erreichbar.'),{code:'OSM_DIETARY_PROVIDER_ERROR',status:503,provider:'openstreetmap'});
+  }finally{clearTimeout(hedge)}
 }
 
 export async function osmDietarySearch(destination:any={},options:any={}){
@@ -68,12 +112,10 @@ export async function osmDietarySearch(destination:any={},options:any={}){
   const statements=veganOnly
     ?`nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`
     :`nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegetarian"~"^(yes|only)$"];nwr(around:${radius},${center.latitude},${center.longitude})[amenity~"${amenity}"]["diet:vegan"~"^(yes|only)$"];`;
-  const query=`[out:json][timeout:10];(${statements});out center tags;`;
+  const query=`[out:json][timeout:7];(${statements});out center tags;`;
   const promise=(async()=>{
-    const response=await providerFetch('openstreetmap','search',1,OVERPASS_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','User-Agent':'Luvia/1.0 dietary-place-evidence'},body:new URLSearchParams({data:query}).toString(),signal:AbortSignal.timeout(12000)});
-    const body=await response.json().catch(()=>({}));
-    if(!response.ok)throw Object.assign(new Error('OpenStreetMap-Ernährungshinweise sind gerade nicht erreichbar.'),{code:'OSM_DIETARY_PROVIDER_ERROR',status:response.status,provider:'openstreetmap'});
-    const rows=(Array.isArray(body?.elements)?body.elements:[]).map((element:any)=>normalizeOsmDietaryElement(element,destination)).filter(Boolean);
+    const elements=await overpassElements(query);
+    const rows=elements.map((element:any)=>normalizeOsmDietaryElement(element,destination)).filter(Boolean);
     const unique=[...new Map(rows.map((place:any)=>[place.providerPlaceId,place])).values()];
     return unique.slice(0,Math.max(1,Math.min(50,Number(options?.maxResultCount)||40)));
   })().catch(error=>{cache.delete(key);throw error});

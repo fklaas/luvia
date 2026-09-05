@@ -5,7 +5,7 @@
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
     "trackedFiles": 3266,
-    "visualCandidates": 979,
+    "visualCandidates": 980,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
     "css": {
@@ -6700,13 +6700,22 @@
       "sha256": "163be61e4e2d3a77bf84c4cd2525c85ba2ec9b79f18f34ee5238e57ff9bb51e8"
     },
     {
+      "path": "supabase/functions/luvia-gateway/_shared/osm-dietary.ts",
+      "classes": [
+        "dom-rendering-source",
+        "interaction-source"
+      ],
+      "bytes": 9761,
+      "sha256": "f95d814b33197dbe78f2c77ad2499d8c273acb30388c01a3459883a19a7ce71e"
+    },
+    {
       "path": "supabase/functions/luvia-gateway/_shared/places.ts",
       "classes": [
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 103991,
-      "sha256": "ae3c88eeb9fc05a4837b3794238fadf4e1a6c9356469b623db214a1307421924"
+      "bytes": 103988,
+      "sha256": "71127e9424ada7bd9d256ddcc91c8fbbeab9643b143c05dc3ec6576d04dd8cf8"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7798,8 +7807,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 10203,
-      "sha256": "2af4e339d4af47d2f79eda3370336f75b2d47935c2291c46cf4b3a4e21fbc3eb"
+      "bytes": 10207,
+      "sha256": "20961235f3cd0adc690922ea6aaf83a9b027813d02050bdc044d7e213ba8cd89"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",
@@ -9015,8 +9024,8 @@
       "classes": [
         "navigation-source"
       ],
-      "bytes": 8587,
-      "sha256": "eb4039f8a4a1d2024fa20f29d7b1085e650849c6a51c93514ecedb2e7e557f46"
+      "bytes": 9152,
+      "sha256": "36025c7c8c10f67ddfb8b3a8abcad6793cd3a8f948b956fa4e29d50672cc558f"
     },
     {
       "path": "tests/recovery-active-trip-reload.test.cjs",

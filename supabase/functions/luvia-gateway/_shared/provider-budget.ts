@@ -11,7 +11,13 @@ export async function providerFetch(provider:string,operation:string,units:numbe
   if(reservation?.allowed!==true)throw Object.assign(new Error('Für diese Quelle ist derzeit kein freigegebenes Gratis-Kontingent verfügbar.'),{code:'PROVIDER_BUDGET_DENIED',status:503,provider,reason:reservation?.reason||'unknown'});
   let response:Response;
   try{response=await fetch(url,{...init,signal:init.signal||AbortSignal.timeout(5000),redirect:'error'})}
-  catch{await budgetRpc('luvia_provider_outcome',{p_provider:provider,p_operation:operation,p_status:0}).catch(()=>{});throw Object.assign(new Error('Die Ortsquelle antwortet gerade nicht.'),{code:'PROVIDER_TRANSPORT_ERROR',status:502,provider})}
+  catch{
+    // A hedge loser was intentionally cancelled after another independent
+    // endpoint returned the same provider dataset. It consumed its reserved
+    // unit, but must not be recorded as an upstream outage.
+    if(init.signal?.aborted&&init.signal.reason==='overpass-winner-selected')throw Object.assign(new Error('Eine schnellere Ortsquellen-Instanz hat bereits geantwortet.'),{code:'PROVIDER_HEDGE_CANCELLED',status:499,provider,expected:true});
+    await budgetRpc('luvia_provider_outcome',{p_provider:provider,p_operation:operation,p_status:0}).catch(()=>{});throw Object.assign(new Error('Die Ortsquelle antwortet gerade nicht.'),{code:'PROVIDER_TRANSPORT_ERROR',status:502,provider})
+  }
   if(!response.ok)await budgetRpc('luvia_provider_outcome',{p_provider:provider,p_operation:operation,p_status:response.status}).catch(()=>{});
   return response;
 }

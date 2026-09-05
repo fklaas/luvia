@@ -23,6 +23,7 @@ const {pathToFileURL}=require('node:url');
   assert.equal(provider.normalizeOsmDietaryElement({type:'node',id:8,lat:54.02,lon:10.75,tags:{name:'Unbelegt',amenity:'restaurant'}},destination),null,'missing explicit diet tags must never create a fit claim');
 
   const places=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8');
+  const osmSource=fs.readFileSync(modulePath,'utf8');
   const migration=fs.readFileSync(path.join(root,'supabase/migrations/20260905210000_openstreetmap_dietary_evidence_budget.sql'),'utf8');
   const browser=fs.readFileSync(path.join(root,'intelligence/places-service.js'),'utf8');
   assert.match(places,/!processed\.length&&wantsOsmDietary/);
@@ -31,5 +32,9 @@ const {pathToFileURL}=require('node:url');
   assert.match(migration,/'openstreetmap-dietary-evidence','openstreetmap',array\['search'\],true,500,0,6/);
   assert.match(browser,/PROVIDER_NAMES=new Set\(\[[^\]]*'openstreetmap'/);
   assert.match(browser,/\.slice\(0,6\)/,'the five-provider profile cascade must not be truncated');
+  assert.match(osmSource,/https:\/\/lz4\.overpass-api\.de\/api\/interpreter/,'the OSM evidence read must start on an official bounded Overpass instance');
+  assert.match(osmSource,/https:\/\/overpass\.private\.coffee\/api\/interpreter/,'an independently operated Overpass instance must cover a saturated primary');
+  assert.match(osmSource,/Promise\.any\(\[primary,fallback\]\)/,'the secondary OSM instance must hedge a slow primary instead of serially delaying Passend');
+  assert.match(osmSource,/endpointFailover:'hedged_independent_instances'/,'health diagnostics must expose the bounded OSM instance failover');
   console.log('P02 OSM explicit dietary evidence provider, attribution, budget and Google isolation: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

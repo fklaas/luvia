@@ -9,6 +9,9 @@ const ok=data=>new Response(JSON.stringify(data),{headers:{'content-type':'appli
  await assert.rejects(()=>providerFetch('tomtom','search',1,'https://api.tomtom.com/test'),e=>e.code==='PROVIDER_BUDGET_DENIED');assert.equal(calls.length,1,'no paid request after denied reservation');
  globalThis.fetch=async(url,init)=>{calls.push(String(url));if(String(url).includes('/rpc/'))return ok({allowed:true});return new Response('{}',{status:429})};
  calls=[];await providerFetch('tomtom','search',1,'https://api.tomtom.com/test');assert.equal(calls.length,3,'429 records central cooldown, attempted unit stays consumed');
+ const cancelled=new AbortController();cancelled.abort('overpass-winner-selected');
+ globalThis.fetch=async(url,init)=>{calls.push(String(url));if(String(url).includes('/rpc/'))return ok({allowed:true});throw new DOMException('cancelled','AbortError')};
+ calls=[];await assert.rejects(()=>providerFetch('openstreetmap','search',1,'https://overpass.example.test',{signal:cancelled.signal}),error=>error.code==='PROVIDER_HEDGE_CANCELLED'&&error.expected===true);assert.equal(calls.length,2,'an intentionally cancelled hedge loser must not record a provider outage');
  const {managedRoutes,routePoint,flexibleLine}=await mod('provider-routes');
  for(const p of [{latitude:null,longitude:1},{latitude:'',longitude:1},{latitude:91,longitude:1}])assert.throws(()=>routePoint(p));
  assert.deepEqual(flexibleLine('BFoz5xJ67i1B1B7PzIhaxL7Y'),[[8.69821,50.10228],[8.69567,50.10201],[8.6915,50.10063],[8.68752,50.09878]],'HERE reference flexible polyline preserves lon/lat order');

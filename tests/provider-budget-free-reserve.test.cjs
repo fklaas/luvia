@@ -49,7 +49,8 @@ assert.match(osmEvidence,/values\s*\([\s\S]{0,180}'openstreetmap-dietary-evidenc
 assert.match(osmEvidence,/provider=excluded\.provider,operations=excluded\.operations,enabled=true/,'the OpenStreetMap upsert must preserve the dedicated provider and search-only operation');
 assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i,'OpenStreetMap activation must retain every reserved provider unit');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
-assert.match(places,/version:'4\.38\.4-osm-dietary-evidence'/,'the deployed gateway must identify the active free dietary evidence contract');
+assert.match(places,/version:'4\.38\.5-osm-instance-failover'/,'the deployed gateway must identify the active resilient dietary evidence contract');
+assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}maxDistanceMeters:3000/,'the public OSM probe must verify the same three-kilometre radius presented by Places');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 
 console.log('Provider budget free reserve and diagnostic truth: PASS');
