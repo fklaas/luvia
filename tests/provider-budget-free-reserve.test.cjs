@@ -43,7 +43,8 @@ assert.match(foursquareDiagnosticReset,/operations\s*=\s*array\['search'\]::text
 assert.doesNotMatch(foursquareDiagnosticReset,/delete\s+from\s+public\.places_provider_usage/i,'the diagnostic reset must retain every reserved unit');
 assert.match(foursquareDiagnosticReset,/FOURSQUARE_DIETARY_DIAGNOSTIC_COOLDOWN_NOT_RESET/,'the Foursquare diagnostic reset must fail closed');
 assert.match(places,/'vegetarian-foursquare-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['foursquare'\]\)/,'the bounded Foursquare evidence lane must have an exact public health probe');
-assert.match(places,/version:'4\.38\.0-foursquare-dietary-evidence'/,'the deployed gateway must identify the active dietary fallback source');
+assert.match(places,/'vegetarian-here-8km-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['here'\]\)/,'the free HERE dietary path must have the exact production-radius probe');
+assert.match(places,/version:'4\.38\.1-here-dietary-evidence'/,'the deployed gateway must identify the active HERE dietary source');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 
 console.log('Provider budget free reserve and diagnostic truth: PASS');
