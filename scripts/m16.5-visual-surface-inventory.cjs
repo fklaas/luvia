@@ -13,7 +13,8 @@ const LOCAL_ONLY_ARTIFACTS = new Set([
   'app/luvia-runtime-precontext-13.82.120.bundle.js',
   'assets/public-landing/reel-cafe-moment.mp4',
   'assets/public-landing/reel-city-tram.mp4',
-  'assets/public-landing/reel-coast-cycle.mp4'
+  'assets/public-landing/reel-coast-cycle.mp4',
+  'supabase/.temp/cli-latest'
 ]);
 
 const STYLE_EXTENSIONS = new Set(['.css']);
@@ -58,6 +59,8 @@ function trackedFiles() {
     .filter(relative =>
       !LOCAL_ONLY_ARTIFACTS.has(relative) &&
       !relative.startsWith('.wrangler/') &&
+      !relative.startsWith('outputs/') &&
+      !relative.startsWith('scripts/_tmp-') &&
       !relative.startsWith('test-results/')
     )
     .sort((a, b) => a.localeCompare(b));

@@ -48,10 +48,11 @@ assert.doesNotMatch(places,/shouldDeepen\?contract\.reads\.recommend\(\{\.\.\.re
 assert.doesNotMatch(places,/enrichCards\(raw\.slice\(0,INITIAL_VISIBLE_RESULTS\)\),\s*contract\.reads\.recommend\(\{\.\.\.request,fastPath:false/,'a full fast page must not start an unconditional deep provider search');
 assert.doesNotMatch(places,/saveCached\(\);\s*await loadSaved\(\);\s*render\(\)/,'the first provider result paint must never wait for saved-Place hydration');
 assert.ok(places.indexOf('render();')<places.indexOf('loadSaved(lifecycleToken).then'),'cached Places must paint before lifecycle hydration during mount');
-assert.match(places,/if\(selected\)hydrateMapPreview\(selected\)/,'the first Geoapify page hydrates the selected pin instead of a second discovery pass');
+assert.match(places,/hydrateMapPreview\(findPlace\(state\.selectedId\)\)/,'the first mounted map hydrates its selected pin instead of a second discovery pass');
 assert.match(places,/async function hydrateMapPreview\(place\)/,'selected pin media retains the exact on-demand path');
 assert.match(places,/function warmInitialPhotos\(searchToken=state\.requestToken\)/,'the first visible map cohort must receive a bounded photo warmup');
-assert.match(places,/filteredResults\(\)\.filter\([\s\S]*?\.slice\(0,3\)/,'photo warmup must stay capped to three exact provider entities');
+assert.match(places,/filteredResults\(\)\.filter\([\s\S]*?\.slice\(0,1\)/,'restored-map photo warmup must stay capped to the exact selected provider entity');
+assert.doesNotMatch(places,/if\(selected\)hydrateMapPreview\(selected\);\s*warmInitialPhotos\(token\)/,'a filter refresh must not spend detail-photo budget on unopened results');
 assert.match(places,/getCard\(id,\{maxWidthPx:960,maxHeightPx:720,source:place\}\)/,'every photo read must carry the exact selected provider entity');
 assert.match(places,/const place=findPlace\(marker\.providerPlaceId\);select\(marker\.providerPlaceId,false,false\);rememberViewed\(place\);\s*\}\)/,'the exact map pin must only select and preview its own Place');
 assert.match(places,/return\{places:\[selected\],selectedId:providerId\(selected\)/,'one selected Place must never expand the complete result collection inside the sheet');

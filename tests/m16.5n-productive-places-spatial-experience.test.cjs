@@ -239,7 +239,7 @@ assert.doesNotMatch(experience,/preferredPlaceIds[\s\S]{0,800}\.slice\(0,5\)/,'P
 assert.match(experience,/function ensureVisibleFitResults\(/,'map and list rendering must reuse evidence-based fit filtering');
 assert.match(experience,/},350\)/,'viewport refresh must debounce duplicate user gesture events');
 assert.match(experience,/place\?\.preferenceConstraintState==='satisfied'/,'Passend must require every applicable hard profile requirement to be positively satisfied');
-assert.match(experience,/const searchProviders=requiresDietaryProviderEvidence\(\)\?\['geoapify','google','foursquare'\]:\['auto'\]/,'initial Places discovery must stay on the free automatic cascade unless a dietary fact was explicitly requested');
+assert.match(experience,/const searchProviders=\['auto'\]/,'every visible Places search, including dietary filters, must stay on the active free automatic cascade');
 assert.match(experience,/const tripGeography=trip=>/,'Places search must send trip coordinates, not a destination name string');
 assert.match(experience,/const geography=tripGeography\(state\.trip\)/,'recommend must build one geographic destination payload');
 assert.match(experience,/destination:geography/,'recommend must receive a geographic destination payload');

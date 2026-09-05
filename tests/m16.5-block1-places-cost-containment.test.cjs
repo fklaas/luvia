@@ -47,7 +47,8 @@ assert.equal(atmosphereLine.includes('places.goodForChildren'),false,'vegetarian
 
 assert.match(gateway,/if\(options\?\.richEvidence===true\)return SEARCH_FIELDS/,'an explicit richEvidence opt-in must remain available for owner-backed ranking');
 assert.match(gateway,/object object/,'Geoapify must ignore a stringified destination object as a place name');
-assert.match(gateway,/const limit=Math.min\(50,/,'Geoapify discovery must return a full page instead of 20 places');
+assert.match(gateway,/const limit=Math.min\(cuisines\.length\?20:50,/,'broad Geoapify discovery must retain 50 candidates while precise cuisines stay inside one 20-result budget unit');
+assert.match(gateway,/limit:'200'/,'the shared destination cuisine rescue cohort must stay bounded below the former 500-row burst');
 assert.match(gateway,/function geoapifyLuviaTypes/,'Geoapify OSM categories must map onto Places type evidence');
 assert.match(discovery,/const destinationLabel=value=>/,'discovery queries must use a destination name, not the destination object');
 assert.match(discovery,/queryCascade\?\.\(goal,searchDestination/,'query cascade must receive the destination label');
@@ -58,8 +59,8 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.16\.2-fact-filter-exact-media/,'gateway cache must invalidate after the dietary conflict guard enters the public surface');
-assert.match(gateway,/version:'4\.37\.7-fact-filter-exact-media'/,'gateway health version must expose the current dietary evidence, budget-diagnostic and conflict contract');
+assert.match(gateway,/v2\.16\.3-cuisine-budget-continuity/,'gateway cache must invalidate after the cuisine budget continuity contract enters the public surface');
+assert.match(gateway,/version:'4\.37\.8-cuisine-budget-continuity'/,'gateway health version must expose the current dietary evidence and bounded cuisine budget contract');
 assert.match(gateway,/aliasMediaIdentity:'contained_distinctive_name_and_max_25m'/,'safe provider-name variants require a much tighter coordinate proof');
 assert.match(gateway,/priority:'on_demand_dietary_fallback_and_exact_selected_media'/,'Foursquare use must stay on-demand for dietary fallback or exact selected media instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');

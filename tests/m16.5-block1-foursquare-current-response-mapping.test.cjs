@@ -113,8 +113,8 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/function geoapifyNameFilter/,'descriptive discovery phrases must not be sent as Geoapify name filters');
   assert.match(source,/function geoapifyPlaceName/,'Geoapify features must map real OSM names instead of collapsing to Unbenannter Ort');
   assert.match(source,/function geoapifyTextField/,'Geoapify name/address fields must never String\(object\) into \[object Object\]');
-  assert.match(source,/v2\.16\.2-fact-filter-exact-media/,'gateway search cache must invalidate after the dietary conflict guard enters the public surface');
-  assert.match(source,/version:'4\.37\.7-fact-filter-exact-media'/);
+  assert.match(source,/v2\.16\.3-cuisine-budget-continuity/,'gateway search cache must invalidate after the bounded cuisine continuity contract enters the public surface');
+  assert.match(source,/version:'4\.37\.8-cuisine-budget-continuity'/);
   assert.match(source,/exactMediaIdentity:'normalized_name_and_max_120m'/);
   assert.match(source,/\/places\/\$\{encodeURIComponent\(fsqId\)\}\/photos/);
   assert.match(source,/food:'catering'/,'default food category must map to parent catering');

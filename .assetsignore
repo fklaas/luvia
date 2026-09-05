@@ -39,3 +39,13 @@ config/luvia-platform-ports.json
 
 # Document export tooling is not a product asset.
 /scripts/*.py
+
+# Local-only diagnostics and unrelated draft assets must never enter a release.
+/scripts/_tmp-*
+/supabase/.temp/**
+/app/luvia-runtime-13.82.120.bundle.js
+/app/luvia-runtime-precontext-13.82.120.bundle.js
+/app/luvia-runtime-postcontext-13.82.120.bundle.js
+/assets/public-landing/reel-cafe-moment.mp4
+/assets/public-landing/reel-city-tram.mp4
+/assets/public-landing/reel-coast-cycle.mp4

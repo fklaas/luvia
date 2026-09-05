@@ -201,7 +201,6 @@
   function requiresVegetarianEvidence(){
     return state.category==='food'&&(Boolean(state.filters.vegetarian)||(state.filters.cuisines||[]).includes('vegetarian_restaurant'));
   }
-  function requiresDietaryProviderEvidence(){return requiresVegetarianEvidence()||state.category==='food'&&(state.filters.cuisines||[]).includes('vegan_restaurant')}
   const meatLedVenue=place=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...placeTypeSet(place)].join(' ')).toLowerCase());
   function hasVegetarianProviderEvidence(place){
     const types=placeTypeSet(place);
@@ -485,7 +484,11 @@
         maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,
         sortBy:'distance'
       };
-      const searchProviders=requiresDietaryProviderEvidence()?['geoapify','google','foursquare']:['auto'];
+      // Keep every visible map search on the active free-provider cascade. The
+      // gateway applies vegetarian/vegan evidence as a hard post-condition, so
+      // a disabled richer source can never turn a valid empty result into an
+      // unavailable map (and can never admit a meat-led venue as "Passend").
+      const searchProviders=['auto'];
       const response=state.activeViewport&&preserveMap?{places:await viewportSearchWithContinuity({...state.activeViewport,query:activeDefinition.query,type:activeDefinition.primaryType,includedType:activeDefinition.includedType,includedTypes:activeDefinition.includedTypes||[],category:state.category,trip:state.trip,userQuery:state.userQuery,providers:searchProviders,vegetarianOnly:requiresVegetarianEvidence(),accessibleOnly:state.filters.accessible,reservableOnly:state.filters.reservable,openNow:state.filters.openNow,minRating:request.minRating,priceLevels:state.filters.priceLevels},()=>token===state.requestToken)}:await contract.reads.recommend({...request,providers:searchProviders,fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500,candidateLimit:MAX_RESULTS,limit:MAX_RESULTS});
       if(token!==state.requestToken)return false;
       const raw=decoratePreferences((response?.places||[]).slice(0,MAX_RESULTS),state.trip)
@@ -507,9 +510,10 @@
       // Map-first: do not fan out deep multi-query discovery. Warm only the first
       // three exact entities after useful pins exist; the shared card cache and
       // gateway budget policy coalesce them and stop provider quota bursts.
-      const selected=findPlace(state.selectedId);
-      if(selected)hydrateMapPreview(selected);
-      warmInitialPhotos(token);
+      // The first mounted map hydrates its selected preview in mountMap(). A
+      // filter refresh must not prefetch details for results the traveler has
+      // not opened: pin selection remains the exact on-demand photo trigger.
+      // This protects the shared free-provider budget for the next map search.
       return true;
     }catch(error){
       if(token!==state.requestToken)return false;
@@ -725,7 +729,7 @@
   async function hydrateMapPreview(place){return hydratePlaceImage(place,{refreshSelected:true})}
   function warmInitialPhotos(searchToken=state.requestToken){
     const warmToken=++state.photoWarmToken;
-    const rows=filteredResults().filter(place=>providerId(place)&&!state.images.has(providerId(place))).slice(0,3);
+    const rows=filteredResults().filter(place=>providerId(place)&&!state.images.has(providerId(place))).slice(0,1);
     const schedule=callback=>typeof globalThis.requestIdleCallback==='function'?globalThis.requestIdleCallback(callback,{timeout:900}):setTimeout(callback,250);
     schedule(async()=>{
       for(const place of rows){
