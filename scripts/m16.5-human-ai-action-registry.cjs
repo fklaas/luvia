@@ -740,8 +740,17 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-journey-restore-connection': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-entry-capabilities': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-journey-visit-manage': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-journey-restore-visit': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-journey-visit-recoveries': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-visit-edit': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-visit-manage-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-visit-mode': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-visit-open-place': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-visit-recovery': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-visit-remove-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-visit-restore-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-visit-restore-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-visit-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-journey-loading': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-body': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
@@ -880,8 +889,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 987);
-  assert.equal(sourceAudit.markerCount, 987);
+  assert.equal(sourceAudit.markers.length, 996);
+  assert.equal(sourceAudit.markerCount, 996);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

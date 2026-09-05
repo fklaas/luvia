@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-05",
   "sourceBaseline": "790ee03c",
-  "app": "13.82.168.85",
-  "core": "4.82.207",
+  "app": "13.82.168.86",
+  "core": "4.82.208",
   "runtimeSource": "790ee03ca952a75799c4f7178a3478878dabbc8a",
   "worker": "154aa828-e9bd-4dbc-993f-87e34ac40176",
   "gateway": "v203 ACTIVE / 4.64.20 / Places 4.38.1-here-dietary-evidence",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Integration läuft mit App 13.82.168.85 / Core 4.82.207 aus Runtime-Commit 790ee03ca952a75799c4f7178a3478878dabbc8a auf Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 bei 100 Prozent Traffic. Gateway v203 / 4.64.20 meldet Build 13.82.168.85 / Core 4.82.207 und Places-Health 4.38.1-here-dietary-evidence. Das saubere Git-Archiv luvia-integration-13.82.168.85-790ee03c.zip hat 88.755.996 Bytes und SHA-256 5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588. 226/226 Safe Regression und 30/30 öffentliche Bytevergleiche sind belegt. Sichtbar: Essen & Trinken 50 über HERE; das vegetarische Passend bleibt mit 0/0 ehrlich leer und enthält kein Steakhouse. Frontend-Rückfall ist .84 / Worker 89e712c7-c8ce-43fb-856f-229fc5055ee3; Gateway-Rückfall ist v202. Main bleibt c4b6d174 unverändert. PCR: docs/modularization/PCR-P02-P03-POSITIVE-FOOD-FIT-20260905.md.",
+      "evidence": "Integration läuft mit App 13.82.168.86 / Core 4.82.208 aus Runtime-Commit 790ee03ca952a75799c4f7178a3478878dabbc8a auf Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 bei 100 Prozent Traffic. Gateway v203 / 4.64.20 meldet Build 13.82.168.86 / Core 4.82.208 und Places-Health 4.38.1-here-dietary-evidence. Das saubere Git-Archiv luvia-integration-13.82.168.86-790ee03c.zip hat 88.755.996 Bytes und SHA-256 5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588. 226/226 Safe Regression und 30/30 öffentliche Bytevergleiche sind belegt. Sichtbar: Essen & Trinken 50 über HERE; das vegetarische Passend bleibt mit 0/0 ehrlich leer und enthält kein Steakhouse. Frontend-Rückfall ist .84 / Worker 89e712c7-c8ce-43fb-856f-229fc5055ee3; Gateway-Rückfall ist v202. Main bleibt c4b6d174 unverändert. PCR: docs/modularization/PCR-P02-P03-POSITIVE-FOOD-FIT-20260905.md.",
       "nextAcceptance": "Release .85 erhalten, Stable und Immutable Assets sowie den exakten Frontend-Rückfall .84 weiter belegbar halten; P02/P03-Providerfreigabe getrennt schließen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -620,7 +620,7 @@
       "sequence": "P02/P03 Kategorie- und Filtervollständigkeit; P09/P10 Timeline-Karte und Bedienung; P12/P15/P17 Trip Composer und Vormerken; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität; spätere P40/P44/P47 und M18 Intelligence II."
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.85 / Core 4.82.207 ist auf Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 zu 100 Prozent auf Integration veröffentlicht. Gateway v203 / 4.64.20 ergänzt die kostenlose HERE-first-Ernährungsevidenz und die begrenzten Google-/Foursquare-Fallbacks. HERE Vegetarian/Vegan Food-Types, die offizielle Foursquare Vegan-and-Vegetarian-Kategorie und Google servesVegetarianFood fließen in denselben Alle-/Passend-Bestand; allgemeine oder fleischzentrierte Orte werden nicht geraten. Sichtbar: Essen & Trinken 50 über HERE, Profilfokus Vegetarisch, Passend 0/0, Evidenzkaskade here,google,foursquare mit 0 zurückgegebenen und 0 zulässigen Treffern. Öffentliche Providerdiagnose: HERE erreichbar, in 8/15 km 0 explizite Treffer; Google 403 Permission; Foursquare 429 keine Credits. 226/226 Safe Regression und 30/30 Bytevergleiche PASS. Main und Production unverändert.",
+  "acceptanceUpdate": "App 13.82.168.86 / Core 4.82.208 ist auf Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 zu 100 Prozent auf Integration veröffentlicht. Gateway v203 / 4.64.20 ergänzt die kostenlose HERE-first-Ernährungsevidenz und die begrenzten Google-/Foursquare-Fallbacks. HERE Vegetarian/Vegan Food-Types, die offizielle Foursquare Vegan-and-Vegetarian-Kategorie und Google servesVegetarianFood fließen in denselben Alle-/Passend-Bestand; allgemeine oder fleischzentrierte Orte werden nicht geraten. Sichtbar: Essen & Trinken 50 über HERE, Profilfokus Vegetarisch, Passend 0/0, Evidenzkaskade here,google,foursquare mit 0 zurückgegebenen und 0 zulässigen Treffern. Öffentliche Providerdiagnose: HERE erreichbar, in 8/15 km 0 explizite Treffer; Google 403 Permission; Foursquare 429 keine Credits. 226/226 Safe Regression und 30/30 Bytevergleiche PASS. Main und Production unverändert.",
   "safeRegression": "225/225 PASS",
   "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -651,7 +651,7 @@
   ],
   "currentWork": {
     "stage": "M16.5 Schritte 15–18 aktiv; B1/P02 und P03 sind für den positiven Passend-Realbeleg erneut der aktive Abschlussblock. P09/P10 bleiben teilweise geliefert und werden nach diesem externen Gate fortgesetzt. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 ist teilweise belegt.",
-    "delivered": "App 13.82.168.85 / Core 4.82.207 läuft auf Integration über Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 bei 100 Prozent Traffic; Gateway v203 / 4.64.20 meldet Places-Health 4.38.1-here-dietary-evidence. HERE-, Google- und Foursquare-Ernährungsbelege, strenge Identitätsverbindung, Steakhouse-Ausschluss und begrenzte Providerbudgets sind implementiert. Sichtbar: Essen & Trinken 50 über HERE; Profil Vegetarisch; Passend 0/0; keine falsche Positivmarkierung. 226/226 Safe Regression und 30/30 öffentliche Bytevergleiche PASS. Sauberes Archiv: 88.755.996 Bytes, SHA-256 5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588. Main und Production bleiben unverändert.",
+    "delivered": "App 13.82.168.86 / Core 4.82.208 läuft auf Integration über Worker 154aa828-e9bd-4dbc-993f-87e34ac40176 bei 100 Prozent Traffic; Gateway v203 / 4.64.20 meldet Places-Health 4.38.1-here-dietary-evidence. HERE-, Google- und Foursquare-Ernährungsbelege, strenge Identitätsverbindung, Steakhouse-Ausschluss und begrenzte Providerbudgets sind implementiert. Sichtbar: Essen & Trinken 50 über HERE; Profil Vegetarisch; Passend 0/0; keine falsche Positivmarkierung. 226/226 Safe Regression und 30/30 öffentliche Bytevergleiche PASS. Sauberes Archiv: 88.755.996 Bytes, SHA-256 5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588. Main und Production bleiben unverändert.",
     "nextStep": {
       "id": "P02-P03-google-positive-food-fit",
       "package": "P02",

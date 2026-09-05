@@ -13,7 +13,7 @@ const trip={id:'trip-scharbeutz',title:'Ostseeurlaub',destination:{name:'Scharbe
 const entries=[
   {id:'place-open',source:'place-data',sourceKey:'place-open',sourceRevision:'rev-1',dataKey:'planned_at',tripId:trip.id,tripPlaceId:'link-open',placeId:'place-open',providerPlaceId:'provider-open',title:'Grande Beach Café',entityType:'restaurant',startAt:'2027-06-12T10:00:00.000Z',durationMinutes:60,metadata:{providerFacts:{typeLabel:'Restaurant'}}},
   {id:'place-booked',source:'place-data',sourceKey:'place-booked',sourceRevision:'rev-2',dataKey:'planned_at',tripId:trip.id,tripPlaceId:'link-booked',placeId:'place-booked',providerPlaceId:'provider-booked',title:'Gebuchtes Abendessen',entityType:'restaurant',startAt:'2027-06-12T13:00:00.000Z',durationMinutes:90,metadata:{bookingId:'booking-1',bookingStatus:'confirmed'}},
-  {id:'visit-one',source:'gps',sourceKey:'visit-one',tripId:trip.id,placeId:'place-visit',title:'Bestätigter Strandbesuch',entityType:'nature',kind:'visited',startAt:'2027-06-12T16:00:00.000Z',durationMinutes:45,automatic:true,metadata:{}},
+  {id:'visit-one',source:'gps',sourceKey:'visit-one',sourceRevision:'visit-rev-1',tripId:trip.id,placeId:'place-visit',title:'Bestätigter Strandbesuch',entityType:'nature',kind:'visited',startAt:'2027-06-12T16:00:00.000Z',durationMinutes:45,automatic:true,metadata:{}},
   {id:'memory-one',source:'event',sourceKey:'memory-one',tripId:trip.id,title:'Sonnenuntergang am Meer',entityType:'photo_memory',kind:'photo_memory',startAt:'2027-06-12T19:00:00.000Z',durationMinutes:30,metadata:{mediaIds:['media-1']}}
 ];
 
@@ -44,6 +44,9 @@ const setup=`(()=>{
  window.LuviaTimelineCore={snapshot:()=>structuredClone(provider),subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener)},hydrate:async()=>structuredClone(provider),init:async()=>structuredClone(provider),diagnostics:()=>({cloudAuthoritative:true,realtime:true,eventCount:provider.entries.length,metrics:{queued:0}})};
  window.LuviaTripContractV1={getActiveTrip:()=>(${JSON.stringify(trip)})};
  window.LuviaBookingContractV1={reads:{listForTrip:async()=>[{id:'booking-1',trip_place_id:'link-booked',status:'confirmed'}]}};
+ window.__visitWrites=[];window.__visit={id:'visit-one',tripId:${JSON.stringify(trip.id)},placeId:'place-visit',state:'visited',arrivedAt:'2027-06-12T16:00:00.000Z',leftAt:null,durationSeconds:2700,detectionSource:'gps-confirmed',automatic:false,confirmed:true,revision:'visit-rev-1'};
+ window.LuviaPlacesContractV1={reads:{getVisit:()=>structuredClone(window.__visit),getPlace:()=>({id:'place-visit',name:'Bestätigter Strandbesuch',formattedAddress:'Strandallee, Scharbeutz'}),getLifecycle:async()=>({lifecycle:'visited'}),visitRecoveries:()=>[]},commands:{updateVisit:async(id,input)=>{window.__visitWrites.push({kind:'update',id,input});window.__visit={...window.__visit,arrivedAt:input.arrivedAt,leftAt:input.leftAt,durationSeconds:input.durationSeconds,revision:'visit-rev-2'};return structuredClone(window.__visit)},removeVisit:async(id,input)=>{window.__visitWrites.push({kind:'remove',id,input});return{recoveryId:'visit-recovery-1'}}}};
+ window.LuviaUI={mount(options){const overlay=document.createElement('div');overlay.className='fixture-overlay luvia-living-sheet-overlay '+(options.className||'');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label',options.label||'Dialog');options.content.classList.add('luvia-living-sheet');overlay.append(options.content);document.body.append(overlay);const handle={id:'fixture-overlay',overlay,close(){overlay.remove();options.onClose?.()}};overlay.querySelectorAll(options.closeSelector||'[data-close]').forEach(button=>button.onclick=()=>handle.close());return handle}};
  window.LuviaJourneyOfflinePack={status:()=>({available:false,saved:false})};
  window.LuviaFeatureFlagRegistry={register:()=>{}};window.LuviaGlobalContracts={register:()=>{}};
  window.LuviaUIKit={toast:()=>{}};
@@ -106,8 +109,17 @@ const html='<!doctype html><html lang="de"><head><meta charset="utf-8"><meta nam
     assert.equal(await page.getByRole('button',{name:'Für gemeinsamen Weg auswählen',exact:true}).count(),1,'Only the unbooked planned Place may enter group editing');
     await booked.locator('[data-entry-capabilities]').evaluate(node=>node.open=true);
     await page.screenshot({path:path.join(output,'owner-capability-matrix.png'),fullPage:true});
+    await visit.getByRole('button',{name:'Besuch verwalten',exact:true}).click();
+    const visitDialog=page.getByRole('dialog',{name:'Bestätigten Besuch verwalten'});await visitDialog.waitFor();
+    assert.equal(await visitDialog.getByRole('button',{name:'Besuchszeit korrigieren',exact:true}).count(),1);
+    assert.equal(await visitDialog.getByRole('button',{name:'Aus Timeline entfernen',exact:true}).count(),1);
+    await visitDialog.getByRole('button',{name:'Besuchszeit korrigieren',exact:true}).click();
+    await visitDialog.locator('input[name="time"]').fill('18:15');await visitDialog.locator('input[name="duration"]').fill('60');
+    await page.screenshot({path:path.join(output,'visit-owner-correction-preview.png'),fullPage:true});
+    await visitDialog.getByRole('button',{name:'Korrektur bestätigen',exact:true}).click();await visitDialog.waitFor({state:'detached'});
+    const visitWrites=await page.evaluate(()=>window.__visitWrites);assert.equal(visitWrites.length,1);assert.equal(visitWrites[0].kind,'update');assert.equal(visitWrites[0].input.confirmed,true);assert.equal(visitWrites[0].input.expectedRevision,'visit-rev-1');assert.equal(visitWrites[0].input.durationSeconds,3600);
     assert.deepEqual(errors,[]);
-    fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({pass:true,headed,viewport:'477x900',checks:['truthful loading state without false empty day','readiness projection','planned Place direct actions','Booking delegation','Visit delegation','Memory delegation','only eligible Place selectable for group edit'],errors},null,2));
+    fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({pass:true,headed,viewport:'477x900',checks:['truthful loading state without false empty day','readiness projection','planned Place direct actions','Booking delegation','Visit owner correction preview and confirmed write','Memory delegation','only eligible Place selectable for group edit'],errors},null,2));
     console.log('P09 owner capability matrix and truthful Timeline first paint: PASS');
   }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});

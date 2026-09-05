@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.5.2-budget-cascade-viewport';
+  const RUNTIME_VERSION='1.6.0-visit-owner-management';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -300,7 +300,7 @@
   }
   function visitProjection(input){
     if(!input||typeof input!=='object')return null;
-    return Object.freeze({
+    const projection={
       id:clean(input.id),
       tripId:clean(input.tripId||input.trip_id),
       placeId:clean(input.placeId||input.place_id),
@@ -311,7 +311,10 @@
       detectionSource:clean(input.detectionSource||input.detection_source)||'manual',
       automatic:Boolean(input.isAutomatic??input.is_automatic),
       confirmed:Boolean(input.isConfirmed??input.is_confirmed)
-    });
+    };
+    const revision=clean(input.revision||input.updatedAt||input.updated_at||input.correction?._ownerRevision);
+    if(revision)projection.revision=revision;
+    return Object.freeze(projection);
   }
   async function favorite(options={}){const result=await command('favorite')(options||{});return commandProjection('favorite',result,{...options,isFavorite:true})}
   async function unfavorite(options={}){const result=await command('unfavorite')(options||{});return commandProjection('unfavorite',result,{...options,isFavorite:false})}
@@ -322,6 +325,12 @@
   async function updateLifecycle(tripPlaceId,value,patch={},options={}){const result=await coreCommand('updateLifecycleCloud')(tripPlaceId,value,patch||{},options||{});return commandProjection('updateLifecycle',result,{...options,tripPlaceId,lifecycle:value,isFavorite:typeof patch?.isFavorite==='boolean'?patch.isFavorite:undefined})}
   async function confirmVisit(placeId,patch={}){visit();return visitProjection(await coreCommand('recordVisit')(placeId,patch||{}))}
   async function rejectVisit(visitId,reason){return visitProjection(await presenceCommand('rejectVisit')(clean(visitId),clean(reason)||'Nicht als Besuch übernehmen'))}
+  function getVisit(visitId){return visitProjection(visit().getVisit?.(clean(visitId)))}
+  function visitRecoveries(){return freezeArray((visit().visitRecoveries?.()||[]).map(item=>Object.freeze({...item}))) }
+  function visitRecovery(recoveryId){const item=visit().visitRecovery?.(clean(recoveryId));return item?Object.freeze({...item}):null}
+  async function updateVisit(visitId,input={}){return visitProjection(await presenceCommand('updateVisit')(clean(visitId),input||{}))}
+  async function removeVisit(visitId,input={}){return Object.freeze(await presenceCommand('removeVisit')(clean(visitId),input||{}))}
+  async function restoreVisit(recoveryId,input={}){return Object.freeze(await presenceCommand('restoreVisit')(clean(recoveryId),input||{}))}
   async function setLocationEnabled(value){return Object.freeze({enabled:Boolean(value),diagnostics:Object.freeze(await presenceCommand('setGlobalEnabled')(Boolean(value)))})}
   async function refreshLocation(){return Object.freeze(await presenceCommand('refreshLocation')())}
   function pendingVisits(){return freezeArray((visit().pendingVisits?.()||[]).map(visitProjection).filter(Boolean))}
@@ -370,7 +379,7 @@
   }
   function eventOptions(payload){return{tripId:payload.tripId,entityId:payload.placeId||payload.tripPlaceId||payload.providerPlaceId}}
   function bridgePlacesChanged(event){const payload=eventContext(event);publish('places.changed',payload,eventOptions(payload))}
-  function bridgeLifecycleChanged(event){const payload=eventContext(event);publish('place.lifecycle.changed',payload,eventOptions(payload))}
+  function bridgeLifecycleChanged(event){const payload=eventContext(event);publish('place.lifecycle.changed',payload,eventOptions(payload));if(event?.type==='luvia:place-visit-changed')publish('place.visit.changed',payload,eventOptions(payload))}
   function bridgePlanChanged(event){const payload=eventContext(event);publish('place.plan.changed',payload,eventOptions(payload))}
   function bridgeFavoriteChanged(event){const payload=eventContext(event);publish('place.favorite.changed',payload,eventOptions(payload))}
 
@@ -385,12 +394,12 @@
     contractId:CONTRACT_ID,
     version:VERSION,
     runtimeVersion:RUNTIME_VERSION,
-    reads:Object.freeze({localSearchRadius,search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits}),
+    reads:Object.freeze({localSearchRadius,search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery}),
     composition:Object.freeze({selectView}),
-    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
-    events:Object.freeze(['places.changed','place.lifecycle.changed','place.plan.changed','place.favorite.changed']),
-    search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,
-    selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
+    commands:Object.freeze({importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,updateVisit,removeVisit,restoreVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps}),
+    events:Object.freeze(['places.changed','place.lifecycle.changed','place.visit.changed','place.plan.changed','place.favorite.changed']),
+    search,searchViewport,getRoute,getPlace,listPlaces,getDetails,getCard,suggestDestinations,getDestination,listSaved,recommend,getLifecycle,categories,routeDiscovery,createDeepLink,pendingVisits,getVisit,visitRecoveries,visitRecovery,
+    selectView,importPlace,favorite,unfavorite,toggleFavorite,clearFavorites,plan,unplan,updateLifecycle,confirmVisit,rejectVisit,updateVisit,removeVisit,restoreVisit,setLocationEnabled,refreshLocation,openDiscovery,openWebsite,openPhone,openMaps,
     snapshot,
     diagnostics:()=>Object.freeze({
       contractId:CONTRACT_ID,

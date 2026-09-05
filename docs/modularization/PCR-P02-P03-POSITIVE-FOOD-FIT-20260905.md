@@ -47,17 +47,17 @@ Angewendete additive Policy-Migrationen:
 - `20260905173000_foursquare_verified_dietary_evidence_budget.sql`
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
 
-Gateway **v203 ACTIVE** stellt Software-Build `4.64.20`, App-Build `13.82.168.85`, Core `4.82.207` und Places-Health `4.38.1-here-dietary-evidence` bereit. Relevante Gateway-Quellcommits sind `d9d8d355`, `bb986d67`, `e432c186` und `afe694f5`.
+Gateway **v203 ACTIVE** stellt Software-Build `4.64.20`, App-Build `13.82.168.86`, Core `4.82.208` und Places-Health `4.38.1-here-dietary-evidence` bereit. Relevante Gateway-Quellcommits sind `d9d8d355`, `bb986d67`, `e432c186` und `afe694f5`.
 
 ## Öffentlicher Integrationsrelease
 
-- App: `13.82.168.85`
-- Core: `4.82.207`
+- App: `13.82.168.86`
+- Core: `4.82.208`
 - Runtime-Commit: `790ee03ca952a75799c4f7178a3478878dabbc8a`
 - Integration-Worker: `154aa828-e9bd-4dbc-993f-87e34ac40176`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`
 - Immutable: `https://154aa828-integration-luvia.njwnrvwbv5.workers.dev/`
-- Archiv: `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.85-790ee03c.zip`
+- Archiv: `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.86-790ee03c.zip`
 - Archivgröße: `88.755.996` Bytes
 - Archiv-SHA-256: `5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588`
 - Öffentliche Bytegleichheit: `30/30 MATCH`, je 15 releasekritische Dateien auf Stable und Immutable gegen das saubere Archiv
