@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.25.1-shared-map-entity-continuity';
+const VERSION='1.25.2-shared-map-entity-continuity';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -12,8 +12,9 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
 const identityText=value=>clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const identityName=value=>identityText(value).replace(/^(?:die|der|das|the|le|la|les|el|los|las)\s+/,'');
 const samePlaceEntity=(left,right)=>{
-  const leftName=identityText(left?.name||left?.displayName?.text||left?.displayName),rightName=identityText(right?.name||right?.displayName?.text||right?.displayName);
+  const leftName=identityName(left?.name||left?.displayName?.text||left?.displayName),rightName=identityName(right?.name||right?.displayName?.text||right?.displayName);
   if(!leftName||leftName!==rightName)return false;
   const meters=distanceBetween(left,right);
   if(Number.isFinite(meters))return meters<=350;

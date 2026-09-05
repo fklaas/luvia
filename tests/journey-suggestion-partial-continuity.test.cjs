@@ -18,6 +18,7 @@ const providerDuplicate={
   ...place,
   providerPlaceId:'here:night-1',
   provider:'here',
+  name:'Die Kleine Strandbar',
   location:{latitude:54.0202,longitude:10.7601},
   coordinates:{latitude:54.0202,longitude:10.7601}
 };

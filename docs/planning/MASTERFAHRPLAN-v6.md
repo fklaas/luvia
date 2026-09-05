@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.61**, Core **4.82.183**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-05:** Integration **13.82.168.62**, Core **4.82.184**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .59 / Gateway v172 stabilisiert Kategorie-Reinheit und ausgewählte echte Ortsmedien auf Integration. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Food Passend 0 markiert das Steakhouse nicht, Natur enthält keine Verwaltung und Stays 49/27/49 keine Strandkorbvermietung. Der Exact-Photo-Pfad verlangt identischen Namen und höchstens 120 Meter, ruft danach höchstens ein beliebtes Foto ab und übernimmt kein nahes Fremdbild. Eine von sechs geprüften Unterkünften erhielt ein providerverknüpftes Bild. 220/220 Safe Regression und 30/30 öffentliche Dateien sind belegt.
 
@@ -54,14 +54,14 @@ Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.61 / Core 4.82.183 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
+Integration läuft auf 13.82.168.62 / Core 4.82.184 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## 1 Wo Luvia heute steht
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.61 und Core 4.82.183 mit Gateway v170. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; die aktuelle Provider-Kontinuität ist im P02/P03-Bericht belegt.
+Integration läuft auf App 13.82.168.62 und Core 4.82.184 mit Gateway v170. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; die aktuelle Provider-Kontinuität ist im P02/P03-Bericht belegt.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -308,7 +308,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.61 / Core 4.82.183 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
+13.82.168.62 / Core 4.82.184 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
 
 **Nächster Abschlussnachweis:** Den P02/P03-Restblock aus realer Filter-/Foto-Matrix und positiver vegetarischer Profilevidenz weiterführen; .57/v169 als Rückfall erhalten und das 220/220-Gate bei jedem weiteren Slice erneut ausführen.
 
@@ -688,7 +688,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.61 / Core 4.82.183: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
+13.82.168.62 / Core 4.82.184: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 
