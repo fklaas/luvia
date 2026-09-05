@@ -8,9 +8,12 @@
   },
   "releasePolicy": {
     "currentPrimary": "maplibre",
-    "targetPrimary": "apple-mapkit",
-    "fallback": "maplibre",
-    "targetActivationRequires": [
+    "plannedPrimary": "maplibre",
+    "optionalPaidCandidate": "apple-mapkit",
+    "optionalCandidateFallback": "maplibre",
+    "appleEnrollmentPolicy": "defer_until_ios_distribution_or_explicit_paid_decision",
+    "optionalCandidateActivationRequires": [
+      "paid_apple_developer_program_membership_or_team_access",
       "apple_credentials_configured",
       "mapkit_js_loads_on_desktop_and_mobile",
       "pin_filter_sheet_timeline_chat_parity",
