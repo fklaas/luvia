@@ -5,24 +5,26 @@ Integrationskandidat: **13.82.168.82**, Core **4.82.204**, Channel **integration
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.86**, Core **4.82.208**. M16.5 Schritte 15–18 aktiv. P09/P10 Visit- und Memory-Verwaltung sind geliefert; B1/P02–P03 bleibt für den positiven Google-Places-Ernährungsbeleg aktiv. Die API selbst ist laut Nutzerbestätigung bereits aktiv; der aktuelle Abschlussblock liegt jetzt bei Key-Beschränkung, Key-Projekt-/Billing-Zuordnung und anschließendem Realbeleg.
+**Stand 2026-09-05:** Integration **13.82.168.86**, Core **4.82.208**. M16.5 Schritte 15–18 aktiv. P09/P10 Visit- und Memory-Verwaltung sind geliefert. P02/P03 enthält jetzt zusätzlich die abgesicherte Apple-MapKit-Grundlage mit genau einem sichtbaren Kartenplatz; Apple bleibt bis Zugangsdaten und sichtbarer Parität deaktiviert. Google-Permission-Abgleich bleibt offen.
 
-**Zuletzt geliefert:** App 13.82.168.86 / Core 4.82.208 läuft auf Integration über Worker 1d936ac3-fd72-40ca-a5f4-513f414b74d2. Gateway v204 / 4.64.21 ist ACTIVE und reduziert Google-Permission-Fehler sicher auf Status, Grund und Dienst. Das unveränderte Supabase-Secret ist vorhanden. Nach kontrolliertem Cooldown-Reset erreichte der Live-Probe places.googleapis.com und belegte HTTP 403 / PERMISSION_DENIED. Alle zeigt 50 reale Essen-&-Trinken-Pins; Passend bleibt ohne erfundenen Positivbeleg 0/0. Visit-/Memory-Owner, Supabase-Visit-Constraint, sichtbarer 477×900-Browsertest, 30/30 öffentliche Bytevergleiche, 227/227 Safe Regression nach der Diagnose und der unveränderte Main-Inhalt bleiben belegt.
+**Zuletzt geliefert:** App 13.82.168.86 / Core 4.82.208 läuft unverändert auf Integration über Worker 1d936ac3-fd72-40ca-a5f4-513f414b74d2. Gateway v205 / 4.64.22 und Places 4.38.3-apple-renderer-contract sind ACTIVE. Apple-Ortssuche und Auto-/Fuß-/Fahrradrouten sind serverseitig vorbereitet, aber mit Remote-Policy enabled=false, Nullbudget, configured=false und automaticCascade=false gesperrt. Der Ein-Karten-Vertrag hält MapLibre als aktuellen Renderer und Apple MapKit als Zielrenderer im selben Kartenplatz fest. Der sichtbare Test belegte 1 MapLibre, 0 MapKit, 1 Canvas und 50 Pins vor/nach Zoom. 228/228 Safe Regression sind grün; Frontend, Main und Production blieben unverändert.
 
-**Nächster Schritt (AKTIV): Bestehenden Google-Key mit Places API (New) und Supabase-Serveraufruf abgleichen.** Places API (New) ist laut Nutzerbestätigung aktiv und das unveränderte Secret erreicht Google. Der echte Search-Aufruf wird jedoch von places.googleapis.com mit HTTP 403 / PERMISSION_DENIED abgewiesen.
+**Nächster Schritt (AKTIV): Apple-Zugang einrichten und MapKit JS als einzigen sichtbaren Integrationsrenderer abnehmen.** Serveradapter, Nullbudget-Policy und Ein-Karten-Vertrag sind bereit. Für einen echten Apple-Aufruf und den sichtbaren MapKit-JS-Prototyp fehlen Maps-Identifier, Team-ID, Key-ID und privater .p8-Schlüssel.
 
 **Abnahme dieses Schritts:**
 
-- Im Projekt des bestehenden Schlüssels die API-Beschränkung auf Places API (New) prüfen.
-- Die Anwendungseinschränkung muss einen serverseitigen Aufruf aus Supabase Edge Functions zulassen; eine reine Browser-Referrer-Beschränkung ist dafür ungeeignet.
-- Projektzugehörigkeit des Schlüssels und aktives Billing dieses Schlüsselprojekts sind bestätigt.
-- Der öffentliche Health-Probe antwortet ohne PERMISSION_DENIED und ohne Offenlegung des Schlüssels oder von Consumer-Metadaten.
-- Essen & Trinken zeigt mindestens einen realen vegetarischen Passt-Pin; Places, Timeline und AI Chat teilen Provider-ID, Reisezielradius und Passend-Grund.
-- Safe Regression, Stable/Immutable-Identität und unveränderter Git-Main-Stand sind erneut belegt.
+- Apple-Developer-Mitgliedschaft, Maps-Identifier und zugehöriger privater Maps-Schlüssel sind vorhanden.
+- Team-ID, Key-ID und privater .p8-Schlüssel liegen ausschließlich als Supabase-Secrets vor; kein Secret erscheint in Client, Git, Logs oder Health.
+- MapKit JS ersetzt MapLibre nur im bestehenden Kartenplatz; es existiert zu jedem Zeitpunkt höchstens ein sichtbarer Renderer.
+- Places und Stay zeigen Suche, Kategorien, alle Filter, Alle/Passend, Pins, Detail-Sheet und Timeline-Aktionen mit demselben places.v1-Vertrag.
+- Timeline-Vorschläge und AI Chat verwenden denselben Place-Bestand und dieselben belegten Passend-Gründe.
+- Apple-Attribution sowie Anzeigerechte zusätzlicher Provider sind geprüft und dokumentiert.
+- Desktop- und echter Mobiltest belegen MapKit-Interaktion sowie atomaren Rückfall auf MapLibre ohne verbliebene Apple-Daten.
+- Safe Regression, öffentliche App-Identität und unveränderter Main-/Production-Stand sind erneut belegt.
 
-**Danach:** Danach der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme; anschließend P12/P15/P17 Trip Composer, P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.
+**Danach:** Danach die offene Google-Key-Beschränkung für den positiven Ernährungsbeleg abschließen, anschließend der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme; danach P12/P15/P17 Trip Composer, P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.
 
-**Weiter offen:** P02/P03 aktiv: bestehende Google-Key-Beschränkung beziehungsweise Key-Projekt-/Billing-Zuordnung korrigieren und positiven öffentlichen Ernährungsbeleg abnehmen. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten.
+**Weiter offen:** P02/P03 aktiv: Apple-Maps-Zugangsdaten, sichtbarer einzelner MapKit-Renderer, Provider-Lizenzmatrix und Rückfallabnahme; bestehende Google-Key-Beschränkung beziehungsweise Key-Projekt-/Billing-Zuordnung für positiven Ernährungsbeleg. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen ist außerdem die Supabase-Organisationswarnung zum vorherigen Kontingent und einer möglichen Einschränkung ab 07.09.2026.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
