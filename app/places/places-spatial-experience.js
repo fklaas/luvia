@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.36.3-cross-provider-evidence-identity';
+  const VERSION='1.36.4-single-owner-profile-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -264,13 +264,16 @@
   }
   const normalizedProviderName=place=>clean(place?.name||place?.displayName).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   const providerIdentityName=place=>normalizedProviderName(place).replace(/\beis ?cafe\b/g,' eis ').split(/\s+/).filter(token=>token&&!['der','die','das','cafe','restaurant','bistro','gasthaus','gaststatte'].includes(token)).join('');
+  function crossProviderDistanceMeters(left,right){
+    const a=COMPOSITION().normalizeCoordinates(left?.coordinates||left?.location),b=COMPOSITION().normalizeCoordinates(right?.coordinates||right?.location);
+    if(!a||!b)return Infinity;
+    const rad=value=>value*Math.PI/180,dLat=rad(b.latitude-a.latitude),dLng=rad(b.longitude-a.longitude),lat1=rad(a.latitude),lat2=rad(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+  }
   function strictCrossProviderIdentity(left,right){
     const leftName=providerIdentityName(left),rightName=providerIdentityName(right);
     if(!leftName||leftName!==rightName)return false;
-    const a=COMPOSITION().normalizeCoordinates(left?.coordinates||left?.location),b=COMPOSITION().normalizeCoordinates(right?.coordinates||right?.location);
-    if(!a||!b)return false;
-    const rad=value=>value*Math.PI/180,dLat=rad(b.latitude-a.latitude),dLng=rad(b.longitude-a.longitude),lat1=rad(a.latitude),lat2=rad(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))<=120;
+    return crossProviderDistanceMeters(left,right)<=120;
   }
   function verifiedObjectMerge(current={},incoming={}){
     const merged={...(current||{})};
@@ -278,12 +281,18 @@
     return merged;
   }
   function mergeExactProviderEvidence(cohort,evidenceRows){
-    const evidenceByKey=new Map();
-    for(const evidence of (Array.isArray(evidenceRows)?evidenceRows:[]))for(const key of exactProviderKeys(evidence))if(!evidenceByKey.has(key))evidenceByKey.set(key,evidence);
-    return (Array.isArray(cohort)?cohort:[]).map(place=>{
-      const exactEvidence=[...exactProviderKeys(place)].map(key=>evidenceByKey.get(key)).find(Boolean);
-      const crossProviderEvidence=exactEvidence?null:(Array.isArray(evidenceRows)?evidenceRows:[]).find(row=>strictCrossProviderIdentity(place,row));
-      const evidence=exactEvidence||crossProviderEvidence;
+    const places=Array.isArray(cohort)?cohort:[],rows=Array.isArray(evidenceRows)?evidenceRows:[],assignments=new Map(),claimed=new Set();
+    for(let placeIndex=0;placeIndex<places.length;placeIndex++){
+      const keys=exactProviderKeys(places[placeIndex]),evidenceIndex=rows.findIndex((row,index)=>!claimed.has(index)&&[...exactProviderKeys(row)].some(key=>keys.has(key)));
+      if(evidenceIndex>=0){assignments.set(placeIndex,{evidence:rows[evidenceIndex],crossProvider:false});claimed.add(evidenceIndex)}
+    }
+    for(let evidenceIndex=0;evidenceIndex<rows.length;evidenceIndex++){
+      if(claimed.has(evidenceIndex))continue;
+      const candidates=places.map((place,placeIndex)=>({placeIndex,distance:assignments.has(placeIndex)?Infinity:crossProviderDistanceMeters(place,rows[evidenceIndex])})).filter(candidate=>candidate.distance<=120&&strictCrossProviderIdentity(places[candidate.placeIndex],rows[evidenceIndex])).sort((left,right)=>left.distance-right.distance);
+      if(candidates.length){assignments.set(candidates[0].placeIndex,{evidence:rows[evidenceIndex],crossProvider:true});claimed.add(evidenceIndex)}
+    }
+    return places.map((place,placeIndex)=>{
+      const assignment=assignments.get(placeIndex),evidence=assignment?.evidence,crossProviderEvidence=assignment?.crossProvider===true;
       if(!evidence)return place;
       return{
         ...place,
