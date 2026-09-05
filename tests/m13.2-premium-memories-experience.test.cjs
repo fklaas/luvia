@@ -41,7 +41,7 @@ assert.match(css,/\.lvm-search>\.sr-only\{position:absolute!important/,'Premium 
 const order=['core/memory/memory-domain-contract-core.js','core/platform/memory-contract-adapter.js',experiencePath,'app/app-shell.js'].map(file=>index.indexOf(file));
 assert.ok(order.every(position=>position>=0),'M13 Memory contract, Experience and App Shell runtime files must all load');
 assert.deepEqual(order,[...order].sort((a,b)=>a-b),'Memory contract must load before Premium Memories and App Shell');
-assert.ok(index.includes(`${cssPath}?v=13.82.168.72`));
+assert.ok(index.includes(`${cssPath}?v=13.82.168.73`));
 for(const asset of [experiencePath,cssPath])assert.ok(sw.includes(`'${asset}'`),`Service Worker shell missing ${asset}`);
 
 assert.ok(shell.includes("view==='memories')content=window.LuviaPremiumMemoriesExperience?.render"),'App Shell must render Premium Memories for the Memories route');
