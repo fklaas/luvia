@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3246,
+    "trackedFiles": 3244,
     "visualCandidates": 975,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
@@ -6704,8 +6704,8 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 95877,
-      "sha256": "e6c1e9032461331c8bbaff39a62de1c41f8a3b98163e8742328052d89af38a80"
+      "bytes": 96658,
+      "sha256": "64a6014905354d9303d15bb62134f91aebebebedc81cde5799b0e61f58a2eecc"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
@@ -7797,8 +7797,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 9236,
-      "sha256": "bd3be0af8899635545c217431b3c72ce7a6ab1c15ea08ba5195c161ea13ed918"
+      "bytes": 9256,
+      "sha256": "7453f8f31be6f256f69562426d9b762fa97f1a6c4203e16cddaf7df35a884dde"
     },
     {
       "path": "tests/m16.5-block1-semantic-booking-lifecycle.test.cjs",
@@ -8901,8 +8901,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 27875,
-      "sha256": "6c68e82c528bc670f8ed2deb9cc1edeec7dabda3d8351278ecb33806717dd652"
+      "bytes": 28058,
+      "sha256": "929cc8f50cb95b5724f5afeb010277ad2e2c7fae9763150f51d0b60bbc75294f"
     },
     {
       "path": "tests/places-foundation-reliability-v13.26.1.test.cjs",
@@ -9025,8 +9025,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 29644,
-      "sha256": "c3f4b5af7b0f0c14f3655b929630adcae990401c1a423bcd195c7914e976b76b"
+      "bytes": 29675,
+      "sha256": "2eca0ce77655678b3fed63be745a21634d02073c92d94133bfadbbe6b63237ee"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",
