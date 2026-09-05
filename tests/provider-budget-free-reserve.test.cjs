@@ -24,5 +24,7 @@ assert.doesNotMatch(googleEvidence,/delete\s+from\s+public\.places_provider_usag
 assert.doesNotMatch(googleEvidence,/provider\s*=\s*'foursquare'/i,'Google activation must not silently activate the unverified Foursquare allowance');
 assert.match(budget,/reason:reservation\?\.reason\|\|'unknown'/,'budget denial must retain a bounded machine-readable reason');
 assert.match(places,/reason:String\(item\?\.reason\|\|'unknown'\)\.slice\(0,80\)/,'public bounded diagnostics must disclose why an attempted provider was denied');
+assert.match(places,/'vegetarian-google-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['google'\]\)/,'the signed-in fit lane must have an exact bounded Google-only health probe');
+assert.match(places,/version:'4\.37\.9-google-fit-diagnostic'/,'the deployed gateway must identify the fit-diagnostic source');
 
 console.log('Provider budget free reserve and diagnostic truth: PASS');
