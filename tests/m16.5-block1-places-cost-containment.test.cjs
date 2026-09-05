@@ -58,8 +58,8 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.16\.1-dietary-provider-cascade/,'gateway cache must invalidate after the dietary conflict guard enters the public surface');
-assert.match(gateway,/version:'4\.37\.6-dietary-conflict-guard'/,'gateway health version must expose the current dietary evidence, budget-diagnostic and conflict contract');
+assert.match(gateway,/v2\.16\.2-fact-filter-exact-media/,'gateway cache must invalidate after the dietary conflict guard enters the public surface');
+assert.match(gateway,/version:'4\.37\.7-fact-filter-exact-media'/,'gateway health version must expose the current dietary evidence, budget-diagnostic and conflict contract');
 assert.match(gateway,/aliasMediaIdentity:'contained_distinctive_name_and_max_25m'/,'safe provider-name variants require a much tighter coordinate proof');
 assert.match(gateway,/priority:'on_demand_dietary_fallback_and_exact_selected_media'/,'Foursquare use must stay on-demand for dietary fallback or exact selected media instead of fanning out over every map pin');
 assert.match(gateway,/exactMediaIdentity:'normalized_name_and_max_120m'/,'cross-provider photos must expose the strict identity rule');

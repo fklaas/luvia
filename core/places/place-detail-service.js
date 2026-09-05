@@ -1,12 +1,12 @@
 (function(){
 'use strict';
-const VERSION='4.39.4-gps-evidence';
+const VERSION='4.39.5-exact-media-attribution';
 const adapters=new Map();const capabilityRenderers=new Map();const detailCache=new Map();const detailInflight=new Map();const photoCache=new Map();const photoInflight=new Map();let current=null;
 const esc=v=>window.LuviaPlaceExperience?.esc?.(v)||String(v??'');
 const LABELS={discovered:'Entdeckt',planned:'Geplant',visited:'Besucht',remembered:'Erinnert'};
 function lifecycleProjection(status='discovered'){status=String(status||'discovered').toLowerCase();if(['memory','travel_book','remembered'].includes(status))return'remembered';if(['visited','checked_in','checked_out','rated'].includes(status))return'visited';if(['planned','reserved','selected','booked'].includes(status))return'planned';return'discovered'}
 
-function cacheKey(id,options={}){return `${String(id||'').replace(/^places\//,'')}|${String(options.regionCode||'DE')}`}
+function cacheKey(id,options={}){return `${String(id||'').replace(/^places\//,'')}|${String(options.regionCode||'DE')}|media:${options.enrichMedia===true?'exact':'lean'}`}
 async function fetchDetails(id,options={}){
  const key=cacheKey(id,options),cached=detailCache.get(key);
  if(cached&&Date.now()-cached.at<15*60*1000)return cached.value;
@@ -15,17 +15,25 @@ async function fetchDetails(id,options={}){
  detailInflight.set(key,task);return task;
 }
 async function resolvePhoto(photo,options={}){
- if(photo?.uri||photo?.url)return{uri:photo.uri||photo.url,attribution:photo?.authorAttributions?.[0]?.displayName||photo?.attribution||''};
+ const metadata=value=>({
+  attribution:value?.authorAttributions?.[0]?.displayName||value?.attribution||'',
+  attributionUrl:value?.attributionUrl||value?.authorAttributions?.[0]?.uri||'',
+  sourceUrl:value?.sourceUrl||'',provider:value?.provider||'',verified:value?.verified===true
+ });
+ if(photo?.uri||photo?.url)return{uri:photo.uri||photo.url,...metadata(photo)};
  const name=String(photo?.name||photo||'');if(!name)return null;const key=`${name}|${Number(options.maxWidthPx||1200)}|${Number(options.maxHeightPx||900)}`;
  if(photoCache.has(key))return photoCache.get(key);if(photoInflight.has(key))return photoInflight.get(key);
- const task=Promise.resolve(window.LuviaPlaces.photo(name,{maxWidthPx:Number(options.maxWidthPx||1200),maxHeightPx:Number(options.maxHeightPx||900)})).then(r=>{const value=r?.data?.photoUri?{uri:r.data.photoUri,attribution:photo?.authorAttributions?.[0]?.displayName||''}:null;photoInflight.delete(key);if(value)photoCache.set(key,value);return value}).catch(error=>{photoInflight.delete(key);throw error});
+ const task=Promise.resolve(window.LuviaPlaces.photo(name,{maxWidthPx:Number(options.maxWidthPx||1200),maxHeightPx:Number(options.maxHeightPx||900)})).then(r=>{const value=r?.data?.photoUri?{uri:r.data.photoUri,...metadata(photo)}:null;photoInflight.delete(key);if(value)photoCache.set(key,value);return value}).catch(error=>{photoInflight.delete(key);throw error});
  photoInflight.set(key,task);return task;
 }
 async function prepare(id,options={}){
  const seed=options.seedPlace||{};
  const limit=Math.max(1,Math.min(6,Number(options.photoLimit||3)));
  const seedPhotoTask=Promise.allSettled((seed.photos||[]).slice(0,limit).map(photo=>resolvePhoto(photo,options)));
- const response=await fetchDetails(id,options),place={...seed,...(response?.data?.place||{})};
+ // Every consumer reaches selected-place media through this one owner path.
+ // Request exact provider media here so Places, Stays, Timeline and Chat cannot
+ // silently diverge because one surface omitted the enrichment option.
+ const response=await fetchDetails(id,{...options,enrichMedia:true}),place={...seed,...(response?.data?.place||{})};
  const seedPhotos=(await seedPhotoTask).map(x=>x.status==='fulfilled'?x.value:null).filter(Boolean);
  const remaining=Math.max(0,limit-seedPhotos.length);
  const extra=remaining?(await Promise.allSettled((place.photos||[]).slice(0,limit).map(photo=>resolvePhoto(photo,options)))).map(x=>x.status==='fulfilled'?x.value:null).filter(Boolean):[];
@@ -36,7 +44,7 @@ function prefetch(ids=[],options={}){return Promise.allSettled([...new Set(ids.f
 
 function close(){if(current?.close)current.close();current=null}
 function openLoading(c={}){close();const b=window.LuviaPlaceExperience.openOverlay(`<article class="rv2-experience luv-place-detail is-loading" role="dialog" aria-modal="true"><button class="rv2-experience-close" data-close-place aria-label="Schließen">×</button><div class="rv2-experience-loading"><span></span><strong>${esc(c.typeLabel||'Place')}-Erlebnis wird geladen …</strong></div></article>`);current={backdrop:b.node,node:b.node.querySelector('.rv2-experience'),close:b.close};return current}
-function gallery(p={},photos=[]){const sym=window.LuviaPlaceUI?.typeMeta?.(p)?.[0]||'📍';return `<div class="rv2-hero-gallery ${photos.length?'':'empty'}">${photos.length?photos.map((x,i)=>`<button type="button" data-place-gallery="${i}" class="rv2-gallery-photo ${i===0?'primary':''}"><img src="${esc(x.uri||x.url)}" alt="${esc(p.name)} Foto ${i+1}" loading="eager" fetchpriority="${i===0?'high':'auto'}" decoding="sync"></button>`).join(''):`<div class="rv2-gallery-fallback">${sym}<span>${esc(p.name)}</span></div>`}</div>`}
+function gallery(p={},photos=[]){const sym=window.LuviaPlaceUI?.typeMeta?.(p)?.[0]||'📍';return `<div class="rv2-hero-gallery ${photos.length?'':'empty'}">${photos.length?photos.map((x,i)=>{const attribution=String(x.attribution||x.provider||'').trim(),href=/^https:\/\//i.test(String(x.attributionUrl||x.sourceUrl||''))?String(x.attributionUrl||x.sourceUrl):'';return`<figure class="rv2-gallery-photo ${i===0?'primary':''}"><button type="button" data-place-gallery="${i}" aria-label="${esc(p.name)} Foto ${i+1} vergrößern"><img src="${esc(x.uri||x.url)}" alt="${esc(p.name)} Foto ${i+1}" loading="eager" fetchpriority="${i===0?'high':'auto'}" decoding="sync"></button>${attribution?`<figcaption>${href?`<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(attribution)}</a>`:esc(attribution)}</figcaption>`:''}</figure>`}).join(''):`<div class="rv2-gallery-fallback">${sym}<span>${esc(p.name)}</span><small>Für diesen Ort ist noch kein sicher zugeordnetes Bild verfügbar.</small></div>`}</div>`}
 function facts(p={},i={}){const type=p.primaryType||'restaurant',slots=window.LuviaPlaceUIContract?.forType?.(type)?.card?.factSlots||['rating','distance','bestTimeToVisit','priceLevel','openingState'];const a=[],distanceEvidence=String(i.distanceSource||i.distanceReference||'').toLowerCase(),hasGpsDistance=['gps','device','explicit-user-gesture','explicit-user-gesture-watch','global-explicit-user-gesture'].includes(distanceEvidence);for(const slot of slots){if(slot==='rating'&&p.rating)a.push(`⭐ ${Number(p.rating).toFixed(1).replace('.',',')} <small>${Number(p.userRatingCount||0).toLocaleString('de-DE')} Bewertungen</small>`);if(slot==='distance'&&i.distanceLabel&&hasGpsDistance)a.push(`📍 ${esc(i.distanceLabel)} von deinem Standort`);if(slot==='bestTimeToVisit'&&i.bestTime)a.push(`✨ Beste Zeit ${esc(i.bestTime)}${/:/.test(String(i.bestTime))?' Uhr':''}`);if(slot==='priceLevel'){const raw=i.priceLabel||p.priceLabel||p.priceLevel||'';const label=window.LuviaPlaceProviderFields?.formatPriceLevel?.(raw)||raw;if(label)a.push(`💶 ${esc(label)}`)};if(slot==='openingState'&&i.openLabel)a.push(`${/geöffnet/i.test(i.openLabel)?'🟢':'🕒'} ${esc(i.openLabel)}`)}return `<div class="rv2-facts luv-place-detail-facts">${a.map(x=>`<span>${x}</span>`).join('')}</div>`}
 function lifecycle(c={}){const order=['discovered','planned','visited','remembered'],current=lifecycleProjection(c.status),n=Math.max(0,order.indexOf(current));return `<div class="rv2-lifecycle"><span>${esc(c.title||'Place-Lebenszyklus')}</span><div>${order.map((x,i)=>`<em class="${i<=n?'done':''}" title="${esc(LABELS[x])}">${i<n?'✓':i===n?'●':'○'}</em>`).join('')}</div><strong>${esc(LABELS[order[n]])}</strong></div>`}
 function canonicalActions(html=''){return String(html||'').replace(/<button(?![^>]*\bluv-place-primary-action\b)/g,'<button class="luv-place-primary-action"')}
