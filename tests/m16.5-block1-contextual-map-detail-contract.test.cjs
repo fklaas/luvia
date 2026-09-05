@@ -59,6 +59,9 @@ assert.match(sheet,/categoryPlaceholder/,'missing real media must have an honest
 assert.match(sheet,/setTimeout\(\(\)=>\{if\(!handle\.overlay\?\.isConnected\)return;results\.querySelectorAll\('\[data-lvjs-staged-actions\]'\)/,'card actions must enter after the sheet instead of competing with its first paint');
 assert.match(sheet,/data-lvjs-details/);
 assert.match(sheet,/function openProviderDetails\(place,input\)/);
+assert.match(sheet,/function providerDetailMedia\(place\)/,'the secondary details surface must keep the exact selected-place image');
+assert.match(sheet,/class="lvjs-provider-detail-media"/,'the real provider image must be visible in the secondary details surface');
+assert.match(sheet,/attribution\?\.sourceUrl/,'the details image must retain its provider attribution link');
 for(const label of ['Küche','Preisniveau','Öffnungszeiten','Zahlung','Barrierefreiheit','Adresse','Telefon'])assert.ok(sheet.includes(`'${label}'`),`secondary detail sheet misses ${label}`);
 assert.match(sheet,/safeHttpUrl=value=>\{const raw=clean\(value\);if\(!\/\^https\?:\\\/\\\//,'external detail actions must reject internal or malformed relative URLs');
 assert.doesNotMatch(sheet,/bookingStatus:'pending_user_action'/,'opening Booking must not create a Timeline entry before the reservation form is submitted');
@@ -81,6 +84,7 @@ for(const status of ['Buchung bestätigt','Buchung storniert','Buchung nicht bes
 assert.match(journeyComposer,/\['luvia:booking-changed','luvia:booking-ready'\]/,'Timeline must refresh its Booking-owner projection after lifecycle changes');
 assert.match(sheetCss,/\.lvjs-staged-actions/);
 assert.match(sheetCss,/\.lvjs-provider-detail-sheet/);
+assert.match(sheetCss,/\.lvjs-provider-detail-media/,'the secondary details image needs a responsive visible presentation');
 assert.match(sheetCss,/overflow-y:auto/,'the mobile sheet must scroll as one uninterrupted surface');
 
 console.log('M16.5 Block 1 contextual map + clean pin detail contract: PASS');
