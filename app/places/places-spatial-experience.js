@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.31.5-multi-provider-resume-cohort';
+  const VERSION='1.31.6-multi-provider-cache-v6';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -116,7 +116,7 @@
 
   const MAP_CACHE_FRESH_MS=5*60*1000,MAP_CACHE_MAX_MS=24*60*60*1000,CATEGORY_COHORT_MAX_MS=15*60*1000;
   function cacheScope(trip=state.trip){const g=tripGeography(trip),c=COMPOSITION().normalizeCoordinates(g.location||g.center);return JSON.stringify({trip:tripId(trip),surface:state.surface,destination:destination(trip),latitude:c?.latitude,longitude:c?.longitude})}
-  function cacheKey(){return `consumer:places-spatial:v5-surface:${state.surface}:${tripId(state.trip)||'active'}`}
+  function cacheKey(){return `consumer:places-spatial:v6-free-provider-cohort:${state.surface}:${tripId(state.trip)||'active'}`}
   function loadCached(){
     try{
       const cached=port('OfflineCachePort')?.read(cacheKey(),null),age=Date.now()-Date.parse(cached?.savedAt||'');

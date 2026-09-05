@@ -17,7 +17,7 @@ const fixture=read('tests/fixtures/m16.5y-profile-onboarding-browser.html');
 const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const version=read('intelligence/kernel/version.js');
 
-assert.match(version,/core:'4\.82\.187',build:'13\.82\.168\.65',name:'M16\.5 Places and Stays Quality'/);
+assert.match(version,/core:'4\.82\.188',build:'13\.82\.168\.66',name:'M16\.5 Places and Stays Quality'/);
 
 assert.match(onboarding,/const STEPS = Object\.freeze\(\['welcome','account','heart','rhythm','care','control','ready'\]\)/);
 for(const group of ['interests','travelStyles','mobilityPreferences','activityPreferences','entertainmentPreferences','dietary','familyPreferences','accessibilityNeeds'])assert.ok(onboarding.includes(`${group}:`),`missing Profile vocabulary: ${group}`);
