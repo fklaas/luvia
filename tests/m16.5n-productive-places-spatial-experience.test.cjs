@@ -317,7 +317,8 @@ assert.match(experience,/distance\/Math\.min\(440,Math\.max\(220,innerHeight\*\.
 assert.match(experience,/function warmProfileEvidence\(searchToken=state\.requestToken\)/,'a profile dietary requirement must start one bounded evidence read after the broad Alle cohort is visible');
 assert.match(experience,/mergeExactProviderEvidence\(state\.results,response\?\.places\|\|\[\]\)/,'profile evidence may decorate only immutable provider identities already present in Alle');
 assert.match(experience,/parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1/,'the profile evidence read must stay quota-bounded');
-assert.match(experience,/providers:\['geoapify','google','foursquare'\]/,'profile evidence must try the free source first and use the bounded richer fallback only for the requested fact');
+assert.match(experience,/strictPlaceType:evidenceType[\s\S]{0,500}providers:\['auto'\]/,'profile evidence must use the same budget-managed free cascade as visible map discovery');
+assert.match(experience,/state\.root\?\.dataset\)state\.root\.dataset\.state=state\.status;\s*state\.root\?\.setAttribute\?\.\('aria-busy',String\(state\.status==='loading'\)\)/,'a completed warm-start search must clear the visible region busy state without remounting the map');
 assert.match(experience,/exact-normalized-name-and-max-25m-profile-evidence/,'cross-provider profile evidence requires an exact normalized name and a strict 25 m coordinate match');
 assert.match(css,/\.lv-places-spatial__marker:is\(\.is-selected, \[aria-pressed="true"\]\)[\s\S]{0,180}scale: 1\.28/,'the current pin must be materially larger than its neighbors without taking MapLibre transform ownership');
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(3\)\{top:1px;animation-delay:0s\}/,'the upper preview chevron must start the independent rise sequence');
