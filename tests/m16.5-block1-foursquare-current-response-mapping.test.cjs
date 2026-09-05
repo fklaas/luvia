@@ -113,8 +113,8 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/function geoapifyNameFilter/,'descriptive discovery phrases must not be sent as Geoapify name filters');
   assert.match(source,/function geoapifyPlaceName/,'Geoapify features must map real OSM names instead of collapsing to Unbenannter Ort');
   assert.match(source,/function geoapifyTextField/,'Geoapify name/address fields must never String\(object\) into \[object Object\]');
-  assert.match(source,/v2\.15\.0-cuisine-diagnostics/,'gateway search cache must invalidate after the complete cuisine diagnostic contract enters the public surface');
-  assert.match(source,/version:'4\.37\.3-exact-profile-evidence'/);
+  assert.match(source,/v2\.16\.0-dietary-provider-cascade/,'gateway search cache must invalidate after the bounded dietary provider cascade enters the public surface');
+  assert.match(source,/version:'4\.37\.4-dietary-provider-cascade'/);
   assert.match(source,/exactMediaIdentity:'normalized_name_and_max_120m'/);
   assert.match(source,/\/places\/\$\{encodeURIComponent\(fsqId\)\}\/photos/);
   assert.match(source,/food:'catering'/,'default food category must map to parent catering');
@@ -122,7 +122,7 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/function effectiveMaxDistanceMeters/,'post-processing must hard-cap distance when a destination anchor exists');
   assert.match(source,/geoapify_places_details_unavailable/,'Geoapify details must not return a bare place:null wipe payload');
   assert.match(source,/priority:'primary'/);
-  assert.match(source,/priority:'opt_in_disabled_default'/);
+  assert.match(source,/priority:'bounded_dietary_evidence_opt_in'/);
   assert.match(source,/PLACES_ALL_PROVIDERS_FAILED/,'a complete provider failure must not look like a valid zero-result search');
   assert.match(source,/status:503,providerErrors/,'bounded provider failures must remain diagnosable through the public health probe');
   assert.match(source,/query:foursquareQuery\(query,destination\)/);
