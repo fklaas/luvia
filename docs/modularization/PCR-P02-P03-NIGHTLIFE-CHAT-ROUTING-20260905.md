@@ -2,7 +2,7 @@
 
 Datum: **05.09.2026**
 
-Status: **FÜR DEN AKTIVEN INTEGRATION-SLICE FREIGEGEBEN**
+Status: **INTEGRATION ABGENOMMEN; P02/P03 BLEIBEN BIS ZUR REALEN FILTER-/FOTO-/MOBILMATRIX TEILWEISE**
 
 ## Problem
 
@@ -50,6 +50,19 @@ Die Umsetzung erfolgt als kontrollierter Integration-Slice auf dem vorhandenen C
 - Vollständige Safe Regression, unveränderliches Archiv und öffentliche Byte-Gleichheit vor Veröffentlichung.
 - Sichtbare Integration-Abnahme in Chat und Places-Karte für Scharbeutz/Timmendorfer Strand.
 
+## Belegtes Ergebnis
+
+- App **13.82.168.66**, Core **4.82.188**, Runtime-Commit **296f28b9987c6befdc702bd9609ad6c8d80d00ae**.
+- Worker **d608d9eb-e2b7-44b7-80ef-cf7be5a18e32** auf Integration mit 100 Prozent Traffic; Gateway **v173 ACTIVE**.
+- Unveränderliches Archiv `release66-296f28b9.zip`, 88.697.245 Bytes, SHA-256 **5B903DE9F0F9A0E0678AC49B446F0A3D7E904AF0A723A925AB80893428E74770**.
+- Safe Regression **222/222 PASS** und öffentliche Byte-Gleichheit **30/30 PASS** auf stabiler und unveränderlicher Worker-Adresse.
+- Sichtbarer, angemeldeter Browserlauf: Nachtleben in Scharbeutz lieferte **23** koordinatenverifizierte Orte; der Chat-Befehl „Öffne Stays für unsere Reise in Scharbeutz.“ wechselte zu **49** Unterkünften; „Öffne Places für unsere Reise in Scharbeutz.“ stellte dieselbe Nachtleben-Kategorie mit **23** Orten wieder her. Nach weiteren acht Sekunden blieb die Menge bei 23.
+- Frühere sichtbare Stichproben auf demselben Kategorienstand: Shopping **46**, Natur und Erholung **16**.
+
+Während der Abnahme wurden zwei reale Gegenbeispiele gefunden und vor Freigabe geschlossen. Im ersten Zwischenstand erreichte der Navigationsalias zwar den Action-Runtime-Vertrag, wurde aber zuvor vom Dashboard-Compile-Gate abgefangen. Im zweiten Zwischenstand zeigte der Live-Lauf zunächst 23 Nachtleben-Orte, stellte nach einem Routenwechsel jedoch nur die acht Geoapify-Orte aus dem lokalen Cache wieder her. Der finale Stand führt die deterministische Navigation vor dem optionalen Compile-Gate aus, speichert den vollständigen Geoapify-/TomTom-/HERE-Verbund und verwendet einen neuen Cache-Namensraum, sodass alte unvollständige Ein-Anbieter-Datensätze nicht fortgeschrieben werden.
+
+Maschinenlesbare Belege liegen in `C:\Users\fabia\Documents\ChatGPT\Luvia\outputs\public-byte-proof66.json`, `C:\Users\fabia\Documents\ChatGPT\Luvia\outputs\release66-visible-browser-evidence.json` und `C:\Users\fabia\Documents\ChatGPT\Luvia\outputs\p02-p03-nightlife-chat-release66-regression.log`.
+
 ## Rollout und Rückfall
 
-Frontend und Gateway werden auf Integration getrennt versioniert. Der vorherige App-Worker **011f96cd-488b-437e-b465-5ad74e8c7e20** und Gateway **v172** bleiben als unmittelbare Rückfallpunkte erhalten. Ein Rückfall betrifft nur die fehlerhafte Schicht; Main, Production, Datenbank, RLS und Secrets bleiben unverändert.
+Frontend und Gateway werden auf Integration getrennt versioniert. Der vorherige App-Worker **21be60e2-c3b0-4f1f-866c-d74da64bf85e** mit App **13.82.168.65** und Gateway **v172** bleiben als unmittelbare schichtweise Rückfallpunkte erhalten. Der aktuell verwendete Gateway v173 verändert weder Datenbank noch Secrets. Main, Production, Datenbank und RLS blieben während dieses Slices unverändert.
