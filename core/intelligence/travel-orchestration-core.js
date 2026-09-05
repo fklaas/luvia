@@ -3,7 +3,7 @@ var LuviaTravelOrchestrationCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.travel-orchestration.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.12.0-read-date-does-not-conflict';
+const RUNTIME_VERSION='1.13.0-local-place-read-morphology';
 const PURPOSES=new Set(['timeline-suggestion','places-ranking','route-planning','weather-context','confirmed-visit','group-decision']);
 const WRITE_VERBS=/\b(plane|planen|einplane|einplanen|entplane|entplanen|trage|trag|eintragen|fuege|füge|hinzufuege|hinzufüge|hinzufuegen|hinzufügen|entferne|entfernen|buche|buchen|reserviere|reservieren|verschiebe|verschieben|wechsle|wechseln|loesche|lösche|storniere|stornieren|aendere|ändere|aktualisiere|aktualisieren|speichere|speichern|merke|merken|setze|setzen|stelle|einstellen|teile|teilen|aktiviere|aktivieren|deaktiviere|deaktivieren|erstelle|erstellen|stimme|abstimmen)\b/i;
 const FORBIDDEN_COMMAND=/\b(ohne\s+(?:meine\s+)?bestätigung|bypass|umgeh(?:e|en)|heimlich|ungefragt|automatisch\s+(?:buchen|stornieren|löschen|teilen)|lösche\s+alles|teile\s+(?:den\s+)?(?:exakten|genauen)\s+standort\s+ungefragt)\b/i;
@@ -23,7 +23,7 @@ const LOCATION_ALLOW=/\b(standort|gps|position|ortung)\b.{0,40}\b(nutzen|teilen|
 const LOCATION_DENY=/\b(standort|gps|position|ortung)\b.{0,40}\b(nicht|nie|sperren|deaktivieren|widerrufen)\b|\b(kein|keinen|deaktiviere|sperre|widerrufe)\b.{0,40}\b(standort|gps|position|ortung)\b/i;
 const DOMAINS=Object.freeze([
   {id:'events',owner:'intelligence',contract:'intelligence.verified-events.v1',availability:'read-only',pattern:/\b(event|events|veranstaltung(?:en)?|festival|konzert(?:e)?|live[- ]?musik|wochenmarkt|aufführung|auffuehrung|spielplan|eventkalender)\b/i},
-  {id:'places',owner:'places',contract:'places.v1',availability:'active',pattern:/\b(place|places|restaurant|café|cafe|essen|strand|meer|museum|kultur|aktivitaet|aktivität|ausflug|fotospot|shopping|nachtleben|nachtclubs?|clubs?|natur|sehenswuerdig|sehenswürdig|ort(?:e|en)?|favorit(?:en)?|lieblingsort(?:e)?|mini[ -]?golf|golf|luftmatratze(?:n)?|schwimmring|badespielzeug|geschäft|geschaeft|laden|shop|kaufen|besorgen)\b/i},
+  {id:'places',owner:'places',contract:'places.v1',availability:'active',pattern:/\b(place|places|restaurants?|restaurant(?:e|en)|café|cafe|essen|strand|meer|museum|kultur|aktivitaet|aktivität|ausflug|fotospot|shopping|nachtleben|nachtclubs?|clubs?|natur|sehenswuerdig|sehenswürdig|ort(?:e|en)?|favorit(?:en)?|lieblingsort(?:e)?|mini[ -]?golf|golf|luftmatratze(?:n)?|schwimmring|badespielzeug|geschäft|geschaeft|laden|shop|kaufen|besorgen)\b/i},
   {id:'booking',owner:'booking',contract:'booking.v1',availability:'active',pattern:/\b(buchung(?:en)?|buche|buchen|reservier\w*|stornier\w*|umbuch\w*|tisch|ticket|hotel|provider)\b/i},
   {id:'journey',owner:'journey',contract:'journey.v1',availability:'active',pattern:/\b(timeline|tagesbogen|tagesplan|reiseplan|route|danach|davor|verschieb\w*|plane|planen|einplan\w*|trage|trag|eintrag\w*|hinzufueg\w*|hinzufüg\w*|moment)\b/i},
   {id:'trip',owner:'trip',contract:'trip.v1',availability:'active',pattern:/\b(aktive\s+reise|meine\s+reisen|reisen\s+(?:anzeigen|zeigen|auswählen|auswaehlen)|zeig(?:e|t)?\s+(?:mir\s+)?(?:meine\s+)?reisen|(?:andere|nächste|naechste)\s+reise\s+(?:auswählen|auswaehlen|aktivieren|öffnen|oeffnen)|wechs(?:le|eln?)\s+(?:die|zur|meine)?\s*reise|reise\s+(?:wechseln|auswählen|auswaehlen|aktivieren|verwalten)|reisedaten|reiseziel|reisezeitraum|trip|my\s+trips?|show\s+(?:my\s+)?trips?|switch\s+(?:the\s+)?trip|select\s+(?:another|a|the)?\s*trip|mis\s+viajes|mes\s+voyages|i\s+miei\s+viaggi|mijn\s+reizen|minhas\s+viagens|urlaub\s+(?:umbenennen|ändern|aendern))\b/i},
@@ -69,7 +69,7 @@ function normalizedTime(match){if(!match)return null;const hour=match[1]??match[
 function timeHint(source,context={}){const time=source.match(TIME_PATTERN),day=source.match(DAY_PATTERN),explicitDate=exactDate(source),dayToken=day?.[1]?.toLocaleLowerCase('de-DE')||null,date=explicitDate||resolveDay(dayToken,context);return{day:dayToken,date,time:normalizedTime(time),explicit:Boolean(day||explicitDate||time)}}
 function allTimes(source){const times=[];for(const match of source.matchAll(ALL_TIME_PATTERN))times.push(normalizedTime(match));return unique(times)}
 function categoryHints(source){const hints=[];for(const [id,pattern] of [
-  ['food',/\b(restaurant|café|cafe|essen|vegetar|vegan|genuss)\b/i],['culture',/\b(museum|kultur|geschichte|galerie|theater|konzert|event)\b/i],['nature',/\b(natur|strand|meer|wald|park|ruhe|erholung)\b/i],
+  ['food',/\b(restaurants?|restaurant(?:e|en)|café|cafe|essen|vegetar\w*|vegan\w*|genuss)\b/i],['culture',/\b(museum|kultur|geschichte|galerie|theater|konzert|event)\b/i],['nature',/\b(natur|strand|meer|wald|park|ruhe|erholung)\b/i],
   ['activity',/\b(aktivitaet|aktivität|ausflug|sport|schwimm|rad|wander|mini[ -]?golf|golf|kletter|reiten|spielen)\b/i],['photo',/\b(foto|fotospot|aussicht)\b/i],['nightlife',/\b(nachtleben|club|bar|abend)\b/i],['shopping',/\b(shopping|einkauf|markt|kaufen|besorgen|geschäft|geschaeft|laden|shop|luftmatratze(?:n)?|schwimmring|badespielzeug)\b/i]
 ])if(pattern.test(source))hints.push(id);return hints}
 function preferencePatch(source){

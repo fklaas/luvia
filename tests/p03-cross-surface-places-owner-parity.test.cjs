@@ -75,9 +75,16 @@ async function testAiReuse(){
     LuviaPlacesDomainContractCoreV1:{categories(){return{food:{key:'food',label:'Essen & Trinken',query:'Restaurant',synonyms:[],keywords:[],includedTypes:['restaurant'],domainTypes:['restaurant'],excludedTypes:[],primaryType:'restaurant'}}}},
     LuviaPlacesContractV1:{reads:{getActiveDiscovery:options=>options.category==='food'&&options.fitOnly===true?shared:null,recommend:async()=>{providerReads++;throw new Error('provider search must not run')},getCard:async(_id,options)=>({place:options.source,image:null})},commands:{}}};
   context.globalThis=context;context.window=context;vm.createContext(context);
-  for(const file of ['core/places/global-place-contracts.js','core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js','core/ai/ai-action-runtime.js'])vm.runInContext(read(file),context,{filename:file});
-  const compiledIntent={contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'read',clause:'Zeig mir passende Restaurants',categoryHints:['food'],temporalHint:{},entityHints:{},missingInputs:[]}]};
-  const response=await context.LuviaAIActionRuntime.runMessage('Zeig mir passende Restaurants.',{surface:'global-chat',compiledIntent});
+  for(const file of ['core/places/global-place-contracts.js','core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js','core/intelligence/travel-orchestration-core.js','core/ai/ai-action-runtime.js'])vm.runInContext(read(file),context,{filename:file});
+  const message='Zeig mir passende vegetarische Restaurants in Scharbeutz.';
+  const compiledIntent=context.LuviaTravelOrchestrationCoreV1.compileIntent(message,{online:true,locale:'de-DE',trip:context.LuviaTripContractV1.getActiveTrip()});
+  assert.equal(compiledIntent.status,'compiled','the local compiler must preserve a safe Place read when live AI is unavailable');
+  const placeIntent=compiledIntent.intents.find(intent=>intent.domain==='places');
+  assert.ok(placeIntent,'German inflected restaurant requests must resolve to the Places owner');
+  assert.deepEqual([...placeIntent.categoryHints],['food']);
+  assert.deepEqual([...placeIntent.entityHints.preferencePatch.dietaryPreferences],['vegetarian']);
+  assert.equal(placeIntent.entityHints.destinationName,'Scharbeutz');
+  const response=await context.LuviaAIActionRuntime.runMessage(message,{surface:'global-chat',compiledIntent});
   const result=response.results.find(item=>item.kind==='place_collection');
   assert.ok(result);
   assert.equal(providerReads,0);

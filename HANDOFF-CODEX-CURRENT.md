@@ -3,23 +3,23 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.93**, Core **4.82.212**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.94**, Core **4.82.213**. M16.5 Schritte 15–18 aktiv. P02 Passend ist öffentlich stabil; der P03 Cross-Surface-Slice steht als App .94 / Core 4.82.213 unmittelbar vor seiner öffentlichen AI-Chat-Abnahme. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** App .92, Gateway v220 und Places 4.38.7-osm-edge-proxy liefern verlässlich 11 belegte passende Orte im gleichen 3-km-Reisezielbereich wie Alle. Sichtbar wurden 50 Alle → 11 Passend → 52 Alle belegt; alle Passend-Pins waren markiert, das Steakhaus ausgeschlossen und Provider-Dubletten erhielten keinen zweiten Passend-Status. Der kostenlose signierte OSM-Pfad nutzt gestaffelte Ausweichinstanzen, Abbruch der Verlierer und sechs Stunden Cache. Stable und immutable Worker stimmen 30/30 mit dem ausgelieferten Commit überein. Safe Regression 229/229 und NFR-0 3/3 sind grün.
+**Zuletzt geliefert:** Auf App .93 sind Places und Timeline sichtbar auf derselben aktiven Place-Kohorte: 11 vegetarisch belegte Passend-Pins, kein Steakhouse-Falschpositiv, dieselbe kanonische HERE-ID und derselbe lesbare Profilgrund bei null zusätzlichen Timeline-Provider-Reads. App .94 ergänzt den fehlenden lokalen Chat-Intent für den realen Satz mit flektiertem „vegetarische Restaurants“; fokussierte P03-, Semantik-, Orchestrierungs-, Release-, Inventur- und NFR-0-Gates sind grün.
 
-**Nächster Schritt (AKTIV): Denselben Passend-Ort in Timeline, AI Chat und Stay belegen.** Places ist wieder stabil. Jetzt muss die vorhandene zentrale Place Intelligence sichtbar beweisen, dass Karte, Timeline, Chat und Unterkunftssuche dieselbe Identität und dieselben Fakten verwenden.
+**Nächster Schritt (AKTIV): App .94 veröffentlichen und dieselbe Passend-ID im AI Chat sichtbar belegen.** Der letzte reale Gegenbeleg lag nur noch im lokalen Fallback des Chats: Ohne Live-KI wurde „vegetarische Restaurants“ wegen deutscher Flexion nicht als Places-Read erkannt. Der Kandidat behebt genau diese Lücke.
 
 **Abnahme dieses Schritts:**
 
-- Einer der 11 Passend-Orte erscheint in Timeline-Vorschlägen und AI Chat mit derselben kanonischen Place-/Provider-ID.
-- Profilfakten, 3-km-Reisezielbereich und lesbarer Passend-Grund stimmen flächenübergreifend überein.
-- Timeline und AI Chat lösen keine abweichende parallele Place-Suche oder zweite Matching-Logik aus.
-- Stay verwendet dieselbe Provider-, Cache-, Karten- und Fit-Diagnostik und erzeugt keine unbelegten passenden Unterkünfte.
-- Safe Regression, NFR-0, öffentliche Asset-Identität und ein sichtbarer Browserbeleg bleiben grün.
+- Der öffentliche Integration-Chat verarbeitet den exakten Satz „Zeig mir passende vegetarische Restaurants in Scharbeutz.“ auch bei nicht verfügbarer Live-KI als lokalen sicheren Places-Read.
+- Places, Timeline und AI Chat zeigen mindestens eine identische kanonische Place-/Provider-ID und denselben lesbaren vegetarischen Passend-Grund.
+- AI Chat weist für die wiederverwendete aktive Place-Kohorte Provider-Read-Zähler 0 aus.
+- Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; weder Chat noch Timeline erfinden eine Passung.
+- Safe Regression 230/230, NFR-0 3/3, Stable/Immutable-Asset-Identität und Rückfallarchiv sind grün.
 
-**Danach:** Nach dem P03-Cross-Surface-Beleg wird die noch offene vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft aus P02/P03 weiter geschlossen.
+**Danach:** Nach dem öffentlichen P03-Beleg wird die offene P02/P03-Vollständigkeit für alle Kategorien, Landes- und Sachfilter, echte Ortsbilder und Providerquoten geschlossen.
 
-**Weiter offen:** P02 bleibt im Gesamtumfang teilweise: vollständige Kategorien, Landes- und Sachfilter, echte Place-Fotos sowie weitere Provider- und Quotenpfade. P03 ist aktiv für Timeline-, AI-Chat- und Stay-Parität. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Apple MapKit bleibt als dokumentierte spätere Option geparkt.
+**Weiter offen:** P02 bleibt teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P03 ist bis zum öffentlichen Chat-Beleg aktiv. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
