@@ -50,7 +50,8 @@ assert.equal(vegan.vegetarianOnly,false,'vegan evidence must use the exact provi
 
 vm.runInContext(read('app/places/places-spatial-experience.js'),sandbox,{filename:'places-spatial-experience.js'});
 const spatialSource=read('app/places/places-spatial-experience.js');
-assert.match(spatialSource,/providers:\['auto','google','foursquare'\]/,'explicit profile evidence may use the bounded exact-evidence fallbacks');
+assert.match(spatialSource,/if\(preferredPlaceIds\(state\.results\)\.size\)return false/,'a verified free-provider fit must prevent an unnecessary paid evidence read');
+assert.match(spatialSource,/providers:\['google','foursquare'\]/,'a missing free-provider fact must use the bounded explicit-evidence path instead of restarting the exhausted automatic cascade');
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:503}),true);
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({code:'PLACES_ALL_PROVIDERS_FAILED'}),true);
 assert.equal(sandbox.LuviaPlacesSpatialExperience.transientDestinationFailure({status:400,code:'VALIDATION_FAILED'}),false);
@@ -65,6 +66,8 @@ const hereFoodEvidence={id:'here:green',providerPlaceId:'here:green',name:'Komb√
 const joinedHere=sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[hereFoodEvidence],'Vegetarisch');
 assert.equal(joinedHere.length,2,'explicit HERE food-type evidence must create a positive Passend candidate');
 assert.equal(sandbox.LuviaPlacesSpatialExperience.isPreferredPlace({...hereFoodEvidence,preferenceDiscoveryMatch:true}),true);
+const googleOffer={id:'google:strandkueche',providerPlaceId:'google:strandkueche',name:'Strandk√ºche',types:['restaurant'],features:{servesVegetarianFood:true},coordinates:{latitude:54.024,longitude:10.754}};
+assert.equal(sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[googleOffer],'Vegetarisch').length,2,'an ordinary restaurant with an explicit Google vegetarian fact must enter the positive Passend cohort');
 const deceptiveSteak={...hereFoodEvidence,id:'here:steak-green',providerPlaceId:'here:steak-green',name:'Green Steakhouse',features:{servesVegetarianFood:true}};
 assert.equal(sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[deceptiveSteak],'Vegetarisch').length,1,'meat-led identity must still win over generic or provider dietary signals');
 

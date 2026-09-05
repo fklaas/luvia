@@ -303,13 +303,21 @@
   async function hydrateProfileEvidence(searchToken=state.requestToken,focus=profileDietaryFocus(),key=profileEvidenceCohortKey(focus)){
     const contract=placesContract();
     if(state.category!=='food'||!focus||!state.results.length||!contract?.reads?.recommend)return false;
+    // The retained free-provider cohort already had its chance to prove a fit.
+    // When it contains a verified candidate, keep that result and spend no
+    // additional provider budget. Otherwise use the bounded evidence providers
+    // directly: restarting with `auto` can stop on a non-empty HERE cohort whose
+    // restaurants have no dietary facts, leaving "Passend" empty even though
+    // Google can return the explicit servesVegetarianFood field.
+    if(preferredPlaceIds(state.results).size)return false;
     const evidenceType=focus==='Vegan'?'vegan_restaurant':'vegetarian_restaurant',geography=tripGeography(state.trip),context=preferenceContext()?.snapshot?.()||{};
     try{
       const response=await contract.reads.recommend({
-        // The ordinary map remains on the free-provider cascade. Google and
-        // Foursquare are admitted only for this explicit, evidence-bearing
-        // profile read when the free sources cannot prove the dietary fit.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        // The ordinary map remains on the free-provider cascade. This one
+        // cached profile read starts with Google because its Places response
+        // carries an explicit vegetarian fact; Foursquare remains the bounded
+        // fallback when Google has no eligible result.
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;

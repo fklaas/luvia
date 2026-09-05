@@ -18,11 +18,11 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5P-PRODUCTIVE-PLACES-RUNTIME-RELEASE.md');
 
-assert.match(version,/core:'4\.82\.204'/);
-assert.ok(version.includes("build:'13.82.168.82'"),'kernel build must be the geoapify cache-bust release');
+assert.match(version,/core:'4\.82\.205'/);
+assert.ok(version.includes("build:'13.82.168.83'"),'kernel build must be the geoapify cache-bust release');
 assert.match(version,/name:'M16\.5 Places and Stays Quality'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.82-local-recovery'"));
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.83-local-recovery'"));
 assert.equal(/\?v=13\.82\.53/.test(index),false,'active entry retains the prior cache key');
 
 for(const asset of [
@@ -31,7 +31,7 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'modules/places-shell.js',
   'app/app-shell.js'
-])assert.ok(index.includes(`${asset}?v=13.82.168.82`),`active entry release key missing for ${asset}`);
+])assert.ok(index.includes(`${asset}?v=13.82.168.83`),`active entry release key missing for ${asset}`);
 
 assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.css\?v=13\.82\.168(?:\.1)?/);
 assert.match(index,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.168(?:\.1)?/);
@@ -71,6 +71,6 @@ assert.match(pcr,/Main and Production remain locked/);
 assert.match(pcr,/No database\/schema\/RPC\/RLS\/bucket migration/);
 
 console.log('M16.5P Productive Places Runtime Release: PASS');
-console.log('App / Core: 13.82.168.82 / 4.82.204');
+console.log('App / Core: 13.82.168.83 / 4.82.205');
 console.log('Places coordinates, spatial composition and owner boundaries: LOCKED');
 console.log('Main / Production visual parity lock: ACTIVE');
