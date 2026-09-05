@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.25.0-shared-map-partial-continuity';
+const VERSION='1.25.1-shared-map-entity-continuity';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -11,7 +11,16 @@ let proposalUnsubscribe=null;
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const clean=value=>String(value??'').trim();
 const providerId=place=>clean(place?.providerPlaceId||place?.id).replace(/^places\//,'');
-const uniquePlaces=items=>{const seen=new Set();return(items||[]).filter(place=>{const id=providerId(place);if(!id||seen.has(id))return false;seen.add(id);return true})};
+const identityText=value=>clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const samePlaceEntity=(left,right)=>{
+  const leftName=identityText(left?.name||left?.displayName?.text||left?.displayName),rightName=identityText(right?.name||right?.displayName?.text||right?.displayName);
+  if(!leftName||leftName!==rightName)return false;
+  const meters=distanceBetween(left,right);
+  if(Number.isFinite(meters))return meters<=350;
+  const leftAddress=identityText(left?.formattedAddress||left?.address),rightAddress=identityText(right?.formattedAddress||right?.address);
+  return Boolean(leftAddress&&rightAddress&&leftAddress===rightAddress);
+};
+const uniquePlaces=items=>{const seenIds=new Set(),unique=[];for(const place of items||[]){const id=providerId(place);if(!id||seenIds.has(id))continue;seenIds.add(id);if(unique.some(current=>samePlaceEntity(current,place)))continue;unique.push(place)}return unique};
 const tripId=trip=>clean(trip?.id||trip?.tripId);
 const contracts=()=>({
   places:globalThis.LuviaPlacesContractV1,
@@ -379,8 +388,7 @@ async function load(rawInput={},options={}){
     const failed=responses.find(item=>item.status==='rejected');
     throw Object.assign(new Error(failed?.reason?.publicMessage||failed?.reason?.message||'Luvia konnte gerade keine belegbaren Vorschläge laden.'),{code:failed?.reason?.code||'JOURNEY_SUGGESTIONS_UNAVAILABLE'});
   }
-   const count=desiredCount(input),unique=[],seen=new Set();
-   for(const row of rows){const id=providerId(row);if(!id||seen.has(id))continue;seen.add(id);unique.push(row);if(unique.length>=18)break}
+   const count=desiredCount(input),unique=uniquePlaces(rows).slice(0,18);
    const partialWarning=unique.length<Math.min(3,count)
      ?`Places hat ${unique.length===1?'eine belegte Möglichkeit':`${unique.length} belegte Möglichkeiten`} geliefert. Luvia zeigt diesen sicheren Teilstand sofort und sucht im Hintergrund weiter.`
      :'';

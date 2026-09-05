@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-05",
   "sourceBaseline": "7c288d89",
-  "app": "13.82.168.59",
-  "core": "4.82.181",
+  "app": "13.82.168.61",
+  "core": "4.82.183",
   "runtimeSource": "fac7b348",
   "worker": "563afd24-2b2a-4c71-8b49-eb88ff1ffbe0",
   "gateway": "v172 ACTIVE",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "13.82.168.59 / Core 4.82.181 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.",
+      "evidence": "13.82.168.61 / Core 4.82.183 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.",
       "nextAcceptance": "Den P02/P03-Restblock aus realer Filter-/Foto-Matrix und positiver vegetarischer Profilevidenz weiterführen; .57/v169 als Rückfall erhalten und das 220/220-Gate bei jedem weiteren Slice erneut ausführen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -29,8 +29,8 @@
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
       "evidence": "Gateway v172 und App .59 betreiben Geoapify → TomTom → HERE budgetbewusst und unterscheiden Providerfehler von erfolgreichen leeren Antworten. Öffentliche v172-Proben wurden diesmal schon von Geoapify beantwortet: Food 12, Chinesisch 1 und Natur 12. Der historische v170/HERE-Probelauf mit Chinesisch 2 bleibt als providerabhängige Momentaufnahme erhalten. Automatisiert sind alle 19 Küchen, Faktenfilter, Kombinationen, Reset, Kategorie-Reinheit und Stays-Parität belegt. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Natur enthielt keine Verwaltung und Stays keine Strandkorbvermietung. Ausgewählte Places dürfen Foursquare-Medien nur nach identischem normalisiertem Namen und höchstens 120 Metern ergänzen; nach dieser Prüfung ruft v172 höchstens ein beliebtes Place-Foto ab. Ein Foto erschien in einer Stichprobe von sechs Stays, fünf blieben ehrlich ohne Foto. Vollständige UI-/Chat-Filterrealität, positive vegetarische Evidenz, Shopping-Vollständigkeit und breite echte Fotoabdeckung bleiben offen.",
-      "nextAcceptance": "Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen; stabile Shopping-Abdeckung gegen das frühere Soll 45 untersuchen, positive vegetarische Evidenz beschaffen und die echte Bildabdeckung mit weiteren exakt identifizierten Medienquellen erweitern. Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.",
-      "scope": "Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Active search sources are Geoapify, TomTom and HERE; Foursquare is limited to on-demand exact selected-place media; Google remains opt-in disabled pending budget and product approval.",
+      "nextAcceptance": "Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen; stabile Shopping-Abdeckung gegen das frühere Soll 45 untersuchen, positive vegetarische Evidenz beschaffen und die echte Bildabdeckung mit weiteren exakt identifizierten Medienquellen erweitern. Nachtleben wird für Scharbeutz und Timmendorfer Strand separat mit Bars, Pubs, Cocktail-/Weinbars, Lounges, Clubs/Diskotheken, Live-Musik und Casinos geprüft. Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.",
+      "scope": "Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Active search sources are Geoapify, TomTom and HERE; Foursquare is limited to on-demand exact selected-place media; Google remains opt-in disabled pending budget and product approval. The same provider-backed candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -41,8 +41,8 @@
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
       "evidence": "App .59 übernimmt Reiseziel, Viewport und belegte Profilmerkmale in dieselbe Places/Stays-Projektion. Sichtbar: Food Alle 50 → Passend 0; Erdmanns Kleines Steakhaus besitzt weder die bevorzugte Klasse noch die zugängliche Passend-Kennzeichnung. Stays Alle 49 → Passend 27 → Alle 49. Der Food-Nullstand verhindert Falschpositive, zeigt aber zugleich die fehlende positive vegetarische Provider-Evidenz. Die vollständige positive UI- und AI-Chat-Abnahme aller Landesküchen, Filterkombinationen und widersprüchlichen Wünsche bleibt offen.",
-      "nextAcceptance": "Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; positive vegetarische Profilevidenz ohne Steakhouse-Falschpassung beschaffen und transiente Detail-/Fotoabrufe im Chat schließen.",
-      "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.",
+      "nextAcceptance": "Gemeinsam mit P02 jede Landesküche, Nachtleben-Unterart und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; positive vegetarische Profilevidenz ohne Steakhouse-Falschpassung beschaffen und transiente Detail-/Fotoabrufe im Chat schließen. Dieselbe Eingabe muss in Karte, Timeline-Vorschlag und Chat dieselben Place-Identitäten erklären.",
+      "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -113,8 +113,8 @@
       "status": "TEILWEISE",
       "owner": "Journey",
       "evidence": "App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben. App .49 ergänzt und veröffentlicht eine explizite Owner-Fähigkeitsmatrix für geplante Places, Buchungen, bestätigte Besuche und Memories; direkte Timeline-Aktionen erscheinen nur für zugelassene Place-Pläne. Ein Verhaltenstest belegt parallele Owner-Reads, den sofortigen Stale-Trip-Clear und den wahrheitsgemäßen Ladezustand. Der sichtbare 477×900-Test prüft alle vier Owner-Fälle; der angemeldete stabile Reload zeigte zwei reale Place-Pläne mit „Plan direkt bearbeitbar“ und keinen falschen fertigen „0 Momente“-Zustand.",
-      "nextAcceptance": "Nach dem unmittelbar folgenden P02/P03-Filter-/Foto-Restblock die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.",
-      "scope": "Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.",
+      "nextAcceptance": "Nach dem unmittelbar folgenden P02/P03-Filter-/Foto-Restblock die gemeinsame places.v1-Karte und belegbare Teilstände in Timeline-Vorschlägen öffentlich abnehmen, danach die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; den iOS-artigen Langdruckmodus auf physischem iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.",
+      "scope": "Project the shared Places map into day and free-window suggestions, then add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth. Long press enters a visible iOS-like movement mode while Reduced Motion remains still.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -149,8 +149,8 @@
       "status": "VORBEREITET",
       "owner": "Intelligence und Journey",
       "evidence": "Tagesprojektionen und Kartenidee vorhanden; vollständige Tagesprobe offen.",
-      "nextAcceptance": "Besten, erwarteten und ungünstigen Ablauf anhand belegter Grenzen vergleichen.",
-      "scope": "Simulate feasible best/expected/worst days and apply selected revisions only through confirmed owner commands.",
+      "nextAcceptance": "Besten, erwarteten und ungünstigen Ablauf anhand belegter Grenzen vergleichen; die KI-Reisepräsentation tageweise mit Karte, Begründung, Alternativen und bestätigter Übernahme prüfen.",
+      "scope": "Simulate feasible best/expected/worst days and present a source-backed day-by-day Trip draft with maps, choices and alternatives; apply selected revisions only through confirmed owner commands.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -185,8 +185,8 @@
       "status": "TEILWEISE",
       "owner": "Identity und Trip",
       "evidence": "Profil und Reise sind getrennt; aktuelle Kartenpassung nutzt belegte Merkmale.",
-      "nextAcceptance": "Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung abnehmen.",
-      "scope": "Distinguish request-only, Trip-scoped and durable preferences; protect sensitive traits and confirm every durable write.",
+      "nextAcceptance": "Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung über Places, Chat und alle drei Trip-Composer-Einstiege abnehmen.",
+      "scope": "Distinguish request-only, Trip-scoped and durable preferences across discovery and Trip creation; protect sensitive traits and confirm every durable write.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -209,8 +209,8 @@
       "status": "TEILWEISE",
       "owner": "Trip",
       "evidence": "Erstellung und aktive Auswahl vorhanden; Reload-Reparatur belegt.",
-      "nextAcceptance": "Alle Lebenszyklusaktionen mit Abhängigkeitsvorschau und Rücknahme schließen.",
-      "scope": "Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts.",
+      "nextAcceptance": "Account-ohne-Reise-Zustand und einen gemeinsamen Trip Composer mit Geführt, Schnellstart und KI-Entwurf sowie Vormerken, Einplanen, Abhängigkeitsvorschau und Rücknahme schließen.",
+      "scope": "Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts. One Trip Composer serves guided, quick-start and AI-assisted draft entry modes without duplicating Trip truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -233,8 +233,8 @@
       "status": "VORBEREITET",
       "owner": "Intelligence",
       "evidence": "Twin-Projektionen vorhanden; vollständiger belegter Lebenszyklus offen.",
-      "nextAcceptance": "Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen.",
-      "scope": "Build an expiring, derived and fully provenance-labelled model without becoming destination truth.",
+      "nextAcceptance": "Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen; Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget als getrennte datierte Belege projizieren.",
+      "scope": "Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -317,8 +317,8 @@
       "status": "OFFEN",
       "owner": "Journey und Intelligence",
       "evidence": "90-Minuten-Kartenfunktion ist Grundlage, kein vollständiges Eventprodukt.",
-      "nextAcceptance": "Nur verifizierte Events anbieten; freie Zeit auch bewusst frei lassen.",
-      "scope": "Rank optional verified events inside an open Journey window with an honest “keep free” outcome.",
+      "nextAcceptance": "Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit auch bewusst frei lassen und dieselbe Places-Karte verwenden.",
+      "scope": "Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -413,8 +413,8 @@
       "status": "TEILWEISE",
       "owner": "Intelligence",
       "evidence": "Semantische Routing-Grundlagen vorhanden; alle Owner nicht erschlossen.",
-      "nextAcceptance": "Gemischte Sprache, Umgangssprache, relative Zeiten und widersprüchliche Wünsche testen.",
-      "scope": "Preserve mixed-language, colloquial, relative and conflicting wishes across every owner.",
+      "nextAcceptance": "Gemischte Sprache, Umgangssprache, relative Zeiten, Budget, freie Reisebeschreibung und widersprüchliche Wünsche im KI-Trip-Entwurf testen.",
+      "scope": "Preserve mixed-language, colloquial, relative, budget-bound and conflicting wishes across every owner, including free-text Trip Composer input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -425,8 +425,8 @@
       "status": "TEILWEISE",
       "owner": "Intelligence und Domain Owner",
       "evidence": "330 Inventarzeilen; nur 7 als PUBLIC_E2E_PASS klassifiziert.",
-      "nextAcceptance": "Inventarisierte Aktionen, einschließlich neuer Timeline-Bedienung, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.",
-      "scope": "Every supported user action has an owner command and the complete mutation protocol or an explicit block.",
+      "nextAcceptance": "Inventarisierte Aktionen, einschließlich Timeline-Karte, Vormerken, Trip-Entwurf und Reiseplan-Übernahme, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.",
+      "scope": "Every supported user action has an owner command and the complete mutation protocol or an explicit block, including Place selection, Trip drafts, bookmarks and confirmed plan application.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.59 / Core 4.82.181: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.",
+      "evidence": "13.82.168.61 / Core 4.82.183: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -610,7 +610,17 @@
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     }
   ],
-  "acceptanceUpdate": "P02/P03 in App .59 / Gateway v172 weiter stabilisiert: sichtbare Kategorienfolge Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 ohne Nullsprung; Natur ohne Verwaltung, Stays 49/27/49 ohne Strandkorbvermietung und Food Passend ehrlich 0 ohne Steakhouse-Falschpositiv. Gateway v172 ergänzt ausgewählte Medien nur nach exakter Namens-/Distanzidentität und nutzt danach höchstens ein Foursquare-Place-Foto. Eine Sechser-Stays-Stichprobe lieferte ein providerverknüpftes Foto; breite echte Fotoabdeckung, Shopping-Vollständigkeit, positive vegetarische Evidenz und die vollständige UI-/Chat-Filtermatrix bleiben offen.",
+  "productDecisions": [
+    {
+      "id": "PD-2026-09-05-unified-place-intelligence-trip-composer",
+      "status": "VERBINDLICH_AUFGENOMMEN",
+      "title": "Eine Place Intelligence und ein Trip Composer für Karte, Timeline und AI Chat",
+      "document": "docs/planning/UNIFIED-PLACE-INTELLIGENCE-TRIP-COMPOSER-2026-09-05.md",
+      "decision": "Places, Stays, Timeline-Vorschläge, Trip Composer und AI Chat konsumieren dieselbe providerbelegte Place-Menge, dieselben Filter- und Passend-Regeln sowie dieselbe places.v1-Kartenprojektion. Geführte, schnelle und KI-gestützte Reiseerstellung sind drei Einstiege in denselben Trip Composer. Wetter, Saison, besondere Tage, Events, Öffnung, Wege und Budget fließen nur als datierte, quellengebundene Kontextbelege ein.",
+      "sequence": "P02/P03 Kategorie- und Filtervollständigkeit; P09/P10 Timeline-Karte und Bedienung; P12/P15/P17 Trip Composer und Vormerken; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität; spätere P40/P44/P47 und M18 Intelligence II."
+    }
+  ],
+  "acceptanceUpdate": "P02/P03 in App .59 / Gateway v172 weiter stabilisiert: sichtbare Kategorienfolge Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 ohne Nullsprung; Natur ohne Verwaltung, Stays 49/27/49 ohne Strandkorbvermietung und Food Passend ehrlich 0 ohne Steakhouse-Falschpositiv. Gateway v172 ergänzt ausgewählte Medien nur nach exakter Namens-/Distanzidentität und nutzt danach höchstens ein Foursquare-Place-Foto. Eine Sechser-Stays-Stichprobe lieferte ein providerverknüpftes Foto; breite echte Fotoabdeckung, Shopping-Vollständigkeit, positive vegetarische Evidenz und die vollständige UI-/Chat-Filtermatrix bleiben offen. Die neue verbindliche Produktentscheidung ordnet gemeinsame Place Intelligence, Timeline-Karte, Trip Composer, Vormerken und die wetter-/saison-/event-/budgetgebundene Context Matrix in P02/P03/P09/P10/P12/P15/P17/P19/P20/P22/P23/P26/P33/P34/P35 und spätere Intelligence-II-Gates ein.",
   "safeRegression": "220/220 PASS",
   "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -627,6 +637,7 @@
     "HANDOFF-NORMAL-CHATGPT-CURRENT.md",
     "docs/planning/MASTERFAHRPLAN-v6.md",
     "docs/planning/STATUSPLAN-2026-09-04.md",
+    "docs/planning/UNIFIED-PLACE-INTELLIGENCE-TRIP-COMPOSER-2026-09-05.md",
     "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
     "docs/planning/README.md",
     "docs/handoffs/CURRENT-MAP-MINI-INFO-SLICE.md",

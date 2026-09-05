@@ -14,6 +14,22 @@ const place={
   location:{latitude:54.02,longitude:10.76},
   coordinates:{latitude:54.02,longitude:10.76}
 };
+const providerDuplicate={
+  ...place,
+  providerPlaceId:'here:night-1',
+  provider:'here',
+  location:{latitude:54.0202,longitude:10.7601},
+  coordinates:{latitude:54.0202,longitude:10.7601}
+};
+const secondPlace={
+  ...place,
+  providerPlaceId:'tomtom:night-2',
+  provider:'tomtom',
+  name:'Reetkate',
+  location:{latitude:54.025,longitude:10.755},
+  coordinates:{latitude:54.025,longitude:10.755}
+};
+const placesById=new Map([place,providerDuplicate,secondPlace].map(item=>[item.providerPlaceId,item]));
 const requests=[];
 const context={
   console,
@@ -31,9 +47,10 @@ const context={
     reads:{
       recommend:async request=>{
         requests.push(request);
-        return{places:request.category==='nightlife'?[place]:[],plan:{attempts:[]}};
+        const requestIndex=requests.length-1;
+        return{places:requestIndex===0?[place]:requestIndex===1?[providerDuplicate]:requestIndex===2?[secondPlace]:[],plan:{attempts:[]}};
       },
-      getCard:async()=>({place,image:null})
+      getCard:async id=>({place:placesById.get(id)||place,image:null})
     }
   },
   LuviaJourneyContractV1:{reads:{getGraph:()=>({days:[]}),getDay:()=>({entries:[]})}},
@@ -58,9 +75,9 @@ vm.runInNewContext(source,context,{filename:'journey-suggestion-sheet.js'});
   },{fast:true,force:true});
 
   assert.equal(requests.length,6,'the bounded category plan still asks the existing Places owner');
-  assert.equal(result.choices.length,1,'one verified provider result must remain usable');
-  assert.equal(result.choices[0].providerPlaceId,place.providerPlaceId);
-  assert.match(result.warning,/eine belegte Möglichkeit/);
+  assert.equal(result.choices.length,2,'provider duplicates must collapse while genuine partial results remain usable');
+  assert.equal(new Set(result.choices.map(item=>item.name)).size,2,'the same real place may not occupy two suggestion cards');
+  assert.match(result.warning,/2 belegte Möglichkeiten/);
   assert.match(result.warning,/sicheren Teilstand sofort/);
   assert.equal(result.stale,false);
   console.log('Journey suggestion partial continuity: PASS');

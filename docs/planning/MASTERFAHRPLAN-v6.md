@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.59**, Core **4.82.181**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-05:** Integration **13.82.168.61**, Core **4.82.183**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .59 / Gateway v172 stabilisiert Kategorie-Reinheit und ausgewählte echte Ortsmedien auf Integration. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Food Passend 0 markiert das Steakhouse nicht, Natur enthält keine Verwaltung und Stays 49/27/49 keine Strandkorbvermietung. Der Exact-Photo-Pfad verlangt identischen Namen und höchstens 120 Meter, ruft danach höchstens ein beliebtes Foto ab und übernimmt kein nahes Fremdbild. Eine von sechs geprüften Unterkünften erhielt ein providerverknüpftes Bild. 220/220 Safe Regression und 30/30 öffentliche Dateien sind belegt.
 
@@ -54,14 +54,14 @@ Die umfangreichen Originale bleiben unverändert im Quellenarchiv erhalten. Ihre
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
-Integration läuft auf 13.82.168.59 / Core 4.82.181 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
+Integration läuft auf 13.82.168.61 / Core 4.82.183 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
 ## 1 Wo Luvia heute steht
 
 Luvia befindet sich in M16.5, der laufenden Produktisierung und visuellen Überarbeitung auf der bereits modularisierten Architektur. M0–M16 sind dokumentiert geschlossen. Im stabilen 18-Schritte-Plan sind Schritte 01–14 geschlossen; Schritte 15–18 verbinden die verbleibenden Funktionen mit AI, sichtbarer Bedienung und reproduzierbarer Veröffentlichung.
 
-Integration läuft auf App 13.82.168.59 und Core 4.82.181 mit Gateway v170. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; die aktuelle Provider-Kontinuität ist im P02/P03-Bericht belegt.
+Integration läuft auf App 13.82.168.61 und Core 4.82.183 mit Gateway v170. Die Kartenreparaturen sind ein Teil der aktiven B1-Arbeit. Sie ersetzen weder den vollständigen B1-Nachweis noch den gemeinsamen Design Freeze. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; die aktuelle Provider-Kontinuität ist im P02/P03-Bericht belegt.
 
 B0.01–B0.10 bilden die geschlossene Steuerungsgrundlage für Human↔AI-Aktionsparität. B1–B5 enthalten unverändert die Arbeitspakete P01–P50. P01–P39 gehören zu M16.5 Schritten 15–18. P40–P50 sind erhaltene Zukunftsfunktionen, deren konkrete Umsetzung an spätere Owner-, Daten-, Sicherheits- und native Gates gebunden ist. Diese Einordnung verhindert, dass M17 auf sämtliche langfristigen Frontier-Funktionen warten muss.
 
@@ -308,7 +308,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.59 / Core 4.82.181 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
+13.82.168.61 / Core 4.82.183 auf Integration veröffentlicht; Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip mit SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Worker 563afd24, Gateway v172 ACTIVE aus Quelle 7c288d89, 220/220 Safe Regression und 30/30 öffentliche Dateihashes. Sichtbar stabil: Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50; Food Alle → Passend 50/0 ohne Steakhouse-Falschpositiv; Stays Alle → Passend → Alle 49/27/49 ohne Strandkorbvermietung. Rückfall ist .57 / Worker e0f67c3b / Gateway v169; Main bleibt c4b6d174 unverändert.
 
 **Nächster Abschlussnachweis:** Den P02/P03-Restblock aus realer Filter-/Foto-Matrix und positiver vegetarischer Profilevidenz weiterführen; .57/v169 als Rückfall erhalten und das 220/220-Gate bei jedem weiteren Slice erneut ausführen.
 
@@ -320,9 +320,9 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 Gateway v172 und App .59 betreiben Geoapify → TomTom → HERE budgetbewusst und unterscheiden Providerfehler von erfolgreichen leeren Antworten. Öffentliche v172-Proben wurden diesmal schon von Geoapify beantwortet: Food 12, Chinesisch 1 und Natur 12. Der historische v170/HERE-Probelauf mit Chinesisch 2 bleibt als providerabhängige Momentaufnahme erhalten. Automatisiert sind alle 19 Küchen, Faktenfilter, Kombinationen, Reset, Kategorie-Reinheit und Stays-Parität belegt. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Natur enthielt keine Verwaltung und Stays keine Strandkorbvermietung. Ausgewählte Places dürfen Foursquare-Medien nur nach identischem normalisiertem Namen und höchstens 120 Metern ergänzen; nach dieser Prüfung ruft v172 höchstens ein beliebtes Place-Foto ab. Ein Foto erschien in einer Stichprobe von sechs Stays, fünf blieben ehrlich ohne Foto. Vollständige UI-/Chat-Filterrealität, positive vegetarische Evidenz, Shopping-Vollständigkeit und breite echte Fotoabdeckung bleiben offen.
 
-**Nächster Abschlussnachweis:** Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen; stabile Shopping-Abdeckung gegen das frühere Soll 45 untersuchen, positive vegetarische Evidenz beschaffen und die echte Bildabdeckung mit weiteren exakt identifizierten Medienquellen erweitern. Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.
+**Nächster Abschlussnachweis:** Jede sichtbare Filteroption und alle 19 Landesküchen über UI und AI Chat positiv oder belastbar ehrlich abnehmen; stabile Shopping-Abdeckung gegen das frühere Soll 45 untersuchen, positive vegetarische Evidenz beschaffen und die echte Bildabdeckung mit weiteren exakt identifizierten Medienquellen erweitern. Nachtleben wird für Scharbeutz und Timmendorfer Strand separat mit Bars, Pubs, Cocktail-/Weinbars, Lounges, Clubs/Diskotheken, Live-Musik und Casinos geprüft. Budgetstatus und Ladezeit bei wiederholten Desktop-/Mobil-Wechseln protokollieren.
 
-**Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, exact spatial intent and real provider-linked photos. Active search sources are Geoapify, TomTom and HERE; Foursquare is limited to on-demand exact selected-place media; Google remains opt-in disabled pending budget and product approval.
+**Erhaltener technischer Umfang:** Prove active provider readiness, bounded fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Active search sources are Geoapify, TomTom and HERE; Foursquare is limited to on-demand exact selected-place media; Google remains opt-in disabled pending budget and product approval. The same provider-backed candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.
 
 ### P03 Ortsentdeckung im AI Chat
 
@@ -330,9 +330,9 @@ Gateway v172 und App .59 betreiben Geoapify → TomTom → HERE budgetbewusst un
 
 App .59 übernimmt Reiseziel, Viewport und belegte Profilmerkmale in dieselbe Places/Stays-Projektion. Sichtbar: Food Alle 50 → Passend 0; Erdmanns Kleines Steakhaus besitzt weder die bevorzugte Klasse noch die zugängliche Passend-Kennzeichnung. Stays Alle 49 → Passend 27 → Alle 49. Der Food-Nullstand verhindert Falschpositive, zeigt aber zugleich die fehlende positive vegetarische Provider-Evidenz. Die vollständige positive UI- und AI-Chat-Abnahme aller Landesküchen, Filterkombinationen und widersprüchlichen Wünsche bleibt offen.
 
-**Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; positive vegetarische Profilevidenz ohne Steakhouse-Falschpassung beschaffen und transiente Detail-/Fotoabrufe im Chat schließen.
+**Nächster Abschlussnachweis:** Gemeinsam mit P02 jede Landesküche, Nachtleben-Unterart und jeden Filter über UI und AI Chat providerübergreifend positiv oder ehrlich leer abnehmen; positive vegetarische Profilevidenz ohne Steakhouse-Falschpassung beschaffen und transiente Detail-/Fotoabrufe im Chat schließen. Dieselbe Eingabe muss in Karte, Timeline-Vorschlag und Chat dieselben Place-Identitäten erklären.
 
-**Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, one-to-three source-backed suggestions per category, Compass-coloured MapLibre and bottom-up Place detail sheets.
+**Erhaltener technischer Umfang:** Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.
 
 ### P04 Favorisieren und zurücknehmen
 
@@ -390,9 +390,9 @@ Lifecycle und Fehlerbehandlung teilweise vorhanden; positive Anbieterabnahme off
 
 App .44: Langdruck sowie Tag-, Uhrzeit- und Daueränderung mit Vorschau und Rücknahme. App .47: bestätigtes Entfernen und Wiederherstellen geplanter Places über Reload. App .48: zwei echte Places werden bewusst ausgewählt, mit Vorher/Nachher-Reihenfolge verbunden und gemeinsam umgeordnet; Booking-Gate, Revisionen, idempotente Befehle, verständlicher Teilfehler und dauerhafter Recovery-Beleg bleiben erhalten. Auf stabiler Integration wurde Ostseeurlaub sichtbar 15:00/20:00 → 15:00/20:00 in umgekehrter Place-Reihenfolge geändert, neu geladen, exakt auf Grande Beach Café 15:00 und Restaurant Brechtmann 20:00 zurückgesetzt und erneut geladen. Keine Verbindungs- oder Recovery-Reste blieben. App .49 ergänzt und veröffentlicht eine explizite Owner-Fähigkeitsmatrix für geplante Places, Buchungen, bestätigte Besuche und Memories; direkte Timeline-Aktionen erscheinen nur für zugelassene Place-Pläne. Ein Verhaltenstest belegt parallele Owner-Reads, den sofortigen Stale-Trip-Clear und den wahrheitsgemäßen Ladezustand. Der sichtbare 477×900-Test prüft alle vier Owner-Fälle; der angemeldete stabile Reload zeigte zwei reale Place-Pläne mit „Plan direkt bearbeitbar“ und keinen falschen fertigen „0 Momente“-Zustand.
 
-**Nächster Abschlussnachweis:** Nach dem unmittelbar folgenden P02/P03-Filter-/Foto-Restblock die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; physisches iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.
+**Nächster Abschlussnachweis:** Nach dem unmittelbar folgenden P02/P03-Filter-/Foto-Restblock die gemeinsame places.v1-Karte und belegbare Teilstände in Timeline-Vorschlägen öffentlich abnehmen, danach die delegierten positiven Wege zum Booking-, Visit- und Memory-Owner implementieren; den iOS-artigen Langdruckmodus auf physischem iPhone/Android und echte Mehrnutzer-Konflikte separat belegen.
 
-**Erhaltener technischer Umfang:** Add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth.
+**Erhaltener technischer Umfang:** Project the shared Places map into day and free-window suggestions, then add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth. Long press enters a visible iOS-like movement mode while Reduced Motion remains still.
 
 ### P10 Planung verständlich erklären
 
@@ -420,9 +420,9 @@ Reale Geh- und Fahrradrouten sind geliefert; Unsicherheitsprodukt ist damit nich
 
 Tagesprojektionen und Kartenidee vorhanden; vollständige Tagesprobe offen.
 
-**Nächster Abschlussnachweis:** Besten, erwarteten und ungünstigen Ablauf anhand belegter Grenzen vergleichen.
+**Nächster Abschlussnachweis:** Besten, erwarteten und ungünstigen Ablauf anhand belegter Grenzen vergleichen; die KI-Reisepräsentation tageweise mit Karte, Begründung, Alternativen und bestätigter Übernahme prüfen.
 
-**Erhaltener technischer Umfang:** Simulate feasible best/expected/worst days and apply selected revisions only through confirmed owner commands.
+**Erhaltener technischer Umfang:** Simulate feasible best/expected/worst days and present a source-backed day-by-day Trip draft with maps, choices and alternatives; apply selected revisions only through confirmed owner commands.
 
 ### P13 Bei Störungen umplanen
 
@@ -450,9 +450,9 @@ Deny-Pfad geprüft; echte Hardware- und Widerrufsmatrix offen.
 
 Profil und Reise sind getrennt; aktuelle Kartenpassung nutzt belegte Merkmale.
 
-**Nächster Abschlussnachweis:** Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung abnehmen.
+**Nächster Abschlussnachweis:** Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung über Places, Chat und alle drei Trip-Composer-Einstiege abnehmen.
 
-**Erhaltener technischer Umfang:** Distinguish request-only, Trip-scoped and durable preferences; protect sensitive traits and confirm every durable write.
+**Erhaltener technischer Umfang:** Distinguish request-only, Trip-scoped and durable preferences across discovery and Trip creation; protect sensitive traits and confirm every durable write.
 
 ### P16 Aus bewusstem Feedback lernen
 
@@ -470,9 +470,9 @@ Feedback-Konzept und Teilgrundlagen; vollständiger produktiver Lebenszyklus off
 
 Erstellung und aktive Auswahl vorhanden; Reload-Reparatur belegt.
 
-**Nächster Abschlussnachweis:** Alle Lebenszyklusaktionen mit Abhängigkeitsvorschau und Rücknahme schließen.
+**Nächster Abschlussnachweis:** Account-ohne-Reise-Zustand und einen gemeinsamen Trip Composer mit Geführt, Schnellstart und KI-Entwurf sowie Vormerken, Einplanen, Abhängigkeitsvorschau und Rücknahme schließen.
 
-**Erhaltener technischer Umfang:** Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts.
+**Erhaltener technischer Umfang:** Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts. One Trip Composer serves guided, quick-start and AI-assisted draft entry modes without duplicating Trip truth.
 
 ### P18 Erinnerungen und Geschichten
 
@@ -490,9 +490,9 @@ Getrennte Owner vorhanden; komplette neue Produktabnahme offen.
 
 Twin-Projektionen vorhanden; vollständiger belegter Lebenszyklus offen.
 
-**Nächster Abschlussnachweis:** Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen.
+**Nächster Abschlussnachweis:** Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen; Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget als getrennte datierte Belege projizieren.
 
-**Erhaltener technischer Umfang:** Build an expiring, derived and fully provenance-labelled model without becoming destination truth.
+**Erhaltener technischer Umfang:** Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth.
 
 ### P20 Verifizierte Veranstaltungsquellen
 
@@ -560,9 +560,9 @@ Quellengebundener Produktumfang erhalten.
 
 90-Minuten-Kartenfunktion ist Grundlage, kein vollständiges Eventprodukt.
 
-**Nächster Abschlussnachweis:** Nur verifizierte Events anbieten; freie Zeit auch bewusst frei lassen.
+**Nächster Abschlussnachweis:** Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit auch bewusst frei lassen und dieselbe Places-Karte verwenden.
 
-**Erhaltener technischer Umfang:** Rank optional verified events inside an open Journey window with an honest “keep free” outcome.
+**Erhaltener technischer Umfang:** Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome.
 
 ### P27 Gemeinsame und unterschiedliche Wünsche
 
@@ -640,9 +640,9 @@ Einzelne Grundpfade; produktive Gesamtabdeckung offen.
 
 Semantische Routing-Grundlagen vorhanden; alle Owner nicht erschlossen.
 
-**Nächster Abschlussnachweis:** Gemischte Sprache, Umgangssprache, relative Zeiten und widersprüchliche Wünsche testen.
+**Nächster Abschlussnachweis:** Gemischte Sprache, Umgangssprache, relative Zeiten, Budget, freie Reisebeschreibung und widersprüchliche Wünsche im KI-Trip-Entwurf testen.
 
-**Erhaltener technischer Umfang:** Preserve mixed-language, colloquial, relative and conflicting wishes across every owner.
+**Erhaltener technischer Umfang:** Preserve mixed-language, colloquial, relative, budget-bound and conflicting wishes across every owner, including free-text Trip Composer input.
 
 ### P35 Alle Bedienaktionen auch über AI
 
@@ -650,9 +650,9 @@ Semantische Routing-Grundlagen vorhanden; alle Owner nicht erschlossen.
 
 330 Inventarzeilen; nur 7 als PUBLIC_E2E_PASS klassifiziert.
 
-**Nächster Abschlussnachweis:** Inventarisierte Aktionen, einschließlich neuer Timeline-Bedienung, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.
+**Nächster Abschlussnachweis:** Inventarisierte Aktionen, einschließlich Timeline-Karte, Vormerken, Trip-Entwurf und Reiseplan-Übernahme, durch den AI-Chat vollständig prüfen oder explizit sperren; Registry-Zeilen allein sind kein Ausführungsnachweis.
 
-**Erhaltener technischer Umfang:** Every supported user action has an owner command and the complete mutation protocol or an explicit block.
+**Erhaltener technischer Umfang:** Every supported user action has an owner command and the complete mutation protocol or an explicit block, including Place selection, Trip drafts, bookmarks and confirmed plan application.
 
 ### P36 Unsichere Aktionen zuverlässig verhindern
 
@@ -688,7 +688,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-13.82.168.59 / Core 4.82.181: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
+13.82.168.61 / Core 4.82.183: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 

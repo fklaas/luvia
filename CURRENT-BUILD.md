@@ -1,11 +1,11 @@
 # Luvia aktueller Integrationsstand
 
-Veröffentlichungskandidat **13.82.168.60**, Core **4.82.182**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Geoapify, TomTom und HERE unterscheiden zwischen einem echten Provider-Ausfall und einer erfolgreich beantworteten Suche ohne Treffer. Timeline-Vorschläge verwenden dieselbe `places.v1`-Kartenprojektion wie Places und Stays; belegte Teilresultate bleiben sichtbar, statt als Totalfehler zu verschwinden. Der iOS-artige Langdruckmodus macht verschiebbare Timeline-Einträge durch eine dezente Bewegung erkennbar. Gateway v172, Datenbank, Secrets, Main und Production bleiben unverändert.
+Veröffentlichungskandidat **13.82.168.61**, Core **4.82.183**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**: Timeline-Vorschläge verwenden dieselbe `places.v1`-Kartenprojektion wie Places und Stays. Belegte Teilresultate bleiben sichtbar und werden im Hintergrund ergänzt; providerübergreifende Datensätze desselben realen Orts werden anhand von Name und räumlicher Nähe zusammengeführt. Der iOS-artige Langdruckmodus macht verschiebbare Timeline-Einträge durch eine dezente Bewegung erkennbar. Gateway v172, Datenbank, Secrets, Main und Production bleiben unverändert.
 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.60**, Core **4.82.182**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
+**Stand 2026-09-05:** Integration **13.82.168.61**, Core **4.82.183**. M16.5, Schritte 15–18 aktiv; B1 in Arbeit. A1 Dokumentkonsolidierung abgeschlossen und fortlaufend gepflegt; A2 Ende-zu-Ende-Abnahme teilweise belegt; A3/P09 und A4/P10 weiter teilweise umgesetzt.
 
 **Zuletzt geliefert:** App .59 / Gateway v172 stabilisiert Kategorie-Reinheit und ausgewählte echte Ortsmedien auf Integration. Sichtbar blieb Food 50 → Shopping 21 → Natur 11 → Shopping 21 → Food 50 stabil; Food Passend 0 markiert das Steakhouse nicht, Natur enthält keine Verwaltung und Stays 49/27/49 keine Strandkorbvermietung. Der Exact-Photo-Pfad verlangt identischen Namen und höchstens 120 Meter, ruft danach höchstens ein beliebtes Foto ab und übernimmt kein nahes Fremdbild. Eine von sechs geprüften Unterkünften erhielt ein providerverknüpftes Bild. 220/220 Safe Regression und 30/30 öffentliche Dateien sind belegt.
 
