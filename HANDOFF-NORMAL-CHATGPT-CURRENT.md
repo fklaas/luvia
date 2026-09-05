@@ -3,24 +3,23 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. P02/P03 ist der aktive Abschlussblock für den positiven Passend-Realbeleg. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt und aus dem aktiven Plan entfernt.
+**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Realbeleg ist geliefert; P02/P03 bleiben für vollständige Filter- und Flächenparität aktiv. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt.
 
-**Zuletzt geliefert:** Gateway v206 / 4.64.23 ist auf Integration aktiv und liefert in der realen Scharbeutz-Diagnose 25 ausdrücklich vegetarisch oder vegan belegte OpenStreetMap-Orte. App 13.82.168.88 / Core 4.82.210 ist gebaut; sie bindet diese kostenlose Evidenz in denselben Alle-/Passend-Bestand ein und behält die strikte Steakhouse-Ausschlussregel. 229/229 Safe Regression und NFR-0 3/3 sind grün. Öffentlich läuft bis zur App-Abnahme weiterhin .87 auf Worker e0e393dd-701c-4fc6-afc2-58f88ee35996. Apple bleibt deaktiviert und geparkt.
+**Zuletzt geliefert:** App 13.82.168.88 / Core 4.82.210 läuft aus Commit 51a2f174 auf Integration-Worker 81e43a21. Gateway v206 liefert über den kostenlosen, budgetierten OpenStreetMap-Evidenzpfad 25 vegetarisch oder vegan belegte Scharbeutz-Orte. Sichtbar wurden Alle 50, Passend 25, Passt-Pins, Zoom, Pinwechsel und Detail-Score bedient; Erdmann’s Kleines Steakhaus fehlt korrekt. 229/229 Safe Regression, NFR-0 3/3 und 30/30 Bytebelege sind grün. Apple, Main und Production blieben unverändert.
 
-**Nächster Schritt (AKTIV): App .88 veröffentlichen und OpenStreetMap-Passend sichtbar abnehmen.** Der reale Gateway-Beleg ist positiv; jetzt muss dieselbe providerbelegte Menge im angemeldeten Scharbeutz-UI als Pins erscheinen und bei Alle/Passend stabil umschalten.
+**Nächster Schritt (AKTIV): Passend-ID und Begründung in Timeline und AI Chat sichtbar angleichen.** Die Places-Karte liefert den positiven Realbeleg; jetzt müssen alle Place-verwendenden Oberflächen nachweisen, dass sie exakt denselben Kandidaten und denselben providerbelegten Profilgrund verwenden.
 
 **Abnahme dieses Schritts:**
 
-- App 13.82.168.88 / Core 4.82.210 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.
-- Alle zeigt in Essen & Trinken weiterhin den breiten realen Place-Bestand ohne zusätzliche kostenpflichtige Ernährungsabfragen.
-- Passend zeigt mehrere echte Orte mit ausdrücklicher vegetarischer oder veganer OpenStreetMap-Evidenz.
-- Erdmann’s Kleines Steakhaus und andere fleischzentrierte Orte ohne dedizierten Ernährungstyp erscheinen nicht als passend.
-- Ein sichtbarer Browserlauf belegt Quelle, Trefferzahl, Pin-Identität und Karteninteraktion; 229/229 Safe Regression und öffentliche Asset-Identität sind grün.
-- Main, Production, Apple-Policy, Provider-Secrets und Nutzerdaten bleiben unverändert.
+- Ein öffentlich sichtbarer Passend-Ort aus Places erscheint in Timeline-Vorschlägen und AI Chat mit derselben kanonischen Provider-ID.
+- Der vegetarische oder vegane Passend-Grund bleibt providerbelegt und wird in allen drei Oberflächen gleich und verständlich formuliert.
+- Timeline und AI Chat starten keine getrennte Place-Suche und verändern weder Kategorie, Entfernung noch Profilfakten.
+- Stay belegt dieselbe technische Provider-, Karten-, Filter-, Cache- und Kostenschutzarchitektur für Unterkunftsmerkmale.
+- Safe Regression, NFR-0, öffentliche Bytegleichheit und sichtbare Bedienung bleiben grün; Main und Production bleiben unverändert.
 
-**Danach:** Nach dem positiven Places-Beleg dieselbe Place-ID und denselben Grund in Stay, Timeline-Vorschlägen und AI Chat abnehmen; danach der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.
+**Danach:** Danach folgt die vollständige öffentliche Kategorie-/Filtermatrix für P02/P03; anschließend der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.
 
-**Weiter offen:** P02/P03 aktiv: sichtbarer positiver Ernährungsevidenz-Beleg und danach Flächenparität; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist bis zu einem späteren ausdrücklichen Bezahl- und iOS-Veröffentlichungsentscheid geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen: Die Supabase-Free-Plan-Schonfrist wegen des Egress-Overruns im vorherigen Zyklus endet am 07.09.2026; der aktuelle Zyklus 23.08.–23.09.2026 lag zuletzt bei 2,359/5 GB Egress und 63.540/500.000 Edge-Function-Aufrufen.
+**Weiter offen:** P02/P03 aktiv: Flächenparität in Timeline, AI Chat und Stay sowie vollständige Kategorie-/Filtermatrix; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist bis zu einem späteren ausdrücklichen Bezahl- und iOS-Veröffentlichungsentscheid geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen: Die Supabase-Free-Plan-Schonfrist wegen des Egress-Overruns im vorherigen Zyklus endet am 07.09.2026; der aktuelle Zyklus 23.08.–23.09.2026 lag zuletzt bei 2,359/5 GB Egress und 63.540/500.000 Edge-Function-Aufrufen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

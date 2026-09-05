@@ -3,31 +3,30 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. P02/P03 ist der aktive Abschlussblock für den positiven Passend-Realbeleg. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt und aus dem aktiven Plan entfernt.
+**Stand 2026-09-05:** Integration **13.82.168.88**, Core **4.82.210**. M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Realbeleg ist geliefert; P02/P03 bleiben für vollständige Filter- und Flächenparität aktiv. Apple ist ohne kostenpflichtige Mitgliedschaft geparkt.
 
-**Zuletzt geliefert:** Gateway v206 / 4.64.23 ist auf Integration aktiv und liefert in der realen Scharbeutz-Diagnose 25 ausdrücklich vegetarisch oder vegan belegte OpenStreetMap-Orte. App 13.82.168.88 / Core 4.82.210 ist gebaut; sie bindet diese kostenlose Evidenz in denselben Alle-/Passend-Bestand ein und behält die strikte Steakhouse-Ausschlussregel. 229/229 Safe Regression und NFR-0 3/3 sind grün. Öffentlich läuft bis zur App-Abnahme weiterhin .87 auf Worker e0e393dd-701c-4fc6-afc2-58f88ee35996. Apple bleibt deaktiviert und geparkt.
+**Zuletzt geliefert:** App 13.82.168.88 / Core 4.82.210 läuft aus Commit 51a2f174 auf Integration-Worker 81e43a21. Gateway v206 liefert über den kostenlosen, budgetierten OpenStreetMap-Evidenzpfad 25 vegetarisch oder vegan belegte Scharbeutz-Orte. Sichtbar wurden Alle 50, Passend 25, Passt-Pins, Zoom, Pinwechsel und Detail-Score bedient; Erdmann’s Kleines Steakhaus fehlt korrekt. 229/229 Safe Regression, NFR-0 3/3 und 30/30 Bytebelege sind grün. Apple, Main und Production blieben unverändert.
 
-**Nächster Schritt (AKTIV): App .88 veröffentlichen und OpenStreetMap-Passend sichtbar abnehmen.** Der reale Gateway-Beleg ist positiv; jetzt muss dieselbe providerbelegte Menge im angemeldeten Scharbeutz-UI als Pins erscheinen und bei Alle/Passend stabil umschalten.
+**Nächster Schritt (AKTIV): Passend-ID und Begründung in Timeline und AI Chat sichtbar angleichen.** Die Places-Karte liefert den positiven Realbeleg; jetzt müssen alle Place-verwendenden Oberflächen nachweisen, dass sie exakt denselben Kandidaten und denselben providerbelegten Profilgrund verwenden.
 
 **Abnahme dieses Schritts:**
 
-- App 13.82.168.88 / Core 4.82.210 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.
-- Alle zeigt in Essen & Trinken weiterhin den breiten realen Place-Bestand ohne zusätzliche kostenpflichtige Ernährungsabfragen.
-- Passend zeigt mehrere echte Orte mit ausdrücklicher vegetarischer oder veganer OpenStreetMap-Evidenz.
-- Erdmann’s Kleines Steakhaus und andere fleischzentrierte Orte ohne dedizierten Ernährungstyp erscheinen nicht als passend.
-- Ein sichtbarer Browserlauf belegt Quelle, Trefferzahl, Pin-Identität und Karteninteraktion; 229/229 Safe Regression und öffentliche Asset-Identität sind grün.
-- Main, Production, Apple-Policy, Provider-Secrets und Nutzerdaten bleiben unverändert.
+- Ein öffentlich sichtbarer Passend-Ort aus Places erscheint in Timeline-Vorschlägen und AI Chat mit derselben kanonischen Provider-ID.
+- Der vegetarische oder vegane Passend-Grund bleibt providerbelegt und wird in allen drei Oberflächen gleich und verständlich formuliert.
+- Timeline und AI Chat starten keine getrennte Place-Suche und verändern weder Kategorie, Entfernung noch Profilfakten.
+- Stay belegt dieselbe technische Provider-, Karten-, Filter-, Cache- und Kostenschutzarchitektur für Unterkunftsmerkmale.
+- Safe Regression, NFR-0, öffentliche Bytegleichheit und sichtbare Bedienung bleiben grün; Main und Production bleiben unverändert.
 
-**Danach:** Nach dem positiven Places-Beleg dieselbe Place-ID und denselben Grund in Stay, Timeline-Vorschlägen und AI Chat abnehmen; danach der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.
+**Danach:** Danach folgt die vollständige öffentliche Kategorie-/Filtermatrix für P02/P03; anschließend der positive Booking-Provider-Weg und die physische iOS-/Android-Langdruckabnahme.
 
-**Weiter offen:** P02/P03 aktiv: sichtbarer positiver Ernährungsevidenz-Beleg und danach Flächenparität; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist bis zu einem späteren ausdrücklichen Bezahl- und iOS-Veröffentlichungsentscheid geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen: Die Supabase-Free-Plan-Schonfrist wegen des Egress-Overruns im vorherigen Zyklus endet am 07.09.2026; der aktuelle Zyklus 23.08.–23.09.2026 lag zuletzt bei 2,359/5 GB Egress und 63.540/500.000 Edge-Function-Aufrufen.
+**Weiter offen:** P02/P03 aktiv: Flächenparität in Timeline, AI Chat und Stay sowie vollständige Kategorie-/Filtermatrix; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist bis zu einem späteren ausdrücklichen Bezahl- und iOS-Veröffentlichungsentscheid geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten. Operativ offen: Die Supabase-Free-Plan-Schonfrist wegen des Egress-Overruns im vorherigen Zyklus endet am 07.09.2026; der aktuelle Zyklus 23.08.–23.09.2026 lag zuletzt bei 2,359/5 GB Egress und 63.540/500.000 Edge-Function-Aufrufen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
 
 **Datum:** 2026-09-05
 **Umgebung:** ausschließlich Integration
-**Status:** technisch abgesichert; sichtbarer positiver Realbeleg durch externe Providerfreigaben blockiert
+**Status:** positiver Places-Realbeleg auf Integration geliefert; Flächenparität offen
 
 ## Auslöser
 
@@ -42,11 +41,13 @@ Die öffentliche Providerdiagnose ergab:
 - **HERE:** technisch erreichbar. Die offizielle vegetarische Food-Type `800-077` und vegane Food-Type `800-076` werden jetzt als positive Fakten abgebildet. Eine Scharbeutz-Suche lieferte im Radius von 8 km und 15 km jeweils null explizit vegetarisch klassifizierte Orte.
 - **Google Places:** Secret vorhanden, aber der öffentliche Suchaufruf endet mit HTTP 403 und „The caller does not have permission“. Der Nutzer hat bestätigt, dass Places API (New) bereits aktiv ist. Damit verbleiben die konkrete API- und Anwendungseinschränkung des bestehenden Schlüssels, seine Projektzugehörigkeit und das Billing dieses Schlüsselprojekts als externe Prüfpunkte.
 - **Foursquare:** Secret vorhanden und die offizielle Kategorie „Vegan and Vegetarian Restaurant“ (`4bf58dd8d48988d1d3941735`) wird jetzt als positiver Ernährungsbeleg abgebildet. Der öffentliche Aufruf endet mit HTTP 429 und der Providerantwort, dass das Konto keine API-Credits mehr besitzt.
-- **Geoapify:** Ernährungs-Tags wie `diet:vegetarian=yes|only` und `diet:vegan=yes|only` werden bereits als positive Fakten ausgewertet. Im aktuell verfügbaren breiten Live-Bestand war kein solcher positiver Fakt vorhanden; die bestehende Gratisreserve bleibt erhalten.
+- **Geoapify:** Ernährungs-Tags wie `diet:vegetarian=yes|only` und `diet:vegan=yes|only` werden als positive Fakten ausgewertet. Das interne Tagesbudget war beim Fehlerbild bereits ausgeschöpft.
+- **OpenStreetMap/Overpass:** Der neue eng begrenzte Evidenzpfad liest ausschließlich ausdrücklich gesetzte `diet:vegetarian`- und `diet:vegan`-Tags. Der öffentliche Scharbeutz-Probe liefert 25 belegte Orte; Erdmann’s Kleines Steakhaus wird trotz eines problematischen allgemeinen Tags durch die bestehende fleischzentrierte Ausschlussregel verworfen.
 
 ## Gelieferte Änderung
 
-- Der seltene, belegpflichtige Profilnachweis nutzt die Reihenfolge **HERE → Google → Foursquare**. HERE wird als kostenlose Quelle zuerst befragt; die begrenzten Quellen werden nur benötigt, wenn HERE keinen positiven Treffer liefert.
+- Der seltene, belegpflichtige Profilnachweis nutzt die Reihenfolge **Geoapify → OpenStreetMap/Overpass → HERE → Google → Foursquare**. OpenStreetMap springt nur bei vegetarischem oder veganem Evidenzbedarf ein; die begrenzten kommerziellen Quellen folgen erst bei einem echten Nullergebnis.
+- OpenStreetMap ist ausschließlich für `search` als Ernährungsbeleg freigegeben: 6 Aufrufe pro Minute, 500 pro Tag, sechs Stunden Gateway-Cache, keine allgemeine Discovery, keine Details, Fotos oder Routen.
 - HERE darf eine sekundäre vegetarische oder vegane Food-Type als positiven Verfügbarkeitsfakt verwenden. Nationale Landesküchen bleiben weiterhin an den primären HERE-Food-Type gebunden, damit beispielsweise ein sekundärer spanischer Tag keinen deutschen Haupttyp überschreibt.
 - Foursquare verwendet seine offizielle Vegan-/Vegetarisch-Kategorie sowohl im Suchfilter als auch bei der Normalisierung. Ein allgemeines Restaurant bleibt ohne positiven Ernährungsfakt unbekannt.
 - Google ist ausschließlich für `search` als Ernährungsbeleg freigegeben: höchstens 4 Aufrufe pro Minute, 25 pro Tag und 800 pro Monat.
@@ -73,7 +74,9 @@ Damit sind ein fehlendes Supabase-Secret, ein erschöpftes internes Budget und e
 
 ## Sicherheits- und Regressionsbeleg
 
-- Safe Regression: **226/226 PASS**.
+- Safe Regression: **229/229 PASS**.
+- NFR-0: **3/3 PASS**.
+- Der neue OSM-Test prüft Normalisierung, ausdrückliche Diet-Tags, Attribution, Budget, Google-Detailisolierung und Provider-Allowlist.
 - Der Filtervertrag für 14 Kategorien, 82 Typ-/Untertypen, 19 Landesküchen und alle sichtbaren Faktenfilter bleibt grün.
 - Ein allgemeines Restaurant mit ausdrücklich positivem Google-Fakt gelangt in „Passend“.
 - Ein HERE-Ort mit sekundärem vegetarischem Food-Type gelangt in „Passend“.
@@ -90,28 +93,30 @@ Angewendete additive Policy-Migrationen:
 - `20260905170000_google_fit_diagnostic_cooldown_reset.sql`
 - `20260905173000_foursquare_verified_dietary_evidence_budget.sql`
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
+- `20260905210000_openstreetmap_dietary_evidence_budget.sql`
 
-Gateway **v203 ACTIVE** stellt Software-Build `4.64.20`, App-Build `13.82.168.88`, Core `4.82.210` und Places-Health `4.38.1-here-dietary-evidence` bereit. Relevante Gateway-Quellcommits sind `d9d8d355`, `bb986d67`, `e432c186` und `afe694f5`.
+Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.88`, Core `4.82.210` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
 
 ## Öffentlicher Integrationsrelease
 
 - App: `13.82.168.88`
 - Core: `4.82.210`
-- Runtime-Commit: `790ee03ca952a75799c4f7178a3478878dabbc8a`
-- Integration-Worker: `154aa828-e9bd-4dbc-993f-87e34ac40176`, 100 Prozent Traffic
+- Runtime-Commit: `51a2f1743e5c6296699d9525f5ddb9e9e0e84a7c`
+- Integration-Worker: `81e43a21-667a-4e60-bb81-1ab946e4a482`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`
-- Immutable: `https://154aa828-integration-luvia.njwnrvwbv5.workers.dev/`
-- Archiv: `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.88-790ee03c.zip`
-- Archivgröße: `88.755.996` Bytes
-- Archiv-SHA-256: `5723DC228D90E9689EF9632D126293F5015ACEF627D1D0B1439CC42D34E1F588`
+- Immutable: `https://81e43a21-integration-luvia.njwnrvwbv5.workers.dev/`
+- Archiv: `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.88-51a2f174.zip`
+- Archivgröße: `88.794.857` Bytes
+- Archiv-SHA-256: `ED3C9A332F8A538343F4BE0BF6874A99A4BAC5060C2E3B7F47F922B97A88A623`
 - Öffentliche Bytegleichheit: `30/30 MATCH`, je 15 releasekritische Dateien auf Stable und Immutable gegen das saubere Archiv
-- Sichtbarer Browserlauf: Essen & Trinken `50`, Suchprovider `HERE`, Profilfokus `Vegetarisch`, „Passend“ `0/0`; Evidenzkaskade `here,google,foursquare`, `returned=0`, `eligible=0`, `before=0`, `after=0`
-- Safe Regression: `226/226 PASS`
+- Sichtbarer Browserlauf: Essen & Trinken `Alle 50`, Profilfokus `Vegetarisch`, `Passend 25`; Passt-Pins mit Luvia-Farbrahmen, Zoom, Pinwechsel `1/25 → 2/25` und persönlicher Detail-Score funktionieren.
+- Sichtbare Beispiele: Strand-Creperie, Grande Beach Café, Gosch, COAST, Foodrunner, ROOF und Saigon. Erdmann’s Kleines Steakhaus fehlt korrekt.
+- Safe Regression: `229/229 PASS`; NFR-0: `3/3 PASS`.
 
 ## Wahrheitsgrenze und Abschlusskriterium
 
-Der technische Weg für positive Treffer ist vorhanden und vollständig getestet. Der sichtbare Scharbeutz-Nachweis bleibt dennoch leer, solange HERE keinen expliziten Datensatz liefert, Google den Aufruf mit 403 abweist und Foursquare keine Credits besitzt. Luvia darf diese Lücke nicht durch Namensraten, Küchenannahmen oder ein Steakhouse-Falschpositiv verdecken.
+Der positive Places-Beleg ist erfüllt: Die öffentliche Integration zeigt 25 reale, providerbelegte vegetarische oder vegane Treffer und keinen Steakhouse-Falschpositiv. Fehlende Providerangaben bleiben unbekannt; Namen, Küchenannahmen und KI-Texte erzeugen keine Passung.
 
-P02/P03 bleiben deshalb **TEILWEISE**. Der Abschluss verlangt mindestens einen realen, providerbelegten vegetarisch passenden Ort auf der öffentlichen Integration sowie dieselbe Provider-ID und denselben lesbaren Passend-Grund in Karte, Timeline und AI Chat.
+P02/P03 bleiben **TEILWEISE**, weil die vollständige Kategorie-/Filtermatrix und die Flächenparität noch offen sind. Der nächste Abschluss verlangt dieselbe kanonische Provider-ID und denselben verständlichen Passend-Grund in Timeline-Vorschlägen und AI Chat sowie die gleiche technische Providerdiagnostik in Stay.
 
 Main und Production bleiben unverändert auf Commit `c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba`.
