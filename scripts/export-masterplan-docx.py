@@ -17,6 +17,10 @@ def inline(p, text):
         r.bold=bool(i%2)
 
 def export(source, destination):
+    source_path=Path(source)
+    is_master='MASTERFAHRPLAN' in source_path.name.upper()
+    document_label='MASTERFAHRPLAN UND STATUS' if is_master else 'FORTSETZUNGSÜBERGABE UND STATUS'
+    footer_label='Arbeitsfassung v6' if is_master else 'Aktuelle Fortsetzungsübergabe'
     doc=Document()
     sec=doc.sections[0]
     sec.page_width=Inches(8.5); sec.page_height=Inches(11)
@@ -33,14 +37,16 @@ def export(source, destination):
         st.paragraph_format.space_before=Pt(14 if name!='Title' else 0)
         st.paragraph_format.space_after=Pt(7)
         st.paragraph_format.keep_with_next=True
-    h=sec.header.paragraphs[0]; h.text='LUVIA   |   MASTERPLAN UND STATUS   |   04.09.2026'
+    h=sec.header.paragraphs[0]; h.text=f'LUVIA   |   {document_label}   |   05.09.2026'
     h.style=doc.styles['Normal']; h.runs[0].font.size=Pt(8)
     f=sec.footer.paragraphs[0]; f.alignment=2
-    f.add_run('Arbeitsfassung v6  ·  Seite ').font.size=Pt(8)
+    f.add_run(f'{footer_label}  ·  Seite ').font.size=Pt(8)
     fld=OxmlElement('w:fldSimple'); fld.set(qn('w:instr'),'PAGE'); f._p.append(fld)
     lines=[]
-    for raw in Path(source).read_text(encoding='utf8').splitlines():
+    for raw in source_path.read_text(encoding='utf8').splitlines():
         line=raw.strip()
+        if re.fullmatch(r'<!--.*-->',line):
+            continue
         starts_block=bool(re.match(r'^(?:#|\||- |\d+\. )',line))
         if line and not starts_block and lines and lines[-1] and not lines[-1].startswith(('#','|')):
             lines[-1]+=' '+line

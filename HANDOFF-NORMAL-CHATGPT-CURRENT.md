@@ -5,7 +5,7 @@
 
 **Stand 2026-09-05:** Integration **13.82.168.77**, Core **4.82.199**. M16.5, Schritte 15–18 aktiv; B1/P02 und P03 in Arbeit. A1 Dokumentkonsolidierung wird nach jedem Slice fortgeschrieben; A2 Ende-zu-Ende-Abnahme ist teilweise belegt; P09 und P10 bleiben teilweise umgesetzt.
 
-**Zuletzt geliefert:** App .77 / Core 4.82.199 ist als getesteter Frontendkandidat vorbereitet; Gateway v193 / 4.64.18 ist aktiv. Sämtliche Faktenfilter werden jetzt bereits an der Providergrenze exakt ausgewertet, und alle gemeinsamen Detailkonsumenten fordern ein identitätsgebundenes Medium mit sichtbarer Attribution an. Ein schlanker Detail-Cache darf die spätere Medienanreicherung nicht mehr verdecken. Die Vertragsmatrix belegt 82 Kategorie-/Untertypabbildungen, Filterkombination und Reset. 224/224 Safe Regression und 3/3 NFR-0 sind grün. Öffentliche Browser-, Mobil- und Byte-Abnahme des Frontendkandidaten folgt im selben Release-Schritt. Main und Production bleiben unverändert.
+**Zuletzt geliefert:** App 13.82.168.77 / Core 4.82.199 läuft auf Integration über Worker e47b5593-a586-4697-9d10-e6ca16e04089 bei 100 Prozent Traffic; Gateway v194 / 4.64.18 meldet denselben Build. Faktenfilter werden an der Providergrenze strikt ausgewertet, identitätsgebundene Bilder bleiben mit sichtbarer Quelle bis in die große Detailansicht erhalten. Der sichtbare .76-Kaltstart deckte einen transienten dynamischen Modulfehler auf; .77 wiederholt Kernmodule einmal automatisch und startete Places mit 50 sowie Stays mit 49 Pins ohne Browserfehler. 224/224 Safe Regression, 3/3 NFR-0 und 30/30 öffentliche Dateihashes sind grün. Main und Production bleiben unverändert.
 
 **Nächster Schritt (AKTIV): Restliche Filter-, Foto- und Mobilmatrix schließen.** Der akute Provider-Budgetstopp und der konkrete Steakhouse-Falschpositivfall sind behoben und sichtbar belegt. Offen bleiben die vollständige positive beziehungsweise providerbelegte Nullfall-Abnahme jeder Filteroption über Oberfläche und AI Chat, die breite exakte Fotoabdeckung und Messwerte von einem physischen Mobilgerät.
 
@@ -47,14 +47,14 @@ P09 und P10 bleiben **TEILWEISE**. Die aktuelle Reihenfolge und der nächste kon
 
 Stand 4. September 2026. Der Masterfahrplan v6 und der Statusplan unter docs/planning ersetzen die widersprüchlichen aktuellen Abschnitte früherer Handoffs. Historische Originale sind datiert archiviert. Die Anwendung ist nicht neu zu beginnen.
 
-## Aktueller B1 Fortschritt
+## Historischer B1-Zwischenstand (.63 / v170)
 
 Die Reservierungsprüfung zeigt ihren nächsten Schritt jetzt direkt unter dem auslösenden Button. Der zusätzliche Live-Read entdeckte einen falschen Zimmerlink für ROOF. Booking Resolver 2.8.0 (Function v18, Quelle 17749f8c654804d0656e2da914e302409789fb34) prüft nun auch die Art der Buchung und erhält gültige Reservierungsanker auf der offiziellen Ortsseite. ROOF führt zum Tischreservierungsbereich. Eine erreichbare Reservierungsseite bestätigt noch keine freien Zeiten; es wurde nichts versendet.
 
 Integration läuft auf 13.82.168.63 / Core 4.82.185 mit Gateway v170. Die Places- und Stays-Karten suchen stabil im aktiven Reiseziel Scharbeutz; die sichtbare Kategoriefolge 50/21/12/21/50, Chinesisch mit zwei Treffern sowie die Alle/Passend-Wechsel sind belegt. Der Chat-Suchpfad erhält Zielort, Ausschnitt, Suchauftrag und Aktionsangebote. Leere Ergebnisse und Providerfehler werden getrennt und ehrlich erklärt.
 
 Zusätzlich ist die Planprüfung wieder sichtbar: Reisetag, Uhrzeit und Dauer werden vor dem Speichern geprüft und können geändert werden. Veraltete Standardtage außerhalb der aktiven Reise werden verworfen. COAST-Favorit und Rücknahme sowie ein konkreter Testtermin mit unabhängigem Readback und anschließendem Reload sind begrenzt belegt. Die vollständige Golden Journey, P09/P10, Fotos, Partnerpfade und reale Hardware bleiben offen. Maßgeblich ist docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md.
-## Aktueller Stand
+## Historischer Konsolidierungsstand (.63 / v172)
 
 Repository: C:/Users/fabia/Documents/GitHub/luvia-integration. Ausgangspunkt dieser Konsolidierung: c28621de866a8dee371ca926b5f98f9617d9e295. Aktive Integration: App 13.82.168.63, Core 4.82.185, Frontend-Quelle fac7b348, Worker 563afd24-2b2a-4c71-8b49-eb88ff1ffbe0, Gateway v172 ACTIVE aus Quelle 7c288d89. Geoapify, TomTom und HERE bilden die aktive budgetbewusste Kaskade; Foursquare ergänzt nur ausgewählte exakte Ortsmedien. Main bleibt unverändert; kein Main-Frontend-Deploy wurde ausgeführt; der bestehende Booking-Resolver bleibt bei Function v18.
 
