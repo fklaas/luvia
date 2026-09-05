@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-05",
-  "sourceBaseline": "PENDING",
+  "sourceBaseline": "790ee03c",
   "app": "13.82.168.85",
   "core": "4.82.207",
-  "runtimeSource": "PENDING_RELEASE_COMMIT",
+  "runtimeSource": "790ee03ca952a75799c4f7178a3478878dabbc8a",
   "worker": "89e712c7-c8ce-43fb-856f-229fc5055ee3",
   "gateway": "v202 ACTIVE / 4.64.20 / Places 4.38.1-here-dietary-evidence",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
@@ -669,5 +669,5 @@
     "after": "Danach P09/P10 mit positiven Booking-, Visit- und Memory-Verwaltungswegen; anschließend P12/P15/P17 Trip Composer, P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität.",
     "open": "P02/P03 aktiv: positiver Google-Realbeleg sowie vollständige UI-/AI-/Foto- und physische Mobilabnahme. P09/P10 bleiben teilweise: positive Booking-/Visit-/Memory-Owner-Wege und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten."
   },
-  "qaCommit": "PENDING"
+  "qaCommit": "790ee03c"
 }

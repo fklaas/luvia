@@ -1,8 +1,6 @@
 # PCR P02/P03 – positiver Ernährungsbeleg für „Passend“
 
-**Datum:** 2026-09-05  
-**Umgebung:** ausschließlich Integration  
-**Status:** technisch abgesichert; sichtbarer positiver Realbeleg durch externe Providerfreigaben blockiert
+**Datum:** 2026-09-05`r`n**Umgebung:** ausschließlich Integration`r`n**Status:** technisch abgesichert; sichtbarer positiver Realbeleg durch externe Providerfreigaben blockiert
 
 ## Auslöser
 
