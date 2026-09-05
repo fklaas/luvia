@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-05",
-  "sourceBaseline": "b31c1802",
-  "app": "13.82.168.89",
+  "sourceBaseline": "0ee7b489",
+  "app": "13.82.168.92",
   "core": "4.82.211",
-  "runtimeSource": "PENDING_SCOPE_PARITY_COMMIT",
-  "worker": "81e43a21-667a-4e60-bb81-1ab946e4a482",
-  "gateway": "v206 ACTIVE / 4.64.23 / Places 4.38.4-osm-dietary-evidence",
+  "runtimeSource": "0ee7b4898bac168055245738b83ad506ae9c1353",
+  "worker": "176585b9-55a7-47a5-a77d-b553d5186b4f",
+  "gateway": "v220 ACTIVE / 4.64.26 / Places 4.38.7-osm-edge-proxy",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
     {
@@ -16,8 +16,8 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Öffentlich läuft App 13.82.168.88 / Core 4.82.210 zu 100 Prozent auf Integration-Worker 81e43a21-667a-4e60-bb81-1ab946e4a482; 30/30 Release-Dateien stimmen mit Commit 51a2f174 überein. Gateway v206 / 4.64.23 und Places 4.38.4-osm-dietary-evidence sind ACTIVE. Kandidat App 13.82.168.89 / Core 4.82.211 bindet den Profil-Evidenzradius an denselben Reisezielradius wie Alle. Main und Production bleiben unverändert.",
-      "nextAcceptance": "Kandidat .89 aus einem sauberen Commit ausschließlich auf Integration veröffentlichen, 30/30 Assets vergleichen und den sichtbaren 3-km-Mengenvertrag mit Rückfall auf Worker 81e43a21 belegen.",
+      "evidence": "Öffentlich läuft App 13.82.168.92 / Core 4.82.211 vollständig auf Integration-Worker 176585b9-55a7-47a5-a77d-b553d5186b4f aus Runtime-Commit 0ee7b489. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem lokalen Commit überein. Das Rückfallarchiv luvia-integration-13.82.168.92-0ee7b489.zip ist mit SHA-256 FA36FDBAFDE07D133E32D16CB037CF88546A833F826D0BC9FBC53B314F786B04 gesichert. Gateway v220 / 4.64.26 und Places 4.38.7-osm-edge-proxy sind ACTIVE. Main und Production bleiben unverändert.",
+      "nextAcceptance": "Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -28,8 +28,8 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "App .88 stellte Passend mit 25 OSM-belegten Orten wieder her und schloss das Steakhouse aus. Der sichtbare Test zeigte danach jedoch eine Wahrheitslücke: Die Oberfläche nannte 3 km, während der ergänzende Evidenzabruf mindestens 8 km verwendete. Kandidat .89 setzt deshalb für Alle und Passend exakt denselben `geography.searchRadiusMeters`-Wert; der Evidenzabruf darf den sichtbaren Karten-/Reisezielradius nicht mehr erweitern. MapLibre bleibt einziger Renderer, Apple bleibt geparkt.",
-      "nextAcceptance": "App .89 öffentlich prüfen: Alle bleibt breit, Passend enthält nur belegte Orte aus demselben 3-km-Reisezielbereich, die Diagnostik zeigt denselben Radius und Erdmann’s Kleines Steakhaus bleibt ausgeschlossen.",
+      "evidence": "App .92 stellt Passend wieder reproduzierbar her: sichtbar 50 Orte unter Alle, 11 koordinaten- und profilbelegte Orte unter Passend und nach Rückkehr 52 Orte, weil zwei zusätzliche OSM-Orte übernommen wurden. Alle 11 passenden Pins tragen Passt; Erdmann’s Kleines Steakhaus bleibt für das vegetarische Profil ausgeschlossen. Evidenz wird höchstens einem räumlich nächsten Place-Owner innerhalb 120 m zugeordnet, sodass Provider-Dubletten keine doppelten Passend-Treffer mehr erzeugen. Der signierte Edge-Proxy hedgt drei aktuelle öffentliche OSM-Overpass-Instanzen gestaffelt, bricht Verlierer ab und hält erfolgreiche Evidenz sechs Stunden im Cloudflare-Cache. Apple bleibt ohne Entwicklerprogramm geparkt; kostenpflichtige Provider werden für diesen positiven Pfad nicht benötigt.",
+      "nextAcceptance": "Die jetzt belegte Passend-Identität ohne zweite Suche in Timeline-Vorschlägen, AI Chat und Stay wiederverwenden; danach die noch offene vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft weiter schließen.",
       "scope": "Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -40,8 +40,8 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "Places, Timeline-Vorschläge und AI Chat konsumieren denselben places.v1-Filtervertrag und denselben providerbelegten Alle-/Passend-Bestand. Der öffentliche Places-Beleg ist positiv: 25 OSM-belegte vegetarische oder vegane Treffer, sichtbare Passt-Pins, strikte Identität und kein Steakhouse-Falschpositiv. App .88 ergänzt keine zweite Matching-Logik; der nächste Abschlussbeleg muss dieselbe Place-ID und denselben lesbaren Grund in Timeline und AI Chat nachweisen. Stay verwendet dieselbe technische Provider-, Karten-, Filter- und Kostenarchitektur für Unterkunftsmerkmale.",
-      "nextAcceptance": "Einen der öffentlich sichtbaren Passend-Orte mit derselben Provider-ID und demselben belegten Profilgrund in Timeline-Vorschlägen und AI Chat öffnen; parallel die gleiche technische Providerdiagnostik in Stay belegen.",
+      "evidence": "Places liefert öffentlich 11 streng belegte Passend-Orte im identischen 3-km-Reisezielbereich, mit Passt-Pins, stabiler Umschaltung und ohne Steakhouse-Falschpositiv. Der gemeinsame places.v1-Vertrag ist vorhanden; der sichtbare Nachweis derselben kanonischen Place-ID und derselben lesbaren Begründung in Timeline und AI Chat sowie die technische Stay-Parität ist noch offen.",
+      "nextAcceptance": "Einen der 11 öffentlich sichtbaren Passend-Orte mit derselben kanonischen Provider-ID, denselben Profilfakten und derselben lesbaren Begründung in Timeline-Vorschlägen und AI Chat öffnen; Stay muss dieselbe Providerdiagnostik und Fit-Wahrheit verwenden.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -620,7 +620,7 @@
       "sequence": "P02/P03 Kategorie- und Filtervollständigkeit; P09/P10 Timeline-Karte und Bedienung; P12/P15/P17 Trip Composer und Vormerken; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität; spätere P40/P44/P47 und M18 Intelligence II."
     }
   ],
-  "acceptanceUpdate": "App .88 lieferte den ersten positiven öffentlichen Passend-Beleg mit 50 Alle-Orten und 25 OSM-belegten Treffern. Der sichtbare Test deckte zugleich auf, dass der ergänzende Evidenzabruf intern bis 8 km reichen durfte, obwohl die Oberfläche 3 km auswies. Kandidat App 13.82.168.89 / Core 4.82.211 ist gebaut, 229/229 Safe Regression und NFR-0 3/3 sind grün; er bindet den Evidenzabruf jetzt an exakt denselben Reisezielradius. Gateway, Apple-Policy, Main und Production bleiben unverändert.",
+  "acceptanceUpdate": "App 13.82.168.92 / Core 4.82.211 ist ausschließlich auf Integration veröffentlicht. Der sichtbare Browserbeleg zeigte 50 Alle-Orte, 11 belegte Passend-Orte und danach 52 Alle-Orte; jeder passende Pin war markiert, Erdmann’s Kleines Steakhaus ausgeschlossen und der ausgewählte Evidenzbeleg eindeutig einem Place-Owner zugeordnet. Der öffentliche Gateway-Check lieferte 10 strikte OSM-Treffer ohne Providerfehler über den signierten Edge-Proxy. 30/30 Release-Dateien stimmen auf Stable und immutable Worker. Safe Regression 229/229 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
   "safeRegression": "229/229 PASS",
   "publicAssetIdentity": "30/30 MATCH",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -653,24 +653,24 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. P02/P03 bleibt der aktive Abschlussblock; der positive Passend-Pfad steht, der sichtbare Mengen-/Radiusvertrag wird gerade geschlossen. Apple ist geparkt.",
-    "delivered": "App .88, Gateway v206 und der kostenlose OSM-Evidenzpfad liefern öffentlich 25 vegetarisch oder vegan belegte Treffer ohne Steakhouse-Falschpositiv. Der sichtbare Test zeigte Alle 50, Passend 25, Passt-Pins, Zoom und Pinwechsel. Als letzte Wahrheitslücke wurde erkannt, dass die Evidenzsuche bis 8 km reichen konnte, während die Seite 3 km auswies. Kandidat .89 verwendet nun für beide Modi denselben `geography.searchRadiusMeters`-Wert. 229/229 Safe Regression und NFR-0 3/3 sind für den korrigierten Kandidaten grün.",
+    "stage": "M16.5 Schritte 15–18 aktiv. Der positive P02-Passend-Slice ist öffentlich abgenommen; P03 Cross-Surface-Parität ist jetzt der einzige nächste Arbeitsblock. Apple bleibt geparkt.",
+    "delivered": "App .92, Gateway v220 und Places 4.38.7-osm-edge-proxy liefern verlässlich 11 belegte passende Orte im gleichen 3-km-Reisezielbereich wie Alle. Sichtbar wurden 50 Alle → 11 Passend → 52 Alle belegt; alle Passend-Pins waren markiert, das Steakhaus ausgeschlossen und Provider-Dubletten erhielten keinen zweiten Passend-Status. Der kostenlose signierte OSM-Pfad nutzt gestaffelte Ausweichinstanzen, Abbruch der Verlierer und sechs Stunden Cache. Stable und immutable Worker stimmen 30/30 mit dem ausgelieferten Commit überein. Safe Regression 229/229 und NFR-0 3/3 sind grün.",
     "nextStep": {
-      "id": "P02-profile-fit-scope-parity-visible-release",
-      "package": "P02",
+      "id": "P03-shared-place-fit-cross-surface-parity",
+      "package": "P03",
       "status": "AKTIV",
-      "title": "App .89 veröffentlichen und den identischen Alle-/Passend-Radius sichtbar belegen",
-      "reason": "Passend ist positiv, darf aber keinen größeren Suchraum verwenden als die sichtbare Alle-Menge. Der Code ist angeglichen; jetzt fehlt nur der öffentliche Bedienbeleg.",
+      "title": "Denselben Passend-Ort in Timeline, AI Chat und Stay belegen",
+      "reason": "Places ist wieder stabil. Jetzt muss die vorhandene zentrale Place Intelligence sichtbar beweisen, dass Karte, Timeline, Chat und Unterkunftssuche dieselbe Identität und dieselben Fakten verwenden.",
       "acceptance": [
-        "App 13.82.168.89 / Core 4.82.211 stammt aus einem sauberen Git-Commit und läuft ausschließlich auf Integration.",
-        "Alle und Passend verwenden denselben angezeigten Reisezielradius von 3 km.",
-        "Passend zeigt mehrere echte, ausdrücklich vegetarisch oder vegan belegte Orte innerhalb dieses Bereichs.",
-        "Erdmann’s Kleines Steakhaus bleibt ausgeschlossen; Pinwechsel und Kartenzoom bleiben bedienbar.",
-        "229/229 Safe Regression, NFR-0 und öffentliche Asset-Identität sind grün; Main und Production bleiben unverändert."
+        "Einer der 11 Passend-Orte erscheint in Timeline-Vorschlägen und AI Chat mit derselben kanonischen Place-/Provider-ID.",
+        "Profilfakten, 3-km-Reisezielbereich und lesbarer Passend-Grund stimmen flächenübergreifend überein.",
+        "Timeline und AI Chat lösen keine abweichende parallele Place-Suche oder zweite Matching-Logik aus.",
+        "Stay verwendet dieselbe Provider-, Cache-, Karten- und Fit-Diagnostik und erzeugt keine unbelegten passenden Unterkünfte.",
+        "Safe Regression, NFR-0, öffentliche Asset-Identität und ein sichtbarer Browserbeleg bleiben grün."
       ]
     },
-    "after": "Nach dem Radiusbeleg folgt als ein gemeinsamer P03-Slice die identische Provider-ID und Begründung in Timeline-Vorschlägen und AI Chat sowie die technische Stay-Parität.",
-    "open": "P02/P03 aktiv: 3-km-Mengenvertrag, danach Flächenparität in Timeline, AI Chat und Stay sowie vollständige Kategorie-/Filtermatrix; Google HTTP 403 bleibt nur als nachrangiger Fallback offen. Apple ist geparkt. P09/P10 teilweise: positiver Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 mit Mitreisendenverwaltung, Administration, Social und Intelligence II bleibt bis M22 erhalten."
+    "after": "Nach dem P03-Cross-Surface-Beleg wird die noch offene vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft aus P02/P03 weiter geschlossen.",
+    "open": "P02 bleibt im Gesamtumfang teilweise: vollständige Kategorien, Landes- und Sachfilter, echte Place-Fotos sowie weitere Provider- und Quotenpfade. P03 ist aktiv für Timeline-, AI-Chat- und Stay-Parität. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Apple MapKit bleibt als dokumentierte spätere Option geparkt."
   },
-  "qaCommit": "b31c1802"
+  "qaCommit": "0ee7b489"
 }

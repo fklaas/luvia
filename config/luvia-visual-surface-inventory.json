@@ -8009,7 +8009,7 @@
         "overlay-source"
       ],
       "bytes": 7250,
-      "sha256": "7e4ca13f5de5f8fd81131f13462642c04c6999b368c336893e49fbbcb87bd202"
+      "sha256": "9e81d6c7eee65ca98f5494bf0fdf51dcfdf326d928974a76f370989fae7c062c"
     },
     {
       "path": "tests/m16.5ab-gps-confirmation-timeline-boundary.test.cjs",
@@ -8145,7 +8145,7 @@
         "navigation-source"
       ],
       "bytes": 5451,
-      "sha256": "64b965376e9091d097785b8dbacf3e88bd5f8204954ec16a6b6b72463c239cdf"
+      "sha256": "5b9f125e82f8bc9aa4c0116b903aab05df75c5742487e6b71509492a0e98bbef"
     },
     {
       "path": "tests/m16.5h-accepted-living-shell-adoption.test.cjs",
@@ -8306,7 +8306,7 @@
         "motion-source"
       ],
       "bytes": 3757,
-      "sha256": "dcf517cc688bf5d995d0512a1914af66e06e89a920ca836c8e37f1214a53954b"
+      "sha256": "a91c002b7d2d0a04952b4de4a2b30ac05c0f534a3b9883a64f39bd9345125748"
     },
     {
       "path": "tests/m16.5v-shell-warm-start-profile-header-release.test.cjs",
@@ -8334,7 +8334,7 @@
         "visual-source-candidate"
       ],
       "bytes": 2380,
-      "sha256": "4c814a8c29f0a7837e440acced2b9c9873d507c3580b88a95ac6cb5abef9f776"
+      "sha256": "1ec54bcf81df06deed288e2305c70a8c88d788bcda52665abebb6786d5b2dc73"
     },
     {
       "path": "tests/m16.5y-identity-compass-onboarding.test.cjs",
@@ -8345,7 +8345,7 @@
         "navigation-source"
       ],
       "bytes": 3571,
-      "sha256": "c3928943211f214b223763ce46c81bda31e94edf5e715d934cd1d378b630b274"
+      "sha256": "f7247131145e020da3a170b7a261aa633a49bbe17842f01c3c8d967ef709841f"
     },
     {
       "path": "tests/m16.5z-first-trip-composer.test.cjs",
