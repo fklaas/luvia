@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.96**, Core **4.82.215**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.215 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.97**, Core **4.82.216**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.216 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.
 
@@ -307,7 +307,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Der letzte vollständig öffentlich belegte Stand ist App 13.82.168.95 / Core 4.82.214 auf Integration-Worker fd162519-c4de-487c-9800-2672b3bed937 aus Runtime-Commit 4230167d. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem Archiv luvia-integration-13.82.168.95-4230167d.zip (SHA-256 4C32CCFAEA10DBAE3C135BDA46F636AA1743408819CA0D325DE21DBAC42BA0BB) überein; Gateway v223 meldet 4.64.29. Kandidat .96 / Core 4.82.215 ist lokal gebaut und wartet auf den neuen öffentlichen Beleg. Main und Production bleiben unverändert.
+Der letzte vollständig öffentlich belegte Stand ist App 13.82.168.95 / Core 4.82.214 auf Integration-Worker fd162519-c4de-487c-9800-2672b3bed937 aus Runtime-Commit 4230167d. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem Archiv luvia-integration-13.82.168.95-4230167d.zip (SHA-256 4C32CCFAEA10DBAE3C135BDA46F636AA1743408819CA0D325DE21DBAC42BA0BB) überein; Gateway v223 meldet 4.64.29. Kandidat .96 / Core 4.82.216 ist lokal gebaut und wartet auf den neuen öffentlichen Beleg. Main und Production bleiben unverändert.
 
 **Nächster Abschlussnachweis:** Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.
 

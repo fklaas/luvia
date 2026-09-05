@@ -6,8 +6,9 @@ export async function budgetRpc(name:string,args:Record<string,unknown>={}){
   if(!response.ok)throw Object.assign(new Error('Anbieterbudget konnte nicht reserviert werden.'),{code:'PROVIDER_BUDGET_UNAVAILABLE',status:503});
   return response.status===204?null:response.json();
 }
-export async function providerFetch(provider:string,operation:string,units:number,url:string,init:RequestInit={}){
-  const reservation=await budgetRpc('luvia_reserve_provider_budget',{p_provider:provider,p_operation:operation,p_units:Math.max(1,Math.ceil(units))});
+export async function providerFetch(provider:string,operation:string,units:number,url:string,init:RequestInit={},accounting:Record<string,string>={}){
+  const budgetProvider=accounting.provider||provider,budgetOperation=accounting.operation||operation;
+  const reservation=await budgetRpc('luvia_reserve_provider_budget',{p_provider:budgetProvider,p_operation:budgetOperation,p_units:Math.max(1,Math.ceil(units))});
   if(reservation?.allowed!==true)throw Object.assign(new Error('Für diese Quelle ist derzeit kein freigegebenes Gratis-Kontingent verfügbar.'),{code:'PROVIDER_BUDGET_DENIED',status:503,provider,reason:reservation?.reason||'unknown'});
   let response:Response;
   try{response=await fetch(url,{...init,signal:init.signal||AbortSignal.timeout(5000),redirect:'error'})}
@@ -16,9 +17,9 @@ export async function providerFetch(provider:string,operation:string,units:numbe
     // endpoint returned the same provider dataset. It consumed its reserved
     // unit, but must not be recorded as an upstream outage.
     if(init.signal?.aborted&&init.signal.reason==='overpass-winner-selected')throw Object.assign(new Error('Eine schnellere Ortsquellen-Instanz hat bereits geantwortet.'),{code:'PROVIDER_HEDGE_CANCELLED',status:499,provider,expected:true});
-    await budgetRpc('luvia_provider_outcome',{p_provider:provider,p_operation:operation,p_status:0}).catch(()=>{});throw Object.assign(new Error('Die Ortsquelle antwortet gerade nicht.'),{code:'PROVIDER_TRANSPORT_ERROR',status:502,provider})
+    await budgetRpc('luvia_provider_outcome',{p_provider:budgetProvider,p_operation:budgetOperation,p_status:0}).catch(()=>{});throw Object.assign(new Error('Die Ortsquelle antwortet gerade nicht.'),{code:'PROVIDER_TRANSPORT_ERROR',status:502,provider})
   }
-  if(!response.ok)await budgetRpc('luvia_provider_outcome',{p_provider:provider,p_operation:operation,p_status:response.status}).catch(()=>{});
+  if(!response.ok)await budgetRpc('luvia_provider_outcome',{p_provider:budgetProvider,p_operation:budgetOperation,p_status:response.status}).catch(()=>{});
   return response;
 }
 export async function providerStatus(){return{policy:'free-only',accounting:'atomic-server-reservations',providers:await budgetRpc('luvia_provider_budget_status'),note:'Lokale Reservierungen; außerhalb Luvias verbrauchtes Kontingent wird nicht automatisch vom Anbieterkonto gelesen.'}}

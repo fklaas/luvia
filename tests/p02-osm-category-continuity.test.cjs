@@ -25,13 +25,15 @@ const {pathToFileURL}=require('node:url');
   assert.equal(pictured.raw.wiki_and_media.wikimedia_commons,'File:Exact place.jpg');
   assert.equal(element(301,{tourism:'attraction',image:'http://images.example/unsafe.jpg'}).photos.length,0,'only HTTPS place-linked images are eligible');
 
-  const worker=fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8'),places=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8'),adapter=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8'),browser=fs.readFileSync(path.join(root,'intelligence/places-service.js'),'utf8');
+  const worker=fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8'),places=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8'),osmSource=fs.readFileSync(modulePath,'utf8'),proxyBudget=fs.readFileSync(path.join(root,'supabase/migrations/20260905235500_openstreetmap_cached_proxy_budget.sql'),'utf8'),adapter=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8'),browser=fs.readFileSync(path.join(root,'intelligence/places-service.js'),'utf8');
   assert.match(worker,/CATEGORY_KEYS=new Set\(\['food','accommodation'.*'practical'\]\)/s,'the edge route must whitelist all 14 canonical categories');
   assert.match(worker,/url\.pathname==='\/api\/providers\/osm-places'/,'the category continuity route stays inside the authenticated provider namespace');
   assert.match(worker,/!CATEGORY_KEYS\.has\(category\)/,'arbitrary categories must fail closed');
   assert.match(worker,/radius,500,15000/,'requests must stay inside the bounded destination radius');
   assert.match(worker,/out center tags 250/,'the provider response must be hard capped');
   assert.doesNotMatch(worker,/body\?\.query/,'the client must never supply arbitrary Overpass QL');
+  assert.match(osmSource,/provider:'openstreetmap-cache',operation:'lookup'/,'cached Edge lookups must not consume the direct Overpass allowance');
+  assert.match(proxyBudget,/'openstreetmap-cached-proxy','openstreetmap-cache',array\['lookup'\],true,20000,0,300/,'the cache lookup lane must retain a high but bounded operational ceiling');
   assert.match(places,/mode='free_osm_category_continuity'/,'OSM must be an observable category continuity mode');
   assert.ok(places.indexOf("osmPlacesSearch(effectiveDestination")<places.indexOf('const breadthTarget='),'the cached OSM lane must answer before spending TomTom or HERE fallback budget');
   assert.match(places,/'shopping-scharbeutz'.*category:'shopping'/s,'public health must exercise Shopping through the real category contract');

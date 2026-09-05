@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.96**, Core **4.82.215**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.215 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.97**, Core **4.82.216**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.216 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.
 
@@ -71,7 +71,7 @@ Die Änderung wurde über den angemeldeten Supabase SQL Editor ausgeführt. Eine
 ## Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.215`
+- Core: `4.82.216`
 - Runtime-Commit: `2e613197b7b44a83c79b592bda45ae2e8a39d51a`
 - Integration-Worker: `1d936ac3-fd72-40ca-a5f4-513f414b74d2`
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`

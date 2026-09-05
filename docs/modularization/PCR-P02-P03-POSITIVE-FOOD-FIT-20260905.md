@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.96**, Core **4.82.215**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.215 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.97**, Core **4.82.216**. M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.216 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.
 
@@ -96,12 +96,12 @@ Angewendete additive Policy-Migrationen:
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
 - `20260905210000_openstreetmap_dietary_evidence_budget.sql`
 
-Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.215` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
+Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.216` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
 
 ## Öffentlicher Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.215`
+- Core: `4.82.216`
 - Runtime-Commit: `51a2f1743e5c6296699d9525f5ddb9e9e0e84a7c`
 - Integration-Worker: `81e43a21-667a-4e60-bb81-1ab946e4a482`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`

@@ -11,6 +11,7 @@ const googleDiagnosticReset=read('supabase/migrations/20260905170000_google_fit_
 const foursquareEvidence=read('supabase/migrations/20260905173000_foursquare_verified_dietary_evidence_budget.sql');
 const foursquareDiagnosticReset=read('supabase/migrations/20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql');
 const osmEvidence=read('supabase/migrations/20260905210000_openstreetmap_dietary_evidence_budget.sql');
+const osmProxy=read('supabase/migrations/20260905235500_openstreetmap_cached_proxy_budget.sql');
 const budget=read('supabase/functions/luvia-gateway/_shared/provider-budget.ts');
 const places=read('supabase/functions/luvia-gateway/_shared/places.ts');
 
@@ -48,6 +49,8 @@ assert.match(places,/'vegetarian-here-8km-scharbeutz'[\s\S]{0,700}providers:Obje
 assert.match(osmEvidence,/values\s*\([\s\S]{0,180}'openstreetmap-dietary-evidence','openstreetmap',array\['search'\],true,500,0,6,'UTC'/,'the free dietary evidence lane must have a dedicated, search-only, bounded provider budget');
 assert.match(osmEvidence,/provider=excluded\.provider,operations=excluded\.operations,enabled=true/,'the OpenStreetMap upsert must preserve the dedicated provider and search-only operation');
 assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i,'OpenStreetMap activation must retain every reserved provider unit');
+assert.match(osmProxy,/'openstreetmap-cached-proxy','openstreetmap-cache',array\['lookup'\],true,20000,0,300/,'cached proxy lookups need a separate bounded lane that cannot exhaust direct Overpass reads');
+assert.doesNotMatch(osmProxy,/delete\s+from\s+public\.places_provider_usage/i,'the cached proxy lane must preserve all accounting evidence');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
 assert.match(places,/version:'4\.38\.8-osm-category-continuity'/,'the deployed gateway must identify the active cached category and dietary evidence contract');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}maxDistanceMeters:3000/,'the public OSM probe must verify the same three-kilometre radius presented by Places');
