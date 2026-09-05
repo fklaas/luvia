@@ -8,6 +8,7 @@ const read=relative=>fs.readFileSync(path.join(root,relative),'utf8');
 const migration=read('supabase/migrations/20260905090000_geoapify_free_budget_reserve.sql');
 const googleEvidence=read('supabase/migrations/20260905153000_google_verified_profile_evidence_budget.sql');
 const googleDiagnosticReset=read('supabase/migrations/20260905170000_google_fit_diagnostic_cooldown_reset.sql');
+const foursquareEvidence=read('supabase/migrations/20260905173000_foursquare_verified_dietary_evidence_budget.sql');
 const budget=read('supabase/functions/luvia-gateway/_shared/provider-budget.ts');
 const places=read('supabase/functions/luvia-gateway/_shared/places.ts');
 
@@ -30,7 +31,14 @@ assert.match(googleDiagnosticReset,/GOOGLE_FIT_DIAGNOSTIC_COOLDOWN_NOT_RESET/,'t
 assert.match(budget,/reason:reservation\?\.reason\|\|'unknown'/,'budget denial must retain a bounded machine-readable reason');
 assert.match(places,/reason:String\(item\?\.reason\|\|'unknown'\)\.slice\(0,80\)/,'public bounded diagnostics must disclose why an attempted provider was denied');
 assert.match(places,/'vegetarian-google-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['google'\]\)/,'the signed-in fit lane must have an exact bounded Google-only health probe');
-assert.match(places,/version:'4\.37\.9-google-fit-diagnostic'/,'the deployed gateway must identify the fit-diagnostic source');
+assert.match(foursquareEvidence,/operations\s*=\s*array\['search'\]::text\[\]/,'Foursquare evidence may activate search only');
+assert.match(foursquareEvidence,/monthly_limit\s*=\s*300/,'Foursquare must retain 200 calls below its current 500-call free Pro allowance');
+assert.match(foursquareEvidence,/daily_limit\s*=\s*12/,'Foursquare profile evidence must stay below a small daily ceiling');
+assert.match(foursquareEvidence,/minute_limit\s*=\s*2/,'Foursquare profile evidence must not fan out');
+assert.doesNotMatch(foursquareEvidence,/delete\s+from\s+public\.places_provider_usage/i,'Foursquare activation must retain prior usage');
+assert.match(foursquareEvidence,/FOURSQUARE_DIETARY_EVIDENCE_POLICY_NOT_UPDATED/,'Foursquare activation must fail closed when the policy row is absent');
+assert.match(places,/'vegetarian-foursquare-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['foursquare'\]\)/,'the bounded Foursquare evidence lane must have an exact public health probe');
+assert.match(places,/version:'4\.38\.0-foursquare-dietary-evidence'/,'the deployed gateway must identify the active dietary fallback source');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 
 console.log('Provider budget free reserve and diagnostic truth: PASS');

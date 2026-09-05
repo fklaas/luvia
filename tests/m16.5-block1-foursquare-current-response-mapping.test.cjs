@@ -18,6 +18,7 @@ test('current Foursquare 2025 response fields use top-level coordinates and no r
   const module=await mapping();
   assert.equal(module.FOURSQUARE_API_VERSION,'2025-06-17');
   assert.equal(module.FOURSQUARE_RESTAURANT_CATEGORY_ID,'13065');
+  assert.equal(module.FOURSQUARE_VEGAN_VEGETARIAN_CATEGORY_ID,'4bf58dd8d48988d1d3941735');
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('latitude'));
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('longitude'));
   assert.ok(module.FOURSQUARE_SEARCH_FIELDS.includes('photos'));
@@ -76,6 +77,19 @@ test('provider category labels become bounded Luvia discovery types without losi
   assert.ok(miniGolf.providerNativeTypes.includes('Arts and Entertainment > Miniature Golf Course'));
 });
 
+test('official Foursquare dietary category is positive provider evidence while a generic restaurant stays unknown',async()=>{
+  const {normalizeFoursquarePlace}=await mapping();
+  const dietary=normalizeFoursquarePlace({fsq_place_id:'dietary',name:'Grüne Küche',latitude:54.02,longitude:10.75,categories:[{id:'4bf58dd8d48988d1d3941735',name:'Dining and Drinking > Restaurant > Vegan and Vegetarian Restaurant'}]});
+  const generic=normalizeFoursquarePlace({fsq_place_id:'generic',name:'Steakhaus',latitude:54.021,longitude:10.751,categories:[{id:'13065',name:'Restaurant'}]});
+  assert.ok(dietary.types.includes('vegetarian_restaurant'));
+  assert.ok(dietary.types.includes('vegan_restaurant'));
+  assert.equal(dietary.features.servesVegetarianFood,true);
+  assert.equal(dietary.features.servesVeganFood,true);
+  assert.equal(dietary.evidence[0].dietaryCategory,'vegan-and-vegetarian-restaurant');
+  assert.equal(generic.features.servesVegetarianFood,null);
+  assert.equal(generic.features.servesVeganFood,null);
+});
+
 test('legacy cached coordinates remain readable but missing provider facts are never invented',async()=>{
   const {normalizeFoursquarePlace}=await mapping();
   const legacy=normalizeFoursquarePlace({fsq_place_id:'legacy',name:'Alt',geocodes:{roof:{latitude:53.1,longitude:10.2}}});
@@ -114,7 +128,7 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/function geoapifyPlaceName/,'Geoapify features must map real OSM names instead of collapsing to Unbenannter Ort');
   assert.match(source,/function geoapifyTextField/,'Geoapify name/address fields must never String\(object\) into \[object Object\]');
   assert.match(source,/v2\.16\.3-cuisine-budget-continuity/,'gateway search cache must invalidate after the bounded cuisine continuity contract enters the public surface');
-  assert.match(source,/version:'4\.37\.8-cuisine-budget-continuity'/);
+  assert.match(source,/version:'4\.38\.0-foursquare-dietary-evidence'/);
   assert.match(source,/exactMediaIdentity:'normalized_name_and_max_120m'/);
   assert.match(source,/\/places\/\$\{encodeURIComponent\(fsqId\)\}\/photos/);
   assert.match(source,/food:'catering'/,'default food category must map to parent catering');
@@ -127,8 +141,9 @@ test('public diagnostics are bounded and gateway owns a layered Pro-field fallba
   assert.match(source,/status:503,providerErrors/,'bounded provider failures must remain diagnosable through the public health probe');
   assert.match(source,/query:foursquareQuery\(query,destination\)/);
   assert.match(source,/params\.fsq_category_ids=categoryFilter/);
-  assert.match(source,/categoryFilteredSearch:'explicit-reviewed-taxonomy-only'/);
+  assert.match(source,/categoryFilteredSearch:'official-vegetarian-category-or-explicit-reviewed-taxonomy'/);
   assert.match(source,/postRetrievalCategoryEvidence:true/);
+  assert.match(source,/\^\\d\{4,8\}\$\|\^\[a-f0-9\]\{24\}\$/,'current numeric and BSON-style official category IDs must be admitted');
   assert.match(source,/return safe\.length\?safe\.join\(','\):undefined/);
   assert.doesNotMatch(source,/strictTypeFiltering===true&&String\(options\?\.includedType/);
   assert.match(source,/const \{fields:_retiredFields,\.\.\.providerDefaults\}=params/);

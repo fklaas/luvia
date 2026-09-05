@@ -1,6 +1,10 @@
 export const FOURSQUARE_API_VERSION='2025-06-17';
-export const FOURSQUARE_MAPPING_VERSION='2026-09-02.activity-breadth-rating-scale.v4';
+export const FOURSQUARE_MAPPING_VERSION='2026-09-05.verified-dietary-category.v5';
 export const FOURSQUARE_RESTAURANT_CATEGORY_ID='13065';
+// Official current Places taxonomy (BSON-style ID). This is a venue-level
+// category fact, so it is strong enough to satisfy Luvia's positive dietary
+// evidence gate; a business name or generic restaurant result is not.
+export const FOURSQUARE_VEGAN_VEGETARIAN_CATEGORY_ID='4bf58dd8d48988d1d3941735';
 
 const PRO_FIELDS=[
   'fsq_place_id',
@@ -80,6 +84,8 @@ function canonicalCategoryTypes(labels:string[]){
   const values=labels.map(value=>String(value||'').toLowerCase()),types:string[]=[];
   const add=(type:string,pattern:RegExp)=>{if(values.some(value=>pattern.test(value)))types.push(type);};
   add('restaurant',/\brestaurant\b|ristorante|restaurante|restaurang|restauracja|restoran|restaurace|ресторан|مطعم|餐厅|餐館|レストラン/);
+  add('vegetarian_restaurant',/(?:vegan\s+and\s+vegetarian|vegetarian\s*\/\s*vegan|vegetarian)\s+restaurant/);
+  add('vegan_restaurant',/(?:vegan\s+and\s+vegetarian|vegetarian\s*\/\s*vegan|vegan)\s+restaurant/);
   add('cafe',/\bcaf[eé]\b|coffee|tea house/);
   add('bakery',/bakery|boulangerie|b[äa]ckerei/);
   add('bar',/\bbar\b|pub|cocktail/);
@@ -130,6 +136,8 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
   const categoryLabels=categories.map((category:any)=>category?.name||category?.short_name).filter(Boolean).map(String);
   const categoryIds=categories.map((category:any)=>String(category?.id||'')).filter(Boolean);
   const canonicalTypes=canonicalCategoryTypes(categoryLabels);
+  const servesVegetarianFood=canonicalTypes.includes('vegetarian_restaurant')||canonicalTypes.includes('vegan_restaurant');
+  const servesVeganFood=canonicalTypes.includes('vegan_restaurant');
   const id=String(p.fsq_place_id||p.id||'');
   const country=String(location.country||'');
   const rating=normalizedRating(p.rating);
@@ -173,7 +181,8 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
     accessibility:null,
     accessibilityOptions:null,
     features:{
-      servesVegetarianFood:null,
+      servesVegetarianFood:servesVegetarianFood||null,
+      servesVeganFood:servesVeganFood||null,
       reservable:p.attributes?.takes_reservations??null
     },
     placeActions:Array.isArray(p.place_actions)?p.place_actions:[],
@@ -183,6 +192,7 @@ export function normalizeFoursquarePlace(place:any,{evidenceKind='place-search'}
       provider:'foursquare',
       kind:evidenceKind,
       categories:categoryLabels,
+      dietaryCategory:servesVegetarianFood?'vegan-and-vegetarian-restaurant':null,
       coordinateSchema:coordinates?.source||'missing',
       providerRating:rating.providerRatingRaw===null?null:{value:rating.providerRatingRaw,scale:10},
       normalizedRating:rating.rating===null?null:{value:rating.rating,scale:5},
