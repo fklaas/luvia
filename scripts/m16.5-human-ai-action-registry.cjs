@@ -214,7 +214,7 @@ const OWNER_BINDING_DECISIONS_BUNDLE_4 = Object.freeze({
   'journey.external-link.open': { contract: 'journey.v1', method: 'commands.openExternalLink', operationKey: 'entryId|url|userGesture' },
   'journey.offline-pack.create': { contract: 'journey.v1', method: 'commands.saveOfflinePack', operationKey: 'trip|date|day' },
   'journey.offline-pack.remove': { contract: 'journey.v1', method: 'commands.removeOfflinePack', operationKey: 'trip|date' },
-  'journey.undo': { contract: 'journey.v1', method: 'commands.undo', operationKey: 'receipt|operation|entryId' },
+  'journey.undo': { contract: 'journey.v1', method: 'commands.restoreRemovedEntry', operationKey: 'recoveryId|expectedRevision' },
   'media.capture.open': { contract: 'media.v1', method: 'commands.acquisition.capture', operationKey: 'userGesture|facingMode' },
   'media.files.pick': { contract: 'media.v1', method: 'commands.acquisition.pick', operationKey: 'userGesture|multiple' },
   'media.gallery.filter.clusters': { contract: 'memory.v1', method: 'reads.listClusters', operationKey: 'tripId', primaryDomain: 'memory' },
@@ -657,6 +657,27 @@ function materializeNavigationAIParity() {
     action.delivery.block = 'B0.02-NAVIGATION';
     if (action.delivery.publicEvidence === 'OPEN') action.delivery.publicEvidence = 'LOCAL_E2E_PENDING';
   }
+  const journeyRuntimeMappings = Object.freeze({
+    'places.plan.edit': 'journey.entry.schedule',
+    'journey.entry.date.update': 'journey.entry.schedule',
+    'journey.entry.time.update': 'journey.entry.schedule',
+    'journey.entry.duration.update': 'journey.entry.schedule',
+    'journey.entry.remove': 'journey.entry.remove',
+    'journey.undo': 'journey.entry.restore',
+  });
+  for (const [humanActionId, runtimeActionId] of Object.entries(journeyRuntimeMappings)) {
+    const action = registry.actions.find(item => item.id === humanActionId);
+    const runtime = runtimeById.get(runtimeActionId);
+    const typed = inputContracts.contracts[runtimeActionId];
+    assert.ok(action && runtime && typed, `Journey runtime mapping is incomplete: ${humanActionId} → ${runtimeActionId}`);
+    action.owner.contract = runtime.ownerContract;
+    action.owner.method = runtime.ownerMethod;
+    action.owner.bindingStatus = 'PUBLIC_CONTRACT_BOUND';
+    action.ai = { coverage: 'REGISTERED_PARTIAL', sourceCoverage: 'RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN', actionId: runtimeActionId, runtimeRegistered: true };
+    action.inputContract = { status: 'READY', schemaId: typed.schemaId, requiredFields: typed.required, optionalFields: typed.optional, contextFields: typed.context };
+    action.delivery.block = 'P09-P10-POSITIVE-OWNER-MANAGEMENT';
+    if (action.delivery.publicEvidence === 'OPEN') action.delivery.publicEvidence = 'LOCAL_E2E_PENDING';
+  }
   registry.runtimeActionIds = runtimeActions.map(action => action.id).sort();
   registry.markerAudit = {
     ...registry.markerAudit,
@@ -718,6 +739,9 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-journey-connection-recoveries': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-journey-restore-connection': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-entry-capabilities': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-journey-visit-manage': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-visit-manage-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-visit-open-place': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-journey-loading': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-body': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
@@ -832,7 +856,7 @@ function validateRegistry() {
   assert.equal(inputContracts.contractId, 'luvia.ai-action-input-contracts.v1');
   assert.equal(inputContracts.actionContractId, 'intelligence.actions.v1');
   assert.equal(inputContracts.enforcement, 'BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE');
-  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
+  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'journey.entry.schedule', 'journey.entry.remove', 'journey.entry.restore', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
   assert.equal(inputContracts.runtimeEnforcement.metadataValidatedOpenActionIds, 0);
   assert.equal(inputContracts.runtimeEnforcement.rejectsBeforeLedgerAndOwnerInvocation, true);
   assert.deepEqual(Array.from(actionCore.policySnapshot().inputEnforcement.runtimeEnforced), inputContracts.runtimeEnforcement.runtimeEnforcedActionIds);
@@ -856,8 +880,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 984);
-  assert.equal(sourceAudit.markerCount, 984);
+  assert.equal(sourceAudit.markers.length, 987);
+  assert.equal(sourceAudit.markerCount, 987);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');
@@ -978,7 +1002,7 @@ function validateRegistry() {
   }
 
   const runtimeIds = runtimeActions.map(action => action.id).sort();
-  assert.equal(runtimeIds.length, 24, 'runtime registry count changed; update the parity registry deliberately');
+  assert.equal(runtimeIds.length, 27, 'runtime registry count changed; update the parity registry deliberately');
   assert.deepEqual(registry.runtimeActionIds, runtimeIds, 'runtime action registry and parity control plane diverged');
   assert.deepEqual(Object.keys(inputContracts.contracts).sort(), runtimeIds, 'every runtime action needs exactly one typed input contract');
   const schemaIds = new Set();

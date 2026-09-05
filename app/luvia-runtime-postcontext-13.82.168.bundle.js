@@ -4350,7 +4350,7 @@ attempt();
 /* ===== core/places/global-place-contracts.js ===== */
 (() => {
 'use strict';
-const VERSION='4.62.0-shared-filter-intent';
+const VERSION='4.63.0-provider-dietary-evidence';
 const UI_CATEGORIES=LuviaPlacesDomainContractCoreV1.categories();
 const INTENTS=Object.freeze({
   mini_golf:{category:'activities',label:'Minigolf',patterns:[/mini[ -]?golf/i,/miniature golf/i,/adventure golf/i,/putt[ -]?putt/i],queries:['Minigolf','Miniature Golf','Adventure Golf','Putt-Putt'],match:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,typeMatch:/mini[ _-]?golf|miniature[ _-]?golf|adventure[ _-]?golf|putt[ _-]?putt/i,exclude:null,niche:true,specificEvidence:true},
@@ -4528,7 +4528,7 @@ function veganEvidenceConfirmed(place={}){
   if(/vegan|plant[ _-]?based|pflanzenk[uü]che/i.test(offer))return true;
   return features.servesVeganFood===true&&!MEAT_LED_OFFER.test(offer);
 }
-function evidence(place={},goalText='',categoryKey='',preferences={}){const types=(place?.types||[]).map(String),hay=`${place?.name||''} ${place?.editorialSummary?.text||place?.editorialSummary||''} ${types.join(' ')}`.toLowerCase(),features=place?.features||{},sem=semanticSignals(goalText),profile=profileSignals(preferences),vegetarianFocus=VEGETARIAN_FOCUS.test([place?.name,place?.editorialSummary?.text||place?.editorialSummary,...types.filter(type=>!/^(?:vegetarian|vegan)(?:[._](?:yes|no))?$/.test(type.toLowerCase()))].filter(Boolean).join(' ')),meatLed=MEAT_LED_OFFER.test(hay),veggiePos=vegetarianFocus||features.servesVegetarianFood===true&&!meatLed,veggieNeg=features.servesVegetarianFood===false;const strollerPos=features.strollerAccessible===true||features.strollerFriendly===true||place?.accessibilityOptions?.strollerAccessible===true,strollerNeg=features.strollerAccessible===false||features.strollerFriendly===false;const accessPos=features.wheelchairAccessible===true||place?.accessibilityOptions?.wheelchairAccessibleEntrance===true||place?.accessibilityOptions?.wheelchairAccessibleSeating===true,accessNeg=features.wheelchairAccessible===false||place?.accessibilityOptions?.wheelchairAccessibleEntrance===false;const traits={vegetarian:evidenceState(veggiePos,veggieNeg),stroller:evidenceState(strollerPos,strollerNeg),accessible:evidenceState(accessPos,accessNeg)};const sentences=[];if((sem.vegetarian||sem.vegan||profile.vegetarian||profile.vegan)&&categoryKey==='food'){if(traits.vegetarian==='confirmed')sentences.push(vegetarianFocus?'Das erkennbare Angebotsprofil ist vegetarisch oder vegan ausgerichtet.':'Vegetarische Optionen sind für diesen Ort durch Provider-Fakten ausdrücklich belegt.');else if(traits.vegetarian==='not_confirmed')sentences.push('Die verfügbaren Ortsdaten sprechen gegen eine verlässlich vegetarische Eignung, deshalb wertet Luvia diesen Punkt nicht als erfüllt.');else if(traits.vegetarian==='conflict')sentences.push('Die Quellen widersprechen sich bei den vegetarischen Optionen. Luvia behandelt die Eignung deshalb vorsichtshalber als nicht verifiziert.');else if(meatLed)sentences.push('Das erkennbare Hauptangebot ist fleischzentriert; einzelne Optionen genügen nicht für „Passend“.');else sentences.push('Vegetarische Optionen sind in den verfügbaren Quellen noch nicht eindeutig verifiziert.');}
+function evidence(place={},goalText='',categoryKey='',preferences={}){const types=(place?.types||[]).map(String),providerFoodTypes=[...(place?.providerPrimaryFoodTypes||[]),...(place?.providerNativeTypes||[]),...(place?.raw?.foodTypes||[]).flatMap(item=>typeof item==='string'?[item]:[item?.name,item?.id])],hay=`${place?.name||''} ${place?.editorialSummary?.text||place?.editorialSummary||''} ${types.join(' ')} ${providerFoodTypes.join(' ')}`.toLowerCase(),features=place?.features||{},sem=semanticSignals(goalText),profile=profileSignals(preferences),dedicatedDietary=[...types,...providerFoodTypes].some(type=>/(^|[._ -])(vegetarian|vegan)[._ -](restaurant|food)($|[._ -])/.test(String(type).toLowerCase())),vegetarianFocus=VEGETARIAN_FOCUS.test([place?.editorialSummary?.text||place?.editorialSummary,...types.filter(type=>!/^(?:vegetarian|vegan)(?:[._](?:yes|no))?$/.test(type.toLowerCase())),...providerFoodTypes].filter(Boolean).join(' ')),meatLed=MEAT_LED_OFFER.test(`${place?.name||''} ${place?.primaryType||''} ${place?.primaryTypeLabel||''} ${types.join(' ')}`),veggiePos=dedicatedDietary||((vegetarianFocus||features.servesVegetarianFood===true)&&!meatLed),veggieNeg=features.servesVegetarianFood===false;const strollerPos=features.strollerAccessible===true||features.strollerFriendly===true||place?.accessibilityOptions?.strollerAccessible===true,strollerNeg=features.strollerAccessible===false||features.strollerFriendly===false;const accessPos=features.wheelchairAccessible===true||place?.accessibilityOptions?.wheelchairAccessibleEntrance===true||place?.accessibilityOptions?.wheelchairAccessibleSeating===true,accessNeg=features.wheelchairAccessible===false||place?.accessibilityOptions?.wheelchairAccessibleEntrance===false;const traits={vegetarian:evidenceState(veggiePos,veggieNeg),stroller:evidenceState(strollerPos,strollerNeg),accessible:evidenceState(accessPos,accessNeg)};const sentences=[];if((sem.vegetarian||sem.vegan||profile.vegetarian||profile.vegan)&&categoryKey==='food'){if(traits.vegetarian==='confirmed')sentences.push(vegetarianFocus?'Das erkennbare Angebotsprofil ist vegetarisch oder vegan ausgerichtet.':'Vegetarische Optionen sind für diesen Ort durch Provider-Fakten ausdrücklich belegt.');else if(traits.vegetarian==='not_confirmed')sentences.push('Die verfügbaren Ortsdaten sprechen gegen eine verlässlich vegetarische Eignung, deshalb wertet Luvia diesen Punkt nicht als erfüllt.');else if(traits.vegetarian==='conflict')sentences.push('Die Quellen widersprechen sich bei den vegetarischen Optionen. Luvia behandelt die Eignung deshalb vorsichtshalber als nicht verifiziert.');else if(meatLed)sentences.push('Das erkennbare Hauptangebot ist fleischzentriert; einzelne Optionen genügen nicht für „Passend“.');else sentences.push('Vegetarische Optionen sind in den verfügbaren Quellen noch nicht eindeutig verifiziert.');}
 if(sem.stroller||profile.stroller){if(traits.stroller==='confirmed')sentences.push('Die verfügbaren Angaben bestätigen, dass der Ort mit Kinderwagen gut zugänglich ist.');else if(traits.stroller==='not_confirmed')sentences.push('Die verfügbaren Angaben bestätigen keine gute Kinderwagen-Zugänglichkeit.');else sentences.push('Zur Kinderwagen-Zugänglichkeit liegen noch keine ausreichend eindeutigen Angaben vor.');}
 if(sem.accessible||profile.accessible){if(traits.accessible==='confirmed')sentences.push('Die verfügbaren Angaben bestätigen barrierefreie Zugänglichkeit.');else if(traits.accessible==='not_confirmed')sentences.push('Barrierefreie Zugänglichkeit ist nach den verfügbaren Angaben nicht bestätigt.');else sentences.push('Zur Barrierefreiheit liegen noch keine ausreichend eindeutigen Angaben vor.');}
 return Object.freeze({traits,sentences});}
@@ -5213,7 +5213,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.4.0-owner-capability-matrix';
+const RUNTIME_VERSION='1.5.0-positive-owner-management';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -5252,6 +5252,9 @@ function range(startValue,endValue){
   return days;
 }
 function sourceRule(entry={}){
+  // A photo remains Media-owned, but its position and visibility in the Day Graph
+  // belong to the Journey event that only references Media IDs.
+  if((entry.kind==='photo_memory'||entry.entityType==='photo_memory')&&text(entry.source,'event').toLowerCase()==='event')return SOURCE_RULES.event;
   if(entry.kind==='photo_memory'||entry.entityType==='photo_memory')return SOURCE_RULES.memory;
   const raw=text(entry.source,'event').toLowerCase();
   return SOURCE_RULES[raw]||SOURCE_RULES.event;
@@ -5365,14 +5368,18 @@ function dayStatus(day,nowKey){
   if(day.date===nowKey)return'live';
   return'planned';
 }
+function photoMemoryEvent(entry={}){
+  return entry?.source==='event'&&(entry.kind==='photo_memory'||entry.entityType==='photo_memory')&&Boolean(entry.sourceId||entry.rowId)&&Boolean(entry.sourceRevision);
+}
 function scheduleEditable(entry={}){
-  return entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus;
+  const plannedPlace=entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic;
+  return Boolean((plannedPlace||photoMemoryEvent(entry))&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus);
 }
 function removalEditable(entry={}){
-  return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.tripPlaceId);
+  return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.source==='event'?entry.sourceId||entry.rowId:entry.tripPlaceId);
 }
 function connectionEditable(entry={}){
-  return removalEditable(entry);
+  return removalEditable(entry)&&entry.source==='place-data';
 }
 function capability(id,state,label,route,reason){return immutable({id,state,label,route,reason})}
 function entryCapabilities(input={}){
@@ -5387,7 +5394,14 @@ function entryCapabilities(input={}){
     remove:capability('remove','locked','Nicht direkt entfernen',entry.provenance.mutationRoute,'Entfernen erfolgt nur über den zuständigen Owner.'),
     restore:capability('restore','locked','Keine Timeline-Rücknahme',entry.provenance.mutationRoute,'Für diesen Owner liegt keine Journey-Rücknahme vor.')
   };
-  if(direct){
+  if(direct&&memory){
+    mode='memory';owner='journey';label='Fotomoment sicher verwalten';summary='Zeit und Sichtbarkeit gehören zur Journey; alle referenzierten Fotos bleiben unverändert beim Media Owner.';
+    actions.manage=capability('manage','available','Fotomoment verwalten','journey.event','Vorschau und Änderungen verwenden den bestehenden Journey-Event und seine Media-IDs.');
+    actions.editSchedule=capability('editSchedule','available','Zeit ändern','journey.event','Der Zeitpunkt wird mit Revision, Vorschau und Owner-Readback geändert.');
+    actions.connectReorder=capability('connectReorder','locked','Nicht gemeinsam umordnen','journey.event','Fotomomente bleiben außerhalb der Place-Gruppenänderung.');
+    actions.remove=capability('remove','available','Aus Timeline ausblenden','journey.event','Der Journey-Moment wird aus dem Tag ausgeblendet; Fotos und Dateiverweise bleiben erhalten.');
+    actions.restore=capability('restore','available','Moment wiederherstellen','journey.event','Der Recovery-Beleg liegt beim Journey-Event und bleibt nach Reload verfügbar.');
+  }else if(direct){
     mode='planned-place';owner='places';label='Plan direkt bearbeitbar';summary='Zeit, Reihenfolge und Entfernung werden vorab geprüft und bleiben nach Reload rücknehmbar.';
     actions.manage=capability('manage','available','Place-Plan verwalten','places.plan','Der bestehende Places-Owner-Datensatz bleibt maßgeblich.');
     actions.editSchedule=capability('editSchedule','available','Zeit ändern','places.plan','Vorher/Nachher, Konflikte und aktuelle Revision werden geprüft.');
@@ -5401,8 +5415,8 @@ function entryCapabilities(input={}){
     actions.remove=capability('remove','delegated','Über Buchung stornieren oder entfernen','booking.reservation','Eine Buchung wird niemals durch Timeline-Löschen verändert.');
     actions.restore=capability('restore','delegated','Booking-Ausgang prüfen','booking.reservation','Rücknahme und Kompensation richten sich nach dem Provider-Ausgang.');
   }else if(visit){
-    mode='confirmed-visit';owner='places';label='Bestätigter Besuch';summary='Der erlebte Zeitpunkt bleibt als Besuchsnachweis erhalten. Korrektur oder Entfernen gehört zum Besuchsverlauf.';
-    actions.manage=capability('manage','delegated','Besuch verwalten','places.visit','GPS- und Bestätigungsnachweis bleiben beim Places Visit Owner.');
+    mode='confirmed-visit';owner='places';label='Bestätigter Besuch';summary='Der erlebte Zeitpunkt bleibt als Besuchsnachweis erhalten. Details und Ortsbezug werden über den Places Visit Owner gelesen.';
+    actions.manage=capability('manage','available','Besuch verwalten','places.visit','Der bestätigte Besuch, sein Ortsbezug und die vorhandene Evidenz werden beim Places Visit Owner gelesen.');
     actions.remove=capability('remove','delegated','Besuch dort entfernen','places.visit','Journey löscht keinen bestätigten Besuch still aus dem Verlauf.');
     actions.restore=capability('restore','delegated','Besuch dort wiederherstellen','places.visit','Eine Wiederherstellung braucht den ursprünglichen Besuchsnachweis.');
   }else if(memory){
@@ -5441,15 +5455,16 @@ function previewRemoval(input={}){
   const entry=input.entry||{},trip=tripProjection(input.trip||{});
   if(!removalEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich entfernt.');
   if(!trip.id||entry.tripId!==trip.id)throw new Error('Dieser Eintrag gehört nicht zur aktiven Reise.');
+  const photoMemory=photoMemoryEvent(entry);
   return immutable({
-    operation:'remove-planned-place',
+    operation:photoMemory?'remove-photo-memory-moment':'remove-planned-place',
     entryId:entry.id,
     tripId:entry.tripId,
     tripPlaceId:entry.tripPlaceId,
     expectedRevision:entry.sourceRevision,
     requiresConfirmation:true,
     before:{startAt:entry.startAt,endAt:entry.endAt,durationMinutes:entry.durationMinutes,title:entry.title,entityType:entry.entityType},
-    effects:{timelineMomentRemoved:true,placeLinkPreserved:true,placeFactsPreserved:true,favoritePreserved:true,bookingPreserved:true}
+    effects:photoMemory?{timelineMomentRemoved:true,mediaAssetsPreserved:true,mediaIdsPreserved:true,journeyOrderRecomputed:true,bookingPreserved:true}:{timelineMomentRemoved:true,placeLinkPreserved:true,placeFactsPreserved:true,favoritePreserved:true,bookingPreserved:true}
   });
 }
 function previewSchedule(input={}){
@@ -5698,15 +5713,17 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 /* ===== core/places/timeline-core.js ===== */
 (() => {
 'use strict';
-const VERSION='5.6.0-hydration-continuity';
+const VERSION='5.7.0-journey-event-recovery';
 const root=window;
 const calendarVisibleByTrip=new Map();const boundRoots=new WeakSet();
 let state={tripId:null,loading:false,hydrated:false,entries:[],days:[],lastUpdatedAt:null,lastError:null,members:{},places:{}};
+let ownerEventRows=[];
 let channels=[];const listeners=new Set();
 let dayHandle=null,photoMemoryHandle=null,planningEditorHandle=null;
 const surfaceHandles=new WeakMap();
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const client=()=>window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;
+const eventTable=(database=client())=>database?.from?.('timeline_events')||null;
 const activeTripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.tripId||null;
 const iso=(d,t='00:00')=>new Date(`${d}T${String(t||'00:00').slice(0,5)}:00`).toISOString();
 const dayKey=v=>new Date(v).toLocaleDateString('sv-SE');
@@ -5719,7 +5736,8 @@ function ownerCoordinates(place={}){const latitude=Number(place.latitude??place.
 function ownerPlaceMetadata(place={},metadata={}){const coordinates=ownerCoordinates(place),providerFacts=metadata.providerFacts&&typeof metadata.providerFacts==='object'?metadata.providerFacts:{};return{...metadata,placeName:metadata.placeName||place.name||'',address:metadata.address||place.address||place.formatted_address||null,coordinates:metadata.coordinates||coordinates||null,providerFacts:{...providerFacts,coordinates:providerFacts.coordinates||coordinates||null,formattedAddress:providerFacts.formattedAddress||place.address||place.formatted_address||null,observedAt:providerFacts.observedAt||place.source_updated_at||place.updated_at||null}}}
 function enrichOwnerPlace(entry,place={}){if(!entry)return entry;const metadata=ownerPlaceMetadata(place,entry.metadata||{});return{...entry,providerPlaceId:entry.providerPlaceId||place.provider_place_id||place.source_id||null,entityType:entry.entityType==='place'&&place.primary_type?place.primary_type:entry.entityType,title:entry.title||place.name||'Reiseeintrag',metadata}}
 function dataEntry(e){const metadata=e.fields?.metadata&&typeof e.fields.metadata==='object'?e.fields.metadata:{},place=e.record?.place||{};return enrichOwnerPlace({id:e.id,rowId:null,sourceKey:e.id,tripId:e.tripId,placeId:e.placeId,tripPlaceId:e.tripPlaceId,providerPlaceId:place.provider_place_id||null,entityType:e.placeType,kind:e.kind,title:e.title,startAt:e.startAt,endAt:null,durationMinutes:Number.isFinite(Number(metadata.durationMinutes))&&Number(metadata.durationMinutes)>0?Number(metadata.durationMinutes):null,automatic:false,source:'place-data',dataKey:e.dataKey,sourceRevision:e.record?.updated_at||null,fields:e.fields||{},metadata:{placeName:place.name||'',...metadata},icon:typeIcon(e.placeType)},place)}
-function eventEntry(r){const photoMemory=r.event_type==='photo_memory';return{id:`event:${r.id}`,rowId:r.id,sourceKey:r.id,tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id||r.metadata?.tripPlaceId,providerPlaceId:null,entityType:photoMemory?'photo_memory':(r.metadata?.placeType||'place'),kind:r.event_type,title:r.title,startAt:r.occurred_at,endAt:null,durationMinutes:null,automatic:Boolean(r.is_automatic),source:'event',description:r.description||'',metadata:r.metadata||{},icon:photoMemory?'📸':typeIcon(r.metadata?.placeType)}}
+function eventRevision(r={}){return String(r.metadata?._journeyRevision||r.updated_at||r.occurred_at||'')||null}
+function eventEntry(r){const photoMemory=r.event_type==='photo_memory',metadata=r.metadata&&typeof r.metadata==='object'?r.metadata:{};return{id:`event:${r.id}`,rowId:r.id,sourceKey:r.id,sourceRevision:eventRevision(r),tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id||metadata.tripPlaceId,providerPlaceId:null,entityType:photoMemory?'photo_memory':(metadata.placeType||'place'),kind:r.event_type,title:r.title,startAt:r.occurred_at,endAt:null,durationMinutes:Number.isFinite(Number(metadata.durationMinutes))&&Number(metadata.durationMinutes)>0?Number(metadata.durationMinutes):null,automatic:Boolean(r.is_automatic),source:'event',description:r.description||'',metadata,icon:photoMemory?'📸':typeIcon(metadata.placeType)}}
 function visitEntry(r){const p=state.places[r.place_id]||{},name=state.members[r.participant_id]||'Mitreisender';return enrichOwnerPlace({id:`visit:${r.id}`,rowId:r.id,sourceKey:r.id,tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id,providerPlaceId:p.provider_place_id,entityType:p.primary_type||r.metadata?.placeType||'place',kind:'visited',title:p.name||r.metadata?.placeName||'Besuchter Ort',startAt:r.arrived_at,endAt:r.left_at,durationMinutes:Math.max(5,Math.round(Number(r.duration_seconds||0)/60)),automatic:true,source:'gps',participantId:r.participant_id,participantName:name,metadata:r.metadata||{},icon:typeIcon(p.primary_type)},p)}
 function dedupe(list){const seen=new Map();for(const e of list){const key=e.source==='place-data'?`pd:${e.tripPlaceId}:${e.dataKey}`:e.source==='schedule'?`s:${e.sourceKey}`:e.source==='gps'?`v:${e.sourceKey}`:`e:${e.sourceKey}`;seen.set(key,e)}return [...seen.values()].sort((a,b)=>new Date(a.startAt)-new Date(b.startAt))}
 function buildDays(entries){const map=new Map();for(const e of entries){const key=dayKey(e.startAt);if(!map.has(key))map.set(key,[]);map.get(key).push(e)}return [...map.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([date,items])=>({date,items,hasAutomatic:items.some(x=>x.automatic),count:items.length}))}
@@ -5732,8 +5750,8 @@ function projectPlaceData(source=root.LuviaTripPlaceData?.snapshot?.()){
  emit('owner-local-projection');return snapshot();
 }
 async function hydrate(tripId=activeTripId()){
- const previousTripId=state.tripId,changedTrip=Boolean(previousTripId&&tripId&&String(previousTripId)!==String(tripId));state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;if(changedTrip)state.entries=[];emit('hydrate-start');
- if(!tripId){state.entries=[];state.loading=false;state.hydrated=true;emit();return snapshot()}
+ const previousTripId=state.tripId,changedTrip=Boolean(previousTripId&&tripId&&String(previousTripId)!==String(tripId));state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;if(changedTrip){state.entries=[];ownerEventRows=[]}emit('hydrate-start');
+ if(!tripId){state.entries=[];ownerEventRows=[];state.loading=false;state.hydrated=true;emit();return snapshot()}
  const database=client();if(!database?.from){state.loading=false;state.lastError='Keine Cloud-Verbindung für Timeline verfügbar.';emit();throw new Error(state.lastError)}
  try{
   const [,scheduleRows,eventRows,visitRows,tripPlaces,members]=await Promise.all([
@@ -5749,15 +5767,25 @@ async function hydrate(tripId=activeTripId()){
   const placeIds=[...new Set([...(scheduleRows.data||[]).map(x=>x.place_id),...(eventRows.data||[]).map(x=>x.place_id),...(visitRows.data||[]).map(x=>x.place_id)].filter(Boolean))];state.places={};
   if(placeIds.length){const pr=await database.from('places').select('*').in('id',placeIds);if(pr.error)throw pr.error;for(const place of pr.data||[])state.places[place.id]=place}
   state.members={};for(const member of members.data||[]){const id=member.user_id||member.participant_id||member.id,name=member.display_name||member.member_name||member.name||member.email||'Mitreisender';state.members[id]=name;state.members[member.id]=name}
-  const allowedEvents=new Set(['place_visited','manual_note','memory','trip_moment','photo_memory']);
+  const allowedEvents=new Set(['place_visited','manual_note','memory','trip_moment','photo_memory']);ownerEventRows=(eventRows.data||[]).filter(row=>allowedEvents.has(row.event_type));
   const validVisits=(visitRows.data||[]).filter(x=>linked.has(x.place_id)&&x.arrived_at&&Number(x.duration_seconds||0)>=300&&['visited','left'].includes(x.state));
   const placeData=(window.LuviaTripPlaceData?.dateEntries?.()||[]).filter(entry=>entry.placeType!=='mobility');
   const schedule=(scheduleRows.data||[]).filter(row=>!['accommodation','mobility'].includes(String(row.entity_type)));
-  state.entries=dedupe([...placeData.map(dataEntry),...schedule.map(row=>enrichOwnerPlace(scheduleEntry(row),state.places[row.place_id]||{})),...(eventRows.data||[]).filter(x=>allowedEvents.has(x.event_type)).map(row=>enrichOwnerPlace(eventEntry(row),state.places[row.place_id]||{})),...validVisits.map(visitEntry)]);
+  state.entries=dedupe([...placeData.map(dataEntry),...schedule.map(row=>enrichOwnerPlace(scheduleEntry(row),state.places[row.place_id]||{})),...ownerEventRows.filter(row=>!row.metadata?.timelineRemovalRecovery).map(row=>enrichOwnerPlace(eventEntry(row),state.places[row.place_id]||{})),...validVisits.map(visitEntry)]);
   state.loading=false;state.hydrated=true;emit();return snapshot();
  }catch(error){state.loading=false;state.hydrated=false;state.lastError=error.message||String(error);emit();throw error}
 }
-async function record(raw={}){const db=client(),tripId=raw.tripId||state.tripId||activeTripId();if(!db?.from||!tripId)throw new Error('Timeline-Cloud nicht verfügbar.');const row={trip_id:tripId,place_id:raw.placeId||null,participant_id:raw.participantId||null,event_type:raw.type||'manual_note',title:raw.title||'Reiseereignis',description:raw.description||'',occurred_at:raw.occurredAt||new Date().toISOString(),source:raw.source||'manual',is_automatic:Boolean(raw.automatic),metadata:raw.metadata||{}};const {error}=await db.from('timeline_events').insert(row);if(error)throw error;return hydrate(tripId)}
+async function record(raw={}){const db=client(),tripId=raw.tripId||state.tripId||activeTripId();if(!db?.from||!tripId)throw new Error('Timeline-Cloud nicht verfügbar.');const row={trip_id:tripId,place_id:raw.placeId||null,participant_id:raw.participantId||null,event_type:raw.type||'manual_note',title:raw.title||'Reiseereignis',description:raw.description||'',occurred_at:raw.occurredAt||new Date().toISOString(),source:raw.source||'manual',is_automatic:Boolean(raw.automatic),metadata:raw.metadata||{}};const {error}=await eventTable(db).insert(row);if(error)throw error;return hydrate(tripId)}
+async function updateJourneyEvent(identity,input={}){
+ const id=String(typeof identity==='object'?identity.rowId||identity.sourceId||identity.sourceKey||'':identity||'').replace(/^event:/,''),tripId=String(input.tripId||state.tripId||activeTripId()||''),row=ownerEventRows.find(item=>String(item.id)===id&&String(item.trip_id)===tripId);
+ if(!row)throw new Error('Der Journey-Moment wurde nicht gefunden. Bitte die Timeline neu laden.');
+ const expected=String(input.expectedRevision||'');if(!expected||eventRevision(row)!==expected)throw new Error('Der Journey-Moment wurde inzwischen geändert. Bitte erneut prüfen.');
+ const currentMetadata=row.metadata&&typeof row.metadata==='object'?row.metadata:{},revision=new Date().toISOString(),metadata={...currentMetadata,...(input.metadata&&typeof input.metadata==='object'?input.metadata:{}),_journeyRevision:revision},payload={metadata};
+ if(input.occurredAt!==undefined)payload.occurred_at=input.occurredAt;if(input.title!==undefined)payload.title=String(input.title||'').trim();if(input.description!==undefined)payload.description=String(input.description||'').trim();
+ let query=eventTable().update(payload).eq('trip_id',tripId).eq('id',id);if(row.metadata?._journeyRevision)query=query.eq('metadata->>_journeyRevision',expected);else if(row.updated_at)query=query.eq('updated_at',expected);else query=query.eq('occurred_at',row.occurred_at);
+ const result=await query.select('*');if(result.error)throw result.error;if(Array.isArray(result.data)&&!result.data.length)throw new Error('Der Journey-Moment wurde inzwischen geändert. Bitte erneut prüfen.');
+ await hydrate(tripId);return eventEntry(ownerEventRows.find(item=>String(item.id)===id)||{...row,...payload});
+}
 async function removePhotoMemoryByCluster(clusterId,{tripId=state.tripId||activeTripId()}={}){if(!clusterId||!tripId)return false;const db=client();if(!db?.from)return false;const rows=await db.from('timeline_events').select('id,metadata').eq('trip_id',tripId).eq('event_type','photo_memory');if(rows.error)throw rows.error;const ids=(rows.data||[]).filter(row=>String(row.metadata?.clusterId||'')===String(clusterId)).map(row=>row.id);if(ids.length){const result=await db.from('timeline_events').delete().eq('trip_id',tripId).in('id',ids);if(result.error)throw result.error;await hydrate(tripId)}return ids.length>0}
 async function removeEntry(identity,{tripId=state.tripId||activeTripId()}={}){
  const entry=typeof identity==='string'?state.entries.find(item=>String(item.id)===String(identity)):identity;
@@ -5789,23 +5817,28 @@ function snapshot(){return clone(state)}
 function list(filter={}){return state.entries.filter(e=>(!filter.tripId||String(e.tripId)===String(filter.tripId))&&(!filter.entityType||e.entityType===filter.entityType))}
 function entriesForDate(date){return state.entries.filter(e=>dayKey(e.startAt)===date)}
 function removalRecoveries({tripId=state.tripId||activeTripId()}={}){
- const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
+  const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
  for(const record of records){
   if(tripId&&String(record.trip_id)!==String(tripId))continue;
   const fields=record.fields&&typeof record.fields==='object'?record.fields:{},metadata=fields.metadata&&typeof fields.metadata==='object'?fields.metadata:{},receipt=metadata.timelineRemovalRecovery;
   if(!receipt?.recoveryId||fields.planned_at||String(receipt.tripPlaceId||'')!==String(record.trip_place_id||''))continue;
-  out.push({...clone(receipt),expectedRevision:record.updated_at||null,ownerMetadata:clone(metadata)});
- }
- return out.sort((left,right)=>String(right.removedAt||'').localeCompare(String(left.removedAt||'')));
+   out.push({...clone(receipt),expectedRevision:record.updated_at||null,ownerMetadata:clone(metadata)});
+  }
+  for(const row of ownerEventRows){
+   if(tripId&&String(row.trip_id)!==String(tripId))continue;const metadata=row.metadata&&typeof row.metadata==='object'?row.metadata:{},receipt=metadata.timelineRemovalRecovery;
+   if(!receipt?.recoveryId)continue;out.push({...clone(receipt),expectedRevision:eventRevision(row),ownerMetadata:clone(metadata),source:'event',rowId:row.id});
+  }
+  return out.sort((left,right)=>String(right.removedAt||'').localeCompare(String(left.removedAt||'')));
 }
 function removalRestoreReceipts({tripId=state.tripId||activeTripId()}={}){
  const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
- for(const record of records){
+  for(const record of records){
   if(tripId&&String(record.trip_id)!==String(tripId))continue;
   const metadata=record.fields?.metadata,receipt=metadata&&typeof metadata==='object'?metadata.timelineRemovalLastRestore:null;
-  if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:record.updated_at||null});
- }
- return out;
+   if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:record.updated_at||null});
+  }
+  for(const row of ownerEventRows){if(tripId&&String(row.trip_id)!==String(tripId))continue;const receipt=row.metadata?.timelineRemovalLastRestore;if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:eventRevision(row),source:'event',rowId:row.id})}
+  return out;
 }
 function dateRange(trip){const candidates=[trip?.startDate,trip?.endDate,state.days[0]?.date,state.days.at(-1)?.date].filter(Boolean).map(v=>new Date(v));const valid=candidates.filter(d=>!Number.isNaN(d.getTime()));const start=valid.length?new Date(Math.min(...valid)):new Date(),end=valid.length?new Date(Math.max(...valid)):new Date(start),out=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))out.push(new Date(d));return out.slice(0,62)}
 function calendarTripKey(trip){return String(trip?.id||trip?.tripId||state.tripId||'active')}
@@ -5901,7 +5934,7 @@ function subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)}
 async function init(){const id=activeTripId();await window.LuviaTripPlaceData?.init?.();projectPlaceData();await hydrate(id).catch(()=>{});subscribeRealtime(id);return diagnostics()}
 function diagnostics(){return{version:VERSION,status:state.hydrated?'ready':'loading',runtimeRole:'journey-web-compatibility-adapter',publicContract:'journey.v1',journeyTruth:false,foreignDomainTruth:false,cloudAuthoritative:true,localPersistence:false,tripId:state.tripId,hydrated:state.hydrated,loading:state.loading,eventCount:state.entries.length,days:state.days.length,realtimeChannels:channels.length,realtime:channels.length>0,metrics:{queued:0},lastError:state.lastError,placeDataSource:'trip_place_data',gpsRules:{linkedPlacesOnly:true,minStaySeconds:300,states:['visited','left']}}}
 root.addEventListener('luvia:trip-changed',e=>{const id=e.detail?.tripId||e.detail?.id||activeTripId();if(!id)return;hydrate(id).then(()=>{if(activeTripId()===id)subscribeRealtime(id)}).catch(()=>{})});root.addEventListener('luvia:trip-place-data-changed',e=>projectPlaceData(e.detail));root.addEventListener('luvia:place-plan-changed',()=>{projectPlaceData();setTimeout(()=>hydrate().catch(()=>{}),0)});root.addEventListener('luvia:place-visit-changed',()=>hydrate().catch(()=>{}));root.addEventListener('luvia:memory-bridge-applied',e=>hydrate(e.detail?.tripId||activeTripId()).catch(()=>{}));
-window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,removalRecoveries,removalRestoreReceipts,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
+ window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,updateJourneyEvent,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,removalRecoveries,removalRestoreReceipts,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
 })();
 
 ;
@@ -5912,7 +5945,7 @@ window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,remo
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.6.0-owner-capabilities-readiness';
+const RUNTIME_VERSION='1.7.0-positive-owner-management';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -6009,7 +6042,7 @@ function previewRemoval(identity){
 function previewRestore(identity){
   const recovery=removalRecovery(identity),trip=activeTrip();
   if(!recovery)throw new Error('Diese Wiederherstellung ist nicht mehr verfügbar.');
-  const entry={id:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,entityType:recovery.entityType,source:'place-data',dataKey:'planned_at',sourceRevision:recovery.expectedRevision,title:recovery.before.title,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,metadata:{}};
+  const event=recovery.source==='event',entry={id:recovery.entryId,sourceId:recovery.rowId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,entityType:recovery.entityType,kind:event?'photo_memory':'planned',source:event?'event':'place-data',dataKey:event?null:'planned_at',sourceRevision:recovery.expectedRevision,title:recovery.before.title,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,metadata:event?{mediaIds:recovery.mediaIds||[]}:{}};
   const start=new Date(recovery.before.startAt),localDate=Number.isNaN(start.getTime())?'':start.toLocaleDateString('sv-SE'),end=new Date(start.getTime()+Number(recovery.before.durationMinutes)*60000),localEndDate=Number.isNaN(end.getTime())?'':end.toLocaleDateString('sv-SE');
   const preview=domain().previewSchedule({entry,trip,entries:snapshot({trip}).entries,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,localDate,localEndDate});
   return Object.freeze({...preview,recoveryId:recovery.recoveryId,expectedRevision:recovery.expectedRevision});
@@ -6049,9 +6082,18 @@ async function init(){ensureBridge();await provider().init?.();return emit('init
 async function recordEvent(input={}){const result=await provider().record?.(input);emit('record-event',result);return result}
 const removalPending=new Map(),restorePending=new Map();
 async function assertNoLinkedBooking(entry){
+  if(entry?.source==='event'||!entry?.tripPlaceId&&!entry?.placeId)return;
   const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
   const rows=await reader(entry.tripId);
   if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId))||(entry.placeId&&String(row.place_id||row.placeId||'')===String(entry.placeId))))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+}
+async function writeOwnerEntry(entry,{startAt,metadata,expectedRevision}){
+  if(entry.source==='event'){
+    const writer=provider().updateJourneyEvent;if(!writer)unavailable('journey event writer');
+    return writer(entry,{tripId:entry.tripId,expectedRevision,occurredAt:startAt,metadata});
+  }
+  const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+  return writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:expectedRevision,fields:{planned_at:startAt,metadata}});
 }
 async function assertNoLinkedBookings(entries=[]){
   const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
@@ -6071,10 +6113,9 @@ async function removePlannedPlace(identity,input={}){
     if(!original||!input.expectedRevision||original.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
     const preview=previewRemoval(original);await assertNoLinkedBooking(original);
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(original.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const recoveryId=`timeline-remove:${original.tripPlaceId}:${operationId}`,receipt={operation:'restore-planned-place',recoveryId,operationId,entryId:original.id,tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,entityType:original.entityType,dataKey:'planned_at',removedAt:new Date().toISOString(),before:{...preview.before}};
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+    const event=original.source==='event',recoveryId=`timeline-remove:${event?original.sourceId:original.tripPlaceId}:${operationId}`,receipt={operation:event?'restore-photo-memory-moment':'restore-planned-place',recoveryId,operationId,entryId:original.id,rowId:event?original.sourceId:null,source:original.source,tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,entityType:original.entityType,dataKey:event?null:'planned_at',mediaIds:event?[...(original.metadata?.mediaIds||[])]:[],removedAt:new Date().toISOString(),before:{...preview.before}};
     const ownerMetadata=sourceOriginal?.fields?.metadata&&typeof sourceOriginal.fields.metadata==='object'?sourceOriginal.fields.metadata:original.metadata;
-    await writer({tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,placeType:original.entityType,expectedUpdatedAt:original.sourceRevision,fields:{planned_at:null,metadata:{...ownerMetadata,timelineRemovalRecovery:receipt,timelineRemovalLastRestore:null}}});
+    await writeOwnerEntry(original,{startAt:event?original.startAt:null,expectedRevision:original.sourceRevision,metadata:{...ownerMetadata,timelineRemovalRecovery:receipt,timelineRemovalLastRestore:null}});
     await hydrate(original.tripId);const saved=sourceRemovalRecovery(recoveryId);
     if(!saved||getEntry(id))throw new Error('Das Entfernen wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Eintrag prüfen.');
     return publicRemovalRecovery(saved);
@@ -6096,9 +6137,9 @@ async function restoreRemovedEntry(identity,input={}){
     if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
     await assertNoLinkedBooking(recovery);
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(recovery.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const restoreReceipt={operation:'restore-planned-place',recoveryId:key,operationId,removalOperationId:recovery.operationId,entryId:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,restoredAt:new Date().toISOString(),restoredStartAt:recovery.before.startAt};
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
-    await writer({tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,placeType:recovery.entityType,expectedUpdatedAt:recovery.expectedRevision,fields:{planned_at:recovery.before.startAt,metadata:{...(recovery.ownerMetadata||{}),timelineRemovalRecovery:null,timelineRemovalLastRestore:restoreReceipt}}});
+    const restoreReceipt={operation:recovery.source==='event'?'restore-photo-memory-moment':'restore-planned-place',recoveryId:key,operationId,removalOperationId:recovery.operationId,entryId:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,restoredAt:new Date().toISOString(),restoredStartAt:recovery.before.startAt,mediaIdsPreserved:recovery.source==='event'};
+    const recoveryEntry={...recovery,id:recovery.entryId,sourceId:recovery.rowId,source:recovery.source||'place-data',startAt:recovery.before.startAt,metadata:recovery.ownerMetadata||{}};
+    await writeOwnerEntry(recoveryEntry,{startAt:recovery.before.startAt,expectedRevision:recovery.expectedRevision,metadata:{...(recovery.ownerMetadata||{}),timelineRemovalRecovery:null,timelineRemovalLastRestore:restoreReceipt}});
     await hydrate(recovery.tripId);const restored=getEntry(recovery.entryId);
     if(!restored||restored.startAt!==recovery.before.startAt||sourceRemovalRecovery(key))throw new Error('Die Wiederherstellung wurde noch nicht bestätigt. Bitte die Timeline neu laden.');
     return Object.freeze(restoreReceipt);
@@ -6186,10 +6227,7 @@ async function applySchedule(identity,input={}){
     const entry=getEntry(id);
     if(entry?.metadata?.scheduleRecovery?.operationId===operationId)return entry.metadata.scheduleRecovery;
     if(!entry||!input.expectedRevision||entry.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
-    const bookings=globalThis.LuviaBookingContractV1?.reads?.listForTrip;
-    if(!bookings)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
-    const rows=await bookings(entry.tripId);
-    if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===entry.tripPlaceId)||(entry.placeId&&String(row.place_id||row.placeId||'')===entry.placeId)))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+    await assertNoLinkedBooking(entry);
     const preview=previewSchedule(id,input);
     if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');
     if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
@@ -6206,8 +6244,7 @@ async function applySchedule(identity,input={}){
       metadata.scheduleRecovery=receipt;
     }
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==entry.tripId)throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
-    await writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:entry.sourceRevision,fields:{planned_at:preview.after.startAt,metadata}});
+    await writeOwnerEntry(entry,{startAt:preview.after.startAt,expectedRevision:entry.sourceRevision,metadata});
     await hydrate(entry.tripId);
     const saved=getEntry(id);
     if(saved?.startAt!==preview.after.startAt||saved?.durationMinutes!==preview.after.durationMinutes)throw new Error('Die Änderung wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Zeitpunkt prüfen.');
@@ -6238,7 +6275,7 @@ async function undo(input={}){
     if(!recovery)throw new Error('Für diesen Eintrag gibt es keine unveränderte Zeitänderung zum Zurücknehmen.');
     return applySchedule(recovery.entryId,{...input,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,recoveryOperationId:recovery.operationId});
   }
-  if(operation==='restore-planned-place')return restoreRemovedEntry(input.recoveryId||input.receipt?.recoveryId,input);
+  if(['restore-planned-place','restore-photo-memory-moment'].includes(operation))return restoreRemovedEntry(input.recoveryId||input.receipt?.recoveryId,input);
   if(operation==='restore-entry'){
     const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
     return Object.freeze({operation,restored:true,result:await recordEvent(entry)});
@@ -6302,7 +6339,7 @@ globalThis.LuviaGlobalContracts?.register?.({
 (()=>{
 'use strict';
 
-const VERSION='1.16.0-owner-capabilities-first-paint';
+const VERSION='1.17.0-positive-owner-management';
 const boundRoots=new WeakSet();
 let dayHandle=null;
 let activeTimelineRoot=null;
@@ -6402,13 +6439,13 @@ function capabilityMarkup(entry,esc=escapeHtml){
   return`<details class="lvjt-owner-capability is-${esc(value.mode)}" data-entry-capabilities="${esc(value.entryId)}"><summary><span>${esc(value.label)}</span><small>${esc(value.owner)} · ${esc(stateLabel(value.actions?.manage?.state))}</small></summary><p>${esc(value.summary)}</p><ul>${actions.map(action=>`<li class="is-${esc(action.state)}"><span><b>${esc(action.label)}</b><small>${esc(action.reason)}</small></span><em>${esc(stateLabel(action.state))}</em></li>`).join('')}</ul></details>`;
 }
 function timelineEntry(entry,trip,esc,{offline=false,previousEntry=null}={}){
-  const owner=entry.provenance.owner,memory=owner==='media'||entry.kind==='photo_memory',photo=timelinePhoto(trip,entry),metadata=entry.metadata||{},links=verifiedLinks(entry),accent=metadata.accent||'#ef6659',facts=metadata.providerFacts||{},capabilities=contract().reads.entryCapabilities?.(entry),directEdit=capabilities?.actions?.editSchedule?.state==='available',bookingManage=capabilities?.mode==='booking'&&capabilities?.actions?.manage?.state==='available',placeBased=entry.source==='place-data',canRemove=capabilities?.actions?.remove?.state==='available',connection=metadata.timelineConnection;
+  const owner=entry.provenance.owner,memory=owner==='media'||entry.kind==='photo_memory',photo=timelinePhoto(trip,entry),metadata=entry.metadata||{},links=verifiedLinks(entry),accent=metadata.accent||'#ef6659',facts=metadata.providerFacts||{},capabilities=contract().reads.entryCapabilities?.(entry),directEdit=capabilities?.actions?.editSchedule?.state==='available',bookingManage=capabilities?.mode==='booking'&&capabilities?.actions?.manage?.state==='available',visitManage=capabilities?.mode==='confirmed-visit'&&capabilities?.actions?.manage?.state==='available',placeBased=entry.source==='place-data',canRemove=capabilities?.actions?.remove?.state==='available',connection=metadata.timelineConnection;
   const trust=trustForEntry(entry,offline),alternative=alternativeIntent(entry);
   const providerFacts=[facts.typeLabel,Number(facts.rating)?`${Number(facts.rating).toFixed(1).replace('.',',')} ★`:null,Number(facts.userRatingCount)?`${Number(facts.userRatingCount).toLocaleString('de-DE')} Erfahrungen`:null,facts.priceLabel||facts.priceLevel,facts.openingLabel,facts.distanceLabel,...(Array.isArray(facts.features)?facts.features:[])].filter(Boolean).slice(0,6).join(' · ');
   const transfer=String(metadata.transferLabel||derivedTransfer(previousEntry,entry)||'').trim();
   const title=String(entry.title||'').replace(/^.*?·\s*/,'')||entry.title;
   const attribution=metadata.imageAttribution||{},photoCredit=[attribution.credit,attribution.license].filter(Boolean).join(' · ');
-  return`<article class="lvjt-entry${connection?' is-connected':''}" data-owner="${esc(owner)}" data-entry-id="${esc(entry.id)}" data-trip-place-id="${esc(entry.tripPlaceId||'')}" data-place-id="${esc(entry.placeId||'')}" data-start="${esc(entry.startAt)}" style="--lvjt-entry-accent:${esc(accent)}"><time datetime="${esc(entry.startAt)}">${esc(fmtTime(entry.startAt))}</time><span class="lvjt-line" aria-hidden="true"><i></i></span>${transfer?transferMarkup(transfer,esc):''}<div class="lvjt-entry-card"><figure class="lvjt-photo"><img src="${esc(photo)}" alt="${esc(title)}" loading="lazy" decoding="async">${photoCredit?`<figcaption>${esc(photoCredit)}</figcaption>`:''}</figure><div><small>${memory?'Erlebt · Memory bereit':`${esc(metadata.visualCategory||entry.entityType)} · ${esc(owner)}`}</small><span class="lvjt-plan-trust is-${esc(trust.kind)}${trust.offline?' is-offline':''}" data-plan-trust>${esc(trust.label)}</span>${connection?`<span class="lvjt-connection-badge">Gemeinsamer Weg · ${Number(connection.order)+1}/${Number(connection.memberCount)||connection.memberIds?.length||1}</span>`:''}<h3>${esc(title)}</h3><p>${esc(entry.description||metadata.travelerFit||`${entry.durationMinutes||60} Minuten in eurem bestätigten Tagesplan.`)}</p>${providerFacts?`<span class="lvjt-entry-meta">${esc(providerFacts)}</span>`:''}${capabilityMarkup(entry,esc)}<nav class="lvjt-entry-links" aria-label="Aktionen zu ${esc(title)}">${externalAction(links.mapsUrl,'Route','route',esc)}${externalAction(links.menuUrl,'Speisekarte','menu',esc)}${externalAction(links.website,'Website','website',esc)}<button type="button" data-journey-entry-open="${esc(entry.id)}">${memory?'Moment bewahren':'Details'}</button>${placeBased&&!memory?`<button type="button" data-journey-entry-alternative="${esc(entry.id)}" data-alternative-reason="${esc(alternative.reason)}">${esc(alternative.label)}</button>`:''}${directEdit||bookingManage?`<button type="button" data-journey-entry-edit="${esc(entry.id)}">${esc(bookingManage?'Buchung verwalten':'Zeit ändern')}</button>`:''}${canRemove?`<button type="button" data-journey-entry-delete="${esc(entry.id)}">Löschen</button>`:''}</nav></div></div></article>`;
+  return`<article class="lvjt-entry${connection?' is-connected':''}" data-owner="${esc(owner)}" data-entry-id="${esc(entry.id)}" data-trip-place-id="${esc(entry.tripPlaceId||'')}" data-place-id="${esc(entry.placeId||'')}" data-start="${esc(entry.startAt)}" style="--lvjt-entry-accent:${esc(accent)}"><time datetime="${esc(entry.startAt)}">${esc(fmtTime(entry.startAt))}</time><span class="lvjt-line" aria-hidden="true"><i></i></span>${transfer?transferMarkup(transfer,esc):''}<div class="lvjt-entry-card"><figure class="lvjt-photo"><img src="${esc(photo)}" alt="${esc(title)}" loading="lazy" decoding="async">${photoCredit?`<figcaption>${esc(photoCredit)}</figcaption>`:''}</figure><div><small>${memory?'Erlebt · Memory bereit':`${esc(metadata.visualCategory||entry.entityType)} · ${esc(owner)}`}</small><span class="lvjt-plan-trust is-${esc(trust.kind)}${trust.offline?' is-offline':''}" data-plan-trust>${esc(trust.label)}</span>${connection?`<span class="lvjt-connection-badge">Gemeinsamer Weg · ${Number(connection.order)+1}/${Number(connection.memberCount)||connection.memberIds?.length||1}</span>`:''}<h3>${esc(title)}</h3><p>${esc(entry.description||metadata.travelerFit||`${entry.durationMinutes||60} Minuten in eurem bestätigten Tagesplan.`)}</p>${providerFacts?`<span class="lvjt-entry-meta">${esc(providerFacts)}</span>`:''}${capabilityMarkup(entry,esc)}<nav class="lvjt-entry-links" aria-label="Aktionen zu ${esc(title)}">${externalAction(links.mapsUrl,'Route','route',esc)}${externalAction(links.menuUrl,'Speisekarte','menu',esc)}${externalAction(links.website,'Website','website',esc)}<button type="button" data-journey-entry-open="${esc(entry.id)}">${memory?'Fotomoment öffnen':'Details'}</button>${visitManage?`<button type="button" data-journey-visit-manage="${esc(entry.id)}">Besuch verwalten</button>`:''}${placeBased&&!memory?`<button type="button" data-journey-entry-alternative="${esc(entry.id)}" data-alternative-reason="${esc(alternative.reason)}">${esc(alternative.label)}</button>`:''}${directEdit||bookingManage?`<button type="button" data-journey-entry-edit="${esc(entry.id)}">${esc(bookingManage?'Buchung verwalten':'Zeit ändern')}</button>`:''}${canRemove?`<button type="button" data-journey-entry-delete="${esc(entry.id)}">${memory?'Aus Timeline ausblenden':'Löschen'}</button>`:''}</nav></div></div></article>`;
 }
 function compactPlaceDetail(entry){
  const ui=globalThis.LuviaUI;if(!ui?.mount)throw new Error('Living Sheet ist noch nicht bereit.');
@@ -6560,8 +6597,8 @@ async function restoreTimelineEntry(entry){
 }
 async function openRemoveSheet(entry){
   const booking=await bookingForEntry(entry);if(booking&&globalThis.LuviaBookingManagementSheet?.open)return globalThis.LuviaBookingManagementSheet.open({bookingId:booking.id,booking,entry,mode:'cancel',onChanged:()=>globalThis.LuviaApp?.show?.('timeline',{source:'booking-cancelled'})});
-  const api=contract(),preview=api.reads.previewRemoval(entry),ui=globalThis.LuviaUI;if(!ui?.mount)throw new Error('Living Sheet ist noch nicht bereit.');const content=document.createElement('section'),when=scheduleParts(preview.before.startAt);content.className='lvjt-remove-sheet';content.innerHTML=`<header><div><small>Timeline bearbeiten · Vorschau</small><h2>${escapeHtml(String(entry.title||'').replace(/^.*?·\s*/,''))}</h2><p>Dieser bestätigte Termin wird aus dem Tagesplan genommen. Prüfe die Auswirkungen, bevor du speicherst.</p></div><button type="button" data-lvjt-remove-close aria-label="Schließen">×</button></header><dl class="lvjt-remove-preview"><div><dt>Entfernter Termin</dt><dd>${escapeHtml(fmtLongDate(when.date))}, ${escapeHtml(fmtTime(preview.before.startAt))} Uhr · ${preview.before.durationMinutes} Minuten</dd></div><div><dt>Bleibt erhalten</dt><dd>Place, Ortsdetails, Favoritenstatus und Reiseverknüpfung</dd></div><div><dt>Buchungen</dt><dd>Werden getrennt geprüft und niemals über diesen Weg gelöscht.</dd></div><div><dt>Wiederherstellung</dt><dd>Bleibt nach dem Entfernen und auch nach einem Neuladen verfügbar.</dd></div></dl><div class="lvjt-remove-actions"><button type="button" data-lvjt-remove-close>Behalten</button><button type="button" class="is-danger" data-lvjt-remove-confirm>Aus Timeline entfernen</button></div><p data-lvjt-remove-status aria-live="polite">Noch nicht gespeichert.</p>`;
-  const operationId=globalThis.crypto.randomUUID();let mounted=null;mounted=ui.mount({name:'journey.timeline-remove',kind:'sheet',content,className:'lvjt-remove-overlay',closeSelector:'[data-lvjt-remove-close]',initialFocus:'[data-lvjt-remove-confirm]',label:'Timeline-Eintrag entfernen'});const confirm=mounted.overlay.querySelector('[data-lvjt-remove-confirm]'),status=mounted.overlay.querySelector('[data-lvjt-remove-status]');confirm.onclick=async()=>{confirm.disabled=true;confirm.textContent='Wird entfernt …';status.textContent='Cloud-Stand und Buchungen werden noch einmal geprüft …';try{await api.commands.removeEntry(entry.id,{confirmed:true,operationId,expectedRevision:preview.expectedRevision});mounted.close('removed');await globalThis.LuviaApp?.show?.('timeline',{source:'journey-entry-removed'});globalThis.LuviaUIKit?.toast?.('Aus der Timeline entfernt. Die Wiederherstellung bleibt nach einem Neuladen verfügbar.',{type:'success'})}catch(error){confirm.disabled=false;confirm.textContent='Aus Timeline entfernen';status.textContent=error?.message||'Der Timeline-Eintrag konnte nicht entfernt werden.'}};return mounted.overlay;
+  const api=contract(),preview=api.reads.previewRemoval(entry),ui=globalThis.LuviaUI,memory=preview.operation==='remove-photo-memory-moment';if(!ui?.mount)throw new Error('Living Sheet ist noch nicht bereit.');const content=document.createElement('section'),when=scheduleParts(preview.before.startAt);content.className='lvjt-remove-sheet';content.innerHTML=`<header><div><small>Timeline bearbeiten · Vorschau</small><h2>${escapeHtml(String(entry.title||'').replace(/^.*?·\s*/,''))}</h2><p>${memory?'Dieser Fotomoment wird aus dem Tagesablauf ausgeblendet. Seine Bilder bleiben unverändert erhalten.':'Dieser bestätigte Termin wird aus dem Tagesplan genommen. Prüfe die Auswirkungen, bevor du speicherst.'}</p></div><button type="button" data-lvjt-remove-close aria-label="Schließen">×</button></header><dl class="lvjt-remove-preview"><div><dt>${memory?'Ausgeblendeter Moment':'Entfernter Termin'}</dt><dd>${escapeHtml(fmtLongDate(when.date))}, ${escapeHtml(fmtTime(preview.before.startAt))} Uhr · ${preview.before.durationMinutes} Minuten</dd></div><div><dt>Bleibt erhalten</dt><dd>${memory?'Alle Fotos, Media-IDs, Bilddateien und ihre Reihenfolge':'Place, Ortsdetails, Favoritenstatus und Reiseverknüpfung'}</dd></div><div><dt>${memory?'Timeline':'Buchungen'}</dt><dd>${memory?'Die übrigen Momente werden neu eingeordnet; Bilddaten werden nicht verändert.':'Werden getrennt geprüft und niemals über diesen Weg gelöscht.'}</dd></div><div><dt>Wiederherstellung</dt><dd>Bleibt nach dem Entfernen und auch nach einem Neuladen verfügbar.</dd></div></dl><div class="lvjt-remove-actions"><button type="button" data-lvjt-remove-close>Behalten</button><button type="button" class="is-danger" data-lvjt-remove-confirm>${memory?'Moment ausblenden':'Aus Timeline entfernen'}</button></div><p data-lvjt-remove-status aria-live="polite">Noch nicht gespeichert.</p>`;
+  const operationId=globalThis.crypto.randomUUID();let mounted=null;mounted=ui.mount({name:'journey.timeline-remove',kind:'sheet',content,className:'lvjt-remove-overlay',closeSelector:'[data-lvjt-remove-close]',initialFocus:'[data-lvjt-remove-confirm]',label:'Timeline-Eintrag entfernen'});const confirm=mounted.overlay.querySelector('[data-lvjt-remove-confirm]'),status=mounted.overlay.querySelector('[data-lvjt-remove-status]');confirm.onclick=async()=>{confirm.disabled=true;confirm.textContent=memory?'Wird ausgeblendet …':'Wird entfernt …';status.textContent=memory?'Journey-Stand und Media-Verweise werden noch einmal geprüft …':'Cloud-Stand und Buchungen werden noch einmal geprüft …';try{await api.commands.removeEntry(entry.id,{confirmed:true,operationId,expectedRevision:preview.expectedRevision});mounted.close('removed');await globalThis.LuviaApp?.show?.('timeline',{source:'journey-entry-removed'});globalThis.LuviaUIKit?.toast?.(memory?'Fotomoment ausgeblendet. Alle Bilder bleiben erhalten und der Moment bleibt wiederherstellbar.':'Aus der Timeline entfernt. Die Wiederherstellung bleibt nach einem Neuladen verfügbar.',{type:'success'})}catch(error){confirm.disabled=false;confirm.textContent=memory?'Moment ausblenden':'Aus Timeline entfernen';status.textContent=error?.message||'Der Timeline-Eintrag konnte nicht entfernt werden.'}};return mounted.overlay;
 }
 function recoveryTitle(recovery={}){return String(recovery.before?.title||'Entfernter Reisemoment').replace(/^.*?·\s*/,'')}
 function removalRecoveryMarkup(recovery,esc=escapeHtml){const when=scheduleParts(recovery.before.startAt);return`<article data-removal-recovery="${esc(recovery.recoveryId)}"><span aria-hidden="true">↶</span><div><small>Aus der Timeline entfernt · Wiederherstellbar</small><strong>${esc(recoveryTitle(recovery))}</strong><p>${esc(fmtLongDate(when.date))}, ${esc(fmtTime(recovery.before.startAt))} Uhr · ${esc(recovery.before.durationMinutes)} Minuten</p></div><button type="button" data-journey-restore-entry="${esc(recovery.recoveryId)}">Wiederherstellen</button></article>`}
@@ -6616,6 +6653,12 @@ function conflictMarkup(conflict,esc){
   const minutes=conflict.overlapMinutes??conflict.availableMinutes;
   return`<article class="lvj-conflict" role="status"><span aria-hidden="true">!</span><div><strong>${conflict.kind==='overlap'?'Zwei Pläne überschneiden sich':'Der Übergang ist sehr knapp'}</strong><p>${conflict.kind==='overlap'?`${minutes} Minuten Überschneidung.`:`Nur ${minutes} Minuten bis zum nächsten Programmpunkt.`} Luvia kann Alternativen vorbereiten; geändert wird erst nach eurer Bestätigung.</p></div><button type="button" data-ai-ask-open>Mit Luvia lösen</button></article>`;
 }
+async function openVisitManagement(entry){
+  const ui=globalThis.LuviaUI,places=globalThis.LuviaPlacesContractV1;if(!ui?.mount)throw new Error('Living Sheet ist noch nicht bereit.');if(!places?.reads)throw new Error('Der Places-Owner ist gerade nicht erreichbar.');
+  const place=await Promise.resolve(places.reads.getPlace?.(entry.placeId)).catch(()=>null),lifecycle=entry.tripPlaceId?await Promise.resolve(places.reads.getLifecycle?.(entry.tripPlaceId,{tripId:entry.tripId})).catch(()=>null):null,content=document.createElement('section'),from=fmtTime(entry.startAt),to=entry.endAt?fmtTime(entry.endAt):null,participant=entry.participant?.name||entry.metadata?.participantName||'Mitreisende Person',evidence=entry.metadata?.coordinateEvidence==='confirmed-place-owner'?'Bestätigte Places-Koordinaten':'Bestätigter Besuchsnachweis';
+  content.className='lvjt-visit-sheet';content.innerHTML=`<header><div><small>Places Visit Owner · bestätigt</small><h2>${escapeHtml(String(place?.name||entry.title||'Besuchter Ort').replace(/^.*?·\s*/,''))}</h2><p>Dieser Eintrag stammt aus einem ausdrücklich bestätigten Besuch. Die Timeline zeigt den Nachweis, verändert aber keine Orts- oder Buchungsfakten.</p></div><button type="button" data-visit-manage-close aria-label="Schließen">×</button></header><dl class="lvjt-remove-preview"><div><dt>Besuchszeit</dt><dd>${escapeHtml(fmtLongDate(scheduleParts(entry.startAt).date))}, ${escapeHtml(from)}${to?`–${escapeHtml(to)}`:''} Uhr · ${escapeHtml(entry.durationMinutes||5)} Minuten</dd></div><div><dt>Bestätigt für</dt><dd>${escapeHtml(participant)}</dd></div><div><dt>Nachweis</dt><dd>${escapeHtml(evidence)} · exakte Geräteposition wird nicht in der Timeline gespeichert</dd></div><div><dt>Places-Stand</dt><dd>${escapeHtml(lifecycle?.lifecycle||lifecycle?.status||'besucht')} · ${place?.formattedAddress||place?.address?escapeHtml(place.formattedAddress||place.address):'Ortsdetails beim Owner verfügbar'}</dd></div></dl><p class="lvjt-visit-policy">Eine Korrektur oder Entfernung des Besuchsnachweises wird erst angeboten, sobald der Places Visit Owner dafür einen revisionssicheren Befehl bereitstellt.</p><footer><button type="button" data-visit-manage-close>Schließen</button><button type="button" class="is-primary" data-visit-open-place>Place öffnen</button></footer>`;
+  let mounted=null;mounted=ui.mount({name:'journey.confirmed-visit-management',kind:'sheet',content,className:'lvjt-visit-overlay',closeSelector:'[data-visit-manage-close]',initialFocus:'[data-visit-manage-close]',label:'Bestätigten Besuch verwalten'});mounted.overlay.querySelector('[data-visit-open-place]').onclick=()=>{mounted.close('open-place');compactPlaceDetail(entry)};return mounted.overlay;
+}
 function openEntry(entry,handle){
   if(entry.kind==='photo_memory'||entry.provenance.owner==='media')return contract().commands.openPhotoMemory(entry.id,handle);
   handle?.close?.('open-place');
@@ -6664,6 +6707,7 @@ function bindTimeline(root=document){
     const offlineButton=root.querySelector('[data-journey-offline]'),trip=globalThis.LuviaTripContractV1?.getActiveTrip?.()||{};if(offlineButton){const state=globalThis.LuviaJourneyOfflinePack?.status?.(trip,date);offlineButton.dataset.journeyOffline=date;offlineButton.textContent=state?.saved?'Offline gesichert ✓':'Tag offline sichern';offlineButton.disabled=!state?.available}
   }));
   root.querySelectorAll('[data-journey-entry-open]').forEach(button=>button.addEventListener('click',()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyEntryOpen);if(entry)openEntry(entry,null)}));
+  root.querySelectorAll('[data-journey-visit-manage]').forEach(button=>button.addEventListener('click',async()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyVisitManage);if(!entry||button.disabled)return;button.disabled=true;try{await openVisitManagement(entry)}catch(error){globalThis.LuviaUIKit?.toast?.(error?.message||'Der bestätigte Besuch konnte nicht geöffnet werden.',{type:'error'})}finally{if(button.isConnected)button.disabled=false}}));
   root.querySelectorAll('[data-journey-entry-edit]').forEach(button=>button.addEventListener('click',()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyEntryEdit);if(entry)editTimelineEntry(entry,button)}));
   root.querySelectorAll('[data-journey-entry-alternative]').forEach(button=>button.addEventListener('click',()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyEntryAlternative);if(!entry)return;const alternative=alternativeIntent(entry);globalThis.LuviaJourneySuggestions?.open?.({targetDate:String(entry.startAt||'').slice(0,10),startAt:entry.startAt,endAt:entry.endAt,query:`${alternative.query} zu ${entry.title}`,reasons:[`Alternative mit Ursache: ${alternative.reason}`],excludeProviderPlaceIds:[entryProviderId(entry)].filter(Boolean),source:'timeline-alternative'})}));
   root.querySelectorAll('[data-journey-entry-delete]').forEach(button=>button.addEventListener('click',async()=>{const entry=contract().reads.snapshot().entries.find(item=>item.id===button.dataset.journeyEntryDelete);if(!entry||button.disabled)return;button.disabled=true;try{await openRemoveSheet(entry)}catch(error){globalThis.LuviaUIKit?.toast?.(error?.message||'Der Timeline-Eintrag konnte nicht geöffnet werden.',{type:'error'})}finally{if(button.isConnected)button.disabled=false}}));
@@ -13626,7 +13670,7 @@ window.LuviaJourneyKnowledgeGraph=Object.freeze({version:VERSION,load,invalidate
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.6.0';
+const VERSION='1.7.0-provider-dietary-evidence';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
@@ -13666,7 +13710,7 @@ function immutable(value){if(value==null||typeof value!=='object')return value;i
 function clean(value){return String(value??'').trim()}
 function list(value,max=30){return[...new Set((Array.isArray(value)?value:[]).map(item=>clean(item).toLowerCase()).filter(item=>item&&!NEUTRAL.test(item)))].slice(0,max)}
 function nestedNeeds(value){if(Array.isArray(value))return value;if(value&&typeof value==='object')return value.needs||value.selected||[];return[]}
-function textOf(place={}){return clean([place.name,place.displayName,place.editorialSummary?.text||place.editorialSummary,place.primaryType,place.primaryTypeLabel,place.primary_type,...(place.types||[])].filter(Boolean).join(' ')).toLowerCase()}
+function textOf(place={}){const providerFoodTypes=[...(place.providerPrimaryFoodTypes||[]),...(place.providerNativeTypes||[]),...(place.raw?.foodTypes||[]).flatMap(item=>typeof item==='string'?[item]:[item?.name,item?.id])];return clean([place.name,place.displayName,place.editorialSummary?.text||place.editorialSummary,place.primaryType,place.primaryTypeLabel,place.primary_type,...(place.types||[]),...providerFoodTypes].filter(Boolean).join(' ')).toLowerCase()}
 function idOf(place={}){return clean(place.providerPlaceId||place.id).replace(/^places\//,'')}
 function addWeight(target,key,value){const amount=Number(value||0);if(!key||!Number.isFinite(amount)||!amount)return;target[key]=(target[key]||0)+amount}
 function signal(id,label,source,weights){return immutable({id,label,source,weights:{...weights}})}
@@ -15235,7 +15279,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.14.1-deterministic-navigation-first';
+const RUNTIME_VERSION='1.15.0-journey-owner-commands';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL',NAVIGATION:'NAVIGATION'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -15262,6 +15306,9 @@ const INPUT_CONTRACTS=Object.freeze({
   'booking.reservation.cancel':Object.freeze({schemaId:'luvia.ai-input.booking.reservation.cancel.v1',enforcement:'RUNTIME_ENFORCED'}),
   'journey.day.read':Object.freeze({schemaId:'luvia.ai-input.journey.day.read.v1',enforcement:'RUNTIME_ENFORCED'}),
   'journey.day.open':Object.freeze({schemaId:'luvia.ai-input.journey.day.open.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.entry.schedule':Object.freeze({schemaId:'luvia.ai-input.journey.entry.schedule.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.entry.remove':Object.freeze({schemaId:'luvia.ai-input.journey.entry.remove.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.entry.restore':Object.freeze({schemaId:'luvia.ai-input.journey.entry.restore.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.active.list':Object.freeze({schemaId:'luvia.ai-input.trip.active.list.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.active.select':Object.freeze({schemaId:'luvia.ai-input.trip.active.select.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.update.details':Object.freeze({schemaId:'luvia.ai-input.trip.update.details.v1',enforcement:'RUNTIME_ENFORCED'}),
@@ -15429,6 +15476,21 @@ function validateActionInput(actionId,input={},context={}){
     if(value.mode!=null&&!['schedule','edit','create'].includes(text(value.mode)))issue('enum','mode','Der gewünschte Bearbeitungsmodus ist unbekannt.');
     return finish({tripId:text(value.tripId),date:text(value.date)||null,mode:text(value.mode)||'schedule'});
   }
+  if(action.id==='journey.entry.schedule'){
+    if(!text(value.entryId))issue('required','entryId','Der Timeline-Moment fehlt.');
+    if(!absoluteDateTime(value.startAt))issue('format','startAt','Der neue Zeitpunkt braucht einen eindeutigen UTC-Offset.');
+    const durationMinutes=Number(value.durationMinutes);if(!Number.isInteger(durationMinutes)||durationMinutes<15||durationMinutes>1440)issue('range','durationMinutes','Die Dauer muss zwischen 15 und 1440 Minuten liegen.');
+    if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,entryId:text(value.entryId),startAt:text(value.startAt),durationMinutes,expectedRevision:text(value.expectedRevision),expectedConflictSignature:value.expectedConflictSignature==null?null:text(value.expectedConflictSignature),conflictsAccepted:value.conflictsAccepted===true});
+  }
+  if(action.id==='journey.entry.remove'){
+    if(!text(value.entryId))issue('required','entryId','Der Timeline-Moment fehlt.');if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,entryId:text(value.entryId),expectedRevision:text(value.expectedRevision)});
+  }
+  if(action.id==='journey.entry.restore'){
+    if(!text(value.recoveryId))issue('required','recoveryId','Der Wiederherstellungsbeleg fehlt.');if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,recoveryId:text(value.recoveryId),expectedRevision:text(value.expectedRevision),expectedConflictSignature:value.expectedConflictSignature==null?null:text(value.expectedConflictSignature),conflictsAccepted:value.conflictsAccepted===true});
+  }
   if(action.id==='trip.active.list'){
     if(value.query!=null&&!text(value.query))issue('format','query','Die Reise-Anfrage ist leer.');
     if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Reise-Anfrage ist zu lang.');
@@ -15555,6 +15617,9 @@ const ACTIONS=Object.freeze([
   {id:'booking.reservation.cancel',owner:'booking',ownerContract:'booking.v1',ownerMethod:'commands.cancelBooking',effect:'EXTERNAL',risk:'R3',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',compensation:'booking.owner-recovery',permissions:['booking.cancel','trip.member'],label:'Stornierung bestätigen',description:'Delegiert eine bestätigte Stornierung an den Booking Owner.',consequence:'Kann eine bestehende Reservierung extern stornieren; Bedingungen und Folgen müssen sichtbar sein.'},
   {id:'journey.day.read',owner:'journey',ownerContract:'journey.v1',ownerMethod:'reads.snapshot',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'day_plan',autoRun:true,reversible:false,idempotency:'NONE',permissions:['journey.read'],label:'Tagesplan zeigen',description:'Liest den abgeleiteten Day Graph ausschließlich über Journey v1.',consequence:'Zeigt den Journey Day Graph und verändert keine Reiseplanung.'},
   {id:'journey.day.open',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.openPlanningEditor',effect:'DRAFT',risk:'R1',confirmation:'USER_GESTURE',resultKind:'receipt',reversible:false,idempotency:'OPTIONAL',permissions:['journey.read'],label:'Tag bearbeiten',description:'Öffnet den Journey-eigenen Planungseditor ohne Intelligence-Mutationsownership.',consequence:'Öffnet einen Entwurf; Änderungen werden erst durch Journey Owner Commands wirksam.'},
+  {id:'journey.entry.schedule',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.editEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.entry.schedule',permissions:['journey.write','trip.member'],label:'Zeitänderung bestätigen',description:'Ändert einen revisionsgeprüften Timeline-Moment über den zuständigen Journey- oder Places-Owner.',consequence:'Ändert Zeitpunkt und Dauer erst nach Vorschau, Konfliktprüfung und ausdrücklicher Bestätigung.'},
+  {id:'journey.entry.remove',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.removeEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.entry.restore',permissions:['journey.write','trip.member'],label:'Entfernen bestätigen',description:'Entfernt einen freigegebenen Timeline-Moment über seinen Owner und erzeugt einen dauerhaften Recovery-Beleg.',consequence:'Blendet den Moment aus dem Tagesplan aus; fremde Place-, Booking- und Media-Daten bleiben erhalten.'},
+  {id:'journey.entry.restore',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.restoreRemovedEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',permissions:['journey.write','trip.member'],label:'Wiederherstellung bestätigen',description:'Stellt einen entfernten Timeline-Moment aus seinem revisionsgeprüften Owner-Beleg wieder her.',consequence:'Schreibt den ursprünglichen Zeitpunkt erst nach erneuter Konfliktprüfung zurück.'},
   {id:'trip.active.list',owner:'trip',ownerContract:'trip.v1',ownerMethod:'reads.listTrips',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'trip_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['trip.read'],label:'Reisen zeigen',description:'Liest die freigegebenen Reisen und den aktiven Reisekontext über Trip v1.',consequence:'Zeigt Reisekontext; verändert die aktive Reise nicht.'},
   {id:'trip.active.select',owner:'trip',ownerContract:'trip.v1',ownerMethod:'commands.selectActiveTrip',effect:'WRITE',risk:'R1',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'trip.active.select',permissions:['trip.read'],label:'Reise aktivieren',description:'Wechselt den aktiven Reisekontext ausschließlich über Trip v1.',consequence:'Nach einer sichtbaren Vorschau und deiner ausdrücklichen Bestätigung zeigt die App Daten und Akzentfarbe der gewählten Reise.'},
   {id:'trip.update.details',owner:'trip',ownerContract:'trip.v1',ownerMethod:'commands.updateTrip',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'trip.owner-recovery',permissions:['trip.write','trip.owner'],label:'Reiseänderung bestätigen',description:'Aktualisiert bestätigte Reisedetails ausschließlich über den Trip Owner.',consequence:'Ändert freigegebene Reisedetails für alle berechtigten Mitglieder.'},
@@ -17461,12 +17526,12 @@ window.LuviaAIMemoryBridge=Object.freeze({version:VERSION,build:BUILD,buildConte
 ;
 
 /* ===== core/diagnostics/media-readiness.js ===== */
-/* Release 13.82.168.81 - Core 4.82.203 */
+/* Release 13.82.168.82 - Core 4.82.204 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.203';
-  const BUILD='13.82.168.81';
+  const CORE='4.82.204';
+  const BUILD='13.82.168.82';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -19002,7 +19067,7 @@ return Object.freeze({
 (() => {
   'use strict';
 
-  const VERSION='1.35.0-shared-filter-profile-continuity';
+  const VERSION='1.36.0-positive-dietary-provider-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -19184,18 +19249,22 @@ return Object.freeze({
     return state.category==='food'&&(Boolean(state.filters.vegetarian)||(state.filters.cuisines||[]).includes('vegetarian_restaurant'));
   }
   const meatLedVenue=place=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...placeTypeSet(place)].join(' ')).toLowerCase());
+  function providerDietaryEvidenceText(place){
+    const foodTypes=[...(place?.providerPrimaryFoodTypes||[]),...(place?.providerNativeTypes||[]),...(place?.raw?.foodTypes||[]).flatMap(item=>typeof item==='string'?[item]:[item?.name,item?.id])];
+    return clean([...(place?.types||[]),...foodTypes,place?.editorialSummary?.text||place?.editorialSummary].filter(Boolean).join(' ')).toLowerCase();
+  }
   function hasVegetarianProviderEvidence(place){
     const types=placeTypeSet(place);
     const dedicated=types.has('vegetarian_restaurant')||types.has('vegan_restaurant');
     if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVegetarianFood===false)return false;
-    return dedicated||place?.features?.servesVegetarianFood===true;
+    return dedicated||place?.features?.servesVegetarianFood===true||/vegetar|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/.test(providerDietaryEvidenceText(place));
   }
   function hasVeganProviderEvidence(place){
     const types=placeTypeSet(place),dedicated=types.has('vegan_restaurant');
     if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVeganFood===false)return false;
-    return dedicated||place?.features?.servesVeganFood===true;
+    return dedicated||place?.features?.servesVeganFood===true||/vegan|plant[ _-]?based|rein pflanzlich|pflanzenk[uü]che/.test(providerDietaryEvidenceText(place));
   }
   function activeSearchDefinition(){
     const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'&&state.filters.vegetarian?'Vegetarisch':'';
@@ -19306,7 +19375,7 @@ return Object.freeze({
         // The ordinary map remains on the free-provider cascade. Google and
         // Foursquare are admitted only for this explicit, evidence-bearing
         // profile read when the free sources cannot prove the dietary fit.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;
@@ -21816,7 +21885,7 @@ globalThis.LuviaGlobalContracts?.register?.({id:CONTRACT_ID,version:VERSION,requ
 ((root)=>{
 'use strict';
 
-const VERSION='1.21.1-deterministic-navigation-first';
+const VERSION='1.22.0-journey-owner-commands';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -21854,8 +21923,8 @@ function emit(reason,detail={}){const event=actionCore().immutable({reason,...de
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():owner==='navigation'?navigationContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
-function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,providerPlaceId:payload.providerPlaceId||payload.place?.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||result?.transport||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,submissionState:result?.submissionState||result?.mutationLifecycleState||null,providerOutcomeKnown:typeof result?.providerOutcomeKnown==='boolean'?result.providerOutcomeKnown:null,awaitingProviderReply:typeof result?.awaitingProviderReply==='boolean'?result.awaitingProviderReply:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
-function previewPayload(payload={}){const allowed=['tripId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
+function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,entryId:payload.entryId||result?.entryId||null,recoveryId:payload.recoveryId||result?.recoveryId||null,providerPlaceId:payload.providerPlaceId||payload.place?.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||result?.transport||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,submissionState:result?.submissionState||result?.mutationLifecycleState||null,providerOutcomeKnown:typeof result?.providerOutcomeKnown==='boolean'?result.providerOutcomeKnown:null,awaitingProviderReply:typeof result?.awaitingProviderReply==='boolean'?result.awaitingProviderReply:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
+function previewPayload(payload={}){const allowed=['tripId','entryId','recoveryId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','startAt','durationMinutes','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function ledgerPayload(definition,payload={}){
   if(definition.id==='navigation.route.open')return{route:payload.route||null,source:payload.source||'global-chat',rawPromptOmitted:true};
   if(definition.id==='booking.stay.offer.open'){const offer=payload.offer||{};return{tripId:payload.tripId||payload.query?.tripId||null,selectedStayOffer:{providerId:offer.providerId||null,providerHotelId:offer.providerHotelId||null,offerId:offer.offerId||null,providerOfferId:offer.providerOfferId||null,providerRateKey:offer.providerRateKey||null,propertyKey:offer.propertyKey||null,checkIn:offer.checkIn||null,checkOut:offer.checkOut||null,currency:offer.price?.currency||offer.currency||null,totalPrice:offer.price?.total??offer.totalPrice??null,bookingUrlOmitted:true},rawPromptOmitted:true};}
@@ -22237,6 +22306,9 @@ function validatePreparedInput(definition,payload={},context={}){
     'booking.reservation.cancel':'Die zu stornierende Buchung ist nicht eindeutig. Es wurde nichts storniert.',
     'journey.day.read':'Wähle zuerst eine Reise und nenne bei Bedarf ein gültiges Datum. Der Tagesplan wurde nicht geladen.',
     'journey.day.open':'Der zu bearbeitende Reisetag ist nicht eindeutig. Es wurde kein Planungsdialog geöffnet.',
+    'journey.entry.schedule':'Der Timeline-Moment, sein neuer Zeitpunkt oder der geprüfte Owner-Stand fehlt. Es wurde nichts geändert.',
+    'journey.entry.remove':'Der Timeline-Moment oder sein geprüfter Owner-Stand fehlt. Es wurde nichts entfernt.',
+    'journey.entry.restore':'Der Wiederherstellungsbeleg oder sein geprüfter Owner-Stand fehlt. Es wurde nichts wiederhergestellt.',
     'trip.active.list':'Die Reise-Anfrage ist ungültig. Es wurden keine Reisedaten geladen.',
     'trip.active.select':'Die Zielreise ist nicht eindeutig. Die aktive Reise blieb unverändert.',
     'trip.update.details':'Nenne die konkrete Reise und mindestens eine gültige Änderung. Es wurde nichts geändert.',
@@ -22296,6 +22368,9 @@ async function invokeOwner(definition,payload,idempotencyKey){
   else if(definition.id==='booking.reservation.modify'){result=await bookingContract().commands.modifyBooking(payload.bookingId,{...(payload.patch||payload.input||payload),idempotencyKey});message=result?.transport==='provider_api'?'Die Änderung wurde beim verbundenen Provider angefragt. Der endgültige Status wird erst nach dessen Bestätigung übernommen.':'Die Änderungsanfrage wurde im verifizierten Anbieter-Thread gesendet. Die Buchung bleibt bis zur Antwort unverändert.'}
   else if(definition.id==='booking.reservation.cancel'){result=await bookingContract().commands.cancelBooking(payload.bookingId,{...(payload.input||payload),idempotencyKey});message=result?.transport==='provider_api'?'Die Stornierung wurde beim verbundenen Provider angefragt. Als storniert gilt sie erst nach bestätigtem Status.':'Die Stornierungsanfrage wurde im verifizierten Anbieter-Thread gesendet. Als storniert gilt sie erst nach der Antwort.'}
   else if(definition.id==='journey.day.open'){result=await journeyContract().commands.openPlanningEditor(payload);message='Dein Tagesplan ist geöffnet.';status='opened'}
+  else if(definition.id==='journey.entry.schedule'){result=await journeyContract().commands.editEntry(payload.entryId,{startAt:payload.startAt,durationMinutes:payload.durationMinutes,expectedRevision:payload.expectedRevision,...(payload.expectedConflictSignature!=null?{expectedConflictSignature:payload.expectedConflictSignature}:{}),conflictsAccepted:payload.conflictsAccepted===true,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde beim zuständigen Owner geändert und erneut gelesen.'}
+  else if(definition.id==='journey.entry.remove'){result=await journeyContract().commands.removeEntry(payload.entryId,{expectedRevision:payload.expectedRevision,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde beim zuständigen Owner entfernt; der Recovery-Beleg bleibt erhalten.'}
+  else if(definition.id==='journey.entry.restore'){result=await journeyContract().commands.restoreRemovedEntry(payload.recoveryId,{tripId:payload.tripId,expectedRevision:payload.expectedRevision,...(payload.expectedConflictSignature!=null?{expectedConflictSignature:payload.expectedConflictSignature}:{}),conflictsAccepted:payload.conflictsAccepted===true,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde aus dem geprüften Owner-Beleg wiederhergestellt.'}
   else if(definition.id==='trip.active.select'){result=tripContract().commands.selectActiveTrip(payload.tripId,{source:'intelligence.actions.v1'});message='Die aktive Reise wurde gewechselt.'}
   else if(definition.id==='trip.update.details'){result=await tripContract().commands.updateTrip(payload.tripId,payload.patch||{});message='Die bestätigten Reisedetails wurden aktualisiert.'}
   else if(definition.id==='memory.story.save'){result=await memoryContract().commands.stories.save(payload.story||payload);message='Die bestätigte Reisegeschichte wurde gespeichert.'}
@@ -29012,7 +29087,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,timelineRenderFrame=0,todayRenderTimer=0,todayLastHtml='',timelineLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false,pwaRegistrationScheduled=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null,navigationCompassMotionCleanup=null;
   const activeCompassAnimations=new Set();
-  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.81',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.82',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
@@ -29025,7 +29100,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
     emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
   });
-  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.81')}`;
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.82')}`;
   function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
     const current=()=>window[descriptor.global];
     if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
@@ -29902,7 +29977,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
 
   window.addEventListener('click',event=>{if(!event.target.closest?.('[data-pf-edit-preferences]'))return;event.preventDefault();event.stopPropagation();window.LuviaProfileFoundation?.close?.();window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:profileOnboardingReturnTo(activeView)});},true);
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-changed',refreshTimelineProjection);window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.81',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.82',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();
 

@@ -24,7 +24,7 @@ const {
   }
   assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,246);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
-  assert.equal(registry.summary.aiCoverage.MISSING,229,'Owner binding must not be mislabeled as chat/E2E parity');
+  assert.equal(registry.summary.aiCoverage.MISSING,223,'Owner binding must not be mislabeled as chat/E2E parity');
 
   const platform=loadPlatformActionOwnerContract();
   assert.deepEqual({...platform.composition.retryIntent({target:'places.search'})},{kind:'retry',target:'places.search',reason:null,stateChanging:false});

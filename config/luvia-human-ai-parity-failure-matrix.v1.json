@@ -9,7 +9,7 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "3A4C79E20F02C87FFBC35BB31F12E9E09F73EF6004D80785579411B51EF378B0"
+        "sha256": "32247B12C8ECE2C6A0503D7B78C572DEB2028EAA17A146C38E01135D730AAF20"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
@@ -62,15 +62,15 @@
     "matrixRows": 330,
     "dimensions": 12,
     "releaseStatus": {
-      "LOCAL_AI_PATH": 75,
-      "MANUAL_OWNER_PATH": 223,
+      "LOCAL_AI_PATH": 81,
+      "MANUAL_OWNER_PATH": 217,
       "BLOCKED": 14,
       "PUBLIC_E2E_PROVEN": 7,
       "NOT_APPLICABLE": 11
     },
     "publicE2eProven": 7,
-    "localAiPaths": 75,
-    "manualOwnerPaths": 223,
+    "localAiPaths": 81,
+    "manualOwnerPaths": 217,
     "protectedChanges": 124,
     "generatedFailureCases": 2733,
     "driftGuard": true,
@@ -22854,18 +22854,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
           "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN",
           "MULTILINGUAL_EVIDENCE_OPEN"
         ]
       },
@@ -22874,7 +22872,7 @@
           "status": "PASS",
           "evidence": "journey.v1 · commands.editEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PARTIAL",
@@ -22922,8 +22920,8 @@
           "expected": "Tippfehler sicher als places.plan.edit erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -25585,18 +25583,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -25604,7 +25600,7 @@
           "status": "PASS",
           "evidence": "journey.v1 · commands.editEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -25652,8 +25648,8 @@
           "expected": "Tippfehler sicher als journey.entry.date.update erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -25731,18 +25727,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -25750,7 +25744,7 @@
           "status": "PASS",
           "evidence": "journey.v1 · commands.editEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -25798,8 +25792,8 @@
           "expected": "Tippfehler sicher als journey.entry.time.update erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -25877,18 +25871,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -25896,7 +25888,7 @@
           "status": "PASS",
           "evidence": "journey.v1 · commands.editEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -25944,8 +25936,8 @@
           "expected": "Tippfehler sicher als journey.entry.duration.update erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -26327,18 +26319,16 @@
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
@@ -26346,7 +26336,7 @@
           "status": "PASS",
           "evidence": "journey.v1 · commands.removeEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -26394,8 +26384,8 @@
           "expected": "Tippfehler sicher als journey.entry.remove erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {
@@ -27033,30 +27023,28 @@
       "humanStatus": "AVAILABLE",
       "owner": {
         "contract": "journey.v1",
-        "method": "commands.undo",
+        "method": "commands.restoreRemovedEntry",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "ai": {
-        "coverage": "MISSING",
-        "routed": false,
-        "inputContractStatus": "OPEN",
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
         "consumerView": "HANDOFF"
       },
       "release": {
-        "status": "MANUAL_OWNER_PATH",
-        "publicEvidence": "OPEN",
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
         "blockers": [
-          "PUBLIC_E2E_EVIDENCE_OPEN",
-          "AI_ROUTE_OPEN",
-          "TYPED_INPUT_CONTRACT_OPEN"
+          "PUBLIC_E2E_EVIDENCE_OPEN"
         ]
       },
       "dimensions": {
         "contract": {
           "status": "PASS",
-          "evidence": "journey.v1 · commands.undo",
+          "evidence": "journey.v1 · commands.restoreRemovedEntry",
           "expected": "Öffentlichen Owner-Weg verwenden",
-          "inputContractStatus": "OPEN"
+          "inputContractStatus": "READY"
         },
         "compiler": {
           "status": "PASS",
@@ -27104,8 +27092,8 @@
           "expected": "Tippfehler sicher als journey.undo erkennen oder nachfragen"
         },
         "multiIntent": {
-          "status": "OPEN",
-          "evidence": "Aktionsspezifischer AI-Weg fehlt",
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
           "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
         },
         "denial": {

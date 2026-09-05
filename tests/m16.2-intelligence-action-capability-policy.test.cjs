@@ -16,7 +16,7 @@ vm.createContext(context);vm.runInContext(source,context,{filename:path});
 const core=context.LuviaIntelligenceActionContractCoreV1;
 const actions=core.listActions();
 
-assert.equal(actions.length,24);
+assert.equal(actions.length,27);
 assert.deepEqual([...new Set(actions.map(action=>action.owner))].sort(),['booking','identity','intelligence','journey','memory','navigation','places','trip']);
 for(const action of actions){
   assert.ok(/^R[0-3]$/.test(action.risk),`${action.id} risk must be R0-R3`);
@@ -38,6 +38,12 @@ assert.equal(core.getAction('memory.story.save').ownerContract,'memory.v1');
 assert.equal(core.getAction('identity.preferences.update').ownerContract,'identity.v1');
 assert.equal(core.getAction('events.verified.read').ownerContract,'intelligence.verified-events.v1');
 assert.equal(core.getAction('events.verified.read').effect,'READ');
+for(const actionId of ['journey.entry.schedule','journey.entry.remove','journey.entry.restore']){
+  const action=core.getAction(actionId);assert.equal(action.ownerContract,'journey.v1');assert.equal(action.confirmation,'EXPLICIT');assert.equal(action.risk,'R2');
+}
+assert.equal(core.validateActionInput('journey.entry.schedule',{tripId:'trip-1',entryId:'event:1',startAt:'2027-06-12T10:00:00+02:00',durationMinutes:45,expectedRevision:'rev-1'}).valid,true);
+assert.equal(core.validateActionInput('journey.entry.remove',{tripId:'trip-1',entryId:'event:1',expectedRevision:'rev-1'}).valid,true);
+assert.equal(core.validateActionInput('journey.entry.restore',{tripId:'trip-1',recoveryId:'recovery-1',expectedRevision:'rev-2'}).valid,true);
 
 assert.throws(()=>core.createExecutionEnvelope('trip.update.details',{tripId:'trip-1'},{surface:'chat'},{correlationId:'corr-1'}),error=>error?.code==='INTELLIGENCE_ACTION_IDEMPOTENCY_REQUIRED');
 const envelope=core.createExecutionEnvelope('booking.reservation.cancel',{bookingId:'booking-1',token:'hidden'},{surface:'chat',authorization:'hidden'},{idempotencyKey:'idem-1',correlationId:'corr-1',requestedAt:'2026-08-24T12:00:00.000Z'});
@@ -53,7 +59,7 @@ assert.equal(confirmation.meta.requiresConfirmation,true);
 assert.equal('token' in confirmation.evidence.preview,false);
 
 const capability=core.createCapabilitySnapshot({'trip.v1':true,'places.v1':true,'booking.v1':{available:false,reason:'provider-offline'},'journey.v1':true,'memory.v1':true,'identity.v1':true});
-assert.equal(capability.count,24);
+assert.equal(capability.count,27);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').available,false);
 assert.equal(capability.actions.find(action=>action.actionId==='booking.trip.read').reason,'provider-offline');
 assert.equal(capability.actions.find(action=>action.actionId==='trip.active.list').available,true);
@@ -77,6 +83,6 @@ assert.equal(core.policySnapshot().explicitConfirmation,'natural-language-alone-
 assert.equal(core.policySnapshot().foreignDomainMutation,false);
 
 console.log('M16.2 Intelligence Action Capability Policy: PASS');
-console.log('Registered actions / owners: 24 / 8');
+console.log('Registered actions / owners: 27 / 8');
 console.log('R0-R3 confirmation and idempotency matrix: PASS');
 console.log('R4 authority / foreign Domain mutation: NONE');

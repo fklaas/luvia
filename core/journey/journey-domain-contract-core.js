@@ -3,7 +3,7 @@ var LuviaJourneyDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.4.0-owner-capability-matrix';
+const RUNTIME_VERSION='1.5.0-positive-owner-management';
 const DAY_MS=86400000;
 const MAX_DAYS=62;
 const DEFAULT_DURATION_MINUTES=60;
@@ -42,6 +42,9 @@ function range(startValue,endValue){
   return days;
 }
 function sourceRule(entry={}){
+  // A photo remains Media-owned, but its position and visibility in the Day Graph
+  // belong to the Journey event that only references Media IDs.
+  if((entry.kind==='photo_memory'||entry.entityType==='photo_memory')&&text(entry.source,'event').toLowerCase()==='event')return SOURCE_RULES.event;
   if(entry.kind==='photo_memory'||entry.entityType==='photo_memory')return SOURCE_RULES.memory;
   const raw=text(entry.source,'event').toLowerCase();
   return SOURCE_RULES[raw]||SOURCE_RULES.event;
@@ -155,14 +158,18 @@ function dayStatus(day,nowKey){
   if(day.date===nowKey)return'live';
   return'planned';
 }
+function photoMemoryEvent(entry={}){
+  return entry?.source==='event'&&(entry.kind==='photo_memory'||entry.entityType==='photo_memory')&&Boolean(entry.sourceId||entry.rowId)&&Boolean(entry.sourceRevision);
+}
 function scheduleEditable(entry={}){
-  return entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus;
+  const plannedPlace=entry?.source==='place-data'&&entry.dataKey==='planned_at'&&Boolean(entry.sourceRevision)&&!entry.automatic;
+  return Boolean((plannedPlace||photoMemoryEvent(entry))&&!entry.metadata?.bookingId&&!entry.metadata?.bookingStatus);
 }
 function removalEditable(entry={}){
-  return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.tripPlaceId);
+  return scheduleEditable(entry)&&Boolean(entry.startAt)&&Boolean(entry.source==='event'?entry.sourceId||entry.rowId:entry.tripPlaceId);
 }
 function connectionEditable(entry={}){
-  return removalEditable(entry);
+  return removalEditable(entry)&&entry.source==='place-data';
 }
 function capability(id,state,label,route,reason){return immutable({id,state,label,route,reason})}
 function entryCapabilities(input={}){
@@ -177,7 +184,14 @@ function entryCapabilities(input={}){
     remove:capability('remove','locked','Nicht direkt entfernen',entry.provenance.mutationRoute,'Entfernen erfolgt nur über den zuständigen Owner.'),
     restore:capability('restore','locked','Keine Timeline-Rücknahme',entry.provenance.mutationRoute,'Für diesen Owner liegt keine Journey-Rücknahme vor.')
   };
-  if(direct){
+  if(direct&&memory){
+    mode='memory';owner='journey';label='Fotomoment sicher verwalten';summary='Zeit und Sichtbarkeit gehören zur Journey; alle referenzierten Fotos bleiben unverändert beim Media Owner.';
+    actions.manage=capability('manage','available','Fotomoment verwalten','journey.event','Vorschau und Änderungen verwenden den bestehenden Journey-Event und seine Media-IDs.');
+    actions.editSchedule=capability('editSchedule','available','Zeit ändern','journey.event','Der Zeitpunkt wird mit Revision, Vorschau und Owner-Readback geändert.');
+    actions.connectReorder=capability('connectReorder','locked','Nicht gemeinsam umordnen','journey.event','Fotomomente bleiben außerhalb der Place-Gruppenänderung.');
+    actions.remove=capability('remove','available','Aus Timeline ausblenden','journey.event','Der Journey-Moment wird aus dem Tag ausgeblendet; Fotos und Dateiverweise bleiben erhalten.');
+    actions.restore=capability('restore','available','Moment wiederherstellen','journey.event','Der Recovery-Beleg liegt beim Journey-Event und bleibt nach Reload verfügbar.');
+  }else if(direct){
     mode='planned-place';owner='places';label='Plan direkt bearbeitbar';summary='Zeit, Reihenfolge und Entfernung werden vorab geprüft und bleiben nach Reload rücknehmbar.';
     actions.manage=capability('manage','available','Place-Plan verwalten','places.plan','Der bestehende Places-Owner-Datensatz bleibt maßgeblich.');
     actions.editSchedule=capability('editSchedule','available','Zeit ändern','places.plan','Vorher/Nachher, Konflikte und aktuelle Revision werden geprüft.');
@@ -191,8 +205,8 @@ function entryCapabilities(input={}){
     actions.remove=capability('remove','delegated','Über Buchung stornieren oder entfernen','booking.reservation','Eine Buchung wird niemals durch Timeline-Löschen verändert.');
     actions.restore=capability('restore','delegated','Booking-Ausgang prüfen','booking.reservation','Rücknahme und Kompensation richten sich nach dem Provider-Ausgang.');
   }else if(visit){
-    mode='confirmed-visit';owner='places';label='Bestätigter Besuch';summary='Der erlebte Zeitpunkt bleibt als Besuchsnachweis erhalten. Korrektur oder Entfernen gehört zum Besuchsverlauf.';
-    actions.manage=capability('manage','delegated','Besuch verwalten','places.visit','GPS- und Bestätigungsnachweis bleiben beim Places Visit Owner.');
+    mode='confirmed-visit';owner='places';label='Bestätigter Besuch';summary='Der erlebte Zeitpunkt bleibt als Besuchsnachweis erhalten. Details und Ortsbezug werden über den Places Visit Owner gelesen.';
+    actions.manage=capability('manage','available','Besuch verwalten','places.visit','Der bestätigte Besuch, sein Ortsbezug und die vorhandene Evidenz werden beim Places Visit Owner gelesen.');
     actions.remove=capability('remove','delegated','Besuch dort entfernen','places.visit','Journey löscht keinen bestätigten Besuch still aus dem Verlauf.');
     actions.restore=capability('restore','delegated','Besuch dort wiederherstellen','places.visit','Eine Wiederherstellung braucht den ursprünglichen Besuchsnachweis.');
   }else if(memory){
@@ -231,15 +245,16 @@ function previewRemoval(input={}){
   const entry=input.entry||{},trip=tripProjection(input.trip||{});
   if(!removalEditable(entry))throw new Error('Dieser Eintrag wird über seine Buchung oder seinen ursprünglichen Bereich entfernt.');
   if(!trip.id||entry.tripId!==trip.id)throw new Error('Dieser Eintrag gehört nicht zur aktiven Reise.');
+  const photoMemory=photoMemoryEvent(entry);
   return immutable({
-    operation:'remove-planned-place',
+    operation:photoMemory?'remove-photo-memory-moment':'remove-planned-place',
     entryId:entry.id,
     tripId:entry.tripId,
     tripPlaceId:entry.tripPlaceId,
     expectedRevision:entry.sourceRevision,
     requiresConfirmation:true,
     before:{startAt:entry.startAt,endAt:entry.endAt,durationMinutes:entry.durationMinutes,title:entry.title,entityType:entry.entityType},
-    effects:{timelineMomentRemoved:true,placeLinkPreserved:true,placeFactsPreserved:true,favoritePreserved:true,bookingPreserved:true}
+    effects:photoMemory?{timelineMomentRemoved:true,mediaAssetsPreserved:true,mediaIdsPreserved:true,journeyOrderRecomputed:true,bookingPreserved:true}:{timelineMomentRemoved:true,placeLinkPreserved:true,placeFactsPreserved:true,favoritePreserved:true,bookingPreserved:true}
   });
 }
 function previewSchedule(input={}){

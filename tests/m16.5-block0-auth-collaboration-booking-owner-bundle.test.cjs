@@ -78,7 +78,7 @@ const {
 
   assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,246);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
-  assert.equal(registry.summary.aiCoverage.MISSING,229,'public Owner binding must not be mislabeled as AI parity');
+  assert.equal(registry.summary.aiCoverage.MISSING,223,'public Owner binding must not be mislabeled as AI parity');
   console.log('M16.5 Block 0 Auth/Collaboration/Booking public Owner bundle: PASS');
   console.log('51 additional actions -> 18 Auth + 1 Identity + 15 Collaboration + 2 Places + 15 Booking methods: PASS');
   console.log('Owner methods open: 85 -> 34; AI coverage remains honest');

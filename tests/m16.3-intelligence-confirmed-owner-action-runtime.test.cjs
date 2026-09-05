@@ -58,7 +58,12 @@ const context={
   },
   LuviaJourneyContractV1:{
     reads:{snapshot(){return{days:[{date:'2026-08-25',label:'Dienstag',entries:[]}],summary:{entryCount:0}}}},
-    commands:{async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}}}
+    commands:{
+      async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}},
+      async editEntry(entryId,payload){calls.push(['journey-entry-schedule',entryId,payload]);return{entryId,operation:'restore-schedule'}},
+      async removeEntry(entryId,payload){calls.push(['journey-entry-remove',entryId,payload]);return{entryId,recoveryId:'journey-recovery-1'}},
+      async restoreRemovedEntry(recoveryId,payload){calls.push(['journey-entry-restore',recoveryId,payload]);return{entryId:'event:photo-1',recoveryId}}
+    }
   },
   LuviaMemoryContractV1:{
     reads:{async listStories(){return[{id:'story-1',title:'Ein Tag am Meer',status:'published'}]}},
@@ -81,8 +86,8 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 (async()=>{
   const runtime=context.LuviaAIActionRuntime;
   const diagnostics=runtime.diagnostics();
-  assert.equal(diagnostics.actions,24);
-  assert.equal(diagnostics.availableActions,23);
+  assert.equal(diagnostics.actions,27);
+  assert.equal(diagnostics.availableActions,26);
   assert.equal(diagnostics.connections.length,8);
   assert.equal(diagnostics.connections.filter(connection=>connection.owner!=='intelligence').every(connection=>connection.registered&&connection.operations===connection.totalOperations),true);
   assert.equal(diagnostics.connections.find(connection=>connection.owner==='intelligence').registered,false);
@@ -150,6 +155,15 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(preferenceReceipt.evidence.status,'completed');
   assert.deepEqual(JSON.parse(JSON.stringify(calls.find(call=>call[0]==='preferences-update')[1])),{dietaryPreferences:['vegetarian','vegan'],travelPace:'relaxed'});
 
+  const journeySchedule=runtime.prepare('journey.entry.schedule',{tripId:'trip-1',entryId:'event:photo-1',startAt:'2026-08-25T10:30:00.000Z',durationMinutes:45,expectedRevision:'event-rev-1',expectedConflictSignature:'[]'},{userGesture:true,idempotencyKey:'journey-schedule-once'});
+  assert.equal(journeySchedule.result.kind,'confirmation');
+  await runtime.execute('journey.entry.schedule',{}, {ledgerId:journeySchedule.ledgerId,userGesture:true,confirmed:true});
+  const journeyScheduleCall=calls.find(call=>call[0]==='journey-entry-schedule');assert.equal(journeyScheduleCall[1],'event:photo-1');assert.equal(journeyScheduleCall[2].confirmed,true);assert.equal(journeyScheduleCall[2].operationId,'journey-schedule-once');
+  const journeyRemove=runtime.prepare('journey.entry.remove',{tripId:'trip-1',entryId:'event:photo-1',expectedRevision:'event-rev-2'},{userGesture:true,idempotencyKey:'journey-remove-once'});
+  const journeyRemoveReceipt=await runtime.execute('journey.entry.remove',{}, {ledgerId:journeyRemove.ledgerId,userGesture:true,confirmed:true});assert.equal(journeyRemoveReceipt.evidence.reference.recoveryId,'journey-recovery-1');
+  const journeyRestore=runtime.prepare('journey.entry.restore',{tripId:'trip-1',recoveryId:'journey-recovery-1',expectedRevision:'event-rev-3',expectedConflictSignature:'[]'},{userGesture:true,idempotencyKey:'journey-restore-once'});
+  await runtime.execute('journey.entry.restore',{}, {ledgerId:journeyRestore.ledgerId,userGesture:true,confirmed:true});assert.equal(calls.find(call=>call[0]==='journey-entry-restore')[1],'journey-recovery-1');
+
   const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',tripPlaceId:'tp-1',providerPlaceId:'place-1'},{userGesture:true});
   assert.equal(cancelled.requiresConfirmation,true);
   assert.equal(runtime.getActionState(cancelled.ledgerId).status,'confirmation_required');
@@ -204,7 +218,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(diagnostics.ledger.storesForeignDomainTruth,false);
 
   console.log('M16.3 Confirmed Owner Action Runtime: PASS');
-console.log('22 available Owner actions plus 1 optional verified-event read: POLICY-COVERED');
+console.log('26 available Owner actions plus 1 optional verified-event read: POLICY-COVERED');
   console.log('R2 confirmation + idempotent replay: PASS');
   console.log('R3 unknown external outcome blind retry: BLOCKED');
   console.log('Raw payload / foreign Domain Truth in ledger: NONE');

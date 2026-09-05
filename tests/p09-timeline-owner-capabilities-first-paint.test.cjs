@@ -101,7 +101,7 @@ const html='<!doctype html><html lang="de"><head><meta charset="utf-8"><meta nam
     assert.equal(await booked.getByRole('button',{name:'Buchung verwalten',exact:true}).count(),1);
     assert.equal(await booked.getByRole('button',{name:'Löschen',exact:true}).count(),0);
     assert.equal(await visit.getByRole('button',{name:/Zeit ändern|Löschen/}).count(),0);
-    assert.equal(await memory.getByRole('button',{name:'Moment bewahren',exact:true}).count(),1);
+    assert.equal(await memory.getByRole('button',{name:'Fotomoment öffnen',exact:true}).count(),1);
     await page.getByRole('button',{name:'Timeline bearbeiten',exact:true}).click();
     assert.equal(await page.getByRole('button',{name:'Für gemeinsamen Weg auswählen',exact:true}).count(),1,'Only the unbooked planned Place may enter group editing');
     await booked.locator('[data-entry-capabilities]').evaluate(node=>node.open=true);

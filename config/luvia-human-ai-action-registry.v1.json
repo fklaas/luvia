@@ -21,8 +21,8 @@
     "semanticActions": 330,
     "availableOrConditional": 319,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 984,
-    "runtimeRegisteredActions": 24,
+    "auditedDataMarkers": 987,
+    "runtimeRegisteredActions": 27,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
       "Erinnerungen & Geschichten": 35,
@@ -58,13 +58,13 @@
       "R4": 2
     },
     "aiCoverage": {
-      "MISSING": 229,
+      "MISSING": 223,
       "NATIVE_CHAT": 14,
       "NOT_APPLICABLE": 11,
       "NOT_REQUIRED": 10,
       "PARTIAL": 1,
       "PUBLIC_E2E_PASS": 7,
-      "REGISTERED_PARTIAL": 58
+      "REGISTERED_PARTIAL": 64
     },
     "ownerBinding": {
       "NOT_APPLICABLE": 39,
@@ -75,8 +75,8 @@
     "inputContracts": {
       "NATIVE_CHAT_CONTROL": 14,
       "NOT_APPLICABLE": 25,
-      "OPEN": 224,
-      "READY": 67
+      "OPEN": 218,
+      "READY": 73
     }
   },
   "runtimeActionIds": [
@@ -92,6 +92,9 @@
     "identity.preferences.update",
     "journey.day.open",
     "journey.day.read",
+    "journey.entry.remove",
+    "journey.entry.restore",
+    "journey.entry.schedule",
     "memory.library.read",
     "memory.story.save",
     "navigation.route.open",
@@ -10091,17 +10094,31 @@
         "operationKey": "entryId|plannedAt"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.schedule",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.schedule.v1",
+        "requiredFields": [
+          "entryId",
+          "startAt",
+          "durationMinutes",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "expectedConflictSignature",
+          "conflictsAccepted"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -10114,8 +10131,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "core/places/place-collection-service.js",
@@ -11291,17 +11308,31 @@
         "operationKey": "entryId|date"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.schedule",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.schedule.v1",
+        "requiredFields": [
+          "entryId",
+          "startAt",
+          "durationMinutes",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "expectedConflictSignature",
+          "conflictsAccepted"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -11314,8 +11345,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/journey/journey-day-composer.js",
@@ -11349,17 +11380,31 @@
         "operationKey": "entryId|startAt|endAt"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.schedule",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.schedule.v1",
+        "requiredFields": [
+          "entryId",
+          "startAt",
+          "durationMinutes",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "expectedConflictSignature",
+          "conflictsAccepted"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -11372,8 +11417,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/journey/journey-day-composer.js",
@@ -11407,17 +11452,31 @@
         "operationKey": "entryId|durationMinutes"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.schedule",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.schedule.v1",
+        "requiredFields": [
+          "entryId",
+          "startAt",
+          "durationMinutes",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "expectedConflictSignature",
+          "conflictsAccepted"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -11430,8 +11489,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/journey/journey-day-composer.js",
@@ -11581,17 +11640,27 @@
         "operationKey": "entryId"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.remove",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.remove.v1",
+        "requiredFields": [
+          "entryId",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -11604,8 +11673,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/journey/journey-day-composer.js",
@@ -11866,22 +11935,34 @@
         ],
         "primaryDomain": "journey",
         "contract": "journey.v1",
-        "method": "commands.undo",
+        "method": "commands.restoreRemovedEntry",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND",
-        "operationKey": "receipt|operation|entryId"
+        "operationKey": "recoveryId|expectedRevision"
       },
       "ai": {
-        "coverage": "MISSING",
-        "sourceCoverage": "FEHLT",
-        "actionId": null,
-        "runtimeRegistered": false
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.entry.restore",
+        "runtimeRegistered": true
       },
       "inputContract": {
-        "status": "OPEN",
-        "schemaId": null,
-        "requiredFields": [],
-        "optionalFields": [],
-        "contextFields": []
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.entry.restore.v1",
+        "requiredFields": [
+          "recoveryId",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "expectedConflictSignature",
+          "conflictsAccepted"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
       },
       "lifecycle": {
         "stateChanging": true,
@@ -11894,8 +11975,8 @@
         "lifecycleAuditStatus": "OPEN"
       },
       "delivery": {
-        "block": "UNSCHEDULED",
-        "publicEvidence": "OPEN"
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
       },
       "sources": [
         "app/journey/journey-day-composer.js",
@@ -20135,23 +20216,23 @@
     }
   ],
   "markerAudit": {
-    "count": 984,
+    "count": 987,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "73DBF0836CFD12E078790E25192E6FF8084418D5F58F7FC82FE4D47C22522D3E",
+    "registrySha256": "46EF3868CC39D125837B4BCCC5AAEF3EDA05220088801173A8A8E36916E6D7E2",
     "classifications": {
-      "AKTIONSKANDIDAT": 429,
+      "AKTIONSKANDIDAT": 432,
       "INTERAKTIONSPRIMITIVE": 284,
       "STATUS/EINGABE/PROJEKTION": 271
     },
     "categories": {
       "Buchung & Anbieterkommunikation": 76,
       "Erinnerungen & Geschichten": 53,
-      "Journey, Timeline & Tagesplan": 72,
+      "Journey, Timeline & Tagesplan": 73,
       "Luvia AI Chat": 55,
       "Medien & Galerie": 49,
-      "Navigation & Oberfläche": 333,
+      "Navigation & Oberfläche": 334,
       "Öffentliche Landing-Demos": 94,
-      "Places & Ortsentdeckung": 158,
+      "Places & Ortsentdeckung": 159,
       "Profil, Vorlieben & Privatsphäre": 60,
       "Reisen & Zusammenarbeit": 34
     },

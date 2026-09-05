@@ -5,7 +5,7 @@
   "enforcement": "BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE",
   "runtimeEnforcement": {
     "policyCore": "intelligence.actions.v1",
-    "runtimeEnforcedActionIds": ["navigation.route.open", "places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.place.open", "booking.stay.search", "booking.stay.offer.open", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
+    "runtimeEnforcedActionIds": ["navigation.route.open", "places.place.favorite", "places.place.unfavorite", "places.place.plan", "places.place.unplan", "booking.place.open", "booking.stay.search", "booking.stay.offer.open", "booking.trip.read", "booking.reservation.create", "booking.reservation.modify", "booking.reservation.cancel", "journey.day.read", "journey.day.open", "journey.entry.schedule", "journey.entry.remove", "journey.entry.restore", "trip.active.list", "trip.active.select", "trip.update.details", "places.restaurant.recommend", "places.discovery.recommend", "events.verified.read", "memory.library.read", "memory.story.save", "identity.preferences.read", "identity.preferences.update"],
     "metadataValidatedOpenActionIds": 0,
     "rejectsBeforeLedgerAndOwnerInvocation": true
   },
@@ -331,6 +331,60 @@
           "tripId": { "$ref": "#/$defs/id" },
           "date": { "$ref": "#/$defs/date" },
           "mode": { "enum": ["schedule", "edit", "create"] }
+        }
+      }
+    },
+    "journey.entry.schedule": {
+      "schemaId": "luvia.ai-input.journey.entry.schedule.v1",
+      "required": ["entryId", "startAt", "durationMinutes", "expectedRevision"],
+      "optional": ["tripId", "expectedConflictSignature", "conflictsAccepted"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entryId", "startAt", "durationMinutes", "expectedRevision"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "entryId": { "$ref": "#/$defs/id" },
+          "startAt": { "$ref": "#/$defs/dateTime" },
+          "durationMinutes": { "type": "integer", "minimum": 15, "maximum": 1440 },
+          "expectedRevision": { "$ref": "#/$defs/id" },
+          "expectedConflictSignature": { "type": ["string", "null"], "maxLength": 12000 },
+          "conflictsAccepted": { "type": "boolean" }
+        }
+      }
+    },
+    "journey.entry.remove": {
+      "schemaId": "luvia.ai-input.journey.entry.remove.v1",
+      "required": ["entryId", "expectedRevision"],
+      "optional": ["tripId"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entryId", "expectedRevision"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "entryId": { "$ref": "#/$defs/id" },
+          "expectedRevision": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "journey.entry.restore": {
+      "schemaId": "luvia.ai-input.journey.entry.restore.v1",
+      "required": ["recoveryId", "expectedRevision"],
+      "optional": ["tripId", "expectedConflictSignature", "conflictsAccepted"],
+      "context": ["surface", "tripId", "locale", "timeZone"],
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["recoveryId", "expectedRevision"],
+        "properties": {
+          "tripId": { "$ref": "#/$defs/id" },
+          "recoveryId": { "$ref": "#/$defs/id" },
+          "expectedRevision": { "$ref": "#/$defs/id" },
+          "expectedConflictSignature": { "type": ["string", "null"], "maxLength": 12000 },
+          "conflictsAccepted": { "type": "boolean" }
         }
       }
     },

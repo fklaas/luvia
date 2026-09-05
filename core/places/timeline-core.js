@@ -1,14 +1,16 @@
 (() => {
 'use strict';
-const VERSION='5.6.0-hydration-continuity';
+const VERSION='5.7.0-journey-event-recovery';
 const root=window;
 const calendarVisibleByTrip=new Map();const boundRoots=new WeakSet();
 let state={tripId:null,loading:false,hydrated:false,entries:[],days:[],lastUpdatedAt:null,lastError:null,members:{},places:{}};
+let ownerEventRows=[];
 let channels=[];const listeners=new Set();
 let dayHandle=null,photoMemoryHandle=null,planningEditorHandle=null;
 const surfaceHandles=new WeakMap();
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const client=()=>window.LuviaSupabaseService?.getClient?.()||window.ParisSupabaseClient||window.ParisCloud?.client||null;
+const eventTable=(database=client())=>database?.from?.('timeline_events')||null;
 const activeTripId=()=>window.LuviaTripContext?.getActiveTrip?.()?.tripId||null;
 const iso=(d,t='00:00')=>new Date(`${d}T${String(t||'00:00').slice(0,5)}:00`).toISOString();
 const dayKey=v=>new Date(v).toLocaleDateString('sv-SE');
@@ -21,7 +23,8 @@ function ownerCoordinates(place={}){const latitude=Number(place.latitude??place.
 function ownerPlaceMetadata(place={},metadata={}){const coordinates=ownerCoordinates(place),providerFacts=metadata.providerFacts&&typeof metadata.providerFacts==='object'?metadata.providerFacts:{};return{...metadata,placeName:metadata.placeName||place.name||'',address:metadata.address||place.address||place.formatted_address||null,coordinates:metadata.coordinates||coordinates||null,providerFacts:{...providerFacts,coordinates:providerFacts.coordinates||coordinates||null,formattedAddress:providerFacts.formattedAddress||place.address||place.formatted_address||null,observedAt:providerFacts.observedAt||place.source_updated_at||place.updated_at||null}}}
 function enrichOwnerPlace(entry,place={}){if(!entry)return entry;const metadata=ownerPlaceMetadata(place,entry.metadata||{});return{...entry,providerPlaceId:entry.providerPlaceId||place.provider_place_id||place.source_id||null,entityType:entry.entityType==='place'&&place.primary_type?place.primary_type:entry.entityType,title:entry.title||place.name||'Reiseeintrag',metadata}}
 function dataEntry(e){const metadata=e.fields?.metadata&&typeof e.fields.metadata==='object'?e.fields.metadata:{},place=e.record?.place||{};return enrichOwnerPlace({id:e.id,rowId:null,sourceKey:e.id,tripId:e.tripId,placeId:e.placeId,tripPlaceId:e.tripPlaceId,providerPlaceId:place.provider_place_id||null,entityType:e.placeType,kind:e.kind,title:e.title,startAt:e.startAt,endAt:null,durationMinutes:Number.isFinite(Number(metadata.durationMinutes))&&Number(metadata.durationMinutes)>0?Number(metadata.durationMinutes):null,automatic:false,source:'place-data',dataKey:e.dataKey,sourceRevision:e.record?.updated_at||null,fields:e.fields||{},metadata:{placeName:place.name||'',...metadata},icon:typeIcon(e.placeType)},place)}
-function eventEntry(r){const photoMemory=r.event_type==='photo_memory';return{id:`event:${r.id}`,rowId:r.id,sourceKey:r.id,tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id||r.metadata?.tripPlaceId,providerPlaceId:null,entityType:photoMemory?'photo_memory':(r.metadata?.placeType||'place'),kind:r.event_type,title:r.title,startAt:r.occurred_at,endAt:null,durationMinutes:null,automatic:Boolean(r.is_automatic),source:'event',description:r.description||'',metadata:r.metadata||{},icon:photoMemory?'📸':typeIcon(r.metadata?.placeType)}}
+function eventRevision(r={}){return String(r.metadata?._journeyRevision||r.updated_at||r.occurred_at||'')||null}
+function eventEntry(r){const photoMemory=r.event_type==='photo_memory',metadata=r.metadata&&typeof r.metadata==='object'?r.metadata:{};return{id:`event:${r.id}`,rowId:r.id,sourceKey:r.id,sourceRevision:eventRevision(r),tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id||metadata.tripPlaceId,providerPlaceId:null,entityType:photoMemory?'photo_memory':(metadata.placeType||'place'),kind:r.event_type,title:r.title,startAt:r.occurred_at,endAt:null,durationMinutes:Number.isFinite(Number(metadata.durationMinutes))&&Number(metadata.durationMinutes)>0?Number(metadata.durationMinutes):null,automatic:Boolean(r.is_automatic),source:'event',description:r.description||'',metadata,icon:photoMemory?'📸':typeIcon(metadata.placeType)}}
 function visitEntry(r){const p=state.places[r.place_id]||{},name=state.members[r.participant_id]||'Mitreisender';return enrichOwnerPlace({id:`visit:${r.id}`,rowId:r.id,sourceKey:r.id,tripId:r.trip_id,placeId:r.place_id,tripPlaceId:r.trip_place_id,providerPlaceId:p.provider_place_id,entityType:p.primary_type||r.metadata?.placeType||'place',kind:'visited',title:p.name||r.metadata?.placeName||'Besuchter Ort',startAt:r.arrived_at,endAt:r.left_at,durationMinutes:Math.max(5,Math.round(Number(r.duration_seconds||0)/60)),automatic:true,source:'gps',participantId:r.participant_id,participantName:name,metadata:r.metadata||{},icon:typeIcon(p.primary_type)},p)}
 function dedupe(list){const seen=new Map();for(const e of list){const key=e.source==='place-data'?`pd:${e.tripPlaceId}:${e.dataKey}`:e.source==='schedule'?`s:${e.sourceKey}`:e.source==='gps'?`v:${e.sourceKey}`:`e:${e.sourceKey}`;seen.set(key,e)}return [...seen.values()].sort((a,b)=>new Date(a.startAt)-new Date(b.startAt))}
 function buildDays(entries){const map=new Map();for(const e of entries){const key=dayKey(e.startAt);if(!map.has(key))map.set(key,[]);map.get(key).push(e)}return [...map.entries()].sort(([a],[b])=>a.localeCompare(b)).map(([date,items])=>({date,items,hasAutomatic:items.some(x=>x.automatic),count:items.length}))}
@@ -34,8 +37,8 @@ function projectPlaceData(source=root.LuviaTripPlaceData?.snapshot?.()){
  emit('owner-local-projection');return snapshot();
 }
 async function hydrate(tripId=activeTripId()){
- const previousTripId=state.tripId,changedTrip=Boolean(previousTripId&&tripId&&String(previousTripId)!==String(tripId));state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;if(changedTrip)state.entries=[];emit('hydrate-start');
- if(!tripId){state.entries=[];state.loading=false;state.hydrated=true;emit();return snapshot()}
+ const previousTripId=state.tripId,changedTrip=Boolean(previousTripId&&tripId&&String(previousTripId)!==String(tripId));state.tripId=tripId||null;state.loading=true;state.hydrated=false;state.lastError=null;if(changedTrip){state.entries=[];ownerEventRows=[]}emit('hydrate-start');
+ if(!tripId){state.entries=[];ownerEventRows=[];state.loading=false;state.hydrated=true;emit();return snapshot()}
  const database=client();if(!database?.from){state.loading=false;state.lastError='Keine Cloud-Verbindung für Timeline verfügbar.';emit();throw new Error(state.lastError)}
  try{
   const [,scheduleRows,eventRows,visitRows,tripPlaces,members]=await Promise.all([
@@ -51,15 +54,25 @@ async function hydrate(tripId=activeTripId()){
   const placeIds=[...new Set([...(scheduleRows.data||[]).map(x=>x.place_id),...(eventRows.data||[]).map(x=>x.place_id),...(visitRows.data||[]).map(x=>x.place_id)].filter(Boolean))];state.places={};
   if(placeIds.length){const pr=await database.from('places').select('*').in('id',placeIds);if(pr.error)throw pr.error;for(const place of pr.data||[])state.places[place.id]=place}
   state.members={};for(const member of members.data||[]){const id=member.user_id||member.participant_id||member.id,name=member.display_name||member.member_name||member.name||member.email||'Mitreisender';state.members[id]=name;state.members[member.id]=name}
-  const allowedEvents=new Set(['place_visited','manual_note','memory','trip_moment','photo_memory']);
+  const allowedEvents=new Set(['place_visited','manual_note','memory','trip_moment','photo_memory']);ownerEventRows=(eventRows.data||[]).filter(row=>allowedEvents.has(row.event_type));
   const validVisits=(visitRows.data||[]).filter(x=>linked.has(x.place_id)&&x.arrived_at&&Number(x.duration_seconds||0)>=300&&['visited','left'].includes(x.state));
   const placeData=(window.LuviaTripPlaceData?.dateEntries?.()||[]).filter(entry=>entry.placeType!=='mobility');
   const schedule=(scheduleRows.data||[]).filter(row=>!['accommodation','mobility'].includes(String(row.entity_type)));
-  state.entries=dedupe([...placeData.map(dataEntry),...schedule.map(row=>enrichOwnerPlace(scheduleEntry(row),state.places[row.place_id]||{})),...(eventRows.data||[]).filter(x=>allowedEvents.has(x.event_type)).map(row=>enrichOwnerPlace(eventEntry(row),state.places[row.place_id]||{})),...validVisits.map(visitEntry)]);
+  state.entries=dedupe([...placeData.map(dataEntry),...schedule.map(row=>enrichOwnerPlace(scheduleEntry(row),state.places[row.place_id]||{})),...ownerEventRows.filter(row=>!row.metadata?.timelineRemovalRecovery).map(row=>enrichOwnerPlace(eventEntry(row),state.places[row.place_id]||{})),...validVisits.map(visitEntry)]);
   state.loading=false;state.hydrated=true;emit();return snapshot();
  }catch(error){state.loading=false;state.hydrated=false;state.lastError=error.message||String(error);emit();throw error}
 }
-async function record(raw={}){const db=client(),tripId=raw.tripId||state.tripId||activeTripId();if(!db?.from||!tripId)throw new Error('Timeline-Cloud nicht verfügbar.');const row={trip_id:tripId,place_id:raw.placeId||null,participant_id:raw.participantId||null,event_type:raw.type||'manual_note',title:raw.title||'Reiseereignis',description:raw.description||'',occurred_at:raw.occurredAt||new Date().toISOString(),source:raw.source||'manual',is_automatic:Boolean(raw.automatic),metadata:raw.metadata||{}};const {error}=await db.from('timeline_events').insert(row);if(error)throw error;return hydrate(tripId)}
+async function record(raw={}){const db=client(),tripId=raw.tripId||state.tripId||activeTripId();if(!db?.from||!tripId)throw new Error('Timeline-Cloud nicht verfügbar.');const row={trip_id:tripId,place_id:raw.placeId||null,participant_id:raw.participantId||null,event_type:raw.type||'manual_note',title:raw.title||'Reiseereignis',description:raw.description||'',occurred_at:raw.occurredAt||new Date().toISOString(),source:raw.source||'manual',is_automatic:Boolean(raw.automatic),metadata:raw.metadata||{}};const {error}=await eventTable(db).insert(row);if(error)throw error;return hydrate(tripId)}
+async function updateJourneyEvent(identity,input={}){
+ const id=String(typeof identity==='object'?identity.rowId||identity.sourceId||identity.sourceKey||'':identity||'').replace(/^event:/,''),tripId=String(input.tripId||state.tripId||activeTripId()||''),row=ownerEventRows.find(item=>String(item.id)===id&&String(item.trip_id)===tripId);
+ if(!row)throw new Error('Der Journey-Moment wurde nicht gefunden. Bitte die Timeline neu laden.');
+ const expected=String(input.expectedRevision||'');if(!expected||eventRevision(row)!==expected)throw new Error('Der Journey-Moment wurde inzwischen geändert. Bitte erneut prüfen.');
+ const currentMetadata=row.metadata&&typeof row.metadata==='object'?row.metadata:{},revision=new Date().toISOString(),metadata={...currentMetadata,...(input.metadata&&typeof input.metadata==='object'?input.metadata:{}),_journeyRevision:revision},payload={metadata};
+ if(input.occurredAt!==undefined)payload.occurred_at=input.occurredAt;if(input.title!==undefined)payload.title=String(input.title||'').trim();if(input.description!==undefined)payload.description=String(input.description||'').trim();
+ let query=eventTable().update(payload).eq('trip_id',tripId).eq('id',id);if(row.metadata?._journeyRevision)query=query.eq('metadata->>_journeyRevision',expected);else if(row.updated_at)query=query.eq('updated_at',expected);else query=query.eq('occurred_at',row.occurred_at);
+ const result=await query.select('*');if(result.error)throw result.error;if(Array.isArray(result.data)&&!result.data.length)throw new Error('Der Journey-Moment wurde inzwischen geändert. Bitte erneut prüfen.');
+ await hydrate(tripId);return eventEntry(ownerEventRows.find(item=>String(item.id)===id)||{...row,...payload});
+}
 async function removePhotoMemoryByCluster(clusterId,{tripId=state.tripId||activeTripId()}={}){if(!clusterId||!tripId)return false;const db=client();if(!db?.from)return false;const rows=await db.from('timeline_events').select('id,metadata').eq('trip_id',tripId).eq('event_type','photo_memory');if(rows.error)throw rows.error;const ids=(rows.data||[]).filter(row=>String(row.metadata?.clusterId||'')===String(clusterId)).map(row=>row.id);if(ids.length){const result=await db.from('timeline_events').delete().eq('trip_id',tripId).in('id',ids);if(result.error)throw result.error;await hydrate(tripId)}return ids.length>0}
 async function removeEntry(identity,{tripId=state.tripId||activeTripId()}={}){
  const entry=typeof identity==='string'?state.entries.find(item=>String(item.id)===String(identity)):identity;
@@ -91,23 +104,28 @@ function snapshot(){return clone(state)}
 function list(filter={}){return state.entries.filter(e=>(!filter.tripId||String(e.tripId)===String(filter.tripId))&&(!filter.entityType||e.entityType===filter.entityType))}
 function entriesForDate(date){return state.entries.filter(e=>dayKey(e.startAt)===date)}
 function removalRecoveries({tripId=state.tripId||activeTripId()}={}){
- const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
+  const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
  for(const record of records){
   if(tripId&&String(record.trip_id)!==String(tripId))continue;
   const fields=record.fields&&typeof record.fields==='object'?record.fields:{},metadata=fields.metadata&&typeof fields.metadata==='object'?fields.metadata:{},receipt=metadata.timelineRemovalRecovery;
   if(!receipt?.recoveryId||fields.planned_at||String(receipt.tripPlaceId||'')!==String(record.trip_place_id||''))continue;
-  out.push({...clone(receipt),expectedRevision:record.updated_at||null,ownerMetadata:clone(metadata)});
- }
- return out.sort((left,right)=>String(right.removedAt||'').localeCompare(String(left.removedAt||'')));
+   out.push({...clone(receipt),expectedRevision:record.updated_at||null,ownerMetadata:clone(metadata)});
+  }
+  for(const row of ownerEventRows){
+   if(tripId&&String(row.trip_id)!==String(tripId))continue;const metadata=row.metadata&&typeof row.metadata==='object'?row.metadata:{},receipt=metadata.timelineRemovalRecovery;
+   if(!receipt?.recoveryId)continue;out.push({...clone(receipt),expectedRevision:eventRevision(row),ownerMetadata:clone(metadata),source:'event',rowId:row.id});
+  }
+  return out.sort((left,right)=>String(right.removedAt||'').localeCompare(String(left.removedAt||'')));
 }
 function removalRestoreReceipts({tripId=state.tripId||activeTripId()}={}){
  const records=window.LuviaTripPlaceData?.snapshot?.()?.records||[],out=[];
- for(const record of records){
+  for(const record of records){
   if(tripId&&String(record.trip_id)!==String(tripId))continue;
   const metadata=record.fields?.metadata,receipt=metadata&&typeof metadata==='object'?metadata.timelineRemovalLastRestore:null;
-  if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:record.updated_at||null});
- }
- return out;
+   if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:record.updated_at||null});
+  }
+  for(const row of ownerEventRows){if(tripId&&String(row.trip_id)!==String(tripId))continue;const receipt=row.metadata?.timelineRemovalLastRestore;if(receipt?.recoveryId)out.push({...clone(receipt),expectedRevision:eventRevision(row),source:'event',rowId:row.id})}
+  return out;
 }
 function dateRange(trip){const candidates=[trip?.startDate,trip?.endDate,state.days[0]?.date,state.days.at(-1)?.date].filter(Boolean).map(v=>new Date(v));const valid=candidates.filter(d=>!Number.isNaN(d.getTime()));const start=valid.length?new Date(Math.min(...valid)):new Date(),end=valid.length?new Date(Math.max(...valid)):new Date(start),out=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))out.push(new Date(d));return out.slice(0,62)}
 function calendarTripKey(trip){return String(trip?.id||trip?.tripId||state.tripId||'active')}
@@ -203,5 +221,5 @@ function subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)}
 async function init(){const id=activeTripId();await window.LuviaTripPlaceData?.init?.();projectPlaceData();await hydrate(id).catch(()=>{});subscribeRealtime(id);return diagnostics()}
 function diagnostics(){return{version:VERSION,status:state.hydrated?'ready':'loading',runtimeRole:'journey-web-compatibility-adapter',publicContract:'journey.v1',journeyTruth:false,foreignDomainTruth:false,cloudAuthoritative:true,localPersistence:false,tripId:state.tripId,hydrated:state.hydrated,loading:state.loading,eventCount:state.entries.length,days:state.days.length,realtimeChannels:channels.length,realtime:channels.length>0,metrics:{queued:0},lastError:state.lastError,placeDataSource:'trip_place_data',gpsRules:{linkedPlacesOnly:true,minStaySeconds:300,states:['visited','left']}}}
 root.addEventListener('luvia:trip-changed',e=>{const id=e.detail?.tripId||e.detail?.id||activeTripId();if(!id)return;hydrate(id).then(()=>{if(activeTripId()===id)subscribeRealtime(id)}).catch(()=>{})});root.addEventListener('luvia:trip-place-data-changed',e=>projectPlaceData(e.detail));root.addEventListener('luvia:place-plan-changed',()=>{projectPlaceData();setTimeout(()=>hydrate().catch(()=>{}),0)});root.addEventListener('luvia:place-visit-changed',()=>hydrate().catch(()=>{}));root.addEventListener('luvia:memory-bridge-applied',e=>hydrate(e.detail?.tripId||activeTripId()).catch(()=>{}));
-window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,removalRecoveries,removalRestoreReceipts,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
+ window.LuviaTimelineCore=Object.freeze({version:VERSION,init,hydrate,record,updateJourneyEvent,removePhotoMemoryByCluster,removeEntry,clearEntries,snapshot,list,entriesForDate,removalRecoveries,removalRestoreReceipts,renderCalendar,bindCalendar,popup,openPhotoMemory,openPlanningEditor,editEntry,subscribe,diagnostics});
 })();

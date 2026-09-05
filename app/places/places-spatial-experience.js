@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.35.0-shared-filter-profile-continuity';
+  const VERSION='1.36.0-positive-dietary-provider-evidence';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -183,18 +183,22 @@
     return state.category==='food'&&(Boolean(state.filters.vegetarian)||(state.filters.cuisines||[]).includes('vegetarian_restaurant'));
   }
   const meatLedVenue=place=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(clean([place?.name,place?.primaryType,place?.primaryTypeLabel,...placeTypeSet(place)].join(' ')).toLowerCase());
+  function providerDietaryEvidenceText(place){
+    const foodTypes=[...(place?.providerPrimaryFoodTypes||[]),...(place?.providerNativeTypes||[]),...(place?.raw?.foodTypes||[]).flatMap(item=>typeof item==='string'?[item]:[item?.name,item?.id])];
+    return clean([...(place?.types||[]),...foodTypes,place?.editorialSummary?.text||place?.editorialSummary].filter(Boolean).join(' ')).toLowerCase();
+  }
   function hasVegetarianProviderEvidence(place){
     const types=placeTypeSet(place);
     const dedicated=types.has('vegetarian_restaurant')||types.has('vegan_restaurant');
     if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVegetarianFood===false)return false;
-    return dedicated||place?.features?.servesVegetarianFood===true;
+    return dedicated||place?.features?.servesVegetarianFood===true||/vegetar|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/.test(providerDietaryEvidenceText(place));
   }
   function hasVeganProviderEvidence(place){
     const types=placeTypeSet(place),dedicated=types.has('vegan_restaurant');
     if(meatLedVenue(place)&&!dedicated)return false;
     if(place?.features?.servesVeganFood===false)return false;
-    return dedicated||place?.features?.servesVeganFood===true;
+    return dedicated||place?.features?.servesVeganFood===true||/vegan|plant[ _-]?based|rein pflanzlich|pflanzenk[uü]che/.test(providerDietaryEvidenceText(place));
   }
   function activeSearchDefinition(){
     const definition=categoryDefinition(),selected=selectedFilterTypes(),labels=selected.map(filterTypeLabel),dietary=state.category==='food'&&state.filters.vegetarian?'Vegetarisch':'';
@@ -305,7 +309,7 @@
         // The ordinary map remains on the free-provider cascade. Google and
         // Foursquare are admitted only for this explicit, evidence-bearing
         // profile read when the free sources cannot prove the dietary fit.
-        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',query:focus==='Vegan'?'Restaurants mit veganem Angebot':'Restaurants mit vegetarischem Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Number(geography.searchRadiusMeters)||3000,sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
+        tripId:tripId(state.trip),text:focus==='Vegan'?'Restaurants und Cafés mit belegtem veganem Angebot':'Restaurants und Cafés mit belegtem vegetarischem Angebot',query:focus==='Vegan'?'Restaurants Cafés veganes Angebot':'Restaurants Cafés vegetarisches Angebot',subjectText:'',userQuery:'',category:'food',destination:geography,destinationContext:geography,candidateLimit:40,limit:40,profilePreferences:{},tripComposition:context.tripComposition||{},trip:state.trip,includedType:evidenceType,includedTypes:[evidenceType],vegetarianOnly:focus!=='Vegan',strictPlaceType:evidenceType,strictDestination:true,maxDistanceMeters:Math.max(8000,Number(geography.searchRadiusMeters)||0),sortBy:'distance',providers:['auto','google','foursquare'],fastPath:true,parallelFastQueries:false,fastQueryLimit:1,queryVariantLimit:1,providerTimeoutMs:6500
       });
       if(searchToken!==state.requestToken||state.category!=='food'||key!==state.preferenceEvidenceKey)return false;
       const before=preferredPlaceIds(state.results).size;

@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.6.0-owner-capabilities-readiness';
+const RUNTIME_VERSION='1.7.0-positive-owner-management';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -100,7 +100,7 @@ function previewRemoval(identity){
 function previewRestore(identity){
   const recovery=removalRecovery(identity),trip=activeTrip();
   if(!recovery)throw new Error('Diese Wiederherstellung ist nicht mehr verfügbar.');
-  const entry={id:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,entityType:recovery.entityType,source:'place-data',dataKey:'planned_at',sourceRevision:recovery.expectedRevision,title:recovery.before.title,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,metadata:{}};
+  const event=recovery.source==='event',entry={id:recovery.entryId,sourceId:recovery.rowId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,entityType:recovery.entityType,kind:event?'photo_memory':'planned',source:event?'event':'place-data',dataKey:event?null:'planned_at',sourceRevision:recovery.expectedRevision,title:recovery.before.title,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,metadata:event?{mediaIds:recovery.mediaIds||[]}:{}};
   const start=new Date(recovery.before.startAt),localDate=Number.isNaN(start.getTime())?'':start.toLocaleDateString('sv-SE'),end=new Date(start.getTime()+Number(recovery.before.durationMinutes)*60000),localEndDate=Number.isNaN(end.getTime())?'':end.toLocaleDateString('sv-SE');
   const preview=domain().previewSchedule({entry,trip,entries:snapshot({trip}).entries,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,localDate,localEndDate});
   return Object.freeze({...preview,recoveryId:recovery.recoveryId,expectedRevision:recovery.expectedRevision});
@@ -140,9 +140,18 @@ async function init(){ensureBridge();await provider().init?.();return emit('init
 async function recordEvent(input={}){const result=await provider().record?.(input);emit('record-event',result);return result}
 const removalPending=new Map(),restorePending=new Map();
 async function assertNoLinkedBooking(entry){
+  if(entry?.source==='event'||!entry?.tripPlaceId&&!entry?.placeId)return;
   const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
   const rows=await reader(entry.tripId);
   if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===String(entry.tripPlaceId))||(entry.placeId&&String(row.place_id||row.placeId||'')===String(entry.placeId))))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+}
+async function writeOwnerEntry(entry,{startAt,metadata,expectedRevision}){
+  if(entry.source==='event'){
+    const writer=provider().updateJourneyEvent;if(!writer)unavailable('journey event writer');
+    return writer(entry,{tripId:entry.tripId,expectedRevision,occurredAt:startAt,metadata});
+  }
+  const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+  return writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:expectedRevision,fields:{planned_at:startAt,metadata}});
 }
 async function assertNoLinkedBookings(entries=[]){
   const reader=globalThis.LuviaBookingContractV1?.reads?.listForTrip;if(!reader)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
@@ -162,10 +171,9 @@ async function removePlannedPlace(identity,input={}){
     if(!original||!input.expectedRevision||original.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
     const preview=previewRemoval(original);await assertNoLinkedBooking(original);
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(original.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const recoveryId=`timeline-remove:${original.tripPlaceId}:${operationId}`,receipt={operation:'restore-planned-place',recoveryId,operationId,entryId:original.id,tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,entityType:original.entityType,dataKey:'planned_at',removedAt:new Date().toISOString(),before:{...preview.before}};
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
+    const event=original.source==='event',recoveryId=`timeline-remove:${event?original.sourceId:original.tripPlaceId}:${operationId}`,receipt={operation:event?'restore-photo-memory-moment':'restore-planned-place',recoveryId,operationId,entryId:original.id,rowId:event?original.sourceId:null,source:original.source,tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,entityType:original.entityType,dataKey:event?null:'planned_at',mediaIds:event?[...(original.metadata?.mediaIds||[])]:[],removedAt:new Date().toISOString(),before:{...preview.before}};
     const ownerMetadata=sourceOriginal?.fields?.metadata&&typeof sourceOriginal.fields.metadata==='object'?sourceOriginal.fields.metadata:original.metadata;
-    await writer({tripId:original.tripId,tripPlaceId:original.tripPlaceId,placeId:original.placeId,providerPlaceId:original.providerPlaceId,placeType:original.entityType,expectedUpdatedAt:original.sourceRevision,fields:{planned_at:null,metadata:{...ownerMetadata,timelineRemovalRecovery:receipt,timelineRemovalLastRestore:null}}});
+    await writeOwnerEntry(original,{startAt:event?original.startAt:null,expectedRevision:original.sourceRevision,metadata:{...ownerMetadata,timelineRemovalRecovery:receipt,timelineRemovalLastRestore:null}});
     await hydrate(original.tripId);const saved=sourceRemovalRecovery(recoveryId);
     if(!saved||getEntry(id))throw new Error('Das Entfernen wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Eintrag prüfen.');
     return publicRemovalRecovery(saved);
@@ -187,9 +195,9 @@ async function restoreRemovedEntry(identity,input={}){
     if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
     await assertNoLinkedBooking(recovery);
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==String(recovery.tripId))throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const restoreReceipt={operation:'restore-planned-place',recoveryId:key,operationId,removalOperationId:recovery.operationId,entryId:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,restoredAt:new Date().toISOString(),restoredStartAt:recovery.before.startAt};
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
-    await writer({tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,placeId:recovery.placeId,providerPlaceId:recovery.providerPlaceId,placeType:recovery.entityType,expectedUpdatedAt:recovery.expectedRevision,fields:{planned_at:recovery.before.startAt,metadata:{...(recovery.ownerMetadata||{}),timelineRemovalRecovery:null,timelineRemovalLastRestore:restoreReceipt}}});
+    const restoreReceipt={operation:recovery.source==='event'?'restore-photo-memory-moment':'restore-planned-place',recoveryId:key,operationId,removalOperationId:recovery.operationId,entryId:recovery.entryId,tripId:recovery.tripId,tripPlaceId:recovery.tripPlaceId,restoredAt:new Date().toISOString(),restoredStartAt:recovery.before.startAt,mediaIdsPreserved:recovery.source==='event'};
+    const recoveryEntry={...recovery,id:recovery.entryId,sourceId:recovery.rowId,source:recovery.source||'place-data',startAt:recovery.before.startAt,metadata:recovery.ownerMetadata||{}};
+    await writeOwnerEntry(recoveryEntry,{startAt:recovery.before.startAt,expectedRevision:recovery.expectedRevision,metadata:{...(recovery.ownerMetadata||{}),timelineRemovalRecovery:null,timelineRemovalLastRestore:restoreReceipt}});
     await hydrate(recovery.tripId);const restored=getEntry(recovery.entryId);
     if(!restored||restored.startAt!==recovery.before.startAt||sourceRemovalRecovery(key))throw new Error('Die Wiederherstellung wurde noch nicht bestätigt. Bitte die Timeline neu laden.');
     return Object.freeze(restoreReceipt);
@@ -277,10 +285,7 @@ async function applySchedule(identity,input={}){
     const entry=getEntry(id);
     if(entry?.metadata?.scheduleRecovery?.operationId===operationId)return entry.metadata.scheduleRecovery;
     if(!entry||!input.expectedRevision||entry.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte erneut prüfen.');
-    const bookings=globalThis.LuviaBookingContractV1?.reads?.listForTrip;
-    if(!bookings)throw new Error('Der Buchungsstatus kann gerade nicht geprüft werden. Bitte erneut versuchen.');
-    const rows=await bookings(entry.tripId);
-    if((rows||[]).some(row=>(entry.tripPlaceId&&String(row.trip_place_id||row.tripPlaceId||'')===entry.tripPlaceId)||(entry.placeId&&String(row.place_id||row.placeId||'')===entry.placeId)))throw new Error('Dieser Ort hat eine Buchung. Bitte „Buchung verwalten“ verwenden.');
+    await assertNoLinkedBooking(entry);
     const preview=previewSchedule(id,input);
     if(input.expectedConflictSignature!==undefined&&input.expectedConflictSignature!==JSON.stringify(preview.conflicts))throw new Error('Der Tagesplan hat sich seit der Vorschau geändert. Bitte die Konflikte erneut prüfen.');
     if(preview.conflicts.length&&input.conflictsAccepted!==true)throw new Error('Bitte die angezeigten Zeitkonflikte prüfen und ausdrücklich bestätigen.');
@@ -297,8 +302,7 @@ async function applySchedule(identity,input={}){
       metadata.scheduleRecovery=receipt;
     }
     if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==entry.tripId)throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
-    const writer=globalThis.LuviaPlacesContractV1?.commands?.plan;if(!writer)unavailable('places.v1 plan');
-    await writer({tripId:entry.tripId,tripPlaceId:entry.tripPlaceId,placeId:entry.placeId,providerPlaceId:entry.providerPlaceId,placeType:entry.entityType,expectedUpdatedAt:entry.sourceRevision,fields:{planned_at:preview.after.startAt,metadata}});
+    await writeOwnerEntry(entry,{startAt:preview.after.startAt,expectedRevision:entry.sourceRevision,metadata});
     await hydrate(entry.tripId);
     const saved=getEntry(id);
     if(saved?.startAt!==preview.after.startAt||saved?.durationMinutes!==preview.after.durationMinutes)throw new Error('Die Änderung wurde noch nicht bestätigt. Bitte die Timeline neu laden und den Zeitpunkt prüfen.');
@@ -329,7 +333,7 @@ async function undo(input={}){
     if(!recovery)throw new Error('Für diesen Eintrag gibt es keine unveränderte Zeitänderung zum Zurücknehmen.');
     return applySchedule(recovery.entryId,{...input,startAt:recovery.before.startAt,durationMinutes:recovery.before.durationMinutes,recoveryOperationId:recovery.operationId});
   }
-  if(operation==='restore-planned-place')return restoreRemovedEntry(input.recoveryId||input.receipt?.recoveryId,input);
+  if(['restore-planned-place','restore-photo-memory-moment'].includes(operation))return restoreRemovedEntry(input.recoveryId||input.receipt?.recoveryId,input);
   if(operation==='restore-entry'){
     const entry=input.entry||input.receipt?.before;if(!entry?.id)throw new Error('JOURNEY_UNDO_ENTRY_REQUIRED');
     return Object.freeze({operation,restored:true,result:await recordEvent(entry)});

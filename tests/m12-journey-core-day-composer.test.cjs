@@ -31,7 +31,7 @@ assert.ok(core,'Journey Domain Contract Core did not publish its browserless sur
 assert.deepEqual(JSON.parse(JSON.stringify(core.diagnostics())),{
   contractId:'journey.v1',
   version:'1',
-  runtimeVersion:'1.4.0-owner-capability-matrix',
+  runtimeVersion:'1.5.0-positive-owner-management',
   browserless:true,
   truth:'derived-day-graph-and-conflict-policy',
   foreignDomainTruth:false,
@@ -63,7 +63,8 @@ assert.equal(projection.days[0].entries[0].provenance.owner,'journey');
 assert.equal(projection.days[0].entries[0].durationMinutes,60,'Explicit one-hour interval must infer its duration');
 assert.equal(projection.days[0].entries[1].provenance.owner,'places');
 assert.equal(projection.days[0].entries[2].provenance.owner,'places');
-assert.equal(projection.days[1].entries[0].provenance.owner,'media');
+assert.equal(projection.days[1].entries[0].provenance.owner,'journey','Journey owns the photo moment position while metadata keeps Media asset IDs');
+assert.deepEqual(JSON.parse(JSON.stringify(projection.days[1].entries[0].metadata.mediaIds)),['m-1']);
 assert.equal(projection.days[0].status,'attention');
 assert.equal(projection.days[1].status,'planned');
 assert.equal(projection.days[2].status,'open');
@@ -116,7 +117,7 @@ const index=read('index.html');
 const order=[corePath,'core/places/timeline-core.js',adapterPath,composerPath,'app/app-shell.js'].map(file=>index.indexOf(file));
 assert.ok(order.every(index=>index>=0),'M12 runtime files must all be loaded');
 assert.deepEqual(order,[...order].sort((a,b)=>a-b),'Journey Core, compatibility runtime, contract, composer and App Shell load order is invalid');
-assert.ok(index.includes(`${composerCssPath}?v=13.82.168.81`));
+assert.ok(index.includes(`${composerCssPath}?v=13.82.168.82`));
 
 for(const token of ['LuviaJourneyContractV1','contractId:CONTRACT_ID','composeProjection','const reads=Object.freeze','const commands=Object.freeze','legacyCompatibility:true'])assert.ok(adapterSource.includes(token),`Journey adapter missing ${token}`);
 assert.equal((adapterSource.match(/LuviaTimelineCore/g)||[]).length<=2,true,'Journey adapter must contain one compatibility-provider boundary, not scattered private access');

@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.5",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 984,
+  "markerCount": 987,
   "markers": [
     {
       "marker": "data-accent",
@@ -3894,6 +3894,15 @@
         "app/journey/journey-day-composer.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-journey-visit-manage",
+      "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
     },
     {
       "marker": "data-journey-visits",
@@ -8796,6 +8805,24 @@
     {
       "marker": "data-visit-confirm",
       "category": "Journey, Timeline & Tagesplan",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-visit-manage-close",
+      "category": "Navigation & Oberfläche",
+      "classification": "AKTIONSKANDIDAT",
+      "sources": [
+        "app/journey/journey-day-composer.js"
+      ],
+      "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
+    },
+    {
+      "marker": "data-visit-open-place",
+      "category": "Places & Ortsentdeckung",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
         "app/journey/journey-day-composer.js"

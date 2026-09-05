@@ -61,5 +61,11 @@ assert.equal(joined.length,2,'a separately discovered, provider-evidenced vegeta
 assert.equal(joined.some(place=>place.name==='Grüne Kombüse'),true);
 const rejected=sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[{id:'geo:meat',providerPlaceId:'geo:meat',name:'Steakhouse Plus',types:['restaurant'],features:{servesVegetarianFood:true},coordinates:{latitude:54.022,longitude:10.752}}],'Vegetarisch');
 assert.equal(rejected.length,1,'a meat-led venue must not enter Passend from a generic vegetarian-option flag');
+const hereFoodEvidence={id:'here:green',providerPlaceId:'here:green',name:'Kombüse am Meer',types:['restaurant'],providerPrimaryFoodTypes:['Vegetarian'],features:{servesVegetarianFood:null},coordinates:{latitude:54.023,longitude:10.753}};
+const joinedHere=sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[hereFoodEvidence],'Vegetarisch');
+assert.equal(joinedHere.length,2,'explicit HERE food-type evidence must create a positive Passend candidate');
+assert.equal(sandbox.LuviaPlacesSpatialExperience.isPreferredPlace({...hereFoodEvidence,preferenceDiscoveryMatch:true}),true);
+const deceptiveSteak={...hereFoodEvidence,id:'here:steak-green',providerPlaceId:'here:steak-green',name:'Green Steakhouse',features:{servesVegetarianFood:true}};
+assert.equal(sandbox.LuviaPlacesSpatialExperience.mergeProfileEvidenceCohort(base,[deceptiveSteak],'Vegetarisch').length,1,'meat-led identity must still win over generic or provider dietary signals');
 
 console.log('P02/P03 shared Place filter intent and positive profile evidence union: PASS');

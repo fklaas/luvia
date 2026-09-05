@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.6.0';
+const VERSION='1.7.0-provider-dietary-evidence';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
@@ -41,7 +41,7 @@ function immutable(value){if(value==null||typeof value!=='object')return value;i
 function clean(value){return String(value??'').trim()}
 function list(value,max=30){return[...new Set((Array.isArray(value)?value:[]).map(item=>clean(item).toLowerCase()).filter(item=>item&&!NEUTRAL.test(item)))].slice(0,max)}
 function nestedNeeds(value){if(Array.isArray(value))return value;if(value&&typeof value==='object')return value.needs||value.selected||[];return[]}
-function textOf(place={}){return clean([place.name,place.displayName,place.editorialSummary?.text||place.editorialSummary,place.primaryType,place.primaryTypeLabel,place.primary_type,...(place.types||[])].filter(Boolean).join(' ')).toLowerCase()}
+function textOf(place={}){const providerFoodTypes=[...(place.providerPrimaryFoodTypes||[]),...(place.providerNativeTypes||[]),...(place.raw?.foodTypes||[]).flatMap(item=>typeof item==='string'?[item]:[item?.name,item?.id])];return clean([place.name,place.displayName,place.editorialSummary?.text||place.editorialSummary,place.primaryType,place.primaryTypeLabel,place.primary_type,...(place.types||[]),...providerFoodTypes].filter(Boolean).join(' ')).toLowerCase()}
 function idOf(place={}){return clean(place.providerPlaceId||place.id).replace(/^places\//,'')}
 function addWeight(target,key,value){const amount=Number(value||0);if(!key||!Number.isFinite(amount)||!amount)return;target[key]=(target[key]||0)+amount}
 function signal(id,label,source,weights){return immutable({id,label,source,weights:{...weights}})}
