@@ -11,6 +11,7 @@ const calls=[];
 const events=[];
 let visitState={id:'visit-1',tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T08:00:00.000Z',durationSeconds:45*60,revision:'visit-rev-1'};
 let visitRecovery=null;
+let exposeVisitEntries=true;
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingUI','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){
   assert.equal(source.includes(forbidden),false,`M16 Action Runtime bypasses a public owner contract: ${forbidden}`);
@@ -64,7 +65,7 @@ const context={
     }
   },
   LuviaJourneyContractV1:{
-    reads:{snapshot(){return{days:[{date:'2026-08-25',label:'Dienstag',entries:[{id:'visit:visit-1',source:'gps',sourceId:'visit-1',sourceRevision:visitState.revision,tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',startAt:visitState.arrivedAt,durationMinutes:Math.round(visitState.durationSeconds/60)}]}],summary:{entryCount:1}}}},
+    reads:{snapshot(){const entries=exposeVisitEntries?[{id:'visit:visit-1',source:'gps',sourceId:'visit-1',sourceRevision:visitState.revision,tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',startAt:visitState.arrivedAt,durationMinutes:Math.round(visitState.durationSeconds/60)}]:[];return{days:[{date:'2026-08-25',label:'Dienstag',entries}],summary:{entryCount:entries.length}}}},
     commands:{
       async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}},
       async editEntry(entryId,payload){calls.push(['journey-entry-schedule',entryId,payload]);return{entryId,operation:'restore-schedule'}},
@@ -86,7 +87,7 @@ const context={
 };
 context.globalThis=context;
 vm.createContext(context);
-for(const file of ['core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js',runtimePath]){
+for(const file of ['core/intelligence/intelligence-action-contract-core.js','core/intelligence/intelligence-action-ledger-core.js','core/intelligence/travel-orchestration-core.js',runtimePath]){
   vm.runInContext(read(file),context,{filename:file});
 }
 
@@ -193,6 +194,14 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   const restoreMessage='Stelle den Besuch „Bestätigter Strandbesuch“ wieder her.';
   const restoreProposal=await runtime.runMessage(restoreMessage,{compiledIntent:{contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'propose-write',clause:restoreMessage,semanticGoalType:'confirmed_visit',semanticOperation:'restore',temporalHint:{},entityHints:{hasNamedTarget:true},missingInputs:[]}]}});
   assert.equal(restoreProposal.results[0].evidence.actionId,'journey.visit.restore');assert.equal(calls.filter(call=>call[0]==='visit-restore').length,1,'the chat proposal must not perform a second visit restore');runtime.cancel(restoreProposal.results[0].evidence.ledgerId);
+
+  exposeVisitEntries=false;
+  const recommendCallsBeforeMissingVisit=calls.filter(call=>call[0]==='recommend').length;
+  const missingVisitMessage='Ändere meinen bestätigten Besuch heute auf 18:15 Uhr für 60 Minuten.';
+  const missingVisitCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(missingVisitMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});assert.equal(missingVisitCompiled.intents[0].mode,'propose-write');assert.equal(missingVisitCompiled.intents[0].semanticOperation,'update');
+  const missingVisit=await runtime.runMessage(missingVisitMessage,{compiledIntent:missingVisitCompiled,sourceMessage:missingVisitMessage});
+  assert.equal(missingVisit.handled,true);assert.equal(missingVisit.error,true);assert.equal(missingVisit.results[0].kind,'error');assert.equal(missingVisit.results[0].evidence.code,'AI_VISIT_NOT_FOUND');assert.equal(missingVisit.results.some(result=>result.kind==='place_collection'),false,'a missing confirmed visit must never fall through to generic Places discovery');assert.equal(calls.filter(call=>call[0]==='recommend').length,recommendCallsBeforeMissingVisit,'a visit mutation without an owner candidate must not spend Places provider quota');
+  exposeVisitEntries=true;
 
   const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',tripPlaceId:'tp-1',providerPlaceId:'place-1'},{userGesture:true});
   assert.equal(cancelled.requiresConfirmation,true);

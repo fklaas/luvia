@@ -65,8 +65,11 @@ assert.deepEqual(JSON.parse(JSON.stringify(relaxedEvening.missingInputs.map(item
 
 for(const [message,operation] of [
   ['Korrigiere den Besuch „Bestätigter Strandbesuch“ am 25.08.2026 um 18:15 Uhr.','update'],
+  ['Ändere meinen bestätigten Besuch am 25.08.2026 um 18:15 Uhr.','update'],
   ['Entferne den Besuch „Bestätigter Strandbesuch“.','remove'],
+  ['Lösche meinen bestätigten Besuch.','remove'],
   ['Stelle den Besuch „Bestätigter Strandbesuch“ wieder her.','restore'],
+  ['Zurückholen möchte ich meinen bestätigten Besuch.','restore'],
 ]){
   const visitIntent=core.compileIntent(message,{trip:{startDate:'2026-08-20',endDate:'2026-08-30'}});
   assert.equal(visitIntent.status,'compiled',`confirmed visit ${operation} must compile without unrelated missing fields`);

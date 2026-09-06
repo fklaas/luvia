@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.23.0-visit-owner-commands';
+const VERSION='1.23.1-chat-visit-routing';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -181,9 +181,9 @@ function visitMutationAction(intent,message=''){
   if(!intent||intent.mode!=='propose-write'||!['places','journey'].includes(intent.domain))return null;
   const source=`${intent.semanticGoalType||''} ${intent.semanticOperation||''} ${intent.clause||''} ${message}`.toLocaleLowerCase('de-DE');
   if(!/\b(?:besuch|aufenthalt|gps[- ]?moment)\w*/i.test(source))return null;
-  if(/\b(?:wiederherstell|restore|zurückhol|zurueckhol)\w*|\bwieder\s+her\b/i.test(source))return'journey.visit.restore';
-  if(/\b(?:entfern|lösch|loesch|delete|remove)\w*/i.test(source))return'journey.visit.remove';
-  if(/\b(?:korrig|änder|aender|verschieb|update|change)\w*/i.test(source))return'journey.visit.update';
+  if(/(?:^|[^\p{L}\p{N}_])(?:wiederherstell|restore|zurückhol|zurueckhol)\w*|\bwieder\s+her\b/iu.test(source))return'journey.visit.restore';
+  if(/(?:^|[^\p{L}\p{N}_])(?:entfern|lösch|loesch|delete|remove)\w*/iu.test(source))return'journey.visit.remove';
+  if(/(?:^|[^\p{L}\p{N}_])(?:korrig|änder|aender|verschieb|update|change)\w*/iu.test(source))return'journey.visit.update';
   return null;
 }
 function visitRevision(visit={}){return clean(visit.revision||visit.updatedAt||visit.updated_at||visit.correction?._ownerRevision||visit.createdAt||visit.created_at||visit.arrivedAt||visit.arrived_at)||null}
@@ -201,15 +201,15 @@ function namedVisitCandidate(candidates,intent,message){
 }
 function visitDurationHint(message,fallback){const match=clean(message).match(/\b(\d{1,4})\s*(?:min(?:ute)?n?|minutes?)\b/i),value=Number(match?.[1]);return Number.isInteger(value)&&value>=5&&value<=1440?value:fallback}
 async function semanticVisitMutationPreview(message,compiled,options={}){
-  const mutations=(compiled?.intents||[]).map(intent=>({intent,actionId:visitMutationAction(intent,message)})).filter(item=>item.actionId);if(mutations.length!==1)return null;
-  const {intent,actionId}=mutations[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)return null;
+  const mutations=(compiled?.intents||[]).map(intent=>({intent,actionId:visitMutationAction(intent,message)})).filter(item=>item.actionId);if(!mutations.length)return null;if(mutations.length!==1)throw runtimeError('AI_VISIT_INTENT_AMBIGUOUS','Der Besuchsbefehl enthält mehrere mögliche Änderungen. Bitte nenne genau eine Korrektur, Entfernung oder Wiederherstellung.',{actionIds:[...new Set(mutations.map(item=>item.actionId))]});
+  const {intent,actionId}=mutations[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)throw runtimeError('AI_VISIT_TRIP_REQUIRED','Wähle zuerst die Reise des bestätigten Besuchs aus. Es wurde nichts verändert.',{actionId});
   if(actionId==='journey.visit.restore'){
-    const recoveries=placesContract().reads?.visitRecoveries?.()||[],candidates=recoveries.filter(item=>!item.tripId||clean(item.tripId)===activeTripId).map(item=>({tripId:item.tripId||activeTripId,recoveryId:clean(item.recoveryId),visitId:clean(item.visitId)||null,placeId:clean(item.placeId)||null,name:clean(item.title)||'Bestätigter Besuch',expectedRevision:clean(item.expectedRevision)})).filter(item=>item.recoveryId&&item.expectedRevision),target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+    const recoveries=placesContract().reads?.visitRecoveries?.()||[],candidates=recoveries.filter(item=>!item.tripId||clean(item.tripId)===activeTripId).map(item=>({tripId:item.tripId||activeTripId,recoveryId:clean(item.recoveryId),visitId:clean(item.visitId)||null,placeId:clean(item.placeId)||null,name:clean(item.title)||'Bestätigter Besuch',expectedRevision:clean(item.expectedRevision)})).filter(item=>item.recoveryId&&item.expectedRevision);if(!candidates.length)throw runtimeError('AI_VISIT_RECOVERY_NOT_FOUND','Für diese Reise ist kein wiederherstellbarer bestätigter Besuch belegt. Es wurde nichts verändert.',{actionId,tripId:activeTripId});const target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)throw runtimeError('AI_VISIT_TARGET_AMBIGUOUS','Mehrere entfernte Besuche kommen infrage. Bitte nenne den Ort des Besuchs.',{actionId,tripId:activeTripId,candidateCount:candidates.length});
     return prepare(actionId,{...target,readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
   }
-  const projection=await Promise.resolve(journeyContract().reads?.snapshot?.({trip})||{}),entries=journeyEntries(projection),candidates=entries.map(entry=>visitEntryCandidate(entry,activeTripId)).filter(Boolean),target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+  const projection=await Promise.resolve(journeyContract().reads?.snapshot?.({trip})||{}),entries=journeyEntries(projection),candidates=entries.map(entry=>visitEntryCandidate(entry,activeTripId)).filter(Boolean);if(!candidates.length)throw runtimeError('AI_VISIT_NOT_FOUND','Für diese Reise ist aktuell kein bestätigter Besuch belegt. Geplante Orte sind davon getrennt; es wurde nichts verändert.',{actionId,tripId:activeTripId});const target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)throw runtimeError('AI_VISIT_TARGET_AMBIGUOUS','Mehrere bestätigte Besuche kommen infrage. Bitte nenne den Ort des Besuchs.',{actionId,tripId:activeTripId,candidateCount:candidates.length});
   if(actionId==='journey.visit.update'){
-    const date=intent.temporalHint?.date,time=intent.temporalHint?.time,startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt)return null;
+    const date=intent.temporalHint?.date,time=intent.temporalHint?.time,startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt)throw runtimeError('AI_VISIT_TIME_REQUIRED','Für die Besuchskorrektur brauche ich ein eindeutiges Datum und eine Uhrzeit innerhalb der aktiven Reise. Es wurde nichts verändert.',{actionId,tripId:activeTripId});
     return prepare(actionId,{...target,date,time,startAt,durationMinutes:visitDurationHint(options.sourceMessage||message,target.durationMinutes),readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
   }
   return prepare(actionId,{...target,readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
