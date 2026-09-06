@@ -211,6 +211,15 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   const namedVisitCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(namedVisitMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
   const namedVisit=await runtime.runMessage(namedVisitMessage,{compiledIntent:namedVisitCompiled,sourceMessage:namedVisitMessage});
   assert.equal(namedVisit.results[0].kind,'confirmation',JSON.stringify(namedVisit));assert.equal(namedVisit.results[0].evidence.actionId,'journey.visit.update');assert.equal(namedVisit.results[0].evidence.preview.visitId,'visit-1');assert.equal(namedVisit.results[0].evidence.preview.name,'Restaurant · Grande Beach Café');assert.equal(calls.filter(call=>call[0]==='recommend').length,recommendCallsBeforeNamedVisit,'local visit target resolution must not spend Places provider quota');runtime.cancel(namedVisit.results[0].evidence.ledgerId);
+  visitOwnerPlaces=[{id:'place-strand',placeId:'place-strand',name:'DAS LEO'},{id:'place-brechtmann',placeId:'place-brechtmann',name:'DAS LEO'}];
+  const duplicateNameMessage='Ändere den bestätigten Besuch bei DAS LEO am 25.08.2026 um 18:20 Uhr auf 60 Minuten.';
+  const duplicateNameCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(duplicateNameMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
+  const duplicateName=await runtime.runMessage(duplicateNameMessage,{compiledIntent:duplicateNameCompiled,sourceMessage:duplicateNameMessage});
+  assert.equal(duplicateName.results[0].kind,'error');assert.equal(duplicateName.results[0].evidence.code,'AI_VISIT_TARGET_AMBIGUOUS');assert.match(duplicateName.results[0].message,/„erster“, „zweiter“ oder „letzter“/);assert.equal(calls.filter(call=>call[0]==='visit-update').length,1,'same-name visits must never select an arbitrary owner record');
+  const firstDuplicateMessage='Ändere den ersten bestätigten Besuch bei DAS LEO am 25.08.2026 um 18:20 Uhr auf 60 Minuten.';
+  const firstDuplicateCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(firstDuplicateMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
+  const firstDuplicate=await runtime.runMessage(firstDuplicateMessage,{compiledIntent:firstDuplicateCompiled,sourceMessage:firstDuplicateMessage});
+  assert.equal(firstDuplicate.results[0].kind,'confirmation',JSON.stringify(firstDuplicate));assert.equal(firstDuplicate.results[0].evidence.preview.visitId,'visit-1');runtime.cancel(firstDuplicate.results[0].evidence.ledgerId);
   alternativeVisitState=null;duplicateVisitProjection=false;visitOwnerPlaces=[];visitState={...visitState,title:originalVisitTitle};
 
   exposeVisitEntries=false;
