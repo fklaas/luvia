@@ -147,3 +147,103 @@ P02/P03 bleiben **TEILWEISE**. Der nächste Schritt bleibt
 Quellenkaskade providerweise messen und erweitern, danach alle sichtbaren
 Kategorie-, Landesküchen- und Sachfilterfälle sowie Cache- und Kaltlatenzen auf
 Desktop und Touch vollständig abnehmen.
+
+## Nachtrag 06.09.2026 – App 13.82.168.101 / Provider- und Spezialtypenkaskade
+
+App 13.82.168.101 führt den gemeinsamen Providerpfad über Karten, Diagnose und
+AI Chat fort und schließt zwei reale Datenverluste:
+
+- `leisure=miniature_golf` bleibt als kanonischer Typ
+  `miniature_golf_course` erhalten, anstatt in den zu breiten Typ
+  `amusement_center` zu fallen. Golfplätze bleiben ebenfalls eigenständig.
+- Sport-, Outdoor-, Surf-, Fahrrad- und Spielwarenläden werden in strikte
+  Bedarfsarten überführt. Die Strandbedarfsdiagnose liefert dadurch keine
+  allgemeinen Supermärkte mehr.
+- Geoapify bewahrt weiterhin den exakten Medien-Seed der ausgewählten Entität.
+  Fehlt ein Bild, darf Foursquare ausschließlich nach strenger Ortsidentität
+  ein Foto ergänzen. Die produktive Budgetrichtlinie erlaubt dort nur `search`
+  und `photo`, begrenzt auf 300 Aufrufe pro Monat, 12 pro Tag und 2 pro Minute.
+  Nutzungszähler, Cooldown und letzter Providerstatus wurden bei der Migration
+  nicht zurückgesetzt.
+
+### Öffentliche Providerproben
+
+Die Proben liefen gegen Gateway v230 und die stabile öffentliche Integration:
+
+- Minigolf Scharbeutz: zwei Treffer, `Strandgolfer` und
+  `Schwarzlicht Minigolf`, beide aus OpenStreetMap;
+- dieselbe Minigolfanfrage aus dem AI-Chat-Pfad: dieselben zwei Treffer;
+- chinesische Küche: ein konkreter Treffer, `Hay-Cheng`;
+- strikter Strand- und Reisebedarf: drei Treffer, ohne die vorherigen breiten
+  Supermarkt-Falschpositiven;
+- Essen und Trinken: zwölf Treffer in der begrenzten Gatewayprobe;
+- Stays: zwölf Treffer in der begrenzten Gatewayprobe, davon ein Treffer mit
+  sicherem Foto.
+
+Die warme Minigolf-, Bedarfs-, Food-, Küchen- und Stays-Kaskade benötigte 0,32
+bis 0,49 Sekunden. Der erste kalte Minigolfpfad benötigte 5,58 Sekunden und
+verfehlt damit weiterhin das Ziel von höchstens drei Sekunden. Dieser Wert wird
+nicht als abgeschlossen gewertet.
+
+### Sichtbare Browserabnahme
+
+- Places-URL:
+  `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=places&acceptance=p02-p03-101-visible`
+- Stays-URL:
+  `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=hotels&acceptance=p02-p03-101-visible`
+- Essen und Trinken zeigte 48 koordinatenverifizierte Orte unter `Alle` und
+  neun belegte Orte unter `Passend`. `Kleines Steakhouse` war unter `Alle`
+  sichtbar, trug dort keinen Passungsbeleg und erschien nicht unter `Passend`.
+- Shopping zeigte 46 Orte unter `Alle` und elf unter `Passend`.
+- Natur und Erholung wechselte ohne falschen Leerzustand auf 15 Orte.
+- Stays zeigte im gleichen Kartenaufbau 47 Unterkünfte unter `Alle` und
+  reproduzierbar 25 unter `Passend`. Die Kurzvorschau lag innerhalb der Karte.
+
+Die Abnahme belegt die aktuelle Passend-Funktion und die gemeinsame
+Places-/Stays-Technik. Sie belegt noch keine vollständige positive Fotoquote
+und keine vollständige Desktop-/Touch-Matrix aller 14 Kategorien,
+82 Zuordnungen, 19 Landesküchen und Sachfilter.
+
+### Releasebeleg
+
+- App: `13.82.168.101`
+- Core: `4.82.220`
+- Runtime-Commit: `d00bdbf50b4d95b72e3782f798ba52625fca2e6c`
+- Gateway: `v230 ACTIVE`, Software `4.64.34`, Places
+  `4.38.13-specialty-type-purity`
+- Integration-Worker: `6b964c97-fe50-4fd2-a02a-18b3ce99f7da`, 100 Prozent
+  Traffic
+- Unveränderliche URL:
+  `https://6b964c97-integration-luvia.njwnrvwbv5.workers.dev`
+- Byteidentisches Deployment-Archiv:
+  `luvia-integration-13.82.168.101-d00bdbf5-public-bytes.zip`, 89.020.403 Bytes,
+  SHA-256 `327318E704DD388A82F700801B3DD8C9BCADAC509FA2CB1DF8276AB5C854DF20`
+- Öffentlicher Bytebeleg: `30/30 MATCH` zwischen Archiv, Stable und immutable
+  Worker
+- Safe Regression: `232/232 PASS`
+- NFR-0: `3/3 PASS`
+- Main und Production: unverändert
+
+Der letzte reale Foursquarezustand war weiterhin HTTP 429 mit gespeichertem
+Cooldown; Google lieferte zuletzt real HTTP 403. Die freigeschaltete
+Foursquare-Fotofähigkeit und das Google-Tagesbudget sind deshalb noch kein
+positiver Providerbeleg. Apple bleibt ohne kostenpflichtiges Developer-Programm
+geparkt.
+
+Unmittelbarer Frontend-Rückfall:
+
+`npx wrangler versions deploy 1dcf5de1-c743-4d4c-8d52-40cbac209b03@100 --name integration-luvia --message "Rollback App 13.82.168.101 provider specialty cascade to accepted App 13.82.168.100" --yes`
+
+Ein Gateway-Rückfall veröffentlicht den akzeptierten Gateway-Quellstand aus
+Runtime-Commit `b9f32115d75780d9eb76ec03cb31afedf870af94` erneut. Falls ausschließlich
+die Foursquare-Medienfreigabe zurückgenommen werden muss, wird die Operation in
+`provider_limits` wieder auf `["search"]` begrenzt; Nutzungszähler, Cooldown und
+letzter Status bleiben dabei erhalten.
+
+P02/P03 bleiben **TEILWEISE**.
+
+## Genau ein nächster Schritt
+
+`P02-P03-real-photo-cold-latency-closure`: reale Ortsbildabdeckung und kalte
+Providerlatenzen auf die Zielwerte bringen; danach die vollständige sichtbare
+Filtermatrix abnehmen.
