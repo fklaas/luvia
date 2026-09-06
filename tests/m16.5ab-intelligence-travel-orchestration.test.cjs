@@ -63,6 +63,20 @@ const relaxedEvening=core.compileIntent('Plane uns einen entspannten Abend in Sc
 assert.equal(relaxedEvening.status,'needs-clarification');
 assert.deepEqual(JSON.parse(JSON.stringify(relaxedEvening.missingInputs.map(item=>item.input))),['date','time-or-open-period']);
 
+for(const [message,operation] of [
+  ['Korrigiere den Besuch „Bestätigter Strandbesuch“ am 25.08.2026 um 18:15 Uhr.','update'],
+  ['Entferne den Besuch „Bestätigter Strandbesuch“.','remove'],
+  ['Stelle den Besuch „Bestätigter Strandbesuch“ wieder her.','restore'],
+]){
+  const visitIntent=core.compileIntent(message,{trip:{startDate:'2026-08-20',endDate:'2026-08-30'}});
+  assert.equal(visitIntent.status,'compiled',`confirmed visit ${operation} must compile without unrelated missing fields`);
+  assert.equal(visitIntent.intents.length,1,`confirmed visit ${operation} must retain one Places owner`);
+  assert.equal(visitIntent.intents[0].ownerContract,'places.v1');
+  assert.equal(visitIntent.intents[0].mode,'propose-write');
+  assert.equal(visitIntent.intents[0].semanticOperation,operation);
+  assert.equal(visitIntent.intents[0].automaticMutation,false);
+}
+
 const preferenceWrite=core.compileIntent('Merke dir bitte: Ich esse vegan, reise entspannt und bevorzuge ein kleines Budget.');
 assert.equal(preferenceWrite.status,'compiled');
 assert.equal(preferenceWrite.requiresConfirmation,true);

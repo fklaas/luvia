@@ -3,7 +3,7 @@ var LuviaIntelligenceActionContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.actions.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.15.0-journey-owner-commands';
+const RUNTIME_VERSION='1.16.0-visit-owner-commands';
 const EFFECTS=Object.freeze({READ:'READ',DRAFT:'DRAFT',WRITE:'WRITE',EXTERNAL:'EXTERNAL',NAVIGATION:'NAVIGATION'});
 const CONFIRMATION=Object.freeze({NEVER:'NEVER',USER_GESTURE:'USER_GESTURE',EXPLICIT:'EXPLICIT'});
 const RISK=Object.freeze({R0:'R0',R1:'R1',R2:'R2',R3:'R3',R4:'R4'});
@@ -33,6 +33,9 @@ const INPUT_CONTRACTS=Object.freeze({
   'journey.entry.schedule':Object.freeze({schemaId:'luvia.ai-input.journey.entry.schedule.v1',enforcement:'RUNTIME_ENFORCED'}),
   'journey.entry.remove':Object.freeze({schemaId:'luvia.ai-input.journey.entry.remove.v1',enforcement:'RUNTIME_ENFORCED'}),
   'journey.entry.restore':Object.freeze({schemaId:'luvia.ai-input.journey.entry.restore.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.visit.update':Object.freeze({schemaId:'luvia.ai-input.journey.visit.update.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.visit.remove':Object.freeze({schemaId:'luvia.ai-input.journey.visit.remove.v1',enforcement:'RUNTIME_ENFORCED'}),
+  'journey.visit.restore':Object.freeze({schemaId:'luvia.ai-input.journey.visit.restore.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.active.list':Object.freeze({schemaId:'luvia.ai-input.trip.active.list.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.active.select':Object.freeze({schemaId:'luvia.ai-input.trip.active.select.v1',enforcement:'RUNTIME_ENFORCED'}),
   'trip.update.details':Object.freeze({schemaId:'luvia.ai-input.trip.update.details.v1',enforcement:'RUNTIME_ENFORCED'}),
@@ -215,6 +218,24 @@ function validateActionInput(actionId,input={},context={}){
     if(!text(value.recoveryId))issue('required','recoveryId','Der Wiederherstellungsbeleg fehlt.');if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Owner-Stand fehlt.');
     return finish({tripId:text(value.tripId)||text(context.tripId)||null,recoveryId:text(value.recoveryId),expectedRevision:text(value.expectedRevision),expectedConflictSignature:value.expectedConflictSignature==null?null:text(value.expectedConflictSignature),conflictsAccepted:value.conflictsAccepted===true});
   }
+  if(action.id==='journey.visit.update'){
+    if(!text(value.visitId))issue('required','visitId','Der bestätigte Besuch fehlt.');
+    if(!absoluteDateTime(value.startAt))issue('required','startAt','Der neue Besuchsbeginn braucht einen eindeutigen UTC-Offset.');
+    const durationMinutes=Number(value.durationMinutes);
+    if(!Number.isInteger(durationMinutes)||durationMinutes<5||durationMinutes>1440)issue('range','durationMinutes','Die Besuchsdauer muss zwischen 5 und 1440 Minuten liegen.');
+    if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Places-Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,visitId:text(value.visitId),placeId:text(value.placeId)||null,name:text(value.name)||null,startAt:text(value.startAt)||null,durationMinutes,expectedRevision:text(value.expectedRevision)});
+  }
+  if(action.id==='journey.visit.remove'){
+    if(!text(value.visitId))issue('required','visitId','Der bestätigte Besuch fehlt.');
+    if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Places-Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,visitId:text(value.visitId),placeId:text(value.placeId)||null,name:text(value.name)||null,expectedRevision:text(value.expectedRevision)});
+  }
+  if(action.id==='journey.visit.restore'){
+    if(!text(value.recoveryId))issue('required','recoveryId','Der Wiederherstellungsbeleg des Besuchs fehlt.');
+    if(!text(value.expectedRevision))issue('required','expectedRevision','Der geprüfte Places-Owner-Stand fehlt.');
+    return finish({tripId:text(value.tripId)||text(context.tripId)||null,recoveryId:text(value.recoveryId),visitId:text(value.visitId)||null,placeId:text(value.placeId)||null,name:text(value.name)||null,expectedRevision:text(value.expectedRevision)});
+  }
   if(action.id==='trip.active.list'){
     if(value.query!=null&&!text(value.query))issue('format','query','Die Reise-Anfrage ist leer.');
     if(value.query!=null&&text(value.query).length>1000)issue('limit','query','Die Reise-Anfrage ist zu lang.');
@@ -344,6 +365,9 @@ const ACTIONS=Object.freeze([
   {id:'journey.entry.schedule',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.editEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.entry.schedule',permissions:['journey.write','trip.member'],label:'Zeitänderung bestätigen',description:'Ändert einen revisionsgeprüften Timeline-Moment über den zuständigen Journey- oder Places-Owner.',consequence:'Ändert Zeitpunkt und Dauer erst nach Vorschau, Konfliktprüfung und ausdrücklicher Bestätigung.'},
   {id:'journey.entry.remove',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.removeEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.entry.restore',permissions:['journey.write','trip.member'],label:'Entfernen bestätigen',description:'Entfernt einen freigegebenen Timeline-Moment über seinen Owner und erzeugt einen dauerhaften Recovery-Beleg.',consequence:'Blendet den Moment aus dem Tagesplan aus; fremde Place-, Booking- und Media-Daten bleiben erhalten.'},
   {id:'journey.entry.restore',owner:'journey',ownerContract:'journey.v1',ownerMethod:'commands.restoreRemovedEntry',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',permissions:['journey.write','trip.member'],label:'Wiederherstellung bestätigen',description:'Stellt einen entfernten Timeline-Moment aus seinem revisionsgeprüften Owner-Beleg wieder her.',consequence:'Schreibt den ursprünglichen Zeitpunkt erst nach erneuter Konfliktprüfung zurück.'},
+  {id:'journey.visit.update',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.updateVisit',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.visit.update',permissions:['places.write','trip.member'],label:'Besuchskorrektur bestätigen',description:'Korrigiert Beginn und Dauer eines bestätigten Besuchs ausschließlich über den Places Visit Owner.',consequence:'Ändert den bestätigten Besuch erst nach Vorher/Neu-Vorschau und Prüfung der aktuellen Owner-Revision.'},
+  {id:'journey.visit.remove',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.removeVisit',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'journey.visit.restore',permissions:['places.write','trip.member'],label:'Besuch entfernen bestätigen',description:'Entfernt einen bestätigten Besuch über den Places Visit Owner und bewahrt einen dauerhaften Recovery-Beleg.',consequence:'Entfernt nur den Besuch aus der Timeline; Place, Buchungen, Fotos, Memories und Ortsfakten bleiben erhalten.'},
+  {id:'journey.visit.restore',owner:'places',ownerContract:'places.v1',ownerMethod:'commands.restoreVisit',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:false,idempotency:'REQUIRED',permissions:['places.write','trip.member'],label:'Besuch wiederherstellen bestätigen',description:'Stellt einen entfernten bestätigten Besuch aus seinem revisionsgeprüften Places-Owner-Beleg wieder her.',consequence:'Ordnet den ursprünglichen bestätigten Besuch erst nach erneuter Owner-Prüfung wieder in die Timeline ein.'},
   {id:'trip.active.list',owner:'trip',ownerContract:'trip.v1',ownerMethod:'reads.listTrips',effect:'READ',risk:'R0',confirmation:'NEVER',resultKind:'trip_collection',autoRun:true,reversible:false,idempotency:'NONE',permissions:['trip.read'],label:'Reisen zeigen',description:'Liest die freigegebenen Reisen und den aktiven Reisekontext über Trip v1.',consequence:'Zeigt Reisekontext; verändert die aktive Reise nicht.'},
   {id:'trip.active.select',owner:'trip',ownerContract:'trip.v1',ownerMethod:'commands.selectActiveTrip',effect:'WRITE',risk:'R1',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'trip.active.select',permissions:['trip.read'],label:'Reise aktivieren',description:'Wechselt den aktiven Reisekontext ausschließlich über Trip v1.',consequence:'Nach einer sichtbaren Vorschau und deiner ausdrücklichen Bestätigung zeigt die App Daten und Akzentfarbe der gewählten Reise.'},
   {id:'trip.update.details',owner:'trip',ownerContract:'trip.v1',ownerMethod:'commands.updateTrip',effect:'WRITE',risk:'R2',confirmation:'EXPLICIT',resultKind:'receipt',reversible:true,idempotency:'REQUIRED',compensation:'trip.owner-recovery',permissions:['trip.write','trip.owner'],label:'Reiseänderung bestätigen',description:'Aktualisiert bestätigte Reisedetails ausschließlich über den Trip Owner.',consequence:'Ändert freigegebene Reisedetails für alle berechtigten Mitglieder.'},

@@ -18,16 +18,16 @@
     "newUiActionRequiresRegistryDecision": true
   },
   "summary": {
-    "semanticActions": 330,
-    "availableOrConditional": 319,
+    "semanticActions": 333,
+    "availableOrConditional": 322,
     "unavailableOrReservedOutcomes": 24,
     "auditedDataMarkers": 1004,
-    "runtimeRegisteredActions": 27,
+    "runtimeRegisteredActions": 30,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
       "Erinnerungen & Geschichten": 35,
       "Gerät, System & Offline": 10,
-      "Journey, Timeline & Tagesplan": 30,
+      "Journey, Timeline & Tagesplan": 33,
       "Luvia AI Chat": 16,
       "Medien & Galerie": 22,
       "Navigation & Oberfläche": 30,
@@ -46,14 +46,14 @@
       "PERMISSION": 10,
       "PRESENTATION": 10,
       "READ": 81,
-      "WRITE": 94
+      "WRITE": 97
     },
     "risks": {
       "R0": 137,
       "R1": 74,
       "R1–R2": 1,
       "R1–R4": 1,
-      "R2": 80,
+      "R2": 83,
       "R3": 35,
       "R4": 2
     },
@@ -64,11 +64,11 @@
       "NOT_REQUIRED": 10,
       "PARTIAL": 1,
       "PUBLIC_E2E_PASS": 7,
-      "REGISTERED_PARTIAL": 64
+      "REGISTERED_PARTIAL": 67
     },
     "ownerBinding": {
       "NOT_APPLICABLE": 39,
-      "PUBLIC_CONTRACT_BOUND": 246,
+      "PUBLIC_CONTRACT_BOUND": 249,
       "PUBLIC_E2E_PROVEN": 7,
       "RUNTIME_REGISTERED": 38
     },
@@ -76,7 +76,7 @@
       "NATIVE_CHAT_CONTROL": 14,
       "NOT_APPLICABLE": 25,
       "OPEN": 218,
-      "READY": 73
+      "READY": 76
     }
   },
   "runtimeActionIds": [
@@ -95,6 +95,9 @@
     "journey.entry.remove",
     "journey.entry.restore",
     "journey.entry.schedule",
+    "journey.visit.remove",
+    "journey.visit.restore",
+    "journey.visit.update",
     "memory.library.read",
     "memory.story.save",
     "navigation.route.open",
@@ -19979,6 +19982,225 @@
         "core/ai/ai-action-runtime.js"
       ],
       "note": "Der Booking Owner öffnet nur den zur ausgewählten Property-, Provider-, Offer-, Rate- und Quote-Identität verifizierten HTTPS-Link. Es wird dabei noch nichts gebucht oder bezahlt."
+    },
+    {
+      "sequence": 331,
+      "id": "journey.visit.update",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "label": "Bestätigten Besuch korrigieren",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR"
+      },
+      "effect": "WRITE",
+      "risk": "R2",
+      "owner": {
+        "label": "Places",
+        "domains": [
+          "places",
+          "journey"
+        ],
+        "primaryDomain": "places",
+        "contract": "places.v1",
+        "method": "commands.updateVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "visitId|startAt|durationMinutes|expectedRevision"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.visit.update",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.visit.update.v1",
+        "requiredFields": [
+          "visitId",
+          "startAt",
+          "durationMinutes",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "placeId",
+          "name"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": true,
+        "confirmationPolicy": "EXPLICIT",
+        "confirmationDescription": "Sichtbare Vorher/Neu-Vorschau plus ausdrückliche Bestätigung",
+        "idempotency": "REQUIRED",
+        "reversible": true,
+        "compensationActionId": "journey.visit.update",
+        "recoveryDescription": "Erneut mit dem zuletzt bestätigten Places-Owner-Stand korrigieren",
+        "lifecycleAuditStatus": "READY"
+      },
+      "delivery": {
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/platform/places-contract-adapter.js",
+        "core/ai/ai-action-runtime.js",
+        "core/intelligence/intelligence-action-contract-core.js",
+        "app/journey/journey-timeline.js"
+      ],
+      "note": "Der globale Luvia Chat ändert Beginn und Dauer erst nach einer sichtbaren Vorschau und ausdrücklicher Bestätigung."
+    },
+    {
+      "sequence": 332,
+      "id": "journey.visit.remove",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "label": "Bestätigten Besuch entfernen",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR"
+      },
+      "effect": "WRITE",
+      "risk": "R2",
+      "owner": {
+        "label": "Places",
+        "domains": [
+          "places",
+          "journey"
+        ],
+        "primaryDomain": "places",
+        "contract": "places.v1",
+        "method": "commands.removeVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "visitId|expectedRevision"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.visit.remove",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.visit.remove.v1",
+        "requiredFields": [
+          "visitId",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "placeId",
+          "name"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": true,
+        "confirmationPolicy": "EXPLICIT",
+        "confirmationDescription": "Sichtbare Vorher/Neu-Vorschau plus ausdrückliche Bestätigung",
+        "idempotency": "REQUIRED",
+        "reversible": true,
+        "compensationActionId": "journey.visit.restore",
+        "recoveryDescription": "Aus dem dauerhaften Places-Recovery-Beleg wiederherstellen",
+        "lifecycleAuditStatus": "READY"
+      },
+      "delivery": {
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/platform/places-contract-adapter.js",
+        "core/ai/ai-action-runtime.js",
+        "core/intelligence/intelligence-action-contract-core.js",
+        "app/journey/journey-timeline.js"
+      ],
+      "note": "Nur der bestätigte Besuch verschwindet aus der Timeline; Place, Buchungen, Medien und Memories bleiben erhalten."
+    },
+    {
+      "sequence": 333,
+      "id": "journey.visit.restore",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "label": "Bestätigten Besuch wiederherstellen",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "human": {
+        "status": "AVAILABLE",
+        "sourceStatus": "VERFÜGBAR"
+      },
+      "effect": "WRITE",
+      "risk": "R2",
+      "owner": {
+        "label": "Places",
+        "domains": [
+          "places",
+          "journey"
+        ],
+        "primaryDomain": "places",
+        "contract": "places.v1",
+        "method": "commands.restoreVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND",
+        "operationKey": "recoveryId|expectedRevision"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "sourceCoverage": "RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN",
+        "actionId": "journey.visit.restore",
+        "runtimeRegistered": true
+      },
+      "inputContract": {
+        "status": "READY",
+        "schemaId": "luvia.ai-input.journey.visit.restore.v1",
+        "requiredFields": [
+          "recoveryId",
+          "expectedRevision"
+        ],
+        "optionalFields": [
+          "tripId",
+          "visitId",
+          "placeId",
+          "name"
+        ],
+        "contextFields": [
+          "surface",
+          "tripId",
+          "locale",
+          "timeZone"
+        ]
+      },
+      "lifecycle": {
+        "stateChanging": true,
+        "confirmationPolicy": "EXPLICIT",
+        "confirmationDescription": "Sichtbare Vorher/Neu-Vorschau plus ausdrückliche Bestätigung",
+        "idempotency": "REQUIRED",
+        "reversible": false,
+        "compensationActionId": null,
+        "recoveryDescription": "Bei einem Konflikt den aktuellen Places-Owner-Stand erneut laden",
+        "lifecycleAuditStatus": "READY"
+      },
+      "delivery": {
+        "block": "P09-P10-POSITIVE-OWNER-MANAGEMENT",
+        "publicEvidence": "LOCAL_E2E_PENDING"
+      },
+      "sources": [
+        "core/platform/places-contract-adapter.js",
+        "core/ai/ai-action-runtime.js",
+        "core/intelligence/intelligence-action-contract-core.js",
+        "app/journey/journey-timeline.js"
+      ],
+      "note": "Die Wiederherstellung nutzt ausschließlich den revisionsgeprüften Recovery-Beleg des Places Visit Owners."
     }
   ],
   "unavailableOutcomes": [

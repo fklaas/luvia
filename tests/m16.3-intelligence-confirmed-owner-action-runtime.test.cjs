@@ -9,6 +9,8 @@ const runtimePath='core/ai/ai-action-runtime.js';
 const source=read(runtimePath);
 const calls=[];
 const events=[];
+let visitState={id:'visit-1',tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T08:00:00.000Z',durationSeconds:45*60,revision:'visit-rev-1'};
+let visitRecovery=null;
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingUI','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){
   assert.equal(source.includes(forbidden),false,`M16 Action Runtime bypasses a public owner contract: ${forbidden}`);
@@ -31,7 +33,9 @@ const context={
   LuviaPlacesContractV1:{
     reads:{
       async recommend(input){calls.push(['recommend',input]);return{places:[{id:'places/place-1',name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440}],route:{category:'food'}}},
-      async getCard(id){return{place:{id,providerPlaceId:id,name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440},image:{url:'https://images.example/dunes.jpg'}}}
+      async getCard(id){return{place:{id,providerPlaceId:id,name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440},image:{url:'https://images.example/dunes.jpg'}}},
+      getVisit(id){return id===visitState.id?{...visitState,confirmed:visitState.isConfirmed}:null},
+      visitRecoveries(){return visitRecovery?[{...visitRecovery}]:[]}
     },
     commands:{
       async favorite(payload){calls.push(['favorite',payload]);return{ok:true,tripPlaceId:'tp-1'}},
@@ -39,7 +43,10 @@ const context={
       async importPlace(providerPlaceId,options){calls.push(['import-place',providerPlaceId,options]);return{id:'place-1',placeId:'place-1',tripPlaceId:'tp-1',providerPlaceId}},
       async plan(payload){calls.push(['plan',payload]);return{ok:true,tripPlaceId:'tp-1'}},
       async unplan(payload){calls.push(['unplan',payload]);return{ok:true,tripPlaceId:'tp-1'}},
-      async updateLifecycle(tripPlaceId,status,patch,options){calls.push(['lifecycle',tripPlaceId,status,patch,options]);return{ok:true,tripPlaceId,status}}
+      async updateLifecycle(tripPlaceId,status,patch,options){calls.push(['lifecycle',tripPlaceId,status,patch,options]);return{ok:true,tripPlaceId,status}},
+      async updateVisit(visitId,payload){calls.push(['visit-update',visitId,payload]);visitState={...visitState,arrivedAt:payload.arrivedAt,durationSeconds:payload.durationSeconds,revision:'visit-rev-2'};return{...visitState}},
+      async removeVisit(visitId,payload){calls.push(['visit-remove',visitId,payload]);visitState={...visitState,state:'removed',isConfirmed:false,revision:'visit-rev-3'};visitRecovery={tripId:'trip-1',recoveryId:'visit-recovery-1',visitId,placeId:visitState.placeId,title:visitState.title,expectedRevision:visitState.revision};return{...visitRecovery}},
+      async restoreVisit(recoveryId,payload){calls.push(['visit-restore',recoveryId,payload]);visitState={...visitState,state:'visited',isConfirmed:true,revision:'visit-rev-4'};return{visitId:visitState.id,recoveryId,...visitState}}
     }
   },
   LuviaBookingContractV1:{
@@ -57,7 +64,7 @@ const context={
     }
   },
   LuviaJourneyContractV1:{
-    reads:{snapshot(){return{days:[{date:'2026-08-25',label:'Dienstag',entries:[]}],summary:{entryCount:0}}}},
+    reads:{snapshot(){return{days:[{date:'2026-08-25',label:'Dienstag',entries:[{id:'visit:visit-1',source:'gps',sourceId:'visit-1',sourceRevision:visitState.revision,tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',startAt:visitState.arrivedAt,durationMinutes:Math.round(visitState.durationSeconds/60)}]}],summary:{entryCount:1}}}},
     commands:{
       async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}},
       async editEntry(entryId,payload){calls.push(['journey-entry-schedule',entryId,payload]);return{entryId,operation:'restore-schedule'}},
@@ -86,8 +93,8 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 (async()=>{
   const runtime=context.LuviaAIActionRuntime;
   const diagnostics=runtime.diagnostics();
-  assert.equal(diagnostics.actions,27);
-  assert.equal(diagnostics.availableActions,26);
+  assert.equal(diagnostics.actions,30);
+  assert.equal(diagnostics.availableActions,29);
   assert.equal(diagnostics.connections.length,8);
   assert.equal(diagnostics.connections.filter(connection=>connection.owner!=='intelligence').every(connection=>connection.registered&&connection.operations===connection.totalOperations),true);
   assert.equal(diagnostics.connections.find(connection=>connection.owner==='intelligence').registered,false);
@@ -164,6 +171,29 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   const journeyRestore=runtime.prepare('journey.entry.restore',{tripId:'trip-1',recoveryId:'journey-recovery-1',expectedRevision:'event-rev-3',expectedConflictSignature:'[]'},{userGesture:true,idempotencyKey:'journey-restore-once'});
   await runtime.execute('journey.entry.restore',{}, {ledgerId:journeyRestore.ledgerId,userGesture:true,confirmed:true});assert.equal(calls.find(call=>call[0]==='journey-entry-restore')[1],'journey-recovery-1');
 
+  const visitUpdate=runtime.prepare('journey.visit.update',{tripId:'trip-1',visitId:'visit-1',placeId:'place-strand',name:'Bestätigter Strandbesuch',startAt:'2026-08-25T16:15:00.000Z',durationMinutes:60,expectedRevision:'visit-rev-1',readbackRequired:true},{userGesture:true,idempotencyKey:'visit-update-once'});
+  assert.equal(visitUpdate.result.kind,'confirmation');
+  assert.equal(calls.filter(call=>call[0]==='visit-update').length,0,'natural language and preview must never mutate the visit');
+  const visitUpdateReceipt=await runtime.execute('journey.visit.update',{}, {ledgerId:visitUpdate.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(visitUpdateReceipt.evidence.status,'completed');assert.equal(visitUpdateReceipt.evidence.reference.readbackVerified,true);assert.equal(calls.find(call=>call[0]==='visit-update')[2].confirmed,true);
+  const visitRemove=runtime.prepare('journey.visit.remove',{tripId:'trip-1',visitId:'visit-1',placeId:'place-strand',name:'Bestätigter Strandbesuch',expectedRevision:'visit-rev-2',readbackRequired:true},{userGesture:true,idempotencyKey:'visit-remove-once'});
+  const visitRemoveReceipt=await runtime.execute('journey.visit.remove',{}, {ledgerId:visitRemove.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(visitRemoveReceipt.evidence.reference.recoveryId,'visit-recovery-1');assert.equal(visitRemoveReceipt.evidence.reference.readbackState,'removed');
+  const visitUndo=runtime.prepareUndo(visitRemove.ledgerId,{userGesture:true});
+  assert.equal(visitUndo.result.evidence.actionId,'journey.visit.restore');
+  const visitRestoreReceipt=await runtime.execute('journey.visit.restore',{}, {ledgerId:visitUndo.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(visitRestoreReceipt.evidence.status,'compensated');assert.equal(visitRestoreReceipt.evidence.reference.readbackState,'restored');assert.equal(calls.find(call=>call[0]==='visit-restore')[1],'visit-recovery-1');
+
+  const updateMessage='Korrigiere den Besuch „Bestätigter Strandbesuch“ am 25.08.2026 um 18:15 Uhr auf 60 Minuten.';
+  const updateProposal=await runtime.runMessage(updateMessage,{compiledIntent:{contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'propose-write',clause:updateMessage,semanticGoalType:'confirmed_visit',semanticOperation:'update',temporalHint:{date:'2026-08-25',time:'18:15'},entityHints:{hasNamedTarget:true},missingInputs:[]}]}});
+  const updateConfirmation=updateProposal.results[0];assert.equal(updateConfirmation.kind,'confirmation');assert.equal(updateConfirmation.evidence.actionId,'journey.visit.update');assert.equal(updateConfirmation.evidence.preview.durationMinutes,60);assert.equal(calls.filter(call=>call[0]==='visit-update').length,1,'the chat proposal must not perform a second visit write');runtime.cancel(updateConfirmation.evidence.ledgerId);
+  const removeMessage='Entferne den Besuch „Bestätigter Strandbesuch“.';
+  const removeProposal=await runtime.runMessage(removeMessage,{compiledIntent:{contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'propose-write',clause:removeMessage,semanticGoalType:'confirmed_visit',semanticOperation:'remove',temporalHint:{},entityHints:{hasNamedTarget:true},missingInputs:[]}]}});
+  assert.equal(removeProposal.results[0].evidence.actionId,'journey.visit.remove');assert.equal(calls.filter(call=>call[0]==='visit-remove').length,1,'the chat proposal must not perform a second visit removal');runtime.cancel(removeProposal.results[0].evidence.ledgerId);
+  const restoreMessage='Stelle den Besuch „Bestätigter Strandbesuch“ wieder her.';
+  const restoreProposal=await runtime.runMessage(restoreMessage,{compiledIntent:{contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'propose-write',clause:restoreMessage,semanticGoalType:'confirmed_visit',semanticOperation:'restore',temporalHint:{},entityHints:{hasNamedTarget:true},missingInputs:[]}]}});
+  assert.equal(restoreProposal.results[0].evidence.actionId,'journey.visit.restore');assert.equal(calls.filter(call=>call[0]==='visit-restore').length,1,'the chat proposal must not perform a second visit restore');runtime.cancel(restoreProposal.results[0].evidence.ledgerId);
+
   const cancelled=runtime.prepare('places.place.unplan',{tripId:'trip-1',tripPlaceId:'tp-1',providerPlaceId:'place-1'},{userGesture:true});
   assert.equal(cancelled.requiresConfirmation,true);
   assert.equal(runtime.getActionState(cancelled.ledgerId).status,'confirmation_required');
@@ -218,7 +248,7 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(diagnostics.ledger.storesForeignDomainTruth,false);
 
   console.log('M16.3 Confirmed Owner Action Runtime: PASS');
-console.log('26 available Owner actions plus 1 optional verified-event read: POLICY-COVERED');
+  console.log('29 available Owner actions plus 1 optional verified-event read: POLICY-COVERED');
   console.log('R2 confirmation + idempotent replay: PASS');
   console.log('R3 unknown external outcome blind retry: BLOCKED');
   console.log('Raw payload / foreign Domain Truth in ledger: NONE');

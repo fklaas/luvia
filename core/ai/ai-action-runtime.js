@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.22.0-journey-owner-commands';
+const VERSION='1.23.0-visit-owner-commands';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -39,8 +39,8 @@ function emit(reason,detail={}){const event=actionCore().immutable({reason,...de
 function ownerContract(owner){return owner==='trip'?tripContract():owner==='places'?placesContract():owner==='booking'?bookingContract():owner==='journey'?journeyContract():owner==='memory'?memoryContract():owner==='identity'?identityContract():owner==='intelligence'?verifiedEventContract():owner==='navigation'?navigationContract():missing(owner)}
 function operation(contract,path){return clean(path).split('.').reduce((value,key)=>value?.[key],contract)}
 function operationAvailable(definition){try{return typeof operation(ownerContract(definition.owner),definition.ownerMethod)==='function'}catch{return false}}
-function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,entryId:payload.entryId||result?.entryId||null,recoveryId:payload.recoveryId||result?.recoveryId||null,providerPlaceId:payload.providerPlaceId||payload.place?.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||result?.transport||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,submissionState:result?.submissionState||result?.mutationLifecycleState||null,providerOutcomeKnown:typeof result?.providerOutcomeKnown==='boolean'?result.providerOutcomeKnown:null,awaitingProviderReply:typeof result?.awaitingProviderReply==='boolean'?result.awaitingProviderReply:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
-function previewPayload(payload={}){const allowed=['tripId','entryId','recoveryId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','startAt','durationMinutes','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
+function receiptReference(payload={},result={}){return{tripId:payload.tripId||null,previousTripId:payload.previousTripId||null,entryId:payload.entryId||result?.entryId||null,visitId:payload.visitId||result?.visitId||result?.id||null,recoveryId:payload.recoveryId||result?.recoveryId||null,providerPlaceId:payload.providerPlaceId||payload.place?.providerPlaceId||null,tripPlaceId:result?.tripPlaceId||null,bookingId:payload.bookingId||result?.bookingId||result?.id||null,storyId:payload.storyId||result?.storyId||result?.id||null,channel:result?.channel||result?.transport||null,provider:result?.provider||null,opened:typeof result?.opened==='boolean'?result.opened:null,submissionState:result?.submissionState||result?.mutationLifecycleState||null,providerOutcomeKnown:typeof result?.providerOutcomeKnown==='boolean'?result.providerOutcomeKnown:null,awaitingProviderReply:typeof result?.awaitingProviderReply==='boolean'?result.awaitingProviderReply:null,readbackVerified:typeof result?.readbackVerified==='boolean'?result.readbackVerified:null,readbackState:result?.readbackState||null,readbackOwner:result?.readbackOwner||null,readbackObservedAt:result?.readbackObservedAt||null}}
+function previewPayload(payload={}){const allowed=['tripId','entryId','visitId','recoveryId','bookingId','providerPlaceId','placeId','placeType','name','title','date','time','startAt','durationMinutes','partySize','reason','status','category'];return Object.fromEntries(allowed.filter(key=>payload[key]!=null&&payload[key]!=='').map(key=>[key,payload[key]]))}
 function ledgerPayload(definition,payload={}){
   if(definition.id==='navigation.route.open')return{route:payload.route||null,source:payload.source||'global-chat',rawPromptOmitted:true};
   if(definition.id==='booking.stay.offer.open'){const offer=payload.offer||{};return{tripId:payload.tripId||payload.query?.tripId||null,selectedStayOffer:{providerId:offer.providerId||null,providerHotelId:offer.providerHotelId||null,offerId:offer.offerId||null,providerOfferId:offer.providerOfferId||null,providerRateKey:offer.providerRateKey||null,propertyKey:offer.propertyKey||null,checkIn:offer.checkIn||null,checkOut:offer.checkOut||null,currency:offer.price?.currency||offer.currency||null,totalPrice:offer.price?.total??offer.totalPrice??null,bookingUrlOmitted:true},rawPromptOmitted:true};}
@@ -176,6 +176,43 @@ async function semanticPlaceMutationPreview(message,compiled,options={}){
     const date=intent.temporalHint?.date||null,time=intent.temporalHint?.time||null,planned=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!planned||!payload.providerPlaceId&&!payload.tripPlaceId)return null;payload.date=date;payload.time=time;payload.fields={planned_at:planned,place_name:payload.name,notes:intent.clause};payload.requestedBy='intelligence.travel-orchestration.v1';
   }
   return prepare(actionId,payload,{userGesture:true,surface:options.surface||'global-chat'}).result;
+}
+function visitMutationAction(intent,message=''){
+  if(!intent||intent.mode!=='propose-write'||!['places','journey'].includes(intent.domain))return null;
+  const source=`${intent.semanticGoalType||''} ${intent.semanticOperation||''} ${intent.clause||''} ${message}`.toLocaleLowerCase('de-DE');
+  if(!/\b(?:besuch|aufenthalt|gps[- ]?moment)\w*/i.test(source))return null;
+  if(/\b(?:wiederherstell|restore|zurückhol|zurueckhol)\w*|\bwieder\s+her\b/i.test(source))return'journey.visit.restore';
+  if(/\b(?:entfern|lösch|loesch|delete|remove)\w*/i.test(source))return'journey.visit.remove';
+  if(/\b(?:korrig|änder|aender|verschieb|update|change)\w*/i.test(source))return'journey.visit.update';
+  return null;
+}
+function visitRevision(visit={}){return clean(visit.revision||visit.updatedAt||visit.updated_at||visit.correction?._ownerRevision||visit.createdAt||visit.created_at||visit.arrivedAt||visit.arrived_at)||null}
+function visitConfirmed(visit={}){return Boolean(visit.confirmed??visit.isConfirmed??visit.is_confirmed)}
+function visitEntryCandidate(entry,activeTripId){
+  if(!entry||entry.source!=='gps'&&!['visited','left'].includes(clean(entry.kind)))return null;
+  const visitId=clean(entry.visitId||entry.sourceId||entry.sourceKey||entry.rowId||entry.id).replace(/^visit:/,'');if(!visitId)return null;
+  const visit=placesContract().reads?.getVisit?.(visitId)||{},revision=visitRevision(visit)||clean(entry.sourceRevision);
+  if(!revision)return null;
+  return{tripId:clean(entry.tripId)||activeTripId,visitId,placeId:clean(visit.placeId||entry.placeId)||null,name:clean(entry.title||visit.title)||'Bestätigter Besuch',startAt:clean(visit.arrivedAt||entry.startAt),durationMinutes:Math.max(5,Math.round(Number(visit.durationSeconds||Number(entry.durationMinutes||5)*60)/60)),expectedRevision:revision};
+}
+function namedVisitCandidate(candidates,intent,message){
+  if(candidates.length===1)return candidates[0];
+  const selected=namedMutationCandidate(candidates,intent,message);return selected?candidates.find(item=>item.visitId===selected.visitId||item.recoveryId===selected.recoveryId)||null:null;
+}
+function visitDurationHint(message,fallback){const match=clean(message).match(/\b(\d{1,4})\s*(?:min(?:ute)?n?|minutes?)\b/i),value=Number(match?.[1]);return Number.isInteger(value)&&value>=5&&value<=1440?value:fallback}
+async function semanticVisitMutationPreview(message,compiled,options={}){
+  const mutations=(compiled?.intents||[]).map(intent=>({intent,actionId:visitMutationAction(intent,message)})).filter(item=>item.actionId);if(mutations.length!==1)return null;
+  const {intent,actionId}=mutations[0],trip=tripContract().getActiveTrip?.()||tripContract().reads?.getActiveTrip?.()||{},activeTripId=tripId(trip);if(!activeTripId)return null;
+  if(actionId==='journey.visit.restore'){
+    const recoveries=placesContract().reads?.visitRecoveries?.()||[],candidates=recoveries.filter(item=>!item.tripId||clean(item.tripId)===activeTripId).map(item=>({tripId:item.tripId||activeTripId,recoveryId:clean(item.recoveryId),visitId:clean(item.visitId)||null,placeId:clean(item.placeId)||null,name:clean(item.title)||'Bestätigter Besuch',expectedRevision:clean(item.expectedRevision)})).filter(item=>item.recoveryId&&item.expectedRevision),target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+    return prepare(actionId,{...target,readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
+  }
+  const projection=await Promise.resolve(journeyContract().reads?.snapshot?.({trip})||{}),entries=journeyEntries(projection),candidates=entries.map(entry=>visitEntryCandidate(entry,activeTripId)).filter(Boolean),target=namedVisitCandidate(candidates,intent,options.sourceMessage||message);if(!target)return null;
+  if(actionId==='journey.visit.update'){
+    const date=intent.temporalHint?.date,time=intent.temporalHint?.time,startAt=plannedAt({date,time},runtimeTimeZone());if(!date||!time||!startAt)return null;
+    return prepare(actionId,{...target,date,time,startAt,durationMinutes:visitDurationHint(options.sourceMessage||message,target.durationMinutes),readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
+  }
+  return prepare(actionId,{...target,readbackRequired:true},{userGesture:true,surface:options.surface||'global-chat'}).result;
 }
 function bookingMutationAction(intent){
   if(!intent||intent.domain!=='booking'||intent.mode!=='propose-write')return null;
@@ -398,6 +435,7 @@ async function runMessage(message,options={}){
   const deterministicNavigation=actionCore().routeIntents?.(message)?.find(route=>route.actionId==='navigation.route.open')||null;
   if(compiled&&['blocked','conflicted'].includes(compiled.status)&&!deterministicNavigation)return actionCore().immutable({handled:false,results:[],routes:[],compiledStatus:compiled.status,clarificationRequired:true});
   if(compiled?.status==='compiled'){
+    try{const preview=await semanticVisitMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Besuchsänderung konnte nicht vorbereitet werden',message:cause?.message||'Der bestätigte Besuch konnte nicht eindeutig mit dem Places Visit Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(intent=>visitMutationAction(intent,message)).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
     try{const preview=await semanticPlaceMutationPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'places',title:'Änderung konnte nicht vorbereitet werden',message:cause?.message||'Der genannte Ort konnte nicht eindeutig mit dem zuständigen Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(placeMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
     try{const preview=await semanticBookingPreview(message,compiled,options);if(preview)return actionCore().immutable({handled:true,results:[preview],routes:[],error:false,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}catch(cause){return actionCore().immutable({handled:true,results:[actionCore().normalizeResult({kind:'error',owner:'booking',title:'Buchung konnte nicht vorbereitet werden',message:cause?.message||'Die Buchung konnte nicht eindeutig und sicher mit dem Booking Owner abgeglichen werden.',evidence:{actionId:(compiled.intents||[]).map(bookingMutationAction).find(Boolean)||null,code:cause?.code||'AI_ACTION_PREPARE_FAILED',automaticMutation:false},meta:{retryable:true}})],routes:[],error:true,multiIntent:false,compiledStatus:compiled.status,clarificationRequired:false})}
   }
@@ -428,6 +466,9 @@ function validatePreparedInput(definition,payload={},context={}){
     'journey.entry.schedule':'Der Timeline-Moment, sein neuer Zeitpunkt oder der geprüfte Owner-Stand fehlt. Es wurde nichts geändert.',
     'journey.entry.remove':'Der Timeline-Moment oder sein geprüfter Owner-Stand fehlt. Es wurde nichts entfernt.',
     'journey.entry.restore':'Der Wiederherstellungsbeleg oder sein geprüfter Owner-Stand fehlt. Es wurde nichts wiederhergestellt.',
+    'journey.visit.update':'Der bestätigte Besuch, sein neuer Beginn oder der geprüfte Places-Owner-Stand fehlt. Es wurde nichts geändert.',
+    'journey.visit.remove':'Der bestätigte Besuch oder sein geprüfter Places-Owner-Stand fehlt. Es wurde nichts entfernt.',
+    'journey.visit.restore':'Der Recovery-Beleg des bestätigten Besuchs oder sein geprüfter Places-Owner-Stand fehlt. Es wurde nichts wiederhergestellt.',
     'trip.active.list':'Die Reise-Anfrage ist ungültig. Es wurden keine Reisedaten geladen.',
     'trip.active.select':'Die Zielreise ist nicht eindeutig. Die aktive Reise blieb unverändert.',
     'trip.update.details':'Nenne die konkrete Reise und mindestens eine gültige Änderung. Es wurde nichts geändert.',
@@ -490,6 +531,19 @@ async function invokeOwner(definition,payload,idempotencyKey){
   else if(definition.id==='journey.entry.schedule'){result=await journeyContract().commands.editEntry(payload.entryId,{startAt:payload.startAt,durationMinutes:payload.durationMinutes,expectedRevision:payload.expectedRevision,...(payload.expectedConflictSignature!=null?{expectedConflictSignature:payload.expectedConflictSignature}:{}),conflictsAccepted:payload.conflictsAccepted===true,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde beim zuständigen Owner geändert und erneut gelesen.'}
   else if(definition.id==='journey.entry.remove'){result=await journeyContract().commands.removeEntry(payload.entryId,{expectedRevision:payload.expectedRevision,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde beim zuständigen Owner entfernt; der Recovery-Beleg bleibt erhalten.'}
   else if(definition.id==='journey.entry.restore'){result=await journeyContract().commands.restoreRemovedEntry(payload.recoveryId,{tripId:payload.tripId,expectedRevision:payload.expectedRevision,...(payload.expectedConflictSignature!=null?{expectedConflictSignature:payload.expectedConflictSignature}:{}),conflictsAccepted:payload.conflictsAccepted===true,confirmed:true,operationId:idempotencyKey});message='Der Timeline-Moment wurde aus dem geprüften Owner-Beleg wiederhergestellt.'}
+  else if(definition.id==='journey.visit.update'){
+    result=await placesContract().commands.updateVisit(payload.visitId,{arrivedAt:payload.startAt,leftAt:null,durationSeconds:Number(payload.durationMinutes)*60,expectedRevision:payload.expectedRevision,confirmed:true,operationId:idempotencyKey});
+    const verified=clean(result?.id)===clean(payload.visitId)&&exactInstant(result?.arrivedAt,payload.startAt)&&Math.round(Number(result?.durationSeconds)/60)===Number(payload.durationMinutes),readback={...(result||{}),visitId:payload.visitId,readbackVerified:verified,readbackState:verified?'visited-updated':'not-reconciled',readbackOwner:'places.v1',readbackObservedAt:new Date().toISOString()};
+    return{result:readback,message:verified?'Der bestätigte Besuch wurde beim Places Visit Owner korrigiert und erneut gelesen.':'Die Besuchskorrektur wurde gesendet, der gespeicherte Owner-Stand ist aber noch nicht eindeutig bestätigt.',status:payload.readbackRequired&&!verified?'outcome_unknown':'completed',resolvedPayload:payload};
+  }
+  else if(definition.id==='journey.visit.remove'){
+    result=await placesContract().commands.removeVisit(payload.visitId,{expectedRevision:payload.expectedRevision,title:payload.name,confirmed:true,operationId:idempotencyKey});const current=placesContract().reads?.getVisit?.(payload.visitId)||{},recoveryId=clean(result?.recoveryId),verified=Boolean(recoveryId&&current?.state==='removed'&&!visitConfirmed(current)),readback={...(result||{}),visitId:payload.visitId,readbackVerified:verified,readbackState:verified?'removed':'not-reconciled',readbackOwner:'places.v1',readbackObservedAt:new Date().toISOString()};
+    return{result:readback,message:verified?'Der bestätigte Besuch wurde beim Places Visit Owner entfernt; der Recovery-Beleg bleibt erhalten.':'Die Entfernung wurde gesendet, der gespeicherte Owner-Stand ist aber noch nicht eindeutig bestätigt.',status:payload.readbackRequired&&!verified?'outcome_unknown':'completed',resolvedPayload:{...payload,recoveryId:recoveryId||null,expectedRevision:visitRevision(current)||payload.expectedRevision}};
+  }
+  else if(definition.id==='journey.visit.restore'){
+    result=await placesContract().commands.restoreVisit(payload.recoveryId,{expectedRevision:payload.expectedRevision,confirmed:true,operationId:idempotencyKey});const visitId=clean(payload.visitId||result?.visitId),current=visitId?placesContract().reads?.getVisit?.(visitId)||{}:{},verified=Boolean(visitId&&visitConfirmed(current)&&['visited','left'].includes(clean(current.state))),readback={...(result||{}),visitId,readbackVerified:verified,readbackState:verified?'restored':'not-reconciled',readbackOwner:'places.v1',readbackObservedAt:new Date().toISOString()};
+    return{result:readback,message:verified?'Der bestätigte Besuch wurde aus dem geprüften Places-Owner-Beleg wiederhergestellt.':'Die Wiederherstellung wurde gesendet, der gespeicherte Owner-Stand ist aber noch nicht eindeutig bestätigt.',status:payload.readbackRequired&&!verified?'outcome_unknown':'completed',resolvedPayload:payload};
+  }
   else if(definition.id==='trip.active.select'){result=tripContract().commands.selectActiveTrip(payload.tripId,{source:'intelligence.actions.v1'});message='Die aktive Reise wurde gewechselt.'}
   else if(definition.id==='trip.update.details'){result=await tripContract().commands.updateTrip(payload.tripId,payload.patch||{});message='Die bestätigten Reisedetails wurden aktualisiert.'}
   else if(definition.id==='memory.story.save'){result=await memoryContract().commands.stories.save(payload.story||payload);message='Die bestätigte Reisegeschichte wurde gespeichert.'}
@@ -544,6 +598,7 @@ async function retry(ledgerId,options={}){
 function compensationPayload(definition,payload={}){
   if(definition.id==='places.place.unplan'){const previous=localDateTimeHint(payload.fields?.planned_at);return{...payload,date:payload.date||previous.date,time:payload.time||previous.time}}
   if(['places.place.favorite','places.place.unfavorite','places.place.plan'].includes(definition.id))return{...payload};
+  if(definition.id==='journey.visit.remove'&&payload.recoveryId)return{tripId:payload.tripId,visitId:payload.visitId,placeId:payload.placeId,name:payload.name,recoveryId:payload.recoveryId,expectedRevision:payload.expectedRevision,readbackRequired:true};
   if(definition.id==='trip.active.select'&&payload.previousTripId)return{tripId:payload.previousTripId,previousTripId:payload.tripId};
   return null;
 }

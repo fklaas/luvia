@@ -650,6 +650,65 @@ function materializeNavigationAIParity() {
       note: 'Der Booking Owner öffnet nur den zur ausgewählten Property-, Provider-, Offer-, Rate- und Quote-Identität verifizierten HTTPS-Link. Es wird dabei noch nichts gebucht oder bezahlt.',
     });
   }
+  const visitRuntimeActions = Object.freeze([
+    {
+      id: 'journey.visit.update',
+      area: 'Bestätigte Besuche verwalten',
+      label: 'Bestätigten Besuch korrigieren',
+      method: 'commands.updateVisit',
+      operationKey: 'visitId|startAt|durationMinutes|expectedRevision',
+      reversible: true,
+      compensationActionId: 'journey.visit.update',
+      recoveryDescription: 'Erneut mit dem zuletzt bestätigten Places-Owner-Stand korrigieren',
+      note: 'Der globale Luvia Chat ändert Beginn und Dauer erst nach einer sichtbaren Vorschau und ausdrücklicher Bestätigung.',
+    },
+    {
+      id: 'journey.visit.remove',
+      area: 'Bestätigte Besuche verwalten',
+      label: 'Bestätigten Besuch entfernen',
+      method: 'commands.removeVisit',
+      operationKey: 'visitId|expectedRevision',
+      reversible: true,
+      compensationActionId: 'journey.visit.restore',
+      recoveryDescription: 'Aus dem dauerhaften Places-Recovery-Beleg wiederherstellen',
+      note: 'Nur der bestätigte Besuch verschwindet aus der Timeline; Place, Buchungen, Medien und Memories bleiben erhalten.',
+    },
+    {
+      id: 'journey.visit.restore',
+      area: 'Bestätigte Besuche verwalten',
+      label: 'Bestätigten Besuch wiederherstellen',
+      method: 'commands.restoreVisit',
+      operationKey: 'recoveryId|expectedRevision',
+      reversible: false,
+      compensationActionId: null,
+      recoveryDescription: 'Bei einem Konflikt den aktuellen Places-Owner-Stand erneut laden',
+      note: 'Die Wiederherstellung nutzt ausschließlich den revisionsgeprüften Recovery-Beleg des Places Visit Owners.',
+    },
+  ]);
+  for (const spec of visitRuntimeActions) {
+    if (registry.actions.some(action => action.id === spec.id)) continue;
+    const runtime = runtimeById.get(spec.id);
+    const typed = inputContracts.contracts[spec.id];
+    assert.ok(runtime && typed, `Visit runtime action is incomplete: ${spec.id}`);
+    registry.actions.push({
+      sequence: registry.actions.length + 1,
+      id: spec.id,
+      category: 'Journey, Timeline & Tagesplan',
+      area: spec.area,
+      label: spec.label,
+      surface: 'Timeline / Globaler Luvia Chat',
+      human: { status: 'AVAILABLE', sourceStatus: 'VERFÜGBAR' },
+      effect: 'WRITE',
+      risk: 'R2',
+      owner: { label: 'Places', domains: ['places', 'journey'], primaryDomain: 'places', contract: runtime.ownerContract, method: runtime.ownerMethod, bindingStatus: 'PUBLIC_CONTRACT_BOUND', operationKey: spec.operationKey },
+      ai: { coverage: 'REGISTERED_PARTIAL', sourceCoverage: 'RUNTIME REGISTRIERT · OWNER-EVAL GRÜN · ÖFFENTLICHER E2E NOCH OFFEN', actionId: spec.id, runtimeRegistered: true },
+      inputContract: { status: 'READY', schemaId: typed.schemaId, requiredFields: typed.required, optionalFields: typed.optional, contextFields: typed.context },
+      lifecycle: { stateChanging: true, confirmationPolicy: 'EXPLICIT', confirmationDescription: 'Sichtbare Vorher/Neu-Vorschau plus ausdrückliche Bestätigung', idempotency: 'REQUIRED', reversible: spec.reversible, compensationActionId: spec.compensationActionId, recoveryDescription: spec.recoveryDescription, lifecycleAuditStatus: 'READY' },
+      delivery: { block: 'P09-P10-POSITIVE-OWNER-MANAGEMENT', publicEvidence: 'LOCAL_E2E_PENDING' },
+      sources: ['core/platform/places-contract-adapter.js', 'core/ai/ai-action-runtime.js', 'core/intelligence/intelligence-action-contract-core.js', 'app/journey/journey-timeline.js'],
+      note: spec.note,
+    });
+  }
   const contract = inputContracts.contracts['navigation.route.open'];
   for (const action of registry.actions.filter(action => action.owner.contract === 'navigation.v1' && action.owner.method === 'createIntent')) {
     action.ai = { coverage: 'REGISTERED_PARTIAL', sourceCoverage: 'RUNTIME REGISTRIERT · ÖFFENTLICHER E2E NOCH OFFEN', actionId: 'navigation.route.open', runtimeRegistered: true };
@@ -875,7 +934,7 @@ function validateRegistry() {
   assert.equal(inputContracts.contractId, 'luvia.ai-action-input-contracts.v1');
   assert.equal(inputContracts.actionContractId, 'intelligence.actions.v1');
   assert.equal(inputContracts.enforcement, 'BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE');
-  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'journey.entry.schedule', 'journey.entry.remove', 'journey.entry.restore', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
+  assert.deepEqual(inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'journey.entry.schedule', 'journey.entry.remove', 'journey.entry.restore', 'journey.visit.update', 'journey.visit.remove', 'journey.visit.restore', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
   assert.equal(inputContracts.runtimeEnforcement.metadataValidatedOpenActionIds, 0);
   assert.equal(inputContracts.runtimeEnforcement.rejectsBeforeLedgerAndOwnerInvocation, true);
   assert.deepEqual(Array.from(actionCore.policySnapshot().inputEnforcement.runtimeEnforced), inputContracts.runtimeEnforcement.runtimeEnforcedActionIds);
@@ -896,8 +955,8 @@ function validateRegistry() {
   assert.equal(registry.invariants.publicE2eRequiredForPass, true);
   assert.equal(registry.invariants.newUiActionRequiresRegistryDecision, true);
 
-  assert.equal(registry.actions.length, 330, 'semantic action count changed without deliberate registry revision');
-  assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 319);
+  assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
+  assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
   assert.equal(sourceAudit.markers.length, 1004);
   assert.equal(sourceAudit.markerCount, 1004);
@@ -915,7 +974,7 @@ function validateRegistry() {
     assert.equal(action.owner.bindingStatus, 'PUBLIC_CONTRACT_BOUND', `${id} owner decision was not materialized`);
     for (const [key, value] of Object.entries(decision)) assert.equal(action.owner[key], value, `${id} owner ${key} drift`);
   }
-  assert.deepEqual(registry.actions.map(action => action.sequence), Array.from({ length: 330 }, (_, index) => index + 1), 'semantic action sequence must stay contiguous');
+  assert.deepEqual(registry.actions.map(action => action.sequence), Array.from({ length: 333 }, (_, index) => index + 1), 'semantic action sequence must stay contiguous');
   for (const action of registry.actions) {
     assert.match(action.id, /^[a-z0-9]+(?:[.-][a-z0-9]+)+$/, `invalid action id ${action.id}`);
     assert.ok(action.category && action.area && action.label && action.surface, `${action.id} misses human-facing identity`);
@@ -1021,7 +1080,7 @@ function validateRegistry() {
   }
 
   const runtimeIds = runtimeActions.map(action => action.id).sort();
-  assert.equal(runtimeIds.length, 27, 'runtime registry count changed; update the parity registry deliberately');
+  assert.equal(runtimeIds.length, 30, 'runtime registry count changed; update the parity registry deliberately');
   assert.deepEqual(registry.runtimeActionIds, runtimeIds, 'runtime action registry and parity control plane diverged');
   assert.deepEqual(Object.keys(inputContracts.contracts).sort(), runtimeIds, 'every runtime action needs exactly one typed input contract');
   const schemaIds = new Set();
@@ -1153,7 +1212,7 @@ function buildReport(validated = validateRegistry()) {
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
     `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. A selected offer opens only when Provider-, Property-, Offer-, Rate-, Quote- and URL identity agree. The source runtime action set is **24**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
-    `locally green; the 330-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The rejected \`.148\` and \`.149\` candidates and local \`.150\` candidate do not inflate public evidence before an operated public run.\n`;
+    `locally green; the 333-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The rejected \`.148\` and \`.149\` candidates and local \`.150\` candidate do not inflate public evidence before an operated public run.\n`;
 }
 
 function main() {
