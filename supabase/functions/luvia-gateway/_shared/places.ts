@@ -323,8 +323,52 @@ async function foursquareWithFieldFallback(path:string,params:Record<string,unkn
     }
   }
 }
-function canonicalKey(place:any){const name=String(place?.name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();const lat=Number(place?.location?.latitude),lng=Number(place?.location?.longitude);return `${name}|${Number.isFinite(lat)?lat.toFixed(3):''}|${Number.isFinite(lng)?lng.toFixed(3):''}`;}
-function mergeProviderPlaces(items:any[]){const out:any[]=[];const index=new Map<string,number>();for(const place of items){if(!place?.name)continue;const key=canonicalKey(place);const existingIndex=index.get(key);if(existingIndex===undefined){place.providerRefs=place.providerRefs||{[place.provider||'google-places']:String(place.id||'')};place.evidence=place.evidence||[{provider:place.provider||'google-places',kind:'place-search'}];index.set(key,out.length);out.push(place);continue;}const current=out[existingIndex];const preferGoogle=String(current.provider||'').includes('google')||String(place.provider||'').includes('google');const primary=String(current.provider||'').includes('google')?current:String(place.provider||'').includes('google')?place:current;const currentCount=current.userRatingCount,otherCount=place.userRatingCount;const userRatingCount=(currentCount==null&&otherCount==null)?null:Math.max(...[currentCount,otherCount].filter(v=>v!=null).map(v=>Number(v)).filter(v=>Number.isFinite(v)));out[existingIndex]={...current,...primary,provider:'multi',providerRefs:{...(current.providerRefs||{}),...(place.providerRefs||{}),[String(current.provider||'google')]:String(current.id||''),[String(place.provider||'foursquare')]:String(place.id||'')},evidence:[...(current.evidence||[]),...(place.evidence||[])],rating:current.rating??place.rating,userRatingCount,photos:(current.photos?.length?current.photos:place.photos)||[],_multiProvider:preferGoogle};}return out;}
+const normalizedIdentityText=(value:any)=>String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+function canonicalDuplicate(left:any,right:any){
+  const leftName=normalizedIdentityText(left?.name||left?.displayName),rightName=normalizedIdentityText(right?.name||right?.displayName);
+  if(!leftName||leftName!==rightName)return false;
+  const meters=distanceMeters(left?.location||left?.coordinates,right?.location||right?.coordinates);
+  if(meters!=null&&meters<=25)return true;
+  const leftAddress=normalizedIdentityText(left?.formattedAddress||left?.address),rightAddress=normalizedIdentityText(right?.formattedAddress||right?.address);
+  return leftAddress.length>=8&&leftAddress===rightAddress;
+}
+const placeProviderName=(place:any)=>String(place?.provider||String(place?.providerPlaceId||place?.id||'').split(':')[0]||'unknown').toLowerCase();
+const rawProviderId=(place:any)=>String(place?.providerPlaceId||place?.id||'').replace(/^places\//,'').replace(/^[^:]+:/,'');
+export function mergeProviderPlaces(items:any[]){
+  const out:any[]=[];
+  for(const source of items||[]){
+    if(!source?.name)continue;
+    const place={...source},existingIndex=out.findIndex(current=>canonicalDuplicate(current,place));
+    if(existingIndex<0){
+      const provider=placeProviderName(place),rawId=rawProviderId(place);
+      place.providerRefs={...(place.providerRefs||{}),...(provider!=='unknown'&&rawId?{[provider]:rawId}:{})};
+      place.evidence=place.evidence||[{provider,kind:'place-search'}];
+      out.push(place);continue;
+    }
+    const current=out[existingIndex],currentProvider=placeProviderName(current),incomingProvider=placeProviderName(place),differentProviders=currentProvider!==incomingProvider;
+    const primary=currentProvider.includes('google')?current:incomingProvider.includes('google')?place:(!current.photos?.length&&place.photos?.length?place:current);
+    const currentCount=current.userRatingCount,otherCount=place.userRatingCount,userRatingCount=(currentCount==null&&otherCount==null)?null:Math.max(...[currentCount,otherCount].filter(v=>v!=null).map(v=>Number(v)).filter(v=>Number.isFinite(v)));
+    const providerRefs={...(current.providerRefs||{}),...(place.providerRefs||{})};
+    if(currentProvider!=='unknown'&&rawProviderId(current))providerRefs[currentProvider]=rawProviderId(current);
+    if(incomingProvider!=='unknown'&&rawProviderId(place))providerRefs[incomingProvider]=rawProviderId(place);
+    if(!differentProviders&&currentProvider!=='unknown'&&rawProviderId(primary))providerRefs[currentProvider]=rawProviderId(primary);
+    out[existingIndex]={
+      ...current,...primary,
+      provider:differentProviders?'multi':current.provider,
+      providerPlaceId:primary.providerPlaceId||primary.id||current.providerPlaceId||current.id,
+      id:primary.id||primary.providerPlaceId||current.id||current.providerPlaceId,
+      providerRefs,
+      types:[...new Set([...(current.types||[]),...(place.types||[])])],
+      evidence:[...(current.evidence||[]),...(place.evidence||[]),{provider:'multi',kind:'canonical-name-and-max-25m-dedup'}],
+      rating:current.rating??place.rating,
+      userRatingCount,
+      photos:(current.photos?.length?current.photos:place.photos)||[],
+      canonicalDuplicateIds:[...new Set([...(current.canonicalDuplicateIds||[]),String(current.providerPlaceId||current.id||''),String(place.providerPlaceId||place.id||'')].filter(Boolean))],
+      _multiProvider:differentProviders
+    };
+  }
+  return out;
+}
 function profileContextText(options:any){const p=options?.profileContext||{};const parts=[];if(p.vegetarian||p.diet==='vegetarian')parts.push('vegetarian food required');if(p.vegan||p.diet==='vegan')parts.push('vegan food required');if(p.withChild||p.familyFriendly)parts.push('traveling with a child; family friendly');if(p.stroller)parts.push('stroller friendly');for(const x of (p.preferences||[]).slice(0,8))parts.push(String(x));return parts.join(', ');}
 // A Foursquare category filter is applied only when an owner caller supplies an
 // explicit, reviewed taxonomy set. The broad five-digit "Restaurant" node does
@@ -923,7 +967,7 @@ async function resolveDestination(payload:any){
 
 export async function placesAction(action:string,payload:any){
 if(action==='destination.resolve')return resolveDestination(payload);
-const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const forceRefresh=options.forceRefresh===true;const {forceRefresh:_forceRefresh,...cacheOptions}=options;const cachePayload={...payload,options:cacheOptions};const key=`${action}:v2.16.7-osm-category-continuity:${hash(cachePayload)}`;const hit=ttl>0&&!forceRefresh?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
+const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const forceRefresh=options.forceRefresh===true;const {forceRefresh:_forceRefresh,...cacheOptions}=options;const cachePayload={...payload,options:cacheOptions};const key=`${action}:v2.16.8-canonical-dedupe:${hash(cachePayload)}`;const hit=ttl>0&&!forceRefresh?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
 if(action==='places.health'){
   const requestedProbe=String(payload?.diagnosticProbe||'').trim().toLowerCase();
   const probe:any=HEALTH_PROBES[requestedProbe as keyof typeof HEALTH_PROBES]||null;
@@ -936,7 +980,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),status:Number(item?.status)||null,providerStatus:String(item?.providerStatus||'').slice(0,80)||null,reason:String(item?.reason||'unknown').slice(0,80),service:String(item?.service||'').slice(0,160)||null,message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.38.8-osm-category-continuity',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},openstreetmap:osmDietaryConfiguration(),tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'bounded_dietary_evidence_opt_in'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_dietary_fallback_and_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'official-vegetarian-category-or-explicit-reviewed-taxonomy',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'},apple:{...appleMapsConfiguration(),priority:'parked_optional_paid_candidate',credentialExposure:false,placeImages:false,cuisineEvidence:false}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.38.9-persistent-category-canonical-dedupe',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},openstreetmap:osmDietaryConfiguration(),tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'bounded_dietary_evidence_opt_in'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_dietary_fallback_and_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'official-vegetarian-category-or-explicit-reviewed-taxonomy',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'},apple:{...appleMapsConfiguration(),priority:'parked_optional_paid_candidate',credentialExposure:false,placeImages:false,cuisineEvidence:false}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
@@ -992,6 +1036,7 @@ if(action==='places.text-search'){
       if(osmProcessed.length){processed=osmProcessed;fallbackUsed=Boolean(wantsGeoapify);fallbackReason=fallbackReason||'geoapify_empty_or_unavailable';mode='free_osm_category_continuity';}
     }catch(error:any){if(!providerErrors.some(item=>item.provider==='openstreetmap'))providerErrors.push({provider:'openstreetmap',code:error?.code||'OSM_PLACES_PROVIDER_ERROR',message:error?.message||'OpenStreetMap-Orte sind gerade nicht verfügbar.',status:Number(error?.status)||null,reason:error?.reason||null})}
   }
+  processed=mergeProviderPlaces(processed);
   const breadthTarget=providerBreadthTarget(categoryKey,providers);
   const primaryResultCount=processed.length;
   if(!processed.length||breadthTarget>0&&processed.length<breadthTarget){
@@ -1029,6 +1074,7 @@ if(action==='places.text-search'){
     if(legacyProcessed.length){processed=legacyProcessed;fallbackUsed=Boolean(wantsGeoapify);mode=wantsGeoapify?'geoapify_then_legacy':'google_primary_foursquare_fallback';}
   }
   if(attempted.length&&providerErrors.length===attempted.length&&!processed.length)throw Object.assign(new Error('Keine verbundene Ortsquelle konnte die Suche beantworten.'),{code:'PLACES_ALL_PROVIDERS_FAILED',status:503,providerErrors});
+  processed=mergeProviderPlaces(processed);
   result={places:processed,providers:{mode,requested:providers,attempted:[...new Set(attempted)],answered:[...new Set(answered)],used:[...new Set(processed.flatMap((p:any)=>Object.keys(p.providerRefs||{})))],fallbackUsed,fallbackReason:fallbackUsed?fallbackReason:null,supplementUsed,supplementReason:supplementUsed?supplementReason:null,breadthTarget:breadthTarget||null,primaryResultCount,errors:providerErrors},searchContext:{destination,canonicalCity:destination?.canonicalCity||null,landmarkContext:landmark,restriction:restriction||null,bias:bias||null,anchor:searchAnchor(destination,options),profileContext:options.profileContext||null,intentContext:options.intentContext||null,filters:{openNow:Boolean(options.openNow),minRating:options.minRating||null,priceLevels:options.priceLevels||[],vegetarianOnly:Boolean(options.vegetarianOnly),minUserRatingCount:options.minUserRatingCount||0,maxDistanceMeters:effectiveMaxDistanceMeters(destination,options)||Number(options.maxDistanceMeters)||0},sortBy:options.sortBy||'relevance'}};
 }
 else if(action==='places.nearby-search'){const body=cleanObject({languageCode,regionCode,maxResultCount:options.maxResultCount||10,includedTypes:options.includedTypes?.length?options.includedTypes:(options.includedType?[options.includedType]:undefined),excludedTypes:options.excludedTypes?.length?options.excludedTypes:undefined,includedPrimaryTypes:options.includedPrimaryTypes?.length?options.includedPrimaryTypes:undefined,excludedPrimaryTypes:options.excludedPrimaryTypes?.length?options.excludedPrimaryTypes:undefined,rankPreference:options.rankPreference||'POPULARITY',locationRestriction:{circle:{center:payload.location,radius:payload.radius||3000}}});const raw=await google('/places:searchNearby',{method:'POST',body:JSON.stringify(body)},searchFields(options));const normalized=(raw.places||[]).map(normalizedPlace);result={places:postProcessPlaces(normalized,payload?.destination||{location:payload.location},options)};}

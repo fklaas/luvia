@@ -14,7 +14,7 @@ class FakeMap{
 class Marker{setLngLat(){return this}addTo(){return this}remove(){}}
 const ctx=vm.createContext({console,Date,Map,Set,Promise,performance,document:{documentElement:node(),createElement:node},MutationObserver:class{observe(){}disconnect(){}},maplibregl:{Map:FakeMap,Marker,NavigationControl:class{}},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:id=>timers.delete(id)});ctx.window=ctx;
 for(const p of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js'])vm.runInContext(read(p),ctx);
-vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,categoryCohortKey,rememberCategoryCohort,restoreCategoryCohort,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
+vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,categoryCacheKey,cachedPlaceProjection,categoryCohortKey,rememberCategoryCohort,restoreCategoryCohort,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
 const row=(id,lat=54.02)=>({id,providerPlaceId:id,name:id,primaryType:'restaurant',types:['restaurant'],coordinates:{latitude:lat,longitude:10.75}});
 const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pending)await t.fn()};
 (async()=>{
@@ -58,6 +58,13 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  st.category='shopping';st.query='Shopping';st.results=[{...row('geoapify:shopping-cohort'),primaryType:'store',types:['store']}];
  assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'returning to a recent category restores its exact destination cohort even when an older cache used different default copy');
  assert.equal(st.results[0].name,'geoapify:food-cohort');assert.equal(st.status,'ready');
+ st.categoryCohorts.clear();st.results=[];st.category='shopping';
+ assert.equal(ctx.recovery.restoreCategoryCohort('food','Restaurant'),true,'a category cohort survives a page-level in-memory reset through the bounded session cache');
+ assert.equal(st.results[0].name,'geoapify:food-cohort');
+ const projected=ctx.recovery.cachedPlaceProjection({...row('openstreetmap:node:1'),raw:{datasource:{raw:{amenity:'restaurant','diet:vegetarian':'yes',private_payload:'drop'}},unbounded:'drop'},reviews:[{text:'drop'}]});
+ assert.equal(projected.raw.datasource.raw['diet:vegetarian'],'yes');assert.equal(projected.raw.datasource.raw.private_payload,undefined);assert.equal(projected.reviews,undefined,'persistent cohorts keep only bounded map/filter evidence');
+ const duplicateCache={scope:ctx.recovery.cacheScope(),category:'food',query:'Restaurant',savedAt:new Date().toISOString(),results:[{...row('geoapify:dup-a'),name:'Hotel Strandgrün',formattedAddress:'Strandallee 10, Scharbeutz'},{...row('geoapify:dup-b',54.0201),name:'Hotel Strandgrün',formattedAddress:'Strandallee 10, Scharbeutz'}]};
+ savedCache.set(ctx.recovery.cacheKey(),duplicateCache);st.category='food';st.results=[];assert.equal(ctx.recovery.loadCached(),true);assert.equal(st.results.length,1,'legacy session cohorts are safely deduplicated while they migrate to the new cache schema');
  // A late destination read must not overwrite a newer camera intent, and a
  // category change during the viewport debounce must use that camera's bounds.
  let finishDestination,viewportOptions=[];const traceMap={dataset:{}};

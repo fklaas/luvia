@@ -827,6 +827,10 @@ const SUITE = Object.freeze([
     test: 'tests/p02-osm-category-continuity.test.cjs'
   },
   {
+    category: 'P02 / Canonical place deduplication',
+    test: 'tests/p02-canonical-place-dedupe.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },
