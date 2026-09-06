@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "0ee7b489",
+  "sourceBaseline": "706f7692",
   "app": "13.82.168.97",
   "core": "4.82.216",
-  "runtimeSource": "4230167d3b1653791985b35f79054fffea5055fc",
-  "worker": "fd162519-c4de-487c-9800-2672b3bed937",
-  "gateway": "v223 ACTIVE / 4.64.29 / Places 4.38.7-osm-edge-proxy",
+  "runtimeSource": "706f76928ac4cb96d48fea3416cf7abb7538d7b6",
+  "worker": "47bc75d4-f2f1-4266-9091-2a22baddb328",
+  "gateway": "v225 ACTIVE / 4.64.30 / Places 4.38.7-osm-edge-proxy",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
     {
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Der letzte vollständig öffentlich belegte Stand ist App 13.82.168.95 / Core 4.82.214 auf Integration-Worker fd162519-c4de-487c-9800-2672b3bed937 aus Runtime-Commit 4230167d. 30/30 Release-Dateien stimmen auf Stable und immutable Worker mit dem Archiv luvia-integration-13.82.168.95-4230167d.zip (SHA-256 4C32CCFAEA10DBAE3C135BDA46F636AA1743408819CA0D325DE21DBAC42BA0BB) überein; Gateway v223 meldet 4.64.29. Kandidat .96 / Core 4.82.216 ist lokal gebaut und wartet auf den neuen öffentlichen Beleg. Main und Production bleiben unverändert.",
+      "evidence": "Aktuell öffentlich belegt sind App 13.82.168.97 / Core 4.82.216 auf Integration-Worker 47bc75d4-f2f1-4266-9091-2a22baddb328 aus Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6. Gateway v225 meldet 4.64.30. 30/30 releasekritische Dateien stimmen im sauberen Public-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.97-706f76928ac4-public-bytes.zip hat 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51. Safe Regression 231/231 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
       "nextAcceptance": "Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -28,8 +28,8 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "Der öffentliche Stand .95 hält vegetarische Passung fail-closed und schließt das Steakhouse aus. Kandidat .96 ergänzt vor den budgetierten TomTom-/HERE-Fallbacks eine authentifizierte, sechs Stunden gecachte OSM-Kontinuitätsebene für alle 14 Luvia-Kategorien. Der Worker akzeptiert keine freie Overpass-Abfrage, sondern nur eine Whitelist, maximal 15 km und 250 Zeilen. Alle 19 Landesküchen sind normalisiert; Sachfilter lassen fehlende Öffnungs-, Bewertungs-, Preis-, Reservierungs- oder Barrierefreiheitsfakten nicht passieren. Exakt verknüpfte OSM-/Wikimedia-Bilder behalten Identität und Herkunft. Öffentliche Deployment-, Browser- und Byteabnahme ist noch offen; Apple bleibt geparkt.",
-      "nextAcceptance": "Alle 14 Kategorien, 82 Zuordnungen, sämtliche sichtbaren Sachfilter und 19 Landesküchen gegen reale Providerproben abnehmen; echte Place-Fotos samt Herkunft und das Providerbudget einschließlich des Google-Limits von 1.000 Aufrufen pro Tag belegen; dieselben Regeln auf Places und Stays prüfen.",
+      "evidence": "Der öffentliche Stand .97 stellt die Kategorie-Kontinuität wieder her. Eine authentifizierte, sechs Stunden gecachte OSM-Ebene deckt alle 14 Luvia-Kategorien und 19 Landesküchen ab; der Worker erlaubt nur feste Kategorien, maximal 15 km und 250 Zeilen. Häufige Edge-Cache-Lookups laufen über openstreetmap-cache/lookup mit 20.000 Aufrufen pro Tag und 300 pro Minute, während direkte Overpass-Suchen auf 500 pro Tag und 6 pro Minute begrenzt bleiben. Öffentliche Proben sind grün für Food, Shopping, Natur, Nachtleben, Stays, vegetarische OSM-Evidenz und Chinesisch. Sichtbar belegt: Food Alle 50, Food Passend 9 ohne Kleines Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 und bedienbarer Zoom nach Kategorienwechsel. Sachfilter bleiben fail-closed, exakte OSM-/Wikimedia-Bilder behalten Identität und Herkunft. P02 bleibt teilweise: ein Natur-Kaltstart benötigte rund 6,8 Sekunden, mehrere Detailkarten haben noch kein echtes Ortsbild und Stays enthält sichtbare Dubletten. Apple bleibt ohne kostenpflichtiges Developer-Programm geparkt.",
+      "nextAcceptance": "Die reale 14-Kategorien-/82-Zuordnungen-/19-Landesküchen-Matrix einschließlich aller sichtbaren Sachfilter auf positive, negative, leere und teilweise Providerfälle schließen; Cache-Treffer bis 1,0 Sekunden und kalte Providerpfade bis 3,0 Sekunden ohne falschen Leerzustand bringen; echte providergebundene Fotos und kanonische Deduplizierung für Places und Stays belegen.",
       "scope": "Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -40,8 +40,8 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "Die öffentliche .95-Owner-Parität zwischen Places, Timeline und AI bleibt belegt. Kandidat .96 erweitert denselben places.v1-Kandidatenpfad um eine budgetschonende OSM-Kategorie- und Landesküchenkontinuität, ohne eine zweite Kartenlogik oder neue Consumer-Suche zu eröffnen. Fehlende Providerfakten bleiben unbekannt und können deshalb weder Passend noch strikte Sachfilter fälschlich erfüllen. Die öffentliche End-to-End-Abnahme dieses erweiterten Kandidaten steht noch aus.",
-      "nextAcceptance": "Die nachgewiesene Owner-Parität auf alle 14 Kategorien, 82 Zuordnungen, sämtliche sichtbaren Filter und 19 Landesküchen erweitern; leere, teilweise und widersprüchliche Providerantworten sowie echte Ortsbilder prüfen und Places/Stays gleich abnehmen.",
+      "evidence": "App .97 verwendet weiterhin denselben places.v1-Kandidaten- und Passend-Entscheidungsweg für Karte, Timeline und AI Chat. Die neue OSM-Kategorie- und Landesküchenkontinuität liegt im gemeinsamen Gateway/Places-Owner statt in einem zweiten Consumer-Suchpfad. Fehlende Providerfakten bleiben unbekannt. Die öffentliche Karte belegt Food Passend mit neun positiven Treffern ohne Steakhouse-Falschpositiv sowie konsistente Shopping-, Natur-, Nachtleben- und Stays-Kohorten. Die vollständige positive/negative/partielle Filterparität in Timeline-Vorschlägen und AI Chat bleibt Teil des aktiven P02/P03-Abschlusses.",
+      "nextAcceptance": "Alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen und sichtbaren Sachfilter in Places, Stays, Timeline-Vorschlägen und AI Chat gegen dieselben realen positiven, negativen, leeren und teilweisen Owner-Ergebnisse abnehmen; Foto-, Deduplizierungs- und Latenzbelege gemeinsam schließen.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "13.82.168.63 / Core 4.82.185: Frontend-Quelle fac7b348, unveränderliches Archiv release59-fac7b348.zip, SHA-256 DDEB817E23C3CA8DFDB832F75D29FD93C60B9AFA370F7E570A67F99AA145FE1F, Gateway v172 ACTIVE aus Quelle 7c288d89, Worker 563afd24, 220/220 Safe Regression und 30/30 öffentliche Asset-Hashes. Sichtbare Abnahme: Kategorie-Kontinuität 50/21/11/21/50, Food Passend 0 ohne Steakhouse-Falschpositiv und Stays 49/27/49. Main unverändert; exakter Rückfall auf .57 / Gateway v169 vorhanden.",
+      "evidence": "App 13.82.168.97 / Core 4.82.216: Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6, byteidentisches Rollback-Archiv luvia-integration-13.82.168.97-706f76928ac4-public-bytes.zip mit 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51, Gateway v225, Worker 47bc75d4-f2f1-4266-9091-2a22baddb328, 231/231 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbare Abnahme: Food Alle 50 / Passend 9 ohne Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 sowie Zoom nach Kategorienwechsel. Main und Production unverändert.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,9 +640,9 @@
       ]
     }
   ],
-  "acceptanceUpdate": "Integrationskandidat App 13.82.168.97 / Core 4.82.216 ist gebaut. Er ergänzt eine authentifizierte, sechs Stunden gecachte und auf 15 km sowie 250 Datensätze begrenzte OSM-Kontinuitätsebene für 14 Kategorien und 19 Landesküchen. Sachfilter bleiben bei fehlenden Fakten fail-closed, exakte OSM-Bildreferenzen können mit identitätsgeprüftem Seed angereichert werden. Öffentliche Worker-/Gateway-/Browserabnahme steht noch aus; Main und Production bleiben unverändert.",
-  "safeRegression": "231/231 PASS for App 13.82.168.97 candidate; NFR-0 3/3 PASS",
-  "publicAssetIdentity": "30/30 MATCH on stable and immutable public .95 against clean archive",
+  "acceptanceUpdate": "Integration App 13.82.168.97 / Core 4.82.216 ist öffentlich. Die authentifizierte, sechs Stunden gecachte und auf 15 km sowie 250 Datensätze begrenzte OSM-Kontinuitätsebene deckt 14 Kategorien und 19 Landesküchen ab. Cache-Lookups besitzen ein separates internes Kontingent von 20.000 pro Tag und 300 pro Minute; direkte Overpass-Aufrufe bleiben auf 500 pro Tag und 6 pro Minute begrenzt. Öffentliche Health-Proben, sichtbare Places-/Stays-Browserläufe, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Passend zeigt bei Essen & Trinken neun belegte Treffer und kein Steakhouse. Fotoabdeckung, Frischladezeit, Dubletten und die volle reale Filtermatrix bleiben offen. Main und Production sind unverändert.",
+  "safeRegression": "231/231 PASS for public App 13.82.168.97; NFR-0 3/3 PASS",
+  "publicAssetIdentity": "30/30 MATCH across clean public-byte archive, stable and immutable Worker .97; archive SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -673,25 +673,25 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. Integrationskandidat App .96 / Core 4.82.216 erweitert P02 um eine gecachte OSM-Kontinuitätsebene für alle 14 Kategorien; die öffentliche Deployment- und Browserabnahme ist noch offen. P03-Owner-Parität bleibt über Places, Timeline und AI belegt. Apple bleibt geparkt.",
-    "delivered": "Der öffentliche Stand .95 hält Passend fail-closed und Places, Timeline sowie AI auf derselben Owner-Entscheidung. Kandidat .96 ergänzt die serverseitig begrenzte OSM-Kategoriesuche vor TomTom/HERE, 14 Kategorien, alle 19 Landesküchen, fail-closed Sachfilter und exakte OSM-Bildreferenzen. Safe Regression 231/231 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Mobil-/Desktop-Abnahme folgen in diesem laufenden Abschnitt.",
+    "stage": "M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .97 wieder kontinuierlich, bleiben aber teilweise bis zur vollständigen realen Filter-, Foto-, Deduplizierungs- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.",
+    "delivered": "App .97 / Core .216 ist auf Integration veröffentlicht. Food zeigt 50 Orte und neun belegte Passend-Treffer; das Kleine Steakhouse fehlt korrekt. Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23 und Stays 49 wurden im sichtbaren Browser geprüft; Zoom blieb nach dem Kategorienwechsel bedienbar. Die neue OSM-Kontinuität deckt 14 Kategorien und 19 Landesküchen ab, trennt Cache-Lookups von direkten Overpass-Budgets und besteht öffentliche Health-Proben. Releasekette: Runtime 706f7692, Gateway v225, Worker 47bc75d4, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität.",
     "nextStep": {
-      "id": "P02-P03-category-filter-photo-provider-completeness",
+      "id": "P02-P03-real-filter-photo-dedupe-latency-matrix",
       "package": "P02",
       "status": "AKTIV",
-      "title": "Kategorie-, Filter-, Foto- und Provider-Vollständigkeit schließen",
-      "reason": "Die Owner-Parität ist öffentlich belegt. Jetzt muss dieselbe Verlässlichkeit über die gesamte Places- und Stays-Breite gelten, statt nur für den vegetarischen Restaurantpfad.",
+      "title": "Reale Filter-, Foto-, Deduplizierungs- und Latenzmatrix schließen",
+      "reason": "Die unmittelbare Ausfallursache und der vegetarische Falschpositiv sind behoben. Für den P02/P03-Abschluss muss die nachgewiesene Kontinuität jetzt über jede Kategorie, jeden Filter, echte Ortsbilder und schnelle Wechsel gelten.",
       "acceptance": [
-        "Alle 14 sichtbaren Kategorien und 82 kanonischen Zuordnungen liefern auf Desktop und Mobile konsistente Ergebnisse; Zoomen, Ziehen und schneller Kategorienwechsel bleiben bedienbar.",
-        "Jeder sichtbare Sachfilter und alle 19 Landesküchen werden gegen reale positive, negative, leere und teilweise Providerproben geprüft; UI-Label, aktive Kategorie und tatsächlich gefilterte Kohorte stimmen überein.",
-        "Passend bleibt für jede Kategorie owner-basiert und fail-closed; widersprüchliche oder unbelegte Orte erscheinen nicht als passend.",
-        "Detail-Sheets verwenden echte, dem exakten Place zuordenbare Bilder mit Herkunft; fehlende Bilder werden ehrlich und hochwertig behandelt, ohne irreführende Fremdort-Fotos.",
-        "Provider-Kaskade, Cache, Deduplizierung, Timeouts und Quoten sind messbar; Google bleibt bei höchstens 1.000 Aufrufen pro Tag, begrenzte Anbieter werden erst nach Cache und kostenlosen Quellen beansprucht.",
-        "Places und Stays bestehen dieselbe Karten-, Pin-, Such-, Filter-, Passend- und Mobilabnahme; Safe Regression, NFR-0, sichtbarer Browserbeleg und immutable Release-Identität sind grün."
+        "Alle 14 sichtbaren Kategorien, 82 kanonischen Zuordnungen und 19 Landesküchen bestehen auf Desktop und Touch dieselbe positive, negative, leere und teilweise Provider-Matrix; UI-Label, aktive Kategorie, Filter und sichtbare Kohorte stimmen überein.",
+        "Passend bleibt owner-basiert und fail-closed. Das vegetarische Profil enthält belegte positive Orte, niemals ein unbelegtes Steakhouse; dieselbe Entscheidung erscheint in Places, Stays, Timeline-Vorschlägen und AI Chat.",
+        "Cache-Treffer zeigen Pins spätestens nach 1,0 Sekunden, kalte Providerpfade spätestens nach 3,0 Sekunden. Kategorienwechsel, Ziehen und Zoomen zeigen keinen falschen Leerzustand und bleiben jederzeit bedienbar.",
+        "Detail-Sheets verwenden echte Bilder der exakten Provider-Place-ID mit sichtbarer Herkunft. Fehlt ein belegtes Bild, bleibt der Zustand ehrlich; fremde Place-Fotos sind ausgeschlossen.",
+        "Kanonische Provider-ID, Name, Adresse und Koordinate deduplizieren Places und Stays, ohne verschiedene Orte zusammenzulegen.",
+        "Google bleibt auf höchstens 1.000 Aufrufen pro Tag begrenzt; Cache, OSM, Geoapify, TomTom und HERE werden anhand dokumentierter Fähigkeiten und Budgets gesteuert. Safe Regression, NFR-0, sichtbare Browserabnahme und immutable Byteidentität bleiben grün."
       ]
     },
-    "after": "Nach P02/P03-Vollständigkeit folgt P09/P10: gemeinsame Places-Karte in allen Timeline-Vorschlägen, physische Langdruck-/Wackelmodus-Abnahme, 90-Minuten-Routenfluss sowie Booking- und Visit-AI-Parität.",
-    "open": "P02/P03 bleiben teilweise für vollständige Kategorie-, Filter-, Foto- und Providerbereitschaft. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich im Produktentscheid inventarisiert und über diese Blöcke sequenziert."
+    "after": "Nach diesem P02/P03-Abschluss folgt P09/P10: dieselbe Places-Karte in allen Timeline-Vorschlägen, physische Langdruck-/Wackelmodus-Abnahme, 90-Minuten-Routenfluss sowie Booking- und Visit-AI-Parität.",
+    "open": "P02/P03 bleiben teilweise für die vollständige reale Kategorie-/Filtermatrix, echte Fotoabdeckung, Deduplizierung und Ziel-Latenzen. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs sind verbindlich inventarisiert und über diese Blöcke sequenziert. Operativer Hinweis: Das Supabase-Dashboard meldet eine Überschreitung im vorigen Abrechnungszyklus und eine mögliche Projekteinschränkung ab 7. September; Nutzung und Billing müssen unabhängig vom Code beobachtet werden."
   },
-  "qaCommit": "4230167d"
+  "qaCommit": "706f7692"
 }
