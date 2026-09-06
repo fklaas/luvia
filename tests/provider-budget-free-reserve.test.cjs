@@ -8,6 +8,7 @@ const read=relative=>fs.readFileSync(path.join(root,relative),'utf8');
 const migration=read('supabase/migrations/20260905090000_geoapify_free_budget_reserve.sql');
 const googleEvidence=read('supabase/migrations/20260905153000_google_verified_profile_evidence_budget.sql');
 const googleDiagnosticReset=read('supabase/migrations/20260905170000_google_fit_diagnostic_cooldown_reset.sql');
+const googleExactMedia=read('supabase/migrations/20260906043000_google_exact_selected_media_budget.sql');
 const foursquareEvidence=read('supabase/migrations/20260905173000_foursquare_verified_dietary_evidence_budget.sql');
 const foursquareDiagnosticReset=read('supabase/migrations/20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql');
 const foursquareExactMedia=read('supabase/migrations/20260906013000_foursquare_exact_media_budget.sql');
@@ -32,6 +33,13 @@ assert.match(googleDiagnosticReset,/blocked_until\s*=\s*null/,'the one-time diag
 assert.match(googleDiagnosticReset,/operations\s*=\s*array\['search'\]::text\[\]/,'the diagnostic reset must remain scoped to the search-only Google policy');
 assert.doesNotMatch(googleDiagnosticReset,/delete\s+from\s+public\.places_provider_usage/i,'the diagnostic reset must retain every reserved unit');
 assert.match(googleDiagnosticReset,/GOOGLE_FIT_DIAGNOSTIC_COOLDOWN_NOT_RESET/,'the diagnostic reset must fail closed when the intended policy is absent');
+assert.match(googleExactMedia,/'google-place-photo','google',array\['photo'\]::text\[\],true,25,800,4/,'Google photo reads use their own selected-place-only bounded SKU bucket');
+assert.match(googleExactMedia,/operations\s*=\s*array\['search'\]::text\[\][\s\S]*daily_limit\s*=\s*25[\s\S]*monthly_limit\s*=\s*800/,'the media activation keeps the existing search reserve unchanged');
+assert.match(googleExactMedia,/blocked_until\s*=\s*null[\s\S]*last_status\s*=\s*null/,'the user-confirmed Places API activation gets one bounded cooldown reset');
+assert.doesNotMatch(googleExactMedia,/delete\s+from\s+public\.places_provider_usage/i,'media activation retains all provider usage evidence');
+assert.match(places,/async function enrichExactGoogleMedia|export async function enrichExactGoogleMedia/,'selected places can use strict Google media identity');
+assert.match(places,/places\.id,places\.displayName,places\.location,places\.photos/,'the Google media resolver requests only identity, coordinates and photo references');
+assert.match(places,/google\?\.photos\?\.length\?google:enrichExactFoursquareMedia\(google\)/,'Foursquare remains the bounded fallback after Google has no exact photo');
 assert.match(budget,/reason:reservation\?\.reason\|\|'unknown'/,'budget denial must retain a bounded machine-readable reason');
 assert.match(places,/reason:String\(item\?\.reason\|\|'unknown'\)\.slice\(0,80\)/,'public bounded diagnostics must disclose why an attempted provider was denied');
 assert.match(places,/'vegetarian-google-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['google'\]\)/,'the signed-in fit lane must have an exact bounded Google-only health probe');
@@ -58,7 +66,7 @@ assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i
 assert.match(osmProxy,/'openstreetmap-cached-proxy','openstreetmap-cache',array\['lookup'\],true,20000,0,300/,'cached proxy lookups need a separate bounded lane that cannot exhaust direct Overpass reads');
 assert.doesNotMatch(osmProxy,/delete\s+from\s+public\.places_provider_usage/i,'the cached proxy lane must preserve all accounting evidence');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
-assert.match(places,/version:'4\.38\.14-cold-hedge-commons-category'/,'the deployed gateway must identify the active provider, cold-latency and exact-media contract');
+assert.match(places,/version:'4\.38\.15-exact-google-media-category-matrix'/,'the deployed gateway must identify the active selected-media and category-matrix contract');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}maxDistanceMeters:3000/,'the public OSM probe must verify the same three-kilometre radius presented by Places');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 

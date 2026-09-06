@@ -42,7 +42,7 @@ const {pathToFileURL}=require('node:url');
   assert.match(places,/options\?\.openNow\)list=list\.filter\(p=>p\.openNow===true\)/,'unknown open state must fail closed');
   assert.match(places,/options\?\.accessibleOnly\)list=list\.filter\(p=>p\.accessibilityOptions\?\.wheelchairAccessibleEntrance===true\)/,'unknown accessibility must fail closed');
   assert.match(places,/rawId\.startsWith\('openstreetmap:'\).*providerPlaceSeed/s,'exact linked OSM media must require a matching selected-place seed');
-  assert.match(places,/rawId\.startsWith\('openstreetmap:'\).*enrichLinkedMedia.*enrichExactFoursquareMedia/s,'an OSM image miss may use the same strict exact-identity Foursquare fallback as other providers');
+  assert.match(places,/rawId\.startsWith\('openstreetmap:'\).*enrichLinkedMedia.*enrichExactSelectedMedia/s,'an OSM image miss uses the shared strict exact-identity provider cascade');
   assert.match(adapter,/SELECTED_MEDIA_PROVIDER_PREFIXES=.*'openstreetmap:'/,'OSM selected cards must enter exact media hydration');
   assert.match(browser,/providerPlaceSeed:seed\|\|undefined/,'only an identity-matched browser seed may reach the gateway');
   assert.match(detailOwner,/providerPlaceSeed=normalizedId&&seedId===normalizedId\?seed:null/,'the shared detail owner must bridge the exact selected entity into the public transport option');

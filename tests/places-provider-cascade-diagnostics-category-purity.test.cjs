@@ -22,6 +22,11 @@ assert.match(gateway,/answered:\[\.\.\.new Set\(answered\)\]/,'gateway distingui
 assert.match(gateway,/if\(excluded\.length\)list=list\.filter/,'gateway removes explicitly excluded provider types before returning or caching results');
 assert.match(gateway,/'nature-scharbeutz'/,'bounded Nature purity health probe exists');
 assert.match(gateway,/'food-scharbeutz'/,'bounded broad Food cascade health probe exists');
+const categoryHealthBlock=gateway.slice(gateway.indexOf('const CATEGORY_HEALTH_TYPES'),gateway.indexOf('const CATEGORY_HEALTH_PROBES'));
+const categoryKeys=[...categoryHealthBlock.matchAll(/^\s{2}\['([a-z]+)','/gm)].map(match=>match[1]);
+assert.equal(new Set(categoryKeys).size,14,'all 13 Places categories plus the shared accommodation surface have a bounded health probe');
+for(const category of ['food','activities','themeparks','wellness','water','sights','photo','culture','nature','shopping','malls','nightlife','practical','accommodation'])assert(categoryKeys.includes(category),`category matrix must include ${category}`);
+assert.match(gateway,/diagnosticCoverage:\{categories:CATEGORY_HEALTH_TYPES\.length,cuisines:CUISINE_HEALTH_TYPES\.length,detailMediaReads:'selected-place-only'\}/,'public diagnostics disclose complete category/cuisine scope without spending detail-media reads');
 const cuisineHealthBlock=gateway.slice(gateway.indexOf('const CUISINE_HEALTH_TYPES'),gateway.indexOf('const CUISINE_HEALTH_PROBES'));
 const cuisineTypes=[...cuisineHealthBlock.matchAll(/'([a-z_]+_restaurant)'/g)].map(match=>match[1]);
 assert.equal(new Set(cuisineTypes).size,19,'all 19 visible cuisine filters have a bounded health probe');

@@ -28,6 +28,6 @@ vm.runInContext(source,context,{filename:'place-detail-service.js'});
   const gateway=fs.readFileSync('supabase/functions/luvia-gateway/_shared/places.ts','utf8');
   assert.match(gateway,/geoapify-details-media-v4:[^`]+seedMediaKey/,'Geoapify detail caching must distinguish a later exact media-bearing seed');
   assert.match(gateway,/const exactPlace=exactSeed\?\{\.\.\.exactSeed,\.\.\.place/,'Geoapify details must preserve exact media facts carried by the selected search entity');
-  assert.match(gateway,/options\.enrichMedia===true&&!linked\.photos\?\.length\?await enrichExactFoursquareMedia/,'Foursquare media is requested only when exact linked media is still absent');
+  assert.match(gateway,/options\.enrichMedia===true&&!linked\.photos\?\.length\?await enrichExactSelectedMedia/,'the bounded exact-media cascade is requested only when exact linked media is still absent');
   console.log('Shared exact-place media and visible attribution: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
