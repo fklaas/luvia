@@ -36,9 +36,10 @@ function creationSettings(data,key,now){
   return {
     _updatedAt:now,
     firstTripComposer:{
-      version:1,idempotencyKey:key||null,subtitle:data.subtitle||'',feelings:Array.isArray(data.feelings)?data.feelings:[],
+      version:2,idempotencyKey:key||null,entryMode:['guided','quick','ai'].includes(data.entryMode)?data.entryMode:'guided',
+      subtitle:data.subtitle||'',feelings:Array.isArray(data.feelings)?data.feelings:[],tripPreferences:data.tripPreferences||{},
       scheduleMode:data.scheduleMode==='flexible'?'flexible':'fixed',flexibility:data.flexibility||'',privacy:data.privacy||'private',
-      participantPlan:data.participantPlan||'solo-first',createdAt:now,owner:'trip',collaborationStatus:'handoff-required'
+      participantPlan:data.participantPlan||'solo-first',createdAt:now,owner:'trip',preferenceScopeVersion:1,collaborationStatus:'handoff-required'
     }
   };
 }

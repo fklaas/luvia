@@ -6,6 +6,8 @@ Intern angenommener, unveränderlicher P11-Kandidat: **13.82.168.112**, Core **4
 
 Intern angenommener, unveränderlicher P12-Kandidat: **13.82.168.113**, Core **4.82.232**, Worker **d3553403-3c27-4d79-9a4d-0d5021045c4a**. Timeline und Luvia AI teilen die beleggebundene Tagesprobe; nach sichtbarer Abnahme, 235/235 Safe Regression und 30/30 Byteidentität wurde Stable Integration wieder auf den oben genannten App-.104-Stand gesetzt.
 
+Lokaler P15/P17-Arbeitskandidat: **13.82.168.114**, Core **4.82.233**. Der gemeinsame Trip Composer besitzt die drei Einstiege Geführt, Schnellstart und Luvia AI; Anfragekontext, reisebezogene Vorlieben und bestätigungspflichtige Profilübergabe werden getrennt. Öffentliche Abnahme und unveränderlicher Worker-Beleg stehen noch aus.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

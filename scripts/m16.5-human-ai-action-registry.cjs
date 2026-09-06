@@ -770,6 +770,14 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  // P15/P17: three entry modes and scoped preference inputs are parts of the
+  // existing Trip Composer outcome. The durable toggle only requests a later
+  // Identity confirmation; it does not perform a profile write itself.
+  'data-entry-mode': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-budget': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-durable': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-entry-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-trip-interest': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   // P03: inspectable, read-only proof that Places, Timeline and Chat reuse one
   // canonical entity/evidence cohort without adding a new user action.
   'data-ai-fit-reason': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
@@ -965,8 +973,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1009);
-  assert.equal(sourceAudit.markerCount, 1009);
+  assert.equal(sourceAudit.markers.length, 1014);
+  assert.equal(sourceAudit.markerCount, 1014);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

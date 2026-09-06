@@ -2,15 +2,17 @@ var LuviaTripDraftCoreV1=(()=>{
 'use strict';
 
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const FIELDS=Object.freeze([
   'title','subtitle','symbol','feelings','destination','scheduleMode','startDate','endDate',
-  'flexibility','participantPlan','privacy','modules','accent','deferred'
+  'flexibility','participantPlan','privacy','modules','accent','deferred','entryMode',
+  'requestBrief','tripPreferences','durablePreferenceProposal'
 ]);
 const DEFAULTS=Object.freeze({
   title:'',subtitle:'',symbol:'✦',feelings:Object.freeze([]),destination:null,
   scheduleMode:'fixed',startDate:null,endDate:null,flexibility:'',participantPlan:'solo-first',
-  privacy:'private',modules:Object.freeze([]),accent:'#ec6555',deferred:false
+  privacy:'private',modules:Object.freeze([]),accent:'#ec6555',deferred:false,entryMode:'guided',
+  requestBrief:'',tripPreferences:Object.freeze({}),durablePreferenceProposal:Object.freeze({requested:false,fields:Object.freeze([])})
 });
 
 function immutable(value){
@@ -39,6 +41,29 @@ function projectDestination(value){
     timezone:text(value.timezone,80)
   });
 }
+function projectTripPreferences(value={}){
+  const input=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+  const budget=['economy','balanced','generous','open'].includes(input.budgetLevel)?input.budgetLevel:'open';
+  const pace=['slow','balanced','active','open'].includes(input.pace)?input.pace:'open';
+  return immutable({
+    budgetLevel:budget,
+    pace,
+    interests:uniqueStrings(input.interests,12),
+    food:uniqueStrings(input.food,12),
+    accessibility:uniqueStrings(input.accessibility,12),
+    mobility:uniqueStrings(input.mobility,8),
+    notes:text(input.notes,280)
+  });
+}
+function projectDurablePreferenceProposal(value={}){
+  const input=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+  const requested=Boolean(input.requested);
+  return immutable({
+    requested,
+    fields:requested?uniqueStrings(input.fields,12):[],
+    status:requested?'confirmation-required':'not-requested'
+  });
+}
 function normalize(input={}){
   const value=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
   const scheduleMode=value.scheduleMode==='flexible'?'flexible':'fixed';
@@ -56,7 +81,11 @@ function normalize(input={}){
     privacy:value.privacy==='invite-only'?'invite-only':'private',
     modules:uniqueStrings(value.modules),
     accent:text(value.accent,32)||DEFAULTS.accent,
-    deferred:Boolean(value.deferred)
+    deferred:Boolean(value.deferred),
+    entryMode:['guided','quick','ai'].includes(value.entryMode)?value.entryMode:'guided',
+    requestBrief:text(value.requestBrief,1200),
+    tripPreferences:projectTripPreferences(value.tripPreferences),
+    durablePreferenceProposal:projectDurablePreferenceProposal(value.durablePreferenceProposal)
   });
 }
 function createDraft(input={}){return normalize({...DEFAULTS,...input})}
@@ -80,9 +109,23 @@ function validateDraft(draft={}){
   if(value.startDate&&value.endDate&&value.endDate<value.startDate)issues.push(Object.freeze({path:'endDate',code:'date_range'}));
   return immutable({valid:issues.length===0,issues,draft:value});
 }
+function projectScopes(draft={}){
+  const value=normalize(draft);
+  const {requestBrief,durablePreferenceProposal,...tripInput}=value;
+  return immutable({
+    tripInput,
+    requestContext:{scope:'request-only',retention:'receipt-only',brief:requestBrief},
+    durablePreferenceHandoff:{
+      owner:'identity',contractId:'identity.v1',scope:'durable',
+      status:durablePreferenceProposal.requested?'required':'not-requested',
+      confirmationRequired:durablePreferenceProposal.requested,
+      fields:durablePreferenceProposal.fields
+    }
+  });
+}
 
 return Object.freeze({
   version:VERSION,runtimeVersion:RUNTIME_VERSION,fields:FIELDS,
-  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft
+  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft,projectScopes
 });
 })();

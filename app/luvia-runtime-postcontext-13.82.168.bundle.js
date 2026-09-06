@@ -17741,12 +17741,12 @@ window.LuviaAIMemoryBridge=Object.freeze({version:VERSION,build:BUILD,buildConte
 ;
 
 /* ===== core/diagnostics/media-readiness.js ===== */
-/* Release 13.82.168.113 - Core 4.82.232 */
+/* Release 13.82.168.114 - Core 4.82.233 */
 (() => {
   'use strict';
   const VERSION='4.28.6.7';
-  const CORE='4.82.232';
-  const BUILD='13.82.168.113';
+  const CORE='4.82.233';
+  const BUILD='13.82.168.114';
   const now=()=>new Date().toISOString();
   const elapsed=start=>Math.max(0,Math.round((performance.now()-start)*100)/100);
   async function probeTable(client,table,columns='*'){
@@ -20880,15 +20880,17 @@ var LuviaTripDraftCoreV1=(()=>{
 'use strict';
 
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0';
 const FIELDS=Object.freeze([
   'title','subtitle','symbol','feelings','destination','scheduleMode','startDate','endDate',
-  'flexibility','participantPlan','privacy','modules','accent','deferred'
+  'flexibility','participantPlan','privacy','modules','accent','deferred','entryMode',
+  'requestBrief','tripPreferences','durablePreferenceProposal'
 ]);
 const DEFAULTS=Object.freeze({
   title:'',subtitle:'',symbol:'✦',feelings:Object.freeze([]),destination:null,
   scheduleMode:'fixed',startDate:null,endDate:null,flexibility:'',participantPlan:'solo-first',
-  privacy:'private',modules:Object.freeze([]),accent:'#ec6555',deferred:false
+  privacy:'private',modules:Object.freeze([]),accent:'#ec6555',deferred:false,entryMode:'guided',
+  requestBrief:'',tripPreferences:Object.freeze({}),durablePreferenceProposal:Object.freeze({requested:false,fields:Object.freeze([])})
 });
 
 function immutable(value){
@@ -20917,6 +20919,29 @@ function projectDestination(value){
     timezone:text(value.timezone,80)
   });
 }
+function projectTripPreferences(value={}){
+  const input=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+  const budget=['economy','balanced','generous','open'].includes(input.budgetLevel)?input.budgetLevel:'open';
+  const pace=['slow','balanced','active','open'].includes(input.pace)?input.pace:'open';
+  return immutable({
+    budgetLevel:budget,
+    pace,
+    interests:uniqueStrings(input.interests,12),
+    food:uniqueStrings(input.food,12),
+    accessibility:uniqueStrings(input.accessibility,12),
+    mobility:uniqueStrings(input.mobility,8),
+    notes:text(input.notes,280)
+  });
+}
+function projectDurablePreferenceProposal(value={}){
+  const input=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+  const requested=Boolean(input.requested);
+  return immutable({
+    requested,
+    fields:requested?uniqueStrings(input.fields,12):[],
+    status:requested?'confirmation-required':'not-requested'
+  });
+}
 function normalize(input={}){
   const value=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
   const scheduleMode=value.scheduleMode==='flexible'?'flexible':'fixed';
@@ -20934,7 +20959,11 @@ function normalize(input={}){
     privacy:value.privacy==='invite-only'?'invite-only':'private',
     modules:uniqueStrings(value.modules),
     accent:text(value.accent,32)||DEFAULTS.accent,
-    deferred:Boolean(value.deferred)
+    deferred:Boolean(value.deferred),
+    entryMode:['guided','quick','ai'].includes(value.entryMode)?value.entryMode:'guided',
+    requestBrief:text(value.requestBrief,1200),
+    tripPreferences:projectTripPreferences(value.tripPreferences),
+    durablePreferenceProposal:projectDurablePreferenceProposal(value.durablePreferenceProposal)
   });
 }
 function createDraft(input={}){return normalize({...DEFAULTS,...input})}
@@ -20958,10 +20987,24 @@ function validateDraft(draft={}){
   if(value.startDate&&value.endDate&&value.endDate<value.startDate)issues.push(Object.freeze({path:'endDate',code:'date_range'}));
   return immutable({valid:issues.length===0,issues,draft:value});
 }
+function projectScopes(draft={}){
+  const value=normalize(draft);
+  const {requestBrief,durablePreferenceProposal,...tripInput}=value;
+  return immutable({
+    tripInput,
+    requestContext:{scope:'request-only',retention:'receipt-only',brief:requestBrief},
+    durablePreferenceHandoff:{
+      owner:'identity',contractId:'identity.v1',scope:'durable',
+      status:durablePreferenceProposal.requested?'required':'not-requested',
+      confirmationRequired:durablePreferenceProposal.requested,
+      fields:durablePreferenceProposal.fields
+    }
+  });
+}
 
 return Object.freeze({
   version:VERSION,runtimeVersion:RUNTIME_VERSION,fields:FIELDS,
-  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft
+  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft,projectScopes
 });
 })();
 
@@ -21006,9 +21049,10 @@ function creationSettings(data,key,now){
   return {
     _updatedAt:now,
     firstTripComposer:{
-      version:1,idempotencyKey:key||null,subtitle:data.subtitle||'',feelings:Array.isArray(data.feelings)?data.feelings:[],
+      version:2,idempotencyKey:key||null,entryMode:['guided','quick','ai'].includes(data.entryMode)?data.entryMode:'guided',
+      subtitle:data.subtitle||'',feelings:Array.isArray(data.feelings)?data.feelings:[],tripPreferences:data.tripPreferences||{},
       scheduleMode:data.scheduleMode==='flexible'?'flexible':'fixed',flexibility:data.flexibility||'',privacy:data.privacy||'private',
-      participantPlan:data.participantPlan||'solo-first',createdAt:now,owner:'trip',collaborationStatus:'handoff-required'
+      participantPlan:data.participantPlan||'solo-first',createdAt:now,owner:'trip',preferenceScopeVersion:1,collaborationStatus:'handoff-required'
     }
   };
 }
@@ -21437,7 +21481,7 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.2.0';
+  const RUNTIME_VERSION='1.3.0';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -21575,21 +21619,24 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     return tripProjection(await creator().save(input||{}));
   }
   function firstTripInput(input={},idempotencyKey=''){
-    const destination=destinationProjection(input.destination);
-    const title=clean(input.title)?.slice(0,80)||'';
-    const modules=[...new Set((Array.isArray(input.modules)?input.modules:[]).map(clean).filter(Boolean))];
+    const scopes=draftCore().projectScopes(input),value=scopes.tripInput;
+    const destination=destinationProjection(value.destination);
+    const title=clean(value.title)?.slice(0,80)||'';
+    const modules=[...new Set((Array.isArray(value.modules)?value.modules:[]).map(clean).filter(Boolean))];
     if(!idempotencyKey){const error=new Error('Trip Contract v1: Für die erste Reise ist ein Idempotency-Key erforderlich.');error.code='TRIP_FIRST_IDEMPOTENCY_REQUIRED';throw error;}
     if(!title){const error=new Error('Bitte gib der Reise einen Namen.');error.code='TRIP_FIRST_TITLE_REQUIRED';throw error;}
     if(!destination?.placeId){const error=new Error('Bitte bestätige ein kanonisches Reiseziel.');error.code='TRIP_FIRST_CANONICAL_DESTINATION_REQUIRED';throw error;}
     if(!modules.length){const error=new Error('Bitte aktiviere mindestens einen Reisebaustein.');error.code='TRIP_FIRST_MODULE_REQUIRED';throw error;}
-    if(input.scheduleMode!=='flexible'&&input.startDate&&input.endDate&&input.endDate<input.startDate){const error=new Error('Das Rückreisedatum darf nicht vor der Anreise liegen.');error.code='TRIP_FIRST_DATE_RANGE_INVALID';throw error;}
+    if(value.scheduleMode!=='flexible'&&value.startDate&&value.endDate&&value.endDate<value.startDate){const error=new Error('Das Rückreisedatum darf nicht vor der Anreise liegen.');error.code='TRIP_FIRST_DATE_RANGE_INVALID';throw error;}
     return {
-      title,subtitle:clean(input.subtitle)?.slice(0,120)||'',destination,
-      symbol:clean(input.symbol)||'✦',accent:clean(input.accent)||'#ee6f83',
-      startDate:input.scheduleMode==='flexible'?null:clean(input.startDate),endDate:input.scheduleMode==='flexible'?null:clean(input.endDate),
-      scheduleMode:input.scheduleMode==='flexible'?'flexible':'fixed',flexibility:clean(input.flexibility)||'',
-      feelings:[...new Set((Array.isArray(input.feelings)?input.feelings:[]).map(clean).filter(Boolean))].slice(0,3),
-      privacy:['private','invite-only'].includes(input.privacy)?input.privacy:'private',participantPlan:input.participantPlan==='invite-after-creation'?'invite-after-creation':'solo-first',
+      title,subtitle:clean(value.subtitle)?.slice(0,120)||'',destination,
+      symbol:clean(value.symbol)||'✦',accent:clean(value.accent)||'#ee6f83',
+      startDate:value.scheduleMode==='flexible'?null:clean(value.startDate),endDate:value.scheduleMode==='flexible'?null:clean(value.endDate),
+      scheduleMode:value.scheduleMode==='flexible'?'flexible':'fixed',flexibility:clean(value.flexibility)||'',
+      feelings:[...new Set((Array.isArray(value.feelings)?value.feelings:[]).map(clean).filter(Boolean))].slice(0,3),
+      privacy:['private','invite-only'].includes(value.privacy)?value.privacy:'private',participantPlan:value.participantPlan==='invite-after-creation'?'invite-after-creation':'solo-first',
+      entryMode:value.entryMode,tripPreferences:value.tripPreferences,
+      requestContext:scopes.requestContext,durablePreferenceHandoff:scopes.durablePreferenceHandoff,
       modules,idempotencyKey
     };
   }
@@ -21604,7 +21651,9 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
       if(!trip?.id||active?.id!==trip.id){const error=new Error('Die Reise wurde angelegt, aber nicht als aktive Reise bestätigt.');error.code='TRIP_FIRST_ACTIVATION_UNCONFIRMED';throw error;}
       const receipt=Object.freeze({
         owner:'trip',contractId:CONTRACT_ID,action:'trip.first.create',status:'committed',idempotencyKey,tripId:trip.id,activeTripId:active.id,committedAt:new Date().toISOString(),trip,
-        collaborationHandoff:Object.freeze({status:prepared.participantPlan==='invite-after-creation'?'required':'not-requested',owner:'collaboration',contractId:'collaboration.membership.v1',availability:'reserved'})
+        collaborationHandoff:Object.freeze({status:prepared.participantPlan==='invite-after-creation'?'required':'not-requested',owner:'collaboration',contractId:'collaboration.membership.v1',availability:'reserved'}),
+        requestContext:prepared.requestContext,
+        preferenceHandoff:prepared.durablePreferenceHandoff
       });
       firstTripReceipts.set(idempotencyKey,receipt);
       publish('trip.created',{receipt,trip},{tripId:trip.id,entityId:trip.id,correlationId:idempotencyKey});
@@ -21637,7 +21686,8 @@ return Object.freeze({contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNT
     updateDraft(draft={},patch={}){return draftCore().updateDraft(draft,patch)},
     deferDraft(draft={}){return draftCore().deferDraft(draft)},
     resumeDraft(draft={}){return draftCore().resumeDraft(draft)},
-    validateDraft(draft={}){return draftCore().validateDraft(draft)}
+    validateDraft(draft={}){return draftCore().validateDraft(draft)},
+    projectScopes(draft={}){return draftCore().projectScopes(draft)}
   });
 
   function envelope(name,payload={},options={}){
@@ -25395,13 +25445,20 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
 (() => {
   'use strict';
 
-  const VERSION='1.0.0';
+  const VERSION='1.1.0';
   const ROUTE='first-trip-composer';
   const STEPS=Object.freeze(['welcome','identity','feeling','destination','dates','people','modules','accent','ready']);
+  const ALL_STEPS=Object.freeze([...STEPS,'brief','preview']);
+  const ENTRY_FLOWS=Object.freeze({
+    guided:Object.freeze([...STEPS]),
+    quick:Object.freeze(['welcome','destination','dates','accent','ready']),
+    ai:Object.freeze(['welcome','destination','dates','brief','preview','accent','ready'])
+  });
+  const STEP_LABELS=Object.freeze({welcome:'Ankommen',identity:'Identität',feeling:'Gefühl',destination:'Ort',dates:'Zeit',people:'Gemeinsam',modules:'Bausteine',brief:'Wünsche',preview:'Entwurf',accent:'Farbe',ready:'Bereit'});
   const STEP_COPY=Object.freeze({
     welcome:['ERSTE REISE','Eine Richtung entsteht','Los geht’s'],identity:['01 · IDENTITÄT','Gebt eurer Reise einen Namen','Weiter'],feeling:['02 · GEFÜHL','Wie soll sie sich anfühlen?','Weiter'],
     destination:['03 · REISEHORIZONT','Wohin zieht es euch?','Weiter'],dates:['04 · ZEIT','Wann darf sie beginnen?','Weiter'],people:['05 · GEMEINSAM','Wer reist mit?','Weiter'],
-    modules:['06 · BAUSTEINE','Was soll euch begleiten?','Weiter'],accent:['07 · REISEFARBE','Gebt der Reise ihren Ton','Weiter'],ready:['BEREIT','Eure Reise kann beginnen','Reise anlegen']
+    modules:['06 · BAUSTEINE','Was soll euch begleiten?','Weiter'],brief:['LUVIA AI · WÜNSCHE','Was soll diese Reise können?','Entwurf ansehen'],preview:['LUVIA AI · VORSCHAU','So baut Luvia den Reiseentwurf','Gestaltung wählen'],accent:['07 · REISEFARBE','Gebt der Reise ihren Ton','Weiter'],ready:['BEREIT','Eure Reise kann beginnen','Reise anlegen']
   });
   const SYMBOLS=Object.freeze(['✦','♡','☀','⌁','◌','△','≈','◇']);
   const FEELINGS=Object.freeze([
@@ -25413,6 +25470,8 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     ['wallet-documents','▤','Wallet & Dokumente','Belege und Reiseunterlagen griffbereit.'],['memories','♡','Memories','Aus Augenblicken eure Geschichte machen.'],
     ['move','↝','Move','Wege und Mobilität passend einordnen.'],['collaboration','◎','Gemeinsam reisen','Einladungen nach der Reiseerstellung übergeben.']
   ]);
+  const TRIP_INTERESTS=Object.freeze([['food','Essen & Trinken'],['culture','Kultur'],['nature','Natur'],['nightlife','Nachtleben'],['shopping','Shopping'],['wellness','Wellness'],['family','Familie'],['active','Aktiv sein']]);
+  const BUDGETS=Object.freeze([['economy','Bewusst'],['balanced','Ausgewogen'],['generous','Großzügig'],['open','Noch offen']]);
   const ACCENTS=Object.freeze([
     ['coral','#ec6555','Coral'],['sea','#2f95a8','Sea'],['sand','#c99562','Sand'],['sage','#799b7a','Sage'],['lavender','#9b82c5','Lavender'],
     ['sunset','#ef7b62','Sunset'],['fjord','#4c8792','Fjord'],['berry','#ae5e7a','Berry'],['lagoon','#38a69b','Lagoon'],['ember','#d36d46','Ember'],
@@ -25425,7 +25484,7 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     ['terracotta','#b65f4c','Terracotta'],['copper','#a76748','Copper'],['cocoa','#7c5e52','Cocoa'],['chestnut','#805449','Chestnut'],['stone','#8b8982','Stone'],
     ['pearl','#b6aaa2','Pearl'],['cloud','#9ba9ad','Cloud'],['chalk','#c5bdb3','Chalk'],['moon','#9c9bb0','Moon'],['ink','#334d5b','Ink']
   ]);
-  const SCENES=Object.freeze({welcome:'prototype-coast-morning.png',identity:'prototype-coast-morning.png',feeling:'prototype-harbor-lunch.png',destination:'prototype-coast-bike.png',dates:'prototype-coast-morning.png',people:'prototype-harbor-lunch.png',modules:'prototype-coast-bike.png',accent:'prototype-memory-sunset.png',ready:'prototype-memory-sunset.png'});
+  const SCENES=Object.freeze({welcome:'prototype-coast-morning.png',identity:'prototype-coast-morning.png',feeling:'prototype-harbor-lunch.png',destination:'prototype-coast-bike.png',dates:'prototype-coast-morning.png',people:'prototype-harbor-lunch.png',modules:'prototype-coast-bike.png',brief:'prototype-harbor-lunch.png',preview:'prototype-coast-bike.png',accent:'prototype-memory-sunset.png',ready:'prototype-memory-sunset.png'});
   let mounted=null,searchTimer=0,searchSequence=0,placesSessionToken='';
 
   const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
@@ -25445,43 +25504,51 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
   function shouldStart(){return (trip()?.reads?.listTrips?.()||[]).length===0&&readSession(deferredKey(),false)!==true;}
   function defer(){writeSession(deferredKey(),true);}
   function clearDeferred(){removeSession(deferredKey());}
-  function draftStep(){const value=readSession(draftKey(),null);return STEPS.includes(value?.step)?value.step:'welcome';}
-  function readDraft(){const value=readSession(draftKey(),null);return value?.version===1&&value?.userId===userId()?value:null;}
+  function draftStep(){const value=readSession(draftKey(),null);return ALL_STEPS.includes(value?.step)?value.step:'welcome';}
+  function readDraft(){const value=readSession(draftKey(),null);return [1,2].includes(value?.version)&&value?.userId===userId()?value:null;}
   function clearDraft(){removeSession(draftKey());}
   function persist(state){
     if(state.saving||state.finished)return;
-    writeSession(draftKey(),{version:1,userId:userId(),idempotencyKey:state.idempotencyKey,step:STEPS[state.index],highest:state.highest,data:clone(state.data),updatedAt:new Date().toISOString()});
+    writeSession(draftKey(),{version:2,userId:userId(),idempotencyKey:state.idempotencyKey,step:currentStep(state),highest:state.highest,data:clone(state.data),updatedAt:new Date().toISOString()});
   }
-  function defaultData(){return {title:'',subtitle:'',symbol:'✦',feelings:[],destination:{name:'',formattedAddress:'',country:'',countryCode:'',placeId:'',latitude:null,longitude:null},scheduleMode:'fixed',startDate:'',endDate:'',flexibility:'Etwa eine Woche',participantPlan:'solo-first',privacy:'private',modules:MODULES.map(item=>item[0]),accent:'#ec6555'};}
+  function defaultData(){return {title:'',subtitle:'',symbol:'✦',feelings:[],destination:{name:'',formattedAddress:'',country:'',countryCode:'',placeId:'',latitude:null,longitude:null},scheduleMode:'fixed',startDate:'',endDate:'',flexibility:'Etwa eine Woche',participantPlan:'solo-first',privacy:'private',modules:MODULES.map(item=>item[0]),accent:'#ec6555',entryMode:'guided',requestBrief:'',tripPreferences:{budgetLevel:'open',pace:'open',interests:[],food:[],accessibility:[],mobility:[],notes:''},durablePreferenceProposal:{requested:false,fields:[]}};}
+  function currentFlow(state){return ENTRY_FLOWS[state?.data?.entryMode]||ENTRY_FLOWS.guided;}
+  function currentStep(state){return currentFlow(state)[state.index]||'welcome';}
   function initialState(root,options={}){
     const draft=options.resume===false?null:readDraft();
-    const requested=STEPS.includes(options.step)?options.step:draft?.step;
-    const index=Math.max(0,STEPS.indexOf(requested||'welcome'));
-    return {root,options:{...options},mode:options.mode==='create'?'create':'first-use',index,highest:Math.max(index,Number(draft?.highest||0)),idempotencyKey:draft?.idempotencyKey||createKey(),data:{...defaultData(),...(draft?.data||{})},saving:false,finished:false,error:null,cleanup:[],toastTimer:0};
+    const data={...defaultData(),...(draft?.data||{})};
+    data.tripPreferences={...defaultData().tripPreferences,...(draft?.data?.tripPreferences||{})};
+    data.durablePreferenceProposal={...defaultData().durablePreferenceProposal,...(draft?.data?.durablePreferenceProposal||{})};
+    data.entryMode=ENTRY_FLOWS[options.entryMode]?options.entryMode:(ENTRY_FLOWS[data.entryMode]?data.entryMode:'guided');
+    const flow=ENTRY_FLOWS[data.entryMode],requested=ALL_STEPS.includes(options.step)?options.step:draft?.step;
+    const index=Math.max(0,flow.indexOf(requested||'welcome'));
+    return {root,options:{...options},mode:options.mode==='create'?'create':'first-use',index,highest:Math.max(index,Number(draft?.highest||0)),idempotencyKey:draft?.idempotencyKey||createKey(),data,saving:false,finished:false,error:null,cleanup:[],toastTimer:0};
   }
   function compassMarkup(className=''){
     return `<span class="ftc-compass ${esc(className)}" aria-hidden="true"><span class="ftc-compass-rings"></span><span class="ftc-compass-face"><img src="assets/public-landing/luvia-compass-face.svg" alt=""><span><img src="assets/public-landing/luvia-compass-needle.svg" alt=""></span><img class="ftc-compass-hub" src="assets/public-landing/luvia-compass-hub.svg" alt=""></span></span>`;
   }
-  function worldMarkup(state){return `<div class="ftc-world" aria-hidden="true"><figure><img src="assets/public-landing/${SCENES[STEPS[state.index]]}" alt=""></figure><i></i><span class="ftc-mark mark-a">⌁</span><span class="ftc-mark mark-b">✦</span><span class="ftc-mark mark-c">♡</span></div>`;}
-  function welcomePanel(){return `<article class="ftc-panel ftc-welcome"><div class="ftc-story"><span class="ftc-kicker">Nach deinem Reisekompass</span><h1>Jetzt bekommt eure erste Reise <em>eine eigene Richtung.</em></h1><p>Ort, Zeit, Stimmung und Reisebausteine gehören zur Reise – nicht zu deinem persönlichen Profil. Luvia hält diese beiden Welten bewusst getrennt.</p><div class="ftc-promises"><span><i>1</i>Ein Gefühl wählen</span><span><i>2</i>Einen echten Ort bestätigen</span><span><i>3</i>Die Reise gemeinsam öffnen</span></div></div><aside class="ftc-hero-compass">${compassMarkup('is-hero')}<span class="ftc-orbit orbit-a">Wohin?</span><span class="ftc-orbit orbit-b">Wann?</span><span class="ftc-orbit orbit-c">Mit wem?</span><div class="ftc-ticket"><small>FIRST TRIP COMPOSER</small><strong>Eine Reise. Eine eigene Wahrheit.</strong><span>Trip erstellt und aktiviert · Collaboration übernimmt Mitglieder später.</span></div></aside></article>`;}
+  function worldMarkup(state){return `<div class="ftc-world" aria-hidden="true"><figure><img src="assets/public-landing/${SCENES[currentStep(state)]}" alt=""></figure><i></i><span class="ftc-mark mark-a">⌁</span><span class="ftc-mark mark-b">✦</span><span class="ftc-mark mark-c">♡</span></div>`;}
+  function welcomePanel(state){const modes=[['guided','Geführt','Alle Entscheidungen Schritt für Schritt treffen.','9 Schritte'],['quick','Schnellstart','Ziel und Zeitraum festlegen, Gestaltung wählen, loslegen.','5 Schritte'],['ai','Mit Luvia AI','Wünsche frei beschreiben und vor dem Speichern einen ehrlichen Entwurf prüfen.','7 Schritte']];return `<article class="ftc-panel ftc-welcome"><div class="ftc-story"><span class="ftc-kicker">Ein Composer · drei Einstiege</span><h1>Wie möchtet ihr eure Reise <em>beginnen?</em></h1><p>Alle Wege nutzen denselben Trip-Owner. Ihr könnt den Einstieg wechseln, ohne eine zweite Reise oder versteckte Profiländerung zu erzeugen.</p><div class="ftc-entry-modes">${modes.map(([id,label,copy,count])=>`<button type="button" data-ftc-entry-mode="${id}" class="${state.data.entryMode===id?'is-selected':''}" aria-pressed="${state.data.entryMode===id}"><i>${id==='guided'?'⌁':id==='quick'?'↝':'✦'}</i><span><strong>${label}</strong><small>${copy}</small><b>${count}</b></span></button>`).join('')}</div><div class="ftc-scope-line"><span>Anfrage bleibt flüchtig</span><span>Reisewünsche gehören zum Trip</span><span>Profiländerungen brauchen Bestätigung</span></div></div><aside class="ftc-hero-compass">${compassMarkup('is-hero')}<span class="ftc-orbit orbit-a">Wohin?</span><span class="ftc-orbit orbit-b">Wann?</span><span class="ftc-orbit orbit-c">Wie?</span><div class="ftc-ticket"><small>TRIP COMPOSER</small><strong>Eine Reise. Eine Wahrheit.</strong><span>Geführt · Schnellstart · Luvia AI — derselbe kanonische Trip-Command.</span></div></aside></article>`;}
   function identityPanel(state){return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Reiseidentität</span><h1>Wie soll diese Reise heißen?</h1><p>Ein Name, eine kleine Zeile und ein Zeichen – alles später änderbar.</p></header><div class="ftc-form"><label><span>Reisename</span><input data-ftc-field="title" maxlength="80" value="${esc(state.data.title)}" placeholder="Unser Sommer am Meer" autocomplete="off"></label><label><span>Unterzeile</span><input data-ftc-field="subtitle" maxlength="120" value="${esc(state.data.subtitle)}" placeholder="Zeit für uns, ohne engen Takt" autocomplete="off"></label><fieldset class="ftc-symbols"><legend>Euer Zeichen</legend>${SYMBOLS.map(symbol=>`<button type="button" data-ftc-symbol="${symbol}" class="${state.data.symbol===symbol?'is-selected':''}" aria-pressed="${state.data.symbol===symbol}">${symbol}</button>`).join('')}</fieldset></div></article>`;}
   function feelingPanel(state){return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Reisegefühl</span><h1>Wonach soll sich diese Reise anfühlen?</h1><p>Bis zu drei Schwerpunkte für genau diese Reise. Dein persönlicher Reisekompass bleibt unverändert.</p></header><div class="ftc-choice-grid">${FEELINGS.map(([id,label,copy],index)=>{const on=state.data.feelings.includes(id);return `<button type="button" data-ftc-feeling="${id}" class="ftc-feeling ${on?'is-selected':''}" aria-pressed="${on}"><i>${['≈','✦','♡','↝','◇','☀'][index]}</i><span><strong>${label}</strong><small>${copy}</small></span></button>`}).join('')}</div><div class="ftc-preference-note"><i>◎</i><span><strong>Profil bleibt Basis · Reisegefühl setzt den Schwerpunkt</strong><small>Ernährung, Barrierefreiheit und Mobilität aus dem Profil bleiben vorrangig. Diese Auswahl wird mit der Reise gespeichert; ihre Gewichtung in Places, Planung und Journey folgt in der nächsten Core-Etappe.</small></span></div></article>`;}
   function destinationPanel(state){const selected=state.data.destination?.placeId;return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Kanonisches Reiseziel</span><h1>Wohin zieht es euch?</h1><p>Wählt einen bestätigten Ort. Er wird zur gemeinsamen Ortsquelle für Places, Planung und Journey.</p></header><div class="ftc-destination"><label><span>Ort oder Region</span><input data-ftc-destination autocomplete="off" value="${esc(state.data.destination.formattedAddress||state.data.destination.name)}" placeholder="Kopenhagen eingeben …" aria-autocomplete="list" aria-controls="ftc-suggestions"></label><div id="ftc-suggestions" data-ftc-suggestions></div><div class="ftc-place-proof ${selected?'is-confirmed':''}" data-ftc-place-proof><i>${selected?'✓':'⌖'}</i><span><strong>${selected?esc(state.data.destination.name):'Noch kein Ort bestätigt'}</strong><small>${selected?esc(state.data.destination.formattedAddress):'Bitte einen Vorschlag aus der Suche wählen.'}</small></span></div></div></article>`;}
   function datesPanel(state){const fixed=state.data.scheduleMode!=='flexible',windows=['Ein paar Tage','Etwa eine Woche','Etwa ein Monat','Ganz offen'];return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Reisezeit</span><h1>Wie genau kennt ihr eure Reisezeit?</h1><p>Wählt entweder konkrete Daten oder einen groben Rahmen. Beides kann später geändert werden.</p></header><div class="ftc-date-mode" role="radiogroup" aria-label="Reisezeit festlegen"><button type="button" data-ftc-schedule="fixed" class="${fixed?'is-selected':''}" aria-pressed="${fixed}"><i>▣</i><strong>Daten stehen fest</strong><small>Anreise und Rückreise eintragen.</small></button><button type="button" data-ftc-schedule="flexible" class="${!fixed?'is-selected':''}" aria-pressed="${!fixed}"><i>≈</i><strong>Zeitraum noch offen</strong><small>Nur einen ungefähren Rahmen wählen.</small></button></div>${fixed?`<div class="ftc-date-grid"><label><span>Anreise</span><input type="date" data-ftc-field="startDate" value="${esc(state.data.startDate)}"></label><label><span>Rückreise</span><input type="date" data-ftc-field="endDate" value="${esc(state.data.endDate)}"></label></div>`:`<fieldset class="ftc-flex-options"><legend>Welcher Rahmen passt gerade?</legend>${windows.map(value=>`<button type="button" data-ftc-flexibility="${value}" class="${state.data.flexibility===value?'is-selected':''}" aria-pressed="${state.data.flexibility===value}">${value}</button>`).join('')}</fieldset>`}</article>`;}
   function peoplePanel(state){const invite=state.data.participantPlan==='invite-after-creation';return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Gemeinsam reisen</span><h1>Wie möchtet ihr starten?</h1><p>Entscheidet nur, was direkt nach der Reiseerstellung passiert. Menschen und Rollen werden erst im anschließenden Einladungsschritt festgelegt.</p></header><div class="ftc-date-mode" role="radiogroup" aria-label="Reisegruppe starten"><button type="button" data-ftc-people="solo-first" class="${!invite?'is-selected':''}" aria-pressed="${!invite}"><i>◌</i><strong>Nur für mich starten</strong><small>Die Reise bleibt privat. Einladen geht jederzeit später.</small></button><button type="button" data-ftc-people="invite-after-creation" class="${invite?'is-selected':''}" aria-pressed="${invite}"><i>◎</i><strong>Danach Menschen einladen</strong><small>Nach dem Erstellen öffnet sich der Einladungsschritt.</small></button></div><div class="ftc-owner-note"><i>${invite?'→':'✓'}</i><span><strong>${invite?'Als Nächstes: Einladungen':'Privater Start'}</strong><small>${invite?'Bis jemand eine Einladung annimmt, bleibt die Reise geschützt.':'Nur du siehst die Reise. Diese Entscheidung ist später änderbar.'}</small></span></div></article>`;}
   function modulesPanel(state){return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Reisebausteine</span><h1>Was soll euch von Anfang an begleiten?</h1><p>Wählt mindestens einen Bereich. Jeder Baustein behält seinen eigenen Core und seine eigene Wahrheit.</p></header><div class="ftc-module-grid">${MODULES.map(([id,icon,label,copy])=>{const on=state.data.modules.includes(id);return `<button type="button" data-ftc-module="${id}" class="${on?'is-selected':''}" aria-pressed="${on}"><i>${icon}</i><span><strong>${label}</strong><small>${copy}</small></span><b>${on?'✓':'+'}</b></button>`}).join('')}</div></article>`;}
-  function accentPanel(state){const selected=ACCENTS.find(([,color])=>state.data.accent===color)?.[2]||'Reisefarbe';return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Aktive Reisefarbe</span><h1>Welche Farbe trägt eure Reise?</h1><p>Alle 50 Farben aus der Landingpage stehen auch hier zur Wahl. Die persönliche Farbe eurer Mitreisenden bleibt davon unabhängig.</p></header><div class="ftc-accent-stage" style="--ftc-accent:${esc(state.data.accent)}"><div class="ftc-pass"><span>${esc(state.data.symbol)}</span><small>${esc(state.data.subtitle||'Eure Reise beginnt')}</small><strong>${esc(state.data.title||'Unsere Reise')}</strong><p>${esc(state.data.destination.name||'Euer nächster Horizont')}</p><i></i></div><div class="ftc-swatches"><div class="ftc-palette-head"><strong>50 Reisefarben</strong><span>${esc(selected)} gewählt</span></div>${ACCENTS.map(([id,color,label])=>`<button type="button" data-ftc-accent="${color}" class="${state.data.accent===color?'is-selected':''}" style="--swatch:${color}" aria-label="${label}" aria-pressed="${state.data.accent===color}" title="${label}"><i></i><span>${label}</span></button>`).join('')}</div></div></article>`;}
-  function readyPanel(state){const d=state.data;const dates=d.scheduleMode==='flexible'?d.flexibility:(d.startDate&&d.endDate?`${d.startDate} – ${d.endDate}`:'Noch offen');return `<article class="ftc-panel ftc-ready"><div class="ftc-ready-visual" style="--ftc-accent:${esc(d.accent)}">${compassMarkup('is-result')}<span class="ftc-ready-symbol">${esc(d.symbol)}</span><i></i></div><div class="ftc-ready-copy"><span class="ftc-kicker">Trip-Owner bereit</span><h1>${esc(d.title||'Eure Reise')}</h1><p>${esc(d.subtitle||'Eine neue gemeinsame Richtung.')}</p><dl><div><dt>Reiseziel</dt><dd>${esc(d.destination.formattedAddress||d.destination.name)}</dd></div><div><dt>Zeitraum</dt><dd>${esc(dates)}</dd></div><div><dt>Gefühl</dt><dd>${d.feelings.map(id=>esc(FEELINGS.find(item=>item[0]===id)?.[1]||id)).join(' · ')||'Offen'}</dd></div><div><dt>Bausteine</dt><dd>${d.modules.length} aktiviert</dd></div></dl>${state.error?`<div class="ftc-error" role="alert"><strong>Die Reise ist noch nicht bestätigt.</strong><span>${esc(state.error)}</span></div>`:''}<button type="button" class="ftc-create" data-ftc-create ${state.saving?'disabled':''}>${state.saving?'Reise wird sicher angelegt …':'Diese Reise beginnen'} <span>${state.saving?'☁':'→'}</span></button><small>Trip-Command mit Wiedererkennung · aktive Reise wird bestätigt · Collaboration-Handoff bleibt getrennt</small></div></article>`;}
-  function panelMarkup(state){return ({welcome:welcomePanel,identity:identityPanel,feeling:feelingPanel,destination:destinationPanel,dates:datesPanel,people:peoplePanel,modules:modulesPanel,accent:accentPanel,ready:readyPanel})[STEPS[state.index]](state);}
-  function progressMarkup(state){const labels=['Ankommen','Identität','Gefühl','Ort','Zeit','Gemeinsam','Bausteine','Farbe','Bereit'];return `<nav class="ftc-progress" aria-label="Fortschritt der Reiseerstellung">${STEPS.map((step,index)=>`${index?`<b class="${index<=state.index?'is-complete':''}"></b>`:''}<button type="button" data-ftc-progress="${index}" class="${index===state.index?'is-active':''} ${index<state.index?'is-complete':''}" ${index>state.highest?'disabled':''} aria-current="${index===state.index?'step':'false'}"><i>${index<state.index?'✓':index+1}</i><span>${labels[index]}</span></button>`).join('')}</nav>`;}
+  function briefPanel(state){const p=state.data.tripPreferences||{};return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Anfrage an Luvia AI</span><h1>Was soll eure Reise können?</h1><p>Schreibt frei oder setzt Schwerpunkte. Der Text gilt nur für diesen Entwurf und wird nicht als Profilmerkmal gespeichert.</p></header><div class="ftc-brief-layout"><label class="ftc-brief-field"><span>Eure Wünsche in eigenen Worten</span><textarea data-ftc-field="requestBrief" maxlength="1200" placeholder="Wir möchten viel am Wasser sein, ruhig frühstücken, zwei besondere Abende erleben und nicht jeden Tag durchplanen.">${esc(state.data.requestBrief)}</textarea><small>${state.data.requestBrief.length}/1200 · Geltung: nur diese Anfrage</small></label><section class="ftc-trip-preferences"><div><span>Schwerpunkte dieser Reise</span><div class="ftc-chip-grid">${TRIP_INTERESTS.map(([id,label])=>{const on=(p.interests||[]).includes(id);return `<button type="button" data-ftc-trip-interest="${id}" class="${on?'is-selected':''}" aria-pressed="${on}">${label}</button>`}).join('')}</div></div><div><span>Budgetgefühl dieser Reise</span><div class="ftc-chip-grid is-budget">${BUDGETS.map(([id,label])=>`<button type="button" data-ftc-budget="${id}" class="${p.budgetLevel===id?'is-selected':''}" aria-pressed="${p.budgetLevel===id}">${label}</button>`).join('')}</div></div><button type="button" class="ftc-durable-choice ${state.data.durablePreferenceProposal.requested?'is-selected':''}" data-ftc-durable aria-pressed="${state.data.durablePreferenceProposal.requested}"><i>${state.data.durablePreferenceProposal.requested?'✓':'+'}</i><span><strong>Später als Profilvorliebe prüfen</strong><small>Luvia darf nach der Reiseerstellung eine getrennte Bestätigung anbieten. Ohne diese Bestätigung bleibt euer Profil unverändert.</small></span></button></section></div></article>`;}
+  function previewPanel(state){const p=state.data.tripPreferences||{},interestLabels=(p.interests||[]).map(id=>TRIP_INTERESTS.find(item=>item[0]===id)?.[1]||id);return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Vorschau vor jeder Änderung</span><h1>Luvia kennt die Richtung. Die Belege folgen im Reiseentwurf.</h1><p>Jetzt wird nur die Reisehülle angelegt. Konkrete Tage, Places, Stays und Buchungen werden anschließend aus ihren jeweiligen Ownern vorgeschlagen und erst nach eurer Bestätigung übernommen.</p></header><div class="ftc-ai-preview"><section><small>KANONISCH BELEGT</small><h2>${esc(state.data.destination.name||'Reiseziel')}</h2><p>${esc(state.data.destination.formattedAddress||'Noch kein bestätigter Ort')}</p><div class="ftc-preview-facts"><span>Trip-Zeitraum: ${state.data.scheduleMode==='flexible'?esc(state.data.flexibility):esc([state.data.startDate,state.data.endDate].filter(Boolean).join(' – ')||'noch offen')}</span><span>Budget: ${esc(BUDGETS.find(item=>item[0]===p.budgetLevel)?.[1]||'Noch offen')}</span><span>${interestLabels.length?esc(interestLabels.join(' · ')):'Schwerpunkte noch offen'}</span></div></section><section class="ftc-preview-days"><article><b>1</b><span><strong>Ankommen und orientieren</strong><small>Konkrete Places und Wege: noch nicht belegt</small></span></article><article><b>2</b><span><strong>Euren Schwerpunkten folgen</strong><small>Alternativen und Tagesprobe: nach Places-/Journey-Abfrage</small></span></article><article><b>…</b><span><strong>Tag für Tag entscheidbar</strong><small>Vormerken, einplanen, tauschen oder weglassen bleibt getrennt</small></span></article></section><aside><strong>Aktuell unbekannt</strong><span>Place- und Stay-Identitäten</span><span>Bilder und Öffnungszeiten</span><span>Wetter, Auslastung und Störungen</span><span>Preise und Buchbarkeit</span><small>Keine dieser Angaben wird aus dem Freitext erfunden.</small></aside></div></article>`;}
+  function accentPanel(state){const selected=ACCENTS.find(([,color])=>state.data.accent===color)?.[2]||'Reisefarbe';return `<article class="ftc-panel"><header class="ftc-copy"><span class="ftc-kicker">Aktive Reisefarbe</span><h1>Welche Farbe trägt eure Reise?</h1><p>Alle 50 Farben aus der Landingpage stehen auch hier zur Wahl. Die persönliche Farbe eurer Mitreisenden bleibt davon unabhängig.</p></header>${state.data.entryMode==='guided'?'':`<fieldset class="ftc-symbols ftc-symbols-compact"><legend>Euer Reisezeichen</legend>${SYMBOLS.map(symbol=>`<button type="button" data-ftc-symbol="${symbol}" class="${state.data.symbol===symbol?'is-selected':''}" aria-pressed="${state.data.symbol===symbol}">${symbol}</button>`).join('')}</fieldset>`}<div class="ftc-accent-stage" style="--ftc-accent:${esc(state.data.accent)}"><div class="ftc-pass"><span>${esc(state.data.symbol)}</span><small>${esc(state.data.subtitle||'Eure Reise beginnt')}</small><strong>${esc(state.data.title||'Unsere Reise')}</strong><p>${esc(state.data.destination.name||'Euer nächster Horizont')}</p><i></i></div><div class="ftc-swatches"><div class="ftc-palette-head"><strong>50 Reisefarben</strong><span>${esc(selected)} gewählt</span></div>${ACCENTS.map(([id,color,label])=>`<button type="button" data-ftc-accent="${color}" class="${state.data.accent===color?'is-selected':''}" style="--swatch:${color}" aria-label="${label}" aria-pressed="${state.data.accent===color}" title="${label}"><i></i><span>${label}</span></button>`).join('')}</div></div></article>`;}
+  function readyPanel(state){const d=state.data,p=d.tripPreferences||{},dates=d.scheduleMode==='flexible'?d.flexibility:(d.startDate&&d.endDate?`${d.startDate} – ${d.endDate}`:'Noch offen'),mode={guided:'Geführt',quick:'Schnellstart',ai:'Luvia AI'}[d.entryMode]||'Geführt';return `<article class="ftc-panel ftc-ready"><div class="ftc-ready-visual" style="--ftc-accent:${esc(d.accent)}">${compassMarkup('is-result')}<span class="ftc-ready-symbol">${esc(d.symbol)}</span><i></i></div><div class="ftc-ready-copy"><span class="ftc-kicker">Trip-Owner bereit · ${mode}</span><h1>${esc(d.title||'Eure Reise')}</h1><p>${esc(d.subtitle||'Eine neue gemeinsame Richtung.')}</p><dl><div><dt>Reiseziel</dt><dd>${esc(d.destination.formattedAddress||d.destination.name)}</dd></div><div><dt>Zeitraum</dt><dd>${esc(dates)}</dd></div><div><dt>Reisewünsche</dt><dd>${d.entryMode==='ai'?`${(p.interests||[]).length} Schwerpunkte · ${BUDGETS.find(item=>item[0]===p.budgetLevel)?.[1]||'offen'}`:(d.feelings.map(id=>esc(FEELINGS.find(item=>item[0]===id)?.[1]||id)).join(' · ')||'Offen')}</dd></div><div><dt>Bausteine</dt><dd>${d.modules.length} aktiviert</dd></div></dl>${d.entryMode==='ai'?`<div class="ftc-scope-summary"><span><b>Anfrage</b><small>nur im Command-Beleg</small></span><span><b>Reise</b><small>Schwerpunkte im Trip</small></span><span><b>Profil</b><small>${d.durablePreferenceProposal.requested?'separate Bestätigung folgt':'bleibt unverändert'}</small></span></div>`:''}${state.error?`<div class="ftc-error" role="alert"><strong>Die Reise ist noch nicht bestätigt.</strong><span>${esc(state.error)}</span></div>`:''}<button type="button" class="ftc-create" data-ftc-create ${state.saving?'disabled':''}>${state.saving?'Reise wird sicher angelegt …':'Diese Reise beginnen'} <span>${state.saving?'☁':'→'}</span></button><small>Trip-Command mit Wiedererkennung · aktive Reise wird bestätigt · keine stille Profiländerung</small></div></article>`;}
+  function panelMarkup(state){return ({welcome:welcomePanel,identity:identityPanel,feeling:feelingPanel,destination:destinationPanel,dates:datesPanel,people:peoplePanel,modules:modulesPanel,brief:briefPanel,preview:previewPanel,accent:accentPanel,ready:readyPanel})[currentStep(state)](state);}
+  function progressMarkup(state){const flow=currentFlow(state);return `<nav class="ftc-progress" aria-label="Fortschritt der Reiseerstellung">${flow.map((step,index)=>`${index?`<b class="${index<=state.index?'is-complete':''}"></b>`:''}<button type="button" data-ftc-progress="${index}" class="${index===state.index?'is-active':''} ${index<state.index?'is-complete':''}" ${index>state.highest?'disabled':''} aria-current="${index===state.index?'step':'false'}"><i>${index<state.index?'✓':index+1}</i><span>${STEP_LABELS[step]}</span></button>`).join('')}</nav>`;}
   function render(state,{focus=false}={}){
-    persist(state);const step=STEPS[state.index],copy=STEP_COPY[step];
-    state.root.innerHTML=`<section class="ftc" data-first-trip-composer data-step="${step}" data-mode="${state.mode}" style="--ftc-accent:${esc(state.data.accent)}">${worldMarkup(state)}<header class="ftc-header"><button type="button" class="ftc-brand" data-ftc-close aria-label="Reiseerstellung schließen">${compassMarkup('is-brand')}<span><strong>LUVIA</strong><small>Eine neue Richtung beginnt.</small></span></button><button type="button" class="ftc-quiet" data-ftc-close>${state.mode==='first-use'?'Später fortsetzen':'Ohne Änderungen schließen'}</button></header>${progressMarkup(state)}<main class="ftc-stage" aria-live="polite">${panelMarkup(state)}</main><footer class="ftc-footer"><button type="button" class="ftc-back" data-ftc-back ${state.index===0?'hidden':''}><span>←</span> Zurück</button><div><small>${copy[0]}</small><strong>${copy[1]}</strong></div><button type="button" class="ftc-next" data-ftc-next ${step==='ready'?'hidden':''}>${copy[2]} <span>→</span></button></footer><div class="ftc-toast" data-ftc-toast role="status" aria-live="polite" hidden><i>!</i><span><strong></strong><small></small></span></div></section>`;
+    persist(state);const step=currentStep(state),copy=STEP_COPY[step];
+    state.root.innerHTML=`<section class="ftc" data-first-trip-composer data-step="${step}" data-mode="${state.mode}" data-entry-mode="${state.data.entryMode}" style="--ftc-accent:${esc(state.data.accent)}">${worldMarkup(state)}<header class="ftc-header"><button type="button" class="ftc-brand" data-ftc-close aria-label="Reiseerstellung schließen">${compassMarkup('is-brand')}<span><strong>LUVIA</strong><small>Eine neue Richtung beginnt.</small></span></button><button type="button" class="ftc-quiet" data-ftc-close>${state.mode==='first-use'?'Später fortsetzen':'Ohne Änderungen schließen'}</button></header>${progressMarkup(state)}<main class="ftc-stage" aria-live="polite">${panelMarkup(state)}</main><footer class="ftc-footer"><button type="button" class="ftc-back" data-ftc-back ${state.index===0?'hidden':''}><span>←</span> Zurück</button><div><small>${copy[0]}</small><strong>${copy[1]}</strong></div><button type="button" class="ftc-next" data-ftc-next ${step==='ready'?'hidden':''}>${copy[2]} <span>→</span></button></footer><div class="ftc-toast" data-ftc-toast role="status" aria-live="polite" hidden><i>!</i><span><strong></strong><small></small></span></div></section>`;
     bind(state);requestAnimationFrame(()=>state.root.querySelector('.ftc')?.classList.add('is-ready'));if(focus)requestAnimationFrame(()=>state.root.querySelector('.ftc-panel input,.ftc-panel button,.ftc-panel h1')?.focus?.({preventScroll:true}));
   }
   function toast(state,title,message){clearTimeout(state.toastTimer);const node=state.root.querySelector('[data-ftc-toast]');if(!node)return;node.querySelector('strong').textContent=title;node.querySelector('small').textContent=message;node.hidden=false;state.toastTimer=setTimeout(()=>{if(node.isConnected)node.hidden=true},3400);}
   function validate(state,index=state.index){
-    const step=STEPS[index],d=state.data;
+    const step=currentFlow(state)[index],d=state.data;
     if(step==='identity'&&!d.title.trim())return ['Ein Name fehlt','Gebt eurer Reise einen Namen.'];
     if(step==='feeling'&&!d.feelings.length)return ['Ein Gefühl fehlt','Wählt mindestens ein Reisegefühl.'];
     if(step==='destination'&&!d.destination?.placeId)return ['Der Ort ist noch nicht bestätigt','Wählt bitte einen kanonischen Vorschlag aus der Suche.'];
@@ -25489,15 +25556,16 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     if(step==='modules'&&!d.modules.length)return ['Kein Reisebaustein aktiv','Wählt mindestens einen Bereich.'];
     return null;
   }
-  function projectStep(state,replace=false){const nav=window.LuviaNavigationContractV1,history=window.LuviaNavigationHistoryV1;if(!nav?.createIntent||!history?.project)return;history.project(nav.createIntent(ROUTE,{source:'first-trip-composer',replace,params:{tripStep:STEPS[state.index],tripMode:state.mode,returnTo:state.options.returnTo||'today'}}),{replace,source:'first-trip-composer'});}
-  function go(state,index,{skipValidation=false}={}){if(state.saving||index<0||index>=STEPS.length)return;if(index>state.index&&!skipValidation){const problem=validate(state);if(problem)return toast(state,...problem);}state.index=index;state.highest=Math.max(state.highest,index);projectStep(state);render(state,{focus:true});}
+  function projectStep(state,replace=false){const nav=window.LuviaNavigationContractV1,history=window.LuviaNavigationHistoryV1;if(!nav?.createIntent||!history?.project)return;history.project(nav.createIntent(ROUTE,{source:'first-trip-composer',replace,params:{tripStep:currentStep(state),tripMode:state.mode,tripEntry:state.data.entryMode,returnTo:state.options.returnTo||'today'}}),{replace,source:'first-trip-composer'});}
+  function go(state,index,{skipValidation=false}={}){const flow=currentFlow(state);if(state.saving||index<0||index>=flow.length)return;if(index>state.index&&!skipValidation){const problem=validate(state);if(problem)return toast(state,...problem);}state.index=index;state.highest=Math.max(state.highest,index);projectStep(state);render(state,{focus:true});}
   async function places(){const api=window.LuviaPlacesContractV1;if(!api?.reads?.suggestDestinations||!api?.reads?.getDestination)throw new Error('Der öffentliche Places-Contract ist noch nicht verfügbar.');return api;}
   async function details(placeId){const api=await places();const destination=await api.reads.getDestination(placeId,{languageCode:'de',regionCode:'DE',sessionToken:placesSessionToken});if(destination?.owner!=='places'||destination?.contractId!=='places.v1'||!destination?.placeId)throw new Error('Places hat das Reiseziel nicht kanonisch bestätigt.');return {name:destination.name,formattedAddress:destination.formattedAddress,country:destination.country,countryCode:destination.countryCode,placeId:destination.placeId,latitude:destination.latitude??null,longitude:destination.longitude??null};}
   function bindDestination(state,input){if(!input)return;input.addEventListener('input',event=>{state.data.destination={name:'',formattedAddress:'',country:'',countryCode:'',placeId:'',latitude:null,longitude:null};persist(state);clearTimeout(searchTimer);const value=event.target.value.trim(),box=state.root.querySelector('[data-ftc-suggestions]'),proof=state.root.querySelector('[data-ftc-place-proof]');if(proof){proof.classList.remove('is-confirmed');proof.innerHTML='<i>⌖</i><span><strong>Suche läuft …</strong><small>Bitte einen Vorschlag bestätigen.</small></span>'}if(value.length<2){if(box)box.innerHTML='';return;}const sequence=++searchSequence;searchTimer=setTimeout(async()=>{try{const api=await places();const response=await api.reads.suggestDestinations(value,{sessionToken:placesSessionToken,regionCode:(navigator.language||'de-DE').split('-')[1]||'DE'});if(sequence!==searchSequence)return;placesSessionToken=response?.sessionToken||placesSessionToken;const suggestions=response?.suggestions||[];if(box){box.className='ftc-suggestions';box.innerHTML=suggestions.slice(0,6).map(item=>`<button type="button" data-ftc-place-id="${esc(item.placeId)}" data-ftc-place-text="${esc(item.text)}"><i>⌖</i><span>${esc(item.text)}</span></button>`).join('')||'<span class="ftc-no-results">Keine passenden Orte gefunden.</span>';}}catch(error){if(box){box.className='';box.innerHTML=''}toast(state,'Places antwortet gerade nicht',error?.message||'Bitte versucht die Suche gleich noch einmal.');}},260);});}
   async function save(state){if(state.saving)return;const owner=trip();if(!owner?.commands?.createFirstTrip){state.error='Der Trip-Owner-Command ist noch nicht verfügbar.';return render(state,{focus:true});}state.saving=true;state.error=null;render(state);try{const receipt=await owner.commands.createFirstTrip({...state.data,idempotencyKey:state.idempotencyKey},{idempotencyKey:state.idempotencyKey});state.saving=false;state.finished=true;clearDraft();clearDeferred();await state.options.onComplete?.(receipt);}catch(error){state.saving=false;state.error=error?.message||'Die Reise konnte noch nicht sicher bestätigt werden.';render(state,{focus:true});}}
-  function cancel(state){if(state.saving)return;if(state.mode==='first-use')defer();state.options.onCancel?.({mode:state.mode,step:STEPS[state.index],dirty:Boolean(readDraft())});}
+  function cancel(state){if(state.saving)return;if(state.mode==='first-use')defer();state.options.onCancel?.({mode:state.mode,entryMode:state.data.entryMode,step:currentStep(state),dirty:Boolean(readDraft())});}
   function bind(state){
     state.root.querySelector('[data-ftc-next]')?.addEventListener('click',()=>go(state,state.index+1));state.root.querySelector('[data-ftc-back]')?.addEventListener('click',()=>go(state,state.index-1,{skipValidation:true}));state.root.querySelectorAll('[data-ftc-close]').forEach(node=>node.addEventListener('click',()=>cancel(state)));
+    state.root.querySelectorAll('[data-ftc-entry-mode]').forEach(button=>button.addEventListener('click',()=>{const entry=button.dataset.ftcEntryMode;if(!ENTRY_FLOWS[entry])return;state.data.entryMode=entry;state.index=0;state.highest=0;persist(state);projectStep(state,true);render(state,{focus:true})}));
     state.root.querySelectorAll('[data-ftc-progress]').forEach(node=>node.addEventListener('click',()=>{const index=Number(node.dataset.ftcProgress);if(index<=state.highest)go(state,index,{skipValidation:true})}));
     state.root.querySelectorAll('[data-ftc-field]').forEach(input=>input.addEventListener('input',()=>{state.data[input.dataset.ftcField]=input.value;persist(state)}));
     state.root.querySelectorAll('[data-ftc-symbol]').forEach(button=>button.addEventListener('click',()=>{state.data.symbol=button.dataset.ftcSymbol;persist(state);render(state)}));
@@ -25508,8 +25576,11 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     state.root.querySelectorAll('[data-ftc-privacy]').forEach(button=>button.addEventListener('click',()=>{state.data.privacy=button.dataset.ftcPrivacy;persist(state);render(state)}));
     state.root.querySelectorAll('[data-ftc-module]').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.ftcModule,index=state.data.modules.indexOf(id);if(index>=0)state.data.modules.splice(index,1);else state.data.modules.push(id);persist(state);render(state)}));
     state.root.querySelectorAll('[data-ftc-accent]').forEach(button=>button.addEventListener('click',()=>{state.data.accent=button.dataset.ftcAccent;persist(state);render(state)}));
+    state.root.querySelectorAll('[data-ftc-trip-interest]').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.ftcTripInterest,values=state.data.tripPreferences.interests||[],index=values.indexOf(id);if(index>=0)values.splice(index,1);else values.push(id);state.data.tripPreferences.interests=values;persist(state);render(state)}));
+    state.root.querySelectorAll('[data-ftc-budget]').forEach(button=>button.addEventListener('click',()=>{state.data.tripPreferences.budgetLevel=button.dataset.ftcBudget;persist(state);render(state)}));
+    state.root.querySelector('[data-ftc-durable]')?.addEventListener('click',()=>{const requested=!state.data.durablePreferenceProposal.requested;state.data.durablePreferenceProposal={requested,fields:requested?['interests','budgetLevel']:[]};persist(state);render(state)});
     const destinationInput=state.root.querySelector('[data-ftc-destination]');bindDestination(state,destinationInput);
-    state.root.querySelector('[data-ftc-suggestions]')?.addEventListener('click',async event=>{const button=event.target.closest('[data-ftc-place-id]');if(!button)return;button.disabled=true;try{const selected=await details(button.dataset.ftcPlaceId);state.data.destination=selected;persist(state);render(state,{focus:true});}catch(error){button.disabled=false;toast(state,'Ort noch nicht bestätigt',error?.message||'Places konnte diesen Ort nicht verifizieren.');}});
+    state.root.querySelector('[data-ftc-suggestions]')?.addEventListener('click',async event=>{const button=event.target.closest('[data-ftc-place-id]');if(!button)return;button.disabled=true;try{const selected=await details(button.dataset.ftcPlaceId);state.data.destination=selected;if(state.data.entryMode!=='guided'&&!state.data.title.trim()){state.data.title=`Reise nach ${selected.name}`;state.data.subtitle=state.data.entryMode==='ai'?'Mit Luvia geplant':'';}persist(state);render(state,{focus:true});}catch(error){button.disabled=false;toast(state,'Ort noch nicht bestätigt',error?.message||'Places konnte diesen Ort nicht verifizieren.');}});
     state.root.querySelector('[data-ftc-create]')?.addEventListener('click',()=>save(state));
     if(!state.keyHandler){
       state.keyHandler=event=>{if(event.key==='Escape'){event.preventDefault();cancel(state)}else if(event.altKey&&event.key==='ArrowLeft'){event.preventDefault();go(state,state.index-1,{skipValidation:true})}else if(event.altKey&&event.key==='ArrowRight'){event.preventDefault();go(state,state.index+1)}};
@@ -25517,8 +25588,8 @@ globalThis.LuviaTripPreferenceContextV1=Object.freeze({version:VERSION,snapshot,
     }
   }
   function unmount(){if(!mounted)return false;clearTimeout(searchTimer);clearTimeout(mounted.toastTimer);mounted.cleanup.forEach(fn=>{try{fn()}catch{}});mounted.root.classList.remove('ftc-host');if(mounted.options.clear!==false)mounted.root.innerHTML='';mounted=null;return true;}
-  function mount(root,options={}){if(!root)throw new Error('FIRST_TRIP_COMPOSER_ROOT_REQUIRED');if(!trip()?.commands?.createFirstTrip)throw new Error('TRIP_FIRST_CREATE_OWNER_UNAVAILABLE');unmount();root.classList.add('ftc-host');mounted=initialState(root,options);if(reduceMotion())root.classList.add('ftc-reduce-motion');render(mounted);return Object.freeze({version:VERSION,snapshot:()=>clone({mode:mounted?.mode,step:mounted?STEPS[mounted.index]:null,highest:mounted?.highest,saving:mounted?.saving,error:mounted?.error,idempotencyKey:mounted?.idempotencyKey}),destroy:unmount});}
-  function open(options={}){const navigation=window.LuviaNavigationContractV1,app=window.LuviaApp;if(!navigation?.createIntent||!app?.show)throw new Error('FIRST_TRIP_COMPOSER_NAVIGATION_UNAVAILABLE');const mode=options.mode==='first-use'?'first-use':'create',returnTo=options.returnTo||app.activeView?.()||'today';return app.show(ROUTE,{intent:navigation.createIntent(ROUTE,{source:'first-trip-composer-open',params:{tripStep:options.step||'welcome',tripMode:mode,returnTo}}),source:'first-trip-composer-open'});}
+  function mount(root,options={}){if(!root)throw new Error('FIRST_TRIP_COMPOSER_ROOT_REQUIRED');if(!trip()?.commands?.createFirstTrip)throw new Error('TRIP_FIRST_CREATE_OWNER_UNAVAILABLE');unmount();root.classList.add('ftc-host');mounted=initialState(root,options);if(reduceMotion())root.classList.add('ftc-reduce-motion');render(mounted);return Object.freeze({version:VERSION,snapshot:()=>clone({mode:mounted?.mode,entryMode:mounted?.data?.entryMode,step:mounted?currentStep(mounted):null,highest:mounted?.highest,saving:mounted?.saving,error:mounted?.error,idempotencyKey:mounted?.idempotencyKey}),destroy:unmount});}
+  function open(options={}){const navigation=window.LuviaNavigationContractV1,app=window.LuviaApp;if(!navigation?.createIntent||!app?.show)throw new Error('FIRST_TRIP_COMPOSER_NAVIGATION_UNAVAILABLE');const mode=options.mode==='first-use'?'first-use':'create',entryMode=ENTRY_FLOWS[options.entryMode]?options.entryMode:'guided',returnTo=options.returnTo||app.activeView?.()||'today';return app.show(ROUTE,{intent:navigation.createIntent(ROUTE,{source:'first-trip-composer-open',params:{tripStep:options.step||'welcome',tripMode:mode,tripEntry:entryMode,returnTo}}),source:'first-trip-composer-open'});}
 
   window.LuviaFirstTripComposer=Object.freeze({version:VERSION,route:ROUTE,mount,unmount,open,shouldStart,defer,clearDeferred,draftStep});
 })();
@@ -29549,7 +29620,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
   let root,activeView='today',moduleMountRegistry=null,lastRenderedTripId=null,tripSwitchToken=0,overlayPortal=null,unsubscribeTrip=null,unsubscribeRuntimeActions=null,unsubscribeProfile=null,unsubscribeCollaboration=null,collaborationFrame=0,authHydration=0,lastAuthUserId=null,hydratedAuthUserId=null,pendingPlaceOpen=null,todayRenderFrame=0,timelineRenderFrame=0,todayRenderTimer=0,todayLastHtml='',timelineLastHtml='',lastTripRenderSignature='',showSequence=0,shellInitialized=false,bootComplete=false,subscriptionsBound=false,pwaRegistrationScheduled=false;
   let shellStartPromise=null,shellEventsBound=false,bootRecoveryTimer=0,runtimeStatusTimer=0,runtimeActionChain=Promise.resolve(),routeTransitionTimer=0,planCompassTransition=false,planCompassEntryTimer=0,activeCompassContext=null,compassContextToken=0,compassFlightSequence=0,compassIntentSequence=0,lastCompassFocus=null,pendingCompassContext=null,pendingCompassExit=null,compassPointerGesture=null,suppressedCompassClick=null,navigationCompassMotionCleanup=null;
   const activeCompassAnimations=new Set();
-  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.113',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
+  const bootDiagnostics={version:window.LuviaKernelVersion?.build||'13.82.168.114',started:false,startReason:null,domReadyState:document.readyState,rootResolved:false,authInitialized:false,initialSession:null,bootstrapEntered:false,bootstrapCompleted:false,renderAttempted:false,renderCompleted:false,recoveryRenderAttempted:false,recoveryRenderCompleted:false,lastStage:null,lastError:null,startedAt:null,completedAt:null};
   window.LuviaBootDiagnostics=bootDiagnostics;
   function markBoot(stage,patch={}){bootDiagnostics.lastStage=stage;Object.assign(bootDiagnostics,patch);return bootDiagnostics;}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
@@ -29562,7 +29633,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     reservationRecovery:Object.freeze({id:'booking-reservation-recovery',path:'core/booking/booking-reservation-recovery.js',selector:'script[data-luvia-booking-reservation-recovery],script[src*="core/booking/booking-reservation-recovery.js"]',datasetKey:'luviaBookingReservationRecovery',global:'LuviaBookingReservationRecovery',validate:client=>Boolean(client?.get&&client?.list&&client?.reconcile&&client?.history),label:'Booking Reservation Recovery Client'}),
     emailV2:Object.freeze({id:'booking-email-v2',path:'core/booking/booking-email-v2.js',selector:'script[data-luvia-booking-email-v2],script[src*="core/booking/booking-email-v2.js"]',datasetKey:'luviaBookingEmailV2',global:'LuviaBookingEmailV2',validate:client=>Boolean(client?.readiness&&client?.get&&client?.history&&client?.queue&&client?.send),label:'Booking Email V2 Client'})
   });
-  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.113')}`;
+  const runtimeAssetUrl=path=>`${path}?v=${encodeURIComponent(window.LuviaKernelVersion?.build||'13.82.168.114')}`;
   function ensureRuntimeAsset(descriptor,{timeoutMs=3000}={}){
     const current=()=>window[descriptor.global];
     if(descriptor.validate(current())){runtimeAssetDiagnostics.set(descriptor.id,Object.freeze({status:'ready',source:'registered',path:descriptor.path}));return Promise.resolve(current())}
@@ -30118,12 +30189,13 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
     if(!window.LuviaFirstTripComposer?.mount)throw new Error('Luvia First-Trip-Composer ist noch nicht verfügbar.');
     const params=intent?.params||{},returnTo=firstTripReturnTo(params.returnTo||options.returnTo||activeView);
     const mode=params.tripMode==='first-use'||options.mode==='first-use'?'first-use':'create';
+    const entryMode=['guided','quick','ai'].includes(params.tripEntry||options.entryMode)?(params.tripEntry||options.entryMode):undefined;
     const step=params.tripStep||options.step||window.LuviaFirstTripComposer.draftStep?.()||'welcome';
     const sequence=++showSequence;commitScreenIntent(intent,{...options,replace:options.replace??false});
     await unmountCurrent('first-trip-composer');if(sequence!==showSequence)return;
     window.LuviaTodayExperience?.unbind?.();window.LuviaPremiumMemoriesExperience?.unbind?.();
     activeView='first-trip-composer';shellInitialized=false;lastRenderedTripId=null;root.innerHTML='';
-    window.LuviaFirstTripComposer.mount(root,{mode,step,returnTo,
+    window.LuviaFirstTripComposer.mount(root,{mode,entryMode,step,returnTo,
       onComplete:receipt=>leaveFirstTripComposer('today',{source:receipt?.status==='committed'?'first-trip-composer-complete':'first-trip-composer-recovery'}),
       onCancel:()=>leaveFirstTripComposer(returnTo,{source:'first-trip-composer-cancel'})
     });
@@ -30439,7 +30511,7 @@ globalThis.LuviaPremiumMemoriesExperience=Object.freeze({version:VERSION,render,
 
   window.addEventListener('click',event=>{if(!event.target.closest?.('[data-pf-edit-preferences]'))return;event.preventDefault();event.stopPropagation();window.LuviaProfileFoundation?.close?.();window.LuviaProfileOnboarding?.open?.({mode:'edit',returnTo:profileOnboardingReturnTo(activeView)});},true);
   window.addEventListener('luvia:members-changed',()=>updateDashboardWidget('members'));window.addEventListener('luvia:restaurant-intelligence-changed',()=>updateDashboardWidget('restaurantIntelligence'));window.addEventListener('luvia:schedule-intelligence-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false}).catch?.(()=>{})});window.addEventListener('luvia:today-intelligence-changed',()=>window.LuviaLiveDayCompanion?.refresh?.({refreshToday:false}).catch?.(()=>{}));window.addEventListener('luvia:place-plan-changed',()=>{window.LuviaScheduleIntelligence?.refresh?.({force:true,skipThrottle:true}).then(()=>window.LuviaTodayIntelligence?.refresh?.({refreshSchedule:false})).catch?.(()=>{});if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:timeline-changed',refreshTimelineProjection);window.addEventListener('luvia:timeline-cloud-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:live-day-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell'))updateTodayWidget()});window.addEventListener('luvia:theme-changed',event=>{const accent=event.detail?.palette?.accent;if(!accent)return;document.documentElement.style.setProperty('--module-accent',accent);document.querySelectorAll('#restaurants-module,#accommodations-module,#attractions-module,#photo-spots-module,#shopping-module,#nature-module,#mobility-module,#move-module,.lv-module-host,.lv-dashboard').forEach(el=>{el.style.setProperty('--trip-accent',accent);el.style.setProperty('--module-accent',accent);el.style.setProperty('--rv2-accent',accent)})});
-  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.113',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
+  window.addEventListener('luvia:dashboard-widget-refresh',e=>{const id=e.detail?.id;if(id&&activeView==='today'&&root?.querySelector('.lv-shell'))updateDashboardWidget(id)});window.addEventListener('luvia:open-place-request',e=>openPlace(e.detail).catch(console.error));window.addEventListener('luvia:in-window-data-changed',()=>{if(activeView==='today'&&root?.querySelector('.lv-shell')){updateDashboardWidget('today');requestAnimationFrame(()=>window.LuviaJourneyDayComposer?.bindCalendar?.(root))}});window.addEventListener('luvia:trip-modules-changed',()=>{if(root?.querySelector('.lv-shell'))show(activeView,{force:true,animate:false,scroll:false}).catch(console.error)});window.addEventListener('luvia:places-lifecycle-changed',()=>{if(activeView==='places-lifecycle')window.LuviaPlaceLifecycleHub?.load?.().catch?.(console.warn)});window.addEventListener('luvia:place-overlay-closed',()=>{});window.addEventListener('luvia:navigate-request',e=>{const intent=e.detail?.intent||navigationContract().resolve(e.detail?.view,{source:'navigate-request'});if(intent?.route){++compassIntentSequence;show(intent.route,{force:true,intent,historyAction:e.detail?.historyAction,source:intent.source||'navigate-request'}).catch(console.error)}});window.LuviaApp=Object.freeze({version:'13.82.168.114',bootstrap,render,start:startShell,diagnostics:()=>({...bootDiagnostics,appRuntime:window.LuviaAppRuntime?.diagnostics?.()||null,runtimeSignals:window.LuviaAppRuntimeSignalsV1?.diagnostics?.()||null,moduleMount:moduleMountRegistry?.diagnostics?.()||null,navigationHistory:window.LuviaNavigationHistoryV1?.diagnostics?.()||null,runtimeAssets:runtimeAssetSnapshot()}),show,openCompass:(context='plan')=>openLivingCompassContext(context),back:()=>navigationHistory().back(),forward:()=>navigationHistory().forward(),openPlace,activeView:()=>activeView,ensureBookingAvailabilityClient,ensureBookingReservationCreateClient,ensureBookingReservationMutationClient,ensureBookingReservationMutationStatusClient,ensureBookingReservationRecoveryClient,ensureBookingEmailV2Client});if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',()=>startShell('DOMContentLoaded').catch(error=>console.error('[LuviaBoot]',error)),{once:true})}else{queueMicrotask(()=>startShell('document-already-ready').catch(error=>console.error('[LuviaBoot]',error)))};
   window.addEventListener('luvia:owner-flow-navigation',event=>{if(event.detail?.owner!=='join'||!bootComplete)return;Promise.resolve().then(()=>render()).catch(error=>{console.error('[LuviaOwnerFlow]',error);errorScreen(error)})});
 })();
 

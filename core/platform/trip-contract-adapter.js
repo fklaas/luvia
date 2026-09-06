@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.2.0';
+  const RUNTIME_VERSION='1.3.0';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -141,21 +141,24 @@
     return tripProjection(await creator().save(input||{}));
   }
   function firstTripInput(input={},idempotencyKey=''){
-    const destination=destinationProjection(input.destination);
-    const title=clean(input.title)?.slice(0,80)||'';
-    const modules=[...new Set((Array.isArray(input.modules)?input.modules:[]).map(clean).filter(Boolean))];
+    const scopes=draftCore().projectScopes(input),value=scopes.tripInput;
+    const destination=destinationProjection(value.destination);
+    const title=clean(value.title)?.slice(0,80)||'';
+    const modules=[...new Set((Array.isArray(value.modules)?value.modules:[]).map(clean).filter(Boolean))];
     if(!idempotencyKey){const error=new Error('Trip Contract v1: Für die erste Reise ist ein Idempotency-Key erforderlich.');error.code='TRIP_FIRST_IDEMPOTENCY_REQUIRED';throw error;}
     if(!title){const error=new Error('Bitte gib der Reise einen Namen.');error.code='TRIP_FIRST_TITLE_REQUIRED';throw error;}
     if(!destination?.placeId){const error=new Error('Bitte bestätige ein kanonisches Reiseziel.');error.code='TRIP_FIRST_CANONICAL_DESTINATION_REQUIRED';throw error;}
     if(!modules.length){const error=new Error('Bitte aktiviere mindestens einen Reisebaustein.');error.code='TRIP_FIRST_MODULE_REQUIRED';throw error;}
-    if(input.scheduleMode!=='flexible'&&input.startDate&&input.endDate&&input.endDate<input.startDate){const error=new Error('Das Rückreisedatum darf nicht vor der Anreise liegen.');error.code='TRIP_FIRST_DATE_RANGE_INVALID';throw error;}
+    if(value.scheduleMode!=='flexible'&&value.startDate&&value.endDate&&value.endDate<value.startDate){const error=new Error('Das Rückreisedatum darf nicht vor der Anreise liegen.');error.code='TRIP_FIRST_DATE_RANGE_INVALID';throw error;}
     return {
-      title,subtitle:clean(input.subtitle)?.slice(0,120)||'',destination,
-      symbol:clean(input.symbol)||'✦',accent:clean(input.accent)||'#ee6f83',
-      startDate:input.scheduleMode==='flexible'?null:clean(input.startDate),endDate:input.scheduleMode==='flexible'?null:clean(input.endDate),
-      scheduleMode:input.scheduleMode==='flexible'?'flexible':'fixed',flexibility:clean(input.flexibility)||'',
-      feelings:[...new Set((Array.isArray(input.feelings)?input.feelings:[]).map(clean).filter(Boolean))].slice(0,3),
-      privacy:['private','invite-only'].includes(input.privacy)?input.privacy:'private',participantPlan:input.participantPlan==='invite-after-creation'?'invite-after-creation':'solo-first',
+      title,subtitle:clean(value.subtitle)?.slice(0,120)||'',destination,
+      symbol:clean(value.symbol)||'✦',accent:clean(value.accent)||'#ee6f83',
+      startDate:value.scheduleMode==='flexible'?null:clean(value.startDate),endDate:value.scheduleMode==='flexible'?null:clean(value.endDate),
+      scheduleMode:value.scheduleMode==='flexible'?'flexible':'fixed',flexibility:clean(value.flexibility)||'',
+      feelings:[...new Set((Array.isArray(value.feelings)?value.feelings:[]).map(clean).filter(Boolean))].slice(0,3),
+      privacy:['private','invite-only'].includes(value.privacy)?value.privacy:'private',participantPlan:value.participantPlan==='invite-after-creation'?'invite-after-creation':'solo-first',
+      entryMode:value.entryMode,tripPreferences:value.tripPreferences,
+      requestContext:scopes.requestContext,durablePreferenceHandoff:scopes.durablePreferenceHandoff,
       modules,idempotencyKey
     };
   }
@@ -170,7 +173,9 @@
       if(!trip?.id||active?.id!==trip.id){const error=new Error('Die Reise wurde angelegt, aber nicht als aktive Reise bestätigt.');error.code='TRIP_FIRST_ACTIVATION_UNCONFIRMED';throw error;}
       const receipt=Object.freeze({
         owner:'trip',contractId:CONTRACT_ID,action:'trip.first.create',status:'committed',idempotencyKey,tripId:trip.id,activeTripId:active.id,committedAt:new Date().toISOString(),trip,
-        collaborationHandoff:Object.freeze({status:prepared.participantPlan==='invite-after-creation'?'required':'not-requested',owner:'collaboration',contractId:'collaboration.membership.v1',availability:'reserved'})
+        collaborationHandoff:Object.freeze({status:prepared.participantPlan==='invite-after-creation'?'required':'not-requested',owner:'collaboration',contractId:'collaboration.membership.v1',availability:'reserved'}),
+        requestContext:prepared.requestContext,
+        preferenceHandoff:prepared.durablePreferenceHandoff
       });
       firstTripReceipts.set(idempotencyKey,receipt);
       publish('trip.created',{receipt,trip},{tripId:trip.id,entityId:trip.id,correlationId:idempotencyKey});
@@ -203,7 +208,8 @@
     updateDraft(draft={},patch={}){return draftCore().updateDraft(draft,patch)},
     deferDraft(draft={}){return draftCore().deferDraft(draft)},
     resumeDraft(draft={}){return draftCore().resumeDraft(draft)},
-    validateDraft(draft={}){return draftCore().validateDraft(draft)}
+    validateDraft(draft={}){return draftCore().validateDraft(draft)},
+    projectScopes(draft={}){return draftCore().projectScopes(draft)}
   });
 
   function envelope(name,payload={},options={}){
