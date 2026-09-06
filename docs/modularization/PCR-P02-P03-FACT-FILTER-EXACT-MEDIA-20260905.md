@@ -71,3 +71,79 @@ Bereits im vorherigen sichtbaren Lauf belegt: breite Places-Menge 50, Passend-Me
 ## Genau ein nächster Schritt
 
 `P02-P03-filter-photo-mobile-acceptance`: die restliche sichtbare Filter-, Foto- und Mobilmatrix schließen.
+
+## Nachtrag 06.09.2026 – App 13.82.168.100 / exakter Medien-Seed
+
+Die weitere öffentliche Abnahme zeigte, dass ein echtes Bild bereits in der
+Suchentität vorhanden sein konnte, diese exakte Provider-Entität aber nicht bis
+zum gemeinsamen Detail-Owner transportiert wurde. Insbesondere konnte ein
+OpenStreetMap-Treffer dadurch seine verknüpften Wikidata-/Wikimedia-Fakten beim
+Detailabruf verlieren. Zusätzlich unterschied der Detail-Cache nicht zwischen
+einer bildlosen Anfrage und derselben Place-ID mit einem konkreten Medienbeleg.
+
+App 13.82.168.100 schließt beide Grenzen:
+
+- Places übergibt die ausgewählte Search-Entität als `seedPlace`; der gemeinsame
+  Detail-Owner transportiert sie nur bei übereinstimmender normalisierter
+  Provider-Place-ID als `providerPlaceSeed` zum Gateway.
+- Der Detail-Cache-Schlüssel enthält eine begrenzte Signatur der exakten
+  Provider-ID, Wikidata-ID, Wikimedia-Kategorie, Bildreferenz und vorhandener
+  Providerfotos. Ein früher bildloser Abruf kann einen späteren belegten Abruf
+  daher nicht mehr verdecken.
+- OSM-Details übernehmen Medien nur aus der exakt ausgewählten OSM-Entität.
+  Fehlt dort ein Bild, darf Foursquare nur nach der bestehenden strengen
+  Ortsidentität helfen: normalisierter Name und höchstens 120 Meter oder eine
+  markante enthaltene Namensform und höchstens 25 Meter. Erst danach wird genau
+  ein populäres Foto der bestätigten Entität geladen.
+- Fremde, nur räumlich nahe oder aus einer allgemeinen Kategoriesuche stammende
+  Bilder bleiben ausgeschlossen. Ein Place ohne sicheren Bildbeleg bleibt
+  sichtbar und ehrlich bildlos.
+
+### Öffentliche sichtbare Abnahme
+
+- URL Places: `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=places&acceptance=p02-p03-100-media-fit`
+- URL Stays: `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=hotels&acceptance=p02-p03-100-stays-media`
+- URL Sehenswürdigkeiten: `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=places&acceptance=p02-p03-100-sights-media`
+- Food `Passend` zeigte neun belegte Orte; Kleines Steakhouse war nicht enthalten.
+- Shopping `Passend` zeigte elf Orte. Nach Wechsel zu `Alle` und einem echten
+  Browser-Reload waren 46 koordinatenverifizierte Shopping-Pins vorhanden.
+- Stays zeigte 47 eindeutige Unterkünfte. Hotel Strandgrün Golf & Spa Resort und
+  Appartementhaus Miramar erschienen jeweils einmal.
+- Snykrode zeigte dasselbe reale Foto in Karten-Kurzvorschau, Ergebnis-Sheet und
+  vollständiger Detailansicht. Die Detailansicht kennzeichnete die Herkunft als
+  `Bild aus dem verknüpften Ortseintrag` und verlinkte die konkrete Wikimedia-
+  Datei `Scharbeutz_-_Burg_Snykrode_-_Snikrode.jpg`.
+- Hotel Strandgrün blieb ohne sicheren Bildbeleg korrekt bildlos. Dieser
+  Gegenfall belegt die Fail-closed-Grenze; er belegt zugleich, dass die breite
+  Fotoabdeckung noch nicht abgeschlossen ist.
+
+### Releasebeleg
+
+- App: `13.82.168.100`
+- Core: `4.82.219`
+- Runtime-Commit: `b9f32115d75780d9eb76ec03cb31afedf870af94`
+- Gateway: `v228 ACTIVE`, Software `4.64.33`, Places
+  `4.38.11-exact-media-seed-bridge`
+- Integration-Worker: `1dcf5de1-c743-4d4c-8d52-40cbac209b03`, 100 Prozent Traffic
+- Unveränderliche URL: `https://1dcf5de1-integration-luvia.njwnrvwbv5.workers.dev`
+- Byteidentisches Deployment-Archiv:
+  `luvia-integration-13.82.168.100-b9f32115-public-bytes.zip`, 89.015.942 Bytes,
+  SHA-256 `56D8ED1D6F2B92D52F2B8A310921BF7888AB7E0F8F18340D82BB35F868D9C06D`
+- Öffentlicher Bytebeleg: `30/30 MATCH` zwischen Archiv, Stable und immutable Worker
+- Safe Regression: `232/232 PASS`
+- NFR-0: `3/3 PASS`
+- Release-, Planstatus-, Inventar-, Filter-, Ernährungs-, Medien- und
+  Deduplizierungs-Gates: PASS
+- Main und Production: unverändert
+
+Unmittelbarer App-Rückfall ist
+`npx wrangler versions deploy 4b32f3a4-c318-4a40-a553-6e95f126875e@100 --name integration-luvia --message "Rollback App 13.82.168.100 exact-media seed bridge to accepted App 13.82.168.99" --yes`.
+Ein Gateway-Rückfall würde den akzeptierten Gateway-Quellstand aus Runtime-Commit
+`b528182e5833cf8715fc3e9f7967bd124c198419` erneut als `luvia-gateway`
+veröffentlichen.
+
+P02/P03 bleiben **TEILWEISE**. Der nächste Schritt bleibt
+`P02-P03-exact-media-filter-latency-matrix`: reale Bildtrefferquote und
+Quellenkaskade providerweise messen und erweitern, danach alle sichtbaren
+Kategorie-, Landesküchen- und Sachfilterfälle sowie Cache- und Kaltlatenzen auf
+Desktop und Touch vollständig abnehmen.

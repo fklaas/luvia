@@ -3,11 +3,11 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.99**, Core **4.82.218**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .99 bei Kategorienkontinuität, Passung und Property-Deduplizierung stabilisiert, bleiben aber teilweise bis zur vollständigen realen Foto-, Filter- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.100**, Core **4.82.219**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .100 bei Kategorienkontinuität, Passung, Property-Deduplizierung und exaktem Medien-Transport stabilisiert, bleiben aber teilweise bis zur vollständigen realen Foto-, Filter- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
 
-**Zuletzt geliefert:** App .99 / Core .218 ist auf Integration veröffentlicht. Kategorieergebnisse überleben Reloads als begrenzte Session-Kohorten und aktualisieren im Hintergrund. Food Passend zeigt 9 belegte Treffer ohne Kleines Steakhouse; Shopping Passend 11, Shopping nach Reload 46 Pins. Der sichtbare .98-Gegenbeleg mit doppeltem Strandgrün und Miramar ist in .99 behoben; Stays zeigt 47 eindeutige Pins. Releasekette: Runtime b528182e, Gateway v227 / 4.64.32, Worker 4b32f3a4, 232/232 Regression, NFR-0 3/3 und 30/30 Byteidentität.
+**Zuletzt geliefert:** App .100 / Core .219 ist auf Integration veröffentlicht. Places und Stays tragen die exakt ausgewählte Provider-Entität zum gemeinsamen Detail-Owner; Detail-Caches unterscheiden konkrete Medienbelege, und OSM/Foursquare dürfen Bilder nur nach strenger Ortsidentität ergänzen. Öffentlich zeigt Snykrode dasselbe echte Wikimedia-Ortsbild in Kurzkarte, Ergebnis und Detail mit sichtbarer Quelle. Food Passend bleibt bei 9 belegten Treffern ohne Kleines Steakhouse; Shopping Passend 11 und nach Reload 46 Pins; Stays 47 eindeutige Pins. Releasekette: Runtime b9f32115, Gateway v228 / 4.64.33 / Places 4.38.11, Worker 1dcf5de1, 232/232 Regression, NFR-0 3/3 und 30/30 Byteidentität.
 
-**Nächster Schritt (AKTIV): Echte Ortsbilder sowie vollständige Filter- und Latenzmatrix schließen.** Kategorienkontinuität, belegte Food-Passung und die sichtbaren Stay-Dubletten sind geschlossen. Der größte sichtbare Qualitätsabstand sind jetzt fehlende echte Ortsbilder; parallel müssen alle Sachfilter und kalten Ladepfade real belegt werden.
+**Nächster Schritt (AKTIV): Echte Ortsbilder sowie vollständige Filter- und Latenzmatrix schließen.** Kategorienkontinuität, belegte Food-Passung, sichtbare Stay-Dubletten und der Transport exakter OSM-/Wikimedia-Bildbelege sind geschlossen. Der größte sichtbare Qualitätsabstand ist nun die geringe reale Bildabdeckung vieler Orte; parallel müssen alle Sachfilter und kalten Ladepfade real belegt werden.
 
 **Abnahme dieses Schritts:**
 
