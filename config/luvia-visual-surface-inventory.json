@@ -1459,8 +1459,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3367814,
-      "sha256": "8a793f09821ef4fb99cf74e66459999f59bc44c96ef51597de76e8c7635a1ecf"
+      "bytes": 3368376,
+      "sha256": "b8ce3fe523bdab790059904dbb7eab0ae58a2ea7cd9841abd1072b7d5ab8619d"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -7959,8 +7959,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 5452,
-      "sha256": "fe767cc6ecd83331fdc2532657c1c94da73a7604a4e4376a01c73c0fb46143ac"
+      "bytes": 6088,
+      "sha256": "f4f3df85721f797dc18a3544d36c9a39d1fdfc1e4cf537ace3f76a0bb28a4126"
     },
     {
       "path": "tests/m16.5-visual-surface-inventory.test.cjs",

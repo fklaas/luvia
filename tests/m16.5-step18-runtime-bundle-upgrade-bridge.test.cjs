@@ -20,6 +20,15 @@ assert.deepEqual(manifest.retainedBuilds.map(item=>item.build),['13.82.121','13.
 assert.equal(manifest.policy.currentLoaderUsesCompatibilityBundle,false);
 assert.equal(manifest.policy.precacheCompatibilityBundles,false,'compatibility bundles must be addressable without adding multi-megabyte precache debt');
 
+// Check the executed artifacts, not only their separately served source copies.
+const canonical=text=>text.replace(/\r\n?/g,'\n');
+const currentSources=JSON.parse(read('app/luvia-runtime.bundle.manifest.json'));
+const executedBundles=canonical(read('app/luvia-runtime-precontext-13.82.168.bundle.js'))+'\n'+canonical(read('app/luvia-runtime-postcontext-13.82.168.bundle.js'));
+for(const item of currentSources){
+  const section='/* ===== '+item.source+' ===== */\n'+canonical(read(item.source))+'\n;';
+  assert.ok(executedBundles.includes(section),'Executed runtime bundle is stale for '+item.source+'; rebuild before deployment');
+}
+
 for(const release of manifest.retainedBuilds){
   for(const key of ['preContext','postContext']){
     const relative=release[key];
