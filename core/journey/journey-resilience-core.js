@@ -3,7 +3,7 @@ var LuviaJourneyResilienceCoreV1=(()=>{
 
 const CONTRACT_ID='journey.resilience.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0-evidence-freshness-buffer';
+const RUNTIME_VERSION='1.2.0-source-backed-day-rehearsal';
 const PLAN_SPEEDS=Object.freeze({calm:1.28,balanced:1,dense:.82});
 const MAX_OPERATIONS=500;
 
@@ -94,24 +94,50 @@ function disruptionRecovery(input={}){
 
 function rehearseDay(input={}){
   const entries=[...(input.entries||[])].sort((a,b)=>Date.parse(a.startAt||0)-Date.parse(b.startAt||0));
-  const speed=clean(input.travelSpeed)||'balanced',issues=[],trace=[];
-  let previous=null,totalProgram=0,totalRoute=0;
-  for(const entry of entries){
-    const duration=Math.max(0,finite(entry.durationMinutes,60));totalProgram+=duration;
-    if(previous&&previous.endAt&&entry.startAt){
-      const gap=Math.round((Date.parse(entry.startAt)-Date.parse(previous.endAt))/60000);
-      const route=routeUncertainty({baseMinutes:finite(entry.transferMinutes,20),travelSpeed:speed,weatherRisk:input.weatherRisk,disruptionRisk:input.disruptionRisk,providerConfidence:entry.routeConfidence,evidence:entry.routeEvidence||[]});
-      totalRoute+=route.recommendedMinutes;
-      trace.push({from:clean(previous.id),to:clean(entry.id),availableMinutes:gap,requiredMinutes:route.recommendedMinutes,confidence:route.confidence});
+  const speed=clean(input.travelSpeed)||'balanced',issues=[],trace=[],routes=[],now=input.now||new Date().toISOString();
+  const entryDuration=entry=>Math.max(0,finite(entry.durationMinutes,60));
+  const startMs=entry=>Date.parse(entry.startAt||0);
+  const endMs=entry=>{const explicit=Date.parse(entry.endAt||0),start=startMs(entry);return Number.isFinite(explicit)?explicit:Number.isFinite(start)?start+entryDuration(entry)*60000:NaN};
+  let totalProgram=0,totalRoute=0;
+  for(let index=0;index<entries.length;index++){
+    const entry=entries[index],previous=index?entries[index-1]:null,metadata=entry.metadata||{};totalProgram+=entryDuration(entry);
+    if(previous&&Number.isFinite(endMs(previous))&&Number.isFinite(startMs(entry))){
+      const gap=Math.round((startMs(entry)-endMs(previous))/60000),route=routeUncertainty({now,baseMinutes:finite(entry.transferMinutes??metadata.transferMinutes,20),routeMode:entry.routeMode||metadata.routeMode||'walking',travelSpeed:speed,weatherRisk:input.weatherRisk,disruptionRisk:input.disruptionRisk,seasonRisk:input.seasonRisk,timeOfDayRisk:input.timeOfDayRisk,providerConfidence:entry.routeConfidence??metadata.routeConfidence,evidence:entry.routeEvidence||metadata.routeEvidence||metadata.routeUncertainty?.evidence||[]});
+      totalRoute+=route.range.expectedMinutes;routes.push({from:clean(previous.id),fromTitle:clean(previous.title),to:clean(entry.id),toTitle:clean(entry.title),availableMinutes:gap,...route});
+      trace.push({from:clean(previous.id),to:clean(entry.id),availableMinutes:gap,requiredMinutes:route.range.expectedMinutes,confidence:route.confidence,sourceSummary:route.sourceSummary,dataAgeLabel:route.dataAgeLabel,liveStatusLabel:route.liveStatusLabel,evidenceSignature:route.evidenceSignature});
       if(gap<0)issues.push({kind:'overlap',severity:'blocking',entryIds:[clean(previous.id),clean(entry.id)],minutes:Math.abs(gap)});
-      else if(gap<route.recommendedMinutes)issues.push({kind:'route-risk',severity:'blocking',entryIds:[clean(previous.id),clean(entry.id)],availableMinutes:gap,requiredMinutes:route.recommendedMinutes});
+      else if(gap<route.range.expectedMinutes)issues.push({kind:'route-risk',severity:'blocking',entryIds:[clean(previous.id),clean(entry.id)],availableMinutes:gap,requiredMinutes:route.range.expectedMinutes,sourceSummary:route.sourceSummary});
     }
-    previous=entry;
   }
   const threshold={calm:420,balanced:540,dense:660}[speed]||540;
   if(totalProgram+totalRoute>threshold)issues.push({kind:'pace-density',severity:'attention',plannedMinutes:totalProgram+totalRoute,thresholdMinutes:threshold});
   const coverage=entries.length?Math.round(entries.filter(entry=>entry.startAt&&entry.endAt).length/entries.length*100):100;
-  return immutable({contractId:CONTRACT_ID,kind:'day-rehearsal',travelSpeed:speed,status:issues.some(item=>item.severity==='blocking')?'blocked':issues.length?'attention':'ready',issues,trace,summary:{entryCount:entries.length,totalProgramMinutes:totalProgram,totalRouteMinutes:totalRoute,evidenceCoverage:coverage},successProbability:null,probabilityClaim:false});
+  const scenarioSpecs=[
+    {id:'favorable',label:'Günstiger Verlauf',routeKey:'lowMinutes',description:'Untere belegte Wegegrenzen; Programmdauern bleiben unverändert.'},
+    {id:'expected',label:'Erwarteter Verlauf',routeKey:'expectedMinutes',description:'Erwartete Wegezeiten aus den sichtbaren Routenbelegen.'},
+    {id:'adverse',label:'Ungünstiger Verlauf',routeKey:'highMinutes',description:'Obere belegte Wegegrenzen; keine erfundene Störung.'}
+  ];
+  const scenarios=scenarioSpecs.map(spec=>{
+    let cursor=null,totalDelay=0,routeMinutes=0;const moments=[];
+    for(let index=0;index<entries.length;index++){
+      const entry=entries[index],planned=startMs(entry),duration=entryDuration(entry),route=index?routes.find(item=>item.to===clean(entry.id))||null:null,travel=route?Math.max(0,finite(route.range?.[spec.routeKey],route.range?.expectedMinutes)):0;
+      routeMinutes+=travel;const earliest=cursor==null?planned:cursor+travel*60000,simulated=Number.isFinite(planned)?Math.max(planned,earliest):earliest,delay=Number.isFinite(planned)&&Number.isFinite(simulated)?Math.max(0,Math.round((simulated-planned)/60000)):0;totalDelay=Math.max(totalDelay,delay);
+      const finish=Number.isFinite(simulated)?simulated+duration*60000:NaN;cursor=finish;
+      moments.push({entryId:clean(entry.id),title:clean(entry.title)||'Reisemoment',plannedStartAt:Number.isFinite(planned)?new Date(planned).toISOString():null,simulatedStartAt:Number.isFinite(simulated)?new Date(simulated).toISOString():null,simulatedEndAt:Number.isFinite(finish)?new Date(finish).toISOString():null,durationMinutes:duration,routeMinutesBefore:travel,delayMinutes:delay,sourceSummary:route?.sourceSummary||null,dataAgeLabel:route?.dataAgeLabel||null});
+    }
+    const evidenced=routes.filter(route=>route.evidenceCoverage>0).length,evidenceStatus=!routes.length?'not-required':evidenced===routes.length?'evidenced':evidenced?'partial':'unknown';
+    return{id:spec.id,label:spec.label,description:spec.description,status:moments.some(item=>item.delayMinutes>0)?'attention':moments.some(item=>!item.simulatedStartAt)?'unknown':'ready',routeMinutes,totalDelayMinutes:totalDelay,finishAt:Number.isFinite(cursor)?new Date(cursor).toISOString():null,moments,evidenceStatus,probability:null,probabilityClaim:false,automaticMutation:false};
+  });
+  const rawContext=[...(Array.isArray(input.contextEvidence)?input.contextEvidence:[]),...(Array.isArray(input.evidence)?input.evidence:[])];
+  for(const entry of entries){const facts=entry.metadata?.providerFacts||{},observedAt=facts.observedAt;if(observedAt&&facts.openingLabel)rawContext.push({source:'Places-Ortsfakten',kind:'opening-hours',observedAt,supports:['opening-hours']})}
+  const contextEvidence=normalizeRouteEvidence(rawContext,new Date(now));
+  const contextSignal=(id,label,terms)=>{const matches=contextEvidence.filter(item=>terms.some(term=>evidenceKinds(item).includes(term))),latest=matches.filter(item=>item.observedAt).sort((a,b)=>Date.parse(b.observedAt)-Date.parse(a.observedAt))[0]||null;return{id,label,status:latest?'evidenced':'unknown',sourceSummary:[...new Set(matches.map(item=>item.source))].join(', ')||'Keine Quelle belegt',dataAgeLabel:ageLabel(latest),liveStatusLabel:matches.some(item=>item.liveStatus==='live')?'Live-Daten belegt':'Live-Lage unbekannt'}};
+  const context=[contextSignal('weather','Wetter',['weather']),contextSignal('traffic','Verkehr und Störungen',['traffic','disruption']),contextSignal('opening','Öffnungszeiten',['opening-hours','opening']),contextSignal('capacity','Auslastung',['capacity','crowd'])],unknownFactors=context.filter(item=>item.status==='unknown').map(item=>item.label);
+  const recommendations=[];
+  for(const route of routes)if(route.evidenceCoverage>0&&route.availableMinutes<route.range.highMinutes)recommendations.push({id:`route-buffer:${route.to}`,kind:'route-buffer',entryId:route.to,fromEntryId:route.from,label:`${route.recommendedBufferMinutes} Min. Wegpuffer prüfen`,reason:`Im ungünstigen belegten Verlauf werden bis zu ${route.range.highMinutes} Minuten benötigt; verfügbar sind ${route.availableMinutes}.`,owner:'journey',ownerContract:'journey.v1',ownerActionId:'journey.entry.schedule',requiresConfirmation:true,automaticMutation:false,evidenceSignature:route.evidenceSignature});
+  for(const issue of issues.filter(item=>item.kind==='overlap'))recommendations.push({id:`shift:${issue.entryIds[1]}`,kind:'shift',entryId:issue.entryIds[1],label:`Zeitverschiebung um mindestens ${issue.minutes} Min. prüfen`,reason:'Die bestätigten Zeiten überschneiden sich bereits ohne zusätzliche Annahmen.',owner:'journey',ownerContract:'journey.v1',ownerActionId:'journey.entry.schedule',requiresConfirmation:true,automaticMutation:false});
+  const scenarioSignature=digest({entries:entries.map(entry=>({id:clean(entry.id),startAt:iso(entry.startAt),endAt:iso(entry.endAt),durationMinutes:entryDuration(entry)})),routes:routes.map(route=>route.evidenceSignature),context:contextEvidence.map(item=>({source:item.source,observedAt:item.observedAt,kind:item.kind}))});
+  return immutable({contractId:CONTRACT_ID,kind:'day-rehearsal',travelSpeed:speed,status:issues.some(item=>item.severity==='blocking')?'blocked':issues.length?'attention':'ready',issues,trace,routes,scenarios,context,unknownFactors,recommendations,scenarioSignature,summary:{entryCount:entries.length,totalProgramMinutes:totalProgram,totalRouteMinutes:totalRoute,evidenceCoverage:coverage,scenarioCount:scenarios.length,unknownFactorCount:unknownFactors.length},successProbability:null,probabilityClaim:false,automaticMutation:false});
 }
 
 function destinationTwin(input={}){

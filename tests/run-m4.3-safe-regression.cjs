@@ -523,6 +523,10 @@ const SUITE = Object.freeze([
     test: 'tests/p11-route-uncertainty-buffer-owner.test.cjs'
   },
   {
+    category: 'P12 / Source-backed Day Rehearsal',
+    test: 'tests/p12-source-backed-day-rehearsal.test.cjs'
+  },
+  {
     category: 'M16.5 / Intelligence Travel Orchestration',
     test: 'tests/m16.5ab-intelligence-travel-orchestration.test.cjs'
   },

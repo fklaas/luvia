@@ -4,6 +4,8 @@
 
 Intern angenommener, unveränderlicher P11-Kandidat: **13.82.168.112**, Core **4.82.231**, Worker **f3d48e97-e939-4a6d-a326-3c2da43c11fe**. Nach der sichtbaren Abnahme wurde die stabile Integration wieder auf den oben genannten App-.104-Stand gesetzt.
 
+Aktueller P12-Abnahmekandidat: **13.82.168.113**, Core **4.82.232**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Er ergänzt dieselbe beleggebundene Tagesprobe in Timeline und AI Chat; die stabile Integration bleibt bis zum abgeschlossenen Nachweis auf App .104.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

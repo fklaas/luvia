@@ -15,18 +15,18 @@ const runner=read('tests/run-m4.3-safe-regression.cjs');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const pcr=read('docs/modularization/PCR-M16.5J-ACCEPTED-LIVING-SHELL-RUNTIME-RELEASE.md');
 
-assert.match(version,/core:'4\.82\.231'/);
-assert.match(version,/build:'13\.82\.168\.112'/);
+assert.match(version,/core:'4\.82\.232'/);
+assert.match(version,/build:'13\.82\.168\.113'/);
 assert.match(version,/name:'M16\.5 Places and Stays Quality'/);
 assert.match(version,/channel:'integration-preview'/);
-assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.112-local-recovery'"));
+assert.ok(worker.includes("const CACHE='luvia-shell-v13.82.168.113-local-recovery'"));
 assert.equal(/\?v=13\.82\.50/.test(index),false,'active entry retains the prior cache key');
 for(const asset of [
   'app/app-shell.css','app/app-shell.js','app/today/today-experience.js',
   'core/experience/experience-contract-core.js','intelligence/kernel/version.js'
-])assert.ok(index.includes(`${asset}?v=13.82.168.112`),`active entry release key missing for ${asset}`);
+])assert.ok(index.includes(`${asset}?v=13.82.168.113`),`active entry release key missing for ${asset}`);
 
-assert.match(shell,/version:'13\.82\.168\.112'/);
+assert.match(shell,/version:'13\.82\.168\.113'/);
 for(const primitive of ['lv-living-shell','lv-living-sidebar','lv-living-topbar','lv-living-stage'])assert.ok(shell.includes(primitive),`accepted shell primitive missing: ${primitive}`);
 assert.equal(parity.binding,true);
 assert.equal(parity.releaseGate.mainAllowed,false);
