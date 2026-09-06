@@ -4,7 +4,7 @@
   "purpose": "Exhaustive visual, state, interaction and asset inventory input; not an approved design",
   "sourceBaselineMarker": "7a3c9349bd725ca0010b901b1006b4926b2be3e4",
   "summary": {
-    "trackedFiles": 3280,
+    "trackedFiles": 3281,
     "visualCandidates": 985,
     "activeEntryReferences": 316,
     "unclassifiedEntryReferences": 0,
@@ -6737,7 +6737,7 @@
         "dom-rendering-source"
       ],
       "bytes": 5305,
-      "sha256": "769d4086cdbc700e8f2cdc7c63dce1615636a0df678538c190f7833bf1beafbf"
+      "sha256": "f58e586494e73140075d4ef6ceaeb63910e6c6ff40f8c07be0a18221656b92ec"
     },
     {
       "path": "supabase/functions/luvia-intelligence/prompts/system.ts",
@@ -9107,8 +9107,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 30669,
-      "sha256": "5511b284c324821a9bf5593bf55321da7f87c62926015f259c6a633f6ba6c3c0"
+      "bytes": 30767,
+      "sha256": "3278fa5c37236c77d6a3ec775d39bdd810942c110b740140070b22472c839fa5"
     },
     {
       "path": "tests/shopping-intelligence.test.cjs",

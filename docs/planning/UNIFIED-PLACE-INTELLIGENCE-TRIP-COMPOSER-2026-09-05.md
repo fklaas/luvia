@@ -362,3 +362,35 @@ Die Produktabnahme verlangt dafür:
 6. Die Reise wird tageweise präsentiert und lässt sich vor der Bestätigung ändern, teilweise übernehmen oder vormerken. Datumswechsel, Alternativen, Teilfehler, Reload und Rückkehr müssen die zuletzt bestätigte Auswahl erhalten. Erst bestätigte Owner-Belege ergeben einen gespeicherten Erfolg.
 
 Einordnung: P15/P17 bleibt das aktive Produktpaket. Die für eine echte KI-Reiseerstellung nötigen Teile aus P19/P20/P22/P23/P26 und P33/P34/P35 müssen vor dessen vollständiger Produktfreigabe angebunden und geprüft werden. Ein einzelner Composer-Teilschritt schließt diese abhängigen P-Blöcke nicht automatisch. Die bisherige Vorschau von höchstens drei Tagen ist ein begrenzter Teilnachweis; vollständige Freitext-Orchestrierung, gesamte Reisedauer, getrennte Profilbestätigung und Trip-Lifecycle bleiben offene Gates.
+
+## Gestaltungsentscheidung 06.09.2026: spielbare Reisewelt statt Slider
+
+Die Rückmeldung des Nutzers ersetzt die bisherige gestalterische Abnahmeannahme: Ein Slider mit Reisegefühlen ist zu wenig. Gewünscht ist eine kleine interaktive Weltkarte, auf der Entscheidungen wie in einem hochwertig gestalteten kleinen Videospiel getroffen werden. Die Dynamik des Luvia-Einstiegs ist die Referenz, nicht dessen Kompassobjekt. Die folgenden drei Konzepte sind Vorschläge, noch keine gewählte oder fertig implementierte Oberfläche.
+
+### A. Eure kleine Reisewelt — empfohlene Hauptrichtung
+
+Eine räumliche, stilisierte Weltkarte füllt den mobilen Bildschirm. Kontinente und Küsten sind tatsächlich geografisch zugeordnet. Berühren und Zoomen führt vom Kontinent zur Region und schließlich in die gemeinsame Places-Karte. Wer Rom schon kennt, kann jederzeit direkt suchen und erhält dieselbe kanonische Zielauswahl.
+
+Nach der Zielwahl wird die Umgebung zur Bühne der Reise: Die gewählte Reisezeit verändert die saisonale Gestaltung. Stadt, Strand, Kultur und Natur sind berührbare Interessenorte. Wenn eine Vorliebe gewählt wird, reagiert die Szene und die echte Kandidatenauswahl wird neu gewichtet. Ein ruhiger Urlaub erhält bewusst freie Flächen im Tagesplan; viele Wünsche machen den verfügbaren Zeitraum sichtbar enger. Bestätigte Ernährungsvorgaben bleiben verbindlich. Eine hübsche Animation darf nie vegetarische Eignung, gutes Wetter oder einen geöffneten Ort vortäuschen.
+
+Die KI spricht nur bei einer entscheidenden Rückfrage: etwa ob ein geplanter Tag eher Strand oder Altstadt sein soll. Beide Optionen zeigen auf der Karte, welche Orte und Wege sich konkret ändern. Die Kamera bewegt sich anschließend durch die geplanten Tage. Dies macht abstrakte Eingaben räumlich verständlich und hält Zielwahl, Places und Tagesplan in einer gemeinsamen Welt.
+
+### B. Die Reise entsteht unter euren Fingern — Schwerpunkt selbst gestalten
+
+Die Region liegt als räumliches Modell vor euch. Unterkunft oder Startpunkt setzen den Ausgangspunkt. Reale Place-Karten lassen sich auf einen Reisetag legen; ein alternativ bedienbarer Auswahlknopf führt exakt dieselbe Aktion aus. Zwischen den Orten erscheinen nur belegte Routen. Freie Zeit, Budget und zu lange Wege werden beim Zusammenstellen unmittelbar sichtbar.
+
+Luvia kann einen fehlenden Baustein anbieten: ein passendes Mittagessen zwischen zwei Stopps, eine ruhigere Alternative oder eine Idee für einen freien Nachmittag. Jede Alternative zeigt ihre Auswirkung vor der Übernahme. Ein Ort kann auch ohne Zeitfestlegung vorgemerkt werden. Dieses Konzept vermittelt besonders gut, dass die Reise wirklich aus den eigenen Entscheidungen entsteht. Als alleiniger Einstieg erfordert es mehr Mitgestaltung; die KI kann auf Wunsch einen ersten Entwurf liefern.
+
+### C. Eine spielbare Reisegeschichte — Schwerpunkt entdecken und entscheiden
+
+Ihr beginnt in einer kurzen räumlichen Szene am Ziel. Luvia stellt eine konkrete Situation: ein freier Morgen, ein gemeinsamer Abend oder ein ganzer Tag. Ihr entscheidet durch Berühren sichtbarer Orte und Wege, etwa Marktviertel, Küste oder Museum. Jede Antwort verändert die nächste Szene und einen einsehbaren Reiseauftrag. Freitext ergänzt die Auswahl jederzeit.
+
+Nach wenigen Entscheidungen entsteht ein begründeter Entwurf aller Reisetage. Er wird tageweise als kurze Reisevorschau präsentiert, kann angehalten und verändert werden. Hier liegt die Stärke in Entdeckung und Dramaturgie. Die Gefahr einer zu langen Inszenierung wird mit direktem Einstieg und jederzeit sichtbarem Plan vermieden.
+
+### Empfehlung und Umsetzungsschnitt
+
+A ist der rote Faden; die tageweise Bearbeitung aus B ergänzt ihn. C liefert kurze erzählerische Übergänge und Rückfragen, wird aber kein zusätzlicher Pflichtweg. Der erste sichtbare Prototyp umfasst nur eine zusammenhängende, bereits fachlich angebundene Sequenz: Welt/Region wählen, Ziel bestätigen, zwei Reiseentscheidungen treffen, reale Places entdecken und einen Tag sichtbar umstellen. Anschließend wird diese Sprache auf Zeitraum, Budget, Mitreisende und gesamte Reisevorschau übertragen.
+
+Die Welt reagiert auf Touch, direktes Antippen und Tastatur. Keine Bedienhandlung darf ausschließlich präzises Ziehen voraussetzen. Niedrige Bewegungsintensität stellt denselben Entscheidungsfluss ohne Kamerafahrten bereit. Auf dem Handy sind große Trefferflächen, zugängliche Suche, fortsetzbarer Entwurf, reduzierte Grafiklast und schnelles erstes Bild verbindlich. Räumliche Effekte werden gestuft geladen; rein visuelle Bewegungen verbrauchen keine Places-/Routen-API-Anfragen. Die Weltgestaltung wird klar von echten Ortsfotos getrennt. Es gibt weiterhin nur einen Trip-Entwurf und die gemeinsame Places-/Journey-/Intelligence-Logik.
+
+P15/P17 bleibt teilweise. Die erste .119-Tagesdarstellung zeigt inzwischen den gesamten Zeitraum; der ältere Dreitagesnachweis oben ist historisch. Der Slider wird nicht als fertige Produktausarbeitung gewertet. Echte KI-Planung, volle Kontextintegration, Kontoübernahme und physische native Abnahme bleiben offene Produktgates.
