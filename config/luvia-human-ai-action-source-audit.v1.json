@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.5",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 1047,
+  "markerCount": 1042,
   "markers": [
     {
       "marker": "data-accent",
@@ -3129,6 +3129,7 @@
       "category": "Reisen & Zusammenarbeit",
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
+        "app/composer-travel-world.js",
         "app/first-trip-composer.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
@@ -4275,15 +4276,6 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
-      "marker": "data-lat",
-      "category": "Reisen & Zusammenarbeit",
-      "classification": "STATUS/EINGABE/PROJEKTION",
-      "sources": [
-        "app/composer-travel-world.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
       "marker": "data-latitude",
       "category": "Navigation & Oberfläche",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -4460,15 +4452,6 @@
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [
         "app/public-landing-motion.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-lng",
-      "category": "Reisen & Zusammenarbeit",
-      "classification": "STATUS/EINGABE/PROJEKTION",
-      "sources": [
-        "app/composer-travel-world.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -9548,6 +9531,7 @@
       "category": "Navigation & Oberfläche",
       "classification": "AKTIONSKANDIDAT",
       "sources": [
+        "app/composer-travel-world.js",
         "app/public-landing-motion.js"
       ],
       "assessment": "Semantisch in der Masterliste als Einzelaktion oder bewusst gruppierte UI-Interaktion erfasst."
@@ -9557,25 +9541,8 @@
       "category": "Reisen & Zusammenarbeit",
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
-        "app/composer-travel-world.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-world-point",
-      "category": "Reisen & Zusammenarbeit",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "app/composer-travel-world.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-world-region",
-      "category": "Reisen & Zusammenarbeit",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "app/composer-travel-world.js"
+        "app/composer-travel-world.js",
+        "app/first-trip-composer.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
@@ -9594,15 +9561,6 @@
       "classification": "INTERAKTIONSPRIMITIVE",
       "sources": [
         "app/public-landing-motion.js"
-      ],
-      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
-    },
-    {
-      "marker": "data-world-zoom",
-      "category": "Reisen & Zusammenarbeit",
-      "classification": "INTERAKTIONSPRIMITIVE",
-      "sources": [
-        "app/composer-travel-world.js"
       ],
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     }

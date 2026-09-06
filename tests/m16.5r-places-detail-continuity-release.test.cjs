@@ -15,7 +15,7 @@ const matrix=read('docs/modularization/M16.5-PRODUCT-SURFACE-MATRIX.csv');
 const ownership=read('docs/modularization/FILE-OWNERSHIP.csv');
 const runner=read('tests/run-m4.3-safe-regression.cjs');
 
-assert.ok(version.includes("core:'4.82.240'")&&version.includes("build:'13.82.168.121'"),'kernel build must be the geoapify cache-bust release');
+assert.ok(version.includes("core:'4.82.241'")&&version.includes("build:'13.82.168.122'"),'kernel build must be the geoapify cache-bust release');
 assert.match(version,/name:'M16\.5 Places and Stays Quality'/);
 for(const asset of [
   'intelligence/kernel/version.js',
@@ -24,8 +24,8 @@ for(const asset of [
   'app/places/places-spatial-experience.js',
   'app/places/places-spatial-experience.css',
   'modules/places-shell.js'
-])assert(index.includes(`${asset}?v=13.82.168.121`),`active M16.5R cache key missing for ${asset}`);
-assert(worker.includes("const CACHE='luvia-shell-v13.82.168.121-local-recovery'"));
+])assert(index.includes(`${asset}?v=13.82.168.122`),`active M16.5R cache key missing for ${asset}`);
+assert(worker.includes("const CACHE='luvia-shell-v13.82.168.122-local-recovery'"));
 
 assert.match(experience,/data-compact-place-card/);
 assert.match(experience,/preview\.addEventListener\('click',[\s\S]{0,560}openSheet\(placesFromSnapshot\(place\),providerId\(place\),\{interactive:true,origin\}\)\?\.settle\?\.\(true\)/,'the compact selected-Pin preview must remain the deliberate morph entry into the exact result sheet using the complete Place snapshot visibly attached to it');
@@ -52,6 +52,6 @@ for(const file of [
 assert(runner.includes('tests/m16.5r-places-detail-continuity-release.test.cjs'));
 
 console.log('M16.5R Places Details/Evidence Continuity Release: PASS');
-console.log('App / Core / shell cache: 13.82.168.121 / 4.82.240 / luvia-shell-v13.82.168.121-local-recovery');
+console.log('App / Core / shell cache: 13.82.168.122 / 4.82.241 / luvia-shell-v13.82.168.122-local-recovery');
 console.log('Rail / selected Place / map / focus / async lifecycle continuity: LOCKED');
 console.log('Main / Production release lock: ACTIVE');

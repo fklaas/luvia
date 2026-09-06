@@ -20,7 +20,7 @@ const serviceWorker=read('sw.js');
 const fixture=read('tests/fixtures/m16.5z-first-trip-composer-browser.html');
 
 assert.match(composer,/\['welcome','identity','feeling','destination','dates','people','modules','accent','ready'\]/);
-assert.match(composer,/guided:Object\.freeze\(\[\.\.\.STEPS\]\)/);
+assert.match(composer,/guided:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
 assert.match(composer,/quick:Object\.freeze\(\['welcome','destination','dates','accent','ready'\]\)/);
 assert.match(composer,/ai:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
 for(const label of ['Geführt','Schnellstart','Mit Luvia AI','Anfrage bleibt flüchtig','Reisewünsche gelten für diese Reise','Profiländerungen brauchen Bestätigung'])assert.ok(composer.includes(label),`missing composer copy: ${label}`);

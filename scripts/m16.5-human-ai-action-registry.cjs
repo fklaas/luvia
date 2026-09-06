@@ -781,6 +781,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-pick-cancel': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-lat': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-lng': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-world-back': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-world-country': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-world-point': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-world-region': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -1012,8 +1013,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1047);
-  assert.equal(sourceAudit.markerCount, 1047);
+  assert.equal(sourceAudit.markers.length, 1042);
+  assert.equal(sourceAudit.markerCount, 1042);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

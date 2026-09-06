@@ -34,7 +34,7 @@ surface.emit('pointerdown',{target:marker});surface.emit('pointermove',{clientX:
 assert.notEqual(mounted.snapshot().yaw,before.yaw);assert.equal(picks.length,0);checks++;
 assert.equal(surface.emit('click',{detail:1}).stopped,true);checks++;
 surface.emit('pointerdown',{target:marker});surface.emit('pointerup');assert.equal(picks.length,1);assert.equal(picks[0].name,'Lissabon');checks++;
-assert.notEqual(surface.emit('click',{detail:0}).stopped,true);marker.emit('click',{detail:0});assert.equal(picks.length,2);checks++;
+assert.notEqual(surface.emit('click',{detail:0}).stopped,true);surface.emit('click',{detail:0,target:marker});assert.equal(picks.length,2);checks++;
 before=mounted.snapshot();const wheel=surface.emit('wheel',{deltaX:30,deltaY:20,deltaMode:0});assert.equal(wheel.prevented,true);assert.equal(wheel.stopped,true);assert.notEqual(mounted.snapshot().yaw,before.yaw);assert.equal(surface.listeners.get('wheel').options.passive,false);checks++;
 before=mounted.snapshot();surface.emit('wheel',{deltaX:0,deltaY:-20,deltaMode:0,ctrlKey:true});assert.ok(mounted.snapshot().zoom>before.zoom);checks++;
 assert.equal(surface.emit('touchmove').prevented,true);assert.equal(canvas.listeners.has('touchmove'),false);checks++;
@@ -43,4 +43,11 @@ surface.emit('pointerdown',{target:marker});surface.emit('pointercancel');surfac
 surface.emit('pointerdown',{target:marker});surface.emit('lostpointercapture');surface.emit('pointerup');assert.equal(picks.length,2);checks++;
 before=mounted.snapshot();surface.emit('pointerdown',{button:2,target:marker});surface.emit('pointermove',{clientX:400});surface.emit('pointerup');assert.equal(mounted.snapshot().yaw,before.yaw);checks++;
 surface.emit('pointerdown');mounted.destroy();assert.equal(surface.listeners.size,0);assert.equal(marker.listeners.size,0);assert.equal(canvas.listeners.size,0);assert.equal(surface.hasPointerCapture(1),false);checks++;
+const navigation=[],hierarchy=world.mount(host,{onPick:p=>picks.push(p),onNavigate:v=>navigation.push(v)}),pickCount=picks.length;
+hierarchy.primary();assert.equal(hierarchy.snapshot().level,0);assert.equal(hierarchy.snapshot().pending.name,'Europa');assert.equal(navigation.length,0);checks++;
+hierarchy.primary();assert.equal(hierarchy.snapshot().level,1);assert.equal(hierarchy.snapshot().pending,null);assert.equal(navigation.length,1);assert.equal(picks.length,pickCount);checks++;
+before=hierarchy.snapshot();canvas.emit('keydown',{key:'ArrowRight'});assert.ok(hierarchy.snapshot().panX>before.panX);hierarchy.destroy();checks++;
+const continents=JSON.parse(fs.readFileSync('assets/composer/world-continents.json','utf8')).features;
+assert.ok(continents.some(f=>f.properties.code==='Europe'));assert.ok(continents.every(f=>['Polygon','MultiPolygon'].includes(f.geometry.type)));checks++;
+for(const filename of fs.readdirSync('assets/composer/regions')){assert.match(filename,/^[A-Z0-9]{3}\.json$/);const pack=JSON.parse(fs.readFileSync('assets/composer/regions/'+filename,'utf8'));assert.ok(pack.features.every(f=>f.properties.country===filename.slice(0,3)&&f.properties.name&&f.properties.code&&['Polygon','MultiPolygon'].includes(f.geometry.type)));}checks++;
 console.log(`P15 travel world: ${checks}/${checks} geometry, picking and gesture checks PASS`);
