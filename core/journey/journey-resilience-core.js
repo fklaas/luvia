@@ -3,7 +3,7 @@ var LuviaJourneyResilienceCoreV1=(()=>{
 
 const CONTRACT_ID='journey.resilience.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.0.0';
+const RUNTIME_VERSION='1.1.0-evidence-freshness-buffer';
 const PLAN_SPEEDS=Object.freeze({calm:1.28,balanced:1,dense:.82});
 const MAX_OPERATIONS=500;
 
@@ -23,26 +23,48 @@ function stable(value){
 }
 function digest(value){const source=stable(value);let hash=2166136261;for(let index=0;index<source.length;index++){hash^=source.charCodeAt(index);hash=Math.imul(hash,16777619)}return`fnv1a-${(hash>>>0).toString(16).padStart(8,'0')}`}
 
+const ROUTE_MODES=Object.freeze({walking:'zu Fuß',cycling:'mit dem Fahrrad',driving:'mit dem Auto',transit:'mit Bus und Bahn'});
+function evidenceKinds(item={}){return[clean(item.kind),clean(item.type),...(Array.isArray(item.supports)?item.supports.map(clean):[])].join(' ').toLowerCase()}
+function normalizeRouteEvidence(raw=[],now=new Date()){
+  const nowMs=now.getTime();
+  return raw.slice(0,8).map(item=>{
+    const observedAt=iso(item?.observedAt),observedMs=Date.parse(observedAt||''),ageMinutes=Number.isFinite(nowMs)&&Number.isFinite(observedMs)?Math.max(0,Math.round((nowMs-observedMs)/60000)):null;
+    const freshness=ageMinutes==null?'unknown':ageMinutes<=15?'live':ageMinutes<=180?'recent':ageMinutes<=1440?'aged':'stale';
+    const liveStatus=item?.live===true&&freshness==='live'?'live':'unknown';
+    return{source:clean(item?.source)||'Unbekannte Quelle',observedAt,kind:clean(item?.kind)||'route',ageMinutes,freshness,liveStatus,supports:Array.isArray(item?.supports)?item.supports.map(clean).filter(Boolean).slice(0,6):[]};
+  });
+}
+function hasEvidence(evidence,kind){return evidence.some(item=>item.observedAt&&evidenceKinds(item).includes(kind))}
+function ageLabel(item){if(!item||item.ageMinutes==null)return'Alter unbekannt';if(item.ageMinutes<1)return'gerade eben beobachtet';if(item.ageMinutes<60)return`vor ${item.ageMinutes} Min. beobachtet`;const hours=Math.round(item.ageMinutes/60);if(hours<48)return`vor ${hours} Std. beobachtet`;return`vor ${Math.round(hours/24)} Tagen beobachtet`}
+
 function routeUncertainty(input={}){
   const base=Math.max(1,finite(input.baseMinutes,20));
-  const evidence=Array.isArray(input.evidence)?input.evidence:[];
+  const now=new Date(input.now||Date.now()),evidence=normalizeRouteEvidence(Array.isArray(input.evidence)?input.evidence:[],now);
   const speed=PLAN_SPEEDS[clean(input.travelSpeed)]||PLAN_SPEEDS.balanced;
-  const weather=clamp(finite(input.weatherRisk),0,1);
-  const disruption=clamp(finite(input.disruptionRisk),0,1);
+  const routeMode=ROUTE_MODES[clean(input.routeMode)]?clean(input.routeMode):'walking';
+  const weather=hasEvidence(evidence,'weather')?clamp(finite(input.weatherRisk),0,1):0;
+  const disruption=hasEvidence(evidence,'disruption')||hasEvidence(evidence,'traffic')?clamp(finite(input.disruptionRisk),0,1):0;
+  const season=hasEvidence(evidence,'season')?clamp(finite(input.seasonRisk),0,1):0;
+  const timeOfDay=hasEvidence(evidence,'time-of-day')?clamp(finite(input.timeOfDayRisk),0,1):0;
   const providerConfidence=clamp(finite(input.providerConfidence,.55),0,1);
   const orientation=Math.max(3,finite(input.orientationMinutes,8))*speed;
-  const evidenceCoverage=clamp(evidence.filter(item=>item?.observedAt&&item?.source).length/Math.max(1,evidence.length),0,1);
-  const uncertainty=(1-providerConfidence)*.32+weather*.18+disruption*.35+(1-evidenceCoverage)*.15;
+  const evidenceCoverage=clamp(evidence.filter(item=>item.observedAt&&item.source!=='Unbekannte Quelle').length/Math.max(1,evidence.length),0,1);
+  const uncertainty=clamp((1-providerConfidence)*.28+weather*.16+disruption*.3+season*.08+timeOfDay*.08+(1-evidenceCoverage)*.1,.08,.92);
   const p50=Math.ceil(base*speed+orientation);
   const p80=Math.ceil(p50+Math.max(3,base*uncertainty*.72));
   const p95=Math.ceil(p80+Math.max(4,base*uncertainty*.9));
+  const latest=evidence.filter(item=>item.observedAt).sort((left,right)=>Date.parse(right.observedAt)-Date.parse(left.observedAt))[0]||null,sources=[...new Set(evidence.map(item=>item.source).filter(Boolean))],liveStatus=evidence.some(item=>item.liveStatus==='live')?'live':'unknown';
+  const ignored=[];if(finite(input.weatherRisk)>0&&!weather)ignored.push('Wetter');if(finite(input.disruptionRisk)>0&&!disruption)ignored.push('Verkehr oder Störung');if(finite(input.seasonRisk)>0&&!season)ignored.push('Saison');if(finite(input.timeOfDayRisk)>0&&!timeOfDay)ignored.push('Tageszeit');
+  const evidenceSignature=digest({baseMinutes:base,routeMode,evidence:evidence.map(item=>({source:item.source,observedAt:item.observedAt,kind:item.kind,supports:item.supports}))});
   return immutable({
-    contractId:CONTRACT_ID,kind:'route-uncertainty',baseMinutes:base,travelSpeed:clean(input.travelSpeed)||'balanced',
+    contractId:CONTRACT_ID,kind:'route-uncertainty',baseMinutes:base,travelSpeed:clean(input.travelSpeed)||'balanced',routeMode,routeModeLabel:ROUTE_MODES[routeMode],
     percentiles:{p50,p80,p95},recommendedMinutes:p80,recommendedBufferMinutes:Math.max(0,p80-base),
+    range:{expectedMinutes:p50,lowMinutes:Math.max(base,p50-2),highMinutes:p95},
     confidence:Math.round((1-uncertainty)*100),evidenceCoverage:Math.round(evidenceCoverage*100),
-    assumptions:['Provider-Wegezeit ist ein Ausgangswert.','Orientierung und realistische Ankunft werden eingerechnet.',weather?'Wetterrisiko ist berücksichtigt.':'Kein Wetterrisiko belegt.',disruption?'Eine belegte Störung ist berücksichtigt.':'Keine belegte Störung bekannt.'],
-    evidence:evidence.slice(0,8).map(item=>({source:clean(item.source),observedAt:iso(item.observedAt),kind:clean(item.kind)})),
-    generatedFrom:'deterministic-evidence-model',probabilityClaim:false
+    sourceSummary:sources.join(', ')||'Keine Routenquelle belegt',observedAt:latest?.observedAt||null,dataAgeLabel:ageLabel(latest),liveStatus,liveStatusLabel:liveStatus==='live'?'Live-Daten belegt':'Live-Lage unbekannt',
+    assumptions:['Die angegebene Wegezeit ist der Ausgangswert.','Orientierung und eine realistische Ankunft werden eingerechnet.',weather?'Belegtes Wetter ist berücksichtigt.':'Kein aktueller Wetterbeleg berücksichtigt.',disruption?'Belegte Verkehrs- oder Störungsdaten sind berücksichtigt.':'Aktuelle Verkehrs- und Störungslage unbekannt.',...(ignored.length?[`${ignored.join(', ')} ohne passenden Beleg nicht eingerechnet.`]:[])],
+    evidence,evidenceSignature,ignoredUnverifiedFactors:ignored,
+    generatedFrom:'deterministic-evidence-model',probabilityClaim:false,automaticMutation:false
   });
 }
 

@@ -3,7 +3,7 @@ var LuviaHumanAIConsumerProjectionCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.human-ai-consumer-projection.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.3.0-evidenced-read-failure-copy';
+const RUNTIME_VERSION='1.4.0-route-buffer-preview';
 const STATES=Object.freeze([
   'AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE','NEEDS_INPUT',
   'AUTHENTICATION_REQUIRED','SCOPE_DENIED','REAUTH_REQUIRED','CONSENT_REQUIRED','NETWORK_REQUIRED',
@@ -92,14 +92,15 @@ function projectIntentSummary(compiled={}){
   return immutable({visible:!simpleResolved,state,title,message,items});
 }
 function previewDetails(preview={}){
-  const changes=preview.changes&&typeof preview.changes==='object'?preview.changes:{},hasChange=field=>Object.prototype.hasOwnProperty.call(changes,field),dateChanged=hasChange('date')||hasChange('startAt'),timeChanged=hasChange('time')||hasChange('startAt'),partySizeChanged=hasChange('partySize'),durationChanged=hasChange('duration');
+  const changes=preview.changes&&typeof preview.changes==='object'?preview.changes:{},hasChange=field=>Object.prototype.hasOwnProperty.call(changes,field),dateChanged=hasChange('date')||hasChange('startAt'),timeChanged=hasChange('time')||hasChange('startAt'),partySizeChanged=hasChange('partySize'),durationChanged=hasChange('duration'),routeBufferChanged=hasChange('routeBufferMinutes');
   const date=formatDate(preview.date||preview.startAt||changes.date||changes.startAt),clock=formatTime(preview.time||preview.startAt||changes.time||changes.startAt),partySize=preview.partySize??changes.partySize,duration=preview.duration??changes.duration,details=[];
   if(preview.name||preview.title)details.push({label:'Was',value:consumerText(preview.name||preview.title)});
   if(date)details.push({label:dateChanged?'Neues Datum':'Datum',value:date});
   if(clock)details.push({label:timeChanged?'Neue Uhrzeit':'Uhrzeit',value:clock});
   if(partySize!==undefined&&partySize!==null&&partySize!=='')details.push({label:partySizeChanged?'Neue Personenzahl':'Personen',value:String(partySize)});
   if(duration!==undefined&&duration!==null&&duration!=='')details.push({label:durationChanged?'Neue Dauer':'Dauer',value:consumerText(duration)});
-  return details.slice(0,5);
+  if(routeBufferChanged){const before=preview.before?.routeBufferMinutes,after=changes.routeBufferMinutes;details.push({label:'Bisheriger Puffer',value:before==null?'Noch nicht festgelegt':`${before} Minuten`},{label:'Neuer Puffer',value:`${after} Minuten`});const evidence=preview.routeEvidence||{};details.push({label:'Routenbeleg',value:[evidence.mode,evidence.source,evidence.dataAge,evidence.liveStatus].filter(Boolean).join(' · ')})}
+  return details.slice(0,8);
 }
 function projectPreview(input={}){
   const result=input.result||{},preview=input.preview||result?.evidence?.preview||{},details=previewDetails(preview),undo=input.compensatesLedgerId||input.undo===true,title=undo?'Änderung rückgängig machen?':consumerText(result.title||input.title,'Bitte noch einmal prüfen');

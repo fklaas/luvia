@@ -828,6 +828,13 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-lvjt-group-restore-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
   'data-lvjt-group-restore-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-lvjt-group-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  // P11: confirmed Journey Owner buffer change. The source entry and status
+  // markers only carry projection/readback context and are not extra outcomes.
+  'data-journey-route-buffer': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-journey-route-from': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-route-buffer-close': ['Navigation & Oberfläche', 'AKTIONSKANDIDAT'],
+  'data-route-buffer-confirm': ['Journey, Timeline & Tagesplan', 'AKTIONSKANDIDAT'],
+  'data-route-buffer-status': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-trip-map-action': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-trip-map-input': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-trip-map-host': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
@@ -958,8 +965,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1004);
-  assert.equal(sourceAudit.markerCount, 1004);
+  assert.equal(sourceAudit.markers.length, 1009);
+  assert.equal(sourceAudit.markerCount, 1009);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

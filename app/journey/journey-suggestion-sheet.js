@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.26.0-places-owner-cohort';
+const VERSION='1.27.0-shared-route-evidence';
 const cache=new Map();
 const handleState=new WeakMap();
 const handleControllers=new WeakMap();
@@ -555,11 +555,12 @@ function distanceBetween(left,right){const a=coordinates(left),b=coordinates(rig
 function routeBuffer(input={}){return Math.max(5,Math.min(20,Number(input.planningPolicy?.routeBufferMinutes)||10))}
 function transferBetween(left,right,input={},reference='timeline'){
   const meters=distanceBetween(left,right),fallbackBuffer=routeBuffer(input),origin=clean(left?.name||left?.title),distanceReference=reference==='selection'?'previous-selected-place':'previous-timeline-place',prefix=origin?`Von „${origin}“`:(reference==='selection'?'Vom zuvor gewählten Ort':'Vom vorherigen Timeline-Ort');
-  const travelMinutes=Number.isFinite(meters)?Math.max(8,Math.ceil((meters/1000)/4.5*60/5)*5):20,weatherRisk=Number(input.weather?.precipitationProbability??input.weather?.rainProbability??0)/100;
-  const uncertainty=contracts().journey?.reads?.routeUncertainty?.({baseMinutes:travelMinutes,travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence:Number.isFinite(meters)?[{source:'places.coordinates',kind:'air-distance',observedAt:new Date().toISOString()}]:[]})||null;
+  const travelMinutes=Number.isFinite(meters)?Math.max(8,Math.ceil((meters/1000)/4.5*60/5)*5):20,weatherRisk=Number(input.weather?.precipitationProbability??input.weather?.rainProbability??0)/100,coordinateObservedAt=left?.providerObservedAt||left?.ownerObservedAt||right?.providerObservedAt||right?.ownerObservedAt||null,weatherObservedAt=input.weather?.observedAt||input.weather?.generatedAt||null;
+  const evidence=Number.isFinite(meters)?[{source:'Places-Koordinaten',kind:'air-distance',observedAt:coordinateObservedAt},...(weatherObservedAt?[{source:input.weather?.source||'Wetterdienst',kind:'weather',observedAt:weatherObservedAt,supports:['weather'],live:input.weather?.live===true}]:[])]:[];
+  const uncertainty=contracts().journey?.reads?.routeUncertainty?.({baseMinutes:travelMinutes,routeMode:'walking',travelSpeed:clean(input.planningPolicy?.travelSpeed)||'balanced',orientationMinutes:fallbackBuffer,weatherRisk:Number.isFinite(weatherRisk)?weatherRisk:0,disruptionRisk:Number(input.disruptionRisk)||0,providerConfidence:Number.isFinite(meters)?.68:.3,evidence})||null;
   const rawBuffer=Math.max(fallbackBuffer,uncertainty?.recommendedBufferMinutes||0),buffer=Math.min(20,rawBuffer),minutes=travelMinutes+buffer;
   if(!Number.isFinite(meters))return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:null,distanceReference,label:`${prefix}: Weg noch zu prüfen · ${buffer} Min. realistischer Ankunfts-/Orientierungspuffer`,verified:false,uncertainty};
-  const km=meters/1000;return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:Math.round(meters),distanceReference,label:`${prefix}: ${km.toFixed(1).replace('.',',')} km Luftlinie · ${travelMinutes} Min. Wegeansatz + ${buffer} Min. belastbarer Puffer`,verified:true,uncertainty};
+  const km=meters/1000;return{minutes,travelMinutes,bufferMinutes:buffer,distanceMeters:Math.round(meters),distanceReference,label:`${prefix}: ${km.toFixed(1).replace('.',',')} km Luftlinie · ${travelMinutes} Min. Wegeansatz + ${buffer} Min. realistischer Puffer · ${uncertainty?.dataAgeLabel||'Alter unbekannt'} · ${uncertainty?.liveStatusLabel||'Live-Lage unbekannt'}`,verified:true,uncertainty};
 }
 function priceRank(place){return{PRICE_LEVEL_FREE:0,PRICE_LEVEL_INEXPENSIVE:1,PRICE_LEVEL_MODERATE:2,PRICE_LEVEL_EXPENSIVE:3,PRICE_LEVEL_VERY_EXPENSIVE:4,'0':0,'1':1,'2':2,'3':3,'4':4}[clean(place?.priceLevel)]}
 function alternativeCause(current,candidate){

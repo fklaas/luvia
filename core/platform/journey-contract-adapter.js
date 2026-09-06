@@ -3,7 +3,7 @@
 
 const CONTRACT_ID='journey.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.7.0-positive-owner-management';
+const RUNTIME_VERSION='1.8.0-route-buffer-owner';
 const listeners=new Set();
 let projection=null,sourceUnsubscribe=null,lastReason='initial';
 
@@ -254,7 +254,7 @@ async function clearEntries(options={}){const result=await provider().clearEntri
 async function removePhotoMemoryByCluster(clusterId,options={}){const result=await provider().removePhotoMemoryByCluster?.(clusterId,options);emit('remove-photo-memory');return result}
 function openPhotoMemory(identity,node){return provider().openPhotoMemory?.(resolveSourceEntry(identity),node)}
 function editEntry(identity,onDone){
-  if(onDone&&typeof onDone==='object')return applySchedule(identity,onDone);
+  if(onDone&&typeof onDone==='object')return(onDone.changeKind==='route-buffer'||onDone.routeBufferMinutes!=null)?applyRouteBuffer(identity,onDone):applySchedule(identity,onDone);
   return provider().editEntry?.(resolveSourceEntry(identity),updates=>{emit('edit-entry');onDone?.(updates)});
 }
 function scheduleEditable(identity){return domain().scheduleEditable(typeof identity==='object'?identity:getEntry(identity))}
@@ -264,10 +264,40 @@ function previewSchedule(identity,input={}){
   const start=new Date(input.startAt),localDate=Number.isNaN(start.getTime())?'':start.toLocaleDateString('sv-SE'),end=new Date(start.getTime()+Number(input.durationMinutes)*60000),localEndDate=Number.isNaN(end.getTime())?'':end.toLocaleDateString('sv-SE');
   return domain().previewSchedule({...input,localDate,localEndDate,entry,trip,entries:snapshot({trip}).entries});
 }
+function routeProjection(entry,input={}){
+  const metadata=entry?.metadata||{},evidence=input.routeEvidence||entry?.routeEvidence||metadata.routeEvidence||metadata.routeUncertainty?.evidence||[];
+  return routeUncertainty({baseMinutes:Number(input.baseMinutes??entry?.transferMinutes??metadata.transferMinutes)||20,routeMode:input.routeMode||entry?.routeMode||metadata.routeMode||metadata.routeUncertainty?.routeMode||'walking',travelSpeed:input.travelSpeed||metadata.travelSpeed||'balanced',orientationMinutes:Number(input.orientationMinutes??metadata.orientationMinutes)||8,providerConfidence:Number(input.providerConfidence??entry?.routeConfidence??metadata.routeConfidence),weatherRisk:Number(input.weatherRisk??metadata.weatherRisk)||0,disruptionRisk:Number(input.disruptionRisk??metadata.disruptionRisk)||0,seasonRisk:Number(input.seasonRisk??metadata.seasonRisk)||0,timeOfDayRisk:Number(input.timeOfDayRisk??metadata.timeOfDayRisk)||0,evidence,now:input.now});
+}
+function previewRouteBuffer(identity,input={}){
+  const entry=typeof identity==='object'&&identity?.id?getEntry(identity.id)||identity:getEntry(identity);if(!entry)throw new Error('Der Timeline-Eintrag ist nicht mehr verfügbar.');
+  const projection=routeProjection(entry,input),requested=Number(input.routeBufferMinutes??projection.recommendedBufferMinutes),routeBufferMinutes=Math.max(5,Math.min(90,Math.round(requested)));
+  if(!Number.isFinite(requested))throw new Error('Der neue Zeitpuffer ist ungültig.');
+  const present=Object.hasOwn(entry.metadata||{},'routeBufferMinutes'),current=present?Number(entry.metadata.routeBufferMinutes):null;
+  return Object.freeze({entryId:entry.id,title:entry.title,expectedRevision:entry.sourceRevision,expectedRouteEvidenceSignature:projection.evidenceSignature,before:Object.freeze({routeBufferMinutes:Number.isFinite(current)?current:null}),after:Object.freeze({routeBufferMinutes}),changed:current!==routeBufferMinutes,routeUncertainty:projection,automaticMutation:false});
+}
 function scheduleRecovery(identity){
   const entry=typeof identity==='object'?identity:getEntry(identity),receipt=entry?.metadata?.scheduleRecovery;
   if(!receipt||receipt.entryId!==entry.id||!receipt.before?.startAt||receipt.after?.startAt!==entry.startAt||Number(receipt.after?.durationMinutes)!==entry.durationMinutes)return null;
   return Object.freeze({...receipt,entryId:entry.id,title:entry.title,expectedRevision:entry.sourceRevision});
+}
+const routeBufferPending=new Map();
+async function applyRouteBuffer(identity,input={}){
+  const id=typeof identity==='string'?identity:identity?.id,operationId=String(input.operationId||'');
+  if(input.confirmed!==true||!operationId)throw new Error('Bitte den Zeitpuffer zuerst prüfen und bestätigen.');
+  if(routeBufferPending.has(id)){const pending=routeBufferPending.get(id);if(pending.operationId===operationId)return pending.promise;throw new Error('Für diesen Eintrag wird gerade ein Zeitpuffer gespeichert.');}
+  const promise=(async()=>{
+    const original=getEntry(id),trip=activeTrip();if(!original||original.tripId!==String(trip?.id||trip?.tripId||''))throw new Error('Bitte den Eintrag in der aktiven Reise erneut öffnen.');
+    await hydrate(original.tripId);const entry=getEntry(id),replayed=entry?.metadata?.routeBufferRecovery;if(replayed?.operationId===operationId)return Object.freeze({...replayed,replayed:true});
+    if(!entry||!input.expectedRevision||entry.sourceRevision!==input.expectedRevision)throw new Error('Der Eintrag wurde inzwischen geändert. Bitte den Zeitpuffer erneut prüfen.');
+    const preview=previewRouteBuffer(id,input);if(!input.expectedRouteEvidenceSignature||preview.expectedRouteEvidenceSignature!==input.expectedRouteEvidenceSignature)throw new Error('Die Routenbasis hat sich seit der Vorschau geändert. Bitte Quelle und Zeitpuffer erneut prüfen.');
+    if(!preview.changed)return Object.freeze({unchanged:true,entryId:id,operation:'route-buffer'});
+    const receipt=Object.freeze({operation:'restore-route-buffer',operationId,entryId:id,createdAt:new Date().toISOString(),before:preview.before,after:preview.after,evidenceSignature:preview.expectedRouteEvidenceSignature});
+    const metadata={...(entry.metadata||{}),routeBufferMinutes:preview.after.routeBufferMinutes,routeMode:preview.routeUncertainty.routeMode,routeUncertainty:preview.routeUncertainty,routeBufferRecovery:receipt};
+    if(String(activeTrip()?.id||activeTrip()?.tripId||'')!==entry.tripId)throw new Error('Die aktive Reise hat gewechselt. Bitte erneut prüfen.');
+    await writeOwnerEntry(entry,{startAt:entry.startAt,expectedRevision:entry.sourceRevision,metadata});await hydrate(entry.tripId);const saved=getEntry(id);
+    if(Number(saved?.metadata?.routeBufferMinutes)!==preview.after.routeBufferMinutes||saved?.metadata?.routeBufferRecovery?.operationId!==operationId)throw new Error('Der Zeitpuffer wurde noch nicht bestätigt. Bitte die Timeline neu laden und prüfen.');
+    return receipt;
+  })().finally(()=>routeBufferPending.delete(id));routeBufferPending.set(id,{operationId,promise});return promise;
 }
 const schedulePending=new Map();
 async function applySchedule(identity,input={}){
@@ -345,8 +375,8 @@ async function undo(input={}){
   throw new Error('JOURNEY_UNDO_OPERATION_UNSUPPORTED');
 }
 
-const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore});
-const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
+const reads=Object.freeze({snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewSchedule,previewRouteBuffer,scheduleEditable,scheduleRecovery,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore});
+const commands=Object.freeze({init,hydrate,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,applyRouteBuffer,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo});
 const api=Object.freeze({
   contractId:CONTRACT_ID,
   version:VERSION,
@@ -354,8 +384,8 @@ const api=Object.freeze({
   reads,
   commands,
   events:Object.freeze(['journey.changed']),
-  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore,
-  init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
+  snapshot,list,listDays,getEntry,getDay,entriesForDate,listConflicts,entryCapabilities,planTrust,routeUncertainty,rehearseDay,disruptionRecovery,destinationTwin,subscribe,composeProjection,previewRouteBuffer,previewRemoval,previewRestore,removalRecoveries,removalRecovery,previewConnectionReorder,connectionRecoveries,connectionRecovery,previewConnectionRestore,
+  init,hydrate,record:recordEvent,recordEvent,removeEntry,restoreRemovedEntry,connectAndReorderEntries,restoreConnectionReorder,clearEntries,removePhotoMemoryByCluster,openPhotoMemory,editEntry,applyRouteBuffer,openPlanningEditor,openExternalLink,saveOfflinePack,removeOfflinePack,undo,
   diagnostics:()=>{const compatibility=provider().diagnostics?.()||{};return Object.freeze({
     contractId:CONTRACT_ID,
     version:VERSION,

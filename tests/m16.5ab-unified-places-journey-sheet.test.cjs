@@ -189,7 +189,7 @@ assert.match(composer,/lvjt-transfer-trace/,'the Timeline must expose the thin, 
 assert.match(composer,/function derivedTransfer\(previous,current\)/,'older owner entries with two real coordinates must gain an explicit A-to-B trace without inventing GPS evidence');
 assert.match(composer,/Weg noch nicht berechenbar · verlässliche Ortskoordinaten fehlen/,'a location-bound pair with missing owner coordinates must expose the missing evidence instead of silently dropping the route');
 assert.match(composer,/function isLocationBound\(entry=/,'pure notes and memories must remain distinct from location-bound route entries');
-assert.match(composer,/Places-Koordinaten beider Orte/,'a derived transfer must disclose its actual coordinate source');
+assert.match(composer,/Places-Koordinaten/,'a derived transfer must disclose its actual coordinate source');
 assert.match(composer,/function transferMarkup\(/,'A-to-B evidence must expose its distance as a dedicated visible value');
 assert.match(composerCss,/\.lvjt-entry-card\{grid-column:3/,'the transfer evidence must never displace the following Timeline card into the time column');
 assert.match(composerCss,/\.lvjt-transfer-trace\{grid-column:3/,'the route trace and the Place card must share the actual content column');

@@ -519,6 +519,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5ab-journey-resilience-foundation.test.cjs'
   },
   {
+    category: 'P11 / Evidenced Route Buffer Owner',
+    test: 'tests/p11-route-uncertainty-buffer-owner.test.cjs'
+  },
+  {
     category: 'M16.5 / Intelligence Travel Orchestration',
     test: 'tests/m16.5ab-intelligence-travel-orchestration.test.cjs'
   },

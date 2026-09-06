@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(file, 'utf8');
 const dashboardSource = read('core/ai/ai-dashboard-service.js');
 const navigationPreflightIndex = dashboardSource.indexOf('const directNavigation=deterministicNavigation(request)');
 const compilerBlockIndex = dashboardSource.indexOf("if(compiled&&['blocked','conflicted'].includes(compiled.status))");
-assert.match(dashboardSource, /const VERSION='4\.39\.0-evidenced-owner-errors'/);
+assert.match(dashboardSource, /const VERSION='4\.40\.0-route-evidence-buffer'/);
 assert.match(dashboardSource, /actionRuntime\(\)\.runMessage\(request,\{surface,compiledIntent:compiled,sourceMessage:request\}\)/);
 assert.ok(navigationPreflightIndex >= 0 && navigationPreflightIndex < compilerBlockIndex,
   'the visible Chat submit path must execute registered navigation before blocking an optional compiler result');

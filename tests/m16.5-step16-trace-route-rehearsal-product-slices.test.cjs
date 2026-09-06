@@ -31,7 +31,7 @@ context.LuviaJourneyContractV1={
   reads:{
     snapshot(){return{days:[{date:'2027-06-13',label:'Sonntag',entries:[
       {id:'breakfast',title:'Frühstück',startAt:'2027-06-13T09:00:00Z',endAt:'2027-06-13T10:00:00Z',provenance:{owner:'booking'}},
-      {id:'museum',title:'Museum',startAt:'2027-06-13T10:12:00Z',endAt:'2027-06-13T12:00:00Z',transferMinutes:24,routeConfidence:.55,routeEvidence:[]}
+      {id:'museum',title:'Museum',startAt:'2027-06-13T10:12:00Z',endAt:'2027-06-13T12:00:00Z',durationMinutes:108,sourceRevision:'museum-rev-1',transferMinutes:24,routeConfidence:.55,routeMode:'walking',routeEvidence:[{source:'HERE Routing',kind:'duration',observedAt:'2026-08-30T10:00:00Z'}]}
     ],conflicts:[]},{date:'2027-06-14',label:'Montag',entries:[],conflicts:[]}],disruptions:[{verified:true,entryIds:['museum'],reason:'Venue meldet einen späteren Einlass',observedAt:'2027-06-13T08:55:00Z'}],summary:{entryCount:2}}},
     routeUncertainty:input=>resilience.routeUncertainty(input),
     rehearseDay:input=>resilience.rehearseDay(input),
@@ -110,6 +110,14 @@ vm.runInContext(read('core/ai/ai-action-runtime.js'),context,{filename:'core/ai/
   assert.ok(dayResult,'Journey owner day projection missing');
   assert.equal(dayResult.evidence.routeUncertainty.length,1);
   assert.equal(dayResult.evidence.routeUncertainty[0].probabilityClaim,false);
+  assert.equal(dayResult.evidence.routeUncertainty[0].sourceSummary,'HERE Routing');
+  assert.equal(dayResult.evidence.routeUncertainty[0].liveStatus,'unknown');
+  assert.ok(dayResult.evidence.routeUncertainty[0].dataAgeLabel);
+  const bufferAction=dayResult.actions.find(action=>action.actionId==='journey.entry.schedule');
+  assert.ok(bufferAction,'Journey route buffer must be an explicit owner action');
+  assert.equal(bufferAction.payload.changeKind,'route-buffer');
+  assert.equal(bufferAction.payload.expectedRevision,'museum-rev-1');
+  assert.match(bufferAction.payload.expectedRouteEvidenceSignature,/^fnv1a-/);
   assert.equal(dayResult.evidence.rehearsals.length,1);
   assert.equal(dayResult.evidence.rehearsals[0].status,'blocked');
   assert.equal(dayResult.evidence.disruptionRecovery.proposals.length,1);
