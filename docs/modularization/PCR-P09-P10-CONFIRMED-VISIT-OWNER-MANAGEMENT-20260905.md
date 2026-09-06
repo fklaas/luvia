@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.111**, Core **4.82.230**. M16.5 Schritte 15–18: P09/P10 interner Abschlusskandidat App .111 / Core .230. Die direkte Timeline und der AI Chat teilen Places Visit Owner; generische Titel werden lokal aufgelöst und mehrere gleich benannte bestätigte Besuche verlangen eine explizite Ordinalauswahl. Veröffentlichung, sichtbare Browserabnahme und finale Byte-/Rollback-Belege laufen jetzt. P11 ist danach unmittelbar AKTIV.
+**Stand 2026-09-06:** Integration **13.82.168.111**, Core **4.82.230**. M16.5 Schritte 15–18: P09/P10 sind intern abgeschlossen und als App .111 / Core .230 vor dem Rücksprung sichtbar sowie reproduzierbar belegt worden. Stable Integration läuft wieder auf dem akzeptierten App-.104-Worker; Main und Production blieben unverändert. Direkte Timeline und AI Chat teilen Places Visit Owner; generische Titel werden lokal aufgelöst und mehrere gleich benannte bestätigte Besuche verlangen eine explizite Ordinalauswahl. Nur die physische iOS-/Android-Abnahme bleibt als Gerätegate. P11 ist jetzt AKTIV.
 
-**Zuletzt geliefert:** Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle werden erkannt; konkrete Visit-Fehler fallen nicht in Discovery zurück. Die Zielauflösung verbindet visitId mit vorhandenen Place-Namen über lokale placeId-, tripPlaceId- und providerPlaceId-Lesewege und verbraucht kein Anbieter-Kontingent. Mehrere gleich benannte Besuche werden nicht willkürlich ausgewählt, sondern erst durch „erster“, „zweiter“ oder „letzter“ eindeutig adressiert. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.
+**Zuletzt geliefert:** P09/P10: bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere Befehle, lokale Place-Identität ohne Providerkontingent, konkrete Fehlerprojektion, Visit-Deduplizierung und explizite Auswahl gleich benannter Besuche sind belegt. Sichtbar wurden Mehrdeutigkeitsfehler, positive Ordinal-Vorschau und abgebrochene Nullmutation geprüft. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen. Safe Regression 233/233, NFR-0 3/3 und Byteidentität 30/30 sind grün.
 
 **Nächster Schritt (AKTIV): Routenunsicherheit und bestätigten Zeitpuffer liefern.** Geh- und Fahrradrouten sind bereits providerübergreifend vorhanden. Der nächste klar abgrenzbare P-Block macht ihre zeitliche Unsicherheit, Quellenfrische und fehlende Live-Daten verständlich und lässt einen empfohlenen Puffer nur über einen bestätigten Journey-Befehl in die Timeline einfließen.
 
@@ -86,6 +86,20 @@ Wrangler verwendete beim ersten Aufruf den Standardnamen `luvia`. Dieser falsche
 
 Main Git und der wiederhergestellte Standard-Worker enthalten keine P09/P10-Änderung dieses Slices.
 
+## Release `.111`: interner P09/P10-Abschluss mit eindeutiger Visit-Identität
+
+App **13.82.168.111** / Core **4.82.230** veröffentlicht Runtime-Commit **1eeab2566f18980ebba6d8633597524c401a4cc8** als Integration-Worker **b42820f6-8e77-4866-b154-5c340d2db4a7**. Die Runtime verbindet generische Timeline-Titel ausschließlich über lokale `placeId`-, `tripPlaceId`- und `providerPlaceId`-Lesewege mit dem Places Owner. Dieser Weg startet keine Places Discovery und verbraucht kein Google-, Foursquare-, Geoapify-, TomTom- oder HERE-Kontingent.
+
+Die reale Reise enthielt zwei unterschiedliche bestätigte Visits für **DAS LEO**. Der vorherige Kandidat `.110` belegte die lokale Namensauflösung, hätte bei diesem Gleichstand aber noch einen beliebigen der beiden Owner-Datensätze wählen können. `.111` schließt diese Lücke: Eine Anweisung ohne Ordinalangabe endet mit `AI_VISIT_TARGET_AMBIGUOUS` und fordert sichtbar **„erster“, „zweiter“ oder „letzter“**. Die Anweisung „Ändere den ersten bestätigten Besuch bei DAS LEO am 12.06.2027 um 18:15 Uhr auf 60 Minuten“ zeigte anschließend die korrekte Bestätigung mit Ort, deutschem Datum und Uhrzeit. Die Vorschau wurde bewusst abgebrochen; Luvia bestätigte sichtbar, dass nichts verändert wurde.
+
+Der sichtbare Browser lud die `.111`-Pre- und Postcontext-Bundles. Die Timeline blieb ohne horizontalen Überlauf. Vollständige Safe Regression **233/233**, NFR-0 **3/3**, Releasekonsistenz, Recovery, visuelles Inventar und die gezielten Owner-/Orchestrierungs-/Null-Provider-Prüfungen sind grün. **30/30** releasekritische Dateien stimmen zwischen dem sauberen Deployment-Byte-Archiv, Stable und dem immutable Worker überein.
+
+- Archiv: `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.111-1eeab256-public-bytes.zip`
+- Archivgröße: `89.044.244` Bytes
+- Archiv-SHA-256: `08225C7807215873A48BFE3C913FF0C952EB7CCEF9500710D7FB4797B50D520F`
+- Immutable: `https://b42820f6-integration-luvia.njwnrvwbv5.workers.dev/`
+- Exakter stabiler Rücksprungpunkt: Worker `.104`, `7cda6e20-3b33-442a-b5e6-1c2da8256faf`
+
 ## Restumfang
 
-P09/P10 bleiben **TEILWEISE**. Visit- und Memory-Verwaltung sind geliefert. Offen bleiben die positive Verwaltung einer echten Providerbuchung auf Integration, die physische iOS-/Android-Langdruckabnahme und die spätere vollständige AI-Chat-Parität für Visit-Korrektur, Entfernen und Wiederherstellen.
+P09 und P10 sind **intern abgeschlossen** und bleiben im Gesamtstatus nur **BELEGT_BEGRENZT**, bis Langdruck, Wackelmodus, Verschieben, Korrektur, Entfernen und Wiederherstellen einmal auf realem iOS und Android physisch abgenommen wurden. Eine echte positive Providerbuchung gehört zu P07/P08 und blockiert diesen internen Owner-/Chat-Abschluss nicht. Der nächste aktive Produktblock ist P11: sichtbare Routenunsicherheit, Quellenalter und ein separat bestätigter Journey-Zeitpuffer.
