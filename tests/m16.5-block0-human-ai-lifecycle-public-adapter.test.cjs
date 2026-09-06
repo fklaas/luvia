@@ -11,7 +11,7 @@ context.LuviaAI={diagnostics:()=>({version:'test'}),run:async()=>({}),ask:async(
 vm.createContext(context);
 for(const file of ['core/intelligence/human-ai-language-compiler-core.js','core/intelligence/human-ai-safety-policy-core.js','core/intelligence/human-ai-action-lifecycle-core.js','core/platform/intelligence-contract-adapter.js'])vm.runInContext(read(file),context,{filename:file});
 const api=context.LuviaIntelligenceContractV1,action=registry.actions.find(item=>item.id==='places.favorite');
-assert.equal(api.runtimeVersion,'1.10.0');
+assert.equal(api.runtimeVersion,'1.11.0');
 for(const method of ['compileHumanActionLifecycle','createHumanActionLifecycle','advanceHumanActionLifecycle','getHumanActionLifecycleCoverage'])assert.equal(typeof api.reads[method],'function');
 const definition=api.reads.compileHumanActionLifecycle(action);assert.equal(definition.mode,'MUTATION');
 const instance=api.reads.createHumanActionLifecycle({action,authorityDecision:'ALLOW',inputRef:'place-1'});assert.equal(instance.status,'PREVIEW_REQUIRED');

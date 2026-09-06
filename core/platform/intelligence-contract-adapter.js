@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.10.0';
+  const RUNTIME_VERSION = '1.11.0';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -79,6 +79,21 @@
 
   function composeDayGuidance(input = {}) {
     return immutable(preferenceResolver().composeDayGuidance(input));
+  }
+
+  async function interpretTripBrief(input = {}) {
+    const request={
+      surface:'trip-composer',userGoal:String(input.requestBrief||'').slice(0,1200),
+      destination:input.destination?.name||'',startDate:input.startDate||null,endDate:input.endDate||null,
+      globalPreferences:input.profilePreferences||{},tripPreferences:input.tripPreferences||{},
+      answers:input.answers||[],
+      interpretationContract:{purpose:'Interpret only this new trip. Never inherit a different active trip. Respect explicit profile restrictions. Return German text. Preserve every requested hard constraint, including unsupported ones. A follow-up answer resolves its original question.',
+        goalTypes:['food','culture','nature','nightlife','shopping','wellness','family','active','open'],
+        constraintKeys:{category:'one goal type',excludeCategory:'one goal type',pace:'slow|balanced|active',budgetLevel:'economy|balanced|generous|open',dietary:'vegetarian|vegan',maximumPerDay:'1|2|3|4',notBefore:'HH:mm',notAfter:'HH:mm'},
+        rule:'Use these canonical keys when applicable. Other constraints retain descriptive keys. Never discard unsupported requirements or invent place facts.'}
+    };
+    const response=await run('planning.dialogue',request,{fallback:false});
+    return immutable(preferenceResolver().projectTripBrief(input,response));
   }
 
   function travelOrchestration() {
@@ -348,6 +363,7 @@
       resolveTripPreferences,
       rankPlaceCandidates,
       composeDayGuidance,
+      interpretTripBrief,
       planningTrace,
       gateContext,
       causalFeedback,
@@ -385,6 +401,7 @@
     resolveTripPreferences,
     rankPlaceCandidates,
     composeDayGuidance,
+    interpretTripBrief,
     planningTrace,
     gateContext,
     causalFeedback,

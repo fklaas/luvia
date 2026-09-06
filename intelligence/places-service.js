@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const VERSION='4.18.6-autocomplete-timeout';
+const VERSION='4.18.7-destination-read';
 const listeners=new Set();
 const state={initialized:false,requests:0,successes:0,failures:0,cacheHits:0,lastRequestAt:null,lastSuccessAt:null,lastError:null,lastResult:null,recent:[]};
 const now=()=>new Date().toISOString();
@@ -80,10 +80,11 @@ async function details(placeId,options={}){const id=clean(placeId).replace(/^pla
 async function photo(photoName,options={}){const name=clean(photoName);if(!/^places\/[^/]+\/photos\/[^/]+$/.test(name))throw Object.assign(new Error('Ungültiger Photo-Ressourcenname.'),{code:'INVALID_PHOTO_NAME'});return call('places.photo',{photoName:name,maxWidthPx:Math.max(1,Math.min(1600,num(options.maxWidthPx,800))),maxHeightPx:options.maxHeightPx?Math.max(1,Math.min(1600,num(options.maxHeightPx,800))):null});}
 async function route(origin,destination,options={}){return call('routes.compute',{origin,destination,...options});}
 async function health(){return call('places.health',{});}
+async function lookupDestination(query,options={}){return call('destination.resolve',{query:clean(query),languageCode:options.languageCode||'de'}, {timeoutMs:Number(options.timeoutMs)||7000});}
 function diagnostics(){return{version:VERSION,initialized:state.initialized,backendAvailable:Boolean(window.LuviaBackend),destination:destinationContext(),metrics:{requests:state.requests,successes:state.successes,failures:state.failures,cacheHits:state.cacheHits},lastRequestAt:state.lastRequestAt,lastSuccessAt:state.lastSuccessAt,lastError:state.lastError,lastResult:state.lastResult,recent:[...state.recent]};}
 async function testContract(options={}){const checks={api:true,backend:Boolean(window.LuviaBackend),destinationApi:Boolean(window.LuviaDestination),destinationResolver:typeof window.LuviaDestination?.ensureResolved==='function',methods:['textSearch','nearbySearch','autocomplete','details','photo','route','health'].every(k=>typeof api[k]==='function'),normalization:normalizeOptions({maxResultCount:99}).maxResultCount===20};let remote={skipped:true};if(options.remote===true){try{remote=await health();checks.remote=remote?.ok!==false;}catch(error){remote={ok:false,code:error.code,message:error.message};checks.remote=false;}}return{ok:Object.values(checks).every(Boolean),message:'Places Gateway, automatische Zielauflösung, geografische Einschränkung und Backend-Vertrag geprüft.',checks,remote,diagnostics:diagnostics()};}
 function subscribe(listener){if(typeof listener!=='function')return()=>{};listeners.add(listener);return()=>listeners.delete(listener);}
 function init(){state.initialized=true;emit('ready',{version:VERSION});return api;}
-const api=Object.freeze({version:VERSION,init,textSearch,nearbySearch,autocomplete,details,photo,route,health,diagnostics,testContract,subscribe,activeDestination,resolvedDestination});
+const api=Object.freeze({version:VERSION,init,textSearch,nearbySearch,autocomplete,details,photo,route,health,diagnostics,testContract,subscribe,activeDestination,resolvedDestination,lookupDestination});
 window.LuviaPlaces=api;window.LuviaPlacesGateway=api;init();
 })();

@@ -25,7 +25,7 @@ assert.match(composer,/quick:Object\.freeze\(\['welcome','destination','dates','
 assert.match(composer,/ai:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
 for(const label of ['Geführt','Schnellstart','Mit Luvia AI','Anfrage bleibt flüchtig','Reisewünsche gelten für diese Reise','Profiländerungen brauchen Bestätigung'])assert.ok(composer.includes(label),`missing composer copy: ${label}`);
 assert.match(composer,/data-ftc-entry-mode/);assert.match(composer,/data-ftc-trip-interest/);assert.match(composer,/data-ftc-durable/);
-assert.match(composer,/vollständige Planung aus Freitext ist noch in Arbeit/);
+assert.match(composer,/Ihr prüft ihn, bevor daraus Ortsvorschläge entstehen/);
 assert.match(composer,/owner\.commands\.createFirstTrip/);
 assert.match(composer,/Danach Menschen einladen/);
 assert.match(composer,/Profil bleibt Basis · Reisegefühl setzt den Schwerpunkt/);
@@ -80,7 +80,7 @@ const input={title:'Unser Kopenhagen',subtitle:'Viel Luft am Wasser',destination
 
 const canonicalPlaces=Array.from({length:8},(_,index)=>({providerPlaceId:`provider-place-${index+1}`,name:`Belegter Ort ${index+1}`,primaryType:index%2?'museum':'restaurant',formattedAddress:`Kopenhagen ${index+1}`,coordinates:{latitude:55.67+index*.001,longitude:12.56+index*.001},image:{url:`https://images.example.test/place-${index+1}.jpg`}}));
 const ownerDraft=window.LuviaTripContractV1.composition.composeDayDraft(input,{places:canonicalPlaces,generatedAt:'2026-09-06T12:00:00.000Z'});
-assert.equal(ownerDraft.owner,'trip');assert.equal(ownerDraft.contractId,'trip.v1');assert.equal(ownerDraft.kind,'owner-backed-ai-day-draft');assert.deepEqual([...ownerDraft.sourceContracts],['places.v1','journey.v1']);assert.equal(ownerDraft.confirmationRequired,true);assert.equal(ownerDraft.automaticMutation,false);assert.equal(ownerDraft.days.length,3);assert.equal(ownerDraft.days.flatMap(day=>day.entries).length,6);assert.equal(ownerDraft.alternatives.length,2);assert.ok(ownerDraft.days.flatMap(day=>day.entries).every(entry=>entry.owner==='places'&&entry.contractId==='places.v1'&&entry.providerPlaceId&&entry.coordinates));
+assert.equal(ownerDraft.owner,'trip');assert.equal(ownerDraft.contractId,'trip.v1');assert.equal(ownerDraft.kind,'owner-backed-ai-day-draft');assert.deepEqual([...ownerDraft.sourceContracts],['places.v1','journey.v1']);assert.equal(ownerDraft.confirmationRequired,true);assert.equal(ownerDraft.automaticMutation,false);assert.equal(ownerDraft.days.length,8);assert.equal(ownerDraft.days.flatMap(day=>day.entries).length,6);assert.equal(ownerDraft.alternatives.length,2);assert.ok(ownerDraft.days.flatMap(day=>day.entries).every(entry=>entry.owner==='places'&&entry.contractId==='places.v1'&&entry.providerPlaceId&&entry.coordinates));
 
 (async()=>{
   const [first,duplicate]=await Promise.all([

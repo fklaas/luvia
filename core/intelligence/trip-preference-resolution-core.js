@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.7.0-provider-dietary-evidence';
+const VERSION='1.8.0-confirmed-trip-brief';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
@@ -302,5 +302,48 @@ function composeDayGuidance(input={}){
   });
 }
 
-return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore});
+// Structured model output is a proposal about the request, never evidence about a place.
+function projectTripBrief(input={},response={}){
+  if(response.ok!==true||response.meta?.fallback!==false||!response.data||!Array.isArray(response.data.goals))throw Object.assign(new Error('Luvia konnte eure Wünsche noch nicht zuverlässig verstehen. Bitte erneut versuchen.'),{code:'TRIP_BRIEF_AI_REQUIRED'});
+  const data=response.data,base=input.tripPreferences||{},preferences={...clone(base),interests:[...(base.interests||[])],food:[...(base.food||[])],accessibility:[...(base.accessibility||[])],mobility:[...(base.mobility||[])]};
+  const profile=normalizeProfile(input.profilePreferences||{}),applied=[],unresolved=[],exclusions=new Set(),goals=Array.isArray(data.goals)?data.goals.slice(0,12):[];
+  const categories={food:'food',meal:'food',restaurant:'food',dining:'food',cafe:'food',café:'food',essen:'food',culture:'culture',museum:'culture',kultur:'culture',sightseeing:'culture',nature:'nature',natur:'nature',nightlife:'nightlife',nachtleben:'nightlife',shopping:'shopping',wellness:'wellness',family:'family',familie:'family',active:'active',activity:'active',activities:'active',aktivitäten:'active'};
+  const policy={maximumPerDay:base.pace==='slow'?1:base.pace==='active'?3:2,notBefore:'10:00',notAfter:'21:00'};
+  const hardPolicy={maximumPerDay:4,notBefore:null,notAfter:null};
+  const norm=value=>clean(value).toLowerCase().replace(/[ _-]/g,''),time=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value),unique=values=>[...new Set(values)];
+  const addCategory=(value,excluded=false)=>{const category=categories[clean(value).toLowerCase()];if(!category)return false;if(excluded)exclusions.add(category);else preferences.interests.push(category);return true};
+  const constraints=[...(data.hardConstraints||[]).map(item=>({...item,hard:true})),...(data.softPreferences||[]).map(item=>({...item,hard:false})),...goals.flatMap(goal=>[...(goal.hardConstraints||[]).map(item=>({...item,hard:true})),...(goal.softPreferences||[]).map(item=>({...item,hard:false}))])];
+  for(const goal of goals){if(addCategory(goal.type))applied.push({label:clean(goal.label).slice(0,180),effect:'category'});if(goal.timeWindow&&!goal.timeWindow.flexible)unresolved.push({label:clean(goal.timeWindow.label)||'Gewünschtes Zeitfenster',hard:true});}
+  for(const item of constraints){
+    const key=norm(item.key),value=clean(item.value).toLowerCase(),label=clean(item.label||item.value).slice(0,180);let handled=false;
+    if(['category','interest','interests','travelinterest','activitytype'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value));
+    if(['excludecategory','excludedcategory','excludeinterest'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value,true));
+    if(['pace','travelpace','planningpace'].includes(key)){
+      const pace={slow:'slow',ruhig:'slow',relaxed:'slow',entspannt:'slow',balanced:'balanced',ausgewogen:'balanced',active:'active',aktiv:'active'}[value];if(pace){preferences.pace=pace;policy.maximumPerDay=pace==='slow'?1:pace==='active'?3:2;handled=true;}
+    }
+    if(['budget','budgetlevel','budgetpreference'].includes(key)){
+      const budget={economy:'economy',low:'economy',günstig:'economy',balanced:'balanced',medium:'balanced',generous:'generous',high:'generous',open:'open'}[value];if(budget){preferences.budgetLevel=budget;handled=!item.hard;}
+    }
+    if(['dietary','diet','food','dietarypreference'].includes(key)){
+      const diet={vegetarian:'vegetarian',vegetarisch:'vegetarian',vegan:'vegan'}[value];if(diet){preferences.food.push(diet);handled=true;}
+    }
+    if(['maximumperday','maxactivitiesperday','activitiesperday'].includes(key)&&/^[1-4]$/.test(value)){policy.maximumPerDay=Number(value);if(item.hard)hardPolicy.maximumPerDay=Math.min(hardPolicy.maximumPerDay,Number(value));handled=true;}
+    if(['notbefore','starttime','daystart'].includes(key)&&time(value)){policy.notBefore=value;if(item.hard)hardPolicy.notBefore=hardPolicy.notBefore&&hardPolicy.notBefore>value?hardPolicy.notBefore:value;handled=true;}
+    if(['notafter','endtime','dayend'].includes(key)&&time(value)){policy.notAfter=value;if(item.hard)hardPolicy.notAfter=hardPolicy.notAfter&&hardPolicy.notAfter<value?hardPolicy.notAfter:value;handled=true;}
+    // Destinations/dates are already explicit owner-confirmed input; the model may not replace them.
+    if(['destination','location','startdate','enddate','timezone'].includes(key)){
+      const expected=key==='destination'||key==='location'?input.destination?.name:key==='timezone'?input.destination?.timezone:input[key==='startdate'?'startDate':'endDate'];handled=norm(value)===norm(expected);
+    }
+    if(handled)applied.push({label,effect:key});else if(label)unresolved.push({label,hard:Boolean(item.hard)});
+  }
+  preferences.interests=unique(preferences.interests).filter(id=>!exclusions.has(id));preferences.food=unique(preferences.food);preferences.accessibility=unique(preferences.accessibility);preferences.mobility=unique(preferences.mobility);
+  policy.maximumPerDay=Math.min(policy.maximumPerDay,hardPolicy.maximumPerDay);if(hardPolicy.notBefore)policy.notBefore=hardPolicy.notBefore;if(hardPolicy.notAfter)policy.notAfter=hardPolicy.notAfter;
+  if(policy.notAfter<=policy.notBefore)unresolved.push({label:'Beginn und Ende des gewünschten Tages widersprechen sich.',hard:true});
+  if(!preferences.interests.length)unresolved.push({label:'Noch kein eindeutiger Suchschwerpunkt: bitte unter Wünsche mindestens einen Bereich auswählen.',hard:true});
+  const requestPreferences={...clone(input.profilePreferences||{}),dietaryPreferences:unique([...profile.dietary,...preferences.food]),accessibilityNeeds:unique([...profile.accessibility,...preferences.accessibility])};
+  const uniqueLabels=values=>values.filter((item,index)=>item.label&&values.findIndex(other=>other.label===item.label&&other.hard===item.hard)===index);
+  return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'trip-planning-brief',source:'ai',understanding:clean(data.understanding).slice(0,1200),goals:goals.map(goal=>({type:clean(goal.type),label:clean(goal.label).slice(0,180)})),applied:uniqueLabels(applied),unresolved:uniqueLabels(unresolved),unknowns:(data.unknowns||[]).slice(0,12).map(item=>clean(item).slice(0,180)),question:data.followUpQuestion?.text?{text:clean(data.followUpQuestion.text).slice(0,300),reason:clean(data.followUpQuestion.reason).slice(0,300)}:null,tripPreferences:preferences,requestPreferences,policy,automaticPlanningAllowed:!unresolved.some(item=>item.hard),confirmationRequired:true,automaticMutation:false});
+}
+
+return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore,projectTripBrief});
 })();

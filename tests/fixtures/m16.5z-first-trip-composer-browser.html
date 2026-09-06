@@ -14,8 +14,12 @@
   <main id="app"></main>
   <script src="../../core/trips/trip-draft-core.js"></script>
   <script src="../../core/intelligence/intelligence-action-contract-core.js"></script>
+  <script src="../../core/intelligence/trip-preference-resolution-core.js"></script>
+  <script src="../../core/intelligence/intelligence-domain-contract-core.js"></script>
+  <script src="../../core/platform/intelligence-contract-adapter.js"></script>
   <script src="../../core/journey/journey-resilience-core.js"></script>
   <script>
+    window.LuviaAI={run:async()=>({ok:true,meta:{fallback:false},data:{understanding:'Kontrollierte Testantwort: Wir planen ruhige Tage mit Kultur und veganem Essen, ab zwölf Uhr.',goals:[{type:'culture',label:'Kultur erleben',hardConstraints:[],softPreferences:[]}],hardConstraints:[{key:'dietary',value:'vegan',label:'Vegan essen'},{key:'notBefore',value:'12:00',label:'Ab zwölf Uhr'}],softPreferences:[{key:'pace',value:'slow',label:'Ein ruhiger Tag'}],followUpQuestion:null,unknowns:[]}})};
     const fixtureParams=new URLSearchParams(location.search);
     const fixtureUserId=`m165z-${fixtureParams.get('qa')||'visible-user'}`;
     const storagePrefix=`m165z-fixture:${fixtureUserId}:`;

@@ -10,7 +10,7 @@ context.LuviaAI={diagnostics:()=>({version:'test'}),run:async()=>({}),ask:async(
 vm.createContext(context);
 for(const file of ['core/intelligence/human-ai-language-compiler-core.js','core/intelligence/human-ai-safety-policy-core.js','core/intelligence/human-ai-action-lifecycle-core.js','core/intelligence/human-ai-capability-discovery-core.js','core/intelligence/human-ai-consumer-projection-core.js','core/platform/intelligence-contract-adapter.js'])vm.runInContext(read(file),context,{filename:file});
 const api=context.LuviaIntelligenceContractV1;
-assert.equal(api.runtimeVersion,'1.10.0');
+assert.equal(api.runtimeVersion,'1.11.0');
 for(const method of ['projectHumanActionConsumer','projectHumanActionConversation','projectHumanActionPreview','projectHumanActionReceipt','getHumanActionConsumerCoverage'])assert.equal(typeof api.reads[method],'function',method);
 const action=registry.actions.find(item=>item.id==='places.plan'),projection=api.reads.projectHumanActionConsumer({action,capability:{state:'AVAILABLE_AFTER_CONFIRMATION'}});
 assert.equal(projection.view,'PREVIEW');

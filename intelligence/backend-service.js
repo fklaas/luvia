@@ -117,7 +117,8 @@
     if(!cfg.secureContext&&location.hostname!=='localhost'){const error=new Error('Sichere Backend-Aufrufe benötigen HTTPS.');error.code='INSECURE_CONTEXT';throw error;}
     const safeAction=validateAction(action);
     const guard=window.LuviaNetworkGuard;
-    if(navigator.onLine===false||guard?.canRequest?.()===false){const error=new Error('Netzwerk vorübergehend nicht verfügbar.');error.code='NETWORK_OFFLINE';error.expected=true;throw error;}
+    const destinationProbe=safeAction==='destination.resolve'&&guard?.canRequest?.()===false&&guard?.canProbe?.('destination.resolve')===true;
+    if(navigator.onLine===false||(guard?.canRequest?.()===false&&!destinationProbe)){const error=new Error('Netzwerk vorübergehend nicht verfügbar.');error.code='NETWORK_OFFLINE';error.expected=true;throw error;}
     const requestId=options.requestId||uuid();
     const timeoutMs=clamp(Number(options.timeoutMs)||cfg.timeoutMs,1000,30000);
     const controller=new AbortController();
@@ -125,7 +126,7 @@
     const started=performance.now();
     state.requests++;state.lastRequestAt=now();state.lastRequestId=requestId;
     const requiresAuth=!PUBLIC_ACTIONS.has(safeAction);
-    const token=await accessToken({waitMs:requiresAuth?3500:500});
+    const token=safeAction==='destination.resolve'?'':await accessToken({waitMs:requiresAuth?3500:500});
     if(requiresAuth&&!token){const error=new Error('Die Anmeldung ist noch nicht bereit.');error.code='AUTH_NOT_READY';error.status=401;throw error;}
     const headers={'Content-Type':'application/json','Accept':'application/json'};
     if(cfg.publishableKey)headers.apikey=cfg.publishableKey;
