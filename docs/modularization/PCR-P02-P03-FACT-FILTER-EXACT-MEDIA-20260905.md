@@ -247,3 +247,90 @@ P02/P03 bleiben **TEILWEISE**.
 `P02-P03-real-photo-cold-latency-closure`: reale Ortsbildabdeckung und kalte
 Providerlatenzen auf die Zielwerte bringen; danach die vollständige sichtbare
 Filtermatrix abnehmen.
+
+## Nachtrag 06.09.2026 – App 13.82.168.102 / kalte Spezialpfade und Commons-Kategorien
+
+App 13.82.168.102 bündelt den nächsten P02/P03-Abschnitt aus Erstlatenz,
+Spezialtypen und exakten Ortsmedien:
+
+- Strikte Spezialtypen verwenden direkt die Provider-Taxonomie. Ein leerer
+  erster Namenslauf blockiert den Kategorienpfad nicht mehr.
+- Für echte Spezialtypen beginnt die kostenlose, authentifizierte und
+  cachegestützte OSM-Kategoriesuche neben Geoapify. Breite Kategorien wie
+  Nachtleben oder Stays lösen diesen zusätzlichen Fächer nicht aus.
+- Geoapify-, OSM- und Overpass-Wartezeiten sind begrenzt; verlorene parallele
+  Anfragen werden abgebrochen und erfolgreiche Ergebnisse sechs Stunden
+  zwischengespeichert.
+- Der exakte Medienresolver akzeptiert jetzt auch eine unmittelbar am
+  Provider-Ort hinterlegte Wikimedia-Commons-Kategorie. Er liest nur Dateien,
+  verlangt Autor und Lizenz und verwirft SVG, PDF, DjVu, TIFF sowie Logos,
+  Symbole, Wappen, Flaggen, Karten, Pläne, Diagramme und Grundrisse.
+- Die gewählte Provider-Entität und die konkrete Commons-/Wikidata-Verknüpfung
+  bleiben getrennt als Medienherkunft erhalten. Eine Namens- oder
+  Umgebungssuche nach beliebigen Bildern findet nicht statt.
+
+### Öffentliche Provider- und Latenzproben
+
+Die Proben liefen gegen Gateway v231 und die stabile öffentliche Integration:
+
+- Kaltes Minigolf: zwei konkrete OSM-Orte; 2,44 Sekunden Gatewayzeit und 3,29
+  Sekunden gesamte öffentliche Antwort. Der vorherige kalte Gatewaypfad lag
+  bei 5,58 Sekunden.
+- Minigolf aus dem Chat-Pfad: dieselben zwei Orte; 0,18 Sekunden Gatewayzeit.
+- Chinesische Küche: `Hay-Cheng`; 0,20 Sekunden Gatewayzeit.
+- Strikter Strandbedarf: drei konkrete Bedarfsorte; 0,24 Sekunden Gatewayzeit.
+- Essen und Trinken: zwölf begrenzte Gatewaytreffer; 0,15 Sekunden Gatewayzeit.
+- Stays: zwölf begrenzte Gatewaytreffer; 0,21 Sekunden Gatewayzeit, ein Treffer
+  mit sicherem Foto.
+
+Der kalte Spezialpfad liegt im Gateway jetzt unter drei Sekunden. Die gesamte
+Antwort verfehlt das Ziel mit 3,29 Sekunden noch knapp. Beim sichtbaren kalten
+Kartenaufruf war die Kohorte nach 3,6 Sekunden vorhanden; alle Pins waren nach
+rund 5,8 Sekunden sichtbar. Der Erstaufbau bleibt deshalb offen.
+
+### Sichtbare Browserabnahme
+
+- Places-URL:
+  `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=places&acceptance=p02-p03-102-visible`
+- Stays-URL:
+  `https://integration-luvia.njwnrvwbv5.workers.dev/?screen=hotels&acceptance=p02-p03-102-visible`
+- Essen und Trinken zeigte 48 koordinatenverifizierte Orte unter `Alle` und
+  neun belegte Orte unter `Passend`. `Kleines Steakhouse` war ausschließlich
+  unter `Alle` vorhanden und erschien nicht unter `Passend`.
+- Stays zeigte im identischen Kartenaufbau 47 Unterkünfte unter `Alle` und 25
+  unter `Passend`. Die Kurzvorschau blieb innerhalb der Karte.
+
+### Releasebeleg
+
+- App: `13.82.168.102`
+- Core: `4.82.221`
+- Runtime-Commit: `71a697adcbf1549c6ee78f379743983689a95276`
+- Gateway: `v231 ACTIVE`, Software `4.64.35`, Places
+  `4.38.14-cold-hedge-commons-category`
+- Integration-Worker: `b73732a6-26f4-4280-9d0d-88eb0429094a`, 100 Prozent
+  Traffic
+- Unveränderliche URL:
+  `https://b73732a6-integration-luvia.njwnrvwbv5.workers.dev`
+- Byteidentisches Deployment-Archiv:
+  `luvia-integration-13.82.168.102-71a697ad-public-bytes.zip`, 89.020.093 Bytes,
+  SHA-256 `54148CE5ECB50751B055B8B5D270918BA6C34EF864A467FBA8A9F34FD59D71C3`
+- Öffentlicher Bytebeleg: `30/30 MATCH` zwischen Archiv, Stable und immutable
+  Worker
+- Safe Regression: `232/232 PASS`
+- NFR-0: `3/3 PASS`
+- Main und Production: unverändert
+
+Unmittelbarer Frontend-Rückfall:
+
+`npx wrangler versions deploy 6b964c97-fe50-4fd2-a02a-18b3ce99f7da@100 --name integration-luvia --message "Rollback App 13.82.168.102 cold hedge and Commons media to accepted App 13.82.168.101" --yes`
+
+Ein Gateway-Rückfall veröffentlicht den akzeptierten Gateway-Quellstand aus
+Runtime-Commit `d00bdbf50b4d95b72e3782f798ba52625fca2e6c` erneut.
+
+P02/P03 bleiben **TEILWEISE**.
+
+## Genau ein nächster Schritt
+
+`P02-P03-map-first-render-photo-matrix`: den sichtbaren Erstaufbau von Places
+und Stays auf höchstens drei Sekunden bringen, danach die exakte Bildquote und
+die vollständige Desktop-/Touch-Filtermatrix schließen.
