@@ -25,7 +25,7 @@ const {pathToFileURL}=require('node:url');
   assert.equal(pictured.raw.wiki_and_media.wikimedia_commons,'File:Exact place.jpg');
   assert.equal(element(301,{tourism:'attraction',image:'http://images.example/unsafe.jpg'}).photos.length,0,'only HTTPS place-linked images are eligible');
 
-  const worker=fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8'),places=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8'),osmSource=fs.readFileSync(modulePath,'utf8'),proxyBudget=fs.readFileSync(path.join(root,'supabase/migrations/20260905235500_openstreetmap_cached_proxy_budget.sql'),'utf8'),adapter=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8'),browser=fs.readFileSync(path.join(root,'intelligence/places-service.js'),'utf8');
+  const worker=fs.readFileSync(path.join(root,'cloudflare-worker.js'),'utf8'),places=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8'),osmSource=fs.readFileSync(modulePath,'utf8'),proxyBudget=fs.readFileSync(path.join(root,'supabase/migrations/20260905235500_openstreetmap_cached_proxy_budget.sql'),'utf8'),adapter=fs.readFileSync(path.join(root,'core/platform/places-contract-adapter.js'),'utf8'),browser=fs.readFileSync(path.join(root,'intelligence/places-service.js'),'utf8'),detailOwner=fs.readFileSync(path.join(root,'core/places/place-detail-service.js'),'utf8');
   assert.match(worker,/CATEGORY_KEYS=new Set\(\['food','accommodation'.*'practical'\]\)/s,'the edge route must whitelist all 14 canonical categories');
   assert.match(worker,/url\.pathname==='\/api\/providers\/osm-places'/,'the category continuity route stays inside the authenticated provider namespace');
   assert.match(worker,/!CATEGORY_KEYS\.has\(category\)/,'arbitrary categories must fail closed');
@@ -42,7 +42,9 @@ const {pathToFileURL}=require('node:url');
   assert.match(places,/options\?\.openNow\)list=list\.filter\(p=>p\.openNow===true\)/,'unknown open state must fail closed');
   assert.match(places,/options\?\.accessibleOnly\)list=list\.filter\(p=>p\.accessibilityOptions\?\.wheelchairAccessibleEntrance===true\)/,'unknown accessibility must fail closed');
   assert.match(places,/rawId\.startsWith\('openstreetmap:'\).*providerPlaceSeed/s,'exact linked OSM media must require a matching selected-place seed');
+  assert.match(places,/rawId\.startsWith\('openstreetmap:'\).*enrichLinkedMedia.*enrichExactFoursquareMedia/s,'an OSM image miss may use the same strict exact-identity Foursquare fallback as other providers');
   assert.match(adapter,/SELECTED_MEDIA_PROVIDER_PREFIXES=.*'openstreetmap:'/,'OSM selected cards must enter exact media hydration');
   assert.match(browser,/providerPlaceSeed:seed\|\|undefined/,'only an identity-matched browser seed may reach the gateway');
+  assert.match(detailOwner,/providerPlaceSeed=normalizedId&&seedId===normalizedId\?seed:null/,'the shared detail owner must bridge the exact selected entity into the public transport option');
   console.log('P02 cached OSM continuity: 14 categories, 19 cuisines, fail-closed facts and exact-place media: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});

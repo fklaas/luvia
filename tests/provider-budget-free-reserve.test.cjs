@@ -52,7 +52,7 @@ assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i
 assert.match(osmProxy,/'openstreetmap-cached-proxy','openstreetmap-cache',array\['lookup'\],true,20000,0,300/,'cached proxy lookups need a separate bounded lane that cannot exhaust direct Overpass reads');
 assert.doesNotMatch(osmProxy,/delete\s+from\s+public\.places_provider_usage/i,'the cached proxy lane must preserve all accounting evidence');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
-assert.match(places,/version:'4\.38\.10-persistent-category-stays-dedupe'/,'the deployed gateway must identify the active cached category and dietary evidence contract');
+assert.match(places,/version:'4\.38\.11-exact-media-seed-bridge'/,'the deployed gateway must identify the active cached category and dietary evidence contract');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}maxDistanceMeters:3000/,'the public OSM probe must verify the same three-kilometre radius presented by Places');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 

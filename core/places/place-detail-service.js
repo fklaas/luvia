@@ -1,12 +1,17 @@
 (function(){
 'use strict';
-const VERSION='4.39.5-exact-media-attribution';
+const VERSION='4.39.6-exact-media-seed-bridge';
 const adapters=new Map();const capabilityRenderers=new Map();const detailCache=new Map();const detailInflight=new Map();const photoCache=new Map();const photoInflight=new Map();let current=null;
 const esc=v=>window.LuviaPlaceExperience?.esc?.(v)||String(v??'');
 const LABELS={discovered:'Entdeckt',planned:'Geplant',visited:'Besucht',remembered:'Erinnert'};
 function lifecycleProjection(status='discovered'){status=String(status||'discovered').toLowerCase();if(['memory','travel_book','remembered'].includes(status))return'remembered';if(['visited','checked_in','checked_out','rated'].includes(status))return'visited';if(['planned','reserved','selected','booked'].includes(status))return'planned';return'discovered'}
 
-function cacheKey(id,options={}){return `${String(id||'').replace(/^places\//,'')}|${String(options.regionCode||'DE')}|media:${options.enrichMedia===true?'exact':'lean'}`}
+function seedMediaSignature(options={}){
+ const seed=options.providerPlaceSeed&&typeof options.providerPlaceSeed==='object'?options.providerPlaceSeed:null;if(!seed)return'none';
+ const raw=seed.raw||{},media=raw.wiki_and_media||{};
+ return [seed.providerPlaceId||seed.id||'',media.wikidata||raw.wikidata||'',media.wikimedia_commons||'',media.image||raw.image||'',...(seed.photos||[]).slice(0,2).map(photo=>photo?.name||photo?.uri||photo?.url||'')].map(String).join(':').slice(0,900);
+}
+function cacheKey(id,options={}){return `${String(id||'').replace(/^places\//,'')}|${String(options.regionCode||'DE')}|media:${options.enrichMedia===true?'exact':'lean'}|seed:${seedMediaSignature(options)}`}
 async function fetchDetails(id,options={}){
  const key=cacheKey(id,options),cached=detailCache.get(key);
  if(cached&&Date.now()-cached.at<15*60*1000)return cached.value;
@@ -33,7 +38,12 @@ async function prepare(id,options={}){
  // Every consumer reaches selected-place media through this one owner path.
  // Request exact provider media here so Places, Stays, Timeline and Chat cannot
  // silently diverge because one surface omitted the enrichment option.
- const response=await fetchDetails(id,{...options,enrichMedia:true}),place={...seed,...(response?.data?.place||{})};
+ const normalizedId=String(id||'').replace(/^places\//,''),seedId=String(seed.providerPlaceId||seed.id||'').replace(/^places\//,'');
+ // OpenStreetMap details cannot be reconstructed from the provider id alone.
+ // Carry the exact selected search entity to the gateway under its public
+ // transport name so linked Wikidata/Wikimedia evidence remains available.
+ const providerPlaceSeed=normalizedId&&seedId===normalizedId?seed:null;
+ const response=await fetchDetails(id,{...options,enrichMedia:true,providerPlaceSeed:providerPlaceSeed||options.providerPlaceSeed}),place={...seed,...(response?.data?.place||{})};
  const seedPhotos=(await seedPhotoTask).map(x=>x.status==='fulfilled'?x.value:null).filter(Boolean);
  const remaining=Math.max(0,limit-seedPhotos.length);
  const extra=remaining?(await Promise.allSettled((place.photos||[]).slice(0,limit).map(photo=>resolvePhoto(photo,options)))).map(x=>x.status==='fulfilled'?x.value:null).filter(Boolean):[];
