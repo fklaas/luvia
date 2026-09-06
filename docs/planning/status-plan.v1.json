@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "5a88d77f",
-  "app": "13.82.168.109",
-  "core": "4.82.228",
-  "runtimeSource": "5a88d77fe7f654780ce78704a910c2eb13a5654e",
-  "worker": "ef3cf433-00ad-4c2d-b887-e6031150f819",
+  "sourceBaseline": "2552668b",
+  "app": "13.82.168.110",
+  "core": "4.82.229",
+  "runtimeSource": "2552668be8709644492cfe0aac1362834f7a9aa5",
+  "worker": "33bba91c-9b6b-48ca-9189-2e5d025e9abc",
   "gateway": "v233 ACTIVE / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -640,8 +640,8 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.109 / Core 4.82.228 ist als vierfach sichtbar gehärteter und vollständig geprüfter Integrationskandidat vorbereitet. .105 erkannte Unicode-Besuchsbefehle nicht, .106 zeigte noch eine allgemeine Places-Störung, .107 erhielt die richtige Visit-Sprache und .108 belegte, dass die reale Journey-Projektion denselben Visit mehrfach beziehungsweise mit abweichenden Titeln liefern kann. .109 dedupliziert nach Visit-Owner-ID und verbindet die belegten Namensaliasse, bevor Mehrdeutigkeit entschieden wird. Runtime-, Deduplizierungs-, Alias-, Orchestrierungs-, Projektion-, Browser-Service-, Bundle-, Release- und vollständige Safe-Regression sind grün; Main und Production bleiben unverändert.",
-  "safeRegression": "App .109 Kandidat: 233/233 Safe Regression PASS einschließlich Confirmed-Owner-Runtime-, Visit-Deduplizierungs-, Alias-, Consumer-Projektions-, Browser-Service-, Orchestrierungs-, Runtime-Registrierungs-, Recovery-, Bundle-, Release-, visuellem Inventar- und NFR-0-Gate.",
+  "acceptanceUpdate": "App 13.82.168.110 / Core 4.82.229 ist als fünffach sichtbar gehärteter Integrationskandidat vorbereitet. Die sichtbaren Gegenproben .105 bis .109 haben Unicode-Routing, Fehlerprojektion, Deduplizierung und reale generische Timeline-Titel getrennt offengelegt. .110 löst benannte bestätigte Besuche jetzt über die bereits vorhandene lokale Places-Owner-Identität aus placeId, tripPlaceId oder providerPlaceId auf. Dafür wird keine Places-Discovery und kein externer Anbieter aufgerufen. Gezielte Owner-, Alias-, Orchestrierungs-, Projektions-, Bundle- und NFR-Prüfungen sind grün; vollständige Safe Regression und öffentlicher Sichttest folgen vor der Abnahme. Main und Production bleiben unverändert.",
+  "safeRegression": "App .110 Kandidat: gezielte Confirmed-Owner-, lokale Place-Identitäts-, Null-Provider-, Consumer-Projektions-, Runtime-Registrierungs-, Recovery-, Bundle- und NFR-0-Prüfungen PASS. Vollständiger 233er Lauf wird nach der synchronisierten Releaseprojektion erneut ausgeführt.",
   "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker .104; Archiv 89.026.357 Bytes, SHA-256 713C216C53C71AE4A9D90B1BFEA8CC1679B1B5ABE6B05181646663F4AF34A8D6",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -673,8 +673,8 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. App .109 / Core .228 schließt den internen P09/P10-Owner- und AI-Chat-Weg für bestätigte Besuche als korrigierten, mit 233/233 geprüften Integrationskandidaten mit Unicode-Routing, konkreter Visit-Fehlerprojektion sowie deduplizierter, benannter Zielauflösung. P09 und P10 stehen auf BELEGT_BEGRENZT; offen bleiben nur die ausdrücklich getrennten physischen Geräte- und externen Providerbelege.",
-    "delivered": "Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle wie „Ändere“, „Lösche“ und „Zurückholen“ werden als bestätigungspflichtige Änderung erkannt. Fehlt ein bestätigter Visit-Owner-Datensatz, erscheint eine ehrliche Meldung und keine allgemeine Places-Suche. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.",
+    "stage": "M16.5 Schritte 15–18 aktiv. App .110 / Core .229 ist der neue P09/P10-Kandidat: bestätigte Besuche werden im AI Chat über denselben Places Visit Owner und bei generischen Timeline-Titeln zusätzlich über die lokale Place-ID aufgelöst. P09 und P10 bleiben bis zum positiven sichtbaren Browserbeleg BELEGT_BEGRENZT; die physischen Geräte- und externen Providerbelege bleiben ausdrücklich getrennt.",
+    "delivered": "Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle werden erkannt; konkrete Visit-Fehler fallen nicht in Discovery zurück. Die neue Zielauflösung verbindet visitId mit vorhandenen Place-Namen über lokale placeId-, tripPlaceId- und providerPlaceId-Lesewege und verbraucht dabei kein Anbieter-Kontingent. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.",
     "nextStep": {
       "id": "P11-route-uncertainty-confirmed-buffer",
       "package": "P11",
