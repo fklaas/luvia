@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='trip.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.3.0';
+  const RUNTIME_VERSION='1.4.0-owner-backed-day-draft';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -209,7 +209,8 @@
     deferDraft(draft={}){return draftCore().deferDraft(draft)},
     resumeDraft(draft={}){return draftCore().resumeDraft(draft)},
     validateDraft(draft={}){return draftCore().validateDraft(draft)},
-    projectScopes(draft={}){return draftCore().projectScopes(draft)}
+    projectScopes(draft={}){return draftCore().projectScopes(draft)},
+    composeDayDraft(draft={},sources={}){return draftCore().composeDayDraft(draft,sources)}
   });
 
   function envelope(name,payload={},options={}){

@@ -775,7 +775,15 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // Identity confirmation; it does not perform a profile write itself.
   'data-entry-mode': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-budget': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-ai-map': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-ai-place': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-ai-retry': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-ftc-destination-retry': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  // The action marker selects existing Places owner actions (plan/favorite) or
+  // an ephemeral draft exclusion. Swap changes only the unconfirmed Trip draft.
+  'data-ftc-draft-action': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
+  'data-ftc-draft-slot': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-draft-swap': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-durable': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-entry-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-trip-interest': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -974,8 +982,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1015);
-  assert.equal(sourceAudit.markerCount, 1015);
+  assert.equal(sourceAudit.markers.length, 1021);
+  assert.equal(sourceAudit.markerCount, 1021);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

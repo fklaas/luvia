@@ -2,7 +2,7 @@ var LuviaTripDraftCoreV1=(()=>{
 'use strict';
 
 const VERSION='1';
-const RUNTIME_VERSION='1.1.0';
+const RUNTIME_VERSION='1.2.0-owner-backed-day-draft';
 const FIELDS=Object.freeze([
   'title','subtitle','symbol','feelings','destination','scheduleMode','startDate','endDate',
   'flexibility','participantPlan','privacy','modules','accent','deferred','entryMode',
@@ -124,8 +124,40 @@ function projectScopes(draft={}){
   });
 }
 
+function canonicalPlace(value={}){
+  const providerPlaceId=text(value.providerPlaceId||value.provider_place_id||value.id,240).replace(/^places\//,'');
+  const coordinates=value.coordinates||value.location||{};
+  const latitude=Number(coordinates.latitude??coordinates.lat),longitude=Number(coordinates.longitude??coordinates.lng);
+  if(!providerPlaceId||!text(value.name,200)||!Number.isFinite(latitude)||!Number.isFinite(longitude))return null;
+  const photo=value.image?.url||value.photo?.url||value.photos?.find?.(item=>item?.uri||item?.url)?.uri||value.photos?.find?.(item=>item?.uri||item?.url)?.url||null;
+  return immutable({
+    owner:'places',contractId:'places.v1',providerPlaceId,name:text(value.name,200),
+    primaryType:text(value.primaryType||value.primary_type||value.type,80)||'place',
+    formattedAddress:text(value.formattedAddress||value.address,280),
+    coordinates:{latitude,longitude},imageUrl:text(photo,1000)||null,
+    openingState:value.currentOpeningHours?.openNow===true||value.openNow===true?'open':value.currentOpeningHours?.openNow===false||value.openNow===false?'closed':'unknown'
+  });
+}
+function draftDates(input={}){
+  if(input.scheduleMode==='flexible'||!/^\d{4}-\d{2}-\d{2}$/.test(text(input.startDate)))return [null,null,null];
+  const start=new Date(`${text(input.startDate)}T12:00:00Z`),end=/^\d{4}-\d{2}-\d{2}$/.test(text(input.endDate))?new Date(`${text(input.endDate)}T12:00:00Z`):start,days=[];
+  for(let index=0;index<3;index+=1){const value=new Date(start.getTime()+index*86400000);if(value>end)break;days.push(value.toISOString().slice(0,10));}
+  return days.length?days:[text(input.startDate)];
+}
+function composeDayDraft(input={},sources={}){
+  const candidates=(Array.isArray(sources.places)?sources.places:[]).map(canonicalPlace).filter(Boolean),seen=new Set(),places=candidates.filter(place=>{if(seen.has(place.providerPlaceId))return false;seen.add(place.providerPlaceId);return true});
+  const dates=draftDates(input),slots=['10:00','14:00','19:00'],selected=places.slice(0,Math.min(6,Math.max(2,dates.length*2))),days=dates.map((date,index)=>immutable({id:`day-${index+1}`,date,label:date?`Tag ${index+1} · ${date}`:`Tag ${index+1}`,entries:[]}));
+  const frozenDays=days.map(day=>immutable({...day,entries:selected.filter((_,index)=>days[index%days.length].id===day.id).map((place,slot)=>{const time=slots[Math.min(slot,slots.length-1)];return immutable({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time,durationMinutes:place.primaryType==='restaurant'?90:120,suggestedAction:'planned',confirmationRequired:true,automaticMutation:false})})}));
+  return immutable({
+    kind:'owner-backed-ai-day-draft',owner:'trip',contractId:'trip.v1',sourceContracts:['places.v1','journey.v1'],
+    destination:projectDestination(input.destination),days:frozenDays,alternatives:places.slice(selected.length),candidateCount:places.length,
+    unknownFactors:['Wetter','aktuelle Auslastung','Störungen','Preise und Buchbarkeit',...(places.some(place=>!place.imageUrl)?['Bilder einzelner Orte']:[]),...(places.some(place=>place.openingState==='unknown')?['Öffnungszeiten einzelner Orte']:[])],
+    confirmationRequired:true,automaticMutation:false,generatedAt:text(sources.generatedAt)||null
+  });
+}
+
 return Object.freeze({
   version:VERSION,runtimeVersion:RUNTIME_VERSION,fields:FIELDS,
-  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft,projectScopes
+  createDraft,updateDraft,deferDraft,resumeDraft,validateDraft,projectScopes,composeDayDraft
 });
 })();

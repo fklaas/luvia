@@ -12,6 +12,7 @@
 </head>
 <body>
   <main id="app"></main>
+  <script src="../../core/trips/trip-draft-core.js"></script>
   <script>
     const fixtureParams=new URLSearchParams(location.search);
     const fixtureUserId=`m165z-${fixtureParams.get('qa')||'visible-user'}`;
@@ -22,7 +23,7 @@
       remove:key=>sessionStorage.removeItem(`${storagePrefix}${key}`)
     };
     window.LuviaPlatformPorts={get:name=>name==='StoragePort'?StoragePort:name==='AuthSessionPort'?{snapshot:()=>({user:{id:fixtureUserId},email:'fabian@example.test'})}:null};
-    window.LuviaIdentityContractV1={getViewerIdentity:()=>({userId:fixtureUserId})};
+    window.LuviaIdentityContractV1={getViewerIdentity:()=>({userId:fixtureUserId}),reads:{getPreferences:()=>({dietaryPreferences:['vegetarian'],travelInterests:['culture','nature']})}};
     window.LuviaNavigationContractV1={createIntent:(route,options)=>({route,params:options?.params||{}})};
     window.LuviaNavigationHistoryV1={project:(intent,options={})=>{const url=new URL(location.href);url.searchParams.set('step',intent.params.tripStep);history[options.replace?'replaceState':'pushState']({tripStep:intent.params.tripStep},'',url);return true}};
     const destinations={
@@ -30,6 +31,17 @@
       lisbon:{name:'Lissabon',formattedAddress:'Lissabon, Portugal',country:'Portugal',countryCode:'PT',placeId:'fixture-lisbon',location:{latitude:38.7223,longitude:-9.1393}},
       scharbeutz:{name:'Scharbeutz',formattedAddress:'Scharbeutz, Deutschland',country:'Deutschland',countryCode:'DE',placeId:'fixture-scharbeutz',location:{latitude:54.0212,longitude:10.7504}}
     };
+    const fixturePlaces=[
+      {providerPlaceId:'fixture-food-1',name:'Kysten Frühstück',primaryType:'restaurant',requestCategory:'food',formattedAddress:'Hafenstraße 1, Scharbeutz',coordinates:{latitude:54.023,longitude:10.752},image:{url:'assets/public-landing/prototype-harbor-lunch.png'}},
+      {providerPlaceId:'fixture-food-2',name:'Vegetarisches Strandhaus',primaryType:'restaurant',requestCategory:'food',formattedAddress:'Strandallee 20, Scharbeutz',coordinates:{latitude:54.025,longitude:10.755},image:{url:'assets/public-landing/prototype-coast-morning.png'}},
+      {providerPlaceId:'fixture-food-3',name:'Kleine Küstenküche',primaryType:'cafe',requestCategory:'food',formattedAddress:'Seestraße 4, Scharbeutz',coordinates:{latitude:54.019,longitude:10.748},image:{url:'assets/public-landing/prototype-harbor-lunch.png'}},
+      {providerPlaceId:'fixture-culture-1',name:'Galerie am Meer',primaryType:'museum',requestCategory:'culture',formattedAddress:'Promenade 8, Scharbeutz',coordinates:{latitude:54.026,longitude:10.757},image:{url:'assets/public-landing/prototype-memory-sunset.png'}},
+      {providerPlaceId:'fixture-culture-2',name:'Küstenatelier',primaryType:'art_gallery',requestCategory:'culture',formattedAddress:'Dünenweg 3, Scharbeutz',coordinates:{latitude:54.017,longitude:10.744},image:{url:'assets/public-landing/prototype-coast-bike.png'}},
+      {providerPlaceId:'fixture-culture-3',name:'Heimatmuseum',primaryType:'museum',requestCategory:'culture',formattedAddress:'Markt 5, Scharbeutz',coordinates:{latitude:54.021,longitude:10.746},image:{url:'assets/public-landing/prototype-memory-sunset.png'}},
+      {providerPlaceId:'fixture-active-1',name:'Ostsee Radmoment',primaryType:'tourist_attraction',requestCategory:'activities',formattedAddress:'Strandweg 11, Scharbeutz',coordinates:{latitude:54.029,longitude:10.761},image:{url:'assets/public-landing/prototype-coast-bike.png'}},
+      {providerPlaceId:'fixture-active-2',name:'Dünenpfad',primaryType:'park',requestCategory:'activities',formattedAddress:'Am Kurpark, Scharbeutz',coordinates:{latitude:54.018,longitude:10.751},image:{url:'assets/public-landing/prototype-coast-morning.png'}},
+      {providerPlaceId:'fixture-active-3',name:'Wassersportbucht',primaryType:'sports_activity_location',requestCategory:'activities',formattedAddress:'Seebrücke, Scharbeutz',coordinates:{latitude:54.024,longitude:10.759},image:{url:'assets/public-landing/prototype-coast-bike.png'}}
+    ];
     window.LuviaPlacesContractV1={
       contractId:'places.v1',
       reads:{
@@ -54,12 +66,20 @@
           latitude:place.location.latitude,
           longitude:place.location.longitude
         };
-        }
+        },
+        getActiveDiscovery:()=>null,
+        recommend:async options=>{await new Promise(resolve=>setTimeout(resolve,180));return {owner:'places',contractId:'places.v1',places:fixturePlaces.filter(place=>place.requestCategory===options.category),count:3,evidenceContract:{verified:true}}}
       }
     };
+    window.LuviaPlacesSpatialExperience={mountProjection:(container,places,options={})=>{container.innerHTML=`<div style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 28% 30%,#fff 0 4%,transparent 5%),linear-gradient(145deg,#d9efed,#cfe7ed)"><div style="display:grid;gap:10px;text-align:center"><strong style="font-size:22px;color:#143247">Gemeinsame Places-Karte</strong><span style="color:#547383">${places.length} verifizierte Koordinaten · Places v1</span><button type="button" data-fixture-map-select style="padding:10px;border:0;border-radius:999px;background:#2f95a8;color:white">Ersten Pin fokussieren</button></div></div>`;container.querySelector('[data-fixture-map-select]')?.addEventListener('click',()=>options.onSelect?.(places[0]?.providerPlaceId));return {destroy:()=>{container.innerHTML=''}}}};
+    window.LuviaJourneyContractV1={reads:{rehearseDay:({entries})=>({contractId:'journey.v1',kind:'day-rehearsal',status:'ready',summary:{entryCount:entries.length,totalProgramMinutes:entries.reduce((sum,item)=>sum+item.durationMinutes,0)},unknownFactors:['Wetter','Verkehr und Störungen'],successProbability:null,automaticMutation:false})}};
+    window.LuviaIntelligenceActionContractCoreV1={zonedDateTimeToIso:(date,time)=>date?new Date(`${date}T${time}:00+02:00`).toISOString():null};
+    const dayDraftReceipts=[];
+    window.LuviaAIActionRuntime={prepare:(actionId,payload,options)=>({ledgerId:`fixture:${actionId}:${payload.providerPlaceId}`,requiresConfirmation:true,result:{actionId,payload,options}}),execute:async(actionId,payload,options)=>{const receipt={owner:'places',contractId:'places.v1',actionId,status:'committed',ledgerId:options.ledgerId,evidence:{status:'committed'}};dayDraftReceipts.push(receipt);return receipt}};
     const trips=[];
     window.LuviaTripContractV1={
       reads:{listTrips:()=>trips},
+      composition:{composeDayDraft:(draft,sources)=>window.LuviaTripDraftCoreV1.composeDayDraft(draft,sources)},
       commands:{
         createFirstTrip:async(input,options)=>{
           await new Promise(resolve=>setTimeout(resolve,500));
@@ -90,7 +110,7 @@
   <script>
     const mountComposer=()=>{
       const params=new URLSearchParams(location.search),step=params.get('step')||'welcome';
-      window.LuviaFirstTripComposer.mount(document.getElementById('app'),{mode:'first-use',step,onCancel:()=>location.reload(),onComplete:receipt=>{document.getElementById('app').className='';document.getElementById('app').innerHTML=`<section class="fixture-result" data-ftc-complete><article><span>TRIP-COMMAND BESTÄTIGT</span><h1>Eure Reise ist aktiv.</h1><p>Der sichtbare E2E-Lauf hat denselben Composer, dieselben Validierungen und denselben Owner-Command durchlaufen.</p><code>${receipt.action} · ${receipt.tripId} · ${receipt.collaborationHandoff.availability}</code></article></section>`}});
+      window.LuviaFirstTripComposer.mount(document.getElementById('app'),{mode:'first-use',step,onCancel:()=>location.reload(),onComplete:receipt=>{document.getElementById('app').className='';document.getElementById('app').innerHTML=`<section class="fixture-result" data-ftc-complete><article><span>TRIP UND TAGESENTWURF BESTÄTIGT</span><h1>Eure Reise ist aktiv.</h1><p>Der sichtbare E2E-Lauf hat Composer, Trip-Owner und ${receipt.dayDraftReceipts?.length||0} bestätigte Places/Journey-Aktionen durchlaufen.</p><code>${receipt.action} · ${receipt.tripId} · ${receipt.collaborationHandoff.availability}</code></article></section>`}});
     };
     addEventListener('popstate',mountComposer);
     mountComposer();

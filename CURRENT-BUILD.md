@@ -10,6 +10,8 @@ Intern belegter, unveränderlicher P15/P17-Foundation-Kandidat: **13.82.168.114*
 
 Intern belegter, unveränderlicher P15/P17-Zielsuche-Kandidat: **13.82.168.115**, Core **4.82.234**, Commit **72ba8604f3d747e4bb7a439f083c39966af2e4c6**, Worker **03e79ebf-5d71-422a-b6f8-45d3a661b26f**. Ein bereits kanonisch bekanntes aktives Reiseziel wird kontingentfrei aus dem Destination-/Places-Cache vorgeschlagen und bestätigt. Externe Zielvorschläge besitzen eine harte sieben Sekunden lange Backendfrist; Erfolg, leeres Ergebnis und Fehler verlassen den Ladezustand sichtbar, Fehler bieten „Erneut suchen“. Im öffentlichen sichtbaren AI-Lauf wurde „Scharbeutz, Deutschland“ sofort angeboten und anschließend als kanonisches Ziel bestätigt. Safe Regression **235/235**, NFR-0 **3/3** und öffentliche Byteidentität **30/30** sind grün. Archiv: **89.329.871 Bytes**, SHA-256 **C26955D158BCC00759C9B55EBD3EC459EF38A0FACC9DB8B9A082555FF0F8274C**. Stable Integration wurde danach wieder auf App `.104` / Core `.223` zurückgestellt.
 
+Lokaler P15/P17-Tagesentwurf-Kandidat: **13.82.168.116**, Core **4.82.235**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Der Luvia-AI-Weg liest kanonische Place-Identitäten aus `places.v1`, komponiert einen tageweisen Entwurf über den Trip Owner, probt datierte Tage über `journey.v1` und führt Einplanen oder Vormerken erst nach der gemeinsamen Bestätigung über die jeweiligen Owner aus. Veröffentlichung, unveränderliche Worker-Identität und öffentlicher Bytebeleg folgen erst nach vollständig grünem Release-Gate.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
