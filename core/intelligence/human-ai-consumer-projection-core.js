@@ -3,7 +3,7 @@ var LuviaHumanAIConsumerProjectionCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.human-ai-consumer-projection.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.2.0-consumer-only-field-labels';
+const RUNTIME_VERSION='1.3.0-evidenced-read-failure-copy';
 const STATES=Object.freeze([
   'AVAILABLE_NOW','AVAILABLE_AFTER_CONFIRMATION','AVAILABLE_AFTER_USER_GESTURE','NEEDS_INPUT',
   'AUTHENTICATION_REQUIRED','SCOPE_DENIED','REAUTH_REQUIRED','CONSENT_REQUIRED','NETWORK_REQUIRED',
@@ -111,7 +111,7 @@ function projectReceipt(input={}){
   const note=recoveryKind==='reconcile'?'Ich prüfe zuerst den tatsächlichen Stand und wiederhole nichts automatisch.':recoveryKind==='manual'?'Falls du das zurücknehmen möchtest, öffne bitte den vorgesehenen Hilfeweg.':'';
   return immutable({contractId:CONTRACT_ID,view:'RECEIPT',tone:copy.tone,status,eyebrow:copy.eyebrow,title:consumerText(result.title,copy.title),message:consumerText(result.message,status==='completed'?'Die Änderung ist im aktuellen Stand angekommen.':copy.title),note,primaryAction:primary});
 }
-function projectReadFailure(input={}){const area=consumerText(input.area||input.result?.owner,'Diesen Teil');return immutable({contractId:CONTRACT_ID,view:'ERROR',tone:'blocked',eyebrow:'Gerade nicht verfügbar',title:`${titleCase(area)} konnte ich nicht zuverlässig laden`,message:'Versuche es noch einmal oder passe deinen Wunsch an. Es wurde nichts verändert.',primaryAction:{label:'Erneut versuchen',kind:'RETRY'},secondaryAction:{label:'Wunsch anpassen',kind:'REFINE'}})}
+function projectReadFailure(input={}){const result=input.result||{},area=consumerText(input.area||result.owner,'Diesen Teil'),consumerSafeCopy=result.meta?.consumerSafeCopy===true;return immutable({contractId:CONTRACT_ID,view:'ERROR',tone:'blocked',eyebrow:consumerSafeCopy?'Besuch nicht geändert':'Gerade nicht verfügbar',title:consumerSafeCopy?consumerText(result.title,'Besuchsänderung konnte nicht vorbereitet werden'):`${titleCase(area)} konnte ich nicht zuverlässig laden`,message:consumerSafeCopy?consumerText(result.message,'Der bestätigte Besuch konnte nicht eindeutig abgeglichen werden. Es wurde nichts verändert.'):'Versuche es noch einmal oder passe deinen Wunsch an. Es wurde nichts verändert.',primaryAction:{label:'Erneut versuchen',kind:'RETRY'},secondaryAction:{label:'Wunsch anpassen',kind:'REFINE'}})}
 function projectResult(result={},options={}){return immutable({contractId:CONTRACT_ID,view:'RESULT',tone:result.kind==='error'?'blocked':'ready',eyebrow:consumerText(options.area||result.owner,'Für deine Reise'),title:consumerText(result.title,'Das habe ich gefunden'),message:consumerText(result.message),kind:clean(result.kind)||'message'})}
 function projectSequenceTransition(input={}){const next=consumerText(input.nextLabel,'deinen nächsten Wunsch'),finished=input.finished===true;return immutable({title:finished?'Alles bearbeitet':'Als Nächstes',message:finished?'Alle Wünsche sind bearbeitet. Erledigte Änderungen bleiben im Verlauf sichtbar.':`Jetzt kümmere ich mich um ${next}.`})}
 function describeCoverage(catalog=[]){const projections=projectCatalog(catalog),views=Object.fromEntries([...new Set(projections.map(item=>item.view))].sort().map(view=>[view,projections.filter(item=>item.view===view).length]));return immutable({catalogActions:projections.length,projectedActions:projections.length,consumerViews:views,capabilityStates:STATES.length,technicalVocabularyHidden:true,duplicateSingleIntentSuppressed:true,dateFormat:'TT.MM.JJJJ'})}

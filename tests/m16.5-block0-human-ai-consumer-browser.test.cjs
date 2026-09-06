@@ -16,6 +16,7 @@ assert.match(dashboard,/projectIntentSummary/);
 assert.match(dashboard,/projectPreview/);
 assert.match(dashboard,/projectReceipt/);
 assert.match(dashboard,/projectReadFailure/);
+assert.match(dashboard,/readFailureProjection\(failure\)\.message/);
 assert.match(dashboard,/projectResult/);
 assert.match(dashboard,/data-ai-consumer-view/);
 assert.doesNotMatch(dashboard,/Places bleibt Owner der Ortsdaten/);

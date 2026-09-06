@@ -60,6 +60,11 @@ assert.equal(receipt.view,'RECEIPT');
 assert.equal(receipt.primaryAction.kind,'UNDO');
 assert.doesNotMatch(JSON.stringify({eyebrow:receipt.eyebrow,title:receipt.title,message:receipt.message,note:receipt.note}),/\b(?:Owner|Receipt|Mutation|Provider)\b/i);
 assert.equal(core.projectReadFailure({area:'Places Owner'}).view,'ERROR');
+const visitFailure=core.projectReadFailure({area:'Orte und Umgebung',result:{owner:'places',title:'Besuchsänderung konnte nicht vorbereitet werden',message:'Für diese Reise ist aktuell kein bestätigter Besuch belegt. Geplante Orte sind davon getrennt; es wurde nichts verändert.',evidence:{code:'AI_VISIT_NOT_FOUND'},meta:{consumerSafeCopy:true}}});
+assert.equal(visitFailure.eyebrow,'Besuch nicht geändert');
+assert.equal(visitFailure.title,'Besuchsänderung konnte nicht vorbereitet werden');
+assert.match(visitFailure.message,/kein bestätigter Besuch belegt/);
+assert.doesNotMatch(visitFailure.title,/Orte und Umgebung/);
 assert.equal(core.projectSequenceTransition({finished:true}).message.includes('Alle Wünsche'),true);
 
 for(const projection of document.projections){
