@@ -31,7 +31,7 @@ function harness(){
     getActionState:id=>ledger.get(id),
     retry:async(id,options)=>sandbox.LuviaAIActionRuntime.execute(ledger.get(id).actionId,{}, {...options,ledgerId:id})
   };
-  const instrumented=source.replace('window.LuviaFirstTripComposer=Object.freeze',`window.composerTest={state:()=>mounted,render,loadAiDayDraft,save,setDraftAction,swapDraftSelection,refreshDraft,readAiPlaces,confirmationProblem,persist};window.LuviaFirstTripComposer=Object.freeze`);
+  const instrumented=source.replace('window.LuviaFirstTripComposer=Object.freeze',`window.composerTest={state:()=>mounted,render,loadAiDayDraft,save,setDraftAction,swapDraftSelection,refreshDraft,readAiPlaces,confirmationProblem,persist,moveDraftSelection,mapPlaces};window.LuviaFirstTripComposer=Object.freeze`);
   vm.runInContext(instrumented,sandbox,{filename:'first-trip-composer.js'});
   function mount(resume=false,onComplete=null){sandbox.LuviaFirstTripComposer.mount(root,{resume,entryMode:'ai',step:'preview',onComplete:onComplete||(()=>{completed++})});return sandbox.composerTest.state();}
   const state=mount();state.data={...state.data,...clone(input),tripPreferences:{...state.data.tripPreferences,...clone(input.tripPreferences)}};
@@ -102,6 +102,13 @@ function harness(){
   net.LuviaNetworkGuard.markFailure(new Error('Load failed'));assert.equal(net.LuviaNetworkGuard.canProbe('throttle-test'),true);assert.equal(net.LuviaNetworkGuard.canProbe('throttle-test'),false);checked();
   net.navigator.onLine=false;events.offline();await assert.rejects(net.LuviaPlacesContractV1.reads.suggestDestinations('Madrid'),error=>error.code==='NETWORK_OFFLINE');assert.equal(networkCalls.length,1);checked();
   net.navigator.onLine=true;events.online();assert.equal(net.LuviaNetworkGuard.canRequest(),true);checked();
+
+  const builder=harness();await builder.api.loadAiDayDraft(builder.state);const lift=builder.state.draftSelections[0],destinationDay=builder.state.aiDraft.draft.days[2],readsBefore=builder.requests.length;
+  builder.state.pickedSlot=lift.slotId;assert.equal(builder.api.moveDraftSelection(builder.state,lift.slotId,destinationDay.id),true);assert.equal(lift.dayId,destinationDay.id);assert.equal(lift.date,destinationDay.date);assert.equal(builder.state.pickedSlot,null);assert.equal(builder.requests.length,readsBefore);assert.equal(builder.actions.length,0);checked();
+  assert.ok(builder.api.mapPlaces(builder.state).every(place=>builder.state.draftSelections.some(item=>item.providerPlaceId===place.providerPlaceId&&item.dayId===destinationDay.id)));checked();
+  const priorMove=clone(builder.state.draftSelections);assert.equal(builder.api.moveDraftSelection(builder.state,lift.slotId,'absent'),false);assert.equal(builder.api.moveDraftSelection(builder.state,'absent',destinationDay.id),false);assert.deepEqual(clone(builder.state.draftSelections),priorMove);checked();
+  builder.state.confirmation={status:'pending'};assert.equal(builder.api.moveDraftSelection(builder.state,lift.slotId,builder.state.aiDraft.draft.days[0].id),false);assert.deepEqual(clone(builder.state.draftSelections),priorMove);builder.state.confirmation=null;checked();
+  builder.sandbox.LuviaFirstTripComposer.unmount();const restoredMove=builder.mount(true);assert.equal(restoredMove.draftSelections.find(item=>item.slotId===lift.slotId).dayId,destinationDay.id);assert.equal(builder.actions.length,0);checked();
   const opening=harness();opening.sandbox.LuviaFirstTripComposer.mount(opening.root,{resume:false,step:'welcome'});assert.match(opening.root.innerHTML,/Noch ist alles möglich/);assert.doesNotMatch(opening.root.innerHTML,/Kompass nach Norden/);checked();
   console.log(`Trip Composer: ${checks} behavioral recovery, validation, category and receipt checks passed (real Trip/Intelligence/Journey rules; controlled provider/storage/write adapters).`);
 })().catch(error=>{console.error(error);process.exitCode=1});

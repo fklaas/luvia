@@ -770,6 +770,22 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  // Travel world controls only choose a camera/search intent. Country coordinates
+  // never become a canonical destination without the existing Places selection.
+  // Lifting/dropping edits the same unconfirmed Composer draft as its date field;
+  // final Trip/Places writes retain the existing explicit confirmation outcome.
+  'data-ftc-atlas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-world-canvas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-drop-day': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-place-pick': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-pick-cancel': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-lat': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-lng': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-world-country': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-world-point': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-world-region': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-world-status': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-world-zoom': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   // P15/P17: three entry modes and scoped preference inputs are parts of the
   // existing Trip Composer outcome. The durable toggle only requests a later
   // Identity confirmation; it does not perform a profile write itself.
@@ -996,8 +1012,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1035);
-  assert.equal(sourceAudit.markerCount, 1035);
+  assert.equal(sourceAudit.markers.length, 1047);
+  assert.equal(sourceAudit.markerCount, 1047);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

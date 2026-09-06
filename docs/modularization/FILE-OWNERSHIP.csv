@@ -2730,3 +2730,7 @@ tests/p09-timeline-connect-reorder.test.cjs,Journey/Places/Consumer Shared Tests
 tests/p09-timeline-connect-reorder-browser.test.cjs,Journey/Places/Consumer Shared Tests,Test/Browser,Visible mobile connect reorder reload recovery and exact restore acceptance
 tests/p09-timeline-owner-capabilities-first-paint.test.cjs,Journey/Booking/Places/Media/Consumer Shared Tests,Test/Browser,Truthful loading projection and visible per-owner Timeline capability matrix
 docs/modularization/PCR-P09-TIMELINE-OWNER-CAPABILITIES-FIRST-PAINT-20260904.md,Documentation/Release History,Documentation,Bounded additive Timeline owner capability and truthful first-paint PCR
+app/composer-travel-world.js,Consumer/Experience,Presentation/Web,Interactive globe with local geographic data and search intents only; no Place or Trip truth
+assets/composer/world-countries.json,Consumer/Experience,Presentation Data,Public-domain Natural Earth overview geometry; not Place records
+assets/composer/NOTICE.md,Consumer/Experience,License Notice,Natural Earth source and public-domain provenance
+tests/p15-travel-world-geometry.test.cjs,Consumer/Experience Shared Tests,Test/Behavior,Projection inversion and geographic selection including water and polygon holes
