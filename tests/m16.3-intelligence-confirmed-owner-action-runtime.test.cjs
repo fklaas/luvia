@@ -15,6 +15,7 @@ let alternativeVisitState=null;
 let visitRecovery=null;
 let exposeVisitEntries=true;
 let duplicateVisitProjection=false;
+let visitOwnerPlaces=[];
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingUI','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){
   assert.equal(source.includes(forbidden),false,`M16 Action Runtime bypasses a public owner contract: ${forbidden}`);
@@ -38,6 +39,9 @@ const context={
     reads:{
       async recommend(input){calls.push(['recommend',input]);return{places:[{id:'places/place-1',name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440}],route:{category:'food'}}},
       async getCard(id){return{place:{id,providerPlaceId:id,name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440},image:{url:'https://images.example/dunes.jpg'}}},
+      getPlace(id){return visitOwnerPlaces.find(place=>[place.id,place.placeId,place.providerPlaceId].includes(id))||null},
+      listPlaces(){return visitOwnerPlaces},
+      async listSaved(){return visitOwnerPlaces},
       getVisit(id){const visit=id===visitState.id?visitState:id===alternativeVisitState?.id?alternativeVisitState:null;return visit?{...visit,confirmed:visit.isConfirmed}:null},
       visitRecoveries(){return visitRecovery?[{...visitRecovery}]:[]}
     },
@@ -199,13 +203,15 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(restoreProposal.results[0].evidence.actionId,'journey.visit.restore');assert.equal(calls.filter(call=>call[0]==='visit-restore').length,1,'the chat proposal must not perform a second visit restore');runtime.cancel(restoreProposal.results[0].evidence.ledgerId);
 
   const originalVisitTitle=visitState.title;
-  visitState={...visitState,title:'Restaurant · Grande Beach Café'};
-  alternativeVisitState={id:'visit-2',tripId:'trip-1',placeId:'place-brechtmann',title:'Restaurant Brechtmann in Scharbeutz-Schürsdorf',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T18:00:00.000Z',durationSeconds:60*60,revision:'visit-rev-brechtmann-1'};duplicateVisitProjection=true;
+  visitState={...visitState,title:'Bestätigter Besuch'};
+  alternativeVisitState={id:'visit-2',tripId:'trip-1',placeId:'place-brechtmann',title:'Bestätigter Besuch',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T18:00:00.000Z',durationSeconds:60*60,revision:'visit-rev-brechtmann-1'};duplicateVisitProjection=true;
+  visitOwnerPlaces=[{id:'place-strand',placeId:'place-strand',providerPlaceId:'google-grande-beach',name:'Restaurant · Grande Beach Café'},{id:'place-brechtmann',placeId:'place-brechtmann',providerPlaceId:'google-brechtmann',name:'Restaurant Brechtmann in Scharbeutz-Schürsdorf'}];
+  const recommendCallsBeforeNamedVisit=calls.filter(call=>call[0]==='recommend').length;
   const namedVisitMessage='Ändere den bestätigten Besuch im Grande Beach Café heute auf 18:20 Uhr für 60 Minuten.';
   const namedVisitCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(namedVisitMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
   const namedVisit=await runtime.runMessage(namedVisitMessage,{compiledIntent:namedVisitCompiled,sourceMessage:namedVisitMessage});
-  assert.equal(namedVisit.results[0].kind,'confirmation',JSON.stringify(namedVisit));assert.equal(namedVisit.results[0].evidence.actionId,'journey.visit.update');assert.equal(namedVisit.results[0].evidence.preview.visitId,'visit-1');assert.equal(namedVisit.results[0].evidence.preview.name,'Restaurant · Grande Beach Café');runtime.cancel(namedVisit.results[0].evidence.ledgerId);
-  alternativeVisitState=null;duplicateVisitProjection=false;visitState={...visitState,title:originalVisitTitle};
+  assert.equal(namedVisit.results[0].kind,'confirmation',JSON.stringify(namedVisit));assert.equal(namedVisit.results[0].evidence.actionId,'journey.visit.update');assert.equal(namedVisit.results[0].evidence.preview.visitId,'visit-1');assert.equal(namedVisit.results[0].evidence.preview.name,'Restaurant · Grande Beach Café');assert.equal(calls.filter(call=>call[0]==='recommend').length,recommendCallsBeforeNamedVisit,'local visit target resolution must not spend Places provider quota');runtime.cancel(namedVisit.results[0].evidence.ledgerId);
+  alternativeVisitState=null;duplicateVisitProjection=false;visitOwnerPlaces=[];visitState={...visitState,title:originalVisitTitle};
 
   exposeVisitEntries=false;
   const recommendCallsBeforeMissingVisit=calls.filter(call=>call[0]==='recommend').length;
