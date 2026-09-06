@@ -20413,8 +20413,8 @@ return Object.freeze({
   function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportIntent=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,onViewportError=null,category=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
-    let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='',traceData=null,traceColor='#c95169';const markerInstances=new Map();
-    const destroy=()=>{if(!alive)return;alive=false;++viewportRequest;clearTimeout(viewportTimer);projectionRefreshState(container,false);disconnectObserver?.disconnect?.();disconnectObserver=null;for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();try{map?.remove?.()}catch{}map=null;container.replaceChildren()};
+    let map=null,mapReady=false,alive=true,disconnectObserver=null,sizeObserver=null,lastSize='',viewportTimer=0,viewportRequest=0,lastViewportKey='',traceData=null,traceColor='#c95169';const markerInstances=new Map();
+    const destroy=()=>{if(!alive)return;alive=false;++viewportRequest;clearTimeout(viewportTimer);projectionRefreshState(container,false);disconnectObserver?.disconnect?.();disconnectObserver=null;sizeObserver?.disconnect?.();sizeObserver=null;for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();try{map?.remove?.()}catch{}map=null;container.replaceChildren()};
     const current=()=>alive&&container.isConnected&&map;
     const fallbackCenter=COMPOSITION().normalizeCoordinates(initialCenter);
     if(!view.markers.length&&!fallbackCenter){projectionState(container,'empty','Keine vollständigen Places-Koordinaten für den Kartenstart.');return Object.freeze({view,map:null,destroy})}
@@ -20515,6 +20515,7 @@ return Object.freeze({
       map.on('error',event=>{if(!current())return;if(!mapReady&&!map.loaded())projectionRefreshState(container,true,'Kartendaten laden verzögert · Ortsuche läuft unabhängig weiter.');else if(event?.error)projectionRefreshState(container,false,'Ein Teil der Kartendaten lädt verzögert · Karte und vorhandene Pins bleiben sichtbar.')});
       disconnectObserver=new MutationObserver(()=>{if(!container.isConnected)destroy()});
       disconnectObserver.observe(document.documentElement,{childList:true,subtree:true});
+      if(typeof ResizeObserver!=='undefined'){sizeObserver=new ResizeObserver(()=>{if(!current())return;const width=container.clientWidth,height=container.clientHeight,key=width+':'+height;if(width>0&&height>0&&key!==lastSize){lastSize=key;map.resize();}});sizeObserver.observe(container);}
       return Object.freeze({get view(){return view},get map(){return map},update:replaceMarkers,select,setTrace,cancelPending,destroy});
     }catch{
       projectionState(container,'unavailable','Die Karte konnte nicht aufgebaut werden; die verifizierte Places-Liste bleibt verfügbar.');

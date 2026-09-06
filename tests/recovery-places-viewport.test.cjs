@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
-const timers=new Map();let timerId=0;
+const timers=new Map();let timerId=0;const sizeObservers=[];
 const node=()=>({isConnected:true,dataset:{},style:{setProperty(){}},classList:{toggle(){},contains(){return false}},append(){},setAttribute(k,v){this[k]=v},addEventListener(){},closest(){return null},replaceChildren(){}});
 class FakeMap{
  constructor(options){this.options=options;this.events={};this.shift=0;this.sources={};this.layers={}}
@@ -9,12 +9,12 @@ class FakeMap{
  addLayer(layer){this.layers[layer.id]=layer} getLayer(id){return this.layers[id]} setPaintProperty(id,key,value){this.layers[id].paint[key]=value}
  on(name,fn){(this.events[name]??=[]).push(fn)}
  fire(name,event={}){for(const fn of this.events[name]||[])fn(event)}
- addControl(){} getStyle(){return{layers:[]}} easeTo(){this.fire('moveend')} resize(){this.fire('moveend')} remove(){}
+ addControl(){} getStyle(){return{layers:[]}} easeTo(){this.fire('moveend')} resize(){this.resizeCount=(this.resizeCount||0)+1;this.fire('moveend')} remove(){}
  getBounds(){return{getSouth:()=>54+this.shift,getNorth:()=>54.05+this.shift,getWest:()=>10.7,getEast:()=>10.8}}
  getCenter(){return{lat:54.025+this.shift,lng:10.75}} getZoom(){return 13}
 }
 class Marker{setLngLat(){return this}addTo(){return this}remove(){}}
-const ctx=vm.createContext({console,Date,Map,Set,Promise,performance,document:{documentElement:node(),createElement:node},MutationObserver:class{observe(){}disconnect(){}},maplibregl:{Map:FakeMap,Marker,NavigationControl:class{}},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:id=>timers.delete(id)});ctx.window=ctx;
+const ctx=vm.createContext({console,Date,Map,Set,Promise,performance,document:{documentElement:node(),createElement:node},MutationObserver:class{observe(){}disconnect(){}},ResizeObserver:class{constructor(fn){this.fn=fn;sizeObservers.push(this)}observe(target){this.target=target}disconnect(){this.disconnected=true}},maplibregl:{Map:FakeMap,Marker,NavigationControl:class{}},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId},clearTimeout:id=>timers.delete(id)});ctx.window=ctx;
 for(const p of ['core/places/places-domain-contract-core.js','core/places/global-place-contracts.js','app/places/places-spatial-composition-core.js'])vm.runInContext(read(p),ctx);
 vm.runInContext(read('app/places/places-spatial-experience.js').replace('globalThis.LuviaPlacesSpatialExperience=','globalThis.recovery={state,loadCached,saveCached,cacheScope,cacheKey,categoryCacheKey,cachedPlaceProjection,categoryCohortKey,rememberCategoryCohort,restoreCategoryCohort,beginViewportIntent};globalThis.LuviaPlacesSpatialExperience='),ctx);
 const row=(id,lat=54.02)=>({id,providerPlaceId:id,name:id,primaryType:'restaurant',types:['restaurant'],coordinates:{latitude:lat,longitude:10.75}});
@@ -34,6 +34,7 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  projection.setTrace(segments,{color:'#c95169'});const trace=projection.map.getSource('luvia-composer-trace');assert.equal(trace.data.features.length,1);assert.equal(trace.data.features[0].geometry.coordinates.length,2);assert.equal(JSON.stringify(segments),segmentBefore);assert.equal(calls,0,'trace must never trigger provider/routing requests');
  projection.setTrace([]);assert.equal(trace.data.features.length,0,'Removing/moving the final planned station must remove its line');projection.setTrace(segments,{color:'#123456'});assert.equal(projection.map.getLayer('luvia-composer-trace').paint['line-color'],'#123456');
  projection.select('Old');assert.equal(projection.view.markers.length,1,'Film selection preserves the same owner cohort');
+ const sizing=sizeObservers.find(o=>o.target===projectionNode);projectionNode.clientWidth=390;projectionNode.clientHeight=520;const resized=projection.map.resizeCount;sizing.fn();assert.equal(projection.map.resizeCount,resized+1);sizing.fn();assert.equal(projection.map.resizeCount,resized+1,'same-size observer callback must not loop');await tick();assert.equal(calls,0,'sheet resize spends no viewport request');assert.ok(sizeObservers.find(o=>o.target===loadingNode).disconnected,'destroy disconnects the resize observer');
  projection.map.fire('moveend',{originalEvent:{}});projection.map.fire('dragend',{originalEvent:{}});projection.map.fire('zoomend',{originalEvent:{}});
  assert.equal(intendedViewport?.bounds.south,54,'the visible area must become the active intent before debounce or provider completion');
  await tick();assert.equal(calls,1,'one user gesture causes one debounced request');

@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3441452,
-      "sha256": "6e777f5e02116f6bc295585ab61772a39a0539b0449d3c120cb81527de199c32"
+      "bytes": 3441820,
+      "sha256": "daf53fe5d36983c81d549bc433325bb71a79accaf588e9dbfa863a954ce6e2f2"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -2215,8 +2215,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 146324,
-      "sha256": "7d9284192cf50babd3bd755513918d4057e23aa464dbd0663de631c9b6e4886a"
+      "bytes": 146692,
+      "sha256": "69ef4bba50be154ad61a57f94767ef399b4c9198c0e34b651aa6b247a20c76b2"
     },
     {
       "path": "app/places/places-trip-experiences.js",
@@ -9120,10 +9120,11 @@
       "path": "tests/recovery-places-viewport.test.cjs",
       "classes": [
         "accessibility-source",
-        "dom-rendering-source"
+        "dom-rendering-source",
+        "overlay-source"
       ],
-      "bytes": 17834,
-      "sha256": "2dde3b08d9113bb053b3ea2944991e7a240a49a9ba117c446565c59b76d5bc55"
+      "bytes": 18571,
+      "sha256": "b75b592f82a125aa859875dc447201c4adb4714ef557d13eea81b2cdcf36bcba"
     },
     {
       "path": "tests/recovery-runtime-build.test.cjs",
