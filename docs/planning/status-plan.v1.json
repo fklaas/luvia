@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "3d6442c7",
+  "sourceBaseline": "5e8f3798",
   "app": "13.82.168.104",
   "core": "4.82.223",
-  "runtimeSource": "3d6442c749557711db6d63e2c1fb24e04b84081a",
-  "worker": "075622ac-defa-4cef-8e20-43684302b7e8",
-  "gateway": "v232 ACTIVE / 4.64.35 / Places 4.38.14-cold-hedge-commons-category",
+  "runtimeSource": "5e8f37985eb5ae76c0247ecfb11410bcc107c677",
+  "worker": "7cda6e20-3b33-442a-b5e6-1c2da8256faf",
+  "gateway": "v233 ACTIVE / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
     {
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Aktuell öffentlich belegt sind App 13.82.168.103 / Core 4.82.222 auf Integration-Worker 075622ac-defa-4cef-8e20-43684302b7e8 aus Runtime-Commit 3d6442c749557711db6d63e2c1fb24e04b84081a. Gateway v232 meldet 4.64.35 und Places 4.38.14-cold-hedge-commons-category. 30/30 releasekritische Dateien stimmen im sauberen Deployment-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.103-3d6442c7-public-bytes.zip hat 89.022.652 Bytes und SHA-256 A8784AF164D66E9187FB7A588BB363167E54B8B99D797D92785989F578E41D5F. Safe Regression 232/232 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
+      "evidence": "App 13.82.168.104 / Core 4.82.223 ist auf Integration-Worker 7cda6e20-3b33-442a-b5e6-1c2da8256faf aus Runtime-Commit 5e8f37985eb5ae76c0247ecfb11410bcc107c677 veröffentlicht. Gateway v233 meldet 4.64.36 und Places 4.38.15-exact-google-media-category-matrix. 30/30 releasekritische Dateien stimmen im sauberen Deployment-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das Archiv luvia-integration-13.82.168.104-5e8f3798-public-bytes.zip hat 89.026.357 Bytes und SHA-256 713C216C53C71AE4A9D90B1BFEA8CC1679B1B5ABE6B05181646663F4AF34A8D6. Safe Regression 233/233 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
       "nextAcceptance": "Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -28,8 +28,8 @@
       "canonicalTitle": "Places provider readiness",
       "status": "TEILWEISE",
       "owner": "Places und Gateway",
-      "evidence": "Der öffentliche Stand .103 beginnt MapLibre, die OpenFreeMap-Verbindung und den Kartenstil bereits im Dokumentkopf. Vorhandene exakte Pins werden freigegeben, während externe Kartendaten im Hintergrund laden. Im sichtbaren Stable-Browser waren 48 Places-Pins nach 1,731 Sekunden und 47 Stays-Pins nach 1,615 Sekunden nutzbar. Places Food schaltet reproduzierbar zwischen 48 Alle und 9 Passend; Kleines Steakhouse bleibt ohne Passend-Beleg. Stays schaltet zwischen 47 Alle und 25 Passend. Zoom behält eine bedienbare Karte und lädt den sichtbaren Ausschnitt nach. Die gemeinsame Projektion trägt Provider, Lizenz, exakte Entitätsreferenz, verknüpfte Ortsquelle und Verifikationsstatus bis zum Consumer und meldet die Bildabdeckung ohne zusätzliche Providerreads. Die kalte Minigolfprobe blieb bei 2,447 Sekunden Gatewayzeit; warme und weitere Proben lagen bei 0,150 bis 1,101 Sekunden. P02 bleibt teilweise: breite reale Ortsbildquote, physischer Mobil-Kaltstart, vollständige Touch-/Sachfiltermatrix sowie positive Google-/Foursquare-Livepfade sind offen; Google lieferte zuletzt 403 und Foursquare 429 mit Cooldown.",
-      "nextAcceptance": "Die exakte reale Bildquote für alle 14 Kategorien und Stays messen und erweitern; anschließend alle 82 Zuordnungen, 19 Landesküchen und Sachfilter auf Desktop und Touch positiv, negativ, leer und bei Providerteilausfall abnehmen und den höchstens drei Sekunden langen Erstaufbau auf physischen iOS-/Android-Geräten bestätigen.",
+      "evidence": "Release .104 veröffentlicht die vollständige Diagnosematrix für 13 Places-Kategorien plus Stays und 19 Landesküchen sowie strikt identitätsgebundene Medienanreicherung. Öffentlich bestanden 33/33 automatische Kategorie- und Küchenproben ohne Providerfehler; 14 von 19 Küchen liefern im Scharbeutz-Radius Treffer, fünf bleiben ehrlich leer. Sichtbar schaltet Food zwischen 48 Alle und 9 Passend, Shopping zwischen 46 und 11, Kleines Steakhouse bleibt aus der vegetarischen Passendmenge ausgeschlossen und Chinesisch liefert Hay-Cheng. Nach Zoom bleiben 46 Shopping-Pins, Karte ready, Pointer bedienbar und der gewählte Pin vorn. Snykrode lädt ein 1342 x 736 Pixel großes, exakt verknüpftes Wikimedia-Ortsbild. Google-Suche und Place Photo sind getrennt auf je 25/Tag, 800/Monat und 4/Minute begrenzt; Google selbst antwortet weiterhin 403 PERMISSION_DENIED, Foursquare zuletzt 429. P02 bleibt teilweise für die breite reale Bildquote, die Google-Key-/Projektberechtigung und die physische iOS-/Android-Touchabnahme.",
+      "nextAcceptance": "Google Places serverseitig positiv berechtigen und einen exakten Such- plus Fotoabruf belegen; danach für alle 13 Places-Kategorien und Stays die reale Bildquote providerweise messen, jeden fehlenden Treffer ehrlich kennzeichnen und den höchstens drei Sekunden langen Kaltstart sowie Kategorie-, Passend-, Filter-, Zieh- und Zoomfluss auf physischen iOS-/Android-Geräten bestätigen.",
       "scope": "Prove active provider readiness, bounded free-budget fallback, health, quota, timeout and offline semantics, freshness, result diversity, category-by-category completeness, exact spatial intent and real provider-linked photos. Geoapify, TomTom and HERE form the approved automatic search path. Google and Foursquare require explicit verified budget policies before cost-bearing calls. The same canonical candidate cohort feeds Places, Stays, Timeline suggestions, Trip Composer and AI Chat.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -40,8 +40,8 @@
       "canonicalTitle": "Positive public Places search through the AI Chat",
       "status": "TEILWEISE",
       "owner": "Intelligence und Places",
-      "evidence": "App .103 verwendet denselben places.v1-Kandidaten-, Filter-, Passend-, Karten- und Medienweg für Places, Stays, Timeline-Vorschläge und AI Chat. Der öffentliche sichtbare Beleg zeigt Food 48/9 mit strengem vegetarischem Ausschluss und Stays 47/25; erste Pins stehen im Browser nach 1,731 beziehungsweise 1,615 Sekunden bereit. Provider, Lizenz, exakte oder verknüpfte Entitätsreferenz und Verifikationsstatus überleben jetzt Domain- und Plattformprojektion. Die vollständige sichtbare Foto-, Filter- und physische Touchparität in Timeline-Vorschlägen und AI Chat bleibt offen.",
-      "nextAcceptance": "Reale Ortsbildquote und vollständige Filter-/Touchmatrix im gemeinsamen Places Owner schließen und danach dieselben Kandidaten, Sachfilter, Passungsgründe, Medien-, Frische- und Fehlerbelege in Stays, Timeline-Vorschlägen und AI Chat sichtbar abnehmen.",
+      "evidence": "App .104 nutzt weiter denselben places.v1-Kandidaten-, Filter-, Passend-, Karten- und Medienweg für Places, Stays, Timeline-Vorschläge und AI Chat. Die 82 Zuordnungen, alle belegpflichtigen Sachfilter und 19 Landesküchen sind im Gate grün. Öffentlich sind 33/33 Kategorie-/Küchenpfade technisch grün; sichtbar sind Food 48/9 ohne Steakhouse-Passung, Shopping 46/11, Chinesisch mit Hay-Cheng, stabile Pins nach Zoom und das echte verknüpfte Snykrode-Bild. Die vollständige physische Touch-, Bild- und surfaceübergreifende Sichtabnahme bleibt offen.",
+      "nextAcceptance": "Nach positiver Google-Berechtigung und breiter exakter Ortsbildquote dieselben Kandidaten, Sachfilter, Passungsgründe, Medien-, Frische- und Fehlerbelege auf physischem Touch in Places, Stays, Timeline-Vorschlägen und AI Chat sichtbar abnehmen.",
       "scope": "Accept multilingual requests, confirmed-profile fallback, missing/conflicting input questions, source-backed partial or complete suggestions per category, the shared places.v1 Compass-coloured MapLibre projection and bottom-up Place detail sheets. UI and Chat consume one Place candidate cohort rather than separate searches.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "App 13.82.168.103 / Core 4.82.222: Runtime-Commit 3d6442c749557711db6d63e2c1fb24e04b84081a, byteidentisches Deployment-Byte-Archiv luvia-integration-13.82.168.103-3d6442c7-public-bytes.zip mit 89.022.652 Bytes und SHA-256 A8784AF164D66E9187FB7A588BB363167E54B8B99D797D92785989F578E41D5F, Gateway v232 / 4.64.35 / Places 4.38.14-cold-hedge-commons-category, Worker 075622ac-defa-4cef-8e20-43684302b7e8, 232/232 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbar: Places Food 48/9 ohne Steakhouse-Passung, Stays 47/25 sowie erste nutzbare Pins nach 1,731/1,615 Sekunden. Main und Production unverändert.",
+      "evidence": "App 13.82.168.104 / Core 4.82.223: Runtime-Commit 5e8f37985eb5ae76c0247ecfb11410bcc107c677, Worker 7cda6e20-3b33-442a-b5e6-1c2da8256faf, Gateway v233 / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix, 233/233 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. 33/33 öffentliche Kategorie-/Küchenproben und der sichtbare Food-, Shopping-, Chinesisch-, Zoom- und exakte Wikimedia-Bildpfad sind grün. Archiv: 89.026.357 Bytes, SHA-256 713C216C53C71AE4A9D90B1BFEA8CC1679B1B5ABE6B05181646663F4AF34A8D6. Main und Production unverändert.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,9 +640,9 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.103 / Core 4.82.222 ist vollständig auf Integration veröffentlicht und reproduzierbar belegt. Exakte bekannte Pins warten nicht mehr auf den externen Kartenstil; MapLibre und OpenFreeMap beginnen früher. Sichtbar stehen Places-Pins nach 1,731 Sekunden und Stays-Pins nach 1,615 Sekunden bereit; Food 48/9 und Stays 47/25 bestätigen Passend. Medienprovenienz und eine kostenfreie Abdeckungsdiagnose reichen bis zur gemeinsamen Consumerkarte. 232/232 Safe Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Main und Production sind unverändert.",
-  "safeRegression": "App .103: Safe Regression 232/232 PASS und NFR-0 3/3 PASS; gezielte Erstframe-, Provider-, 82-Filter-, 19-Landesküchen-, Passend-, OSM-, Medienprovenienz-, Runtime-, Release- und Planstatusprüfungen grün",
-  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker .103; Archiv 89.022.652 Bytes, SHA-256 A8784AF164D66E9187FB7A588BB363167E54B8B99D797D92785989F578E41D5F",
+  "acceptanceUpdate": "App 13.82.168.104 / Core 4.82.223 ist vollständig auf Integration veröffentlicht. 33/33 öffentliche Kategorie-/Landesküchenpfade, 233/233 Safe Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Sichtbar funktionieren Alle/Passend, vegetarischer Steakhouse-Ausschluss, Shopping, Chinesisch, Zoomkontinuität, Pinvordergrund sowie ein echtes exakt verknüpftes Snykrode-Bild. Google ist weiterhin extern mit 403 PERMISSION_DENIED blockiert und wird budgetseitig abgekühlt; Main und Production sind unverändert.",
+  "safeRegression": "App .104: Safe Regression 233/233 PASS und NFR-0 3/3 PASS; gezielte exakte Google-Medien-, Budget-, 82-Filter-, 19-Landesküchen-, Kategorie-, Passend-, OSM-, Foursquare-, Runtime-, Release- und Planstatusprüfungen grün",
+  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker .104; Archiv 89.026.357 Bytes, SHA-256 713C216C53C71AE4A9D90B1BFEA8CC1679B1B5ABE6B05181646663F4AF34A8D6",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -673,24 +673,24 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. App .104 / Core .223 ist der vollständig getestete P02/P03-Kandidat für die komplette Kategorie-/Landesküchenmatrix und exakt identitätsgebundene Ortsbilder; der öffentliche Rückfallstand bleibt .103 bis zur abgeschlossenen Integration-Veröffentlichung.",
-    "delivered": "Kandidat .104 prüft alle 14 gemeinsamen Kategoriepfade und alle 19 Landesküchen über öffentliche, kostenfreie Diagnoseverträge. Die 82 sichtbaren Filterzuordnungen und sämtliche belegpflichtigen Sachfilter bleiben fail-closed. Beim ausgewählten Ort ergänzt Google Places nach strenger Namens- und Koordinatenidentität bis zu drei echte Fotoreferenzen; Wikimedia und Foursquare bleiben exakte Fallbacks. Google-Suche und Place Photos erhalten getrennte, serverseitig atomare 800/Monat-Reserven, und keine Kartenbewegung verbraucht Bildkontingent.",
+    "stage": "M16.5 Schritte 15–18 aktiv. App .104 / Core .223 ist der vollständig veröffentlichte P02/P03-Kategorie-, Landesküchen- und identitätsgebundene Medienabschnitt. P02/P03 bleiben teilweise, bis Google serverseitig freigegeben, die breite reale Bildquote gemessen und die physische Touchabnahme geschlossen ist.",
+    "delivered": "Release .104 erweitert den gemeinsamen Places Owner um 14 Diagnosepfade, 19 Landesküchen und exakte ausgewählte Medien. 33/33 öffentliche Matrixpfade sind grün. Sichtbar funktionieren Food 48/9 ohne Steakhouse-Passung, Shopping 46/11, Chinesisch mit Hay-Cheng, 46 Pins nach Zoom und das echte Snykrode-Bild. 233/233 Regression, NFR-0 3/3 und 30/30 Byteidentität sind belegt.",
     "nextStep": {
-      "id": "P02-P03-exact-photo-filter-touch-matrix",
+      "id": "P02-P03-google-entitlement-real-photo-physical-touch",
       "package": "P02",
       "status": "AKTIV",
-      "title": "Reale Ortsbild- und Touchmatrix öffentlich abnehmen",
-      "reason": "Die vollständigen Kategorie-, Küchen- und Filterverträge sowie der neue identitätsgebundene Bildpfad sind lokal grün. Offen sind die veröffentlichte Provider-Matrix, sichtbare kompakte Touchabnahme und der physische iOS-/Android-Kaltstart.",
+      "title": "Google-Berechtigung, reale Bildquote und physische Touchabnahme schließen",
+      "reason": "Kategorie-, Küchen-, Passend- und Zoomlogik sind öffentlich grün. Der Google-Key erreicht places.googleapis.com, erhält aber PERMISSION_DENIED; deshalb fehlen bei vielen Orten weiterhin echte Fotos. Zudem fehlt noch der reproduzierbare Kaltstart auf realem iOS und Android.",
       "acceptance": [
-        "Gatewaymigration, Funktion und Runtime werden auf Integration veröffentlicht; alle 14 Kategorieproben und 19 Landesküchen liefern einen ehrlichen positiven, leeren oder providerbedingt fehlgeschlagenen Status mit Anbieter- und Bildabdeckung.",
-        "Ein ausgewählter Place und ein ausgewählter Stay laden ein echtes, exakt zugeordnetes Bild mit Herkunft; bei fehlendem exaktem Treffer bleibt der Zustand ehrlich bildlos. Google, Wikimedia und Foursquare dürfen keine räumlich nahen Fremdbilder übernehmen.",
-        "Alle 82 Zuordnungen und Sachfilter bestehen auf Desktop und kompaktem Touch-Viewport positive, negative, leere, kombinierte und teilweise Providerfälle; Kategorienwechsel, Passend, Ziehen und Zoomen bleiben bedienbar.",
-        "Places und Stays erreichen auf physischen iOS-/Android-Geräten beim Kaltstart innerhalb von höchstens drei Sekunden eine bedienbare Karte mit ehrlichem Zwischenzustand.",
-        "Passend bleibt fail-closed und identisch in Places, Stays, Timeline-Vorschlägen und AI Chat; Budgetstatus, Safe Regression, NFR-0, sichtbare Browserabnahme und Byteidentität bleiben grün."
+        "Der vorhandene Google-Key ist im richtigen Cloud-Projekt für Places API (New), Text Search (New) und Place Photos (New) serverseitig berechtigt; eine exakte Namens- und Koordinatenverknüpfung sowie der zugehörige Fotoload antworten positiv und bleiben in den getrennten 800/Monat-Budgets.",
+        "Für alle 13 Places-Kategorien und Stays wird die reale Bildtrefferquote providerweise gemessen; jedes Bild trägt exakte oder verifiziert verknüpfte Entitätsreferenz, Herkunft, Lizenz und Fallbackstatus. Fremd- und generische Stockbilder bleiben ausgeschlossen.",
+        "Die 82 Zuordnungen, 19 Landesküchen und Sachfilter werden auf kompaktem Touch für positive, negative, leere, kombinierte und teilweise Providerfälle wiederholt; Kategorienwechsel, Passend, Pinvordergrund, Ziehen und Zoomen bleiben bedienbar.",
+        "Places und Stays erreichen auf physischen iOS-/Android-Geräten beim Kaltstart innerhalb von höchstens drei Sekunden eine bedienbare Karte mit ehrlichem Zwischenzustand und laden ein exakt zugeordnetes Detailbild, sofern die Ortsquelle eines anbietet.",
+        "Passend und Medien bleiben identisch in Places, Stays, Timeline-Vorschlägen und AI Chat; Safe Regression, NFR-0, sichtbare Browserabnahme, öffentliche Matrix und Byteidentität bleiben grün."
       ]
     },
-    "after": "Nach dem P02/P03-Abschluss folgt P09/P10: dieselbe Places-Karte in allen Timeline-Vorschlägen, physische Langdruck-/Wackelmodus-Abnahme, 90-Minuten-Routenfluss sowie Booking- und Visit-AI-Parität.",
-    "open": "P02/P03 sind technisch für 14 Kategorien, 19 Landesküchen, 82 Filterzuordnungen und den exakten Google/Wikimedia/Foursquare-Bildpfad erweitert. Offen bleiben die öffentliche reale Bildquote und der physische Mobil-Kaltstart. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich im Produktentscheid PD-2026-09-05 inventarisiert."
+    "after": "Danach folgt P09/P10: dieselbe Places-Karte in allen Timeline-Vorschlägen, physische Langdruck-/Wackelmodus-Abnahme, 90-Minuten-Routenfluss sowie Booking- und Visit-AI-Parität.",
+    "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P09/P10 bleiben teilweise für Booking-Provider-Weg, Visit-AI-Parität, 90-Minuten-Routenfluss und physische Langdruckabnahme. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich im Produktentscheid PD-2026-09-05 inventarisiert."
   },
-  "qaCommit": "3d6442c7"
+  "qaCommit": "5e8f3798"
 }
