@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "1eeab256",
-  "app": "13.82.168.111",
-  "core": "4.82.230",
-  "runtimeSource": "1eeab2566f18980ebba6d8633597524c401a4cc8",
-  "worker": "b42820f6-8e77-4866-b154-5c340d2db4a7",
+  "sourceBaseline": "1e653b7b",
+  "app": "13.82.168.112",
+  "core": "4.82.231",
+  "runtimeSource": "1e653b7bd8cfd7a6c4ec164be477447d5b076736",
+  "worker": "f3d48e97-e939-4a6d-a326-3c2da43c11fe",
   "gateway": "v233 ACTIVE / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -125,7 +125,7 @@
       "status": "BELEGT_BEGRENZT",
       "owner": "Intelligence",
       "evidence": "Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge und Speicherstatus. App .111 bringt dieselbe verständliche Vorher/Neu-, Ergebnis-, Fehler- und Recovery-Sprache in den AI Chat: bestätigte Besuche werden über drei typisierte Aktionen vorbereitet, separat bestätigt, ownerseitig gelesen und nach dem Schreiben erneut geprüft. Benannte Orte werden aus lokaler Places-Owner-Wahrheit aufgelöst; bei mehreren gleich benannten Besuchen nennt die Rückfrage ausdrücklich „erster“, „zweiter“ oder „letzter“. 333/333 Aktionen besitzen eine Verbraucherprojektion; 127 geschützte Änderungen, 22 ehrliche Undo-Wege und 2.764 erzeugte Fehlerauswertungen sind im Drift-Gate belegt. Private Teilnehmer-IDs, freie Korrekturfelder und Gerätepositionen bleiben aus der öffentlichen Projektion ausgeschlossen. Finaler .111-Beleg: die sichtbare Rückfrage nennt die drei zulässigen Ordinalangaben; die eindeutige Anfrage zeigt Ort, deutsches Datum und Uhrzeit vor jeder Mutation. 233/233 Safe Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün.",
-      "nextAcceptance": "P11 Route Uncertainty sichtbar ergänzen: Quellenalter, fehlende Live-Belege, Bandbreiten und einen separat bestätigten Journey-Puffer in derselben verständlichen Sprache darstellen; physische Mobilabnahme bleibt ein Gerätegate.",
+      "nextAcceptance": "P12 Tagesprobe auf dem gemeinsamen Journey-Beleg aufbauen und P11 anschließend auf physischen iOS-/Android-Geräten mit Geh-, Fahrrad-, Fahr- und unterstütztem ÖPNV-Modus abnehmen.",
       "scope": "Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -134,10 +134,10 @@
       "block": "B2",
       "title": "Unsicherheit von Wegen",
       "canonicalTitle": "S16.03 Route Uncertainty",
-      "status": "VORBEREITET",
+      "status": "BELEGT_BEGRENZT",
       "owner": "Journey und Intelligence",
-      "evidence": "Reale Geh- und Fahrradrouten sind geliefert; Unsicherheitsprodukt ist damit nicht abgeschlossen.",
-      "nextAcceptance": "Bandbreite und Quellenalter sichtbar; Puffer nur nach bestätigtem Journey-Befehl.",
+      "evidence": "App .112 / Core .231 liefert einen gemeinsamen Route-Uncertainty-Beleg für Timeline und AI Chat: Geh-, Fahrrad-, Fahr- und unterstützte ÖPNV-Modi besitzen erwartete Dauer, realistische Bandbreite, Quelle, Messzeit, Datenalter und einen ehrlichen Live-Status. Wetter, Verkehr/Störung, Saison und Tageszeit beeinflussen die Bandbreite nur bei passendem beobachtetem Beleg; unbelegte Faktoren werden genannt und ignoriert. Eine Pufferänderung zeigt Bisher/Neu und schreibt erst nach ausdrücklicher Bestätigung über journey.v1 mit Revision, Belegsignatur, Idempotenz und Owner-Readback. Ablehnung, veraltete Revision oder veränderter Routenbeleg schreiben nichts. Sichtbar zeigte die echte Timeline Grande Beach Café → Restaurant Brechtmann: 68 Minuten erwartet, 66–77 Minuten realistisch, Places-Koordinaten, sieben Tage alt, Live-Lage unbekannt, bisher 10 und neu 12 Minuten. Abbruch plus Reload ließ 10 Minuten unverändert. Der AI Chat verwendete dieselbe Sprache und bot ohne belegte Quelle keine speicherbare Aktion. 234/234 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität sind grün. Kandidat f3d48e97 bleibt immutable; Stable wurde auf .104 zurückgesetzt.",
+      "nextAcceptance": "Den belegten Timeline- und Chat-Fluss auf realem iOS und Android für Geh-, Fahrrad-, Fahr- und unterstützten ÖPNV-Modus physisch abnehmen; echte Live-Verkehrsdaten bleiben nur dort als live bezeichnet, wo ein Provider sie mit Zeitstempel liefert.",
       "scope": "Real uncertainty bands, source age, missing live evidence and a separately confirmed Journey buffer command.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -640,9 +640,9 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.111 / Core 4.82.230 ist als finaler P09/P10-Integrationskandidat vollständig belegt. Im sichtbaren Browser verweigert der AI Chat bei zwei bestätigten Besuchen am selben Ort DAS LEO jede willkürliche Auswahl und fordert „erster“, „zweiter“ oder „letzter“. Mit „den ersten bestätigten Besuch“ zeigt er die richtige, noch nicht ausgeführte Owner-Vorschau für DAS LEO am 12.06.2027 um 18:15 Uhr; Abbrechen bestätigt, dass nichts verändert wurde. Die lokale Place-Identitätsauflösung verbraucht kein Anbieter-Kontingent. Safe Regression 233/233, NFR-0 3/3 und Byteidentität 30/30 zwischen sauberem Deployment-Archiv, Stable und immutable Worker sind grün. Die .111-Bundles wurden sichtbar geladen; kein horizontaler Überlauf. Main und Production blieben unverändert. Nach der Kandidatenabnahme wurde Stable Integration auf den akzeptierten .104-Worker 7cda6e20-3b33-442a-b5e6-1c2da8256faf zurückgestellt; P11 ist der nächste aktive Arbeitsblock.",
-  "safeRegression": "App .111 finaler Integrationskandidat: vollständige Safe Regression 233/233 PASS; NFR-0 3/3 PASS; 30/30 releasekritische öffentliche Dateien stimmen zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker überein. Gezielte Confirmed-Owner-, lokale Place-Identitäts-, explizite Gleichnamigkeitsauswahl-, Null-Provider-, Consumer-Projektions-, Timeline-Recovery-, Release- und Visual-Inventory-Prüfungen PASS.",
-  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker .111; Archiv 89.044.244 Bytes, SHA-256 08225C7807215873A48BFE3C913FF0C952EB7CCEF9500710D7FB4797B50D520F",
+  "acceptanceUpdate": "App 13.82.168.112 / Core 4.82.231 schließt P11 intern ab. Im sichtbaren Browser zeigte die Timeline für Grande Beach Café → Restaurant Brechtmann 68 Minuten erwartet, 66–77 Minuten realistisch, Places-Koordinaten als Quelle, sieben Tage Datenalter und Live-Lage unbekannt. Die bestätigungspflichtige Journey-Vorschau zeigte bisher 10 und neu 12 Minuten; Abbrechen und Reload belegten die Nullmutation. Der AI Chat verwendete dieselbe Routen-, Alters- und Live-Sprache und bot bei fehlendem Quellenbeleg keine speicherbare Aktion. Automatisiert sind explizite Bestätigung, Revision, Belegsignatur, idempotenter Owner-Write/Replay und Readback für alle vier unterstützten Modi grün. Safe Regression 234/234, NFR-0 3/3 und 30/30 Byteidentität zwischen sauberem Deployment-Archiv, Stable-Kandidat und immutable Worker sind grün. Archiv: 89.057.894 Bytes, SHA-256 86F821FB0E454015444F4467CBE8A9A662C5D5ABCE340ABD08D0CAF08A43D0FE. Main und Production blieben unverändert. Stable Integration wurde nach der Abnahme auf den akzeptierten .104-Worker zurückgestellt; P12 ist jetzt aktiv.",
+  "safeRegression": "App .112 P11-Integrationskandidat: vollständige Safe Regression 234/234 PASS; NFR-0 3/3 PASS; 30/30 releasekritische öffentliche Dateien stimmen zwischen sauberem Deployment-Byte-Archiv, Stable-Kandidat und immutable Worker überein. Gezielte Route-Evidence-, Frische-, Unknown-Live-, Confirmation-, Stale-Revision-, Belegsignatur-, Idempotenz-, Owner-Readback-, Timeline-, AI-, Release- und Visual-Inventory-Prüfungen PASS.",
+  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable-Kandidat und immutable Worker .112; Archiv 89.057.894 Bytes, SHA-256 86F821FB0E454015444F4467CBE8A9A662C5D5ABCE340ABD08D0CAF08A43D0FE",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -673,24 +673,24 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18: P09/P10 sind intern abgeschlossen und als App .111 / Core .230 vor dem Rücksprung sichtbar sowie reproduzierbar belegt worden. Stable Integration läuft wieder auf dem akzeptierten App-.104-Worker; Main und Production blieben unverändert. Direkte Timeline und AI Chat teilen Places Visit Owner; generische Titel werden lokal aufgelöst und mehrere gleich benannte bestätigte Besuche verlangen eine explizite Ordinalauswahl. Nur die physische iOS-/Android-Abnahme bleibt als Gerätegate. P11 ist jetzt AKTIV.",
-    "delivered": "P09/P10: bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere Befehle, lokale Place-Identität ohne Providerkontingent, konkrete Fehlerprojektion, Visit-Deduplizierung und explizite Auswahl gleich benannter Besuche sind belegt. Sichtbar wurden Mehrdeutigkeitsfehler, positive Ordinal-Vorschau und abgebrochene Nullmutation geprüft. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen. Safe Regression 233/233, NFR-0 3/3 und Byteidentität 30/30 sind grün.",
+    "stage": "M16.5 Schritte 15–18: P09, P10 und P11 sind intern abgeschlossen und als unveränderliche Integrationskandidaten sichtbar sowie reproduzierbar belegt. App .112 / Core .231 verbindet Routenbandbreite, Quellenfrische, ehrlichen Live-Status und bestätigten Zeitpuffer über denselben Journey Owner in Timeline und AI Chat. Stable Integration läuft wieder auf dem akzeptierten App-.104-Worker; Main und Production blieben unverändert. Nur die physische iOS-/Android-Abnahme bleibt für P09–P11 als Gerätegate. P12 ist jetzt AKTIV.",
+    "delivered": "P11: vier Routenmodi, realistische Zeitbandbreite, Quelle, Messzeit, Datenalter und Live-Status werden aus einem deterministischen Journey-Beleg projiziert. Unbelegtes Wetter, Verkehr, Saison oder Tageszeit verändert die Schätzung nicht. Eine Pufferänderung zeigt Bisher/Neu und schreibt ausschließlich nach Bestätigung mit Revision, Belegsignatur, Idempotenz und Owner-Readback. Timeline und AI Chat teilen Sprache und Daten; ohne Quelle entsteht keine Aktion. Sichtbar wurden echte Timeline-Daten, 10→12-Minuten-Vorschau und Abbruch plus Reload ohne Mutation geprüft. Safe Regression 234/234, NFR-0 3/3 und Byteidentität 30/30 sind grün.",
     "nextStep": {
-      "id": "P11-route-uncertainty-confirmed-buffer",
-      "package": "P11",
+      "id": "P12-source-backed-day-rehearsal",
+      "package": "P12",
       "status": "AKTIV",
-      "title": "Routenunsicherheit und bestätigten Zeitpuffer liefern",
-      "reason": "Geh- und Fahrradrouten sind bereits providerübergreifend vorhanden. Der nächste klar abgrenzbare P-Block macht ihre zeitliche Unsicherheit, Quellenfrische und fehlende Live-Daten verständlich und lässt einen empfohlenen Puffer nur über einen bestätigten Journey-Befehl in die Timeline einfließen.",
+      "title": "Tagesprobe mit belegten Grenzen liefern",
+      "reason": "P11 liefert jetzt belastbare Wegefenster und Quellenalter. P12 verwendet diese Wahrheit, um einen Reisetag vor der Übernahme als erwarteten, günstigen und ungünstigen Ablauf durchzuspielen und konkrete Konflikte oder freie Momente verständlich zu machen.",
       "acceptance": [
-        "Geh-, Fahrrad- und unterstützte ÖPNV-/Fahrtrouten zeigen erwartete Dauer, realistische Bandbreite, Quelle, Messzeit und Datenalter; fehlende Live-Daten werden als unbekannt ausgewiesen.",
-        "Wetter, Saison, Tageszeit, Mobilitätsmodus und belegte Streckenmerkmale beeinflussen die Bandbreite nur mit sichtbarer Herkunft; Luvia erfindet weder Verkehr noch Barrierefreiheit.",
-        "Ein Zeitpuffer wird zunächst als lesbare Vorher/Neu-Vorschau angeboten und erst nach ausdrücklicher Bestätigung idempotent über journey.v1 gespeichert; Ablehnung und veraltete Revision verändern die Timeline nicht.",
-        "Timeline, Places-Karte und AI Chat verwenden denselben Routen- und Pufferbeleg sowie dieselbe Fehler- und Recovery-Sprache.",
-        "Der Slice besteht gezielte Core-, Owner-, Fehler- und sichtbare mobile Browserabnahmen sowie Safe Regression und NFR-0."
+        "Ein realer Reisetag wird in günstiger, erwarteter und ungünstiger Ausprägung mit Zeiten, Wegen, Puffern, Öffnungszeiten und konkreten Konflikten dargestellt; jede Abweichung nennt ihren Beleg.",
+        "Unbekannte Wetter-, Verkehrs-, Öffnungs- oder Auslastungslagen bleiben sichtbar unbekannt und werden nicht als Wahrscheinlichkeit oder sichere Vorhersage ausgegeben.",
+        "Timeline, Places-Karte und AI Chat verwenden denselben Tagesentwurf, dieselben Place-Identitäten und dieselben P11-Routenbelege.",
+        "Alternativen, Zeitverschiebungen und Weglassen erscheinen als einzelne Vorher/Neu-Vorschauen; erst bestätigte Journey-/Places-Befehle verändern den Tag und lassen sich über vorhandene Recovery-Wege zurücknehmen.",
+        "Der sichtbare Integrationslauf prüft Desktop und mobiles Browserformat, Abbruch ohne Mutation, bestätigte Teilübernahme, Reload-Readback, Safe Regression und NFR-0."
       ]
     },
-    "after": "Danach folgen P12 Tagesprobe und der gebündelte P12/P15/P17 Trip Composer mit tageweiser Reisepräsentation, Alternativen und bestätigter Übernahme.",
-    "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P07/P08 bleiben von echten Booking-Providern abhängig. P09/P10 sind intern belegt und nur für physische iOS-/Android-Abnahme begrenzt. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich inventarisiert."
+    "after": "Danach wird P12 in derselben Arbeitswelle mit P15/P17 zum gemeinsamen Trip Composer verbunden: Geführt, Schnellstart und KI-Entwurf, tageweise Präsentation, Vormerken, Alternativen und bestätigte Teilübernahme.",
+    "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P07/P08 bleiben von echten Booking-Providern abhängig. P09/P10/P11 sind intern belegt und nur für physische iOS-/Android-Abnahme begrenzt. Danach folgen P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich inventarisiert."
   },
-  "qaCommit": "722b00c6"
+  "qaCommit": "1e653b7b"
 }
