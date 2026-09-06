@@ -726,12 +726,6 @@ async function geoapifyPlaceDetails(rawId:string,options:any={}){
   // Only media explicitly linked to this exact provider entity is considered.
   // Never use nearby/brand pictures as a substitute for this place.
   if(/^https:\/\//i.test(String(media.image||''))){place.photos=[{uri:media.image,attribution:'Bild aus dem verknüpften Ortseintrag',sourceUrl:media.image,provider:'geoapify',entityReference:rawId,verified:true}]}
-  else if(/^File:/i.test(String(media.wikimedia_commons||''))){
-    try{
-      const query=new URLSearchParams({action:'query',format:'json',titles:media.wikimedia_commons,prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'960'}),res=await fetch(`https://commons.wikimedia.org/w/api.php?${query}`,{headers:{'User-Agent':'Luvia/1.0 (place photo attribution)'},signal:AbortSignal.timeout(3000)}),json=await res.json(),page:any=Object.values(json.query?.pages||{})[0],info=page?.imageinfo?.[0];
-      if(info?.url){const meta=info.extmetadata||{},plain=(v:any)=>String(v||'').replace(/<[^>]*>/g,'').slice(0,180);place.photos=[{uri:info.thumburl||info.url,attribution:[plain(meta.Artist?.value),plain(meta.LicenseShortName?.value)].filter(Boolean).join(' · '),attributionUrl:info.descriptionurl,sourceUrl:info.descriptionurl,provider:'wikimedia',entityReference:rawId,verified:true}]}
-    }catch{}
-  }
   metrics.successes++;metrics.providers.geoapify.successes++;
   const exactPlace=exactSeed?{...exactSeed,...place,id:rawId,providerPlaceId:rawId,provider:'geoapify',photos:place.photos?.length?place.photos:(exactSeed.photos||[]),raw:{...(exactSeed.raw||{}),...(place.raw||{})}}:place;
   const linked=await enrichLinkedMedia(exactPlace),enriched=options.enrichMedia===true&&!linked.photos?.length?await enrichExactFoursquareMedia(linked):linked;store(cacheKey,enriched,30*60_000);return enriched;
@@ -746,7 +740,7 @@ async function geoapifyCuisineCohort(apiKey:string,filter:string,language:string
     // 30 minutes. Two hundred rows cover the local 5 km inventory without the
     // 25-unit burst of the former 500-row rescue request.
     const params=new URLSearchParams({apiKey,categories:'catering',filter,limit:'200',lang:language||'de'});
-    const response=await providerFetch('geoapify','search',10,`${GEOAPIFY_BASE}/places?${params}`,{signal:AbortSignal.timeout(4500)});
+    const response=await providerFetch('geoapify','search',10,`${GEOAPIFY_BASE}/places?${params}`,{signal:AbortSignal.timeout(2400)});
     if(!response.ok)throw new Error('CUISINE_COHORT_UNAVAILABLE');
     const body=await response.json();return Array.isArray(body.features)?body.features:[];
   })().catch(error=>{cuisineCohorts.delete(id);throw error});
@@ -794,7 +788,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     return params;
   };
   const run=async(cats:string[],useName:boolean,condition?:string)=>{
-    const signal=globalThis.AbortSignal?.timeout?.(4500);
+    const signal=globalThis.AbortSignal?.timeout?.(2400);
     const response=await providerFetch('geoapify','search',Math.ceil(limit/20),`${GEOAPIFY_BASE}/places?${buildParams(cats,useName,condition)}`,{headers:{Accept:'application/json'},...(signal?{signal}:{})});
     const body=await response.json().catch(()=>({}));
     return{response,body,cats};
@@ -827,8 +821,13 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
     const rejected=settled.find((item:any)=>item.status==='rejected') as PromiseRejectedResult|undefined;
     throw rejected?.reason||Object.assign(new Error('Geoapify Kategorien antworten gerade nicht.'),{code:'GEOAPIFY_PROVIDER_ERROR',status:503,provider:'geoapify'});
   };
-  let {response,body}=await runBatches(true);
-  if(response.ok&&name&&!(Array.isArray(body?.features)?body.features:[]).length){
+  // A strict subtype is already represented by the provider taxonomy. Sending
+  // the localized filter label as a venue-name constraint first adds a slow,
+  // usually empty request (for example "Minigolf") and can hide valid places
+  // whose proper name does not repeat their category.
+  const useNameFirst=Boolean(name)&&options.strictTypeFiltering!==true;
+  let {response,body}=await runBatches(useNameFirst);
+  if(response.ok&&useNameFirst&&!(Array.isArray(body?.features)?body.features:[]).length){
     ({response,body}=await runBatches(false));
   }
   // A taxonomy error is an error, never permission to substitute another family.
@@ -971,7 +970,7 @@ async function resolveDestination(payload:any){
 
 export async function placesAction(action:string,payload:any){
 if(action==='destination.resolve')return resolveDestination(payload);
-const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const forceRefresh=options.forceRefresh===true;const {forceRefresh:_forceRefresh,...cacheOptions}=options;const cachePayload={...payload,options:cacheOptions};const key=`${action}:v2.16.11-provider-media-cascade:${hash(cachePayload)}`;const hit=ttl>0&&!forceRefresh?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
+const options=payload?.options||{};const languageCode=options.languageCode||payload?.languageCode||'de';const regionCode=options.regionCode||payload?.regionCode||payload?.destination?.countryCode||'DE';const ttl=['places.details','places.photo','places.autocomplete'].includes(action)?0:5*60_000;const forceRefresh=options.forceRefresh===true;const {forceRefresh:_forceRefresh,...cacheOptions}=options;const cachePayload={...payload,options:cacheOptions};const key=`${action}:v2.16.12-cold-hedge-commons-category:${hash(cachePayload)}`;const hit=ttl>0&&!forceRefresh?cached(key):null;if(hit)return{data:hit,cache:{hit:true,key,ttlMs:ttl}};let result:any;
 if(action==='places.health'){
   const requestedProbe=String(payload?.diagnosticProbe||'').trim().toLowerCase();
   const probe:any=HEALTH_PROBES[requestedProbe as keyof typeof HEALTH_PROBES]||null;
@@ -984,7 +983,7 @@ if(action==='places.health'){
       diagnosticProbe={key:requestedProbe,status:'failed',query:probe.query,destination:probe.destination.name,error:{code:String(error?.code||'PROBE_FAILED').slice(0,80),message:String(error?.message||'Diagnose fehlgeschlagen.').slice(0,240)},providerErrors:(error?.providerErrors||[]).slice(0,4).map((item:any)=>({provider:String(item?.provider||'unknown').slice(0,40),code:String(item?.code||'PROVIDER_ERROR').slice(0,80),status:Number(item?.status)||null,providerStatus:String(item?.providerStatus||'').slice(0,80)||null,reason:String(item?.reason||'unknown').slice(0,80),service:String(item?.service||'').slice(0,160)||null,message:String(item?.message||'Provider fehlgeschlagen.').slice(0,240)})),places:[]};
     }
   }
-  result={status:'ok',service:'multi-provider-places-gateway',version:'4.38.13-specialty-type-purity',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},openstreetmap:osmDietaryConfiguration(),tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'bounded_dietary_evidence_opt_in'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_dietary_fallback_and_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'official-vegetarian-category-or-explicit-reviewed-taxonomy',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'},apple:{...appleMapsConfiguration(),priority:'parked_optional_paid_candidate',credentialExposure:false,placeImages:false,cuisineEvidence:false}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
+  result={status:'ok',service:'multi-provider-places-gateway',version:'4.38.14-cold-hedge-commons-category',configured:Boolean(getGeoapifyKey()||getKey()||getFoursquareKey()||Deno.env.get('TOMTOM_API_KEY')||Deno.env.get('HERE_API_KEY')),providerOrder:'free_budget_cascade',providers:{geoapify:{configured:Boolean(getGeoapifyKey()),priority:'primary',coordinateSchema:'top-level-latitude-longitude'},openstreetmap:osmDietaryConfiguration(),tomtom:{configured:Boolean(Deno.env.get('TOMTOM_API_KEY')),priority:'automatic_fallback',credentialExposure:false},here:{configured:Boolean(Deno.env.get('HERE_API_KEY')),priority:'automatic_fallback',credentialExposure:false},google:{configured:Boolean(getKey()),priority:'bounded_dietary_evidence_opt_in'},foursquare:{configured:Boolean(getFoursquareKey()),priority:'on_demand_dietary_fallback_and_exact_selected_media',apiVersion:FOURSQUARE_API_VERSION,mappingVersion:FOURSQUARE_MAPPING_VERSION,coordinateSchema:'top-level-latitude-longitude',premiumFieldsOptional:true,categoryFilteredSearch:'official-vegetarian-category-or-explicit-reviewed-taxonomy',postRetrievalCategoryEvidence:true,adaptiveDestinationRadius:true,exactMediaIdentity:'normalized_name_and_max_120m',aliasMediaIdentity:'contained_distinctive_name_and_max_25m',photoEndpoint:'one_popular_photo_after_exact_identity'},apple:{...appleMapsConfiguration(),priority:'parked_optional_paid_candidate',credentialExposure:false,placeImages:false,cuisineEvidence:false}},diagnosticProbe,availableDiagnosticProbes:Object.keys(HEALTH_PROBES),metrics:{...metrics},cache:{entries:cache.size}};return{data:result,cache:{hit:false,key:null,ttlMs:0}};
 }
 if(action==='places.text-search'){
   const destination=payload?.destination||null;const landmark=options.landmarkContext||destination?.landmarkContext||null;const effectiveDestination=landmark?.center?{...destination,location:{latitude:Number(landmark.center.lat??landmark.center.latitude),longitude:Number(landmark.center.lng??landmark.center.longitude)},viewport:landmark.viewport||null,searchRadiusMeters:options.maxDistanceMeters||destination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS}:destination;const restriction=options.strictDestination===false?undefined:destinationRestriction(effectiveDestination,options.locationRestriction);const bias=restriction?undefined:destinationBias(effectiveDestination,options.locationBias);let textQuery=String(payload?.query||'');const cityName=destination?.canonicalCity?.name||destination?.name;if(options.vegetarianOnly&&!/vegetar/i.test(textQuery))textQuery=`vegetarisch ${textQuery}`;if(cityName&&!restriction&&!bias)textQuery=`${textQuery} in ${cityName}`;if(landmark?.name&&!textQuery.toLowerCase().includes(String(landmark.name).toLowerCase()))textQuery=`${textQuery} nahe ${landmark.name}`;
@@ -996,6 +995,17 @@ if(action==='places.text-search'){
   const wantsGeoapify=providers.includes('geoapify')||providers.includes('auto');
   const wantsOsmDietary=providers.includes('openstreetmap')||providers.includes('auto');
   const wantsLegacy=providers.includes('google')||providers.includes('foursquare');
+  const dietaryEvidenceType=String(options.strictPlaceType||options.includedType||'');
+  const categoryKey=String(options.category||payload?.type||options.type||'').toLowerCase();
+  // The authenticated OSM lane is free, cache-backed and category bounded.
+  // Start it beside Geoapify for automatic category searches so an empty or
+  // slow primary response no longer serially delays the first useful pins.
+  // Convert rejection into data immediately to avoid an unhandled background
+  // promise when Geoapify already supplies a complete cohort.
+  const automaticOsmEligible=wantsOsmDietary&&providers.includes('auto')&&categoryKey&&options.strictTypeFiltering===true&&Boolean(options.strictPlaceType||options.includedType)&&(Array.isArray(options.includedTypes)?options.includedTypes.length:1)<=3;
+  const automaticOsmRequest=automaticOsmEligible
+    ?osmPlacesSearch(effectiveDestination,{...options,category:categoryKey,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000,maxResultCount:Math.min(80,Number(options.maxResultCount)||50)}).then(rows=>({ok:true,rows,error:null})).catch(error=>({ok:false,rows:null,error}))
+    :null;
   if(wantsGeoapify){
     attempted.push('geoapify');
     if(getGeoapifyKey()){
@@ -1020,21 +1030,25 @@ if(action==='places.text-search'){
     processed=postProcessPlaces(geoapifyPlaces,destination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||GEOAPIFY_DEFAULT_RADIUS_METERS});
     mode='geoapify_primary';
   }
-  const dietaryEvidenceType=String(options.strictPlaceType||options.includedType||'');
   if(!processed.length&&wantsOsmDietary&&(options.vegetarianOnly===true||['vegetarian_restaurant','vegan_restaurant'].includes(dietaryEvidenceType))){
     attempted.push('openstreetmap');
     try{
-      osmPlaces=(await osmDietarySearch(effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000})).map((place:any)=>({...place,evidence:[...(place.evidence||[]),{provider:'openstreetmap',kind:'bounded-profile-evidence-search'}]}));
+      const automatic=automaticOsmRequest?await automaticOsmRequest:null;
+      if(automatic&&!automatic.ok)throw automatic.error;
+      const rows=automatic?.rows||await osmDietarySearch(effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000});
+      osmPlaces=rows.map((place:any)=>({...place,evidence:[...(place.evidence||[]),{provider:'openstreetmap',kind:'bounded-profile-evidence-search'}]}));
       answered.push('openstreetmap');
       const osmProcessed=postProcessPlaces(osmPlaces,effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000});
       if(osmProcessed.length){processed=osmProcessed;fallbackUsed=Boolean(wantsGeoapify);fallbackReason=fallbackReason||'geoapify_empty_or_unavailable';mode='free_osm_dietary_evidence';}
     }catch(error:any){providerErrors.push({provider:'openstreetmap',code:error?.code||'OSM_DIETARY_PROVIDER_ERROR',message:error?.message||'OpenStreetMap-Ernährungshinweise sind gerade nicht verfügbar.',status:Number(error?.status)||null,reason:error?.reason||null})}
   }
-  const categoryKey=String(options.category||payload?.type||options.type||'').toLowerCase();
   if(!processed.length&&wantsOsmDietary&&categoryKey){
     if(!attempted.includes('openstreetmap'))attempted.push('openstreetmap');
     try{
-      osmPlaces=(await osmPlacesSearch(effectiveDestination,{...options,category:categoryKey,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000,maxResultCount:Math.min(80,Number(options.maxResultCount)||50)})).map((place:any)=>({...place,evidence:[...(place.evidence||[]),{provider:'openstreetmap',kind:'bounded-category-continuity-search'}]}));
+      const automatic=automaticOsmRequest?await automaticOsmRequest:null;
+      if(automatic&&!automatic.ok)throw automatic.error;
+      const rows=automatic?.rows||await osmPlacesSearch(effectiveDestination,{...options,category:categoryKey,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000,maxResultCount:Math.min(80,Number(options.maxResultCount)||50)});
+      osmPlaces=rows.map((place:any)=>({...place,evidence:[...(place.evidence||[]),{provider:'openstreetmap',kind:'bounded-category-continuity-search'}]}));
       if(!answered.includes('openstreetmap'))answered.push('openstreetmap');
       const osmProcessed=postProcessPlaces(osmPlaces,effectiveDestination,{...options,maxDistanceMeters:options.maxDistanceMeters||effectiveDestination?.searchRadiusMeters||8000});
       if(osmProcessed.length){processed=osmProcessed;fallbackUsed=Boolean(wantsGeoapify);fallbackReason=fallbackReason||'geoapify_empty_or_unavailable';mode='free_osm_category_continuity';}

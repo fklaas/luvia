@@ -134,7 +134,7 @@ async function overpassElements(query:string){
 async function proxyElements(center:{latitude:number;longitude:number},radius:number,veganOnly:boolean){
   const endpoint=clean(Deno.env.get('OSM_DIETARY_PROXY_URL')),tokenValue=clean(Deno.env.get('OSM_DIETARY_PROXY_TOKEN'));
   if(!endpoint||!tokenValue)return null;
-  const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Luvia-Provider-Token':tokenValue},body:JSON.stringify({latitude:center.latitude,longitude:center.longitude,radius,veganOnly}),signal:AbortSignal.timeout(10000)},{provider:'openstreetmap-cache',operation:'lookup'});
+  const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Luvia-Provider-Token':tokenValue},body:JSON.stringify({latitude:center.latitude,longitude:center.longitude,radius,veganOnly}),signal:AbortSignal.timeout(2800)},{provider:'openstreetmap-cache',operation:'lookup'});
   const body=await response.json().catch(()=>({}));
   if(!response.ok||body?.ok!==true||!Array.isArray(body?.elements))throw Object.assign(new Error('Der OSM-Evidenzproxy antwortet gerade nicht.'),{code:'OSM_DIETARY_PROXY_ERROR',status:response.status,provider:'openstreetmap'});
   return body.elements;
@@ -182,7 +182,7 @@ async function proxyPlaceElements(center:{latitude:number;longitude:number},radi
   const dietaryEndpoint=clean(Deno.env.get('OSM_DIETARY_PROXY_URL')),configuredEndpoint=clean(Deno.env.get('OSM_PLACES_PROXY_URL'));
   const endpoint=configuredEndpoint||(dietaryEndpoint?dietaryEndpoint.replace(/\/osm-dietary(?:\?.*)?$/,'/osm-places'):'');
   const tokenValue=clean(Deno.env.get('OSM_DIETARY_PROXY_TOKEN'));if(!endpoint||!tokenValue)return null;
-  const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Luvia-Provider-Token':tokenValue},body:JSON.stringify({latitude:center.latitude,longitude:center.longitude,radius,category,strictType}),signal:AbortSignal.timeout(10000)},{provider:'openstreetmap-cache',operation:'lookup'});
+  const response=await providerFetch('openstreetmap','search',1,endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Luvia-Provider-Token':tokenValue},body:JSON.stringify({latitude:center.latitude,longitude:center.longitude,radius,category,strictType}),signal:AbortSignal.timeout(2800)},{provider:'openstreetmap-cache',operation:'lookup'});
   const body=await response.json().catch(()=>({}));
   if(!response.ok||body?.ok!==true||!Array.isArray(body?.elements))throw Object.assign(new Error('Der OSM-Kontinuitätsproxy antwortet gerade nicht.'),{code:'OSM_PLACES_PROXY_ERROR',status:response.status,provider:'openstreetmap'});
   return body.elements;

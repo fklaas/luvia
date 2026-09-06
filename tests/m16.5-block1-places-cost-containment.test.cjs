@@ -59,8 +59,8 @@ assert.match(backend,/Do NOT treat PLACES_ALL_PROVIDERS_FAILED as a 30-minute qu
 assert.match(gateway,/providerOrder:'free_budget_cascade'/,'live Places order must be budget-managed');
 assert.match(gateway,/:\['auto'\],providerErrors/,'gateway text-search default providers must be budget-managed');
 assert.match(gateway,/food:'catering'/,'default food discovery must use the Geoapify parent catering bucket');
-assert.match(gateway,/v2\.16\.11-provider-media-cascade/,'gateway cache must invalidate after the automatic diagnostic and exact-media cascade enters the public surface');
-assert.match(gateway,/version:'4\.38\.13-specialty-type-purity'/,'gateway health version must expose the automatic provider, exact-media and specialty-type contract');
+assert.match(gateway,/v2\.16\.12-cold-hedge-commons-category/,'gateway cache must invalidate after the cold specialty hedge and Commons-category media cascade enter the public surface');
+assert.match(gateway,/version:'4\.38\.14-cold-hedge-commons-category'/,'gateway health version must expose the automatic provider, cold-latency and exact-media contract');
 assert.match(gateway,/function boundedGoogleError/,'Google failures must be reduced to a safe diagnostic projection');
 assert.match(gateway,/providerStatus:String\(error\?\.status\|\|'UNKNOWN'\)/,'the safe Google projection must retain the provider status');
 assert.match(gateway,/reason:String\(info\?\.reason\|\|error\?\.status\|\|'unknown'\)\.slice\(0,80\)/,'the safe Google projection must retain a bounded machine-readable permission reason');

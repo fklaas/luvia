@@ -5,9 +5,18 @@ const plain=(v:any)=>String(v||'').replace(/<[^>]*>/g,'').slice(0,400);
 export function linkedWiki(place:any){
   const raw=place?.raw||{},media=raw.wiki_and_media||{},osm=raw.datasource?.raw||{};
   const wiki=String(media.wikidata||raw.wikidata||osm.wikidata||'');
-  return{wikidata:/^Q[1-9][0-9]*$/.test(wiki)?wiki:null,commons:/^File:.+/.test(String(media.wikimedia_commons||''))?media.wikimedia_commons:null};
+  const commons=String(media.wikimedia_commons||osm.wikimedia_commons||'').trim();
+  return{wikidata:/^Q[1-9][0-9]*$/.test(wiki)?wiki:null,commons:/^(?:File|Category):.+/i.test(commons)?commons:null};
 }
 async function wikiJson(url:string){const response=await fetch(url,{headers:{'User-Agent':'Luvia/1.0 (https://myluvia.app; exact linked place image)'},signal:AbortSignal.timeout(3500),redirect:'error'});if(!response.ok)throw new Error('PLACE_IMAGE_UNAVAILABLE');return response.json()}
+function mediaCandidate(page:any){
+  const info=page?.imageinfo?.[0],meta=info?.extmetadata||{},title=String(page?.title||info?.canonicaltitle||'');
+  if(!info?.url||!/^https:\/\/upload\.wikimedia\.org\//.test(info.url)||!meta?.LicenseShortName?.value||!meta?.Artist?.value)return null;
+  const readable=title.replace(/^File:/i,'').replace(/[_-]+/g,' ').toLowerCase();
+  if(/\.(?:svg|pdf|djvu|tiff?)$/i.test(title)||/\b(?:logo|icon|symbol|wappen|coat of arms|flag|karte|map|plan|diagram|schema|floor plan|grundriss)\b/.test(readable))return null;
+  const extension=/\.(?:jpe?g|webp)$/i.test(title)?2:/\.png$/i.test(title)?1:0;
+  return{score:extension,photo:{uri:info.thumburl||info.url,sourceUrl:info.descriptionurl,attribution:`${plain(meta.Artist.value)} · ${plain(meta.LicenseShortName.value)}`,attributionUrl:meta.LicenseUrl?.value||info.descriptionurl,license:plain(meta.LicenseShortName.value),provider:'wikimedia',linkedEntityReference:null,verified:true}};
+}
 export async function enrichLinkedMedia(place:any){
   if(!place||place.photos?.length)return place;
   const refs=linkedWiki(place),id=refs.commons||refs.wikidata;if(!id)return{...place,mediaStatus:'no-linked-image'};
@@ -22,8 +31,11 @@ export async function enrichLinkedMedia(place:any){
     }
     let photo=null;
     if(title){
-      const params=new URLSearchParams({action:'query',format:'json',titles:title,prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'960'}),data=await wikiJson(`https://commons.wikimedia.org/w/api.php?${params}`),page:any=Object.values(data.query?.pages||{})[0],info=page?.imageinfo?.[0],meta=info?.extmetadata;
-      if(info?.url&&/^https:\/\/upload\.wikimedia\.org\//.test(info.url)&&meta?.LicenseShortName?.value&&meta?.Artist?.value){photo={uri:info.thumburl||info.url,sourceUrl:info.descriptionurl,attribution:`${plain(meta.Artist.value)} · ${plain(meta.LicenseShortName.value)}`,attributionUrl:meta.LicenseUrl?.value||info.descriptionurl,license:plain(meta.LicenseShortName.value),provider:'wikimedia',entityReference:id,verified:true}}
+      const category=/^Category:/i.test(title),params=new URLSearchParams(category
+        ?{action:'query',format:'json',generator:'categorymembers',gcmtitle:title,gcmnamespace:'6',gcmtype:'file',gcmlimit:'20',prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'960'}
+        :{action:'query',format:'json',titles:title,prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'960'});
+      const data=await wikiJson(`https://commons.wikimedia.org/w/api.php?${params}`),candidates=(Object.values(data.query?.pages||{}) as any[]).map(mediaCandidate).filter(Boolean).sort((a:any,b:any)=>b.score-a.score);
+      if(candidates[0])photo={...candidates[0].photo,entityReference:String(place?.providerPlaceId||place?.id||id),linkedEntityReference:id};
     }
     if(mediaCache.size>=256)mediaCache.delete(mediaCache.keys().next().value!);mediaCache.set(id,{until:Date.now()+(photo?24*60*60_000:15*60_000),photo});return photo;
   })();

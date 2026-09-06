@@ -3,8 +3,12 @@ const OVERPASS_ENDPOINTS=Object.freeze([
   Object.freeze({url:'https://overpass-api.de/api/interpreter',method:'GET'}),
   Object.freeze({url:'https://overpass.private.coffee/api/interpreter',method:'GET'})
 ]);
-const HEDGE_DELAY_MS=900;
-const REQUEST_TIMEOUT_MS=6500;
+// Cold category reads are hedged early because a single overloaded public
+// Overpass instance must never hold the visible map for several seconds. The
+// result is cached for six hours, so the extra hedges only happen on a genuine
+// cold miss and the losing requests are aborted as soon as one source answers.
+const HEDGE_DELAY_MS=250;
+const REQUEST_TIMEOUT_MS=2200;
 const CACHE_SECONDS=6*60*60;
 const CATEGORY_KEYS=new Set(['food','accommodation','activities','themeparks','wellness','water','sights','photo','culture','nature','shopping','malls','nightlife','practical']);
 const CUISINE_BY_TYPE=Object.freeze({

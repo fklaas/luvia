@@ -29,6 +29,11 @@ for(const type of ['italian_restaurant','german_restaurant','mediterranean_resta
 assert.match(gateway,/maxResultCount:50,maxDistanceMeters:5000/,'every generated cuisine probe matches the real 50-result 5 km consumer window');
 assert.doesNotMatch(gateway.slice(gateway.indexOf('const CUISINE_HEALTH_PROBES'),gateway.indexOf('const HEALTH_PROBES')),/forceRefresh:true/,'repeated public cuisine diagnostics reuse their five-minute server cache');
 assert.match(gateway,/searchDegraded[\s\S]*30_000/,'degraded positive gateway cohorts are cached only briefly');
+assert.match(gateway,/const automaticOsmEligible=.*providers\.includes\('auto'\).*categoryKey.*strictTypeFiltering===true.*includedTypes\.length/s,'automatic specialty searches start the free cached OSM lane beside Geoapify without fanning out broad categories');
+assert.match(gateway,/AbortSignal\?\.timeout\?\.\(2400\)/,'Geoapify search has a bounded first-pin latency budget');
+assert.match(gateway,/const useNameFirst=Boolean\(name\)&&options\.strictTypeFiltering!==true/,'strict provider taxonomies never spend a serial venue-name miss first');
+assert.match(osm,/signal:AbortSignal\.timeout\(2800\).*provider:'openstreetmap-cache'/s,'the authenticated OSM cache lane has a bounded cold wait');
+const edge=fs.readFileSync('cloudflare-worker.js','utf8');assert.match(edge,/const HEDGE_DELAY_MS=250/);assert.match(edge,/const REQUEST_TIMEOUT_MS=2200/);
 assert.match(additional,/options\.strictTypeFiltering===true\?requested\.filter/,'only an explicitly selected cuisine activates provider cuisine mode');
 assert.match(additional,/holiday park\\b\/.test\(text\)\)return\['lodging','vacation_rental'\]/,'HERE Holiday Park is classified as accommodation instead of nature');
 assert.match(additional,/rv parks\?\\b\/.test\(text\)\)return\['lodging','campground'\]/,'HERE RV Parks are classified as accommodation instead of nature');
