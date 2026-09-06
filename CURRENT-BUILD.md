@@ -1,5 +1,7 @@
 # Luvia aktueller Integrationsstand
 
+Aktueller lokaler Nachtrag: App **13.82.168.119**, Core **4.82.238**. Die öffentliche KI-Ablehnung HTTP 429 erhält eine lesbare Fehlermeldung; geänderte Wünsche lösen einen alten Fehlerentwurf ab. 45 gezielte Composer-Verhaltensprüfungen bestanden, abschließende Regression und öffentliche Abnahme laufen.
+
 Lokaler Composer-Kandidat: App **13.82.168.118**, Core **4.82.237**. Bestätigter Intelligence-Reiseauftrag, ganzer Zeitraum, Datumwechsel und neue Reisegefühl-Szene. Zielsuche über vorhandenen Geoapify-Read ohne Google-Abhängigkeit. 43 gezielte Verhaltensprüfungen sowie 236/236 Safe Regression und NFR-0 3/3 bestanden; öffentliche Abnahme läuft. Kein P15/P17-Produktabschluss.
 
 Geprüfter Composer-Kandidat: App **13.82.168.117**, Core **4.82.236**, Commit **995dd47ca3a32626336697c06cbaf9d2935c4c7f**, Worker **d67daa6d-c84e-401b-8478-f758abaa227b**. 236/236 Safe Regression, NFR-0 3/3, 24 neue Verhaltensprüfungen und 30/30 öffentliche Byteidentität sind belegt. Sichtbar geprüft: echte Orte und Karte, Teilwahl mit Reload sowie lokale mobile Übernahme mit kontrollierten Schreibadaptern. Trip Composer und P15/P17 sind noch nicht produktfertig. Die .116-Aussage eines vollständigen Tagesentwurf-/Teilübernahme-Abschlusses wird durch diese genauere Abgrenzung ersetzt. Archiv: **89.090.937 Bytes**, SHA-256 **A21B18943F219CBE2F55DC9CEEBDC9FE41A5772D04DDC52E3975D3D0D65A16FD**. Stable Integration bleibt nach Abnahme auf App .104.

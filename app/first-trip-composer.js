@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.4.0-confirmed-intelligence-brief';
+  const VERSION='1.4.1-brief-error-recovery';
   const ROUTE='first-trip-composer';
   const STEPS=Object.freeze(['welcome','identity','feeling','destination','dates','people','modules','accent','ready']);
   const ALL_STEPS=Object.freeze([...STEPS,'brief','preview']);
@@ -131,7 +131,7 @@
     const mapNode=currentStep(state)==='preview'&&state.aiDraft?.status==='ready'&&state.mapSignature===state.aiDraft.signature?state.root.querySelector('[data-ftc-ai-map]'):null;
     if(!mapNode){state.mapProjection?.destroy?.();state.mapProjection=null;}
     const step=currentStep(state),copy=STEP_COPY[step];
-    if(step==='preview'&&state.data.entryMode==='ai'&&!state.confirmation&&['ready','brief-ready'].includes(state.aiDraft.status)&&(state.aiDraft.signature!==aiSignature(state)||state.aiDraft.profileSignature!==profileSignature()))state.aiDraft={status:'idle'};
+    if(step==='preview'&&state.data.entryMode==='ai'&&!state.confirmation&&['ready','brief-ready','error'].includes(state.aiDraft.status)&&(state.aiDraft.signature!==aiSignature(state)||state.aiDraft.profileSignature!==profileSignature()))state.aiDraft={status:'idle'};
     if(state.aiDraft.status==='ready')state.aiDraft.rehearsals=rehearseDraft(state);
     persist(state);
     state.root.innerHTML=`<section class="ftc" data-first-trip-composer data-step="${step}" data-mode="${state.mode}" data-entry-mode="${state.data.entryMode}" style="--ftc-accent:${esc(state.data.accent)}">${worldMarkup(state)}<header class="ftc-header"><button type="button" class="ftc-brand" data-ftc-close aria-label="Reiseerstellung schließen">${compassMarkup('is-brand')}<span><strong>LUVIA</strong><small>Eine neue Richtung beginnt.</small></span></button><button type="button" class="ftc-quiet" data-ftc-close>${state.mode==='first-use'?'Später fortsetzen':'Später fortsetzen'}</button></header>${progressMarkup(state)}<main class="ftc-stage" aria-live="polite">${panelMarkup(state)}</main><footer class="ftc-footer"><button type="button" class="ftc-back" data-ftc-back ${state.index===0?'hidden':''}><span>←</span> Zurück</button><div><small>${copy[0]}</small><strong>${copy[1]}</strong></div><button type="button" class="ftc-next" data-ftc-next ${step==='ready'?'hidden':''}>${copy[2]} <span>→</span></button></footer><div class="ftc-toast" data-ftc-toast role="status" aria-live="polite" hidden><i>!</i><span><strong></strong><small></small></span></div></section>`;
@@ -200,6 +200,11 @@
       try{const result=rehearse({entries,travelSpeed:effectiveTripPreferences(state).pace==='slow'?'slow':'balanced',contextEvidence:[]}),labels={ready:'Keine Terminüberschneidung',attention:'Puffer prüfen',blocked:'Konflikt'};return {dayId:day.id,status:result?.status||'unknown',statusLabel:labels[result?.status]||'Prüfung offen',summary:result?.status==='blocked'?'Die gewählten Zeiten überschneiden sich oder lassen zu wenig Wegpuffer.':entries.length+' Reisemomente · '+entries.reduce((sum,item)=>sum+Number(item.durationMinutes),0)+' Min. Programm. Wege und Öffnungszeiten sind noch zu prüfen.',raw:result};}catch{return {dayId:day.id,status:'unknown',statusLabel:'Prüfung nicht erreichbar',summary:'Die Tagesprüfung konnte gerade nicht abgeschlossen werden.'};}
     });
   }
+  function briefFailureMessage(error){
+    if(error?.code==='AI_RATE_LIMITED')return 'Luvia AI nimmt gerade keine weiteren Anfragen an. Bitte versucht es später erneut. Eure Angaben bleiben erhalten.';
+    if(['AI_EDGE_ERROR','AI_PAYLOAD_CIRCUIT_OPEN'].includes(error?.code)||/Edge Function returned a non-2xx/i.test(error?.message||''))return 'Luvia AI ist gerade nicht verfügbar. Eure Angaben bleiben erhalten. Ihr könnt sie bearbeiten und den Entwurf später erneut starten.';
+    return error?.message||'Der Reiseentwurf konnte noch nicht geladen werden.';
+  }
   async function loadAiDayDraft(state,{force=false,confirmedBrief=false}={}){
     const signature=aiSignature(state),initialProfileSignature=profileSignature();if(!force&&state.aiDraft.signature===signature&&state.aiDraft.profileSignature===profileSignature()&&['loading','ready'].includes(state.aiDraft.status))return;
     const brief=confirmedBrief&&state.aiDraft?.signature===signature&&state.aiDraft?.profileSignature===profileSignature()?state.aiDraft.brief:null;
@@ -215,7 +220,7 @@
         state.aiDraft={status:'brief-ready',signature,profileSignature:profileSignature(),brief:interpreted,places:[],rehearsals:[]};render(state);return;
       }
       const owner=trip();if(typeof owner?.composition?.composeDayDraft!=='function')throw new Error('Der Reiseentwurf ist noch nicht verfügbar.');const result=await readAiPlaces(state);if(!current())return;if(initialProfileSignature!==profileSignature())throw new Error('Eure Profilvorlieben haben sich geändert. Bitte erneut prüfen.');if(!result.places.length)throw new Error('Für diese Auswahl sind gerade keine überprüften Vorschläge verfügbar. Das bedeutet nicht, dass es vor Ort keine passenden Orte gibt.');const draft=owner.composition.composeDayDraft(state.data,{places:result.places,brief,generatedAt:new Date().toISOString()});state.draftSelections=(draft.days||[]).flatMap(day=>day.entries||[]).map(entry=>({...entry,action:entry.suggestedAction||(entry.date?'planned':'saved')}));state.aiDraft={status:'ready',brief,signature,profileSignature:result.profileSignature,draft,places:result.places,coverage:result.coverage,rehearsals:[],error:null};state.aiDraft.rehearsals=rehearseDraft(state);render(state);queueMicrotask(()=>hydrateAiMedia(state,signature).catch(()=>{}));
-    }catch(error){if(!current())return;state.aiDraft={status:'error',signature,draft:null,places:[],rehearsals:[],error:error?.message||'Der Reiseentwurf konnte noch nicht geladen werden.'};render(state,{focus:true});}
+    }catch(error){if(!current())return;state.aiDraft={status:'error',signature,profileSignature:profileSignature(),draft:null,places:[],rehearsals:[],error:briefFailureMessage(error)};render(state,{focus:true});}
   }
   function mapPlaces(state){const selected=new Set(state.draftSelections.filter(item=>item.action!=='excluded').map(item=>item.providerPlaceId));return state.aiDraft.places.filter(place=>selected.has(providerId(place)))}
   function mountAiMap(state){if(state.mapProjection)return;const container=state.root.querySelector('[data-ftc-ai-map]'),spatial=window.LuviaPlacesSpatialExperience;if(!container)return;if(typeof spatial?.mountProjection!=='function'){container.innerHTML='<span class="ftc-ai-map-fallback">Eure Vorschläge bleiben verfügbar. Die Karte konnte gerade nicht geladen werden.</span>';return}const selected=state.draftSelections.find(item=>item.action!=='excluded');state.mapSignature=state.aiDraft.signature;state.mapProjection=spatial.mountProjection(container,mapPlaces(state),{selectedId:selected?.providerPlaceId||null,initialCenter:{lat:Number(state.data.destination.latitude),lng:Number(state.data.destination.longitude)},category:'all',label:'Orte für eure Reise',onSelect:id=>{const normalized=String(id).replace(/^places\//,''),card=Array.from(state.root.querySelectorAll('[data-ftc-ai-place]')).find(node=>node.dataset.ftcAiPlace===normalized);card?.scrollIntoView?.({behavior:reduceMotion()?'auto':'smooth',block:'center'});card?.classList.add('is-map-selected');setTimeout(()=>card?.classList.remove('is-map-selected'),1400)}})}
