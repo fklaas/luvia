@@ -1,5 +1,13 @@
 # PCR P15/P17 — Kanonischer Trip Composer
 
+## Ergänzender Scope: Gestenfläche .121 und verbindliches Gestaltungsziel
+
+Problem: Die .120-Geste ist nur am Canvas gebunden; Ortsbeschriftungen liegen als separate Schicht darüber. Trackpad-/Mausradgesten werden nicht behandelt und scrollen deshalb den Composer. Owner: Consumer Experience; Platform trägt ausschließlich die Versions-/Bundle-Auslieferung. Eine gemeinsame, räumlich begrenzte Gestenfläche umfasst Canvas und Ortsbeschriftungen. Ziehen und Pinch verändern nur die Kamera; Trackpadbewegung dreht, Strg-/Pinchgeste zoomt. Außerhalb bleibt Scrollen verfügbar. Antippen, Tastatur, Abbruch und Listener-Cleanup bleiben kompatibel. Keine Änderung an Domain-Verträgen, DB, Secrets oder Functions.
+
+Betroffene Dateien: app/composer-travel-world.js, app/first-trip-composer.css, bestehender Geometrietest, generierte Runtime-/Versions-/Inventardateien sowie aktive Planung. Prüfplan: Kameraänderung und verhinderter Scroll-Default, Marker-Drag ohne Auswahl, einfacher Marker-Tap, Mehrfinger-/Abbruch-/Cleanup-Verhalten, lokaler und öffentlicher Browser, kontrollierte Regression, Byteidentität. Rollout als unveränderlicher Integration-Kandidat .121, danach Wiederherstellung von Stable .104. Rollback bleibt Worker 7cda6e20-3b33-442a-b5e6-1c2da8256faf.
+
+Die neue Gestaltungsvorgabe wird zusätzlich als Bewegungsstudie und Produktvertrag festgehalten: Welt → Kontinent → Land → Region → Ort; durchgehende räumliche Szenen; drei fachlich verschiedene Ergebnisse „Nur anlegen“, „Mit Vorschlägen“, „Luvia plant“. Die Studie ist keine ausgelieferte vollständige KI-Planung. P15/P17 bleiben teilweise.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

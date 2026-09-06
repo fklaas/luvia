@@ -21,4 +21,26 @@ assert.equal(world.countryAt(features,-30,0),undefined);checks++;
 const holed=[{properties:{name:'Test'},geometry:{type:'Polygon',coordinates:[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[3,3],[7,3],[7,7],[3,7],[3,3]]]}}];
 assert.equal(world.countryAt(holed,5,5),undefined);assert.equal(world.countryAt(holed,1,1).properties.name,'Test');checks++;
 assert.ok(features.every(f=>f.properties.name&&['Polygon','MultiPolygon'].includes(f.geometry.type)));checks++;
-console.log(`P15 travel world: ${checks}/${checks} projection, geographic picking and data checks PASS`);
+// Real mount with controlled DOM/events: gesture ownership, not a copy of the implementation.
+function node(){const listeners=new Map(),captures=new Set();return {listeners,clientWidth:500,clientHeight:400,dataset:{},classList:{add(){},remove(){}},closest(){return null},
+  addEventListener(name,fn,options){listeners.set(name,{fn,options});},removeEventListener(name){listeners.delete(name);},
+  setPointerCapture(id){captures.add(id);},hasPointerCapture(id){return captures.has(id);},releasePointerCapture(id){captures.delete(id);},
+  getBoundingClientRect(){return {left:0,top:0,width:500,height:400};},emit(name,values={}){const event={target:this,button:0,pointerId:1,clientX:100,clientY:100,cancelable:true,preventDefault(){this.prevented=true;},stopPropagation(){this.stopped=true;},stopImmediatePropagation(){this.stopped=true;},...values};listeners.get(name)?.fn(event);return event;}};}
+const surface=node(),canvas=node(),marker=node(),status=node();marker.dataset={worldPoint:'Lissabon',lng:'-9.14',lat:'38.71'};marker.closest=()=>marker;
+context.fetch=()=>new Promise(()=>{});context.requestAnimationFrame=()=>1;context.cancelAnimationFrame=()=>{};context.performance={now:()=>0};context.ResizeObserver=class{observe(){}disconnect(){}};
+const host={querySelector:s=>s==='.ftc-atlas-surface'?surface:s==='[data-ftc-world-canvas]'?canvas:status,querySelectorAll:s=>s==='[data-world-point]'?[marker]:[]};
+const picks=[],mounted=world.mount(host,{onPick:pick=>picks.push(pick)});let before=mounted.snapshot();
+surface.emit('pointerdown',{target:marker});surface.emit('pointermove',{clientX:150,clientY:120});surface.emit('pointerup',{clientX:150,clientY:120});
+assert.notEqual(mounted.snapshot().yaw,before.yaw);assert.equal(picks.length,0);checks++;
+assert.equal(surface.emit('click',{detail:1}).stopped,true);checks++;
+surface.emit('pointerdown',{target:marker});surface.emit('pointerup');assert.equal(picks.length,1);assert.equal(picks[0].name,'Lissabon');checks++;
+assert.notEqual(surface.emit('click',{detail:0}).stopped,true);marker.emit('click',{detail:0});assert.equal(picks.length,2);checks++;
+before=mounted.snapshot();const wheel=surface.emit('wheel',{deltaX:30,deltaY:20,deltaMode:0});assert.equal(wheel.prevented,true);assert.equal(wheel.stopped,true);assert.notEqual(mounted.snapshot().yaw,before.yaw);assert.equal(surface.listeners.get('wheel').options.passive,false);checks++;
+before=mounted.snapshot();surface.emit('wheel',{deltaX:0,deltaY:-20,deltaMode:0,ctrlKey:true});assert.ok(mounted.snapshot().zoom>before.zoom);checks++;
+assert.equal(surface.emit('touchmove').prevented,true);assert.equal(canvas.listeners.has('touchmove'),false);checks++;
+surface.emit('pointerdown',{pointerId:1,target:marker});surface.emit('pointerdown',{pointerId:2,clientX:180,target:marker});before=mounted.snapshot();surface.emit('pointermove',{pointerId:2,clientX:220});assert.ok(mounted.snapshot().zoom>before.zoom);surface.emit('pointerup',{pointerId:2});surface.emit('pointerup',{pointerId:1});assert.equal(picks.length,2);checks++;
+surface.emit('pointerdown',{target:marker});surface.emit('pointercancel');surface.emit('pointerup');assert.equal(picks.length,2);assert.equal(surface.hasPointerCapture(1),false);checks++;
+surface.emit('pointerdown',{target:marker});surface.emit('lostpointercapture');surface.emit('pointerup');assert.equal(picks.length,2);checks++;
+before=mounted.snapshot();surface.emit('pointerdown',{button:2,target:marker});surface.emit('pointermove',{clientX:400});surface.emit('pointerup');assert.equal(mounted.snapshot().yaw,before.yaw);checks++;
+surface.emit('pointerdown');mounted.destroy();assert.equal(surface.listeners.size,0);assert.equal(marker.listeners.size,0);assert.equal(canvas.listeners.size,0);assert.equal(surface.hasPointerCapture(1),false);checks++;
+console.log(`P15 travel world: ${checks}/${checks} geometry, picking and gesture checks PASS`);

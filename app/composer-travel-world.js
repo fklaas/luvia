@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   // Consumer presentation only. Geographic picks are search intent, never Place truth.
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1';
   const PI = Math.PI, RAD = PI / 180;
   const ESC = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const REGIONS = [['Europa',15,43],['Asien',108,28],['Amerika',-90,22],['Afrika',20,0],['Ozeanien',140,-23]];
@@ -36,8 +36,8 @@
   }
   function markup() {
     return `<div class="ftc-atlas" data-ftc-atlas><div class="ftc-atlas-orbit orbit-one" aria-hidden="true"></div><div class="ftc-atlas-orbit orbit-two" aria-hidden="true"></div><div class="ftc-atlas-glow" aria-hidden="true"></div>
-      <canvas data-ftc-world-canvas tabindex="0" role="img" aria-label="Interaktive Weltkarte. Mit Pfeiltasten drehen, mit Plus und Minus zoomen, mit Eingabe das Land in der Mitte suchen. Alternativ ein Land aus der Liste auswählen."></canvas>
-      <div class="ftc-atlas-points">${POINTS.map(([name,lng,lat])=>`<button type="button" data-world-point="${ESC(name)}" data-lng="${lng}" data-lat="${lat}" hidden><i></i><span>${ESC(name)}</span></button>`).join('')}</div>
+      <div class="ftc-atlas-surface"><canvas data-ftc-world-canvas tabindex="0" role="img" aria-label="Interaktive Weltkarte. Ziehen oder Trackpad zum Drehen, zwei Finger zum Zoomen. Mit Pfeiltasten drehen, mit Plus und Minus zoomen, mit Eingabe das Land in der Mitte suchen. Alternativ ein Land aus der Liste auswählen."></canvas>
+      <div class="ftc-atlas-points">${POINTS.map(([name,lng,lat])=>`<button type="button" data-world-point="${ESC(name)}" data-lng="${lng}" data-lat="${lat}" hidden><i></i><span>${ESC(name)}</span></button>`).join('')}</div></div>
       <div class="ftc-atlas-controls"><button type="button" data-world-zoom="1" aria-label="Weltkarte vergrößern">+</button><button type="button" data-world-zoom="-1" aria-label="Weltkarte verkleinern">−</button></div>
       <span class="ftc-atlas-status" data-world-status role="status">Die Welt öffnet sich …</span>
       <nav class="ftc-atlas-regions" aria-label="Weltregion erkunden">${REGIONS.map(([name,lng,lat])=>`<button type="button" data-world-region="${name}" data-lng="${lng}" data-lat="${lat}">${name}</button>`).join('')}</nav>
@@ -91,8 +91,9 @@
     if(!host)return null;
     const canvas=host.querySelector('[data-ftc-world-canvas]'),status=host.querySelector('[data-world-status]');
     if(!canvas)return null;
+    const surface=host.querySelector('.ftc-atlas-surface')||canvas;
     const view={yaw:Number(initial.yaw??15*RAD),pitch:Number(initial.pitch??34*RAD),zoom:Number(initial.zoom??1)};
-    let alive=true,renderer=null,features=[],frame=0,flight=0,dragged=false,pinchDistance=0;
+    let alive=true,renderer=null,features=[],frame=0,flight=0,dragged=false,pinchDistance=0,handledPointer=false;
     const pointers=new Map(),cleanup=[];
     const listen=(target,event,handler,options)=>{target.addEventListener(event,handler,options);cleanup.push(()=>target.removeEventListener(event,handler,options));};
     const radius=()=>Math.min(canvas.clientWidth,canvas.clientHeight)*.43*view.zoom;
@@ -104,17 +105,25 @@
     function fly(lng,lat){cancelAnimationFrame(flight);const from={...view},target={yaw:Number(lng)*RAD,pitch:clamp(Number(lat)*RAD,-1.2,1.2)},start=performance.now();let delta=target.yaw-from.yaw;while(delta>PI)delta-=2*PI;while(delta<-PI)delta+=2*PI;const tick=now=>{if(!alive)return;const t=reducedMotion?1:clamp((now-start)/850,0,1),ease=1-Math.pow(1-t,3);view.yaw=from.yaw+delta*ease;view.pitch=from.pitch+(target.pitch-from.pitch)*ease;request();if(t<1)flight=requestAnimationFrame(tick);};flight=requestAnimationFrame(tick);}
     function pickAt(clientX,clientY){const box=canvas.getBoundingClientRect();const point=renderer?.flat?{lng:(clientX-box.left)/box.width*360-180,lat:90-((clientY-box.top)/box.height-.12)/.65*180}:unproject((clientX-box.left-box.width/2)/radius(),-(clientY-box.top-box.height/2)/radius(),view.yaw,view.pitch);if(!point)return;const country=countryAt(features,point.lng,point.lat);if(country){status.textContent=`${country.properties.name} entdecken`;onPick({name:country.properties.name,...point});}else status.textContent='Dreht die Welt oder sucht euren Wunschort direkt.';}
     host.querySelectorAll('[data-world-region]').forEach(button=>listen(button,'click',()=>{fly(button.dataset.lng,button.dataset.lat);host.querySelectorAll('[data-world-region]').forEach(node=>node.setAttribute('aria-pressed',String(node===button)));}));
-    host.querySelectorAll('[data-world-point]').forEach(button=>listen(button,'click',()=>{fly(button.dataset.lng,button.dataset.lat);onPick({name:button.dataset.worldPoint,lng:Number(button.dataset.lng),lat:Number(button.dataset.lat)});}));
+    const pickMarker=button=>{fly(button.dataset.lng,button.dataset.lat);onPick({name:button.dataset.worldPoint,lng:Number(button.dataset.lng),lat:Number(button.dataset.lat)});};
+    host.querySelectorAll('[data-world-point]').forEach(button=>listen(button,'click',()=>pickMarker(button)));
     host.querySelectorAll('[data-world-zoom]').forEach(button=>listen(button,'click',()=>{view.zoom=clamp(view.zoom+Number(button.dataset.worldZoom)*.14,.8,1.55);request();}));
     listen(canvas,'keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Enter'].includes(event.key))return;event.preventDefault();cancelAnimationFrame(flight);if(event.key==='Enter'){const rect=canvas.getBoundingClientRect();pickAt(rect.left+rect.width/2,rect.top+rect.height/2);return;}if(event.key==='ArrowLeft')view.yaw-=.15;if(event.key==='ArrowRight')view.yaw+=.15;if(event.key==='ArrowUp')view.pitch=clamp(view.pitch+.12,-1.2,1.2);if(event.key==='ArrowDown')view.pitch=clamp(view.pitch-.12,-1.2,1.2);if(event.key==='+'||event.key==='-')view.zoom=clamp(view.zoom+(event.key==='+'?.14:-.14),.8,1.55);request();});
-    listen(canvas,'pointerdown',event=>{cancelAnimationFrame(flight);if(!pointers.size)dragged=false;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY});canvas.setPointerCapture?.(event.pointerId);if(pointers.size===2){const [a,b]=[...pointers.values()];pinchDistance=Math.hypot(a.x-b.x,a.y-b.y);dragged=true;}});
-    listen(canvas,'pointermove',event=>{const old=pointers.get(event.pointerId);if(!old)return;const dx=event.clientX-old.x,dy=event.clientY-old.y;pointers.set(event.pointerId,{...old,x:event.clientX,y:event.clientY});if(Math.hypot(event.clientX-old.startX,event.clientY-old.startY)>7)dragged=true;if(pointers.size===2){const [a,b]=[...pointers.values()],distance=Math.hypot(a.x-b.x,a.y-b.y);if(pinchDistance>0)view.zoom=clamp(view.zoom*distance/pinchDistance,.8,1.55);pinchDistance=distance;}else{view.yaw-=dx*.006;view.pitch=clamp(view.pitch+dy*.006,-1.2,1.2);}request();});
-    listen(canvas,'pointerup',event=>{const known=pointers.has(event.pointerId);pointers.delete(event.pointerId);if(known&&!dragged)pickAt(event.clientX,event.clientY);});
-    listen(canvas,'pointercancel',event=>{pointers.delete(event.pointerId);dragged=true;});
-    listen(canvas,'lostpointercapture',event=>pointers.delete(event.pointerId));
+    // Canvas and labels share one gesture owner. A drag on a label must not scroll or select it.
+    listen(surface,'pointerdown',event=>{if(event.button!==undefined&&event.button!==0)return;cancelAnimationFrame(flight);if(!pointers.size)dragged=false;handledPointer=true;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY,marker:event.target.closest?.('[data-world-point]')});surface.setPointerCapture?.(event.pointerId);surface.classList?.add('is-dragging');if(pointers.size>=2){const [a,b]=[...pointers.values()];pinchDistance=Math.hypot(a.x-b.x,a.y-b.y);dragged=true;}});
+    listen(surface,'pointermove',event=>{const old=pointers.get(event.pointerId);if(!old)return;const dx=event.clientX-old.x,dy=event.clientY-old.y;pointers.set(event.pointerId,{...old,x:event.clientX,y:event.clientY});if(Math.hypot(event.clientX-old.startX,event.clientY-old.startY)>7)dragged=true;if(pointers.size>=2){const [a,b]=[...pointers.values()],distance=Math.hypot(a.x-b.x,a.y-b.y);if(pinchDistance>0)view.zoom=clamp(view.zoom*distance/pinchDistance,.8,1.55);pinchDistance=distance;}else if(dragged){view.yaw-=dx*.006;view.pitch=clamp(view.pitch+dy*.006,-1.2,1.2);}request();});
+    const releasePointer=id=>{pointers.delete(id);if(!pointers.size)surface.classList?.remove('is-dragging');if(surface.hasPointerCapture?.(id))surface.releasePointerCapture(id);};
+    listen(surface,'pointerup',event=>{const pointer=pointers.get(event.pointerId);releasePointer(event.pointerId);if(pointer&&!dragged){if(pointer.marker)pickMarker(pointer.marker);else pickAt(event.clientX,event.clientY);}});
+    listen(surface,'pointercancel',event=>{dragged=true;releasePointer(event.pointerId);});
+    listen(surface,'lostpointercapture',event=>{if(pointers.has(event.pointerId))dragged=true;pointers.delete(event.pointerId);if(!pointers.size)surface.classList?.remove('is-dragging');});
+    // Native/keyboard clicks (detail=0) still select; pointer selection is handled exactly once above.
+    listen(surface,'click',event=>{if(handledPointer&&event.detail>0){event.preventDefault();event.stopImmediatePropagation();}},true);
+    listen(surface,'wheel',event=>{if(event.cancelable)event.preventDefault();event.stopPropagation();cancelAnimationFrame(flight);const unit=event.deltaMode===1?16:event.deltaMode===2?canvas.clientHeight:1;if(event.ctrlKey)view.zoom=clamp(view.zoom*Math.exp(-event.deltaY*unit*.005),.8,1.55);else{view.yaw-=event.deltaX*unit*.002;view.pitch=clamp(view.pitch+event.deltaY*unit*.002,-1.2,1.2);}request();},{passive:false});
+    // Scoped Safari fallback: controls and the surrounding page keep their native scrolling.
+    listen(surface,'touchmove',event=>{if(event.cancelable)event.preventDefault();},{passive:false});
     const observer=new ResizeObserver(request);observer.observe(canvas);
     const ready=load().then(data=>{if(!alive)return;features=data.features;const select=host.querySelector('[data-world-country]');select.innerHTML='<option value="">Land auswählen …</option>'+[...features].sort((a,b)=>a.properties.name.localeCompare(b.properties.name,'de')).map(feature=>`<option value="${ESC(feature.properties.name)}">${ESC(feature.properties.name)}</option>`).join('');listen(select,'change',()=>{if(select.value)onPick({name:select.value})});renderer=globeRenderer(canvas,texture(features));host.dataset.worldReady='true';status.textContent='Drehen. Entdecken. Euren Ort berühren.';request();}).catch(()=>{if(alive){host.dataset.worldReady='error';status.textContent='Die Weltkarte ist gerade nicht verfügbar. Die direkte Ortsuche bleibt bereit.';}});
-    return Object.freeze({ready,fly,snapshot:()=>({...view}),destroy(){alive=false;cancelAnimationFrame(frame);cancelAnimationFrame(flight);observer.disconnect();cleanup.forEach(fn=>fn());pointers.clear();renderer?.destroy();}});
+    return Object.freeze({ready,fly,snapshot:()=>({...view}),destroy(){alive=false;cancelAnimationFrame(frame);cancelAnimationFrame(flight);observer.disconnect();cleanup.forEach(fn=>fn());for(const id of pointers.keys())if(surface.hasPointerCapture?.(id))surface.releasePointerCapture(id);pointers.clear();surface.classList?.remove('is-dragging');renderer?.destroy();}});
   }
   window.LuviaComposerTravelWorld=Object.freeze({version:VERSION,markup,mount,project,unproject,countryAt});
 })();
