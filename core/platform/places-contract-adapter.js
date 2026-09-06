@@ -3,7 +3,7 @@
 
   const CONTRACT_ID='places.v1';
   const VERSION='1';
-  const RUNTIME_VERSION='1.9.0-osm-exact-media';
+  const RUNTIME_VERSION='2.0.0-canonical-destination-cache';
   const EVENT_PREFIX='luvia:';
 
   function unavailable(provider){
@@ -144,10 +144,25 @@
     const places=freezeArray([...byId.values()].slice(0,viewportLimit)),providerDiagnostics=freezeArray(successful.map(result=>Object.freeze(result.value.response?.data?.providers||{}))),requestDiagnostics=freezeArray(successful.map(result=>Object.freeze({requestId:clean(result.value.response?.meta?.requestId),durationMs:number(result.value.response?.meta?.durationMs),cacheHit:result.value.response?.meta?.cache?.hit===true,providerMode:clean(result.value.response?.data?.providers?.mode)})));
     return Object.freeze({places,count:places.length,viewport:Object.freeze({bounds:Object.freeze(viewport),center:Object.freeze({latitude:Number(center.latitude),longitude:Number(center.longitude)})}),tiles:Object.freeze({requested:tiles.length,fulfilled:successful.length,providerPageSize,maximumUniqueResults:viewportLimit,complete:successful.length===tiles.length&&successful.every(result=>result.value.places.length<providerPageSize),strategy:geoapifyOnly?'single-rectangle-geoapify':'four-tile-legacy'}),providerDiagnostics,requestDiagnostics,cache:Object.freeze({hit:false,forced:options.forceRefresh===true})});
   }
+  function destinationCacheValues(){
+    const service=globalThis.LuviaDestination,values=[service?.getActive?.(),...(service?.list?.()||[])].filter(Boolean),seen=new Set();
+    return values.filter(source=>{const id=clean(source.placeId||source.providerPlaceId)?.replace(/^places\//,'');if(!id||seen.has(id))return false;seen.add(id);return true});
+  }
+  function cachedDestinations(query=''){
+    const needle=String(query||'').trim().toLocaleLowerCase('de-DE');if(!needle)return[];
+    return destinationCacheValues().map(source=>{const placeId=clean(source.placeId||source.providerPlaceId)?.replace(/^places\//,''),name=clean(source.name||source.destinationName||source.displayName),formattedAddress=clean(source.formattedAddress||source.displayName||[name,source.country].filter(Boolean).join(', ')),haystack=`${name||''} ${formattedAddress||''}`.toLocaleLowerCase('de-DE');return haystack.includes(needle)?Object.freeze({placeId,text:formattedAddress||name}):null}).filter(Boolean);
+  }
+  function cachedDestination(placeId){
+    const id=clean(placeId)?.replace(/^places\//,''),source=destinationCacheValues().find(item=>clean(item.placeId||item.providerPlaceId)?.replace(/^places\//,'')===id);if(!source)return null;
+    const center=source.center||source.location||source.coordinates||{},name=clean(source.name||source.destinationName||source.displayName)||'Reiseziel',country=clean(typeof source.country==='object'?source.country.name:source.country)||'',formattedAddress=clean(source.formattedAddress||source.displayName||[name,country].filter(Boolean).join(', '))||name;
+    return Object.freeze({owner:'places',contractId:CONTRACT_ID,placeId:id,name,formattedAddress,country,countryCode:String(source.countryCode||source.country?.code||'').toUpperCase(),latitude:number(center.latitude??center.lat??source.latitude),longitude:number(center.longitude??center.lng??source.longitude),source:'destination-cache'});
+  }
   async function suggestDestinations(query,options={}){
+    const cached=cachedDestinations(query);
+    if(cached.length)return Object.freeze({owner:'places',contractId:CONTRACT_ID,sessionToken:'',source:'destination-cache',suggestions:freezeArray(cached.slice(0,6))});
     const api=gateway();
     if(typeof api.autocomplete!=='function')unavailable('LuviaPlaces.autocomplete');
-    const response=await api.autocomplete(String(query||'').trim(),{...options,includedType:'(cities)'});
+    const response=await api.autocomplete(String(query||'').trim(),{...options,timeoutMs:Number(options.timeoutMs)||7000,includedType:'(cities)'});
     const rows=response?.data?.suggestions||response?.suggestions||[];
     const suggestions=freezeArray(rows.map(item=>Object.freeze({
       placeId:clean(item?.placeId||item?.providerPlaceId||item?.id),
@@ -156,6 +171,7 @@
     return Object.freeze({owner:'places',contractId:CONTRACT_ID,sessionToken:clean(response?.data?.sessionToken||response?.sessionToken),suggestions});
   }
   async function getDestination(placeId,options={}){
+    const cached=cachedDestination(placeId);if(cached)return cached;
     const response=await gateway().details(placeId,options||{}),source=response?.data?.place||response?.data||response||{},projected=detailsProjection(source)||{};
     const components=source.addressComponents||source.raw?.addressComponents||[];
     const country=components.find(item=>(item?.types||[]).includes('country'));

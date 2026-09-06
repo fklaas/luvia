@@ -8,6 +8,8 @@ Intern angenommener, unveränderlicher P12-Kandidat: **13.82.168.113**, Core **4
 
 Intern belegter, unveränderlicher P15/P17-Foundation-Kandidat: **13.82.168.114**, Core **4.82.233**, Commit **f1f732e8ca9a2cc2a209e4c58eb07ae4c9c3effa**, Worker **cf8876f5-26b4-426a-bab8-24017a0cf2d6**. Der gemeinsame Trip Composer besitzt die drei Einstiege Geführt, Schnellstart und Luvia AI mit 9/5/7 Schritten; Anfragekontext, reisebezogene Vorlieben und bestätigungspflichtige Profilübergabe werden getrennt. Der lokale sichtbare AI-End-to-End-Lauf, 235/235 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität sind grün. Archiv: 88.911.199 Bytes, SHA-256 **8AD1359F3F3D2D3609E60A655B7767E446064FD26312CA945BBFEB840C26229D**. Die öffentliche Zielsuche blieb auf „Suche läuft …“ stehen; echter Tagesentwurf, Teilübernahme und Trip-Lifecycle bleiben deshalb offen. Stable Integration wurde nach der Abnahme auf App .104 / Core .223 zurückgestellt.
 
+Lokaler P15/P17-Zielsuche-Kandidat: **13.82.168.115**, Core **4.82.234**. Ein bereits kanonisch bekanntes aktives Reiseziel wird kontingentfrei aus dem Destination-/Places-Cache vorgeschlagen und bestätigt. Externe Zielvorschläge besitzen eine harte sieben Sekunden lange Backendfrist; Erfolg, leeres Ergebnis und Fehler verlassen den Ladezustand sichtbar, Fehler bieten „Erneut suchen“. Öffentliche Abnahme und unveränderlicher Worker-Beleg stehen noch aus.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 

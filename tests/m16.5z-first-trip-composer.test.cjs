@@ -33,6 +33,8 @@ assert.match(composer,/window\.LuviaPlacesContractV1/);
 assert.doesNotMatch(composer,/window\.LuviaPlaces\|\|window\.LuviaPlacesGateway/);
 assert.match(composer,/if\(!state\.keyHandler\)/,'composer must install exactly one keyboard handler across re-renders');
 assert.match(composer,/Bitte einen Vorschlag aus der Suche wählen/);
+assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-ftc-destination-retry/);assert.match(composer,/Vorschläge bereit/);assert.match(composer,/Zielsuche nicht erreichbar/);
+assert.match(placesAdapter,/destination-cache/);assert.match(placesAdapter,/timeoutMs:Number\(options\.timeoutMs\)\|\|7000/);
 const accents=composer.slice(composer.indexOf('const ACCENTS='),composer.indexOf('const SCENES='));
 assert.equal((accents.match(/\['[a-z]+','#/g)||[]).length,50,'Composer must expose the same 50 journey tones as the Landingpage');
 assert.match(composer,/ftc-ready-symbol/);

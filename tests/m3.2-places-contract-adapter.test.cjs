@@ -37,6 +37,7 @@ const window={
   addEventListener(type,fn){if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(fn)},
   dispatchEvent(event){published.push(event);for(const fn of listeners.get(event.type)||[])fn(event);return true}
 };
+window.LuviaDestination={getActive:()=>({name:'Scharbeutz',displayName:'Scharbeutz, Deutschland',country:'Deutschland',countryCode:'DE',placeId:'geoapify:scharbeutz',center:{lat:54.0266,lng:10.7547}}),list:()=>[]};
 
 const rawPlace={
   id:'p1',tripId:'t1',providerPlaceId:'places/google-1',primaryType:'restaurant',roles:['food'],
@@ -89,13 +90,13 @@ window.LuviaPlatformPorts={
 };
 window.LuviaGlobalContracts={register(def){calls.registered.push(def)}};
 
-vm.runInNewContext(domainCoreSource+'\n'+source,{window,CustomEvent,console,Date,Number,Object,Array,String,Boolean,TypeError,Error,Set,Map,LuviaPlacesDiscoveryService:window.LuviaPlacesDiscoveryService,LuviaPlatformPorts:window.LuviaPlatformPorts});
+vm.runInNewContext(domainCoreSource+'\n'+source,{window,CustomEvent,console,Date,Number,Object,Array,String,Boolean,TypeError,Error,Set,Map,LuviaDestination:window.LuviaDestination,LuviaPlacesDiscoveryService:window.LuviaPlacesDiscoveryService,LuviaPlatformPorts:window.LuviaPlatformPorts});
 const api=window.LuviaPlacesContractV1;
 assert(api,'Places contract must be installed');
 assert.strictEqual(window.LuviaPlacesContract,api,'latest alias must reference v1 object');
 assert.strictEqual(api.contractId,'places.v1');
 assert.strictEqual(api.version,'1');
-assert.strictEqual(api.runtimeVersion,'1.9.0-osm-exact-media');
+assert.strictEqual(api.runtimeVersion,'2.0.0-canonical-destination-cache');
 assert(Object.isFrozen(api));
 assert.deepStrictEqual([...api.events],['places.changed','place.lifecycle.changed','place.visit.changed','place.plan.changed','place.favorite.changed']);
 assert.deepStrictEqual(Object.keys(api.reads),['localSearchRadius','search','searchViewport','getRoute','getPlace','listPlaces','getDetails','getCard','suggestDestinations','getDestination','listSaved','recommend','getActiveDiscovery','getProfileFit','getLifecycle','categories','routeDiscovery','createDeepLink','pendingVisits','getVisit','visitRecoveries','visitRecovery']);
@@ -166,6 +167,15 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(destinationSuggestions.sessionToken,'places-session-1');
   assert.deepStrictEqual(JSON.parse(JSON.stringify(destinationSuggestions.suggestions)),[{placeId:'places/copenhagen',text:'Kopenhagen, Dänemark'}]);
   assert.strictEqual(calls.autocomplete[0].options.includedType,'(cities)');
+  assert.strictEqual(calls.autocomplete[0].options.timeoutMs,7000);
+
+  const cachedSuggestions=await api.suggestDestinations('Scharbeutz',{languageCode:'de'});
+  assert.strictEqual(cachedSuggestions.source,'destination-cache');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(cachedSuggestions.suggestions)),[{placeId:'geoapify:scharbeutz',text:'Scharbeutz, Deutschland'}]);
+  assert.strictEqual(calls.autocomplete.length,1,'the canonical active destination must not consume provider quota');
+  const cachedDestination=await api.getDestination('geoapify:scharbeutz');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(cachedDestination)),{owner:'places',contractId:'places.v1',placeId:'geoapify:scharbeutz',name:'Scharbeutz',formattedAddress:'Scharbeutz, Deutschland',country:'Deutschland',countryCode:'DE',latitude:54.0266,longitude:10.7547,source:'destination-cache'});
+  assert.strictEqual(calls.details.length,1,'cached destination confirmation must not add a provider details read');
 
   const destination=await api.getDestination('places/copenhagen',{sessionToken:destinationSuggestions.sessionToken});
   assert(Object.isFrozen(destination));
