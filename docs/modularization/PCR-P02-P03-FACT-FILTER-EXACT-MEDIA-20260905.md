@@ -334,3 +334,12 @@ P02/P03 bleiben **TEILWEISE**.
 `P02-P03-map-first-render-photo-matrix`: den sichtbaren Erstaufbau von Places
 und Stays auf höchstens drei Sekunden bringen, danach die exakte Bildquote und
 die vollständige Desktop-/Touch-Filtermatrix schließen.
+
+
+## Release `.103`: früher erster Pinbestand und vollständige Medienprovenienz
+
+App **13.82.168.103** / Core **4.82.222** veröffentlicht Runtime-Commit **3d6442c749557711db6d63e2c1fb24e04b84081a** als Worker **075622ac-defa-4cef-8e20-43684302b7e8**. Gateway **v232** meldet weiter Software **4.64.35** und Places **4.38.14-cold-hedge-commons-category**. MapLibre, OpenFreeMap-Verbindung und Stilabruf beginnen im Dokumentkopf; vorhandene exakte Pins werden nicht länger vom externen Kartenstil verdeckt. Die Medienprojektion erhält Provider, Lizenz, exakte und verknüpfte Entitätsreferenz sowie Verifikationsstatus. Eine Diagnose zählt vorhandene und verifizierte Bilder ohne neue Providerreads.
+
+Im sichtbaren Stable-Browser erschienen **48 Places-Pins nach 1,731 Sekunden** und **47 Stays-Pins nach 1,615 Sekunden**. Food schaltete zwischen **48 Alle / 9 Passend**, wobei **Kleines Steakhouse** keinen Passend-Beleg trug; Stays zwischen **47 Alle / 25 Passend**. Zoom blieb bedienbar und löste den vorgesehenen Ausschnittsread aus. Der stationäre Lauf erzeugte keine neuen Browserfehler. Ein physischer iOS-/Android-Kaltstart bleibt offen.
+
+Safe Regression **232/232**, NFR-0 **3/3** und öffentliche Byteidentität **30/30** sind grün. Das Archiv **luvia-integration-13.82.168.103-3d6442c7-public-bytes.zip** hat **89.022.652 Bytes**, SHA-256 **A8784AF164D66E9187FB7A588BB363167E54B8B99D797D92785989F578E41D5F**. Immutable: **https://075622ac-integration-luvia.njwnrvwbv5.workers.dev**. Exakter App-Rollback: `npx wrangler versions deploy b73732a6-26f4-4280-9d0d-88eb0429094a@100 --name integration-luvia --message "Rollback App 13.82.168.103 first-frame/media provenance to accepted App 13.82.168.102" --yes`. Main und Production blieben unverändert.
