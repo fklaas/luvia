@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "2552668b",
-  "app": "13.82.168.110",
-  "core": "4.82.229",
-  "runtimeSource": "2552668be8709644492cfe0aac1362834f7a9aa5",
+  "sourceBaseline": "722b00c6",
+  "app": "13.82.168.111",
+  "core": "4.82.230",
+  "runtimeSource": "722b00c67b257c07a1c0f1e0f4997479590c8afc",
   "worker": "33bba91c-9b6b-48ca-9189-2e5d025e9abc",
   "gateway": "v233 ACTIVE / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
@@ -112,7 +112,7 @@
       "canonicalTitle": "Granular Journey commands",
       "status": "BELEGT_BEGRENZT",
       "owner": "Journey",
-      "evidence": "App .44–.66 liefert Langdruck, iOS-ähnlichen Wackelmodus, Zeit-/Daueränderung, Entfernen/Wiederherstellen, Mehrfach-Reorder, Owner-Fähigkeitsmatrix, gemeinsame Places-Karte in freien Timeline-Fenstern und Chat-Routenparität. App .86 schloss bestätigte Visit-Owner-Verwaltung; App .109 ergänzt die vollständige AI-Chat-Parität: natürliche deutsche und englische Besuchsbefehle erzeugen nur eine Vorher/Neu-Vorschau, schreiben erst nach ausdrücklicher Bestätigung und verwenden für Korrektur, Entfernen sowie Wiederherstellen exakt places.v1 mit Revision, Idempotenz, Readback und dauerhaftem Recovery-Beleg. Unicode-Befehle fallen weder in die Places-Suche noch in eine allgemeine Providerfehlermeldung. Identische Journey-Projektionen werden zuerst nach Visit-Owner-ID dedupliziert; alle belegten Namensaliasse bleiben für einen ausdrücklich genannten Ort erhalten. Echte Gleichstände bleiben rückfragepflichtig. Timeline und Chat erzeugen keinen zweiten Besitzer und keinen lokalen Scheinzustand. Die automatisierten Owner-, Browser-, Orchestrierungs- und Fehlergates sind grün.",
+      "evidence": "App .44–.66 liefert Langdruck, iOS-ähnlichen Wackelmodus, Zeit-/Daueränderung, Entfernen/Wiederherstellen, Mehrfach-Reorder, Owner-Fähigkeitsmatrix, gemeinsame Places-Karte in freien Timeline-Fenstern und Chat-Routenparität. App .86 schloss bestätigte Visit-Owner-Verwaltung; App .111 schließt die vollständige AI-Chat-Parität: natürliche deutsche und englische Besuchsbefehle erzeugen nur eine Vorher/Neu-Vorschau, schreiben erst nach ausdrücklicher Bestätigung und verwenden für Korrektur, Entfernen sowie Wiederherstellen exakt places.v1 mit Revision, Idempotenz, Readback und dauerhaftem Recovery-Beleg. Unicode-Befehle fallen weder in Places Discovery noch in allgemeine Providerfehler. Generische Timeline-Titel werden kontingentfrei über lokale placeId-, tripPlaceId- und providerPlaceId-Lesewege mit dem Place-Namen verbunden. Mehrere bestätigte Besuche am selben Ort werden niemals willkürlich gewählt; „erster“, „zweiter“ oder „letzter“ adressiert den zeitlich sortierten Owner-Datensatz. Timeline und Chat erzeugen keinen zweiten Besitzer und keinen lokalen Scheinzustand. Die automatisierten Owner-, Browser-, Orchestrierungs- und Fehlergates sind grün.",
       "nextAcceptance": "Den Langdruck-, Wackel-, Verschiebe-, Korrektur-, Entfernungs- und Wiederherstellungsweg auf realem iOS und Android physisch abnehmen. Positive echte Providerbuchungen bleiben getrennt in P07/P08 und blockieren den belegten internen P09-Owner-/Chat-Abschluss nicht.",
       "scope": "Project the shared Places map into day and free-window suggestions, then add, edit, move, reorder, connect, delete and restore Journey moments through `journey.v1`, preserving all owner truth. Long press enters a visible iOS-like movement mode while Reduced Motion remains still.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -124,7 +124,7 @@
       "canonicalTitle": "S16.01 Explainable Planning Trace expansion",
       "status": "BELEGT_BEGRENZT",
       "owner": "Intelligence",
-      "evidence": "Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge und Speicherstatus. App .109 bringt dieselbe verständliche Vorher/Neu-, Ergebnis-, Fehler- und Recovery-Sprache in den AI Chat: bestätigte Besuche werden über drei typisierte Aktionen vorbereitet, separat bestätigt, ownerseitig gelesen und nach dem Schreiben erneut geprüft. Belegte Visit-Vorbedingungen bleiben als konkrete Nutzeraussage sichtbar; technische Providerfehler werden weiterhin neutral projiziert. Benannte Zielorte werden nach Owner-Deduplizierung tokenbasiert und kollisionssicher über Visit- und Timeline-Aliasse aufgelöst. 333/333 Aktionen besitzen eine Verbraucherprojektion; 127 geschützte Änderungen, 22 ehrliche Undo-Wege und 2.764 erzeugte Fehlerauswertungen sind im Drift-Gate belegt. Private Teilnehmer-IDs, freie Korrekturfelder und Gerätepositionen bleiben aus der öffentlichen Projektion ausgeschlossen.",
+      "evidence": "Zeitänderung, Entfernen/Wiederherstellen sowie Verbinden/Mehrfach-Reorder erklären bisherigen und beabsichtigten Zustand, Reihenfolge, Datum, Uhrzeit, Dauer, Konflikte, Wegefolge und Speicherstatus. App .111 bringt dieselbe verständliche Vorher/Neu-, Ergebnis-, Fehler- und Recovery-Sprache in den AI Chat: bestätigte Besuche werden über drei typisierte Aktionen vorbereitet, separat bestätigt, ownerseitig gelesen und nach dem Schreiben erneut geprüft. Benannte Orte werden aus lokaler Places-Owner-Wahrheit aufgelöst; bei mehreren gleich benannten Besuchen nennt die Rückfrage ausdrücklich „erster“, „zweiter“ oder „letzter“. 333/333 Aktionen besitzen eine Verbraucherprojektion; 127 geschützte Änderungen, 22 ehrliche Undo-Wege und 2.764 erzeugte Fehlerauswertungen sind im Drift-Gate belegt. Private Teilnehmer-IDs, freie Korrekturfelder und Gerätepositionen bleiben aus der öffentlichen Projektion ausgeschlossen.",
       "nextAcceptance": "P11 Route Uncertainty sichtbar ergänzen: Quellenalter, fehlende Live-Belege, Bandbreiten und einen separat bestätigten Journey-Puffer in derselben verständlichen Sprache darstellen; physische Mobilabnahme bleibt ein Gerätegate.",
       "scope": "Explain intent split, owner decisions, sources, freshness, assumptions, conflicts, rejected alternatives, proposed commands and resulting receipts without exposing private reasoning or sensitive raw input.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,8 +640,8 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.110 / Core 4.82.229 ist als fünffach sichtbar gehärteter Integrationskandidat vorbereitet. Die sichtbaren Gegenproben .105 bis .109 haben Unicode-Routing, Fehlerprojektion, Deduplizierung und reale generische Timeline-Titel getrennt offengelegt. .110 löst benannte bestätigte Besuche jetzt über die bereits vorhandene lokale Places-Owner-Identität aus placeId, tripPlaceId oder providerPlaceId auf. Dafür wird keine Places-Discovery und kein externer Anbieter aufgerufen. Gezielte Owner-, Alias-, Orchestrierungs-, Projektions-, Bundle- und NFR-Prüfungen sind grün; vollständige Safe Regression und öffentlicher Sichttest folgen vor der Abnahme. Main und Production bleiben unverändert.",
-  "safeRegression": "App .110 Kandidat: gezielte Confirmed-Owner-, lokale Place-Identitäts-, Null-Provider-, Consumer-Projektions-, Runtime-Registrierungs-, Recovery-, Bundle- und NFR-0-Prüfungen PASS. Vollständiger 233er Lauf wird nach der synchronisierten Releaseprojektion erneut ausgeführt.",
+  "acceptanceUpdate": "App 13.82.168.111 / Core 4.82.230 ist der finale P09/P10-Browserkandidat. App .110 belegte bereits die kontingentfreie Auflösung generischer Timeline-Besuche über die lokale Places-Owner-Identität. Die reale Datenlage zeigte zusätzlich zwei bestätigte Besuche am selben Ort DAS LEO. .111 schließt deshalb die letzte Identitätslücke: gleich benannte Owner-Besuche werden niemals willkürlich gewählt; ohne eindeutige Angabe fordert Luvia „erster“, „zweiter“ oder „letzter“, mit der Ordinalangabe wird der konkrete, zeitlich sortierte Visit-Owner-Datensatz vorbereitet. Direkter Timelineweg und AI Chat bleiben bei Korrektur, Entfernen und Wiederherstellen auf places.v1 mit Revision, Idempotenz, Bestätigung, Readback und Recovery. Gezielte Owner-, Orchestrierungs-, Projektions- und Null-Provider-Prüfungen sowie Safe Regression 233/233 und NFR-0 3/3 sind grün; Veröffentlichung und sichtbare Browserabnahme folgen vor der finalen Belegprojektion. Main und Production bleiben unverändert.",
+  "safeRegression": "App .111 Kandidat: vollständige Safe Regression 233/233 PASS; NFR-0 3/3 PASS. Gezielte Confirmed-Owner-, lokale Place-Identitäts-, explizite Gleichnamigkeitsauswahl-, Null-Provider-, Consumer-Projektions-, Timeline-Recovery-, Release- und Visual-Inventory-Prüfungen PASS.",
   "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable und immutable Worker .104; Archiv 89.026.357 Bytes, SHA-256 713C216C53C71AE4A9D90B1BFEA8CC1679B1B5ABE6B05181646663F4AF34A8D6",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -673,8 +673,8 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. App .110 / Core .229 ist der neue P09/P10-Kandidat: bestätigte Besuche werden im AI Chat über denselben Places Visit Owner und bei generischen Timeline-Titeln zusätzlich über die lokale Place-ID aufgelöst. P09 und P10 bleiben bis zum positiven sichtbaren Browserbeleg BELEGT_BEGRENZT; die physischen Geräte- und externen Providerbelege bleiben ausdrücklich getrennt.",
-    "delivered": "Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle werden erkannt; konkrete Visit-Fehler fallen nicht in Discovery zurück. Die neue Zielauflösung verbindet visitId mit vorhandenen Place-Namen über lokale placeId-, tripPlaceId- und providerPlaceId-Lesewege und verbraucht dabei kein Anbieter-Kontingent. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.",
+    "stage": "M16.5 Schritte 15–18: P09/P10 interner Abschlusskandidat App .111 / Core .230. Die direkte Timeline und der AI Chat teilen Places Visit Owner; generische Titel werden lokal aufgelöst und mehrere gleich benannte bestätigte Besuche verlangen eine explizite Ordinalauswahl. Veröffentlichung, sichtbare Browserabnahme und finale Byte-/Rollback-Belege laufen jetzt. P11 ist danach unmittelbar AKTIV.",
+    "delivered": "Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle werden erkannt; konkrete Visit-Fehler fallen nicht in Discovery zurück. Die Zielauflösung verbindet visitId mit vorhandenen Place-Namen über lokale placeId-, tripPlaceId- und providerPlaceId-Lesewege und verbraucht kein Anbieter-Kontingent. Mehrere gleich benannte Besuche werden nicht willkürlich ausgewählt, sondern erst durch „erster“, „zweiter“ oder „letzter“ eindeutig adressiert. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.",
     "nextStep": {
       "id": "P11-route-uncertainty-confirmed-buffer",
       "package": "P11",
@@ -692,5 +692,5 @@
     "after": "Danach folgen P12 Tagesprobe und der gebündelte P12/P15/P17 Trip Composer mit tageweiser Reisepräsentation, Alternativen und bestätigter Übernahme.",
     "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P07/P08 bleiben von echten Booking-Providern abhängig. P09/P10 sind intern belegt und nur für physische iOS-/Android-Abnahme begrenzt. Danach folgen P12/P15/P17 Trip Composer; P19/P20/P22/P23/P26 Context Matrix; P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich inventarisiert."
   },
-  "qaCommit": "5a88d77f"
+  "qaCommit": "722b00c6"
 }
