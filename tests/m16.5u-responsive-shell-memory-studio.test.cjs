@@ -14,7 +14,7 @@ const hubsCss = read('app/module-hubs.css');
 const places = read('app/places/places-spatial-experience.js');
 const version = read('intelligence/kernel/version.js');
 
-assert.match(version, /core:'4\.82\.227',build:'13\.82\.168\.108'/);
+assert.match(version, /core:'4\.82\.228',build:'13\.82\.168\.109'/);
 assert.equal((html.match(/data-book-photo-add=/g) || []).length, 16, 'book studio must expose sixteen local travel photos');
 assert.equal((html.match(/data-book-decor-add=/g) || []).length, 12, 'book studio must expose twelve draggable decoration types');
 assert.ok((html.match(/data-book-base/g) || []).length >= 7, 'existing book content must be editable layers');
