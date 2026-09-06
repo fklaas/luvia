@@ -332,6 +332,11 @@ assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(2\)\{top:5px
 assert.match(css,/\.lv-places-spatial__map-preview-cue i:nth-child\(1\)\{top:9px;animation-delay:\.24s\}/,'the lower preview chevron must complete the equal stagger');
 assert.doesNotMatch(experience,/class="lv-places-spatial__results"/,'the productive Places map must not duplicate pins as a neighboring or following result list');
 assert.match(experience,/data-places-map-fallback/,'the map must retain an honest bright fallback surface while tiles are unavailable');
+assert.match(experience,/if\(view\.markers\.length\)projectionState\(container,'ready'/,'restored exact pins must become visible before the remote map style finishes');
+assert.match(experience,/function mediaCoverageSnapshot\(source=state\.results\)/,'the shared Places owner must expose bounded exact-media coverage without issuing audit reads');
+assert.ok(index.includes('<link rel="preload" as="script" href="vendor/maplibre/maplibre-gl-5.12.0.js'), 'MapLibre must start downloading from the document head');
+assert.ok(index.includes('<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>'), 'the active map tile host must be connected before the map mounts');
+assert.ok(index.includes('<link rel="preload" as="fetch" href="https://tiles.openfreemap.org/styles/liberty" crossorigin>'), 'the active OpenFreeMap style must start fetching before Places mounts');
 assert.match(experience,/LuviaApp\?\.openCompass\?\.\('plan'\)/,'Places back navigation must restore the embedded Plan Compass');
 assert.doesNotMatch(experience,/Math\.random|pin-a|pin-b|pin-c|pin-d|pin-e|map-land|map-sea/,'synthetic prototype pin placement may not enter the productive Experience');
 assert.doesNotMatch(experience,/center\s*:\s*\[\s*10\.7554\s*,\s*54\.0267\s*\]/,'hard-coded prototype destination center may not become Product Truth');

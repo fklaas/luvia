@@ -42,7 +42,11 @@ const providerPlace={
     uri:'https://images.example.test/foursquare/venue-42.jpg',
     provider:'foursquare',
     attribution:'Foursquare Places',
-    sourceUrl:'https://foursquare.com/v/venue-42'
+    sourceUrl:'https://foursquare.com/v/venue-42',
+    license:'Foursquare Places Terms',
+    entityReference:'fsq:venue-42',
+    linkedEntityReference:'foursquare:venue-42',
+    verified:true
   }],
   raw:{secret:'must-not-cross'}
 };
@@ -209,6 +213,10 @@ function projectionHarness(sourcePlace){
   assert.equal(domainProjection.providerFactsCached,false);
   assert.equal(domainProjection.distanceMeters,640);
   assert.equal(domainProjection.distanceSource,'destination-center');
+  assert.equal(domainProjection.photos[0].license,'Foursquare Places Terms');
+  assert.equal(domainProjection.photos[0].entityReference,'fsq:venue-42');
+  assert.equal(domainProjection.photos[0].linkedEntityReference,'foursquare:venue-42');
+  assert.equal(domainProjection.photos[0].verified,true,'exact media provenance must survive the Places owner projection');
   assert.equal(domainProjection.raw,undefined);
 
   const card=await projection.sandbox.LuviaPlacesContractV1.reads.getCard(normalized.providerPlaceId);
@@ -218,6 +226,11 @@ function projectionHarness(sourcePlace){
   assert.equal(card.image.url,'https://images.example.test/foursquare/venue-42.jpg');
   assert.equal(card.image.provider,'Foursquare','photo origin must reflect the provider that supplied the media');
   assert.equal(card.image.sourceUrl,'https://foursquare.com/v/venue-42');
+  assert.equal(card.image.providerPlaceId,'fsq:venue-42');
+  assert.equal(card.image.license,'Foursquare Places Terms');
+  assert.equal(card.image.entityReference,'fsq:venue-42');
+  assert.equal(card.image.linkedEntityReference,'foursquare:venue-42');
+  assert.equal(card.image.verified,true);
   assert.equal(card.image.transient,true);
   assert.equal(projection.photoCalls(),0,'a direct Foursquare image must not be resolved through the Google photo endpoint');
 

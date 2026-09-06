@@ -219,6 +219,11 @@
       attributionUrl:httpsUrl(photo?.attributionUrl||author.uri),
       sourceUrl:providerSource,
       provider,
+      providerPlaceId:requestedId,
+      license:clean(photo?.license),
+      entityReference:clean(photo?.entityReference),
+      linkedEntityReference:clean(photo?.linkedEntityReference),
+      verified:photo?.verified===true||Boolean(clean(photo?.name)),
       transient:true,
       alt:place.name
     }):null;

@@ -15,7 +15,9 @@ const escaped=value=>value.replaceAll('.',String.raw`\.`);
 const tracked=cp.execFileSync('git',['ls-files','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean);
 const changed=[];
 for(const relative of tracked){
-  if(relative==='CURRENT-BUILD.md'||relative.includes(`luvia-runtime-${from}.bundle.js`)||relative.includes(`luvia-runtime-precontext-${from}.bundle.js`)||relative.includes(`luvia-runtime-postcontext-${from}.bundle.js`)||!textExtensions.has(path.extname(relative)))continue;
+  // Release notes and status plans are historical evidence. A runtime cache-key
+  // bump must never rewrite an accepted older release inside those documents.
+  if(relative.endsWith('.md')||relative==='docs/planning/status-plan.v1.json'||relative.includes(`luvia-runtime-${from}.bundle.js`)||relative.includes(`luvia-runtime-precontext-${from}.bundle.js`)||relative.includes(`luvia-runtime-postcontext-${from}.bundle.js`)||!textExtensions.has(path.extname(relative)))continue;
   const absolute=path.join(root,relative),source=fs.readFileSync(absolute,'utf8'),next=source.replaceAll(from,to).replaceAll(coreFrom,coreTo).replaceAll(escaped(from),escaped(to)).replaceAll(escaped(coreFrom),escaped(coreTo)).replaceAll(`luvia-shell-v${from}`,`luvia-shell-v${to}`);
   if(next===source)continue;
   fs.writeFileSync(absolute,next,'utf8');changed.push(relative);

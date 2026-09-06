@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
   "sourceBaseline": "71a697ad",
-  "app": "13.82.168.102",
-  "core": "4.82.221",
+  "app": "13.82.168.103",
+  "core": "4.82.222",
   "runtimeSource": "71a697adcbf1549c6ee78f379743983689a95276",
   "worker": "b73732a6-26f4-4280-9d0d-88eb0429094a",
   "gateway": "v231 ACTIVE / 4.64.35 / Places 4.38.14-cold-hedge-commons-category",
@@ -673,8 +673,8 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. App .102 / Core .221 ist der vollständig veröffentlichte und reproduzierbar belegte P02/P03-Kaltlatenz- und Commons-Medienabschnitt. P02/P03 bleiben teilweise, bis der erste sichtbare Kartenaufbau, die breite exakte Fotoquote und die vollständige Desktop-/Touch-Filtermatrix geschlossen sind.",
-    "delivered": "App .102 startet die kostenlose cachegestützte OSM-Kategoriesuche bei strikten Spezialtypen neben Geoapify, vermeidet serielle leere Taxonomieläufe und begrenzt Providerwartezeiten. Die kalte Minigolf-Gatewayzeit sank von 5,58 auf 2,44 Sekunden; Folgepfade liegen im Gateway bei 0,15 bis 0,24 Sekunden. Verknüpfte Commons-Kategorien liefern ausschließlich lizenzierte bildartige Dateien. Sichtbar sind Places Food 48/9 ohne Steakhouse und Stays 47/25. 232/232 Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität sind grün.",
+    "stage": "M16.5 Schritte 15–18 aktiv. App .103 / Core .222 ist der geprüfte nächste P02/P03-Kartenstart- und Medienprovenienzabschnitt; der öffentliche Vorgänger .102 bleibt bis zur abgeschlossenen Integration-Veröffentlichung der Rückfallstand. P02/P03 bleiben teilweise, bis der erste sichtbare Kartenaufbau, die breite exakte Fotoquote und die vollständige Desktop-/Touch-Filtermatrix geschlossen sind.",
+    "delivered": "Kandidat .103 startet MapLibre und die Verbindung zum aktiven OpenFreeMap-Kartenstil bereits im Dokumentkopf und gibt vorhandene exakte Pins unmittelbar frei, während externe Kartendaten im Hintergrund laden. Die gemeinsame Places-/Stays-Projektion trägt Provider, Lizenz, exakte Entitätsreferenz, verknüpfte Ortsquelle und Verifikationsstatus bis zur Karte und stellt eine lesbare Medienabdeckungsdiagnose bereit. Alle bisherigen .102-Kaltlatenz-, Commons-Medien-, Filter- und Passend-Grenzen bleiben erhalten.",
     "nextStep": {
       "id": "P02-P03-map-first-render-photo-matrix",
       "package": "P02",

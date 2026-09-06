@@ -20,9 +20,11 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
 (async()=>{
  ctx.recovery.state.category='food';
  let calls=0,rows=[row('Fresh')],received,intendedViewport;
- const projection=ctx.LuviaPlacesSpatialExperience.mountProjection(node(),[row('Old')],{initialCenter:{latitude:54.0225,longitude:10.7544},onViewportIntent:descriptor=>intendedViewport=descriptor,onViewportSearch:async()=>{calls++;return rows},projectViewportResults:()=>[],onViewportResults:r=>received=r});
+ const projectionNode=node(),projection=ctx.LuviaPlacesSpatialExperience.mountProjection(projectionNode,[row('Old')],{initialCenter:{latitude:54.0225,longitude:10.7544},onViewportIntent:descriptor=>intendedViewport=descriptor,onViewportSearch:async()=>{calls++;return rows},projectViewportResults:()=>[],onViewportResults:r=>received=r});
  assert.ok(projection.map,'real projection must mount');
  assert.equal(projection.view.markers.length,1,'known pins are available before tile readiness');
+ assert.equal(projectionNode.dataset.mapState,'ready','restored pins become visible before the remote style and tiles finish');
+ assert.equal(projection.map.options.style,'https://tiles.openfreemap.org/styles/liberty');
  const loadingNode=node(),loading=ctx.LuviaPlacesSpatialExperience.mountProjection(loadingNode,[],{initialCenter:{latitude:54.02,longitude:10.75},runtimeStatus:()=>({kind:'loading'})});loading.map.fire('style.load');assert.equal(loadingNode.dataset.mapState,'ready','a usable base map while search is pending must not claim empty');loading.destroy();
  assert.deepEqual(Array.from(projection.map.options.center),[10.7544,54.0225],'camera starts at destination');
  projection.map.fire('load');await tick();assert.equal(calls,0,'load, ease and resize must not spend viewport requests');

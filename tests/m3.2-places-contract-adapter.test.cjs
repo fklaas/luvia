@@ -154,7 +154,7 @@ assert.strictEqual(listed[0].storageSecret,undefined);
   assert.strictEqual(details.website,'https://example.test');
   assert.strictEqual(details.openNow,true);
   assert(Object.isFrozen(details.photos),'bounded provider photo projections must be immutable');
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(details.photos)),[{name:'private-photo',uri:null,widthPx:null,heightPx:null,attribution:null,attributionUrl:null,sourceUrl:null}]);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(details.photos)),[{name:'private-photo',uri:null,widthPx:null,heightPx:null,attribution:null,attributionUrl:null,sourceUrl:null,provider:null,license:null,entityReference:null,linkedEntityReference:null,verified:false}]);
   assert.strictEqual(details.providerRaw,undefined,'raw provider detail payload must not leak');
   assert(Object.isFrozen(details.types));
 

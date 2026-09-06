@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.39.0-persistent-category-stays-dedupe';
+  const VERSION='1.40.0-first-frame-media-diagnostics';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -851,6 +851,17 @@
     state.imageInflight.set(id,task);
     return task;
   }
+  function mediaCoverageSnapshot(source=state.results){
+    const rows=(Array.isArray(source)?source:[]).filter(place=>providerId(place));
+    let seeded=0,resolved=0,verifiedLinked=0;
+    const providers={};
+    for(const place of rows){
+      const id=providerId(place),photo=Array.isArray(place?.photos)?place.photos.find(item=>clean(item?.uri||item?.url||item?.photoUri||item?.name)):null,image=state.images.get(id)||place?.image||null;
+      if(photo){seeded++;const provider=clean(photo.provider||place.provider||place.source||'unknown').toLowerCase()||'unknown';providers[provider]=(providers[provider]||0)+1;const exactEntity=providerId(photo.entityReference)===id,linked=Boolean(clean(photo.linkedEntityReference));if(photo.verified===true&&(exactEntity||linked))verifiedLinked++;}
+      if(clean(image?.url||image?.uri||image?.photoUri||place?._cardPhotoUri||place?.photoUri||place?.imageUrl))resolved++;
+    }
+    return Object.freeze({surface:state.surface,category:state.category,total:rows.length,seeded,resolved,verifiedLinked,missing:Math.max(0,rows.length-Math.max(seeded,resolved)),seedRatio:rows.length?Number((seeded/rows.length).toFixed(3)):0,resolvedRatio:rows.length?Number((resolved/rows.length).toFixed(3)):0,providers:Object.freeze({...providers})});
+  }
   async function hydrateMapPreview(place){return hydratePlaceImage(place,{refreshSelected:true})}
   function warmInitialPhotos(searchToken=state.requestToken){
     const warmToken=++state.photoWarmToken;
@@ -1062,6 +1073,10 @@
       };
       // DOM pins do not need to wait for map tiles or fonts.
       replaceMarkers(currentPlaces);
+      // A restored exact cohort is useful before the remote OpenFreeMap style has
+      // finished. Reveal its DOM pins on the already positioned map immediately;
+      // the base tiles continue loading underneath without blocking interaction.
+      if(view.markers.length)projectionState(container,'ready',`${view.markers.length} bekannte Orte · Kartendaten laden im Hintergrund.`);
       const cancelPending=()=>{viewportRequest++;clearTimeout(viewportTimer);lastViewportKey=''};
       const queueViewportSearch=event=>{
         // Programmatic fit/ease/resize is not a request to explore another area.
@@ -1551,7 +1566,7 @@
     if(state.root)state.root.innerHTML='';
     state.root=null;state.trip=null;state.results=[];state.selectedId=null;state.images.clear();state.imageInflight.clear();state.saved.clear();
   }
-  function diagnostics(){const shared=getSharedDiscoverySnapshot({tripId:tripId(state.trip),surface:state.surface});return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),profileEvidence:{...state.preferenceEvidence},sharedDiscovery:shared?{id:shared.id,category:shared.category,count:shared.count,fitCount:shared.fitCount,observedAt:shared.observedAt,consumerProviderReads:0}:null,ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
+  function diagnostics(){const shared=getSharedDiscoverySnapshot({tripId:tripId(state.trip),surface:state.surface});return{version:VERSION,surface:state.surface,category:state.category,status:state.root?'mounted':'idle',sourceContract:'places.v1',visibleLimit:state.visibleLimit,resultCount:state.results.length,markerCount:state.root?model().counts.markers:0,offline:state.offline,mapRenderer:Boolean(globalThis.maplibregl),mediaCoverage:mediaCoverageSnapshot(),profileEvidence:{...state.preferenceEvidence},sharedDiscovery:shared?{id:shared.id,category:shared.category,count:shared.count,fitCount:shared.fitCount,observedAt:shared.observedAt,consumerProviderReads:0}:null,ports:{NetworkPort:Boolean(port('NetworkPort')),ExternalNavigationPort:Boolean(port('ExternalNavigationPort')),OfflineCachePort:Boolean(port('OfflineCachePort'))},domainTruth:false}}
 
-  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,getSharedDiscoverySnapshot,transientDestinationFailure,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
+  globalThis.LuviaPlacesSpatialExperience=Object.freeze({version:VERSION,mount,unmount,resume,search,viewportSearch,viewportSearchWithContinuity,decoratePreferences,mergeProfileEvidenceCohort,getSharedDiscoverySnapshot,transientDestinationFailure,tripGeography,isPreferredPlace,categoryPlaceholder,openResultSheet,mountProjection,bindMapPreviewGesture,styleCorporateMap,mediaCoverageSnapshot,compassMapPalette:COMPASS_MAP_PALETTE,diagnostics});
 })();

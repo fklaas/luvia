@@ -15,7 +15,7 @@ const providerId=value=>clean(value).replace(/^places\//,'');
 const httpsUrl=value=>{const url=clean(value);return /^https:\/\//i.test(url)?url:null};
 const providerRefsProjection=value=>Object.freeze(Object.fromEntries(Object.entries(value&&typeof value==='object'?value:{}).slice(0,6).map(([key,id])=>[clean(key).toLowerCase().slice(0,40),providerId(id).slice(0,180)]).filter(([key,id])=>key&&id)));
 const evidenceProjection=value=>Object.freeze((Array.isArray(value)?value:[]).slice(0,8).map(item=>Object.freeze({provider:clean(item?.provider).toLowerCase().slice(0,40)||'unknown',kind:clean(item?.kind).toLowerCase().slice(0,80)||'place-fact'})));
-const photoProjection=value=>Object.freeze((Array.isArray(value)?value:[]).slice(0,3).map(item=>{const author=item?.authorAttributions?.[0]||{};return Object.freeze({name:clean(item?.name).slice(0,240)||null,uri:httpsUrl(item?.uri||item?.url||item?.photoUri),widthPx:number(item?.widthPx||item?.width),heightPx:number(item?.heightPx||item?.height),attribution:clean(item?.attribution||author?.displayName).slice(0,180)||null,attributionUrl:httpsUrl(item?.attributionUrl||author?.uri),sourceUrl:httpsUrl(item?.sourceUrl||item?.googleMapsUri)});}));
+const photoProjection=value=>Object.freeze((Array.isArray(value)?value:[]).slice(0,3).map(item=>{const author=item?.authorAttributions?.[0]||{};return Object.freeze({name:clean(item?.name).slice(0,240)||null,uri:httpsUrl(item?.uri||item?.url||item?.photoUri),widthPx:number(item?.widthPx||item?.width),heightPx:number(item?.heightPx||item?.height),attribution:clean(item?.attribution||author?.displayName).slice(0,180)||null,attributionUrl:httpsUrl(item?.attributionUrl||author?.uri),sourceUrl:httpsUrl(item?.sourceUrl||item?.googleMapsUri),provider:clean(item?.provider).toLowerCase().slice(0,40)||null,license:clean(item?.license).slice(0,120)||null,entityReference:providerId(item?.entityReference).slice(0,240)||null,linkedEntityReference:clean(item?.linkedEntityReference).slice(0,240)||null,verified:item?.verified===true});}));
 const immutable=value=>{
   if(value==null||typeof value!=='object')return value;
   if(Array.isArray(value))return Object.freeze(value.map(immutable));
@@ -198,6 +198,7 @@ function projectDetails(input){
     distanceMeters:number(source.distanceMeters),
     distanceSource:clean(source.distanceSource)||null,
     photos:photoProjection(source.photos),
+    mediaStatus:clean(source.mediaStatus)||null,
     editorialSummary:clean(source.editorialSummary?.text||source.editorialSummary)||null,
     openingHours:source.openingHours||source.regularOpeningHours||null,
     discoveryQueries:[...(source.discoveryQueries||[])].map(String),
