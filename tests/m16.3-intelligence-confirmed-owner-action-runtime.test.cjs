@@ -9,7 +9,9 @@ const runtimePath='core/ai/ai-action-runtime.js';
 const source=read(runtimePath);
 const calls=[];
 const events=[];
+let uuidSequence=0;
 let visitState={id:'visit-1',tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T08:00:00.000Z',durationSeconds:45*60,revision:'visit-rev-1'};
+let alternativeVisitState=null;
 let visitRecovery=null;
 let exposeVisitEntries=true;
 
@@ -19,7 +21,7 @@ for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','L
 
 const context={
   console,Object,Array,Map,Set,WeakSet,Error,TypeError,String,Boolean,Number,Math,JSON,Date,RegExp,Promise,
-  crypto:{randomUUID:()=>`uuid-${calls.length+1}`},
+  crypto:{randomUUID:()=>`uuid-${++uuidSequence}`},
   CustomEvent:function(name,options){this.type=name;this.detail=options?.detail},
   dispatchEvent(event){events.push(event)},
   LuviaTripContractV1:{
@@ -35,7 +37,7 @@ const context={
     reads:{
       async recommend(input){calls.push(['recommend',input]);return{places:[{id:'places/place-1',name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440}],route:{category:'food'}}},
       async getCard(id){return{place:{id,providerPlaceId:id,name:'Dünenküche',address:'Strandallee 1',rating:4.7,userRatingCount:440},image:{url:'https://images.example/dunes.jpg'}}},
-      getVisit(id){return id===visitState.id?{...visitState,confirmed:visitState.isConfirmed}:null},
+      getVisit(id){const visit=id===visitState.id?visitState:id===alternativeVisitState?.id?alternativeVisitState:null;return visit?{...visit,confirmed:visit.isConfirmed}:null},
       visitRecoveries(){return visitRecovery?[{...visitRecovery}]:[]}
     },
     commands:{
@@ -65,7 +67,7 @@ const context={
     }
   },
   LuviaJourneyContractV1:{
-    reads:{snapshot(){const entries=exposeVisitEntries?[{id:'visit:visit-1',source:'gps',sourceId:'visit-1',sourceRevision:visitState.revision,tripId:'trip-1',placeId:'place-strand',title:'Bestätigter Strandbesuch',startAt:visitState.arrivedAt,durationMinutes:Math.round(visitState.durationSeconds/60)}]:[];return{days:[{date:'2026-08-25',label:'Dienstag',entries}],summary:{entryCount:entries.length}}}},
+    reads:{snapshot(){const visits=alternativeVisitState?[visitState,alternativeVisitState]:[visitState],entries=exposeVisitEntries?visits.map(visit=>({id:`visit:${visit.id}`,source:'gps',sourceId:visit.id,sourceRevision:visit.revision,tripId:'trip-1',placeId:visit.placeId,title:visit.title,startAt:visit.arrivedAt,durationMinutes:Math.round(visit.durationSeconds/60)})):[];return{days:[{date:'2026-08-25',label:'Dienstag',entries}],summary:{entryCount:entries.length}}}},
     commands:{
       async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}},
       async editEntry(entryId,payload){calls.push(['journey-entry-schedule',entryId,payload]);return{entryId,operation:'restore-schedule'}},
@@ -194,6 +196,15 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   const restoreMessage='Stelle den Besuch „Bestätigter Strandbesuch“ wieder her.';
   const restoreProposal=await runtime.runMessage(restoreMessage,{compiledIntent:{contractId:'intelligence.travel-orchestration.v1',status:'compiled',intents:[{domain:'places',mode:'propose-write',clause:restoreMessage,semanticGoalType:'confirmed_visit',semanticOperation:'restore',temporalHint:{},entityHints:{hasNamedTarget:true},missingInputs:[]}]}});
   assert.equal(restoreProposal.results[0].evidence.actionId,'journey.visit.restore');assert.equal(calls.filter(call=>call[0]==='visit-restore').length,1,'the chat proposal must not perform a second visit restore');runtime.cancel(restoreProposal.results[0].evidence.ledgerId);
+
+  const originalVisitTitle=visitState.title;
+  visitState={...visitState,title:'Restaurant · Grande Beach Café'};
+  alternativeVisitState={id:'visit-2',tripId:'trip-1',placeId:'place-brechtmann',title:'Restaurant Brechtmann in Scharbeutz-Schürsdorf',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T18:00:00.000Z',durationSeconds:60*60,revision:'visit-rev-brechtmann-1'};
+  const namedVisitMessage='Ändere den bestätigten Besuch im Grande Beach Café heute auf 18:20 Uhr für 60 Minuten.';
+  const namedVisitCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(namedVisitMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
+  const namedVisit=await runtime.runMessage(namedVisitMessage,{compiledIntent:namedVisitCompiled,sourceMessage:namedVisitMessage});
+  assert.equal(namedVisit.results[0].kind,'confirmation',JSON.stringify(namedVisit));assert.equal(namedVisit.results[0].evidence.actionId,'journey.visit.update');assert.equal(namedVisit.results[0].evidence.preview.visitId,'visit-1');assert.equal(namedVisit.results[0].evidence.preview.name,'Restaurant · Grande Beach Café');runtime.cancel(namedVisit.results[0].evidence.ledgerId);
+  alternativeVisitState=null;visitState={...visitState,title:originalVisitTitle};
 
   exposeVisitEntries=false;
   const recommendCallsBeforeMissingVisit=calls.filter(call=>call[0]==='recommend').length;

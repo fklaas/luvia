@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.23.2-consumer-safe-visit-errors';
+const VERSION='1.23.3-named-visit-resolution';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -155,8 +155,10 @@ function bookingPlaceSubject(booking={}){
   };
 }
 function uniqueMutationCandidates(items=[]){const seen=new Map();for(const item of items){const candidate=mutationCandidate(item);if(!candidate)continue;const key=[candidate.tripPlaceId,candidate.providerPlaceId,referenceKey(candidate.name)].join('|');if(!seen.has(key))seen.set(key,candidate)}return[...seen.values()]}
+const GENERIC_MUTATION_NAME_TOKENS=new Set(['der','die','das','ein','eine','einer','einem','einen','im','in','am','an','auf','von','zu','zum','zur','fuer','für','bestatigt','bestatigte','bestatigter','bestatigten','besuch','aufenthalt','gps','moment','ort','place','restaurant','hotel','unterkunft']);
+const mutationNameTokens=value=>clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de-DE').split(/[^\p{L}\p{N}]+/u).filter(token=>token.length>=3&&!GENERIC_MUTATION_NAME_TOKENS.has(token));
 function namedMutationCandidate(candidates,intent,message){
-  const explicit=referenceKey(intent?.entityHints?.targetName),source=referenceKey(message||intent?.clause),ranked=candidates.map(candidate=>{const key=referenceKey(candidate.name),exact=Boolean(explicit&&key===explicit),contained=Boolean(key.length>=4&&(explicit?key.includes(explicit)||explicit.includes(key):source.includes(key)));return{candidate,key,score:exact?10000+key.length:contained?key.length:0}}).filter(item=>item.score>0).sort((left,right)=>right.score-left.score);
+  const explicit=referenceKey(intent?.entityHints?.targetName),source=referenceKey(message||intent?.clause),sourceTokens=new Set(mutationNameTokens(message||intent?.clause)),ranked=candidates.map(candidate=>{const key=referenceKey(candidate.name),exact=Boolean(explicit&&key===explicit),contained=Boolean(key.length>=4&&(explicit?key.includes(explicit)||explicit.includes(key):source.includes(key))),tokens=mutationNameTokens(candidate.name),matched=tokens.filter(token=>sourceTokens.has(token)),tokenScore=matched.some(token=>token.length>=4)?matched.reduce((sum,token)=>sum+token.length,0)+(matched.length===tokens.length?200:0):0;return{candidate,key,score:exact?10000+key.length:contained?5000+key.length:tokenScore}}).filter(item=>item.score>0).sort((left,right)=>right.score-left.score);
   if(!ranked.length||ranked.length>1&&ranked[0].score===ranked[1].score&&ranked[0].key!==ranked[1].key)return null;return ranked[0].candidate;
 }
 async function semanticPlaceMutationPreview(message,compiled,options={}){
