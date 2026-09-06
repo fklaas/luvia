@@ -12,8 +12,8 @@ const compiler=context.LuviaHumanAILanguageCompilerCoreV1;
 const compile=utterance=>compiler.compile({utterance,catalog:registry.actions,referenceDate:'2027-06-13',timeZone:'Europe/Berlin'});
 
 assert.equal(compiler.contractId,'intelligence.human-ai-language-compiler.v1');
-assert.equal(languageContracts.actions.length,330);
-assert.equal(languageContracts.summary.canonicalGermanActions,330);
+assert.equal(languageContracts.actions.length,333);
+assert.equal(languageContracts.summary.canonicalGermanActions,333);
 assert.ok(languageContracts.summary.curatedActionIds>=140);
 assert.ok(languageContracts.summary.curatedRules>=140);
 assert.deepEqual([...languageContracts.summary.supportedLocales],['de','en','mixed']);

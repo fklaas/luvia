@@ -9,27 +9,27 @@
     "documents": {
       "registry": {
         "file": "config/luvia-human-ai-action-registry.v1.json",
-        "sha256": "5D136255586579572A26D403A575FF119D0FB9E59E3ED8CF5C1370AED39CC4CE"
+        "sha256": "8D7CEC5EA0F90D3BCC53EB1CD5A292E568490C6A2017C2DA86FCEF618F80CA92"
       },
       "language": {
         "file": "config/luvia-human-ai-language-contracts.v1.json",
-        "sha256": "3828D4F3C472E16DC78F2E241510E2F6B3927CEB858FCC3DFE21B216E059BF69"
+        "sha256": "EA51AF98E0E234ED0D3505EAE15C049BF8941C8F009C688ACC6FEAEDF0FEC961"
       },
       "safety": {
         "file": "config/luvia-human-ai-safety-policy.v1.json",
-        "sha256": "C11E306065DB88AE84AAC15AC026E0A53C0052930ABFB644903F3C3DA5A712EA"
+        "sha256": "E82005501F8AFE64DB87C23523C52C60438A72CF528DDB4E82056815245FD878"
       },
       "lifecycle": {
         "file": "config/luvia-human-ai-action-lifecycles.v1.json",
-        "sha256": "0436F38694D867284868B4AE38F2F446D0F43E201ED38631F3F64EB73B326A28"
+        "sha256": "67ACEFEC1C0DE9390952EA819431A617EC74D78A5373CDC287CDB8C8B5CD94F0"
       },
       "capability": {
         "file": "config/luvia-human-ai-capability-matrix.v1.json",
-        "sha256": "F77DB4FC0642A7245185304CE966D486181FB74361C71FFAE511509FEFDADE9E"
+        "sha256": "61B54AEE7F2B0599784F1B0435359AEF2867DB0367A08DF5852972B971DB5911"
       },
       "consumer": {
         "file": "config/luvia-human-ai-consumer-projections.v1.json",
-        "sha256": "357CED9E683B0DC844F4A09428D15B8B007257FF34F610911100EEAD0E0411FC"
+        "sha256": "5285E7896891CFD289EE1C598A8135D28B370FC70F1F92F8947AC18B4F4AD9F0"
       }
     }
   },
@@ -58,21 +58,21 @@
     "denial"
   ],
   "summary": {
-    "catalogActions": 330,
-    "matrixRows": 330,
+    "catalogActions": 333,
+    "matrixRows": 333,
     "dimensions": 12,
     "releaseStatus": {
-      "LOCAL_AI_PATH": 81,
+      "LOCAL_AI_PATH": 84,
       "MANUAL_OWNER_PATH": 217,
       "BLOCKED": 14,
       "PUBLIC_E2E_PROVEN": 7,
       "NOT_APPLICABLE": 11
     },
     "publicE2eProven": 7,
-    "localAiPaths": 81,
+    "localAiPaths": 84,
     "manualOwnerPaths": 217,
-    "protectedChanges": 124,
-    "generatedFailureCases": 2733,
+    "protectedChanges": 127,
+    "generatedFailureCases": 2764,
     "driftGuard": true,
     "ownerExecution": false
   },
@@ -22857,7 +22857,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -25586,7 +25586,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -25730,7 +25730,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -25874,7 +25874,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -26322,7 +26322,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -27030,7 +27030,7 @@
         "coverage": "REGISTERED_PARTIAL",
         "routed": true,
         "inputContractStatus": "READY",
-        "consumerView": "HANDOFF"
+        "consumerView": "PREVIEW"
       },
       "release": {
         "status": "LOCAL_AI_PATH",
@@ -45344,6 +45344,446 @@
           "id": "input_missing",
           "given": "Eine erforderliche Angabe fehlt",
           "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 331,
+      "actionId": "journey.visit.update",
+      "label": "Bestätigten Besuch korrigieren",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "effect": "WRITE",
+      "risk": "R2",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.updateVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "PREVIEW"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "places.v1 · commands.updateVisit",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Bestätigten Besuch korrigieren“ eindeutig journey.visit.update zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "INTERNAL_WRITE · TRIP_MEMBER",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "PASS",
+          "evidence": "Separate sichtbare Bestätigung",
+          "expected": "Ohne Bestätigung keine Ausführung"
+        },
+        "idempotency": {
+          "status": "PASS",
+          "evidence": "REQUIRED",
+          "expected": "Wiederholung darf keine doppelte Wirkung erzeugen"
+        },
+        "receipt": {
+          "status": "PASS",
+          "evidence": "Owner-Ergebnis",
+          "expected": "Erfolg, Fehler oder unbekannten Ausgang sichtbar belegen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Erneut mit dem zuletzt bestätigten Places-Owner-Stand korrigieren",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "PASS",
+          "evidence": "Eigene Vorschau und Bestätigung",
+          "expected": "Rückgängig als neue geschützte Änderung"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Bestatigten Besuch korrigieren",
+          "expected": "Tippfehler sicher als journey.visit.update erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "1 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Bestatigten Besuch korrigieren",
+          "expected": "Weiterhin journey.visit.update erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Bestätigten Besuch korrigieren und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung TRIP_MEMBER fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "confirmation_rejected",
+          "given": "Vorschau wird abgebrochen",
+          "expected": "Keine Änderung; Ausgangsaktion wieder benutzbar"
+        },
+        {
+          "id": "duplicate_command",
+          "given": "Derselbe bestätigte Befehl wird erneut gesendet",
+          "expected": "Keine doppelte Wirkung; vorhandenes Ergebnis zurückgeben"
+        },
+        {
+          "id": "outcome_unknown",
+          "given": "Ausgang der Änderung ist unbekannt",
+          "expected": "Nicht blind wiederholen; beim Owner abgleichen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 332,
+      "actionId": "journey.visit.remove",
+      "label": "Bestätigten Besuch entfernen",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "effect": "WRITE",
+      "risk": "R2",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.removeVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "PREVIEW"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "places.v1 · commands.removeVisit",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Bestätigten Besuch entfernen“ eindeutig journey.visit.remove zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "HIGH_RISK_OR_PERMISSION · TRIP_MEMBER",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "PASS",
+          "evidence": "Separate sichtbare Bestätigung",
+          "expected": "Ohne Bestätigung keine Ausführung"
+        },
+        "idempotency": {
+          "status": "PASS",
+          "evidence": "REQUIRED",
+          "expected": "Wiederholung darf keine doppelte Wirkung erzeugen"
+        },
+        "receipt": {
+          "status": "PASS",
+          "evidence": "Owner-Ergebnis",
+          "expected": "Erfolg, Fehler oder unbekannten Ausgang sichtbar belegen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Aus dem dauerhaften Places-Recovery-Beleg wiederherstellen",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "PASS",
+          "evidence": "Eigene Vorschau und Bestätigung",
+          "expected": "Rückgängig als neue geschützte Änderung"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Bestatigten Besuch entfernen",
+          "expected": "Tippfehler sicher als journey.visit.remove erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "1 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Bestatigten Besuch entfernen",
+          "expected": "Weiterhin journey.visit.remove erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Bestätigten Besuch entfernen und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung TRIP_MEMBER fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "confirmation_rejected",
+          "given": "Vorschau wird abgebrochen",
+          "expected": "Keine Änderung; Ausgangsaktion wieder benutzbar"
+        },
+        {
+          "id": "duplicate_command",
+          "given": "Derselbe bestätigte Befehl wird erneut gesendet",
+          "expected": "Keine doppelte Wirkung; vorhandenes Ergebnis zurückgeben"
+        },
+        {
+          "id": "outcome_unknown",
+          "given": "Ausgang der Änderung ist unbekannt",
+          "expected": "Nicht blind wiederholen; beim Owner abgleichen"
+        },
+        {
+          "id": "multilingual_unproven",
+          "given": "Der Wunsch wird nicht auf Deutsch formuliert",
+          "expected": "Evidenz offen lassen oder sicher nachfragen"
+        }
+      ]
+    },
+    {
+      "sequence": 333,
+      "actionId": "journey.visit.restore",
+      "label": "Bestätigten Besuch wiederherstellen",
+      "category": "Journey, Timeline & Tagesplan",
+      "area": "Bestätigte Besuche verwalten",
+      "surface": "Timeline / Globaler Luvia Chat",
+      "effect": "WRITE",
+      "risk": "R2",
+      "humanStatus": "AVAILABLE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.restoreVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "ai": {
+        "coverage": "REGISTERED_PARTIAL",
+        "routed": true,
+        "inputContractStatus": "READY",
+        "consumerView": "PREVIEW"
+      },
+      "release": {
+        "status": "LOCAL_AI_PATH",
+        "publicEvidence": "LOCAL_E2E_PENDING",
+        "blockers": [
+          "PUBLIC_E2E_EVIDENCE_OPEN",
+          "MULTILINGUAL_EVIDENCE_OPEN"
+        ]
+      },
+      "dimensions": {
+        "contract": {
+          "status": "PASS",
+          "evidence": "places.v1 · commands.restoreVisit",
+          "expected": "Öffentlichen Owner-Weg verwenden",
+          "inputContractStatus": "READY"
+        },
+        "compiler": {
+          "status": "PARTIAL",
+          "evidence": "CANONICAL_DE",
+          "expected": "„Bestätigten Besuch wiederherstellen“ eindeutig journey.visit.restore zuordnen"
+        },
+        "permission": {
+          "status": "PASS",
+          "evidence": "INTERNAL_WRITE · TRIP_MEMBER",
+          "expected": "Vor jedem Owner-Aufruf Berechtigung, Zustimmung, Provider und Netz prüfen"
+        },
+        "confirmation": {
+          "status": "PASS",
+          "evidence": "Separate sichtbare Bestätigung",
+          "expected": "Ohne Bestätigung keine Ausführung"
+        },
+        "idempotency": {
+          "status": "PASS",
+          "evidence": "REQUIRED",
+          "expected": "Wiederholung darf keine doppelte Wirkung erzeugen"
+        },
+        "receipt": {
+          "status": "PASS",
+          "evidence": "Owner-Ergebnis",
+          "expected": "Erfolg, Fehler oder unbekannten Ausgang sichtbar belegen"
+        },
+        "recovery": {
+          "status": "PASS",
+          "evidence": "Bei einem Konflikt den aktuellen Places-Owner-Stand erneut laden",
+          "expected": "Keine blinde Wiederholung"
+        },
+        "undo": {
+          "status": "NOT_REQUIRED",
+          "evidence": "Nicht automatisch zugesagt",
+          "expected": "Manuellen Wiederherstellungsweg nennen"
+        },
+        "multilingual": {
+          "status": "OPEN",
+          "evidence": "Nur kanonisches Deutsch",
+          "expected": "Mehrsprachigen Beleg ergänzen"
+        },
+        "typo": {
+          "status": "OPEN",
+          "evidence": "Bestatigten Besuch wiederherstellen",
+          "expected": "Tippfehler sicher als journey.visit.restore erkennen oder nachfragen"
+        },
+        "multiIntent": {
+          "status": "PARTIAL",
+          "evidence": "Allgemeine Sequenzierung vorhanden",
+          "expected": "Mit einem zweiten Wunsch trennen, ordnen und Änderungen einzeln bestätigen"
+        },
+        "denial": {
+          "status": "PASS",
+          "evidence": "1 relevante Ablehnungsfälle",
+          "expected": "Alle zutreffenden Ablehnungen fail-closed prüfen"
+        }
+      },
+      "failures": [
+        {
+          "id": "compiler_unresolved",
+          "given": "Wunsch kann nicht eindeutig zugeordnet werden",
+          "expected": "Rückfrage statt falscher Aktion"
+        },
+        {
+          "id": "owner_unavailable",
+          "given": "Zuständiger Bereich antwortet nicht",
+          "expected": "Ehrlicher Fehlerzustand; keine erfundenen Daten"
+        },
+        {
+          "id": "typo_input",
+          "given": "Bestatigten Besuch wiederherstellen",
+          "expected": "Weiterhin journey.visit.restore erkennen oder konkret nachfragen"
+        },
+        {
+          "id": "multi_intent",
+          "given": "Bestätigten Besuch wiederherstellen und danach einen zweiten Wunsch bearbeiten",
+          "expected": "Wünsche trennen, Reihenfolge zeigen und Änderungen einzeln bestätigen"
+        },
+        {
+          "id": "permission_denied",
+          "given": "Berechtigung TRIP_MEMBER fehlt",
+          "expected": "Keine Ausführung; erforderliche Berechtigung verständlich anzeigen"
+        },
+        {
+          "id": "input_missing",
+          "given": "Eine erforderliche Angabe fehlt",
+          "expected": "Fehlende Angabe konkret nennen; keinen Owner aufrufen"
+        },
+        {
+          "id": "confirmation_rejected",
+          "given": "Vorschau wird abgebrochen",
+          "expected": "Keine Änderung; Ausgangsaktion wieder benutzbar"
+        },
+        {
+          "id": "duplicate_command",
+          "given": "Derselbe bestätigte Befehl wird erneut gesendet",
+          "expected": "Keine doppelte Wirkung; vorhandenes Ergebnis zurückgeben"
+        },
+        {
+          "id": "outcome_unknown",
+          "given": "Ausgang der Änderung ist unbekannt",
+          "expected": "Nicht blind wiederholen; beim Owner abgleichen"
+        },
+        {
+          "id": "undo_unavailable",
+          "given": "Automatisches Rückgängig wird verlangt",
+          "expected": "Grenze ehrlich erklären und manuellen Wiederherstellungsweg zeigen"
         },
         {
           "id": "multilingual_unproven",

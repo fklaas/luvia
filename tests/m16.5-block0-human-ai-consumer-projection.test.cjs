@@ -10,9 +10,9 @@ vm.createContext(context);
 vm.runInContext(read('core/intelligence/human-ai-consumer-projection-core.js'),context,{filename:'human-ai-consumer-projection-core.js'});
 const core=context.LuviaHumanAIConsumerProjectionCoreV1;
 
-assert.equal(document.projections.length,330);
-assert.equal(new Set(document.projections.map(item=>item.actionId)).size,330);
-assert.equal(document.summary.projectedActions,330);
+assert.equal(document.projections.length,333);
+assert.equal(new Set(document.projections.map(item=>item.actionId)).size,333);
+assert.equal(document.summary.projectedActions,333);
 assert.equal(document.summary.capabilityStates,15);
 assert.equal(document.summary.dateFormat,'TT.MM.JJJJ');
 assert.equal(core.formatDate('2027-06-14'),'14.06.2027');
@@ -67,4 +67,4 @@ for(const projection of document.projections){
   assert.doesNotMatch(JSON.stringify({title:projection.title,message:projection.message,manualFlow:projection.manualFlow}),/\b(?:Owner|Receipt|Mutation|Action Ledger|Lifecycle|Contract)\b/i,projection.actionId);
 }
 assert.doesNotMatch(read('core/intelligence/human-ai-consumer-projection-core.js'),/\b(?:window|document|localStorage|sessionStorage|LuviaTripStore|LuviaJourneyContractV1)\b/);
-console.log('M16.5 Block 0 complete Human-AI consumer projection: PASS (330/330 actions)');
+console.log('M16.5 Block 0 complete Human-AI consumer projection: PASS (333/333 actions)');

@@ -16,12 +16,12 @@
     "blockedCapabilityPresentedAsAvailable": false
   },
   "summary": {
-    "catalogActions": 330,
-    "projectedActions": 330,
+    "catalogActions": 333,
+    "projectedActions": 333,
     "consumerViews": {
       "ACTION": 40,
-      "HANDOFF": 263,
-      "PREVIEW": 27
+      "HANDOFF": 257,
+      "PREVIEW": 36
     },
     "capabilityStates": 15,
     "technicalVocabularyHidden": true,
@@ -3976,20 +3976,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "places.plan.edit",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Geplanten Ort zeitlich bearbeiten",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Geplanten Ort zeitlich bearbeiten selbst öffnen",
@@ -4445,20 +4448,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "journey.entry.date.update",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Datum eines Reisemoments ändern",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Datum eines Reisemoments ändern selbst öffnen",
@@ -4468,20 +4474,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "journey.entry.time.update",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Start-/Endzeit eines Reisemoments ändern",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Start-/Endzeit eines Reisemoments ändern selbst öffnen",
@@ -4491,20 +4500,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "journey.entry.duration.update",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Dauer eines Reisemoments ändern",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Dauer eines Reisemoments ändern selbst öffnen",
@@ -4560,20 +4572,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "journey.entry.remove",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Einzelnen Reisemoment löschen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Einzelnen Reisemoment löschen selbst öffnen",
@@ -4675,20 +4690,23 @@
     {
       "contractId": "intelligence.human-ai-consumer-projection.v1",
       "actionId": "journey.undo",
-      "state": "AI_ROUTE_MISSING",
-      "view": "HANDOFF",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
       "tone": "attention",
       "hidden": false,
       "title": "Letzte unterstützte Journey-Änderung rückgängig machen",
-      "eyebrow": "In der App verfügbar",
-      "message": "Diese Funktion kannst du bereits im passenden Bereich verwenden.",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
       "details": [],
       "primaryAction": {
-        "label": "Bereich öffnen",
-        "kind": "OPEN"
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
       },
-      "secondaryAction": null,
-      "requiresConfirmation": false,
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
       "actionMode": "CHANGE",
       "manualFlow": {
         "label": "Letzte unterstützte Journey-Änderung rückgängig machen selbst öffnen",
@@ -7785,6 +7803,84 @@
       "manualFlow": {
         "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen selbst öffnen",
         "surface": "Hotels & Unterkünfte / Globaler Luvia Chat"
+      }
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "journey.visit.update",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
+      "tone": "attention",
+      "hidden": false,
+      "title": "Bestätigten Besuch korrigieren",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
+      "details": [],
+      "primaryAction": {
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
+      },
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
+      "actionMode": "CHANGE",
+      "manualFlow": {
+        "label": "Bestätigten Besuch korrigieren selbst öffnen",
+        "surface": "Timeline / Globaler Luvia Chat"
+      }
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "journey.visit.remove",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
+      "tone": "attention",
+      "hidden": false,
+      "title": "Bestätigten Besuch entfernen",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
+      "details": [],
+      "primaryAction": {
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
+      },
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
+      "actionMode": "CHANGE",
+      "manualFlow": {
+        "label": "Bestätigten Besuch entfernen selbst öffnen",
+        "surface": "Timeline / Globaler Luvia Chat"
+      }
+    },
+    {
+      "contractId": "intelligence.human-ai-consumer-projection.v1",
+      "actionId": "journey.visit.restore",
+      "state": "AVAILABLE_AFTER_CONFIRMATION",
+      "view": "PREVIEW",
+      "tone": "attention",
+      "hidden": false,
+      "title": "Bestätigten Besuch wiederherstellen",
+      "eyebrow": "Noch einmal prüfen",
+      "message": "Prüfe zuerst die Angaben. Geändert wird erst nach deiner Bestätigung.",
+      "details": [],
+      "primaryAction": {
+        "label": "Vorschau ansehen",
+        "kind": "PREVIEW"
+      },
+      "secondaryAction": {
+        "label": "Abbrechen",
+        "kind": "CANCEL"
+      },
+      "requiresConfirmation": true,
+      "actionMode": "CHANGE",
+      "manualFlow": {
+        "label": "Bestätigten Besuch wiederherstellen selbst öffnen",
+        "surface": "Timeline / Globaler Luvia Chat"
       }
     }
   ]

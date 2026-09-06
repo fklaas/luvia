@@ -15,6 +15,6 @@ for(const method of ['projectHumanActionConsumer','projectHumanActionConversatio
 const action=registry.actions.find(item=>item.id==='places.plan'),projection=api.reads.projectHumanActionConsumer({action,capability:{state:'AVAILABLE_AFTER_CONFIRMATION'}});
 assert.equal(projection.view,'PREVIEW');
 assert.equal(api.reads.projectHumanActionConversation({status:'compiled',intents:[{clause:'Restaurant finden',mode:'read'}],missingInputs:[],conflicts:[],blockedCommands:[]}).visible,false);
-assert.equal(api.reads.getHumanActionConsumerCoverage(registry.actions).projectedActions,330);
+assert.equal(api.reads.getHumanActionConsumerCoverage(registry.actions).projectedActions,333);
 assert.equal(api.diagnostics().providers.humanActionConsumerProjection,true);
 console.log('M16.5 Block 0 Human-AI consumer public Intelligence adapter: PASS');

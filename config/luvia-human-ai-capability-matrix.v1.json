@@ -18,10 +18,10 @@
   "summary": {
     "contractId": "intelligence.human-ai-capability-discovery.v1",
     "version": "1",
-    "catalogActions": 330,
-    "aiRouted": 81,
-    "manualOwnerFallbacks": 291,
-    "inputContractReady": 106,
+    "catalogActions": 333,
+    "aiRouted": 90,
+    "manualOwnerFallbacks": 294,
+    "inputContractReady": 115,
     "honestBlockingStates": 15,
     "offersBlockedActions": false,
     "ownerExecution": false
@@ -1859,9 +1859,9 @@
       "category": "Places & Ortsentdeckung",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2079,9 +2079,9 @@
       "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2090,9 +2090,9 @@
       "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2101,9 +2101,9 @@
       "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2134,9 +2134,9 @@
       "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -2189,9 +2189,9 @@
       "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
-      "aiCoverage": "MISSING",
-      "aiRouted": false,
-      "inputContractStatus": "OPEN",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
       "manualOwnerFlowAvailable": true
     },
     {
@@ -3650,6 +3650,39 @@
       "actionId": "booking.stay.offer.open",
       "label": "Ausgewähltes Hotelangebot beim richtigen Anbieter öffnen",
       "category": "Buchung & Anbieterkommunikation",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
+    },
+    {
+      "actionId": "journey.visit.update",
+      "label": "Bestätigten Besuch korrigieren",
+      "category": "Journey, Timeline & Tagesplan",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
+    },
+    {
+      "actionId": "journey.visit.remove",
+      "label": "Bestätigten Besuch entfernen",
+      "category": "Journey, Timeline & Tagesplan",
+      "humanStatus": "AVAILABLE",
+      "ownerBinding": "PUBLIC_CONTRACT_BOUND",
+      "aiCoverage": "REGISTERED_PARTIAL",
+      "aiRouted": true,
+      "inputContractStatus": "READY",
+      "manualOwnerFlowAvailable": true
+    },
+    {
+      "actionId": "journey.visit.restore",
+      "label": "Bestätigten Besuch wiederherstellen",
+      "category": "Journey, Timeline & Tagesplan",
       "humanStatus": "AVAILABLE",
       "ownerBinding": "PUBLIC_CONTRACT_BOUND",
       "aiCoverage": "REGISTERED_PARTIAL",

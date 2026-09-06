@@ -19,24 +19,24 @@
   "summary": {
     "contractId": "intelligence.human-ai-action-lifecycle.v1",
     "version": "1",
-    "catalogActions": 330,
-    "lifecycleActions": 330,
+    "catalogActions": 333,
+    "lifecycleActions": 333,
     "modes": {
       "OPEN_ONLY": 27,
       "PRESENTATION_ONLY": 21,
       "READ_ONLY": 81,
       "DRAFT_ONLY": 53,
       "CONTROL_MUTATION": 3,
-      "MUTATION": 121,
+      "MUTATION": 124,
       "EXTERNAL_HANDOFF": 14,
       "PERMISSION_REQUEST": 10
     },
-    "stateChanging": 124,
-    "previewAndExplicitConfirmation": 124,
-    "idempotencyRequired": 124,
-    "ownerReceiptAndReadback": 121,
+    "stateChanging": 127,
+    "previewAndExplicitConfirmation": 127,
+    "idempotencyRequired": 127,
+    "ownerReceiptAndReadback": 124,
     "controlReceiptAndReadback": 3,
-    "truthfulUndo": 20,
+    "truthfulUndo": 22,
     "unknownExternalBlindRetry": false,
     "naturalLanguageConfirmsMutation": false,
     "ownerExecution": false
@@ -11503,7 +11503,7 @@
       "stateChanging": true,
       "owner": {
         "contract": "journey.v1",
-        "method": "commands.undo",
+        "method": "commands.restoreRemovedEntry",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "preview": {
@@ -19166,6 +19166,197 @@
         "DIRECT_USER_GESTURE",
         "OWNER_OPEN",
         "OPENED_OR_FAILED"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "journey.visit.update",
+      "label": "Bestätigten Besuch korrigieren",
+      "mode": "MUTATION",
+      "effect": "WRITE",
+      "risk": "R2",
+      "stateChanging": true,
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.updateVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": true,
+        "title": "Bestätigten Besuch korrigieren prüfen",
+        "consequence": "Der globale Luvia Chat ändert Beginn und Dauer erst nach einer sichtbaren Vorschau und ausdrücklicher Bestätigung."
+      },
+      "confirmation": {
+        "required": true,
+        "separateVisibleControl": true,
+        "naturalLanguageAccepted": false,
+        "policy": "EXPLICIT"
+      },
+      "idempotency": {
+        "required": true,
+        "policy": "REQUIRED"
+      },
+      "receipt": {
+        "required": true,
+        "ownerAttributed": true,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": true,
+        "policy": "OWNER_READBACK"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "OWNER_GUIDED",
+        "blindRetry": false,
+        "description": "Erneut mit dem zuletzt bestätigten Places-Owner-Stand korrigieren"
+      },
+      "undo": {
+        "supported": true,
+        "requiresNewPreview": true,
+        "requiresSeparateConfirmation": true,
+        "compensationActionId": "journey.visit.update"
+      },
+      "stages": [
+        "INPUT_VALIDATION",
+        "AUTHORITY_GATE",
+        "PREVIEW",
+        "EXPLICIT_CONFIRMATION",
+        "IDEMPOTENCY",
+        "OWNER_COMMAND",
+        "OWNER_RECEIPT",
+        "READBACK_OR_RECONCILIATION",
+        "SUCCESS_OR_RECOVERY",
+        "UNDO_PREVIEW",
+        "UNDO_CONFIRMATION",
+        "OWNER_COMPENSATION",
+        "COMPENSATION_RECEIPT"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "journey.visit.remove",
+      "label": "Bestätigten Besuch entfernen",
+      "mode": "MUTATION",
+      "effect": "WRITE",
+      "risk": "R2",
+      "stateChanging": true,
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.removeVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": true,
+        "title": "Bestätigten Besuch entfernen prüfen",
+        "consequence": "Nur der bestätigte Besuch verschwindet aus der Timeline; Place, Buchungen, Medien und Memories bleiben erhalten."
+      },
+      "confirmation": {
+        "required": true,
+        "separateVisibleControl": true,
+        "naturalLanguageAccepted": false,
+        "policy": "EXPLICIT"
+      },
+      "idempotency": {
+        "required": true,
+        "policy": "REQUIRED"
+      },
+      "receipt": {
+        "required": true,
+        "ownerAttributed": true,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": true,
+        "policy": "OWNER_READBACK"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "OWNER_GUIDED",
+        "blindRetry": false,
+        "description": "Aus dem dauerhaften Places-Recovery-Beleg wiederherstellen"
+      },
+      "undo": {
+        "supported": true,
+        "requiresNewPreview": true,
+        "requiresSeparateConfirmation": true,
+        "compensationActionId": "journey.visit.restore"
+      },
+      "stages": [
+        "INPUT_VALIDATION",
+        "AUTHORITY_GATE",
+        "PREVIEW",
+        "EXPLICIT_CONFIRMATION",
+        "IDEMPOTENCY",
+        "OWNER_COMMAND",
+        "OWNER_RECEIPT",
+        "READBACK_OR_RECONCILIATION",
+        "SUCCESS_OR_RECOVERY",
+        "UNDO_PREVIEW",
+        "UNDO_CONFIRMATION",
+        "OWNER_COMPENSATION",
+        "COMPENSATION_RECEIPT"
+      ],
+      "naturalLanguageConfirmsMutation": false,
+      "ownerExecution": false
+    },
+    {
+      "actionId": "journey.visit.restore",
+      "label": "Bestätigten Besuch wiederherstellen",
+      "mode": "MUTATION",
+      "effect": "WRITE",
+      "risk": "R2",
+      "stateChanging": true,
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.restoreVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "preview": {
+        "required": true,
+        "title": "Bestätigten Besuch wiederherstellen prüfen",
+        "consequence": "Die Wiederherstellung nutzt ausschließlich den revisionsgeprüften Recovery-Beleg des Places Visit Owners."
+      },
+      "confirmation": {
+        "required": true,
+        "separateVisibleControl": true,
+        "naturalLanguageAccepted": false,
+        "policy": "EXPLICIT"
+      },
+      "idempotency": {
+        "required": true,
+        "policy": "REQUIRED"
+      },
+      "receipt": {
+        "required": true,
+        "ownerAttributed": true,
+        "controlAttributed": false
+      },
+      "readback": {
+        "required": true,
+        "policy": "OWNER_READBACK"
+      },
+      "recovery": {
+        "unknownExternalOutcome": "OWNER_GUIDED",
+        "blindRetry": false,
+        "description": "Bei einem Konflikt den aktuellen Places-Owner-Stand erneut laden"
+      },
+      "undo": {
+        "supported": false,
+        "requiresNewPreview": false,
+        "requiresSeparateConfirmation": false,
+        "compensationActionId": null
+      },
+      "stages": [
+        "INPUT_VALIDATION",
+        "AUTHORITY_GATE",
+        "PREVIEW",
+        "EXPLICIT_CONFIRMATION",
+        "IDEMPOTENCY",
+        "OWNER_COMMAND",
+        "OWNER_RECEIPT",
+        "READBACK_OR_RECONCILIATION",
+        "SUCCESS_OR_RECOVERY"
       ],
       "naturalLanguageConfirmsMutation": false,
       "ownerExecution": false

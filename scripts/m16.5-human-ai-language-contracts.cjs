@@ -37,9 +37,9 @@ function buildLanguageContracts(){
   };
 }
 function validateLanguageContracts(document){
-  assert.equal(document.contractId,'luvia.human-ai-language-contracts.v1');assert.equal(document.version,'1.0.0');assert.equal(document.actions.length,330);
-  assert.equal(document.summary.semanticActions,330);assert.equal(document.summary.canonicalGermanActions,330);assert.ok(document.summary.curatedActionIds>=100);assert.ok(document.summary.curatedRules>=120);
-  assert.equal(new Set(document.actions.map(item=>item.actionId)).size,330);assert.ok(document.actions.every(item=>item.canonical.de.length===1));
+  assert.equal(document.contractId,'luvia.human-ai-language-contracts.v1');assert.equal(document.version,'1.0.0');assert.equal(document.actions.length,333);
+  assert.equal(document.summary.semanticActions,333);assert.equal(document.summary.canonicalGermanActions,333);assert.ok(document.summary.curatedActionIds>=100);assert.ok(document.summary.curatedRules>=120);
+  assert.equal(new Set(document.actions.map(item=>item.actionId)).size,333);assert.ok(document.actions.every(item=>item.canonical.de.length===1));
   assert.ok(document.actions.every(item=>item.guard.naturalLanguageConfirmsMutation===false&&item.guard.deterministicValidationRequired===true));
   return true;
 }

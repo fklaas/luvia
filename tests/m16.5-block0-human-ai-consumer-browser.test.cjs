@@ -10,7 +10,7 @@ for(const text of ['Orte finden','Timeline','Angabe fehlt','Ohne Internet','Zwei
 assert.match(fixture,/rückgängig/i);
 assert.match(fixture,/14\.06\.2027/);
 assert.match(fixture,/data-consumer-view/);
-assert.equal(projection.projections.length,330);
+assert.equal(projection.projections.length,333);
 assert.match(dashboard,/data-ai-consumer-projection/);
 assert.match(dashboard,/projectIntentSummary/);
 assert.match(dashboard,/projectPreview/);

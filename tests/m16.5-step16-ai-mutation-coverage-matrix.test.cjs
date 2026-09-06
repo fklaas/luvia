@@ -11,10 +11,10 @@ const context={Object,Array,String,Number,Boolean,Date,Math,RegExp,JSON,Set,Map,
 vm.createContext(context);vm.runInContext(actionSource,context);
 
 const actions=Array.from(context.LuviaIntelligenceActionContractCoreV1.listActions());
-assert.equal(actions.length,27,'registered action count changed; the coverage matrix must be deliberately revised');
+assert.equal(actions.length,30,'registered action count changed; the coverage matrix must be deliberately revised');
 const inventory=matrix.slice(matrix.indexOf('## Registered action inventory'),matrix.indexOf('## Product-surface gaps'));
 const documented=[...inventory.matchAll(/^\| `([^`]+)` \|/gm)].map(match=>match[1]);
-assert.equal(documented.length,27,'the registry table must contain exactly the 27 registered actions');
+assert.equal(documented.length,30,'the registry table must contain exactly the 30 registered actions');
 assert.equal(new Set(documented).size,documented.length,'the registry table contains duplicate actions');
 assert.deepEqual([...documented].sort(),actions.map(action=>action.id).sort(),'coverage matrix and executable action registry diverged');
 

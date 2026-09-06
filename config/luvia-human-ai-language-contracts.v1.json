@@ -18,8 +18,8 @@
     "orderingPreserved": true
   },
   "summary": {
-    "semanticActions": 330,
-    "canonicalGermanActions": 330,
+    "semanticActions": 333,
+    "canonicalGermanActions": 333,
     "curatedActionIds": 142,
     "curatedRules": 142,
     "supportedLocales": [
@@ -43,7 +43,7 @@
     ],
     "coverage": {
       "MULTILINGUAL_CURATED": 142,
-      "CANONICAL_DE": 188
+      "CANONICAL_DE": 191
     }
   },
   "actions": [
@@ -5322,7 +5322,7 @@
       "coverage": "MULTILINGUAL_CURATED",
       "owner": {
         "contract": "journey.v1",
-        "method": "commands.undo",
+        "method": "commands.restoreRemovedEntry",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "guard": {
@@ -8846,6 +8846,81 @@
       "owner": {
         "contract": "booking.v1",
         "method": "commands.openStayOffer",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "journey.visit.update",
+      "category": "Journey, Timeline & Tagesplan",
+      "label": "Bestätigten Besuch korrigieren",
+      "effect": "WRITE",
+      "stateChanging": true,
+      "canonical": {
+        "de": [
+          "Bestätigten Besuch korrigieren"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.updateVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "journey.visit.remove",
+      "category": "Journey, Timeline & Tagesplan",
+      "label": "Bestätigten Besuch entfernen",
+      "effect": "WRITE",
+      "stateChanging": true,
+      "canonical": {
+        "de": [
+          "Bestätigten Besuch entfernen"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.removeVisit",
+        "bindingStatus": "PUBLIC_CONTRACT_BOUND"
+      },
+      "guard": {
+        "naturalLanguageConfirmsMutation": false,
+        "deterministicValidationRequired": true
+      }
+    },
+    {
+      "actionId": "journey.visit.restore",
+      "category": "Journey, Timeline & Tagesplan",
+      "label": "Bestätigten Besuch wiederherstellen",
+      "effect": "WRITE",
+      "stateChanging": true,
+      "canonical": {
+        "de": [
+          "Bestätigten Besuch wiederherstellen"
+        ]
+      },
+      "curatedRuleCount": 0,
+      "curatedLocales": [],
+      "entityHints": [],
+      "coverage": "CANONICAL_DE",
+      "owner": {
+        "contract": "places.v1",
+        "method": "commands.restoreVisit",
         "bindingStatus": "PUBLIC_CONTRACT_BOUND"
       },
       "guard": {

@@ -18,9 +18,9 @@ function buildConsumerProjections(){
   return{$schema:'./luvia-human-ai-consumer-projections.v1.schema.json',contractId:'luvia.human-ai-consumer-projections.v1',version:'1.0.0',generatedAt:'2026-09-01',source:{registryContractId:registry.contractId,registryVersion:registry.version,coreContractId:core.contractId,coreVersion:core.version},invariants:{normalSurfaceTechnicalVocabulary:false,singleResolvedIntentRepeated:false,datesUseGermanDayMonthYear:true,blockedCapabilityPresentedAsAvailable:false},summary,projections};
 }
 function validateConsumerProjections(document){
-  assert.equal(document.projections.length,330);
-  assert.equal(new Set(document.projections.map(item=>item.actionId)).size,330);
-  assert.equal(document.summary.projectedActions,330);
+  assert.equal(document.projections.length,333);
+  assert.equal(new Set(document.projections.map(item=>item.actionId)).size,333);
+  assert.equal(document.summary.projectedActions,333);
   assert.equal(document.summary.capabilityStates,15);
   assert.equal(document.summary.technicalVocabularyHidden,true);
   assert.equal(document.summary.duplicateSingleIntentSuppressed,true);

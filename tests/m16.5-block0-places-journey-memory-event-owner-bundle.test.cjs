@@ -42,7 +42,7 @@ const {
   assert.deepEqual(Array.from(selected.ids),['media-1']);
   assert.equal((await memory.reads.getStory('story-1')).id,'story-1');
 
-  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,246);
+  assert.equal(registry.summary.ownerBinding.PUBLIC_CONTRACT_BOUND,249);
   assert.equal(registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN||0,0);
   assert.equal(registry.summary.aiCoverage.MISSING,223,'Owner binding must not be mislabeled as AI parity');
   console.log('M16.5 Block 0 Places/Journey/Memory/Event public Owner bundle: PASS');

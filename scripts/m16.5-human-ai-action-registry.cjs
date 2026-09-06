@@ -1210,7 +1210,7 @@ function buildReport(validated = validateRegistry()) {
     `registration with canonical \`booking.place.open\`, preserves the compatibility\n` +
     `alias and adds bounded \`navigation.route.open\`, \`booking.stay.search\` and exact \`booking.stay.offer.open\` runtime actions. All 20\n` +
     `human navigation outcomes, including the new Hotels area, now map to that\n` +
-    `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. A selected offer opens only when Provider-, Property-, Offer-, Rate-, Quote- and URL identity agree. The source runtime action set is **24**.\n` +
+    `single allow-listed Owner command; Hotel search reaches the public Booking Owner and fails closed without live provider evidence. A selected offer opens only when Provider-, Property-, Offer-, Rate-, Quote- and URL identity agree. Confirmed visit update, removal and restoration now use the same revisionsgeprüften Places Visit Owner from Timeline and Chat. The source runtime action set is **30**.\n` +
     `The deterministic registry and input-contract artifact are regenerated and\n` +
     `locally green; the 333-row parity/failure matrix remains a release gate for every following domain slice. Accepted App \`13.82.139\` promotes exactly four publicly operated Places mutation rows for seven total public passes. The rejected \`.148\` and \`.149\` candidates and local \`.150\` candidate do not inflate public evidence before an operated public run.\n`;
 }

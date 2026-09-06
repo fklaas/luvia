@@ -10,8 +10,8 @@ const context={console};vm.createContext(context);vm.runInContext(read('core/int
 const core=context.LuviaHumanAISafetyPolicyCoreV1,action=id=>registry.actions.find(item=>item.id===id);
 const member={authenticated:true,tripRole:'MEMBER',online:true,providers:{PLACES_PROVIDER:true,BOOKING_PROVIDER:true,VERIFIED_EVENT_PROVIDER:true,AI_RUNTIME:true},consents:[],userGesture:true,confirmed:false};
 
-assert.equal(core.contractId,'intelligence.human-ai-safety-policy.v1');assert.equal(document.policies.length,330);assert.equal(document.summary.policyActions,330);assert.equal(Object.keys(document.summary.classifications).length,6);
-assert.equal(new Set(document.policies.map(item=>item.actionId)).size,330);assert.ok(document.policies.every(item=>item.naturalLanguageConfirmsMutation===false&&item.ownerExecution===false));
+assert.equal(core.contractId,'intelligence.human-ai-safety-policy.v1');assert.equal(document.policies.length,333);assert.equal(document.summary.policyActions,333);assert.equal(Object.keys(document.summary.classifications).length,6);
+assert.equal(new Set(document.policies.map(item=>item.actionId)).size,333);assert.ok(document.policies.every(item=>item.naturalLanguageConfirmsMutation===false&&item.ownerExecution===false));
 
 assert.equal(core.evaluate({action:action('places.restaurant.search'),actor:member}).decision,'ALLOW');
 assert.equal(core.evaluate({action:action('booking.reservation.create'),actor:member}).decision,'CONFIRMATION_REQUIRED');

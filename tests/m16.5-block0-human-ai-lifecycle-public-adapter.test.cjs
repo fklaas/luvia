@@ -16,5 +16,5 @@ for(const method of ['compileHumanActionLifecycle','createHumanActionLifecycle',
 const definition=api.reads.compileHumanActionLifecycle(action);assert.equal(definition.mode,'MUTATION');
 const instance=api.reads.createHumanActionLifecycle({action,authorityDecision:'ALLOW',inputRef:'place-1'});assert.equal(instance.status,'PREVIEW_REQUIRED');
 assert.equal(api.reads.advanceHumanActionLifecycle(instance,{type:'SHOW_PREVIEW',previewRef:'preview-1'}).status,'CONFIRMATION_REQUIRED');
-assert.equal(api.reads.getHumanActionLifecycleCoverage(registry.actions).lifecycleActions,330);assert.equal(api.diagnostics().providers.humanActionLifecycle,true);
+assert.equal(api.reads.getHumanActionLifecycleCoverage(registry.actions).lifecycleActions,333);assert.equal(api.diagnostics().providers.humanActionLifecycle,true);
 console.log('M16.5 Block 0 Human-AI lifecycle public Intelligence adapter: PASS');

@@ -20,8 +20,8 @@ const result=api.reads.compileHumanActions({utterance:'Finde Minigolf in Scharbe
 assert.ok(result.candidates.some(candidate=>candidate.actionId==='places.discovery.search'));
 assert.equal(result.executed,false);
 const coverage=api.reads.getHumanActionLanguageCoverage(registry.actions);
-assert.equal(coverage.catalogActions,330);
-assert.equal(coverage.canonicalLabelCoverage,330);
+assert.equal(coverage.catalogActions,333);
+assert.equal(coverage.canonicalLabelCoverage,333);
 assert.ok(coverage.curatedActionCount>=140);
 assert.equal(coverage.executesOwnerActions,false);
 assert.equal(api.diagnostics().providers.humanActionLanguageCompiler,true);
