@@ -14,6 +14,7 @@ let visitState={id:'visit-1',tripId:'trip-1',placeId:'place-strand',title:'Best�
 let alternativeVisitState=null;
 let visitRecovery=null;
 let exposeVisitEntries=true;
+let duplicateVisitProjection=false;
 
 for(const forbidden of ['LuviaTripStore','LuviaPlaceCore','LuviaPlaceRuntime','LuviaBookingUI','LuviaTimelineCore','LuviaSupabaseService','.from(','.rpc(','functions.invoke(','localStorage','sessionStorage']){
   assert.equal(source.includes(forbidden),false,`M16 Action Runtime bypasses a public owner contract: ${forbidden}`);
@@ -67,7 +68,7 @@ const context={
     }
   },
   LuviaJourneyContractV1:{
-    reads:{snapshot(){const visits=alternativeVisitState?[visitState,alternativeVisitState]:[visitState],entries=exposeVisitEntries?visits.map(visit=>({id:`visit:${visit.id}`,source:'gps',sourceId:visit.id,sourceRevision:visit.revision,tripId:'trip-1',placeId:visit.placeId,title:visit.title,startAt:visit.arrivedAt,durationMinutes:Math.round(visit.durationSeconds/60)})):[];return{days:[{date:'2026-08-25',label:'Dienstag',entries}],summary:{entryCount:entries.length}}}},
+    reads:{snapshot(){const visits=alternativeVisitState?[visitState,alternativeVisitState]:[visitState],entries=exposeVisitEntries?visits.flatMap(visit=>{const primary={id:`visit:${visit.id}`,source:'gps',sourceId:visit.id,sourceRevision:visit.revision,tripId:'trip-1',placeId:visit.placeId,title:visit.title,startAt:visit.arrivedAt,durationMinutes:Math.round(visit.durationSeconds/60)};return duplicateVisitProjection?[primary,{...primary,id:`timeline:${visit.id}`,title:'Bestätigter Besuch'}]:[primary]}):[];return{days:[{date:'2026-08-25',label:'Dienstag',entries}],summary:{entryCount:entries.length}}}},
     commands:{
       async openPlanningEditor(payload){calls.push(['journey-open',payload]);return{opened:true}},
       async editEntry(entryId,payload){calls.push(['journey-entry-schedule',entryId,payload]);return{entryId,operation:'restore-schedule'}},
@@ -199,12 +200,12 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
 
   const originalVisitTitle=visitState.title;
   visitState={...visitState,title:'Restaurant · Grande Beach Café'};
-  alternativeVisitState={id:'visit-2',tripId:'trip-1',placeId:'place-brechtmann',title:'Restaurant Brechtmann in Scharbeutz-Schürsdorf',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T18:00:00.000Z',durationSeconds:60*60,revision:'visit-rev-brechtmann-1'};
+  alternativeVisitState={id:'visit-2',tripId:'trip-1',placeId:'place-brechtmann',title:'Restaurant Brechtmann in Scharbeutz-Schürsdorf',state:'visited',isConfirmed:true,arrivedAt:'2026-08-25T18:00:00.000Z',durationSeconds:60*60,revision:'visit-rev-brechtmann-1'};duplicateVisitProjection=true;
   const namedVisitMessage='Ändere den bestätigten Besuch im Grande Beach Café heute auf 18:20 Uhr für 60 Minuten.';
   const namedVisitCompiled=context.LuviaTravelOrchestrationCoreV1.compileIntent(namedVisitMessage,{trip:{startDate:'2026-08-25',endDate:'2026-08-30'},now:'2026-08-25T12:00:00Z'});
   const namedVisit=await runtime.runMessage(namedVisitMessage,{compiledIntent:namedVisitCompiled,sourceMessage:namedVisitMessage});
   assert.equal(namedVisit.results[0].kind,'confirmation',JSON.stringify(namedVisit));assert.equal(namedVisit.results[0].evidence.actionId,'journey.visit.update');assert.equal(namedVisit.results[0].evidence.preview.visitId,'visit-1');assert.equal(namedVisit.results[0].evidence.preview.name,'Restaurant · Grande Beach Café');runtime.cancel(namedVisit.results[0].evidence.ledgerId);
-  alternativeVisitState=null;visitState={...visitState,title:originalVisitTitle};
+  alternativeVisitState=null;duplicateVisitProjection=false;visitState={...visitState,title:originalVisitTitle};
 
   exposeVisitEntries=false;
   const recommendCallsBeforeMissingVisit=calls.filter(call=>call[0]==='recommend').length;
