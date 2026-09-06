@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.106**, Core **4.82.225**. M16.5 Schritte 15–18 aktiv. App .106 / Core .225 schließt den internen P09/P10-Owner- und AI-Chat-Weg für bestätigte Besuche als korrigierten, mit 233/233 geprüften Integrationskandidaten. P09 und P10 stehen auf BELEGT_BEGRENZT; offen bleiben nur die ausdrücklich getrennten physischen Geräte- und externen Providerbelege.
+**Stand 2026-09-06:** Integration **13.82.168.107**, Core **4.82.226**. M16.5 Schritte 15–18 aktiv. App .107 / Core .226 schließt den internen P09/P10-Owner- und AI-Chat-Weg für bestätigte Besuche als korrigierten, mit 233/233 geprüften Integrationskandidaten mit konkreter Visit-Fehlerprojektion. P09 und P10 stehen auf BELEGT_BEGRENZT; offen bleiben nur die ausdrücklich getrennten physischen Geräte- und externen Providerbelege.
 
 **Zuletzt geliefert:** Bestätigte Besuche lassen sich in Timeline und AI Chat über denselben Places Visit Owner korrigieren, entfernen und per dauerhaftem Recovery-Beleg wiederherstellen. Unicode-sichere deutsche Befehle wie „Ändere“, „Lösche“ und „Zurückholen“ werden als bestätigungspflichtige Änderung erkannt. Fehlt ein bestätigter Visit-Owner-Datensatz, erscheint eine ehrliche Meldung und keine allgemeine Places-Suche. Der Katalog umfasst 333 semantische Aktionen, 30 typisierte Runtime-Aktionen, 249 öffentliche Owner-Bindungen und 2.764 Fehlerauswertungen.
 
