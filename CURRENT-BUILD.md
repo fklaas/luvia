@@ -1,6 +1,6 @@
-## Composer .124 · in Abnahme · 2026-09-07
+## Composer .125 · in Abnahme · 2026-09-07
 
-App **13.82.168.124**, Core **4.82.243**. Reisespur, jahreszeitliche Lichtstimmung, zugeordnete Ankunftsmedien und Tagesfilm sind implementiert. Die sichtbare Browserabnahme und vollständige Regression laufen. Noch kein neuer öffentlicher Releasebeleg; der zuletzt abgenommene Kandidat bleibt unten dokumentiert.
+App **13.82.168.125**, Core **4.82.244**. Reisespur, jahreszeitliche Lichtstimmung, zugeordnete Ankunftsmedien und Tagesfilm sind implementiert. Die Größenkorrektur der geteilten Karte erhält eine eigene Cache-Version. Die finale sichtbare Browserabnahme und vollständige Regression laufen; der zuletzt abgenommene Kandidat bleibt unten dokumentiert.
 
 ## Composer .123 · abgenommen am 2026-09-07
 
