@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
-  "sourceBaseline": "6d2b5cc0",
-  "app": "13.82.168.113",
-  "core": "4.82.232",
-  "runtimeSource": "6d2b5cc01c1d186dda55d778a379fd7ba19c0c6f",
-  "worker": "d3553403-3c27-4d79-9a4d-0d5021045c4a",
+  "sourceBaseline": "f1f732e8",
+  "app": "13.82.168.114",
+  "core": "4.82.233",
+  "runtimeSource": "f1f732e8ca9a2cc2a209e4c58eb07ae4c9c3effa",
+  "worker": "cf8876f5-26b4-426a-bab8-24017a0cf2d6",
   "gateway": "v233 ACTIVE / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -184,8 +184,8 @@
       "canonicalTitle": "Identity Preferences",
       "status": "TEILWEISE",
       "owner": "Identity und Trip",
-      "evidence": "Profil und Reise sind getrennt; aktuelle Kartenpassung nutzt belegte Merkmale.",
-      "nextAcceptance": "Anfrage, Reise und dauerhafte Vorliebe einschließlich Korrektur und Löschung über Places, Chat und alle drei Trip-Composer-Einstiege abnehmen.",
+      "evidence": "App .114 trennt im gemeinsamen Trip Composer flüchtigen Anfragekontext, reisebezogene Vorlieben und eine bestätigungspflichtige dauerhafte Identity-Übergabe. Der rohe Anfragefreitext bleibt nur im Command-Beleg, Trip-Interessen und Budget werden im Trip-Readback gespeichert, und dauerhafte Profilwerte werden weder still noch zusammen mit der Reise geschrieben. Geführt, Schnellstart und Luvia AI verwenden dieselbe Scope-Projektion. Automatischer Owner-/Persistenztest, sichtbarer lokaler End-to-End-Lauf, öffentliche 9/5/7-Schritt-Projektion, 235/235 Safe Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Korrektur und Löschung einer später ausdrücklich bestätigten dauerhaften Identity-Übergabe bleiben offen.",
+      "nextAcceptance": "Eine dauerhafte Profilübergabe separat bestätigen, über identity.v1 lesen, korrigieren und löschen; dieselbe wirksame Trennung anschließend in Places, Chat und allen drei Trip-Composer-Einstiegen sichtbar nachweisen.",
       "scope": "Distinguish request-only, Trip-scoped and durable preferences across discovery and Trip creation; protect sensitive traits and confirm every durable write.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -208,8 +208,8 @@
       "canonicalTitle": "Trip capability closure",
       "status": "TEILWEISE",
       "owner": "Trip",
-      "evidence": "Erstellung und aktive Auswahl vorhanden; Reload-Reparatur belegt.",
-      "nextAcceptance": "Account-ohne-Reise-Zustand und einen gemeinsamen Trip Composer mit Geführt, Schnellstart und KI-Entwurf sowie Vormerken, Einplanen, Abhängigkeitsvorschau und Rücknahme schließen.",
+      "evidence": "App .114 liefert einen kanonischen Trip Composer mit den Einstiegen Geführt (9 Schritte), Schnellstart (5 Schritte) und Luvia AI (7 Schritte). Schnellstart und AI leiten einen fehlenden Titel aus dem bestätigten Reiseziel ab; Ziel, Zeitraum, Farbe und Symbol bleiben Trip-Felder. Der AI-Wunschtext wird nicht zur erfundenen Wahrheit: Place-/Stay-Identitäten, Bilder, Öffnungszeiten, Wetter, Auslastung, Störungen, Preise und Buchbarkeit bleiben ohne Beleg ausdrücklich offen. Der lokale sichtbare Lauf führte AI bis zum idempotenten trip.first.create-Command; öffentlich wurden die drei Einstiege und dynamischen Schrittfolgen geprüft. Die öffentliche kanonische Zielsuche blieb jedoch auf „Suche läuft …“ stehen und gilt deshalb als offenes Gate. Safe Regression 235/235, NFR-0 3/3 und 30/30 Byteidentität sind grün; Worker cf8876f5 bleibt immutable, Stable wurde auf .104 zurückgesetzt.",
+      "nextAcceptance": "Die öffentliche kanonische Zielsuche zuverlässig abschließen und danach den echten tageweisen AI-Entwurf mit Place-/Stay-Identitäten, Karte, P12-Probe, Teilübernahme, Reload sowie Trip-Archivieren/Löschen/Wiederherstellen über Owner-Commands sichtbar schließen.",
       "scope": "Read, create, update, switch, archive, delete and restore with dependency previews and Trip receipts. One Trip Composer serves guided, quick-start and AI-assisted draft entry modes without duplicating Trip truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -640,9 +640,9 @@
       ]
     }
   ],
-  "acceptanceUpdate": "App 13.82.168.113 / Core 4.82.232 schließt P12 intern ab. Die sichtbare Timeline spielte den echten 12.06.2027 mit Grande Beach Café und Restaurant Brechtmann als günstigen, erwarteten und ungünstigen Verlauf durch. Wegezeit, Tagesende, Routenlage und unbekanntes Wetter, Verkehr/Störungen, Öffnungszeiten sowie Auslastung blieben nachvollziehbar; es erschien weder eine Erfolgswahrscheinlichkeit noch eine automatische Änderung. Luvia AI las auf ausdrückliche Datumsanfrage denselben Tag, dieselben zwei Momente und dieselben drei Verläufe. Nach Schließen und Reload blieben zwei Momente und zehn Minuten Routenpuffer unverändert. Safe Regression 235/235, NFR-0 3/3 und 30/30 Byteidentität zwischen sauberem Deployment-Archiv, Stable-Kandidat und immutable Worker sind grün. Archiv: 88.892.904 Bytes, SHA-256 45819061A7783B83061F167AD65EAA88C5232CFA5ADDE1F12C5EE42A74DC0860. Main und Production blieben unverändert. Stable Integration wurde nach der Abnahme auf den akzeptierten .104-Worker zurückgestellt; P15/P17 Trip Composer ist jetzt aktiv.",
-  "safeRegression": "App .113 P12-Integrationskandidat: vollständige Safe Regression 235/235 PASS; NFR-0 3/3 PASS; 30/30 releasekritische öffentliche Dateien stimmen zwischen sauberem Deployment-Byte-Archiv, Stable-Kandidat und immutable Worker überein. Gezielte Szenario-, Quellen-, Frische-, Unknown-Context-, Nullmutations-, Timeline-, AI-, Release-, Registry- und Visual-Inventory-Prüfungen PASS.",
-  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Byte-Archiv, Stable-Kandidat und immutable Worker .113; Archiv 88.892.904 Bytes, SHA-256 45819061A7783B83061F167AD65EAA88C5232CFA5ADDE1F12C5EE42A74DC0860",
+  "acceptanceUpdate": "App 13.82.168.114 / Core 4.82.233 liefert die P15/P17-Foundation über einen einzigen Trip Composer: Geführt, Schnellstart und Luvia AI teilen Trip-Owner, kanonische Ziel-/Zeitraumfelder und klar getrennte Anfrage-, Trip- und dauerhafte Preference-Scopes. Der sichtbare lokale AI-Lauf bestätigte Scharbeutz, Wunschtext, Trip-Interessen, Budget, die ausdrücklich unbekannten externen Fakten und den idempotenten trip.first.create-Command. Öffentlich sind die drei Einstiege und ihre dynamischen 9/5/7-Schrittfolgen sichtbar; die öffentliche Zielsuche blieb auf „Suche läuft …“ stehen und verhindert den Abschluss von P17. Safe Regression 235/235, NFR-0 3/3 und 30/30 Byteidentität zwischen sauberem Commit, Stable-Kandidat und immutable Worker sind grün. Archiv: 88.911.199 Bytes, SHA-256 8AD1359F3F3D2D3609E60A655B7767E446064FD26312CA945BBFEB840C26229D. Worker cf8876f5-26b4-426a-bab8-24017a0cf2d6 bleibt immutable; Stable Integration wurde auf App .104 / Core .223 zurückgestellt. Main und Production blieben unverändert.",
+  "safeRegression": "App .114 P15/P17-Integrationskandidat: vollständige Safe Regression 235/235 PASS; NFR-0 3/3 PASS; Human-AI-Register 333 Aktionen / 1.014 Quellmarker und Fehlermatrix 333 Zeilen / 2.764 Fehlerauswertungen PASS; 30/30 releasekritische öffentliche Dateien stimmen zwischen sauberem Deployment-Commit, Stable-Kandidat und immutable Worker überein.",
+  "publicAssetIdentity": "30/30 MATCH zwischen sauberem Deployment-Commit, Stable-Kandidat und immutable Worker .114; Archiv 88.911.199 Bytes, SHA-256 8AD1359F3F3D2D3609E60A655B7767E446064FD26312CA945BBFEB840C26229D",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -670,27 +670,28 @@
     "docs/modularization/M16.5-BLOCK1-SEMANTIC-AI-UNIVERSAL-ADMISSION-HANDOUT.md",
     "docs/modularization/PCR-P02-P03-POSITIVE-FOOD-FIT-20260905.md",
     "docs/modularization/PCR-P09-P10-CONFIRMED-VISIT-OWNER-MANAGEMENT-20260905.md",
-    "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
+    "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md",
+    "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18: P09, P10, P11 und P12 sind intern abgeschlossen und als unveränderliche Integrationskandidaten sichtbar sowie reproduzierbar belegt. App .113 / Core .232 verbindet echte Timeline-Daten, P11-Routenfenster und eine nicht mutierende günstige, erwartete und ungünstige Tagesprobe in Timeline und Luvia AI. Stable Integration läuft wieder auf dem akzeptierten App-.104-Worker; Main und Production blieben unverändert. Nur die physische iOS-/Android-Abnahme und später reale zeitgestempelte Context-Signale bleiben als Gates. P15/P17 ist jetzt AKTIV.",
-    "delivered": "P12: Der echte Reisetag 12.06.2027 wird aus derselben Journey- und Places-Wahrheit in drei nachvollziehbaren Verläufen gezeigt. Wetter, Verkehr/Störungen, Öffnungszeiten und Auslastung bleiben ohne Beleg unbekannt; Luvia behauptet keine Erfolgswahrscheinlichkeit und schreibt nichts automatisch. Timeline und AI Chat zeigen dieselben Momente, Szenarien und Bestätigungsgrenzen. Sichtbar wurden die drei Verläufe, die ausdrücklich unbekannten Einflüsse und der Reload mit unveränderten zwei Momenten sowie zehn Minuten Puffer geprüft. Safe Regression 235/235, NFR-0 3/3 und Byteidentität 30/30 sind grün.",
+    "stage": "M16.5 Schritte 15–18: P09, P10, P11 und P12 sind intern abgeschlossen und als unveränderliche Integrationskandidaten sichtbar sowie reproduzierbar belegt. P15/P17 besitzt mit App .114 / Core .233 nun die gemeinsame Composer- und Preference-Scope-Foundation. Stable Integration läuft nach der Abnahme wieder auf dem akzeptierten App-.104-Worker; der .114-Kandidat bleibt immutable. Main und Production blieben unverändert. P15/P17 ist weiterhin AKTIV, weil öffentliche Zielsuche, echter tageweiser Entwurf, Teilübernahme und Trip-Lifecycle noch geschlossen werden müssen.",
+    "delivered": "P15/P17 Foundation: Geführt, Schnellstart und Luvia AI verwenden denselben Trip Composer, dieselbe Trip-Wahrheit und dynamische 9/5/7-Schrittfolgen. Anfragefreitext bleibt receipt-only, Trip-Interessen und Budget bleiben reisebezogen, dauerhafte Profilwerte verlangen eine getrennte Identity-Bestätigung. Die AI-Vorschau erfindet keine Place-/Stay-, Medien-, Context-, Preis- oder Buchungsdaten. Der lokale sichtbare End-to-End-Lauf erreichte den idempotenten Trip-Command; öffentlich sind Einstieg und Schrittfolgen sichtbar, während die festhängende Zielsuche als offenes Gate dokumentiert ist. Safe Regression 235/235, NFR-0 3/3 und Byteidentität 30/30 sind grün.",
     "nextStep": {
-      "id": "P15-P17-canonical-trip-composer",
+      "id": "P15-P17-owner-backed-ai-day-draft",
       "package": "P17",
       "status": "AKTIV",
-      "title": "Gemeinsamen Trip Composer für Geführt, Schnellstart und KI-Entwurf liefern",
-      "reason": "P09 bis P12 liefern jetzt bestätigte Places-/Journey-Änderungen, Recovery, Quellenfenster und eine ehrliche Tagesprobe. P15 und P17 bündeln diese Fähigkeiten in einem einzigen Trip-Entwurf, ohne Vorlieben, Reiseentwurf oder Timeline-Wahrheit zu duplizieren.",
+      "title": "P15/P17 mit öffentlicher Zielsuche, echtem Tagesentwurf und Teilübernahme schließen",
+      "reason": "Die gemeinsame Composer- und Scope-Foundation ist belegt. Für den Blockabschluss fehlen jetzt nur noch die zuverlässige öffentliche Zielauflösung, der ownergestützte Tagesentwurf und die einzeln bestätigten Übernahme- und Trip-Lifecycle-Aktionen.",
       "acceptance": [
-        "Account-ohne-Reise und bestehende Reise verwenden denselben Trip Composer mit den Einstiegen Geführt, Schnellstart und KI-Entwurf; Trip bleibt der einzige Owner des Entwurfs und der bestätigten Reise.",
-        "Ziel, Zeitraum, Reisefarbe und Symbol sowie Anfrage-, reisebezogene und dauerhafte Vorlieben werden klar getrennt; eine dauerhafte Profiländerung verlangt eine eigene verständliche Bestätigung und bleibt korrigier- und löschbar.",
-        "Der KI-Entwurf wird tageweise mit echten Place-/Stay-Identitäten, Karte, P12-Tagesprobe, Begründungen, Alternativen, Budget- und Context-Hinweisen präsentiert; unbelegte Angaben bleiben unbekannt.",
-        "Vormerken, Einplanen, Tauschen, Weglassen und Teilübernahme erscheinen jeweils als eigene Vorher/Neu-Vorschau und schreiben erst nach Bestätigung idempotent über Trip, Journey oder Places Owner.",
-        "Ein gebündelter sichtbarer Integrationslauf prüft Geführt, Schnellstart, KI-Entwurf, Abbruch ohne Mutation, bestätigte Teilübernahme, Reload-Readback, bestehende Reise, Account-ohne-Reise, Desktop, mobiles Browserformat, Safe Regression und NFR-0."
+        "Die kanonische Zielsuche liefert im öffentlichen Desktop- und Mobilbrowser innerhalb einer begrenzten Ladezeit einen bestätigbaren Ort oder einen klaren Fehler mit Wiederholung; kein endloses „Suche läuft …“.",
+        "Der AI-Entwurf zeigt reale Place-/Stay-Identitäten aus places.v1 tageweise auf derselben Karte wie Places und Timeline, bindet die P12-Tagesprobe ein und kennzeichnet unbelegte Medien-, Context-, Preis- und Buchungsdaten als unbekannt.",
+        "Vormerken, Einplanen, Tauschen, Weglassen und Teilübernahme erhalten jeweils eine eigene Vorher/Neu-Vorschau und schreiben erst nach Bestätigung idempotent über Trip, Journey oder Places Owner; Abbruch schreibt nichts.",
+        "Trip archivieren, löschen und wiederherstellen zeigt Abhängigkeiten, verwendet trip.v1-Receipts und besteht Reload-Readback; eine dauerhafte Profilübergabe bleibt separat bestätigbar, korrigierbar und löschbar.",
+        "Ein gebündelter sichtbarer Integrationslauf prüft den kompletten AI-Weg, Teilübernahme, Reload, Account-ohne-Reise, bestehende Reise, Desktop und mobiles Browserformat sowie erneut Safe Regression und NFR-0."
       ]
     },
     "after": "Danach folgen P19/P20/P22/P23/P26 als gemeinsame Context Matrix für Zeit, Wetter, Saison, Ereignisse, Budget, Energie, Mobilität und Gruppenkontext; anschließend P33/P34/P35 für vollständige AI-Orchestrierung und nachvollziehbare Entscheidungen.",
-    "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P07/P08 bleiben von echten Booking-Providern abhängig. P09/P10/P11/P12 sind intern belegt und für physische iOS-/Android-Abnahme begrenzt; P12 wartet zusätzlich auf echte zeitgestempelte Context-Signale. Jetzt folgen P15/P17 Trip Composer; danach P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich inventarisiert."
+    "open": "P02/P03 bleiben teilweise für Google-Berechtigung, breite exakte Fotoabdeckung und physischen Mobil-Kaltstart. P07/P08 bleiben von echten Booking-Providern abhängig. P09/P10/P11/P12 sind intern belegt und für physische iOS-/Android-Abnahme begrenzt; P12 wartet zusätzlich auf echte zeitgestempelte Context-Signale. P15/P17 besitzt die Foundation, bleibt aber bis zur öffentlichen Zielsuche, zum echten Tagesentwurf, zur Teilübernahme und zum Trip-Lifecycle teilweise. Danach folgen P19/P20/P22/P23/P26 Context Matrix und P33/P34/P35 AI-Parität. M18 bis M22 behalten Mitreisendenverwaltung, Administration, Social und Intelligence II. Alle 17 Karten-USPs bleiben verbindlich inventarisiert."
   },
-  "qaCommit": "6d2b5cc0"
+  "qaCommit": "f1f732e8"
 }
