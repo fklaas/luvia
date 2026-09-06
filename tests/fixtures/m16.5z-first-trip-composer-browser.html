@@ -13,6 +13,8 @@
 <body>
   <main id="app"></main>
   <script src="../../core/trips/trip-draft-core.js"></script>
+  <script src="../../core/intelligence/intelligence-action-contract-core.js"></script>
+  <script src="../../core/journey/journey-resilience-core.js"></script>
   <script>
     const fixtureParams=new URLSearchParams(location.search);
     const fixtureUserId=`m165z-${fixtureParams.get('qa')||'visible-user'}`;
@@ -64,18 +66,17 @@
           country:place.country,
           countryCode:place.countryCode,
           latitude:place.location.latitude,
-          longitude:place.location.longitude
+          longitude:place.location.longitude,timezone:place.countryCode==='PT'?'Europe/Lisbon':'Europe/Berlin'
         };
         },
         getActiveDiscovery:()=>null,
         recommend:async options=>{await new Promise(resolve=>setTimeout(resolve,180));return {owner:'places',contractId:'places.v1',places:fixturePlaces.filter(place=>place.requestCategory===options.category),count:3,evidenceContract:{verified:true}}}
       }
     };
-    window.LuviaPlacesSpatialExperience={mountProjection:(container,places,options={})=>{container.innerHTML=`<div style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 28% 30%,#fff 0 4%,transparent 5%),linear-gradient(145deg,#d9efed,#cfe7ed)"><div style="display:grid;gap:10px;text-align:center"><strong style="font-size:22px;color:#143247">Gemeinsame Places-Karte</strong><span style="color:#547383">${places.length} verifizierte Koordinaten · Places v1</span><button type="button" data-fixture-map-select style="padding:10px;border:0;border-radius:999px;background:#2f95a8;color:white">Ersten Pin fokussieren</button></div></div>`;container.querySelector('[data-fixture-map-select]')?.addEventListener('click',()=>options.onSelect?.(places[0]?.providerPlaceId));return {destroy:()=>{container.innerHTML=''}}}};
-    window.LuviaJourneyContractV1={reads:{rehearseDay:({entries})=>({contractId:'journey.v1',kind:'day-rehearsal',status:'ready',summary:{entryCount:entries.length,totalProgramMinutes:entries.reduce((sum,item)=>sum+item.durationMinutes,0)},unknownFactors:['Wetter','Verkehr und Störungen'],successProbability:null,automaticMutation:false})}};
-    window.LuviaIntelligenceActionContractCoreV1={zonedDateTimeToIso:(date,time)=>date?new Date(`${date}T${time}:00+02:00`).toISOString():null};
-    const dayDraftReceipts=[];
-    window.LuviaAIActionRuntime={prepare:(actionId,payload,options)=>({ledgerId:`fixture:${actionId}:${payload.providerPlaceId}`,requiresConfirmation:true,result:{actionId,payload,options}}),execute:async(actionId,payload,options)=>{const receipt={owner:'places',contractId:'places.v1',actionId,status:'committed',ledgerId:options.ledgerId,evidence:{status:'committed'}};dayDraftReceipts.push(receipt);return receipt}};
+    window.LuviaPlacesSpatialExperience={mountProjection:(container,places,options={})=>{container.innerHTML=`<div style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 28% 30%,#fff 0 4%,transparent 5%),linear-gradient(145deg,#d9efed,#cfe7ed)"><div style="display:grid;gap:10px;text-align:center"><strong style="font-size:22px;color:#143247">Gemeinsame Places-Karte</strong><span style="color:#547383">${places.length} Koordinaten · kontrollierte Testdaten</span><button type="button" data-fixture-map-select style="padding:10px;border:0;border-radius:999px;background:#2f95a8;color:white">Ersten Pin fokussieren</button></div></div>`;container.querySelector('[data-fixture-map-select]')?.addEventListener('click',()=>options.onSelect?.(places[0]?.providerPlaceId));return {destroy:()=>{container.innerHTML=''}}}};
+    window.LuviaJourneyContractV1={reads:{rehearseDay:input=>LuviaJourneyResilienceCoreV1.rehearseDay(input)}};
+    const dayDraftReceipts=[],preparedActions=new Map();
+    window.LuviaAIActionRuntime={prepare:(actionId,payload,options)=>{const check=LuviaIntelligenceActionContractCoreV1.validateActionInput(actionId,payload,{timeZone:options.timeZone});if(!check.valid)throw Error(JSON.stringify(check.issues));const ledgerId=options.idempotencyKey;preparedActions.set(ledgerId,{actionId,payload,options});return {ledgerId,requiresConfirmation:true}},execute:async(actionId,payload,options)=>{const request=preparedActions.get(options.ledgerId);const receipt=LuviaIntelligenceActionContractCoreV1.createReceipt({actionId,status:'completed',ownerCommand:true,ledgerId:options.ledgerId,idempotencyKey:request.options.idempotencyKey,reference:{tripId:request.payload.tripId,providerPlaceId:request.payload.providerPlaceId,readbackVerified:true}});dayDraftReceipts.push(receipt);return receipt}};
     const trips=[];
     window.LuviaTripContractV1={
       reads:{listTrips:()=>trips},
@@ -110,7 +111,7 @@
   <script>
     const mountComposer=()=>{
       const params=new URLSearchParams(location.search),step=params.get('step')||'welcome';
-      window.LuviaFirstTripComposer.mount(document.getElementById('app'),{mode:'first-use',step,onCancel:()=>location.reload(),onComplete:receipt=>{document.getElementById('app').className='';document.getElementById('app').innerHTML=`<section class="fixture-result" data-ftc-complete><article><span>TRIP UND TAGESENTWURF BESTÄTIGT</span><h1>Eure Reise ist aktiv.</h1><p>Der sichtbare E2E-Lauf hat Composer, Trip-Owner und ${receipt.dayDraftReceipts?.length||0} bestätigte Places/Journey-Aktionen durchlaufen.</p><code>${receipt.action} · ${receipt.tripId} · ${receipt.collaborationHandoff.availability}</code></article></section>`}});
+      window.LuviaFirstTripComposer.mount(document.getElementById('app'),{mode:'first-use',step,onCancel:()=>location.reload(),onComplete:receipt=>{document.getElementById('app').className='';document.getElementById('app').innerHTML=`<section class="fixture-result" data-ftc-complete><article><span>TRIP UND TAGESENTWURF BESTÄTIGT</span><h1>Eure Reise ist aktiv.</h1><p>Dieser lokale Test hat den Composer und ${receipt.dayDraftReceipts?.length||0} simulierte Schreibaktionen mit echten Vertragsregeln durchlaufen.</p><code>${receipt.action} · ${receipt.tripId} · ${receipt.collaborationHandoff.availability}</code></article></section>`}});
     };
     addEventListener('popstate',mountComposer);
     mountComposer();

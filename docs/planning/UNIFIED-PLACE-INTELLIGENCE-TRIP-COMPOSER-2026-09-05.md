@@ -348,3 +348,17 @@ Der Gesamtansatz ist erst erfüllt, wenn:
 - Wetter, Saison, Events, Budget und Öffnung nur mit datiertem Beleg einfließen;
 - die KI-Reisepräsentation jede Übernahme oder Änderung als bestätigte Owner-Vorschau ausführt;
 - physisches iPhone und Android, Desktop, Tastatur, Touch, Reduced Motion, Reload, Offline und Reisewechsel abgenommen sind.
+# Ergänzung 06.09.2026: Interaktive Reiseerstellung und tatsächliche KI-Planung
+
+Verbindlicher Nutzerauftrag: Die Reiseerstellung soll lebendig, frisch und interaktiv wirken. Die gemeinsame Places-Karte gehört in den Entwurf. Bewegung und Effekte unterstützen die Orientierung. Der KI-Einstieg muss Wünsche verstehen und eine nachvollziehbare Reise planen.
+
+Die Produktabnahme verlangt dafür:
+
+1. Reiseziel, Reisezeichen, Zeitraum und Reisefarbe formen während der Eingabe eine fortlaufende Reiseübersicht. Geführt, Schnellstart und KI verwenden weiterhin denselben Trip Composer.
+2. Die vorhandene Places-Karte bleibt beim Bearbeiten erhalten. Karte und Vorschläge fokussieren einander; ausgewählte, vorgemerkte und weggelassene Orte bleiben unterscheidbar. Echte Ortsbilder tragen Herkunft; illustrative Testbilder zählen nicht als produktive Bildabdeckung.
+3. Kurze Schrittübergänge, sichtbare Auswahlreaktionen und zurückhaltende Bewegungen des Kompasses unterstützen die Bedienung. Reduced Motion, Tastatur, Bildschirmleser und mobile Touch-Ziele gehören zur selben Abnahme. Dauerbewegung darf weder Lesbarkeit noch Kartenleistung verschlechtern.
+4. Freitext muss über den Intelligence Owner in einen überprüfbaren Reiseauftrag mit Prioritäten und Restriktionen übersetzt werden. Unklare oder widersprüchliche Wünsche lösen gezielte Rückfragen aus. Ein bloßes Speichern des Texts zählt nicht als KI-Verständnis.
+5. Der geplante Zeitraum, Profilrestriktionen, Budget, reale Wegzeiten, Aufenthaltsdauer, Öffnungszeiten, Saison, Wetter und Mitreisendeninteressen beeinflussen die Auswahl nach verfügbarer Quellenlage. Fehlende Daten bleiben sichtbar offen. Begründungen müssen die tatsächliche Auswahl erklären; automatisch erzeugte allgemeine Begründungen zählen nicht als Nachweis.
+6. Die Reise wird tageweise präsentiert und lässt sich vor der Bestätigung ändern, teilweise übernehmen oder vormerken. Datumswechsel, Alternativen, Teilfehler, Reload und Rückkehr müssen die zuletzt bestätigte Auswahl erhalten. Erst bestätigte Owner-Belege ergeben einen gespeicherten Erfolg.
+
+Einordnung: P15/P17 bleibt das aktive Produktpaket. Die für eine echte KI-Reiseerstellung nötigen Teile aus P19/P20/P22/P23/P26 und P33/P34/P35 müssen vor dessen vollständiger Produktfreigabe angebunden und geprüft werden. Ein einzelner Composer-Teilschritt schließt diese abhängigen P-Blöcke nicht automatisch. Die bisherige Vorschau von höchstens drei Tagen ist ein begrenzter Teilnachweis; vollständige Freitext-Orchestrierung, gesamte Reisedauer, getrennte Profilbestätigung und Trip-Lifecycle bleiben offene Gates.

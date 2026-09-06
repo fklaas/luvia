@@ -1,5 +1,7 @@
 # Luvia aktueller Integrationsstand
 
+Lokaler Produktreife-Kandidat: App **13.82.168.117**, Core **4.82.236**. Prüfung und Integrationsabnahme laufen; kein Produktabschluss. Enthält bestätigte Composer-Recovery, Termin-/Dauerprüfung, Kategorieabdeckung und die erste interaktive Gestaltungsrunde.
+
 Öffentliche Integration: **13.82.168.104**, Core **4.82.223**, Channel **integration-preview**, Runtime-Familie **M16.5 Places and Stays Quality**. Der gemeinsame Places Owner veröffentlicht 14 Kategorie-/Stays-Diagnosepfade, 19 Landesküchen und exakt identitätsgebundene ausgewählte Medien. Runtime-Commit **5e8f37985eb5ae76c0247ecfb11410bcc107c677**, Gateway **v233 / 4.64.36 / Places 4.38.15-exact-google-media-category-matrix** und Worker **7cda6e20-3b33-442a-b5e6-1c2da8256faf** bilden den öffentlichen Stand. Belegt sind **33/33** öffentliche Matrixpfade, Food **48 Alle / 9 Passend** ohne Steakhouse-Passung, Shopping **46 / 11**, Chinesisch mit **Hay-Cheng**, Zoomkontinuität und das echte verknüpfte Snykrode-Bild. Safe Regression **233/233**, NFR-0 **3/3** und **30/30** Byteidentität sind grün. Google Places bleibt extern mit **403 PERMISSION_DENIED** blockiert; Main und Production bleiben unverändert.
 
 Intern angenommener, unveränderlicher P11-Kandidat: **13.82.168.112**, Core **4.82.231**, Worker **f3d48e97-e939-4a6d-a326-3c2da43c11fe**. Nach der sichtbaren Abnahme wurde die stabile Integration wieder auf den oben genannten App-.104-Stand gesetzt.

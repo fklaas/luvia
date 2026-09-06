@@ -1,0 +1,77 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('app/first-trip-composer.js','utf8');
+const input={title:'Küstenreise',symbol:'✦',destination:{name:'Scharbeutz',placeId:'scharbeutz',countryCode:'DE',latitude:54.02,longitude:10.75,timezone:'Europe/Berlin'},startDate:'2027-06-12',endDate:'2027-06-14',scheduleMode:'fixed',entryMode:'ai',feelings:[],modules:['places','journey'],tripPreferences:{interests:['food','culture','active'],budgetLevel:'balanced'},durablePreferenceProposal:{requested:false},requestBrief:''};
+const clone=value=>JSON.parse(JSON.stringify(value));
+function harness(){
+  const storage=new Map(),requests=[],actions=[],tripCalls=[],ledger=new Map();let sequence=0,completed=0;
+  const root={innerHTML:'',classList:{add(){},remove(){}},querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},removeEventListener(){}};
+  const sandbox={console,Date,Intl,Math,JSON,Object,Array,Map,Set,Number,String,Boolean,Error,TypeError,Promise,crypto:{randomUUID:()=>`key-${++sequence}`},setTimeout,clearTimeout,queueMicrotask(){},requestAnimationFrame(){},navigator:{language:'de-DE'},document:{documentElement:{classList:{contains:()=>false}},body:{classList:{contains:()=>false}}}};sandbox.window=sandbox;sandbox.globalThis=sandbox;
+  vm.createContext(sandbox);
+  for(const file of ['core/trips/trip-draft-core.js','core/intelligence/intelligence-action-contract-core.js','core/journey/journey-resilience-core.js'])vm.runInContext(fs.readFileSync(file,'utf8'),sandbox,{filename:file});
+  sandbox.LuviaPlatformPorts={get:name=>name==='StoragePort'?{get:(key,fallback)=>clone(storage.get(key)??fallback),set:(key,value)=>{if(sandbox.failStorage)return;storage.set(key,clone(value));return value},remove:key=>storage.delete(key)}:name==='AuthSessionPort'?{snapshot:()=>({user:{id:sandbox.viewer||'composer-test'}})}:null};
+  sandbox.profile={dietaryPreferences:['vegetarian']};sandbox.LuviaIdentityContractV1={reads:{getPreferences:()=>sandbox.profile}};
+  sandbox.LuviaTripContractV1={composition:{composeDayDraft:(...args)=>sandbox.LuviaTripDraftCoreV1.composeDayDraft(...args)},commands:{createFirstTrip:async(data,options)=>{tripCalls.push(clone(data));return {owner:'trip',action:'trip.first.create',status:'committed',tripId:'trip-1',idempotencyKey:options.idempotencyKey}}}};
+  sandbox.LuviaJourneyContractV1={reads:{rehearseDay:args=>sandbox.LuviaJourneyResilienceCoreV1.rehearseDay(args)}};
+  const candidate=(category,index)=>({providerPlaceId:`${category}-${index}`,name:`${category} ${index}`,requestCategory:category,primaryType:category==='food'?'restaurant':'museum',coordinates:{latitude:54.02+index*.001,longitude:10.75}});
+  sandbox.LuviaPlacesContractV1={reads:{suggestDestinations:async()=>({suggestions:[]}),getDestination:async()=>null,getActiveDiscovery:()=>sandbox.cached||null,localSearchRadius:()=>5000,recommend:async options=>{requests.push(options);if(sandbox.recommend)return sandbox.recommend(options);return {places:[1,2,3,4].map(index=>candidate(options.category,index))}}}};
+  sandbox.LuviaAIActionRuntime={
+    prepare:(actionId,payload,options)=>{
+      const validation=sandbox.LuviaIntelligenceActionContractCoreV1.validateActionInput(actionId,payload,{timeZone:options.timeZone});assert.equal(validation.valid,true,JSON.stringify(validation.issues));
+      const prior=[...ledger.values()].find(item=>item.options.idempotencyKey===options.idempotencyKey);assert.ok(!prior,'successful and failed actions must use checkpoint/retry, not prepare again');
+      const id='ledger-'+(++sequence);ledger.set(id,{id,actionId,payload,options,status:'proposed'});return {ledgerId:id};
+    },
+    execute:async(actionId,unused,options)=>{
+      const item=ledger.get(options.ledgerId);assert.equal(item.actionId,actionId);actions.push(clone(item));
+      if(sandbox.executeOverride){const result=await sandbox.executeOverride(item,actions.length);if(result!==undefined){item.status=result?.evidence?.status==='failed'?'failed':'outcome_unknown';return result;}}
+      item.status='succeeded';return sandbox.LuviaIntelligenceActionContractCoreV1.createReceipt({actionId,status:'completed',ownerCommand:true,ledgerId:item.id,idempotencyKey:item.options.idempotencyKey,reference:{tripId:item.payload.tripId,providerPlaceId:item.payload.providerPlaceId,readbackVerified:true}});
+    },
+    getActionState:id=>ledger.get(id),
+    retry:async(id,options)=>sandbox.LuviaAIActionRuntime.execute(ledger.get(id).actionId,{}, {...options,ledgerId:id})
+  };
+  const instrumented=source.replace('window.LuviaFirstTripComposer=Object.freeze',`window.composerTest={state:()=>mounted,loadAiDayDraft,save,setDraftAction,swapDraftSelection,refreshDraft,readAiPlaces,confirmationProblem,persist};window.LuviaFirstTripComposer=Object.freeze`);
+  vm.runInContext(instrumented,sandbox,{filename:'first-trip-composer.js'});
+  function mount(resume=false,onComplete=null){sandbox.LuviaFirstTripComposer.mount(root,{resume,entryMode:'ai',step:'preview',onComplete:onComplete||(()=>{completed++})});return sandbox.composerTest.state();}
+  const state=mount();state.data={...state.data,...clone(input),tripPreferences:{...state.data.tripPreferences,...clone(input.tripPreferences)}};
+  return {sandbox,root,state,storage,requests,actions,tripCalls,ledger,mount,api:sandbox.composerTest,candidate,get completed(){return completed}};
+}
+
+(async()=>{
+  let checks=0;const checked=()=>checks++;
+  const h=harness(),core=h.sandbox.LuviaTripDraftCoreV1;
+  for(const patch of [{startDate:''},{endDate:''},{startDate:'2027-02-30'},{endDate:'2027-06-01'}])assert.equal(core.validateDraft({...input,...patch}).valid,false);checked();
+  assert.equal(core.validateDraft({...input,scheduleMode:'flexible',startDate:'',endDate:''}).valid,true);checked();
+  assert.equal(core.composeDayDraft(input,{places:[{...h.candidate('food',1),coordinates:{latitude:null,longitude:null}}]}).candidateCount,0);checked();
+  await h.api.loadAiDayDraft(h.state);assert.equal(h.state.aiDraft.status,'ready');assert.equal(h.state.draftSelections.length,6);assert.equal(h.state.aiDraft.draft.days[0].entries[0].category,'food');assert.equal(h.state.aiDraft.draft.days[0].entries[1].category,'culture');checked();
+  assert.ok(h.requests.every(request=>request.requirePreferenceEvidence&&request.subjectText===''&&request.providers[0]==='auto'));checked();
+  const first=h.state.draftSelections[0],originalId=first.providerPlaceId;
+  h.api.swapDraftSelection(h.state,first.slotId);assert.notEqual(h.state.draftSelections[0].providerPlaceId,originalId);
+  const swappedId=h.state.draftSelections[0].providerPlaceId;
+  h.api.setDraftAction(h.state,first.slotId,'saved');h.api.setDraftAction(h.state,h.state.draftSelections[1].slotId,'excluded');assert.equal(h.state.aiDraft.rehearsals[0].status,'empty');checked();
+  h.state.draftSelections[2].time='11:00';h.state.draftSelections[2].durationMinutes=135;h.api.refreshDraft(h.state);
+  h.sandbox.LuviaFirstTripComposer.unmount();const restored=h.mount(true);assert.equal(restored.draftSelections[0].providerPlaceId,swappedId);assert.equal(restored.draftSelections[0].action,'saved');assert.equal(restored.draftSelections[1].action,'excluded');assert.equal(restored.draftSelections[2].time,'11:00');assert.equal(restored.draftSelections[2].durationMinutes,135);checked();
+  // Stop after two writes. Re-mount from stored state and retry through the real receipt/input contracts.
+  let failed=false;h.sandbox.executeOverride=(item,count)=>{if(count===3&&!failed){failed=true;return h.sandbox.LuviaIntelligenceActionContractCoreV1.createReceipt({actionId:item.actionId,status:'failed',ownerCommand:true})}};
+  await h.api.save(restored);assert.equal(h.completed,0);assert.equal(h.tripCalls.length,1,restored.error);assert.equal(Object.keys(restored.confirmation.actionReceipts).length,2,restored.error);checked();
+  h.sandbox.LuviaFirstTripComposer.unmount();const retry=h.mount(true);assert.equal(retry.index,6);const locked=retry.draftSelections[0].action;h.api.setDraftAction(retry,retry.draftSelections[0].slotId,'excluded');assert.equal(retry.draftSelections[0].action,locked);checked();
+  await Promise.all([h.api.save(retry),h.api.save(retry)]);assert.equal(h.completed,1);assert.equal(h.tripCalls.length,1);assert.equal(h.actions.length,6);assert.equal(h.actions.filter(item=>item.payload.providerPlaceId===swappedId).length,1);assert.ok(h.actions.filter(item=>item.actionId==='places.place.plan').every(item=>item.payload.fields.metadata.durationMinutes>0));checked();
+  assert.equal(h.storage.size,0);checked();
+  // An unknown response is never success and never blindly retried.
+  const unknown=harness();await unknown.api.loadAiDayDraft(unknown.state);unknown.sandbox.executeOverride=()=>null;await unknown.api.save(unknown.state);assert.equal(unknown.completed,0);assert.equal(unknown.state.confirmation.status,'pending');await unknown.api.save(unknown.state);assert.equal(unknown.actions.length,1);assert.match(unknown.state.error,/nicht blind wiederholt/);checked();
+  // A navigation error after successful persistence must not be presented as a mutation failure.
+  const navigation=harness();await navigation.api.loadAiDayDraft(navigation.state);navigation.state.options.onComplete=()=>{throw Error('navigation')};await navigation.api.save(navigation.state);assert.equal(navigation.state.confirmation.status,'complete');assert.match(navigation.state.error,/sind gespeichert/);const count=navigation.actions.length;navigation.state.options.onComplete=()=>{};await navigation.api.save(navigation.state);assert.equal(navigation.actions.length,count);assert.equal(navigation.tripCalls.length,1);checked();
+  // Invalid, stale or unreviewed inputs block before creating any trip.
+  const invalid=harness();await invalid.api.loadAiDayDraft(invalid.state);invalid.state.data.endDate='';await invalid.api.save(invalid.state);assert.equal(invalid.tripCalls.length,0);checked();
+  invalid.state.data.endDate=input.endDate;invalid.state.data.requestBrief='changed';await invalid.api.save(invalid.state);assert.equal(invalid.tripCalls.length,0);checked();
+  invalid.state.data.requestBrief='';invalid.sandbox.profile={dietaryPreferences:['vegan']};await invalid.api.save(invalid.state);assert.equal(invalid.tripCalls.length,0);checked();
+  const overlap=harness();await overlap.api.loadAiDayDraft(overlap.state);overlap.state.draftSelections[1].time='10:15';overlap.api.refreshDraft(overlap.state);await overlap.api.save(overlap.state);assert.equal(overlap.tripCalls.length,0);assert.match(overlap.state.error,/Überschneidungen/);checked();
+  const noStorage=harness();await noStorage.api.loadAiDayDraft(noStorage.state);noStorage.sandbox.failStorage=true;await noStorage.api.save(noStorage.state);assert.equal(noStorage.tripCalls.length,0);assert.match(noStorage.state.error,/Speicherzugriff/);checked();
+  // All selected categories survive, including more than the former first three.
+  const categories=harness();categories.state.data.tripPreferences.interests=['food','culture','nature','shopping','nightlife','wellness','active','family'];await categories.api.readAiPlaces(categories.state);assert.equal(new Set(categories.requests.map(item=>item.category)).size,7);checked();
+  const cache=harness();cache.state.data.tripPreferences.interests=['food'];cache.sandbox.cached={category:'food',places:[1,2,3,4].map(index=>({...cache.candidate('food',index),profileFit:{state:'matched'}}))};await cache.api.readAiPlaces(cache.state);assert.equal(cache.requests.length,0);checked();
+  const single=harness();single.sandbox.recommend=async options=>({places:options.category==='food'?[single.candidate('food',1)]:[]});await single.api.loadAiDayDraft(single.state);assert.equal(single.state.aiDraft.status,'ready');assert.equal(single.state.draftSelections.length,1);checked();
+  const stale=harness();let resolve;stale.sandbox.recommend=()=>new Promise(done=>{resolve=done});stale.state.data.tripPreferences.interests=['food'];const pending=stale.api.loadAiDayDraft(stale.state);await new Promise(done=>setTimeout(done,0));stale.sandbox.LuviaFirstTripComposer.unmount();const markup=stale.root.innerHTML;resolve({places:[stale.candidate('food',1)]});await pending;assert.equal(stale.root.innerHTML,markup);checked();
+  const account=harness();await account.api.loadAiDayDraft(account.state);const create=account.sandbox.LuviaTripContractV1.commands.createFirstTrip;account.sandbox.LuviaTripContractV1.commands.createFirstTrip=async(...args)=>{const receipt=await create(...args);account.sandbox.viewer='another-viewer';return receipt};await account.api.save(account.state);assert.equal(account.actions.length,0);assert.equal(account.completed,0);assert.ok([...account.storage.keys()].every(key=>key.endsWith(':composer-test')));checked();
+  const leaving=harness();await leaving.api.loadAiDayDraft(leaving.state);const beforeLeave=leaving.sandbox.LuviaTripContractV1.commands.createFirstTrip;leaving.sandbox.LuviaTripContractV1.commands.createFirstTrip=async(...args)=>{const receipt=await beforeLeave(...args);leaving.sandbox.LuviaFirstTripComposer.unmount();return receipt};await leaving.api.save(leaving.state);assert.equal(leaving.completed,0);assert.equal(leaving.state.confirmation.status,'complete');assert.equal(leaving.root.innerHTML,'');checked();
+  console.log(`Trip Composer: ${checks} behavioral recovery, validation, category and receipt checks passed (real Trip/Intelligence/Journey rules; controlled provider/storage/write adapters).`);
+})().catch(error=>{console.error(error);process.exitCode=1});

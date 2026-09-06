@@ -475,6 +475,10 @@ const SUITE = Object.freeze([
     test: 'tests/m16.5z-first-trip-composer.test.cjs'
   },
   {
+    category: 'P15/P17 / Composer Recovery and Product Validation',
+    test: 'tests/trip-composer-recovery.test.cjs'
+  },
+  {
     category: 'M16.5 / Preference Resolution + Places',
     test: 'tests/m16.5aa-preference-resolution-places.test.cjs'
   },

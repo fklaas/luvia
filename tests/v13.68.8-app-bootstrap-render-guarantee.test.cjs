@@ -6,7 +6,7 @@ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const version=fs.readFileSync(path.join(root,'intelligence/kernel/version.js'),'utf8');
 function ok(cond,msg){if(!cond)throw new Error(msg)}
-ok(shell.includes("version:'13.82.168.116'"),'LuviaApp version missing');
+ok(shell.includes("version:'13.82.168.117'"),'LuviaApp version missing');
 ok(shell.includes("document.readyState==='loading'"),'readyState bootstrap guard missing');
 ok(shell.includes("startShell('document-already-ready')"),'already-ready bootstrap path missing');
 ok(shell.includes('shellStartPromise'),'idempotent shell start missing');
@@ -15,9 +15,9 @@ ok(shell.includes("setTimeout(()=>{if(root&&root.children.length===0)guaranteeIn
 ok(shell.includes('window.LuviaBootDiagnostics=bootDiagnostics'),'boot diagnostics missing');
 ok(shell.includes("markBoot('auth-ready'"),'auth ready diagnostics missing');
 ok(shell.includes("await guaranteeInitialRender('post-bootstrap')"),'post-bootstrap guarantee missing');
-ok(index.includes('app/app-shell.js?v=13.82.168.116'),'index shell cache bust missing');
-ok(index.includes('app/public-entry.js?v=13.82.168.116'),'index public entry cache bust missing');
-ok(index.includes('app/luvia-runtime-loader.mjs?v=13.82.168.116-local-recovery'),'split runtime loader missing');
-ok(sw.includes("const CACHE='luvia-shell-v13.82.168.116-local-recovery'"),'service worker cache missing');
-ok(version.includes("core:'4.82.235'")&&version.includes("build:'13.82.168.116'"),'kernel version missing');
+ok(index.includes('app/app-shell.js?v=13.82.168.117'),'index shell cache bust missing');
+ok(index.includes('app/public-entry.js?v=13.82.168.117'),'index public entry cache bust missing');
+ok(index.includes('app/luvia-runtime-loader.mjs?v=13.82.168.117-local-recovery'),'split runtime loader missing');
+ok(sw.includes("const CACHE='luvia-shell-v13.82.168.117-local-recovery'"),'service worker cache missing');
+ok(version.includes("core:'4.82.236'")&&version.includes("build:'13.82.168.117'"),'kernel version missing');
 console.log('LUVIA_CURRENT_APP_BOOTSTRAP_RENDER_GUARANTEE_OK');

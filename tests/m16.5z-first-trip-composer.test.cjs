@@ -23,9 +23,9 @@ assert.match(composer,/\['welcome','identity','feeling','destination','dates','p
 assert.match(composer,/guided:Object\.freeze\(\[\.\.\.STEPS\]\)/);
 assert.match(composer,/quick:Object\.freeze\(\['welcome','destination','dates','accent','ready'\]\)/);
 assert.match(composer,/ai:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
-for(const label of ['Geführt','Schnellstart','Mit Luvia AI','Anfrage bleibt flüchtig','Reisewünsche gehören zum Trip','Profiländerungen brauchen Bestätigung'])assert.ok(composer.includes(label),`missing canonical composer copy: ${label}`);
+for(const label of ['Geführt','Schnellstart','Mit Luvia AI','Anfrage bleibt flüchtig','Reisewünsche gelten für diese Reise','Profiländerungen brauchen Bestätigung'])assert.ok(composer.includes(label),`missing composer copy: ${label}`);
 assert.match(composer,/data-ftc-entry-mode/);assert.match(composer,/data-ftc-trip-interest/);assert.match(composer,/data-ftc-durable/);
-assert.match(composer,/Keine dieser Angaben wird aus dem Freitext erfunden/);
+assert.match(composer,/vollständige Planung aus Freitext ist noch in Arbeit/);
 assert.match(composer,/owner\.commands\.createFirstTrip/);
 assert.match(composer,/Danach Menschen einladen/);
 assert.match(composer,/Profil bleibt Basis · Reisegefühl setzt den Schwerpunkt/);
@@ -35,7 +35,7 @@ assert.match(composer,/if\(!state\.keyHandler\)/,'composer must install exactly 
 assert.match(composer,/Bitte einen Vorschlag aus der Suche wählen/);
 assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-ftc-destination-retry/);assert.match(composer,/Vorschläge bereit/);assert.match(composer,/Zielsuche nicht erreichbar/);
 for(const marker of ['composeDayDraft','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','data-ftc-draft-swap'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
-for(const copy of ['Einplanen','Vormerken','Tauschen','Weglassen','Keine Erfolgswahrscheinlichkeit','keine automatische Änderung'])assert.ok(composer.includes(copy),`missing honest day-draft copy: ${copy}`);
+for(const copy of ['Einplanen','Vormerken','Tauschen','Weglassen','Erst eure Bestätigung übernimmt die Auswahl'])assert.ok(composer.includes(copy),`missing day-draft choice: ${copy}`);
 assert.match(placesAdapter,/destination-cache/);assert.match(placesAdapter,/timeoutMs:Number\(options\.timeoutMs\)\|\|7000/);
 const accents=composer.slice(composer.indexOf('const ACCENTS='),composer.indexOf('const SCENES='));
 assert.equal((accents.match(/\['[a-z]+','#/g)||[]).length,50,'Composer must expose the same 50 journey tones as the Landingpage');
