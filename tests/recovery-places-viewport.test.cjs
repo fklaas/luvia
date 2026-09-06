@@ -4,7 +4,9 @@ const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 const timers=new Map();let timerId=0;
 const node=()=>({isConnected:true,dataset:{},style:{setProperty(){}},classList:{toggle(){},contains(){return false}},append(){},setAttribute(k,v){this[k]=v},addEventListener(){},closest(){return null},replaceChildren(){}});
 class FakeMap{
- constructor(options){this.options=options;this.events={};this.shift=0}
+ constructor(options){this.options=options;this.events={};this.shift=0;this.sources={};this.layers={}}
+ addSource(id,source){this.sources[id]={...source,setData(data){this.data=data}}} getSource(id){return this.sources[id]}
+ addLayer(layer){this.layers[layer.id]=layer} getLayer(id){return this.layers[id]} setPaintProperty(id,key,value){this.layers[id].paint[key]=value}
  on(name,fn){(this.events[name]??=[]).push(fn)}
  fire(name,event={}){for(const fn of this.events[name]||[])fn(event)}
  addControl(){} getStyle(){return{layers:[]}} easeTo(){this.fire('moveend')} resize(){this.fire('moveend')} remove(){}
@@ -28,6 +30,10 @@ const tick=async()=>{const pending=[...timers];timers.clear();for(const[,t]of pe
  const loadingNode=node(),loading=ctx.LuviaPlacesSpatialExperience.mountProjection(loadingNode,[],{initialCenter:{latitude:54.02,longitude:10.75},runtimeStatus:()=>({kind:'loading'})});loading.map.fire('style.load');assert.equal(loadingNode.dataset.mapState,'ready','a usable base map while search is pending must not claim empty');loading.destroy();
  assert.deepEqual(Array.from(projection.map.options.center),[10.7544,54.0225],'camera starts at destination');
  projection.map.fire('load');await tick();assert.equal(calls,0,'load, ease and resize must not spend viewport requests');
+ const segments=[[{latitude:54.02,longitude:10.75},{latitude:54.03,longitude:10.76}],[],[{latitude:54.04,longitude:10.77}]],segmentBefore=JSON.stringify(segments);
+ projection.setTrace(segments,{color:'#c95169'});const trace=projection.map.getSource('luvia-composer-trace');assert.equal(trace.data.features.length,1);assert.equal(trace.data.features[0].geometry.coordinates.length,2);assert.equal(JSON.stringify(segments),segmentBefore);assert.equal(calls,0,'trace must never trigger provider/routing requests');
+ projection.setTrace([]);assert.equal(trace.data.features.length,0,'Removing/moving the final planned station must remove its line');projection.setTrace(segments,{color:'#123456'});assert.equal(projection.map.getLayer('luvia-composer-trace').paint['line-color'],'#123456');
+ projection.select('Old');assert.equal(projection.view.markers.length,1,'Film selection preserves the same owner cohort');
  projection.map.fire('moveend',{originalEvent:{}});projection.map.fire('dragend',{originalEvent:{}});projection.map.fire('zoomend',{originalEvent:{}});
  assert.equal(intendedViewport?.bounds.south,54,'the visible area must become the active intent before debounce or provider completion');
  await tick();assert.equal(calls,1,'one user gesture causes one debounced request');

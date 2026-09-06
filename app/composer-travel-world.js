@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   // Consumer presentation only. Geographic picks are search intent, never Place truth.
-  const VERSION = '2.1.0-cinematic-sheets';
+  const VERSION = '2.2.0-living-trace';
   const PI = Math.PI, RAD = PI / 180;
   const ESC = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let geography;
@@ -9,6 +9,9 @@
     .then(response => { if (!response.ok) throw Error('WORLD_GEOGRAPHY_UNAVAILABLE'); return response.json(); })
     .catch(error => { geography = null; throw error; });
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  function geographicTrace(view,points={}){
+    return ['continent','country','region','destination'].flatMap((key,index)=>{const point=points[key];if(view.level<index+1||!point||!Array.isArray(point.coordinates)||point.coordinates.length!==2||!point.coordinates.every(Number.isFinite))return [];return [{...point,kind:key}];});
+  }
   function project(lng, lat, yaw, pitch) {
     const a = lng * RAD, b = lat * RAD, x = Math.cos(b)*Math.sin(a), y = Math.sin(b), z = Math.cos(b)*Math.cos(a);
     const k = Math.sin(yaw)*x + Math.cos(yaw)*z;
@@ -71,6 +74,7 @@
       const local=countryAt(regions,lng,lat);if(local){if(!alive||seq!==tourSequence)return false;await navigate({level:3,region:local.properties.code});}
       if(!alive||seq!==tourSequence)return false;selection=destination;return navigate({level:4,pending:null});
     }
+    async function arrive(destination){const seq=++tourSequence;await ready;if(!alive||seq!==tourSequence)return false;const lng=Number(destination.longitude),lat=Number(destination.latitude),target=countryAt(features,lng,lat);if(!target)return false;let local=[];try{local=await loadRegions(target.properties.code);}catch{}if(!alive||seq!==tourSequence)return false;selection=destination;const area=countryAt(local,lng,lat);return navigate({level:4,continent:target.properties.continent,country:target.properties.code,region:area?.properties.code||'',pending:null});}
     function selectedFeature(){const p=view.pending;return !p?null:p.kind==='continent'?continents.find(f=>f.properties.code===p.code):p.kind==='country'?features.find(f=>f.properties.code===p.code):regions.find(f=>f.properties.code===p.code);}
     function confirmSelection(){const p=view.pending;if(!p)return;if(p.kind==='continent')navigate({level:1,continent:p.code,country:'',region:''});else if(p.kind==='country'){const f=selectedFeature();navigate({level:2,country:p.code,continent:f?.properties.continent||view.continent,region:''});}else navigate({level:3,region:p.code});}
     function select(kind,code,name){if(!interactive||!code||transitioning)return;if(view.pending?.kind===kind&&view.pending.code===code){confirmSelection();return;}view.pending={kind,code,name};selectionChanged=true;onView({...view});controls();request();}
@@ -79,7 +83,7 @@
     function primary(){if(!interactive||transitioning)return;if(view.pending){confirmSelection();return;}if(view.level===0){selectContinent(view.continent);return;}if(view.level===1){const target=features.find(f=>f.properties.code==='DEU'&&view.continent==='Europe')||features.find(f=>f.properties.continent===view.continent);choose(target);return;}const target=region()||country();if(target){const [lng,lat]=center(target);onPick({name:target.properties.name,lng,lat});}}
     function pickMarker(button){if(button.dataset.country)choose(features.find(f=>f.properties.code===button.dataset.country));else if(button.dataset.region)choose(regions.find(f=>f.properties.code===button.dataset.region));else if(button.dataset.continent)selectContinent(button.dataset.continent);else if(button.dataset.worldPoint&&interactive)onPick({name:button.dataset.worldPoint,lng:Number(button.dataset.lng),lat:Number(button.dataset.lat)});}
     function paint(){frame=0;if(!alive||!d3)return;const width=canvas.clientWidth,height=canvas.clientHeight;if(!width||!height)return;canvas.setAttribute('viewBox',`0 0 ${width} ${height}`);const svg=d3.select(canvas);svg.selectAll('*').remove();
-      const defs=svg.append('defs'),gradient=defs.append('radialGradient').attr('id','ftc-expedition-ocean').attr('cx','34%').attr('cy','26%').attr('r','77%');gradient.append('stop').attr('offset','0').attr('stop-color','#e9fff0');gradient.append('stop').attr('offset','.6').attr('stop-color','#8dcccd');gradient.append('stop').attr('offset','1').attr('stop-color','#32798c');
+      const defs=svg.append('defs'),gradient=defs.append('radialGradient').attr('id','ftc-expedition-ocean').attr('cx','34%').attr('cy','26%').attr('r','77%');gradient.append('stop').attr('offset','0').attr('stop-color','var(--lx-ocean-light, #e9fff0)');gradient.append('stop').attr('offset','.6').attr('stop-color','var(--lx-ocean-mid, #8dcccd)');gradient.append('stop').attr('offset','1').attr('stop-color','var(--lx-ocean-deep, #32798c)');
       const currentCountry=country(),currentRegion=region(),continent=CONTINENTS.find(c=>c[0]===view.continent)||CONTINENTS[0];
       if(selection?.placeId&&view.level>=4){projection=d3.geoMercator();const context=major(currentRegion||currentCountry);if(context)projection.fitExtent([[24,20],[width-24,height-24]],context);else projection.scale(Math.min(width,height)/.12);projection.center([Number(selection.longitude),Number(selection.latitude)]).translate([width/2,height/2]);}
       else if(view.level===0){projection=d3.geoOrthographic().rotate([-view.yaw/RAD,-view.pitch/RAD]).scale(Math.min(width*.4,height*.44)*view.zoom).translate([width/2,height/2]);svg.append('path').datum({type:'Sphere'}).attr('d',d3.geoPath(projection)).attr('fill','url(#ftc-expedition-ocean)');}
@@ -89,6 +93,11 @@
       const path=d3.geoPath(projection),shown=view.level>=2&&regions.length?regions:features;
       svg.append('g').selectAll('path').data(shown).join('path').attr('d',path).attr('class',f=>(view.level>=2?'lx-states':'lx-land')+(f===currentRegion?' is-focus':''));
       if(view.level===0)svg.append('path').datum(d3.geoGraticule10()).attr('d',path).attr('fill','none').attr('stroke','#fffdf7').attr('stroke-opacity','.24').attr('stroke-width','.5');
+      const trace=geographicTrace(view,{continent:{name:continent[1],coordinates:[continent[2],continent[3]]},country:currentCountry?{name:currentCountry.properties.name,coordinates:center(major(currentCountry))}:null,region:currentRegion?{name:currentRegion.properties.name,coordinates:center(major(currentRegion))}:null,destination:selection?.placeId?{name:selection.name,coordinates:[Number(selection.longitude),Number(selection.latitude)]}:null});
+      const thread=defs.append('linearGradient').attr('id','ftc-geographic-thread').attr('x1','0%').attr('y1','0%').attr('x2','100%').attr('y2','100%');['#ed6555','#f5ab44','#eac955','#55ad83','#329a9d','#5089b2','#9581bc','#ce5d87'].forEach((color,i)=>thread.append('stop').attr('offset',i/7).attr('stop-color',color));
+      const traceLayer=svg.append('g').attr('class','lx-geographic-trace').attr('aria-label','Eure geografische Reisespur').attr('pointer-events','none');
+      if(trace.length>1){const line={type:'LineString',coordinates:trace.map(point=>point.coordinates)};traceLayer.append('path').datum(line).attr('d',path).attr('fill','none').attr('stroke','#fffdf7').attr('stroke-width',5).attr('stroke-opacity','.85');traceLayer.append('path').datum(line).attr('d',path).attr('fill','none').attr('stroke','url(#ftc-geographic-thread)').attr('stroke-width',2.6).attr('stroke-dasharray','3 4').attr('stroke-linecap','round');}
+      for(const point of trace){const xy=projection(point.coordinates);if(!xy||xy[0]<0||xy[0]>width||xy[1]<0||xy[1]>height)continue;traceLayer.append('circle').attr('cx',xy[0]).attr('cy',xy[1]).attr('r',4).attr('fill',accent).attr('stroke','#fffdf7').attr('stroke-width',2);}
       const chosen=selectedFeature();if(chosen){
         const spectrum=defs.append('linearGradient').attr('id','ftc-selection-spectrum').attr('x1','0%').attr('y1','0%').attr('x2','100%').attr('y2','100%');
         ['#ed6555','#f5ab44','#eac955','#55ad83','#329a9d','#5089b2','#9581bc','#ce5d87','#ed6555'].forEach((color,i)=>spectrum.append('stop').attr('offset',i/8).attr('stop-color',color));
@@ -129,8 +138,8 @@
     listen(canvas,'keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Enter'].includes(event.key))return;event.preventDefault();if(event.key==='Enter'){primary();return;}if(view.level>0){if(event.key==='ArrowLeft')view.panX=clamp(view.panX-28,-canvas.clientWidth,canvas.clientWidth);if(event.key==='ArrowRight')view.panX=clamp(view.panX+28,-canvas.clientWidth,canvas.clientWidth);if(event.key==='ArrowUp')view.panY=clamp(view.panY-28,-canvas.clientHeight,canvas.clientHeight);if(event.key==='ArrowDown')view.panY=clamp(view.panY+28,-canvas.clientHeight,canvas.clientHeight);}if(event.key==='ArrowLeft')view.yaw-=.15;if(event.key==='ArrowRight')view.yaw+=.15;if(event.key==='ArrowUp')view.pitch=clamp(view.pitch+.12,-1.2,1.2);if(event.key==='ArrowDown')view.pitch=clamp(view.pitch-.12,-1.2,1.2);if(event.key==='+'||event.key==='-')zoomBy(event.key==='+'?1.18:.78);request();});
     const observer=new ResizeObserver(request);observer.observe(canvas);
     const ready=load().then(async data=>{if(!alive)return;features=data.features;const [library,continentData]=await Promise.all([loadProjection(),fetch('assets/composer/world-continents.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('CONTINENTS_UNAVAILABLE');return r.json();})]);d3=library;continents=continentData.features;if(!alive)return;if(selection?.placeId){view.pending=null;const selectedCountry=countryAt(features,Number(selection.longitude),Number(selection.latitude));if(selectedCountry){if(view.country!==selectedCountry.properties.code)view.region='';view.country=selectedCountry.properties.code;view.continent=selectedCountry.properties.continent;}}host.dataset.worldReady='true';await refresh();if(!reducedMotion)surface.animate?.([{opacity:.15,transform:'scale(.94)'},{opacity:1,transform:'scale(1)'}],{duration:560,easing:'cubic-bezier(.2,.8,.2,1)'});}).catch(()=>{if(alive){host.dataset.worldReady='error';status.textContent='Die Weltkarte ist gerade nicht verfügbar. Die direkte Ortsuche bleibt bereit.';}});
-    return Object.freeze({ready,fly,primary,travelTo,backLevel,zoomBy,snapshot:()=>({...view}),destroy(){alive=false;tourSequence++;navigationSequence++;cancelAnimationFrame(frame);cancelAnimationFrame(flight);observer.disconnect();cleanup.forEach(fn=>fn());for(const id of pointers.keys())if(surface.hasPointerCapture?.(id))surface.releasePointerCapture(id);pointers.clear();surface.classList?.remove('is-dragging');}});
+    return Object.freeze({ready,fly,primary,travelTo,arrive,backLevel,zoomBy,snapshot:()=>({...view}),destroy(){alive=false;tourSequence++;navigationSequence++;cancelAnimationFrame(frame);cancelAnimationFrame(flight);observer.disconnect();cleanup.forEach(fn=>fn());for(const id of pointers.keys())if(surface.hasPointerCapture?.(id))surface.releasePointerCapture(id);pointers.clear();surface.classList?.remove('is-dragging');}});
   }
 
-  window.LuviaComposerTravelWorld=Object.freeze({version:VERSION,markup,mount,project,unproject,countryAt});
+  window.LuviaComposerTravelWorld=Object.freeze({version:VERSION,markup,mount,project,unproject,countryAt,geographicTrace});
 })();

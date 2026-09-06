@@ -1051,7 +1051,7 @@
   function mountProjection(container,places,{selectedId=null,initialCenter=null,onSelect=null,onViewportIntent=null,onViewportSearch=null,projectViewportResults=null,onViewportResults=null,onViewportError=null,category=null,label='Places v1 · verifizierte Geodaten',runtimeStatus=null}={}){
     if(!container)throw new TypeError('Places Map Projection benötigt ein Mount-Ziel.');
     let currentPlaces=Array.isArray(places)?places:[],view=COMPOSITION().compose({sourceContract:'places.v1',places:currentPlaces,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,currentPlaces.length||1)),runtime:{status:'ready',settled:true}});
-    let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='';const markerInstances=new Map();
+    let map=null,mapReady=false,alive=true,disconnectObserver=null,viewportTimer=0,viewportRequest=0,lastViewportKey='',traceData=null,traceColor='#c95169';const markerInstances=new Map();
     const destroy=()=>{if(!alive)return;alive=false;++viewportRequest;clearTimeout(viewportTimer);projectionRefreshState(container,false);disconnectObserver?.disconnect?.();disconnectObserver=null;for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();try{map?.remove?.()}catch{}map=null;container.replaceChildren()};
     const current=()=>alive&&container.isConnected&&map;
     const fallbackCenter=COMPOSITION().normalizeCoordinates(initialCenter);
@@ -1078,6 +1078,17 @@
       // the base tiles continue loading underneath without blocking interaction.
       if(view.markers.length)projectionState(container,'ready',`${view.markers.length} bekannte Orte · Kartendaten laden im Hintergrund.`);
       const cancelPending=()=>{viewportRequest++;clearTimeout(viewportTimer);lastViewportKey=''};
+      // Consumer overlay: straight geographic connections, not provider routes.
+      // Each day is a separate line, so an empty day never bridges two other days.
+      const paintTrace=()=>{
+        if(!current()||!mapReady||!traceData)return;
+        try{const source=map.getSource('luvia-composer-trace');if(source)source.setData(traceData);else map.addSource('luvia-composer-trace',{type:'geojson',data:traceData});
+          if(!map.getLayer('luvia-composer-trace'))map.addLayer({id:'luvia-composer-trace',type:'line',source:'luvia-composer-trace',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':traceColor,'line-width':3,'line-opacity':.85,'line-dasharray':[1,2]}});
+          else map.setPaintProperty('luvia-composer-trace','line-color',traceColor);
+        }catch{/* A missing style must never block Place cards or map controls. */}
+      };
+      const setTrace=(segments,{color='#c95169'}={})=>{traceColor=/^#[0-9a-f]{6}$/i.test(color)?color:'#c95169';traceData={type:'FeatureCollection',features:(Array.isArray(segments)?segments:[]).map(segment=>(Array.isArray(segment)?segment:[]).map(point=>COMPOSITION().normalizeCoordinates(point)).filter(Boolean)).filter(segment=>segment.length>1).map(segment=>({type:'Feature',properties:{kind:'geographic-connection'},geometry:{type:'LineString',coordinates:segment.map(point=>point.lngLat)}}))};paintTrace();return traceData;};
+      const select=id=>{selectedId=id;replaceMarkers(currentPlaces);};
       const queueViewportSearch=event=>{
         // Programmatic fit/ease/resize is not a request to explore another area.
         if(!event?.originalEvent||typeof onViewportSearch!=='function'||!current())return;
@@ -1117,6 +1128,7 @@
         if(!current()||mapReady)return;
         mapReady=true;
         styleCorporateMap(map);
+        paintTrace();
         replaceMarkers(currentPlaces);
         // First frame must stay on the trip destination. Fitting every marker
         // previously zoomed out to distant outliers and then widened viewport search.
@@ -1141,7 +1153,7 @@
       map.on('error',event=>{if(!current())return;if(!mapReady&&!map.loaded())projectionRefreshState(container,true,'Kartendaten laden verzögert · Ortsuche läuft unabhängig weiter.');else if(event?.error)projectionRefreshState(container,false,'Ein Teil der Kartendaten lädt verzögert · Karte und vorhandene Pins bleiben sichtbar.')});
       disconnectObserver=new MutationObserver(()=>{if(!container.isConnected)destroy()});
       disconnectObserver.observe(document.documentElement,{childList:true,subtree:true});
-      return Object.freeze({get view(){return view},get map(){return map},update:replaceMarkers,cancelPending,destroy});
+      return Object.freeze({get view(){return view},get map(){return map},update:replaceMarkers,select,setTrace,cancelPending,destroy});
     }catch{
       projectionState(container,'unavailable','Die Karte konnte nicht aufgebaut werden; die verifizierte Places-Liste bleibt verfügbar.');
       return Object.freeze({view,map:null,destroy});

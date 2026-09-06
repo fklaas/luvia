@@ -2569,7 +2569,7 @@ app/profile-onboarding.css,Consumer/Identity/Experience,Presentation,Accepted tr
 tests/fixtures/m16.5y-profile-onboarding-browser.html,Consumer/Identity/Experience Shared Tests,Test/Fixture,Owner-backed Profile onboarding visible browser fixture for pointer keyboard responsive reload and Reduced Motion evidence
 tests/m16.5y-identity-compass-onboarding.test.cjs,Consumer/Identity/Experience/Platform Shared Tests,Test/Guardrail,Identity owner command Profile Trip separation App Shell gate cache responsive and release lock
 docs/modularization/PCR-M16.5Y-IDENTITY-COMPASS-ONBOARDING.md,Consumer/Identity/Experience/Platform,Documentation/Architecture,M16.5Y profile onboarding scope owner boundary state evidence public release and rollback ledger
-app/first-trip-composer.js,Consumer/Trip/Places/Experience,Adapter/Web,Nine-stage First Trip composition using Trip owner commands Places public destination reads and StoragePort draft recovery
+app/first-trip-composer.js,Consumer/Trip/Places/Experience,Adapter/Web,Three-mode trip composition with destination arrival seasonal atmosphere and day-film projections using Trip and Places owner contracts and StoragePort recovery
 app/first-trip-composer.css,Consumer/Trip/Experience,Presentation,Responsive Compass-led First Trip composition hidden-scrollbar motion touch keyboard and Reduced Motion styling
 tests/fixtures/m16.5z-first-trip-composer-browser.html,Consumer/Trip/Places/Experience Shared Tests,Test/Fixture,Owner-backed deterministic First Trip visible browser fixture for pointer touch keyboard reload history and Reduced Motion evidence
 tests/m16.5z-first-trip-composer.test.cjs,Trip/Places/Consumer/Platform Shared Tests,Test/Guardrail,First Trip ownership idempotency canonical destination profile separation cache route and release lock
@@ -2730,7 +2730,7 @@ tests/p09-timeline-connect-reorder.test.cjs,Journey/Places/Consumer Shared Tests
 tests/p09-timeline-connect-reorder-browser.test.cjs,Journey/Places/Consumer Shared Tests,Test/Browser,Visible mobile connect reorder reload recovery and exact restore acceptance
 tests/p09-timeline-owner-capabilities-first-paint.test.cjs,Journey/Booking/Places/Media/Consumer Shared Tests,Test/Browser,Truthful loading projection and visible per-owner Timeline capability matrix
 docs/modularization/PCR-P09-TIMELINE-OWNER-CAPABILITIES-FIRST-PAINT-20260904.md,Documentation/Release History,Documentation,Bounded additive Timeline owner capability and truthful first-paint PCR
-app/composer-travel-world.js,Consumer/Experience,Presentation/Web,Interactive globe with local geographic data and search intents only; no Place or Trip truth
+app/composer-travel-world.js,Consumer/Experience,Presentation/Web,Interactive globe and growing geographic trace with local data and search intents only; no Place or Trip truth
 assets/composer/world-countries.json,Consumer/Experience,Presentation Data,Public-domain Natural Earth overview geometry; not Place records
 assets/composer/NOTICE.md,Consumer/Experience,License Notice,Natural Earth source and public-domain provenance
 tests/p15-travel-world-geometry.test.cjs,Consumer/Experience Shared Tests,Test/Behavior,Projection inversion and geographic selection including water and polygon holes
