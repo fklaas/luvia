@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
   "sourceBaseline": "b9f32115",
-  "app": "13.82.168.100",
-  "core": "4.82.219",
+  "app": "13.82.168.101",
+  "core": "4.82.220",
   "runtimeSource": "b9f32115d75780d9eb76ec03cb31afedf870af94",
   "worker": "1dcf5de1-c743-4d4c-8d52-40cbac209b03",
   "gateway": "v228 ACTIVE / 4.64.33 / Places 4.38.11-exact-media-seed-bridge",
@@ -640,8 +640,8 @@
       ]
     }
   ],
-  "acceptanceUpdate": "Integration App 13.82.168.100 / Core 4.82.219 ist öffentlich. Die exakt ausgewählte Provider-Entität wird jetzt aus Places und Stays bis zum gemeinsamen Detail-Owner transportiert; der Detail-Cache unterscheidet bildlose und mit exaktem Medienbeleg versehene Anfragen. OpenStreetMap-Medien werden ausschließlich aus verknüpften Wikidata-/Wikimedia-Fakten oder nach strenger Identitätsprüfung aus Foursquare ergänzt. Sichtbar belegt sind Food Passend 9 ohne Kleines Steakhouse, Shopping Passend 11, Shopping nach echtem Reload mit 46 Pins, Stays mit 47 eindeutigen Pins sowie Snykrode mit demselben echten Wikimedia-Ortsbild in Kurzkarte, Ergebnis-Sheet und Detailansicht einschließlich sichtbarer Quellenverknüpfung. Gateway v228 / 4.64.33 / Places 4.38.11, 232/232 Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Eine flächendeckende echte Ortsbildabdeckung, die vollständige reale Sachfiltermatrix und kalte Ziel-Latenzen bleiben offen. Main und Production sind unverändert.",
-  "safeRegression": "232/232 PASS for public App 13.82.168.100; NFR-0 3/3 PASS",
+  "acceptanceUpdate": "App 13.82.168.101 / Core 4.82.220 ist der geprüfte Integrationskandidat; öffentlich bleibt bis zum abgeschlossenen Deployment App .100. Der Kandidat setzt auch Diagnose-, Minigolf-, Strandbedarf- und AI-Chat-Prüfungen auf dieselbe automatische Provider-Kaskade wie Places und Stays. Geoapify-Details bewahren den Medienbeleg der exakt ausgewählten Suchentität; fehlt weiterhin ein Bild, darf Foursquare nach strenger Namens- und Koordinatenidentität genau ein Foto aus demselben begrenzten Gratispool liefern. Die Limits bleiben 300/Monat, 12/Tag und 2/Minute. Gezielte Filter-, Provider-, Passend-, Deduplizierungs- und Bildtests sind grün; der vollständige Releasebeleg folgt vor Veröffentlichung. Main und Production sind unverändert.",
+  "safeRegression": "Public App 13.82.168.100 remains 232/232 PASS and NFR-0 3/3 PASS; App .101 full regression is running after candidate status synchronization",
   "publicAssetIdentity": "30/30 MATCH across clean deployment-byte archive, stable and immutable Worker .100; archive SHA-256 56D8ED1D6F2B92D52F2B8A310921BF7888AB7E0F8F18340D82BB35F868D9C06D",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -673,8 +673,8 @@
     "docs/modularization/PCR-P02-APPLE-MAPKIT-RENDERER-FOUNDATION-20260905.md"
   ],
   "currentWork": {
-    "stage": "M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .100 bei Kategorienkontinuität, Passung, Property-Deduplizierung und exaktem Medien-Transport stabilisiert, bleiben aber teilweise bis zur vollständigen realen Foto-, Filter- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.",
-    "delivered": "App .100 / Core .219 ist auf Integration veröffentlicht. Places und Stays tragen die exakt ausgewählte Provider-Entität zum gemeinsamen Detail-Owner; Detail-Caches unterscheiden konkrete Medienbelege, und OSM/Foursquare dürfen Bilder nur nach strenger Ortsidentität ergänzen. Öffentlich zeigt Snykrode dasselbe echte Wikimedia-Ortsbild in Kurzkarte, Ergebnis und Detail mit sichtbarer Quelle. Food Passend bleibt bei 9 belegten Treffern ohne Kleines Steakhouse; Shopping Passend 11 und nach Reload 46 Pins; Stays 47 eindeutige Pins. Releasekette: Runtime b9f32115, Gateway v228 / 4.64.33 / Places 4.38.11, Worker 1dcf5de1, 232/232 Regression, NFR-0 3/3 und 30/30 Byteidentität.",
+    "stage": "M16.5 Schritte 15–18 aktiv. App .101 / Core .220 ist der Integrationskandidat für den nächsten gebündelten P02/P03-Abschnitt; öffentlich bleibt bis zur abgeschlossenen Regression und Deployment-Abnahme App .100. P02/P03 bleiben teilweise bis zur vollständigen realen Foto-, Filter- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.",
+    "delivered": "Öffentlich belegt bleibt App .100 / Core .219. Der Kandidat .101 vereinheitlicht zusätzlich die automatische Provider-Kaskade in Diagnose, Karte und AI-Chat, bewahrt exakte Geoapify-Medienbelege und gibt Foursquare-Fotos ausschließlich nach strenger Ortsidentität innerhalb des unveränderten 300/Monat-, 12/Tag- und 2/Minute-Pools frei. Gezielte Tests für 82 Zuordnungen, alle Sachfilter, 19 Landesküchen, Passend, Nachtleben, Deduplizierung und exakte Medien sind grün.",
     "nextStep": {
       "id": "P02-P03-exact-media-filter-latency-matrix",
       "package": "P02",

@@ -10,6 +10,7 @@ const googleEvidence=read('supabase/migrations/20260905153000_google_verified_pr
 const googleDiagnosticReset=read('supabase/migrations/20260905170000_google_fit_diagnostic_cooldown_reset.sql');
 const foursquareEvidence=read('supabase/migrations/20260905173000_foursquare_verified_dietary_evidence_budget.sql');
 const foursquareDiagnosticReset=read('supabase/migrations/20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql');
+const foursquareExactMedia=read('supabase/migrations/20260906013000_foursquare_exact_media_budget.sql');
 const osmEvidence=read('supabase/migrations/20260905210000_openstreetmap_dietary_evidence_budget.sql');
 const osmProxy=read('supabase/migrations/20260905235500_openstreetmap_cached_proxy_budget.sql');
 const budget=read('supabase/functions/luvia-gateway/_shared/provider-budget.ts');
@@ -44,6 +45,11 @@ assert.match(foursquareDiagnosticReset,/blocked_until\s*=\s*null/,'the one-time 
 assert.match(foursquareDiagnosticReset,/operations\s*=\s*array\['search'\]::text\[\]/,'the Foursquare diagnostic reset must remain search-only');
 assert.doesNotMatch(foursquareDiagnosticReset,/delete\s+from\s+public\.places_provider_usage/i,'the diagnostic reset must retain every reserved unit');
 assert.match(foursquareDiagnosticReset,/FOURSQUARE_DIETARY_DIAGNOSTIC_COOLDOWN_NOT_RESET/,'the Foursquare diagnostic reset must fail closed');
+assert.match(foursquareExactMedia,/operations\s*=\s*array\['search','photo'\]::text\[\]/,'strict selected-place media may use search and photo from one shared Foursquare pool');
+assert.match(foursquareExactMedia,/daily_limit\s*=\s*12[\s\S]*monthly_limit\s*=\s*300[\s\S]*minute_limit\s*=\s*2/,'media enrichment must not raise any Foursquare free-reserve limit');
+assert.match(foursquareExactMedia,/operations\s*=\s*array\['search'\]::text\[\]/,'the migration may only widen the already active search-only policy');
+assert.doesNotMatch(foursquareExactMedia,/blocked_until\s*=|last_status\s*=|delete\s+from\s+public\.places_provider_usage/i,'media activation must retain cooldown, outcome and all usage evidence');
+assert.match(foursquareExactMedia,/FOURSQUARE_EXACT_MEDIA_POLICY_NOT_UPDATED/,'the media policy update must fail closed on an unexpected remote state');
 assert.match(places,/'vegetarian-foursquare-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['foursquare'\]\)/,'the bounded Foursquare evidence lane must have an exact public health probe');
 assert.match(places,/'vegetarian-here-8km-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['here'\]\)/,'the free HERE dietary path must have the exact production-radius probe');
 assert.match(osmEvidence,/values\s*\([\s\S]{0,180}'openstreetmap-dietary-evidence','openstreetmap',array\['search'\],true,500,0,6,'UTC'/,'the free dietary evidence lane must have a dedicated, search-only, bounded provider budget');
@@ -52,7 +58,7 @@ assert.doesNotMatch(osmEvidence,/delete\s+from\s+public\.places_provider_usage/i
 assert.match(osmProxy,/'openstreetmap-cached-proxy','openstreetmap-cache',array\['lookup'\],true,20000,0,300/,'cached proxy lookups need a separate bounded lane that cannot exhaust direct Overpass reads');
 assert.doesNotMatch(osmProxy,/delete\s+from\s+public\.places_provider_usage/i,'the cached proxy lane must preserve all accounting evidence');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}providers:Object\.freeze\(\['openstreetmap'\]\)/,'the free OSM evidence lane must have an exact public health probe');
-assert.match(places,/version:'4\.38\.11-exact-media-seed-bridge'/,'the deployed gateway must identify the active cached category and dietary evidence contract');
+assert.match(places,/version:'4\.38\.12-provider-media-cascade'/,'the deployed gateway must identify the active provider and exact-media cascade contract');
 assert.match(places,/'vegetarian-osm-scharbeutz'[\s\S]{0,700}maxDistanceMeters:3000/,'the public OSM probe must verify the same three-kilometre radius presented by Places');
 assert.match(places,/status:Number\(item\?\.status\)\|\|null/,'the public diagnostic must expose the bounded provider HTTP status');
 

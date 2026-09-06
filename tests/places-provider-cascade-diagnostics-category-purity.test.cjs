@@ -7,6 +7,10 @@ const gateway=fs.readFileSync('supabase/functions/luvia-gateway/_shared/places.t
 const additional=fs.readFileSync('supabase/functions/luvia-gateway/_shared/additional-places.ts','utf8');
 assert.match(gateway,/'chinese-scharbeutz'/,'exact Chinese filter health probe exists');
 assert.match(gateway,/providers:Object\.freeze\(\['auto'\]\)/,'probe uses the live automatic cascade');
+assert.match(gateway,/options:\{providers:\['auto'\],maxResultCount:20/,'health probes default to the same automatic provider cascade as the real consumer');
+assert.match(gateway,/'minigolf-scharbeutz'[\s\S]{0,900}category:'activities'[\s\S]{0,300}includedType:'miniature_golf_course'/,'Minigolf diagnostics use the real activities contract instead of a Geoapify-only text query');
+assert.match(gateway,/'minigolf-chat-scharbeutz'[\s\S]{0,900}category:'activities'[\s\S]{0,300}includedType:'miniature_golf_course'/,'AI Chat Minigolf diagnostics use the identical Places contract');
+assert.match(gateway,/'beach-supplies-scharbeutz'[\s\S]{0,1000}category:'shopping'[\s\S]{0,300}includedTypes:Object\.freeze\(\['sporting_goods_store','store'\]\)/,'beach supplies diagnostics use the automatic shopping cascade');
 assert.match(gateway,/includedType:'chinese_restaurant'/,'probe carries exact cuisine evidence contract');
 assert.match(gateway,/maxDistanceMeters:5000/,'probe uses the same specialized local radius as the consumer');
 assert.match(gateway,/tomtom:\{configured:Boolean\(Deno\.env\.get\('TOMTOM_API_KEY'\)\)/,'TomTom configuration is visible without exposing the key');
