@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.98**, Core **4.82.217**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .97 wieder kontinuierlich, bleiben aber teilweise bis zur vollständigen realen Filter-, Foto-, Deduplizierungs- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.99**, Core **4.82.218**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .97 wieder kontinuierlich, bleiben aber teilweise bis zur vollständigen realen Filter-, Foto-, Deduplizierungs- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** App .97 / Core .216 ist auf Integration veröffentlicht. Food zeigt 50 Orte und neun belegte Passend-Treffer; das Kleine Steakhouse fehlt korrekt. Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23 und Stays 49 wurden im sichtbaren Browser geprüft; Zoom blieb nach dem Kategorienwechsel bedienbar. Die neue OSM-Kontinuität deckt 14 Kategorien und 19 Landesküchen ab, trennt Cache-Lookups von direkten Overpass-Budgets und besteht öffentliche Health-Proben. Releasekette: Runtime 706f7692, Gateway v225, Worker 47bc75d4, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität.
 
@@ -307,7 +307,7 @@ Ein grüner technischer Test ist notwendig, aber nicht ausreichend. Ein Teilbele
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Platform und Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Aktuell öffentlich belegt sind App 13.82.168.98 / Core 4.82.217 auf Integration-Worker 47bc75d4-f2f1-4266-9091-2a22baddb328 aus Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6. Gateway v225 meldet 4.64.30. 30/30 releasekritische Dateien stimmen im sauberen Public-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.98-706f76928ac4-public-bytes.zip hat 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51. Safe Regression 231/231 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.
+Aktuell öffentlich belegt sind App 13.82.168.99 / Core 4.82.218 auf Integration-Worker 47bc75d4-f2f1-4266-9091-2a22baddb328 aus Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6. Gateway v225 meldet 4.64.30. 30/30 releasekritische Dateien stimmen im sauberen Public-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.99-706f76928ac4-public-bytes.zip hat 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51. Safe Regression 231/231 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.
 
 **Nächster Abschlussnachweis:** Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.
 
@@ -687,7 +687,7 @@ Keine vollständige CRDT-Produktautorisierung aus einem Plan ableiten.
 
 **Stand:** ERHALTUNGSGATE. **Zuständig:** Integration. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-App 13.82.168.98 / Core 4.82.217: Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6, byteidentisches Rollback-Archiv luvia-integration-13.82.168.98-706f76928ac4-public-bytes.zip mit 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51, Gateway v225, Worker 47bc75d4-f2f1-4266-9091-2a22baddb328, 231/231 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbare Abnahme: Food Alle 50 / Passend 9 ohne Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 sowie Zoom nach Kategorienwechsel. Main und Production unverändert.
+App 13.82.168.99 / Core 4.82.218: Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6, byteidentisches Rollback-Archiv luvia-integration-13.82.168.99-706f76928ac4-public-bytes.zip mit 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51, Gateway v225, Worker 47bc75d4-f2f1-4266-9091-2a22baddb328, 231/231 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbare Abnahme: Food Alle 50 / Passend 9 ohne Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 sowie Zoom nach Kategorienwechsel. Main und Production unverändert.
 
 **Nächster Abschlussnachweis:** Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.
 

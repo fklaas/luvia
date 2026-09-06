@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-06",
   "sourceBaseline": "706f7692",
-  "app": "13.82.168.98",
-  "core": "4.82.217",
+  "app": "13.82.168.99",
+  "core": "4.82.218",
   "runtimeSource": "706f76928ac4cb96d48fea3416cf7abb7538d7b6",
   "worker": "47bc75d4-f2f1-4266-9091-2a22baddb328",
   "gateway": "v225 ACTIVE / 4.64.30 / Places 4.38.7-osm-edge-proxy",
@@ -16,7 +16,7 @@
       "canonicalTitle": "Release baseline and provenance",
       "status": "ERHALTUNGSGATE",
       "owner": "Platform und Integration",
-      "evidence": "Aktuell öffentlich belegt sind App 13.82.168.98 / Core 4.82.217 auf Integration-Worker 47bc75d4-f2f1-4266-9091-2a22baddb328 aus Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6. Gateway v225 meldet 4.64.30. 30/30 releasekritische Dateien stimmen im sauberen Public-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.98-706f76928ac4-public-bytes.zip hat 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51. Safe Regression 231/231 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
+      "evidence": "Aktuell öffentlich belegt sind App 13.82.168.99 / Core 4.82.218 auf Integration-Worker 47bc75d4-f2f1-4266-9091-2a22baddb328 aus Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6. Gateway v225 meldet 4.64.30. 30/30 releasekritische Dateien stimmen im sauberen Public-Byte-Archiv, auf Stable und auf dem immutable Worker überein. Das byteidentische Archiv luvia-integration-13.82.168.99-706f76928ac4-public-bytes.zip hat 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51. Safe Regression 231/231 und NFR-0 3/3 sind grün. Main und Production bleiben unverändert.",
       "nextAcceptance": "Beim nächsten kohärenten Integration-Slice erneut sauberen Commit, immutable Release-Identität, Safe Regression, NFR-0, öffentliches Verhalten und Rückfallarchiv gemeinsam belegen.",
       "scope": "Retain the current immutable release, source hashes, rollback compatibility and historical counterevidence. The old .126 lock is historical, not a current deployment target.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -472,7 +472,7 @@
       "canonicalTitle": "Immutable release per coherent slice",
       "status": "ERHALTUNGSGATE",
       "owner": "Integration",
-      "evidence": "App 13.82.168.98 / Core 4.82.217: Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6, byteidentisches Rollback-Archiv luvia-integration-13.82.168.98-706f76928ac4-public-bytes.zip mit 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51, Gateway v225, Worker 47bc75d4-f2f1-4266-9091-2a22baddb328, 231/231 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbare Abnahme: Food Alle 50 / Passend 9 ohne Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 sowie Zoom nach Kategorienwechsel. Main und Production unverändert.",
+      "evidence": "App 13.82.168.99 / Core 4.82.218: Runtime-Commit 706f76928ac4cb96d48fea3416cf7abb7538d7b6, byteidentisches Rollback-Archiv luvia-integration-13.82.168.99-706f76928ac4-public-bytes.zip mit 89.272.284 Bytes und SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51, Gateway v225, Worker 47bc75d4-f2f1-4266-9091-2a22baddb328, 231/231 Safe Regression, NFR-0 3/3 und 30/30 öffentliche Byteidentität. Sichtbare Abnahme: Food Alle 50 / Passend 9 ohne Steakhouse, Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23, Stays 49 sowie Zoom nach Kategorienwechsel. Main und Production unverändert.",
       "nextAcceptance": "Jeder neue Runtime-Slice erhält Tests, sichtbare Desktop-/Mobile-Abnahme, neue immutable Version, 30/30 öffentliche Byte-Gleichheit und einen passenden Frontend- und Gateway-Rückfall.",
       "scope": "Commit, App/Core/cache/SW, archive/hash, Stable/Immutable byte equality and exact rollback.",
       "roadmap": "M16.5 Schritte 15 bis 18"
@@ -640,8 +640,8 @@
       ]
     }
   ],
-  "acceptanceUpdate": "Integration App 13.82.168.98 / Core 4.82.217 ist öffentlich. Die authentifizierte, sechs Stunden gecachte und auf 15 km sowie 250 Datensätze begrenzte OSM-Kontinuitätsebene deckt 14 Kategorien und 19 Landesküchen ab. Cache-Lookups besitzen ein separates internes Kontingent von 20.000 pro Tag und 300 pro Minute; direkte Overpass-Aufrufe bleiben auf 500 pro Tag und 6 pro Minute begrenzt. Öffentliche Health-Proben, sichtbare Places-/Stays-Browserläufe, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Passend zeigt bei Essen & Trinken neun belegte Treffer und kein Steakhouse. Fotoabdeckung, Frischladezeit, Dubletten und die volle reale Filtermatrix bleiben offen. Main und Production sind unverändert.",
-  "safeRegression": "231/231 PASS for public App 13.82.168.98; NFR-0 3/3 PASS",
+  "acceptanceUpdate": "Integration App 13.82.168.99 / Core 4.82.218 ist öffentlich. Die authentifizierte, sechs Stunden gecachte und auf 15 km sowie 250 Datensätze begrenzte OSM-Kontinuitätsebene deckt 14 Kategorien und 19 Landesküchen ab. Cache-Lookups besitzen ein separates internes Kontingent von 20.000 pro Tag und 300 pro Minute; direkte Overpass-Aufrufe bleiben auf 500 pro Tag und 6 pro Minute begrenzt. Öffentliche Health-Proben, sichtbare Places-/Stays-Browserläufe, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität sind grün. Passend zeigt bei Essen & Trinken neun belegte Treffer und kein Steakhouse. Fotoabdeckung, Frischladezeit, Dubletten und die volle reale Filtermatrix bleiben offen. Main und Production sind unverändert.",
+  "safeRegression": "231/231 PASS for public App 13.82.168.99; NFR-0 3/3 PASS",
   "publicAssetIdentity": "30/30 MATCH across clean public-byte archive, stable and immutable Worker .97; archive SHA-256 FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {

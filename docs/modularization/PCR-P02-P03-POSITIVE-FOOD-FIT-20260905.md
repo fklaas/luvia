@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-06:** Integration **13.82.168.98**, Core **4.82.217**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .97 wieder kontinuierlich, bleiben aber teilweise bis zur vollständigen realen Filter-, Foto-, Deduplizierungs- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
+**Stand 2026-09-06:** Integration **13.82.168.99**, Core **4.82.218**. M16.5 Schritte 15–18 aktiv. P02/P03 sind auf der öffentlichen Integration .97 wieder kontinuierlich, bleiben aber teilweise bis zur vollständigen realen Filter-, Foto-, Deduplizierungs- und Latenzabnahme. P09/P10 folgen danach mit Timeline-, Booking- und AI-Parität. Apple bleibt geparkt.
 
 **Zuletzt geliefert:** App .97 / Core .216 ist auf Integration veröffentlicht. Food zeigt 50 Orte und neun belegte Passend-Treffer; das Kleine Steakhouse fehlt korrekt. Shopping Passend 11, Natur Passend 16, Nachtleben Alle 23 und Stays 49 wurden im sichtbaren Browser geprüft; Zoom blieb nach dem Kategorienwechsel bedienbar. Die neue OSM-Kontinuität deckt 14 Kategorien und 19 Landesküchen ab, trennt Cache-Lookups von direkten Overpass-Budgets und besteht öffentliche Health-Proben. Releasekette: Runtime 706f7692, Gateway v225, Worker 47bc75d4, 231/231 Regression, NFR-0 3/3 und 30/30 Byteidentität.
 
@@ -96,12 +96,12 @@ Angewendete additive Policy-Migrationen:
 - `20260905174500_foursquare_dietary_diagnostic_cooldown_reset.sql`
 - `20260905210000_openstreetmap_dietary_evidence_budget.sql`
 
-Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.217` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
+Gateway **v206 ACTIVE** stellt Software-Build `4.64.23`, App-Build `13.82.168.89`, Core `4.82.218` und Places-Health `4.38.4-osm-dietary-evidence` bereit. Der öffentliche `vegetarian-osm-scharbeutz`-Probe antwortet im Modus `free_osm_dietary_evidence` mit 25 Treffern und ohne Providerfehler.
 
 ## Öffentlicher Integrationsrelease
 
 - App: `13.82.168.89`
-- Core: `4.82.217`
+- Core: `4.82.218`
 - Runtime-Commit: `51a2f1743e5c6296699d9525f5ddb9e9e0e84a7c`
 - Integration-Worker: `81e43a21-667a-4e60-bb81-1ab946e4a482`, 100 Prozent Traffic
 - Stable: `https://integration-luvia.njwnrvwbv5.workers.dev/`
@@ -124,12 +124,12 @@ Main und Production bleiben unverändert auf Commit `c4b6d1740ad04c291d5e27d8d18
 
 ## Kontinuitätserweiterung und öffentlicher Release .97
 
-Der positive Ernährungsbeleg wurde am 6. September 2026 auf die gemeinsame Kategorie- und Landesküchenkontinuität erweitert. Die öffentliche Integration läuft auf App `13.82.168.98`, Core `4.82.217`, Runtime-Commit `706f76928ac4cb96d48fea3416cf7abb7538d7b6`, Gateway v225 / `4.64.30` und Worker `47bc75d4-f2f1-4266-9091-2a22baddb328`.
+Der positive Ernährungsbeleg wurde am 6. September 2026 auf die gemeinsame Kategorie- und Landesküchenkontinuität erweitert. Die öffentliche Integration läuft auf App `13.82.168.99`, Core `4.82.218`, Runtime-Commit `706f76928ac4cb96d48fea3416cf7abb7538d7b6`, Gateway v225 / `4.64.30` und Worker `47bc75d4-f2f1-4266-9091-2a22baddb328`.
 
 Der Worker-Endpunkt für OSM-Orte akzeptiert nur die 14 festen Luvia-Kategorien, höchstens 15 Kilometer Radius und höchstens 250 Datensätze. Alle 19 kanonischen Landesküchen werden im Gateway normalisiert. Direkte Overpass-Aufrufe behalten das enge Kontingent von 6 pro Minute und 500 pro Tag. Authentifizierte, sechs Stunden gecachte Proxy-Lookups verwenden nach Migration `20260905235500_openstreetmap_cached_proxy_budget.sql` die getrennte Budgetspur `openstreetmap-cache/lookup` mit 300 pro Minute und 20.000 pro Tag. Cache-Zugriffe verbrauchen damit nicht mehr das Kontingent der tatsächlichen Upstream-Suche.
 
 Öffentliche Health-Proben lieferten Food, Shopping, Natur, Nachtleben und Stays ohne Providerfehler. Der ausdrücklich auf OSM begrenzte vegetarische Probeweg lieferte zehn positive Treffer im Modus `free_osm_dietary_evidence`; der chinesische Probeweg lieferte einen streng belegten Treffer. Im sichtbaren Browser zeigte Essen & Trinken 50 Orte und neun `Passend`-Pins. Das Kleine Steakhouse war nur in `Alle` enthalten und fehlte korrekt in `Passend`. Shopping zeigte elf passende Orte, Natur sechzehn passende Orte, Nachtleben 23 Orte unter `Alle` und Stays 49 koordinatenverifizierte Pins. Zoomen blieb nach dem Kategorienwechsel bedienbar.
 
-Safe Regression `231/231` und NFR-0 `3/3` sind grün. Das offizielle Rollback-Archiv `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.98-706f76928ac4-public-bytes.zip` enthält 3.270 getrackte Dateien, ist 89.272.284 Bytes groß und hat SHA-256 `FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51`. Für 30 releasekritische Dateien sind Archiv, Stable und immutable Worker byteidentisch. Das frühere Git-Archiv ohne den Zusatz `public-bytes` bleibt als Quellarchiv erhalten, wird wegen abweichender Windows-Zeilenenden aber nicht als öffentlicher Bytebeleg verwendet.
+Safe Regression `231/231` und NFR-0 `3/3` sind grün. Das offizielle Rollback-Archiv `C:\Users\fabia\Documents\GitHub\luvia-release-archives\luvia-integration-13.82.168.99-706f76928ac4-public-bytes.zip` enthält 3.270 getrackte Dateien, ist 89.272.284 Bytes groß und hat SHA-256 `FF5177D4812F1C6E1943B727B3685105EF3C10CA302CF18E28722DB00FD14C51`. Für 30 releasekritische Dateien sind Archiv, Stable und immutable Worker byteidentisch. Das frühere Git-Archiv ohne den Zusatz `public-bytes` bleibt als Quellarchiv erhalten, wird wegen abweichender Windows-Zeilenenden aber nicht als öffentlicher Bytebeleg verwendet.
 
 P02 und P03 bleiben **TEILWEISE**. Ein sichtbarer Natur-Kaltstart benötigte ungefähr 6,8 Sekunden, mehrere Detail-Sheets besitzen noch kein echtes Bild des Ortes und in Stays sind sichtbare Dubletten vorhanden. Der nächste Abschluss prüft deshalb die reale positive, negative, leere und teilweise Matrix für alle 14 Kategorien, 82 Zuordnungen, 19 Landesküchen und sämtliche Sachfilter. Cache-Treffer müssen Pins innerhalb einer Sekunde und kalte Providerpfade innerhalb von drei Sekunden ohne falschen Leerzustand zeigen. Fotos müssen zur exakten Provider-Place-ID gehören; Places und Stays benötigen dieselbe kanonische Deduplizierung.

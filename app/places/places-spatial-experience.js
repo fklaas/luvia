@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='1.38.0-persistent-category-continuity';
+  const VERSION='1.39.0-persistent-category-stays-dedupe';
   const INITIAL_VISIBLE_RESULTS=6;
   const PAGE_SIZE=6;
   const MAX_RESULTS=80;
@@ -125,6 +125,7 @@
     return projected;
   }
   const normalizedCacheIdentity=value=>clean(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const cachedAccommodationIdentity=place=>[place?.primaryType,place?.primary_type,...(place?.types||[])].map(normalizedCacheIdentity).some(type=>['lodging','accommodation','hotel','hostel','motel','guest house','bed and breakfast','apartment','vacation rental','holiday home','resort hotel','campground'].includes(type));
   function cachedCanonicalDuplicate(left,right){
     const leftName=normalizedCacheIdentity(left?.name||left?.displayName),rightName=normalizedCacheIdentity(right?.name||right?.displayName);
     if(!leftName||leftName!==rightName)return false;
@@ -133,7 +134,8 @@
     const a=COMPOSITION().normalizeCoordinates(left?.coordinates||left?.location),b=COMPOSITION().normalizeCoordinates(right?.coordinates||right?.location);
     if(!a||!b)return false;
     const rad=value=>value*Math.PI/180,dLat=rad(b.latitude-a.latitude),dLng=rad(b.longitude-a.longitude),lat1=rad(a.latitude),lat2=rad(b.latitude),h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-    return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))<=25;
+    const meters=6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+    return meters<=25||meters<=350&&cachedAccommodationIdentity(left)&&cachedAccommodationIdentity(right);
   }
   function usableCachedResults(rows){
     const valid=(Array.isArray(rows)?rows:[]).filter(place=>{const title=clean(place?.name||place?.displayName);return title&&!/^(unbenannter ort|unbekannter ort|unknown place|\[object object\])$/i.test(title)&&CACHEABLE_PROVIDER_ID.test(providerId(place))&&COMPOSITION().normalizeCoordinates(place.coordinates||place.location)}),deduplicated=[];

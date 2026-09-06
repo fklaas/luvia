@@ -10,10 +10,10 @@ const path=require('node:path');
   const base={name:'Hotel Strandgrün',provider:'geoapify',types:['lodging'],formattedAddress:'Strandallee 10, Scharbeutz',location:{latitude:54.02,longitude:10.75},photos:[],evidence:[{provider:'geoapify',kind:'place-search'}]};
   const nearby={...base,id:'geoapify:b',providerPlaceId:'geoapify:b',location:{latitude:54.0201,longitude:10.7501},photos:[{uri:'https://images.example/hotel.jpg'}]};
   const exact={...base,id:'geoapify:a',providerPlaceId:'geoapify:a'};
-  const separated={...base,id:'geoapify:c',providerPlaceId:'geoapify:c',formattedAddress:'Strandallee 80, Scharbeutz',location:{latitude:54.0205,longitude:10.7505}};
+  const separated={...base,id:'geoapify:c',providerPlaceId:'geoapify:c',formattedAddress:'Strandallee 80, Scharbeutz',location:{latitude:54.025,longitude:10.755}};
   const different={...base,id:'geoapify:d',providerPlaceId:'geoapify:d',name:'Hotel Seeblick',location:{latitude:54.02005,longitude:10.75005}};
   const rows=mergeProviderPlaces([exact,nearby,separated,different]);
-  assert.equal(rows.length,3,'same name within 25 metres is one canonical place; distinct names and farther branches remain separate');
+  assert.equal(rows.length,3,'same lodging name within 350 metres is one canonical property; distinct names and farther properties remain separate');
   assert.equal(rows[0].providerPlaceId,'geoapify:b','the photo-bearing exact duplicate is retained as the richer canonical row');
   assert.equal(rows[0].photos.length,1);
   assert.deepEqual(rows[0].canonicalDuplicateIds,['geoapify:a','geoapify:b']);
@@ -24,5 +24,10 @@ const path=require('node:path');
   ]);
   assert.equal(addressOnly.length,1,'an exact normalized name and full address can deduplicate providers without coordinates');
   assert.equal(addressOnly[0].provider,'multi');
-  console.log('P02 canonical name/address/max-25m place deduplication: PASS');
+  const ordinaryBranches=mergeProviderPlaces([
+    {...exact,id:'geoapify:restaurant-a',providerPlaceId:'geoapify:restaurant-a',name:'Muster Café',primaryType:'restaurant',types:['restaurant']},
+    {...exact,id:'geoapify:restaurant-b',providerPlaceId:'geoapify:restaurant-b',name:'Muster Café',primaryType:'restaurant',types:['restaurant'],formattedAddress:'Strandallee 20, Scharbeutz',location:{latitude:54.0215,longitude:10.7515}}
+  ]);
+  assert.equal(ordinaryBranches.length,2,'non-accommodation branches still use the strict 25-metre identity boundary');
+  console.log('P02 canonical place and accommodation-property deduplication: PASS');
 })().catch(error=>{console.error(error);process.exitCode=1});
