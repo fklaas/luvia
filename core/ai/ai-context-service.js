@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='4.22.1';
+  const VERSION='4.22.2';
   const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
   const pick=(source,keys)=>Object.fromEntries(keys.filter(key=>source?.[key]!=null).map(key=>[key,clone(source[key])]));
   function tripContext(trip={}){
@@ -22,6 +22,8 @@
   async function assemble(capability,{currentMoment={},candidatePlaces=[],extraContext={}}={}){
     const definition=window.LuviaAICapabilities?.get?.(capability);
     if(!definition)throw new Error(`AI_CAPABILITY_UNKNOWN:${capability}`);
+    const sanitize=window.LuviaAIPolicy.sanitize;
+    if(['trip-destination-inspiration','trip-composer'].includes(currentMoment.surface))return sanitize({schemaVersion:1,capability,trip:null,journey:null,user:{explicitPreferences:clone(currentMoment.globalPreferences||{})},live:{now:new Date().toISOString()},currentMoment:clone(currentMoment),candidates:[],extra:{}});
     const evidence=await window.LuviaAITools.collect(definition.tools,{capability});
     const trip=evidence['trip.current']||{};
     const wantsJourney=(definition.tools||[]).includes('journey.context');
@@ -39,7 +41,7 @@
       candidates:(candidatePlaces||[]).slice(0,30).map(place=>pick(place,['id','providerPlaceId','name','displayName','primaryType','types','rating','userRatingCount','distanceMeters','formattedAddress','editorialSummary','features','businessStatus'])),
       extra:clone(extraContext||{})
     };
-    return window.LuviaAIPolicy.sanitize(context);
+    return sanitize(context);
   }
   function diagnostics(){return{version:VERSION,principles:['minimum-necessary-context','explicit-preferences-separated-from-learning','no-credentials','no-contact-data']}}
   window.LuviaAIContext=Object.freeze({version:VERSION,assemble,diagnostics});

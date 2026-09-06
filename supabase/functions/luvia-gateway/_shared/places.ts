@@ -976,7 +976,7 @@ async function resolveDestination(payload:any){
   const languageCode=String(payload?.languageCode||'de');
   const regionCode=payload?.regionCode?String(payload.regionCode).toUpperCase():undefined;
   const forceRefresh=payload?.forceRefresh===true||payload?.refresh===true;
-  const key=`destination.resolve:v2.12.3.2-geoapify:${hash({query,languageCode,regionCode})}`;
+  const key=`destination.resolve:v2.12.3.3-timezone:${hash({query,languageCode,regionCode})}`;
   const hit=forceRefresh?null:cached(key);
   if(hit)return{data:hit,cache:{hit:true,key,ttlMs:7*24*60*60_000}};
   const raw=await geoapifyGeocode(query,languageCode,regionCode);
@@ -996,7 +996,7 @@ async function resolveDestination(payload:any){
     country:String(properties.country||''),countryCode,placeId:String(properties.place_id||''),
     center:{lat:latitude,lng:longitude},location:{latitude,longitude},viewport,
     searchRadiusMeters:viewportRadius(viewport,{lat:latitude,lng:longitude}),radiusSource:viewport?'viewport':'default',
-    timezone:'',timezoneName:'',timezoneStatus:'skipped',timezoneError:'',
+    timezone:String(properties.timezone?.name||''),timezoneName:String(properties.timezone?.name_alt||properties.timezone?.name||''),timezoneStatus:properties.timezone?.name?'resolved':'unknown',timezoneError:'',
     languageCodes:regional.languages,currency:regional.currency,
     locale:regional.languages[0]&&countryCode?`${regional.languages[0]}-${countryCode}`:'de-DE',
     flagEmoji:flagEmoji(countryCode),provider:'geoapify',source:'automatic-geocoding',

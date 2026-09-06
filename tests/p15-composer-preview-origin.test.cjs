@@ -62,8 +62,29 @@ async function checkFunction(name) {
     assert.equal(body.error.code, origin === candidate ? 'AUTH_REQUIRED' : 'ORIGIN_NOT_ALLOWED'); checks++;
   }
 }
+async function checkProviderErrors(){
+  for(const [status,code] of [[429,'credit_balance_exhausted'],[429,'rate_limit_exceeded'],[413,'AI_PAYLOAD_TOO_LARGE']]){
+    let calls=0;const context=vm.createContext({TextEncoder,setTimeout,clearTimeout,console,window:{LuviaSupabaseService:{start:async()=>({functions:{invoke:async()=>{calls++;return {error:{message:'Non-2xx',context:new Response(JSON.stringify({error:{code,message:'controlled provider error'}}),{status})}}}}})}}});
+    vm.runInContext(fs.readFileSync(path.join(root,'core/ai/providers/openai-provider.js'),'utf8'),context);
+    await assert.rejects(context.window.LuviaOpenAIProvider.run({}),e=>e.code===code&&e.status===status);checks++;
+    await assert.rejects(context.window.LuviaOpenAIProvider.run({}),e=>e.code===(status===413?'AI_PAYLOAD_CIRCUIT_OPEN':code));assert.equal(calls,1,'A quota/payload pause must not call the provider again');checks++;
+  }
+  const context=vm.createContext({window:{LuviaAICapabilities:{get:()=>({})},LuviaAIPolicy:{sanitize:x=>x},LuviaAITools:{collect:()=>{throw Error('New trip must not inherit active-trip tools')}}}});
+  vm.runInContext(fs.readFileSync(path.join(root,'core/ai/ai-context-service.js'),'utf8'),context);
+  const result=await context.window.LuviaAIContext.assemble('discovery.plan',{currentMoment:{surface:'trip-destination-inspiration',userGoal:'Meer und Natur',globalPreferences:{dietaryPreferences:['vegan']}}});assert.equal(result.trip,null);assert.equal(result.currentMoment.userGoal,'Meer und Natur');checks++;
+}
+async function checkTimezone(){
+  const full=fs.readFileSync(path.join(root,'supabase/functions/luvia-gateway/_shared/places.ts'),'utf8'),source=full.slice(full.indexOf('async function resolveDestination('),full.indexOf('export async function placesAction('));
+  let zone='Europe/Rome',calls=0;const cachedValues=new Map();const context=vm.createContext({hash:JSON.stringify,cached:key=>cachedValues.get(key),store:(key,value)=>cachedValues.set(key,value),metrics:{resolutions:0},COUNTRY_META:{IT:{languages:['it'],currency:'EUR'}},viewportRadius:()=>5000,flagEmoji:()=>'',geoapifyGeocode:async()=>{calls++;return {features:[{properties:{lat:41.893,lon:12.483,city:'Rom',country_code:'it',place_id:'rom',timezone:zone?{name:zone}:undefined}}]}}});
+  vm.runInContext(stripTypeScriptTypes(source),context);
+  const result=await context.resolveDestination({query:'Rom'});assert.equal(result.data.destination.timezone,'Europe/Rome');assert.equal(result.data.destination.timezoneStatus,'resolved');checks++;
+  await context.resolveDestination({query:'Rom'});assert.equal(calls,1,'Timezone must use the same geocoding response and cache');checks++;
+  zone='';const unknown=await context.resolveDestination({query:'A region',refresh:true});assert.equal(unknown.data.destination.timezone,'');assert.equal(unknown.data.destination.timezoneStatus,'unknown');checks++;
+}
 (async () => {
   await checkFunction('luvia-gateway');
   await checkFunction('luvia-intelligence');
+  await checkProviderErrors();
+  await checkTimezone();
   console.log(`P15 composer preview origin: ${checks}/${checks} behavioral checks PASS`);
 })().catch(error => { console.error(error); process.exitCode = 1; });
