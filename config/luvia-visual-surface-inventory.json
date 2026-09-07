@@ -6755,8 +6755,8 @@
       "classes": [
         "dom-rendering-source"
       ],
-      "bytes": 6003,
-      "sha256": "df05c245fe97b48fca630a267428e7a698a697c141830881038d6072c1e5b1b6"
+      "bytes": 6059,
+      "sha256": "9fac638b01090972eca25f1dc153f3be1bd98df8a4231f717ebe0c89a6d4fd9e"
     },
     {
       "path": "supabase/functions/luvia-intelligence/prompts/system.ts",
@@ -6779,8 +6779,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 4436,
-      "sha256": "a16788f6f299d00159cd5059ffe7d79aefb8d394cf8531745984914ce56c3ca1"
+      "bytes": 4501,
+      "sha256": "a9bde2a09078c8dd1f28338ddc51636b0f4040f31f291024aa60f890459055a8"
     },
     {
       "path": "sw.js",
