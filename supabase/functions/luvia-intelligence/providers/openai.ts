@@ -26,7 +26,7 @@ export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unkn
       text:{format:{type:'json_schema',name:`luvia_${args.capability.schema}`,schema:outputSchema(args.capability.schema),strict:true}},
       max_output_tokens:args.capability.maxOutputTokens
     };
-    if(model.includes('gpt-5'))body.reasoning={effort:args.capability.id==='trip.compose'&&args.tier==='deep'?'medium':args.capability.reasoningEffort};
+    if(model.includes('gpt-5'))body.reasoning={effort:args.capability.reasoningEffort};
     const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body)});
     const json=await response.json().catch(()=>({})),usage={inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0)},latencyMs=Math.round(performance.now()-started),requestId=json.id||null;
     if(!response.ok){lastError=Object.assign(new Error(json?.error?.message||'OpenAI request failed'),{code:json?.error?.code||'OPENAI_REQUEST_FAILED',status:response.status,body:json});attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:lastError.code});if(recoverable(response.status,json)&&model!==candidates.at(-1))continue;throw Object.assign(lastError,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)})}

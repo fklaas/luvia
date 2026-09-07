@@ -42,8 +42,8 @@ assert.match(registry,/planning\.dialogue':\{id:'planning\.dialogue',tier:'fast'
 assert.match(provider,/structured&&model!==candidates\.at\(-1\)/,'A malformed fast-model response must escalate to the default model');
 assert.match(provider,/attempts\.push\(\{model,requestId,usage,latencyMs,success:false/,'Paid failed structured-output attempts must remain visible to cost telemetry');
 assert.match(registry,/trip\.compose'.*maxOutputTokens:16000,reasoningEffort:'low'/s,'The Luna first draft needs enough structured-output budget with bounded reasoning latency');
-assert.match(registry,/trip\.audit'.*maxOutputTokens:5000,reasoningEffort:'medium'/s,'The independent audit needs a bounded output budget');
+assert.match(registry,/trip\.audit'.*maxOutputTokens:5000,reasoningEffort:'low'/s,'The independent audit needs a bounded output and reasoning budget');
 assert.match(registry,/trip\.audit':\{id:'trip\.audit',tier:'default'/,'The audit must use Terra while Sol remains reserved for composition and targeted repair');
-assert.match(provider,/args\.capability\.id==='trip\.compose'&&args\.tier==='deep'\?'medium':args\.capability\.reasoningEffort/,'Only a targeted Sol repair restores medium reasoning');
+assert.match(provider,/body\.reasoning=\{effort:args\.capability\.reasoningEffort\}/,'All tiers obey the bounded capability reasoning budget');
 
 console.log('Trip itinerary Structured Output schema: OK');

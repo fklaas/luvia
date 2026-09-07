@@ -491,9 +491,9 @@
     for(let index=0;index<366;index+=1){const value=new Date(start.getTime()+index*86400000);if(value>end)break;days.push({date:value.toISOString().slice(0,10),label:`Tag ${index+1}`});}
     return days;
   }
-  async function composeAiItinerary(state,brief,candidates,repairInstructions=[]){
+  async function composeAiItinerary(state,brief,candidates,repairInstructions=[],qualityAttempt=1){
     const compose=window.LuviaIntelligenceContractV1?.reads?.composeTripItinerary;if(typeof compose!=='function')throw new Error('Die vollständige KI-Tagesplanung ist gerade nicht verfügbar.');
-    return within(compose({brief,destination:clone(state.data.destination),days:itineraryDays(state),candidates:clone(candidates),profilePreferences:clone(currentPreferences()),tripPreferences:clone(effectiveTripPreferences(state)),travelers:{participantPlan:state.data.participantPlan,...(brief?.travelOrder?.travelers||{})},timeZone:tripZone(state),locale:navigator.language||'de-DE',calendarEvidence:clone(state.calendarEvidence||[]),existingEntries:[],repairInstructions:clone(repairInstructions)}),80000,'Luvia konnte den vollständigen Reiseentwurf in diesem Versuch nicht rechtzeitig abschließen. Bitte erneut versuchen.','TRIP_ITINERARY_TIMEOUT');
+    return within(compose({brief,destination:clone(state.data.destination),days:itineraryDays(state),candidates:clone(candidates),profilePreferences:clone(currentPreferences()),tripPreferences:clone(effectiveTripPreferences(state)),travelers:{participantPlan:state.data.participantPlan,...(brief?.travelOrder?.travelers||{})},timeZone:tripZone(state),locale:navigator.language||'de-DE',calendarEvidence:clone(state.calendarEvidence||[]),existingEntries:[],repairInstructions:clone(repairInstructions),qualityAttempt}),80000,'Luvia konnte den vollständigen Reiseentwurf in diesem Versuch nicht rechtzeitig abschließen. Bitte erneut versuchen.','TRIP_ITINERARY_TIMEOUT');
   }
   async function auditAiItinerary(state,brief,candidates,itinerary){
     const audit=window.LuviaIntelligenceContractV1?.reads?.auditTripItinerary;if(typeof audit!=='function')throw new Error('Der unabhängige KI-Qualitätscheck ist gerade nicht verfügbar.');
@@ -675,10 +675,10 @@
       if(brief?.automaticPlanningAllowed===false){const blockers=(brief.unresolved||[]).filter(item=>item.hard).map(item=>item.label).filter(Boolean);state.aiDraft={status:'error',signature,profileSignature:profileSignature(),brief,places:[],rehearsals:[],error:blockers.join(' ')||'Eine verbindliche Angabe konnte noch nicht zuverlässig geprüft werden.'};render(state,{focus:true});return;}
       state.aiDraft.phase='places';render(state);const owner=trip();if(typeof owner?.composition?.composeDayDraft!=='function')throw new Error('Der Reiseentwurf ist noch nicht verfügbar.');const result=await readAiPlaces(state);if(!current())return;if(initialProfileSignature!==profileSignature())throw new Error('Eure Profilvorlieben haben sich geändert. Bitte erneut prüfen.');if(!result.places.length)throw new Error('Für diese Auswahl sind gerade keine überprüften Vorschläge verfügbar. Das bedeutet nicht, dass es vor Ort keine passenden Orte gibt.');
       let itinerary=null,audit=null,repairInstructions=[],qualityAttempts=0;
-      for(let attempt=0;attempt<2;attempt+=1){
+      for(let attempt=0;attempt<3;attempt+=1){
         qualityAttempts=attempt+1;state.aiDraft.phase=attempt?'repair':'itinerary';render(state);
-        try{itinerary=await composeAiItinerary(state,brief,result.places,repairInstructions);}
-        catch(error){const code=String(error?.code||''),repairable=/^TRIP_ITINERARY_(?:DAY_|TIME_|DURATION_|PROMISE_|INCOMPLETE|CATEGORY_)/.test(code);if(attempt===0&&repairable){repairInstructions=[`Der erste Entwurf wurde vom verbindlichen Luvia-Vertrag abgelehnt: ${String(error?.message||code).slice(0,300)} Erzeuge alle Tage vollständig neu und erfülle jede dayPolicy exakt.`];continue;}throw error;}
+        try{itinerary=await composeAiItinerary(state,brief,result.places,repairInstructions,attempt+1);}
+        catch(error){const code=String(error?.code||''),repairable=/^TRIP_ITINERARY_(?:DAY_|TIME_|DURATION_|PROMISE_|INCOMPLETE|CATEGORY_)/.test(code);if(attempt<2&&repairable){repairInstructions=[...repairInstructions.slice(-8),`Entwurf ${attempt+1} wurde vom verbindlichen Luvia-Vertrag abgelehnt: ${String(error?.message||code).slice(0,300)} Erzeuge alle Tage vollständig neu und erfülle jede dayPolicy exakt.`];continue;}throw error;}
         if(!current())return;
         if(itinerary?.kind!=='ai-trip-itinerary'||itinerary?.owner!=='intelligence'||itinerary?.source!=='ai')throw new Error('Die KI hat noch keine vollständige Tagesplanung geliefert.');
         state.aiDraft.phase='audit';render(state);audit=await auditAiItinerary(state,brief,result.places,itinerary);if(!current())return;
