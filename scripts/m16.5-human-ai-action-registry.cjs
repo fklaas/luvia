@@ -805,10 +805,9 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-ai-retry': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
   'data-ftc-destination-retry': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   // The action marker selects existing Places owner actions (plan/favorite) or
-  // an ephemeral draft exclusion. Swap changes only the unconfirmed Trip draft.
+  // an ephemeral draft exclusion. The day journey keeps one clear decision rail.
   'data-ftc-draft-action': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-draft-slot': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
-  'data-ftc-draft-swap': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-draft-time': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-draft-duration': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-pace': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -841,7 +840,6 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-sheet-collapsed': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-collapsed': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-timezone': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
-  'data-ftc-map-focus': ['Places & Ortsentdeckung', 'INTERAKTIONSPRIMITIVE'],
   'data-transition': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-durable': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-entry-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -1042,8 +1040,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1071);
-  assert.equal(sourceAudit.markerCount, 1071);
+  assert.equal(sourceAudit.markers.length, 1069);
+  assert.equal(sourceAudit.markerCount, 1069);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

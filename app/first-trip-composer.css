@@ -544,7 +544,7 @@
 .ftc.expedition.cinematic .lx-land,.ftc.expedition.cinematic .lx-states{stroke:#233c40;stroke-opacity:.42;stroke-width:.58;vector-effect:non-scaling-stroke}
 .ftc.expedition.cinematic .lx-states{stroke-opacity:.46;stroke-width:.68}
 .ftc.expedition.cinematic .lx-continent-outline{stroke:#1f3438;stroke-opacity:.38;stroke-width:.72}
-.ftc.expedition.cinematic .lx-boundary-halo{opacity:.22;filter:blur(1.8px)}
+.ftc.expedition.cinematic .lx-boundary-halo{opacity:.14;filter:blur(1.4px)}
 .ftc.expedition.cinematic .lx-selected-boundary path:last-child{stroke-width:1.75!important}
 .ftc.expedition.cinematic .lx-map-choice.lx-town{min-height:28px;padding:5px 8px;border-color:#fff9e5;background:#fffaf0e8;color:#234c55;border-radius:999px;box-shadow:0 5px 16px #274e4820;font-size:9px;backdrop-filter:blur(8px)}
 .ftc.expedition.cinematic .lx-map-choice.lx-town::before{width:5px;height:5px;margin-right:5px;background:#e4655a}

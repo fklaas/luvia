@@ -686,8 +686,8 @@
         "navigation-source",
         "active-entry-reference"
       ],
-      "bytes": 28498,
-      "sha256": "70ff335109c087dd2e03bc501c80a9027f69d382b35767b5480f8447da8ed9ec"
+      "bytes": 28501,
+      "sha256": "33207e24ba7e8185aa800c662d97edce0f2e238f07f58a414ebae9582b3d2713"
     },
     {
       "path": "app/control-center/booking-control-center.css",
@@ -823,7 +823,7 @@
         "active-entry-reference"
       ],
       "bytes": 121145,
-      "sha256": "1d013ea1c614d1397855388fe46c468c2c018878509b8319f1ae36bfdc0d8848"
+      "sha256": "58c194f13d5f977f25c93cc2a657d7b71a9da821432dab1f8a28473d568d58d3"
     },
     {
       "path": "app/first-trip-composer.js",
@@ -836,8 +836,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 168595,
-      "sha256": "f1d9edd6ff3f607c4d8e94f73cdf22c722ea8a0eae4dd95e7a81a2761bea86b1"
+      "bytes": 162817,
+      "sha256": "e05b2554be821e85ba8c0fd2059288a795059e599a7277276b068bd9f1eec314"
     },
     {
       "path": "app/gallery-view.css",
@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3489745,
-      "sha256": "d77635dbd5bfa57816b1a95bcea1ec94f1ae8c80e88f11e04f632b2214af2d72"
+      "bytes": 3483970,
+      "sha256": "08ef2016d5e8e8052b59c9e0c0a886f25868d22b4c878b648c7b36d73e1eec5a"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -6421,8 +6421,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 107392,
-      "sha256": "6f8f4cf7281bebebf5b2adeac48b200f1fba28b68df21720045d647925dd5041"
+      "bytes": 107242,
+      "sha256": "b63432f3a866338e6fb3d574c1130529e13ad2bf17cd139ea2f24723ddd5b779"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",
@@ -7911,7 +7911,7 @@
         "navigation-source"
       ],
       "bytes": 3023,
-      "sha256": "d6a0f5bcb82eb1ede0714240b3ff3d9292cda336ba1e5d9da69cbceba6c58809"
+      "sha256": "fa0e46a846846e3f59ad907d958b9dcc6c211faa3c15219574aa13d4f7a0da3c"
     },
     {
       "path": "tests/m16.5-productization-plan.test.cjs",
@@ -8374,11 +8374,13 @@
       "classes": [
         "accessibility-source",
         "dom-rendering-source",
+        "interaction-source",
         "motion-source",
-        "navigation-source"
+        "navigation-source",
+        "overlay-source"
       ],
-      "bytes": 13135,
-      "sha256": "60ee53fe9153c5240690ace8e92be28affee4beba6d6cfd2d9142b5f7a782cea"
+      "bytes": 14236,
+      "sha256": "539084e59480d7ae2edaa232ea11f1cf605aa71140d3399856156a66ff4b2a9e"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",

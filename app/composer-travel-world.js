@@ -116,9 +116,9 @@
         ['#ed6555','#f5ab44','#eac955','#55ad83','#329a9d','#5089b2','#9581bc','#ce5d87','#ed6555'].forEach((color,i)=>spectrum.append('stop').attr('offset',i/8).attr('stop-color',color));
         if(!reducedMotion)spectrum.append('animateTransform').attr('attributeName','gradientTransform').attr('type','rotate').attr('from','0 .5 .5').attr('to','360 .5 .5').attr('dur','9s').attr('repeatCount','indefinite');
         const outline=svg.append('g').attr('class','lx-selected-boundary').attr('aria-hidden','true');
-        outline.append('path').datum(chosen).attr('d',path).attr('fill','url(#ftc-selection-spectrum)').attr('fill-opacity','.13').attr('stroke','none');
-        outline.append('path').datum(chosen).attr('d',path).attr('class','lx-boundary-halo').attr('fill','none').attr('stroke','url(#ftc-selection-spectrum)').attr('stroke-width','7');
-        outline.append('path').datum(chosen).attr('d',path).attr('fill','none').attr('stroke','url(#ftc-selection-spectrum)').attr('stroke-width','2.8').attr('stroke-linejoin','round');
+        outline.append('path').datum(chosen).attr('d',path).attr('fill','url(#ftc-selection-spectrum)').attr('fill-opacity','.08').attr('stroke','none');
+        outline.append('path').datum(chosen).attr('d',path).attr('class','lx-boundary-halo').attr('fill','none').attr('stroke','url(#ftc-selection-spectrum)').attr('stroke-width','3.8');
+        outline.append('path').datum(chosen).attr('d',path).attr('fill','none').attr('stroke','url(#ftc-selection-spectrum)').attr('stroke-width','1.65').attr('stroke-linejoin','round');
       }
       const pins=host.querySelector('.ftc-atlas-points');if(pins){pins.innerHTML='';const pin=(name,coords,data,{quiet=false}={})=>{const xy=projection(coords);if(!xy||xy[0]<30||xy[0]>width-30||xy[1]<20||xy[1]>height-25)return;if(view.level===0&&d3.geoDistance([view.yaw/RAD,view.pitch/RAD],coords)>1.35)return;const b=document.createElement('button');b.type='button';b.className='lx-map-choice '+(quiet?'lx-town':'lx-hero')+(view.pending&&!quiet?' is-selected':'');b.setAttribute('aria-pressed',String(Boolean(view.pending&&!quiet)));b.textContent=name;b.style.left=clamp(xy[0],quiet?58:85,width-(quiet?58:85))+'px';b.style.top=xy[1]+'px';Object.assign(b.dataset,data);pins.append(b);};
         if(selection?.placeId&&view.level>=4)pin(selection.name,[Number(selection.longitude),Number(selection.latitude)],{worldPoint:selection.name,lng:selection.longitude,lat:selection.latitude});
