@@ -678,7 +678,7 @@
       for(let attempt=0;attempt<3;attempt+=1){
         qualityAttempts=attempt+1;state.aiDraft.phase=attempt?'repair':'itinerary';render(state);
         try{itinerary=await composeAiItinerary(state,brief,result.places,repairInstructions,attempt+1);}
-        catch(error){const code=String(error?.code||''),repairable=/^TRIP_ITINERARY_(?:DAY_|TIME_|DURATION_|PROMISE_|INCOMPLETE|CATEGORY_)/.test(code);if(attempt<2&&repairable){repairInstructions=[...repairInstructions.slice(-8),`Entwurf ${attempt+1} wurde vom verbindlichen Luvia-Vertrag abgelehnt: ${String(error?.message||code).slice(0,300)} Erzeuge alle Tage vollständig neu und erfülle jede dayPolicy exakt.`];continue;}throw error;}
+        catch(error){const code=String(error?.code||''),repairable=/^TRIP_ITINERARY_(?:DAY_|TIME_|DURATION_|PROMISE_|INCOMPLETE|CATEGORY_|DUPLICATE_|UNKNOWN_)/.test(code);if(attempt<2&&repairable){repairInstructions=[...repairInstructions.slice(-8),`Entwurf ${attempt+1} wurde vom verbindlichen Luvia-Vertrag abgelehnt: ${String(error?.message||code).slice(0,300)} Erzeuge alle Tage vollständig neu und erfülle jede dayPolicy exakt.`];continue;}throw error;}
         if(!current())return;
         if(itinerary?.kind!=='ai-trip-itinerary'||itinerary?.owner!=='intelligence'||itinerary?.source!=='ai')throw new Error('Die KI hat noch keine vollständige Tagesplanung geliefert.');
         state.aiDraft.phase='audit';render(state);audit=await auditAiItinerary(state,brief,result.places,itinerary);if(!current())return;
