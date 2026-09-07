@@ -328,7 +328,7 @@ function requestedMonthYear(time={}){
 function suggestRequestedTravelWindows(time={}){
   if(time.confirmedStart||time.confirmedEnd)return[];
   const durationNights=Number.isInteger(Number(time.durationNights))&&Number(time.durationNights)>0?Number(time.durationNights):null;
-  const exact=(time.requestedWindows||[]).map(item=>{const startDate=calendarDate(item?.start||item?.startDate),endDate=calendarDate(item?.end||item?.endDate);if(!startDate||!endDate||endDate<startDate)return null;return{id:`request-period:${startDate}:${endDate}`,label:clean(item?.label)||`${startDate} bis ${endDate}`,startDate,endDate,durationNights:calendarDays(startDate,endDate),reason:'Dieser Zeitraum entspricht direkt eurem beschriebenen Reisewunsch.',source:'Euer Reisewunsch',sourceType:'request'};}).filter(Boolean);
+  const exact=(time.requestedWindows||[]).map(item=>{const startDate=calendarDate(item?.start||item?.startDate),endDate=calendarDate(item?.end||item?.endDate),nights=startDate&&endDate?calendarDays(startDate,endDate):null;if(!startDate||!endDate||endDate<startDate||item?.flexible===true||(durationNights&&nights!==durationNights))return null;return{id:`request-period:${startDate}:${endDate}`,label:clean(item?.label)||`${startDate} bis ${endDate}`,startDate,endDate,durationNights:nights,reason:'Dieser Zeitraum entspricht direkt eurem beschriebenen Reisewunsch.',source:'Euer Reisewunsch',sourceType:'request'};}).filter(Boolean);
   if(exact.length)return exact.slice(0,3);
   const {month,year}=requestedMonthYear(time);if(!month||!year||!durationNights)return[];
   const daysInMonth=new Date(Date.UTC(year,month,0)).getUTCDate(),latestStart=daysInMonth-durationNights;if(latestStart<1)return[];
