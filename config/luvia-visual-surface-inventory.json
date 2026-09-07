@@ -836,8 +836,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 184920,
-      "sha256": "2403f7ef30fc37d3f7af944cff75ed1f3a78bcf0f3d3e637fd6dae1a6b3ac027"
+      "bytes": 185274,
+      "sha256": "97559b94c767de392db6cf2ce2c85aefa5f1accba7d76d2f79750178306334a6"
     },
     {
       "path": "app/gallery-view.css",
@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3528071,
-      "sha256": "321bba9aa48b2f440557d33a78c2ea5ff86480164953977ac799bed85817a1a4"
+      "bytes": 3528425,
+      "sha256": "0d256173bd6a5594b2c7a8f5763a079c5e20097ccacf80ba1eda62e7e33e7515"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
