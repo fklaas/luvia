@@ -27,7 +27,7 @@ const core=context.LuviaIntelligenceDomainContractCoreV1;
 assert.ok(core,'physical Intelligence Core missing');
 assert.equal(core.contractId,'intelligence.v1');
 assert.equal(core.version,'1');
-assert.equal(core.runtimeVersion,'1.2.0-trip-quality-audit');
+assert.equal(core.runtimeVersion,'1.3.0-trip-promise-uncertainty');
 assert.equal(Object.isFrozen(core),true);
 
 const capabilities=core.listCapabilities();
@@ -110,6 +110,7 @@ const audit=core.validateOutput('trip_quality_audit',{
 });
 assert.equal(audit.readyForReview,false);
 assert.equal(audit.issues[0].severity,'blocked');
+assert.equal(audit.promiseAssessment.kept,true);
 assert.deepEqual([...audit.repairInstructions],['Ankunftstag entlasten']);
 assert.equal(Object.isFrozen(audit),true);
 

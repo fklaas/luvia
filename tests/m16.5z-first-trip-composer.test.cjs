@@ -38,7 +38,7 @@ assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-
 for(const marker of ['composeDayDraft','composeTripItinerary','auditTripItinerary','tripUnderstandingMarkup','tripQualityMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
 for(const copy of ['✓ Ja','Nein','Andere Uhrzeit','Ohne Uhrzeit','Tag verschieben','Erst der letzte Schritt speichert'])assert.ok(composer.includes(copy),`missing clear day decision: ${copy}`);
   for(const marker of ['pathSceneMarkup','mountPathScene','data-ftc-path-canvas','mountSeasonCanvas','destinationInsideScope','containsDestination','setTowns','preserveWorld','lx-day-journey','travelDna','mountTravelDna','lx-travel-dna','recordDecision','restoreDecision','timeTravelMarkup','ftc-time-travel'])assert.ok(composer.includes(marker),`missing cinematic Composer marker: ${marker}`);
-assert.match(composer,/const VERSION='2\.6\.0-direct-semantic-ai-plan'/);
+assert.match(composer,/const VERSION='2\.7\.0-promise-uncertainty-booking-order'/);
 assert.match(composer,/Wie möchtet ihr aufbrechen\?/);
 assert.match(composer,/compassMarkup\('lx-path-compass'\)/);
 assert.match(composer,/LuviaComposerTravelWorld\?\.markup\?\.\(\{interactive:false\}\)/,'The entry scene must reuse the canonical Composer globe');
@@ -63,6 +63,7 @@ assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty 
   assert.match(composer,/prepareAiBrief/,'The original AI wish must be interpreted before the concrete date window is chosen');
   assert.match(composer,/destinationIdentityFit/,'A destination hypothesis must not silently resolve to a different city');
   assert.match(composer,/Gesamte Reise erstellen/,'AI mode must transition directly from dates to the complete itinerary');
+  for(const marker of ['travelPromiseMarkup','uncertaintyMarkup','bookingOrderMarkup','dayBalanceMarkup','LUVIAS REISEVERSPRECHEN','KONTEXTKLARHEIT','TAGESBALANCE'])assert.ok(composer.includes(marker),`missing explainable complete-plan marker: ${marker}`);
 for(const obsolete of ['data-ftc-map-focus','data-ftc-draft-swap'])assert.equal(composer.includes(obsolete),false,`obsolete multi-action Place control remains: ${obsolete}`);
 assert.match(composer,/data-ftc-plan-b/,'An explicit prepared Plan B must be actionable from its Place card');
 assert.doesNotMatch(composer,/Hier könnte eure Reise beginnen|Ortsbild noch offen/,'The AI path must not show a redundant generic destination preview before the complete trip plan');
@@ -74,7 +75,7 @@ assert.equal((accents.match(/\['[a-z]+','#/g)||[]).length,50,'Composer must expo
 assert.match(composer,/ftc-ready-symbol/);
 for(const forbidden of ['localStorage','sessionStorage','trip_members','.rpc('])assert.equal(composer.includes(forbidden),false,`First Trip Composer bypasses an owner via ${forbidden}`);
 for(const moduleId of ['places','journey','booking','wallet-documents','memories','move','collaboration'])assert.ok(composer.includes(`['${moduleId}'`),`missing module ${moduleId}`);
-  assert.match(css,/\.ftc-host/);assert.match(css,/scrollbar-width:none/);assert.match(css,/\.ftc-entry-modes/);assert.match(css,/\.ftc-ai-owner-draft/);assert.match(css,/\.ftc-ai-map/);assert.match(css,/\.lx-path-scene/);assert.match(css,/\.lx-signpost/);assert.match(css,/\.lx-day-journey/);assert.match(css,/\.lx-time-travel/);assert.match(css,/@media\(max-width:560px\)/);assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.match(css,/\.ftc-host/);assert.match(css,/scrollbar-width:none/);assert.match(css,/\.ftc-entry-modes/);assert.match(css,/\.ftc-ai-owner-draft/);assert.match(css,/\.ftc-ai-map/);assert.match(css,/\.lx-path-scene/);assert.match(css,/\.lx-signpost/);assert.match(css,/\.lx-day-journey/);assert.match(css,/\.lx-time-travel/);assert.match(css,/\.lx-travel-promise/);assert.match(css,/\.lx-context-intelligence/);assert.match(css,/\.lx-booking-order/);assert.match(css,/\.lx-day-balance/);assert.match(css,/@media\(max-width:560px\)/);assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 assert.match(navigation,/id:'first-trip-composer'.*mode:'fullscreen'.*owner:'trip'/);
 assert.match(shell,/explicitFirstTrip\|\|window\.LuviaFirstTripComposer\?\.shouldStart/);
 assert.ok(shell.indexOf('explicitOnboarding||window.LuviaProfileOnboarding?.shouldStart')<shell.indexOf('explicitFirstTrip||window.LuviaFirstTripComposer?.shouldStart'),'Identity must complete before the first Trip gate');

@@ -57,7 +57,7 @@ assert.ok(api, 'LuviaIntelligenceContractV1 missing');
 assert.equal(context.LuviaIntelligenceContract, api);
 assert.equal(api.contractId, 'intelligence.v1');
 assert.equal(api.version, '1');
-assert.equal(api.runtimeVersion, '1.16.0-semantic-travel-windows');
+assert.equal(api.runtimeVersion, '1.17.0-trip-promise-uncertainty');
 assert.equal(Object.isFrozen(api), true);
 assert.deepEqual([...api.events], [
   'ai.changed',

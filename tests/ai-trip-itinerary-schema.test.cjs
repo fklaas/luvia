@@ -30,8 +30,11 @@ function validateSchemaNode(schema,path){
 const schema=context.tripItinerarySchema;
 validateSchemaNode(schema,'trip_itinerary');
 const day=schema.properties.days.items;
-assert.deepStrictEqual(Array.from(day.required),['date','label','theme','role','entries']);
+assert.deepStrictEqual(Array.from(day.required),['date','label','theme','role','balance','freeTime','entries']);
 assert(!Object.prototype.hasOwnProperty.call(day.properties,'required'),'day required list must not be nested inside properties');
+assert.deepStrictEqual(Array.from(schema.required),['title','summary','travelPromise','days','uncertaintyMap','bookingOrder','neighborhoodRecommendation','alternatives','backupOptions','uncoveredRequirements','warnings','confidence']);
+assert.deepStrictEqual(Array.from(schema.properties.travelPromise.required),['summary','commitments','deliberateFreeTime','exclusions']);
+assert.deepStrictEqual(Array.from(schema.properties.uncertaintyMap.items.required),['subject','kind','state','reason','source','observedAt','expiresAt','affectedDayDates','providerPlaceIds','evidenceRefs']);
 const provider=fs.readFileSync('supabase/functions/luvia-intelligence/providers/openai.ts','utf8'),registry=fs.readFileSync('supabase/functions/luvia-intelligence/capabilities/registry.ts','utf8');
 assert(provider.includes("code:'OPENAI_INCOMPLETE_OUTPUT'"),'Incomplete Responses output needs a distinct retryable error');
 assert(provider.indexOf("response?.status==='incomplete'")<provider.indexOf('JSON.parse(raw)'),'Incomplete output must be rejected before JSON parsing');
