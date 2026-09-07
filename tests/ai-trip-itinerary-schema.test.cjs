@@ -41,6 +41,9 @@ assert.deepStrictEqual(Array.from(compact.properties.days.items.required),['date
 assert.deepStrictEqual(Array.from(compact.properties.days.items.properties.entries.items.required),['providerPlaceId','time','durationMinutes','reason']);
 assert(!Object.prototype.hasOwnProperty.call(compact.properties.days.items.properties,'role'),'The model must not repeat the deterministic day role');
 assert(!Object.prototype.hasOwnProperty.call(compact.properties.days.items.properties.entries.items.properties,'category'),'The model must not repeat the provider-owned Place category');
+const adapter=fs.readFileSync('core/platform/intelligence-contract-adapter.js','utf8');
+assert(!/source\.role&&source\.role!==expected\.role/.test(adapter),'The compact model normalization must not override the contract-owned arrival or departure role');
+assert.match(adapter,/certainty='modelled'/,'AI placement decisions remain explicitly modelled after compact output normalization');
 const provider=fs.readFileSync('supabase/functions/luvia-intelligence/providers/openai.ts','utf8'),registry=fs.readFileSync('supabase/functions/luvia-intelligence/capabilities/registry.ts','utf8');
 assert(provider.includes("code:'OPENAI_INCOMPLETE_OUTPUT'"),'Incomplete Responses output needs a distinct retryable error');
 assert(provider.indexOf("response?.status==='incomplete'")<provider.indexOf('JSON.parse(raw)'),'Incomplete output must be rejected before JSON parsing');

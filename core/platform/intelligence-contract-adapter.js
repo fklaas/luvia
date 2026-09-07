@@ -176,7 +176,6 @@
     const days=dayInput.map((expected,index)=>{
       const source=expected.date?byDate.get(expected.date):byLabel.get(expected.label)||planDays[index];
       if(!source)throw contractError('TRIP_ITINERARY_DAY_MISSING',`${expected.label} fehlt im KI-Entwurf.`);
-      if(source.role&&source.role!==expected.role)throw contractError('TRIP_ITINERARY_DAY_ROLE_INVALID',`${expected.label} wurde nicht als ${expected.role} geplant.`);
       const entries=(Array.isArray(source.entries)?source.entries:[]).slice(0,maximumMomentsPerDay).map(entry=>{
         const providerPlaceId=clean(entry?.providerPlaceId,240).replace(/^places\//,''),candidate=allowed.get(providerPlaceId);
         if(!candidate)throw contractError('TRIP_ITINERARY_UNKNOWN_PLACE','Der KI-Entwurf enthält einen Ort, der nicht von Places bestätigt wurde.',{providerPlaceId});
@@ -186,7 +185,7 @@
         if(!Number.isFinite(durationMinutes)||durationMinutes<30||durationMinutes>720)throw contractError('TRIP_ITINERARY_DURATION_INVALID',`Die Dauer für ${candidate.name} ist nicht plausibel.`);
         if(start!=null&&(start<(minute(expected.notBefore)??0)||end>(minute(expected.notAfter)??1440)))throw contractError('TRIP_ITINERARY_DAY_WINDOW_VIOLATION',`${candidate.name} liegt außerhalb des möglichen Zeitfensters am ${expected.label}.`);
         used.add(providerPlaceId);
-        const evidenceRefs=[...new Set((entry?.evidenceRefs||candidate.evidenceRefs.slice(0,1)).map(item=>clean(item,240)).filter(item=>allowedEvidence.has(item)))].slice(0,12),certainty=['verified','modelled','open'].includes(entry?.certainty)?entry.certainty:'modelled';
+        const rawEvidence=Array.isArray(entry?.evidenceRefs)&&entry.evidenceRefs.length?entry.evidenceRefs:candidate.evidenceRefs.slice(0,1),evidenceRefs=[...new Set(rawEvidence.map(item=>clean(item,240)).filter(item=>allowedEvidence.has(item)))].slice(0,12),certainty='modelled';
         return {providerPlaceId,time:expected.date?time:'',durationMinutes,category:candidate.category,reason:clean(entry?.reason,500),certainty:certainty==='verified'&&!evidenceRefs.length?'modelled':certainty,evidenceRefs,confidence:Math.max(0,Math.min(1,Number(entry?.confidence)||0))};
       });
       if(entries.length<expected.minimumMoments)throw contractError('TRIP_ITINERARY_DAY_TOO_THIN',`${expected.label} ist für seine Rolle ${expected.role} noch nicht ausreichend geplant.`);
