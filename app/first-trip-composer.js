@@ -676,7 +676,10 @@
       state.aiDraft.phase='places';render(state);const owner=trip();if(typeof owner?.composition?.composeDayDraft!=='function')throw new Error('Der Reiseentwurf ist noch nicht verfügbar.');const result=await readAiPlaces(state);if(!current())return;if(initialProfileSignature!==profileSignature())throw new Error('Eure Profilvorlieben haben sich geändert. Bitte erneut prüfen.');if(!result.places.length)throw new Error('Für diese Auswahl sind gerade keine überprüften Vorschläge verfügbar. Das bedeutet nicht, dass es vor Ort keine passenden Orte gibt.');
       let itinerary=null,audit=null,repairInstructions=[],qualityAttempts=0;
       for(let attempt=0;attempt<2;attempt+=1){
-        qualityAttempts=attempt+1;state.aiDraft.phase=attempt?'repair':'itinerary';render(state);itinerary=await composeAiItinerary(state,brief,result.places,repairInstructions);if(!current())return;
+        qualityAttempts=attempt+1;state.aiDraft.phase=attempt?'repair':'itinerary';render(state);
+        try{itinerary=await composeAiItinerary(state,brief,result.places,repairInstructions);}
+        catch(error){const code=String(error?.code||''),repairable=/^TRIP_ITINERARY_(?:DAY_|TIME_|DURATION_|PROMISE_|INCOMPLETE|CATEGORY_)/.test(code);if(attempt===0&&repairable){repairInstructions=[`Der erste Entwurf wurde vom verbindlichen Luvia-Vertrag abgelehnt: ${String(error?.message||code).slice(0,300)} Erzeuge alle Tage vollständig neu und erfülle jede dayPolicy exakt.`];continue;}throw error;}
+        if(!current())return;
         if(itinerary?.kind!=='ai-trip-itinerary'||itinerary?.owner!=='intelligence'||itinerary?.source!=='ai')throw new Error('Die KI hat noch keine vollständige Tagesplanung geliefert.');
         state.aiDraft.phase='audit';render(state);audit=await auditAiItinerary(state,brief,result.places,itinerary);if(!current())return;
         if(audit?.kind!=='ai-trip-quality-audit'||audit?.owner!=='intelligence'||audit?.source!=='ai')throw new Error('Der unabhängige Qualitätscheck für euren Reiseentwurf ist noch nicht verfügbar.');
