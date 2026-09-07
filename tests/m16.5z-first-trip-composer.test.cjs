@@ -38,7 +38,7 @@ assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-
 for(const marker of ['composeDayDraft','composeTripItinerary','auditTripItinerary','tripUnderstandingMarkup','tripQualityMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
 for(const copy of ['✓ Ja','Nein','Andere Uhrzeit','Ohne Uhrzeit','Tag verschieben','Erst der letzte Schritt speichert'])assert.ok(composer.includes(copy),`missing clear day decision: ${copy}`);
   for(const marker of ['pathSceneMarkup','mountPathScene','data-ftc-path-canvas','mountSeasonCanvas','destinationInsideScope','containsDestination','setTowns','preserveWorld','lx-day-journey','travelDna','mountTravelDna','lx-travel-dna','recordDecision','restoreDecision','timeTravelMarkup','ftc-time-travel'])assert.ok(composer.includes(marker),`missing cinematic Composer marker: ${marker}`);
-assert.match(composer,/const VERSION='2\.4\.0-semantic-trip-quality'/);
+assert.match(composer,/const VERSION='2\.5\.0-verified-travel-windows'/);
 assert.match(composer,/Wie möchtet ihr aufbrechen\?/);
 assert.match(composer,/compassMarkup\('lx-path-compass'\)/);
 assert.match(composer,/LuviaComposerTravelWorld\?\.markup\?\.\(\{interactive:false\}\)/,'The entry scene must reuse the canonical Composer globe');

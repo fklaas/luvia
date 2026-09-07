@@ -77,8 +77,8 @@
       "status": "TEILWEISE",
       "owner": "Booking",
       "evidence": "ROOF: Reservierungsprüfung reagiert direkt am auslösenden Button. Der Booking-Resolver verwirft Hotelzimmerwege für Tischreservierungen und findet den belegten Reservierungsbereich auf der offiziellen Restaurantseite. Live read-only geprüft; E-Mail-/manueller Fallback und Retry automatisiert geprüft. Keine Anfrage versendet; vollständige positive Partner- und Buchungslifecycle-Abnahme offen.",
-      "nextAcceptance": "Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen.",
-      "scope": "Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity.",
+      "nextAcceptance": "Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen. Einen erklärbaren Abhängigkeitsgraphen belegen, der zeitkritische Fähren, Konzerte oder andere blockierende Entscheidungen vor nachgelagerten Restaurant- und Tageszeiten einordnet.",
+      "scope": "Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity. Bookability order remains a planning dependency until provider-backed availability is confirmed.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -196,9 +196,9 @@
       "canonicalTitle": "S16.06 Causal Feedback Learning",
       "status": "VORBEREITET",
       "owner": "Intelligence",
-      "evidence": "Feedback-Konzept und Teilgrundlagen; vollständiger produktiver Lebenszyklus offen.",
-      "nextAcceptance": "Explizites Ergebnis, Grund, Zweck, Ablauf, Korrektur und Vergessen prüfen.",
-      "scope": "Learn only from an explicit outcome and reason, with scope, expiry, correction and deletion.",
+      "evidence": "Feedback-Konzept und Teilgrundlagen; Ablehnungsdiagnose und gezielte Teilreparatur sind verbindlich aufgenommen, aber der vollständige produktive Lebenszyklus ist offen.",
+      "nextAcceptance": "Explizites Ergebnis und einen knappen oder freien Ablehnungsgrund semantisch dem betroffenen Ziel, Place, Tag, Zeitpunkt oder Reisestil zuordnen; nur diesen Teil mit sichtbarer Auswirkungsanalyse reparieren und Zweck, Gültigkeit, Korrektur sowie Vergessen prüfen.",
+      "scope": "Learn only from an explicit outcome and reason, with scope, expiry, correction and deletion. Rejection diagnosis must drive a model-generated targeted repair, not a fixed keyword substitution.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -209,8 +209,8 @@
       "status": "TEILWEISE",
       "owner": "Trip",
       "evidence": "App .129 ist auf Integration veröffentlicht und Intelligence v38 / 4.35.2 stellt trip.compose und den davon getrennten trip.audit bereit. Der KI-Weg recherchiert zuerst mehrere Place-Kategorien und plant danach jeden Reisetag genau einmal mit rollenabhängiger Ankunft, vollen Tagen und Abreise, kontextuellen Uhrzeiten, Freiraum und expliziten Plan-B-Orten. Der unabhängige Audit prüft Tagesvollständigkeit, Zeitkonflikte, Kategorien, Wiederholungen, Geografie, Familien-, Zugangs- und Ernährungsbedarf, Budgetbelege, Reservierungsabhängigkeiten und Alternativen. Bei einem harten Fehler ist genau ein gezielter Reparaturdurchlauf erlaubt; ein weiterhin blockierter Entwurf erreicht die Übernahme nicht. Die Vorschau zeigt Reise-DNA, Reiseverständnis, Qualitätsbewertung, alle Tage, eine helle Place-Karte und direkt tauschbare Plan-B-Orte. Der kontrollierte Acht-Tage-Ablauf befüllte auch Tag 4 und 8 und schloss 16 simulierte Owner-Schreibaktionen bis zum bestätigten Trip ab. 100 Composer-Prüfungen, NFR-0 3/3 und 238/238 Safe Regression sind grün. Live-Modell, produktive Ferien-/Unterkunfts-/Transportanbieter, Konto-Reload und physische Geräte bleiben offen.",
-      "nextAcceptance": "Den vollautomatischen Weg mit echtem Modell, verifizierter Ferienquelle und vollständigem Mehrtagesentwurf positiv abnehmen; danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.",
-      "scope": "Trip lifecycle with dependency previews and owner receipts. One canonical Composer implements the distinct empty-trip, explicitly selected suggestions and complete AI-draft outcomes; legacy guided/quick/ai entry labels alone do not satisfy this contract.",
+      "nextAcceptance": "Den vollautomatischen Weg mit echtem Modell, verifizierter Ferienquelle und vollständigem Mehrtagesentwurf positiv abnehmen. Vor der Generierung muss ein verständliches Reiseversprechen bestätigt werden; Komposition und unabhängiger Audit müssen den Gesamtplan gegen dieses Versprechen, reiseweite Tagesbalance, bewussten Freiraum und Buchungsabhängigkeiten prüfen. Danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.",
+      "scope": "Trip lifecycle with dependency previews and owner receipts. One canonical Composer implements the distinct empty-trip, explicitly selected suggestions and complete AI-draft outcomes; legacy guided/quick/ai entry labels alone do not satisfy this contract. The complete AI path includes a reviewable travel promise and a dependency-aware whole-trip plan.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -233,8 +233,8 @@
       "status": "VORBEREITET",
       "owner": "Intelligence",
       "evidence": "Twin-Projektionen sind vorhanden. Der lokale Composer-Kandidat akzeptiert Ferienzeiten nur als verifizierte Kalenderintervalle mit Quellen-ID, Region, Anfang und Ende und blockiert einen festen Reisezeitraum, der nicht vollständig in diesem Intervall liegt. Eine produktive Ferienkalenderquelle sowie der vollständige belegte Lebenszyklus für Wetter, Feiertage, Events, Öffnung, Wege und Budget sind noch nicht angebunden.",
-      "nextAcceptance": "Zuerst eine verifizierte Ferienkalenderquelle anbinden und Zeitraumvorschläge samt Regions- und Intervallprüfung positiv belegen; danach Ablauf, Provenienz und Invalidierung für Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget ohne zweite Ortswahrheit schließen.",
-      "scope": "Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth.",
+      "nextAcceptance": "Zuerst die angebundene Ferienkalenderquelle und Zeitraumvorschläge samt Regions- und Intervallprüfung öffentlich positiv belegen. Danach Ablauf, Provenienz und Invalidierung für Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget in einer Unsicherheitskarte schließen und aus belegten Tageszielen, Abendaktivitäten, Kindern sowie Mobilität einen erklärbaren Stadtteil- beziehungsweise Unterkunftsradius ableiten.",
+      "scope": "Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth. Project uncertainty and neighborhood/radius decisions from the same evidence graph.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -317,8 +317,8 @@
       "status": "OFFEN",
       "owner": "Journey und Intelligence",
       "evidence": "90-Minuten-Kartenfunktion ist Grundlage, kein vollständiges Eventprodukt.",
-      "nextAcceptance": "Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit auch bewusst frei lassen und dieselbe Places-Karte verwenden.",
-      "scope": "Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome.",
+      "nextAcceptance": "Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit als bewussten Puffer, Erholung, Strandzeit oder spontane Umgebungserkundung planen und dieselbe Places-Karte verwenden. Der Audit muss gewünschten Freiraum von fehlenden Vorschlägen unterscheiden.",
+      "scope": "Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome. Free-space intelligence names and protects deliberate recovery or spontaneity windows.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
     {
@@ -485,8 +485,8 @@
       "status": "SPAETERES_GATE",
       "owner": "Intelligence und Journey",
       "evidence": "Frontier-Umfang erhalten; kein abgeschlossenes Produkt.",
-      "nextAcceptance": "Probabilistische Szenarien, Randbedingungen und erklärbare Auswahl nach späteren Daten- und Owner-Gates.",
-      "scope": "Simulate alternative future Trip branches using probabilistic graphs, Monte Carlo, constraints and Pareto fronts; selection creates owner previews and never an automatic mutation.",
+      "nextAcceptance": "Probabilistische Szenarien, Randbedingungen und erklärbare Auswahl nach späteren Daten- und Owner-Gates. Der Konfliktmoderator muss widersprüchliche Wünsche benennen und mehrere sichtbar unterschiedlich priorisierte Varianten anbieten, statt einen stillen Mittelweg zu behaupten.",
+      "scope": "Simulate alternative future Trip branches using probabilistic graphs, Monte Carlo, constraints and Pareto fronts; selection creates owner previews and never an automatic mutation. Conflict variants preserve the meaning and tradeoffs inferred by the model.",
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     },
     {
@@ -521,8 +521,8 @@
       "status": "SPAETERES_GATE",
       "owner": "Intelligence Identity Journey",
       "evidence": "Sensibler Zukunftsumfang; keine implizite Gesundheitserfassung.",
-      "nextAcceptance": "Mit ausdrücklicher Einwilligung Wege, Hitze, Pausen und Belastung modellieren; keine Diagnose.",
-      "scope": "With explicit consent, simulate mobility, surfaces, steps, lifts, heat, sensory load, rests and fatigue; never diagnose or silently infer sensitive traits.",
+      "nextAcceptance": "Mit ausdrücklicher Einwilligung Wege, Hitze, Pausen und Belastung modellieren; die Tagesbalance über die gesamte Reise prüfen und fünf anstrengende Tage hintereinander vermeiden, sofern der bestätigte Reiseauftrag nicht genau dieses Tempo verlangt; keine Diagnose.",
+      "scope": "With explicit consent, simulate mobility, surfaces, steps, lifts, heat, sensory load, rests and fatigue across the whole itinerary; never diagnose or silently infer sensitive traits.",
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     },
     {
@@ -533,8 +533,8 @@
       "status": "SPAETERES_GATE",
       "owner": "Collaboration und Intelligence",
       "evidence": "Benötigt echten Membership-Owner und Datenschutzmodell.",
-      "nextAcceptance": "Verständliche Fairness und private Aggregation ohne Offenlegung einzelner Einschränkungen.",
-      "scope": "Use secure aggregation and explainable fairness objectives such as minimax regret and Nash welfare without disclosing private member constraints.",
+      "nextAcceptance": "Verständliche Fairness und private Aggregation ohne Offenlegung einzelner Einschränkungen. Der Gruppen-Konfliktmoderator muss unvereinbare Wünsche erklären und Schwerpunktvarianten anbieten, ohne individuelle sensible Gründe offenzulegen.",
+      "scope": "Use secure aggregation and explainable fairness objectives such as minimax regret and Nash welfare without disclosing private member constraints. Model-generated moderation explains group tradeoffs while owner rules protect consent and privacy.",
       "roadmap": "Nach zugehörigem M18 M19 M21 Gate"
     },
     {
@@ -680,6 +680,24 @@
       ],
       "localImplementation": "Reise-DNA und Zeitreise sind in App .129 auf Integration umgesetzt. Die Reise-DNA projiziert Reise- und Profilmerkmale mit sichtbarer Herkunft in einem animierten Canvas und dieselben Merkmale bestimmen die angefragten Places-Kategorien sowie den Tagesentwurf. Die Zeitreise hält maximal zwölf lokale Composer-Entscheidungsstände, stellt einen früheren Stand ohne Domain-Mutation wieder her und verwirft nur davon abhängige Vorschläge. Kontextwellen, Gruppen-Sternbild, Reise-Schatten, Ziel-Zwillinge und Luvia Pulse bleiben offen.",
       "sequence": "P15/P17: Reise-Schatten und weitere Motion-Qualität auf der gelieferten Reise-DNA-/Zeitreise-Basis. P19/P20/P22/P23/P26: Kontextwellen und datierte Signale. P33/P34/P35: Luvia Pulse, Ziel-Zwillinge und erklärbare Neuplanung. M18-M22 beziehungsweise P40/P44: Gruppen-Sternbild mit Mitreisenden-, Rollen- und Zustimmungsgrundlage."
+    },
+    {
+      "id": "PD-2026-09-07-semantic-trip-orchestration-expansion",
+      "status": "VERBINDLICH_AUFGENOMMEN",
+      "title": "Semantische Reiseorchestrierung mit Konflikten, Unsicherheit, Abhängigkeiten und gezielter Reparatur",
+      "decision": "Acht zusätzliche KI-Fähigkeiten sind verbindlicher Teil des vollständigen Luvia-Reisewegs: Konfliktmoderator, Unsicherheitskarte, Buchbarkeitsreihenfolge, Nachbarschaftsentscheidung, reiseweite Tagesbalance, Ablehnungsdiagnose, Reiseversprechen und Freiraum-Intelligenz. Die KI deutet Zusammenhänge, Zielkonflikte, Prioritäten und Reparaturmöglichkeiten aus dem gesamten Reiseauftrag und aus bestätigten Profil- und Gruppenangaben. Deterministische Logik dient ausschließlich der Evidenzprüfung, Owner-Grenzen, Berechtigungen, Zeit-/Dateninvarianten und reproduzierbaren Qualitätskontrolle; ein Keyword- oder festes Regelwerk allein erfüllt keine dieser Abnahmen.",
+      "acceptance": [
+        "Konfliktmoderator: Widersprüchliche harte oder weiche Wünsche werden als konkrete, verständliche Zielkonflikte benannt. Luvia zeigt mindestens zwei unterschiedlich priorisierte Varianten mit ihren Folgen, statt still einen beliebigen Mittelwert zu wählen.",
+        "Unsicherheitskarte: Jeder betroffene Reiseabschnitt unterscheidet belastbare Fakten, modellierte Annahmen und offene Punkte für Wetter, Preis, Öffnung, Route, Verfügbarkeit und fehlende Buchungsdaten samt Quelle, Abrufzeit und Auswirkung.",
+        "Buchbarkeitsreihenfolge: Ein erklärbarer Abhängigkeitsgraph ordnet zeitkritische oder blockierende Entscheidungen vor nachgelagerten Tageszeiten und Reservierungen. Kein nicht belegter Vorgang wird als buchbar oder gebucht ausgegeben.",
+        "Nachbarschaftsentscheidung: Stadtteil und Unterkunftsradius werden aus der gesamten Tagesplanung, Abendaktivitäten, Kindern, Mobilität, Weggrenzen und belegten Zielpunkten abgeleitet; Luvia erklärt den empfohlenen Radius und Alternativen.",
+        "Reiseweite Tagesbalance: Belastung, Erholung, Wege, Abendprogramm und Gruppenbedarf werden über alle Reisetage gemeinsam beurteilt, damit lokal plausible Tage keine unplausible Gesamtfolge erzeugen.",
+        "Ablehnungsdiagnose: Ein knapp gewählter oder frei formulierter Ablehnungsgrund wie zu touristisch, teuer, weit, früh, falsche Stimmung oder kein Interesse wird semantisch auf den betroffenen Plananteil bezogen. Die Reparatur verändert gezielt diesen Anteil und zeigt die Auswirkungen auf den Rest.",
+        "Reiseversprechen: Vor der Generierung fasst Luvia in wenigen überprüfbaren Sätzen zusammen, welche Reise sie plant. Der unabhängige Audit misst Zielwahl, Kategorien, Rhythmus, Freiraum, Wege und Gruppenbedarf gegen genau dieses bestätigte Versprechen.",
+        "Freiraum-Intelligenz: Freie Zeit wird als bewusster Puffer, Erholung, Strandzeit oder spontane Umgebungserkundung geplant, benannt und im Audit berücksichtigt; sie erscheint nie wie eine versehentlich leere Lücke.",
+        "Echte-KI-Gate: Mindestens zwei sehr unterschiedliche freie Reiseaufträge müssen mit dem produktiven Modell unterschiedliche, nachvollziehbare Reiseversprechen, Konfliktvarianten, Abhängigkeiten und Reparaturen erzeugen. Kontrollierte Testantworten belegen Verträge, ersetzen aber keinen positiven Modelllauf."
+      ],
+      "sequence": "Aktiv in P15/P17 mit Reiseversprechen und vollständigem KI-Entwurf; P16 übernimmt Ablehnungsdiagnose und gezielte Reparatur; P19 die Unsicherheits- und Nachbarschaftsprojektion; P26 die Freiraum-Intelligenz; P40 Konfliktvarianten und Reise-Schatten; P43 die reiseweite Energie- und Belastungsbalance; P44 die private Gruppenmoderation. Buchbarkeitsreihenfolge verbindet P06/P07/P17 und bleibt bis zu echten Providerbelegen eine erklärbare Planung, keine Buchungszusage."
     }
   ],
   "acceptanceUpdate": "App .129 ist auf Integration veröffentlicht. Der KI-Einstieg zeigt genau fünf durch Muss-Kriterien geprüfte Zielideen mit eigener Begründung und Fit-Signalen sowie eine sichtbare Erneuern-Funktion. Nach der Zielbestätigung entfällt der verfrühte generische Place-Blick; konkrete Orte erscheinen erstmals im vollständigen Tagesentwurf. Der semantische travelOrder verbindet Zielraum, Zeit, Reisende, Ferienbezug, Unterkunft, Transport, Kategorien, Tempo, Ernährung, Zugang, Budget, Freiraum, Ankunft, Abreise, Tagesrhythmus, Geografie, Buchungsabhängigkeiten, Alternativen und Ausschlüsse. Intelligence v38 / 4.35.2 stellt trip.compose und trip.audit bereit. Der Audit erlaubt genau einen gezielten Reparaturdurchlauf und blockiert danach weiterhin mangelhafte Entwürfe. Reise-DNA, Zeitreise, Qualitätsanzeige und direkt tauschbare Plan-B-Orte sind integriert. Der kontrollierte Acht-Tage-Browserweg endete mit 16 Trip-/Place-Receipts. Worker fb068848-5575-460c-8ecc-12d867431345 ist auf Stable Integration aktiv; Gateway v235, Main, Production, DB und Secrets blieben unverändert.",

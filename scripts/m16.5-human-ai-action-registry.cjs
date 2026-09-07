@@ -776,6 +776,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // final Trip/Places writes retain the existing explicit confirmation outcome.
   'data-ftc-atlas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-accept': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
+  'data-ftc-holiday-window': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-world-canvas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-drop-day': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-place-pick': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -1041,8 +1042,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1070);
-  assert.equal(sourceAudit.markerCount, 1070);
+  assert.equal(sourceAudit.markers.length, 1071);
+  assert.equal(sourceAudit.markerCount, 1071);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

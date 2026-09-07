@@ -105,6 +105,10 @@ const SUITE = Object.freeze([
     test: 'tests/m8.5-final-intelligence-core-isolation.test.cjs'
   },
   {
+    category: 'Intelligence / Structured Output',
+    test: 'tests/ai-trip-itinerary-schema.test.cjs'
+  },
+  {
     category: 'App Shell / Navigation',
     test: 'tests/m9.1-navigation-contract-foundation.test.cjs'
   },

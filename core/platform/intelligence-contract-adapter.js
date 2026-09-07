@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.14.0-semantic-trip-quality';
+  const RUNTIME_VERSION = '1.15.0-verified-travel-calendar';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -81,6 +81,21 @@
     return immutable(preferenceResolver().composeDayGuidance(input));
   }
 
+  function calendarRequestFromModel(input = {}, data = {}) {
+    const constraints=[...(data.hardConstraints||[]),...(data.softPreferences||[]),...(data.goals||[]).flatMap(goal=>[...(goal.hardConstraints||[]),...(goal.softPreferences||[])])];
+    const norm=value=>String(value||'').trim().toLowerCase().replace(/[ _-]/g,''),row=key=>constraints.find(item=>norm(item?.key)===key),required=['true','yes','ja','required','erforderlich'].includes(String(row('schoolholidayrequired')?.value||'').trim().toLowerCase()),region=String(row('schoolholidayregion')?.value||'').trim();
+    if(!required||!region)return null;
+    const valid=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||''))&&!Number.isNaN(Date.parse(`${value}T12:00:00Z`)),start=valid(input.startDate)?String(input.startDate):new Date().toISOString().slice(0,10),end=valid(input.endDate)?String(input.endDate):new Date(Date.parse(`${start}T12:00:00Z`)+730*86400000).toISOString().slice(0,10),startYear=Number(start.slice(0,4)),endYear=Math.min(startYear+2,Number(end.slice(0,4))||startYear+2);
+    return {schoolRegion:region,countryIsoCode:String(input.schoolCountryCode||input.homeCountryCode||'').trim().toUpperCase(),validFrom:`${startYear}-01-01`,validTo:`${endYear}-12-31`,languageIsoCode:String(input.locale||'de-DE').slice(0,2).toUpperCase()};
+  }
+
+  async function getTravelCalendarEvidence(input = {}) {
+    const invoke=root.LuviaOpenAIProvider?.invoke;if(typeof invoke!=='function')providerUnavailable('LuviaOpenAIProvider.invoke');
+    const response=await invoke('calendar.travel-evidence',input,{timeoutMs:12000}),value=response?.data||response?.result||response;
+    if(response?.ok===false||value?.owner!=='intelligence'||value?.contractId!=='intelligence.v1'||value?.kind!=='travel-calendar-evidence'||value?.status!=='verified'||!Array.isArray(value?.evidence))throw contractError('CALENDAR_EVIDENCE_INVALID','Die Kalenderquelle konnte nicht verlässlich bestätigt werden.');
+    return immutable(value);
+  }
+
   async function interpretTripBrief(input = {}) {
     const request={
       surface:'trip-composer',userGoal:String(input.requestBrief||'').slice(0,1200),
@@ -94,8 +109,14 @@
         constraintKeys:{destination:'named destination or region',destinationScope:'city|region|country|coast|open',countryPreference:'named country or abroad',timeWindow:'original approximate period',season:'spring|summer|autumn|winter',month:'named month',durationNights:'integer',dateFlexibility:'fixed|days|weeks|open',travelers:'short group description',adults:'integer',children:'integer',childAges:'comma-separated ages',schoolHolidayRequired:'true|false',schoolHolidayRegion:'governing country/state/region',accommodation:'requested kind',transport:'requested mode',arrivalTime:'HH:mm local time',departureTime:'HH:mm local time',arrivalRecoveryMinutes:'integer',departureBufferMinutes:'integer',category:'one goal type',excludeCategory:'one goal type',categoryMix:'balanced|favorites|surprising',pace:'slow|balanced|active',budgetLevel:'economy|balanced|generous|open',tripBudget:'amount as stated',dailyBudget:'amount as stated',currency:'ISO code or stated currency',splurgeDay:'special higher-budget moment',dietary:'requirement',accessibility:'requirement',mobility:'requirement',maximumPerDay:'1|2|3|4',notBefore:'HH:mm',notAfter:'HH:mm',wakeTime:'HH:mm',bedTime:'HH:mm',breakfastTime:'HH:mm',lunchWindow:'time range as stated',dinnerTime:'HH:mm',napWindow:'time range as stated',energyPattern:'morning|balanced|evening or description',jetLagSensitivity:'low|medium|high',freeTimePercent:'0-100',maximumTransferMinutes:'integer',dayTripRadiusKm:'integer',baseLocation:'named area',spatialClustering:'true|false',weatherFallback:'true|false',indoorOutdoorBalance:'description',planBPerDay:'true|false',reservationStyle:'early|flexible|minimal or description',bookingDeadline:'date or relative period',mustReserve:'specific wish',groupDecisionMode:'consensus|majority|individual-turns or description',fairnessRequired:'true|false',memberPriority:'person and wish',evidenceFreshness:'description',recheckBeforeDays:'integer',mustDo:'specific wish',exclude:'specific exclusion'},
         rule:'Use canonical keys when applicable. Put concrete wishes such as a named museum, beach day, child-friendly activity, restaurant style or shopping wish into mustDo/category constraints instead of generalizing them away. Other constraints retain descriptive keys. Never discard unsupported requirements or invent destinations, dates, holiday periods or place facts.'}
     };
-    const response=await run('planning.dialogue',request,{fallback:false});
-    return immutable(preferenceResolver().projectTripBrief(input,response));
+    const response=await run('planning.dialogue',request,{fallback:false}),calendarRequest=calendarRequestFromModel(input,response?.data||response?.result||{}),existing=Array.isArray(input.calendarEvidence)?input.calendarEvidence:[];let calendarEvidence=existing,calendarEvidenceStatus=calendarRequest?'required':'not-requested';
+    if(calendarRequest){
+      const region=calendarRequest.schoolRegion.toLocaleLowerCase('de-DE').replace(/[^a-z0-9äöüß]+/g,''),hasMatching=existing.some(item=>{const candidate=String(item?.region||item?.schoolRegion||'').toLocaleLowerCase('de-DE').replace(/[^a-z0-9äöüß]+/g,'');return item?.verified===true&&/school|ferien/i.test(String(item?.kind||item?.type||''))&&candidate&&(candidate===region||candidate.includes(region)||region.includes(candidate));});
+      if(!hasMatching){try{const calendar=await getTravelCalendarEvidence(calendarRequest);calendarEvidence=[...existing,...calendar.evidence];calendarEvidenceStatus='verified';}catch(error){calendarEvidenceStatus=error?.code||'unavailable';}}
+      else calendarEvidenceStatus='verified-cached';
+    }
+    const brief=preferenceResolver().projectTripBrief({...input,calendarEvidence},response);
+    return immutable({...brief,calendarEvidence,calendarEvidenceStatus});
   }
 
   async function suggestTripDestinations(input = {}) {
@@ -427,6 +448,7 @@
         humanActionConsumerProjection: Boolean(root.LuviaHumanAIConsumerProjectionCoreV1),
         humanActionParityFailureMatrix: Boolean(root.LuviaHumanAIParityFailureMatrixCoreV1),
         preferenceResolver: Boolean(root.LuviaTripPreferenceResolutionCoreV1),
+        travelCalendar: Boolean(root.LuviaOpenAIProvider?.invoke),
         runtime: Boolean(root.LuviaAI),
         proposals: Boolean(root.LuviaAIProposals?.create),
         memory: Boolean(root.LuviaAIMemory?.snapshot)
@@ -453,6 +475,7 @@
       resolveTripPreferences,
       rankPlaceCandidates,
       composeDayGuidance,
+      getTravelCalendarEvidence,
       interpretTripBrief,
       suggestTripDestinations,
       composeTripItinerary,
@@ -494,6 +517,7 @@
     resolveTripPreferences,
     rankPlaceCandidates,
     composeDayGuidance,
+    getTravelCalendarEvidence,
     interpretTripBrief,
     suggestTripDestinations,
     composeTripItinerary,

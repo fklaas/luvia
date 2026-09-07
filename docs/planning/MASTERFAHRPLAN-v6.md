@@ -357,9 +357,9 @@ Planprüfung und Zeitänderung bleiben erhalten. Seit .47 lassen sich geplante P
 
 ROOF: Reservierungsprüfung reagiert direkt am auslösenden Button. Der Booking-Resolver verwirft Hotelzimmerwege für Tischreservierungen und findet den belegten Reservierungsbereich auf der offiziellen Restaurantseite. Live read-only geprüft; E-Mail-/manueller Fallback und Retry automatisiert geprüft. Keine Anfrage versendet; vollständige positive Partner- und Buchungslifecycle-Abnahme offen.
 
-**Nächster Abschlussnachweis:** Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen.
+**Nächster Abschlussnachweis:** Restaurant, Aktivität und Unterkunft getrennt prüfen; weitergeleitet niemals als gebucht anzeigen. Einen erklärbaren Abhängigkeitsgraphen belegen, der zeitkritische Fähren, Konzerte oder andere blockierende Entscheidungen vor nachgelagerten Restaurant- und Tageszeiten einordnet.
 
-**Erhaltener technischer Umfang:** Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity.
+**Erhaltener technischer Umfang:** Classify the visit through the Booking Owner; show a compact admission/reservation notice in Places, AI Chat and Journey/Timeline suggestions; show owner/provider status, evidence, price and terms; open only a verified official/provider/email route and never infer requirement, availability or partner connectivity. Bookability order remains a planning dependency until provider-backed availability is confirmed.
 
 ### P07 Buchung ausführen
 
@@ -455,11 +455,11 @@ App .129 ist auf Integration veröffentlicht. Der KI-Weg übersetzt Freitext üb
 
 **Stand:** VORBEREITET. **Zuständig:** Intelligence. **Einordnung:** M16.5 Schritte 15 bis 18.
 
-Feedback-Konzept und Teilgrundlagen; vollständiger produktiver Lebenszyklus offen.
+Feedback-Konzept und Teilgrundlagen; Ablehnungsdiagnose und gezielte Teilreparatur sind verbindlich aufgenommen, aber der vollständige produktive Lebenszyklus ist offen.
 
-**Nächster Abschlussnachweis:** Explizites Ergebnis, Grund, Zweck, Ablauf, Korrektur und Vergessen prüfen.
+**Nächster Abschlussnachweis:** Explizites Ergebnis und einen knappen oder freien Ablehnungsgrund semantisch dem betroffenen Ziel, Place, Tag, Zeitpunkt oder Reisestil zuordnen; nur diesen Teil mit sichtbarer Auswirkungsanalyse reparieren und Zweck, Gültigkeit, Korrektur sowie Vergessen prüfen.
 
-**Erhaltener technischer Umfang:** Learn only from an explicit outcome and reason, with scope, expiry, correction and deletion.
+**Erhaltener technischer Umfang:** Learn only from an explicit outcome and reason, with scope, expiry, correction and deletion. Rejection diagnosis must drive a model-generated targeted repair, not a fixed keyword substitution.
 
 ### P17 Reise vollständig verwalten
 
@@ -467,9 +467,9 @@ Feedback-Konzept und Teilgrundlagen; vollständiger produktiver Lebenszyklus off
 
 App .129 ist auf Integration veröffentlicht und Intelligence v38 / 4.35.2 stellt trip.compose und den davon getrennten trip.audit bereit. Der KI-Weg recherchiert zuerst mehrere Place-Kategorien und plant danach jeden Reisetag genau einmal mit rollenabhängiger Ankunft, vollen Tagen und Abreise, kontextuellen Uhrzeiten, Freiraum und expliziten Plan-B-Orten. Der unabhängige Audit prüft Tagesvollständigkeit, Zeitkonflikte, Kategorien, Wiederholungen, Geografie, Familien-, Zugangs- und Ernährungsbedarf, Budgetbelege, Reservierungsabhängigkeiten und Alternativen. Bei einem harten Fehler ist genau ein gezielter Reparaturdurchlauf erlaubt; ein weiterhin blockierter Entwurf erreicht die Übernahme nicht. Die Vorschau zeigt Reise-DNA, Reiseverständnis, Qualitätsbewertung, alle Tage, eine helle Place-Karte und direkt tauschbare Plan-B-Orte. Der kontrollierte Acht-Tage-Ablauf befüllte auch Tag 4 und 8 und schloss 16 simulierte Owner-Schreibaktionen bis zum bestätigten Trip ab. 100 Composer-Prüfungen, NFR-0 3/3 und 238/238 Safe Regression sind grün. Live-Modell, produktive Ferien-/Unterkunfts-/Transportanbieter, Konto-Reload und physische Geräte bleiben offen.
 
-**Nächster Abschlussnachweis:** Den vollautomatischen Weg mit echtem Modell, verifizierter Ferienquelle und vollständigem Mehrtagesentwurf positiv abnehmen; danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.
+**Nächster Abschlussnachweis:** Den vollautomatischen Weg mit echtem Modell, verifizierter Ferienquelle und vollständigem Mehrtagesentwurf positiv abnehmen. Vor der Generierung muss ein verständliches Reiseversprechen bestätigt werden; Komposition und unabhängiger Audit müssen den Gesamtplan gegen dieses Versprechen, reiseweite Tagesbalance, bewussten Freiraum und Buchungsabhängigkeiten prüfen. Danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.
 
-**Erhaltener technischer Umfang:** Trip lifecycle with dependency previews and owner receipts. One canonical Composer implements the distinct empty-trip, explicitly selected suggestions and complete AI-draft outcomes; legacy guided/quick/ai entry labels alone do not satisfy this contract.
+**Erhaltener technischer Umfang:** Trip lifecycle with dependency previews and owner receipts. One canonical Composer implements the distinct empty-trip, explicitly selected suggestions and complete AI-draft outcomes; legacy guided/quick/ai entry labels alone do not satisfy this contract. The complete AI path includes a reviewable travel promise and a dependency-aware whole-trip plan.
 
 ### P18 Erinnerungen und Geschichten
 
@@ -487,9 +487,9 @@ Getrennte Owner vorhanden; komplette neue Produktabnahme offen.
 
 Twin-Projektionen sind vorhanden. Der lokale Composer-Kandidat akzeptiert Ferienzeiten nur als verifizierte Kalenderintervalle mit Quellen-ID, Region, Anfang und Ende und blockiert einen festen Reisezeitraum, der nicht vollständig in diesem Intervall liegt. Eine produktive Ferienkalenderquelle sowie der vollständige belegte Lebenszyklus für Wetter, Feiertage, Events, Öffnung, Wege und Budget sind noch nicht angebunden.
 
-**Nächster Abschlussnachweis:** Zuerst eine verifizierte Ferienkalenderquelle anbinden und Zeitraumvorschläge samt Regions- und Intervallprüfung positiv belegen; danach Ablauf, Provenienz und Invalidierung für Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget ohne zweite Ortswahrheit schließen.
+**Nächster Abschlussnachweis:** Zuerst die angebundene Ferienkalenderquelle und Zeitraumvorschläge samt Regions- und Intervallprüfung öffentlich positiv belegen. Danach Ablauf, Provenienz und Invalidierung für Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget in einer Unsicherheitskarte schließen und aus belegten Tageszielen, Abendaktivitäten, Kindern sowie Mobilität einen erklärbaren Stadtteil- beziehungsweise Unterkunftsradius ableiten.
 
-**Erhaltener technischer Umfang:** Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth.
+**Erhaltener technischer Umfang:** Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth. Project uncertainty and neighborhood/radius decisions from the same evidence graph.
 
 ### P20 Verifizierte Veranstaltungsquellen
 
@@ -557,9 +557,9 @@ Quellengebundener Produktumfang erhalten.
 
 90-Minuten-Kartenfunktion ist Grundlage, kein vollständiges Eventprodukt.
 
-**Nächster Abschlussnachweis:** Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit auch bewusst frei lassen und dieselbe Places-Karte verwenden.
+**Nächster Abschlussnachweis:** Nur verifizierte, saisonal und zeitlich passende Events oder Places anbieten; freie Zeit als bewussten Puffer, Erholung, Strandzeit oder spontane Umgebungserkundung planen und dieselbe Places-Karte verwenden. Der Audit muss gewünschten Freiraum von fehlenden Vorschlägen unterscheiden.
 
-**Erhaltener technischer Umfang:** Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome.
+**Erhaltener technischer Umfang:** Rank optional verified events and Places inside an open Journey window through the shared map, with weather, season, budget and an honest “keep free” outcome. Free-space intelligence names and protects deliberate recovery or spontaneity windows.
 
 ### P27 Gemeinsame und unterschiedliche Wünsche
 
@@ -697,9 +697,9 @@ App 13.82.168.104 / Core 4.82.223: Runtime-Commit 5e8f37985eb5ae76c0247ecfb11410
 
 Frontier-Umfang erhalten; kein abgeschlossenes Produkt.
 
-**Nächster Abschlussnachweis:** Probabilistische Szenarien, Randbedingungen und erklärbare Auswahl nach späteren Daten- und Owner-Gates.
+**Nächster Abschlussnachweis:** Probabilistische Szenarien, Randbedingungen und erklärbare Auswahl nach späteren Daten- und Owner-Gates. Der Konfliktmoderator muss widersprüchliche Wünsche benennen und mehrere sichtbar unterschiedlich priorisierte Varianten anbieten, statt einen stillen Mittelweg zu behaupten.
 
-**Erhaltener technischer Umfang:** Simulate alternative future Trip branches using probabilistic graphs, Monte Carlo, constraints and Pareto fronts; selection creates owner previews and never an automatic mutation.
+**Erhaltener technischer Umfang:** Simulate alternative future Trip branches using probabilistic graphs, Monte Carlo, constraints and Pareto fronts; selection creates owner previews and never an automatic mutation. Conflict variants preserve the meaning and tradeoffs inferred by the model.
 
 ### P41 Eigene Reiseregeln verbindlich machen
 
@@ -727,9 +727,9 @@ Bestehende Evidenzgrundlagen ersetzen noch kein vollständiges Mesh.
 
 Sensibler Zukunftsumfang; keine implizite Gesundheitserfassung.
 
-**Nächster Abschlussnachweis:** Mit ausdrücklicher Einwilligung Wege, Hitze, Pausen und Belastung modellieren; keine Diagnose.
+**Nächster Abschlussnachweis:** Mit ausdrücklicher Einwilligung Wege, Hitze, Pausen und Belastung modellieren; die Tagesbalance über die gesamte Reise prüfen und fünf anstrengende Tage hintereinander vermeiden, sofern der bestätigte Reiseauftrag nicht genau dieses Tempo verlangt; keine Diagnose.
 
-**Erhaltener technischer Umfang:** With explicit consent, simulate mobility, surfaces, steps, lifts, heat, sensory load, rests and fatigue; never diagnose or silently infer sensitive traits.
+**Erhaltener technischer Umfang:** With explicit consent, simulate mobility, surfaces, steps, lifts, heat, sensory load, rests and fatigue across the whole itinerary; never diagnose or silently infer sensitive traits.
 
 ### P44 Private Gruppenwünsche fair abstimmen
 
@@ -737,9 +737,9 @@ Sensibler Zukunftsumfang; keine implizite Gesundheitserfassung.
 
 Benötigt echten Membership-Owner und Datenschutzmodell.
 
-**Nächster Abschlussnachweis:** Verständliche Fairness und private Aggregation ohne Offenlegung einzelner Einschränkungen.
+**Nächster Abschlussnachweis:** Verständliche Fairness und private Aggregation ohne Offenlegung einzelner Einschränkungen. Der Gruppen-Konfliktmoderator muss unvereinbare Wünsche erklären und Schwerpunktvarianten anbieten, ohne individuelle sensible Gründe offenzulegen.
 
-**Erhaltener technischer Umfang:** Use secure aggregation and explainable fairness objectives such as minimax regret and Nash welfare without disclosing private member constraints.
+**Erhaltener technischer Umfang:** Use secure aggregation and explainable fairness objectives such as minimax regret and Nash welfare without disclosing private member constraints. Model-generated moderation explains group tradeoffs while owner rules protect consent and privacy.
 
 ### P45 Reiseassistenz ohne Netz
 
