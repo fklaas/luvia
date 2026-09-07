@@ -15,7 +15,7 @@ export function parseStructuredOutput(response:any){
 export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unknown;context:unknown;safetyId:string}){
   const key=Deno.env.get('OPENAI_API_KEY')||'';if(!key)throw Object.assign(new Error('OPENAI_API_KEY ist nicht gesetzt.'),{code:'AI_NOT_CONFIGURED',status:503});
   const map=models();const primary=map[args.tier]||map.default;const candidates=[primary,...(primary===map.default?[]:[map.default])].filter((value,index,list)=>list.indexOf(value)===index);
-  let lastError:any=null;
+  let lastError:any=null;const attempts:any[]=[],startedAll=performance.now(),sumUsage=()=>attempts.reduce((sum,item)=>({inputTokens:sum.inputTokens+item.usage.inputTokens,outputTokens:sum.outputTokens+item.usage.outputTokens,totalTokens:sum.totalTokens+item.usage.totalTokens,cachedTokens:sum.cachedTokens+item.usage.cachedTokens}),{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0});
   for(const model of candidates){
     const started=performance.now();
     const body:any={
@@ -28,11 +28,15 @@ export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unkn
     };
     if(model.includes('gpt-5'))body.reasoning={effort:args.capability.id==='trip.compose'&&args.tier==='deep'?'medium':args.capability.reasoningEffort};
     const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body)});
-    const json=await response.json().catch(()=>({}));
-    if(!response.ok){lastError=Object.assign(new Error(json?.error?.message||'OpenAI request failed'),{code:json?.error?.code||'OPENAI_REQUEST_FAILED',status:response.status,body:json});if(recoverable(response.status,json)&&model!==candidates.at(-1))continue;throw lastError}
-    const result=parseStructuredOutput(json);
-    return{result,provider:'openai',model,tier:args.tier,requestId:json.id||null,usage:{inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0)},latencyMs:Math.round(performance.now()-started)};
+    const json=await response.json().catch(()=>({})),usage={inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0)},latencyMs=Math.round(performance.now()-started),requestId=json.id||null;
+    if(!response.ok){lastError=Object.assign(new Error(json?.error?.message||'OpenAI request failed'),{code:json?.error?.code||'OPENAI_REQUEST_FAILED',status:response.status,body:json});attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:lastError.code});if(recoverable(response.status,json)&&model!==candidates.at(-1))continue;throw Object.assign(lastError,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)})}
+    try{
+      const result=parseStructuredOutput(json);attempts.push({model,requestId,usage,latencyMs,success:true,errorCode:null});
+      return{result,provider:'openai',model,tier:args.tier,requestId,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll),attempts};
+    }catch(error){
+      const structured=['OPENAI_INCOMPLETE_OUTPUT','OPENAI_INVALID_JSON','OPENAI_EMPTY_OUTPUT'].includes(String((error as any)?.code||''));lastError=error;attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:(error as any)?.code||'OPENAI_STRUCTURED_OUTPUT_FAILED'});if(structured&&model!==candidates.at(-1))continue;throw Object.assign(error as any,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)});
+    }
   }
-  throw lastError||new Error('OpenAI request failed');
+  throw Object.assign(lastError||new Error('OpenAI request failed'),{attempts,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll)});
 }
 export function modelDiagnostics(){const map=models();return{configured:Boolean(Deno.env.get('OPENAI_API_KEY')),provider:'openai',aliases:{Luna:'fast',Terra:'default',Sol:'deep'},models:map}}
