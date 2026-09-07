@@ -40,6 +40,7 @@ config/luvia-platform-ports.json
 
 # Build, diagnostics and document tooling are not product assets.
 /scripts/**
+/outputs/**
 
 # Local-only diagnostics and unrelated draft assets must never enter a release.
 /supabase/.temp/**

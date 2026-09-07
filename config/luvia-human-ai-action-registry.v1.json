@@ -21,7 +21,7 @@
     "semanticActions": 333,
     "availableOrConditional": 322,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 1071,
+    "auditedDataMarkers": 1072,
     "runtimeRegisteredActions": 30,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
@@ -20438,12 +20438,12 @@
     }
   ],
   "markerAudit": {
-    "count": 1071,
+    "count": 1072,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "81BD9B04D631EA83F1868275552A50BA1D2A334B25EE4DECD2070DD264246A23",
+    "registrySha256": "C4889AC05C65A431FB440D95E6E29C2CAFE7FA4F4BA946485A6090BBE3FF2C51",
     "classifications": {
       "AKTIONSKANDIDAT": 445,
-      "INTERAKTIONSPRIMITIVE": 318,
+      "INTERAKTIONSPRIMITIVE": 319,
       "STATUS/EINGABE/PROJEKTION": 308
     },
     "categories": {
@@ -20456,7 +20456,7 @@
       "Öffentliche Landing-Demos": 94,
       "Places & Ortsentdeckung": 167,
       "Profil, Vorlieben & Privatsphäre": 60,
-      "Reisen & Zusammenarbeit": 93
+      "Reisen & Zusammenarbeit": 94
     },
     "rowsEmbedded": false,
     "rationale": "Quellmarker werden als Auditbeleg gezählt, aber nicht als semantische Benutzeraktionen dupliziert."

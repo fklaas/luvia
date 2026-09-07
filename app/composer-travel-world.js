@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   // Consumer presentation only. Geographic picks are search intent, never Place truth.
-  const VERSION = '2.5.0-isolated-geography-scope';
+  const VERSION = '2.6.0-geographic-labels';
   const PI = Math.PI, RAD = PI / 180;
   const ESC = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let geography;
@@ -99,6 +99,19 @@
     function choose(feature){if(!feature)return;if(view.level===0)selectContinent(feature.properties.continent);else select(view.level===1?'country':'region',feature.properties.code,feature.properties.name);}
     function primary(){if(!interactive||transitioning)return;if(view.pending){confirmSelection();return;}if(view.level<2)return;const target=region()||country();if(target){const [lng,lat]=center(target);onPick({name:target.properties.name,lng,lat});}}
     function pickMarker(button){if(button.dataset.country)choose(features.find(f=>f.properties.code===button.dataset.country));else if(button.dataset.region)choose(regions.find(f=>f.properties.code===button.dataset.region));else if(button.dataset.continent)selectContinent(button.dataset.continent);else if(button.dataset.worldPoint&&interactive)onPick({name:button.dataset.worldPoint,lng:Number(button.dataset.lng),lat:Number(button.dataset.lat)});}
+    function drawGeographyLabels(svg,path,width,height,currentCountry,currentRegion){
+      const compact=width<620,occupied=[],labelLayer=svg.append('g').attr('class','lx-geography-labels').attr('aria-hidden','true');let candidates=[];
+      if(view.level===0)candidates=CONTINENTS.map(item=>({name:item[1],coordinates:[item[2],item[3]],kind:'continent'})).filter(item=>d3.geoDistance([view.yaw/RAD,view.pitch/RAD],item.coordinates)<1.25);
+      else if(view.level===1)candidates=features.filter(feature=>feature.properties.continent===view.continent).sort((a,b)=>path.area(b)-path.area(a)).slice(0,compact?10:18).map(feature=>({name:feature.properties.name,coordinates:center(feature),kind:'country',feature}));
+      else if(view.level===2)candidates=[...(regions.length?regions:(currentCountry?[currentCountry]:[]))].sort((a,b)=>path.area(b)-path.area(a)).slice(0,compact?13:24).map(feature=>({name:feature.properties.name,coordinates:center(feature),kind:'region',feature}));
+      else if(currentRegion)candidates=[{name:currentRegion.properties.name,coordinates:center(currentRegion),kind:'focus',feature:currentRegion}];
+      for(const item of candidates){
+        const point=projection(item.coordinates);if(!point||point[0]<24||point[0]>width-24||point[1]<20||point[1]>height-20)continue;
+        const fontSize=item.kind==='continent'?(compact?11:13):item.kind==='focus'?(compact?12:14):(compact?8.5:10),box={left:point[0]-(item.name.length*fontSize*.29+7),right:point[0]+(item.name.length*fontSize*.29+7),top:point[1]-fontSize*.8,bottom:point[1]+fontSize*.65};
+        if(occupied.some(other=>!(box.right<other.left||box.left>other.right||box.bottom<other.top||box.top>other.bottom)))continue;occupied.push(box);
+        labelLayer.append('text').attr('class',`lx-geography-label is-${item.kind}`).attr('x',point[0]).attr('y',point[1]).attr('text-anchor','middle').attr('dominant-baseline','central').attr('font-size',fontSize).text(item.name);
+      }
+    }
     function paint(){frame=0;if(!alive||!d3)return;const width=canvas.clientWidth,height=canvas.clientHeight;if(!width||!height)return;canvas.setAttribute('viewBox',`0 0 ${width} ${height}`);const svg=d3.select(canvas);svg.selectAll('*').remove();
       const defs=svg.append('defs'),gradient=defs.append('radialGradient').attr('id','ftc-expedition-ocean').attr('cx','34%').attr('cy','26%').attr('r','77%');gradient.append('stop').attr('offset','0').attr('stop-color','var(--lx-ocean-light, #e9fff0)');gradient.append('stop').attr('offset','.6').attr('stop-color','var(--lx-ocean-mid, #8dcccd)');gradient.append('stop').attr('offset','1').attr('stop-color','var(--lx-ocean-deep, #32798c)');
       const currentCountry=country(),currentRegion=region(),continent=CONTINENTS.find(c=>c[0]===view.continent)||null;
@@ -111,6 +124,7 @@
       svg.append('g').selectAll('path').data(shown).join('path').attr('d',path).attr('class',f=>(view.level>=2?'lx-states':'lx-land')+(f===currentRegion?' is-focus':''));
       if(view.level===0)svg.append('g').attr('class','lx-continent-outlines').selectAll('path').data(continents).join('path').attr('d',path).attr('class','lx-continent-outline');
       if(view.level===0)svg.append('path').datum(d3.geoGraticule10()).attr('d',path).attr('fill','none').attr('stroke','#fffdf7').attr('stroke-opacity','.24').attr('stroke-width','.5');
+      drawGeographyLabels(svg,path,width,height,currentCountry,currentRegion);
       const chosen=selectedFeature();if(chosen){
         const spectrum=defs.append('linearGradient').attr('id','ftc-selection-spectrum').attr('x1','0%').attr('y1','0%').attr('x2','100%').attr('y2','100%');
         ['#ed6555','#f5ab44','#eac955','#55ad83','#329a9d','#5089b2','#9581bc','#ce5d87','#ed6555'].forEach((color,i)=>spectrum.append('stop').attr('offset',i/8).attr('stop-color',color));

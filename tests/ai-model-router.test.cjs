@@ -10,5 +10,5 @@ assert.strictEqual(window.LuviaAIModelRouter.resolve('discovery.plan').alias,'Te
 assert.strictEqual(window.LuviaAIModelRouter.resolve('timeline.propose').alias,'Sol');
 assert(!fs.readFileSync('core/ai/ai-model-router.js','utf8').includes('OPENAI_API_KEY'),'browser model router contains provider secret');
 const provider=fs.readFileSync('supabase/functions/luvia-intelligence/providers/openai.ts','utf8');
-for(const model of ['gpt-5-mini','gpt-5','gpt-5-pro'])assert(provider.includes(model),`missing server model default ${model}`);
+for(const model of ['gpt-5.6-luna','gpt-5.6-terra','gpt-5.6-sol'])assert(provider.includes(model),`missing server model default ${model}`);
 console.log('AI model aliases and server-authoritative routing: OK');

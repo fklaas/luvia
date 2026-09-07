@@ -1,8 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const context={window:{}};vm.createContext(context);
-vm.runInContext(fs.readFileSync('app/composer-travel-world.js','utf8'),context);
+const context={window:{}},source=fs.readFileSync('app/composer-travel-world.js','utf8');vm.createContext(context);
+vm.runInContext(source,context);
 const world=context.window.LuviaComposerTravelWorld;
+assert.match(source,/2\.6\.0-geographic-labels/);assert.match(source,/drawGeographyLabels/);assert.match(source,/lx-geography-labels/);
 const features=JSON.parse(fs.readFileSync('assets/composer/world-countries.json','utf8')).features;
 let checks=0;
 for(const [lng,lat] of [[12.48,41.89],[-9.14,38.71],[135.77,35.01],[151.21,-33.87],[-90,0]]){
