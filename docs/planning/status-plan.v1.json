@@ -4,8 +4,8 @@
   "sourceBaseline": "395f7331",
   "app": "13.82.168.132",
   "core": "4.82.251",
-  "runtimeSource": "395f733182255e1e0905d63bfc9a1bd0831aa331",
-  "worker": "47a25eee-9813-43d6-afcb-1a5869967e7a",
+  "runtimeSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
+  "worker": "b5b74402-ac68-477d-879e-ce66b640ea22",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -716,8 +716,8 @@
     }
   ],
   "acceptanceUpdate": "App .131 / Core .250 ist auf Integration-Worker 47a25eee-9813-43d6-afcb-1a5869967e7a zu 100 Prozent veröffentlicht. Intelligence 4.37.0 / Build 13.37.0 ist aktiv, bestätigt Luna/Terra/Sol für fast/default/deep, erkennt unvollständige Structured Outputs und führt trip.audit kostengünstiger über Terra aus. Der KI-Einstieg deutet den ursprünglichen Wunsch einmal, schlägt bei groben Monatsangaben drei konkrete Zeitfenster mit der gewünschten Dauer vor und startet nach der Zeitwahl ohne wiederholte Wunschseite direkt den vollständigen Tagesentwurf. Kanonische Zielidentität verhindert die stille Vertauschung von Valencia und Alicante; dezente Kontinent-, Länder- und Regionsnamen ergänzen den Globus. Die öffentliche mobile Einstiegsansicht ist sichtbar belegt. Ein authentifizierter vollständiger produktiver Modelllauf bis Entwurf und Audit bleibt offen; Gateway v235, Main, Production, DB und Secrets bleiben unverändert.",
-  "safeRegression": "App .131: 239/239 Safe Regression, NFR-0 3/3, 108 Composer-Recovery-/Validierungsprüfungen, 60 Geografie-/Gestenprüfungen sowie Structured-Output-, Modellrouting-, Runtime- und Releaseprüfungen sind grün. Human-AI-Register 333 Aktionen / 1072 Quellmarker und das aktualisierte visuelle Inventar sind grün. Intelligence-Health 4.37.0, Workerstatus 100 Prozent, 8/8 öffentliche Dateihashes und der sichtbare mobile Composer-Einstieg sind belegt. Physische Geräte, echte dauerhafte Kontoübernahme und mindestens zwei produktive Modell-Positivläufe bleiben offen.",
-  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit 395f733182255e1e0905d63bfc9a1bd0831aa331 und Stable Integration überein. Archiv luvia-integration-13.82.168.131-395f7331.zip hat 92523839 Bytes und SHA-256 72A3EBDB36B4576EA7E1249A25ED0F700BB4F86B426EA4C6E985F7109AEF640A. Worker 47a25eee-9813-43d6-afcb-1a5869967e7a liest App .131 / Core .250 zu 100 Prozent.",
+  "safeRegression": "App .132: 239/239 Safe Regression, NFR-0 3/3, 108 Composer-Recovery-/Validierungsprüfungen, 60 Geografie-/Gestenprüfungen sowie Structured-Output-, Modellrouting-, Runtime- und Releaseprüfungen sind grün. Human-AI-Register 333 Aktionen / 1072 Quellmarker und das aktualisierte visuelle Inventar sind grün. Intelligence-Health 4.38.0, Workerstatus 100 Prozent und 8/8 öffentliche Dateihashes sind belegt. Physische Geräte, echte dauerhafte Kontoübernahme und zwei authentifizierte produktive Modell-Positivläufe bleiben offen.",
+  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit fac0a4a8b2375981134ea6154864092e9ba9eebf und Stable Integration überein. Archiv luvia-integration-13.82.168.132-fac0a4a8.zip hat 92542083 Bytes und SHA-256 DD13A6D388B5A598391468258BCB923662D05714ADB02153E3C3008F4F1C7A69. Worker b5b74402-ac68-477d-879e-ce66b640ea22 liest App .132 / Core .251 zu 100 Prozent.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -749,19 +749,19 @@
     "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .132 / Core .251 sowie Intelligence 4.38.0 sind als gemeinsamer Integration-Kandidat vorbereitet. Der Composer verbindet den semantischen Reiseauftrag jetzt mit Reiseversprechen, bewusstem Freiraum, Tagesbalance, belegpflichtiger Unsicherheitskarte, Buchungsreihenfolge und modelliertem Unterkunftsradius. trip.audit prüft das Versprechen unabhängig. Die kontrollierten Schema-, Core- und 108 Composer-Verhaltensprüfungen sind grün; vollständige Regression, Integration-Deployment, öffentliche Byteidentität und zwei authentifizierte Modell-Positivläufe sind das aktuelle Abnahmefenster. Gateway v235, Main und Production bleiben unverändert.",
+    "stage": "P17/P19 aktiv und teilweise: App .132 / Core .251 sowie Intelligence v41 / 4.38.0 sind ausschließlich auf Integration veröffentlicht. Der Composer verbindet den semantischen Reiseauftrag mit Reiseversprechen, bewusstem Freiraum, Tagesbalance, belegpflichtiger Unsicherheitskarte, Buchungsreihenfolge und modelliertem Unterkunftsradius. trip.audit prüft das Versprechen unabhängig. 239/239 Safe Regression, 108 Composer-Prüfungen, Health, Workerstatus und 8/8 öffentliche Byteidentität sind belegt. Zwei authentifizierte Modell-Positivläufe, Kontoübernahme und physische Geräte bleiben im aktuellen Abnahmefenster. Gateway v235, Main und Production bleiben unverändert.",
     "delivered": "Funktional vorbereitet sind der erweiterte strikte Structured-Output-Vertrag und seine sichtbare Composer-Projektion. Unbelegte Fakten können nicht als verifiziert passieren; fehlende Kernunsicherheiten bleiben sichtbar. Freie Zeit ist eine geplante Reiseentscheidung mit Zweck und Zeitfenster, nicht mehr ein leerer Tag. Die Buchungsreihenfolge beschreibt, welche Entscheidung andere Entscheidungen blockiert. Der Unterkunftsradius bleibt eine begründete, als modelliert ausgewiesene Ableitung. Das separate Unit-Economics-Dokument verbindet aktuelle Modell- und Providerpreise mit Paketvorschlag, Durchschnittsverbrauch und Break-even. Reise-DNA und Zeitreise bleiben integriert; Konfliktmoderation, Ablehnungsdiagnose, Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben als folgende Owner-Slices erhalten.",
     "nextStep": {
       "id": "P17-P19-authenticated-plan-cost-eval",
       "package": "P17",
       "status": "AKTIV",
-      "title": "Den vollständigen P17/P19-KI-Plan öffentlich und kostenmessbar abnehmen",
-      "reason": "Der lokale Vertrag deckt Reiseversprechen, Freiraum, Tagesbalance, Unsicherheit, Buchungsabhängigkeiten und Unterkunftsradius ab. Der verbleibende Abschlussbeleg muss nun zeigen, dass das produktive Modell diesen Vertrag bei unterschiedlichen freien Wünschen innerhalb eines tragfähigen Kosten- und Latenzrahmens tatsächlich erfüllt.",
+      "title": "Den vollständigen P17/P19-KI-Plan mit zwei echten Reisen und Kostenmessung abnehmen",
+      "reason": "Der Vertrag, die Regression und das Integration-Deployment sind belegt. Der verbleibende Abschlussbeleg muss jetzt zeigen, dass das produktive Modell den Vertrag bei zwei deutlich verschiedenen freien Wünschen innerhalb eines tragfähigen Kosten- und Latenzrahmens tatsächlich erfüllt.",
       "acceptance": [
-        "App .132, Core .251 und Intelligence 4.38.0 ausschließlich auf Integration veröffentlichen; Health, Schema, Workerstatus und exakte öffentliche Dateien gegen den Release-Commit prüfen.",
         "Einen siebentägigen Küsten-/Städtewunsch ab Münster und einen deutlich anderen Familien-/Ferienwunsch authentifiziert bis zum vollständigen Entwurf und unabhängigen Audit ausführen.",
         "Für beide Läufe Zielidentität, Zeitfenster, Reiseversprechen, jeden Reisetag, Tagesbalance, Freiraum, Unsicherheitszustände, Buchungsreihenfolge und Unterkunftsradius sichtbar prüfen.",
-        "Capability, Modell, Input-, Cache- und Output-Token, End-to-End-Latenz, Reparaturbedarf und Places-/Kalenderzugriffe messen und mit dem Unit-Economics-Zielrouting vergleichen."
+        "Capability, Modell, Input-, Cache- und Output-Token, End-to-End-Latenz, Reparaturbedarf und Places-/Kalenderzugriffe messen und mit dem Unit-Economics-Zielrouting vergleichen.",
+        "Erst nach beiden Positivläufen P17/P19 weiter schließen oder die konkret betroffene Capability gezielt reparieren; keine pauschale Freigabe aus kontrollierten Fixtures ableiten."
       ]
     },
     "after": "Nach dem echten Modell- und Kostenbeleg die P15/P17-Kontoübernahme, Reload-, Timeline-, Archiv-/Wiederherstellungs- und physischen Gerätegates schließen. Danach folgt M17 als globaler Sprach-, Design-, Zustands- und Motion-Rollout; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
@@ -796,21 +796,27 @@
         "app": "13.82.168.129",
         "status": "AUF_INTEGRATION_TEILABGENOMMEN",
         "evidence": "Fünf begründete Zielideen ohne generischen Place-Zwischenschritt; semantischer Gesamtauftrag; rollenabhängige Tagesplanung; sichtbare Reise-DNA, Qualitätsbewertung und Plan-B-Orte; trip.compose plus unabhängiger trip.audit mit genau einem Reparaturdurchlauf. Quelle e3c2b5f17476c7e0d1f2658769e2284ad5e02397, Worker fb068848-5575-460c-8ecc-12d867431345, Intelligence v38 / 4.35.2. 238/238 Regression, 100 Composer, 60 Geografie und 6/6 Stable-/immutable-Byteidentität. Echter Modell-Positivlauf und datierte Providerbelege offen."
+      },
+      {
+        "id": "P17-P19-evidence-aware-full-trip-contract",
+        "app": "13.82.168.132",
+        "status": "AUF_INTEGRATION_TEILABGENOMMEN",
+        "evidence": "Reiseversprechen, bewusster Freiraum, reiseweite Tagesbalance, belegpflichtige Unsicherheitskarte, Buchungsreihenfolge, modellierter Unterkunftsradius und unabhängiger Versprechen-Audit. Quelle fac0a4a8b2375981134ea6154864092e9ba9eebf, Worker b5b74402-ac68-477d-879e-ce66b640ea22, Intelligence v41 / 4.38.0. 239/239 Regression, 108 Composer, 60 Geografie/Gesten, NFR-0 3/3 und 8/8 öffentliche Byteidentität. Zwei authentifizierte Modell-Positivläufe und echte datierte Kontextbelege offen."
       }
     ]
   },
-  "qaCommit": "e3c2b5f1",
-  "intelligence": "v38 ACTIVE / 4.35.2 mit trip.compose und trip.audit; echter KI-Modell-Positivlauf bleibt wegen des zuletzt bestätigten API-Kontingentblocks offen",
+  "qaCommit": "fac0a4a8",
+  "intelligence": "v41 ACTIVE / 4.38.0 mit strengem trip.compose und trip.audit für Reiseversprechen, Freiraum, Tagesbalance, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius; zwei authentifizierte KI-Modell-Positivläufe bleiben offen",
   "backendRelease": {
-    "source": "e3c2b5f17476c7e0d1f2658769e2284ad5e02397",
+    "source": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
-    "intelligenceSource": "e3c2b5f17476c7e0d1f2658769e2284ad5e02397",
+    "intelligenceSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
     "gatewayVersion": 235,
-    "intelligenceVersion": 38,
-    "scope": "Gateway v235 bleibt unverändert. Intelligence v38 ergänzt trip.compose und trip.audit samt itinerary- und quality-audit-Schema. Secrets, Auth, Budgets und DB blieben unverändert.",
-    "proof": "Öffentlicher Health-Check: 4.35.2 / Build 13.35.1 / Core 4.35.1 / 14 Capabilities / trip.compose und trip.audit aktiv.",
-    "browserProof": "Stable und immutable Composer .129 sichtbar geladen; Zielbestätigung ohne generischen Place-Blick lokal bedient.",
-    "regression": "238/238 Safe Regression; 100 Composer; 60 Geografie/Gesten; NFR-0 3/3.",
-    "rollbackSource": "outputs/backend129-before/supabase/functions/luvia-intelligence"
+    "intelligenceVersion": 41,
+    "scope": "Gateway v235 bleibt unverändert. Intelligence v41 erweitert den kanonischen vollständigen Reiseplan samt Audit um Reiseversprechen, geplanten Freiraum, Tagesbalance, Unsicherheitszustände, Buchungsabhängigkeiten und modellierten Unterkunftsradius. Secrets, Auth, Budgets, DB, Main und Production blieben unverändert.",
+    "proof": "Öffentlicher Health-Check: 4.38.0 / Build 13.38.0 / Core 4.38.0 / 14 Capabilities / trip.compose und trip.audit aktiv; Structured-Output-Flags für Reiseversprechen, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius aktiv.",
+    "browserProof": "Stable Integration liefert App .132 / Core .251; acht releasekritische öffentliche Dateien sind bytegenau zum Release-Commit. Der authentifizierte Zwei-Reisen-Modell- und Kostenbeleg ist der nächste Gate.",
+    "regression": "239/239 Safe Regression; 108 Composer; 60 Geografie/Gesten; NFR-0 3/3.",
+    "rollbackSource": "Git 3256928534bd639aeade7b9c963f02806746ca2c; Supabase Intelligence v40"
   }
 }
