@@ -57,7 +57,7 @@ assert.ok(api, 'LuviaIntelligenceContractV1 missing');
 assert.equal(context.LuviaIntelligenceContract, api);
 assert.equal(api.contractId, 'intelligence.v1');
 assert.equal(api.version, '1');
-assert.equal(api.runtimeVersion, '1.13.0-complete-trip-composition');
+assert.equal(api.runtimeVersion, '1.14.0-semantic-trip-quality');
 assert.equal(Object.isFrozen(api), true);
 assert.deepEqual([...api.events], [
   'ai.changed',
@@ -78,6 +78,7 @@ for (const method of [
   'interpretTripBrief',
   'suggestTripDestinations',
   'composeTripItinerary',
+  'auditTripItinerary',
   'getMemorySnapshot',
   'getSystemSnapshot',
   'planningTrace',

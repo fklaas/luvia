@@ -2,7 +2,7 @@ var LuviaTripDraftCoreV1=(()=>{
 'use strict';
 
 const VERSION='1';
-const RUNTIME_VERSION='1.4.0-ai-itinerary-projection';
+const RUNTIME_VERSION='1.5.0-semantic-quality-projection';
 const FIELDS=Object.freeze([
   'title','subtitle','symbol','feelings','destination','scheduleMode','startDate','endDate',
   'flexibility','participantPlan','privacy','modules','accent','deferred','entryMode',
@@ -158,14 +158,14 @@ function composeDayDraft(input={},sources={}){
   const maximumPerDay=Math.max(1,Math.min(4,Number(policy.maximumPerDay)||(preferences.pace==='slow'?3:4)));
   const minute=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value||'')?Number(value.slice(0,2))*60+Number(value.slice(3)):null;
   const start=minute(policy.notBefore)??570,end=minute(policy.notAfter)??1260,capacity=Math.max(0,Math.min(maximumPerDay,Math.floor((end-start+150)/180)));
-  const days=dates.map((date,index)=>({id:`day-${index+1}`,date,label:`Tag ${index+1}`,theme:'',entries:[]})),used=new Set();
+  const days=dates.map((date,index)=>({id:`day-${index+1}`,date,label:`Tag ${index+1}`,theme:'',role:dates.length===1?'day-trip':index===0?'arrival':index===dates.length-1?'departure':'full',entries:[]})),used=new Set();
   if(itinerary){
     const byId=new Map(places.map(place=>[place.providerPlaceId,place]));
     if(itinerary.days.length!==days.length)throw new Error('Der KI-Entwurf deckt noch nicht jeden Reisetag ab.');
     days.forEach((day,dayIndex)=>{
       const planned=itinerary.days[dayIndex];
       if(day.date&&planned.date!==day.date)throw new Error(`Der KI-Entwurf ordnet ${day.label} einem falschen Datum zu.`);
-      day.theme=text(planned.theme,160);
+      day.theme=text(planned.theme,160);day.role=['arrival','full','departure','day-trip'].includes(planned.role)?planned.role:day.role;
       for(const [slot,proposal] of (planned.entries||[]).slice(0,maximumPerDay).entries()){
         const providerPlaceId=text(proposal.providerPlaceId,240).replace(/^places\//,''),place=byId.get(providerPlaceId);
         if(!place)throw new Error('Der KI-Entwurf enthält einen Ort, der nicht von Places bestätigt wurde.');
@@ -189,7 +189,7 @@ function composeDayDraft(input={},sources={}){
   return immutable({
     kind:'owner-backed-ai-day-draft',owner:'trip',contractId:'trip.v1',sourceContracts:itinerary?['intelligence.v1','places.v1','journey.v1']:['places.v1','journey.v1'],planningSource:itinerary?'ai':'deterministic-fallback',
     destination:projectDestination(input.destination),days:frozenDays,alternatives,candidateCount:places.length,periodComplete:input.scheduleMode!=='flexible',coverage:{days:dates.length,daysWithIdeas:days.filter(day=>day.entries.length).length,freeDays:days.filter(day=>!day.entries.length).length},
-    understanding:itinerary?{title:text(itinerary.title,160),summary:text(itinerary.summary,800),uncoveredRequirements:uniqueStrings(itinerary.uncoveredRequirements,20),warnings:uniqueStrings(itinerary.warnings,20),confidence:Number(itinerary.confidence)||0}:null,
+    understanding:itinerary?{title:text(itinerary.title,160),summary:text(itinerary.summary,800),uncoveredRequirements:uniqueStrings(itinerary.uncoveredRequirements,20),warnings:uniqueStrings(itinerary.warnings,20),backupOptions:(Array.isArray(itinerary.backupOptions)?itinerary.backupOptions:[]).map(item=>({dayDate:text(item?.dayDate,10),forProviderPlaceId:text(item?.forProviderPlaceId,240),providerPlaceId:text(item?.providerPlaceId,240),trigger:text(item?.trigger,160),reason:text(item?.reason,400)})),confidence:Number(itinerary.confidence)||0}:null,
     unknownFactors:['Wetter zum Reisetermin','Fußwege und Fahrzeiten','Saisonale Events','aktuelle Auslastung','Störungen','Preise und Buchbarkeit','Öffnungszeiten zum geplanten Besuch',...(itinerary?.uncoveredRequirements||[]),...(places.some(place=>!place.imageUrl)?['Bilder einzelner Orte']:[])],
     confirmationRequired:true,automaticMutation:false,generatedAt:text(sources.generatedAt)||null
   });

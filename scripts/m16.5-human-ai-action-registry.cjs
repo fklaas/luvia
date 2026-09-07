@@ -810,6 +810,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-draft-slot': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-draft-time': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-draft-duration': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-plan-b': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-pace': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-brief-search': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-brief-answer': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -825,7 +826,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-season': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-season': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-playing': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
-  'data-ftc-arrival-retry': ['Places & Ortsentdeckung', 'INTERAKTIONSPRIMITIVE'],
+  'data-status': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-story-feeling': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-story-start': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-story-other': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -1040,8 +1041,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1069);
-  assert.equal(sourceAudit.markerCount, 1069);
+  assert.equal(sourceAudit.markers.length, 1070);
+  assert.equal(sourceAudit.markerCount, 1070);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

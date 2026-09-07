@@ -35,10 +35,10 @@ assert.doesNotMatch(composer,/window\.LuviaPlaces\|\|window\.LuviaPlacesGateway/
 assert.match(composer,/if\(!state\.keyHandler\)/,'composer must install exactly one keyboard handler across re-renders');
 assert.match(composer,/Bitte einen Vorschlag aus der Suche wählen/);
 assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-ftc-destination-retry/);assert.match(composer,/Vorschläge bereit/);assert.match(composer,/Zielsuche nicht erreichbar/);
-for(const marker of ['composeDayDraft','composeTripItinerary','tripUnderstandingMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
+for(const marker of ['composeDayDraft','composeTripItinerary','auditTripItinerary','tripUnderstandingMarkup','tripQualityMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
 for(const copy of ['✓ Ja','Nein','Andere Uhrzeit','Ohne Uhrzeit','Tag verschieben','Erst der letzte Schritt speichert'])assert.ok(composer.includes(copy),`missing clear day decision: ${copy}`);
   for(const marker of ['pathSceneMarkup','mountPathScene','data-ftc-path-canvas','mountSeasonCanvas','destinationInsideScope','containsDestination','setTowns','preserveWorld','lx-day-journey','travelDna','mountTravelDna','lx-travel-dna','recordDecision','restoreDecision','timeTravelMarkup','ftc-time-travel'])assert.ok(composer.includes(marker),`missing cinematic Composer marker: ${marker}`);
-assert.match(composer,/const VERSION='2\.3\.0-semantic-trip-orchestrator'/);
+assert.match(composer,/const VERSION='2\.4\.0-semantic-trip-quality'/);
 assert.match(composer,/Wie möchtet ihr aufbrechen\?/);
 assert.match(composer,/compassMarkup\('lx-path-compass'\)/);
 assert.match(composer,/LuviaComposerTravelWorld\?\.markup\?\.\(\{interactive:false\}\)/,'The entry scene must reuse the canonical Composer globe');
@@ -53,6 +53,7 @@ assert.match(composer,/candidateLimit:64,limit:16/,'Places reads must expose a b
 assert.match(intelligenceAdapter,/Return exactly five distinct real named cities or travel regions/,'Destination inspiration must ask for five constraint-fit ideas');
 assert.match(intelligenceAdapter,/\.slice\(0,5\)/,'Destination inspiration must expose at most five verified directions');
 assert.match(intelligenceAdapter,/run\('trip\.compose'/,'A complete trip must use the dedicated Intelligence composition capability');
+assert.match(intelligenceAdapter,/run\('trip\.audit'/,'A complete trip must pass an independent Intelligence quality audit');
 assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty AI days must be rejected before preview');
   assert.match(composer,/Fünf neue Vorschläge/,'Destination inspiration must offer a visible refresh');
   assert.match(composer,/profile\.travelInterests\|\|profile\.interests/,'Profile interests must determine the requested Place categories');
@@ -60,6 +61,8 @@ assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty 
   assert.match(composer,/draftPrerequisite/,'Preview must repair invalid destination or date input before querying Places');
   assert.doesNotMatch(composer,/Ja, damit Orte suchen/,'A valid AI brief must proceed without an extra dead-end confirmation');
 for(const obsolete of ['data-ftc-map-focus','data-ftc-draft-swap'])assert.equal(composer.includes(obsolete),false,`obsolete multi-action Place control remains: ${obsolete}`);
+assert.match(composer,/data-ftc-plan-b/,'An explicit prepared Plan B must be actionable from its Place card');
+assert.doesNotMatch(composer,/Hier könnte eure Reise beginnen|Ortsbild noch offen/,'The AI path must not show a redundant generic destination preview before the complete trip plan');
 assert.match(composer,/state\.sheetCollapsed=entry!==\'ai\'/,'Quick and guided entry start with the destination sheet collapsed');
 assert.match(composer,/canvas\.addEventListener\('pointermove'/);
 assert.match(placesAdapter,/destination-cache/);assert.match(placesAdapter,/timeoutMs:Number\(options\.timeoutMs\)\|\|7000/);

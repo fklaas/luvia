@@ -27,13 +27,15 @@ const core=context.LuviaIntelligenceDomainContractCoreV1;
 assert.ok(core,'physical Intelligence Core missing');
 assert.equal(core.contractId,'intelligence.v1');
 assert.equal(core.version,'1');
-assert.equal(core.runtimeVersion,'1.1.0-trip-composition');
+assert.equal(core.runtimeVersion,'1.2.0-trip-quality-audit');
 assert.equal(Object.isFrozen(core),true);
 
 const capabilities=core.listCapabilities();
-assert.equal(capabilities.length,10);
+assert.equal(capabilities.length,11);
 assert.equal(core.getCapability('trip.compose').schema,'trip_itinerary');
 assert.equal(core.getCapability('trip.compose').tier,'deep');
+assert.equal(core.getCapability('trip.audit').schema,'trip_quality_audit');
+assert.equal(core.getCapability('trip.audit').tier,'deep');
 assert.equal(core.getCapability('brain.ask').mode,'READ');
 assert.equal(core.getCapability('timeline.propose').mode,'DRAFT');
 assert.equal(core.getCapability('timeline.propose').tier,'deep');
@@ -43,6 +45,7 @@ assert.equal(Object.isFrozen(capabilities[0]),true);
 const domains=core.listDomains();
 assert.equal(domains.length,6);
 assert.ok(core.getDomain('trip').capabilities.includes('trip.compose'));
+assert.ok(core.getDomain('trip').capabilities.includes('trip.audit'));
 assert.equal(core.getDomain('journey').contracts.owner,'journey');
 assert.equal(core.getDomain('journey').contracts.mutationDelegated,true);
 assert.equal(core.getDomain('timeline').contracts.writesRequireConfirmation,true);
@@ -93,6 +96,21 @@ assert.equal(ranking.rankings[0].score,100);
 assert.equal(ranking.rankings[0].confidence,1);
 assert.deepEqual([...ranking.rankings[0].reasons],['Passend']);
 assert.equal(Object.isFrozen(ranking),true);
+
+const audit=core.validateOutput('trip_quality_audit',{
+  readyForReview:false,
+  score:63,
+  headline:'Ankunftstag zu dicht',
+  dimensions:[{id:'rhythm',label:'Tagesrhythmus',score:42,status:'blocked',summary:'Zu wenig Luft.'}],
+  issues:[{code:'ARRIVAL_DENSITY',severity:'blocked',dayDate:'2027-06-12',providerPlaceIds:['place-1'],message:'Zu viele Termine nach der Ankunft.',suggestedRepair:'Einen Termin entfernen.'}],
+  strengths:['Belegte Places'],
+  repairInstructions:['Ankunftstag entlasten'],
+  confidence:.94
+});
+assert.equal(audit.readyForReview,false);
+assert.equal(audit.issues[0].severity,'blocked');
+assert.deepEqual([...audit.repairInstructions],['Ankunftstag entlasten']);
+assert.equal(Object.isFrozen(audit),true);
 
 const signal=core.normalizeSignal({
   id:'signal-1',
