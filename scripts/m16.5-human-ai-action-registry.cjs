@@ -792,6 +792,8 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // Identity confirmation; it does not perform a profile write itself.
   'data-entry-mode': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-budget': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-change-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-clear-preference': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-ai-map': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-ai-place': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-ai-retry': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
@@ -810,6 +812,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-draft-date': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-day': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-film-day': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-film-day-id': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-film-step': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-film-station': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-route-check': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -836,6 +839,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-transition': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-durable': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-entry-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-mode-chosen': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-trip-interest': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   // P03: inspectable, read-only proof that Places, Timeline and Chat reuse one
   // canonical entity/evidence cohort without adding a new user action.
@@ -1032,8 +1036,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1061);
-  assert.equal(sourceAudit.markerCount, 1061);
+  assert.equal(sourceAudit.markers.length, 1065);
+  assert.equal(sourceAudit.markerCount, 1065);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

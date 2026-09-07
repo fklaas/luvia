@@ -260,6 +260,12 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(calls.some(call=>call[0]==='lifecycle'&&call[1]==='tp-1'&&call[2]==='planned'),true);
   assert.equal(runtime.getActionState(prepared.ledgerId).attempts,1);
 
+  const writesBeforeReconciliation=calls.filter(call=>['favorite','plan'].includes(call[0])).length;
+  visitOwnerPlaces=[{providerPlaceId:'place-1',name:'Dünenküche',isFavorite:true}];
+  const reconciled=await runtime.reconcile('places.place.favorite',{tripId:'trip-1',providerPlaceId:'place-1'},{ledgerId:'historic-ledger',idempotencyKey:'historic-favorite-once'});
+  assert.equal(reconciled.evidence.status,'completed');assert.equal(reconciled.evidence.reference.readbackVerified,true);assert.equal(reconciled.evidence.reference.readbackOwner,'places.v1');assert.equal(reconciled.evidence.idempotencyKey,'historic-favorite-once');
+  assert.equal(calls.filter(call=>['favorite','plan'].includes(call[0])).length,writesBeforeReconciliation,'owner reconciliation must stay read-only');visitOwnerPlaces=[];
+
   const undoPrepared=runtime.prepareUndo(prepared.ledgerId,{userGesture:true});
   assert.equal(undoPrepared.result.kind,'confirmation');
   assert.equal(undoPrepared.result.evidence.actionId,'places.place.unplan');

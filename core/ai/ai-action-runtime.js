@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.25.0-source-backed-day-rehearsal';
+const VERSION='1.26.0-owner-readback-reconciliation';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -619,6 +619,11 @@ async function retry(ledgerId,options={}){
   receipts.delete(ledgerId);
   return execute(state.actionId,{}, {...options,ledgerId,userGesture:true,confirmed:true});
 }
+async function reconcile(actionId,payload={},options={}){
+  if(!['places.place.favorite','places.place.unfavorite','places.place.plan','places.place.unplan'].includes(actionId))throw runtimeError('INTELLIGENCE_ACTION_RECONCILIATION_NOT_AVAILABLE','Für diese Aktion ist kein lesender Owner-Abgleich verfügbar.',{actionId});
+  const readback=await placeMutationReadback(actionId,payload),result={readbackVerified:readback.verified,readbackState:readback.state,readbackOwner:readback.owner,readbackObservedAt:readback.observedAt,readbackAttempts:readback.attempts};
+  return actionCore().createReceipt({actionId,status:readback.verified?'completed':'outcome_unknown',message:readback.verified?'Der gespeicherte Zustand wurde direkt beim zuständigen Owner bestätigt.':'Der zuständige Owner bestätigt den gespeicherten Zustand noch nicht. Die Änderung wird nicht erneut gesendet.',ownerCommand:true,occurredAt:new Date().toISOString(),ledgerId:options.ledgerId||null,correlationId:options.correlationId||null,idempotencyKey:options.idempotencyKey||null,outcomeUnknown:!readback.verified,reference:receiptReference(payload,result),meta:{reconciledAfterUnknown:true,ownerReadOnly:true}});
+}
 function compensationPayload(definition,payload={}){
   if(definition.id==='places.place.unplan'){const previous=localDateTimeHint(payload.fields?.planned_at);return{...payload,date:payload.date||previous.date,time:payload.time||previous.time}}
   if(['places.place.favorite','places.place.unfavorite','places.place.plan'].includes(definition.id))return{...payload};
@@ -650,5 +655,5 @@ function diagnostics(){
   return actionCore().immutable({version:VERSION,contractId:actionCore().contractId,ledgerContractId:ledger.contractId,actions:actionCore().listActions().length,availableActions:capabilities.available,owners,connections,capabilities,ledger:ledger.diagnostics(),policy:actionCore().policySnapshot()});
 }
 
-root.LuviaAIActionRuntime=Object.freeze({version:VERSION,runMessage,readPlaceViewport,prepare,execute,cancel,retry,prepareUndo,recoveryPlan,getActionState,capabilitySnapshot,connectionSnapshot,subscribe,diagnostics});
+root.LuviaAIActionRuntime=Object.freeze({version:VERSION,runMessage,readPlaceViewport,prepare,execute,cancel,retry,reconcile,prepareUndo,recoveryPlan,getActionState,capabilitySnapshot,connectionSnapshot,subscribe,diagnostics});
 })(this);

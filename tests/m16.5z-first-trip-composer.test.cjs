@@ -19,11 +19,11 @@ const index=read('index.html');
 const serviceWorker=read('sw.js');
 const fixture=read('tests/fixtures/m16.5z-first-trip-composer-browser.html');
 
-assert.match(composer,/\['welcome','identity','feeling','destination','dates','people','modules','accent','ready'\]/);
-assert.match(composer,/guided:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
+assert.match(composer,/\['welcome','destination','dates','interests','pace','food','budget','brief','preview','accent','ready'\]/);
+assert.match(composer,/guided:Object\.freeze\(\['welcome','destination','dates','interests','pace','food','budget','preview','accent','ready'\]\)/);
 assert.match(composer,/quick:Object\.freeze\(\['welcome','destination','dates','accent','ready'\]\)/);
 assert.match(composer,/ai:Object\.freeze\(\['welcome','destination','dates','brief','preview','accent','ready'\]\)/);
-for(const label of ['Geführt','Schnellstart','Mit Luvia AI','Anfrage bleibt flüchtig','Reisewünsche gelten für diese Reise','Profiländerungen brauchen Bestätigung'])assert.ok(composer.includes(label),`missing composer copy: ${label}`);
+for(const label of ['Leere Reise','Mit Vorschlägen','Luvia plant alles','Genau diese Auswahl steuert die Place-Kategorien','Profilvorlieben'])assert.ok(composer.includes(label),`missing composer copy: ${label}`);
 assert.match(composer,/data-ftc-entry-mode/);assert.match(composer,/data-ftc-trip-interest/);assert.match(composer,/data-ftc-durable/);
 assert.match(composer,/Ihr prüft ihn, bevor daraus Ortsvorschläge entstehen/);
 assert.match(composer,/owner\.commands\.createFirstTrip/);

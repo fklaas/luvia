@@ -44,9 +44,9 @@ surface.emit('pointerdown',{target:marker});surface.emit('lostpointercapture');s
 before=mounted.snapshot();surface.emit('pointerdown',{button:2,target:marker});surface.emit('pointermove',{clientX:400});surface.emit('pointerup');assert.equal(mounted.snapshot().yaw,before.yaw);checks++;
 surface.emit('pointerdown');mounted.destroy();assert.equal(surface.listeners.size,0);assert.equal(marker.listeners.size,0);assert.equal(canvas.listeners.size,0);assert.equal(surface.hasPointerCapture(1),false);checks++;
 const navigation=[],hierarchy=world.mount(host,{onPick:p=>picks.push(p),onNavigate:v=>navigation.push(v),reducedMotion:true}),pickCount=picks.length;
-hierarchy.primary();assert.equal(hierarchy.snapshot().level,0);assert.equal(hierarchy.snapshot().pending.name,'Europa');assert.equal(navigation.length,0);checks++;
-hierarchy.primary();assert.equal(hierarchy.snapshot().level,1);assert.equal(hierarchy.snapshot().pending,null);assert.equal(navigation.length,1);assert.equal(picks.length,pickCount);checks++;
-before=hierarchy.snapshot();canvas.emit('keydown',{key:'ArrowRight'});assert.ok(hierarchy.snapshot().panX>before.panX);hierarchy.destroy();checks++;
+assert.equal(hierarchy.snapshot().continent,'','A fresh globe must not preselect Europe or another continent');assert.equal(hierarchy.snapshot().pending,null);checks++;
+hierarchy.primary();assert.equal(hierarchy.snapshot().level,0);assert.equal(hierarchy.snapshot().pending,null);assert.equal(navigation.length,0);assert.equal(picks.length,pickCount);checks++;
+before=hierarchy.snapshot();canvas.emit('keydown',{key:'ArrowRight'});assert.ok(hierarchy.snapshot().yaw>before.yaw);hierarchy.destroy();checks++;
 const continents=JSON.parse(fs.readFileSync('assets/composer/world-continents.json','utf8')).features;
 assert.ok(continents.some(f=>f.properties.code==='Europe'));assert.ok(continents.every(f=>['Polygon','MultiPolygon'].includes(f.geometry.type)));checks++;
 for(const filename of fs.readdirSync('assets/composer/regions')){assert.match(filename,/^[A-Z0-9]{3}\.json$/);const pack=JSON.parse(fs.readFileSync('assets/composer/regions/'+filename,'utf8'));assert.ok(pack.features.every(f=>f.properties.country===filename.slice(0,3)&&f.properties.name&&f.properties.code&&['Polygon','MultiPolygon'].includes(f.geometry.type)));}checks++;
