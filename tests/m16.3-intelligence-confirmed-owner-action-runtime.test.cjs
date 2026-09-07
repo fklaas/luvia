@@ -260,6 +260,20 @@ for(const file of ['core/intelligence/intelligence-action-contract-core.js','cor
   assert.equal(calls.some(call=>call[0]==='lifecycle'&&call[1]==='tp-1'&&call[2]==='planned'),true);
   assert.equal(runtime.getActionState(prepared.ledgerId).attempts,1);
 
+  // A resumed Composer reuses the same idempotency key after its owner write succeeded.
+  // Preparing that key again must return the terminal receipt instead of trying the
+  // illegal ActionLedger transition succeeded -> confirmation_required.
+  const resumed=runtime.prepare('places.place.plan',{
+    tripId:'trip-1',providerPlaceId:'place-1',placeType:'restaurant',date:'2026-08-26',time:'19:00',
+    fields:{planned_at:'2026-08-26T17:00:00.000Z',place_name:'Dünenküche',notes:'Expliziter Chat-Wunsch'}
+  },{userGesture:true,idempotencyKey:'plan-once'});
+  assert.equal(resumed.requiresConfirmation,false);
+  assert.equal(resumed.alreadyCompleted,true);
+  assert.equal(resumed.ledgerId,prepared.ledgerId);
+  const resumedReceipt=await runtime.execute('places.place.plan',{}, {ledgerId:resumed.ledgerId,userGesture:true,confirmed:true});
+  assert.equal(resumedReceipt.evidence.status,'completed');
+  assert.equal(calls.filter(call=>call[0]==='plan').length,1,'Composer resume must never repeat the owner write');
+
   const writesBeforeReconciliation=calls.filter(call=>['favorite','plan'].includes(call[0])).length;
   visitOwnerPlaces=[{providerPlaceId:'place-1',name:'Dünenküche',isFavorite:true}];
   const reconciled=await runtime.reconcile('places.place.favorite',{tripId:'trip-1',providerPlaceId:'place-1'},{ledgerId:'historic-ledger',idempotencyKey:'historic-favorite-once'});

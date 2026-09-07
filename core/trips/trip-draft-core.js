@@ -155,14 +155,14 @@ function draftDates(input={}){
 function composeDayDraft(input={},sources={}){
   const candidates=(Array.isArray(sources.places)?sources.places:[]).map(canonicalPlace).filter(Boolean),seen=new Set(),places=candidates.filter(place=>{if(seen.has(place.providerPlaceId))return false;seen.add(place.providerPlaceId);return true});
   const brief=sources.brief?.kind==='trip-planning-brief'&&sources.brief?.owner==='intelligence'?sources.brief:null,preferences=brief?.tripPreferences||input.tripPreferences||{},policy=brief?.policy||{},dates=draftDates(input);
-  const maximumPerDay=Math.max(1,Math.min(4,Number(policy.maximumPerDay)||(preferences.pace==='slow'?1:preferences.pace==='active'?3:2)));
+  const maximumPerDay=Math.max(1,Math.min(4,Number(policy.maximumPerDay)||(preferences.pace==='slow'?3:4)));
   const minute=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value||'')?Number(value.slice(0,2))*60+Number(value.slice(3)):null;
-  const start=minute(policy.notBefore)??600,end=minute(policy.notAfter)??1260,capacity=Math.max(0,Math.min(maximumPerDay,Math.floor((end-start+120)/240)));
+  const start=minute(policy.notBefore)??570,end=minute(policy.notAfter)??1260,capacity=Math.max(0,Math.min(maximumPerDay,Math.floor((end-start+150)/180)));
   const reserve=places.length>6?Math.min(2,places.length-1):0,selected=places.slice(0,Math.min(places.length-reserve,dates.length*capacity)),days=dates.map((date,index)=>({id:`day-${index+1}`,date,label:`Tag ${index+1}`,entries:[]}));
   selected.forEach((place,index)=>{
     const dayIndex=Math.floor(index*dates.length/selected.length),day=days[Math.min(dayIndex,days.length-1)],slot=day.entries.length;
-    const durationMinutes=place.primaryType==='restaurant'?90:120,minutes=start+slot*240,time=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
-    day.entries.push({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time,durationMinutes,suggestedAction:day.date&&brief?.automaticPlanningAllowed!==false?'planned':'saved',reason:`${place.category?'Aus dem gesuchten Bereich '+({food:'Essen & Trinken',culture:'Kultur',nature:'Natur',nightlife:'Nachtleben',shopping:'Shopping',wellness:'Wellness',activities:'Aktivitäten'}[place.category]||place.category)+'. ':''}Von Places geliefert. ${maximumPerDay===1?'Höchstens ein Vorschlag pro Tag lässt Zeit zum Durchatmen.':'Mit Abstand zum nächsten Vorschlag verteilt.'} Wege, Preise und Öffnung zu diesem Termin sind noch nicht bestätigt.`,confirmationRequired:true,automaticMutation:false});
+    const durationMinutes=place.primaryType==='restaurant'?90:120,spacing=capacity>1?Math.floor((end-start)/(capacity-1)):0,minutes=start+slot*spacing,time=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
+    day.entries.push({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time,durationMinutes,suggestedAction:day.date&&brief?.automaticPlanningAllowed!==false?'planned':'saved',reason:`${place.category?'Aus dem gesuchten Bereich '+({food:'Essen & Trinken',culture:'Kultur',nature:'Natur',nightlife:'Nachtleben',shopping:'Shopping',wellness:'Wellness',activities:'Aktivitäten'}[place.category]||place.category)+'. ':''}Von Places geliefert und aus euren Reise- sowie Profilvorlieben gewichtet. Der Tagesabstand lässt Zeit für Wege und Pausen. Wege, Preise und Öffnung zu diesem Termin sind noch nicht bestätigt.`,confirmationRequired:true,automaticMutation:false});
   });
   const frozenDays=days.map(day=>immutable({...day,open:day.entries.length===0}));
   return immutable({

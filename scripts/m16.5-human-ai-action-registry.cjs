@@ -775,6 +775,7 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // Lifting/dropping edits the same unconfirmed Composer draft as its date field;
   // final Trip/Places writes retain the existing explicit confirmation outcome.
   'data-ftc-atlas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-accept': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-world-canvas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-drop-day': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-place-pick': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
@@ -792,6 +793,10 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // Identity confirmation; it does not perform a profile write itself.
   'data-entry-mode': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-budget': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-mix': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-path-scene': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-season-canvas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-time-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-change-mode': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-clear-preference': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   'data-ftc-ai-map': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
@@ -1036,8 +1041,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1065);
-  assert.equal(sourceAudit.markerCount, 1065);
+  assert.equal(sourceAudit.markers.length, 1070);
+  assert.equal(sourceAudit.markerCount, 1070);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

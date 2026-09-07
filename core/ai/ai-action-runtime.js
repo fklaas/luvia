@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='1.26.0-owner-readback-reconciliation';
+const VERSION='1.27.0-idempotent-terminal-resume';
 const CONFIRMATION_TTL_MS=5*60*1000;
 const listeners=new Set();
 const pending=new Map();
@@ -518,9 +518,14 @@ function prepare(actionId,payload={},options={}){
   const correlationId=clean(options.correlationId)||newId('corr');const idempotencyKey=clean(options.idempotencyKey)||newId(`idem-${actionId.replace(/[^a-z0-9]+/gi,'-')}`);const requestedAt=new Date().toISOString();
   const envelope=actionCore().createExecutionEnvelope(actionId,ledgerPayload(definition,preparedPayload),{surface:options.surface||'global-chat',tripId:preparedPayload.tripId||null,locale:options.locale||null,timeZone},{idempotencyKey,correlationId,requestedAt,source:options.surface||'global-chat'});
   const entry=ledger.create({actionId,owner:definition.owner,ownerContract:definition.ownerContract,effect:definition.effect,risk:definition.risk,confirmation:definition.confirmation,reversible:definition.reversible,idempotencyKey,correlationId,payload:envelope.input,reference:previewPayload(envelope.input)});
+  // ledger.create is idempotent. A resumed Composer can therefore receive the
+  // already successful entry for the same key. Keep that terminal result and
+  // let execute return its receipt; never move it back to confirmation_required.
+  if(['succeeded','cancelled','compensated'].includes(entry.status))return actionCore().immutable({requiresConfirmation:false,alreadyCompleted:entry.status==='succeeded',ledgerId:entry.id,correlationId:entry.correlationId||correlationId,idempotencyKey,expiresAt:null,result:receipts.get(entry.id)||null});
   const expiresAt=new Date(Date.now()+CONFIRMATION_TTL_MS).toISOString();pending.set(entry.id,{definition,envelope,ownerInput:actionCore().immutable(preparedPayload),expiresAt});
   if(definition.confirmation==='EXPLICIT'){
-    ledger.requireConfirmation(entry.id);
+    if(entry.status==='proposed')ledger.requireConfirmation(entry.id);
+    else if(entry.status==='failed'||entry.status==='outcome_unknown')return actionCore().immutable({requiresConfirmation:false,recoveryRequired:true,ledgerId:entry.id,correlationId:entry.correlationId||correlationId,idempotencyKey,expiresAt:null,result:receipts.get(entry.id)||null});
     const result=actionCore().createConfirmation({actionId,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt,preview:confirmationPreview(definition,preparedPayload)});
     emit('confirmation-required',{actionId,owner:definition.owner,risk:definition.risk,ledgerId:entry.id});return actionCore().immutable({requiresConfirmation:true,ledgerId:entry.id,correlationId,idempotencyKey,expiresAt,result});
   }

@@ -308,7 +308,7 @@ function projectTripBrief(input={},response={}){
   const data=response.data,base=input.tripPreferences||{},preferences={...clone(base),interests:[...(base.interests||[])],food:[...(base.food||[])],accessibility:[...(base.accessibility||[])],mobility:[...(base.mobility||[])]};
   const profile=normalizeProfile(input.profilePreferences||{}),applied=[],unresolved=[],exclusions=new Set(),goals=Array.isArray(data.goals)?data.goals.slice(0,12):[];
   const categories={food:'food',meal:'food',restaurant:'food',dining:'food',cafe:'food',café:'food',essen:'food',culture:'culture',museum:'culture',kultur:'culture',sightseeing:'culture',nature:'nature',natur:'nature',nightlife:'nightlife',nachtleben:'nightlife',shopping:'shopping',wellness:'wellness',family:'family',familie:'family',active:'active',activity:'active',activities:'active',aktivitäten:'active'};
-  const policy={maximumPerDay:base.pace==='slow'?1:base.pace==='active'?3:2,notBefore:'10:00',notAfter:'21:00'};
+  const policy={maximumPerDay:base.pace==='slow'?3:4,notBefore:'09:30',notAfter:'21:00'};
   const hardPolicy={maximumPerDay:4,notBefore:null,notAfter:null};
   const norm=value=>clean(value).toLowerCase().replace(/[ _-]/g,''),time=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value),unique=values=>[...new Set(values)];
   const addCategory=(value,excluded=false)=>{const category=categories[clean(value).toLowerCase()];if(!category)return false;if(excluded)exclusions.add(category);else preferences.interests.push(category);return true};
@@ -319,7 +319,7 @@ function projectTripBrief(input={},response={}){
     if(['category','interest','interests','travelinterest','activitytype'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value));
     if(['excludecategory','excludedcategory','excludeinterest'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value,true));
     if(['pace','travelpace','planningpace'].includes(key)){
-      const pace={slow:'slow',ruhig:'slow',relaxed:'slow',entspannt:'slow',balanced:'balanced',ausgewogen:'balanced',active:'active',aktiv:'active'}[value];if(pace){preferences.pace=pace;policy.maximumPerDay=pace==='slow'?1:pace==='active'?3:2;handled=true;}
+      const pace={slow:'slow',ruhig:'slow',relaxed:'slow',entspannt:'slow',balanced:'balanced',ausgewogen:'balanced',active:'active',aktiv:'active'}[value];if(pace){preferences.pace=pace;policy.maximumPerDay=pace==='slow'?3:4;handled=true;}
     }
     if(['budget','budgetlevel','budgetpreference'].includes(key)){
       const budget={economy:'economy',low:'economy',günstig:'economy',balanced:'balanced',medium:'balanced',generous:'generous',high:'generous',open:'open'}[value];if(budget){preferences.budgetLevel=budget;handled=!item.hard;}
