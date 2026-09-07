@@ -2,7 +2,7 @@ var LuviaTripDraftCoreV1=(()=>{
 'use strict';
 
 const VERSION='1';
-const RUNTIME_VERSION='1.3.0-full-period-draft';
+const RUNTIME_VERSION='1.4.0-ai-itinerary-projection';
 const FIELDS=Object.freeze([
   'title','subtitle','symbol','feelings','destination','scheduleMode','startDate','endDate',
   'flexibility','participantPlan','privacy','modules','accent','deferred','entryMode',
@@ -154,21 +154,43 @@ function draftDates(input={}){
 }
 function composeDayDraft(input={},sources={}){
   const candidates=(Array.isArray(sources.places)?sources.places:[]).map(canonicalPlace).filter(Boolean),seen=new Set(),places=candidates.filter(place=>{if(seen.has(place.providerPlaceId))return false;seen.add(place.providerPlaceId);return true});
-  const brief=sources.brief?.kind==='trip-planning-brief'&&sources.brief?.owner==='intelligence'?sources.brief:null,preferences=brief?.tripPreferences||input.tripPreferences||{},policy=brief?.policy||{},dates=draftDates(input);
+  const brief=sources.brief?.kind==='trip-planning-brief'&&sources.brief?.owner==='intelligence'?sources.brief:null,itinerary=sources.itinerary?.kind==='ai-trip-itinerary'&&sources.itinerary?.owner==='intelligence'?sources.itinerary:null,preferences=brief?.tripPreferences||input.tripPreferences||{},policy=brief?.policy||{},dates=draftDates(input);
   const maximumPerDay=Math.max(1,Math.min(4,Number(policy.maximumPerDay)||(preferences.pace==='slow'?3:4)));
   const minute=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value||'')?Number(value.slice(0,2))*60+Number(value.slice(3)):null;
   const start=minute(policy.notBefore)??570,end=minute(policy.notAfter)??1260,capacity=Math.max(0,Math.min(maximumPerDay,Math.floor((end-start+150)/180)));
-  const reserve=places.length>6?Math.min(2,places.length-1):0,selected=places.slice(0,Math.min(places.length-reserve,dates.length*capacity)),days=dates.map((date,index)=>({id:`day-${index+1}`,date,label:`Tag ${index+1}`,entries:[]}));
-  selected.forEach((place,index)=>{
-    const dayIndex=Math.floor(index*dates.length/selected.length),day=days[Math.min(dayIndex,days.length-1)],slot=day.entries.length;
-    const durationMinutes=place.primaryType==='restaurant'?90:120,spacing=capacity>1?Math.floor((end-start)/(capacity-1)):0,minutes=start+slot*spacing,time=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
-    day.entries.push({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time,durationMinutes,suggestedAction:day.date&&brief?.automaticPlanningAllowed!==false?'planned':'saved',reason:`${place.category?'Aus dem gesuchten Bereich '+({food:'Essen & Trinken',culture:'Kultur',nature:'Natur',nightlife:'Nachtleben',shopping:'Shopping',wellness:'Wellness',activities:'Aktivitäten'}[place.category]||place.category)+'. ':''}Von Places geliefert und aus euren Reise- sowie Profilvorlieben gewichtet. Der Tagesabstand lässt Zeit für Wege und Pausen. Wege, Preise und Öffnung zu diesem Termin sind noch nicht bestätigt.`,confirmationRequired:true,automaticMutation:false});
-  });
+  const days=dates.map((date,index)=>({id:`day-${index+1}`,date,label:`Tag ${index+1}`,theme:'',entries:[]})),used=new Set();
+  if(itinerary){
+    const byId=new Map(places.map(place=>[place.providerPlaceId,place]));
+    if(itinerary.days.length!==days.length)throw new Error('Der KI-Entwurf deckt noch nicht jeden Reisetag ab.');
+    days.forEach((day,dayIndex)=>{
+      const planned=itinerary.days[dayIndex];
+      if(day.date&&planned.date!==day.date)throw new Error(`Der KI-Entwurf ordnet ${day.label} einem falschen Datum zu.`);
+      day.theme=text(planned.theme,160);
+      for(const [slot,proposal] of (planned.entries||[]).slice(0,maximumPerDay).entries()){
+        const providerPlaceId=text(proposal.providerPlaceId,240).replace(/^places\//,''),place=byId.get(providerPlaceId);
+        if(!place)throw new Error('Der KI-Entwurf enthält einen Ort, der nicht von Places bestätigt wurde.');
+        if(used.has(providerPlaceId))throw new Error(`Der KI-Entwurf verwendet ${place.name} mehrfach.`);
+        const durationMinutes=Math.round(Number(proposal.durationMinutes)),time=text(proposal.time,5);
+        if(day.date&&minute(time)==null)throw new Error(`Die KI-Uhrzeit für ${place.name} ist nicht eindeutig.`);
+        if(!Number.isFinite(durationMinutes)||durationMinutes<30||durationMinutes>720)throw new Error(`Die KI-Dauer für ${place.name} ist nicht plausibel.`);
+        used.add(providerPlaceId);day.entries.push({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time:day.date?time:'',durationMinutes,suggestedAction:day.date&&brief?.automaticPlanningAllowed!==false?'planned':'saved',reason:`${text(proposal.reason,500)||'Von Luvia für diesen Reisemoment gewählt.'} Der Ort stammt aus Places. Wege, Preise, Buchbarkeit und Öffnung zu diesem Termin bleiben bis zur jeweiligen Prüfung offen.`,confidence:Math.max(0,Math.min(1,Number(proposal.confidence)||0)),confirmationRequired:true,automaticMutation:false});
+      }
+    });
+  }else{
+    const reserve=places.length>6?Math.min(2,places.length-1):0,selected=places.slice(0,Math.min(places.length-reserve,dates.length*capacity));
+    selected.forEach((place,index)=>{
+      const dayIndex=Math.floor(index*dates.length/selected.length),day=days[Math.min(dayIndex,days.length-1)],slot=day.entries.length;
+      const durationMinutes=place.primaryType==='restaurant'?90:120,spacing=capacity>1?Math.floor((end-start)/(capacity-1)):0,minutes=start+slot*spacing,time=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
+      used.add(place.providerPlaceId);day.entries.push({...place,slotId:`${day.id}-slot-${slot+1}`,dayId:day.id,date:day.date,time,durationMinutes,suggestedAction:day.date&&brief?.automaticPlanningAllowed!==false?'planned':'saved',reason:`${place.category?'Aus dem gesuchten Bereich '+({food:'Essen & Trinken',culture:'Kultur',nature:'Natur',nightlife:'Nachtleben',shopping:'Shopping',wellness:'Wellness',activities:'Aktivitäten'}[place.category]||place.category)+'. ':''}Von Places geliefert und aus euren Reise- sowie Profilvorlieben gewichtet. Der Tagesabstand lässt Zeit für Wege und Pausen. Wege, Preise und Öffnung zu diesem Termin sind noch nicht bestätigt.`,confirmationRequired:true,automaticMutation:false});
+    });
+  }
   const frozenDays=days.map(day=>immutable({...day,open:day.entries.length===0}));
+  const alternatives=places.filter(place=>!used.has(place.providerPlaceId)),modelAlternatives=new Set(itinerary?.alternatives||[]);alternatives.sort((left,right)=>Number(modelAlternatives.has(right.providerPlaceId))-Number(modelAlternatives.has(left.providerPlaceId)));
   return immutable({
-    kind:'owner-backed-ai-day-draft',owner:'trip',contractId:'trip.v1',sourceContracts:['places.v1','journey.v1'],
-    destination:projectDestination(input.destination),days:frozenDays,alternatives:places.slice(selected.length),candidateCount:places.length,periodComplete:input.scheduleMode!=='flexible',coverage:{days:dates.length,daysWithIdeas:days.filter(day=>day.entries.length).length,freeDays:days.filter(day=>!day.entries.length).length},
-    unknownFactors:['Wetter zum Reisetermin','Fußwege und Fahrzeiten','Saisonale Events','aktuelle Auslastung','Störungen','Preise und Buchbarkeit','Öffnungszeiten zum geplanten Besuch',...(places.some(place=>!place.imageUrl)?['Bilder einzelner Orte']:[])],
+    kind:'owner-backed-ai-day-draft',owner:'trip',contractId:'trip.v1',sourceContracts:itinerary?['intelligence.v1','places.v1','journey.v1']:['places.v1','journey.v1'],planningSource:itinerary?'ai':'deterministic-fallback',
+    destination:projectDestination(input.destination),days:frozenDays,alternatives,candidateCount:places.length,periodComplete:input.scheduleMode!=='flexible',coverage:{days:dates.length,daysWithIdeas:days.filter(day=>day.entries.length).length,freeDays:days.filter(day=>!day.entries.length).length},
+    understanding:itinerary?{title:text(itinerary.title,160),summary:text(itinerary.summary,800),uncoveredRequirements:uniqueStrings(itinerary.uncoveredRequirements,20),warnings:uniqueStrings(itinerary.warnings,20),confidence:Number(itinerary.confidence)||0}:null,
+    unknownFactors:['Wetter zum Reisetermin','Fußwege und Fahrzeiten','Saisonale Events','aktuelle Auslastung','Störungen','Preise und Buchbarkeit','Öffnungszeiten zum geplanten Besuch',...(itinerary?.uncoveredRequirements||[]),...(places.some(place=>!place.imageUrl)?['Bilder einzelner Orte']:[])],
     confirmationRequired:true,automaticMutation:false,generatedAt:text(sources.generatedAt)||null
   });
 }

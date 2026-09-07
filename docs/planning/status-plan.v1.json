@@ -184,8 +184,8 @@
       "canonicalTitle": "Identity Preferences",
       "status": "TEILWEISE",
       "owner": "Identity und Trip",
-      "evidence": "App .127 trennt den Vorschlagsweg in vier einzelne Fragen und führt Reise- und Profilvorlieben zu einem gemeinsamen belegpflichtigen places.v1-Kontext zusammen. Kategorien, Ernährung, Tempo und Budget werden nicht nur gespeichert, sondern steuern Kandidatensuche und Ranking; die sichtbare Reiseprobe nennt die wirksamen Kriterien. Im öffentlichen Scharbeutz-Lauf entstanden acht unterschiedliche Orte statt zuvor eines. Dauerhafte Identity-Übernahme und physische Geräte bleiben offen.",
-      "nextAcceptance": "Die dauerhafte, bestätigungspflichtige Übernahme ausgewählter Reiseangaben in Identity auf echtem Konto mit Reload sowie auf iOS und Android abnehmen.",
+      "evidence": "App .127 bleibt der letzte veröffentlichte Stand. Der neue lokale Quellkandidat übersetzt Freitext über Intelligence in einen zusammenhängenden travelOrder mit Zielraum, Zeitraum, Reisenden und Kindern, Ferienbezug, Unterkunft, Transport, Kategorienmix, Tempo, Ernährung, Zugang, Budget, Freiraum, Muss-Zielen und Ausschlüssen. Reise- und Profilvorlieben steuern danach dieselbe Places-Kandidatenmenge und den vollständigen Tagesentwurf. Unbelegte harte Anforderungen stoppen vor der Places-Recherche; eine dauerhafte Identity-Übernahme erfolgt weiterhin nur nach eigener Bestätigung. 103 Composer-Verhaltensprüfungen sind für diesen Kandidaten grün; Live-Modell, produktive Ferienquelle, Konto-Reload und physische Geräte bleiben offen.",
+      "nextAcceptance": "Den semantischen travelOrder mit echtem Modell und verifizierter Ferienquelle positiv prüfen; danach die getrennte bestätigungspflichtige Identity-Übernahme auf echtem Konto mit Reload sowie auf iOS und Android abnehmen.",
       "scope": "Distinguish request-only, Trip-scoped and durable preferences across discovery and Trip creation; protect sensitive traits and confirm every durable write.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -208,8 +208,8 @@
       "canonicalTitle": "Trip capability closure",
       "status": "TEILWEISE",
       "owner": "Trip",
-      "evidence": "App .127 implementiert im kanonischen Composer drei fachlich getrennte Ergebnisse: leere Reise mit Ziel und Zeitraum, Reise mit explizit ausgewählten Vorschlägen sowie einen vollständigen KI-Entwurf nach Freitextwunsch. Der Start ist geografisch neutral; sieben Kontinente besitzen dunkle unselektierte Konturen. Weltgeometrie wird zwischen Schritten wiederverwendet, der Zielstatus bleibt beim Schrittwechsel ohne Ladeflackern stabil. Der Vorschlagsweg zeigt jede Frage einzeln. Kandidatenlimit und Mehrkategoriesuche wurden erweitert; der öffentliche Scharbeutz-Lauf lieferte acht Orte und sichtbare Reise-/Profil-Passung. Der Tagesfilm ist eine laufende Kartenreise mit Zeitphase, Tages- und Stationsspur. Unvollständige Übernahmen werden über öffentlichen Owner-Readback abgeglichen, ohne blinden Mutationsretry. 238/238 Regression, 95 Composer- und 60 Geografieprüfungen sowie 21/21 immutable Byteidentität sind belegt. Ein echter vollständiger Modell-Positivlauf, dauerhafte Kontoübernahme und physische Geräteabnahme bleiben offen.",
-      "nextAcceptance": "Den vollautomatischen KI-Weg mit einem echten vollständigen Mehrtagesentwurf positiv abnehmen und danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.",
+      "evidence": "App .127 bleibt der letzte veröffentlichte Stand mit drei fachlich getrennten Ergebnissen. Der neue lokale Quellkandidat ergänzt eine eigene trip.compose-Fähigkeit nach semantischem Reiseauftrag und Mehrkategorie-Places-Recherche. Jeder Reisetag muss genau einmal und je nach Tempo mit mindestens zwei, drei oder vier unterschiedlichen echten Places befüllt sein; zu dünne, doppelte, unbekannte oder zeitlich überlappende Modellpläne werden vor der Vorschau verworfen. Die Vorschau zeigt Reise-DNA, das erkannte Reiseverständnis, eine helle interaktive Place-Karte, alle Tage und kontextuelle Uhrzeiten. Ein lokaler Acht-Tage-Ablauf befüllte auch Tag 4 und 8 und schloss 16 simulierte Owner-Schreibaktionen bis zum bestätigten Trip ab. 103 gezielte Composer-Prüfungen, NFR-0 3/3 und die vollständige Safe Regression 238/238 sind grün. Live-Modell, produktive Ferien-/Unterkunfts-/Transportanbieter, Konto-Reload und physische Geräte bleiben offen.",
+      "nextAcceptance": "Den vollautomatischen Weg mit echtem Modell, verifizierter Ferienquelle und vollständigem Mehrtagesentwurf positiv abnehmen; danach Reiseübernahme, Reload, Timeline, Routing und Owner-Receipts auf einem Testkonto sowie physischen iOS-/Android-Geräten schließen.",
       "scope": "Trip lifecycle with dependency previews and owner receipts. One canonical Composer implements the distinct empty-trip, explicitly selected suggestions and complete AI-draft outcomes; legacy guided/quick/ai entry labels alone do not satisfy this contract.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },
@@ -232,8 +232,8 @@
       "canonicalTitle": "S16.08 Destination Digital Twin",
       "status": "VORBEREITET",
       "owner": "Intelligence",
-      "evidence": "Twin-Projektionen vorhanden; vollständiger belegter Lebenszyklus offen.",
-      "nextAcceptance": "Ablauf, Provenienz und Invalidierung ohne zweite Ortswahrheit beweisen; Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget als getrennte datierte Belege projizieren.",
+      "evidence": "Twin-Projektionen sind vorhanden. Der lokale Composer-Kandidat akzeptiert Ferienzeiten nur als verifizierte Kalenderintervalle mit Quellen-ID, Region, Anfang und Ende und blockiert einen festen Reisezeitraum, der nicht vollständig in diesem Intervall liegt. Eine produktive Ferienkalenderquelle sowie der vollständige belegte Lebenszyklus für Wetter, Feiertage, Events, Öffnung, Wege und Budget sind noch nicht angebunden.",
+      "nextAcceptance": "Zuerst eine verifizierte Ferienkalenderquelle anbinden und Zeitraumvorschläge samt Regions- und Intervallprüfung positiv belegen; danach Ablauf, Provenienz und Invalidierung für Wetter, Saison, Feiertage, Events, Öffnung, Wege und Budget ohne zweite Ortswahrheit schließen.",
       "scope": "Build an expiring, derived and fully provenance-labelled context matrix for destination, weather, season, special dates, events, opening, mobility and budget without becoming destination truth.",
       "roadmap": "M16.5 Schritte 15 bis 18"
     },

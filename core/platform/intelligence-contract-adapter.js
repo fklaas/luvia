@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.11.0';
+  const RUNTIME_VERSION = '1.13.0-complete-trip-composition';
   const root = globalThis;
 
   const EVENTS = Object.freeze([
@@ -85,12 +85,14 @@
     const request={
       surface:'trip-composer',userGoal:String(input.requestBrief||'').slice(0,1200),
       destination:input.destination?.name||'',startDate:input.startDate||null,endDate:input.endDate||null,
-      globalPreferences:input.profilePreferences||{},tripPreferences:input.tripPreferences||{},
-      answers:input.answers||[],
+      scheduleMode:input.scheduleMode||'fixed',flexibility:input.flexibility||'',destinationTimeZone:input.destination?.timezone||'',
+      globalPreferences:input.profilePreferences||{},tripPreferences:input.tripPreferences||{},participantPlan:input.participantPlan||'',
+      calendarEvidence:Array.isArray(input.calendarEvidence)?input.calendarEvidence:[],answers:input.answers||[],
+      task:'Understand the complete vacation request as one coherent travel order. Extract destinations or geographic scope, exact or approximate travel time, duration, travelers and children, school-holiday dependency, accommodation wishes, transport, activities, restaurants and food, culture, nature, shopping, nightlife, wellness, family moments, pace, budget, mobility, accessibility, must-dos, exclusions, rest and free-time wishes. Preserve the relationship between details instead of reducing the request to a list of generic categories. If the request mentions school-age children or school holidays and verified holiday evidence or the governing school region is missing, ask one short question for the smallest missing fact. Never invent school-holiday dates. Return all understood requirements even when another Luvia owner must verify or execute them.',
       interpretationContract:{purpose:'Interpret only this new trip. Never inherit a different active trip. Respect explicit profile restrictions. Return German text. Preserve every requested hard constraint, including unsupported ones. A follow-up answer resolves its original question.',
-        goalTypes:['food','culture','nature','nightlife','shopping','wellness','family','active','open'],
-        constraintKeys:{category:'one goal type',excludeCategory:'one goal type',pace:'slow|balanced|active',budgetLevel:'economy|balanced|generous|open',dietary:'vegetarian|vegan',maximumPerDay:'1|2|3|4',notBefore:'HH:mm',notAfter:'HH:mm'},
-        rule:'Use these canonical keys when applicable. Other constraints retain descriptive keys. Never discard unsupported requirements or invent place facts.'}
+        goalTypes:['destination','time','accommodation','transport','food','culture','nature','nightlife','shopping','wellness','family','active','rest','open'],
+        constraintKeys:{destination:'named destination or region',destinationScope:'city|region|country|coast|open',countryPreference:'named country or abroad',timeWindow:'original approximate period',season:'spring|summer|autumn|winter',month:'named month',durationNights:'integer',dateFlexibility:'fixed|days|weeks|open',travelers:'short group description',adults:'integer',children:'integer',childAges:'comma-separated ages',schoolHolidayRequired:'true|false',schoolHolidayRegion:'governing country/state/region',accommodation:'requested kind',transport:'requested mode',category:'one goal type',excludeCategory:'one goal type',categoryMix:'balanced|favorites|surprising',pace:'slow|balanced|active',budgetLevel:'economy|balanced|generous|open',dietary:'requirement',accessibility:'requirement',mobility:'requirement',maximumPerDay:'1|2|3|4',notBefore:'HH:mm',notAfter:'HH:mm',freeTimePercent:'0-100',mustDo:'specific wish',exclude:'specific exclusion'},
+        rule:'Use canonical keys when applicable. Put concrete wishes such as a named museum, beach day, child-friendly activity, restaurant style or shopping wish into mustDo/category constraints instead of generalizing them away. Other constraints retain descriptive keys. Never discard unsupported requirements or invent destinations, dates, holiday periods or place facts.'}
     };
     const response=await run('planning.dialogue',request,{fallback:false});
     return immutable(preferenceResolver().projectTripBrief(input,response));
@@ -109,6 +111,52 @@
     const value=response?.data||response?.result||response,queries=[...new Set((value?.searchPlans||[]).map(p=>String(p.query||'').trim()).filter(Boolean))].slice(0,5);
     if(!queries.length)throw Object.assign(new Error(value?.followUpQuestion?.text||'Beschreibt noch etwas genauer, was euch an der Reise wichtig ist.'),{code:'TRIP_INSPIRATION_MORE_DETAIL'});
     return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'destination-inspiration',source:'ai',queries,summary:String(value.reasoningSummary||'').slice(0,800)});
+  }
+
+  async function composeTripItinerary(input = {}) {
+    const clean=(value,limit=0)=>{const result=value==null?'':String(value).trim();return limit?result.slice(0,limit):result};
+    const dayInput=(Array.isArray(input.days)?input.days:[]).slice(0,366).map((item,index)=>({date:clean(item?.date,10),label:clean(item?.label,80)||`Tag ${index+1}`}));
+    const candidateInput=(Array.isArray(input.candidates)?input.candidates:[]).slice(0,80).map(item=>{
+      const coordinates=item?.coordinates||item?.location||{};
+      return {providerPlaceId:clean(item?.providerPlaceId||item?.provider_place_id||item?.id,240).replace(/^places\//,''),name:clean(item?.name,200),category:clean(item?.requestCategory||item?.category,80),primaryType:clean(item?.primaryType||item?.primary_type||item?.type,80),formattedAddress:clean(item?.formattedAddress||item?.address,280),coordinates:{latitude:Number(coordinates.latitude??coordinates.lat),longitude:Number(coordinates.longitude??coordinates.lng)}};
+    }).filter(item=>item.providerPlaceId&&item.name&&Number.isFinite(item.coordinates.latitude)&&Number.isFinite(item.coordinates.longitude));
+    if(!dayInput.length)throw contractError('TRIP_ITINERARY_DAYS_REQUIRED','Für den Reiseentwurf fehlen die Reisetage.');
+    if(!candidateInput.length)throw contractError('TRIP_ITINERARY_CANDIDATES_REQUIRED','Für den Reiseentwurf fehlen überprüfte Places.');
+    const pace=String(input.brief?.tripPreferences?.pace||input.tripPreferences?.pace||'balanced'),targetMomentsPerDay=pace==='active'?4:pace==='slow'?2:3,minimumMomentsPerDay=targetMomentsPerDay;
+    if(candidateInput.length<dayInput.length*minimumMomentsPerDay)throw contractError('TRIP_ITINERARY_COVERAGE_INSUFFICIENT',`Die Places-Suche hat erst ${candidateInput.length} unterschiedliche Orte geliefert. Für ${dayInput.length} Reisetage und den gewählten Tagesrhythmus werden mindestens ${dayInput.length*minimumMomentsPerDay} benötigt.`);
+    const response=await run('trip.compose',{
+      surface:'trip-composer',locale:input.locale||'de-DE',timeZone:input.timeZone||input.destination?.timezone||'',
+      travelOrder:input.brief||null,destination:input.destination||null,days:dayInput,travelers:input.travelers||{},
+      profilePreferences:input.profilePreferences||{},tripPreferences:input.tripPreferences||{},calendarEvidence:input.calendarEvidence||[],
+      candidateCatalog:candidateInput,existingEntries:Array.isArray(input.existingEntries)?input.existingEntries:[],
+      planningContract:{completePeriod:true,minimumMomentsPerDay,targetMomentsPerDay,maximumMomentsPerDay:Math.max(minimumMomentsPerDay,Math.min(4,Number(input.brief?.policy?.maximumPerDay)||4)),useOnlyCandidateIds:true,allDaysExactlyOnce:true,noEmptyDays:true,avoidDuplicatePlaces:true,preserveAllHardConstraints:true,assignContextualTimes:true,avoidSingleDefaultTime:true,preventTimeOverlap:true,freeTimeBetweenMoments:true,freeTimeMayBeExplicit:true,automaticMutation:false}
+    },{fallback:false,context:{surface:'trip-composer',purpose:'complete-trip-itinerary'}});
+    if(response?.ok!==true||response?.meta?.fallback!==false)throw contractError('TRIP_ITINERARY_AI_REQUIRED','Luvia konnte die vollständige Reise gerade nicht zuverlässig komponieren.');
+    const value=response?.data||response?.result||response,planDays=Array.isArray(value?.days)?value.days:[],allowed=new Map(candidateInput.map(item=>[item.providerPlaceId,item])),used=new Set(),byDate=new Map(planDays.map(item=>[clean(item?.date,10),item])),byLabel=new Map(planDays.map(item=>[clean(item?.label,80),item]));
+    if(planDays.length!==dayInput.length)throw contractError('TRIP_ITINERARY_INCOMPLETE','Luvia hat noch nicht jeden Reisetag vollständig aufgebaut.');
+    const maximumMomentsPerDay=Math.max(1,Math.min(4,Number(input.brief?.policy?.maximumPerDay)||4));
+    const days=dayInput.map((expected,index)=>{
+      const source=expected.date?byDate.get(expected.date):byLabel.get(expected.label)||planDays[index];
+      if(!source)throw contractError('TRIP_ITINERARY_DAY_MISSING',`${expected.label} fehlt im KI-Entwurf.`);
+      const entries=(Array.isArray(source.entries)?source.entries:[]).slice(0,maximumMomentsPerDay).map(entry=>{
+        const providerPlaceId=clean(entry?.providerPlaceId,240).replace(/^places\//,''),candidate=allowed.get(providerPlaceId);
+        if(!candidate)throw contractError('TRIP_ITINERARY_UNKNOWN_PLACE','Der KI-Entwurf enthält einen Ort, der nicht von Places bestätigt wurde.',{providerPlaceId});
+        if(used.has(providerPlaceId))throw contractError('TRIP_ITINERARY_DUPLICATE_PLACE','Der KI-Entwurf verwendet denselben Ort mehrfach.',{providerPlaceId});
+        const time=clean(entry?.time,5),durationMinutes=Math.round(Number(entry?.durationMinutes));
+        if(expected.date&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw contractError('TRIP_ITINERARY_TIME_INVALID',`Die Uhrzeit für ${candidate.name} ist nicht eindeutig.`);
+        if(!Number.isFinite(durationMinutes)||durationMinutes<30||durationMinutes>720)throw contractError('TRIP_ITINERARY_DURATION_INVALID',`Die Dauer für ${candidate.name} ist nicht plausibel.`);
+        used.add(providerPlaceId);
+        return {providerPlaceId,time:expected.date?time:'',durationMinutes,category:candidate.category,reason:clean(entry?.reason,500),confidence:Math.max(0,Math.min(1,Number(entry?.confidence)||0))};
+      });
+      if(entries.length<minimumMomentsPerDay)throw contractError('TRIP_ITINERARY_DAY_TOO_THIN',`${expected.label} ist noch nicht ausreichend geplant.`);
+      const timed=entries.filter(entry=>entry.time).sort((left,right)=>left.time.localeCompare(right.time));
+      for(let slot=1;slot<timed.length;slot++){
+        const prior=timed[slot-1],next=timed[slot],priorStart=Number(prior.time.slice(0,2))*60+Number(prior.time.slice(3)),nextStart=Number(next.time.slice(0,2))*60+Number(next.time.slice(3));
+        if(nextStart<priorStart+prior.durationMinutes)throw contractError('TRIP_ITINERARY_TIME_OVERLAP',`${expected.label} enthält überlappende Vorschlagszeiten.`);
+      }
+      return {date:expected.date,label:expected.label,theme:clean(source.theme,160),entries};
+    });
+    return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'ai-trip-itinerary',source:'ai',title:clean(value?.title,160),summary:clean(value?.summary,800),days,alternatives:(value?.alternatives||[]).map(item=>clean(item,240)).filter(id=>allowed.has(id)&&!used.has(id)).slice(0,20),uncoveredRequirements:(value?.uncoveredRequirements||[]).map(item=>clean(item,240)).filter(Boolean).slice(0,20),warnings:(value?.warnings||[]).map(item=>clean(item,240)).filter(Boolean).slice(0,20),confidence:Math.max(0,Math.min(1,Number(value?.confidence)||0)),candidateCount:candidateInput.length,automaticMutation:false,confirmationRequired:true});
   }
 
   function travelOrchestration() {
@@ -380,6 +428,7 @@
       composeDayGuidance,
       interpretTripBrief,
       suggestTripDestinations,
+      composeTripItinerary,
       planningTrace,
       gateContext,
       causalFeedback,
@@ -418,6 +467,8 @@
     rankPlaceCandidates,
     composeDayGuidance,
     interpretTripBrief,
+    suggestTripDestinations,
+    composeTripItinerary,
     planningTrace,
     gateContext,
     causalFeedback,

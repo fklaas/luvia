@@ -27,11 +27,13 @@ const core=context.LuviaIntelligenceDomainContractCoreV1;
 assert.ok(core,'physical Intelligence Core missing');
 assert.equal(core.contractId,'intelligence.v1');
 assert.equal(core.version,'1');
-assert.equal(core.runtimeVersion,'1.0.0');
+assert.equal(core.runtimeVersion,'1.1.0-trip-composition');
 assert.equal(Object.isFrozen(core),true);
 
 const capabilities=core.listCapabilities();
-assert.equal(capabilities.length,9);
+assert.equal(capabilities.length,10);
+assert.equal(core.getCapability('trip.compose').schema,'trip_itinerary');
+assert.equal(core.getCapability('trip.compose').tier,'deep');
 assert.equal(core.getCapability('brain.ask').mode,'READ');
 assert.equal(core.getCapability('timeline.propose').mode,'DRAFT');
 assert.equal(core.getCapability('timeline.propose').tier,'deep');
@@ -39,7 +41,8 @@ assert.equal(Object.isFrozen(capabilities),true);
 assert.equal(Object.isFrozen(capabilities[0]),true);
 
 const domains=core.listDomains();
-assert.equal(domains.length,5);
+assert.equal(domains.length,6);
+assert.ok(core.getDomain('trip').capabilities.includes('trip.compose'));
 assert.equal(core.getDomain('journey').contracts.owner,'journey');
 assert.equal(core.getDomain('journey').contracts.mutationDelegated,true);
 assert.equal(core.getDomain('timeline').contracts.writesRequireConfirmation,true);

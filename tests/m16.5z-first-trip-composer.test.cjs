@@ -35,10 +35,10 @@ assert.doesNotMatch(composer,/window\.LuviaPlaces\|\|window\.LuviaPlacesGateway/
 assert.match(composer,/if\(!state\.keyHandler\)/,'composer must install exactly one keyboard handler across re-renders');
 assert.match(composer,/Bitte einen Vorschlag aus der Suche wählen/);
 assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-ftc-destination-retry/);assert.match(composer,/Vorschläge bereit/);assert.match(composer,/Zielsuche nicht erreichbar/);
-for(const marker of ['composeDayDraft','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
+for(const marker of ['composeDayDraft','composeTripItinerary','tripUnderstandingMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
 for(const copy of ['✓ Ja','Nein','Andere Uhrzeit','Ohne Uhrzeit','Tag verschieben','Erst der letzte Schritt speichert'])assert.ok(composer.includes(copy),`missing clear day decision: ${copy}`);
   for(const marker of ['pathSceneMarkup','mountPathScene','data-ftc-path-canvas','mountSeasonCanvas','destinationInsideScope','containsDestination','setTowns','preserveWorld','lx-day-journey','travelDna','mountTravelDna','lx-travel-dna','recordDecision','restoreDecision','timeTravelMarkup','ftc-time-travel'])assert.ok(composer.includes(marker),`missing cinematic Composer marker: ${marker}`);
-assert.match(composer,/const VERSION='2\.2\.0-modern-route-field'/);
+assert.match(composer,/const VERSION='2\.3\.0-semantic-trip-orchestrator'/);
 assert.match(composer,/Wie möchtet ihr aufbrechen\?/);
 assert.match(composer,/compassMarkup\('lx-path-compass'\)/);
 assert.match(composer,/LuviaComposerTravelWorld\?\.markup\?\.\(\{interactive:false\}\)/,'The entry scene must reuse the canonical Composer globe');
@@ -52,6 +52,8 @@ assert.match(composer,/transform:'scale\(1\.34\)'/,'The selected path must hand 
 assert.match(composer,/candidateLimit:64,limit:16/,'Places reads must expose a broader verified candidate field per selected category');
 assert.match(intelligenceAdapter,/Return exactly five distinct real named cities or travel regions/,'Destination inspiration must ask for five constraint-fit ideas');
 assert.match(intelligenceAdapter,/\.slice\(0,5\)/,'Destination inspiration must expose at most five verified directions');
+assert.match(intelligenceAdapter,/run\('trip\.compose'/,'A complete trip must use the dedicated Intelligence composition capability');
+assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty AI days must be rejected before preview');
   assert.match(composer,/Fünf neue Vorschläge/,'Destination inspiration must offer a visible refresh');
   assert.match(composer,/profile\.travelInterests\|\|profile\.interests/,'Profile interests must determine the requested Place categories');
   assert.match(composer,/if\(dietary\.length\)ids\.push\('food'\)/,'Dietary preferences must make food Places part of the draft');
@@ -76,7 +78,7 @@ assert.match(serviceWorker,/'app\/first-trip-composer\.css'/);assert.match(servi
 assert.match(fixture,/LuviaFirstTripComposer\.mount/);assert.match(fixture,/createFirstTrip:async/);assert.match(fixture,/data-ftc-complete/);assert.match(fixture,/contractId:'places\.v1'/);
 assert.match(adapter,/async function createFirstTrip/);assert.match(adapter,/TRIP_FIRST_IDEMPOTENCY_REQUIRED/);assert.match(adapter,/action:'trip\.first\.create'/);assert.match(adapter,/availability:'reserved'/);
 assert.match(adapter,/preferenceHandoff:prepared\.durablePreferenceHandoff/);assert.match(adapter,/requestContext:prepared\.requestContext/);
-assert.match(adapter,/composeDayDraft\(draft=\{\},sources=\{\}\)/);assert.match(draftCore,/kind:'owner-backed-ai-day-draft'/);assert.match(draftCore,/sourceContracts:\['places\.v1','journey\.v1'\]/);assert.match(draftCore,/automaticMutation:false/);
+assert.match(adapter,/composeDayDraft\(draft=\{\},sources=\{\}\)/);assert.match(draftCore,/kind:'owner-backed-ai-day-draft'/);assert.match(draftCore,/\['intelligence\.v1','places\.v1','journey\.v1'\]/);assert.match(draftCore,/\['places\.v1','journey\.v1'\]/);assert.match(draftCore,/automaticMutation:false/);
 assert.match(placesAdapter,/async function suggestDestinations/);assert.match(placesAdapter,/async function getDestination/);assert.match(placesAdapter,/owner:'places',contractId:CONTRACT_ID/);
 assert.match(creator,/function deterministicCode/);assert.match(creator,/matchingTrip\(idempotencyKey,joinCode\)/);assert.match(creator,/firstTripComposer:/);assert.match(creator,/preferenceScopeVersion:1/);
 assert.doesNotMatch(creator,/firstTripComposer:\{[^}]*requestBrief/s,'request-only brief must not enter persisted Trip settings');

@@ -1,7 +1,7 @@
 var LuviaTripPreferenceResolutionCoreV1=(()=>{
 'use strict';
 
-const VERSION='1.8.0-confirmed-trip-brief';
+const VERSION='1.9.0-semantic-travel-order';
 const NEUTRAL=/^(?:none|no_|keine|kein|offen|neutral)/i;
 const FOOD=/restaurant|cafe|café|bakery|bistro|food|meal|dining|brunch|breakfast|lunch|dinner|bar\b|market|markt/i;
 const VEGETARIAN_FOCUS=/vegetarian_restaurant|vegan_restaurant|vegetar(?:isch|ian)|vegan|plant[ _-]?based|pflanzenk[uü]che|fleischlos/i;
@@ -306,18 +306,19 @@ function composeDayGuidance(input={}){
 function projectTripBrief(input={},response={}){
   if(response.ok!==true||response.meta?.fallback!==false||!response.data||!Array.isArray(response.data.goals))throw Object.assign(new Error('Luvia konnte eure Wünsche noch nicht zuverlässig verstehen. Bitte erneut versuchen.'),{code:'TRIP_BRIEF_AI_REQUIRED'});
   const data=response.data,base=input.tripPreferences||{},preferences={...clone(base),interests:[...(base.interests||[])],food:[...(base.food||[])],accessibility:[...(base.accessibility||[])],mobility:[...(base.mobility||[])]};
-  const profile=normalizeProfile(input.profilePreferences||{}),applied=[],unresolved=[],exclusions=new Set(),goals=Array.isArray(data.goals)?data.goals.slice(0,12):[];
-  const categories={food:'food',meal:'food',restaurant:'food',dining:'food',cafe:'food',café:'food',essen:'food',culture:'culture',museum:'culture',kultur:'culture',sightseeing:'culture',nature:'nature',natur:'nature',nightlife:'nightlife',nachtleben:'nightlife',shopping:'shopping',wellness:'wellness',family:'family',familie:'family',active:'active',activity:'active',activities:'active',aktivitäten:'active'};
-  const policy={maximumPerDay:base.pace==='slow'?3:4,notBefore:'09:30',notAfter:'21:00'};
+  const profile=normalizeProfile(input.profilePreferences||{}),applied=[],unresolved=[],exclusions=new Set(),goals=Array.isArray(data.goals)?data.goals.slice(0,20):[],calendarEvidence=(Array.isArray(input.calendarEvidence)?input.calendarEvidence:[]).map(item=>({id:clean(item?.id||item?.sourceRef),kind:clean(item?.kind||item?.type).toLowerCase(),region:clean(item?.region||item?.schoolRegion),startDate:clean(item?.startDate||item?.start,10),endDate:clean(item?.endDate||item?.end,10),verified:item?.verified===true||['verified','confirmed'].includes(clean(item?.status).toLowerCase()),source:clean(item?.source||item?.provider)})).filter(item=>item.id&&item.verified&&/school|holiday|ferien/.test(item.kind)&&/^\d{4}-\d{2}-\d{2}$/.test(item.startDate)&&/^\d{4}-\d{2}-\d{2}$/.test(item.endDate));
+  const categories={food:'food',meal:'food',restaurant:'food',dining:'food',cafe:'food',café:'food',essen:'food',sights:'sights',sightseeing:'sights',sehenswürdigkeiten:'sights',culture:'culture',museum:'culture',kultur:'culture',nature:'nature',natur:'nature',water:'water',beach:'water',strand:'water',watersports:'water',nightlife:'nightlife',nachtleben:'nightlife',shopping:'shopping',wellness:'wellness',photo:'photo',photography:'photo',fotografie:'photo',themeparks:'themeparks',amusementpark:'themeparks',freizeitpark:'themeparks',family:'family',familie:'family',active:'active',activity:'active',activities:'active',aktivitäten:'active'};
+  const travelOrder={destination:{confirmed:clean(input.destination?.name),requested:[],scope:''},time:{scheduleMode:input.scheduleMode||'fixed',confirmedStart:clean(input.startDate),confirmedEnd:clean(input.endDate),flexibility:clean(input.flexibility),requestedWindows:[],season:'',month:'',durationNights:null,dateFlexibility:''},travelers:{description:'',adults:null,children:null,childAges:[],schoolHolidayRequired:false,schoolHolidayRegion:'',holidayEvidenceIds:calendarEvidence.map(item=>item.id),holidayWindows:calendarEvidence.map(item=>({id:item.id,region:item.region,startDate:item.startDate,endDate:item.endDate,source:item.source}))},categories:[],accommodation:[],transport:[],mustDo:[],exclusions:[],retainedRequirements:[]};
+  const policy={maximumPerDay:base.pace==='slow'?3:4,notBefore:'09:30',notAfter:'21:00',freeTimePercent:base.pace==='slow'?35:20};
   const hardPolicy={maximumPerDay:4,notBefore:null,notAfter:null};
   const norm=value=>clean(value).toLowerCase().replace(/[ _-]/g,''),time=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value),unique=values=>[...new Set(values)];
-  const addCategory=(value,excluded=false)=>{const category=categories[clean(value).toLowerCase()];if(!category)return false;if(excluded)exclusions.add(category);else preferences.interests.push(category);return true};
+  const addCategory=(value,excluded=false,label='')=>{const category=categories[clean(value).toLowerCase()];if(!category)return false;if(excluded){exclusions.add(category);travelOrder.exclusions.push(label||category);}else{preferences.interests.push(category);travelOrder.categories.push({category,label:label||category,importance:'preferred'});}return true};
   const constraints=[...(data.hardConstraints||[]).map(item=>({...item,hard:true})),...(data.softPreferences||[]).map(item=>({...item,hard:false})),...goals.flatMap(goal=>[...(goal.hardConstraints||[]).map(item=>({...item,hard:true})),...(goal.softPreferences||[]).map(item=>({...item,hard:false}))])];
-  for(const goal of goals){if(addCategory(goal.type))applied.push({label:clean(goal.label).slice(0,180),effect:'category'});if(goal.timeWindow&&!goal.timeWindow.flexible)unresolved.push({label:clean(goal.timeWindow.label)||'Gewünschtes Zeitfenster',hard:true});}
+  for(const goal of goals){const label=clean(goal.label).slice(0,180);if(addCategory(goal.type,false,label))applied.push({label,effect:'category'});else if(label)travelOrder.retainedRequirements.push({type:clean(goal.type),label,hard:false});if(goal.timeWindow){travelOrder.time.requestedWindows.push(clone(goal.timeWindow));if(!goal.timeWindow.flexible&&!input.startDate&&!input.endDate)unresolved.push({label:clean(goal.timeWindow.label)||'Gewünschtes Zeitfenster',hard:true});}}
   for(const item of constraints){
     const key=norm(item.key),value=clean(item.value).toLowerCase(),label=clean(item.label||item.value).slice(0,180);let handled=false;
-    if(['category','interest','interests','travelinterest','activitytype'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value));
-    if(['excludecategory','excludedcategory','excludeinterest'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value,true));
+    if(['category','interest','interests','travelinterest','activitytype'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value,false,label));
+    if(['excludecategory','excludedcategory','excludeinterest'].includes(key))handled=value.split(/[,;|]/).every(value=>addCategory(value,true,label));
     if(['pace','travelpace','planningpace'].includes(key)){
       const pace={slow:'slow',ruhig:'slow',relaxed:'slow',entspannt:'slow',balanced:'balanced',ausgewogen:'balanced',active:'active',aktiv:'active'}[value];if(pace){preferences.pace=pace;policy.maximumPerDay=pace==='slow'?3:4;handled=true;}
     }
@@ -327,22 +328,51 @@ function projectTripBrief(input={},response={}){
     if(['dietary','diet','food','dietarypreference'].includes(key)){
       const diet={vegetarian:'vegetarian',vegetarisch:'vegetarian',vegan:'vegan'}[value];if(diet){preferences.food.push(diet);handled=true;}
     }
+    if(['accessibility','accessibilityneed','barrierfree'].includes(key)){preferences.accessibility.push(clean(item.value));handled=true;}
+    if(['mobility','transportmobility'].includes(key)){preferences.mobility.push(clean(item.value));handled=true;}
+    if(['categorymix','mix'].includes(key)){const mix={balanced:'balanced',ausgewogen:'balanced',favorites:'favorites',favoriten:'favorites',surprising:'surprising',abwechslung:'surprising'}[value];if(mix){preferences.mix=mix;handled=true;}}
     if(['maximumperday','maxactivitiesperday','activitiesperday'].includes(key)&&/^[1-4]$/.test(value)){policy.maximumPerDay=Number(value);if(item.hard)hardPolicy.maximumPerDay=Math.min(hardPolicy.maximumPerDay,Number(value));handled=true;}
     if(['notbefore','starttime','daystart'].includes(key)&&time(value)){policy.notBefore=value;if(item.hard)hardPolicy.notBefore=hardPolicy.notBefore&&hardPolicy.notBefore>value?hardPolicy.notBefore:value;handled=true;}
     if(['notafter','endtime','dayend'].includes(key)&&time(value)){policy.notAfter=value;if(item.hard)hardPolicy.notAfter=hardPolicy.notAfter&&hardPolicy.notAfter<value?hardPolicy.notAfter:value;handled=true;}
+    if(key==='freetimepercent'&&Number.isFinite(Number(value))){policy.freeTimePercent=Math.max(0,Math.min(100,Number(value)));handled=true;}
+    if(['travelers','travelparty','group'].includes(key)){travelOrder.travelers.description=clean(item.value).slice(0,180);handled=true;}
+    if(key==='adults'&&/^\d+$/.test(value)){travelOrder.travelers.adults=Number(value);handled=true;}
+    if(key==='children'&&/^\d+$/.test(value)){travelOrder.travelers.children=Number(value);handled=true;}
+    if(['childages','childrenages'].includes(key)){travelOrder.travelers.childAges=value.split(/[,;|]/).map(age=>Number(age.trim())).filter(age=>Number.isInteger(age)&&age>=0&&age<=17).slice(0,12);handled=true;}
+    if(key==='schoolholidayrequired'){travelOrder.travelers.schoolHolidayRequired=['true','yes','ja','required','erforderlich'].includes(value);handled=true;}
+    if(key==='schoolholidayregion'){travelOrder.travelers.schoolHolidayRegion=clean(item.value).slice(0,120);handled=true;}
+    if(['accommodation','lodging','stay'].includes(key)){travelOrder.accommodation.push(label||clean(item.value));handled=true;}
+    if(['transport','transportmode','arrivalmode'].includes(key)){travelOrder.transport.push(label||clean(item.value));handled=true;}
+    if(['mustdo','specificwish'].includes(key)){travelOrder.mustDo.push(label||clean(item.value));handled=true;}
+    if(['exclude','avoid'].includes(key)){travelOrder.exclusions.push(label||clean(item.value));handled=true;}
+    if(key==='season'){travelOrder.time.season=clean(item.value);handled=true;}
+    if(key==='month'){travelOrder.time.month=clean(item.value);handled=true;}
+    if(key==='durationnights'&&/^\d+$/.test(value)){travelOrder.time.durationNights=Number(value);handled=true;}
+    if(key==='dateflexibility'){travelOrder.time.dateFlexibility=clean(item.value);handled=true;}
+    if(key==='timewindow'){travelOrder.time.requestedWindows.push({label:label||clean(item.value),start:'',end:'',flexible:true});handled=true;}
     // Destinations/dates are already explicit owner-confirmed input; the model may not replace them.
-    if(['destination','location','startdate','enddate','timezone'].includes(key)){
-      const expected=key==='destination'||key==='location'?input.destination?.name:key==='timezone'?input.destination?.timezone:input[key==='startdate'?'startDate':'endDate'];handled=norm(value)===norm(expected);
+    if(['destination','location','destinationscope','countrypreference'].includes(key)){
+      if(key==='destinationscope')travelOrder.destination.scope=clean(item.value);else travelOrder.destination.requested.push(clean(item.value));
+      const expected=clean(input.destination?.name);handled=key==='destinationscope'||key==='countrypreference'||!expected||norm(value)===norm(expected)||norm(expected).includes(norm(value))||norm(value).includes(norm(expected));
     }
-    if(handled)applied.push({label,effect:key});else if(label)unresolved.push({label,hard:Boolean(item.hard)});
+    if(['startdate','enddate','timezone'].includes(key)){const expected=key==='timezone'?input.destination?.timezone:input[key==='startdate'?'startDate':'endDate'];handled=norm(value)===norm(expected);}
+    if(handled)applied.push({label,effect:key});else if(label){unresolved.push({label,hard:Boolean(item.hard)});travelOrder.retainedRequirements.push({type:key||'other',label,hard:Boolean(item.hard)});}
   }
   preferences.interests=unique(preferences.interests).filter(id=>!exclusions.has(id));preferences.food=unique(preferences.food);preferences.accessibility=unique(preferences.accessibility);preferences.mobility=unique(preferences.mobility);
   policy.maximumPerDay=Math.min(policy.maximumPerDay,hardPolicy.maximumPerDay);if(hardPolicy.notBefore)policy.notBefore=hardPolicy.notBefore;if(hardPolicy.notAfter)policy.notAfter=hardPolicy.notAfter;
   if(policy.notAfter<=policy.notBefore)unresolved.push({label:'Beginn und Ende des gewünschten Tages widersprechen sich.',hard:true});
   if(!preferences.interests.length)unresolved.push({label:'Noch kein eindeutiger Suchschwerpunkt: bitte unter Wünsche mindestens einen Bereich auswählen.',hard:true});
+  const holidayRegion=norm(travelOrder.travelers.schoolHolidayRegion),matchingHolidayEvidence=holidayRegion?calendarEvidence.filter(item=>{const evidenceRegion=norm(item.region);return evidenceRegion&&(evidenceRegion===holidayRegion||evidenceRegion.includes(holidayRegion)||holidayRegion.includes(evidenceRegion));}):[];
+  const confirmedHolidayCovered=matchingHolidayEvidence.some(item=>travelOrder.time.confirmedStart&&travelOrder.time.confirmedEnd&&item.startDate<=travelOrder.time.confirmedStart&&item.endDate>=travelOrder.time.confirmedEnd);
+  if(holidayRegion){travelOrder.travelers.holidayEvidenceIds=matchingHolidayEvidence.map(item=>item.id);travelOrder.travelers.holidayWindows=matchingHolidayEvidence.map(item=>({id:item.id,region:item.region,startDate:item.startDate,endDate:item.endDate,source:item.source}));}
+  if(travelOrder.travelers.schoolHolidayRequired&&!travelOrder.travelers.schoolHolidayRegion)unresolved.push({label:'Für die Ferienplanung fehlt das Bundesland oder die zuständige Schulregion.',hard:true});
+  if(travelOrder.travelers.schoolHolidayRequired&&travelOrder.travelers.schoolHolidayRegion&&!matchingHolidayEvidence.length)unresolved.push({label:`Die Schulferien für ${travelOrder.travelers.schoolHolidayRegion} müssen noch aus einer verlässlichen Kalenderquelle bestätigt werden.`,hard:true});
+  if(travelOrder.travelers.schoolHolidayRequired&&travelOrder.travelers.schoolHolidayRegion&&matchingHolidayEvidence.length&&travelOrder.time.confirmedStart&&travelOrder.time.confirmedEnd&&!confirmedHolidayCovered)unresolved.push({label:`Der gewählte Zeitraum ${travelOrder.time.confirmedStart} bis ${travelOrder.time.confirmedEnd} liegt nicht vollständig in den bestätigten Schulferien für ${travelOrder.travelers.schoolHolidayRegion}.`,hard:true});
   const requestPreferences={...clone(input.profilePreferences||{}),dietaryPreferences:unique([...profile.dietary,...preferences.food]),accessibilityNeeds:unique([...profile.accessibility,...preferences.accessibility])};
   const uniqueLabels=values=>values.filter((item,index)=>item.label&&values.findIndex(other=>other.label===item.label&&other.hard===item.hard)===index);
-  return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'trip-planning-brief',source:'ai',understanding:clean(data.understanding).slice(0,1200),goals:goals.map(goal=>({type:clean(goal.type),label:clean(goal.label).slice(0,180)})),applied:uniqueLabels(applied),unresolved:uniqueLabels(unresolved),unknowns:(data.unknowns||[]).slice(0,12).map(item=>clean(item).slice(0,180)),question:data.followUpQuestion?.text?{text:clean(data.followUpQuestion.text).slice(0,300),reason:clean(data.followUpQuestion.reason).slice(0,300)}:null,tripPreferences:preferences,requestPreferences,policy,automaticPlanningAllowed:!unresolved.some(item=>item.hard),confirmationRequired:true,automaticMutation:false});
+  travelOrder.destination.requested=unique(travelOrder.destination.requested);travelOrder.categories=travelOrder.categories.filter((item,index,list)=>list.findIndex(other=>other.category===item.category&&other.label===item.label)===index);travelOrder.accommodation=unique(travelOrder.accommodation);travelOrder.transport=unique(travelOrder.transport);travelOrder.mustDo=unique(travelOrder.mustDo);travelOrder.exclusions=unique(travelOrder.exclusions);
+  const holidayQuestion=travelOrder.travelers.schoolHolidayRequired&&!travelOrder.travelers.schoolHolidayRegion?{text:'Für welches Bundesland oder welche Schulregion gelten eure Ferien?',reason:'Nur damit kann Luvia einen groben Zeitraum mit echten Ferienterminen abgleichen.'}:travelOrder.travelers.schoolHolidayRequired&&matchingHolidayEvidence.length&&!confirmedHolidayCovered&&travelOrder.time.confirmedStart&&travelOrder.time.confirmedEnd?{text:'Soll Luvia einen passenden Zeitraum innerhalb der bestätigten Schulferien vorschlagen?',reason:'Der aktuell gewählte Zeitraum passt nicht vollständig zur Ferienvorgabe.'}:null,modelQuestion=data.followUpQuestion?.text?{text:clean(data.followUpQuestion.text).slice(0,300),reason:clean(data.followUpQuestion.reason).slice(0,300)}:null,question=holidayQuestion||modelQuestion;
+  return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'trip-planning-brief',source:'ai',understanding:clean(data.understanding).slice(0,1200),goals:goals.map(goal=>({type:clean(goal.type),label:clean(goal.label).slice(0,180)})),travelOrder,applied:uniqueLabels(applied),unresolved:uniqueLabels(unresolved),unknowns:(data.unknowns||[]).slice(0,20).map(item=>clean(item).slice(0,180)),question,tripPreferences:preferences,requestPreferences,policy,modelConfidence:Math.max(0,Math.min(1,Number(data.confidence)||0)),automaticPlanningAllowed:!unresolved.some(item=>item.hard),confirmationRequired:true,automaticMutation:false});
 }
 
 return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore,projectTripBrief});

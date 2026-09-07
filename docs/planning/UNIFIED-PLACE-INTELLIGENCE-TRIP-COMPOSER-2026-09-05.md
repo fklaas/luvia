@@ -498,3 +498,23 @@ Quelle 48188aa02d0b031d8fd9c4d61f7675e7a8c3b6e3, Worker fb9949ca-3348-4513-bd4f-
 Belege: outputs/world125-public-proof.json, outputs/world125-release-regression-final.log, outputs/world125-nfr0.log, outputs/public-byte-proof125-v235.json, outputs/archive125.json, outputs/world125-final-state.json. Archiv 92349557 Bytes, SHA-256 037D2C4135058C9840D9F84E0D17A44E3123025AE67A81055A3E58671857F709.
 
 Nächster Schritt: Tagesplanung mit Wegen, Zeitpuffern und Budgetbelegen vervollständigen. P15/P17 bleiben TEILWEISE. Die bisherigen 17 Karten-USPs und weitere Produktentscheidungen bleiben im kanonischen Fahrplan erhalten.
+
+## Verbindliches KI-Oberziel und aktueller Quellkandidat · 07.09.2026
+
+„Luvia plant alles“ bezeichnet einen semantisch verstandenen, vollständigen Reiseauftrag. Ein starres Formular oder ein aus Kategorien zusammengesetztes Schema erfüllt diesen Anspruch nicht. Das Modell muss freie Sprache als zusammenhängende Absicht verstehen: Ziel oder Zielraum, feste oder grobe Reisezeit, Dauer, Erwachsene und Kinder, Ferienbezug, Unterkunft, Anreise und Mobilität, Ernährung, Zugänglichkeit, Budget, Tempo, Freiraum, Ausschlüsse, konkrete Wünsche sowie den gewünschten Mix aus Essen, Kultur, Natur, Wasser, Aktivitäten, Familie, Shopping, Nachtleben, Wellness und Fotomomenten. Strukturierte Felder sind Sicherheits- und Übergabeverträge zwischen Ownern; sie ersetzen nicht das Sprachverständnis.
+
+Der aktuelle Quellkandidat führt dafür eine zweistufige Intelligence-Pipeline ein. `planning.dialogue` erzeugt zuerst einen überprüfbaren `travelOrder`, ohne unbekannte Angaben oder externe Fakten zu erfinden. Danach recherchiert Places mehrere tatsächlich gewünschte Kategorien im bestätigten Zielgebiet. Erst `trip.compose` baut aus dieser kanonischen Kandidatenmenge alle Reisetage. Der Trip Owner projiziert den Entwurf, Journey prüft Zeiten und Überschneidungen, und erst die letzte ausdrückliche Bestätigung schreibt Reise und Places. Profilvorlieben bleiben wirksam, werden aber ohne getrennte Zustimmung nicht dauerhaft verändert.
+
+Für den vollständigen KI-Weg gelten ab diesem Kandidaten folgende Mindestregeln:
+
+1. Jeder Tag vom ersten bis zum letzten Reisedatum muss genau einmal vorkommen und entsprechend dem gewählten Tagesrhythmus mindestens zwei, drei oder vier unterschiedliche belegte Places erhalten. Reichen die echten Kandidaten nicht, stoppt der Entwurf mit einer ehrlichen Meldung.
+2. Uhrzeiten stammen aus dem semantischen Tagesrhythmus und dem Typ des Moments. Ein pauschales `12:00` für alle Vorschläge, Überschneidungen oder unplausible Dauern erreichen die Vorschau nicht.
+3. Harte Anforderungen werden nicht still abgeschwächt. Eine unbelegte Budgetgrenze, fehlende Ferienregion oder nicht bestätigte Ferienzeit blockiert den automatischen Entwurf vor der Places-Recherche.
+4. Die Vorschau zeigt die verstandene Anfrage, Reise-DNA, jeden Reisetag, Ja/Nein, vorgeschlagene oder freie Uhrzeit und Tageswechsel. Die Kartenfläche ist eine echte Place-Projektion; kontrollierte Browserproben verwenden eine klar als Fixture begrenzte interaktive Ortskarte.
+5. Die vollständige Übernahme muss ohne manuellen Reparaturumweg möglich sein, wenn Modellplan und Journey-Prüfung konfliktfrei sind. Im lokalen End-to-End-Beleg wurden acht Tage mit 16 simulierten Place-Schreibaktionen bis zum bestätigten Trip abgeschlossen.
+
+Schulferien sind weiterhin eine echte Datenabhängigkeit. Der Vertrag akzeptiert nur als verifiziert gekennzeichnete Kalenderintervalle mit Quelle, Region, Anfang und Ende und prüft, ob der gesamte gewählte Zeitraum darin liegt. Eine produktive Ferienkalenderquelle ist noch nicht angebunden; deshalb darf der veröffentlichte Stand Ferienvorschläge noch nicht als abgeschlossen ausgeben. Dasselbe gilt für die vollständige automatische Buchungs- oder Verfügbarkeitsplanung von Unterkünften und Transport: Wünsche werden bereits erhalten und an Owner übergeben, die produktive Anbieterorchestrierung bleibt ein eigenes Gate.
+
+Der sichtbare lokale Nachweis umfasst erkennbare animierte Herbstblätter, die verständlichere Bezeichnung „Bisherige Auswahl“, eine helle interaktive Place-Karte, befüllte Tage 4 und 8, variierte Vorschlagszeiten, die sichtbare Zusammenfassung „Luvia hat verstanden“ und eine erfolgreiche Abschlussübernahme. Ein positiver Live-Modelllauf, die verifizierte Ferienquelle, produktive Unterkunfts-/Transportanbieter, Konto-Reload und physische iOS-/Android-Abnahme bleiben offen. P15/P17 bleiben deshalb TEILWEISE.
+
+Nächster Schritt: eine verifizierte Ferienkalenderquelle als datierten Context-Beleg anbinden und damit die KI-Zeitraumvorschläge sowie Konfliktauflösung im echten Modelllauf positiv abnehmen.
