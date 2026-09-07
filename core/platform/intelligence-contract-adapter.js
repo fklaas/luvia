@@ -186,7 +186,7 @@
         if(!Number.isFinite(durationMinutes)||durationMinutes<30||durationMinutes>720)throw contractError('TRIP_ITINERARY_DURATION_INVALID',`Die Dauer für ${candidate.name} ist nicht plausibel.`);
         if(start!=null&&(start<(minute(expected.notBefore)??0)||end>(minute(expected.notAfter)??1440)))throw contractError('TRIP_ITINERARY_DAY_WINDOW_VIOLATION',`${candidate.name} liegt außerhalb des möglichen Zeitfensters am ${expected.label}.`);
         used.add(providerPlaceId);
-        const evidenceRefs=[...new Set((entry?.evidenceRefs||[]).map(item=>clean(item,240)).filter(item=>allowedEvidence.has(item)))].slice(0,12),certainty=['verified','modelled','open'].includes(entry?.certainty)?entry.certainty:'open';
+        const evidenceRefs=[...new Set((entry?.evidenceRefs||candidate.evidenceRefs.slice(0,1)).map(item=>clean(item,240)).filter(item=>allowedEvidence.has(item)))].slice(0,12),certainty=['verified','modelled','open'].includes(entry?.certainty)?entry.certainty:'modelled';
         return {providerPlaceId,time:expected.date?time:'',durationMinutes,category:candidate.category,reason:clean(entry?.reason,500),certainty:certainty==='verified'&&!evidenceRefs.length?'modelled':certainty,evidenceRefs,confidence:Math.max(0,Math.min(1,Number(entry?.confidence)||0))};
       });
       if(entries.length<expected.minimumMoments)throw contractError('TRIP_ITINERARY_DAY_TOO_THIN',`${expected.label} ist für seine Rolle ${expected.role} noch nicht ausreichend geplant.`);
@@ -195,7 +195,7 @@
         const prior=timed[slot-1],next=timed[slot],priorStart=minute(prior.time),nextStart=minute(next.time);
         if(nextStart<priorStart+prior.durationMinutes)throw contractError('TRIP_ITINERARY_TIME_OVERLAP',`${expected.label} enthält überlappende Vorschlagszeiten.`);
       }
-      const freeTime=(Array.isArray(source.freeTime)?source.freeTime:[]).map(item=>{const start=clean(item?.start,5),end=clean(item?.end,5),from=minute(start),until=minute(end);return from!=null&&until!=null&&until>from?{start,end,purpose:clean(item?.purpose,180),reason:clean(item?.reason,300),minutes:until-from}:null}).filter(Boolean).slice(0,6);
+      const freeTime=(Array.isArray(source.freeTime)?source.freeTime:[]).map(item=>{const start=clean(item?.start,5),end=clean(item?.end,5),from=minute(start),until=minute(end),purpose=clean(item?.purpose,180);return from!=null&&until!=null&&until>from?{start,end,purpose,reason:clean(item?.reason,300)||purpose,minutes:until-from}:null}).filter(Boolean).slice(0,6);
       if(expected.freeTimePercent>0&&expected.role==='full'&&!freeTime.length)throw contractError('TRIP_ITINERARY_FREETIME_MISSING',`${expected.label} enthält noch keinen bewusst geplanten Freiraum.`);
       const plannedMinutes=entries.reduce((sum,item)=>sum+item.durationMinutes,0),freeTimeMinutes=freeTime.reduce((sum,item)=>sum+item.minutes,0),energy=['light','balanced','intense'].includes(source.balance?.energy)?source.balance.energy:'balanced';
       return {date:expected.date,label:expected.label,theme:clean(source.theme,160),role:expected.role,balance:{energy,plannedMinutes,freeTimeMinutes,freeTimePurpose:clean(source.balance?.freeTimePurpose,240)||freeTime.map(item=>item.purpose).filter(Boolean).join(' · ')},freeTime:freeTime.map(({minutes,...item})=>item),entries};
