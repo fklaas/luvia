@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-07",
   "sourceBaseline": "395f7331",
-  "app": "13.82.168.133",
-  "core": "4.82.252",
+  "app": "13.82.168.134",
+  "core": "4.82.253",
   "runtimeSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
   "worker": "b5b74402-ac68-477d-879e-ce66b640ea22",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
@@ -749,8 +749,8 @@
     "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .133 / Core .252 korrigieren im Integration-Kandidaten die echte Semantik von groben Monatsfenstern plus ausdrücklich genannter Reisedauer. Der zuvor veröffentlichte Vertrag aus .132 verbindet den Reiseauftrag bereits mit Reiseversprechen, bewusstem Freiraum, Tagesbalance, belegpflichtiger Unsicherheitskarte, Buchungsreihenfolge und modelliertem Unterkunftsradius. 239/239 Safe Regression, 108 Composer-Prüfungen, Health, Workerstatus und 8/8 öffentliche Byteidentität sind für .132 belegt; .133 durchläuft jetzt denselben Gate und den erneuten authentifizierten Lauf. Gateway v235, Main und Production bleiben unverändert.",
-    "delivered": "Funktional vorbereitet sind der erweiterte strikte Structured-Output-Vertrag und seine sichtbare Composer-Projektion. Unbelegte Fakten können nicht als verifiziert passieren; fehlende Kernunsicherheiten bleiben sichtbar. Freie Zeit ist eine geplante Reiseentscheidung mit Zweck und Zeitfenster, nicht mehr ein leerer Tag. Die Buchungsreihenfolge beschreibt, welche Entscheidung andere Entscheidungen blockiert. Der Unterkunftsradius bleibt eine begründete, als modelliert ausgewiesene Ableitung. Das separate Unit-Economics-Dokument verbindet aktuelle Modell- und Providerpreise mit Paketvorschlag, Durchschnittsverbrauch und Break-even. Reise-DNA und Zeitreise bleiben integriert; Konfliktmoderation, Ablehnungsdiagnose, Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben als folgende Owner-Slices erhalten.",
+    "stage": "P17/P19 aktiv und teilweise: App .134 / Core .253 ist der Integration-Kandidat für die adaptive KI-Qualitätskaskade. Der authentifizierte .133-Lauf belegt fünf individuell begründete Ziele, den entfallenen generischen Place-Zwischenschritt sowie drei korrekte Sieben-Tage-Fenster im Juni 2027; der anschließende Sol-Vollentwurf überschritt nach der Places-Recherche weiterhin das Zeitlimit. .134 lässt deshalb den ersten strikt strukturierten Entwurf durch Luna erstellen, jeden Entwurf unabhängig durch Terra prüfen und eskaliert ausschließlich eine vom Audit verlangte Reparatur an Sol. Die Evidence-, Reiseversprechen-, Freiraum-, Tagesbalance-, Unsicherheits-, Buchungsreihenfolge- und Unterkunftsradius-Gates bleiben unverändert. Gateway v235, Main und Production bleiben unverändert.",
+    "delivered": "Funktional vorbereitet sind der erweiterte strikte Structured-Output-Vertrag, seine sichtbare Composer-Projektion und die kostenbewusste Qualitätskaskade Luna-Entwurf, Terra-Audit, Sol-Reparatur. Unbelegte Fakten können nicht als verifiziert passieren; fehlende Kernunsicherheiten bleiben sichtbar. Freie Zeit ist eine geplante Reiseentscheidung mit Zweck und Zeitfenster, nicht mehr ein leerer Tag. Die Buchungsreihenfolge beschreibt, welche Entscheidung andere Entscheidungen blockiert. Der Unterkunftsradius bleibt eine begründete, als modelliert ausgewiesene Ableitung. Das separate Unit-Economics-Dokument verbindet aktuelle Modell- und Providerpreise mit Paketvorschlag, Durchschnittsverbrauch und Break-even. Reise-DNA und Zeitreise bleiben integriert; Konfliktmoderation, Ablehnungsdiagnose, Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben als folgende Owner-Slices erhalten.",
     "nextStep": {
       "id": "P17-P19-authenticated-plan-cost-eval",
       "package": "P17",
