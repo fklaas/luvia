@@ -54,7 +54,7 @@ function harness(){
   preferences.api.persist(preferences.state);preferences.sandbox.LuviaFirstTripComposer.unmount();preferences.root.querySelectorAll=()=>[];const restoredPreferences=preferences.mount(true);assert.deepEqual(Array.from(restoredPreferences.data.tripPreferences.interests),['food']);checked();
   const regionExit=harness();regionExit.state.index=0;regionExit.state.data.destination={};regionExit.state.data.inspirationCompleted=false;
   regionExit.api.settledGeography(regionExit.state,{level:3,country:'DEU',region:'SH',regionName:'Schleswig-Holstein',regionCount:16});
-  assert.equal(regionExit.state.index,1);assert.equal(regionExit.state.sheetCollapsed,false);assert.equal(regionExit.state.destinationRegion,'Schleswig-Holstein');assert.match(regionExit.root.innerHTML,/Euer Reiseziel in Schleswig-Holstein/);assert.equal(regionExit.state.data.destination.placeId,'','Region geography is not a canonical Place');checked();
+  assert.equal(regionExit.state.index,1);assert.equal(regionExit.state.sheetCollapsed,true,'Destination search starts as a quiet pull-up sheet over the selected region');assert.equal(regionExit.state.destinationRegion,'Schleswig-Holstein');assert.match(regionExit.root.innerHTML,/Euer Reiseziel in Schleswig-Holstein/);assert.equal(regionExit.state.data.destination.placeId,'','Region geography is not a canonical Place');checked();
   const routeTest=harness();await routeTest.api.loadAiDayDraft(routeTest.state);
   const firstDay=routeTest.state.aiDraft.draft.days[0],pair=routeTest.state.draftSelections.slice(0,2);
   routeTest.state.draftSelections=pair.map((entry,i)=>({...entry,dayId:firstDay.id,date:firstDay.date,time:i?'09:40':'09:00',durationMinutes:30,action:'planned'}));routeTest.state.activeDay=firstDay.id;

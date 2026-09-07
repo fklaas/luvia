@@ -644,7 +644,7 @@
       "status": "VERBINDLICH_AUFGENOMMEN",
       "title": "Lebendige Reiseerstellung und tatsächlich begründete KI-Planung",
       "document": "docs/planning/UNIFIED-PLACE-INTELLIGENCE-TRIP-COMPOSER-2026-09-05.md",
-      "decision": "Die gewählte Chat-Gestaltung bleibt verbindlich. .123 führt sie als feste Welt-/Kartenbühne mit Bottom Sheets fort: Freitextwunsch vor den drei Reisearten, vom Modell vorgeschlagene und durch Places bestätigte Ziele, stufenweise weiche Reise zum Ziel, zweistufige manuelle Auswahl und Rückweg per Zoom. Zeitzone automatisch, kompakte Daten, getrennte Vorliebengruppen. Die drei Reisewege nutzen denselben Composer. Echter vollständiger KI-Plan bleibt ein offenes Produktgate.",
+      "decision": "Die gewählte Chat-Gestaltung bleibt verbindlich. Die Reise startet mit drei kurzen, räumlich inszenierten Wegen. Der Einstieg verwendet bereits exakt denselben Natural-Earth-/D3-Globus wie die anschließende Welt-, Kontinent-, Land- und Regionswahl; der originale Luvia-Compass bildet den gemeinsamen Startpunkt. Die Überschrift steht mittig, Modusnummern und eine dekorative Querlinie entfallen. Nach Leere Reise oder Mit Vorschlägen beginnt die geografische Zielwahl mit einem eingeklappten, am Griff ruhig einladenden Bottom Sheet; Luvia plant alles öffnet dagegen die notwendige freie Wunschbeschreibung. Zeitzone automatisch, kompakte Daten, getrennte Vorliebengruppen. Echter vollständiger KI-Plan bleibt ein offenes Produktgate.",
       "sequence": "P15/P17 bleibt aktiv; die dafür nötigen Kontext- und Intelligence-Teile aus P19/P20/P22/P23/P26 und P33/P34/P35 werden vor seiner Produktfreigabe integriert."
     },
     {
@@ -667,12 +667,22 @@
     },
     {
       "id": "PD-2026-09-07-composer-next-usp-options",
-      "status": "VORSCHLAG",
-      "decision": "Weitere Vorschläge zur Entscheidung: Luvia Pulse lässt Karte, Tagesdichte und Vorschlagscluster unmittelbar auf eine geänderte Vorliebe reagieren und erklärt die Wirkung; eine sichtbare Reise-DNA wächst aus bestätigten Wünschen, Orten, Tempo und Budget; Ziel-Zwillinge vergleichen zwei Regionen räumlich mit Dafür, Dagegen und offenen Fakten; ein Gruppen-Sternbild zeigt Übereinstimmung und faire Kompromisse der Mitreisenden; der Ankunftsmodus verbindet Zielanflug, belegte Ortsbilder und erste echte Möglichkeiten; native Haptik und zurückhaltender Raumklang geben Ebenenwechseln und Ankunft Gewicht; Zeitreise/Zurückspulen springt zu einer früheren Entscheidung zurück und berechnet nur abhängige Teile neu. Keine unbelegte Markt-Exklusivität behaupten."
+      "status": "VERBINDLICH_AUFGENOMMEN_OFFEN",
+      "decision": "Sieben Composer-USPs sind verbindlich im Fahrplan: Zeitreise im Composer, Kontextwellen, Gruppen-Sternbild, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Reise-DNA. Sie bauen auf demselben Trip-, Places-, Journey-, Identity- und Context-Zustand auf und erzeugen keinen parallelen Store. Der Ankunftsmodus, native Haptik und zurückhaltender Raumklang ergänzen diese Sprache. Keine unbelegte Markt-Exklusivität behaupten.",
+      "acceptance": [
+        "Zeitreise im Composer: Frühere Entscheidungen lassen sich sichtbar ansteuern; nur davon abhängige Ziel-, Kontext- und Tagesentwürfe werden neu berechnet. Bereits bestätigte Domain-Aktionen bleiben unverändert oder benötigen einen ausdrücklichen neuen Befehl.",
+        "Kontextwellen: Neue Wetter-, Saison-, Ereignis-, Öffnungs-, Budget- oder Gruppenbelege erscheinen als ruhige räumliche Welle am betroffenen Ort oder Reisetag. Antippen erklärt Quelle, Zeitpunkt, Auswirkung und Unsicherheit.",
+        "Gruppen-Sternbild: Mitreisende und ihre bestätigten Präferenzen werden als verständliche Konstellation projiziert. Übereinstimmung, Konflikte und faire Kompromisse bleiben erklärbar; keine verdeckte Abstimmung und keine Profiländerung ohne Zustimmung.",
+        "Reise-Schatten: Hinter dem aktiven Plan kann ein klar gekennzeichneter alternativer Entwurf mit Zeit-, Budget- und Wegwirkung mitlaufen. Er bleibt Projektion und ersetzt erst nach Bestätigung den aktiven Entwurf.",
+        "Ziel-Zwillinge: Zwei kanonisch bestätigte Zielregionen lassen sich anhand derselben Vorlieben und datierten Belege vergleichen. Dafür, Dagegen, offene Fakten und Providerabdeckung werden getrennt gezeigt.",
+        "Luvia Pulse: Ein ruhiger systemweiter Aufmerksamkeitsrhythmus verbindet relevante Änderungen in Composer, Karte, Timeline und Chat. Er zeigt Bedeutung und führt zur Erklärung, ohne automatisch Domain-Daten zu verändern.",
+        "Reise-DNA: Aus bestätigten Reise- und Profilangaben entsteht ein kompakter, einsehbarer und bearbeitbarer Reisecharakter. Jede sichtbare Eigenschaft verweist auf ihre Quelle und steuert Places-Ranking und Tagesplanung nachvollziehbar."
+      ],
+      "sequence": "P15/P17: Reise-DNA, Zeitreise, Reise-Schatten und Motion-Grundsystem. P19/P20/P22/P23/P26: Kontextwellen und datierte Signale. P33/P34/P35: Luvia Pulse, Ziel-Zwillinge und erklärbare Neuplanung. M18-M22 beziehungsweise P40/P44: Gruppen-Sternbild mit Mitreisenden-, Rollen- und Zustimmungsgrundlage."
     }
   ],
-  "acceptanceUpdate": "App .127 trennt die drei Reisewege in leere Reise, Reise mit ausdrücklich gewählten Vorschlägen und vollständigen KI-Entwurf. Der Start ist neutral ohne Europa-Vorauswahl; sieben dunkle Kontinentkonturen bleiben vor Auswahl erkennbar. Jede Reiseabfrage steht einzeln. Reise- und Profilvorlieben fließen in dieselben belegpflichtigen places.v1-Anfragen und das Ranking ein; die Live-Reiseprobe zeigt die wirksamen Kriterien. Der öffentliche Scharbeutz-Lauf lieferte acht unterschiedliche Orte für vier Tage statt zuvor nur eines, trotz offen ausgewiesener Teilfehler einzelner Quellen. Der Tagesfilm ist eine laufende Kartenreise mit Tageszeit, Stationen, Karte und Spur. Die Weltgeometrie wird über Schrittwechsel wiederverwendet; der Zielstatus blieb sofort, nach 150 ms und im Endzustand stabil. Unvollständige Übernahmen werden per öffentlichem Owner-Readback abgeglichen, ohne blinden Schreibretry. Quelle dd723704215d3505fafa2d72540d51051a5e653b, Worker b12891a6-373b-46fc-bd46-30e4c4f0baeb. Stable .104 ist wiederhergestellt; Gateway v235, Intelligence v37, Main, Production, DB, Functions und Secrets blieben unverändert.",
-  "safeRegression": "App .127: 238/238 Safe Regression, NFR-0 3/3, 95 Composer-Recovery-/Validierungsprüfungen, 60 Geografie-/Gestenprüfungen und sichtbare lokale sowie öffentliche Mobile-Browser-Abnahme. Physische Geräte, echte dauerhafte Kontoübernahme und vollständiger Modell-Positivlauf bleiben offen.",
+  "acceptanceUpdate": "App .128 erweitert den funktional abgenommenen .127-Stand um Tagesplanung bis in den Abend, bis zu vier Place-Momente pro aktivem Reisetag und idempotente Wiederaufnahme bereits terminal abgeschlossener Ledger-Aktionen. Quelle 5db015bf5bbcdb9a6286ce466b7959748bc33ff9, Worker fd2f5090-cdba-4fcd-9cf8-8f4ae39654aa. Die eröffnende Wegweiser-/Illustrationssprache von .128 wurde ausdrücklich abgelehnt und wird nicht in Stable übernommen. Die funktionalen Reparaturen bleiben Basis einer neuen lokalen Motion-Studie; deren drei räumliche Reisewege, Luvia-Farbring und Canvas-Bewegung sind noch nicht visuell freigegeben. Stable .104 ist wiederhergestellt; Gateway v235, Intelligence v37, Main, Production, DB, Functions und Secrets blieben unverändert.",
+  "safeRegression": "App .128 funktional: 238/238 Safe Regression, 95 Composer-Recovery-/Validierungsprüfungen und 60 Geografie-/Gestenprüfungen. Visuelle Freigabe ausdrücklich nicht erteilt. Physische Geräte, echte dauerhafte Kontoübernahme und vollständiger Modell-Positivlauf bleiben offen.",
   "publicAssetIdentity": "21/21 MATCH beziehungsweise 7.522.390 Bytes zwischen sauberem Git-Archiv und immutable .127. Archiv 92421305 Bytes, SHA-256 6A8E47DA544E0A3C41923F0D4CED219EEF41632001964B20741A0E328344172D. Stable liest wieder .104 und nicht .127.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -705,15 +715,16 @@
     "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "P15/P17 aktiv und teilweise: .127 schließt die drei fachlich getrennten Composer-Wege, neutrale stabile Geografie, wirksame Reise-/Profilpräferenzen, breitere Places und Owner-Readback-Recovery. Der nächste Abschlussblock ist der echte vollständige KI-Mehrtagesentwurf samt Konto-/Lifecycle-/Gerätebeleg. Stable .104; Gateway v235 / Intelligence v37 unverändert.",
-    "delivered": "App .127 startet ohne geografische Vorauswahl, zeigt sieben dunkle Kontinentkonturen und hält Welt und Zielstatus über Schrittwechsel flackerfrei. Leere Reise, Vorschlagsreise und vollständige KI-Reise sind getrennte Composer-Ergebnisse. Im Vorschlagsweg stehen Reisegefühl, Tempo, Ernährung und Budget jeweils allein. Reise- und Profilvorlieben steuern gemeinsame belegpflichtige places.v1-Anfragen und Ranking; sichtbare Kriterien erklären die Auswahl. Der öffentliche Scharbeutz-Lauf lieferte acht Orte über vier Tage. Der Tagesfilm wurde zur laufenden Kartenreise mit Tageslicht, Stationen und Spur. Eine unvollständige Übernahme wird per Owner-Readback abgeglichen, ohne Mutation blind zu wiederholen. 238/238 Regression, 95 Composer-, 60 Geografie- und 21/21 öffentliche Byteprüfungen sind grün.",
+    "stage": "P15/P17 aktiv und teilweise: .128 trägt die funktionalen Korrekturen für drei Composer-Wege, stabile Geografie, breitere präferenzgesteuerte Places, vollständigere Tage und sichere Ledger-Wiederaufnahme. Seine Eröffnungsoptik ist verworfen. Die lokale Nachfolgestudie nutzt nun den identischen kanonischen Natural-Earth-/D3-Globus in Einstieg und Zielwahl, den originalen Luvia-Compass, eine mittige Überschrift auf einer gezeichneten asymmetrischen Lichtlinse sowie einen zunächst eingeklappten Zielwahl-Sheet mit stabiler animierter Griff-Einladung. Alle drei bewegten Verbindungen beginnen geometrisch am Compassrand und enden an ihrer jeweiligen Auswahl. Sie ist lokal browsergeprüft, aber noch kein freigegebener Release. Stable .104; Gateway v235 / Intelligence v37 unverändert.",
+    "delivered": "Funktional geliefert sind neutrale Geografie ohne Kontinentvorauswahl, drei fachlich getrennte Reiseergebnisse, einzelne kurze Reisefragen, wirksame Reise- plus Profilpräferenzen, bis zu vier Place-Momente pro aktivem Tag von morgens bis abends sowie Owner-Readback und idempotente Wiederaufnahme ohne illegale Ledger-Rücktransition. Lokal belegt sind außerdem derselbe Globe-Renderer vor und nach der Moduswahl, die drei funktionierenden Einstiege und der geschlossen/öffnend bedienbare Zielwahl-Sheet; Modusnummern, künstlicher Ersatzkompass und dekorative Mittellinie sind entfernt. Die sieben Ideen Zeitreise, Kontextwellen, Gruppen-Sternbild, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Reise-DNA sind verbindlich aufgenommen, aber nicht als umgesetzt behauptet. Die .128-Illustration ist Gegenbeleg, kein visueller Abschluss.",
     "nextStep": {
-      "id": "P15-P17-composer-planning-quality",
+      "id": "P15-P17-composer-motion-and-planning-quality",
       "package": "P17",
       "status": "AKTIV",
-      "title": "Vollständigen KI-Mehrtagesentwurf und Trip-Lifecycle öffentlich schließen",
-      "reason": "Die drei Reisewege, breitere Places, sichtbare Präferenzwirkung, Live-Reiseprobe und sichere Übernahme-Recovery sind geliefert. Offen ist jetzt der positive echte Modelllauf mit ausreichender Tagesabdeckung sowie die dauerhafte Übernahme bis Timeline und Reload. P15/P17 bleiben bis zu diesen Produktgates teilweise.",
+      "title": "Professionelle Composer-Motion und vollständigen KI-Mehrtagesentwurf gemeinsam schließen",
+      "reason": "Die funktionale Basis ist belastbar, die Eröffnungsoptik jedoch ausdrücklich nicht freigegeben. Der nächste Kandidat muss die räumliche Drei-Wege-Fassung professionell ausarbeiten und anschließend denselben Weg mit einem ausreichend vollständigen echten KI-Entwurf bis Timeline und Reload belegen. P15/P17 bleiben bis zu beiden Produktgates teilweise.",
       "acceptance": [
+        "Die räumliche Auswahlfassung als professionelle Motion-Bühne fertig ausarbeiten: drei klar verschiedene Wege, warme moderne Tiefe, präzise mittige Typografie auf einer eigenständig gezeichneten Lichtfläche, originaler Luvia-Compass und exakt derselbe kanonische Globus wie in der Zielwahl. Jede bewegte Linie beginnt sichtbar am Compass und führt eindeutig zu genau einer Auswahl. Keine Modusnummern, dekorative Mittellinie, generierten Bildassets, Pfeilkästen, Messinstrument-Anmutung oder Kollision auf 390-Pixel- und Desktopbreite. Die geografische Zielwahl startet mit stabilem, eingeklapptem Sheet und animiert nur den Griff. Erst sichtbare lokale Freigabe, dann immutable Kandidat.",
         "Einen echten vollständigen Wunsch-/KI-Plan über mehrere Tage mit ausreichend unterschiedlichen, belegten places.v1-Kandidaten erzeugen; Kategorien, Wiederholungen, Reise-/Profilvorgaben und freie Zeit prüfen. Keine gelockerten Sachfilter, erfundenen Places oder verdeckte Kontingentvervielfachung.",
         "Den vollständigen öffentlichen Weg zwischen mindestens zwei echten Entwurfsstationen per UI abnehmen; berechnete Wegegeometrie mit eindeutiger Darstellung und Quellenbeleg in die Tageskarte übernehmen. Zeitpuffer und Konflikte weiterhin durch journey.v1, einschließlich gemischter Fortbewegung und veralteter Quellen.",
         "Öffnungen, Saison, Feiertage, Events und Wetter über gemeinsame datierte Owner-/Intelligence-Kontexte einbeziehen. Budgetgefühl, Preisbelege und harte Budgetgrenzen getrennt behandeln; Lichtstimmung bleibt Atmosphäre.",
@@ -721,8 +732,8 @@
         "Vor P15/P17-Gesamtabschluss bestätigte Kontoübernahme, dauerhafte Identity-Übergabe, Trip-Lifecycle und Wiederaufnahme auf physischen iOS-/Android-Geräten nachweisen. Gemeinsamen Status und alle aktiven Fahrpläne synchronisieren."
       ]
     },
-    "after": "Nach vollständigem KI-Plan und Trip-Lifecycle die P15-Identity-Übernahme und physischen Gerätegates schließen; danach M18–M22 mit Mitreisendenverwaltung, Administration, Social und Intelligence II. Die Karten- und Composer-USPs bleiben verbindlich.",
-    "open": "P02/P03: breite exakte Ortsbilder, Google-Berechtigung und physischer Mobil-Kaltstart. P07/P08: echte Booking-Provider. P09–P12: physische Abnahme und echte Context-Signale. P15/P17: echter vollständiger KI-Positivlauf (zuletzt Kontingentblocker), datierte Kontext-/Budgetqualität, Kontoübernahme, dauerhafte Identity-Übergabe, Lifecycle und physische Geräte. Die Geografie ist eine Übersicht, keine Zusage sämtlicher aktuellen Untergliederungen. Kein zusätzlicher P-Block wird als vollständig abgeschlossen markiert.",
+    "after": "Nach professioneller Motion-Freigabe, vollständigem KI-Plan und Trip-Lifecycle die P15-Identity-Übernahme und physischen Gerätegates schließen; danach M18–M22 mit Mitreisendenverwaltung, Administration, Social und Intelligence II. Die Karten-, Composer- und sieben neu aufgenommenen USP-Ideen bleiben verbindlich.",
+    "open": "P02/P03: breite exakte Ortsbilder, Google-Berechtigung und physischer Mobil-Kaltstart. P07/P08: echte Booking-Provider. P09–P12: physische Abnahme und echte Context-Signale. P15/P17: professionelle visuelle Composer-Freigabe, echter vollständiger KI-Positivlauf, datierte Kontext-/Budgetqualität, Kontoübernahme, dauerhafte Identity-Übergabe, Lifecycle und physische Geräte. Die sieben neuen Composer-USPs sind geplant, noch nicht ausgeliefert. Die Geografie ist eine Übersicht, keine Zusage sämtlicher aktuellen Untergliederungen. Kein zusätzlicher P-Block wird als vollständig abgeschlossen markiert.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -741,10 +752,16 @@
         "app": "13.82.168.127",
         "status": "UMGESETZT_TEILABGENOMMEN",
         "evidence": "Drei fachlich getrennte Reisewege; neutrale flackerfreie Welt; einzelne Fragen; Reise- plus Profilpräferenzen in places.v1; acht öffentliche Scharbeutz-Orte; laufende Kartenreise; Owner-Readback für unvollständige Übernahme; 238/238 Regression, 95 Composer, 60 Geografie und 21/21 immutable Hashes. Echte vollständige KI-, Konto- und Gerätegates offen."
+      },
+      {
+        "id": "P15-P17-complete-days-terminal-ledger-resume",
+        "app": "13.82.168.128",
+        "status": "FUNKTIONAL_ABGENOMMEN_VISUELL_VERWORFEN",
+        "evidence": "Vollere Tage bis Abend und terminal-idempotente Action-Wiederaufnahme sind funktional belegt; 238/238 Regression, 95 Composer und 60 Geografieprüfungen. Quelle 5db015bf5bbcdb9a6286ce466b7959748bc33ff9, Worker fd2f5090-cdba-4fcd-9cf8-8f4ae39654aa. Die Eröffnungsillustration wurde ausdrücklich verworfen und nicht zu Stable gemacht."
       }
     ]
   },
-  "qaCommit": "dd723704",
+  "qaCommit": "5db015bf",
   "intelligence": "v37 ACTIVE / 4.35.1; echter KI-Einstieg am 07.09.2026 erneut mit API-Kontingentmeldung blockiert",
   "backendRelease": {
     "source": "321af5af3f9a97a80faba54afc1acb884fbc3962",

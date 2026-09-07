@@ -10,13 +10,13 @@
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 65,
-      "bytes": 1738875,
-      "lines": 11947,
-      "important": 3933,
-      "literalHexColours": 4781,
-      "zIndexDeclarations": 557,
-      "reducedMotionQueries": 102,
-      "focusVisibleSelectors": 116
+      "bytes": 1743999,
+      "lines": 11981,
+      "important": 3934,
+      "literalHexColours": 4782,
+      "zIndexDeclarations": 562,
+      "reducedMotionQueries": 103,
+      "focusVisibleSelectors": 117
     }
   },
   "routes": {
@@ -822,8 +822,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 116021,
-      "sha256": "7a7e5cd53ba1af8eec94a82d2c8c4bbb296227bb1ce1af8327bb44182f6f323c"
+      "bytes": 121145,
+      "sha256": "1d013ea1c614d1397855388fe46c468c2c018878509b8319f1ae36bfdc0d8848"
     },
     {
       "path": "app/first-trip-composer.js",
@@ -836,8 +836,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 155959,
-      "sha256": "0f6bf799290bde7691f34ca936f58df3939cde021dbd1f284b5924ae738e3a8f"
+      "bytes": 168595,
+      "sha256": "f1d9edd6ff3f607c4d8e94f73cdf22c722ea8a0eae4dd95e7a81a2761bea86b1"
     },
     {
       "path": "app/gallery-view.css",
@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3477109,
-      "sha256": "fef19ce8477740eed98f9b43882702f9e7a60cd8ab578388b21ebf0faebdbacf"
+      "bytes": 3489745,
+      "sha256": "d77635dbd5bfa57816b1a95bcea1ec94f1ae8c80e88f11e04f632b2214af2d72"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -6421,8 +6421,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 107308,
-      "sha256": "d86d7757bf38ef777a3494e57abc1cc1d7e4b1a105e3bf3fe6bb98f43a4d2064"
+      "bytes": 107392,
+      "sha256": "6f8f4cf7281bebebf5b2adeac48b200f1fba28b68df21720045d647925dd5041"
     },
     {
       "path": "scripts/m16.5-human-ai-capability-matrix.cjs",
@@ -7199,8 +7199,8 @@
       "classes": [
         "document-entry"
       ],
-      "bytes": 12390,
-      "sha256": "83cdc691b6b0f6e0975b84ffd1952cd8f068d953c8d1021e404fe5cb271b7bc3"
+      "bytes": 12662,
+      "sha256": "4a9cc5619af3eb4aa53e7cb92eaf50e5424a2b1d2c88c7b173825a1a721610d7"
     },
     {
       "path": "tests/gallery-experience-v13.28.3.test.cjs",
@@ -7911,7 +7911,7 @@
         "navigation-source"
       ],
       "bytes": 3023,
-      "sha256": "f525a9ec123cfa433bd5ab4d1cd87e27444e1f7c92f407fa18cf51787a12fc48"
+      "sha256": "d6a0f5bcb82eb1ede0714240b3ff3d9292cda336ba1e5d9da69cbceba6c58809"
     },
     {
       "path": "tests/m16.5-productization-plan.test.cjs",
@@ -7984,7 +7984,7 @@
         "motion-source"
       ],
       "bytes": 2381,
-      "sha256": "5259fdd734d334e2b18e36bbbd0402ee96bfaac9ec58340eaa77d460ef346497"
+      "sha256": "de0fee5153339a518e40d23b0e453510505b91afc73d9f4fecc2fdfae8b863bc"
     },
     {
       "path": "tests/m16.5aa-compass-direction-activation.test.cjs",
@@ -8377,8 +8377,8 @@
         "motion-source",
         "navigation-source"
       ],
-      "bytes": 12843,
-      "sha256": "c6c9ce26a0c7bca5b6d7cc02287aca655d83f9b3a86b70d09b7b1362158e9006"
+      "bytes": 13135,
+      "sha256": "60ee53fe9153c5240690ace8e92be28affee4beba6d6cfd2d9142b5f7a782cea"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
@@ -9188,10 +9188,11 @@
         "dom-rendering-source",
         "interaction-source",
         "motion-source",
-        "navigation-source"
+        "navigation-source",
+        "overlay-source"
       ],
-      "bytes": 43530,
-      "sha256": "5577a9756cc2377670c97adda77162b89bf653965139ea7a9fb832fab1629d6a"
+      "bytes": 43607,
+      "sha256": "08ea1e9eb2e76a5d6f24a69d08c8bcc3c18783577ae601685960f52c9d5ef57e"
     },
     {
       "path": "tests/trip-map-experiences.test.cjs",

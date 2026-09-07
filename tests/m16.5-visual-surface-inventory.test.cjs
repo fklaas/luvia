@@ -20,10 +20,10 @@ assert.strictEqual(actual.milestone, 'M16.5');
 assert(actual.summary.trackedFiles > 1000, 'Tracked-file inventory is unexpectedly small');
 assert(actual.summary.visualCandidates > 100, 'Visual candidate inventory is unexpectedly small');
 assert.strictEqual(actual.summary.css.files, 65, 'M16.5 CSS baseline file count changed unexpectedly');
-assert.strictEqual(actual.summary.css.bytes, 1738875, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
-assert.strictEqual(actual.summary.css.important, 3933, 'M16.5 !important baseline changed unexpectedly');
-assert.strictEqual(actual.summary.css.literalHexColours, 4781, 'M16.5 literal colour baseline changed unexpectedly');
-assert.strictEqual(actual.summary.css.zIndexDeclarations, 557, 'M16.5 z-index baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.bytes, 1743999, 'M16.5 canonical LF CSS baseline byte count changed unexpectedly');
+assert.strictEqual(actual.summary.css.important, 3934, 'M16.5 !important baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.literalHexColours, 4782, 'M16.5 literal colour baseline changed unexpectedly');
+assert.strictEqual(actual.summary.css.zIndexDeclarations, 562, 'M16.5 z-index baseline changed unexpectedly');
 assert.strictEqual(actual.summary.unclassifiedEntryReferences, 0, 'Active index asset escaped visual classification');
 assert.deepStrictEqual(actual.routes.topLevel, ['today', 'plan', 'trip', 'memories', 'more']);
 

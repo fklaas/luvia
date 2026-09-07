@@ -584,3 +584,37 @@
   .ftc.cinematic .lx-time-choice{grid-template-columns:1fr 1fr}.ftc.cinematic .lx-time-choice>button{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.ftc.cinematic .lx-signpost button,.ftc.cinematic .lx-day-journey .ftc-ai-place{transition:none;animation:none}}
+
+/* Composer 2.2: the opening artwork is rendered by Canvas motion design. */
+.ftc.cinematic .lx-path-scene .lx-path-backdrop,.ftc.cinematic .lx-path-scene [data-ftc-path-canvas]{position:absolute;inset:0;width:100%;height:100%}
+.ftc.cinematic .lx-path-scene .lx-path-backdrop{z-index:1;pointer-events:none}
+.ftc.cinematic .lx-path-scene [data-ftc-path-canvas]{z-index:3;pointer-events:auto;touch-action:manipulation}
+.ftc.cinematic[data-mode-chosen=false] .lx-headline{left:50%;right:auto;width:min(720px,92vw);max-width:none;translate:-50% 0;text-align:center;pointer-events:none}
+.ftc.cinematic[data-mode-chosen=false] .lx-headline h1{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:clamp(31px,6.2vw,62px);font-style:normal;font-weight:520;line-height:1.01;letter-spacing:-.045em}
+.ftc.cinematic[data-mode-chosen=false] .lx-bottom-sheet{max-height:15dvh;background:rgba(255,253,250,.88);backdrop-filter:blur(18px) saturate(1.08)}
+.ftc.cinematic[data-mode-chosen=false] .lx-tray{padding:4px 20px 12px}.ftc.cinematic[data-mode-chosen=false] .lx-tray-title{font-size:15px}.ftc.cinematic[data-mode-chosen=false] .lx-sub{margin:4px 0 0;font-size:11px}
+.ftc.cinematic .lx-signpost{position:absolute;inset:0;width:auto;height:auto;translate:none;z-index:5;pointer-events:none}
+.ftc.cinematic .lx-signpost button,.ftc.cinematic .lx-signpost button:nth-child(1),.ftc.cinematic .lx-signpost button:nth-child(2),.ftc.cinematic .lx-signpost button:nth-child(3){position:absolute;left:calc(32% - 205px);right:auto;top:calc(34% - 38px);width:min(420px,39vw);height:78px;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;opacity:.002;pointer-events:auto;cursor:pointer;transform:none}
+.ftc.cinematic .lx-signpost button:nth-child(2){left:calc(35% - 215px);top:calc(34% + 58px);width:min(440px,41vw)}
+.ftc.cinematic .lx-signpost button:nth-child(3){left:calc(33% - 190px);top:calc(34% + 154px);width:min(380px,36vw)}
+.ftc.cinematic .lx-signpost button::after,.ftc.cinematic .lx-signpost button:nth-child(1)::after,.ftc.cinematic .lx-signpost button:nth-child(2)::after,.ftc.cinematic .lx-signpost button:nth-child(3)::after{content:none;border:0}
+.ftc.cinematic .lx-signpost button:focus-visible{opacity:.01;outline:3px solid #2c93a9;outline-offset:5px;border-radius:18px}
+.ftc.cinematic .lx-path-compass{position:absolute;z-index:4;translate:-50% -50%;height:auto;filter:none;pointer-events:none;transition:left .35s ease,top .35s ease,width .35s ease}
+.ftc.cinematic .lx-path-compass .ftc-compass-rings{display:none}
+.ftc.cinematic .lx-path-compass .ftc-compass-face>span{animation:ftc-path-needle 6.4s cubic-bezier(.45,0,.55,1) infinite}
+.ftc.cinematic .lx-path-globe{position:absolute;z-index:2;translate:-50% -50%;pointer-events:none;filter:drop-shadow(0 25px 30px rgba(29,78,89,.18));transition:left .35s ease,top .35s ease,width .35s ease,height .35s ease}
+.ftc.cinematic .lx-path-globe>.lx-breadcrumb,.ftc.cinematic .lx-path-globe .lx-map-note,.ftc.cinematic .lx-path-globe .lx-credit,.ftc.cinematic .lx-path-globe .lx-pins{display:none!important}
+.ftc.cinematic .lx-path-globe .lx-world,.ftc.cinematic .lx-path-globe .ftc-atlas-surface,.ftc.cinematic .lx-path-globe .lx-geography{position:absolute;inset:0;width:100%;height:100%;padding:0;background:transparent;overflow:visible}
+.ftc.cinematic .lx-path-globe .lx-geography{opacity:.96}
+.ftc.cinematic[data-mode-chosen=true][data-sheet-collapsed=true][data-step=welcome] .lx-sheet-handle i,.ftc.cinematic[data-mode-chosen=true][data-sheet-collapsed=true][data-step=destination] .lx-sheet-handle i{animation:lx-sheet-invitation 2.6s ease-in-out infinite;box-shadow:0 5px 14px rgba(44,147,169,.18)}
+@keyframes ftc-path-needle{0%,100%{transform:rotate(-8deg)}32%{transform:rotate(17deg)}62%{transform:rotate(-14deg)}82%{transform:rotate(5deg)}}
+@keyframes lx-sheet-invitation{0%,100%{transform:translateY(1px);opacity:.66}50%{transform:translateY(-4px);opacity:1}}
+@media(max-width:699px){
+  .ftc.cinematic[data-mode-chosen=false] .lx-headline{top:max(72px,calc(env(safe-area-inset-top) + 54px));width:92vw}.ftc.cinematic[data-mode-chosen=false] .lx-headline h1{font-size:clamp(30px,9vw,43px)}
+  .ftc.cinematic[data-mode-chosen=false] .lx-bottom-sheet{max-height:16dvh}
+  .ftc.cinematic .lx-signpost{top:0;height:auto;width:auto}
+  .ftc.cinematic .lx-signpost button,.ftc.cinematic .lx-signpost button:nth-child(1){left:8%;top:calc(36% - 34px);width:76%;height:70px}
+  .ftc.cinematic .lx-signpost button:nth-child(2){left:15%;top:calc(47.5% - 34px);width:80%;height:70px}
+  .ftc.cinematic .lx-signpost button:nth-child(3){left:15%;top:calc(59% - 34px);width:70%;height:72px}
+}
+@media(prefers-reduced-motion:reduce){.ftc.cinematic .lx-path-scene [data-ftc-path-canvas]{touch-action:manipulation}.ftc.cinematic .lx-path-compass .ftc-compass-face>span,.ftc.cinematic[data-mode-chosen=true][data-sheet-collapsed=true][data-step=welcome] .lx-sheet-handle i,.ftc.cinematic[data-mode-chosen=true][data-sheet-collapsed=true][data-step=destination] .lx-sheet-handle i{animation:none}}
