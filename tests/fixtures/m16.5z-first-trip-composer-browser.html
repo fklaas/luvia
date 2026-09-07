@@ -20,7 +20,7 @@
   <script src="../../core/platform/intelligence-contract-adapter.js"></script>
   <script src="../../core/journey/journey-resilience-core.js"></script>
   <script>
-    window.LuviaAI={run:async(capability)=>capability==='discovery.plan'?({ok:true,meta:{fallback:false},data:{searchPlans:[{query:'Lissabon'},{query:'Scharbeutz'},{query:'Kopenhagen'}],reasoningSummary:'Kontrollierte Testantwort: drei Küstenziele zum Prüfen der Navigation.'}}):({ok:true,meta:{fallback:false},data:{understanding:'Kontrollierte Testantwort: Wir planen ruhige Tage mit Kultur und veganem Essen, ab zwölf Uhr.',goals:[{type:'culture',label:'Kultur erleben',hardConstraints:[],softPreferences:[]}],hardConstraints:[{key:'dietary',value:'vegan',label:'Vegan essen'},{key:'notBefore',value:'12:00',label:'Ab zwölf Uhr'}],softPreferences:[{key:'pace',value:'slow',label:'Ein ruhiger Tag'}],followUpQuestion:null,unknowns:[]}})};
+    window.LuviaAI={run:async(capability,request)=>capability==='discovery.plan'?(()=>{const fresh=(request?.excludedDestinations||[]).length>0,names=fresh?['Nizza','Dubrovnik','Alicante','Sardinien','Kreta']:['Lissabon','Valencia','Palma','Split','Málaga'];return {ok:true,meta:{fallback:false},data:{searchPlans:names.map(query=>({query})),reasoningSummary:fresh?'Fünf neue südliche Küstenrichtungen mit kurzer bis mittlerer Anreise.':'Fünf südliche Küstenrichtungen, die Wärme, Meer und eine überschaubare Anreise verbinden.'}}})():({ok:true,meta:{fallback:false},data:{understanding:'Wir planen ruhige Tage mit Kultur und veganem Essen, ab zwölf Uhr.',goals:[{type:'culture',label:'Kultur erleben',hardConstraints:[],softPreferences:[]}],hardConstraints:[{key:'dietary',value:'vegan',label:'Vegan essen'},{key:'notBefore',value:'12:00',label:'Ab zwölf Uhr'}],softPreferences:[{key:'pace',value:'slow',label:'Ein ruhiger Tag'}],followUpQuestion:null,unknowns:[]}})};
     const fixtureParams=new URLSearchParams(location.search);
     const fixtureUserId=`m165z-${fixtureParams.get('qa')||'visible-user'}`;
     const storagePrefix=`m165z-fixture:${fixtureUserId}:`;
@@ -34,8 +34,16 @@
     window.LuviaNavigationContractV1={createIntent:(route,options)=>({route,params:options?.params||{}})};
     window.LuviaNavigationHistoryV1={project:(intent,options={})=>{const url=new URL(location.href);url.searchParams.set('step',intent.params.tripStep);history[options.replace?'replaceState':'pushState']({tripStep:intent.params.tripStep},'',url);return true}};
     const destinations={
-      copenhagen:{name:'Kopenhagen',formattedAddress:'Kopenhagen, Dänemark',country:'Dänemark',countryCode:'DK',placeId:'fixture-copenhagen',location:{latitude:55.6761,longitude:12.5683}},
       lisbon:{name:'Lissabon',formattedAddress:'Lissabon, Portugal',country:'Portugal',countryCode:'PT',placeId:'fixture-lisbon',location:{latitude:38.7223,longitude:-9.1393}},
+      valencia:{name:'Valencia',formattedAddress:'Valencia, Spanien',country:'Spanien',countryCode:'ES',placeId:'fixture-valencia',location:{latitude:39.4699,longitude:-0.3763}},
+      palma:{name:'Palma',formattedAddress:'Palma, Mallorca, Spanien',country:'Spanien',countryCode:'ES',placeId:'fixture-palma',location:{latitude:39.5696,longitude:2.6502}},
+      split:{name:'Split',formattedAddress:'Split, Kroatien',country:'Kroatien',countryCode:'HR',placeId:'fixture-split',location:{latitude:43.5081,longitude:16.4402}},
+      malaga:{name:'Málaga',formattedAddress:'Málaga, Spanien',country:'Spanien',countryCode:'ES',placeId:'fixture-malaga',location:{latitude:36.7213,longitude:-4.4214}},
+      nice:{name:'Nizza',formattedAddress:'Nizza, Frankreich',country:'Frankreich',countryCode:'FR',placeId:'fixture-nice',location:{latitude:43.7102,longitude:7.262}},
+      dubrovnik:{name:'Dubrovnik',formattedAddress:'Dubrovnik, Kroatien',country:'Kroatien',countryCode:'HR',placeId:'fixture-dubrovnik',location:{latitude:42.6507,longitude:18.0944}},
+      alicante:{name:'Alicante',formattedAddress:'Alicante, Spanien',country:'Spanien',countryCode:'ES',placeId:'fixture-alicante',location:{latitude:38.3452,longitude:-0.481}},
+      sardinia:{name:'Sardinien',formattedAddress:'Sardinien, Italien',country:'Italien',countryCode:'IT',placeId:'fixture-sardinia',location:{latitude:40.1209,longitude:9.0129}},
+      crete:{name:'Kreta',formattedAddress:'Kreta, Griechenland',country:'Griechenland',countryCode:'GR',placeId:'fixture-crete',location:{latitude:35.2401,longitude:24.8093}},
       scharbeutz:{name:'Scharbeutz',formattedAddress:'Scharbeutz, Deutschland',country:'Deutschland',countryCode:'DE',placeId:'fixture-scharbeutz',location:{latitude:54.0212,longitude:10.7504}}
     };
     const fixturePlaces=[
@@ -45,7 +53,7 @@
       {providerPlaceId:'fixture-culture-1',name:'Galerie am Meer',primaryType:'museum',requestCategory:'culture',formattedAddress:'Promenade 8, Scharbeutz',coordinates:{latitude:54.026,longitude:10.757},image:{url:'assets/public-landing/prototype-memory-sunset.png'}},
       {providerPlaceId:'fixture-culture-2',name:'Küstenatelier',primaryType:'art_gallery',requestCategory:'culture',formattedAddress:'Dünenweg 3, Scharbeutz',coordinates:{latitude:54.017,longitude:10.744},image:{url:'assets/public-landing/prototype-coast-bike.png'}},
       {providerPlaceId:'fixture-culture-3',name:'Heimatmuseum',primaryType:'museum',requestCategory:'culture',formattedAddress:'Markt 5, Scharbeutz',coordinates:{latitude:54.021,longitude:10.746},image:{url:'assets/public-landing/prototype-memory-sunset.png'}},
-      {providerPlaceId:'fixture-active-1',name:'Ostsee Radmoment',primaryType:'tourist_attraction',requestCategory:'activities',formattedAddress:'Strandweg 11, Scharbeutz',coordinates:{latitude:54.029,longitude:10.761},image:{url:'assets/public-landing/prototype-coast-bike.png'}},
+      {providerPlaceId:'fixture-active-1',name:'Küsten-Radmoment',primaryType:'tourist_attraction',requestCategory:'activities',formattedAddress:'Strandweg 11, Scharbeutz',coordinates:{latitude:54.029,longitude:10.761},image:{url:'assets/public-landing/prototype-coast-bike.png'}},
       {providerPlaceId:'fixture-active-2',name:'Dünenpfad',primaryType:'park',requestCategory:'activities',formattedAddress:'Am Kurpark, Scharbeutz',coordinates:{latitude:54.018,longitude:10.751},image:{url:'assets/public-landing/prototype-coast-morning.png'}},
       {providerPlaceId:'fixture-active-3',name:'Wassersportbucht',primaryType:'sports_activity_location',requestCategory:'activities',formattedAddress:'Seebrücke, Scharbeutz',coordinates:{latitude:54.024,longitude:10.759},image:{url:'assets/public-landing/prototype-coast-bike.png'}}
     ];
@@ -73,11 +81,11 @@
           country:place.country,
           countryCode:place.countryCode,
           latitude:place.location.latitude,
-          longitude:place.location.longitude,timezone:place.countryCode==='PT'?'Europe/Lisbon':'Europe/Berlin'
+          longitude:place.location.longitude,timezone:({PT:'Europe/Lisbon',ES:'Europe/Madrid',HR:'Europe/Zagreb',FR:'Europe/Paris',IT:'Europe/Rome',GR:'Europe/Athens',DE:'Europe/Berlin'})[place.countryCode]||'Europe/Berlin'
         };
         },
         getActiveDiscovery:()=>null,
-        recommend:async options=>{await new Promise(resolve=>setTimeout(resolve,180));return {owner:'places',contractId:'places.v1',places:fixturePlaces.filter(place=>place.requestCategory===options.category),count:3,evidenceContract:{verified:true}}}
+        recommend:async options=>{await new Promise(resolve=>setTimeout(resolve,180));const center=options.destination?.center||{lat:54.0212,lng:10.7504},destinationName=options.destination?.name||'Scharbeutz',places=fixturePlaces.filter(place=>place.requestCategory===options.category).map((place,index)=>({...place,formattedAddress:`${destinationName} · kontrollierter Place`,coordinates:{latitude:center.lat+(index-1)*.004,longitude:center.lng+(index-1)*.005}}));return {owner:'places',contractId:'places.v1',places,count:places.length,evidenceContract:{verified:true}}}
       }
     };
     window.LuviaPlacesSpatialExperience={mountProjection:(container,places,options={})=>{container.innerHTML=`<div style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 28% 30%,#fff 0 4%,transparent 5%),linear-gradient(145deg,#d9efed,#cfe7ed)"><div style="display:grid;gap:10px;text-align:center"><strong style="font-size:22px;color:#143247">Gemeinsame Places-Karte</strong><span style="color:#547383">${places.length} Koordinaten · kontrollierte Testdaten</span><button type="button" data-fixture-map-select style="padding:10px;border:0;border-radius:999px;background:#2f95a8;color:white">Ersten Pin fokussieren</button></div></div>`;container.querySelector('[data-fixture-map-select]')?.addEventListener('click',()=>options.onSelect?.(places[0]?.providerPlaceId));return {update:next=>{places=next;container.querySelector('span').textContent=`${places.length} Koordinaten · kontrollierte Testdaten`;},destroy:()=>{container.innerHTML=''}}}};

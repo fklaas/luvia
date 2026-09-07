@@ -10,11 +10,11 @@
     "unclassifiedEntryReferences": 0,
     "css": {
       "files": 65,
-      "bytes": 1743999,
-      "lines": 11981,
+      "bytes": 1748811,
+      "lines": 11990,
       "important": 3934,
-      "literalHexColours": 4782,
-      "zIndexDeclarations": 562,
+      "literalHexColours": 4817,
+      "zIndexDeclarations": 563,
       "reducedMotionQueries": 103,
       "focusVisibleSelectors": 117
     }
@@ -822,8 +822,8 @@
         "stylesheet",
         "active-entry-reference"
       ],
-      "bytes": 121145,
-      "sha256": "58c194f13d5f977f25c93cc2a657d7b71a9da821432dab1f8a28473d568d58d3"
+      "bytes": 125957,
+      "sha256": "ff9c0b2fd6890604505aa5eb3e99789e3de732c45afd19a33a09c30f2d828ecc"
     },
     {
       "path": "app/first-trip-composer.js",
@@ -836,8 +836,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 162817,
-      "sha256": "e05b2554be821e85ba8c0fd2059288a795059e599a7277276b068bd9f1eec314"
+      "bytes": 179278,
+      "sha256": "99fc635c2103ed9b0b54f15940ae1d78f3be0119bb8a1d78ab67051e2cb9a380"
     },
     {
       "path": "app/gallery-view.css",
@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3483970,
-      "sha256": "08ef2016d5e8e8052b59c9e0c0a886f25868d22b4c878b648c7b36d73e1eec5a"
+      "bytes": 3501129,
+      "sha256": "6fd5bac244b0511b2817d818949fa8f83d793b8e04e944caf318a466d5a7e645"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -4340,8 +4340,8 @@
         "motion-source",
         "active-entry-reference"
       ],
-      "bytes": 17288,
-      "sha256": "2767706b705b484281c43494733acdbb1f4aa83e8900075a33bc63e8d3cf87ce"
+      "bytes": 17986,
+      "sha256": "36d02dfdb6d7204b873353bb9ac4cf6966c653c7faeccfab78fdba1dde4faa52"
     },
     {
       "path": "core/platform/journey-contract-adapter.js",
@@ -7199,8 +7199,8 @@
       "classes": [
         "document-entry"
       ],
-      "bytes": 12662,
-      "sha256": "4a9cc5619af3eb4aa53e7cb92eaf50e5424a2b1d2c88c7b173825a1a721610d7"
+      "bytes": 14730,
+      "sha256": "43cae78e118b19d6f9fbea17b4d7406f0ec4fafd1a308c890b3eb3aaffc7c74e"
     },
     {
       "path": "tests/gallery-experience-v13.28.3.test.cjs",
@@ -7984,7 +7984,7 @@
         "motion-source"
       ],
       "bytes": 2381,
-      "sha256": "de0fee5153339a518e40d23b0e453510505b91afc73d9f4fecc2fdfae8b863bc"
+      "sha256": "18b635e66141bc0053fb18d2655f01ccf238ca66b441c6ffe598e5c158363d9a"
     },
     {
       "path": "tests/m16.5aa-compass-direction-activation.test.cjs",
@@ -8379,8 +8379,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 14236,
-      "sha256": "539084e59480d7ae2edaa232ea11f1cf605aa71140d3399856156a66ff4b2a9e"
+      "bytes": 15701,
+      "sha256": "dd86070c1599140cb7b17866cdca5c6e34b91541cdf924cc4fccb0840fc7c4a6"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
@@ -9193,8 +9193,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 43607,
-      "sha256": "08ea1e9eb2e76a5d6f24a69d08c8bcc3c18783577ae601685960f52c9d5ef57e"
+      "bytes": 46682,
+      "sha256": "81f4330c8df9649349aaa7c3b632a97e4995a080cb405f5bad14ad2e6d601766"
     },
     {
       "path": "tests/trip-map-experiences.test.cjs",

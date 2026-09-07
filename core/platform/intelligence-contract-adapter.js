@@ -99,12 +99,14 @@
   async function suggestTripDestinations(input = {}) {
     const requestBrief=String(input.requestBrief||'').trim().slice(0,1200);
     if(requestBrief.length<8)throw Object.assign(new Error('Beschreibt kurz, wie sich eure Reise anfühlen soll.'),{code:'TRIP_INSPIRATION_BRIEF_REQUIRED'});
+    const excluded=[...new Set((Array.isArray(input.excludedDestinations)?input.excludedDestinations:[]).map(value=>String(value||'').trim()).filter(Boolean))].slice(0,20);
     const response=await run('discovery.plan',{
       surface:'trip-destination-inspiration',userGoal:requestBrief,globalPreferences:input.profilePreferences||{},destination:null,
-      task:'Suggest up to three real named cities or regions as destination search hypotheses for a NEW trip before dates or destination are chosen. Each searchPlans.query must contain just the unambiguous destination name and country. Never inherit an active trip. Consider climate wishes as seasonal expectations only, never current weather. Do not claim prices, availability or verified suitability. Use German reasoningSummary to explain the overall ideas. Provider geocoding will verify every geographic identity before display.'
+      excludedDestinations:excluded,variationSeed:String(input.variationSeed||''),
+      task:'Return exactly five distinct real named cities or travel regions as destination search hypotheses for a NEW trip before dates or destination are chosen. Rank them by how completely they satisfy the userGoal. Treat explicit requirements such as abroad, sea or coast, warm climate, nature, travel-distance limits and exclusions as mandatory: never return a destination that clearly conflicts with one of them. Replace every conflicting candidate before responding. Exclude every destination listed in excludedDestinations. Each searchPlans.query must contain only the unambiguous destination name and country. Never inherit an active trip. Interpret warmth and climate only as normal seasonal expectations, never as current weather or a forecast. Do not claim prices, availability or verified suitability. Use a short natural German reasoningSummary about the shared direction of the five ideas. Provider geocoding verifies every geographic identity before display.'
     },{fallback:false,context:{surface:'trip-destination-inspiration'}});
     if(response?.ok===false||response?.meta?.fallback)throw Object.assign(new Error('Die KI konnte eure Reisewünsche gerade nicht auswerten.'),{code:'TRIP_INSPIRATION_UNAVAILABLE'});
-    const value=response?.data||response?.result||response,queries=[...new Set((value?.searchPlans||[]).map(p=>String(p.query||'').trim()).filter(Boolean))].slice(0,3);
+    const value=response?.data||response?.result||response,queries=[...new Set((value?.searchPlans||[]).map(p=>String(p.query||'').trim()).filter(Boolean))].slice(0,5);
     if(!queries.length)throw Object.assign(new Error(value?.followUpQuestion?.text||'Beschreibt noch etwas genauer, was euch an der Reise wichtig ist.'),{code:'TRIP_INSPIRATION_MORE_DETAIL'});
     return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'destination-inspiration',source:'ai',queries,summary:String(value.reasoningSummary||'').slice(0,800)});
   }
