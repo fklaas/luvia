@@ -22,7 +22,7 @@ const holed=[{properties:{name:'Test'},geometry:{type:'Polygon',coordinates:[[[0
 assert.equal(world.countryAt(holed,5,5),undefined);assert.equal(world.countryAt(holed,1,1).properties.name,'Test');checks++;
 assert.ok(features.every(f=>f.properties.name&&['Polygon','MultiPolygon'].includes(f.geometry.type)));checks++;
 // Real mount with controlled DOM/events: gesture ownership, not a copy of the implementation.
-function node(){const listeners=new Map(),captures=new Set();return {listeners,clientWidth:500,clientHeight:400,dataset:{},classList:{add(){},remove(){}},closest(){return null},
+function node(){const listeners=new Map(),captures=new Set();return {listeners,clientWidth:500,clientHeight:400,dataset:{},classList:{add(){},remove(){}},setAttribute(){},closest(){return null},
   addEventListener(name,fn,options){listeners.set(name,{fn,options});},removeEventListener(name){listeners.delete(name);},
   setPointerCapture(id){captures.add(id);},hasPointerCapture(id){return captures.has(id);},releasePointerCapture(id){captures.delete(id);},
   getBoundingClientRect(){return {left:0,top:0,width:500,height:400};},emit(name,values={}){const event={target:this,button:0,pointerId:1,clientX:100,clientY:100,cancelable:true,preventDefault(){this.prevented=true;},stopPropagation(){this.stopped=true;},stopImmediatePropagation(){this.stopped=true;},...values};listeners.get(name)?.fn(event);return event;}};}
@@ -61,4 +61,30 @@ assert.equal(world.geographicTrace({level:2},pathPoints).length,2,'Going back re
 assert.equal(world.geographicTrace({level:4},{...pathPoints,region:null}).length,3,'No fictitious region center');checks++;
 assert.equal(world.geographicTrace({level:4},{...pathPoints,destination:{coordinates:[NaN,54]}}).length,3);checks++;
 const changed=world.geographicTrace({level:4},{...pathPoints,destination:{coordinates:[12,55]}});assert.equal(changed[3].coordinates[0],12);assert.equal(pathPoints.destination.coordinates[0],10.75,'Trace never mutates destination truth');checks++;
-console.log(`P15 travel world: ${checks}/${checks} geometry, picking and gesture checks PASS`);
+// Use the real shipped projection library: a reversed tiny ring in Hawaii previously
+// painted the rest of the globe over earlier states despite a correct feature count.
+const d3=require('../vendor/d3-7.9.0.min.js');let checkedRings=0,checkedRegions=0,checkedPacks=0;
+assert.equal(features.length,258,'Small countries and territories must not disappear back into the old 177-unit overview');checks++;
+for(const [code,lng,lat] of [['AND',1.5218,42.5063],['MCO',7.4246,43.7384],['MLT',14.5146,35.8992],['SGP',103.851,1.29],['BRB',-59.61,13.10]]){assert.equal(world.countryAt(features,lng,lat)?.properties.code,code);checks++;}
+const continentNames=['Europe','Asia','North America','South America','Africa','Oceania','Antarctica'];
+assert.ok(features.every(f=>continentNames.includes(f.properties.continent)),'Every country must be reachable through one of the seven continent controls');
+for(const name of continentNames){const collection={type:'FeatureCollection',features:features.filter(f=>f.properties.continent===name)},projection=world.fitGeography(d3,collection,390,500),path=d3.geoPath(projection);assert.ok(collection.features.length);for(const f of collection.features)assert.ok(path(f)&&!/NaN|Infinity/.test(path(f)),name+' / '+f.properties.name);}
+checks++;
+for(const file of ['assets/composer/world-countries.json','assets/composer/world-continents.json',...fs.readdirSync('assets/composer/regions').map(f=>'assets/composer/regions/'+f)]){
+  const pack=JSON.parse(fs.readFileSync(file));
+  for(const feature of pack.features){
+    for(const polygon of feature.geometry.type==='Polygon'?[feature.geometry.coordinates]:feature.geometry.coordinates){
+      polygon.forEach((ring,index)=>{const area=d3.geoArea({type:'Polygon',coordinates:[ring]});assert.ok(index?area>=2*Math.PI:area<=2*Math.PI,file+' / '+feature.properties.name+' has a reversed ring');checkedRings++;});
+    }
+  }
+  if(!file.includes('/regions/')||!pack.features.length)continue;
+  const p=world.fitGeography(d3,pack,390,500,{usa:file.endsWith('/USA.json')}),path=d3.geoPath(p);
+  for(const f of pack.features){const output=path(f);assert.ok(output&&!/NaN|Infinity/.test(output),file+' / '+f.properties.name+' has no projected region');assert.ok(path.area(f)>0,file+' / '+f.properties.name+' has no visible area');checkedRegions++;}
+  checkedPacks++;
+}checks++;
+const usa=JSON.parse(fs.readFileSync('assets/composer/regions/USA.json'));assert.equal(usa.features.length,51);
+const usProjection=world.fitGeography(d3,usa,390,500,{usa:true}),usPath=d3.geoPath(usProjection);
+for(const name of ['Alaska','Hawaii','Kalifornien','Florida','Washington, D.C.']){
+  const region=usa.features.find(f=>f.properties.name===name);assert.ok(region,name);const bounds=usPath.bounds(region);assert.ok(bounds.flat().every(Number.isFinite));assert.ok(bounds[0][0]>=0&&bounds[1][0]<=390&&bounds[0][1]>=0&&bounds[1][1]<=500,name+' outside overview');checks++;
+}
+console.log(`P15 travel world: ${checks}/${checks} geometry, picking and gesture checks PASS; ${checkedRings} rings, ${checkedRegions} regions in ${checkedPacks} nonempty packs projected with real D3`);

@@ -51,6 +51,8 @@
     window.LuviaPlacesContractV1={
       contractId:'places.v1',
       reads:{
+        // Controlled route evidence for UI testing only, never a live provider claim.
+        getRoute:async(from,to,{mode}={})=>({verified:true,provider:'here',durationMinutes:mode==='BICYCLE'?7:18,observedAt:new Date().toISOString(),geometry:{type:'LineString',coordinates:[[from.longitude,from.latitude],[to.longitude,to.latitude]]}}),
         suggestDestinations:async value=>({
           owner:'places',
           contractId:'places.v1',

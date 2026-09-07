@@ -469,3 +469,8 @@
 .ftc.cinematic .ftc-ai-day>header {padding:3px 0 7px;font-size:10px;}
 @media(max-width:849px){.ftc.cinematic .lx-map-stage{bottom:calc(var(--lx-sheet-height,54dvh) - 24px)}.ftc.cinematic[data-sheet-collapsed=true] .lx-map-stage{bottom:85px}.ftc.cinematic .lx-season-badge{bottom:35px}.ftc.cinematic .lx-credit{bottom:26px}}
 @media(max-width:849px) and (min-height:651px){.ftc.cinematic[data-step=preview] .lx-bottom-sheet{max-height:62dvh;}}
+.lx-selection-trail{position:relative;gap:5px;padding-bottom:10px}
+.lx-selection-trail::after{content:"";position:absolute;left:22px;right:22px;bottom:2px;height:2px;border-radius:8px;background:linear-gradient(90deg,#ed6555,#f5ab44,#eac955,#55ad83,#329a9d,#5089b2,#9581bc,#ce5d87);opacity:.65;pointer-events:none}
+.lx-route-review{margin:16px 0;padding:16px;border:1px solid color-mix(in srgb,var(--ftc-accent) 25%,transparent);border-radius:20px;background:color-mix(in srgb,var(--ftc-accent) 5%,#fffdf7)}
+.lx-route-review h3{font-size:18px;margin:0 0 8px}.lx-route-review p,.lx-route-review small{font-size:13px;line-height:1.5;margin:8px 0;display:block}.lx-route-review ul{padding-left:17px;font-size:13px;line-height:1.6}.lx-route-review .lx-choices{gap:8px}.lx-route-review button{font-size:13px;padding:10px 13px;min-height:44px}
+.lx-preference-group button[aria-pressed]{transition:background-color .18s,color .18s,border-color .18s;touch-action:manipulation}

@@ -31,7 +31,7 @@ function harness(){
     getActionState:id=>ledger.get(id),
     retry:async(id,options)=>sandbox.LuviaAIActionRuntime.execute(ledger.get(id).actionId,{}, {...options,ledgerId:id})
   };
-  const instrumented=source.replace('window.LuviaFirstTripComposer=Object.freeze',`window.composerTest={state:()=>mounted,render,loadAiDayDraft,save,setDraftAction,swapDraftSelection,refreshDraft,readAiPlaces,confirmationProblem,persist,moveDraftSelection,mapPlaces,inspire,takeInspiration,repairDestinationZone,validate,seasonalMood,linkedMedia,loadArrival,filmFrame,filmChoose,filmAdvance,pauseFilm,scheduleFilm,tripTrace,hydrateAiMedia};window.LuviaFirstTripComposer=Object.freeze`);
+  const instrumented=source.replace('window.LuviaFirstTripComposer=Object.freeze',`window.composerTest={state:()=>mounted,render,loadAiDayDraft,save,setDraftAction,swapDraftSelection,refreshDraft,readAiPlaces,confirmationProblem,persist,moveDraftSelection,mapPlaces,inspire,takeInspiration,repairDestinationZone,validate,seasonalMood,linkedMedia,loadArrival,filmFrame,filmChoose,filmAdvance,pauseFilm,scheduleFilm,tripTrace,hydrateAiMedia,updatePreference,settledGeography,checkDayRoutes,routeReviewPanel,rehearseDraft,dayLegs,checkedRoute};window.LuviaFirstTripComposer=Object.freeze`);
   vm.runInContext(instrumented,sandbox,{filename:'first-trip-composer.js'});
   function mount(resume=false,onComplete=null){sandbox.LuviaFirstTripComposer.mount(root,{resume,entryMode:'ai',step:'preview',onComplete:onComplete||(()=>{completed++})});return sandbox.composerTest.state();}
   const state=mount();state.data={...state.data,...clone(input),tripPreferences:{...state.data.tripPreferences,...clone(input.tripPreferences)}};
@@ -40,6 +40,31 @@ function harness(){
 
 (async()=>{
   let checks=0;const checked=()=>checks++;
+  // Selection controls keep their DOM, scroll position and focus while arrays are copied.
+  const preferences=harness();await preferences.api.loadAiDayDraft(preferences.state);
+  const html=preferences.root.innerHTML,oldPreferences=Object.freeze({...preferences.state.data.tripPreferences,interests:Object.freeze(['food'])});preferences.state.data.tripPreferences=oldPreferences;
+  const foodButton={dataset:{ftcTripInterest:'food'},setAttribute:(key,value)=>foodButton[key]=value};preferences.root.querySelectorAll=()=>[foodButton];
+  for(let i=0;i<12;i++){preferences.api.updatePreference(preferences.state,'interests','food',{multiple:true});assert.equal(foodButton['aria-pressed'],String(i%2===1));assert.equal(preferences.root.innerHTML,html);}
+  assert.deepEqual(oldPreferences.interests,['food']);checked();
+  preferences.api.updatePreference(preferences.state,'food','vegan',{multiple:true});preferences.api.updatePreference(preferences.state,'food','vegan',{multiple:true});assert.equal(preferences.state.data.tripPreferences.food.includes('vegan'),false);assert.deepEqual(preferences.sandbox.profile.dietaryPreferences,['vegetarian']);checked();
+  preferences.api.persist(preferences.state);preferences.sandbox.LuviaFirstTripComposer.unmount();preferences.root.querySelectorAll=()=>[];const restoredPreferences=preferences.mount(true);assert.deepEqual(Array.from(restoredPreferences.data.tripPreferences.interests),['food']);checked();
+  const regionExit=harness();regionExit.state.index=0;regionExit.state.data.destination={};regionExit.state.data.inspirationCompleted=false;
+  regionExit.api.settledGeography(regionExit.state,{level:3,country:'DEU',region:'SH',regionName:'Schleswig-Holstein',regionCount:16});
+  assert.equal(regionExit.state.index,1);assert.equal(regionExit.state.sheetCollapsed,false);assert.equal(regionExit.state.destinationRegion,'Schleswig-Holstein');assert.match(regionExit.root.innerHTML,/Euer Reiseziel in Schleswig-Holstein/);assert.equal(regionExit.state.data.destination.placeId,'','Region geography is not a canonical Place');checked();
+  const routeTest=harness();await routeTest.api.loadAiDayDraft(routeTest.state);
+  const firstDay=routeTest.state.aiDraft.draft.days[0],pair=routeTest.state.draftSelections.slice(0,2);
+  routeTest.state.draftSelections=pair.map((entry,i)=>({...entry,dayId:firstDay.id,date:firstDay.date,time:i?'09:40':'09:00',durationMinutes:30,action:'planned'}));routeTest.state.activeDay=firstDay.id;
+  assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].status,'attention','No verified route must not be a fabricated blocking travel time');checked();
+  const routeCalls=[];routeTest.sandbox.LuviaPlacesContractV1.reads.getRoute=async(from,to,options)=>{routeCalls.push({from,to,options});return {verified:true,provider:'here',durationMinutes:25,observedAt:new Date().toISOString(),geometry:{type:'LineString',coordinates:[[from.longitude,from.latitude],[to.longitude,to.latitude]]}}};
+  await routeTest.api.checkDayRoutes(routeTest.state,'WALK');assert.equal(routeCalls.length,1);assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].status,'blocked');assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].raw.routes[0].baseMinutes,25);checked();
+  await routeTest.api.checkDayRoutes(routeTest.state,'WALK');assert.equal(routeCalls.length,1,'Repeated checks reuse still-current Place route evidence');checked();
+  const extra={...routeTest.state.draftSelections[1],slotId:'third',providerPlaceId:'third',time:'15:00',coordinates:{latitude:54.04,longitude:10.75}};routeTest.state.draftSelections.push(extra);assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].status,'blocked','A known impossible transfer remains blocking even when another leg is unknown');routeTest.state.draftSelections.pop();checked();
+  await routeTest.api.checkDayRoutes(routeTest.state,'BICYCLE');assert.equal(routeCalls.length,2);assert.equal(routeCalls[1].options.mode,'BICYCLE');assert.match(routeTest.api.routeReviewPanel(routeTest.state),/25 Min. Radweg/);checked();
+  routeTest.state.draftSelections[1].time='11:00';assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].status,'ready');assert.match(routeTest.api.routeReviewPanel(routeTest.state),/Kostensumme liegt noch nicht vor/);checked();
+  routeTest.state.routeChecks={};routeTest.sandbox.LuviaPlacesContractV1.reads.getRoute=async()=>({verified:false,durationMinutes:1});await routeTest.api.checkDayRoutes(routeTest.state);assert.equal(Object.keys(routeTest.state.routeChecks).length,0);assert.equal(routeTest.api.rehearseDraft(routeTest.state)[0].status,'attention');checked();
+  let finishRoute;routeTest.sandbox.LuviaPlacesContractV1.reads.getRoute=(from,to)=>new Promise(resolve=>{finishRoute=()=>resolve({verified:true,provider:'here',durationMinutes:12,observedAt:new Date().toISOString(),geometry:{type:'LineString',coordinates:[[from.longitude,from.latitude],[to.longitude,to.latitude]]}})});
+  const waiting=routeTest.api.checkDayRoutes(routeTest.state);routeTest.state.draftSelections[1].time='12:00';finishRoute();await waiting;assert.equal(Object.keys(routeTest.state.routeChecks).length,0,'A stale result cannot publish after the day changed');checked();
+  const outOfOrder=routeTest.state.draftSelections;routeTest.state.draftSelections=[outOfOrder[1],outOfOrder[0]];routeTest.state.filmSlot=null;assert.equal(routeTest.api.filmFrame(routeTest.state).entry.time,'09:00');checked();
   const h=harness(),core=h.sandbox.LuviaTripDraftCoreV1;
   for(const patch of [{startDate:''},{endDate:''},{startDate:'2027-02-30'},{endDate:'2027-06-01'}])assert.equal(core.validateDraft({...input,...patch}).valid,false);checked();
   assert.equal(core.validateDraft({...input,scheduleMode:'flexible',startDate:'',endDate:''}).valid,true);checked();
