@@ -5,7 +5,7 @@
   "app": "13.82.168.143",
   "core": "4.82.262",
   "runtimeSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
-  "worker": "98274f77-9fb2-4d43-89ba-df55f6a9a150",
+  "worker": "601f84fd-6bbb-484a-a130-623641291684",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -716,8 +716,8 @@
     }
   ],
   "acceptanceUpdate": "App .131 / Core .250 ist auf Integration-Worker 47a25eee-9813-43d6-afcb-1a5869967e7a zu 100 Prozent veröffentlicht. Intelligence 4.37.0 / Build 13.37.0 ist aktiv, bestätigt Luna/Terra/Sol für fast/default/deep, erkennt unvollständige Structured Outputs und führt trip.audit kostengünstiger über Terra aus. Der KI-Einstieg deutet den ursprünglichen Wunsch einmal, schlägt bei groben Monatsangaben drei konkrete Zeitfenster mit der gewünschten Dauer vor und startet nach der Zeitwahl ohne wiederholte Wunschseite direkt den vollständigen Tagesentwurf. Kanonische Zielidentität verhindert die stille Vertauschung von Valencia und Alicante; dezente Kontinent-, Länder- und Regionsnamen ergänzen den Globus. Die öffentliche mobile Einstiegsansicht ist sichtbar belegt. Ein authentifizierter vollständiger produktiver Modelllauf bis Entwurf und Audit bleibt offen; Gateway v235, Main, Production, DB und Secrets bleiben unverändert.",
-  "safeRegression": "App .143: 239/239 Safe Regression, 112 Composer-Recovery-/Vertragsprüfungen, Structured-Output-Schema, Intelligence-Orchestrierung, Releasekonsistenz und das visuelle Oberflächeninventar mit 3542 erfassten Dateien / 990 visuellen Kandidaten / 65 CSS-Dateien sind grün. Acht releasekritische öffentliche Dateien stimmen bytegenau. Der authentifizierte Valencia-Lauf bestätigt Wunschdeutung, fünf passende Ziele, exakte Sieben-Tage-Daten, offene Budgetsemantik, Rollen-, Duplikat- und Auditbehandlung; nach drei begrenzten KI-Stufen blieb Tag 2 dennoch unter der verbindlichen Mindestdichte. Der Vertrag hat den unvollständigen Plan korrekt zurückgehalten. Physische Geräte, Kontoübernahme und zwei vollständige produktive Modell-Positivläufe bleiben offen.",
-  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit a2da60ff85a2d4f8809bd5a5582602ed850441a3 und Stable Integration überein. Archiv luvia-integration-13.82.168.142-a2da60f.zip hat 92549658 Bytes und SHA-256 3221E9C08ABEB0BD95D53BF2ABEB620984833BC9CFDF16F43F7D839F80615C90. Worker 98274f77-9fb2-4d43-89ba-df55f6a9a150 liefert App .142 / Core .261.",
+  "safeRegression": "App .143: 239/239 Safe Regression, 112 Composer-Recovery-/Vertragsprüfungen, Structured-Output-Schema, Intelligence-Orchestrierung, Releasekonsistenz und das visuelle Oberflächeninventar mit 3542 erfassten Dateien / 991 visuellen Kandidaten / 65 CSS-Dateien sind grün. Acht releasekritische öffentliche Dateien stimmen bytegenau. Ein kontrollierter strukturell zu dünner voller Tag wird als datierter Vertragsfehler isoliert und durch die KI repariert, während alle gültigen Tage und ihre bereits verwendeten Places erhalten bleiben. Der frühere echte Valencia-Lauf wird dadurch gezielt adressiert; ein erneuter vollständiger produktiver Positivlauf und die dauerhafte serverseitige Job-Wiederaufnahme bleiben offen.",
+  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit d5146f7faf3d13828281914da714c765da9daef8 und Stable Integration überein. Archiv luvia-integration-13.82.168.143-d5146f7.zip hat 92555797 Bytes und SHA-256 F503854E5EEE72DB85BA22756061EE33F663B99F86C99FC6F818AEE0E66E334C. Worker 601f84fd-6bbb-484a-a130-623641291684 liefert App .143 / Core .262.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -749,19 +749,19 @@
     "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .143 / Core .262 und Intelligence 4.38.5 sind der geprüfte Integration-Kandidat. Der echte Valencia-Fall mit Meer, Juni 2027, Ausland, kurzen Flügen, Shopping, Nachtleben, Restaurants, sieben Tagen und Abflug Münster wird semantisch korrekt bis zur Gesamtplanung geführt. Falsche Dauer-, Budget-, Rollen-, Duplikat-, JSON-, Schema- und Auditblocker sind beseitigt. Der zuvor zu dünne Tag 2 wird nun als datierter Vertragsfehler isoliert und durch Terra allein neu geplant; alle gültigen Tage und ihre Places bleiben erhalten. Der Composer ist daher noch nicht final abnahmefähig. Gateway v235, Main und Production bleiben unverändert.",
+    "stage": "P17/P19 aktiv und teilweise: App .143 / Core .262 und Intelligence v46 / 4.38.5 sind auf Integration veröffentlicht. Der echte Valencia-Fall wird semantisch korrekt bis zur Gesamtplanung geführt. Falsche Dauer-, Budget-, Rollen-, Duplikat-, JSON-, Schema- und Auditblocker sind beseitigt. Der zuvor zu dünne Tag 2 besitzt jetzt einen gezielten KI-Reparaturpfad: Nur das betroffene Datum wird neu komponiert, gültige Tage und deren Places bleiben erhalten. 239/239 Regression und 112 Composer-Prüfungen sind grün. Ein erneuter echter Vollplan sowie dauerhafte serverseitige Wiederaufnahme fehlen noch; der Composer ist deshalb weiterhin nicht final abgenommen. Gateway v235, Main und Production bleiben unverändert.",
     "delivered": "Auf Integration belegt sind fünf individuell begründete Ziele, drei passende konkrete Zeitfenster bei grobem Monatswunsch, direkte Gesamtplanung nach Zeitwahl, ein kompakter semantischer Reisevertrag, Reiseversprechen, geplante Freiräume, reiseweite Tagesbalance, Unsicherheitskarte, Buchungsreihenfolge, modellierter Unterkunftsradius, kanonische Tagesrollen, fortgesetzte Duplikatreparatur und ein Audit, der nur echte Blocker sperrt. Die Qualitätskaskade nutzt Luna, Terra und nur als letzte Stufe Sol. Reise-DNA und Zeitreise bleiben sichtbar. Die Unit-Economics-Grundlage enthält vorläufige Free-, Plus-, Premium- und Reisepass-Pakete sowie eine konservative Break-even-Rechnung. Der neue gezielte Tagesreparaturpfad ersetzt bei einem datierten Blocker nur den betroffenen Tag und sperrt die bereits in gültigen Tagen verwendeten Places.",
     "nextStep": {
-      "id": "P17-P19-resumable-per-day-compose",
+      "id": "P17-P19-resumable-trip-job",
       "package": "P19",
       "status": "AKTIV",
-      "title": "Die vollständige KI-Reise als fortsetzbaren serverseitigen Auftrag mit tageweiser Vollständigkeitsgarantie bauen",
-      "reason": "Der letzte echte Lauf scheiterte nicht mehr an Schema, JSON oder falscher Semantik, sondern an der Zuverlässigkeit eines langen Mehrtagesoutputs. Ein einzelner schwacher Tag darf weder den ganzen Plan verwerfen noch einen vollständigen teuren Neulauf erzwingen.",
+      "title": "Den tageweisen KI-Plan als fortsetzbaren serverseitigen Auftrag persistent machen und echt abnehmen",
+      "reason": "Die gezielte Tagesreparatur vermeidet bereits vollständige Neugenerierungen. Der Auftrag lebt während der Modellaufrufe aber noch im Browser. App-Wechsel, Reload und lange Antwortzeiten müssen ohne Verlust oder Doppelberechnung überstanden werden.",
       "acceptance": [
-        "Wunschdeutung, Kandidatenrecherche, tageweise KI-Komposition, reiseweite Balance, Audit und gezielte Reparatur als fortsetzbaren serverseitigen Auftrag mit persistiertem Fortschritt ausführen.",
-        "Jeden Ankunfts-, vollen und Abreisetag vor dem globalen Audit gegen seine rollenabhängige Mindestdichte prüfen; ausschließlich fehlende oder blockierte Tage erneut von der KI planen.",
-        "Browser-Reload, App-Wechsel und längere Modelllaufzeit ohne verlorenen Auftrag überstehen; Status und verständliche Fortschrittsphase im Composer anzeigen.",
+        "Wunschdeutung, Kandidatenrecherche, Erstentwurf, tageweise Reparatur, globalen Audit und Freigabe unter einer idempotenten serverseitigen Auftrags-ID fortsetzen.",
+        "Zwischenstände und Kosten je Phase serverseitig speichern; ein Reload liest denselben Auftrag und startet keine bereits erfolgreiche Modellstufe erneut.",
         "Den Valencia-Fall und einen deutlich anderen Familien-/Ferienfall authentifiziert vollständig durchlaufen lassen und Kosten, Token, Latenz, Auditquote und Reparaturpfad messen.",
+        "Konfliktmoderator und semantische Ablehnungsdiagnose danach auf denselben gezielten Reparaturpfad setzen.",
         "Erst nach zwei vollständigen Positivläufen P17/P19 weiter schließen; keine kontrollierte Fixture als Ersatz für den echten Modellbeleg verwenden."
       ]
     },
@@ -808,22 +808,22 @@
         "id": "P17-P19-compact-trip-quality-cascade",
         "app": "13.82.168.143",
         "status": "AUF_INTEGRATION_TEILABGENOMMEN",
-        "evidence": "Kompakter trip_itinerary_compact-Vertrag, Luna-Erstentwurf, Terra-Audit/-Reparatur, Sol-Rettung, bestätigte inklusive Datumslogik, offene Budgetsemantik, kanonische Tagesrollen, Duplikatreparatur und blockerbasierte Auditbereitschaft. Quelle a2da60ff85a2d4f8809bd5a5582602ed850441a3, Worker 98274f77-9fb2-4d43-89ba-df55f6a9a150, Intelligence v45 / 4.38.4. 239/239 Regression, 112 Composer und 8/8 öffentliche Byteidentität. Der echte Valencia-Lauf wurde korrekt zurückgehalten, weil Tag 2 nach drei KI-Stufen zu dünn blieb; fortsetzbare tageweise Komposition und zwei Positivläufe bleiben offen. Ein kontrollierter zu dünner Tag wird gezielt repariert, ohne gültige Tage neu zu komponieren."
+        "evidence": "Kompakter trip_itinerary_compact-Vertrag, Luna-Erstentwurf, Terra-Audit, gezielte Terra-Tagesreparatur und Sol-Rettung; bestätigte inklusive Datumslogik, offene Budgetsemantik, kanonische Tagesrollen, Duplikatreparatur und blockerbasierte Auditbereitschaft. Quelle d5146f7faf3d13828281914da714c765da9daef8, Worker 601f84fd-6bbb-484a-a130-623641291684, Intelligence v46 / 4.38.5. 239/239 Regression, 112 Composer und 8/8 öffentliche Byteidentität. Ein kontrollierter zu dünner Tag wird ohne Neugenerierung der gültigen Tage repariert. Dauerhafte Job-Wiederaufnahme und zwei echte Positivläufe bleiben offen."
       }
     ]
   },
-  "qaCommit": "a2da60ff",
-  "intelligence": "v46 RELEASE CANDIDATE / 4.38.5: Luna für Dialogue und kompakten Erstentwurf, Terra für unabhängigen Audit sowie gezielte Reparatur einzelner fehlerhafter Tage, Sol als begrenzte letzte Stufe. Der vorige Valencia-Blocker Tag 2 besitzt jetzt einen tageweisen Reparaturpfad; echte Positivabnahme und dauerhafte serverseitige Job-Wiederaufnahme bleiben offen.",
+  "qaCommit": "d5146f7f",
+  "intelligence": "v46 ACTIVE / 4.38.5: Luna für Dialogue und kompakten Erstentwurf, Terra für unabhängigen Audit sowie gezielte Reparatur einzelner fehlerhafter Tage, Sol als begrenzte letzte Stufe. trip.compose-day-repair mit 6000 Token ist öffentlich aktiv. Der frühere Valencia-Blocker Tag 2 besitzt jetzt einen tageweisen Reparaturpfad; echter Positivlauf und dauerhafte serverseitige Job-Wiederaufnahme bleiben offen.",
   "backendRelease": {
-    "source": "a2da60ff85a2d4f8809bd5a5582602ed850441a3",
+    "source": "d5146f7faf3d13828281914da714c765da9daef8",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
-    "intelligenceSource": "3cb7eacd3e25b4f8936002345787b1773f1ead94",
+    "intelligenceSource": "d5146f7faf3d13828281914da714c765da9daef8",
     "gatewayVersion": 235,
-    "intelligenceVersion": 45,
-    "scope": "Gateway v235 bleibt unverändert. Intelligence v45 / 4.38.4 nutzt den kompakten trip_itinerary_compact-Vertrag mit bis zu 12000 Ausgabetoken: Luna erstellt, Terra auditiert und repariert gezielt, Sol bleibt letzte Eskalation. Der Client leitet redundante Vertragsfelder deterministisch ab, ohne Reiseorte, Zeiten, Reihenfolge, Freiraum oder Alternativen schematisch zu erfinden. Main und Production blieben unverändert.",
-    "proof": "Öffentlicher Health-Check: 4.38.4 / Build 13.38.4 / Core 4.38.4; gpt-5.6-luna fast, gpt-5.6-terra default, gpt-5.6-sol deep; planning.dialogue Luna / 6000 Token; trip.compose trip_itinerary_compact / 12000 Token; adaptiveCascade und compactTripCompose aktiv; Reiseversprechen, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius aktiv.",
-    "browserProof": "Stable Integration liefert App .142 / Core .261. Der authentifizierte Valencia-Lauf durchlief Deutung, Zielwahl, Datumsbestätigung, Komposition und Reparatur. Der Abschluss wurde korrekt blockiert, weil Tag 2 nach drei KI-Stufen die Mindestdichte nicht erfüllte. Das beweist den Qualitätsriegel, aber noch keinen vollständigen Positivlauf.",
-    "regression": "239/239 Safe Regression; 111 Composer; Structured-Output-Schema; Intelligence-Orchestrierung; Releasekonsistenz; visuelles Inventar grün.",
-    "rollbackSource": "Git c542f9356a38abc7800789c0c7c557b3b86d811d; Supabase Intelligence v44"
+    "intelligenceVersion": 46,
+    "scope": "Gateway v235 bleibt unverändert. Intelligence v46 / 4.38.5 ergänzt trip.compose-day-repair: datierte strukturelle oder Auditblocker ersetzen nur die betroffenen Tage, sperren Places aus gültigen Tagen und bewahren Reiseversprechen sowie Gesamtentwurf. Luna erstellt, Terra auditiert und repariert gezielt, Sol bleibt letzte Eskalation. Main und Production blieben unverändert.",
+    "proof": "Öffentlicher Health-Check: 4.38.5 / Build 13.38.5 / Core 4.38.5; gpt-5.6-luna fast, gpt-5.6-terra default, gpt-5.6-sol deep; trip.compose trip_itinerary_compact / 12000 Token; trip.compose-day-repair trip_day_repair / 6000 Token; targetedDayRepair, adaptiveCascade und compactTripCompose aktiv.",
+    "browserProof": "Stable Integration liefert App .143 / Core .262 unter Worker 601f84fd-6bbb-484a-a130-623641291684. Acht öffentliche releasekritische Dateien sind bytegenau. Der kontrollierte Composer-Lauf repariert einen zu dünnen Tag einzeln und besteht anschließend Audit und Entwurfsprojektion. Der nächste echte Valencia-Positivlauf wird erst nach serverseitiger Job-Wiederaufnahme als Abschlussgate gewertet.",
+    "regression": "239/239 Safe Regression; 112 Composer; Structured-Output-Schema; Intelligence-Orchestrierung; Releasekonsistenz; visuelles Inventar 3542 / 991 / 65 grün.",
+    "rollbackSource": "Git a2da60ff85a2d4f8809bd5a5582602ed850441a3; Supabase Intelligence v45"
   }
 }
