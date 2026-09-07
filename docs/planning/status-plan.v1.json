@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "snapshot": "2026-09-07",
+  "snapshot": "2026-09-08",
   "sourceBaseline": "395f7331",
-  "app": "13.82.168.134",
-  "core": "4.82.253",
+  "app": "13.82.168.143",
+  "core": "4.82.262",
   "runtimeSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
-  "worker": "b5b74402-ac68-477d-879e-ce66b640ea22",
+  "worker": "98274f77-9fb2-4d43-89ba-df55f6a9a150",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -716,8 +716,8 @@
     }
   ],
   "acceptanceUpdate": "App .131 / Core .250 ist auf Integration-Worker 47a25eee-9813-43d6-afcb-1a5869967e7a zu 100 Prozent veröffentlicht. Intelligence 4.37.0 / Build 13.37.0 ist aktiv, bestätigt Luna/Terra/Sol für fast/default/deep, erkennt unvollständige Structured Outputs und führt trip.audit kostengünstiger über Terra aus. Der KI-Einstieg deutet den ursprünglichen Wunsch einmal, schlägt bei groben Monatsangaben drei konkrete Zeitfenster mit der gewünschten Dauer vor und startet nach der Zeitwahl ohne wiederholte Wunschseite direkt den vollständigen Tagesentwurf. Kanonische Zielidentität verhindert die stille Vertauschung von Valencia und Alicante; dezente Kontinent-, Länder- und Regionsnamen ergänzen den Globus. Die öffentliche mobile Einstiegsansicht ist sichtbar belegt. Ein authentifizierter vollständiger produktiver Modelllauf bis Entwurf und Audit bleibt offen; Gateway v235, Main, Production, DB und Secrets bleiben unverändert.",
-  "safeRegression": "App .132: 239/239 Safe Regression, NFR-0 3/3, 108 Composer-Recovery-/Validierungsprüfungen, 60 Geografie-/Gestenprüfungen sowie Structured-Output-, Modellrouting-, Runtime- und Releaseprüfungen sind grün. Human-AI-Register 333 Aktionen / 1072 Quellmarker und das aktualisierte visuelle Inventar sind grün. Intelligence-Health 4.38.0, Workerstatus 100 Prozent und 8/8 öffentliche Dateihashes sind belegt. Physische Geräte, echte dauerhafte Kontoübernahme und zwei authentifizierte produktive Modell-Positivläufe bleiben offen.",
-  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit fac0a4a8b2375981134ea6154864092e9ba9eebf und Stable Integration überein. Archiv luvia-integration-13.82.168.132-fac0a4a8.zip hat 92542083 Bytes und SHA-256 DD13A6D388B5A598391468258BCB923662D05714ADB02153E3C3008F4F1C7A69. Worker b5b74402-ac68-477d-879e-ce66b640ea22 liest App .132 / Core .251 zu 100 Prozent.",
+  "safeRegression": "App .143: 239/239 Safe Regression, 112 Composer-Recovery-/Vertragsprüfungen, Structured-Output-Schema, Intelligence-Orchestrierung, Releasekonsistenz und das visuelle Oberflächeninventar mit 3542 erfassten Dateien / 990 visuellen Kandidaten / 65 CSS-Dateien sind grün. Acht releasekritische öffentliche Dateien stimmen bytegenau. Der authentifizierte Valencia-Lauf bestätigt Wunschdeutung, fünf passende Ziele, exakte Sieben-Tage-Daten, offene Budgetsemantik, Rollen-, Duplikat- und Auditbehandlung; nach drei begrenzten KI-Stufen blieb Tag 2 dennoch unter der verbindlichen Mindestdichte. Der Vertrag hat den unvollständigen Plan korrekt zurückgehalten. Physische Geräte, Kontoübernahme und zwei vollständige produktive Modell-Positivläufe bleiben offen.",
+  "publicAssetIdentity": "8/8 geprüfte releasekritische Dateien stimmen bytegenau zwischen Commit a2da60ff85a2d4f8809bd5a5582602ed850441a3 und Stable Integration überein. Archiv luvia-integration-13.82.168.142-a2da60f.zip hat 92549658 Bytes und SHA-256 3221E9C08ABEB0BD95D53BF2ABEB620984833BC9CFDF16F43F7D839F80615C90. Worker 98274f77-9fb2-4d43-89ba-df55f6a9a150 liefert App .142 / Core .261.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -749,23 +749,24 @@
     "docs/modularization/PCR-P15-P17-CANONICAL-TRIP-COMPOSER-20260906.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .134 / Core .253 ist der Integration-Kandidat für die adaptive KI-Qualitätskaskade. Der authentifizierte .133-Lauf belegt fünf individuell begründete Ziele, den entfallenen generischen Place-Zwischenschritt sowie drei korrekte Sieben-Tage-Fenster im Juni 2027; der anschließende Sol-Vollentwurf überschritt nach der Places-Recherche weiterhin das Zeitlimit. .134 lässt deshalb den ersten strikt strukturierten Entwurf durch Luna erstellen, jeden Entwurf unabhängig durch Terra prüfen und eskaliert ausschließlich eine vom Audit verlangte Reparatur an Sol. Die Evidence-, Reiseversprechen-, Freiraum-, Tagesbalance-, Unsicherheits-, Buchungsreihenfolge- und Unterkunftsradius-Gates bleiben unverändert. Gateway v235, Main und Production bleiben unverändert.",
-    "delivered": "Funktional vorbereitet sind der erweiterte strikte Structured-Output-Vertrag, seine sichtbare Composer-Projektion und die kostenbewusste Qualitätskaskade Luna-Entwurf, Terra-Audit, Sol-Reparatur. Unbelegte Fakten können nicht als verifiziert passieren; fehlende Kernunsicherheiten bleiben sichtbar. Freie Zeit ist eine geplante Reiseentscheidung mit Zweck und Zeitfenster, nicht mehr ein leerer Tag. Die Buchungsreihenfolge beschreibt, welche Entscheidung andere Entscheidungen blockiert. Der Unterkunftsradius bleibt eine begründete, als modelliert ausgewiesene Ableitung. Das separate Unit-Economics-Dokument verbindet aktuelle Modell- und Providerpreise mit Paketvorschlag, Durchschnittsverbrauch und Break-even. Reise-DNA und Zeitreise bleiben integriert; Konfliktmoderation, Ablehnungsdiagnose, Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben als folgende Owner-Slices erhalten.",
+    "stage": "P17/P19 aktiv und teilweise: App .143 / Core .262 und Intelligence 4.38.5 sind der geprüfte Integration-Kandidat. Der echte Valencia-Fall mit Meer, Juni 2027, Ausland, kurzen Flügen, Shopping, Nachtleben, Restaurants, sieben Tagen und Abflug Münster wird semantisch korrekt bis zur Gesamtplanung geführt. Falsche Dauer-, Budget-, Rollen-, Duplikat-, JSON-, Schema- und Auditblocker sind beseitigt. Der zuvor zu dünne Tag 2 wird nun als datierter Vertragsfehler isoliert und durch Terra allein neu geplant; alle gültigen Tage und ihre Places bleiben erhalten. Der Composer ist daher noch nicht final abnahmefähig. Gateway v235, Main und Production bleiben unverändert.",
+    "delivered": "Auf Integration belegt sind fünf individuell begründete Ziele, drei passende konkrete Zeitfenster bei grobem Monatswunsch, direkte Gesamtplanung nach Zeitwahl, ein kompakter semantischer Reisevertrag, Reiseversprechen, geplante Freiräume, reiseweite Tagesbalance, Unsicherheitskarte, Buchungsreihenfolge, modellierter Unterkunftsradius, kanonische Tagesrollen, fortgesetzte Duplikatreparatur und ein Audit, der nur echte Blocker sperrt. Die Qualitätskaskade nutzt Luna, Terra und nur als letzte Stufe Sol. Reise-DNA und Zeitreise bleiben sichtbar. Die Unit-Economics-Grundlage enthält vorläufige Free-, Plus-, Premium- und Reisepass-Pakete sowie eine konservative Break-even-Rechnung. Der neue gezielte Tagesreparaturpfad ersetzt bei einem datierten Blocker nur den betroffenen Tag und sperrt die bereits in gültigen Tagen verwendeten Places.",
     "nextStep": {
-      "id": "P17-P19-authenticated-plan-cost-eval",
-      "package": "P17",
+      "id": "P17-P19-resumable-per-day-compose",
+      "package": "P19",
       "status": "AKTIV",
-      "title": "Den vollständigen P17/P19-KI-Plan mit zwei echten Reisen und Kostenmessung abnehmen",
-      "reason": "Der Vertrag, die Regression und das Integration-Deployment sind belegt. Der verbleibende Abschlussbeleg muss jetzt zeigen, dass das produktive Modell den Vertrag bei zwei deutlich verschiedenen freien Wünschen innerhalb eines tragfähigen Kosten- und Latenzrahmens tatsächlich erfüllt.",
+      "title": "Die vollständige KI-Reise als fortsetzbaren serverseitigen Auftrag mit tageweiser Vollständigkeitsgarantie bauen",
+      "reason": "Der letzte echte Lauf scheiterte nicht mehr an Schema, JSON oder falscher Semantik, sondern an der Zuverlässigkeit eines langen Mehrtagesoutputs. Ein einzelner schwacher Tag darf weder den ganzen Plan verwerfen noch einen vollständigen teuren Neulauf erzwingen.",
       "acceptance": [
-        "Einen siebentägigen Küsten-/Städtewunsch ab Münster und einen deutlich anderen Familien-/Ferienwunsch authentifiziert bis zum vollständigen Entwurf und unabhängigen Audit ausführen.",
-        "Für beide Läufe Zielidentität, Zeitfenster, Reiseversprechen, jeden Reisetag, Tagesbalance, Freiraum, Unsicherheitszustände, Buchungsreihenfolge und Unterkunftsradius sichtbar prüfen.",
-        "Capability, Modell, Input-, Cache- und Output-Token, End-to-End-Latenz, Reparaturbedarf und Places-/Kalenderzugriffe messen und mit dem Unit-Economics-Zielrouting vergleichen.",
-        "Erst nach beiden Positivläufen P17/P19 weiter schließen oder die konkret betroffene Capability gezielt reparieren; keine pauschale Freigabe aus kontrollierten Fixtures ableiten."
+        "Wunschdeutung, Kandidatenrecherche, tageweise KI-Komposition, reiseweite Balance, Audit und gezielte Reparatur als fortsetzbaren serverseitigen Auftrag mit persistiertem Fortschritt ausführen.",
+        "Jeden Ankunfts-, vollen und Abreisetag vor dem globalen Audit gegen seine rollenabhängige Mindestdichte prüfen; ausschließlich fehlende oder blockierte Tage erneut von der KI planen.",
+        "Browser-Reload, App-Wechsel und längere Modelllaufzeit ohne verlorenen Auftrag überstehen; Status und verständliche Fortschrittsphase im Composer anzeigen.",
+        "Den Valencia-Fall und einen deutlich anderen Familien-/Ferienfall authentifiziert vollständig durchlaufen lassen und Kosten, Token, Latenz, Auditquote und Reparaturpfad messen.",
+        "Erst nach zwei vollständigen Positivläufen P17/P19 weiter schließen; keine kontrollierte Fixture als Ersatz für den echten Modellbeleg verwenden."
       ]
     },
-    "after": "Nach dem echten Modell- und Kostenbeleg die P15/P17-Kontoübernahme, Reload-, Timeline-, Archiv-/Wiederherstellungs- und physischen Gerätegates schließen. Danach folgt M17 als globaler Sprach-, Design-, Zustands- und Motion-Rollout; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
-    "open": "P02/P03: breite exakte Ortsbilder, Google-Berechtigung und physischer Mobil-Kaltstart. P07/P08: echte Booking-Provider. P09–P12: physische Abnahme und echte Context-Signale. P15/P17: professionelles visuelles Endgate, echter vollständiger KI-Positivlauf, Kontoübernahme, dauerhafte Identity-Übergabe, Lifecycle und physische Geräte. P16: semantische Ablehnungsdiagnose und gezielte Teilreparatur. P19+: produktive datierte Kontext-, Unterkunfts-, Routen-, Wetter-, Event- und Budgetbelege. Von den sieben neuen Composer-USPs sind Reise-DNA und Zeitreise umgesetzt; Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben in ihrer Owner-Reihenfolge offen. Die Geografie ist eine Übersicht, keine Zusage sämtlicher aktuellen Untergliederungen. Kein zusätzlicher P-Block wird als vollständig abgeschlossen markiert.",
+    "after": "Nach dem fortsetzbaren P19-Kompositionsauftrag folgen Konfliktmoderator, semantische Ablehnungsdiagnose und gezielte Teilreparatur sowie die P15/P17-Kontoübernahme-, Reload-, Timeline-, Archiv-/Wiederherstellungs- und physischen Gerätegates. M17 ist anschließend der globale Rollout und Freeze von Sprache, Design, Zuständen, Motion und Komponenten. M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence Product Evolution II aus.",
+    "open": "P02/P03: breite exakte Ortsbilder, Google-Berechtigung und physischer Mobil-Kaltstart. P07/P08: echte Booking-Provider. P09–P12: physische Abnahme und echte Context-Signale. P15/P17: professionelles visuelles Endgate, Kontoübernahme, dauerhafte Identity-Übergabe, Lifecycle und physische Geräte. P16: Konfliktmoderator, semantische Ablehnungsdiagnose und gezielte Teilreparatur. P19: fortsetzbare serverseitige Mehrtageskomposition, zwei echte Positivläufe sowie produktive datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege. Von den sieben Composer-USPs sind Reise-DNA und Zeitreise umgesetzt; Reise-Schatten, Kontextwellen, Luvia Pulse, Ziel-Zwillinge und Gruppen-Sternbild bleiben in ihrer Owner-Reihenfolge offen. Kein zusätzlicher P-Block wird als vollständig abgeschlossen markiert.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -802,21 +803,27 @@
         "app": "13.82.168.132",
         "status": "AUF_INTEGRATION_TEILABGENOMMEN",
         "evidence": "Reiseversprechen, bewusster Freiraum, reiseweite Tagesbalance, belegpflichtige Unsicherheitskarte, Buchungsreihenfolge, modellierter Unterkunftsradius und unabhängiger Versprechen-Audit. Quelle fac0a4a8b2375981134ea6154864092e9ba9eebf, Worker b5b74402-ac68-477d-879e-ce66b640ea22, Intelligence v41 / 4.38.0. 239/239 Regression, 108 Composer, 60 Geografie/Gesten, NFR-0 3/3 und 8/8 öffentliche Byteidentität. Zwei authentifizierte Modell-Positivläufe und echte datierte Kontextbelege offen."
+      },
+      {
+        "id": "P17-P19-compact-trip-quality-cascade",
+        "app": "13.82.168.143",
+        "status": "AUF_INTEGRATION_TEILABGENOMMEN",
+        "evidence": "Kompakter trip_itinerary_compact-Vertrag, Luna-Erstentwurf, Terra-Audit/-Reparatur, Sol-Rettung, bestätigte inklusive Datumslogik, offene Budgetsemantik, kanonische Tagesrollen, Duplikatreparatur und blockerbasierte Auditbereitschaft. Quelle a2da60ff85a2d4f8809bd5a5582602ed850441a3, Worker 98274f77-9fb2-4d43-89ba-df55f6a9a150, Intelligence v45 / 4.38.4. 239/239 Regression, 112 Composer und 8/8 öffentliche Byteidentität. Der echte Valencia-Lauf wurde korrekt zurückgehalten, weil Tag 2 nach drei KI-Stufen zu dünn blieb; fortsetzbare tageweise Komposition und zwei Positivläufe bleiben offen. Ein kontrollierter zu dünner Tag wird gezielt repariert, ohne gültige Tage neu zu komponieren."
       }
     ]
   },
-  "qaCommit": "fac0a4a8",
-  "intelligence": "v41 ACTIVE / 4.38.0 mit strengem trip.compose und trip.audit für Reiseversprechen, Freiraum, Tagesbalance, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius; zwei authentifizierte KI-Modell-Positivläufe bleiben offen",
+  "qaCommit": "a2da60ff",
+  "intelligence": "v46 RELEASE CANDIDATE / 4.38.5: Luna für Dialogue und kompakten Erstentwurf, Terra für unabhängigen Audit sowie gezielte Reparatur einzelner fehlerhafter Tage, Sol als begrenzte letzte Stufe. Der vorige Valencia-Blocker Tag 2 besitzt jetzt einen tageweisen Reparaturpfad; echte Positivabnahme und dauerhafte serverseitige Job-Wiederaufnahme bleiben offen.",
   "backendRelease": {
-    "source": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
+    "source": "a2da60ff85a2d4f8809bd5a5582602ed850441a3",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
-    "intelligenceSource": "fac0a4a8b2375981134ea6154864092e9ba9eebf",
+    "intelligenceSource": "3cb7eacd3e25b4f8936002345787b1773f1ead94",
     "gatewayVersion": 235,
-    "intelligenceVersion": 41,
-    "scope": "Gateway v235 bleibt unverändert. Intelligence v41 erweitert den kanonischen vollständigen Reiseplan samt Audit um Reiseversprechen, geplanten Freiraum, Tagesbalance, Unsicherheitszustände, Buchungsabhängigkeiten und modellierten Unterkunftsradius. Secrets, Auth, Budgets, DB, Main und Production blieben unverändert.",
-    "proof": "Öffentlicher Health-Check: 4.38.0 / Build 13.38.0 / Core 4.38.0 / 14 Capabilities / trip.compose und trip.audit aktiv; Structured-Output-Flags für Reiseversprechen, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius aktiv.",
-    "browserProof": "Stable Integration liefert App .132 / Core .251; acht releasekritische öffentliche Dateien sind bytegenau zum Release-Commit. Der authentifizierte Zwei-Reisen-Modell- und Kostenbeleg ist der nächste Gate.",
-    "regression": "239/239 Safe Regression; 108 Composer; 60 Geografie/Gesten; NFR-0 3/3.",
-    "rollbackSource": "Git 3256928534bd639aeade7b9c963f02806746ca2c; Supabase Intelligence v40"
+    "intelligenceVersion": 45,
+    "scope": "Gateway v235 bleibt unverändert. Intelligence v45 / 4.38.4 nutzt den kompakten trip_itinerary_compact-Vertrag mit bis zu 12000 Ausgabetoken: Luna erstellt, Terra auditiert und repariert gezielt, Sol bleibt letzte Eskalation. Der Client leitet redundante Vertragsfelder deterministisch ab, ohne Reiseorte, Zeiten, Reihenfolge, Freiraum oder Alternativen schematisch zu erfinden. Main und Production blieben unverändert.",
+    "proof": "Öffentlicher Health-Check: 4.38.4 / Build 13.38.4 / Core 4.38.4; gpt-5.6-luna fast, gpt-5.6-terra default, gpt-5.6-sol deep; planning.dialogue Luna / 6000 Token; trip.compose trip_itinerary_compact / 12000 Token; adaptiveCascade und compactTripCompose aktiv; Reiseversprechen, Unsicherheitskarte, Buchungsreihenfolge und Unterkunftsradius aktiv.",
+    "browserProof": "Stable Integration liefert App .142 / Core .261. Der authentifizierte Valencia-Lauf durchlief Deutung, Zielwahl, Datumsbestätigung, Komposition und Reparatur. Der Abschluss wurde korrekt blockiert, weil Tag 2 nach drei KI-Stufen die Mindestdichte nicht erfüllte. Das beweist den Qualitätsriegel, aber noch keinen vollständigen Positivlauf.",
+    "regression": "239/239 Safe Regression; 111 Composer; Structured-Output-Schema; Intelligence-Orchestrierung; Releasekonsistenz; visuelles Inventar grün.",
+    "rollbackSource": "Git c542f9356a38abc7800789c0c7c557b3b86d811d; Supabase Intelligence v44"
   }
 }

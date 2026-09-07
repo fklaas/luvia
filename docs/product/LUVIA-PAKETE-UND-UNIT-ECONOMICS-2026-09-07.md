@@ -1,9 +1,9 @@
 # Luvia Pakete und Unit Economics
 
-**Arbeitsstand:** 7. September 2026
+**Arbeitsstand:** 8. September 2026
 
 **Zweck:** belastbare Startannahme für Produktpakete, KI-Budget und Break-even.
-**Status:** Entscheidungsgrundlage, noch keine veröffentlichte Preisliste. Alle Verbrauchswerte werden nach den ersten 200 bis 500 echten aktiven Nutzern anhand der anonymisierten Capability-Telemetrie neu kalibriert.
+**Status:** Entscheidungsgrundlage, noch keine veröffentlichte Preisliste. Paketgrenzen und Preise werden nach mindestens 100 erfolgreich übernommenen KI-Reisen beziehungsweise 200 bis 500 echten monatlich aktiven Nutzern anhand der anonymisierten Capability-Telemetrie neu kalibriert.
 
 ## 1. Die wichtigste Produktentscheidung
 
@@ -33,17 +33,25 @@ Die Preisposition ist bewusst oberhalb einfacher Reiseorganizer angesetzt. TripI
 
 ## 2. Was ein vollständiger KI-Entwurf kostet
 
-Die folgenden Werte sind eine konservative Schätzung ohne Prompt-Cache. Sie entsprechen dem heutigen Luvia-Ablauf und sind noch keine gemessenen Durchschnittswerte echter Nutzer.
+Die Integration nutzt seit App 13.82.168.143 und Intelligence 4.38.5 einen kompakten kanonischen Reisevertrag. Luna deutet den Wunsch und erzeugt den ersten strukturierten Entwurf. Terra prüft ihn unabhängig. Eine gezielte Terra-Reparatur folgt nur bei konkreten Blockern; Sol ist die begrenzte letzte Rettungsstufe. Der Vertrag leitet redundante technische Felder selbst ab, während die KI weiterhin Reiseorte, Reihenfolge, Zeiten, Tagesrhythmus, Freiraum, Unsicherheiten, Buchungsreihenfolge, Unterkunftsradius und Alternativen entscheidet.
 
-| Capability | Modell heute | angenommener Input | angenommener Output | geschätzte Kosten |
+Die folgenden Werte sind eine Modellrechnung ohne Prompt-Cache. Sie sind noch keine gemessenen Durchschnittswerte echter Nutzer.
+
+| Stufe | Modell | angenommener Input | angenommener Output | geschätzte Kosten |
 |---|---|---:|---:|---:|
-| Wunsch verstehen | Terra | 2.000 Token | 800 Token | 0,0136 $ |
-| fünf Reiseziele ableiten | Terra | 2.500 Token | 1.000 Token | 0,0170 $ |
-| vollständige Reise komponieren | Sol | 10.000 Token | 8.000 Token | 0,2000 $ |
-| unabhängiger Reise-Audit | Terra | 12.000 Token | 2.000 Token | 0,0480 $ |
-| **Normaler Gesamtentwurf heute** |  | **26.500** | **11.800** | **0,2786 $** |
+| Wunsch semantisch verstehen | Luna | 2.000 Token | 800 Token | 0,0014 $ |
+| fünf passende Richtungen | Luna | 2.500 Token | 1.000 Token | 0,0017 $ |
+| kompakter vollständiger Reiseentwurf | Luna | 10.000 Token | 6.000 Token | 0,0092 $ |
+| unabhängiger Reise-Audit | Terra | 10.000 Token | 1.500 Token | 0,0380 $ |
+| **erfolgreicher erster Durchlauf** |  | **24.500** | **9.300** | **ca. 0,050 $** |
 
-Ein zusätzlicher Sol-Reparaturlauf mit erneutem Terra-Audit kostet in dieser Annahme weitere rund 0,256 $. Ein schwieriger Entwurf mit Reparatur liegt damit bei etwa **0,535 $**.
+Eine Terra-Reparatur mit erneutem Audit erhöht diese Modellrechnung um ungefähr **0,134 $**. Eine anschließende Sol-Rettung mit erneutem Audit kann weitere ungefähr **0,206 $** kosten. Daraus ergibt sich derzeit eine sinnvolle Planungsbandbreite:
+
+- etwa **0,05 $**, wenn der erste Entwurf den Audit besteht;
+- etwa **0,18 $**, wenn eine Terra-Reparatur nötig ist;
+- bis ungefähr **0,39 $**, wenn zusätzlich Sol eingreifen muss.
+
+Der letzte echte Valencia-Lauf auf Integration hat gezeigt, dass diese Reparaturquote noch nicht stabil genug ist: Schema, Datumslogik, Budgetsemantik und Audit wurden korrekt verarbeitet, aber nach den begrenzten Reparaturstufen blieb Tag 2 unter der verbindlichen Mindestdichte. Deshalb wird für die Paketkalkulation vorerst mit **0,08 bis 0,20 $ pro erfolgreich übernommener vollständiger Reise** gerechnet. Die technische Zielarchitektur erzeugt und repariert künftig einzelne Reisetage fortsetzbar, damit nicht wegen eines schwachen Tages der ganze Reiseplan erneut bezahlt werden muss.
 
 Die Modellpreise am 7. September 2026 lauten:
 
@@ -55,23 +63,26 @@ Die Modellpreise am 7. September 2026 lauten:
 
 Quellen: [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna), [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra), [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol).
 
-### Empfohlenes Zielrouting nach Eval
+### Verbindliches Zielrouting und Qualitätsgrenze
 
 Das günstigste Modell reicht für viele Arbeitsschritte, aber noch nicht nachgewiesen für jeden vollständigen Reiseplan. Deshalb wird nicht blind alles auf Luna umgestellt. Der richtige Zielzustand ist:
 
-1. Luna interpretiert den Wunsch, erzeugt fünf Richtungen und baut den ersten Gesamtentwurf.
-2. Terra prüft diesen Entwurf unabhängig gegen Reiseversprechen, Belege, Tagesbalance, Geografie und harte Anforderungen.
-3. Sol wird nur bei einem vom Audit belegten komplexen Konflikt oder einer gescheiterten Reparatur eingesetzt.
-4. Das Ergebnis erreicht den Nutzer nur, wenn derselbe Qualitätsvertrag erfüllt ist.
+1. Luna interpretiert den Wunsch, erzeugt fünf Richtungen und baut den ersten strukturierten Entwurf beziehungsweise künftig die einzelnen Tagessegmente.
+2. Terra prüft den Entwurf unabhängig gegen Reiseversprechen, Belege, Tagesbalance, Geografie und harte Anforderungen.
+3. Terra repariert nur die vom Audit benannten Tage oder Felder.
+4. Sol wird nur bei einem belegten komplexen Konflikt oder nach einer gescheiterten Terra-Reparatur eingesetzt.
+5. Das Ergebnis erreicht den Nutzer nur, wenn derselbe Qualitätsvertrag erfüllt ist. Ein günstiger Tarif erhält weniger Aufrufe, aber keine schlechter geprüfte Reise.
 
-Unter denselben Tokenannahmen kostet **Luna für Planung und ersten Entwurf plus Terra-Audit etwa 0,0627 $**. Bei zehn Prozent Sol-Reparaturen entstehen im Mittel etwa **0,0883 $ pro erfolgreichem vollständigen Entwurf**. Würde alles ausschließlich auf Luna laufen, läge die rechnerische Untergrenze bei etwa 0,0195 $, jedoch ohne belegte Qualitätsparität.
+Ein reiner Luna-Pfad wäre am billigsten, ist für komplexe Gesamtpläne aber nicht als qualitativ gleichwertig belegt. Luna eignet sich bereits für Wunschdeutung, Zielrichtungen, einfache strukturierte Aufgaben und den ersten Entwurf. Terra bleibt die unabhängige Qualitätsinstanz. Sol gehört nicht in den Normalfall.
 
-Das vorhandene Guthaben von 9,94 $ reicht damit überschlägig für:
+Das auf dem Screenshot sichtbare Guthaben von 9,94 $ reicht damit überschlägig für:
 
-- etwa 35 normale Entwürfe im heutigen qualitätsorientierten Routing;
-- etwa 18 Entwürfe, wenn jeder einzelne einen vollständigen Reparaturlauf braucht;
-- etwa 112 Entwürfe beim empfohlenen Zielrouting einschließlich zehn Prozent Sol-Reparaturen;
-- rein rechnerisch etwa 510 vollständige Luna-Ausgaben ohne Qualitätsnachweis.
+- etwa 198 erste Durchläufe zu je 0,05 $;
+- etwa 55 erfolgreiche Reisen zu je 0,18 $ mit einer Terra-Reparatur;
+- etwa 25 schwierige Reisen zu je 0,39 $ mit zusätzlicher Sol-Rettung;
+- bei der vorläufigen Kalkulationsspanne von 0,08 bis 0,20 $ ungefähr 50 bis 124 erfolgreich übernommene Reisen.
+
+Die ebenfalls sichtbaren 100 $ sind das monatliche Ausgabenlimit und kein vorhandenes Guthaben.
 
 Die im Composer beobachteten Fehler `invalid JSON`, `invalid response_format schema` und `timeout` beweisen kein zu geringes Guthaben. Ein leeres Guthaben erzeugt einen eigenen Credit-/Quota-Fehler. Ein 400-Schemafehler entsteht vor einer erfolgreichen Modellgenerierung; ungültige oder unvollständige generierte Antworten und wiederholte Timeouts können dagegen bereits Token und damit Geld verbrauchen.
 
@@ -96,9 +107,9 @@ Für die frühe technische Basis wird mit **150 € Fixkosten pro Monat** gerech
 
 | Nutzertyp | angenommene Nutzung | Zielrouting | heutiges Routing |
 |---|---|---:|---:|
-| Free aktiv | im Mittel 0,25 vollständige Pläne, wenige Zielideen und Korrekturen | ca. 0,05 € | ca. 0,10 € |
-| Plus aktiv | 1,5 vollständige Pläne, 15 bis 20 Teilkorrekturen, normale Places-/Kontextnutzung | ca. 0,32 € | ca. 0,60 € |
-| Premium aktiv | 5 vollständige Pläne, 40 bis 60 Teilkorrekturen, häufigere Kontextprüfungen | ca. 1,02 € | ca. 1,98 € |
+| Free aktiv | im Mittel 0,25 vollständige Pläne, eine Zielsuche und eine kleine Korrektur | ca. 0,04–0,08 € | **0,08 € Kalkulation** |
+| Plus aktiv | im Mittel 1,5 vollständige Pläne, etwa fünf Zielsuchen, sechs gezielte Reparaturen und normale Kontextnutzung | ca. 0,35–0,70 € | **0,70 € Kalkulation** |
+| Premium aktiv | im Mittel vier vollständige Pläne, etwa zwölf Zielsuchen, zwanzig Reparaturen und häufigere Kontextprüfungen | ca. 1,20–2,20 € | **2,20 € Kalkulation** |
 
 Das sind Kosten eines **monatlich aktiven** Nutzers. Registrierte, aber inaktive Konten verursachen nahezu keine KI-Kosten und nur einen kleinen Speicheranteil. Ein durchschnittlicher zahlender Nutzer wird wegen der saisonalen Natur von Reisen meist deutlich unter seinem Paketlimit bleiben. Limits schützen vor Automatisierung und Missbrauch; sie sind keine erwartete Normalnutzung.
 
@@ -108,22 +119,22 @@ Für eine konservative mobile Rechnung werden 19 Prozent deutsche Umsatzsteuer u
 
 | Paket | Bruttopreis | nach 19 % USt. | nach 15 % Store-Gebühr | variable Technik | Deckungsbeitrag vor Personal/Marketing |
 |---|---:|---:|---:|---:|---:|
-| Plus | 7,99 € | 6,71 € | 5,71 € | 0,32 € | **5,39 €** |
-| Premium | 14,99 € | 12,60 € | 10,71 € | 1,02 € | **9,69 €** |
+| Plus | 7,99 € | 6,71 € | 5,71 € | 0,70 € | **5,01 €** |
+| Premium | 14,99 € | 12,60 € | 10,71 € | 2,20 € | **8,51 €** |
 
-Bei 70 Prozent Plus und 30 Prozent Premium ergibt sich ein gewichteter Deckungsbeitrag von rund **6,68 € pro zahlendem aktivem Nutzer**. Web-Direktzahlungen können günstiger sein; die Geschäftsplanung sollte zunächst mit dem konservativeren Store-Fall arbeiten.
+Bei 70 Prozent Plus und 30 Prozent Premium ergibt sich ein gewichteter Deckungsbeitrag von rund **6,06 € pro zahlendem aktivem Nutzer**. Web-Direktzahlungen können günstiger sein; die Geschäftsplanung sollte zunächst mit dem konservativeren Store-Fall arbeiten.
 
 ## 6. Break-even
 
 ### Nur technische Grundkosten
 
-Bei 150 € monatlichen Fixkosten, 0,05 € je aktivem Free-Nutzer und 6,68 € Deckungsbeitrag je zahlendem Nutzer ergibt sich:
+Bei 150 € monatlichen Fixkosten, 0,08 € je aktivem Free-Nutzer und 6,06 € Deckungsbeitrag je zahlendem Nutzer ergibt sich:
 
 | Bezahlquote | benötigte zahlende Nutzer | gesamte monatlich aktive Nutzer | Bedeutung |
 |---:|---:|---:|---|
-| 5 % | ca. 27 | ca. 540 | technische Basis ungefähr gedeckt |
-| 3 % | ca. 30 | ca. 1.000 | technische Basis ungefähr gedeckt |
-| 2 % | ca. 36 | ca. 1.800 | technische Basis ungefähr gedeckt |
+| 5 % | ca. 34 | ca. 670 | technische Basis ungefähr gedeckt |
+| 3 % | ca. 44 | ca. 1.450 | technische Basis ungefähr gedeckt |
+| 2 % | ca. 71 | ca. 3.550 | technische Basis ungefähr gedeckt |
 
 Formel: `zahlende Nutzer = Fixkosten / (gewichteter Deckungsbeitrag − Free-Nutzer je Zahler × Free-Kosten)`.
 
@@ -131,15 +142,15 @@ Formel: `zahlende Nutzer = Fixkosten / (gewichteter Deckungsbeitrag − Free-Nut
 
 | gesamte monatliche Fixkosten | bei 5 % Bezahlquote benötigte Zahler | gesamte monatlich aktive Nutzer |
 |---:|---:|---:|
-| 5.000 € | ca. 873 | ca. 17.500 |
-| 10.000 € | ca. 1.746 | ca. 35.000 |
+| 5.000 € | ca. 1.102 | ca. 22.100 |
+| 10.000 € | ca. 2.203 | ca. 44.100 |
 
 Diese zweite Tabelle ist die geschäftlich relevante. Die erste zeigt nur, wann Hosting, Daten und KI getragen werden. Gründerlohn, Entwicklung, Support und Wachstum werden erst in der zweiten Größenordnung bezahlt.
 
 Zwei Beispielszenarien:
 
-- **1.000 MAU, 5 % zahlend:** rund 334 € Deckungsbeitrag der 50 Zahler, 47,50 € Free-Verbrauch und 150 € frühe Fixkosten ergeben etwa **136 € technischen Überschuss**, noch vor Personal und Marketing.
-- **10.000 MAU, 5 % zahlend:** rund 3.340 € Deckungsbeitrag der 500 Zahler, 475 € Free-Verbrauch und beispielhaft 400 € gewachsene Plattformfixkosten ergeben etwa **2.465 €**, weiterhin vor Personal und Marketing.
+- **1.000 MAU, 5 % zahlend:** rund 303 € Deckungsbeitrag der 50 Zahler, 76 € Free-Verbrauch und 150 € frühe Fixkosten ergeben etwa **77 € technischen Überschuss**, noch vor Personal und Marketing.
+- **10.000 MAU, 5 % zahlend:** rund 3.030 € Deckungsbeitrag der 500 Zahler, 760 € Free-Verbrauch und beispielhaft 400 € gewachsene Plattformfixkosten ergeben etwa **1.870 €**, weiterhin vor Personal und Marketing.
 
 ## 7. Messplan vor der endgültigen Preisentscheidung
 
@@ -158,8 +169,9 @@ Die erste verbindliche Preisprüfung erfolgt nach **30 Tagen mit mindestens 200 
 
 ## 8. Entscheidung für den Fahrplan
 
-1. Das heutige Sol/Terra-Routing bleibt bis zum vergleichenden Qualitäts-Eval aktiv.
-2. P17/P19 liefern den vollständigen prüfbaren Planvertrag: Reiseversprechen, Freiraum, Tagesbalance, Unsicherheit, Belege, Buchungsreihenfolge und Unterkunftsradius.
-3. Danach wird derselbe Eval-Satz mit Luna-first, Terra-Audit und gezielter Sol-Eskalation ausgeführt.
-4. Erst bei gleicher fachlicher Annahmequote wird die günstigere Route auf Integration aktiviert.
+1. Das Luna-first-Routing mit Terra-Audit, gezielter Terra-Reparatur und begrenzter Sol-Eskalation bleibt auf Integration aktiv.
+2. P17/P19 teilen die vollständige Komposition in fortsetzbare serverseitige Arbeitsschritte mit tageweiser Vollständigkeitsgarantie. Ein einzelner schwacher Tag darf nicht den vollständigen Plan neu erzeugen.
+3. Für jede erfolgreiche Reise werden tatsächliche Kosten, Latenz, Auditquote und Reparaturpfad gemessen.
+4. Die Paketgrenzen bleiben bis zu mindestens 100 erfolgreichen Reisen konfigurierbar.
 5. Ein zweiter Modellanbieter wird erst über denselben kanonischen Vertrag und Eval-Satz angebunden. Viele Anbieter ohne gemessenen Mehrwert würden Kosten, Fehlerbilder und Datenschutzarbeit erhöhen, aber die Reise nicht automatisch besser machen.
+
