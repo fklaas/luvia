@@ -18,6 +18,7 @@ type WorkflowRow={
 };
 
 export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
+export const TRIP_WORKFLOW_BUDGET={maxModelCalls:8,maxTotalTokens:180_000};
 const IDEMPOTENCY=/^[a-zA-Z0-9:_-]{24,180}$/;
 const WORKFLOW_PHASES=new Set(['understanding','candidates','itinerary','repair','audit','ready-for-review','failed','confirmed']);
 
@@ -168,7 +169,7 @@ export async function startTripPlanJob(userId:string,payload:any){
   const requestedTier=String(payload?.tier||definition.tier),tier=(['fast','default','deep'].includes(requestedTier)?requestedTier:definition.tier) as Tier;
   const requestPayload={input:sanitize(payload?.input||{}),context:sanitize(payload?.context||{})};
   const inputFingerprint=await digest({capability:capabilityId,tier,...requestPayload}),admin=adminClient();
-  await findWorkflow(admin,userId,workflowId);
+  const workflow=await findWorkflow(admin,userId,workflowId);
   await admin.from('intelligence_trip_plan_jobs').delete().eq('user_id',userId).lt('expires_at',new Date().toISOString());
   const {data:existing,error:readError}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('idempotency_key',idempotencyKey).maybeSingle();
   if(readError)throw Object.assign(new Error('Der KI-Auftrag konnte nicht vorbereitet werden.'),{code:'AI_JOB_READ_FAILED',status:502});
@@ -188,9 +189,26 @@ export async function startTripPlanJob(userId:string,payload:any){
     }
     return publicJob(prior);
   }
+  const {data:active,error:activeError}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('workflow_id',workflowId).eq('capability',capabilityId).in('status',['queued','running']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(activeError)throw Object.assign(new Error('Der aktive KI-Auftrag konnte nicht gelesen werden.'),{code:'AI_JOB_READ_FAILED',status:502});
+  if(active){
+    const prior=active as JobRow;
+    if(prior.status==='queued'){await enqueue(admin,prior);return publicJob(await findOwned(admin,userId,prior.id));}
+    if(Date.parse(prior.updated_at)<Date.now()-240_000&&prior.attempt_count<3){
+      const now=new Date().toISOString(),{data:reclaimed}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',updated_at:now,error_code:'AI_JOB_LEASE_RECOVERED',error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','running').eq('updated_at',prior.updated_at).select('*').maybeSingle();
+      if(reclaimed){await enqueue(admin,reclaimed as JobRow);return publicJob(await findOwned(admin,userId,prior.id));}
+    }
+    return publicJob(prior);
+  }
+  const usage=workflow.aggregate_usage||{};
+  if(Number(usage.modelCalls||0)>=TRIP_WORKFLOW_BUDGET.maxModelCalls||Number(usage.totalTokens||0)>=TRIP_WORKFLOW_BUDGET.maxTotalTokens)throw Object.assign(new Error('Der sichere Rechenrahmen dieses Reiseentwurfs ist erreicht. Eure bisherigen Ergebnisse bleiben erhalten.'),{code:'AI_WORKFLOW_BUDGET_EXHAUSTED',status:409});
   const {data:created,error:createError}=await admin.from('intelligence_trip_plan_jobs').insert({user_id:userId,workflow_id:workflowId,idempotency_key:idempotencyKey,capability:capabilityId,tier,input_fingerprint:inputFingerprint,request_payload:requestPayload,status:'queued'}).select('*').single();
   if(createError){
-    if(String(createError.code)==='23505')return publicJob((await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('idempotency_key',idempotencyKey).single()).data as JobRow);
+    if(String(createError.code)==='23505'){
+      const {data:collision}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('workflow_id',workflowId).eq('capability',capabilityId).in('status',['queued','running']).order('created_at',{ascending:false}).limit(1).maybeSingle();
+      if(collision)return publicJob(collision as JobRow);
+      const {data:same}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('idempotency_key',idempotencyKey).maybeSingle();if(same)return publicJob(same as JobRow);
+    }
     throw Object.assign(new Error('Der KI-Auftrag konnte nicht angelegt werden.'),{code:'AI_JOB_CREATE_FAILED',status:502});
   }
   await enqueue(admin,created as JobRow);
