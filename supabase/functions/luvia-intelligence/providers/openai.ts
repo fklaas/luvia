@@ -4,7 +4,7 @@ import { systemPrompt, userInput } from '../prompts/system.ts';
 
 type Tier='fast'|'default'|'deep';
 function models(){return{fast:Deno.env.get('LUVIA_AI_MODEL_FAST')||'gpt-5.6-luna',default:Deno.env.get('LUVIA_AI_MODEL_DEFAULT')||'gpt-5.6-terra',deep:Deno.env.get('LUVIA_AI_MODEL_DEEP')||'gpt-5.6-sol'}}
-export function requestTimeoutMs(capabilityId:string){return ({'planning.dialogue':28_000,'trip.compose':65_000,'trip.compose-day-repair':45_000,'trip.audit':40_000} as Record<string,number>)[capabilityId]||45_000}
+export function requestTimeoutMs(capabilityId:string){return ({'planning.dialogue':28_000,'trip.compose':50_000,'trip.compose-day-repair':45_000,'trip.audit':40_000} as Record<string,number>)[capabilityId]||45_000}
 function extractText(response:any){if(typeof response?.output_text==='string')return response.output_text;for(const item of response?.output||[])for(const content of item?.content||[])if(content?.type==='output_text'&&typeof content.text==='string')return content.text;return''}
 function recoverable(status:number,body:any){const code=String(body?.error?.code||'');return status===404||status===400&&/model|unsupported|not_found/i.test(`${code} ${body?.error?.message||''}`)}
 export function parseStructuredOutput(response:any){

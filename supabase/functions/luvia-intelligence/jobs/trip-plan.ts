@@ -19,7 +19,7 @@ type WorkflowRow={
 
 export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
 export const TRIP_WORKFLOW_BUDGET={maxModelCalls:8,maxTotalTokens:180_000};
-export const TRIP_JOB_LEASE_TIMEOUT_MS=90_000;
+export const TRIP_JOB_LEASE_TIMEOUT_MS=60_000;
 const IDEMPOTENCY=/^[a-zA-Z0-9:_-]{24,180}$/;
 const WORKFLOW_PHASES=new Set(['understanding','candidates','itinerary','repair','audit','ready-for-review','failed','confirmed']);
 
@@ -125,6 +125,16 @@ async function findOwned(admin:any,userId:string,jobId:string){
   return data as JobRow;
 }
 
+async function failInterruptedJob(admin:any,userId:string,row:JobRow){
+  if(row.status!=='running'||Date.parse(row.updated_at)>=Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS)return row;
+  const now=new Date().toISOString(),message='Die KI-Berechnung wurde serverseitig unterbrochen. Eure Eingaben und bisherigen Ergebnisse sind erhalten; startet den Versuch bitte sichtbar erneut.';
+  const {data,error}=await admin.from('intelligence_trip_plan_jobs').update({
+    status:'failed',error_code:'AI_JOB_INTERRUPTED',error_message:message,completed_at:now,updated_at:now
+  }).eq('id',row.id).eq('user_id',userId).eq('status','running').eq('updated_at',row.updated_at).select('*').maybeSingle();
+  if(error)throw Object.assign(new Error('Der unterbrochene KI-Auftrag konnte nicht abgeschlossen werden.'),{code:'AI_JOB_INTERRUPT_FAILED',status:502});
+  return (data as JobRow|null)||await findOwned(admin,userId,row.id);
+}
+
 async function findWorkflow(admin:any,userId:string,workflowId:string){
   const {data,error}=await admin.from('intelligence_trip_plan_workflows').select('*').eq('id',workflowId).eq('user_id',userId).maybeSingle();
   if(error)throw Object.assign(new Error('Der Reiseauftrag konnte nicht gelesen werden.'),{code:'AI_WORKFLOW_READ_FAILED',status:502});
@@ -184,11 +194,7 @@ export async function startTripPlanJob(userId:string,payload:any){
     const prior=existing as JobRow;
     if(prior.input_fingerprint!==inputFingerprint)throw Object.assign(new Error('Die Auftrags-ID gehört bereits zu einem anderen Reiseentwurf.'),{code:'AI_JOB_IDEMPOTENCY_CONFLICT',status:409});
     if(prior.status==='queued'){await enqueue(admin,prior);return publicJob((await findOwned(admin,userId,prior.id)));}
-    if(prior.status==='running'&&Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS&&prior.attempt_count<3){
-      const now=new Date().toISOString();
-      const {data:reclaimed}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',updated_at:now,error_code:'AI_JOB_LEASE_RECOVERED',error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','running').eq('updated_at',prior.updated_at).select('*').maybeSingle();
-      if(reclaimed){await enqueue(admin,reclaimed as JobRow);return publicJob((await findOwned(admin,userId,prior.id)));}
-    }
+    if(prior.status==='running'&&Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS)return publicJob(await failInterruptedJob(admin,userId,prior));
     if(prior.status==='failed'&&payload?.retryFailed===true&&prior.attempt_count<3){
       const now=new Date().toISOString();
       const {data:retried}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',completed_at:null,updated_at:now,error_code:null,error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','failed').select('*').maybeSingle();
@@ -201,10 +207,7 @@ export async function startTripPlanJob(userId:string,payload:any){
   if(active){
     const prior=active as JobRow;
     if(prior.status==='queued'){await enqueue(admin,prior);return publicJob(await findOwned(admin,userId,prior.id));}
-    if(Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS&&prior.attempt_count<3){
-      const now=new Date().toISOString(),{data:reclaimed}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',updated_at:now,error_code:'AI_JOB_LEASE_RECOVERED',error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','running').eq('updated_at',prior.updated_at).select('*').maybeSingle();
-      if(reclaimed){await enqueue(admin,reclaimed as JobRow);return publicJob(await findOwned(admin,userId,prior.id));}
-    }
+    if(Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS)return publicJob(await failInterruptedJob(admin,userId,prior));
     return publicJob(prior);
   }
   const usage=workflow.aggregate_usage||{};
@@ -225,7 +228,8 @@ export async function startTripPlanJob(userId:string,payload:any){
 export async function readTripPlanJob(userId:string,payload:any){
   const jobId=String(payload?.jobId||'').trim();
   if(!/^[0-9a-f-]{36}$/i.test(jobId))throw Object.assign(new Error('Für die Wiederaufnahme fehlt eine gültige Auftrags-ID.'),{code:'AI_JOB_ID_REQUIRED',status:400});
-  const row=await findOwned(adminClient(),userId,jobId);
+  const admin=adminClient();let row=await findOwned(admin,userId,jobId);
   if(Date.parse(row.expires_at)<=Date.now())throw Object.assign(new Error('Dieser KI-Auftrag ist abgelaufen.'),{code:'AI_JOB_EXPIRED',status:410});
+  row=await failInterruptedJob(admin,userId,row);
   return publicJob(row);
 }

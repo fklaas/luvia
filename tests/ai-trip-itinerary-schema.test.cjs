@@ -57,7 +57,7 @@ assert.match(registry,/planning\.dialogue':\{id:'planning\.dialogue',tier:'fast'
 assert.match(registry,/discovery\.plan':\{id:'discovery\.plan',tier:'fast'.*maxOutputTokens:1200,reasoningEffort:'low'/s,'Destination inspiration uses the fast low-reasoning lane instead of spending the complete-trip model budget');
 assert.match(provider,/structured&&model!==candidates\.at\(-1\)/,'A malformed fast-model response must escalate to the default model');
 assert.match(provider,/attempts\.push\(\{model,requestId,usage,latencyMs,success:false/,'Paid failed structured-output attempts must remain visible to cost telemetry');
-assert.match(registry,/trip\.compose'.*schema:'trip_itinerary_compact'.*maxOutputTokens:9000,reasoningEffort:'low'/s,'Trip composition uses the compact semantic schema with bounded reasoning and output budget');
+assert.match(registry,/trip\.compose'.*schema:'trip_itinerary_compact'.*maxOutputTokens:5200,reasoningEffort:'none'/s,'The first complete-trip draft uses the compact schema without extra reasoning tokens and with a 5,200-token ceiling');
 assert.match(registry,/trip\.compose-day-repair'.*schema:'trip_day_repair'.*maxOutputTokens:4500,reasoningEffort:'low'/s,'A failed day receives a smaller replacement output instead of regenerating the whole trip');
 assert.match(adapter,/purpose:'repair-failed-trip-day'/,'Dated plan blockers must enter the one-day repair lane');
 assert.match(adapter,/for\(const repairPolicy of repairPolicies\)/,'Several failed days must be repaired through isolated, resumable day jobs');
