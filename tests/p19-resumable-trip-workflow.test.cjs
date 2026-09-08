@@ -57,6 +57,7 @@ function contracts(){
   assert.match(composer,/TRIP_PLACES_TIMEOUT/,'a supplemental Places refresh needs a bounded visible timeout');checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,resumedPhase\|\|'candidates',\{categoryRefreshAttempts\}\)/,'the refresh marker must be checkpointed before provider work starts');checks++;
   assert.match(composer,/aiRetryGeneration=Number\(state\.aiRetryGeneration\|\|0\)\+1/,'an explicit visible retry must advance the semantic model generation instead of replaying a contract-invalid successful job');checks++;
+  assert.match(composer,/state\.idempotencyKey=createKey\(\);state\.workflowId=null;state\.workflowKey='';state\.workflowSnapshot=null/,'an explicit visible retry must leave an exhausted workflow while automatic polling continues to reuse the active job');checks++;
   assert.match(composer,/retryGeneration:Number\(state\.aiRetryGeneration\|\|0\)/,'the persisted semantic generation must reach itinerary and audit jobs');checks++;
   assert.match(composer,/aiRetryGeneration:Number\(draft\?\.aiRetryGeneration\|\|0\)/,'the semantic retry generation must survive a browser reload');checks++;
   assert.ok((adapter.match(/retryGeneration:Math\.max\(0,Math\.round\(Number\(input\.retryGeneration\)\|\|0\)\)/g)||[]).length>=3,'compose, day repair and audit must include the semantic retry generation in the persistent job input');checks++;

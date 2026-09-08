@@ -836,8 +836,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 229884,
-      "sha256": "bf06c3d3f8939e26059f6b6a232b284195b3a419089d3ef244608d813c131a5e"
+      "bytes": 229988,
+      "sha256": "3bfa289697f8fd883df1edbc5851d9871ea7172ce48e4b4528550ee9419079e7"
     },
     {
       "path": "app/gallery-view.css",
@@ -1473,8 +1473,8 @@
         "overlay-source",
         "active-entry-reference"
       ],
-      "bytes": 3642009,
-      "sha256": "18a4939c48683268c57c7528227211065a0d28464b7049572e4f48e731012f7c"
+      "bytes": 3642113,
+      "sha256": "4755282f68f56431dcad2da47a79b98f0d1810234dc0410ff2536ec9f51bb3cb"
     },
     {
       "path": "app/luvia-runtime-precontext-13.82.121.bundle.js",
@@ -8998,8 +8998,8 @@
       "classes": [
         "visual-source-candidate"
       ],
-      "bytes": 9362,
-      "sha256": "c3fc5c8e1d791618ec8ca5c063e8e7c58e53e5dd8b339360263fa0d04fcc26f5"
+      "bytes": 9628,
+      "sha256": "90b2b58ff9961fd8f10f392ea0af2459598ac52641a53522f5bf7f571c9cabc1"
     },
     {
       "path": "tests/photo-metadata-studio-v13.28.6.test.cjs",
