@@ -49,6 +49,7 @@ function contracts(){
   assert.doesNotMatch(composer,/checkpointTripWorkflow\(state,'audit',\{[^\n]*candidates:/);checks++;
   assert.doesNotMatch(composer,/checkpointTripWorkflow\(state,'ready-for-review',\{[^\n]*candidates:/);checks++;
   assert.match(composer,/state\.aiDraft\.brief=clone\(brief\);state\.aiDraft\.phase='places'/);checks++;
+  assert.match(composer,/cachedCoverage=new Map[\s\S]*aiCategoryRequests\(state\)[\s\S]*!item\|\|item\.status==='empty'\|\|item\.status==='unavailable'/,'resumed workflows must recover requested categories that never received a coverage row');checks++;
 }
 
 (async()=>{contracts();await providerResume();console.log(`P19 resumable trip workflow: ${checks}/${checks} checks PASS`);})().catch(error=>{console.error(error);process.exitCode=1;});
