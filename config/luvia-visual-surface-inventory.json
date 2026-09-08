@@ -6756,16 +6756,16 @@
         "dom-rendering-source",
         "navigation-source"
       ],
-      "bytes": 14804,
-      "sha256": "dbaa43f404b1b640ed69d89cd2e5fb5bf5352939b9c5161b8a12faa2a18369fc"
+      "bytes": 14805,
+      "sha256": "b04f1b5410c0b2faba1c75bea57ced35652e1c3ed5a7706c56e509723186a806"
     },
     {
       "path": "supabase/functions/luvia-intelligence/index.ts",
       "classes": [
         "dom-rendering-source"
       ],
-      "bytes": 8918,
-      "sha256": "af522b7c502ddfb70271ea92bf26be93269fd666ad4737dadd7ccaa781af5dfb"
+      "bytes": 8983,
+      "sha256": "d6f6f6dda62217f4ed9f5c2f20c163b24f7172f9f851731200922b789097297f"
     },
     {
       "path": "supabase/functions/luvia-intelligence/jobs/trip-plan.ts",
@@ -6796,8 +6796,8 @@
       "classes": [
         "dom-rendering-source"
       ],
-      "bytes": 6921,
-      "sha256": "f31f4f66e6161e86106088ab50a6101367e7d651acf1f265491bb733fa02d5b1"
+      "bytes": 6996,
+      "sha256": "eef61c0c2fcdd72eb869cd012083ad88865f5740a77968a8efd1c03271d40f48"
     },
     {
       "path": "sw.js",
@@ -8998,8 +8998,8 @@
       "classes": [
         "navigation-source"
       ],
-      "bytes": 14814,
-      "sha256": "90d2ec8bd19e92498ea0ba56bfce064e6e25cb125c62015e5fc390f26b7625e7"
+      "bytes": 14837,
+      "sha256": "77e5a230a668d053a634ec44b670af075de0a4b5baaa1913c12fd1c21ddcdb98"
     },
     {
       "path": "tests/photo-metadata-studio-v13.28.6.test.cjs",

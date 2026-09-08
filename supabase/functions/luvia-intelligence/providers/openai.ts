@@ -27,6 +27,7 @@ export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unkn
       text:{format:{type:'json_schema',name:`luvia_${args.capability.schema}`,schema:outputSchema(args.capability.schema),strict:true}},
       max_output_tokens:args.capability.maxOutputTokens
     };
+    if(args.capability.id==='planning.dialogue')body.text.verbosity='low';
     if(model.includes('gpt-5'))body.reasoning={effort:args.capability.reasoningEffort};
     const controller=new AbortController(),timeoutMs=requestTimeoutMs(args.capability.id),timeout=setTimeout(()=>controller.abort('LUVIA_AI_SERVER_TIMEOUT'),timeoutMs);let response:Response;
     try{response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body),signal:controller.signal})}

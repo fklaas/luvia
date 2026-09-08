@@ -5,7 +5,7 @@
   "app": "13.82.168.174",
   "core": "4.82.293",
   "runtimeSource": "WORKTREE_CANDIDATE_13.82.168.174",
-  "worker": "fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15",
+  "worker": "1fa508e6-e9ba-4c8d-aff0-b363a12b5fcd",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -732,9 +732,9 @@
       "sequence": "Zuerst .173 ausschließlich auf Integration veröffentlichen und den echten Valencia-Auftrag mit Meer, Shopping, Nachtleben und Restaurants gegen die räumlich versetzte Recherche prüfen. Danach wird der getrennte trip.compose-Latenzengpass durch einen kleineren, fortsetzbaren Kompositionsvertrag geschlossen; anschließend folgen der Familien-/Ferien-/Konfliktfall und lange 14-/21-Tage-Pläne als P17/P19-Abnahme."
     }
   ],
-  "acceptanceUpdate": "App .173 / Core .292 und Integration-Intelligence 4.42.0 sind der veröffentlichte Ausgangsstand; Production ist unverändert. Der reale Valencia-Lauf erreichte trotz räumlicher Sektoren nur 21 Kandidaten, weil zu wenige Kategorien recherchiert und überlappende große Stadtradien viele Duplikate erzeugt hatten; der vollständige Plan erreichte anschließend den ungespeicherten Review, benötigte aber mehr als zwei Minuten. App .174 / Core .293 behandelt explizite Wünsche als Prioritäten statt als vollständiges Stadtinventar, recherchiert acht Zielort-Grundkategorien, verwendet kleinere lokale Sektorradien und setzt echte Rechercheziele von 42/84/126 Kandidaten für 7/14/21 Tage. Die Modellkomposition bleibt mit 32/60/92 priorisierten Kandidaten getrennt begrenzt, damit Vielfalt nicht proportional Modellkosten und Laufzeit aufbläht. Integration-Veröffentlichung und realer Valencia-Nachweis sind der nächste Schritt.",
-  "safeRegression": "Releasekandidat .174: 130 Composer-Verhaltensprüfungen, 92/92 P19-Workflowprüfungen, 240/240 Safe Regression und NFR-0 3/3 sind grün. Belegt sind acht Zielort-Grundkategorien, lokale Stadtsektoren innerhalb des bestätigten Bewegungsradius, echte 42-/84-/126-Kandidatenziele für 7/14/21 Tage und getrennte 32-/60-/92-Kompositionskataloge.",
-  "publicAssetIdentity": "Der letzte öffentlich geprüfte Stand App .173 / Core .292 stammt aus Quelle 547d6000f4f7b4e70ebb217fa9cc85f7eeab7003 und Worker fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15. 22 releasekritische Dateien stimmen auf Stable Integration und der unveränderlichen Worker-URL 22/22 bytegenau mit dem Archiv überein. Die Byteprüfung für .174 folgt unmittelbar nach dem sauberen Integration-Deployment.",
+  "acceptanceUpdate": "App .174 / Core .293 ist ausschließlich auf Integration veröffentlicht und 22/22 byteidentisch; Production ist unverändert. Die Laufzeit behandelt explizite Wünsche als Prioritäten statt als vollständiges Stadtinventar, recherchiert acht Zielort-Grundkategorien, verwendet kleinere lokale Sektorradien und setzt echte Rechercheziele von 42/84/126 Kandidaten für 7/14/21 Tage. Die Modellkomposition bleibt mit 32/60/92 priorisierten Kandidaten getrennt begrenzt. Im frischen öffentlichen Valencia-Lauf scheiterten Erstversuch und sichtbare Wiederholung jedoch bereits davor an der 28-Sekunden-Grenze von planning.dialogue; die neue Places-Phase konnte deshalb öffentlich noch nicht vermessen werden. Integration-Intelligence 4.42.1 reduziert diesen Luna-Schritt auf 2.800 Ausgabetokens, reasoning none und low verbosity bei unverändertem semantischem Schema. Veröffentlichung der getrennten Integration-Function und derselbe Valencia-Neuversuch sind der nächste Schritt.",
+  "safeRegression": "App .174 / Core .293 samt Intelligence-Optimierung 4.42.1: 130 Composer-Verhaltensprüfungen, 92/92 P19-Workflowprüfungen, 240/240 Safe Regression und NFR-0 3/3 sind grün. Belegt sind acht Zielort-Grundkategorien, lokale Stadtsektoren, echte 42-/84-/126-Rechercheziele, getrennte 32-/60-/92-Kompositionskataloge sowie der kompakte Luna-Reiseauftrag mit 2.800 Ausgabetokens, reasoning none und low verbosity.",
+  "publicAssetIdentity": "App .174 / Core .293 stammt aus Quelle 0df4b17ebef77ee8d61df4d647d364b07c1fb6ae und Worker 1fa508e6-e9ba-4c8d-aff0-b363a12b5fcd. 22 releasekritische Dateien stimmen auf Stable Integration und der unveränderlichen Worker-URL 22/22 bytegenau mit dem sauberen Archiv überein. Archiv 92641742 Bytes; SHA-256 1B0F84C1E86D7017663F7A85687B1272239E8BBB66C83F752869671264765D41.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -768,28 +768,26 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .173 / Core .292, Worker fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15 und Integration-Intelligence 4.42.0 sind öffentlich auf Integration; 22/22 Bytes stimmen. Der echte Valencia-Lauf blieb bei 21 Kandidaten, erreichte aber den vollständigen ungespeicherten Review. App .174 / Core .293 ist lokal vollständig geprüft und der aktive breite Recherchekandidat. Main und Production bleiben unverändert.",
-    "delivered": "Der Composer kann einen unterbrochenen Auftrag fortsetzen, beendet verwaiste oder überlange Jobs sichtbar und bewahrt gültige Phasen. .174 löst die sachlich zu enge Places-Auswahl: ausdrückliche Wünsche steuern die Priorität, während acht Zielort-Grundkategorien das reale Inventar verbreitern. Kleinere, verteilte Stadtsektoren reduzieren überlappende Duplikate. Für 7/14/21 Tage wachsen die echten Rechercheziele auf 42/84/126; die KI erhält daraus nur 32/60/92 räumlich und fachlich priorisierte Kandidaten. Provider-IDs bleiben eindeutig und unbekannte Orte werden niemals erfunden.",
+    "stage": "P17/P19 aktiv und teilweise: App .174 / Core .293, Worker 1fa508e6-e9ba-4c8d-aff0-b363a12b5fcd ist öffentlich ausschließlich auf Integration und 22/22 byteidentisch. Der öffentliche Valencia-Neuversuch wurde vor der Places-Phase zweimal durch planning.dialogue nach 28 Sekunden beendet. Integration-Intelligence 4.42.1 ist lokal vollständig geprüft. Main, Production und produktive Intelligence bleiben unverändert.",
+    "delivered": "Valencia und andere große Ziele werden nicht mehr auf explizit genannte Interessen reduziert. Acht Zielort-Grundkategorien, kleinere verteilte Stadtsektoren und reisedauerabhängige Ziele liefern 42/84/126 echte Provider-Kandidaten für 7/14/21 Tage; die KI erhält nur 32/60/92 priorisierte Kandidaten. Der erste öffentliche Versuch machte zugleich den vorgelagerten Laufzeitblocker sichtbar. 4.42.1 hält dessen semantisches Schema bei, entfernt zusätzliches Luna-Reasoning, senkt das Ausgabelimit auf 2.800 und fordert knappe Structured-Output-Texte.",
     "nextStep": {
-      "id": "P17-P19-scalable-place-pool-public-e2e",
+      "id": "P17-P19-fast-understanding-place-pool-public-e2e",
       "package": "P17",
       "status": "AKTIV",
-      "title": "App .174 ausschließlich auf Integration veröffentlichen und den vollständigen Valencia-Ablauf mit breitem Place-Pool abnehmen",
-      "reason": "Der letzte öffentliche Lauf belegte, dass räumliche Sektoren allein den auf 21 Kandidaten beschnittenen Pool nicht lösen. .174 kombiniert Zielort-Grundkategorien, kleinere lokale Suchradien und reisedauerabhängige Rechercheziele; jetzt muss der öffentliche Providerlauf beweisen, dass Valencia deutlich mehr echte, räumlich und fachlich gemischte Kandidaten einschließlich Meer/Strand liefert, ohne den KI-Aufruf unnötig zu vergrößern.",
+      "title": "Integration-Intelligence 4.42.1 getrennt veröffentlichen und den Valencia-Ablauf bis zum breiten Place-Pool wiederholen",
+      "reason": "App .174 ist öffentlich korrekt ausgeliefert, doch planning.dialogue stoppte den frischen Auftrag zweimal vor der Places-Recherche. Der kompaktere Luna-Vertrag muss den Reiseauftrag innerhalb der bestehenden 28-Sekunden-Grenze abschließen; danach wird erstmals der öffentliche 42er-Pool samt Meer/Strand, Kategorienmix und räumlicher Streuung vermessen.",
       "acceptance": [
-        "App .174 / Core .293 wird aus einem sauberen Commit ausschließlich auf Integration veröffentlicht; releasekritische Dateien sind zwischen Archiv, Stable und Immutable byteidentisch.",
-        "Integration verwendet weiter die getrennte Intelligence 4.42.0; produktive Intelligence, Main und Production bleiben unverändert.",
-        "Valencia recherchiert acht Zielort-Grundkategorien und priorisiert die ausdrücklichen Wünsche Meer/Strand, Shopping, Nachtleben und Restaurants.",
-        "7, 14 und 21 Tage besitzen echte wachsende Rechercheziele von 42, 84 und 126 eindeutigen Provider-Kandidaten; der gemeinsame Sicherheitsdeckel bleibt 160.",
-        "Die Modellkomposition erhält daraus höchstens 32, 60 oder 92 fachlich und räumlich priorisierte Kandidaten, damit Modelllaufzeit und Kosten begrenzt bleiben.",
-        "Lokale Sektorsuchen verwenden kleinere Radien; jeder Treffer wird weiterhin gegen den bestätigten globalen Bewegungsradius geprüft.",
-        "Der öffentliche Valencia-Lauf zeigt deutlich mehr als 21 echte Kandidaten oder benennt eine reale Provider-Unterdeckung ehrlich, statt eine künstliche Produktgrenze vorzutäuschen.",
-        "Der öffentliche Plan erreicht den ungespeicherten Review oder einen konkreten sichtbaren terminalen Fehler innerhalb des begrenzten Ablaufs.",
-        "Die sichtbare Tagesplanung deckt Meer/Strand sowie den gewünschten Kategorienmix ab und verteilt Places über nachvollziehbare Tagesgebiete."
+        "Nur luvia-intelligence-integration wird auf Version 4.42.1 veröffentlicht; produktive Intelligence, Main und Production bleiben unverändert.",
+        "planning.dialogue verwendet Luna, das vollständige strikte Schema, höchstens 2.800 Ausgabetokens, reasoning none und low verbosity.",
+        "Der frische Valencia-Auftrag erreicht innerhalb der bestehenden 28-Sekunden-Grenze die Places-Phase oder zeigt einen konkreten terminalen Fehler.",
+        "Valencia recherchiert acht Zielort-Grundkategorien und priorisiert Meer/Strand, Shopping, Nachtleben und Restaurants.",
+        "Der öffentliche Sieben-Tage-Lauf zeigt deutlich mehr als 21 echte Kandidaten oder benennt eine reale Provider-Unterdeckung ehrlich.",
+        "Die Modellkomposition erhält höchstens 32 fachlich und räumlich priorisierte Kandidaten, während der vollständige Forschungspool erhalten bleibt.",
+        "Der öffentliche Plan erreicht den ungespeicherten Review oder einen konkreten sichtbaren terminalen Fehler innerhalb des begrenzten Ablaufs."
       ]
     },
-    "after": "Nach dem öffentlichen Valencia-Nachweis folgen die Laufzeitverkürzung des Gesamtplans, autoritative Ferienfenster und die fachliche Konfliktmoderation vor der Planung. Danach werden räumliche Streuung, Strandabdeckung und Kategorienmix abgenommen sowie P16-Ablehnungsdiagnose, P15/P17-Kontoübernahme, Timeline-/Owner-Receipts, Archiv/Wiederherstellung und physische Geräte geschlossen. M17 friert die gemeinsame Produktsprache und modulübergreifenden Intelligence-Verträge ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
-    "open": "P17/P19: .174 öffentlich veröffentlichen und mit einem frischen Valencia-Auftrag bis zum Review messen; Gesamtlaufzeit deutlich verkürzen; automatische autoritativ belegte Ferienfenster, Konfliktvarianten, räumliche Streuung, Strandabdeckung und Kategorienmix fachlich abnehmen. Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose. Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
+    "after": "Nach dem öffentlichen Valencia-Nachweis folgt die weitere Laufzeitverkürzung der Tageskomposition, danach autoritative Ferienfenster und Konfliktmoderation. Anschließend werden räumliche Streuung, Strandabdeckung und Kategorienmix fachlich abgenommen sowie P16-Ablehnungsdiagnose, P15/P17-Kontoübernahme, Timeline-/Owner-Receipts, Archiv/Wiederherstellung und physische Geräte geschlossen. M17 friert die gemeinsame Produktsprache und modulübergreifenden Intelligence-Verträge ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
+    "open": "P17/P19: Integration-Intelligence 4.42.1 veröffentlichen und .174 mit einem frischen Valencia-Auftrag bis zum Review messen; Gesamtlaufzeit weiter verkürzen; automatische autoritativ belegte Ferienfenster, Konfliktvarianten, räumliche Streuung, Strandabdeckung und Kategorienmix fachlich abnehmen. Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose. Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -847,8 +845,8 @@
       }
     ]
   },
-  "qaCommit": "WORKTREE_CANDIDATE_13.82.168.174",
-  "intelligence": "v52 ACTIVE / 4.40.2 auf der bisherigen produktiven Function; Integration-Intelligence 4.42.0 ist öffentlich auf dem getrennten Function-Einstieg. App .173 erweitert ausschließlich den gemeinsamen providerneutralen Places-/Intelligence-Vertrag: bis zu 160 belegte Kandidaten können komponiert und unabhängig auditiert werden; Poolgrößen, Wellenzahl und räumliche Suchsektoren wachsen kontrolliert mit Reisedauer und Kategorien. Die Function begrenzt trip.compose weiter auf 50 Sekunden und 5.200 Ausgabetokens ohne zusätzliches Luna-Reasoning, beendet verwaiste Jobs nach 60 Sekunden sichtbar und startet ohne ausdrücklichen Nutzer-Neuversuch keinen bezahlten Lauf erneut.",
+  "qaCommit": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
+  "intelligence": "v52 ACTIVE / 4.40.2 auf der bisherigen produktiven Function; Integration-Intelligence 4.42.0 ist der öffentliche Ausgangsstand und 4.42.1 der vollständig geprüfte nächste Kandidat. App .174 erweitert den gemeinsamen providerneutralen Places-/Intelligence-Vertrag auf echte 42/84/126 Recherchekandidaten für 7/14/21 Tage und begrenzt die Komposition getrennt auf 32/60/92. 4.42.1 führt den vorgelagerten Luna-Reiseauftrag mit 2.800 Ausgabetokens, reasoning none und low verbosity aus; das vollständige semantische Structured-Output-Schema bleibt erhalten. Produktive Intelligence, Main und Production bleiben unverändert.",
   "backendRelease": {
     "source": "ebc89441c13b5143f2a66d7e3d3eefe85763fc12",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
@@ -858,17 +856,24 @@
     "scope": "App .169 / Core .288 setzt Intelligence 4.40.2 fort. Mehrere Auditblocker werden als ein starker vollständiger Kompositionsauftrag geroutet und genau einmal nachauditiert; ein einzelner Blocker bleibt gezielt. Terminale Evidenz bleibt lokal und serverseitig fortsetzbar. Gateway v235, Main und Production bleiben unverändert.",
     "proof": "App .168 wurde als Worker fca46d44-b17b-4a58-8ff5-06d7504f028f veröffentlicht und ist 9/9 byteidentisch. Im realen Lauf erschien Mehrere offene Tage werden gemeinsam neu ausbalanciert; danach erreichte die noch vorhandene dritte Qualitätsschleife den Workflowrahmen. App .169 setzt den gemeinsamen Lauf sofort auf die stärkste Stufe und beendet die Automatik nach dem Schlussaudit. 125 Composer- und 64/64 P19-Prüfungen belegen die Ein-, Mehrtag- und erschöpfte Neuversuchspur.",
     "browserProof": "Öffentlich auf .168: der frische Den-Haag-Lauf ging von Places über vollständige Tageskomposition und Audit sichtbar in eine gemeinsame Mehrtagreparatur und anschließend in den Schlussaudit. Erst der danach versuchte weitere Qualitätslauf wurde mit AI_WORKFLOW_BUDGET_EXHAUSTED gestoppt. .169 entfernt genau diesen dritten automatischen Lauf.",
-    "regression": "Kandidat .172: 130 Composer-Verhaltensprüfungen, 92/92 P19-Workflowprüfungen, 240/240 Safe Regression und NFR-0 3/3 sind grün.",
+    "regression": "App .174 / Core .293 und Integration-Intelligence-Kandidat 4.42.1: 130 Composer, 92/92 P19, 240/240 Safe Regression und NFR-0 3/3 sind grün.",
     "rollbackSource": "Git aa92f4f6 und öffentlicher Frontend-Worker b6100c28-aa56-4943-ac3d-166850994f93 / Intelligence v49 sind der bekannte .162-Rückfallstand; dessen Inspirations-Timeout ist dokumentiert. Der davor technisch vollständige .161-Rückfallstand bleibt Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f / Intelligence v48.",
     "integrationCandidate": {
       "functionName": "luvia-intelligence-integration",
-      "version": "4.42.0",
-      "source": "91ef2b0576fa29b11ef8d5dcb6071522aa895ba8",
+      "version": "4.42.1",
+      "source": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
       "serverTimeoutsMs": {
         "planningDialogue": 28000,
         "tripCompose": 50000,
         "tripDayRepair": 45000,
         "tripAudit": 40000
+      },
+      "planningDialogue": {
+        "tier": "fast",
+        "modelAlias": "Luna",
+        "maxOutputTokens": 2800,
+        "reasoningEffort": "none",
+        "textVerbosity": "low"
       },
       "jobLeaseTimeoutMs": 60000,
       "productionFunctionUnchanged": true
