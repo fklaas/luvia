@@ -45,7 +45,7 @@ function contracts(){
   const jobs=read('supabase/functions/luvia-intelligence/jobs/trip-plan.ts'),handler=read('supabase/functions/luvia-intelligence/index.ts');
   assert.match(jobs,/EdgeRuntime/);assert.match(jobs,/request_payload:null/);assert.match(jobs,/attempt_count<3|lt\('attempt_count',3\)/);assert.match(jobs,/input_fingerprint/);assert.match(jobs,/JSON\.stringify\(canonical\(value\)\)/);assert.match(jobs,/AI_WORKFLOW_BUDGET_EXHAUSTED/);assert.match(jobs,/\.eq\('workflow_id',workflowId\)\.eq\('capability',capabilityId\)\.in\('status',\['queued','running'\]\)/);checks+=7;
   assert.match(handler,/trip\.plan-workflow\.checkpoint/);assert.match(handler,/resumableTripWorkflow:true/);assert.match(handler,/jobTtlHours:24/);assert.match(handler,/singleActiveCapabilityJob:true/);assert.match(handler,/workflowBudget:TRIP_WORKFLOW_BUDGET/);checks+=5;
-  const composer=read('app/first-trip-composer.js'),core=read('core/ai/ai-core.js');
+  const composer=read('app/first-trip-composer.js'),core=read('core/ai/ai-core.js'),adapter=read('core/platform/intelligence-contract-adapter.js');
   assert.match(composer,/workflowId:state\.workflowId\|\|null/);assert.match(composer,/ready-for-review/);assert.match(composer,/AI_JOB_PENDING/);assert.match(composer,/resumedPhase==='audit'/);assert.match(composer,/qualityAttempts\?qualityAttempts-1:0/);assert.match(core,/runPersistent/);checks+=6;
   assert.match(composer,/checkpointTripWorkflow\(state,'audit',\{itinerary:clone\(itinerary\),qualityAttempts/);checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,'ready-for-review',\{audit:clone\(audit\),qualityAttempts\}/);checks++;
@@ -56,6 +56,10 @@ function contracts(){
   assert.match(composer,/priorCategoryRefreshes=new Set\(\(serverState\.categoryRefreshAttempts\|\|\[\]\)/,'category refresh attempts must survive reload and prevent repeated provider loops');checks++;
   assert.match(composer,/TRIP_PLACES_TIMEOUT/,'a supplemental Places refresh needs a bounded visible timeout');checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,resumedPhase\|\|'candidates',\{categoryRefreshAttempts\}\)/,'the refresh marker must be checkpointed before provider work starts');checks++;
+  assert.match(composer,/aiRetryGeneration=Number\(state\.aiRetryGeneration\|\|0\)\+1/,'an explicit visible retry must advance the semantic model generation instead of replaying a contract-invalid successful job');checks++;
+  assert.match(composer,/retryGeneration:Number\(state\.aiRetryGeneration\|\|0\)/,'the persisted semantic generation must reach itinerary and audit jobs');checks++;
+  assert.match(composer,/aiRetryGeneration:Number\(draft\?\.aiRetryGeneration\|\|0\)/,'the semantic retry generation must survive a browser reload');checks++;
+  assert.ok((adapter.match(/retryGeneration:Math\.max\(0,Math\.round\(Number\(input\.retryGeneration\)\|\|0\)\)/g)||[]).length>=3,'compose, day repair and audit must include the semantic retry generation in the persistent job input');checks++;
   assert.match(composer,/resumedPhase==='failed'&&Boolean\(itinerary\)&&repairDayDates\.length>0/,'a failed but preserved itinerary must resume in a bounded targeted-repair lane');checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,'failed',\{brief:clone\(brief\),itinerary:state\.aiDraft\.itinerary/,'the failed checkpoint must retain the repairable itinerary and exact rejection state');checks++;
 }
