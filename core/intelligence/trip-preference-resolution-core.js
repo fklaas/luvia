@@ -328,6 +328,16 @@ function rewriteConfirmedWindowNarrative(value,previousStart,previousEnd,start,e
   let text=clean(value);if(!text)return text;
   const currentLabels=germanWindowLabels(start,end),replacement=currentLabels.find(label=>/^\d{1,2}\. bis /.test(label))||currentLabels.find(label=>GERMAN_MONTHS.some(month=>label.includes(month)))||`${start} bis ${end}`;
   for(const label of germanWindowLabels(previousStart,previousEnd))text=text.split(label).join(replacement);
+  // A resumed draft can already contain the newly confirmed dates in its structured
+  // travel order while an older model-written sentence still names the former window.
+  // Normalize any explicit date range in that sentence to the confirmed window so the
+  // human summary and the day contract cannot disagree after a reload.
+  const monthPattern=GERMAN_MONTHS.join('|');
+  text=text
+    .replace(new RegExp(`\\b\\d{1,2}\\.\\s*(?:bis|[–—-])\\s*\\d{1,2}\\.\\s+(?:${monthPattern})\\s+\\d{4}\\b`,'giu'),replacement)
+    .replace(new RegExp(`\\b\\d{1,2}\\.\\s+(?:${monthPattern})\\s+\\d{4}\\s*(?:bis|[–—-])\\s*\\d{1,2}\\.\\s+(?:${monthPattern})\\s+\\d{4}\\b`,'giu'),replacement)
+    .replace(/\b\d{2}\.\d{2}\.\d{4}\s*(?:bis|[–—-])\s*\d{2}\.\d{2}\.\d{4}\b/gu,replacement)
+    .replace(/\b\d{4}-\d{2}-\d{2}\s*(?:bis|[–—])\s*\d{4}-\d{2}-\d{2}\b/gu,replacement);
   return text;
 }
 function requestedPeriodText(time={}){return clean([time.season,time.month,time.year,time.dateFlexibility,...(time.requestedWindows||[]).flatMap(item=>[item?.label,item?.value,item?.start,item?.end])].filter(Boolean).join(' ')).toLowerCase()}
