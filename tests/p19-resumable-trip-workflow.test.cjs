@@ -60,6 +60,8 @@ function contracts(){
   assert.match(composer,/retryGeneration:Number\(state\.aiRetryGeneration\|\|0\)/,'the persisted semantic generation must reach itinerary and audit jobs');checks++;
   assert.match(composer,/aiRetryGeneration:Number\(draft\?\.aiRetryGeneration\|\|0\)/,'the semantic retry generation must survive a browser reload');checks++;
   assert.ok((adapter.match(/retryGeneration:Math\.max\(0,Math\.round\(Number\(input\.retryGeneration\)\|\|0\)\)/g)||[]).length>=3,'compose, day repair and audit must include the semantic retry generation in the persistent job input');checks++;
+  assert.match(composer,/workflowIdentity=state=>\(\{[^\n]*startDate:state\.data\.startDate[^\n]*endDate:state\.data\.endDate/,'the persistent workflow identity must separate materially different travel periods');checks++;
+  assert.match(composer,/function invalidateAiBriefForDateEdit[\s\S]*?state\.workflowId=null;state\.workflowKey='';state\.workflowSnapshot=null;state\.aiRetryGeneration=0/,'editing travel dates must leave the exhausted or completed workflow without discarding the reusable semantic brief');checks++;
   assert.match(composer,/resumedPhase==='failed'&&Boolean\(itinerary\)&&repairDayDates\.length>0/,'a failed but preserved itinerary must resume in a bounded targeted-repair lane');checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,'failed',\{brief:clone\(brief\),itinerary:state\.aiDraft\.itinerary/,'the failed checkpoint must retain the repairable itinerary and exact rejection state');checks++;
 }

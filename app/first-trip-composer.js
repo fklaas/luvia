@@ -520,7 +520,7 @@
   const profileSignature=()=>{try{return JSON.stringify(currentPreferences())}catch{return null}};
   const aiSignature=state=>JSON.stringify({entryMode:state.data.entryMode,destination:state.data.destination,startDate:state.data.startDate,endDate:state.data.endDate,scheduleMode:state.data.scheduleMode,tripPreferences:state.data.tripPreferences,feelings:state.data.feelings,brief:state.data.requestBrief||'',answers:state.briefAnswers||[]});
   const compactHash=value=>{const text=String(value||'');let hash=2166136261;for(let index=0;index<text.length;index++){hash^=text.charCodeAt(index);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)};
-  const workflowIdentity=state=>({entryMode:state.data.entryMode,requestBrief:state.data.requestBrief||'',destinationPlaceId:state.data.destination?.placeId||'',destinationName:state.data.destination?.name||''});
+  const workflowIdentity=state=>({entryMode:state.data.entryMode,requestBrief:state.data.requestBrief||'',destinationPlaceId:state.data.destination?.placeId||'',destinationName:state.data.destination?.name||'',scheduleMode:state.data.scheduleMode||'fixed',startDate:state.data.startDate||'',endDate:state.data.endDate||'',flexibility:state.data.flexibility||''});
   const workflowKeyFor=state=>`trip-workflow:${state.idempotencyKey}:${compactHash(JSON.stringify(workflowIdentity(state)))}`;
   async function ensureTripWorkflow(state){
     const provider=window.LuviaOpenAIProvider,start=provider?.startTripWorkflow,read=provider?.readTripWorkflow,key=workflowKeyFor(state);
@@ -874,6 +874,7 @@
     state.loadSequence++;
     const brief=state.aiDraft?.brief||null;
     state.aiDraft=brief?{...state.aiDraft,status:'brief-ready',signature:aiSignature(state),brief,draft:null,places:[],rehearsals:[],error:null}:{status:'idle'};
+    state.workflowId=null;state.workflowKey='';state.workflowSnapshot=null;state.aiRetryGeneration=0;
     state.root.querySelector('.lx-window-suggestions')?.remove();
   }
   function bind(state){
