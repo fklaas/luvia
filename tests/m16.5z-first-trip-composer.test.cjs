@@ -49,7 +49,7 @@ assert.match(composer,/loopOwner=routeRandom\(\)<\.62/,'Some openings must inclu
 assert.match(composer,/sampleFlightRoute/,'Aircraft and drawn route must share the same sampled path');
 assert.match(composer,/globalCompositeOperation='screen'/,'The title atmosphere must remain an open light treatment rather than a closed card');
 assert.match(composer,/transform:'scale\(1\.34\)'/,'The selected path must hand the canonical globe into destination discovery');
-assert.match(composer,/candidateLimit:64,limit:16/,'Places reads must expose a broader verified candidate field per selected category');
+assert.match(composer,/parallelFastQueries:true,fastQueryLimit:1[\s\S]*candidateLimit:48,limit:12/,'Places reads must expose one bounded parallel provider request and a broad verified candidate field per selected category');
 assert.match(intelligenceAdapter,/Return exactly five distinct real named cities or travel regions/,'Destination inspiration must ask for five constraint-fit ideas');
 assert.match(intelligenceAdapter,/\.slice\(0,5\)/,'Destination inspiration must expose at most five verified directions');
 assert.match(intelligenceAdapter,/run\('trip\.compose'/,'A complete trip must use the dedicated Intelligence composition capability');
