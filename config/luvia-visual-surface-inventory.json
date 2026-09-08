@@ -8408,8 +8408,8 @@
         "navigation-source",
         "overlay-source"
       ],
-      "bytes": 17351,
-      "sha256": "f790587b01a66fda906ce1229417c4c7c135a5e06db5978f3a501798a139f40e"
+      "bytes": 17439,
+      "sha256": "deffa12a71ccd19920f1f0f39095e95c790265e229e5a5688306338b57d95ebc"
     },
     {
       "path": "tests/m16.6-confirmed-owner-action-experience.test.cjs",
