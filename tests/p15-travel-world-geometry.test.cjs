@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const context={window:{}},source=fs.readFileSync('app/composer-travel-world.js','utf8');vm.createContext(context);
 vm.runInContext(source,context);
 const world=context.window.LuviaComposerTravelWorld;
-assert.match(source,/2\.6\.0-geographic-labels/);assert.match(source,/drawGeographyLabels/);assert.match(source,/lx-geography-labels/);
+assert.match(source,/2\.7\.0-island-country-identity/);assert.match(source,/drawGeographyLabels/);assert.match(source,/lx-geography-labels/);
 const features=JSON.parse(fs.readFileSync('assets/composer/world-countries.json','utf8')).features;
 let checks=0;
 for(const [lng,lat] of [[12.48,41.89],[-9.14,38.71],[135.77,35.01],[151.21,-33.87],[-90,0]]){
@@ -18,6 +18,7 @@ assert.equal(world.unproject(2,2,0,0),null);checks++;
 assert.equal(world.countryAt(features,12.48,41.89).properties.name,'Italien');checks++;
 assert.equal(world.countryAt(features,13.4,52.5).properties.name,'Deutschland');checks++;
 assert.equal(world.countryAt(features,-30,0),undefined);checks++;
+assert.equal(world.countryForDestination(features,{countryCode:'ESP',country:'Spanien',formattedAddress:'Palma, IB, Spanien'},-30,0).properties.code,'ESP','A verified island destination must survive a coarse-polygon miss through country identity');checks++;
 // Holes stay water/unselectable even when their exterior polygon is land.
 const holed=[{properties:{name:'Test'},geometry:{type:'Polygon',coordinates:[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[3,3],[7,3],[7,7],[3,7],[3,3]]]}}];
 assert.equal(world.countryAt(holed,5,5),undefined);assert.equal(world.countryAt(holed,1,1).properties.name,'Test');checks++;

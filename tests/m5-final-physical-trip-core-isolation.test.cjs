@@ -381,12 +381,12 @@ assert.deepStrictEqual(
 
   const a=
     html.indexOf(
-      'core/trips/trip-state-core.js?v=13.82.168.148'
+      'core/trips/trip-state-core.js?v=13.82.168.149'
     );
 
   const b=
     html.indexOf(
-      'core/trips/trip-store.js?v=13.82.168.148'
+      'core/trips/trip-store.js?v=13.82.168.149'
     );
 
   assert(

@@ -61,7 +61,9 @@ assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty 
   assert.match(composer,/draftPrerequisite/,'Preview must repair invalid destination or date input before querying Places');
   assert.doesNotMatch(composer,/Ja, damit Orte suchen/,'A valid AI brief must proceed without an extra dead-end confirmation');
   assert.match(composer,/prepareAiBrief/,'The original AI wish must be interpreted before the concrete date window is chosen');
-  assert.match(composer,/destinationIdentityFit/,'A destination hypothesis must not silently resolve to a different city');
+assert.match(composer,/destinationIdentityFit/,'A destination hypothesis must not silently resolve to a different city');
+assert.match(composer,/if\(!finished\)state\.worldView=\{\.\.\.state\.worldView,level:4,pending:null\}/,'A verified AI destination must survive a presentation-only globe animation miss');
+assert.match(read('app/composer-travel-world.js'),/countryForDestination\(features,destination,lng,lat\)/,'Island destinations must resolve through country identity when coarse map geometry misses the point');
   assert.match(composer,/Gesamte Reise erstellen/,'AI mode must transition directly from dates to the complete itinerary');
   for(const marker of ['travelPromiseMarkup','uncertaintyMarkup','bookingOrderMarkup','dayBalanceMarkup','LUVIAS REISEVERSPRECHEN','KONTEXTKLARHEIT','TAGESBALANCE'])assert.ok(composer.includes(marker),`missing explainable complete-plan marker: ${marker}`);
 for(const obsolete of ['data-ftc-map-focus','data-ftc-draft-swap'])assert.equal(composer.includes(obsolete),false,`obsolete multi-action Place control remains: ${obsolete}`);
