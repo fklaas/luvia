@@ -13,7 +13,7 @@ vm.runInContext(read('core/intelligence/human-ai-language-compiler-core.js'),con
 vm.runInContext(read('core/intelligence/human-ai-safety-policy-core.js'),context,{filename:'human-ai-safety-policy-core.js'});
 vm.runInContext(read('core/platform/intelligence-contract-adapter.js'),context,{filename:'intelligence-contract-adapter.js'});
 const api=context.LuviaIntelligenceContractV1;
-assert.equal(api.runtimeVersion,'1.17.0-trip-promise-uncertainty');
+assert.equal(api.runtimeVersion,'1.18.0-scalable-trip-place-catalog');
 assert.equal(typeof api.reads.compileHumanActions,'function');
 assert.equal(typeof api.reads.getHumanActionLanguageCoverage,'function');
 const result=api.reads.compileHumanActions({utterance:'Finde Minigolf in Scharbeutz',catalog:registry.actions});

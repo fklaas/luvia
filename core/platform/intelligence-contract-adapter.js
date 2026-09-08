@@ -3,7 +3,7 @@
 
   const CONTRACT_ID = 'intelligence.v1';
   const VERSION = '1';
-  const RUNTIME_VERSION = '1.17.0-trip-promise-uncertainty';
+  const RUNTIME_VERSION = '1.18.0-scalable-trip-place-catalog';
   const root = globalThis;
 
   const EVENTS = Object.freeze([

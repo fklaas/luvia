@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.15.0-scalable-trip-pools';
+const VERSION='1.16.0-spatial-breadth-sweeps';
 const PROVIDER_CACHE_MS=180000;
 const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
@@ -22,7 +22,7 @@ function providerDestination(options={}){
   const candidates=[options.destinationContext,tripDestination,options.trip,explicitDestination,active];
   return candidates.find(hasGeography)||candidates.find(hasDestinationIdentity)||options.destination||active||null;
 }
-const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,vegetarianOnly:options.vegetarianOnly===true,accessibleOnly:options.accessibleOnly===true,reservableOnly:options.reservableOnly===true,priceLevels:options.priceLevels||[],minUserRatingCount:options.minUserRatingCount||0,query,candidateLimit:Number(options.candidateLimit)||20,limit:Number(options.limit)||5,destination:destinationFingerprint(providerDestination(options)),strictDestination,providers:(options.providers||['auto']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
+const cacheFingerprint=(options,route,query,strictDestination)=>JSON.stringify({type:route.primaryType,includedType:route.includedType,includedTypes:options.includedTypes||[],strictPlaceType:clean(options.strictPlaceType)||null,vegetarianOnly:options.vegetarianOnly===true,accessibleOnly:options.accessibleOnly===true,reservableOnly:options.reservableOnly===true,priceLevels:options.priceLevels||[],minUserRatingCount:options.minUserRatingCount||0,query,candidateLimit:Number(options.candidateLimit)||20,limit:Number(options.limit)||5,destination:destinationFingerprint(providerDestination(options)),researchAnchor:destinationFingerprint(options.landmarkContext),strictDestination,providers:(options.providers||['auto']).map(providerName),languageCode:clean(options.languageCode||globalThis.document?.documentElement?.lang||'de'),regionCode:clean(options.regionCode||''),openNow:options.openNow===true,minRating:Number(options.minRating)||null,maxDistanceMeters:Number(options.maxDistanceMeters)||null,sortBy:clean(options.sortBy||'relevance'),spatialConstraints:options.spatialConstraints||null,positionShared:options.positionContext?.providerShareApproved===true||options.positionContext?.shareWithProvider===true});
 function providerRequestTimeout(options={}){
   const requested=(options.providers||['auto']).map(providerName),configured=Math.max(0,Number(options.providerTimeoutMs)||0),fallback=options.fastPath===true?2400:12000;
   // `auto` can legally walk Geoapify -> TomTom -> HERE. Each provider owns a
@@ -214,6 +214,7 @@ async function recommend(options={}){
         reservableOnly:options.reservableOnly===true,
         maxDistanceMeters:options.maxDistanceMeters,
         sortBy:options.sortBy||'relevance',
+        landmarkContext:options.landmarkContext||null,
         profileContext:options.profileContext||{},
         intentContext:{text:goal.text,category:goal.category,niche:Boolean(intent.niche),variants:plan.queries,aiPlan:plan.ai||null},
         spatialConstraints:options.spatialConstraints||window.LuviaGlobalPlaceContracts?.spatialIntent?.(goal.text)||null,
