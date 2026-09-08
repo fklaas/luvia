@@ -2075,6 +2075,7 @@ supabase/functions/luvia-intelligence/_shared/rate-limit.ts,Intelligence,Edge Fu
 supabase/functions/luvia-intelligence/capabilities/registry.ts,Intelligence,Edge Function,AI transport
 supabase/functions/luvia-intelligence/deno.json,Intelligence,Edge Function,AI transport
 supabase/functions/luvia-intelligence/index.ts,Intelligence,Edge Function,AI transport
+supabase/functions/luvia-intelligence/jobs/trip-plan.ts,Intelligence,Edge Function,Resumable Intelligence-owned trip workflow and job state
 supabase/functions/luvia-intelligence/policies/privacy.ts,Intelligence,Edge Function,AI transport
 supabase/functions/luvia-intelligence/prompts/system.ts,Intelligence,Edge Function,AI transport
 supabase/functions/luvia-intelligence/providers/openai.ts,Intelligence,Edge Function,AI transport

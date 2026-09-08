@@ -26,13 +26,13 @@ async function providerResume(){
   vm.runInContext(read('core/ai/providers/openai-provider.js'),context);
   const provider=context.window.LuviaOpenAIProvider,workflow=await provider.startTripWorkflow('trip-workflow:test-user:stable-request',{destinationName:'Valencia'});
   assert.equal(workflow.id,'11111111-1111-4111-8111-111111111111');checks++;
-  const payload={capability:'trip.compose',tier:'fast',input:{days:[{date:'2027-06-12'}]},context:{currentMoment:{surface:'trip-composer'}}};
+  const payload={capability:'trip.compose',tier:'fast',input:{days:[{date:'2027-06-12',entries:[{providerPlaceId:'places/valencia-1',evidence:{refs:[{id:'evidence-valencia-1'}]}}]}]},context:{live:{now:'2026-09-08T06:40:00.000Z',today:'2026-09-08'},currentMoment:{surface:'trip-composer'}}};
   const first=await provider.runPersistent(payload,{workflowId:workflow.id,pollMs:1,timeoutMs:16000});
   assert.equal(first.data.result.title,'Fortgesetzter Entwurf');assert.equal(first.meta.resumable,true);checks+=2;
-  const second=await provider.runPersistent(payload,{workflowId:workflow.id,pollMs:1,timeoutMs:16000});
+  const second=await provider.runPersistent({...payload,context:{...payload.context,live:{...payload.context.live,now:'2026-09-08T06:41:37.000Z'}}},{workflowId:workflow.id,pollMs:1,timeoutMs:16000});
   assert.equal(second.data.result.title,'Fortgesetzter Entwurf');assert.equal(executions,1,'Same semantic request must reuse one server execution');checks+=2;
   const starts=calls.filter(call=>call.action==='trip.plan-job.start');
-  assert.equal(starts.length,2);assert.equal(starts[0].payload.idempotencyKey,starts[1].payload.idempotencyKey);assert.equal(starts[0].payload.workflowId,workflow.id);assert.equal(reads,1);checks+=4;
+  assert.equal(starts.length,2);assert.equal(starts[0].payload.idempotencyKey,starts[1].payload.idempotencyKey);assert.deepEqual(starts[0].payload.context,starts[1].payload.context);assert.equal(starts[0].payload.input.days[0].entries[0].evidence.refs[0].id,'evidence-valencia-1');assert.equal(starts[0].payload.workflowId,workflow.id);assert.equal(reads,1);checks+=6;
 }
 
 function contracts(){

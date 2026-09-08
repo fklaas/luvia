@@ -9,7 +9,7 @@
   const sleep=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   function compact(value,depth=0){
-    if(depth>5)return'[truncated]';
+    if(depth>12)return'[truncated]';
     if(value==null||typeof value==='boolean'||typeof value==='number')return value;
     if(typeof value==='string')return value.slice(0,1200);
     if(Array.isArray(value))return value.slice(0,60).map(item=>compact(item,depth+1));
@@ -35,8 +35,17 @@
     return seeds.map(seed=>{let hash=seed>>>0;for(let index=0;index<text.length;index++){hash^=text.charCodeAt(index);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(16).padStart(8,'0');}).join('');
   }
 
+  function persistentContext(value={}){
+    const context=compact(value||{});
+    if(context?.live&&typeof context.live==='object')delete context.live.now;
+    if(context?.journey?.knowledgeGraph&&typeof context.journey.knowledgeGraph==='object')delete context.journey.knowledgeGraph.generatedAt;
+    if(context?.journey?.schedule&&typeof context.journey.schedule==='object')delete context.journey.schedule.lastUpdatedAt;
+    if(context?.journey?.today&&typeof context.journey.today==='object')delete context.journey.today.generatedAt;
+    return context;
+  }
+
   function bodyFor(action,payload){
-    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.144',coreVersion:'4.82.263'}};
+    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.146',coreVersion:'4.82.265'}};
     if(new TextEncoder().encode(stable(body)).length>MAX_BYTES)body={
       action,
       payload:{idempotencyKey:payload?.idempotencyKey,workflowId:payload?.workflowId,jobId:payload?.jobId,retryFailed:payload?.retryFailed,phase:payload?.phase,state:compact(payload?.state),capability:payload?.capability,tier:payload?.tier,input:compact(payload?.input),context:{trip:compact(payload?.context?.trip),currentMoment:compact(payload?.context?.currentMoment),preferences:compact(payload?.context?.preferences)}},
@@ -74,7 +83,7 @@
   async function runPersistent(payload={},options={}){
     const capability=String(payload?.capability||'');
     if(!PERSISTENT_CAPABILITIES.has(capability)||!options.workflowId)return invoke('brain.run',payload,options);
-    const normalized={capability,tier:payload?.tier,input:compact(payload?.input||{}),context:compact(payload?.context||{})};
+    const normalized={capability,tier:payload?.tier,input:compact(payload?.input||{}),context:persistentContext(payload?.context||{})};
     const hash=fingerprint(normalized),idempotencyKey=`trip-plan:${capability.replaceAll('.','-')}:${hash}`;
     const started=Date.now(),maxWaitMs=Math.max(15000,Number(options.timeoutMs||90000)),pollMs=Math.max(500,Math.min(3000,Number(options.pollMs||1200)));
     let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed!==false},{timeoutMs:12000});

@@ -7,6 +7,8 @@ ai_learning_signals,Intelligence,canonical/transitional,migration-created
 ai_orchestration_runs,Intelligence,canonical/transitional,migration-created
 ai_usage,Intelligence,canonical/transitional,migration-created
 ai_usage_events,Intelligence,canonical/transitional,migration-created
+intelligence_trip_plan_jobs,Intelligence,canonical/transitional,migration-created
+intelligence_trip_plan_workflows,Intelligence,canonical/transitional,migration-created
 automation_jobs,Intelligence,canonical/transitional,migration-created
 automation_steps,Intelligence,canonical/transitional,migration-created
 booking_affiliate_attributions,Booking,canonical,migration-created
