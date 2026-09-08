@@ -58,7 +58,9 @@ assert.match(intelligenceAdapter,/run\('trip\.audit'/,'A complete trip must pass
 assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty AI days must be rejected before preview');
   assert.match(composer,/Fünf neue Vorschläge/,'Destination inspiration must offer a visible refresh');
   assert.match(composer,/profile\.travelInterests\|\|profile\.interests/,'Profile interests must determine the requested Place categories');
-  assert.match(composer,/if\(dietary\.length\)ids\.push\('food'\)/,'Dietary preferences must make food Places part of the draft');
+  assert.match(composer,/if\(\(preferences\.food\|\|\[\]\)\.length\)add\('food','requested'\)/,'Trip dietary preferences must make food Places part of the requested draft');
+  assert.match(composer,/profileAllowance=directRequests\.length>=4\?0/,'A rich explicit request must not wait for unrelated profile-only categories');
+  assert.match(composer,/Promise\.allSettled\(requests\.map\(request=>requestCategory\(request\)\)\)/,'Explicit Place categories must start together instead of waiting in serial batches');
   assert.match(composer,/draftPrerequisite/,'Preview must repair invalid destination or date input before querying Places');
   assert.doesNotMatch(composer,/Ja, damit Orte suchen/,'A valid AI brief must proceed without an extra dead-end confirmation');
   assert.match(composer,/prepareAiBrief/,'The original AI wish must be interpreted before the concrete date window is chosen');
