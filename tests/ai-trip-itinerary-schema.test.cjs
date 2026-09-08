@@ -44,6 +44,8 @@ assert.deepStrictEqual(Array.from(compact.properties.days.items.properties.entri
 assert(!Object.prototype.hasOwnProperty.call(compact.properties.days.items.properties,'role'),'The model must not repeat the deterministic day role');
 assert(!Object.prototype.hasOwnProperty.call(compact.properties.days.items.properties.entries.items.properties,'category'),'The model must not repeat the provider-owned Place category');
 assert.deepStrictEqual(Array.from(repair.required),['days','reasoningSummary','confidence']);
+assert.strictEqual(repair.properties.days.minItems,1,'A repair response must contain its requested day');
+assert.strictEqual(repair.properties.days.maxItems,1,'A repair call must return exactly one day');
 assert.deepStrictEqual(Array.from(repair.properties.days.items.required),['date','theme','balance','freeTime','entries']);
 const adapter=fs.readFileSync('core/platform/intelligence-contract-adapter.js','utf8');
 assert(!/source\.role&&source\.role!==expected\.role/.test(adapter),'The compact model normalization must not override the contract-owned arrival or departure role');
@@ -57,7 +59,8 @@ assert.match(provider,/structured&&model!==candidates\.at\(-1\)/,'A malformed fa
 assert.match(provider,/attempts\.push\(\{model,requestId,usage,latencyMs,success:false/,'Paid failed structured-output attempts must remain visible to cost telemetry');
 assert.match(registry,/trip\.compose'.*schema:'trip_itinerary_compact'.*maxOutputTokens:12000,reasoningEffort:'low'/s,'Trip composition uses the compact semantic schema with bounded reasoning and output budget');
 assert.match(registry,/trip\.compose-day-repair'.*schema:'trip_day_repair'.*maxOutputTokens:6000,reasoningEffort:'low'/s,'A failed day receives a smaller replacement output instead of regenerating the whole trip');
-assert.match(adapter,/purpose:'repair-failed-trip-days'/,'Dated plan blockers must enter the targeted day repair lane');
+assert.match(adapter,/purpose:'repair-failed-trip-day'/,'Dated plan blockers must enter the one-day repair lane');
+assert.match(adapter,/for\(const repairPolicy of repairPolicies\)/,'Several failed days must be repaired through isolated, resumable day jobs');
 assert.match(registry,/trip\.audit'.*maxOutputTokens:5000,reasoningEffort:'low'/s,'The independent audit needs a bounded output and reasoning budget');
 assert.match(registry,/trip\.audit':\{id:'trip\.audit',tier:'default'/,'The audit must use Terra while Sol remains reserved for composition and targeted repair');
 assert.match(provider,/body\.reasoning=\{effort:args\.capability\.reasoningEffort\}/,'All tiers obey the bounded capability reasoning budget');
