@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-08",
   "sourceBaseline": "395f7331",
-  "app": "13.82.168.162",
-  "core": "4.82.281",
-  "runtimeSource": "10f1c011b5a8c6b7f55893038edc3900b4921118",
+  "app": "13.82.168.163",
+  "core": "4.82.282",
+  "runtimeSource": "dcbaa1bef4430314c0d8a07bf82fc81917735daf",
   "worker": "19878f2d-6378-4592-b292-1cf63cd8ab5f",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
@@ -751,8 +751,8 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .162 / Core .281 und Intelligence v49 / 4.40.0 sind als geprüfter Integration-Kandidat vorbereitet. Der neue Planungsvertrag umfasst Konfliktmoderation, Mobilitätsradius, räumliche Vielfalt, harte Interessenabdeckung, sichtbare Annahmen und getrennte Live-Prüfungen. Veröffentlichung und zweiter realer Familien-/Ferien-/Konfliktlauf folgen. Gateway v235, Main und Production bleiben unverändert.",
-    "delivered": "Lokal umgesetzt sind: echter Konfliktmoderator mit Varianten, Pflichtfrage zum Bewegungsradius falls nicht ableitbar, 4/20/50-km-Suchradien je Mobilitätsstil, mindestens drei Stadt-/Küstengebiete bei Bus/Bahn oder weiterem Radius, harter Meer-/Strand- und Kategorienvertrag, reiseweiter Wunschmix, 20–25 % bewusster Freiraum, maximal zwei intensive Tage in Folge, eine sichtbare veränderbare Unterkunftsbasis sowie getrennte spätere Live-Prüfungen. Der kompakte Planungscheck und das seitliche Desktoplayout reduzieren die Überladung. Drei neue Tageskartenrichtungen sind als klickbarer Prototyp vorhanden. 122 Composer, 57/57 P19 und alle gezielten Verträge sind grün.",
+    "stage": "P17/P19 aktiv und teilweise: App .162 / Core .281 und Intelligence v49 / 4.40.0 sind öffentlich auf Integration; der reale Familien-/Ferien-/Konflikttest deckte dort einen zu frühen Abbruch der Zielinspiration auf. App .163 / Core .282 und Intelligence v50 / 4.40.1 beheben diesen Befund mit Luna, kleinem Structured Output und 30 Sekunden Transportbudget. Gateway v235, Main und Production bleiben unverändert.",
+    "delivered": "Öffentlich aktiv sind der echte Konfliktmoderator, Bewegungsradius, räumliche Vielfalt, harte Interessenabdeckung, sichtbare Planungsannahmen und getrennte Live-Prüfungen. Der erste reale .162-Familienlauf bewahrte die Eingabe, brach die Fünfer-Zielidee aber nach dem zu kurzen 20-Sekunden-Budget ab. .163 routet genau diese leichte Aufgabe auf Luna mit niedriger Denkleistung und 1.200 Ausgabetokens; Gesamtplan und unabhängiger Audit behalten ihre getrennten Qualitätsstufen. Der kompakte Planungscheck, das seitliche Desktoplayout und drei klickbare Tageskartenrichtungen bleiben enthalten.",
     "nextStep": {
       "id": "P17-P19-family-holiday-conflict-positive-e2e",
       "package": "P17",
@@ -767,8 +767,8 @@
         "Unterkunftsradius und Nachbarschaft folgen aus dem fertigen Tagesnetz und Mobilitätswunsch. Audit, Unsicherheitskarte und Buchungsreihenfolge bleiben ehrlich; Modell, Tokens, Latenz, Kosten und Reparaturen werden je Phase gemessen."
       ]
     },
-    "after": "Nach Veröffentlichung folgt der zweite reale Familien-/Ferien-/Konfliktlauf einschließlich autoritativem Ferienfenster, Küstenabdeckung, mehreren Gebieten, Kosten und Latenzen. Danach kommen semantische Ablehnungsdiagnose und gezielte Teilreparatur, anschließend P15/P17 Kontoübernahme, Timeline, Archiv/Wiederherstellung und physische Geräte. Die produktive Tageskartenrichtung wird aus dem klickbaren A/B/C-Prototyp gewählt. M17 friert danach die gemeinsame Produktsprache ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
-    "open": "P17/P19: öffentliche Veröffentlichung von .162/v49, zweiter Familien-/Ferien-/Konflikt-Positivlauf, gemessene Kosten/Latenz je Modell, Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege. P16: semantische Ablehnungsdiagnose. Die produktive kompakte Tageskarten-Gestaltung wartet auf die Auswahl aus drei sichtbaren Designrichtungen; Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
+    "after": "Nach Veröffentlichung von .163 wird derselbe reale Familien-/Ferien-/Konfliktlauf erneut ausgeführt: fünf Richtungen, autoritatives Ferienfenster, Konfliktentscheidung, Bewegungsradius und vollständiger Mehrgebietsplan ohne Speichern. Danach folgen semantische Ablehnungsdiagnose und gezielte Teilreparatur, anschließend P15/P17 Kontoübernahme, Timeline, Archiv/Wiederherstellung und physische Geräte. Die produktive Tageskartenrichtung wird aus dem klickbaren A/B/C-Prototyp gewählt. M17 friert danach die gemeinsame Produktsprache ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
+    "open": "P17/P19: .163/v50 veröffentlichen und denselben öffentlichen Familien-/Ferien-/Konfliktlauf vollständig bis zum ungespeicherten Review abschließen; Kosten/Latenz je Modell messen; Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege. P16: semantische Ablehnungsdiagnose. Die produktive kompakte Tageskarten-Gestaltung wartet auf die Auswahl aus drei sichtbaren Designrichtungen; Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -827,17 +827,17 @@
     ]
   },
   "qaCommit": "10f1c011",
-  "intelligence": "v49 CANDIDATE / 4.40.0: Der strikte Planung.dialogue-Vertrag liefert Konfliktvarianten und Mobilitätsstil. trip.compose und trip.audit erzwingen sichtbare Planungsannahmen, räumliche Vielfalt, harte Meer-/Kategorienabdeckung, reiseweite Balance, Unsicherheiten und Buchungsabhängigkeiten. Luna/Terra/Sol-Routing und der fortsetzbare 24-Stunden-Workflow bleiben erhalten. Öffentliche Aktivierung und zweiter echter Positivlauf stehen aus.",
+  "intelligence": "v50 CANDIDATE / 4.40.1: Konfliktvarianten, Mobilitätsstil, sichtbare Annahmen, räumliche Vielfalt, harte Meer-/Kategorienabdeckung, reiseweite Balance, Unsicherheiten und Buchungsabhängigkeiten bleiben im strikten Vertrag. Die Fünfer-Zielinspiration wechselt auf Luna mit niedriger Denkleistung, 1.200 Ausgabetokens und 30 Sekunden Clienttransport; vollständige Komposition und unabhängiger Audit behalten ihre stärkeren getrennten Stufen.",
   "backendRelease": {
-    "source": "10f1c011",
+    "source": "dcbaa1be",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
-    "intelligenceSource": "10f1c011",
+    "intelligenceSource": "dcbaa1be",
     "gatewayVersion": 235,
-    "intelligenceVersion": 49,
-    "scope": "Intelligence v49 / 4.40.0 und App .162 / Core .281 sind als lokaler Integration-Kandidat vorbereitet. Gateway v235 bleibt funktional unverändert; Main und Production bleiben unverändert.",
-    "proof": "122 Composer, 57/57 P19, Structured Output und gezielte Intelligence-/Owner-Gates grün. Öffentliche Health- und Browserbelege folgen nach dem Integration-Deployment.",
-    "browserProof": "Lokaler visueller Composer bei 1280 px: Karte und seitlicher Planbereich bleiben gleichzeitig sichtbar. Drei kompakte Tageskartenrichtungen A Tagesroute, B Reisetickets und C Ortsjournal sind interaktiv geprüft. Kein Entwurf wurde gespeichert.",
-    "regression": "Gezielte Gates grün; vollständige 240er Safe Regression folgt nach Status-Synchronisierung.",
-    "rollbackSource": "Git 10f1c011b5a8c6b7f55893038edc3900b4921118; vorheriger öffentlicher Frontend-Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f und Intelligence v48 bleiben bis zur Veröffentlichung der Rückfallstand."
+    "intelligenceVersion": 50,
+    "scope": "App .163 / Core .282 und Intelligence v50 / 4.40.1 sind der neue Integration-Kandidat gegen den öffentlich reproduzierten Inspirations-Timeout. Gateway v235 bleibt funktional unverändert; Main und Production bleiben unverändert.",
+    "proof": "Öffentliche .162-Health-Prüfung bestätigt 4.40.0 und alle fünf semantischen Flags; Stable und Immutable sind für 8 Release-Dateien bytegleich. Der reale Familien-/Ferien-/Konfliktlauf reproduziert den Inspirations-Timeout. Die .163-Korrektur ist durch 240/240 Safe Regression, Structured Output, Intelligence Core, Composer, P19, Human/KI-Parität und NFR-0 abgesichert.",
+    "browserProof": "Öffentlich sichtbar: seitlicher Zielwahlbereich mit gleichzeitiger Karte und Reisebegründung. Im echten Familien-/Ferien-/Konfliktlauf bleibt der vollständige Text nach dem Timeout erhalten. .163 muss denselben Lauf nun ohne Abbruch bis zum Review führen; kein Entwurf wird gespeichert.",
+    "regression": "240/240 Safe Regression PASS einschließlich P19, NFR-0, Core-Grenzen und Repository-Guardrail.",
+    "rollbackSource": "Git aa92f4f6 und öffentlicher Frontend-Worker b6100c28-aa56-4943-ac3d-166850994f93 / Intelligence v49 sind der bekannte .162-Rückfallstand; dessen Inspirations-Timeout ist dokumentiert. Der davor technisch vollständige .161-Rückfallstand bleibt Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f / Intelligence v48."
   }
 }
