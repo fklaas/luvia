@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-08",
   "sourceBaseline": "395f7331",
-  "app": "13.82.168.161",
-  "core": "4.82.280",
-  "runtimeSource": "d440b96015bc388b6887ff0a92a17d46934f82e7",
+  "app": "13.82.168.162",
+  "core": "4.82.281",
+  "runtimeSource": "10f1c011b5a8c6b7f55893038edc3900b4921118",
   "worker": "19878f2d-6378-4592-b292-1cf63cd8ab5f",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
@@ -715,8 +715,8 @@
       "sequence": "P17 stabilisiert zuerst den vollständigen Modelllauf und sammelt echte Nutzungsdaten. Danach entscheidet ein providerübergreifender Eval über günstigere Zuordnung und genau einen belastbaren Fallback; keine unkontrollierte Anbindung vieler Anbieter."
     }
   ],
-  "acceptanceUpdate": "App .161 / Core .280 ist auf Integration veröffentlicht. Schemafehler, ungültige strukturierte Antworten, Zeitüberschreitungen, zu große Checkpoints, verlorene Kategorien, pauschale Gesamtneugenerierung, verlorene Teilreparaturen, Client-/Server-Jobkonflikte und veraltete Datumsformulierungen bei Wiederaufnahme sind technisch behoben. Der reale Valencia-Auftrag endet positiv mit sieben vollständigen Tagen, 19 übernommenen Reisemomenten und Review-Freigabe. P17/P19 bleiben TEILWEISE, weil räumliche Vielfalt, harter Interessenmix, Familien-/Ferien-/Konfliktfall, echte Livebelege, Kontoübernahme und physische Geräte noch offen sind. Main und Production sind unverändert.",
-  "safeRegression": "App .161: vollständige Safe Regression 240/240, Composer 119 Verhaltensprüfungen, P19-Workflowvertrag 57/57, NFR-0 3/3 und visuelles Inventar 3548 Dateien / 993 visuelle Kandidaten / 65 CSS-Dateien grün. Stable und immutable Worker sind für acht releasekritische Dateien 16/16 byteidentisch zum sauberen Archiv.",
+  "acceptanceUpdate": "App .162 / Core .281 ist als lokaler Integration-Kandidat vollständig implementiert. Der semantische Reiseauftrag klärt echte Zielkonflikte und den Bewegungsradius vor dem Plan, zeigt veränderbare Luvia-Annahmen für Tagesrhythmus, 20–25 % Freiraum und Unterkunftsbasis und trennt spätere Live-Prüfungen für Öffnungen, Wetter, Preise, Buchbarkeit, Veranstaltungen, Einreise und Verkehr. Die Place-Suche erhält bis zu 20 km Stadtradius und mindestens drei sinnvolle Gebiete bei Bus/Bahn, ein harter Meer-/Strandwunsch bleibt verpflichtend, der Gesamtmix wird reiseweit auditiert. Ab 700 px bleibt die Karte neben dem Composer sichtbar; technische Details liegen im kompakten Planungscheck. Drei codebasierte Tageskartenrichtungen stehen zur Auswahl. Veröffentlichung und zweiter echter Familien-/Ferien-/Konfliktlauf folgen unmittelbar. Main und Production sind unverändert.",
+  "safeRegression": "Releasekandidat .162: 122 Composer-Verhaltensprüfungen, 57/57 P19, Structured Output, Runtime-/Owner-Gates, Human↔AI-Registry mit 1076 Markern und visuelles Inventar mit 994 Kandidaten sind grün. Der Safe-Gesamtlauf wird nach Synchronisierung der Release-Dokumente abschließend wiederholt.",
   "publicAssetIdentity": "App .161 / Core .280: acht releasekritische Dateien auf Stable und immutable Worker 16/16 byteidentisch mit dem sauberen Archiv. Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f; Archiv 92582483 Bytes; SHA-256 0A427A3E680E0CB0ECFB96A25E123441CDF6041033CFB99B495A00456A9DCD1C.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -751,8 +751,8 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .161 / Core .280 und Intelligence v48 / 4.39.0 laufen auf Integration. Der reale Valencia-Auftrag ist bis zur Review-Freigabe positiv: sieben vollständige Tage, 19 Reisemomente und konsistenter bestätigter Zeitraum. Der nächste Qualitätsnachweis bündelt Familie, Schulferien, Konfliktmoderation, Mobilitätsradius, räumliche Vielfalt und harte Interessenabdeckung. Gateway v235, Main und Production bleiben unverändert.",
-    "delivered": "Der fortsetzbare Gesamtplan behebt die früheren Schema-, JSON-, Timeout-, Checkpoint-, Teilreparatur-, Jobidentitäts- und Datumswiederaufnahmefehler. Valencia 14.–20.06.2027 besitzt sieben von sieben geplante Tage, 19 übernommene Reisemomente, kontextuelle Uhrzeiten, Reiseversprechen, bewussten Freiraum, Reise-DNA, Unsicherheitskarte, vier Buchungsabhängigkeiten, modellierten Unterkunftsradius, zwei Plan-B-Optionen und Audit 74/100. 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 öffentliche Byteidentität sind belegt. Keine Reise wurde während der QA gespeichert.",
+    "stage": "P17/P19 aktiv und teilweise: App .162 / Core .281 und Intelligence v49 / 4.40.0 sind als geprüfter Integration-Kandidat vorbereitet. Der neue Planungsvertrag umfasst Konfliktmoderation, Mobilitätsradius, räumliche Vielfalt, harte Interessenabdeckung, sichtbare Annahmen und getrennte Live-Prüfungen. Veröffentlichung und zweiter realer Familien-/Ferien-/Konfliktlauf folgen. Gateway v235, Main und Production bleiben unverändert.",
+    "delivered": "Lokal umgesetzt sind: echter Konfliktmoderator mit Varianten, Pflichtfrage zum Bewegungsradius falls nicht ableitbar, 4/20/50-km-Suchradien je Mobilitätsstil, mindestens drei Stadt-/Küstengebiete bei Bus/Bahn oder weiterem Radius, harter Meer-/Strand- und Kategorienvertrag, reiseweiter Wunschmix, 20–25 % bewusster Freiraum, maximal zwei intensive Tage in Folge, eine sichtbare veränderbare Unterkunftsbasis sowie getrennte spätere Live-Prüfungen. Der kompakte Planungscheck und das seitliche Desktoplayout reduzieren die Überladung. Drei neue Tageskartenrichtungen sind als klickbarer Prototyp vorhanden. 122 Composer, 57/57 P19 und alle gezielten Verträge sind grün.",
     "nextStep": {
       "id": "P17-P19-family-holiday-conflict-positive-e2e",
       "package": "P17",
@@ -767,8 +767,8 @@
         "Unterkunftsradius und Nachbarschaft folgen aus dem fertigen Tagesnetz und Mobilitätswunsch. Audit, Unsicherheitskarte und Buchungsreihenfolge bleiben ehrlich; Modell, Tokens, Latenz, Kosten und Reparaturen werden je Phase gemessen."
       ]
     },
-    "after": "Nach dem zweiten Positivlauf folgen semantische Ablehnungsdiagnose und gezielte Teilreparatur, anschließend P15/P17 Kontoübernahme, Timeline, Archiv/Wiederherstellung und physische Geräte. Die kompakte Tageskarten-Neuausrichtung wird anhand von drei codebasierten Designrichtungen entschieden. M17 friert danach die gemeinsame Produktsprache ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
-    "open": "P17/P19: zweiter Familien-/Ferien-/Konflikt-Positivlauf, räumliche Vielfalt und harter Kategorienmix, gemessene Kosten/Latenz je Modell, Konto- und Timeline-Übernahme, physische Geräte sowie datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege. P16: semantische Ablehnungsdiagnose. Reise-DNA und Bisherige Auswahl/Zeitreise sind umgesetzt; Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen. Die produktive kompakte Tageskarten-Gestaltung wartet auf die Auswahl aus drei Designrichtungen.",
+    "after": "Nach Veröffentlichung folgt der zweite reale Familien-/Ferien-/Konfliktlauf einschließlich autoritativem Ferienfenster, Küstenabdeckung, mehreren Gebieten, Kosten und Latenzen. Danach kommen semantische Ablehnungsdiagnose und gezielte Teilreparatur, anschließend P15/P17 Kontoübernahme, Timeline, Archiv/Wiederherstellung und physische Geräte. Die produktive Tageskartenrichtung wird aus dem klickbaren A/B/C-Prototyp gewählt. M17 friert danach die gemeinsame Produktsprache ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
+    "open": "P17/P19: öffentliche Veröffentlichung von .162/v49, zweiter Familien-/Ferien-/Konflikt-Positivlauf, gemessene Kosten/Latenz je Modell, Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege. P16: semantische Ablehnungsdiagnose. Die produktive kompakte Tageskarten-Gestaltung wartet auf die Auswahl aus drei sichtbaren Designrichtungen; Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -826,18 +826,18 @@
       }
     ]
   },
-  "qaCommit": "d440b960",
-  "intelligence": "v48 ACTIVE / 4.39.0: Luna fast, Terra default, Sol deep hinter denselben strikten Verträgen. planning.dialogue, trip.compose, trip.compose-day-repair und trip.audit laufen in einem 24 Stunden fortsetzbaren, nutzergebundenen Workflow. Inkrementelle Checkpoints, gezielte Reparaturen und Kostenaggregation sind aktiv. Der erste reale Valencia-Gesamtplan ist positiv; Familien-/Ferien-/Konfliktfall und exakte positive Mischkosten bleiben offen.",
+  "qaCommit": "10f1c011",
+  "intelligence": "v49 CANDIDATE / 4.40.0: Der strikte Planung.dialogue-Vertrag liefert Konfliktvarianten und Mobilitätsstil. trip.compose und trip.audit erzwingen sichtbare Planungsannahmen, räumliche Vielfalt, harte Meer-/Kategorienabdeckung, reiseweite Balance, Unsicherheiten und Buchungsabhängigkeiten. Luna/Terra/Sol-Routing und der fortsetzbare 24-Stunden-Workflow bleiben erhalten. Öffentliche Aktivierung und zweiter echter Positivlauf stehen aus.",
   "backendRelease": {
-    "source": "73e4b266/e18e4451/d440b960",
+    "source": "10f1c011",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",
-    "intelligenceSource": "73e4b266",
+    "intelligenceSource": "10f1c011",
     "gatewayVersion": 235,
-    "intelligenceVersion": 48,
-    "scope": "Gateway v235 und Intelligence v48 / 4.39.0 unverändert. App .161 / Core .280 schließt den ersten realen positiven Valencia-Gesamtplan, kanonische Jobidentität und Datumswiederaufnahme auf Integration. Main und Production bleiben unverändert.",
-    "proof": "Health: Intelligence 4.39.0 mit Luna/Terra/Sol, resumableTripWorkflow, singleActiveCapabilityJob, acht Modellaufrufe, 180.000 Tokens und 24 Stunden TTL. Frontend Stable und immutable Worker 16/16 byteidentisch. Erster kompletter Valencia-Plan positiv bis zur Review-Freigabe.",
-    "browserProof": "Authentifizierter Valencia-Lauf: fünf Richtungen, neue Vorschläge, drei Juni-Fenster, direkter Gesamtplanstart; danach 7/7 Tage, 19 übernommene Reisemomente, Audit 74/100 und aktive Auswahlübernahme. Reload korrigiert den früher veralteten Erklärtext auf 14.–20.06.2027. Keine Reise gespeichert.",
-    "regression": "240/240 Safe Regression; 119 Composer; 57/57 P19; NFR-0 3/3; 16/16 öffentliche Byteidentität.",
-    "rollbackSource": "Git d440b96015bc388b6887ff0a92a17d46934f82e7; vorheriger Frontend-Worker eda9a0ec-ae67-4668-8370-26134a470c34; Intelligence v48 unverändert; Tabellen bleiben additive Intelligence-Zustände."
+    "intelligenceVersion": 49,
+    "scope": "Intelligence v49 / 4.40.0 und App .162 / Core .281 sind als lokaler Integration-Kandidat vorbereitet. Gateway v235 bleibt funktional unverändert; Main und Production bleiben unverändert.",
+    "proof": "122 Composer, 57/57 P19, Structured Output und gezielte Intelligence-/Owner-Gates grün. Öffentliche Health- und Browserbelege folgen nach dem Integration-Deployment.",
+    "browserProof": "Lokaler visueller Composer bei 1280 px: Karte und seitlicher Planbereich bleiben gleichzeitig sichtbar. Drei kompakte Tageskartenrichtungen A Tagesroute, B Reisetickets und C Ortsjournal sind interaktiv geprüft. Kein Entwurf wurde gespeichert.",
+    "regression": "Gezielte Gates grün; vollständige 240er Safe Regression folgt nach Status-Synchronisierung.",
+    "rollbackSource": "Git 10f1c011b5a8c6b7f55893038edc3900b4921118; vorheriger öffentlicher Frontend-Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f und Intelligence v48 bleiben bis zur Veröffentlichung der Rückfallstand."
   }
 }
