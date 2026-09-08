@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='4.22.1';
+  const VERSION='4.23.0';
   const listeners=new Set();
   const cache=new Map();
   let metrics={requests:0,successes:0,fallbacks:0,failures:0,lastRequestAt:null,lastSuccessAt:null,lastError:null};
@@ -48,7 +48,8 @@
     const tier=window.LuviaAIModelRouter.resolve(definition,options);
     metrics={...metrics,requests:metrics.requests+1,lastRequestAt:new Date().toISOString(),lastError:null};emit('request-started',{capability,tier:tier.id});
     try{
-      const response=await window.LuviaOpenAIProvider.run({capability,tier:tier.id,input:window.LuviaAIPolicy.sanitize(input),context,schema:definition.schema},{timeoutMs:definition.timeoutMs});
+      const provider=window.LuviaOpenAIProvider,persistent=['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit'].includes(capability)&&options.workflowId&&typeof provider.runPersistent==='function';
+      const response=await provider[persistent?'runPersistent':'run']({capability,tier:tier.id,input:window.LuviaAIPolicy.sanitize(input),context,schema:definition.schema},{timeoutMs:definition.timeoutMs,workflowId:options.workflowId});
       const data=window.LuviaAIOutputValidator.validate(definition.schema,response?.data?.result||response?.data||{});
       const value={ok:true,data,meta:{...(response?.meta||{}),capability,tier:tier.id,alias:tier.alias,fallback:false}};
       metrics={...metrics,successes:metrics.successes+1,lastSuccessAt:new Date().toISOString()};

@@ -849,6 +849,10 @@ const SUITE = Object.freeze([
     test: 'tests/p02-canonical-place-dedupe.test.cjs'
   },
   {
+    category: 'P19 / Resumable trip workflow',
+    test: 'tests/p19-resumable-trip-workflow.test.cjs'
+  },
+  {
     category: 'Architecture / Core boundaries',
     test: 'tests/m4.5.4-core-boundary-guardrails.test.cjs'
   },

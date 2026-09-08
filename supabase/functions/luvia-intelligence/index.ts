@@ -7,6 +7,7 @@ import { sanitize, byteLength, safetyIdentifier } from './policies/privacy.ts';
 import { modelDiagnostics, runOpenAI } from './providers/openai.ts';
 import { recordUsage } from './telemetry/usage.ts';
 import { readTravelCalendarEvidence } from './providers/open-holidays.ts';
+import { checkpointTripPlanWorkflow, readTripPlanJob, readTripPlanWorkflow, startTripPlanJob, startTripPlanWorkflow } from './jobs/trip-plan.ts';
 
 type Body={action?:string;payload?:any;client?:Record<string,unknown>};
 const PUBLIC=new Set(['health','brain.health']);
@@ -25,11 +26,20 @@ Deno.serve(async(req:Request)=>{
   if(authorization){const client=createClient(url,anon,{global:{headers:{Authorization:authorization}},auth:{persistSession:false}});const {data,error}=await client.auth.getUser();if(!error&&data.user)userId=data.user.id;else if(!PUBLIC.has(action))return errorResponse(401,'INVALID_SESSION','Sitzung ist ungültig oder abgelaufen.',id,cors)}
   if(!PUBLIC.has(action)&&!userId)return errorResponse(401,'AUTH_REQUIRED','Für diese Aktion ist eine Anmeldung erforderlich.',id,cors);
   const capabilityKey=action==='brain.run'?String(body.payload?.capability||'brain.run'):action;const limit=PUBLIC.has(action)?60:80;const rate=enforceRateLimit(`${userId||clientKey}:${capabilityKey}`,limit,60_000);if(!rate.allowed)return errorResponse(429,'RATE_LIMITED','Zu viele KI-Anfragen.',id,{...cors,'Retry-After':String(rate.retryAfter)});
-  if(PUBLIC.has(action))return jsonResponse(200,{ok:true,data:{service:'luvia-intelligence',status:'ok',version:'4.38.5',build:'13.38.5',core:'4.38.5',authenticated:Boolean(userId),...modelDiagnostics(),capabilities:listCapabilities(),calendarEvidence:{provider:'OpenHolidays API',schoolRegions:'DE-16',officialReference:'KMK'},structuredOutput:{incompleteDetection:true,structuredOutputEscalation:true,tripComposeTokens:12000,tripDayRepairTokens:6000,planningDialogueTokens:6000,adaptiveQualityCascade:true,compactTripCompose:true,targetedDayRepair:true,repairTiers:['fast','default','deep'],travelPromise:true,uncertaintyMap:true,bookingOrder:true,neighborhoodRecommendation:true},privacy:{store:false,promptsLogged:false,minimumNecessaryContext:true}},meta:{requestId:id}},cors);
+  if(PUBLIC.has(action))return jsonResponse(200,{ok:true,data:{service:'luvia-intelligence',status:'ok',version:'4.38.6',build:'13.38.6',core:'4.38.6',authenticated:Boolean(userId),...modelDiagnostics(),capabilities:listCapabilities(),calendarEvidence:{provider:'OpenHolidays API',schoolRegions:'DE-16',officialReference:'KMK'},structuredOutput:{incompleteDetection:true,structuredOutputEscalation:true,tripComposeTokens:12000,tripDayRepairTokens:6000,planningDialogueTokens:6000,adaptiveQualityCascade:true,compactTripCompose:true,targetedDayRepair:true,resumableTripWorkflow:true,resumableTripJobs:true,jobCapabilities:['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit'],workflowPhases:['understanding','candidates','itinerary','repair','audit','ready-for-review'],jobTtlHours:24,repairTiers:['fast','default','deep'],travelPromise:true,uncertaintyMap:true,bookingOrder:true,neighborhoodRecommendation:true},privacy:{providerStore:false,transientJobStore:true,jobTtlHours:24,completedInputDiscarded:true,promptsLogged:false,minimumNecessaryContext:true}},meta:{requestId:id}},cors);
   if(action==='destination.normalize'){const name=String(body.payload?.name||'').trim();return jsonResponse(200,{ok:true,data:{name,isUsable:Boolean(name),isResolved:false,source:'server_normalized'},meta:{requestId:id}},cors)}
   if(action==='calendar.travel-evidence'){
     try{return jsonResponse(200,{ok:true,data:await readTravelCalendarEvidence(sanitize(body.payload||{})),meta:{requestId:id}},cors)}
     catch(error){const e=error as any;return errorResponse(e.status||502,e.code||'CALENDAR_EVIDENCE_FAILED',e.message||'Die bestätigten Ferienzeiten konnten nicht geladen werden.',id,cors)}
+  }
+  if(['trip.plan-workflow.start','trip.plan-workflow.read','trip.plan-workflow.checkpoint','trip.plan-job.start','trip.plan-job.read'].includes(action)){
+    try{
+      if(action==='trip.plan-workflow.start')return jsonResponse(200,{ok:true,data:{workflow:await startTripPlanWorkflow(userId!,body.payload||{})},meta:{requestId:id,resumable:true}},cors);
+      if(action==='trip.plan-workflow.read')return jsonResponse(200,{ok:true,data:{workflow:await readTripPlanWorkflow(userId!,body.payload||{})},meta:{requestId:id,resumable:true}},cors);
+      if(action==='trip.plan-workflow.checkpoint')return jsonResponse(200,{ok:true,data:{workflow:await checkpointTripPlanWorkflow(userId!,body.payload||{})},meta:{requestId:id,resumable:true}},cors);
+      const job=action==='trip.plan-job.start'?await startTripPlanJob(userId!,body.payload||{}):await readTripPlanJob(userId!,body.payload||{});
+      return jsonResponse(200,{ok:true,data:{job},meta:{requestId:id,resumable:true}},cors);
+    }catch(error){const e=error as any;return errorResponse(e.status||500,e.code||'AI_JOB_FAILED',e.message||'Der fortsetzbare KI-Auftrag konnte nicht verarbeitet werden.',id,cors)}
   }
   if(!['brain.run','brain.orchestrate'].includes(action))return errorResponse(404,'ACTION_NOT_FOUND','Aktion ist nicht freigeschaltet.',id,cors);
   const capabilityId=action==='brain.orchestrate'?'brain.orchestrate':String(body.payload?.capability||'');const definition=capability(capabilityId);if(!definition)return errorResponse(400,'CAPABILITY_NOT_FOUND','Unbekannte Luvia-AI-Capability.',id,cors);

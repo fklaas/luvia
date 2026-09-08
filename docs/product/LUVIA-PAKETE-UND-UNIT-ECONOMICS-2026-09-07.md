@@ -170,8 +170,10 @@ Die erste verbindliche Preisprüfung erfolgt nach **30 Tagen mit mindestens 200 
 ## 8. Entscheidung für den Fahrplan
 
 1. Das Luna-first-Routing mit Terra-Audit, gezielter Terra-Reparatur und begrenzter Sol-Eskalation bleibt auf Integration aktiv.
-2. P17/P19 teilen die vollständige Komposition in fortsetzbare serverseitige Arbeitsschritte mit tageweiser Vollständigkeitsgarantie. Ein einzelner schwacher Tag darf nicht den vollständigen Plan neu erzeugen.
+2. P17/P19 teilen die vollständige Komposition in fortsetzbare serverseitige Arbeitsschritte mit tageweiser Vollständigkeitsgarantie. App .144 / Intelligence v47 setzt dies technisch um: Wunschdeutung, Kandidatenstand, Erstentwurf, Tagesreparatur und Audit gehören zu einem 24 Stunden gültigen Reiseauftrag; jede Modellstufe ist idempotent. Ein Reload startet keine bereits erfolgreiche Modellstufe erneut, und ein einzelner schwacher Tag darf nicht den vollständigen Plan neu erzeugen.
 3. Für jede erfolgreiche Reise werden tatsächliche Kosten, Latenz, Auditquote und Reparaturpfad gemessen.
 4. Die Paketgrenzen bleiben bis zu mindestens 100 erfolgreichen Reisen konfigurierbar.
 5. Ein zweiter Modellanbieter wird erst über denselben kanonischen Vertrag und Eval-Satz angebunden. Viele Anbieter ohne gemessenen Mehrwert würden Kosten, Fehlerbilder und Datenschutzarbeit erhöhen, aber die Reise nicht automatisch besser machen.
+
+Der neue Auftrag senkt vor allem vermeidbare Fehlerkosten. Bislang konnte ein abgebrochener Browser-Request dieselbe kostenpflichtige Komposition beim nächsten Versuch noch einmal auslösen. Jetzt speichert Intelligence Status, Modell, Token, Latenz und Ergebnis je Phase; derselbe semantische Auftrag liest das vorhandene Ergebnis. Das ändert den Listenpreis eines einzelnen Modellaufrufs nicht, verringert aber die Zahl unbeabsichtigter Doppelaufrufe. Der konkrete Euroeffekt wird erst nach den zwei echten Abnahmereisen und danach aus mindestens 100 erfolgreichen Reisen belastbar in die Paketkalkulation übernommen.
 
