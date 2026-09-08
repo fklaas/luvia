@@ -49,7 +49,7 @@ function trackedFiles() {
   const output = execFileSync(
     'git',
     ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
-    { cwd: ROOT, encoding: 'utf8' }
+    { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }
   );
 
   return output
