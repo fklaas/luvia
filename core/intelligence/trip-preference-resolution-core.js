@@ -317,6 +317,19 @@ function correctConfirmedDurationNarrative(value,confirmedNights,requestedNights
   const retained=text.split(/(?<=[.!?])\s+/).filter(sentence=>!conflict.test(sentence)).join(' ').trim();
   return clean(`${retained}${retained&&/[.!?]$/.test(retained)?'':' .'} Der bestätigte Zeitraum umfasst ${confirmedNights+1} Kalendertage und ${confirmedNights} Übernachtungen.`).replace(' .','.');
 }
+const GERMAN_MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+function germanWindowLabels(start,end){
+  const startDate=calendarDate(start),endDate=calendarDate(end);if(!startDate||!endDate)return[];
+  const [sy,sm,sd]=startDate.split('-').map(Number),[ey,em,ed]=endDate.split('-').map(Number),startFull=`${sd}. ${GERMAN_MONTHS[sm-1]} ${sy}`,endFull=`${ed}. ${GERMAN_MONTHS[em-1]} ${ey}`,labels=[`${startDate} bis ${endDate}`,`${startDate} – ${endDate}`,`${String(sd).padStart(2,'0')}.${String(sm).padStart(2,'0')}.${sy} bis ${String(ed).padStart(2,'0')}.${String(em).padStart(2,'0')}.${ey}`,`${startFull} bis ${endFull}`,`${startFull} – ${endFull}`];
+  if(sy===ey&&sm===em)labels.push(`${sd}. bis ${ed}. ${GERMAN_MONTHS[sm-1]} ${sy}`,`${sd}.–${ed}. ${GERMAN_MONTHS[sm-1]} ${sy}`,`${sd}. – ${ed}. ${GERMAN_MONTHS[sm-1]} ${sy}`,`${sd}. - ${ed}. ${GERMAN_MONTHS[sm-1]} ${sy}`);
+  return labels;
+}
+function rewriteConfirmedWindowNarrative(value,previousStart,previousEnd,start,end){
+  let text=clean(value);if(!text)return text;
+  const currentLabels=germanWindowLabels(start,end),replacement=currentLabels.find(label=>/^\d{1,2}\. bis /.test(label))||currentLabels.find(label=>GERMAN_MONTHS.some(month=>label.includes(month)))||`${start} bis ${end}`;
+  for(const label of germanWindowLabels(previousStart,previousEnd))text=text.split(label).join(replacement);
+  return text;
+}
 function requestedPeriodText(time={}){return clean([time.season,time.month,time.year,time.dateFlexibility,...(time.requestedWindows||[]).flatMap(item=>[item?.label,item?.value,item?.start,item?.end])].filter(Boolean).join(' ')).toLowerCase()}
 function periodMatchesHoliday(time={},holiday={}){
   const requested=requestedPeriodText(time),name=clean(holiday.name).toLowerCase();if(!requested)return true;
@@ -470,7 +483,7 @@ function projectTripBrief(input={},response={}){
 function confirmTripBriefWindow(brief={},selection={}){
   if(brief?.kind!=='trip-planning-brief'||brief?.owner!=='intelligence')throw Object.assign(new Error('Der semantische Reiseauftrag fehlt.'),{code:'TRIP_BRIEF_REQUIRED'});
   const startDate=calendarDate(selection.startDate),endDate=calendarDate(selection.endDate);if(!startDate||!endDate||endDate<startDate)throw Object.assign(new Error('Das gewählte Reisezeitfenster ist ungültig.'),{code:'TRAVEL_WINDOW_INVALID'});
-  const next=clone(brief),time=next.travelOrder.time,travelers=next.travelOrder.travelers||{};time.confirmedStart=startDate;time.confirmedEnd=endDate;time.scheduleMode='fixed';
+  const next=clone(brief),time=next.travelOrder.time,travelers=next.travelOrder.travelers||{},previousStart=time.confirmedStart,previousEnd=time.confirmedEnd;time.confirmedStart=startDate;time.confirmedEnd=endDate;time.scheduleMode='fixed';time.durationNights=calendarDays(startDate,endDate);next.understanding=rewriteConfirmedWindowNarrative(next.understanding,previousStart,previousEnd,startDate,endDate);
   const matching=(travelers.holidayWindows||[]).filter(item=>item.startDate<=startDate&&item.endDate>=endDate),holidayRequired=travelers.schoolHolidayRequired===true;
   const removable=item=>/aus eurem Reisewunsch abgeleiteten Zeitfenster|Für die Ferienplanung muss eines der bestätigten Reisezeitfenster|liegt nicht vollständig in den bestätigten Schulferien/.test(clean(item?.label));
   next.unresolved=(next.unresolved||[]).filter(item=>!removable(item));
