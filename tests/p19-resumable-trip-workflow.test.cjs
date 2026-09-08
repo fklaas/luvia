@@ -44,6 +44,10 @@ function contracts(){
   assert.match(handler,/trip\.plan-workflow\.checkpoint/);assert.match(handler,/resumableTripWorkflow:true/);assert.match(handler,/jobTtlHours:24/);assert.match(handler,/singleActiveCapabilityJob:true/);assert.match(handler,/workflowBudget:TRIP_WORKFLOW_BUDGET/);checks+=5;
   const composer=read('app/first-trip-composer.js'),core=read('core/ai/ai-core.js');
   assert.match(composer,/workflowId:state\.workflowId\|\|null/);assert.match(composer,/ready-for-review/);assert.match(composer,/AI_JOB_PENDING/);assert.match(composer,/resumedPhase==='audit'/);assert.match(composer,/qualityAttempts\?qualityAttempts-1:0/);assert.match(core,/runPersistent/);checks+=6;
+  assert.match(composer,/checkpointTripWorkflow\(state,'audit',\{itinerary:clone\(itinerary\),qualityAttempts/);checks++;
+  assert.match(composer,/checkpointTripWorkflow\(state,'ready-for-review',\{audit:clone\(audit\),qualityAttempts\}/);checks++;
+  assert.doesNotMatch(composer,/checkpointTripWorkflow\(state,'audit',\{[^\n]*candidates:/);checks++;
+  assert.doesNotMatch(composer,/checkpointTripWorkflow\(state,'ready-for-review',\{[^\n]*candidates:/);checks++;
 }
 
 (async()=>{contracts();await providerResume();console.log(`P19 resumable trip workflow: ${checks}/${checks} checks PASS`);})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -45,7 +45,7 @@
   }
 
   function bodyFor(action,payload){
-    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.149',coreVersion:'4.82.268'}};
+    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.150',coreVersion:'4.82.269'}};
     if(new TextEncoder().encode(stable(body)).length>MAX_BYTES)body={
       action,
       payload:{idempotencyKey:payload?.idempotencyKey,workflowId:payload?.workflowId,jobId:payload?.jobId,retryFailed:payload?.retryFailed,phase:payload?.phase,state:compact(payload?.state),capability:payload?.capability,tier:payload?.tier,input:compact(payload?.input),context:{trip:compact(payload?.context?.trip),currentMoment:compact(payload?.context?.currentMoment),preferences:compact(payload?.context?.preferences)}},
