@@ -298,7 +298,7 @@ for(const removed of ['Details &amp; Evidenz','data-places-detail=','data-places
 
 assert.match(experience,/maplibregl/,'productive spatial surface must use the accepted geographic map renderer');
 assert.match(experience,/\.setLngLat\(marker\.lngLat\)/,'MapLibre must receive the exact owner longitude/latitude tuple');
-assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:projectionMarkerButton\(marker,\{selectedId,onSelect\}\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must compensate the five-pixel visual tail without changing owner coordinates');
+assert.match(experience,/new globalThis\.maplibregl\.Marker\(\{element:projectionMarkerButton\(marker,\{selectedId,onSelect,compassTone:toneById\.get\(marker\.providerPlaceId\)\}\),anchor:'bottom',offset:\[0,-5\]\}\)/,'MapLibre markers must retain the five-pixel visual-tail offset while accepting a presentation-only Compass category tone');
 assert.match(experience,/\.fitBounds\(/,'map viewport must derive from coordinate-qualified result bounds');
 assert.match(experience,/if\(renderToken===state\.renderToken\)mountMap\(view,renderToken\)/,'only the latest render may mount a MapLibre instance into the current map host');
 assert.match(experience,/const current=\(\)=>alive&&container\.isConnected&&map/,'late MapLibre callbacks must be fenced to the live projection host');

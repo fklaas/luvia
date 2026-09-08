@@ -1034,12 +1034,12 @@
     const status=shell.querySelector?.('[data-place-map-status],[data-event-map-status],[data-places-map-message]');
     if(status){if(busy)status.querySelector?.('[data-places-empty-actions]')?.remove();status.dataset.refreshing=String(Boolean(busy));const copy=status.querySelector?.('span');if(message){if(copy)copy.textContent=message;else status.textContent=message}}
   }
-  function projectionMarkerButton(marker,{selectedId=null,onSelect=null}={}){
+  function projectionMarkerButton(marker,{selectedId=null,onSelect=null,compassTone=null}={}){
     const button=document.createElement('button');
     button.type='button';
     button.className='lv-places-spatial__marker is-inline-projection';
     button.dataset.providerPlaceId=marker.providerPlaceId;
-    button.dataset.compassTone=String((marker.rank-1)%12);
+    const requestedTone=Number(compassTone);button.dataset.compassTone=String(Number.isInteger(requestedTone)&&requestedTone>=0&&requestedTone<12?requestedTone:(marker.rank-1)%12);
     button.setAttribute('aria-label',`${marker.rank}. ${marker.name} auswählen${marker.preferred?' · passt besonders zu euren belegten Vorlieben':''}`);
     button.setAttribute('aria-pressed',String(marker.providerPlaceId===selectedId));
     button.innerHTML=`<span>${marker.rank}</span><b aria-hidden="true">Passt</b>`;
@@ -1065,7 +1065,8 @@
       const replaceMarkers=nextPlaces=>{
         if(!current())return view;
         const nextPlacesList=Array.isArray(nextPlaces)?nextPlaces:[],nextView=COMPOSITION().compose({sourceContract:'places.v1',places:nextPlacesList,visibleLimit:Math.max(1,Math.min(MAX_RESULTS,nextPlacesList.length||1)),runtime:{status:'ready',settled:true}}),nextMarkerInstances=new Map();
-        try{for(const marker of nextView.markers){const instance=new globalThis.maplibregl.Marker({element:projectionMarkerButton(marker,{selectedId,onSelect}),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);nextMarkerInstances.set(marker.providerPlaceId,instance)}}catch(error){for(const marker of nextMarkerInstances.values())try{marker.remove?.()}catch{}throw error}
+        const toneById=new Map(nextPlacesList.map(place=>[providerId(place),place?.compassTone]));
+        try{for(const marker of nextView.markers){const instance=new globalThis.maplibregl.Marker({element:projectionMarkerButton(marker,{selectedId,onSelect,compassTone:toneById.get(marker.providerPlaceId)}),anchor:'bottom',offset:[0,-5]}).setLngLat(marker.lngLat).addTo(map);nextMarkerInstances.set(marker.providerPlaceId,instance)}}catch(error){for(const marker of nextMarkerInstances.values())try{marker.remove?.()}catch{}throw error}
         for(const marker of markerInstances.values())try{marker.remove?.()}catch{}markerInstances.clear();
         for(const [id,marker] of nextMarkerInstances)markerInstances.set(id,marker);
         currentPlaces=nextPlacesList;view=nextView;container.setAttribute('aria-label',`Karte mit ${view.markers.length} koordinatenverifizierten Orten`);

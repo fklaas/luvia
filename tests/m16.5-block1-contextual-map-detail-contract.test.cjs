@@ -34,7 +34,8 @@ for(const token of ['data-places-fit-mode="all"','data-places-fit-mode="fit"','d
 assert.match(places,/state\.fitOnly=button\.dataset\.placesFitMode==='fit'/,'the map must let travelers switch explicitly between all and evidence-backed matching pins');
 assert.match(places,/projectViewportResults:rows=>ensureVisibleFitResults\(rows\)/,'new viewport rows must retain the active Passend projection before replacing pins');
 assert.match(places,/dataset\.compassTone=String\(\(marker\.rank-1\)%12\)/,'both shared marker paths must traverse the complete twelve-tone Compass spectrum');
-assert.equal((places.match(/dataset\.compassTone=String\(\(marker\.rank-1\)%12\)/g)||[]).length,2,'main and inline map projections must use the same Compass spectrum');
+assert.match(places,/Number\.isInteger\(requestedTone\)&&requestedTone>=0&&requestedTone<12\?requestedTone:\(marker\.rank-1\)%12/,'inline projections may receive a category tone but must retain the same complete Compass fallback');
+assert.match(places,/compassTone:toneById\.get\(marker\.providerPlaceId\)/,'consumer projections must pass category presentation tones by canonical Place identity');
 for(let tone=0;tone<12;tone++)assert.ok(placesCss.includes(`data-compass-tone="${tone}"`),`Compass tone ${tone} is missing from the map pins`);
 assert.match(placesCss,/\.lv-places-spatial__map-tools/);
 assert.doesNotMatch(places,/lv-places-spatial__map-toolbar/,'fit, count, arrows and discovery icons must remain in one shared map bar');
