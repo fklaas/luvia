@@ -22,6 +22,7 @@
   <script src="../../core/journey/journey-resilience-core.js"></script>
   <script>
     window.LuviaAI={run:async(capability,request)=>{
+      if(new URLSearchParams(location.search).get('slow')==='1'&&['planning.dialogue','trip.compose','trip.audit'].includes(capability))await new Promise(resolve=>setTimeout(resolve,capability==='trip.compose'?6500:2200));
       if(capability==='discovery.plan'){
         const fresh=(request?.excludedDestinations||[]).length>0,names=fresh?['Nizza','Dubrovnik','Alicante','Sardinien','Kreta']:['Lissabon','Valencia','Palma','Split','Málaga'];
         return {ok:true,meta:{fallback:false},data:{followUpQuestion:null,searchPlans:names.map((query,index)=>({query,includedTypes:[],weight:.96-index*.04,reason:`${query} verbindet den beschriebenen Reisewunsch mit Küste, Wärme und einer überschaubaren Anreise.`,fitSignals:['Meer','Wärme','Anreise']})),preferredSignals:['Küste','warme Reisezeit','überschaubare Anreise'],mustHave:['real_destination','fit_to_user_goal'],excludedSignals:request?.excludedDestinations||[],reasoningSummary:fresh?'Fünf neue südliche Küstenrichtungen mit kurzer bis mittlerer Anreise.':'Fünf südliche Küstenrichtungen, die Wärme, Meer und eine überschaubare Anreise verbinden.',confidence:.94}};

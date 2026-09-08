@@ -21,7 +21,7 @@
     "semanticActions": 333,
     "availableOrConditional": 322,
     "unavailableOrReservedOutcomes": 24,
-    "auditedDataMarkers": 1079,
+    "auditedDataMarkers": 1084,
     "runtimeRegisteredActions": 30,
     "categories": {
       "Buchung & Anbieterkommunikation": 40,
@@ -20438,18 +20438,18 @@
     }
   ],
   "markerAudit": {
-    "count": 1079,
+    "count": 1084,
     "registry": "config/luvia-human-ai-action-source-audit.v1.json",
-    "registrySha256": "F4FFC064EB11A6F363CB8F7A9E5CC0EF55589347E5396276346E80DFA6107CC1",
+    "registrySha256": "B6ECCDE56A11C20C5CAA8433B9A9604F8BFD29FABF1192FB639C23123976E059",
     "classifications": {
       "AKTIONSKANDIDAT": 445,
       "INTERAKTIONSPRIMITIVE": 323,
-      "STATUS/EINGABE/PROJEKTION": 311
+      "STATUS/EINGABE/PROJEKTION": 316
     },
     "categories": {
       "Buchung & Anbieterkommunikation": 76,
       "Erinnerungen & Geschichten": 53,
-      "Journey, Timeline & Tagesplan": 88,
+      "Journey, Timeline & Tagesplan": 93,
       "Luvia AI Chat": 55,
       "Medien & Galerie": 49,
       "Navigation & Oberfläche": 336,

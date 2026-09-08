@@ -50,7 +50,7 @@ assert.match(composer,/loopOwner=routeRandom\(\)<\.62/,'Some openings must inclu
 assert.match(composer,/sampleFlightRoute/,'Aircraft and drawn route must share the same sampled path');
 assert.match(composer,/globalCompositeOperation='screen'/,'The title atmosphere must remain an open light treatment rather than a closed card');
 assert.match(composer,/transform:'scale\(1\.34\)'/,'The selected path must hand the canonical globe into destination discovery');
-assert.match(composer,/parallelFastQueries:true,fastQueryLimit:1[\s\S]*candidateLimit:48,limit:12/,'Places reads must expose one bounded parallel provider request and a broad verified candidate field per selected category');
+assert.match(composer,/parallelFastQueries:true,fastQueryLimit:focused\?2:1[\s\S]*candidateLimit:48,limit:12/,'Places reads must expose one bounded parallel provider request and a broader focused refill per selected category');
 assert.match(intelligenceAdapter,/Return exactly five distinct real named cities or travel regions/,'Destination inspiration must ask for five constraint-fit ideas');
 assert.match(intelligenceAdapter,/\.slice\(0,5\)/,'Destination inspiration must expose at most five verified directions');
 assert.match(intelligenceAdapter,/run\('trip\.compose'/,'A complete trip must use the dedicated Intelligence composition capability');
@@ -60,7 +60,7 @@ assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty 
   assert.match(composer,/profile\.travelInterests\|\|profile\.interests/,'Profile interests must determine the requested Place categories');
   assert.match(composer,/if\(\(preferences\.food\|\|\[\]\)\.length\)add\('food','requested'\)/,'Trip dietary preferences must make food Places part of the requested draft');
   assert.match(composer,/profileAllowance=directRequests\.length>=4\?0/,'A rich explicit request must not wait for unrelated profile-only categories');
-  assert.match(composer,/Promise\.allSettled\(requests\.map\(request=>requestCategory\(request\)\)\)/,'Explicit Place categories must start together instead of waiting in serial batches');
+  assert.match(composer,/Promise\.allSettled\(requests\.map\(request=>requestCategory\(request,\{refresh,focused\}\)\)\)/,'Explicit Place categories must start together instead of waiting in serial batches');
   assert.match(composer,/draftPrerequisite/,'Preview must repair invalid destination or date input before querying Places');
   assert.doesNotMatch(composer,/Ja, damit Orte suchen/,'A valid AI brief must proceed without an extra dead-end confirmation');
   assert.match(composer,/prepareAiBrief/,'The original AI wish must be interpreted before the concrete date window is chosen');

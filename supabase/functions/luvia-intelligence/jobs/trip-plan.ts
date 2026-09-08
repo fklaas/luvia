@@ -19,6 +19,7 @@ type WorkflowRow={
 
 export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
 export const TRIP_WORKFLOW_BUDGET={maxModelCalls:8,maxTotalTokens:180_000};
+export const TRIP_JOB_LEASE_TIMEOUT_MS=90_000;
 const IDEMPOTENCY=/^[a-zA-Z0-9:_-]{24,180}$/;
 const WORKFLOW_PHASES=new Set(['understanding','candidates','itinerary','repair','audit','ready-for-review','failed','confirmed']);
 
@@ -183,7 +184,7 @@ export async function startTripPlanJob(userId:string,payload:any){
     const prior=existing as JobRow;
     if(prior.input_fingerprint!==inputFingerprint)throw Object.assign(new Error('Die Auftrags-ID gehört bereits zu einem anderen Reiseentwurf.'),{code:'AI_JOB_IDEMPOTENCY_CONFLICT',status:409});
     if(prior.status==='queued'){await enqueue(admin,prior);return publicJob((await findOwned(admin,userId,prior.id)));}
-    if(prior.status==='running'&&Date.parse(prior.updated_at)<Date.now()-240_000&&prior.attempt_count<3){
+    if(prior.status==='running'&&Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS&&prior.attempt_count<3){
       const now=new Date().toISOString();
       const {data:reclaimed}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',updated_at:now,error_code:'AI_JOB_LEASE_RECOVERED',error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','running').eq('updated_at',prior.updated_at).select('*').maybeSingle();
       if(reclaimed){await enqueue(admin,reclaimed as JobRow);return publicJob((await findOwned(admin,userId,prior.id)));}
@@ -200,7 +201,7 @@ export async function startTripPlanJob(userId:string,payload:any){
   if(active){
     const prior=active as JobRow;
     if(prior.status==='queued'){await enqueue(admin,prior);return publicJob(await findOwned(admin,userId,prior.id));}
-    if(Date.parse(prior.updated_at)<Date.now()-240_000&&prior.attempt_count<3){
+    if(Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS&&prior.attempt_count<3){
       const now=new Date().toISOString(),{data:reclaimed}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',updated_at:now,error_code:'AI_JOB_LEASE_RECOVERED',error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','running').eq('updated_at',prior.updated_at).select('*').maybeSingle();
       if(reclaimed){await enqueue(admin,reclaimed as JobRow);return publicJob(await findOwned(admin,userId,prior.id));}
     }

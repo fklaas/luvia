@@ -804,6 +804,11 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   'data-ftc-ai-map': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-ai-place': ['Places & Ortsentdeckung', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-ai-retry': ['Places & Ortsentdeckung', 'AKTIONSKANDIDAT'],
+  'data-ftc-ai-elapsed': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-ai-long': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-ai-progress': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-phase': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
+  'data-started-at': ['Journey, Timeline & Tagesplan', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-destination-retry': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
   // The action marker selects existing Places owner actions (plan/favorite) or
   // an ephemeral draft exclusion. The day journey keeps one clear decision rail.
@@ -1050,8 +1055,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1079);
-  assert.equal(sourceAudit.markerCount, 1079);
+  assert.equal(sourceAudit.markers.length, 1084);
+  assert.equal(sourceAudit.markerCount, 1084);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

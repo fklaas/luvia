@@ -1,8 +1,10 @@
 (() => {
   'use strict';
+  const browser=window;
   const VERSION='4.37.1';
   const inflight=new Map();
   const MAX_BYTES=150000;
+  const FUNCTION_NAME=/integration-luvia\./i.test(String(browser.location?.hostname||''))?'luvia-intelligence-integration':'luvia-intelligence';
   const PERSISTENT_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
   let blockedUntil=0,lastError=null;
   const stable=value=>JSON.stringify(value);
@@ -45,7 +47,7 @@
   }
 
   function bodyFor(action,payload){
-    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.169',coreVersion:'4.82.288'}};
+    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.170',coreVersion:'4.82.289'}};
     if(new TextEncoder().encode(stable(body)).length>MAX_BYTES)body={
       action,
       payload:{idempotencyKey:payload?.idempotencyKey,workflowId:payload?.workflowId,jobId:payload?.jobId,retryFailed:payload?.retryFailed,phase:payload?.phase,state:compact(payload?.state),capability:payload?.capability,tier:payload?.tier,input:compact(payload?.input),context:{trip:compact(payload?.context?.trip),currentMoment:compact(payload?.context?.currentMoment),preferences:compact(payload?.context?.preferences)}},
@@ -59,10 +61,10 @@
     const body=bodyFor(action,payload),key=`${action}:${stable(body).slice(0,4000)}`;
     if(inflight.has(key))return inflight.get(key);
     const task=(async()=>{
-      const client=await window.LuviaSupabaseService.start(),timeoutMs=Math.max(3000,Number(options.timeoutMs||30000));
+      const client=await browser.LuviaSupabaseService.start(),timeoutMs=Math.max(3000,Number(options.timeoutMs||30000));
       let timer=null;
       try{
-        const request=client.functions.invoke('luvia-intelligence',{body});
+        const request=client.functions.invoke(FUNCTION_NAME,{body});
         const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('Luvia Intelligence hat das Zeitlimit überschritten.'),{code:'AI_TIMEOUT'})),timeoutMs)});
         const {data,error}=await Promise.race([request,timeout]);
         if(error){
@@ -89,7 +91,7 @@
     // poisoned by an otherwise equivalent payload restored in a different key order.
     const hash=fingerprint(normalized),idempotencyKey=`trip-plan-v2:${capability.replaceAll('.','-')}:${hash}`;
     const started=Date.now(),maxWaitMs=Math.max(15000,Number(options.timeoutMs||90000)),pollMs=Math.max(500,Math.min(3000,Number(options.pollMs||1200)));
-    let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed!==false},{timeoutMs:12000});
+    let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed===true},{timeoutMs:12000});
     let job=response?.data?.job;
     while(job){
       if(job.status==='succeeded')return {ok:true,data:{result:job.result},meta:{...(job.meta||{}),jobId:job.id,jobStatus:job.status,resumable:true,reused:job.attemptCount>0}};
@@ -119,6 +121,6 @@
 
   const run=(payload,options)=>invoke('brain.run',payload,options);
   const health=()=>invoke('brain.health',{}, {timeoutMs:10000});
-  const diagnostics=()=>({version:VERSION,inFlight:inflight.size,blockedUntil,lastError,maxPayloadBytes:MAX_BYTES,persistentCapabilities:[...PERSISTENT_CAPABILITIES]});
-  window.LuviaOpenAIProvider=Object.freeze({version:VERSION,provider:'openai',invoke,run,runPersistent,startTripWorkflow,readTripWorkflow,checkpointTripWorkflow,health,diagnostics});
+  const diagnostics=()=>({version:VERSION,inFlight:inflight.size,blockedUntil,lastError,maxPayloadBytes:MAX_BYTES,persistentCapabilities:[...PERSISTENT_CAPABILITIES],functionName:FUNCTION_NAME});
+  browser.LuviaOpenAIProvider=Object.freeze({version:VERSION,provider:'openai',invoke,run,runPersistent,startTripWorkflow,readTripWorkflow,checkpointTripWorkflow,health,diagnostics});
 })();

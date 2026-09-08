@@ -4,6 +4,7 @@ import { systemPrompt, userInput } from '../prompts/system.ts';
 
 type Tier='fast'|'default'|'deep';
 function models(){return{fast:Deno.env.get('LUVIA_AI_MODEL_FAST')||'gpt-5.6-luna',default:Deno.env.get('LUVIA_AI_MODEL_DEFAULT')||'gpt-5.6-terra',deep:Deno.env.get('LUVIA_AI_MODEL_DEEP')||'gpt-5.6-sol'}}
+export function requestTimeoutMs(capabilityId:string){return ({'planning.dialogue':28_000,'trip.compose':65_000,'trip.compose-day-repair':45_000,'trip.audit':40_000} as Record<string,number>)[capabilityId]||45_000}
 function extractText(response:any){if(typeof response?.output_text==='string')return response.output_text;for(const item of response?.output||[])for(const content of item?.content||[])if(content?.type==='output_text'&&typeof content.text==='string')return content.text;return''}
 function recoverable(status:number,body:any){const code=String(body?.error?.code||'');return status===404||status===400&&/model|unsupported|not_found/i.test(`${code} ${body?.error?.message||''}`)}
 export function parseStructuredOutput(response:any){
@@ -27,7 +28,10 @@ export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unkn
       max_output_tokens:args.capability.maxOutputTokens
     };
     if(model.includes('gpt-5'))body.reasoning={effort:args.capability.reasoningEffort};
-    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body)});
+    const controller=new AbortController(),timeoutMs=requestTimeoutMs(args.capability.id),timeout=setTimeout(()=>controller.abort('LUVIA_AI_SERVER_TIMEOUT'),timeoutMs);let response:Response;
+    try{response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body),signal:controller.signal})}
+    catch(error){const latencyMs=Math.round(performance.now()-started),timedOut=controller.signal.aborted,lastErrorCode=timedOut?'OPENAI_TIMEOUT':'OPENAI_NETWORK_ERROR',message=timedOut?`OpenAI hat ${args.capability.id} nicht innerhalb von ${Math.round(timeoutMs/1000)} Sekunden abgeschlossen.`:'OpenAI konnte nicht erreicht werden.';lastError=Object.assign(new Error(message),{code:lastErrorCode,status:timedOut?504:502,cause:error,model,latencyMs});attempts.push({model,requestId:null,usage:{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0},latencyMs,success:false,errorCode:lastErrorCode});throw Object.assign(lastError,{attempts,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll)})}
+    finally{clearTimeout(timeout)}
     const json=await response.json().catch(()=>({})),usage={inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0)},latencyMs=Math.round(performance.now()-started),requestId=json.id||null;
     if(!response.ok){lastError=Object.assign(new Error(json?.error?.message||'OpenAI request failed'),{code:json?.error?.code||'OPENAI_REQUEST_FAILED',status:response.status,body:json});attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:lastError.code});if(recoverable(response.status,json)&&model!==candidates.at(-1))continue;throw Object.assign(lastError,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)})}
     try{

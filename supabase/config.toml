@@ -4,6 +4,9 @@ verify_jwt = false
 [functions.luvia-intelligence]
 verify_jwt = false
 
+[functions.luvia-intelligence-integration]
+verify_jwt = false
+
 [functions.booking-email-send]
 verify_jwt = true
 
