@@ -31,8 +31,11 @@ async function providerResume(){
   assert.equal(first.data.result.title,'Fortgesetzter Entwurf');assert.equal(first.meta.resumable,true);checks+=2;
   const second=await provider.runPersistent({...payload,context:{...payload.context,live:{...payload.context.live,now:'2026-09-08T06:41:37.000Z'}}},{workflowId:workflow.id,pollMs:1,timeoutMs:16000});
   assert.equal(second.data.result.title,'Fortgesetzter Entwurf');assert.equal(executions,1,'Same semantic request must reuse one server execution');checks+=2;
+  const reordered={tier:'fast',capability:'trip.compose',context:{currentMoment:{surface:'trip-composer'},live:{today:'2026-09-08',now:'2026-09-08T06:44:11.000Z'}},input:{days:[{entries:[{evidence:{refs:[{id:'evidence-valencia-1'}]},providerPlaceId:'places/valencia-1'}],date:'2027-06-12'}]}};
+  const third=await provider.runPersistent(reordered,{workflowId:workflow.id,pollMs:1,timeoutMs:16000});
+  assert.equal(third.data.result.title,'Fortgesetzter Entwurf');assert.equal(executions,1,'Equivalent payload key order must not create or conflict with another server execution');checks+=2;
   const starts=calls.filter(call=>call.action==='trip.plan-job.start');
-  assert.equal(starts.length,2);assert.equal(starts[0].payload.idempotencyKey,starts[1].payload.idempotencyKey);assert.deepEqual(starts[0].payload.context,starts[1].payload.context);assert.equal(starts[0].payload.input.days[0].entries[0].evidence.refs[0].id,'evidence-valencia-1');assert.equal(starts[0].payload.workflowId,workflow.id);assert.equal(reads,1);checks+=6;
+  assert.equal(starts.length,3);assert.equal(starts[0].payload.idempotencyKey,starts[1].payload.idempotencyKey);assert.equal(starts[1].payload.idempotencyKey,starts[2].payload.idempotencyKey);assert.match(starts[0].payload.idempotencyKey,/^trip-plan-v2:/);assert.deepEqual(starts[0].payload.context,starts[1].payload.context);assert.equal(starts[0].payload.input.days[0].entries[0].evidence.refs[0].id,'evidence-valencia-1');assert.equal(starts[0].payload.workflowId,workflow.id);assert.equal(reads,1);checks+=8;
 }
 
 function contracts(){
@@ -40,7 +43,7 @@ function contracts(){
   assert.match(migration,/intelligence_trip_plan_workflows/);assert.match(migration,/unique \(user_id, idempotency_key\)/);assert.match(migration,/force row level security/);assert.match(migration,/revoke all on table public\.intelligence_trip_plan_jobs from anon, authenticated/);checks+=4;
   assert.match(singleActive,/unique index[\s\S]*\(workflow_id, capability\)[\s\S]*queued[\s\S]*running/);checks++;
   const jobs=read('supabase/functions/luvia-intelligence/jobs/trip-plan.ts'),handler=read('supabase/functions/luvia-intelligence/index.ts');
-  assert.match(jobs,/EdgeRuntime/);assert.match(jobs,/request_payload:null/);assert.match(jobs,/attempt_count<3|lt\('attempt_count',3\)/);assert.match(jobs,/input_fingerprint/);assert.match(jobs,/AI_WORKFLOW_BUDGET_EXHAUSTED/);assert.match(jobs,/\.eq\('workflow_id',workflowId\)\.eq\('capability',capabilityId\)\.in\('status',\['queued','running'\]\)/);checks+=6;
+  assert.match(jobs,/EdgeRuntime/);assert.match(jobs,/request_payload:null/);assert.match(jobs,/attempt_count<3|lt\('attempt_count',3\)/);assert.match(jobs,/input_fingerprint/);assert.match(jobs,/JSON\.stringify\(canonical\(value\)\)/);assert.match(jobs,/AI_WORKFLOW_BUDGET_EXHAUSTED/);assert.match(jobs,/\.eq\('workflow_id',workflowId\)\.eq\('capability',capabilityId\)\.in\('status',\['queued','running'\]\)/);checks+=7;
   assert.match(handler,/trip\.plan-workflow\.checkpoint/);assert.match(handler,/resumableTripWorkflow:true/);assert.match(handler,/jobTtlHours:24/);assert.match(handler,/singleActiveCapabilityJob:true/);assert.match(handler,/workflowBudget:TRIP_WORKFLOW_BUDGET/);checks+=5;
   const composer=read('app/first-trip-composer.js'),core=read('core/ai/ai-core.js');
   assert.match(composer,/workflowId:state\.workflowId\|\|null/);assert.match(composer,/ready-for-review/);assert.match(composer,/AI_JOB_PENDING/);assert.match(composer,/resumedPhase==='audit'/);assert.match(composer,/qualityAttempts\?qualityAttempts-1:0/);assert.match(core,/runPersistent/);checks+=6;

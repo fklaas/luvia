@@ -28,8 +28,14 @@ function adminClient(){
   return createClient(url,serviceKey,{auth:{persistSession:false}});
 }
 
+function canonical(value:unknown):unknown{
+  if(Array.isArray(value))return value.map(canonical);
+  if(value&&typeof value==='object')return Object.keys(value as Record<string,unknown>).sort().reduce((result,key)=>{result[key]=canonical((value as Record<string,unknown>)[key]);return result},{} as Record<string,unknown>);
+  return value;
+}
+
 async function digest(value:unknown){
-  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(value)));
+  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(canonical(value))));
   return [...new Uint8Array(bytes)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
 }
 

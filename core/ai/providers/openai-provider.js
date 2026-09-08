@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='4.37.0';
+  const VERSION='4.37.1';
   const inflight=new Map();
   const MAX_BYTES=150000;
   const PERSISTENT_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
@@ -45,7 +45,7 @@
   }
 
   function bodyFor(action,payload){
-    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.156',coreVersion:'4.82.275'}};
+    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.157',coreVersion:'4.82.276'}};
     if(new TextEncoder().encode(stable(body)).length>MAX_BYTES)body={
       action,
       payload:{idempotencyKey:payload?.idempotencyKey,workflowId:payload?.workflowId,jobId:payload?.jobId,retryFailed:payload?.retryFailed,phase:payload?.phase,state:compact(payload?.state),capability:payload?.capability,tier:payload?.tier,input:compact(payload?.input),context:{trip:compact(payload?.context?.trip),currentMoment:compact(payload?.context?.currentMoment),preferences:compact(payload?.context?.preferences)}},
@@ -84,7 +84,10 @@
     const capability=String(payload?.capability||'');
     if(!PERSISTENT_CAPABILITIES.has(capability)||!options.workflowId)return invoke('brain.run',payload,options);
     const normalized={capability,tier:payload?.tier,input:compact(payload?.input||{}),context:persistentContext(payload?.context||{})};
-    const hash=fingerprint(normalized),idempotencyKey=`trip-plan:${capability.replaceAll('.','-')}:${hash}`;
+    // Version the key alongside the canonical fingerprint contract. Earlier keys
+    // were compared with an order-sensitive server digest and can therefore be
+    // poisoned by an otherwise equivalent payload restored in a different key order.
+    const hash=fingerprint(normalized),idempotencyKey=`trip-plan-v2:${capability.replaceAll('.','-')}:${hash}`;
     const started=Date.now(),maxWaitMs=Math.max(15000,Number(options.timeoutMs||90000)),pollMs=Math.max(500,Math.min(3000,Number(options.pollMs||1200)));
     let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed!==false},{timeoutMs:12000});
     let job=response?.data?.job;
