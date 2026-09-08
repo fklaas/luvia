@@ -36,5 +36,9 @@ vm.runInContext(source,vm.createContext(context),{filename:'places-discovery-ada
   assert.equal(result.diversityMeta.queriedVariants,5,'the result must expose the actual provider-query breadth');
   assert.equal(result.diversityMeta.rotationAcrossQueries,true,'ranked cards must rotate across the sampled variants');
   assert.equal(window.LuviaPlacesDiscoveryService.diagnostics().breadthUsesUniquePlaces,true);
+  const later=await window.LuviaPlacesDiscoveryService.recommend({text:'Restaurants',destination:'Scharbeutz',fastPath:true,parallelFastQueries:true,fastQueryLimit:3,queryVariantOffset:2,candidateLimit:160,limit:30,rejectedProviderPlaceIds:result.places.map(place=>place.providerPlaceId),diversity:{minimumQueryVariants:3,targetCandidates:30}});
+  assert.deepEqual(Array.from(later.plan.attempts,attempt=>attempt.query),['q3','q4','q5'],'a later breadth wave must rotate into unconsumed semantic queries');
+  assert.equal(later.places.some(place=>result.places.some(first=>first.providerPlaceId===place.providerPlaceId)),false,'a later breadth wave must not return a Place already held by the trip pool');
+  assert.equal(window.LuviaPlacesDiscoveryService.diagnostics().maxCandidateLimit,160,'longer trips may research a larger, still bounded pool');
   console.log('LUVIA_M15_0B_PLACES_PROGRESSIVE_BREADTH_RUNTIME_OK');
 })().catch(error=>{console.error(error);process.exitCode=1});

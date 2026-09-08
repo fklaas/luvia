@@ -49,7 +49,7 @@ vm.runInContext(preferenceSource,sandbox,{filename:'trip-preference-context-adap
   assert.ok(Date.now()-cachedStarted<80,'the completed group projection must be served from the bounded cache');
   assert.ok(cached.travelers.some(item=>item.id==='lea'&&item.signals.includes('nature')),'background owner projection must enrich later paints');
 
-  assert.match(discoverySource,/options\.fastPath===true\?Math\.min\(3,/,'fast provider paint may issue at most three bounded query variants for real category diversity');
+  assert.match(discoverySource,/options\.fastPath===true\?Math\.min\(8,/,'trip breadth may issue at most eight bounded parallel query variants while ordinary first paint still requests one');
   assert.match(discoverySource,/options\.fastPath===true&&options\.parallelFastQueries===true/,'fast provider breadth must be parallel instead of serial');
   assert.match(discoverySource,/options\.fastPath===true\?2400:12000/,'fast provider paint must have a strict timeout instead of a 15 second wait');
   assert.match(discoverySource,/providerCache\.get\(cacheKey\)/,'provider evidence must be reusable within its freshness window');
@@ -70,7 +70,7 @@ vm.runInContext(preferenceSource,sandbox,{filename:'trip-preference-context-adap
   assert.doesNotMatch(assetsIgnoreSource,/^supabase$/m,'an unanchored Supabase ignore would also remove the required vendor runtime');
   assert.match(runtimeLoaderSource,/identity-platform-web-adapter\.js[\s\S]*platform-port-adapters\.mjs[\s\S]*media-storage-web-adapter\.mjs[\s\S]*supabase-2\.112\.4\.js[\s\S]*luvia-runtime-precontext-13\.82\.168\.bundle\.js[\s\S]*luvia-trip-context\.js[\s\S]*luvia-runtime-postcontext-13\.82\.168\.bundle\.js/,'the physical ports and vendor boundary must be ready before Trip state, its web binding, and all product consumers execute in contract order');
   assert.match(indexSource,/exifr@7\.1\.3\/dist\/full\.umd\.js" async/,'optional photo metadata parsing must not delay DOMContentLoaded or Today');
-  assert.match(indexSource,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.168\.171" defer/,'the same-origin map renderer must preserve execution order without blocking HTML parsing');
+  assert.match(indexSource,/vendor\/maplibre\/maplibre-gl-5\.12\.0\.js\?v=13\.82\.168\.172" defer/,'the same-origin map renderer must preserve execution order without blocking HTML parsing');
   const blockingLocalScripts=[...indexSource.matchAll(/<script\b([^>]*)\bsrc=["'](?!https?:\/\/)([^"']+)["']([^>]*)>/g)]
     .filter(match=>!/(?:^|\s)(?:async|defer)(?:\s|=|$)/.test(`${match[1]} ${match[3]}`)&&!/\btype=["']module["']/.test(`${match[1]} ${match[3]}`));
   assert.equal(blockingLocalScripts.length,0,'the shell must not serialize hundreds of same-origin scripts before first paint');

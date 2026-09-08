@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.3-degraded-cohort-continuity';
+const VERSION='1.15.0-scalable-trip-pools';
 const PROVIDER_CACHE_MS=180000;
 const PROVIDER_RECOVERY_MS=15*60*1000;
 const providerCache=new Map(),providerFlights=new Map();
@@ -168,9 +168,9 @@ async function recommend(options={}){
   const rejected=new Set((options.rejectedProviderPlaceIds||[]).map(value=>clean(value).replace(/^places\//,'')));
   const specificEvidence=window.LuviaGlobalPlaceContracts?.evidenceContract?.(subjectText,goal.category,plan.ai||{},searchDestination)||null;
   const candidates=[];
-  const candidateLimit=Math.min(60,Math.max(20,Number(options.candidateLimit||20)));
-  const queryLimit=options.fastPath===true?Math.min(3,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(5,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>20?5:3);
-  const requestedLimit=Math.min(60,Math.max(1,Number(options.limit||5)));
+  const candidateLimit=Math.min(160,Math.max(20,Number(options.candidateLimit||20)));
+  const queryLimit=options.fastPath===true?Math.min(8,Math.max(1,Number(options.fastQueryLimit||1))):options.queryVariantLimit?Math.min(10,Math.max(1,Number(options.queryVariantLimit))):(candidateLimit>60?8:candidateLimit>20?5:3);
+  const requestedLimit=Math.min(160,Math.max(1,Number(options.limit||5)));
   const diversity=options.diversity&&typeof options.diversity==='object'?options.diversity:{},minimumQueryVariants=Math.min(queryLimit,Math.max(1,Number(diversity.minimumQueryVariants||3))),diversityTarget=Math.min(candidateLimit,Math.max(requestedLimit,Number(diversity.targetCandidates)||Math.max(requestedLimit*3,requestedLimit+6)));
   const dietary=options.requirePreferenceEvidence===true?window.LuviaGlobalPlaceContracts?.profileSignals?.(options.preferences||options.profilePreferences||{}):null;
   const accepts=place=>{if(discoveryRoute.category==='food'&&(dietary?.vegan||dietary?.vegetarian)&&window.LuviaGlobalPlaceContracts?.accepts?.(place,'food',dietary.vegan?'Veganes Restaurant':'Vegetarisches Restaurant',options.preferences||{})===false)return false;const strictRestaurant=options.strictPlaceType==='restaurant';if(strictRestaurant&&!restaurantEvidence(place))return false;const assessmentPlace=strictRestaurant?{...place,types:[...(place.types||[]),'restaurant']}:place;return window.LuviaGlobalPlaceContracts?.accepts?.(assessmentPlace,discoveryRoute.category,subjectText,options.preferences||options.profilePreferences||{},{evidenceContract:specificEvidence,plan:plan.ai||{},destination:searchDestination})!==false};
@@ -245,7 +245,7 @@ async function recommend(options={}){
       return{places:[],error,attempt:{query,strictDestination,ok:false,code:error?.code||'PLACES_QUERY_FAILED',cached:false,providers:safeProviderMeta(error?.providerDiagnostics||{})}};
     }
   };
-  const selectedQueries=plan.queries.slice(0,queryLimit);
+  const queryOffset=Math.max(0,Math.floor(Number(options.queryVariantOffset)||0)),selectedQueries=plan.queries.length?Array.from({length:Math.min(queryLimit,plan.queries.length)},(_,index)=>plan.queries[(queryOffset+index)%plan.queries.length]):[];
   if(options.fastPath===true&&options.parallelFastQueries===true){
     const settled=await Promise.all(selectedQueries.map(query=>providerRequest(query,true)));
     for(const result of settled){candidates.push(...result.places);attempts.push(result.attempt);if(result.error)lastError=result.error}
@@ -285,6 +285,6 @@ async function recommend(options={}){
   const places=ranked.slice(0,requestedLimit).map(place=>({...place,coordinates:place.coordinates||place.location||null})),providerDiagnostics=aggregateProviderDiagnostics(attempts);
   return{places,searchScope:{destination:searchDestination,radiusMeters:options.destinationContext?.searchRadiusMeters||null},selectionMeta:{rawCandidateCount:uniquePlaces(candidates).length,eligibleCandidateCount:eligibleCandidates().length,rankedCandidateCount:ranked.length,returnedCount:places.length},plan:{...plan,route:discoveryRoute,attempts},evidenceContract:specificEvidence,aiMeta:{planning:{available:Boolean(window.LuviaAI?.interpretDiscovery),used:Boolean(plan.ai),fallback:plan.ai?.fallback??null},ranking:aiRanking},preferenceResolution:resolvedPreferences,preferenceMeta,providerDiagnostics,diversityMeta:{candidateCount:ranked.length,eligibleCandidateCount:eligibleCandidates().length,returnedCount:places.length,providerCandidateWindow,minimumQueryVariants,queriedVariants:attempts.filter(attempt=>attempt.ok).length,rotationAcrossQueries:diversity.rotateAcrossQueries!==false,rejectedProviderPlaceIds:rejected.size,providerStatus:providerDiagnostics.status}};
 }
-  function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:3,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:60,providerCandidateWindow:'12-20',breadthUsesUniquePlaces:true,breadthUsesEligiblePlaces:true,minDeepQueryVariants:3,chatQueryVariants:3,rotatesAcrossQueryVariants:true,spatialConstraints:true,maxQueryVariants:5,providerTruth:true,strictRestaurantEvidence:true,openVocabularyEvidenceGate:true,canonicalCategoryEvidenceGate:true,accommodationNameFallback:false,nightlifeMultiTypePostFilter:true,inventoryClaimsFromPlaceMetadata:false,providerFailureCache:false,deviceLocationSource:'explicit-provider-share-only'}}
+  function diagnostics(){return{version:VERSION,status:'ready',categoryRegistryVersion:LuviaPlacesDomainContractCoreV1.version,aiPlanning:Boolean(window.LuviaAI?.interpretDiscovery),aiRanking:Boolean(window.LuviaAI?.rankCandidates),preferenceResolution:Boolean(intelligence()?.reads?.resolveTripPreferences),fastProviderFirstPath:true,fastQueryVariants:8,parallelFastQueries:true,fastProviderTimeoutMs:2400,providerCacheTtlMs:PROVIDER_CACHE_MS,providerCacheEntries:providerCache.size,maxCandidateLimit:160,providerCandidateWindow:'20-50',breadthUsesUniquePlaces:true,breadthUsesEligiblePlaces:true,minDeepQueryVariants:3,chatQueryVariants:3,rotatesAcrossQueryVariants:true,queryVariantOffsets:true,spatialConstraints:true,maxQueryVariants:10,providerTruth:true,strictRestaurantEvidence:true,openVocabularyEvidenceGate:true,canonicalCategoryEvidenceGate:true,accommodationNameFallback:false,nightlifeMultiTypePostFilter:true,inventoryClaimsFromPlaceMetadata:false,providerFailureCache:false,deviceLocationSource:'explicit-provider-share-only'}}
 window.LuviaPlacesDiscoveryService=Object.freeze({version:VERSION,listSaved,recommend,diagnostics});
 })();
