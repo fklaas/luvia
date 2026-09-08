@@ -75,7 +75,7 @@ const api=context.LuviaIntelligenceContractV1;
 assert.ok(api,'public Intelligence contract missing');
 assert.equal(api.contractId,'intelligence.v1');
 assert.equal(api.diagnostics().ready,true);
-assert.equal(api.getCapabilities().length,11);
+assert.equal(api.getCapabilities().length,12);
 assert.equal(api.getTools().length,12);
 assert.equal(api.getSystemSnapshot().ownership.foreignDomainMutation,false);
 assert.equal(api.getSystemSnapshot().ownership.journeyTimelineOwner,false);
