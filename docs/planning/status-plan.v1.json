@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "snapshot": "2026-09-08",
+  "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.173",
-  "core": "4.82.292",
-  "runtimeSource": "WORKTREE_CANDIDATE_13.82.168.173",
-  "worker": "e1b49cef-2ff4-45e0-af21-26048004b28a",
+  "app": "13.82.168.174",
+  "core": "4.82.293",
+  "runtimeSource": "WORKTREE_CANDIDATE_13.82.168.174",
+  "worker": "fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -732,9 +732,9 @@
       "sequence": "Zuerst .173 ausschließlich auf Integration veröffentlichen und den echten Valencia-Auftrag mit Meer, Shopping, Nachtleben und Restaurants gegen die räumlich versetzte Recherche prüfen. Danach wird der getrennte trip.compose-Latenzengpass durch einen kleineren, fortsetzbaren Kompositionsvertrag geschlossen; anschließend folgen der Familien-/Ferien-/Konfliktfall und lange 14-/21-Tage-Pläne als P17/P19-Abnahme."
     }
   ],
-  "acceptanceUpdate": "App .172 / Core .291 und Integration-Intelligence 4.42.0 sind der veröffentlichte Ausgangsstand; Production ist unverändert. Der echte Valencia-Neuversuch erreichte in rund 12 Sekunden 21 Kandidaten statt zuvor 17, belegte aber eine zweite Ursache: semantische Varianten um denselben Provider-Mittelpunkt liefern weiterhin viele Duplikate. App .173 / Core .292 verschiebt spätere Suchwellen deshalb durch reale Koordinatensektoren innerhalb des freigegebenen Bewegungsradius, prüft Treffer gegen den ursprünglichen Zielradius zurück und ergänzt bei dünnen ausdrücklichen Kategorien begrenzte passende Stützkategorien. Die Zielgröße wächst bei drei Interessen von mindestens 29 Kandidaten für 7 Tage auf 60 für 14 und 92 für 21 Tage; Recherche, Komposition und Audit bleiben bei 160 begrenzt. Integration-Veröffentlichung und realer Valencia-Nachweis sind der nächste Schritt; der anschließend sichtbar gewordene trip.compose-Timeout bleibt ein getrennter aktiver P17-Blocker.",
-  "safeRegression": "Releasekandidat .173: 130 Composer-Verhaltensprüfungen, 92/92 P19-Workflowprüfungen, skalierte 7-/14-/21-Tage-Pools, räumlich versetzte Suchanker, Radius-Nachprüfung und Stützkategorien sowie die vollständige 240/240 Safe Regression einschließlich NFR-0 3/3 sind grün.",
-  "publicAssetIdentity": "App .172 / Core .291: 22 releasekritische Dateien stimmen auf Stable Integration und der unveränderlichen Worker-URL jeweils 22/22 bytegenau mit dem sauberen Archiv überein. Quelle 5b505c9e46f2744a758d14e388c45817bebd7421; Worker be6e88b6-5e13-4038-a9a0-717860c71f2f; Archiv 92636587 Bytes; SHA-256 2F2CC5171AE0556DCEAAF156C4F3157D3BF54EFDD323B30E31C641EEB53F1DE3.",
+  "acceptanceUpdate": "App .173 / Core .292 und Integration-Intelligence 4.42.0 sind der veröffentlichte Ausgangsstand; Production ist unverändert. Der reale Valencia-Lauf erreichte trotz räumlicher Sektoren nur 21 Kandidaten, weil zu wenige Kategorien recherchiert und überlappende große Stadtradien viele Duplikate erzeugt hatten; der vollständige Plan erreichte anschließend den ungespeicherten Review, benötigte aber mehr als zwei Minuten. App .174 / Core .293 behandelt explizite Wünsche als Prioritäten statt als vollständiges Stadtinventar, recherchiert acht Zielort-Grundkategorien, verwendet kleinere lokale Sektorradien und setzt echte Rechercheziele von 42/84/126 Kandidaten für 7/14/21 Tage. Die Modellkomposition bleibt mit 32/60/92 priorisierten Kandidaten getrennt begrenzt, damit Vielfalt nicht proportional Modellkosten und Laufzeit aufbläht. Integration-Veröffentlichung und realer Valencia-Nachweis sind der nächste Schritt.",
+  "safeRegression": "Releasekandidat .174: 130 Composer-Verhaltensprüfungen, 92/92 P19-Workflowprüfungen, 240/240 Safe Regression und NFR-0 3/3 sind grün. Belegt sind acht Zielort-Grundkategorien, lokale Stadtsektoren innerhalb des bestätigten Bewegungsradius, echte 42-/84-/126-Kandidatenziele für 7/14/21 Tage und getrennte 32-/60-/92-Kompositionskataloge.",
+  "publicAssetIdentity": "Der letzte öffentlich geprüfte Stand App .173 / Core .292 stammt aus Quelle 547d6000f4f7b4e70ebb217fa9cc85f7eeab7003 und Worker fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15. 22 releasekritische Dateien stimmen auf Stable Integration und der unveränderlichen Worker-URL 22/22 bytegenau mit dem Archiv überein. Die Byteprüfung für .174 folgt unmittelbar nach dem sauberen Integration-Deployment.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -768,28 +768,28 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv und teilweise: App .172 / Core .291, Worker be6e88b6-5e13-4038-a9a0-717860c71f2f und Integration-Intelligence 4.42.0 sind öffentlich auf Integration; 22/22 Bytes stimmen. Der echte Valencia-Lauf erreichte 21 belegte Kandidaten in rund 12 Sekunden und danach den klar sichtbaren separaten trip.compose-Timeout. App .173 / Core .292 ist der aktive räumlich skalierte Recherchekandidat. Main und Production bleiben unverändert.",
-    "delivered": "Die veröffentlichte Laufzeit begrenzt Recherche, Komposition und Kosten sichtbar und setzt einen Auftrag nach Hintergrundwechsel fort. .172 skaliert den Zielpool mit Reisedauer und Interessen, schließt bekannte Provider-IDs in Ergänzungswellen aus und erlaubt ehrliche leichtere Tage bei kleiner Unterdeckung. Der öffentliche Valencia-Lauf bestätigte 21 Kandidaten statt zuvor 17, zeigte aber weiter denselben zu zentralen Provider-Suchanker. .173 ergänzt deshalb reale, im Bewegungsradius verteilte Suchanker, Rückprüfung gegen den Originalradius, mehr Wellen für längere Reisen und begrenzte Stützkategorien. Unbekannte Orte werden weiterhin niemals erfunden.",
+    "stage": "P17/P19 aktiv und teilweise: App .173 / Core .292, Worker fbc3fd6e-86a1-4e3d-83b2-cf7ace3b2a15 und Integration-Intelligence 4.42.0 sind öffentlich auf Integration; 22/22 Bytes stimmen. Der echte Valencia-Lauf blieb bei 21 Kandidaten, erreichte aber den vollständigen ungespeicherten Review. App .174 / Core .293 ist lokal vollständig geprüft und der aktive breite Recherchekandidat. Main und Production bleiben unverändert.",
+    "delivered": "Der Composer kann einen unterbrochenen Auftrag fortsetzen, beendet verwaiste oder überlange Jobs sichtbar und bewahrt gültige Phasen. .174 löst die sachlich zu enge Places-Auswahl: ausdrückliche Wünsche steuern die Priorität, während acht Zielort-Grundkategorien das reale Inventar verbreitern. Kleinere, verteilte Stadtsektoren reduzieren überlappende Duplikate. Für 7/14/21 Tage wachsen die echten Rechercheziele auf 42/84/126; die KI erhält daraus nur 32/60/92 räumlich und fachlich priorisierte Kandidaten. Provider-IDs bleiben eindeutig und unbekannte Orte werden niemals erfunden.",
     "nextStep": {
-      "id": "P17-P19-spatial-catalog-public-e2e",
+      "id": "P17-P19-scalable-place-pool-public-e2e",
       "package": "P17",
       "status": "AKTIV",
-      "title": "App .173 ausschließlich auf Integration veröffentlichen, räumlich breiten Valencia-Pool messen und danach trip.compose fortsetzbar verkleinern",
-      "reason": "Der öffentliche .172-Lauf erreichte schnell 21 belegte Places, blieb durch wiederholte Provider-Abfragen am selben Stadtmittelpunkt aber unter seinem skalierten Forschungsziel. .173 muss belegen, dass räumlich versetzte, radiuskonforme Wellen mehr unterschiedliche Valencia-Kandidaten einschließlich Meer/Strand liefern. Der danach sichtbar eingetretene 50-Sekunden-Timeout wird getrennt durch kleinere fortsetzbare KI-Kompositionsarbeit gelöst.",
+      "title": "App .174 ausschließlich auf Integration veröffentlichen und den vollständigen Valencia-Ablauf mit breitem Place-Pool abnehmen",
+      "reason": "Der letzte öffentliche Lauf belegte, dass räumliche Sektoren allein den auf 21 Kandidaten beschnittenen Pool nicht lösen. .174 kombiniert Zielort-Grundkategorien, kleinere lokale Suchradien und reisedauerabhängige Rechercheziele; jetzt muss der öffentliche Providerlauf beweisen, dass Valencia deutlich mehr echte, räumlich und fachlich gemischte Kandidaten einschließlich Meer/Strand liefert, ohne den KI-Aufruf unnötig zu vergrößern.",
       "acceptance": [
-        "App .173 / Core .292 wird aus einem sauberen Commit ausschließlich auf Integration veröffentlicht; releasekritische Dateien sind zwischen Archiv, Stable und Immutable byteidentisch.",
+        "App .174 / Core .293 wird aus einem sauberen Commit ausschließlich auf Integration veröffentlicht; releasekritische Dateien sind zwischen Archiv, Stable und Immutable byteidentisch.",
         "Integration verwendet weiter die getrennte Intelligence 4.42.0; produktive Intelligence, Main und Production bleiben unverändert.",
-        "Valencia-Recherche verschiebt spätere Suchwellen durch mehrere echte Koordinatensektoren innerhalb des freigegebenen Bewegungsradius und bezeichnet das Ergebnis wahrheitsgemäß als Kandidaten dieses Suchlaufs.",
-        "7, 14 und 21 Tage besitzen wachsende Rechercheziele und höchstens 2, 3 beziehungsweise 4 Ergänzungswellen; der gemeinsame Sicherheitsdeckel von 160 echten Kandidaten verhindert unkontrollierte Kosten.",
-        "Ausdrückliche Wünsche wie Meer/Strand, Shopping, Nachtleben und Restaurants bleiben im Kategorienmix nachweisbar; passende Stützkategorien dürfen nur bei dünnem Pool ergänzen.",
-        "Die Warteansicht zeigt reale Phasen, Gesamtzeit und aktive Arbeitsgegenstände; Vordergrund und Page-Restore verwenden denselben Auftrag.",
-        "Ein trip.compose-Hänger endet nach 50 Sekunden; ein verwaister Job wird nach 60 Sekunden sichtbar terminal und ohne Nutzer-Neuversuch nicht erneut bezahlt.",
-        "Der öffentliche Plan erreicht den ungespeicherten Review oder einen konkreten sichtbaren Fehler innerhalb des begrenzten Ablaufs.",
-        "Tagespunkt und echter Places-Pin fokussieren sich gegenseitig; Kategorien behalten Compass-Farben und der aktive Eintrag zeigt den vollständigen Luvia-Spektrumrahmen."
+        "Valencia recherchiert acht Zielort-Grundkategorien und priorisiert die ausdrücklichen Wünsche Meer/Strand, Shopping, Nachtleben und Restaurants.",
+        "7, 14 und 21 Tage besitzen echte wachsende Rechercheziele von 42, 84 und 126 eindeutigen Provider-Kandidaten; der gemeinsame Sicherheitsdeckel bleibt 160.",
+        "Die Modellkomposition erhält daraus höchstens 32, 60 oder 92 fachlich und räumlich priorisierte Kandidaten, damit Modelllaufzeit und Kosten begrenzt bleiben.",
+        "Lokale Sektorsuchen verwenden kleinere Radien; jeder Treffer wird weiterhin gegen den bestätigten globalen Bewegungsradius geprüft.",
+        "Der öffentliche Valencia-Lauf zeigt deutlich mehr als 21 echte Kandidaten oder benennt eine reale Provider-Unterdeckung ehrlich, statt eine künstliche Produktgrenze vorzutäuschen.",
+        "Der öffentliche Plan erreicht den ungespeicherten Review oder einen konkreten sichtbaren terminalen Fehler innerhalb des begrenzten Ablaufs.",
+        "Die sichtbare Tagesplanung deckt Meer/Strand sowie den gewünschten Kategorienmix ab und verteilt Places über nachvollziehbare Tagesgebiete."
       ]
     },
-    "after": "Nach dem gemessenen mobilen Positivlauf folgen autoritative Ferienfenster und die fachliche Konfliktmoderation vor der Planung, danach die Abnahme von räumlicher Streuung, Strandabdeckung und Kategorienmix. Anschließend werden P16-Ablehnungsdiagnose, P15/P17-Kontoübernahme, Timeline-/Owner-Receipts, Archiv/Wiederherstellung und physische Geräte geschlossen. M17 friert die gemeinsame Produktsprache sowie die modulübergreifenden Intelligence-Verträge ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
-    "open": "P17/P19: .171 samt Integration-Intelligence 4.42.0 öffentlich messen und den Gesamtplan bis zum ungespeicherten Review führen; automatische autoritativ belegte Ferienfenster, Konfliktvarianten, räumliche Streuung, Strandabdeckung und Kategorienmix fachlich abnehmen. Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose. Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
+    "after": "Nach dem öffentlichen Valencia-Nachweis folgen die Laufzeitverkürzung des Gesamtplans, autoritative Ferienfenster und die fachliche Konfliktmoderation vor der Planung. Danach werden räumliche Streuung, Strandabdeckung und Kategorienmix abgenommen sowie P16-Ablehnungsdiagnose, P15/P17-Kontoübernahme, Timeline-/Owner-Receipts, Archiv/Wiederherstellung und physische Geräte geschlossen. M17 friert die gemeinsame Produktsprache und modulübergreifenden Intelligence-Verträge ein; M18 baut Collaboration, Attention, Wallet/Dokumente, Reviews, Admin, Social, Suche und Intelligence II aus.",
+    "open": "P17/P19: .174 öffentlich veröffentlichen und mit einem frischen Valencia-Auftrag bis zum Review messen; Gesamtlaufzeit deutlich verkürzen; automatische autoritativ belegte Ferienfenster, Konfliktvarianten, räumliche Streuung, Strandabdeckung und Kategorienmix fachlich abnehmen. Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose. Kontextwellen, Reise-Schatten, Ziel-Zwillinge, Luvia Pulse und Gruppen-Sternbild bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -847,7 +847,7 @@
       }
     ]
   },
-  "qaCommit": "WORKTREE_CANDIDATE_13.82.168.173",
+  "qaCommit": "WORKTREE_CANDIDATE_13.82.168.174",
   "intelligence": "v52 ACTIVE / 4.40.2 auf der bisherigen produktiven Function; Integration-Intelligence 4.42.0 ist öffentlich auf dem getrennten Function-Einstieg. App .173 erweitert ausschließlich den gemeinsamen providerneutralen Places-/Intelligence-Vertrag: bis zu 160 belegte Kandidaten können komponiert und unabhängig auditiert werden; Poolgrößen, Wellenzahl und räumliche Suchsektoren wachsen kontrolliert mit Reisedauer und Kategorien. Die Function begrenzt trip.compose weiter auf 50 Sekunden und 5.200 Ausgabetokens ohne zusätzliches Luna-Reasoning, beendet verwaiste Jobs nach 60 Sekunden sichtbar und startet ohne ausdrücklichen Nutzer-Neuversuch keinen bezahlten Lauf erneut.",
   "backendRelease": {
     "source": "ebc89441c13b5143f2a66d7e3d3eefe85763fc12",
