@@ -50,6 +50,9 @@ function contracts(){
   assert.doesNotMatch(composer,/checkpointTripWorkflow\(state,'ready-for-review',\{[^\n]*candidates:/);checks++;
   assert.match(composer,/state\.aiDraft\.brief=clone\(brief\);state\.aiDraft\.phase='places'/);checks++;
   assert.match(composer,/cachedCoverage=new Map[\s\S]*aiCategoryRequests\(state\)[\s\S]*!item\|\|item\.status==='empty'\|\|item\.status==='unavailable'/,'resumed workflows must recover requested categories that never received a coverage row');checks++;
+  assert.match(composer,/priorCategoryRefreshes=new Set\(\(serverState\.categoryRefreshAttempts\|\|\[\]\)/,'category refresh attempts must survive reload and prevent repeated provider loops');checks++;
+  assert.match(composer,/TRIP_PLACES_TIMEOUT/,'a supplemental Places refresh needs a bounded visible timeout');checks++;
+  assert.match(composer,/checkpointTripWorkflow\(state,resumedPhase\|\|'candidates',\{categoryRefreshAttempts\}\)/,'the refresh marker must be checkpointed before provider work starts');checks++;
   assert.match(composer,/resumedPhase==='failed'&&Boolean\(itinerary\)&&repairDayDates\.length>0/,'a failed but preserved itinerary must resume in a bounded targeted-repair lane');checks++;
   assert.match(composer,/checkpointTripWorkflow\(state,'failed',\{brief:clone\(brief\),itinerary:state\.aiDraft\.itinerary/,'the failed checkpoint must retain the repairable itinerary and exact rejection state');checks++;
 }
