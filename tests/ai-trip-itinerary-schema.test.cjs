@@ -52,6 +52,7 @@ const provider=fs.readFileSync('supabase/functions/luvia-intelligence/providers/
 assert(provider.includes("code:'OPENAI_INCOMPLETE_OUTPUT'"),'Incomplete Responses output needs a distinct retryable error');
 assert(provider.indexOf("response?.status==='incomplete'")<provider.indexOf('JSON.parse(raw)'),'Incomplete output must be rejected before JSON parsing');
 assert.match(registry,/planning\.dialogue':\{id:'planning\.dialogue',tier:'fast'.*maxOutputTokens:6000,reasoningEffort:'low'/s,'Trip understanding starts on Luna with enough structured-output headroom');
+assert.match(registry,/discovery\.plan':\{id:'discovery\.plan',tier:'fast'.*maxOutputTokens:1200,reasoningEffort:'low'/s,'Destination inspiration uses the fast low-reasoning lane instead of spending the complete-trip model budget');
 assert.match(provider,/structured&&model!==candidates\.at\(-1\)/,'A malformed fast-model response must escalate to the default model');
 assert.match(provider,/attempts\.push\(\{model,requestId,usage,latencyMs,success:false/,'Paid failed structured-output attempts must remain visible to cost telemetry');
 assert.match(registry,/trip\.compose'.*schema:'trip_itinerary_compact'.*maxOutputTokens:12000,reasoningEffort:'low'/s,'Trip composition uses the compact semantic schema with bounded reasoning and output budget');

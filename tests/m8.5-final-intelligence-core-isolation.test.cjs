@@ -71,6 +71,7 @@ for(const token of ['data-ai-transparency-open','So denkt Luvia','getSystemSnaps
 
 assert.ok(core.includes("const CAPABILITIES=Object.freeze(["));
 assert.ok(core.includes("const MODEL_TIERS=Object.freeze({"));
+assert.match(core,/id:'discovery\.plan',tier:'fast'.*timeoutMs:30000/,'Destination inspiration must route through Luna and retain enough transport headroom for a complete structured answer');
 assert.ok(core.includes("foreignDomainMutation:false"));
 assert.ok(core.includes("journeyTimelineOwner:false"));
 assert.ok(core.includes("INTELLIGENCE_OWNER_COMMAND_REQUIRED"));

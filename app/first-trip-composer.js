@@ -342,7 +342,7 @@
     const current=()=>mounted===state&&sequence===state.loadSequence&&brief===state.data.inspirationBrief?.trim()&&dreaming(state);
     const suggestions=[],seen=new Set(),asked=new Set();let summary='';
     try{const api=await places();for(let attempt=0;attempt<2&&suggestions.length<5;attempt++){
-        const ideas=await within(window.LuviaIntelligenceContractV1.reads.suggestTripDestinations({requestBrief:brief,profilePreferences:currentPreferences(),excludedDestinations:[...excluded,...asked],variationSeed:createKey()}),25000,'Die Reiseideen brauchen gerade zu lange. Bitte erneut versuchen.','TRIP_INSPIRATION_TIMEOUT');if(!current())return;
+        const ideas=await within(window.LuviaIntelligenceContractV1.reads.suggestTripDestinations({requestBrief:brief,profilePreferences:currentPreferences(),excludedDestinations:[...excluded,...asked],variationSeed:createKey()}),35000,'Die Reiseideen brauchen gerade zu lange. Bitte erneut versuchen.','TRIP_INSPIRATION_TIMEOUT');if(!current())return;
         if(ideas?.owner!=='intelligence'||ideas.source!=='ai')throw Error('Die KI-Reiseideen konnten nicht bestätigt werden.');summary=ideas.summary||summary;(ideas.queries||[]).forEach(query=>asked.add(query));const ideaByQuery=new Map((ideas.ideas||[]).map(item=>[item.query,item]));
         const results=await Promise.allSettled((ideas.queries||[]).map(query=>resolveInspiredDestination(api,query,ideaByQuery.get(query)||{})));if(!current())return;
         for(const result of results){const place=result.status==='fulfilled'?result.value:null;if(place?.placeId&&!seen.has(place.placeId)&&destinationIdeaFit(brief,place).ok){seen.add(place.placeId);suggestions.push(place);if(suggestions.length===5)break;}}
