@@ -37,9 +37,9 @@ Intern belegter, unveränderlicher P15/P17-Tagesentwurf-Kandidat: **13.82.168.11
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.186**, Core **4.82.305**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.187 / Core 4.82.306 korrigiert die Zusatzsuche und überschneidungsfreien Freiraum.
+**Stand 2026-09-09:** Integration **13.82.168.187**, Core **4.82.306**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.188 / Core 4.82.307 / Integration-Intelligence 4.43.3 ergänzt Alternativen separat und erhält bereits gültige Tagesrouten.
 
-**Zuletzt geliefert:** Integration .186 / Quelle 041facef7a91a28a541b49392ac34bacb76d8d0b / Worker e3ab6e89-8371-4c77-824e-4a779c0559d6: 241/241 Safe Regression, 133 Composer, 99/99 Wiederaufnahme, 72/72 Transport-/Abschnittsprüfungen und 22/22 öffentliche Bytevergleiche. Echter öffentlicher Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b6 erreicht ready_for_review: 69 reale Kandidaten, sieben Tage, Audit 62/100. Die letzten zwei Modellschritte benötigen zusammen 32.212 ms. Hafenabdeckung und überlappende Freiraumfenster bleiben konkrete Inhaltsmängel; das ist noch keine vollständige Produktabnahme.
+**Zuletzt geliefert:** Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.
 
 **Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Ein echter unabhängiger Review ist erreicht; die darin gefundenen Recherche- und Freiraummängel müssen in einem neuen tatsächlichen Lauf behoben sein.
 
@@ -52,7 +52,7 @@ Intern belegter, unveränderlicher P15/P17-Tagesentwurf-Kandidat: **13.82.168.11
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Kandidat .187 öffentlich mit erneuerter spezifischer Suche und überschneidungsfreien Pausen abnehmen; echte Reserveaktionen und Wiederaufnahme belegen. Physische iOS-/Android-Abnahme sowie übrige P17/P19- und datierte Livebeleg-Gates bleiben offen.
+**Weiter offen:** Kandidat .188 öffentlich bis zur tatsächlich nutzbaren Tagesroute und Reserveaktion abnehmen. Physische Geräte, übrige P17/P19-Gates und datierte Livebelege bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

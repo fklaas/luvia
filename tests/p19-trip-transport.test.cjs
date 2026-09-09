@@ -103,6 +103,30 @@ async function run(){
   check(()=>assert.ok(anchors.state.aiDraft.places.some(place=>place.providerPlaceId==='verified-marina'),'Exact provider results join the actual retained reserve'));
   check(()=>assert.equal(anchors.state.aiDraft.places.length,beforeAnchorCount+1));
   check(()=>assert.equal(anchors.state.aiDraft.anchorSearch.version,2,'Old empty searches are renewed after the query semantics change'));
+  for(const mode of ['swap','more','other-area','plan-b','spontaneous']){
+    const reserve=harness();await reserve.api.loadAiDayDraft(reserve.state);const current=reserve.state.draftSelections[0],originalIds=reserve.state.draftSelections.map(item=>item.providerPlaceId),point=current.coordinates;
+    reserve.state.aiDraft.places.push(...Array.from({length:5},(_,i)=>({...reserve.candidate(current.category,200+i),providerPlaceId:'reserve-'+mode+'-'+i,requestCategory:current.category,coordinates:{latitude:point.latitude+.025+i*.001,longitude:point.longitude}})));
+    reserve.api.persist(reserve.state);await reserve.api.requestReserveOptions(reserve.state,current.slotId,mode);
+    check(()=>assert.equal(reserve.state.reserveChoice.status,'ready',mode+' uses the real shared ranking contract'));
+    check(()=>assert.deepEqual(reserve.state.draftSelections.map(item=>item.providerPlaceId),originalIds,mode+' waits for the user to choose'));
+    const selected=reserve.state.reserveChoice.options[0].providerPlaceId;reserve.api.acceptReserveOption(reserve.state,selected);
+    const added=['more','spontaneous'].includes(mode),selection=reserve.state.draftSelections.find(item=>item.providerPlaceId===selected);
+    check(()=>assert.equal(reserve.state.draftSelections.length,originalIds.length+(added?1:0)));
+    check(()=>assert.equal(selection.action,added?'saved':current.action));
+    check(()=>assert.ok(reserve.api.readDraft().draftSelections.some(item=>item.providerPlaceId===selected),mode+' choice survives persistence'));
+    check(()=>assert.equal(reserve.actions.length,0,'Reserve changes do not write a confirmed trip'));
+  }
+  const details=harness(),detailsInput={days:details.api.itineraryDays(details.state),destination:details.state.data.destination,candidates:Array.from({length:30},(_,i)=>details.candidate(['food','culture','water'][i%3],i+1)),brief:{policy:{},travelOrder:{categories:[]}}};
+  const originalPlan=await details.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(detailsInput),detailsRun=details.sandbox.LuviaAI.run;details.sandbox.modelCalls=[];
+  details.sandbox.LuviaAI.run=async(capability,request,options)=>{const response=await detailsRun(capability,request,options);if(capability==='trip.compose'){if(request.planningContract?.repairMetadataOnly)response.data.days=[{date:'2099-01-01',entries:[]}];else response.data.backupOptions.forEach(item=>item.providerPlaceId=response.data.days[0].entries[0].providerPlaceId);}return response;};
+  const supported=await details.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(detailsInput);
+  check(()=>assert.deepEqual(copy(supported.days),copy(originalPlan.days),'Supporting-detail repair cannot rewrite an already valid day even if the model tries'));
+  check(()=>assert.equal(details.sandbox.modelCalls.filter(call=>call.request.planningContract?.repairMetadataOnly).length,1));
+  check(()=>assert.ok(supported.backupOptions.length>0&&supported.backupOptions.every(option=>!supported.days.some(day=>day.entries.some(entry=>entry.providerPlaceId===option.providerPlaceId)))));
+  const nightData={ok:true,meta:{fallback:false},data:{goals:[{type:'nightlife',label:'Lebendiges Nachtleben'}],hardConstraints:[],softPreferences:[{key:'movementStyle',value:'city_transit',label:'Bus und Bahn'}],unknowns:[],confidence:.95}},project=details.sandbox.LuviaTripPreferenceResolutionCoreV1.projectTripBrief;
+  check(()=>assert.equal(project(details.state.data,nightData).policy.notAfter,'23:59','Nightlife is not silently restricted by the default 21:00 day end'));
+  nightData.data.hardConstraints=[{key:'notAfter',value:'20:30',label:'Spätestens um halb neun zurück'}];
+  check(()=>assert.equal(project(details.state.data,nightData).policy.notAfter,'20:30','An explicit earlier boundary stays binding'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

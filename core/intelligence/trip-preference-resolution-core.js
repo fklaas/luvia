@@ -505,6 +505,7 @@ function projectTripBrief(input={},response={}){
     if(handled)applied.push({label,effect:key});else if(label){unresolved.push({label,hard:Boolean(item.hard)});travelOrder.retainedRequirements.push({type:key||'other',label,hard:Boolean(item.hard)});}
   }
   preferences.interests=unique(preferences.interests).filter(id=>!exclusions.has(id));preferences.food=unique(preferences.food);preferences.accessibility=unique(preferences.accessibility);preferences.mobility=unique(preferences.mobility);
+  if(preferences.interests.includes('nightlife')&&!constraints.some(item=>['notafter','endtime','dayend'].includes(norm(item.key))))policy.notAfter='23:59';
   policy.maximumPerDay=Math.min(policy.maximumPerDay,hardPolicy.maximumPerDay);if(hardPolicy.notBefore)policy.notBefore=hardPolicy.notBefore;if(hardPolicy.notAfter)policy.notAfter=hardPolicy.notAfter;
   travelOrder.rhythm.dayStart=travelOrder.rhythm.dayStart||policy.notBefore;travelOrder.rhythm.dayEnd=travelOrder.rhythm.dayEnd||policy.notAfter;travelOrder.rhythm.freeTimePercent=policy.freeTimePercent;
   const movementDefaults={near_walk:{maximumTransferMinutes:20,dayTripRadiusKm:4,minimumDistinctAreas:1,localMobility:'Zu Fuß'},city_transit:{maximumTransferMinutes:45,dayTripRadiusKm:20,minimumDistinctAreas:3,localMobility:'Bus und Bahn'},wide_taxi_car:{maximumTransferMinutes:90,dayTripRadiusKm:80,minimumDistinctAreas:3,localMobility:'Taxi, Fahrdienst oder Auto'}}[travelOrder.geography.movementStyle];
