@@ -2,6 +2,16 @@
 
 Stand: 09.09.2026. Die Produktentscheidung lautet **A2 – Route mit Fokus**. Maßgeblich für den tatsächlich veröffentlichten Build und die verbleibenden Abnahmen ist `status-plan.v1.json`; dieser Bericht beschreibt den fachlichen Umfang.
 
+## Gemessene Veröffentlichung und Gegenbeleg
+
+Integration **13.82.168.195 / Core 4.82.314**, Quelle `025f098bd77f2e6c4516f7d00523221c47211ae9`, Worker `5f352a2b-7954-4a8d-af3e-2989c51e0a4a`, ist veröffentlicht. **242/242** kontrollierte Tests einschließlich NFR-0 und **25/25** Vergleiche der Stable-/Immutable-Dateien mit dem sauberen Releasearchiv bestehen. A2 wurde mit echten Places öffentlich bedient: ausgewählte Kartenpin-/Eintragsidentität, siebenfarbiger Rahmen, getrennte Zeitbearbeitung und getrennte Karte/Route bei 1440 Pixeln ohne horizontalen Überlauf. Der lokale Austausch über kleine Alternativzeilen bleibt nach Reload erhalten. Die UI-Auswahl wurde nicht als neue Reise endgültig gespeichert.
+
+Der echte Hauptworkflow `dca81147-2f1b-4127-801e-137f985568d2` erreichte nach **132,48 Sekunden** einen überprüfbaren Entwurf: sieben Tage, 18 Orte, 77 Kandidaten, sechs Modellaufrufe, 70.007 Tokens und 111.535 ms aufsummierte Modelllatenz. Die vorgelagerte Wunsch-/Zielinterpretation ist in dieser Hauptworkflow-Summe nicht enthalten. Der Prüfauftrag enthielt ausdrücklich zwei Erwachsene, keine Kinder, Bus/Bahn, einen langen Strandtag, lokale Küche, Mitmachen sowie keine täglichen Parks/Galerien.
+
+**Inhaltlich bleibt der Lauf Gegenbeleg, keine vollständige Qualitätsabnahme.** Die Reise enthält jetzt den langen Strandtag, keine täglichen Parks und keine Galerientage. Sie enthält aber weiterhin generische kleine Sehenswürdigkeiten und unpassende Shoppingauswahl. Der Audit von 88 Punkten akzeptiert noch zu viel: räumliche und erlebnisbezogene Schwächen erscheinen lediglich als Aufmerksamkeit. Alle 77 Kandidaten besitzen inzwischen ursprüngliche Kategorien; dadurch wird sichtbar, dass die 15 Aktivitäten überwiegend Parks bzw. allgemeine Freiflächen sind. Der Abendwunsch wurde nicht als eigene Kategorie interpretiert.
+
+Ein zusätzlicher konkreter Recherchefehler ist lokal nachgewiesen: Die KI fragte nach der Lonja de la Seda, bekam zwölf allgemeine Sehenswürdigkeiten und die Recherche galt als erfolgreich. Der Geoapify-Namensfilter verwirft Suchtexte mit mehr als drei Wörtern; ein leerer Namenslauf kann zudem in eine allgemeine Kategoriesuche wechseln. Benannte Zielsuche und allgemeine Entdeckung müssen deshalb im Vertrag unterscheidbar werden. Als nächster Schritt wird diese Quelle korrigiert und mit passenden Aktivitäten verbunden, bevor weitere bezahlte Gesamtkompositionen laufen.
+
 ## Produktänderung
 
 Die Tagesroute zeigt kleine Einträge mit Uhrzeit, Kategorie, Name und Aufenthaltsdauer. Der ausgewählte Eintrag erhält das Luvia-Farbspektrum; die Kategoriefarbe verbindet Symbol und Kartenpin. Die Nummern folgen der sichtbaren Reihenfolge des Tages. Auf großen Bildschirmen steht die Bearbeitung neben der Route, auf kleinen direkt unter dem ausgewählten Eintrag. Sie zeigt jeweils nur Austauschen, Zeit/Tag oder die Ablehnungsgründe. Alternativen sind kurze Zeilen, keine großen zusätzlichen Ortskarten. Karte und Route verwenden weiterhin den gemeinsamen Places-Kartenvertrag; die lokale Gestaltungsstudie enthält eine gekennzeichnete illustrative Karte.

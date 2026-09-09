@@ -57,22 +57,22 @@ Die interaktive Bewegungsstudie liegt im dauerhaften Visualisierungsverzeichnis 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.194**, Core **4.82.313**. P17/P19: Kandidat 13.82.168.195 / Core 4.82.314 mit A2 und Erlebnisqualität. Integration-Veröffentlichung in Arbeit.
+**Stand 2026-09-09:** Integration **13.82.168.195**, Core **4.82.314**. P17/P19: A2 auf Integration .195 ausgeliefert; echte Reisequalität wegen nachgewiesener Recherche-/Interpretationslücken weiter offen.
 
-**Zuletzt geliefert:** Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-4437-8a8d-ab7f77818873 veröffentlicht; 22/22 Bytevergleiche zum sauberen Archiv PASS. Echter Workflow 1687ccc4-a24f-47a6-a451-85aa75edc5ca: ready_for_review, sieben Tage, 18 Orte, 100 behaltene Kandidaten, drei Plan-B-Alternativen, separater Audit 88 / Versprechen erfüllt. Wiederanlauf 44,38 Sekunden serverseitig, drei Modellaufrufe / 34.197 ms Modellzeit / 29.968 Tokens. Dies ist die Reparatur eines bestehenden Entwurfs, kein Kaltstart-Benchmark. Echter Reserveaustausch vom Museo Histórico Municipal de Valencia zur Galería de Arte Maika Sánchez und Reload samt vollständigem Pool positiv. Zwei auffällige TomTom-Koordinaten bleiben als Audit-Aufmerksamkeit offen; beim ersten Museum gab es keinen verfügbaren gebietsfernen Ersatz. Keine bestätigte Trip-/Timeline-Übernahme ausgeführt.
+**Zuletzt geliefert:** Integration .195 / Core 4.82.314 aus 025f098b veröffentlicht; 242/242 kontrollierte Regression und 25/25 öffentliche Dateivergleiche PASS. A2 mit echter Places-Karte öffentlich bedient: genau ein Bearbeitungspanel, synchroner Pin und Spektrumrahmen, bei 1440 Pixeln getrennte Karte/Route ohne horizontalen Überlauf. Neuer realer Valencia-Hauptworkflow dca81147-2f1b-4127-801e-137f985568d2 erreicht nach 132,48 Sekunden ready_for_review: 7 Tage, 18 Orte, 77 Kandidaten, 6 Modellaufrufe / 70.007 Tokens im Hauptworkflow. Vorgelagerte Wunsch-/Zielinterpretation ist in dieser Summe nicht enthalten. Der formale Audit 88 ist KEINE inhaltliche Vollabnahme: keine Nachtleben-Kategorie, überwiegend Parks im Aktivitätspool und zu viele generische Kleinststopps. Keine bestätigte Trip-/Timeline-Übernahme.
 
-**Nächster Schritt (AKTIV): A2 und Erlebnisqualität gebündelt auf Integration abnehmen.** Gewählte Variante A2 umsetzen und den inhaltlich unzureichenden Valencia-Plan ursächlich korrigieren; ein formaler Auditwert genügt nicht.
+**Nächster Schritt (AKTIV): Konkrete Erlebnisse und benannte Ziele als passende Providerquellen erschließen.** Der echte .195-Lauf liefert fast nur Parks unter Aktivitäten. Die Lonja-Suche liefert zwölf andere Sehenswürdigkeiten: Geoapify verwirft Namensfilter bei mehr als drei Wörtern und kann einen leeren Namenslauf zu allgemeiner Kategoriesuche erweitern. Diese Treffer wurden als spezifische Recherche gewertet. Der Wunsch nach lebendigen Abenden fehlt im Kategorienauftrag.
 
 **Abnahme dieses Schritts:**
 
-- Kontrollierte Regression und NFR-Gates des gemeinsamen Standes bestehen.
-- A2 mit kompakten Austauschzeilen, getrennten Bearbeitungsmodi sowie synchronen Kartenpins auf Desktop und Handybreite bedienen.
-- Commit, Integration-Deployment und öffentliche Byteidentität nachweisen.
-- Einen begrenzten echten KI-Review und verbleibende räumliche Providerprobleme ehrlich dokumentieren.
+- Aktivitäten dürfen nicht allein durch generische leisure-/sport-Elternkategorien oder Parks als abgedeckt gelten.
+- Benannte Zielsuche bleibt von generischer Kategoriesuche unterscheidbar; unpassende Treffer erfüllen keinen konkreten Rechercheauftrag.
+- Wünsche einschließlich Abendgefühl und selbst ausprobieren erreichen Recherche und unabhängigen Audit vollständig.
+- Erst die reproduzierten lokalen Quelle-/Kategoriefehler beheben, danach einen begrenzten echten Folgebeleg ohne wiederholte Gesamtplan-Schleifen.
 
-**Danach:** Nach der öffentlichen Abnahme die offenen Provideridentitäten und den Familien-/Konfliktfall schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
+**Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
-**Weiter offen:** P17/P19 bleiben TEILWEISE. Öffentliche A2-Abnahme in Arbeit; widersprüchliche Ortsidentitäten, gebietsferne Reserve, Familien-/Konfliktfall, breite Kaltstarts, endgültige Konto-/Timeline-Übernahme, Mehrnutzer-Beitritt und physische Geräte bleiben offen.
+**Weiter offen:** P17/P19 bleiben TEILWEISE: Erlebnisrecherche, benannte Ortsidentität, gebietsferne Reserve, Interpretation lebendiger Abende, Familien-/Konfliktfall, breite Kaltstarts, endgültige Konto-/Timeline-Übernahme, Mehrnutzer-Beitritt und physische Geräte.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
