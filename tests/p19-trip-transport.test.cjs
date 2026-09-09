@@ -71,6 +71,23 @@ async function run(){
     const quality=h.api.tripPoolQuality(state,candidates);check(()=>assert.ok(quality.distinctAreas>1&&quality.categoryTargets.length>0));
     const concentrated=candidates.map(place=>({...place,coordinates:state.data.destination}));check(()=>assert.equal(h.api.tripPoolQuality(state,concentrated).spatialReady,false,'A single cluster fails pre-composition spatial quality even with hundreds of Places'));
   }
+
+  const beach=harness(),beachState=beach.state;beachState.data.startDate='2027-06-01';beachState.data.endDate='2027-06-03';
+  const beachCandidates=Array.from({length:30},(_,i)=>beach.candidate(['water','food','culture'][i%3],i+1)),baseRun=beach.sandbox.LuviaAI.run;let anchorMinutes=180;
+  beach.sandbox.LuviaAI.run=async(capability,request,options)=>{const response=await baseRun(capability,request,options);if(capability==='trip.compose'){const day=response.data.days[1];day.entries=day.entries.slice(0,2);day.entries[0].time='09:30';day.entries[0].durationMinutes=anchorMinutes;day.entries[1].time='17:00';day.entries[1].durationMinutes=60;day.freeTime=[{start:'13:30',end:'16:30',purpose:'Bewusste Strandzeit und Erholung'}];}return response;};
+  const beachParams={days:beach.api.itineraryDays(beachState),destination:beachState.data.destination,candidates:beachCandidates,brief:{travelOrder:{rhythm:{freeTimePercent:25}},policy:{}}};
+  const beachPlan=await beach.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(beachParams);
+  check(()=>assert.equal(beachPlan.days[1].entries.length,2));
+  check(()=>assert.ok(!beachPlan.contractIssues.some(issue=>issue.code==='TRIP_ITINERARY_DAY_TOO_THIN'),'A three-hour anchor plus a second moment and deliberate free time is a full planned day'));
+  check(()=>assert.equal(beachPlan.dayPolicies[1].longStayAlternative.minimumAnchorMinutes,180,'The model and independent audit receive the same explicit alternative criterion'));
+  anchorMinutes=60;const thinPlan=await beach.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(beachParams);
+  check(()=>assert.ok(thinPlan.contractIssues.some(issue=>issue.code==='TRIP_ITINERARY_DAY_TOO_THIN'),'Two short visits cannot masquerade as a long beach day'));
+  const restart=harness();await restart.api.loadAiDayDraft(restart.state);restart.state.aiDraft={...restart.state.aiDraft,status:'error',phase:'repair',resumePhase:'repair',audit:null,qualityAttempts:3,retryEscalated:true,repairDayDates:[],repairInstructions:['Gesamten Entwurf mit geprüften Alternativen verbessern.']};
+  const restartRun=restart.sandbox.LuviaAI.run;let sparse=true;restart.sandbox.modelCalls=[];
+  restart.sandbox.LuviaAI.run=async(capability,request,options)=>{const response=await restartRun(capability,request,options);if(capability==='trip.compose'&&sparse){sparse=false;response.data.days[1].entries=[];}return response;};
+  await restart.api.loadAiDayDraft(restart.state,{force:true,confirmedBrief:true});
+  check(()=>assert.equal(restart.state.aiDraft.status,'ready','A fresh full retry can repair one thin day without requiring another manual Retry'));
+  check(()=>assert.ok(restart.sandbox.modelCalls.some(call=>call.capability==='trip.compose-day-repair')));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

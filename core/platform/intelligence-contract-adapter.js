@@ -185,7 +185,7 @@
       if(role==='arrival'){target=Math.max(1,baseTarget-1);if(arrivalTime!=null)notBefore=Math.max(notBefore,arrivalTime+Math.max(45,Number(logistics.arrival?.recoveryMinutes)||90));}
       if(role==='departure'){target=Math.max(1,baseTarget-1);if(departureTime!=null)notAfter=Math.min(notAfter,departureTime-Math.max(60,Number(logistics.departure?.bufferMinutes)||120));}
       if(notAfter-notBefore<90)target=0;else target=Math.min(target,Math.max(1,Math.floor((notAfter-notBefore+60)/150)));
-      return {...day,role,minimumMoments:target,targetMoments:target,notBefore:clock(notBefore),notAfter:clock(Math.max(notBefore,notAfter)),freeTimePercent:Math.max(0,Math.min(70,Number(rhythm.freeTimePercent??planningPolicy.freeTimePercent)||0))};
+      return {...day,role,minimumMoments:target,targetMoments:target,...(role==='full'?{longStayAlternative:{minimumMoments:Math.max(1,target-1),minimumAnchorMinutes:180,minimumTotalMinutes:target*60,minimumFreeMinutes:90}}:{}),notBefore:clock(notBefore),notAfter:clock(Math.max(notBefore,notAfter)),freeTimePercent:Math.max(0,Math.min(70,Number(rhythm.freeTimePercent??planningPolicy.freeTimePercent)||0))};
     });
     const originallyRequiredCandidateCount=dayInput.reduce((sum,day)=>sum+day.minimumMoments,0),activeDayCount=dayInput.filter(day=>day.minimumMoments>0).length;
     if(candidateInput.length<activeDayCount)throw contractError('TRIP_ITINERARY_COVERAGE_INSUFFICIENT',`Dieser Suchlauf hat bisher ${candidateInput.length} unterschiedliche, belegte Kandidaten geliefert. Das ist kein Gesamtbestand des Reiseziels. Für die ${activeDayCount} aktiven Reisetage muss Luvia die Places-Recherche noch erweitern.`);
@@ -261,7 +261,6 @@
         const rawEvidence=Array.isArray(entry?.evidenceRefs)&&entry.evidenceRefs.length?entry.evidenceRefs:candidate.evidenceRefs.slice(0,1),evidenceRefs=[...new Set(rawEvidence.map(item=>clean(item,240)).filter(item=>allowedEvidence.has(item)))].slice(0,12),certainty='modelled';
         return {providerPlaceId,time:expected.date?time:'',durationMinutes,category:candidate.category,reason:clean(entry?.reason,500),certainty:certainty==='verified'&&!evidenceRefs.length?'modelled':certainty,evidenceRefs,confidence:Math.max(0,Math.min(1,Number(entry?.confidence)||0))};
       }).filter(Boolean);
-      if(entries.length<expected.minimumMoments)contractIssues.push({code:'TRIP_ITINERARY_DAY_TOO_THIN',dayDate:expected.date,message:`${expected.label} ist für seine Rolle ${expected.role} noch nicht ausreichend geplant.`});
       const timed=entries.filter(entry=>entry.time).sort((left,right)=>left.time.localeCompare(right.time));
       for(let slot=1;slot<timed.length;slot++){
         const prior=timed[slot-1],next=timed[slot],priorStart=minute(prior.time),nextStart=minute(next.time);
@@ -270,6 +269,8 @@
       const freeTime=(Array.isArray(source.freeTime)?source.freeTime:[]).map(item=>{const start=clean(item?.start,5),end=clean(item?.end,5),from=minute(start),until=minute(end),purpose=clean(item?.purpose,180);return from!=null&&until!=null&&until>from?{start,end,purpose,reason:clean(item?.reason,300)||purpose,minutes:until-from}:null}).filter(Boolean).slice(0,6);
       if(expected.freeTimePercent>0&&expected.role==='full'&&!freeTime.length)contractIssues.push({code:'TRIP_ITINERARY_FREETIME_MISSING',dayDate:expected.date,message:`${expected.label} enthält noch keinen bewusst geplanten Freiraum.`});
       const plannedMinutes=entries.reduce((sum,item)=>sum+item.durationMinutes,0),freeTimeMinutes=freeTime.reduce((sum,item)=>sum+item.minutes,0),energy=['light','balanced','intense'].includes(source.balance?.energy)?source.balance.energy:'balanced';
+      const longStay=expected.longStayAlternative,deliberateLongStay=longStay&&entries.length>=longStay.minimumMoments&&entries.some(entry=>entry.durationMinutes>=longStay.minimumAnchorMinutes)&&plannedMinutes>=longStay.minimumTotalMinutes&&freeTime.filter(slot=>slot.purpose&&!timed.some(entry=>minute(slot.start)<minute(entry.time)+entry.durationMinutes&&minute(slot.end)>minute(entry.time))).reduce((sum,slot)=>sum+slot.minutes,0)>=longStay.minimumFreeMinutes;
+      if(entries.length<expected.minimumMoments&&!deliberateLongStay)contractIssues.push({code:'TRIP_ITINERARY_DAY_TOO_THIN',dayDate:expected.date,message:`${expected.label} braucht noch einen passenden Moment oder einen bewusst geplanten längeren Aufenthalt.`});
       return {date:expected.date,label:expected.label,theme:clean(source.theme,160),role:expected.role,balance:{energy,plannedMinutes,freeTimeMinutes,freeTimePurpose:clean(source.balance?.freeTimePurpose,240)||freeTime.map(item=>item.purpose).filter(Boolean).join(' · ')},freeTime:freeTime.map(({minutes,...item})=>item),entries};
     });
     const candidateCategories=new Set(candidateInput.map(item=>item.category)),usedCategories=new Set(days.flatMap(day=>day.entries.map(entry=>entry.category))),missingCategories=requestedCategoryIds.filter(category=>candidateCategories.has(category)&&!usedCategories.has(category));
