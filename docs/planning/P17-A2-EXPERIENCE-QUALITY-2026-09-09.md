@@ -77,4 +77,14 @@ Providerkategorien werden präziser abgebildet: ein spanisches Restaurant ist ke
 
 24 gezielte Verhaltenstests führen die tatsächliche Provider-Suchstrecke mit kontrollierten Antworten aus. Sie prüfen falsche und richtige Namen, Aliasnamen, den Providerwechsel ohne unbenannte Erweiterung, konkrete Aktivitätsbelege, den Browsertransport und die Integration-Isolierung. Bestehende Transport-/Reserveprüfungen: 145/145. Dies sind lokale Gegenbelege gegen die früheren Fehler, noch kein positiver öffentlicher Reiseplan.
 
-Ein separat deploybarer Integration-Gateway importiert die vorhandene kanonische Implementierung. Die produktive Function wird dadurch nicht ersetzt. Authentifizierung, CORS und Providerbudgets gelten auch im Integration-Endpunkt. Nach Veröffentlichung werden zuerst zwei begrenzte öffentliche Recherchen geprüft; erst danach folgt ein neuer vollständiger KI-Plan. Bestehende .195-Entwürfe werden durch einen UI-Reload nicht als inhaltlich verbessert ausgegeben.
+Ein separat deploybarer Integration-Gateway importiert die vorhandene kanonische Implementierung. Die produktive Function wird dadurch nicht ersetzt. Authentifizierung, CORS und Providerbudgets gelten auch im Integration-Endpunkt. Bestehende .195-Entwürfe werden durch einen UI-Reload nicht als inhaltlich verbessert ausgegeben.
+
+### Öffentlicher Stand .196
+
+Veröffentlicht aus Commit a70ad77542e6377e8d6be7079d4975d9b6247ad9: App 13.82.168.196 / Core 4.82.315, Worker ed360fd7-1457-4053-ada1-7f2a01a271fc. Vollständige Safe Regression 243/243, öffentliche Dateivergleiche 27/27. Archiv 225590906 Bytes, SHA-256 EFBF76F90086C906E2FB0028A513034C4E6CF7ACD88A608DF3B8B0E12A6E66AD.
+
+Integration-Gateway 4.64.39 / Revision 1 und Integration-Intelligence 4.43.7 / Revision 11 sind aktiv. Die produktiven Functions bleiben bei Gateway Revision 235 beziehungsweise Intelligence Revision 52. Der öffentliche A2-Editor öffnet weiterhin genau den ausgewählten Moment; sieben Tage und 18 bestehende Momente bleiben nach Reload erhalten.
+
+Die öffentliche Namensprobe liefert nach einer leeren Geoapify-Antwort den tatsächlichen TomTom-Ort **La Lonja de la Seda**, gemessen in 953 ms. Sie liefert keine anderen Sehenswürdigkeiten als vermeintlichen Treffer. Die Aktivitätsprobe bleibt dagegen ohne Ergebnis: Geoapify-Transportfehler, OSM-Cooldown, leere TomTom-Antwort und HERE-Anfragefehler. Ein begrenzter Wiederholungsversuch nach Ablauf des Geoapify-Cooldowns bestätigt denselben Fehler. Read-only Providerstatus zeigt Geoapify-Transportstatus 0 und HERE-HTTP-Status 400; die Ersatzprovider-Taxonomien enthalten keine explizite Escape-Room-Kategorie. Daraus folgt noch nicht, dass Valencia keine solchen Angebote hat.
+
+Deshalb wurde in diesem Slice kein neuer kostenpflichtiger Gesamtplan erzeugt. Nächster konkreter Schritt ist die Unterscheidung des Geoapify-Timeouts von einem Transportfehler und die Prüfung der unzureichenden Ersatz-Taxonomien. Erst danach kann ein neuer tatsächlicher Gesamtplan die gewünschte Erlebnisqualität belegen. P17/P19 bleiben teilweise offen.
