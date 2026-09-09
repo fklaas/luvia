@@ -780,4 +780,81 @@
 .ftc.cinematic .lx-reserve-choice>button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:12px 0;border:0;border-top:1px solid var(--ftc-line,#d4e2d9);background:transparent;color:inherit;text-align:left;cursor:pointer}
 .ftc.cinematic .lx-reserve-choice strong,.ftc.cinematic .lx-reserve-choice small{display:block}
 .ftc.cinematic .lx-reserve-choice small{font-size:12px;line-height:1.5;margin-top:4px}
+
+/* A2: a quiet route with one focused editor; source data stays in its owners. */
+.ftc.cinematic .lx-route-focus-layout .ftc-copy h1{font-size:27px;line-height:1.15}
+.ftc.cinematic .lx-route-focus-layout .lx-route-pool-proof{font-size:12px;line-height:1.5;color:#73837f;margin:8px 0 14px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-list{gap:10px;grid-template-columns:minmax(0,1fr);padding:3px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-list::before{left:24px;width:2px;opacity:.36;animation:none}
+.ftc.cinematic .lx-route-focus-layout .lx-route-stop{grid-template-columns:42px minmax(0,1fr) 34px;min-height:78px;border-radius:17px;box-shadow:none;background:#fffdf7;min-width:0}
+.ftc.cinematic .lx-route-focus-layout .lx-route-stop:hover{transform:translateY(-1px);box-shadow:0 5px 15px #2447470b}
+.ftc.cinematic .lx-route-focus-layout .lx-route-stop.is-map-selected{background:linear-gradient(115deg,#fffdf7,#f3f8f3);box-shadow:0 5px 20px #45686014;filter:none}
+.ftc.cinematic .lx-route-focus-layout .lx-route-stop.is-map-selected::after{inset:-2px;padding:2px;border-radius:19px;background:conic-gradient(from 30deg,#cf516a,#ea9157,#e8c45c,#59a98d,#399fa9,#8580bd,#bd77a5,#cf516a);filter:none;animation:lx-focus-arrive .35s ease-out}
+.ftc.cinematic .lx-route-focus-layout .lx-route-pin{padding:8px 0;gap:5px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-pin>i{width:24px;height:24px;font-size:10px;border:2px solid white;box-shadow:0 0 0 1px color-mix(in srgb,var(--route-accent) 40%,transparent)}
+.ftc.cinematic .lx-route-focus-layout .lx-route-pin>b{font-size:9px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-moment{display:grid;grid-template-columns:34px minmax(0,1fr);grid-column:2;grid-row:1;gap:10px;min-width:0;min-height:76px;padding:10px 0;margin:0;border:0;border-radius:0;background:transparent;text-align:left;box-shadow:none}
+.ftc.cinematic .lx-route-focus-layout .ftc-ai-place-visual{display:grid;width:34px;height:34px;min-height:0;border-radius:10px;background:color-mix(in srgb,var(--route-accent) 10%,#fffdf7);color:var(--route-accent);box-shadow:none;place-items:center;overflow:hidden}
+.ftc.cinematic .lx-route-focus-layout .ftc-ai-place-visual img{width:34px;height:34px;object-fit:cover}
+.ftc.cinematic .lx-route-focus-layout .lx-route-category-symbol{display:grid;place-items:center;width:22px;height:22px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-category-symbol svg{width:22px;height:22px}
+.ftc.cinematic .lx-route-focus-layout .lx-place-decision-copy{display:grid;gap:3px;width:auto;min-width:0}
+.ftc.cinematic .lx-route-focus-layout .lx-place-decision-copy>small{font-size:8px;line-height:1.2;letter-spacing:.09em}
+.ftc.cinematic .lx-route-focus-layout .lx-place-decision-copy>strong{font-size:14px;line-height:1.25;max-width:none;overflow-wrap:anywhere;font-weight:650}
+.ftc.cinematic .lx-route-focus-layout .lx-place-decision-copy>em{font-size:10px;margin:0;color:#71827e;font-weight:500}
+.ftc.cinematic .lx-route-focus-layout .lx-route-edit{grid-column:3;grid-row:1;align-self:center;justify-self:center;width:32px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:#668580;font-size:21px;border-radius:9px;box-shadow:none}
+.ftc.cinematic .lx-route-focus-layout .lx-route-edit:hover{background:#edf4ef}
+.ftc.cinematic .lx-route-focus-layout .lx-route-free{grid-template-columns:42px minmax(0,1fr);min-height:54px;border:0;background:linear-gradient(100deg,#eaf4ee99,#f9f8ed88);border-radius:12px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-free small{font-size:8px}
+.ftc.cinematic .lx-route-focus-layout .lx-route-free strong{font-size:12px;font-weight:550;line-height:1.4}
+.ftc.cinematic .lx-route-focus-layout .lx-route-focus-panel{min-width:0;margin:0 0 8px 42px;padding:15px;border:1px solid #d6e4da;border-radius:18px;background:linear-gradient(145deg,#f3f8f2,#fffcf3);box-shadow:0 10px 30px #3b68600a;animation:lx-focus-arrive .2s ease-out}
+.ftc.cinematic .lx-route-focus-panel>header{display:flex;gap:8px;align-items:start;justify-content:space-between;margin-bottom:14px}
+.ftc.cinematic .lx-route-focus-panel>header small{display:block;font-size:10px;color:#7a8b84;margin-bottom:5px}
+.ftc.cinematic .lx-route-focus-panel>header strong{font-size:15px;font-weight:650;line-height:1.35}
+.ftc.cinematic .lx-route-focus-panel button{font:inherit;cursor:pointer;box-shadow:none;color:inherit}
+.ftc.cinematic .lx-route-focus-panel>header button{flex:none;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:#e8f0e8;font-size:20px}
+.ftc.cinematic .lx-route-focus-panel>nav{display:flex;gap:3px;margin-bottom:14px;border-bottom:1px solid #d8e5da;padding-bottom:8px}
+.ftc.cinematic .lx-route-focus-panel>nav button{flex:1;min-height:38px;padding:6px 4px;border:0;border-radius:8px;background:transparent;font-size:11px;white-space:nowrap}
+.ftc.cinematic .lx-route-focus-panel>nav button[aria-pressed=true]{background:#fffdf8;color:#b44e68;box-shadow:0 2px 7px #45685a0c}
+.ftc.cinematic .lx-focus-actions{display:grid;gap:6px}
+.ftc.cinematic .lx-focus-actions button,.ftc.cinematic .lx-focus-backup button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:43px;padding:9px 10px;border:1px solid #dde6dc;border-radius:10px;background:#fffdf8;font-size:12px;text-align:left}
+.ftc.cinematic .lx-focus-backup{margin-top:14px}
+.ftc.cinematic .lx-focus-backup small{display:block;font-size:10px;line-height:1.5;color:#75847d;margin-bottom:5px}
+.ftc.cinematic .lx-focus-backup strong{font-size:12px;font-weight:600}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice{margin:12px 0 0;padding:0;border:0;border-radius:0;background:transparent;min-width:0}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>header{margin:0 0 4px}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>header strong{font-size:11px;font-weight:550;color:#75847d}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>header button{font-size:18px;width:26px;height:26px;padding:0}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>button{display:flex;width:100%;min-width:0;min-height:52px;margin:5px 0;padding:9px 10px;border:1px solid #dde6dc;border-radius:10px;background:#fffefa;gap:8px}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>button>span{min-width:0;flex:1}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>button strong{font-size:12px;line-height:1.3;font-weight:600;overflow-wrap:anywhere}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>button small{font-size:10px;line-height:1.4;color:#778680;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice>button b{font-size:17px;font-weight:400;flex:none}
+.ftc.cinematic .lx-route-focus-layout .lx-reserve-choice p,.ftc.cinematic .lx-focus-question{font-size:12px;line-height:1.5;color:#72817b}
+.ftc.cinematic .lx-focus-reasons{display:flex;gap:6px;flex-wrap:wrap}
+.ftc.cinematic .lx-focus-reasons button{padding:8px 10px;border:1px solid #d9e3d9;border-radius:999px;background:#fffdf8;font-size:11px;min-height:36px}
+.ftc.cinematic .lx-focus-reasons button[aria-pressed=true]{border-color:#c95169;background:#fae9e9}
+.ftc.cinematic .lx-focus-remove{margin-top:15px;border:0;background:transparent;font-size:11px;text-decoration:underline;text-underline-offset:4px}
+.ftc.cinematic .lx-focus-times{display:grid;gap:12px}
+.ftc.cinematic .lx-focus-times label{display:grid;gap:5px;font-size:11px;color:#6f827c}
+.ftc.cinematic .lx-focus-times input,.ftc.cinematic .lx-focus-times select{width:100%;min-width:0;padding:10px;border:1px solid #d8e3d8;border-radius:10px;background:#fffef9;font:inherit;font-size:13px;color:#315b60}
+.ftc.cinematic .lx-focus-times button{border:0;background:transparent;text-align:left;font-size:12px;padding:5px 0}
+.ftc.cinematic .lx-focus-why{border-top:1px solid #dce5da;margin-top:16px;padding-top:11px;font-size:11px;color:#73847d}
+.ftc.cinematic .lx-focus-why summary{cursor:pointer}.ftc.cinematic .lx-focus-why p{font-size:12px;line-height:1.6;margin:8px 0 0}
+.ftc.cinematic .lx-trip-taste{margin:18px 0}.ftc.cinematic .lx-trip-taste legend{font-size:13px;font-weight:600}.ftc.cinematic .lx-trip-taste .lx-chip{padding:8px 11px;font-size:12px;min-height:36px}.ftc.cinematic .lx-trip-party{margin:10px 0 18px;font-size:12px;color:#71867f}.ftc.cinematic .lx-trip-party>div{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.ftc.cinematic .lx-trip-party label{display:grid;gap:6px}.ftc.cinematic .lx-trip-party input{min-width:0;width:100%;padding:9px;border-radius:10px;border:1px solid #d8e4dc;font:inherit;background:#fffdf7}
+@keyframes lx-focus-arrive{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:1200px){
+  .ftc.expedition.cinematic[data-step=preview] .lx-bottom-sheet{width:min(760px,61vw);max-height:calc(100dvh - 176px);bottom:20px}
+  .ftc.expedition.cinematic[data-step=preview] .lx-map-stage{right:calc(min(760px,61vw) + 42px);bottom:20px}
+  .ftc.expedition.cinematic[data-step=preview] .lx-season-badge{right:calc(min(760px,61vw) + 54px);bottom:32px}
+  .ftc.cinematic .lx-route-focus-layout .lx-route-list.has-editor{grid-template-columns:minmax(0,1fr) 272px;column-gap:18px;align-items:start}
+  .ftc.cinematic .lx-route-focus-layout .lx-route-stop,.ftc.cinematic .lx-route-focus-layout .lx-route-free{grid-column:1}
+  .ftc.cinematic .lx-route-focus-layout .lx-route-focus-panel{grid-column:2;grid-row:1/span var(--route-grid-rows,8);position:sticky;top:80px;align-self:start;margin:0;padding:13px}
+}
+@media(max-width:430px){.ftc.cinematic .lx-route-focus-layout .lx-route-stop{grid-template-columns:36px minmax(0,1fr) 30px}.ftc.cinematic .lx-route-focus-layout .lx-route-moment{grid-template-columns:28px minmax(0,1fr);gap:7px}.ftc.cinematic .lx-route-focus-layout .ftc-ai-place-visual{width:28px;height:30px}.ftc.cinematic .lx-route-focus-layout .lx-route-focus-panel{margin-left:0}.ftc.cinematic .lx-route-focus-layout .lx-place-decision-copy>strong{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.ftc.cinematic .lx-route-focus-layout .lx-route-stop.is-map-selected::after,.ftc.cinematic .lx-route-focus-layout .lx-route-focus-panel{animation:none}}
 .ftc.cinematic .lx-reserve-choice button:focus-visible,.ftc.cinematic .lx-reserve-actions button:focus-visible{outline:2px solid #cd4e68;outline-offset:3px}
+.ftc.cinematic .lx-route-focus-layout .lx-day-switcher button[aria-pressed=true]{color:#244f58}
+.ftc.cinematic .lx-trip-party .lx-party-invite{font:inherit;border:1px solid #cedfd2;background:#fffdf7;color:#315b60;border-radius:12px;padding:10px 13px;min-height:42px}
+.ftc.cinematic .lx-trip-party .lx-party-invite[aria-pressed=true]{border-color:#b8526b;background:#fcf0ed}
+@media(max-width:600px){.ftc.cinematic .lx-route-focus-layout>.ftc-copy h1{font-size:24px;line-height:1.2;margin-bottom:8px}.ftc.cinematic .lx-route-focus-layout>.ftc-copy h1 em{display:inline}.ftc.cinematic .lx-route-focus-layout>.ftc-copy{margin-bottom:13px}}

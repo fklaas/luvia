@@ -52,6 +52,13 @@ function projectTripPreferences(value={}){
     food:uniqueStrings(input.food,12),
     accessibility:uniqueStrings(input.accessibility,12),
     mobility:uniqueStrings(input.mobility,8),
+    movementStyle:['near_walk','city_transit','wide_taxi_car'].includes(input.movementStyle)?input.movementStyle:'',
+    mix:['balanced','favorites','surprising'].includes(input.mix)?input.mix:'balanced',
+    experiences:uniqueStrings(input.experiences,8),
+    adults:input.adults!=null&&input.adults!==''&&Number.isInteger(Number(input.adults))&&Number(input.adults)>=0?Math.min(30,Number(input.adults)):null,
+    children:input.children!=null&&input.children!==''&&Number.isInteger(Number(input.children))&&Number(input.children)>=0?Math.min(30,Number(input.children)):null,
+    freeTimePercent:input.freeTimePercent!=null&&input.freeTimePercent!==''&&Number.isFinite(Number(input.freeTimePercent))?Math.max(0,Math.min(80,Number(input.freeTimePercent))):null,
+    baseStrategy:input.baseStrategy==='multiple_bases'?'multiple_bases':'single_base',
     notes:text(input.notes,280)
   });
 }
@@ -139,6 +146,9 @@ function canonicalPlace(value={}){
     owner:'places',contractId:'places.v1',providerPlaceId,name:text(value.name,200),
     primaryType:text(value.primaryType||value.primary_type||value.type,80)||'place',
     category:text(value.requestCategory||value.category,80),
+    types:uniqueStrings(value.types,30),
+    providerNativeTypes:uniqueStrings(value.providerNativeTypes,30),
+    description:text(value.description||value.editorialSummary?.text||value.editorialSummary,420),
     formattedAddress:text(value.formattedAddress||value.address,280),
     coordinates:{latitude,longitude},imageUrl:text(photo,1000)||null,
     openingState:value.currentOpeningHours?.openNow===true||value.openNow===true?'open':value.currentOpeningHours?.openNow===false||value.openNow===false?'closed':'unknown'

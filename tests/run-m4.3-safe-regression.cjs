@@ -17,6 +17,7 @@ const ROOT = path.resolve(__dirname, '..');
  * been executed successfully against the M4.3 working baseline.
  */
 const SUITE = Object.freeze([
+  { category: 'Trip experience quality and focused route editing', test: 'tests/p17-experience-quality.test.cjs' },
   { category: 'Trip workflow transport and sections', test: 'tests/p19-trip-transport.test.cjs' },
   { category: 'Consumer travel world', test: 'tests/p15-travel-world-geometry.test.cjs' },
   { category: 'Platform preview transport', test: 'tests/p15-composer-preview-origin.test.cjs' },

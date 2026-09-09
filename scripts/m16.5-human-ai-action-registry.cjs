@@ -770,6 +770,13 @@ function currentSourceMarkers() {
 }
 
 const SOURCE_MARKER_DECISIONS = Object.freeze({
+  // A2 edits the existing unconfirmed draft. The panel/mode controls are local
+  // presentation; party and rejection values feed the existing draft/reserve read.
+  'data-ftc-edit-action': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-edit-close': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-edit-slot': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-party': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-rejection': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   // Travel world controls only choose a camera/search intent. Country coordinates
   // never become a canonical destination without the existing Places selection.
   // Lifting/dropping edits the same unconfirmed Composer draft as its date field;
@@ -1059,8 +1066,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1088);
-  assert.equal(sourceAudit.markerCount, 1088);
+  assert.equal(sourceAudit.markers.length, 1093);
+  assert.equal(sourceAudit.markerCount, 1093);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

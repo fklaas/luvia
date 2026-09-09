@@ -3,22 +3,22 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.194**, Core **4.82.313**. P17/P19: Öffentlicher Wiederanlauf mit Gesamtaudit, echter Reservewahl und Reload positiv; räumliche Orts- und Reservequalität bleibt offen.
+**Stand 2026-09-09:** Integration **13.82.168.194**, Core **4.82.313**. P17/P19: Kandidat 13.82.168.195 / Core 4.82.314 mit A2 und Erlebnisqualität. Integration-Veröffentlichung in Arbeit.
 
 **Zuletzt geliefert:** Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-4437-8a8d-ab7f77818873 veröffentlicht; 22/22 Bytevergleiche zum sauberen Archiv PASS. Echter Workflow 1687ccc4-a24f-47a6-a451-85aa75edc5ca: ready_for_review, sieben Tage, 18 Orte, 100 behaltene Kandidaten, drei Plan-B-Alternativen, separater Audit 88 / Versprechen erfüllt. Wiederanlauf 44,38 Sekunden serverseitig, drei Modellaufrufe / 34.197 ms Modellzeit / 29.968 Tokens. Dies ist die Reparatur eines bestehenden Entwurfs, kein Kaltstart-Benchmark. Echter Reserveaustausch vom Museo Histórico Municipal de Valencia zur Galería de Arte Maika Sánchez und Reload samt vollständigem Pool positiv. Zwei auffällige TomTom-Koordinaten bleiben als Audit-Aufmerksamkeit offen; beim ersten Museum gab es keinen verfügbaren gebietsfernen Ersatz. Keine bestätigte Trip-/Timeline-Übernahme ausgeführt.
 
-**Nächster Schritt (AKTIV): Räumliche Ortsidentität und kategoriespezifische Reservequalität schließen.** Der reale Review hat zwei auffällige Ortskoordinaten markiert; die gebietsferne Kulturreserve blieb trotz insgesamt 100 Places leer. Die Karten-Pinnummern müssen außerdem der Tagesreihenfolge entsprechen.
+**Nächster Schritt (AKTIV): A2 und Erlebnisqualität gebündelt auf Integration abnehmen.** Gewählte Variante A2 umsetzen und den inhaltlich unzureichenden Valencia-Plan ursächlich korrigieren; ein formaler Auditwert genügt nicht.
 
 **Abnahme dieses Schritts:**
 
-- Die zwei benannten TomTom-Orte über den kanonischen Places-Vertrag räumlich prüfen und fehlerhafte Quellzuordnungen beheben.
-- Kultur-/Museumsalternativen außerhalb des aktuellen Innenstadtgebiets aus tatsächlich passenden Providerergebnissen erschließen.
-- Aktivitätskarte und Kartenpin zeigen denselben Ort und dieselbe Tagesnummer.
-- Vor einer weiteren bezahlten Gesamtkomposition die betroffenen Providerdaten und Reparaturpfade lokal absichern.
+- Kontrollierte Regression und NFR-Gates des gemeinsamen Standes bestehen.
+- A2 mit kompakten Austauschzeilen, getrennten Bearbeitungsmodi sowie synchronen Kartenpins auf Desktop und Handybreite bedienen.
+- Commit, Integration-Deployment und öffentliche Byteidentität nachweisen.
+- Einen begrenzten echten KI-Review und verbleibende räumliche Providerprobleme ehrlich dokumentieren.
 
-**Danach:** Danach den zweiten Familien-/Ferien-/Konfliktfall und die verbleibenden P17/P19-Gates einschließlich physischer Geräte schließen. M16.5 ist nicht insgesamt abgeschlossen.
+**Danach:** Nach der öffentlichen Abnahme die offenen Provideridentitäten und den Familien-/Konfliktfall schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
-**Weiter offen:** P17/P19 bleiben TEILWEISE. Offen sind auffällige Koordinaten, gebietsferne Kulturreserve, Karten-Pinnummern gegenüber der Tagesreihenfolge, breiter Kaltstart-Nachweis, Familien-/Ferien-/Konfliktfall, Konto-/Timeline-Übernahme und physische iOS-/Android-Prüfung. 14-/21-/28-Tage-Transport und abschnittsweise Wiederaufnahme sind kontrolliert geprüft, nicht auf physischen Geräten abgenommen.
+**Weiter offen:** P17/P19 bleiben TEILWEISE. Öffentliche A2-Abnahme in Arbeit; widersprüchliche Ortsidentitäten, gebietsferne Reserve, Familien-/Konfliktfall, breite Kaltstarts, endgültige Konto-/Timeline-Übernahme, Mehrnutzer-Beitritt und physische Geräte bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -137,3 +137,13 @@ Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-443
 Regression: 240/241 im vollständigen kontrollierten Lauf; der verbleibende statische Exporttest nach deklarationsgleicher Korrektur separat PASS, ebenso die Dashboard-Verhaltensprüfung. Transport 145/145, Composer 133 und NFR-0 3/3 PASS. Keine erneute vollständige Suite oder bezahlte Trip-Generierung nach dieser ausreichend eingegrenzten Exportkorrektur.
 
 Nächster Schritt: räumliche Ortsidentität und kategoriespezifische Reservequalität, einschließlich gleicher Nummerierung von Tageskarte und Pin. P17/P19 bleiben teilweise offen.
+
+### 09.09.2026 – Tagesziel Erlebnisqualität und gewählte Richtung A2
+
+Der Nutzer hat A2 „Route mit Fokus“ ausdrücklich ausgewählt. Der Web-Composer erhält kompakte Tageszeilen und genau einen separaten Bearbeitungsbereich; Austausch, Zeiten und Ablehnungsgrund erscheinen einzeln. Keine Änderung an der fachlichen Eigentümerschaft und keine Migration. Places-IDs, bestätigte Reisen, Buchungen und globale Profilvorlieben bleiben über ihre bisherigen Verträge verwaltet.
+
+Die reale .194-Ausgabe enthält widersprüchliche Ortsklassifikationen (Km 0: Nachtleben und historisches Monument; eine Kirche als Park), übergewichtete passive Besuche und vom Profil geerbte Kinderwagen-/Kinderwünsche trotz expliziter Erwachsenenreise. Die nachgeladene Gateway-Quelle entspricht bis auf die Versionskennung dem Checkout; ein abweichender Gateway-Quellstand ist somit nicht die belegte Ursache. Direkte anonyme Detailabfragen wurden mit AUTH_REQUIRED abgewiesen; diese Grenze bleibt erhalten. Der gespeicherte Pool verliert bisher Originalkategorien und Beschreibungen. Diese Evidenz wird künftig vollständig bis zu Komposition, Reserve und Audit erhalten. Suchabsicht ist keine Ortsklassifikation. Widersprüche dürfen nicht als erfüllter Erlebniswunsch gelten.
+
+Intelligence erweitert innerhalb seiner bestehenden Eigentümerschaft die semantische Reiseinterpretation, Priorität expliziter Reiseangaben, die Auswahl unterschiedlicher Erlebnisse und den unabhängigen Inhaltsaudit. Echte KI beurteilt Erlebnispassung, Dauer, Wiederholung und Gruppenwünsche; deterministische Kennzahlen liefern nachvollziehbare Gegenbeispiele und verhindern keine ausdrücklich gewünschte Wiederholung. Strukturierte, optionale Vorlieben ergänzen den Freitext. Später eingeladene Personen werden als noch nicht berücksichtigte Perspektiven ausgewiesen; ihre Zustimmung, Mitgliedschaft und Profile bleiben beim vorgesehenen Collaboration-/Identity-Vertrag. Keine Einladung wird automatisch versendet.
+
+Prüfung: Regressionen aus den realen Gegenbeispielen, kein Profil-Write, kein Umdeuten einer Suchkategorie zu einer Place-Tatsache, stabile Reserve über Wiederaufnahme, identische Karten-/Routennummern, Bedienung A2 auf Desktop und Mobile sowie abschließend ein begrenzter echter Integration-Lauf. Kosten werden durch lokale Wiederholung und Wiederverwendung der bestehenden Modellaufrufe begrenzt. P17/P19 und M16.5 bleiben bis zur gesamten Abnahme teilweise offen. Veröffentlichung nur auf Integration; Rollback auf .194.

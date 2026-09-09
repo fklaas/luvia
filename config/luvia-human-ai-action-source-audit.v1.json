@@ -2,7 +2,7 @@
   "contractId": "luvia.human-ai-action-source-audit.v1",
   "version": "1.0.5",
   "sourceWorkbookSha256": "42E4B9D2115EE6CF38E3B7E9EDA1148AAACCB63CF14C8780C9EDA8A67CE48E46",
-  "markerCount": 1088,
+  "markerCount": 1093,
   "markers": [
     {
       "marker": "data-accent",
@@ -3044,6 +3044,33 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-ftc-edit-action",
+      "category": "Reisen & Zusammenarbeit",
+      "classification": "INTERAKTIONSPRIMITIVE",
+      "sources": [
+        "app/first-trip-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-ftc-edit-close",
+      "category": "Reisen & Zusammenarbeit",
+      "classification": "INTERAKTIONSPRIMITIVE",
+      "sources": [
+        "app/first-trip-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-ftc-edit-slot",
+      "category": "Reisen & Zusammenarbeit",
+      "classification": "INTERAKTIONSPRIMITIVE",
+      "sources": [
+        "app/first-trip-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-ftc-entry-mode",
       "category": "Reisen & Zusammenarbeit",
       "classification": "INTERAKTIONSPRIMITIVE",
@@ -3224,6 +3251,15 @@
       "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
     },
     {
+      "marker": "data-ftc-party",
+      "category": "Reisen & Zusammenarbeit",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/first-trip-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
       "marker": "data-ftc-path-canvas",
       "category": "Reisen & Zusammenarbeit",
       "classification": "STATUS/EINGABE/PROJEKTION",
@@ -3315,6 +3351,15 @@
     },
     {
       "marker": "data-ftc-progress",
+      "category": "Reisen & Zusammenarbeit",
+      "classification": "STATUS/EINGABE/PROJEKTION",
+      "sources": [
+        "app/first-trip-composer.js"
+      ],
+      "assessment": "Kein eigenständiger fachlicher Benutzer-Outcome; als Quelle/Status/Eingabe oder Präsentationsprimitive inventarisiert."
+    },
+    {
+      "marker": "data-ftc-rejection",
       "category": "Reisen & Zusammenarbeit",
       "classification": "STATUS/EINGABE/PROJEKTION",
       "sources": [

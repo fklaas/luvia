@@ -37,8 +37,11 @@ function providerTypeTokens(values=[]){
   return[...result].slice(0,50);
 }
 function normalizeProviderPlace(place={}){
-  const nativeTypes=[...(Array.isArray(place.types)?place.types:[]),place.primaryType,place.primaryTypeLabel].map(clean).filter(Boolean),provider=providerName(place.provider||place.source),types=provider==='geoapify'?[...new Set(nativeTypes.map(typeToken).filter(Boolean))]:providerTypeTokens(nativeTypes);
-  return{...place,provider,providerNativeTypes:[...new Set(nativeTypes)].slice(0,50),types,primaryType:typeToken(place.primaryType)||types[0]||'',providerRefs:place.providerRefs&&typeof place.providerRefs==='object'?place.providerRefs:{}};
+  const mappedTypes=[...(Array.isArray(place.types)?place.types:[]),place.primaryType].map(clean).filter(Boolean),nativeTypes=[...(Array.isArray(place.providerNativeTypes)?place.providerNativeTypes:mappedTypes),place.primaryTypeLabel].map(clean).filter(Boolean),provider=providerName(place.provider||place.source);
+  // The gateway already maps provider taxonomies. Mapping its output again
+  // turned water parks into parks and erased the original provider evidence.
+  const canonical=Array.isArray(place.providerNativeTypes)||provider==='geoapify',types=canonical?[...new Set(mappedTypes.map(typeToken).filter(Boolean))]:providerTypeTokens(mappedTypes);
+  return{...place,provider,providerNativeTypes:[...new Set(nativeTypes.length?nativeTypes:mappedTypes)].slice(0,50),types,primaryType:typeToken(place.primaryType)||types[0]||'',providerRefs:place.providerRefs&&typeof place.providerRefs==='object'?place.providerRefs:{}};
 }
 function normalizeSpatialConstraints(value){if(!value||typeof value!=='object')return null;const tokens=list=>[...new Set((Array.isArray(list)?list:[]).map(typeToken).filter(Boolean))].slice(0,8);return{explicit:value.explicit===true,prefer:tokens(value.prefer),avoid:tokens(value.avoid),source:clean(value.source).slice(0,120)||null,verifiedBy:clean(value.verifiedBy).slice(0,80)||null};}
 function normalizePositionContext(value){

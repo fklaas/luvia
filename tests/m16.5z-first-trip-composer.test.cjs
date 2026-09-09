@@ -37,7 +37,7 @@ assert.match(composer,/Bitte einen Vorschlag aus der Suche wählen/);
 assert.match(composer,/PLACES_DESTINATION_TIMEOUT/);assert.match(composer,/data-ftc-destination-retry/);assert.match(composer,/Vorschläge bereit/);assert.match(composer,/Zielsuche nicht erreichbar/);
 assert.match(composer,/\),35000,'Die Reiseideen brauchen gerade zu lange\./,'The UI timeout must outlive the bounded 30-second Intelligence transport instead of cancelling a paid result early');
 for(const marker of ['composeDayDraft','composeTripItinerary','auditTripItinerary','tripUnderstandingMarkup','tripQualityMarkup','getActiveDiscovery','reads.recommend','getCard','mountProjection','rehearseDay','LuviaAIActionRuntime','data-ftc-draft-action','weaveCategoryPlaces'])assert.ok(composer.includes(marker),`missing owner-backed AI day-draft marker: ${marker}`);
-for(const copy of ['✓ Ja','Nein','Andere Uhrzeit','Ohne Uhrzeit','Tag verschieben'])assert.ok(composer.includes(copy),`missing clear day decision: ${copy}`);
+for(const copy of ['Austauschen','Zeit & Tag','Passt nicht','Uhrzeit offenlassen','Wieder aufnehmen'])assert.ok(composer.includes(copy),`missing focused day decision: ${copy}`);
   for(const marker of ['pathSceneMarkup','mountPathScene','data-ftc-path-canvas','mountSeasonCanvas','destinationInsideScope','containsDestination','setTowns','preserveWorld','lx-day-journey','travelDna','mountTravelDna','lx-travel-dna','recordDecision','restoreDecision','timeTravelMarkup','ftc-time-travel'])assert.ok(composer.includes(marker),`missing cinematic Composer marker: ${marker}`);
 assert.match(composer,/const VERSION='2\.10\.0-reserve-and-trip-sections'/);
 assert.match(composer,/Wie möchtet ihr aufbrechen\?/);

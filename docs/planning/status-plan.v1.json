@@ -733,7 +733,7 @@
     }
   ],
   "acceptanceUpdate": "Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-4437-8a8d-ab7f77818873 veröffentlicht; 22/22 Bytevergleiche zum sauberen Archiv PASS. Echter Workflow 1687ccc4-a24f-47a6-a451-85aa75edc5ca: ready_for_review, sieben Tage, 18 Orte, 100 behaltene Kandidaten, drei Plan-B-Alternativen, separater Audit 88 / Versprechen erfüllt. Wiederanlauf 44,38 Sekunden serverseitig, drei Modellaufrufe / 34.197 ms Modellzeit / 29.968 Tokens. Dies ist die Reparatur eines bestehenden Entwurfs, kein Kaltstart-Benchmark. Echter Reserveaustausch vom Museo Histórico Municipal de Valencia zur Galería de Arte Maika Sánchez und Reload samt vollständigem Pool positiv. Zwei auffällige TomTom-Koordinaten bleiben als Audit-Aufmerksamkeit offen; beim ersten Museum gab es keinen verfügbaren gebietsfernen Ersatz. Keine bestätigte Trip-/Timeline-Übernahme ausgeführt.",
-  "safeRegression": "Kandidat .194: 240/241 Tests im vollständigen kontrollierten Lauf grün; der verbleibende statische Exporttest nach deklarationsgleicher Korrektur separat PASS. Dashboard-Verhalten nochmals PASS, 145/145 Transport, 133 Composer und NFR-0 3/3 PASS. Keine bezahlten Provideraufrufe in diesen lokalen Prüfungen.",
+  "safeRegression": "Kandidat .195: vollständige kontrollierte Regression 242/242 PASS, einschließlich NFR-0 3/3; 133 Composer, 145 Transport und 32 zusätzliche Erlebnis-/A2-Prüfungen. Keine bezahlten Provideraufrufe in diesen lokalen Prüfungen.",
   "publicAssetIdentity": "Integration .194: 22/22 Stable-/Immutable-Dateien byteidentisch zur Quelle 86084b13; Archiv 225453745 Bytes / SHA-256 F6FF45638C938E0810EE0BF7212E3DB170CADCFB529EECDE509796150E765FEC.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -768,23 +768,23 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19: Öffentlicher Wiederanlauf mit Gesamtaudit, echter Reservewahl und Reload positiv; räumliche Orts- und Reservequalität bleibt offen.",
+    "stage": "P17/P19: Kandidat 13.82.168.195 / Core 4.82.314 mit A2 und Erlebnisqualität. Integration-Veröffentlichung in Arbeit.",
     "delivered": "Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-4437-8a8d-ab7f77818873 veröffentlicht; 22/22 Bytevergleiche zum sauberen Archiv PASS. Echter Workflow 1687ccc4-a24f-47a6-a451-85aa75edc5ca: ready_for_review, sieben Tage, 18 Orte, 100 behaltene Kandidaten, drei Plan-B-Alternativen, separater Audit 88 / Versprechen erfüllt. Wiederanlauf 44,38 Sekunden serverseitig, drei Modellaufrufe / 34.197 ms Modellzeit / 29.968 Tokens. Dies ist die Reparatur eines bestehenden Entwurfs, kein Kaltstart-Benchmark. Echter Reserveaustausch vom Museo Histórico Municipal de Valencia zur Galería de Arte Maika Sánchez und Reload samt vollständigem Pool positiv. Zwei auffällige TomTom-Koordinaten bleiben als Audit-Aufmerksamkeit offen; beim ersten Museum gab es keinen verfügbaren gebietsfernen Ersatz. Keine bestätigte Trip-/Timeline-Übernahme ausgeführt.",
     "nextStep": {
-      "id": "P17-P19-spatial-identity-reserve-quality",
-      "package": "P19",
+      "id": "P17-P19-A2-experience-quality-public",
+      "package": "P17",
       "status": "AKTIV",
-      "title": "Räumliche Ortsidentität und kategoriespezifische Reservequalität schließen",
-      "reason": "Der reale Review hat zwei auffällige Ortskoordinaten markiert; die gebietsferne Kulturreserve blieb trotz insgesamt 100 Places leer. Die Karten-Pinnummern müssen außerdem der Tagesreihenfolge entsprechen.",
+      "title": "A2 und Erlebnisqualität gebündelt auf Integration abnehmen",
+      "reason": "Gewählte Variante A2 umsetzen und den inhaltlich unzureichenden Valencia-Plan ursächlich korrigieren; ein formaler Auditwert genügt nicht.",
       "acceptance": [
-        "Die zwei benannten TomTom-Orte über den kanonischen Places-Vertrag räumlich prüfen und fehlerhafte Quellzuordnungen beheben.",
-        "Kultur-/Museumsalternativen außerhalb des aktuellen Innenstadtgebiets aus tatsächlich passenden Providerergebnissen erschließen.",
-        "Aktivitätskarte und Kartenpin zeigen denselben Ort und dieselbe Tagesnummer.",
-        "Vor einer weiteren bezahlten Gesamtkomposition die betroffenen Providerdaten und Reparaturpfade lokal absichern."
+        "Kontrollierte Regression und NFR-Gates des gemeinsamen Standes bestehen.",
+        "A2 mit kompakten Austauschzeilen, getrennten Bearbeitungsmodi sowie synchronen Kartenpins auf Desktop und Handybreite bedienen.",
+        "Commit, Integration-Deployment und öffentliche Byteidentität nachweisen.",
+        "Einen begrenzten echten KI-Review und verbleibende räumliche Providerprobleme ehrlich dokumentieren."
       ]
     },
-    "after": "Danach den zweiten Familien-/Ferien-/Konfliktfall und die verbleibenden P17/P19-Gates einschließlich physischer Geräte schließen. M16.5 ist nicht insgesamt abgeschlossen.",
-    "open": "P17/P19 bleiben TEILWEISE. Offen sind auffällige Koordinaten, gebietsferne Kulturreserve, Karten-Pinnummern gegenüber der Tagesreihenfolge, breiter Kaltstart-Nachweis, Familien-/Ferien-/Konfliktfall, Konto-/Timeline-Übernahme und physische iOS-/Android-Prüfung. 14-/21-/28-Tage-Transport und abschnittsweise Wiederaufnahme sind kontrolliert geprüft, nicht auf physischen Geräten abgenommen.",
+    "after": "Nach der öffentlichen Abnahme die offenen Provideridentitäten und den Familien-/Konfliktfall schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.",
+    "open": "P17/P19 bleiben TEILWEISE. Öffentliche A2-Abnahme in Arbeit; widersprüchliche Ortsidentitäten, gebietsferne Reserve, Familien-/Konfliktfall, breite Kaltstarts, endgültige Konto-/Timeline-Übernahme, Mehrnutzer-Beitritt und physische Geräte bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -841,7 +841,7 @@
         "evidence": "Erster realer positiver Gesamtplan: Valencia 14.–20.06.2027, 7/7 Tage, 19 übernommen, kontextuelle Zeiten, Reiseversprechen, Freiraum, Reise-DNA, Unsicherheitskarte, 4 Buchungsabhängigkeiten, Unterkunftsradius, 2 Plan Bs, Audit 74/100 und Review-Freigabe. Quelle d440b96015bc388b6887ff0a92a17d46934f82e7, Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f, 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 Bytes."
       }
     ],
-    "evidence": "Public .192 setzt den zuvor am relativen Budget gescheiterten Auftrag fort und hält 100 reale Kandidaten. Erster Entwurf und Audit benennen nun echte mangelnde Viertelstreuung statt fehlender künftiger Fahrpläne. Folgeaudit zeigt zusätzlich einen Referenzfehler: Kurz-IDs wurden beim Umsortieren zwischen Modellen neu vergeben und blieben in Begründungstexten stehen. .193 sortiert die Identitäten stabil und löst Textreferenzen vor jeder Weitergabe in die echten Ortsnamen auf. Das Modell bekommt 2-km-Gebietskennungen, mindestens drei volle Tagesgebiete und höchstens 60 % der Besuche im selben Gebiet, sofern der erlaubte Radius und Katalog dies tragen. 139/139 gezielte Prüfungen bestehen. Ein neuer echter Gesamtplan bleibt in Abnahme.",
+    "evidence": "32/32 neue lokale Erlebnis-/Profil-/A2-Prüfungen PASS; bestehende Providertruth-Prüfung PASS. A2 auf 1440 und 390 Pixel Breite sichtbar bedient: Ersatz gewählt und nach Reload erhalten, kein horizontaler Überlauf. Dies ist eine kontrollierte UI-Fixture, kein positiver neuer Providerplan. Siehe docs/planning/P17-A2-EXPERIENCE-QUALITY-2026-09-09.md. Vollständige kontrollierte Regression 242/242 PASS.",
     "summary": "Integration .194 / Core 4.82.313 aus 86084b13 ist unter Worker 87260e5a-f5c3-4437-8a8d-ab7f77818873 veröffentlicht; 22/22 Bytevergleiche zum sauberen Archiv PASS. Echter Workflow 1687ccc4-a24f-47a6-a451-85aa75edc5ca: ready_for_review, sieben Tage, 18 Orte, 100 behaltene Kandidaten, drei Plan-B-Alternativen, separater Audit 88 / Versprechen erfüllt. Wiederanlauf 44,38 Sekunden serverseitig, drei Modellaufrufe / 34.197 ms Modellzeit / 29.968 Tokens. Dies ist die Reparatur eines bestehenden Entwurfs, kein Kaltstart-Benchmark. Echter Reserveaustausch vom Museo Histórico Municipal de Valencia zur Galería de Arte Maika Sánchez und Reload samt vollständigem Pool positiv. Zwei auffällige TomTom-Koordinaten bleiben als Audit-Aufmerksamkeit offen; beim ersten Museum gab es keinen verfügbaren gebietsfernen Ersatz. Keine bestätigte Trip-/Timeline-Übernahme ausgeführt."
   },
   "qaCommit": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
