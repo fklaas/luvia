@@ -33,7 +33,7 @@ Die neue Gestaltungsvorgabe wird zusätzlich als Bewegungsstudie und Produktvert
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.188**, Core **4.82.307**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App .189 / Core .308 behebt zusätzlich den reproduzierten Übergang von laufender Wunschauswertung zur Tagesplanung.
+**Stand 2026-09-09:** Integration **13.82.168.188**, Core **4.82.307**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.189 / Core 4.82.308 behebt zusätzlich den reproduzierten Übergang von laufender Wunschauswertung zur Tagesplanung.
 
 **Zuletzt geliefert:** Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.
 
