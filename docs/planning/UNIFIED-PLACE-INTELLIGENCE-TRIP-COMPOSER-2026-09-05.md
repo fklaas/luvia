@@ -57,7 +57,7 @@ Die interaktive Bewegungsstudie liegt im dauerhaften Visualisierungsverzeichnis 
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.184**, Core **4.82.303**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.185 / Core 4.82.304 ergänzt die fachlich korrekte Tagesabdeckung für lange Strand-/Aktivitätsaufenthalte und automatische gezielte Korrekturen nach kompletter Wiederholung.
+**Stand 2026-09-09:** Integration **13.82.168.185**, Core **4.82.304**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.186 / Core 4.82.305 ergänzt modellgeleitete spezifische Places-Suchen parallel zur allgemeinen Recherche.
 
 **Zuletzt geliefert:** Integration .182: Quelle COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f, Worker 1fbf6e16-b328-44bb-9284-5413383e6b17, Archiv 92.650.447 Bytes / SHA256 8E60A0A356EBF564E35B34CA67BDEE67670EDC6221FFE15CCDC8D2C9ADBAE540 und 22/22 öffentliche Bytevergleiche. 241/241 Regression, NFR-0 3/3, Composer 133, P19 99/99 und 51/51 Transport-/Abschnittsprüfungen bestanden. Echter Providerbeleg: planning.dialogue erfolgreich in 16.203 ms; trip.compose und Reparaturen liefen real. Der letzte Audit blockierte fehlende gültige Backup-Referenzen. Ein bis zwei abweichende Zeichen in echten 113- bis 125-stelligen Provider-IDs sind als Ursache belegt. Der neue Referenzpfad ist mit 60/60 Transport-/Abschnittsprüfungen und 133 Composer-Prüfungen geprüft; sein öffentlicher Review folgt noch.
 

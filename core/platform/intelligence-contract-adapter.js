@@ -151,13 +151,14 @@
 
   function modelPlace(place){
     const c=place.coordinates||place.location||{};
-    return {providerPlaceId:place.providerPlaceId,name:place.name,category:place.category||place.requestCategory,primaryType:place.primaryType||null,
+    return {providerPlaceId:place.providerPlaceId,name:place.name,category:place.category||place.requestCategory,primaryType:place.primaryType||null,searchTarget:place.tripSearchTarget||null,
       coordinates:{latitude:Number(c.latitude??c.lat),longitude:Number(c.longitude??c.lng)},
       ...(place.facts?{facts:place.facts}:{})};
   }
   function sectionCandidates(candidates,used,dayCount,priority=[]){
     const buckets=new Map();
     for(const place of candidates){if(used.has(place.providerPlaceId))continue;const key=place.category||'other';if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(place);}
+    for(const bucket of buckets.values())bucket.sort((a,b)=>Number(Boolean(b.tripSearchTarget))-Number(Boolean(a.tripSearchTarget)));
     const categories=[...buckets.keys()].sort((a,b)=>Number(!priority.includes(a))-Number(!priority.includes(b)));
     const limit=Math.max(dayCount*4,Math.min(64,dayCount*7+14)),result=[];
     while(result.length<limit&&categories.some(key=>buckets.get(key).length))for(const key of categories){if(result.length>=limit)break;const place=buckets.get(key).shift();if(place)result.push(place);}
@@ -173,7 +174,7 @@
     const planningDayCount=Math.max(1,Math.min(366,Array.isArray(input.days)?input.days.length:1)),planningCandidateLimit=4000,candidateInput=(Array.isArray(input.candidates)?input.candidates:[]).slice(0,planningCandidateLimit).map(item=>{
       const coordinates=item?.coordinates||item?.location||{};
       const providerPlaceId=clean(item?.providerPlaceId||item?.provider_place_id||item?.id,240).replace(/^places\//,''),provider=clean(item?.provider||item?.source,80),observedAt=clean(item?.providerObservedAt||item?.ownerObservedAt,40),evidenceRefs=[`place:${providerPlaceId}:identity`,...(provider&&observedAt?[`place:${providerPlaceId}:provider-snapshot`]:[])];
-      return {providerPlaceId,name:clean(item?.name,200),category:clean(item?.requestCategory||item?.category,80),primaryType:clean(item?.primaryType||item?.primary_type||item?.type,80),formattedAddress:clean(item?.formattedAddress||item?.address,280),coordinates:{latitude:Number(coordinates.latitude??coordinates.lat),longitude:Number(coordinates.longitude??coordinates.lng)},provider,observedAt,evidenceRefs,facts:{priceLevel:clean(item?.priceLevel||item?.price_level,60),openNow:typeof item?.openNow==='boolean'?item.openNow:null,businessStatus:clean(item?.businessStatus||item?.business_status,80)}};
+      return {providerPlaceId,name:clean(item?.name,200),category:clean(item?.requestCategory||item?.category,80),tripSearchTarget:clean(item?.tripSearchTarget,200),primaryType:clean(item?.primaryType||item?.primary_type||item?.type,80),formattedAddress:clean(item?.formattedAddress||item?.address,280),coordinates:{latitude:Number(coordinates.latitude??coordinates.lat),longitude:Number(coordinates.longitude??coordinates.lng)},provider,observedAt,evidenceRefs,facts:{priceLevel:clean(item?.priceLevel||item?.price_level,60),openNow:typeof item?.openNow==='boolean'?item.openNow:null,businessStatus:clean(item?.businessStatus||item?.business_status,80)}};
     }).filter(item=>item.providerPlaceId&&item.name&&Number.isFinite(item.coordinates.latitude)&&Number.isFinite(item.coordinates.longitude));
     if(!rawDays.length)throw contractError('TRIP_ITINERARY_DAYS_REQUIRED','Für den Reiseentwurf fehlen die Reisetage.');
     if(!candidateInput.length)throw contractError('TRIP_ITINERARY_CANDIDATES_REQUIRED','Für den Reiseentwurf fehlen überprüfte Places.');
@@ -284,6 +285,13 @@
     return immutable({owner:'intelligence',contractId:'intelligence.v1',kind:'ai-trip-itinerary',source:'ai',title:clean(value?.title,160),summary:clean(value?.summary,800),travelPromise,days,dayPolicies:dayInput,uncertaintyMap,bookingOrder,neighborhoodRecommendation,evidenceCatalog,alternatives,backupOptions,contractIssues,uncoveredRequirements:(value?.uncoveredRequirements||[]).map(item=>clean(item,240)).filter(Boolean).slice(0,20),warnings:(value?.warnings||[]).map(item=>clean(item,240)).filter(Boolean).slice(0,20),confidence:Math.max(0,Math.min(1,Number(value?.confidence)||0)),candidateCount:candidateInput.length,automaticMutation:false,confirmationRequired:true});
   }
 
+  async function planTripPlaceSearch(input={}){
+    const definitions=Array.isArray(input.categories)?input.categories:[],allowed=new Set(definitions.flatMap(item=>item.types||[]));
+    const response=await run('discovery.plan',{surface:'trip-composer',domain:'trip',userGoal:input.travelOrder||{},destination:input.destination||null,categoryCatalog:definitions,task:'Identify up to three concrete must-do experiences from this travel order that broad category browsing may miss, such as a real harbour, a particular facility, a named landmark or a specialised activity. Return precise local-language provider search queries and only includedTypes from the supplied categoryCatalog. Do not equate a beach with a harbour, a shop with shopping in general, or a venue name with verified suitability. Do not repeat generic food, culture or beach browse searches unless they are specifically necessary. Return no searchPlans when there is no concrete additional search need. Queries are hypotheses for provider verification, never invented Places or verified facts. Keep reasons short.'},{tier:'fast',fallback:false,context:{surface:'trip-composer',purpose:'specific-trip-place-research'}});
+    if(response?.ok!==true||response?.meta?.fallback!==false)throw contractError('TRIP_SEARCH_PLAN_UNAVAILABLE','Die gezielte Ortsrecherche konnte noch nicht vorbereitet werden.');
+    return immutable({source:'ai',plans:(response.data?.searchPlans||[]).slice(0,3).map(plan=>({query:String(plan.query||'').trim().slice(0,200),includedTypes:[...new Set((plan.includedTypes||[]).filter(type=>allowed.has(type)))].slice(0,4),reason:String(plan.reason||'').slice(0,200)})).filter(plan=>plan.query&&plan.includedTypes.length)});
+  }
+
   async function rankTripReserve(input={}){
     const candidates=(input.candidates||[]).slice(0,16).map(place=>({providerPlaceId:String(place.providerPlaceId||place.id||'').replace(/^places\//,''),name:place.name,category:place.requestCategory||place.category,coordinates:place.coordinates||place.location}));
     if(!candidates.length)return immutable({kind:'trip-reserve-options',options:[],source:'places'});
@@ -300,7 +308,7 @@
     const {evidenceCatalog:_evidence,dayPolicies:_policies,contractIssues:_issues,...compactItinerary}=itinerary;
     const auditIds=new Set([...(itinerary.days||[]).flatMap(day=>(day.entries||[]).map(entry=>entry.providerPlaceId)),...(itinerary.backupOptions||[]).map(item=>item.providerPlaceId)]);
     const references=placeReferenceCodec(input.candidates||[]);
-    const auditDayCount=Math.max(1,Math.min(366,Array.isArray(itinerary?.dayPolicies)?itinerary.dayPolicies.length:Array.isArray(itinerary?.days)?itinerary.days.length:1)),auditCandidateLimit=Math.max(160,auditDayCount*9),response=await run('trip.audit',references.encode({referenceSet:references.fingerprint,surface:'trip-composer',retryGeneration:Math.max(0,Math.round(Number(input.retryGeneration)||0)),locale:input.locale||'de-DE',timeZone:input.timeZone||input.destination?.timezone||'',travelOrder:input.brief?.travelOrder||{},planningPolicy:input.brief?.policy||{},destination:input.destination||null,planningContract:{dayPolicies:itinerary.dayPolicies||[],allDaysExactlyOnce:true,useOnlyCandidateIds:true,preserveAllHardConstraints:true,travelPromiseRequired:true,explicitDeliberateFreeTime:true,wholeTripBalance:true,uncertaintyMapRequired:true,verifiedClaimsRequireEvidence:true,bookingDependenciesRequired:true,neighborhoodRecommendationRequired:true,clusterDaysGeographically:true,arrivalDepartureAware:true,prepareBackupOptions:true},itinerary:compactItinerary,poolQuality:input.poolQuality||null,candidateCatalog:(Array.isArray(input.candidates)?input.candidates:[]).filter(item=>auditIds.has(String(item.providerPlaceId||item.id||'').replace(/^places\//,''))).slice(0,auditCandidateLimit).map(item=>({providerPlaceId:String(item?.providerPlaceId||item?.provider_place_id||item?.id||'').replace(/^places\//,''),name:String(item?.name||''),category:String(item?.requestCategory||item?.category||''),coordinates:item?.coordinates||item?.location||null}))}),{tier:'default',fallback:false,workflowId:input.workflowId||null,context:{surface:'trip-composer',purpose:'independent-trip-quality-audit',qualityLane:'terra-audit'}});
+    const auditDayCount=Math.max(1,Math.min(366,Array.isArray(itinerary?.dayPolicies)?itinerary.dayPolicies.length:Array.isArray(itinerary?.days)?itinerary.days.length:1)),auditCandidateLimit=Math.max(160,auditDayCount*9),response=await run('trip.audit',references.encode({referenceSet:references.fingerprint,surface:'trip-composer',retryGeneration:Math.max(0,Math.round(Number(input.retryGeneration)||0)),locale:input.locale||'de-DE',timeZone:input.timeZone||input.destination?.timezone||'',travelOrder:input.brief?.travelOrder||{},planningPolicy:input.brief?.policy||{},destination:input.destination||null,planningContract:{dayPolicies:itinerary.dayPolicies||[],allDaysExactlyOnce:true,useOnlyCandidateIds:true,preserveAllHardConstraints:true,travelPromiseRequired:true,explicitDeliberateFreeTime:true,wholeTripBalance:true,uncertaintyMapRequired:true,verifiedClaimsRequireEvidence:true,bookingDependenciesRequired:true,neighborhoodRecommendationRequired:true,clusterDaysGeographically:true,arrivalDepartureAware:true,prepareBackupOptions:true},itinerary:compactItinerary,poolQuality:input.poolQuality||null,candidateCatalog:(Array.isArray(input.candidates)?input.candidates:[]).filter(item=>auditIds.has(String(item.providerPlaceId||item.id||'').replace(/^places\//,''))).slice(0,auditCandidateLimit).map(item=>({providerPlaceId:String(item?.providerPlaceId||item?.provider_place_id||item?.id||'').replace(/^places\//,''),name:String(item?.name||''),category:String(item?.requestCategory||item?.category||''),primaryType:String(item?.primaryType||item?.type||''),coordinates:item?.coordinates||item?.location||null}))}),{tier:'default',fallback:false,workflowId:input.workflowId||null,context:{surface:'trip-composer',purpose:'independent-trip-quality-audit',qualityLane:'terra-audit'}});
     if(response?.ok!==true||response?.meta?.fallback!==false)throw contractError('TRIP_AUDIT_AI_REQUIRED','Der unabhängige KI-Qualitätscheck ist gerade nicht verfügbar.');
     const value=references.decode(response?.data||response?.result||response),missingEvidence=/(?:nicht|noch nicht|unbelegt|unverified|unknown).{0,45}(?:belegt|bestätigt|verifiziert|nachweisbar|nachgewiesen|belastbar|evidence)|(?:fehlend|keine|without|missing).{0,45}(?:daten|data|beleg|evidence|flugzeit|opening|price|route|availability)/i,rawIssues=(value?.issues||[]).map(item=>({code:String(item?.code||'').trim().slice(0,100),severity:item?.severity==='blocked'?'blocked':'attention',dayDate:String(item?.dayDate||'').trim().slice(0,10),providerPlaceIds:[...new Set((item?.providerPlaceIds||[]).map(id=>String(id||'').replace(/^places\//,'').trim()).filter(Boolean))].slice(0,12),message:String(item?.message||'').trim().slice(0,500),suggestedRepair:String(item?.suggestedRepair||'').trim().slice(0,500)})).filter(item=>item.code&&item.message),downgradedUncertainty=rawIssues.filter(item=>item.severity==='blocked'&&missingEvidence.test(`${item.message} ${item.suggestedRepair}`)),issues=rawIssues.map(item=>downgradedUncertainty.includes(item)?{...item,severity:'attention'}:item),promiseAssessment={kept:value?.promiseAssessment?value.promiseAssessment.kept===true:true,summary:String(value?.promiseAssessment?.summary||'').trim().slice(0,500),missedCommitments:[...new Set((value?.promiseAssessment?.missedCommitments||[]).map(item=>String(item||'').trim()).filter(Boolean))].slice(0,20)};
     if(!promiseAssessment.kept&&downgradedUncertainty.length&&rawIssues.filter(item=>item.severity==='blocked').every(item=>downgradedUncertainty.includes(item)))promiseAssessment.kept=true;
@@ -580,6 +588,7 @@
       getTravelCalendarEvidence,
       interpretTripBrief,
       suggestTripDestinations,
+      planTripPlaceSearch,
       composeTripItinerary,
       auditTripItinerary,
       rankTripReserve,
@@ -623,6 +632,7 @@
     getTravelCalendarEvidence,
     interpretTripBrief,
     suggestTripDestinations,
+    planTripPlaceSearch,
     composeTripItinerary,
     auditTripItinerary,
     planningTrace,

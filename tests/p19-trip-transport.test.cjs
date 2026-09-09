@@ -88,6 +88,16 @@ async function run(){
   await restart.api.loadAiDayDraft(restart.state,{force:true,confirmedBrief:true});
   check(()=>assert.equal(restart.state.aiDraft.status,'ready','A fresh full retry can repair one thin day without requiring another manual Retry'));
   check(()=>assert.ok(restart.sandbox.modelCalls.some(call=>call.capability==='trip.compose-day-repair')));
+
+  const anchors=harness();anchors.state.data.requestBrief='Ruhig Kultur entdecken und vegan essen.';await anchors.api.loadAiDayDraft(anchors.state);assert.equal(anchors.state.aiDraft.status,'ready',anchors.state.aiDraft.error);const beforeAnchorCount=anchors.state.aiDraft.places.length;let typedSearchCount=0;
+  anchors.sandbox.LuviaPlacesContractV1.reads.categories=()=>({water:{key:'water',label:'Wasser',includedTypes:['beach','marina']},food:{key:'food',label:'Essen',includedTypes:['restaurant']}});
+  anchors.sandbox.modelOverride=(capability)=>capability==='discovery.plan'?{ok:true,meta:{fallback:false},data:{searchPlans:[{query:'Marina Valencia',includedTypes:['marina','unsupported_made_up_type'],reason:'Ein Hafen ist ein eigener Wunsch.'}]}}:null;
+  anchors.sandbox.recommend=options=>{if(options.includedTypes?.includes('marina')){typedSearchCount++;assert.equal(options.category,'water');assert.deepEqual(copy(options.includedTypes),['marina']);return {places:[{...anchors.candidate('water',40),providerPlaceId:'verified-marina',name:'Belegter Hafen',primaryType:'marina'}]};}return {places:[]};};
+  anchors.state.aiDraft={...anchors.state.aiDraft,status:'error',phase:'places',brief:copy(anchors.state.aiDraft.brief)};anchors.state.aiDraft.brief.travelOrder.mustDo=['Ein echter Hafenbesuch'];
+  await anchors.api.loadAiDayDraft(anchors.state,{force:true,confirmedBrief:true});
+  check(()=>assert.equal(typedSearchCount,1,'A semantically identified harbour goes through the typed shared Places read'));
+  check(()=>assert.ok(anchors.state.aiDraft.places.some(place=>place.providerPlaceId==='verified-marina'),'Exact provider results join the actual retained reserve'));
+  check(()=>assert.equal(anchors.state.aiDraft.places.length,beforeAnchorCount+1));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});
