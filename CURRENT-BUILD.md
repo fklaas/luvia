@@ -3,19 +3,19 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.200**, Core **4.82.319**. P17/P19: Integration .200 / Core 4.82.319 veröffentlicht; begrenzte Webrecherche echt belegt, passende Ortszuordnung noch offen.
+**Stand 2026-09-09:** Integration **13.82.168.205**, Core **4.82.324**. P17/P19: App .205 / Core 4.82.324 als gebündelter Qualitäts- und Kostenkontroll-Releasekandidat gebaut.
 
-**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. App .200 unterscheidet qualitative Budgetvorlieben von harten Geldsummen, erhält die konkrete Kategorieabsicht in Recherchefragen und bewahrt echte Ausgabengrenzen.
+**Zuletzt geliefert:** App .205 / Core 4.82.324 ist als Integration-Releasekandidat gebaut. Ein zentraler POI-Qualitätsvertrag verwirft Funktionsorte, generische Attraktions-/Aktivitätsbehauptungen und Kategorien ohne konkrete Provider- oder exakte Webbelege bereits vor der KI-Komposition. Allgemeines Shopping bedeutet Einkaufszentrum; einzelne Geschäfte werden nur bei entsprechendem Wunsch zugelassen. Restaurantmomente folgen der gewählten Mittag-/Abendpräferenz. Präsentationslabels stammen aus dem gemeinsamen Places-Owner. Unbestätigte ältere KI-Entwürfe werden einmalig auf Qualitätsversion 2 neu komponiert; bereits übernommene Reisen bleiben unverändert. OpenAI-Webrecherche bleibt auf Integration als begrenzte Ergänzung aktiv: ein Rechercheauftrag je Workflow, maximal zwei Webaufrufe und sechs Quellenangebote, immer Luna und Wiederverwendung bei Retry/Resume.
 
-**Nächster Schritt (AKTIV): Gespeicherte Webangebote verlässlich Orten zuordnen und konkrete Aktivitäten belegen.** Der echte Webprovider funktioniert; die sechs Hinweise scheitern an der Ortszuordnung. Vorhandene generische Sportstätten erfüllen Escape Room/Bowling nicht. Wiederholte Gesamtkomposition kann diese Quellenlücke nicht beheben.
+**Nächster Schritt (AKTIV): Neuen Qualitätsvertrag veröffentlichen und einen frischen Valencia-Gesamtplan belegen.** Die strukturellen Fehler sind im gemeinsamen Owner-Vertrag behoben. Jetzt muss derselbe Stand auf Integration zeigen, dass echte Kandidaten, Kategorienmix, räumliche Streuung, Essenszeiten, Wiederaufnahme und begrenzte Webkosten zusammen funktionieren.
 
 **Abnahme dieses Schritts:**
 
-- Die sechs gespeicherten Nachtleben-Hinweise über denselben authentifizierten Places-Vertrag mit konkreten Anbieter-/Filterbelegen auflösen; qualifizierte Escape-Room-/Bowling-Quellen ermitteln; Quellenrecherche bei Wiederaufnahme nicht erneut bezahlen. Danach passender Gesamtplan mit tatsächlichen Aktivitäten, Gastronomie, Abendleben und Strand sowie nachvollziehbarer Streuung. P17/P19 bis zu sämtlichen Gates TEILWEISE.
+- Safe Regression vollständig grün; sauberer Integration-Deploy mit immutable Version und Rollback; ein frischer echter Valencia-Lauf ohne Km 0, Touristeninformation, generische Entdeckungsorte oder ungewünschte Parkdominanz, mit Strand/Hafen/Altstadt/weiteren Vierteln sowie gewünschten Aktivitäten, Nachtleben, Einkaufszentrum und Restaurants; bezahlte Webrecherche höchstens einmal je Workflow und bei Wiederaufnahme wiederverwendet.
 
-**Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
+**Danach:** Den Familien-/Konfliktfall, Mitreisende, Geräte-Wiederaufnahme und die übrigen P17/P19-Gates schließen. M16.5 bleibt bis zu diesen Abnahmen offen; M17 ist die umfassende Design-/Produktsprache, Intelligence II folgt in M18.8.
 
-**Weiter offen:** P17/P19 bleiben TEILWEISE: zuverlässige Aktivitätsquellen und konkrete Angebote, semantische Unterteilung allgemeiner Aktivitäten, Positivlauf des neuen Gesamtplans, Lernen über mehrere Reisen, Familien-/Konfliktfall, gebietsferne Reserve, Übernahme-/Recovery-Gates und physische Geräte. M16.5 bleibt offen.
+**Weiter offen:** P17/P19 bleiben TEILWEISE bis zum echten öffentlichen Gesamtplan: Familien-/Konfliktfall, Lernen über mehrere Reisen, eingeladene Mitreisende, gebietsferne Reserve im produktiven Tauschfluss, physische iOS-/Android-Abnahme sowie aktuelle Wetter-, Öffnungs-, Preis-, Buchbarkeits-, Event-, Einreise- und Verkehrsbelege. M16.5 bleibt offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

@@ -45,6 +45,7 @@ function projectTripPreferences(value={}){
   const input=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
   const budget=['economy','balanced','generous','open'].includes(input.budgetLevel)?input.budgetLevel:'open';
   const pace=['slow','balanced','active','open'].includes(input.pace)?input.pace:'open';
+  const mealTiming=['flexible','lunch','dinner','both'].includes(input.mealTiming)?input.mealTiming:'flexible';
   return immutable({
     budgetLevel:budget,
     pace,
@@ -56,6 +57,7 @@ function projectTripPreferences(value={}){
     mix:['balanced','favorites','surprising'].includes(input.mix)?input.mix:'balanced',
     experiences:uniqueStrings(input.experiences,8),
     shoppingStyle:['centres','specific_shops','mixed'].includes(input.shoppingStyle)?input.shoppingStyle:'',
+    mealTiming,
     adults:input.adults!=null&&input.adults!==''&&Number.isInteger(Number(input.adults))&&Number(input.adults)>=0?Math.min(30,Number(input.adults)):null,
     children:input.children!=null&&input.children!==''&&Number.isInteger(Number(input.children))&&Number(input.children)>=0?Math.min(30,Number(input.children)):null,
     freeTimePercent:input.freeTimePercent!=null&&input.freeTimePercent!==''&&Number.isFinite(Number(input.freeTimePercent))?Math.max(0,Math.min(80,Number(input.freeTimePercent))):null,
@@ -146,7 +148,9 @@ function canonicalPlace(value={}){
   return immutable({
     owner:'places',contractId:'places.v1',providerPlaceId,name:text(value.name,200),
     primaryType:text(value.primaryType||value.primary_type||value.type,80)||'place',
+    primaryTypeLabel:text(value.primaryTypeLabel||value.primary_type_label||value.primaryTypeDisplayName?.text||value.primaryTypeDisplayName,120)||null,
     category:text(value.requestCategory||value.category,80),
+    presentation:value.presentation&&typeof value.presentation==='object'?value.presentation:null,
     types:uniqueStrings(value.types,30),
     providerNativeTypes:uniqueStrings(value.providerNativeTypes,30),
     description:text(value.description||value.editorialSummary?.text||value.editorialSummary,420),

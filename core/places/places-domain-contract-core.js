@@ -38,6 +38,30 @@ const CATEGORIES=immutable({
   nightlife:{key:'nightlife',icon:'🌙',label:'Nachtleben',type:'custom',primaryType:'custom',domainTypes:['activity','restaurant'],includedType:'',includedTypes:['nightlife_spot','bar','pub','cocktail_bar','wine_bar','night_club','dance_club','discotheque','lounge_bar','concert_hall','live_music_venue','music_venue','jazz_club','comedy_club','karaoke_bar','casino'],excludedTypes:['hospital','locality'],query:'Bars Pubs Cocktailbars Weinbars Lounges Clubs Diskotheken Live-Musik Karaoke Comedy Casinos Nachtleben',keywords:['nachtleben','club','diskothek','disco','rooftop','cocktail','weinbar','pub','lounge','live musik','karaoke','comedy','casino','abend'],synonyms:['Club','Diskothek','Bar','Pub','Cocktailbar','Weinbar','Lounge','Live-Musik','Karaoke','Comedy','Casino']},
   practical:{key:'practical',icon:'🧰',label:'Praktisch unterwegs',type:'custom',primaryType:'custom',domainTypes:['custom','mobility'],includedType:'',includedTypes:['pharmacy','supermarket','parking','electric_vehicle_charging_station','gas_station','atm','laundry'],excludedTypes:['tourist_attraction'],query:'Apotheke Supermarkt Parkplatz Toilette Ladestation',keywords:['apotheke','supermarkt','toilette','parkplatz','laden','ladestation','geldautomat','waschsalon','tankstelle'],synonyms:['Apotheke','Supermarkt','Parkplatz','Ladestation']}
 });
+const TYPE_LABELS=immutable({
+  restaurant:'Restaurant',cafe:'Café',bakery:'Bäckerei',bar:'Bar',meal_takeaway:'Imbiss & Take-away',food_court:'Food Court',vegetarian_restaurant:'Vegetarisches Restaurant',vegan_restaurant:'Veganes Restaurant',fine_dining_restaurant:'Fine Dining',
+  lodging:'Unterkunft',accommodation:'Unterkunft',hotel:'Hotel',hostel:'Hostel',motel:'Motel',bed_and_breakfast:'Bed & Breakfast',guest_house:'Gästehaus',resort_hotel:'Resort',campground:'Camping',apartment:'Apartment',vacation_rental:'Ferienhaus',
+  amusement_park:'Freizeitpark',theme_park:'Themenpark',amusement_center:'Erlebniscenter',aquarium:'Aquarium',bowling_alley:'Bowling',escape_room:'Escape Room',fitness_center:'Fitness',gym:'Fitnessstudio',playground:'Spielplatz',skating_rink:'Eislaufen',sports_activity_location:'Aktivität',stadium:'Stadion',swimming_pool:'Schwimmbad',water_park:'Wasserpark',zoo:'Zoo',minigolf:'Minigolf',golf_course:'Golf',water_sports_center:'Wassersport',
+  spa:'Spa & Wellness',sauna:'Sauna',wellness:'Wellness',wellness_center:'Wellness',thermal_bath:'Therme',
+  beach:'Strand',marina:'Hafen & Marina',harbour:'Hafen',
+  tourist_attraction:'Sehenswürdigkeit',historical_landmark:'Historischer Ort',historical_monument:'Denkmal',monument:'Denkmal',observation_deck:'Aussichtspunkt',scenic_spot:'Aussichtspunkt',viewpoint:'Aussichtspunkt',church:'Kirche',cathedral:'Kathedrale',
+  museum:'Museum',movie_theater:'Kino',art_gallery:'Galerie',performing_arts_theater:'Theater',concert_hall:'Konzerthaus',cultural_center:'Kulturzentrum',
+  park:'Park',garden:'Garten',hiking_area:'Wandergebiet',natural_feature:'Naturgebiet',nature_reserve:'Naturschutzgebiet',national_park:'Nationalpark',park_recreation_area:'Erholungsgebiet',
+  shopping_mall:'Einkaufszentrum',market:'Markt',store:'Geschäft',clothing_store:'Modegeschäft',department_store:'Kaufhaus',
+  nightlife_spot:'Nachtleben',pub:'Pub',beach_bar:'Strandbar',beer_bar:'Bierbar',cocktail_bar:'Cocktailbar',sports_bar:'Sportsbar',tiki_bar:'Tiki-Bar',wine_bar:'Weinbar',lounge:'Lounge',lounge_bar:'Lounge',taproom:'Taproom',biergarten:'Biergarten',night_club:'Club',nightclub:'Club',dance_club:'Club',discotheque:'Diskothek',disco:'Diskothek',live_music_venue:'Live-Musik',music_venue:'Musikclub',jazz_club:'Jazzbar',comedy_club:'Comedy',karaoke_bar:'Karaoke',casino:'Casino',
+  pharmacy:'Apotheke',supermarket:'Supermarkt',parking:'Parkplatz',electric_vehicle_charging_station:'Ladestation',gas_station:'Tankstelle',atm:'Geldautomat',laundry:'Waschsalon'
+});
+const CATEGORY_PRESENTATION=immutable({food:'Essen & Trinken',accommodation:'Unterkunft',activities:'Aktivität',active:'Aktivität',family:'Familienaktivität',themeparks:'Freizeitpark',wellness:'Wellness',water:'Wassererlebnis',sights:'Sehenswürdigkeit',photo:'Fotospot',culture:'Kultur',nature:'Natur',shopping:'Shopping',malls:'Einkaufszentrum',nightlife:'Nachtleben',practical:'Praktischer Ort'});
+const GENERIC_TYPE_KEYS=new Set(['restaurant','bar','nightlife_spot','tourist_attraction','sports_activity_location','activity','attraction','place','point_of_interest']);
+const typeKey=value=>clean(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+function presentPlace(place={},options={}){
+  const values=[place.primaryType,place.primary_type,place.type,...(place.types||[]),...(place.providerNativeTypes||[])].map(typeKey).filter(Boolean),categoryKey=clean(options.requestCategory||place.requestCategory||place.category).toLowerCase(),specific=values.find(value=>TYPE_LABELS[value]&&!GENERIC_TYPE_KEYS.has(value))||values.find(value=>value.endsWith('_restaurant'))||values.find(value=>TYPE_LABELS[value]);
+  if(specific)return immutable({categoryKey:categoryKey||null,categoryLabel:CATEGORY_PRESENTATION[categoryKey]||null,typeKey:specific,typeLabel:TYPE_LABELS[specific]||(specific.startsWith('vegetarian_')?'Vegetarisches Restaurant':specific.startsWith('vegan_')?'Veganes Restaurant':'Restaurant'),labelSource:'canonical-type'});
+  const providerLabel=clean(place.primaryTypeLabel||place.primary_type_label||place.primaryTypeDisplayName?.text||place.primaryTypeDisplayName);
+  if(providerLabel&&!/^(?:point of interest|place|venue|locat(?:ion)|ort)$/i.test(providerLabel))return immutable({categoryKey:categoryKey||null,categoryLabel:CATEGORY_PRESENTATION[categoryKey]||null,typeKey:typeKey(providerLabel)||null,typeLabel:providerLabel.slice(0,120),labelSource:'provider-type'});
+  if(CATEGORY_PRESENTATION[categoryKey])return immutable({categoryKey,categoryLabel:CATEGORY_PRESENTATION[categoryKey],typeKey:null,typeLabel:CATEGORY_PRESENTATION[categoryKey],labelSource:'canonical-category'});
+  return immutable({categoryKey:null,categoryLabel:null,typeKey:null,typeLabel:'Ort',labelSource:'fallback'});
+}
 
 function categories(){return CATEGORIES}
 function category(key){return CATEGORIES[clean(key)]||CATEGORIES.activities}
@@ -122,6 +146,9 @@ function projectPlace(input){
     tripPlaceId:clean(source.tripPlaceId||source.trip_place_id)||null,
     providerPlaceId:providerId(source.providerPlaceId||source.provider_place_id||source.sourceId||source.source_id||id)||null,
     primaryType:clean(source.primaryType||source.primary_type)||'custom',
+    primaryTypeLabel:clean(source.primaryTypeLabel||source.primary_type_label||source.primaryTypeDisplayName?.text||source.primaryTypeDisplayName)||null,
+    category:clean(source.category)||null,
+    requestCategory:clean(source.requestCategory||source.requestedCategory)||null,
     roles:[...(source.roles||[])].map(String),
     name:placeTitle(source),
     description:clean(source.description||source.editorialSummary?.text||source.editorialSummary),
@@ -132,7 +159,8 @@ function projectPlace(input){
     capabilities:[...(source.capabilities||[])].map(String),
     bookingDomains:[...(source.bookingDomains||[])].map(String),
     createdAt:clean(source.createdAt||source.created_at)||null,
-    updatedAt:clean(source.updatedAt||source.updated_at)||null
+    updatedAt:clean(source.updatedAt||source.updated_at)||null,
+    presentation:presentPlace(source)
   });
 }
 function profileFitProjection(input,context={}){
@@ -173,6 +201,9 @@ function projectDetails(input){
     ...(base||{}),
     providerPlaceId:id,
     name:base?.name||placeTitle(source),
+    primaryTypeLabel:clean(source.primaryTypeLabel||source.primary_type_label||source.primaryTypeDisplayName?.text||source.primaryTypeDisplayName||base?.primaryTypeLabel)||null,
+    category:clean(source.category||base?.category)||null,
+    requestCategory:clean(source.requestCategory||source.requestedCategory||base?.requestCategory)||null,
     address:base?.address||clean(source.formattedAddress||source.formatted_address||source.shortAddress),
     rating:number(source.rating),
     userRatingCount:number(source.userRatingCount||source.user_rating_count),
@@ -213,7 +244,8 @@ function projectDetails(input){
     preferenceReasons:[...(source.preferenceReasons||[])].map(String),
     preferenceWarnings:[...(source.preferenceWarnings||[])].map(String),
     preferenceResolutionVersion:clean(source.preferenceResolutionVersion)||null,
-    profileFit:source.profileFit&&typeof source.profileFit==='object'?source.profileFit:profileFitProjection(source,{focus:source.profileFit?.focus,category:source.requestedCategory||source.requestCategory||source.category})
+    profileFit:source.profileFit&&typeof source.profileFit==='object'?source.profileFit:profileFitProjection(source,{focus:source.profileFit?.focus,category:source.requestedCategory||source.requestCategory||source.category}),
+    presentation:presentPlace(source)
   });
 }
 function projectSaved(input){
@@ -280,5 +312,5 @@ function create(providers={}){
   return Object.freeze({version:VERSION,search,getPlace,listPlaces,getDetails,listSaved,recommend,getLifecycle,categories,category,categoryFor,routeDiscovery,createDeepLink,snapshot});
 }
 
-return Object.freeze({version:VERSION,localSearchRadius,categories,category,categoryFor,routeDiscovery,createDeepLink,projectPlace,projectDetails,projectSaved,profileFitProjection,create});
+return Object.freeze({version:VERSION,localSearchRadius,categories,category,categoryFor,routeDiscovery,createDeepLink,presentPlace,projectPlace,projectDetails,projectSaved,profileFitProjection,create});
 })();

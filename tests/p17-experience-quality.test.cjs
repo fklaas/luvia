@@ -5,6 +5,7 @@ const harness=new Function('require',read('tests/trip-composer-recovery.test.cjs
 let checks=0;const check=fn=>{fn();checks++};
 (async()=>{
   const h=harness(),resolver=h.sandbox.LuviaTripPreferenceResolutionCoreV1;
+  vm.runInContext(read('core/places/places-domain-contract-core.js'),h.sandbox,{filename:'core/places/places-domain-contract-core.js'});
   const profile={familyPreferences:{needs:['traveling_with_children','baby','family_friendly','stroller'],travelingWithChildren:true,stroller:true},travelStyles:['authentic','family_friendly'],dietaryPreferences:['vegetarian'],accessibilityNeeds:['wheelchair'],budgetPreference:'low'},untouched=copy(profile);
   const interpreted={ok:true,meta:{fallback:false},data:{goals:[{type:'water',label:'Ein langer Strandtag am Meer'},{type:'nightlife',label:'Live-Musik am Abend'}],hardConstraints:[{key:'adults',value:'2'},{key:'children',value:'0'}],softPreferences:[{key:'budgetLevel',value:'balanced'},{key:'mobility',value:'city_transit'},{key:'experienceWish',value:'Lokale Küche gemeinsam entdecken'}],unknowns:[],confidence:.95}};
   const brief=resolver.projectTripBrief({...h.state.data,profilePreferences:profile,participantPlan:'invite-after-creation',tripPreferences:{experiences:['hands_on','live_evenings']}},interpreted);
@@ -42,8 +43,14 @@ let checks=0;const check=fn=>{fn();checks++};
   const itinerary=await h.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary({destination:h.state.data.destination,days:h.api.itineraryDays(h.state),candidates,brief});
   const model=h.sandbox.modelCalls.find(call=>call.capability==='trip.compose');
   check(()=>assert.ok(model.request.planningContract.experienceQuality.variety.includes('WHOLE trip')));
-  check(()=>assert.ok(model.request.candidateCatalog.some(place=>place.experienceEvidence.identityWarnings.length),'Contradictory monument/nightlife identity reaches the actual model request'));
+  check(()=>assert.ok(!model.request.candidateCatalog.some(place=>place.providerPlaceId===raw.providerPlaceId),'Contradictory retrieval identity is rejected before the model request'));
   check(()=>assert.ok(model.request.candidateCatalog.some(place=>place.experienceEvidence.description.startsWith('Provider'))));
+  const mealHarness=harness(),mealResolver=mealHarness.sandbox.LuviaTripPreferenceResolutionCoreV1,mealBrief=mealResolver.projectTripBrief({...mealHarness.state.data,tripPreferences:{...mealHarness.state.data.tripPreferences,interests:['food'],mealTiming:'dinner'}},{ok:true,meta:{fallback:false},data:{understanding:'Restaurants vor allem am Abend.',goals:[{type:'food',label:'Restaurants'}],hardConstraints:[],softPreferences:[{key:'movementStyle',value:'city_transit',label:'Mit Bus und Bahn'}],unknowns:[],confidence:.95}}),mealCandidates=Array.from({length:12},(_,index)=>mealHarness.candidate('food',index+1));
+  const rejectedMeal=await mealHarness.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary({destination:mealHarness.state.data.destination,days:mealHarness.api.itineraryDays(mealHarness.state),candidates:mealCandidates,brief:mealBrief});
+  check(()=>assert.equal(mealHarness.sandbox.modelCalls.find(call=>call.capability==='trip.compose').request.planningContract.mealPlan.slots[0].kind,'dinner'));
+  check(()=>assert.ok(rejectedMeal.contractIssues.some(issue=>issue.code==='TRIP_ITINERARY_MEAL_WINDOW_VIOLATION'),'A model cannot quietly place dinner-only restaurants at daytime hours'));
+  for(const [type,label] of [['shopping_mall','Einkaufszentrum'],['marina','Hafen & Marina'],['beach','Strand'],['cocktail_bar','Cocktailbar'],['bowling_alley','Bowling'],['historical_landmark','Historischer Ort'],['vegetarian_restaurant','Vegetarisches Restaurant']])check(()=>assert.equal(h.api.placeLabel({primaryType:type,types:[type],requestCategory:type==='shopping_mall'?'shopping':type==='cocktail_bar'?'nightlife':type==='vegetarian_restaurant'?'food':'activities'}),label));
+  check(()=>assert.notEqual(h.api.placeLabel({primaryType:'point_of_interest',requestCategory:'nightlife'}),'Ort zum Entdecken'));
   const parks=Array.from({length:3},(_,i)=>({...h.candidate('nature',300+i),primaryType:'park',types:['park'],providerNativeTypes:['Park']}));
   const repetitive={...copy(itinerary),days:itinerary.days.map((day,i)=>({...day,entries:[{...day.entries[0],providerPlaceId:parks[i].providerPlaceId,durationMinutes:120}]}))};
   await h.sandbox.LuviaIntelligenceContractV1.reads.auditTripItinerary({brief,candidates:[...candidates,...parks],itinerary:repetitive});
