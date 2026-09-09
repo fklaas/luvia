@@ -138,6 +138,11 @@ async function run(){
   await handoff.api.loadAiDayDraft(handoff.state,{confirmedBrief:true});
   check(()=>assert.equal(handoff.state.aiDraft.status,'ready'));
   check(()=>assert.equal(handoff.sandbox.modelCalls.filter(call=>call.capability==='planning.dialogue').length,1,'Date-to-preview handoff must not pay for a duplicate interpretation'));
+  details.sandbox.auditOverride=()=>({ok:true,meta:{fallback:false},data:{readyForReview:false,score:52,headline:'Falscher Altstadt-Ort.',promiseAssessment:{kept:false,summary:'Der Altstadtwunsch ist nicht korrekt belegt.',missedCommitments:['Altstadt']},dimensions:[{id:'requirements',label:'Wünsche',score:52,status:'blocked',summary:'Ein falscher Ort.'}],issues:[{code:'ALTSTADT_WRONG_PLACE',severity:'blocked',dayDate:originalPlan.days[0].date,providerPlaceIds:[],message:'Dieser Ort ist nicht als der verlangte Altstadt-Ort belegt.',suggestedRepair:'Einen tatsächlich passenden Ort wählen.'}],repairInstructions:[],strengths:[],confidence:.96}});
+  const wrongPlace=await details.sandbox.LuviaIntelligenceContractV1.reads.auditTripItinerary({...detailsInput,itinerary:originalPlan});
+  check(()=>assert.equal(wrongPlace.readyForReview,false,'Words about missing evidence cannot downgrade a real wrong-Place blocker'));
+  check(()=>assert.equal(wrongPlace.promiseAssessment.kept,false,'The application cannot turn a failed AI promise assessment into success'));
+  check(()=>assert.equal(wrongPlace.issues[0].severity,'blocked'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});
