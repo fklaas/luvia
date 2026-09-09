@@ -108,6 +108,7 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
   const categories=hereTaxonomy.categories.filter(c=>additionalTypes([c.name]).some(t=>required.includes(t))).map(c=>c.id);
   const family=foodTypes.length?['100-1000']:categories;
   if(family.length){params.delete('q');params.set('categories',[...new Set(family)].join(','));if(foodTypes.length)params.set('foodTypes',[...new Set(foodTypes)].filter(id=>!foodTypes.some(parent=>parent!==id&&id.startsWith(parent+'-'))).join(','));if(options.targetName||options.userQuery)params.set('name',String(options.targetName||options.userQuery))}
+  else params.delete('at');
   data=await json(provider,'search',family.length?`https://browse.search.hereapi.com/v1/browse?${params}`:`https://discover.search.hereapi.com/v1/discover?${params}`);
   return normalizeRows((data.items||[]).filter((row:any)=>row.resultType==='place'));
 }

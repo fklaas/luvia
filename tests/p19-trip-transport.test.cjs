@@ -102,7 +102,7 @@ async function run(){
   check(()=>assert.equal(typedSearchCount,1,'A semantically identified harbour goes through the typed shared Places read'));
   check(()=>assert.ok(anchors.state.aiDraft.places.some(place=>place.providerPlaceId==='verified-marina'),'Exact provider results join the actual retained reserve'));
   check(()=>assert.equal(anchors.state.aiDraft.places.length,beforeAnchorCount+1));
-  check(()=>assert.equal(anchors.state.aiDraft.anchorSearch.version,3,'Old searches are renewed when named targets become a separate contract'));
+  check(()=>assert.equal(anchors.state.aiDraft.anchorSearch.version,4,'Old searches are renewed when semantic targets gain durable category ownership'));
   for(const mode of ['swap','more','other-area','plan-b','spontaneous']){
     const reserve=harness();await reserve.api.loadAiDayDraft(reserve.state);const current=reserve.state.draftSelections[0],originalIds=reserve.state.draftSelections.map(item=>item.providerPlaceId),point=current.coordinates;
     reserve.state.aiDraft.places.push(...Array.from({length:5},(_,i)=>({...reserve.candidate(current.category,200+i),providerPlaceId:'reserve-'+mode+'-'+i,requestCategory:current.category,coordinates:{latitude:point.latitude+.025+i*.001,longitude:point.longitude}})));

@@ -412,6 +412,7 @@ function experienceSelectionPolicy(input={}){
 }
 function tripPlaceExperienceFit(input={}){
   const place=input.place||{},policy=input.policy||experienceSelectionPolicy(input),types=[...new Set([place.primaryType,place.type,...(place.types||[])].filter(Boolean))];
+  const id=clean(place.providerPlaceId||place.id).replace(/^places\//,''),research=place.tripWebResearch||{},researchCategory=research.providerPlaceId===id&&/^https?:\/\//i.test(clean(research.source?.url))&&clean(research.description)?clean(place.requestCategory||place.category):'';
   const has=values=>types.some(type=>values.includes(type)),categories=[];
   if(has(['restaurant','cafe','bakery','meal_takeaway','food_court'])||types.some(type=>type.endsWith('_restaurant')))categories.push('food');
   if(has(['beach','marina','harbour','water_park','swimming_pool']))categories.push('water');
@@ -425,6 +426,11 @@ function tripPlaceExperienceFit(input={}){
   if(has(['observation_deck','scenic_spot']))categories.push('photo');
   const shoppingCentre=has(['shopping_mall']),shop=shoppingCentre||has(['store','department_store','market'])||types.some(type=>type.endsWith('_store'));
   if(shoppingCentre||policy.shoppingStyle!=='centres'&&shop)categories.push('shopping');
+  // A consulted public source may describe an offered experience that a map
+  // taxonomy does not encode (for example a workshop, tour or seasonal venue).
+  // It is admitted only after Places has bound that source lead to one exact
+  // provider identity and coordinate. Availability remains explicitly open.
+  if(researchCategory&&policy.requestedCategories.includes(researchCategory)&&!policy.excludedCategories.includes(researchCategory))categories.push(researchCategory);
   const matchedCategories=categories.filter(category=>policy.requestedCategories.includes(category)&&!policy.excludedCategories.includes(category));
   // Specific negative evidence beats a misleading broad retrieval label.
   const reason=shop&&!shoppingCentre&&policy.shoppingStyle==='centres'&&!matchedCategories.length?'individual-shop-not-shopping-centre':!matchedCategories.length?'outside-requested-experiences':'';

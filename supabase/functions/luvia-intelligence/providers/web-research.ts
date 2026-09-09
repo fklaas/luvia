@@ -10,7 +10,7 @@ export function researchEnabled(requestUrl:string){
 
 export function researchInput(value:any){
   const destination={name:clean(value?.destination?.name,120),countryCode:clean(value?.destination?.countryCode,2).toUpperCase()};
-  const needs=(Array.isArray(value?.needs)?value.needs:[]).slice(0,2).map((item:any)=>({category:clean(item.category,24),query:clean(item.query,200)})).filter((item:any)=>categories.has(item.category)&&item.query);
+  const needs=(Array.isArray(value?.needs)?value.needs:[]).slice(0,6).map((item:any)=>({category:clean(item.category,24),query:clean(item.query,200)})).filter((item:any)=>categories.has(item.category)&&item.query);
   if(!destination.name||!needs.length)throw Object.assign(new Error('Für die Recherche fehlt ein konkretes Reiseziel oder ein offener Erlebniswunsch.'),{code:'WEB_RESEARCH_INPUT_REQUIRED',status:400});
   // Do not forward profile, companions, bookings, raw request or client tool settings.
   return {destination,needs};

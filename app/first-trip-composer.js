@@ -719,36 +719,39 @@
   }
   function reusablePlaces(api,state,category){const snapshot=api.reads?.getActiveDiscovery?.({destination:state.data.destination?.name,surface:'places',fitOnly:true,maxAgeMs:10*60*1000}),center=placeCoordinates({coordinates:state.data.destination});if(snapshot?.category!==category||!snapshot?.places?.length||!center)return[];const radius=api.reads?.localSearchRadius?.(state.data.destination)||5000;return snapshot.places.filter(place=>{const point=placeCoordinates(place);if(!point||place.profileFit?.state!=='matched')return false;const lat=(point.latitude-center.latitude)*111320,lng=(point.longitude-center.longitude)*111320*Math.cos(center.latitude*Math.PI/180);return Math.hypot(lat,lng)<=radius}).map(place=>({...place,requestCategory:category}))}
   async function readTripAnchorPlaces(state,brief,previous={}){
-    const searchVersion=3;if(previous.complete&&previous.version===searchVersion)return {places:[],anchorSearch:previous};
+    const searchVersion=4;if(previous.complete&&previous.version===searchVersion)return {places:[],anchorSearch:previous};
     const api=await places(),planner=window.LuviaIntelligenceContractV1?.reads?.planTripPlaceSearch,definitions=Object.values(api.reads?.categories?.()||{}).map(item=>({category:item.key,label:item.label,types:item.includedTypes||[]}));
     if(typeof planner!=='function'||!definitions.length)return {places:[],anchorSearch:{complete:false,targets:[]}};
     state={...state,data:clone(state.data),aiDraft:{...state.aiDraft,brief:clone(brief)}};const order=brief?.travelOrder||{};if(!(order.mustDo||[]).length&&!(order.experiences?.wishes||[]).length&&!order.experiences?.eveningStyle&&!String(state.data.requestBrief||'').trim())return {places:[],anchorSearch:{complete:true,version:searchVersion,targets:[]}};
     const planned=await within(planner({travelOrder:order,userRequest:state.data.requestBrief,destination:state.data.destination,categories:definitions}),11000,'Die gezielte Suche braucht gerade länger.','TRIP_ANCHOR_PLAN_TIMEOUT'),scope=movementScope(state),prefs=effectiveTripPreferences(state),profile=brief.requestPreferences||currentPreferences(),destination={...state.data.destination,searchRadiusMeters:scope.radiusMeters,center:{lat:Number(state.data.destination.latitude),lng:Number(state.data.destination.longitude)}};
-    const results=await Promise.allSettled(planned.plans.map(async plan=>{const category=definitions.slice().sort((a,b)=>b.types.filter(type=>plan.includedTypes.includes(type)).length-a.types.filter(type=>plan.includedTypes.includes(type)).length)[0]?.category||'activities',response=await within(api.reads.recommend({destination,category,text:plan.query,query:plan.query,subjectText:'',researchQuery:true,targetName:plan.targetName,userQuery:plan.targetName||'',includedTypes:plan.includedTypes,providers:['auto'],maxDistanceMeters:scope.radiusMeters,preferences:profile,tripComposition:{tripPreferences:prefs,travelOrder:order,spatialScope:scope},requirePreferenceEvidence:true,fastPath:true,fastQueryLimit:1,candidateLimit:40,limit:12,providerTimeoutMs:7000,languageCode:'de',regionCode:state.data.destination.countryCode||'DE'}),8500,'Die gezielte Ortsquelle braucht gerade länger.','TRIP_ANCHOR_SEARCH_TIMEOUT');return (response?.places||[]).filter(place=>place.profileFit?.state!=='blocked'&&place.recommendation?.constraintState!=='blocked'&&movementDistanceMeters(state,place)<=scope.radiusMeters).map(place=>({...place,requestCategory:category,tripSearchTarget:plan.query}));}));
-    return {places:results.flatMap(result=>result.status==='fulfilled'?result.value:[]),anchorSearch:{complete:results.every(result=>result.status==='fulfilled'),version:searchVersion,source:'ai',targets:planned.plans.map((plan,index)=>({...plan,count:results[index].status==='fulfilled'?results[index].value.length:0,status:results[index].status==='fulfilled'?(results[index].value.length?'matched':'empty'):'unavailable'}))}};
+    const plans=planned.plans.map(plan=>({...plan,category:plan.category||definitions.slice().sort((a,b)=>b.types.filter(type=>plan.includedTypes.includes(type)).length-a.types.filter(type=>plan.includedTypes.includes(type)).length).find(item=>item.types.some(type=>plan.includedTypes.includes(type)))?.category||'activities'}));
+    const results=await Promise.allSettled(plans.map(async plan=>{const category=plan.category,response=await within(api.reads.recommend({destination,category,text:plan.query,query:plan.query,subjectText:'',researchQuery:true,targetName:plan.targetName,userQuery:plan.targetName||'',includedTypes:plan.includedTypes,providers:['auto'],maxDistanceMeters:scope.radiusMeters,preferences:profile,tripComposition:{tripPreferences:prefs,travelOrder:order,spatialScope:scope},requirePreferenceEvidence:true,fastPath:true,fastQueryLimit:1,candidateLimit:40,limit:12,providerTimeoutMs:7000,languageCode:'de',regionCode:state.data.destination.countryCode||'DE'}),8500,'Die gezielte Ortsquelle braucht gerade länger.','TRIP_ANCHOR_SEARCH_TIMEOUT');return (response?.places||[]).filter(place=>place.profileFit?.state!=='blocked'&&place.recommendation?.constraintState!=='blocked'&&movementDistanceMeters(state,place)<=scope.radiusMeters).map(place=>({...place,requestCategory:category,tripSearchTarget:plan.query}));}));
+    return {places:results.flatMap(result=>result.status==='fulfilled'?result.value:[]),anchorSearch:{complete:results.every(result=>result.status==='fulfilled'),version:searchVersion,source:'ai',targets:plans.map((plan,index)=>({...plan,count:results[index].status==='fulfilled'?results[index].value.length:0,status:results[index].status==='fulfilled'?(results[index].value.length?'matched':'empty'):'unavailable'}))}};
   }
   function tripWebResearchNeeds(state,candidates=[]){
     const quality=tripPoolQuality(state,candidates),requests=aiCategoryRequests(state),targets=state.aiDraft?.anchorSearch?.targets||[],needs=[];
-    for(const category of [...new Set([...quality.missingCategories,...quality.thinCategories])]){
-      const request=requests.find(item=>item[0]===category);if(!request)continue;
-      const details=targets.filter(item=>!item.count&&(item.category===category||(item.includedTypes||[]).some(type=>(request[3]?.includedTypes||[]).includes(type)))).map(item=>item.query);
-      needs.push({category,query:[...new Set([request[1],request[2],...details].filter(Boolean))].join(' · ').slice(0,200)});
+    const requestedCategories=new Set(requests.map(item=>item[0])),missingTargets=targets.filter(item=>!item.count&&requestedCategories.has(item.category));
+    const categories=[...new Set([...missingTargets.map(item=>item.category),...quality.missingCategories,...quality.thinCategories])];
+    for(const category of categories){
+      const request=requests.find(item=>item[0]===category),details=missingTargets.filter(item=>item.category===category).map(item=>item.query);if(!request&&!details.length)continue;
+      needs.push({category,query:[...new Set([request?.[1],request?.[2],...details].filter(Boolean))].join(' · ').slice(0,200)});
     }
-    return needs.slice(0,2);
+    return needs.slice(0,6);
   }
   async function readTripWebPlaces(state,brief,candidates=[],previous={},current=()=>true){
+    const resolutionVersion=2,prior=previous?.resolutionVersion===resolutionVersion?previous:{...previous,complete:false,phase:previous?.report?'resolving':previous?.phase,checkedSources:[],matchedCount:0,unresolvedCount:undefined,resolutionVersion};
     const research=window.LuviaIntelligenceContractV1?.reads?.researchTripExperiences;
-    if(!/^(?:[a-z0-9-]+-)?integration-luvia\./i.test(String(window.location?.hostname||''))||!state.workflowId||typeof research!=='function')return {places:[],webResearch:previous};
-    if(previous.complete)return {places:[],webResearch:previous};
-    const needs=previous.needs||tripWebResearchNeeds(state,candidates);if(!needs.length)return {places:[],webResearch:{complete:true,skipped:'pool-covered'}};
-    let report=previous.report;
-    state.aiDraft.webResearch={...previous,needs,phase:'searching'};state.aiDraft.lastProgressAt=new Date().toISOString();persist(state);render(state);
+    if(!/^(?:[a-z0-9-]+-)?integration-luvia\./i.test(String(window.location?.hostname||''))||!state.workflowId||typeof research!=='function')return {places:[],webResearch:prior};
+    if(prior.complete)return {places:[],webResearch:prior};
+    const needs=prior.needs||tripWebResearchNeeds(state,candidates);if(!needs.length)return {places:[],webResearch:{...prior,complete:true,skipped:'pool-covered',resolutionVersion}};
+    let report=prior.report;
+    state.aiDraft.webResearch={...prior,needs,phase:report?'resolving':'searching',resolutionVersion};state.aiDraft.lastProgressAt=new Date().toISOString();persist(state);render(state);
     try{
       if(!report)report=await research({workflowId:state.workflowId,destination:state.data.destination,needs});
-      if(!current())return {places:[],webResearch:previous};
+      if(!current())return {places:[],webResearch:prior};
       state.aiDraft.webResearch={...state.aiDraft.webResearch,report,phase:'resolving'};persist(state);
       await checkpointTripWorkflow(state,'candidates',{webResearch:clone(state.aiDraft.webResearch),candidates:candidates.map(retainedPoolCandidate)});
-      const api=await places(),scope=movementScope(state),order=brief?.travelOrder||{},prefs=effectiveTripPreferences(state),profile=brief?.requestPreferences||currentPreferences(),resolved=[],checked=new Set(previous.checkedSources||[]);
+      const api=await places(),scope=movementScope(state),order=brief?.travelOrder||{},prefs=effectiveTripPreferences(state),profile=brief?.requestPreferences||currentPreferences(),resolved=[],checked=new Set(prior.checkedSources||[]);
       const policy=window.LuviaIntelligenceContractV1.reads.experienceSelectionPolicy({brief,tripPreferences:prefs});
       const normalize=name=>String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
       const matches=(lead,place)=>{const left=normalize(lead.name),right=normalize(place.name);return left&&right&&(left===right||(Math.min(left.length,right.length)>=6&&(left.includes(right)||right.includes(left))));};
@@ -756,21 +759,21 @@
       for(let index=0;index<(report.offers||[]).length;index+=3){
         const batch=await Promise.allSettled(report.offers.slice(index,index+3).filter(lead=>!checked.has(lead.source.url+'|'+lead.name)).map(async lead=>{
           const existing=candidates.find(place=>matches(lead,place)),category=lead.category;
-          const response=existing?{places:[existing]}:await within(api.reads.recommend({destination:{...state.data.destination,searchRadiusMeters:scope.radiusMeters,center:{lat:Number(state.data.destination.latitude),lng:Number(state.data.destination.longitude)}},category,text:lead.name,query:lead.name,targetName:lead.name,userQuery:lead.name,subjectText:'',researchQuery:true,providers:['auto'],maxDistanceMeters:scope.radiusMeters,preferences:profile,tripComposition:{tripPreferences:prefs,travelOrder:order,spatialScope:scope},requirePreferenceEvidence:true,fastPath:true,fastQueryLimit:1,candidateLimit:12,limit:3,providerTimeoutMs:5000,languageCode:'de',regionCode:state.data.destination.countryCode||'DE'}),6500,'Das recherchierte Angebot konnte gerade keinem Ort zugeordnet werden.','WEB_PLACE_RESOLUTION_TIMEOUT');
-          const place=(response?.places||[]).find(item=>matches(lead,item)&&movementDistanceMeters(state,item)<=scope.radiusMeters&&item.profileFit?.state!=='blocked'&&item.recommendation?.constraintState!=='blocked'&&window.LuviaIntelligenceContractV1.reads.tripPlaceExperienceFit({place:item,policy}).eligible);
-          return {key:lead.source.url+'|'+lead.name,place:place?{...place,requestCategory:category,tripSearchTarget:lead.name,tripWebResearch:{description:lead.description,source:lead.source,availability:'unverified',providerPlaceId:providerId(place)}}:null};
+          const response=existing?{places:[existing]}:await within(api.reads.recommend({destination:{...state.data.destination,searchRadiusMeters:scope.radiusMeters,center:{lat:Number(state.data.destination.latitude),lng:Number(state.data.destination.longitude)}},category,text:lead.name,query:lead.name,targetName:lead.name,userQuery:lead.name,subjectText:'',researchQuery:true,providers:['here','tomtom'],maxDistanceMeters:scope.radiusMeters,preferences:profile,tripComposition:{tripPreferences:prefs,travelOrder:order,spatialScope:scope},requirePreferenceEvidence:true,fastPath:true,fastQueryLimit:1,candidateLimit:12,limit:3,providerTimeoutMs:5000,languageCode:'de',regionCode:state.data.destination.countryCode||'DE'}),11000,'Das recherchierte Angebot konnte gerade keinem Ort zugeordnet werden.','WEB_PLACE_RESOLUTION_TIMEOUT');
+          const place=(response?.places||[]).map(item=>({...item,requestCategory:category,tripSearchTarget:lead.name,tripWebResearch:{description:lead.description,source:lead.source,availability:'unverified',providerPlaceId:providerId(item)}})).find(item=>matches(lead,item)&&movementDistanceMeters(state,item)<=scope.radiusMeters&&item.profileFit?.state!=='blocked'&&item.recommendation?.constraintState!=='blocked'&&window.LuviaIntelligenceContractV1.reads.tripPlaceExperienceFit({place:item,policy}).eligible);
+          return {key:lead.source.url+'|'+lead.name,place:place||null};
         }));
-        if(!current())return {places:[],webResearch:previous};
+        if(!current())return {places:[],webResearch:prior};
         for(const item of batch)if(item.status==='fulfilled'){checked.add(item.value.key);if(item.value.place)resolved.push(item.value.place);}
         state.aiDraft.webResearch={...state.aiDraft.webResearch,checkedSources:[...checked],matchedCount:resolved.length};
         state.aiDraft.places=mergeAiPlaceResults(state,{places:candidates},{places:resolved}).places;persist(state);
       }
-      const webResearch={...state.aiDraft.webResearch,complete:true,phase:'complete',matchedCount:resolved.length,unresolvedCount:Math.max(0,(report.offers||[]).length-resolved.length)};
+      const webResearch={...state.aiDraft.webResearch,complete:true,phase:'complete',resolutionVersion,matchedCount:resolved.length,unresolvedCount:Math.max(0,(report.offers||[]).length-resolved.length)};
       state.aiDraft.webResearch=webResearch;
       return {places:resolved,webResearch};
     }catch(error){
       if(error?.code==='AI_JOB_PENDING')throw error;
-      return {places:[],webResearch:{...state.aiDraft.webResearch,complete:true,phase:'unavailable',errorCode:error?.code||'WEB_RESEARCH_UNAVAILABLE'}};
+      return {places:[],webResearch:{...state.aiDraft.webResearch,complete:false,phase:'unavailable',resolutionVersion,errorCode:error?.code||'WEB_RESEARCH_UNAVAILABLE'}};
     }
   }
   async function readAiPlaces(state,{categoryLimit=Infinity,categories=null,supplementalCategories=[],refresh=false,focused=false,excludedProviderPlaceIds=[],breadthWave=0,targetCount=null,includeDestinationBaseline=true,deadlineAt=Infinity}={}){

@@ -17,7 +17,7 @@ const feature=(id,name,categories,raw={})=>({type:'Feature',properties:{place_id
     throw new Error('Unexpected request '+href.split('?')[0]);
   };
   const {placesAction}=await import(pathToFileURL(path.resolve('supabase/functions/luvia-gateway/_shared/places.ts')));
-  const {additionalTypes}=await import(pathToFileURL(path.resolve('supabase/functions/luvia-gateway/_shared/additional-places.ts')));
+  const {additionalTypes,additionalSearch}=await import(pathToFileURL(path.resolve('supabase/functions/luvia-gateway/_shared/additional-places.ts')));
   const search=(category,extra={})=>placesAction('places.text-search',{query:'Descriptive research query with more than three words',destination,options:{category,providers:['geoapify'],maxResultCount:20,maxDistanceMeters:20000,strictDestination:true,forceRefresh:true,...extra}});
   features=[feature('wrong','Palacio de las Comunicaciones',['tourism.sights']),feature('lonja','Llotja de la Seda',['tourism.sights'],{'name:es':'Lonja de la Seda'})];
   let result=await search('sights',{targetName:'Lonja de la Seda',includedTypes:['tourist_attraction'],strictTypeFiltering:true});
@@ -32,6 +32,10 @@ const feature=(id,name,categories,raw={})=>({type:'Feature',properties:{place_id
   requests=[];tomtom=[];
   await search('sights',{providers:['auto'],targetName:'Missing Named Landmark',includedTypes:['tourist_attraction'],strictTypeFiltering:true});
   check(()=>assert(requests.filter(url=>url.includes('hereapi.com')).every(url=>new URL(url).searchParams.get('name')==='Missing Named Landmark'||new URL(url).searchParams.get('q')==='Missing Named Landmark'),'HERE retains the proper name'));
+  requests=[];await additionalSearch('here','Marina Beach Club',destination,{targetName:'Marina Beach Club',maxResultCount:3,maxDistanceMeters:20000,includedTypes:[]},undefined);
+  const discoverUrl=new URL(requests.find(url=>url.includes('discover.search.hereapi.com')));
+  check(()=>assert.equal(discoverUrl.searchParams.has('at'),false,'HERE Discover receives exactly one geographic restriction'));
+  check(()=>assert.match(discoverUrl.searchParams.get('in')||'',/^circle:/));
   features=[feature('spanish','Spanish restaurant',['catering','catering.restaurant','catering.restaurant.spanish'])];
   result=await search('food');
   check(()=>assert(result.data.places[0].types.includes('spanish_restaurant')));
@@ -54,9 +58,10 @@ const feature=(id,name,categories,raw={})=>({type:'Feature',properties:{place_id
   const twice=h.api.mergeAiPlaceResults(h.state,merged,{places:[{...raw,tripSearchTarget:'Architecture experience'}]});
   check(()=>assert.deepEqual(copy(h.api.retainedPoolCandidate(twice.places[0]).tripSearchTargets),['Named landmark','Architecture experience'],'Multiple research needs survive the checkpoint projection'));
   h.sandbox.modelOverride=(capability,request)=>{assert.equal(capability,'discovery.plan');return{ok:true,meta:{fallback:false},data:{searchPlans:[{query:'Lonja de la Seda monumento histórico',targetName:'Lonja de la Seda',includedTypes:['tourist_attraction']},{query:'actividades participativas',targetName:null,includedTypes:['escape_room']}]}}};
-  const plan=await h.sandbox.LuviaIntelligenceContractV1.reads.planTripPlaceSearch({travelOrder:{mustDo:[]},userRequest:'Try something ourselves and lively evenings',destination,categories:[{types:['tourist_attraction','escape_room']}]});
+  const plan=await h.sandbox.LuviaIntelligenceContractV1.reads.planTripPlaceSearch({travelOrder:{mustDo:[]},userRequest:'Try something ourselves and lively evenings',destination,categories:[{category:'sights',types:['tourist_attraction']},{category:'activities',types:['escape_room']}]});
   check(()=>assert.equal(plan.plans[0].targetName,'Lonja de la Seda'));
   check(()=>assert.equal(plan.plans[1].targetName,null));
+  check(()=>assert.deepEqual(plan.plans.map(item=>item.category),['sights','activities'],'Every semantic research target retains the Places category that owns its evidence'));
   check(()=>assert.equal(h.sandbox.modelCalls.at(-1).request.originalUserRequest,'Try something ourselves and lively evenings','Research sees the original request even if the structured summary omitted a wish'));
   const network={console,Date,JSON,URL,URLSearchParams,Map,Set,Promise,document:{documentElement:{lang:'de'}},performance:{now:()=>0}};network.window=network;network.globalThis=network;
   let transmitted;network.LuviaBackend={request:async(action,payload)=>{transmitted=payload;return{ok:true,data:{places:[]}}}};vm.createContext(network);vm.runInContext(read('intelligence/places-service.js'),network);
