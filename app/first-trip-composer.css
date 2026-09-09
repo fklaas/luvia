@@ -663,8 +663,8 @@
 .ftc.cinematic .lx-route-direction-a>.ftc-copy{margin-bottom:9px}
 .ftc.cinematic .lx-route-direction-a>.ftc-copy p{color:#647b79}
 .ftc.cinematic .lx-route-direction-a>.ftc-copy h1{margin:0;font-size:21px;line-height:1.05}
-.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof{display:flex;align-items:center;gap:5px;width:max-content;margin-top:7px;padding:5px 9px;border:1px solid rgba(62,143,142,.2);border-radius:999px;background:linear-gradient(100deg,rgba(238,247,240,.92),rgba(255,248,233,.88),rgba(238,247,247,.92));color:#527071;font-size:8px;line-height:1;letter-spacing:.01em}
-.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof strong{color:#23565d;font-size:9px}.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof i{color:#d45a72;font-style:normal}
+.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof{display:grid;gap:4px;width:max-content;max-width:100%;margin-top:7px;padding:6px 9px;border:1px solid rgba(62,143,142,.2);border-radius:12px;background:linear-gradient(100deg,rgba(238,247,240,.92),rgba(255,248,233,.88),rgba(238,247,247,.92));color:#527071;font-size:8px;line-height:1.25;letter-spacing:.01em}.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof>span{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof strong{color:#23565d;font-size:9px}.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof i{color:#d45a72;font-style:normal}.ftc.cinematic .lx-route-direction-a>.ftc-copy .lx-route-pool-proof small{font-size:7px;color:#708384}
 .ftc.cinematic .lx-route-direction-a .lx-travel-promise{margin-bottom:10px;padding:9px 11px;border:1px solid rgba(83,147,132,.18);border-radius:16px;background:linear-gradient(115deg,#eef7f0,#fff8e9 58%,#eef7f7)}
 .ftc.cinematic .lx-route-direction-a .lx-travel-promise header{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center}
 .ftc.cinematic .lx-route-direction-a .lx-travel-promise header>i{width:27px;height:27px;font-size:10px}

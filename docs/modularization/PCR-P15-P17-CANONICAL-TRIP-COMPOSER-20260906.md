@@ -33,25 +33,25 @@ Die neue Gestaltungsvorgabe wird zusätzlich als Bewegungsstudie und Produktvert
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.180**, Core **4.82.299**. P17/P19 aktiv und teilweise: Valencia verwendet öffentlich 72 belegte Kandidaten. App .179 nahm den echten Tag-6-Ersatz an, erreichte den Audit, reparierte den belegten zeitlichen Wegekonflikt und erhielt danach die positive Bestätigung für Ziel, Zeitraum, Strand, Shopping, Nachtleben, Erholungspuffer und Wellnessoption. Offen waren nur nicht ausreichend nachgewiesene Vegetarisch-, Kinderwagen- und Bus-/Bahn-Fakten. App .180 / Core .299 stuft diese fehlenden Belege als sichtbare Aufmerksamkeit ein und lässt den strukturell gültigen Entwurf in den Review.
+**Stand 2026-09-09:** Integration **13.82.168.181**, Core **4.82.300**. P17/P19 aktiv: Die öffentliche .180-Ausgabe ist byteidentisch, der gespeicherte Valencia-Entwurf bleibt erhalten, aber zwei Wiederanläufe meldeten die Integration-Intelligence unmittelbar als nicht verfügbar. Parallel beseitigt App .181 / Core .300 die feste 160-Places-Grenze. Recherchepool, erhaltene Reserve und KI-Arbeitsauswahl skalieren nun mit 7/14/21/28/42 Tagen; ein kontrollierter 28-Tage-Lauf hält 240 unterschiedliche Places und verarbeitet 180 Kandidaten im Intelligence-Vertrag.
 
-**Zuletzt geliefert:** Die Zahl sichtbarer Reiseaktivitäten ist vom Place-Bestand getrennt. Für 7/14/21 Tage gelten 42/84/126 als Recherche-Mindestziele; ein ergiebiger Stadtpool bleibt pro Sitzung bis 160 erhalten, während die KI nur 32/60/92 priorisierte Kandidaten erhält. Öffentlich wurden 87 Kandidaten in .175 und 72 Kandidaten im aktuellen Valencia-Auftrag belegt. .177 stellte die gezielte starke Ein-Tages-Reparatur her, .178 die eindeutige Datumszuordnung und .179 den fehlenden browserlosen trip_day_repair-Ausgabevalidator. Der öffentliche .179-Lauf hat Tag 6 sowie einen konkreten Wegekonflikt erfolgreich repariert. .180 verhindert, dass bloß fehlende Nachweise den vollständigen Plan erneut regenerieren.
+**Zuletzt geliefert:** App .180 ist ausschließlich auf Integration veröffentlicht: Commit 27c47eb985a898acc89ea72b8c72541eabe6c4dd, Worker c0257fad-70be-46c3-a333-6ca6fb5194fe, Archiv 92.644.697 Bytes, SHA-256 6AA9F78ECEDD597054BFBAE687AF039B97CAEB69E088ECCBA9551A8CDC5D4E80 und 22/22 öffentliche Dateien byteidentisch. .180 behandelt nicht ausreichend nachgewiesene Live-Fakten als Aufmerksamkeit. App .181 entfernt zusätzlich die feste 160er-Grenze, führt dauerabhängige räumliche Seiten ein und kennzeichnet die Zahlen im Review als Entwurfsmenge statt Stadtbestand.
 
-**Nächster Schritt (AKTIV): App .180 vollständig prüfen, ausschließlich auf Integration veröffentlichen und den vorhandenen Valencia-Entwurf in den Review führen.** Der strukturelle Plan und die gezielte Reparatur funktionieren öffentlich. Nur die Formulierung nicht ausreichend nachgewiesen wurde noch als harter Planfehler statt als offene Providerunsicherheit behandelt. Das vollständige lokale Gate ist bestanden.
+**Nächster Schritt (AKTIV): App .181 vollständig prüfen, ausschließlich auf Integration veröffentlichen und lange Place-Pools öffentlich belegen.** 17 eingeplante Reisemomente wurden als mutmaßlicher Valencia-Gesamtbestand verstanden; zusätzlich schnitt die Sitzung längere Reisen technisch bei 160 Kandidaten ab.
 
 **Abnahme dieses Schritts:**
 
-- App .180 / Core .299 besteht Safe Regression, NFR-0 und alle fokussierten Schema-, Composer-, M16.5Z- und P19-Gates.
-- Nur Integration wird veröffentlicht; Main, Production und produktive Intelligence bleiben unverändert.
-- Stable und immutable Integration liefern die geprüften Release-Dateien byteidentisch aus.
-- Der Valencia-Lauf behält 72 belegte Kandidaten und sieben Reisetage.
-- Strand, Shopping, Nachtleben, Erholung und der reparierte Wegekonflikt bleiben im Entwurf erhalten.
-- Fehlende Vegetarisch-, Kinderwagen- und Verkehrsnachweise erscheinen als offene Hinweise und lösen keine Neugenerierung aus.
-- Der Lauf erreicht den ungespeicherten Review oder einen neuen konkreten terminalen Fehler.
+- Der Review trennt eingeplante Reisemomente, den reisespezifisch recherchierten Pool und den nicht behaupteten Gesamtbestand des Reiseziels.
+- 7/14/21/28/42 Tage skalieren auf 42/84/126/168/252 recherchierte Kandidatenziele.
+- Mindestens ein 28-Tage-Test hält mehr als 160 eindeutige Places und übergibt mehr als 160 Kandidaten durch den Intelligence-Vertrag.
+- Räumliche Folgeseiten schließen bereits gefundene Provider-IDs aus und erweitern die Gebietsabdeckung.
+- App .181 / Core .300 besteht Safe Regression, NFR-0, Composer-, P19-, Structured-Output-, Planungs- und Visual-Gates.
+- Nur Integration wird veröffentlicht; Stable und immutable liefern die geprüften Dateien byteidentisch.
+- Der öffentliche Valencia-Lauf erreicht Review oder dokumentiert einen neuen konkreten terminalen Providerfehler, ohne den gespeicherten Plan zu verlieren.
 
-**Danach:** Nach dem öffentlichen .180-Review werden räumliche Streuung und Kategorienmix der sieben Valencia-Tage fachlich abgenommen. Danach wird der große Recherchepool als gezielte Tausch-, Ergänzungs- und Spontanreserve nutzbar gemacht. Für 14/21 Tage folgen reale Proben; für 28 Tage und länger folgt eine seitenweise Nachbeschaffung statt eines immer größeren Modellprompts. Danach werden autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte abgeschlossen.
+**Danach:** Nach .181 werden der erhaltene Reservepool für gezielten Tausch, Ergänzungen, spontane Vorschläge und Mehr-davon nutzbar gemacht sowie räumliche Streuung und Kategorienmix öffentlich abgenommen. Für sehr lange Reisen folgt anschließend die segmentierte KI-Komposition, damit nicht ein riesiger Prompt alle Wochen gleichzeitig tragen muss. Danach werden autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte abgeschlossen.
 
-**Weiter offen:** P17/P19: .180 öffentlich bis Review oder neuem konkreten terminalen Fehler vermessen; räumliche Streuung und Kategorienmix prüfen; den erhaltenen Pool für Tausch- und Ergänzungsvorschläge öffnen; reale 14-/21-Tage-Pläne und rollende Nachbeschaffung für 28+ Tage prüfen. Automatische autoritativ belegte Ferienfenster, Konfliktvarianten, Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose.
+**Weiter offen:** P17/P19: .181 öffentlich prüfen; die derzeit nicht verfügbare Integration-Intelligence erneut vermessen; Reservepool als echte Tausch-/Ergänzungsquelle öffnen; räumliche Streuung und Kategorienmix abnehmen; sehr lange Reisen in Wochenabschnitte komponieren und anschließend ganzheitlich auditieren. Autoritativ belegte Ferienfenster, Konfliktvarianten, Konto- und Timeline-Übernahme, physische Geräte sowie echte datierte Unterkunfts-, Routen-, Wetter-, Event-, Preis-, Öffnungs- und Buchbarkeitsbelege bleiben offen. P16: semantische Ablehnungsdiagnose.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
