@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='4.23.0';
+  const VERSION='4.24.0';
   const listeners=new Set();
   const cache=new Map();
   let metrics={requests:0,successes:0,fallbacks:0,failures:0,lastRequestAt:null,lastSuccessAt:null,lastError:null};
@@ -42,14 +42,17 @@
   async function run(capability,input={},options={}){
     const definition=window.LuviaAICapabilities?.get?.(capability);if(!definition)throw new Error(`AI_CAPABILITY_UNKNOWN:${capability}`);
     window.LuviaAIPolicy.assertMode(definition,['READ','DRAFT']);
-    const context=await window.LuviaAIContext.assemble(capability,{currentMoment:input.currentMoment||input, candidatePlaces:input.candidates||[],extraContext:input.extraContext||{}});
+    const tripTask=capability.startsWith('trip.')||input.surface==='trip-composer';
+    const currentMoment=tripTask?{surface:'trip-composer',purpose:options.context?.purpose||capability}:input.currentMoment||input;
+    const context=await window.LuviaAIContext.assemble(capability,{currentMoment,candidatePlaces:tripTask?[]:input.candidates||[],extraContext:tripTask?{}:input.extraContext||{}});
+    const policy=window.LuviaAIPolicy,sanitize=tripTask?policy.sanitizeTripPayload:policy.sanitize;
     const key=`${capability}:${hash({input,context})}`;const cached=cache.get(key);
     if(cached&&cached.expiresAt>Date.now())return clone(cached.value);
     const tier=window.LuviaAIModelRouter.resolve(definition,options);
     metrics={...metrics,requests:metrics.requests+1,lastRequestAt:new Date().toISOString(),lastError:null};emit('request-started',{capability,tier:tier.id});
     try{
       const provider=window.LuviaOpenAIProvider,persistent=['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit'].includes(capability)&&options.workflowId&&typeof provider.runPersistent==='function';
-      const response=await provider[persistent?'runPersistent':'run']({capability,tier:tier.id,input:window.LuviaAIPolicy.sanitize(input),context,schema:definition.schema},{timeoutMs:definition.timeoutMs,workflowId:options.workflowId});
+      const response=await provider[persistent?'runPersistent':'run']({capability,tier:tier.id,input:sanitize(input),context,schema:definition.schema},{timeoutMs:definition.timeoutMs,workflowId:options.workflowId});
       const data=window.LuviaAIOutputValidator.validate(definition.schema,response?.data?.result||response?.data||{});
       const value={ok:true,data,meta:{...(response?.meta||{}),capability,tier:tier.id,alias:tier.alias,fallback:false}};
       metrics={...metrics,successes:metrics.successes+1,lastSuccessAt:new Date().toISOString()};

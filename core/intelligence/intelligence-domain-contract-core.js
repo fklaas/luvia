@@ -3,7 +3,7 @@ var LuviaIntelligenceDomainContractCoreV1=(()=>{
 
 const CONTRACT_ID='intelligence.v1';
 const VERSION='1';
-const RUNTIME_VERSION='1.3.1-trip-day-repair-output';
+const RUNTIME_VERSION='1.4.0-lossless-trip-payload';
 const MODES=Object.freeze({READ:'READ',DRAFT:'DRAFT',EXECUTE:'EXECUTE'});
 const SIGNAL_STATUSES=Object.freeze(['inferred','confirmed','dismissed']);
 const PROPOSAL_STATUSES=Object.freeze(['draft','accepted','rejected','executed','failed']);
@@ -73,6 +73,27 @@ const TOOLS=Object.freeze([
   {name:'journey.evidence',domain:'journey',mode:'READ',trust:'cloud-projection',sourceContract:'journey.projection',owner:'journey',description:'Belegbare Fakten und Quellen des Journey Aggregators.'},
   {name:'memory.signals',domain:'intelligence',mode:'READ',trust:'owner-state',sourceContract:'intelligence.v1',owner:'intelligence',description:'Belegte, getrennt vom Profil gespeicherte Lernsignale.'}
 ].map(immutableDefinition));
+
+// Trip workflows carry an explicitly bounded catalogue. Never silently cut a
+// confirmed trip or its reserve to a generic UI-preview array length.
+function sanitizeTripPayload(value,depth=0,seen=new WeakSet()){
+  if(value==null||typeof value==='boolean'||typeof value==='number')return value;
+  if(typeof value==='string')return value.slice(0,4000);
+  if(depth>18)throw contractError('AI_PAYLOAD_DEPTH_EXCEEDED','Die Reiseanfrage ist zu tief verschachtelt.');
+  if(typeof value!=='object')return undefined;
+  if(seen.has(value))throw contractError('AI_PAYLOAD_CIRCULAR','Die Reiseanfrage enthält einen Kreisverweis.');
+  seen.add(value);let result;
+  if(Array.isArray(value)){
+    if(value.length>4000)throw contractError('AI_PAYLOAD_ARRAY_EXCEEDED','Der Reiseabschnitt muss vor der Übertragung verkleinert werden.');
+    result=value.map(item=>sanitizeTripPayload(item,depth+1,seen));
+  }else{
+    result={};for(const [key,item] of Object.entries(value)){
+      if(BLOCKED_KEYS.test(key)||/^(raw|html|embedding|base64|knowledgeGraph|journeyGraph)$/.test(key))continue;
+      const safe=sanitizeTripPayload(item,depth+1,seen);if(safe!==undefined)result[key]=safe;
+    }
+  }
+  seen.delete(value);return result;
+}
 
 function sanitize(value,depth=0,seen=new WeakSet()){
   if(value==null||typeof value==='boolean'||typeof value==='number')return value;
@@ -230,7 +251,7 @@ function createSystemSnapshot(runtime={}){
 
 return Object.freeze({
   contractId:CONTRACT_ID,version:VERSION,runtimeVersion:RUNTIME_VERSION,modes:MODES,modelTiers:MODEL_TIERS,
-  immutable,sanitize,createCapabilityRegistry,listCapabilities,getCapability,createDomainRegistry,listDomains,getDomain,
+  immutable,sanitize,sanitizeTripPayload,createCapabilityRegistry,listCapabilities,getCapability,createDomainRegistry,listDomains,getDomain,
   listTools,getTool,listModelTiers,resolveModelTier,canRunCapability,assertCapabilityMode,canExecuteProposal,policySnapshot,
   validateOutput,validators,createContextEnvelope,normalizeSignal,transitionSignal,projectMemorySnapshot,
   createProposalIntent,transitionProposal,createEvidenceState,createSystemSnapshot

@@ -27,7 +27,7 @@ const core=context.LuviaIntelligenceDomainContractCoreV1;
 assert.ok(core,'physical Intelligence Core missing');
 assert.equal(core.contractId,'intelligence.v1');
 assert.equal(core.version,'1');
-assert.equal(core.runtimeVersion,'1.3.1-trip-day-repair-output');
+assert.equal(core.runtimeVersion,'1.4.0-lossless-trip-payload');
 assert.equal(Object.isFrozen(core),true);
 
 const capabilities=core.listCapabilities();

@@ -1,9 +1,9 @@
 (() => {
   'use strict';
   const browser=window;
-  const VERSION='4.37.1';
+  const VERSION='4.38.0';
   const inflight=new Map();
-  const MAX_BYTES=150000;
+  const MAX_BYTES=150000,WORKFLOW_MAX_BYTES=1500000;
   const FUNCTION_NAME=/integration-luvia\./i.test(String(browser.location?.hostname||''))?'luvia-intelligence-integration':'luvia-intelligence';
   const PERSISTENT_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
   let blockedUntil=0,lastError=null;
@@ -11,10 +11,10 @@
   const sleep=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   function compact(value,depth=0){
-    if(depth>12)return'[truncated]';
+    if(depth>18)throw Object.assign(new Error('Die Reiseanfrage ist zu tief verschachtelt.'),{code:'AI_PAYLOAD_DEPTH_EXCEEDED'});
     if(value==null||typeof value==='boolean'||typeof value==='number')return value;
-    if(typeof value==='string')return value.slice(0,1200);
-    if(Array.isArray(value))return value.slice(0,60).map(item=>compact(item,depth+1));
+    if(typeof value==='string')return value.slice(0,4000);
+    if(Array.isArray(value)){if(value.length>4000)throw Object.assign(new Error('Der Reiseabschnitt ist zu groß.'),{code:'AI_PAYLOAD_ARRAY_EXCEEDED'});return value.map(item=>compact(item,depth+1));}
     if(typeof value==='object'){
       const result={};
       for(const [key,item] of Object.entries(value)){
@@ -47,36 +47,34 @@
   }
 
   function bodyFor(action,payload){
-    let body={action,payload:compact(payload),client:{appVersion:'13.82.168.181',coreVersion:'4.82.300'}};
-    if(new TextEncoder().encode(stable(body)).length>MAX_BYTES)body={
-      action,
-      payload:{idempotencyKey:payload?.idempotencyKey,workflowId:payload?.workflowId,jobId:payload?.jobId,retryFailed:payload?.retryFailed,phase:payload?.phase,state:compact(payload?.state),capability:payload?.capability,tier:payload?.tier,input:compact(payload?.input),context:{trip:compact(payload?.context?.trip),currentMoment:compact(payload?.context?.currentMoment),preferences:compact(payload?.context?.preferences)}},
-      client:body.client
-    };
+    const body={action,payload:compact(payload),client:{appVersion:'13.82.168.182',coreVersion:'4.82.301'}};
+    const bytes=new TextEncoder().encode(stable(body)).length,limit=action.startsWith('trip.plan-workflow.')?WORKFLOW_MAX_BYTES:MAX_BYTES;
+    if(bytes>limit)throw Object.assign(new Error('Die Reiseanfrage ist zu groß. Der letzte gespeicherte Zwischenstand bleibt erhalten.'),{code:'AI_PAYLOAD_TOO_LARGE',bytes,limit,action});
     return body;
   }
 
   async function invoke(action,payload={},options={}){
-    if(Date.now()<blockedUntil)throw Object.assign(new Error(lastError?.code==='AI_PAYLOAD_TOO_LARGE'?'Luvia Intelligence wurde nach einer zu großen Anfrage kurz pausiert.':'Luvia AI ist kurz pausiert. Bitte versucht es gleich erneut.'),{code:lastError?.code==='AI_PAYLOAD_TOO_LARGE'?'AI_PAYLOAD_CIRCUIT_OPEN':lastError?.code||'AI_RATE_LIMITED'});
-    const body=bodyFor(action,payload),key=`${action}:${stable(body).slice(0,4000)}`;
+    if(!action.startsWith('trip.plan-workflow.')&&action!=='trip.plan-job.read'&&Date.now()<blockedUntil)throw Object.assign(new Error(lastError?.code==='AI_PAYLOAD_TOO_LARGE'?'Luvia Intelligence wurde nach einer zu großen Anfrage kurz pausiert.':'Luvia AI ist kurz pausiert. Bitte versucht es gleich erneut.'),{code:lastError?.code==='AI_PAYLOAD_TOO_LARGE'?'AI_PAYLOAD_CIRCUIT_OPEN':lastError?.code||'AI_RATE_LIMITED'});
+    const body=bodyFor(action,payload),key=`${action}:${fingerprint(body)}`;
     if(inflight.has(key))return inflight.get(key);
     const task=(async()=>{
-      const client=await browser.LuviaSupabaseService.start(),timeoutMs=Math.max(3000,Number(options.timeoutMs||30000));
-      let timer=null;
+      const timeoutMs=Math.max(3000,Number(options.timeoutMs||30000));
+      let timer=null,expired=false;
       try{
-        const request=client.functions.invoke(FUNCTION_NAME,{body});
-        const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('Luvia Intelligence hat das Zeitlimit überschritten.'),{code:'AI_TIMEOUT'})),timeoutMs)});
+        const request=(async()=>{const client=await browser.LuviaSupabaseService.start();if(expired)throw Object.assign(new Error('Die Sitzung konnte nicht rechtzeitig bereitgestellt werden.'),{code:'AI_TIMEOUT'});return client.functions.invoke(FUNCTION_NAME,{body});})();
+        const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{expired=true;reject(Object.assign(new Error('Luvia Intelligence hat das Zeitlimit überschritten.'),{code:'AI_TIMEOUT'}))},timeoutMs)});
         const {data,error}=await Promise.race([request,timeout]);
         if(error){
-          let detail=null;try{detail=await error.context?.clone?.().json();}catch{}
-          const providerCode=detail?.error?.code,providerMessage=detail?.error?.message,status=Number(error?.context?.status||error?.status||0);
+          let detail=null;try{const source=error.context?.clone?.()||error.context;detail=typeof source?.json==='function'?await source.json():source;}catch{}
+          if(!detail&&data&&typeof data==='object')detail=data;
+          const providerCode=detail?.error?.code||detail?.code,providerMessage=detail?.error?.message||detail?.message,status=Number(error?.context?.status||error?.status||0);
           if(status===413||/413|content too large/i.test(error.message||'')){blockedUntil=Date.now()+60000;lastError={code:'AI_PAYLOAD_TOO_LARGE',at:new Date().toISOString()};}
           if(status===429||/429|rate limit|zu viele/i.test(error.message||'')){blockedUntil=Date.now()+30000;lastError={code:providerCode||'AI_RATE_LIMITED',at:new Date().toISOString()};}
-          throw Object.assign(new Error(providerMessage||error.message||'Luvia Intelligence ist nicht erreichbar.'),{status,code:providerCode||(status===413?'AI_PAYLOAD_TOO_LARGE':status===429?'AI_RATE_LIMITED':'AI_EDGE_ERROR'),cause:error});
+          throw Object.assign(new Error(providerMessage||error.message||'Luvia Intelligence ist nicht erreichbar.'),{status,code:providerCode||(status===413?'AI_PAYLOAD_TOO_LARGE':status===429?'AI_RATE_LIMITED':'AI_EDGE_ERROR'),cause:error,meta:detail?.meta||{},requestId:detail?.meta?.requestId||error.context?.headers?.get?.('x-request-id')||null});
         }
         if(data?.ok===false)throw Object.assign(new Error(data.error?.message||'Luvia Intelligence konnte die Aufgabe nicht lösen.'),{code:data.error?.code||'AI_RESPONSE_ERROR',meta:data.meta});
         return data;
-      }finally{if(timer)clearTimeout(timer);}
+      }catch(error){lastError={code:error.code||'AI_EDGE_ERROR',message:error.message,action,status:error.status||null,requestId:error.requestId||error.meta?.requestId||null,at:new Date().toISOString()};throw error;}finally{if(timer)clearTimeout(timer);}
     })().finally(()=>inflight.delete(key));
     inflight.set(key,task);
     return task;
@@ -89,7 +87,7 @@
     // Version the key alongside the canonical fingerprint contract. Earlier keys
     // were compared with an order-sensitive server digest and can therefore be
     // poisoned by an otherwise equivalent payload restored in a different key order.
-    const hash=fingerprint(normalized),idempotencyKey=`trip-plan-v2:${capability.replaceAll('.','-')}:${hash}`;
+    const hash=fingerprint(normalized),idempotencyKey=`trip-plan-v3:${capability.replaceAll('.','-')}:${hash}`;
     const started=Date.now(),maxWaitMs=Math.max(15000,Number(options.timeoutMs||90000)),pollMs=Math.max(500,Math.min(3000,Number(options.pollMs||1200)));
     let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed===true},{timeoutMs:12000});
     let job=response?.data?.job;

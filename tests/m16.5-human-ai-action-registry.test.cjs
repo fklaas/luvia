@@ -22,7 +22,7 @@ assert.equal(validated.registry.summary.ownerBinding.OWNER_METHOD_AUDIT_OPEN || 
 assert.equal(validated.inputContracts.enforcement, 'BOUNDED_RUNTIME_ENFORCEMENT_ACTIVE');
 assert.deepEqual(validated.inputContracts.runtimeEnforcement.runtimeEnforcedActionIds, ['navigation.route.open', 'places.place.favorite', 'places.place.unfavorite', 'places.place.plan', 'places.place.unplan', 'booking.place.open', 'booking.stay.search', 'booking.stay.offer.open', 'booking.trip.read', 'booking.reservation.create', 'booking.reservation.modify', 'booking.reservation.cancel', 'journey.day.read', 'journey.day.open', 'journey.entry.schedule', 'journey.entry.remove', 'journey.entry.restore', 'journey.visit.update', 'journey.visit.remove', 'journey.visit.restore', 'trip.active.list', 'trip.active.select', 'trip.update.details', 'places.restaurant.recommend', 'places.discovery.recommend', 'events.verified.read', 'memory.library.read', 'memory.story.save', 'identity.preferences.read', 'identity.preferences.update']);
 assert.equal(validated.inputContracts.runtimeEnforcement.metadataValidatedOpenActionIds, 0);
-assert.equal(validated.sourceAudit.markers.length, 1084);
+assert.equal(validated.sourceAudit.markers.length, 1088);
 
 const expectedReport = buildReport(validated).replace(/\r\n?/g, '\n');
 const actualReport = fs.readFileSync(REPORT, 'utf8').replace(/\r\n?/g, '\n');

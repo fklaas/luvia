@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { capability } from '../capabilities/registry.ts';
-import { sanitize, safetyIdentifier } from '../policies/privacy.ts';
+import { sanitizeTripPayload as sanitize, safetyIdentifier } from '../policies/privacy.ts';
 import { runOpenAI } from '../providers/openai.ts';
 import { recordUsage } from '../telemetry/usage.ts';
 
@@ -20,6 +20,10 @@ type WorkflowRow={
 export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
 export const TRIP_WORKFLOW_BUDGET={maxModelCalls:8,maxTotalTokens:180_000};
 export const TRIP_JOB_LEASE_TIMEOUT_MS=60_000;
+export function tripWorkflowBudget(workflow:any){
+  const dates=workflow?.phase_state?.selectedDates||workflow?.phase_state?.data||{},start=Date.parse(dates.startDate||''),end=Date.parse(dates.endDate||''),days=Number.isFinite(start)&&Number.isFinite(end)?Math.max(1,Math.min(366,Math.round((end-start)/86400000)+1)):1,sections=Math.ceil(days/7);
+  return {maxModelCalls:Math.max(TRIP_WORKFLOW_BUDGET.maxModelCalls,sections+4),maxTotalTokens:Math.max(TRIP_WORKFLOW_BUDGET.maxTotalTokens,sections*36000)};
+}
 const IDEMPOTENCY=/^[a-zA-Z0-9:_-]{24,180}$/;
 const WORKFLOW_PHASES=new Set(['understanding','candidates','itinerary','repair','audit','ready-for-review','failed','confirmed']);
 
@@ -210,8 +214,8 @@ export async function startTripPlanJob(userId:string,payload:any){
     if(Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS)return publicJob(await failInterruptedJob(admin,userId,prior));
     return publicJob(prior);
   }
-  const usage=workflow.aggregate_usage||{};
-  if(Number(usage.modelCalls||0)>=TRIP_WORKFLOW_BUDGET.maxModelCalls||Number(usage.totalTokens||0)>=TRIP_WORKFLOW_BUDGET.maxTotalTokens)throw Object.assign(new Error('Der sichere Rechenrahmen dieses Reiseentwurfs ist erreicht. Eure bisherigen Ergebnisse bleiben erhalten.'),{code:'AI_WORKFLOW_BUDGET_EXHAUSTED',status:409});
+  const usage=workflow.aggregate_usage||{},budget=tripWorkflowBudget(workflow);
+  if(Number(usage.modelCalls||0)>=budget.maxModelCalls||Number(usage.totalTokens||0)>=budget.maxTotalTokens)throw Object.assign(new Error('Der sichere Rechenrahmen dieses Reiseentwurfs ist erreicht. Eure bisherigen Ergebnisse bleiben erhalten.'),{code:'AI_WORKFLOW_BUDGET_EXHAUSTED',status:409});
   const {data:created,error:createError}=await admin.from('intelligence_trip_plan_jobs').insert({user_id:userId,workflow_id:workflowId,idempotency_key:idempotencyKey,capability:capabilityId,tier,input_fingerprint:inputFingerprint,request_payload:requestPayload,status:'queued'}).select('*').single();
   if(createError){
     if(String(createError.code)==='23505'){

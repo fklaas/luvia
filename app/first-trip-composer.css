@@ -769,3 +769,15 @@
   .ftc.expedition.cinematic[data-step=preview] .lx-map-stage.is-place-focused,.ftc.cinematic .lx-route-direction-a .lx-route-list::before,.ftc.cinematic .lx-route-direction-a .lx-route-stop,.ftc.cinematic .lx-route-direction-a .lx-route-stop.is-map-selected,.ftc.cinematic .lx-route-direction-a .lx-route-stop.is-map-selected::after,.ftc.cinematic .lx-route-direction-a .lx-route-free{animation:none;opacity:1}
 }
 .ftc-reduce-motion .lx-map-stage.is-place-focused,.ftc-reduce-motion .lx-route-direction-a .lx-route-list::before,.ftc-reduce-motion .lx-route-direction-a .lx-route-stop,.ftc-reduce-motion .lx-route-direction-a .lx-route-stop.is-map-selected,.ftc-reduce-motion .lx-route-direction-a .lx-route-stop.is-map-selected::after,.ftc-reduce-motion .lx-route-direction-a .lx-route-free{animation:none;opacity:1}
+
+/* Reserve actions stay inside the existing compact Tagesroute. */
+.ftc.cinematic .lx-reserve-actions{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.ftc.cinematic .lx-reserve-actions button,.ftc.cinematic .lx-reserve-spontaneous{padding:8px 12px;border:1px solid var(--ftc-line,#d4e2d9);border-radius:14px;background:var(--ftc-paper,#fffdf5);color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.ftc.cinematic .lx-reserve-spontaneous{margin:0 0 14px}
+.ftc.cinematic .lx-reserve-choice{margin:0 0 18px;padding:16px;border:1px solid var(--ftc-line,#d4e2d9);border-radius:20px;background:linear-gradient(120deg,#fff6dc,#e8f5ef);color:inherit}
+.ftc.cinematic .lx-reserve-choice header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ftc.cinematic .lx-reserve-choice header button{border:0;background:transparent;color:inherit;font-size:24px;cursor:pointer}
+.ftc.cinematic .lx-reserve-choice>button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:12px 0;border:0;border-top:1px solid var(--ftc-line,#d4e2d9);background:transparent;color:inherit;text-align:left;cursor:pointer}
+.ftc.cinematic .lx-reserve-choice strong,.ftc.cinematic .lx-reserve-choice small{display:block}
+.ftc.cinematic .lx-reserve-choice small{font-size:12px;line-height:1.5;margin-top:4px}
+.ftc.cinematic .lx-reserve-choice button:focus-visible,.ftc.cinematic .lx-reserve-actions button:focus-visible{outline:2px solid #cd4e68;outline-offset:3px}

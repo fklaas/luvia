@@ -9,5 +9,5 @@
   function canExecute(proposal,options={}){return core.canExecuteProposal(proposal,options)}
   function assertMode(capability,allowed=['READ','DRAFT']){return core.assertCapabilityMode(definition(capability),allowed)}
   function diagnostics(){return Object.freeze({...core.policySnapshot(),version:VERSION,ownerCore:core.runtimeVersion})}
-  window.LuviaAIPolicy=Object.freeze({version:VERSION,modes:MODES,sanitize:core.sanitize,canRun,canExecute,assertMode,diagnostics});
+  window.LuviaAIPolicy=Object.freeze({version:VERSION,modes:MODES,sanitize:core.sanitize,sanitizeTripPayload:core.sanitizeTripPayload,canRun,canExecute,assertMode,diagnostics});
 })();

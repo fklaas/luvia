@@ -775,6 +775,10 @@ const SOURCE_MARKER_DECISIONS = Object.freeze({
   // Lifting/dropping edits the same unconfirmed Composer draft as its date field;
   // final Trip/Places writes retain the existing explicit confirmation outcome.
   'data-ftc-atlas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
+  'data-ftc-reserve': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
+  'data-ftc-reserve-pick': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
+  'data-ftc-reserve-close': ['Reisen & Zusammenarbeit', 'INTERAKTIONSPRIMITIVE'],
+  'data-ftc-reserve-slot': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
   'data-ftc-accept': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-holiday-window': ['Reisen & Zusammenarbeit', 'AKTIONSKANDIDAT'],
   'data-ftc-world-canvas': ['Reisen & Zusammenarbeit', 'STATUS/EINGABE/PROJEKTION'],
@@ -1055,8 +1059,8 @@ function validateRegistry() {
   assert.equal(registry.actions.length, 333, 'semantic action count changed without deliberate registry revision');
   assert.equal(registry.actions.filter(action => action.human.status !== 'DEMO_ONLY').length, 322);
   assert.equal(registry.unavailableOutcomes.length, 24);
-  assert.equal(sourceAudit.markers.length, 1084);
-  assert.equal(sourceAudit.markerCount, 1084);
+  assert.equal(sourceAudit.markers.length, 1088);
+  assert.equal(sourceAudit.markerCount, 1088);
 
   const ids = registry.actions.map(action => action.id);
   assert.equal(new Set(ids).size, ids.length, 'semantic action IDs must be unique');

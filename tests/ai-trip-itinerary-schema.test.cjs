@@ -57,7 +57,7 @@ const provider=fs.readFileSync('supabase/functions/luvia-intelligence/providers/
 assert(provider.includes("code:'OPENAI_INCOMPLETE_OUTPUT'"),'Incomplete Responses output needs a distinct retryable error');
 assert(provider.indexOf("response?.status==='incomplete'")<provider.indexOf('JSON.parse(raw)'),'Incomplete output must be rejected before JSON parsing');
 assert.match(registry,/planning\.dialogue':\{id:'planning\.dialogue',tier:'fast'.*maxOutputTokens:2800,reasoningEffort:'none'/s,'Trip understanding uses Luna without a separate reasoning budget and with compact structured-output headroom');
-assert.match(provider,/planning\.dialogue'\)body\.text\.verbosity='low'/,'The latency-critical trip understanding response requests concise structured strings');
+assert.match(provider,/planning\.dialogue'[\s\S]*?body\.text\.verbosity='low'/,'The latency-critical trip understanding response requests concise structured strings');
 assert.match(registry,/discovery\.plan':\{id:'discovery\.plan',tier:'fast'.*maxOutputTokens:1200,reasoningEffort:'low'/s,'Destination inspiration uses the fast low-reasoning lane instead of spending the complete-trip model budget');
 assert.match(provider,/structured&&model!==candidates\.at\(-1\)/,'A malformed fast-model response must escalate to the default model');
 assert.match(provider,/attempts\.push\(\{model,requestId,usage,latencyMs,success:false/,'Paid failed structured-output attempts must remain visible to cost telemetry');
