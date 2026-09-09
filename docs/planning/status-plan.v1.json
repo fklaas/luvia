@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.189",
-  "core": "4.82.308",
-  "runtimeSource": "COMMIT_f71a516d0f7872dc5fbb30253ee7055fa2b0d7c4",
-  "worker": "86e35a37-ece9-4283-ab36-d1fea61ba012",
+  "app": "13.82.168.190",
+  "core": "4.82.309",
+  "runtimeSource": "39eba77a92a340263d88e5e6a071fada04e3e6d3",
+  "worker": "95025983-3762-41d8-b20c-30f555d7ac63",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -732,7 +732,7 @@
       "sequence": "Zuerst .173 ausschließlich auf Integration veröffentlichen und den echten Valencia-Auftrag mit Meer, Shopping, Nachtleben und Restaurants gegen die räumlich versetzte Recherche prüfen. Danach wird der getrennte trip.compose-Latenzengpass durch einen kleineren, fortsetzbaren Kompositionsvertrag geschlossen; anschließend folgen der Familien-/Ferien-/Konfliktfall und lange 14-/21-Tage-Pläne als P17/P19-Abnahme."
     }
   ],
-  "acceptanceUpdate": "Integration .189 / 809a7411: 241/241 Regression, 114/114 Transport-/Reserve-/Übergangsprüfungen, 133 Composer, 22/22 öffentliche Bytevergleiche. Wiederaufnahme mit 100 realen Kandidaten öffentlich belegt. Workflow 7067a58f-dc21-4a83-9899-2c2308848814 erreicht die Tagesroute mit sieben Tagen und 21 Orten; sein Auditwert 52 enthält aber eine falsch heruntergestufte Ortszuordnung. Deshalb keine inhaltliche Vollabnahme. Kandidat .190 übernimmt echte Wrong-Place-Blocker unverändert und behandelt nur ausdrücklich klassifizierte fehlende Live-Fakten als offene Prüfung; er macht daraus kein erfülltes Reiseversprechen.",
+  "acceptanceUpdate": "Public .190 / 39eba77a: 241/241 Regression, 117 Transport/Reserve, 133 Composer, 22/22 Bytes. Echter Valencia-Lauf 890500cb-0279-4149-8be3-bdde6fc6f779: 90 reale Kandidaten in 29 Rastergebieten, größter Anteil 24,4 %, erste vollständige Komposition 30.399 ms, erster Audit 13.960 ms. Keine inhaltliche Abnahme: Audit verwechselte offene künftige Verkehrsverbindungen und eine eigene Markt-Suchhypothese mit unerfüllten Nutzerpflichten; unnötige Neuplanungen verschlechterten gültige Tage. .191 trennt diese Eingaben, behält echte harte Blocker, übernimmt feste Ziele direkt und gibt Budgetniveau/Bewegung vollständig weiter. 132/132 gezielte Verhaltensprüfungen bestanden; neue öffentliche Abnahme steht aus.",
   "safeRegression": "Integration .189: 241/241 Safe Regression und 22/22 öffentliche Bytevergleiche. Kandidat .190: 133 Composer, 117/117 Transport-/Reserve-/Übergangs-/Auditwahrheitsprüfungen und 99/99 Wiederaufnahme; vollständige finale Regression folgt.",
   "publicAssetIdentity": "Integration .186: 22/22 Stable-/Immutable-Bytevergleiche zur Quelle 041facef. Archiv 92.660.654 Bytes, SHA256 429413117C58DA02AA18C34F184F9C2116ED0D3D3E9BEA6988439DB18D1B6EAD.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -768,14 +768,14 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.190 / Core 4.82.309 verwendet Terra für Tageskomposition und einen knappen unabhängigen Gesamtaudit.",
-    "delivered": "Integration .189 / 809a7411: 241/241 Regression, 114/114 Transport-/Reserve-/Übergangsprüfungen, 133 Composer, 22/22 öffentliche Bytevergleiche. Wiederaufnahme mit 100 realen Kandidaten öffentlich belegt. Workflow 7067a58f-dc21-4a83-9899-2c2308848814 erreicht die Tagesroute mit sieben Tagen und 21 Orten; sein Auditwert 52 enthält aber eine falsch heruntergestufte Ortszuordnung. Deshalb keine inhaltliche Vollabnahme. Kandidat .190 übernimmt echte Wrong-Place-Blocker unverändert und behandelt nur ausdrücklich klassifizierte fehlende Live-Fakten als offene Prüfung; er macht daraus kein erfülltes Reiseversprechen.",
+    "stage": "P17/P19 Priorität: vollständige KI-Reise. Kandidat App 13.82.168.191 / Core 4.82.310 korrigiert feste Zielwahl und unnötige semantische Reparaturschleifen.",
+    "delivered": "Public .190 / 39eba77a: 241/241 Regression, 117 Transport/Reserve, 133 Composer, 22/22 Bytes. Echter Valencia-Lauf 890500cb-0279-4149-8be3-bdde6fc6f779: 90 reale Kandidaten in 29 Rastergebieten, größter Anteil 24,4 %, erste vollständige Komposition 30.399 ms, erster Audit 13.960 ms. Keine inhaltliche Abnahme: Audit verwechselte offene künftige Verkehrsverbindungen und eine eigene Markt-Suchhypothese mit unerfüllten Nutzerpflichten; unnötige Neuplanungen verschlechterten gültige Tage. .191 trennt diese Eingaben, behält echte harte Blocker, übernimmt feste Ziele direkt und gibt Budgetniveau/Bewegung vollständig weiter. 132/132 gezielte Verhaltensprüfungen bestanden; neue öffentliche Abnahme steht aus.",
     "nextStep": {
       "id": "P17-P19-public-reserve-sections-review",
       "package": "P19",
       "status": "AKTIV",
       "title": "Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen",
-      "reason": "Ein echter unabhängiger Review ist erreicht; die darin gefundenen Recherche- und Freiraummängel müssen in einem neuen tatsächlichen Lauf behoben sein.",
+      "reason": "Der öffentliche Fehler ist bis zu den konkreten Audit- und Vertragsentscheidungen verfolgt. Der neue Stand muss einen vollständigen echten Plan liefern, bevor dieser Slice abgenommen wird.",
       "acceptance": [
         "Vollständige Regression und sauberes Releasearchiv.",
         "Integration-Function und Worker aus nachvollziehbarer Quelle veröffentlichen.",
@@ -784,7 +784,7 @@
       ]
     },
     "after": "Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.",
-    "open": "Öffentlichen inhaltlichen Gesamtreview und Reserveaktionen mit der angepassten Modellverteilung abschließen; physische Geräte und übrige P17/P19-Gates bleiben offen.",
+    "open": "Neuen vollständigen öffentlichen Lauf einschließlich benanntem Reiseziel, Laufzeit, echtem Gesamtaudit, Reservewahl und Reload abschließen. Langreise-Transport kontrolliert geprüft; physische iOS-/Android-Abnahme sowie weitere P17/P19-Gates bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
@@ -841,10 +841,10 @@
         "evidence": "Erster realer positiver Gesamtplan: Valencia 14.–20.06.2027, 7/7 Tage, 19 übernommen, kontextuelle Zeiten, Reiseversprechen, Freiraum, Reise-DNA, Unsicherheitskarte, 4 Buchungsabhängigkeiten, Unterkunftsradius, 2 Plan Bs, Audit 74/100 und Review-Freigabe. Quelle d440b96015bc388b6887ff0a92a17d46934f82e7, Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f, 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 Bytes."
       }
     ],
-    "evidence": "Öffentlich .185: 22/22 Release-Dateien identisch, Wiederaufnahme während des Audits, gezielte Tagesreparatur in 8.461 ms. Der echte Audit hält fehlende Hafenbelege korrekt zurück. .186 leitet konkrete Suchtypen mit discovery.plan aus dem Reiseauftrag und places.v1.categories ab, ergänzt echte Treffer in die Reserve und priorisiert sie vor dem Modellshortlisting. 72/72 Transport-/Abschnitts-/Suchprüfungen, 133 Composer, 99 P19. Positiver öffentlicher Gesamtreview noch offen."
+    "evidence": "Public .190 / 39eba77a: 241/241 Regression, 117 Transport/Reserve, 133 Composer, 22/22 Bytes. Echter Valencia-Lauf 890500cb-0279-4149-8be3-bdde6fc6f779: 90 reale Kandidaten in 29 Rastergebieten, größter Anteil 24,4 %, erste vollständige Komposition 30.399 ms, erster Audit 13.960 ms. Keine inhaltliche Abnahme: Audit verwechselte offene künftige Verkehrsverbindungen und eine eigene Markt-Suchhypothese mit unerfüllten Nutzerpflichten; unnötige Neuplanungen verschlechterten gültige Tage. .191 trennt diese Eingaben, behält echte harte Blocker, übernimmt feste Ziele direkt und gibt Budgetniveau/Bewegung vollständig weiter. 132/132 gezielte Verhaltensprüfungen bestanden; neue öffentliche Abnahme steht aus."
   },
   "qaCommit": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
-  "intelligence": "Integration-Intelligence 4.43.0 ist getrennt veröffentlicht und öffentlich gesund. Produktionsfunction, Main und Production bleiben unverändert.",
+  "intelligence": "Integration-Intelligence 4.43.4 veröffentlicht. Kandidat 4.43.5 präzisiert Entwurfsprüfung und trennt Nutzerwünsche von Suchhypothesen. Produktionsfunction und Gateway unverändert.",
   "backendRelease": {
     "source": "ebc89441c13b5143f2a66d7e3d3eefe85763fc12",
     "gatewaySource": "321af5af3f9a97a80faba54afc1acb884fbc3962",

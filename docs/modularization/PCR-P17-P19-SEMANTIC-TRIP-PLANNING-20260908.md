@@ -3,11 +3,11 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.189**, Core **4.82.308**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.190 / Core 4.82.309 verwendet Terra für Tageskomposition und einen knappen unabhängigen Gesamtaudit.
+**Stand 2026-09-09:** Integration **13.82.168.190**, Core **4.82.309**. P17/P19 Priorität: vollständige KI-Reise. Kandidat App 13.82.168.191 / Core 4.82.310 korrigiert feste Zielwahl und unnötige semantische Reparaturschleifen.
 
-**Zuletzt geliefert:** Integration .189 / 809a7411: 241/241 Regression, 114/114 Transport-/Reserve-/Übergangsprüfungen, 133 Composer, 22/22 öffentliche Bytevergleiche. Wiederaufnahme mit 100 realen Kandidaten öffentlich belegt. Workflow 7067a58f-dc21-4a83-9899-2c2308848814 erreicht die Tagesroute mit sieben Tagen und 21 Orten; sein Auditwert 52 enthält aber eine falsch heruntergestufte Ortszuordnung. Deshalb keine inhaltliche Vollabnahme. Kandidat .190 übernimmt echte Wrong-Place-Blocker unverändert und behandelt nur ausdrücklich klassifizierte fehlende Live-Fakten als offene Prüfung; er macht daraus kein erfülltes Reiseversprechen.
+**Zuletzt geliefert:** Public .190 / 39eba77a: 241/241 Regression, 117 Transport/Reserve, 133 Composer, 22/22 Bytes. Echter Valencia-Lauf 890500cb-0279-4149-8be3-bdde6fc6f779: 90 reale Kandidaten in 29 Rastergebieten, größter Anteil 24,4 %, erste vollständige Komposition 30.399 ms, erster Audit 13.960 ms. Keine inhaltliche Abnahme: Audit verwechselte offene künftige Verkehrsverbindungen und eine eigene Markt-Suchhypothese mit unerfüllten Nutzerpflichten; unnötige Neuplanungen verschlechterten gültige Tage. .191 trennt diese Eingaben, behält echte harte Blocker, übernimmt feste Ziele direkt und gibt Budgetniveau/Bewegung vollständig weiter. 132/132 gezielte Verhaltensprüfungen bestanden; neue öffentliche Abnahme steht aus.
 
-**Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Ein echter unabhängiger Review ist erreicht; die darin gefundenen Recherche- und Freiraummängel müssen in einem neuen tatsächlichen Lauf behoben sein.
+**Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Der öffentliche Fehler ist bis zu den konkreten Audit- und Vertragsentscheidungen verfolgt. Der neue Stand muss einen vollständigen echten Plan liefern, bevor dieser Slice abgenommen wird.
 
 **Abnahme dieses Schritts:**
 
@@ -18,7 +18,7 @@
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Öffentlichen inhaltlichen Gesamtreview und Reserveaktionen mit der angepassten Modellverteilung abschließen; physische Geräte und übrige P17/P19-Gates bleiben offen.
+**Weiter offen:** Neuen vollständigen öffentlichen Lauf einschließlich benanntem Reiseziel, Laufzeit, echtem Gesamtaudit, Reservewahl und Reload abschließen. Langreise-Transport kontrolliert geprüft; physische iOS-/Android-Abnahme sowie weitere P17/P19-Gates bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -118,3 +118,6 @@ Der .189-Lauf erhält 100 echte Kandidaten aus 21 Gebieten und setzt nach Reload
 ### 09.09.2026 – Ortsfehler dürfen nicht zu Unsicherheit heruntergestuft werden
 
 Die bisherige narrativ-reguläre Suche nach „nicht belegt“ traf auch einen tatsächlich falschen Altstadt-Ort und setzte dabei sogar promiseAssessment.kept auf wahr. Dieser Pfad ist entfernt. Nur ausdrücklich klassifizierte LIVE_DATA_MISSING-/Live-Fakten-Codes dürfen offen bleiben; das Reiseversprechen bleibt dann ungeprüft, niemals künstlich erfüllt. Echte Orts- und Strukturblocker werden unverändert übernommen. Der Auditkatalog enthält nun auch die in der Buchungsreihenfolge referenzierten tatsächlichen Reserveorte, damit gültige Kandidaten nicht wegen einer verkürzten Projektion fälschlich als unbekannt gelten. Ein gezielter Gegenbeweis mit ALTSTADT_WRONG_PLACE bleibt korrekt gesperrt. 117/117 neue Prüfungen, 133 Composer und 99/99 Workflow grün.
+
+
+09.09.2026 – Kandidat App 13.82.168.191 / Core 4.82.310: Ein ausdrücklich gewähltes Ziel wird semantisch erkannt, über places.v1 geocodiert und direkt zur Reisezeit geführt. Offene Wünsche behalten fünf Ideen. Komposition und Audit bekommen ursprünglichen Nutzerwunsch, bestätigten Auftrag und sichtbare Annahmen; KI-Suchhypothesen bleiben außerhalb der verbindlichen Anforderungen. Der Audit prüft einen ehrlichen Entwurf und fordert keine erfundenen künftigen Fahrpläne. Tatsächlich fehlende Pflichtinhalte, falsche Places und nachgewiesene Zeitkonflikte bleiben blockierend. Reparaturanweisungen stammen nur aus Blockern. Der reale .190-Lauf lieferte zunächst 7 vollständige Tage aus 90 Kandidaten, wurde aber durch unnötige Auditreparaturen beschädigt: ausdrücklich kein Positivbeleg. 132/132 gezielte Prüfungen belegen die korrigierte Eingabe- und Wiederaufnahmesemantik; öffentliche .191-Abnahme folgt.

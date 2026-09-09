@@ -51,12 +51,12 @@ assert.match(composer,/sampleFlightRoute/,'Aircraft and drawn route must share t
 assert.match(composer,/globalCompositeOperation='screen'/,'The title atmosphere must remain an open light treatment rather than a closed card');
 assert.match(composer,/transform:'scale\(1\.34\)'/,'The selected path must hand the canonical globe into destination discovery');
 assert.match(composer,/parallelFastQueries:true,fastQueryLimit:queryBudget,queryVariantOffset:queryOffset,rejectedProviderPlaceIds:[\s\S]*candidateLimit:Math\.min\(160,[\s\S]*limit:perCategoryLimit/,'Places reads must begin with a bounded seed and expand through offset, exclusion-aware provider waves');
-assert.match(intelligenceAdapter,/Return exactly five distinct real named cities or travel regions/,'Destination inspiration must ask for five constraint-fit ideas');
+assert.match(intelligenceAdapter,/For an open request return exactly five distinct real named cities or travel regions/,'Only an open destination request asks for five ideas');
 assert.match(intelligenceAdapter,/\.slice\(0,5\)/,'Destination inspiration must expose at most five verified directions');
 assert.match(intelligenceAdapter,/run\('trip\.compose'/,'A complete trip must use the dedicated Intelligence composition capability');
 assert.match(intelligenceAdapter,/run\('trip\.audit'/,'A complete trip must pass an independent Intelligence quality audit');
 assert.match(intelligenceAdapter,/TRIP_ITINERARY_DAY_TOO_THIN/,'Sparse or empty AI days must be rejected before preview');
-  assert.match(composer,/Fünf neue Vorschläge/,'Destination inspiration must offer a visible refresh');
+  assert.match(composer,/Reisewunsch neu auswerten/,'Destination resolution must offer a visible refresh without forcing five ideas');
   assert.match(composer,/profile\.travelInterests\|\|profile\.interests/,'Profile interests must determine the requested Place categories');
   assert.match(composer,/if\(\(preferences\.food\|\|\[\]\)\.length\)add\('food','requested'\)/,'Trip dietary preferences must make food Places part of the requested draft');
   assert.match(composer,/profileAllowance=directRequests\.length>=4\?0/,'A rich explicit request must not wait for unrelated profile-only categories');
