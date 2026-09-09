@@ -415,7 +415,7 @@ function tripPlaceExperienceFit(input={}){
   const types=[...new Set([place.primaryType,place.primary_type,place.type,place.primaryTypeLabel,place.primary_type_label,...(place.types||[]),...(place.providerNativeTypes||[])].map(token).filter(Boolean))],has=values=>types.some(type=>values.includes(type)),categories=[];
   const id=clean(place.providerPlaceId||place.id).replace(/^places\//,''),research=place.tripWebResearch||{},retrievalCategory=canonical(clean(place.requestCategory||place.category).toLowerCase()),researchCategory=research.providerPlaceId===id&&/^https?:\/\//i.test(clean(research.source?.url))&&clean(research.description)?retrievalCategory:'';
   const description=clean(research.description||place.description||place.editorialSummary?.text||place.editorialSummary),described=description.length>=70;
-  const functional=has(['tourist_information','tourist_information_center','visitor_information_center','visitor_center','travel_agency','tour_operator','tour_guide','government_office','local_government_office','city_hall','town_hall','administrative_office','transportation_service','transit_station','bus_station','train_station','parking','parking_lot','parking_garage']);
+  const hasFunctionalType=has(['tourist_information','tourist_information_center','visitor_information_center','visitor_center','travel_agency','tour_operator','tour_guide','government_office','local_government_office','city_hall','town_hall','administrative_office','transportation_service','transit_station','bus_station','train_station','parking','parking_lot','parking_garage']);
   const broadSight=has(['tourist_attraction','attraction','tourism','tourism_sights','point_of_interest']),broadActivity=has(['activity','activities','entertainment','leisure','sports_activity_location','recreation_ground']),broadNightlife=has(['nightlife_spot']);
   if(has(['restaurant','cafe','bakery','meal_takeaway','food_court'])||types.some(type=>type.endsWith('_restaurant')))categories.push('food');
   if(has(['beach','marina','harbour','water_park','swimming_pool','water_sports_center']))categories.push('water');
@@ -429,7 +429,7 @@ function tripPlaceExperienceFit(input={}){
   if(has(['observation_deck','scenic_spot','viewpoint']))categories.push('photo');
   const shoppingCentre=has(['shopping_mall']),shop=shoppingCentre||has(['store','department_store','market'])||types.some(type=>type.endsWith('_store'));
   if(shoppingCentre||policy.shoppingStyle!=='centres'&&shop)categories.push('shopping');
-  const specificCategories=new Set(categories);
+  const specificCategories=new Set(categories),functional=hasFunctionalType&&!specificCategories.size;
   // Broad provider buckets find candidates, but do not prove that someone can
   // have the requested experience there. A substantive provider description
   // or an exactly resolved public source may disambiguate the identity.
