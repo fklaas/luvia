@@ -173,6 +173,15 @@ async function run(){
   const mediumBudget=project({...details.state.data,tripPreferences:{movementStyle:'city_transit'}},{...mustDoNight,data:{...mustDoNight.data,hardConstraints:[{key:'budgetLevel',value:'balanced',label:'Mittleres Budget'}],softPreferences:[]}});
   check(()=>assert.equal(mediumBudget.automaticPlanningAllowed,true,'A relative budget level is usable even when the model classifies it as important'));
   check(()=>assert.equal(mediumBudget.travelOrder.budget.level,'balanced'));
+  const references=harness(),referenceRun=references.sandbox.LuviaAI.run;references.sandbox.LuviaAI.run=async(capability,request,options)=>{const response=await referenceRun(capability,request,options);if(capability==='trip.compose'&&response.data.days?.[0]?.entries?.[0])response.data.days[0].entries[0].reason='Besuch bei '+response.data.days[0].entries[0].providerPlaceId+' als echter Reiseanker.';return response;};
+  const referenceInput={...detailsInput,candidates:[...detailsInput.candidates].reverse(),poolQuality:{minimumDistinctAreas:3}},referenced=await references.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(referenceInput),chosen=referenced.days[0].entries[0],chosenPlace=referenceInput.candidates.find(place=>place.providerPlaceId===chosen.providerPlaceId),composeCall=references.sandbox.modelCalls.find(call=>call.capability==='trip.compose');
+  check(()=>assert.equal(chosen.reason,'Besuch bei '+chosenPlace.name+' als echter Reiseanker.','Temporary aliases in model-written prose resolve to exact Place names before audit and UI'));
+  await references.sandbox.LuviaIntelligenceContractV1.reads.auditTripItinerary({...referenceInput,candidates:[...referenceInput.candidates].reverse(),itinerary:referenced});
+  const referenceAudit=references.sandbox.modelCalls.at(-1),originalRef=composeCall.request.candidateCatalog.find(place=>place.name===chosenPlace.name).providerPlaceId;
+  check(()=>assert.equal(referenceAudit.request.candidateCatalog.find(place=>place.name===chosenPlace.name).providerPlaceId,originalRef,'Reordering planned Places ahead of the reserve cannot change their aliases'));
+  check(()=>assert.equal(composeCall.request.planningContract.spatialDistribution.maximumSingleAreaShare,.6));
+  check(()=>assert.equal(composeCall.request.planningContract.spatialDistribution.minimumFullDayAreas,1));
+  check(()=>assert.ok(composeCall.request.candidateCatalog.every(place=>typeof place.spatialAreaId==='string'),'The actual model catalog includes measurable geographic areas'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

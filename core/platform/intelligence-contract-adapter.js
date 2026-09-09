@@ -137,14 +137,18 @@
   // Only this compact projection reaches a model. The verified full reserve stays
   // in the workflow and remains the source for later changes.
   function placeReferenceCodec(candidates){
-    const encoded=new Map(),decoded=new Map();
-    candidates.forEach((place,index)=>{const id=String(place.providerPlaceId||place.id||'');if(id&&!encoded.has(id)){const ref='p'+(index+1);encoded.set(id,ref);decoded.set(ref,id);}});
+    const encoded=new Map(),decoded=new Map(),names=new Map();
+    const sorted=[...candidates].sort((a,b)=>String(a.providerPlaceId||a.id||'').localeCompare(String(b.providerPlaceId||b.id||'')));
+    sorted.forEach(place=>{const id=String(place.providerPlaceId||place.id||'');if(id&&!encoded.has(id)){const ref='p'+(encoded.size+1);encoded.set(id,ref);decoded.set(ref,id);names.set(ref,String(place.name||id));}});
     const referenceKey=/^(providerPlaceId|forProviderPlaceId|providerPlaceIds|evidencePlaceIds|excludedProviderPlaceIds|alternatives|entityId)$/;
     function convert(value,map,key=''){
       if(Array.isArray(value))return value.map(item=>convert(item,map,key));
       if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([name,item])=>[name,convert(item,map,name)]));
       if(typeof value==='string'&&key==='evidenceRefs'){const match=value.match(/^place:(.+):(identity|provider-snapshot)$/);if(match&&map.has(match[1]))return 'place:'+map.get(match[1])+':'+match[2];}
-      return typeof value==='string'&&referenceKey.test(key)?map.get(value)||value:value;
+      if(typeof value==='string'&&referenceKey.test(key))return map.get(value)||value;
+      // Model-written prose must not retain temporary aliases that a later
+      // candidate subset or repair could reinterpret as another Place.
+      return typeof value==='string'&&map===decoded?value.replace(/\bp[1-9]\d*\b/g,ref=>names.get(ref)||ref):value;
     }
     return {encode:value=>convert(value,encoded),decode:value=>convert(value,decoded),fingerprint:sectionFingerprint([...encoded.keys()])};
   }
@@ -152,6 +156,7 @@
   function modelPlace(place){
     const c=place.coordinates||place.location||{};
     return {providerPlaceId:place.providerPlaceId,name:place.name,category:place.category||place.requestCategory,primaryType:place.primaryType||null,types:place.types||[],searchTarget:place.tripSearchTarget||null,
+      spatialAreaId:Math.floor(Number(c.latitude??c.lat)*111.32/2)+':'+Math.floor(Number(c.longitude??c.lng)*111.32*Math.cos(Number(c.latitude??c.lat)*Math.PI/180)/2),
       coordinates:{latitude:Number(c.latitude??c.lat),longitude:Number(c.longitude??c.lng)},
       ...(place.facts?{facts:place.facts}:{})};
   }
@@ -204,7 +209,8 @@
     const requiredCandidateCount=dayInput.reduce((sum,day)=>sum+day.minimumMoments,0),candidateAdaptivePlanning=requiredCandidateCount<originallyRequiredCandidateCount;
     const calendarEvidence=(Array.isArray(input.calendarEvidence)?input.calendarEvidence:[]).slice(0,40).map(item=>({id:clean(item?.id,160),kind:clean(item?.kind||item?.type,80),name:clean(item?.name,160),region:clean(item?.region,160),startDate:clean(item?.startDate,10),endDate:clean(item?.endDate,10),source:clean(item?.source,160),sourceUrl:clean(item?.sourceUrl,500),authority:clean(item?.authority,160),authorityUrl:clean(item?.authorityUrl,500),retrievedAt:clean(item?.retrievedAt,40),verified:item?.verified===true})).filter(item=>item.id);
     const evidenceCatalog=[...candidateInput.flatMap(item=>[{id:`place:${item.providerPlaceId}:identity`,kind:'place-identity',source:'places.v1',observedAt:item.observedAt||'',supports:['place identity']},...(item.provider&&item.observedAt?[{id:`place:${item.providerPlaceId}:provider-snapshot`,kind:'place-provider-snapshot',source:item.provider,observedAt:item.observedAt,supports:['provider supplied fields']}]:[])]),...calendarEvidence.filter(item=>item.verified).map(item=>({id:`calendar:${item.id}`,kind:item.kind||'calendar',source:item.authority||item.source,observedAt:item.retrievedAt,supports:['calendar interval',item.startDate&&item.endDate?`${item.startDate}/${item.endDate}`:''].filter(Boolean) }))];
-    const planningContract={completePeriod:true,dayPolicies:dayInput,maximumMomentsPerDay,useOnlyCandidateIds:true,allDaysExactlyOnce:true,noUnexplainedEmptyDays:true,avoidDuplicatePlaces:true,preserveAllHardConstraints:true,assignContextualTimes:true,avoidSingleDefaultTime:true,preventTimeOverlap:true,freeTimeBetweenMoments:true,explicitDeliberateFreeTime:true,wholeTripBalance:true,travelPromiseRequired:true,uncertaintyMapRequired:true,bookingDependenciesRequired:true,neighborhoodRecommendationRequired:true,verifiedClaimsRequireEvidence:true,clusterDaysGeographically:true,arrivalDepartureAware:true,prepareBackupOptions:true,candidateAdaptivePlanning,availableCandidateCount:candidateInput.length,originallyRequiredCandidateCount,automaticMutation:false};
+    const spatialVariety=(input.poolQuality?.minimumDistinctAreas||order.geography?.minimumDistinctAreas||1)>1,spatialDistribution={enabled:spatialVariety,minimumAreas:Math.min(3,dayInput.length),maximumSingleAreaShare:.6,minimumFullDayAreas:Math.min(3,dayInput.filter(day=>day.role==='full').length),areaDefinition:'Supplied 2 km geographic grid IDs are coverage measures, not neighborhood names. Choose meaningful distinct day anchors and coherent local routes. Preserve actual must-dos; do not add distant filler.'};
+    const planningContract={completePeriod:true,dayPolicies:dayInput,spatialDistribution,maximumMomentsPerDay,useOnlyCandidateIds:true,allDaysExactlyOnce:true,noUnexplainedEmptyDays:true,avoidDuplicatePlaces:true,preserveAllHardConstraints:true,assignContextualTimes:true,avoidSingleDefaultTime:true,preventTimeOverlap:true,freeTimeBetweenMoments:true,explicitDeliberateFreeTime:true,wholeTripBalance:true,travelPromiseRequired:true,uncertaintyMapRequired:true,bookingDependenciesRequired:true,neighborhoodRecommendationRequired:true,verifiedClaimsRequireEvidence:true,clusterDaysGeographically:true,arrivalDepartureAware:true,prepareBackupOptions:true,candidateAdaptivePlanning,availableCandidateCount:candidateInput.length,originallyRequiredCandidateCount,automaticMutation:false};
     const requestedCategoryIds=[...new Set((order.categories||[]).map(item=>clean(item?.category)).filter(Boolean))],repairInstructions=(Array.isArray(input.repairInstructions)?input.repairInstructions:[]).map(item=>clean(item,300)).filter(Boolean).slice(0,20),qualityAttempt=Math.max(1,Math.min(3,Math.round(Number(input.qualityAttempt)||1))),composeTier='default',existing=input.existingItinerary?.kind==='ai-trip-itinerary'?input.existingItinerary:null,requestedRepairDates=[...new Set([...(Array.isArray(input.repairDayDates)?input.repairDayDates:[]),...(Array.isArray(existing?.contractIssues)?existing.contractIssues.map(item=>item?.dayDate):[])].map(date=>clean(date,10)).filter(date=>dayInput.some(day=>day.date===date)))];
     let value,missingRepairDates=[];
     if(existing&&requestedRepairDates.length){

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.191",
-  "core": "4.82.310",
-  "runtimeSource": "a243e91e",
-  "worker": "ea004d9a-9a63-43a0-a68e-43d66d1b8f4d",
+  "app": "13.82.168.192",
+  "core": "4.82.311",
+  "runtimeSource": "7d4233ee",
+  "worker": "22299d0a-734e-405f-b10d-7893258783f2",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -732,7 +732,7 @@
       "sequence": "Zuerst .173 ausschließlich auf Integration veröffentlichen und den echten Valencia-Auftrag mit Meer, Shopping, Nachtleben und Restaurants gegen die räumlich versetzte Recherche prüfen. Danach wird der getrennte trip.compose-Latenzengpass durch einen kleineren, fortsetzbaren Kompositionsvertrag geschlossen; anschließend folgen der Familien-/Ferien-/Konfliktfall und lange 14-/21-Tage-Pläne als P17/P19-Abnahme."
     }
   ],
-  "acceptanceUpdate": "Integration .191 / a243e91e hat den festen Valencia-Wunsch öffentlich ohne fünf Zielalternativen direkt zur Reisezeit geführt. Das exakte Zeitfenster 14.–20.06.2027 wird aus dem Freitext angeboten. 241/241 Regression, 132/132 Transport/Reserve/Audit/Einstieg, 22/22 Bytes. Der reale Folgeversuch stoppte vor Places, weil mittleres Budget als unerfüllte harte Preisgrenze klassifiziert wurde. Kandidat .192 akzeptiert relative Budgetstufen; konkrete harte Euro-Obergrenzen bleiben unverändert streng. Neuversuche dürfen eine als unplanbar gespeicherte Interpretation neu auswerten. 134/134 gezielte Prüfungen bestanden; echter Gesamtplan bleibt in Abnahme.",
+  "acceptanceUpdate": "Public .192 setzt den zuvor am relativen Budget gescheiterten Auftrag fort und hält 100 reale Kandidaten. Erster Entwurf und Audit benennen nun echte mangelnde Viertelstreuung statt fehlender künftiger Fahrpläne. Folgeaudit zeigt zusätzlich einen Referenzfehler: Kurz-IDs wurden beim Umsortieren zwischen Modellen neu vergeben und blieben in Begründungstexten stehen. .193 sortiert die Identitäten stabil und löst Textreferenzen vor jeder Weitergabe in die echten Ortsnamen auf. Das Modell bekommt 2-km-Gebietskennungen, mindestens drei volle Tagesgebiete und höchstens 60 % der Besuche im selben Gebiet, sofern der erlaubte Radius und Katalog dies tragen. 139/139 gezielte Prüfungen bestehen. Ein neuer echter Gesamtplan bleibt in Abnahme.",
   "safeRegression": "Integration .189: 241/241 Safe Regression und 22/22 öffentliche Bytevergleiche. Kandidat .190: 133 Composer, 117/117 Transport-/Reserve-/Übergangs-/Auditwahrheitsprüfungen und 99/99 Wiederaufnahme; vollständige finale Regression folgt.",
   "publicAssetIdentity": "Integration .186: 22/22 Stable-/Immutable-Bytevergleiche zur Quelle 041facef. Archiv 92.660.654 Bytes, SHA256 429413117C58DA02AA18C34F184F9C2116ED0D3D3E9BEA6988439DB18D1B6EAD.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
@@ -768,8 +768,8 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19: Kandidat App 13.82.168.192 / Core 4.82.311 korrigiert relative Budgetstufen und startet einen zuvor abgelehnten Reiseauftrag beim bewussten Neuversuch erneut.",
-    "delivered": "Integration .191 / a243e91e hat den festen Valencia-Wunsch öffentlich ohne fünf Zielalternativen direkt zur Reisezeit geführt. Das exakte Zeitfenster 14.–20.06.2027 wird aus dem Freitext angeboten. 241/241 Regression, 132/132 Transport/Reserve/Audit/Einstieg, 22/22 Bytes. Der reale Folgeversuch stoppte vor Places, weil mittleres Budget als unerfüllte harte Preisgrenze klassifiziert wurde. Kandidat .192 akzeptiert relative Budgetstufen; konkrete harte Euro-Obergrenzen bleiben unverändert streng. Neuversuche dürfen eine als unplanbar gespeicherte Interpretation neu auswerten. 134/134 gezielte Prüfungen bestanden; echter Gesamtplan bleibt in Abnahme.",
+    "stage": "P17/P19: Kandidat App 13.82.168.193 / Core 4.82.312 stabilisiert Place-Kurzreferenzen und gibt räumliche Verteilungsziele vor der Komposition explizit vor.",
+    "delivered": "Public .192 setzt den zuvor am relativen Budget gescheiterten Auftrag fort und hält 100 reale Kandidaten. Erster Entwurf und Audit benennen nun echte mangelnde Viertelstreuung statt fehlender künftiger Fahrpläne. Folgeaudit zeigt zusätzlich einen Referenzfehler: Kurz-IDs wurden beim Umsortieren zwischen Modellen neu vergeben und blieben in Begründungstexten stehen. .193 sortiert die Identitäten stabil und löst Textreferenzen vor jeder Weitergabe in die echten Ortsnamen auf. Das Modell bekommt 2-km-Gebietskennungen, mindestens drei volle Tagesgebiete und höchstens 60 % der Besuche im selben Gebiet, sofern der erlaubte Radius und Katalog dies tragen. 139/139 gezielte Prüfungen bestehen. Ein neuer echter Gesamtplan bleibt in Abnahme.",
     "nextStep": {
       "id": "P17-P19-public-reserve-sections-review",
       "package": "P19",
@@ -841,7 +841,7 @@
         "evidence": "Erster realer positiver Gesamtplan: Valencia 14.–20.06.2027, 7/7 Tage, 19 übernommen, kontextuelle Zeiten, Reiseversprechen, Freiraum, Reise-DNA, Unsicherheitskarte, 4 Buchungsabhängigkeiten, Unterkunftsradius, 2 Plan Bs, Audit 74/100 und Review-Freigabe. Quelle d440b96015bc388b6887ff0a92a17d46934f82e7, Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f, 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 Bytes."
       }
     ],
-    "evidence": "Integration .191 / a243e91e hat den festen Valencia-Wunsch öffentlich ohne fünf Zielalternativen direkt zur Reisezeit geführt. Das exakte Zeitfenster 14.–20.06.2027 wird aus dem Freitext angeboten. 241/241 Regression, 132/132 Transport/Reserve/Audit/Einstieg, 22/22 Bytes. Der reale Folgeversuch stoppte vor Places, weil mittleres Budget als unerfüllte harte Preisgrenze klassifiziert wurde. Kandidat .192 akzeptiert relative Budgetstufen; konkrete harte Euro-Obergrenzen bleiben unverändert streng. Neuversuche dürfen eine als unplanbar gespeicherte Interpretation neu auswerten. 134/134 gezielte Prüfungen bestanden; echter Gesamtplan bleibt in Abnahme."
+    "evidence": "Public .192 setzt den zuvor am relativen Budget gescheiterten Auftrag fort und hält 100 reale Kandidaten. Erster Entwurf und Audit benennen nun echte mangelnde Viertelstreuung statt fehlender künftiger Fahrpläne. Folgeaudit zeigt zusätzlich einen Referenzfehler: Kurz-IDs wurden beim Umsortieren zwischen Modellen neu vergeben und blieben in Begründungstexten stehen. .193 sortiert die Identitäten stabil und löst Textreferenzen vor jeder Weitergabe in die echten Ortsnamen auf. Das Modell bekommt 2-km-Gebietskennungen, mindestens drei volle Tagesgebiete und höchstens 60 % der Besuche im selben Gebiet, sofern der erlaubte Radius und Katalog dies tragen. 139/139 gezielte Prüfungen bestehen. Ein neuer echter Gesamtplan bleibt in Abnahme."
   },
   "qaCommit": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
   "intelligence": "Integration-Intelligence 4.43.4 veröffentlicht. Kandidat 4.43.5 präzisiert Entwurfsprüfung und trennt Nutzerwünsche von Suchhypothesen. Produktionsfunction und Gateway unverändert.",
