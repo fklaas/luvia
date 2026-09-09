@@ -55,6 +55,7 @@ function projectTripPreferences(value={}){
     movementStyle:['near_walk','city_transit','wide_taxi_car'].includes(input.movementStyle)?input.movementStyle:'',
     mix:['balanced','favorites','surprising'].includes(input.mix)?input.mix:'balanced',
     experiences:uniqueStrings(input.experiences,8),
+    shoppingStyle:['centres','specific_shops','mixed'].includes(input.shoppingStyle)?input.shoppingStyle:'',
     adults:input.adults!=null&&input.adults!==''&&Number.isInteger(Number(input.adults))&&Number(input.adults)>=0?Math.min(30,Number(input.adults)):null,
     children:input.children!=null&&input.children!==''&&Number.isInteger(Number(input.children))&&Number(input.children)>=0?Math.min(30,Number(input.children)):null,
     freeTimePercent:input.freeTimePercent!=null&&input.freeTimePercent!==''&&Number.isFinite(Number(input.freeTimePercent))?Math.max(0,Math.min(80,Number(input.freeTimePercent))):null,

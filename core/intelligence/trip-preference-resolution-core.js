@@ -401,6 +401,47 @@ function movementQuestion(travelOrder={}){
   ],allowFreeText:true};
 }
 
+// These are evidence checks over canonical Places types, not a second Places taxonomy.
+// Retrieval labels and model-generated descriptions cannot establish a venue's identity.
+function experienceSelectionPolicy(input={}){
+  const order=input.travelOrder||input.brief?.travelOrder||{},prefs=input.tripPreferences||input.brief?.tripPreferences||{},aliases={active:'activities',family:'activities',activities:'activities'},canonical=value=>aliases[value]||value;
+  const valid=new Set(['food','sights','culture','nature','water','activities','themeparks','shopping','nightlife','wellness','photo']);
+  const excluded=[...new Set((order.excludedCategories||[]).map(canonical))],requested=[...new Set([...(order.categories||[]).map(item=>canonical(item.category)),...(prefs.interests||[]).map(canonical),...((prefs.food||[]).length?['food']:[])])].filter(id=>valid.has(id)&&!excluded.includes(id));
+  const shoppingStyle=['centres','specific_shops','mixed'].includes(prefs.shoppingStyle)?prefs.shoppingStyle:['centres','specific_shops','mixed'].includes(order.shopping?.style)?order.shopping.style:'centres';
+  return immutable({version:1,requestedCategories:requested,excludedCategories:excluded,shoppingStyle,explicitScope:requested.length>0,allowUnrequestedCategories:false,balanceMeans:'daily rhythm within the requested experiences, not equal shares of every POI category'});
+}
+function tripPlaceExperienceFit(input={}){
+  const place=input.place||{},policy=input.policy||experienceSelectionPolicy(input),types=[...new Set([place.primaryType,place.type,...(place.types||[])].filter(Boolean))];
+  const has=values=>types.some(type=>values.includes(type)),categories=[];
+  if(has(['restaurant','cafe','bakery','meal_takeaway','food_court'])||types.some(type=>type.endsWith('_restaurant')))categories.push('food');
+  if(has(['beach','marina','harbour','water_park','swimming_pool']))categories.push('water');
+  if(has(['bar','pub','cocktail_bar','wine_bar','night_club','jazz_club','karaoke_bar','live_music_venue','concert_hall','comedy_club']))categories.push('nightlife');
+  if(has(['museum','art_gallery','performing_arts_theater','cultural_center']))categories.push('culture');
+  if(has(['historical_landmark','historical_monument','monument','church','tourist_attraction','observation_deck']))categories.push('sights');
+  if(has(['park','garden','park_recreation_area','national_park','hiking_area','nature_reserve']))categories.push('nature');
+  if(has(['bowling_alley','escape_room','amusement_center','minigolf','sports_activity_location','swimming_pool','water_park','amusement_park','aquarium','zoo','skating_rink','golf_course']))categories.push('activities');
+  if(has(['amusement_park','water_park','theme_park']))categories.push('themeparks');
+  if(has(['spa','sauna','wellness_center','thermal_bath']))categories.push('wellness');
+  if(has(['observation_deck','scenic_spot']))categories.push('photo');
+  const shoppingCentre=has(['shopping_mall']),shop=shoppingCentre||has(['store','department_store','market'])||types.some(type=>type.endsWith('_store'));
+  if(shoppingCentre||policy.shoppingStyle!=='centres'&&shop)categories.push('shopping');
+  const matchedCategories=categories.filter(category=>policy.requestedCategories.includes(category)&&!policy.excludedCategories.includes(category));
+  // Specific negative evidence beats a misleading broad retrieval label.
+  const reason=shop&&!shoppingCentre&&policy.shoppingStyle==='centres'&&!matchedCategories.length?'individual-shop-not-shopping-centre':!matchedCategories.length?'outside-requested-experiences':'';
+  return immutable({eligible:!policy.explicitScope||matchedCategories.length>0,matchedCategories,evidencedCategories:categories,shoppingCentre,reason});
+}
+function tripExperienceAlignment(input={}){
+  const policy=experienceSelectionPolicy(input),byId=new Map((input.candidates||[]).map(place=>[clean(place.providerPlaceId||place.id).replace(/^places\//,''),place])),counts={},outside=[];
+  for(const day of input.itinerary?.days||[])for(const entry of day.entries||[]){
+    const id=clean(entry.providerPlaceId||entry.id).replace(/^places\//,''),place=byId.get(id);if(!place)continue;
+    const fit=tripPlaceExperienceFit({place,policy});
+    for(const category of fit.matchedCategories)counts[category]=(counts[category]||0)+1;
+    if(!fit.eligible)outside.push({dayDate:day.date,providerPlaceId:id,name:clean(place.name),reason:fit.reason});
+  }
+  const missing=policy.requestedCategories.filter(category=>!counts[category]),available=new Set((input.candidates||[]).flatMap(place=>tripPlaceExperienceFit({place,policy}).matchedCategories));
+  return immutable({policy,counts,outside,missing,needsResearch:missing.filter(category=>!available.has(category)),rule:'Counts establish only minimum coverage. The independent AI audit still judges variety, repetition, experience fit and meaningful duration. Free time is not an evening venue or a shopping centre.'});
+}
+
 // Structured model output is a proposal about the request, never evidence about a place.
 function projectTripBrief(input={},response={}){
   if(response.ok!==true||response.meta?.fallback!==false||!response.data||!Array.isArray(response.data.goals))throw Object.assign(new Error('Luvia konnte eure Wünsche noch nicht zuverlässig verstehen. Bitte erneut versuchen.'),{code:'TRIP_BRIEF_AI_REQUIRED'});
@@ -430,6 +471,7 @@ function projectTripBrief(input={},response={}){
     if(['accessibility','accessibilityneed','barrierfree'].includes(key)){preferences.accessibility.push(clean(item.value));handled=true;}
     if(['mobility','transportmobility'].includes(key)){preferences.mobility.push(clean(item.value));handled=true;}
     if(['categorymix','mix'].includes(key)){const mix={balanced:'balanced',ausgewogen:'balanced',favorites:'favorites',favoriten:'favorites',surprising:'surprising',abwechslung:'surprising'}[value];if(mix){preferences.mix=mix;handled=true;}}
+    if(key==='shoppingstyle'&&['centres','specific_shops','mixed'].includes(value)){preferences.shoppingStyle=value;handled=true;}
     if(['maximumperday','maxactivitiesperday','activitiesperday'].includes(key)&&/^[1-4]$/.test(value)){policy.maximumPerDay=Number(value);if(item.hard)hardPolicy.maximumPerDay=Math.min(hardPolicy.maximumPerDay,Number(value));handled=true;}
     if(['notbefore','starttime','daystart'].includes(key)&&time(value)){policy.notBefore=value;travelOrder.rhythm.dayStart=value;if(item.hard)hardPolicy.notBefore=hardPolicy.notBefore&&hardPolicy.notBefore>value?hardPolicy.notBefore:value;handled=true;}
     if(['notafter','endtime','dayend'].includes(key)&&time(value)){policy.notAfter=value;travelOrder.rhythm.dayEnd=value;if(item.hard)hardPolicy.notAfter=hardPolicy.notAfter&&hardPolicy.notAfter<value?hardPolicy.notAfter:value;handled=true;}
@@ -513,6 +555,9 @@ function projectTripBrief(input={},response={}){
     if(handled)applied.push({label,effect:key});else if(label){unresolved.push({label,hard:Boolean(item.hard)});travelOrder.retainedRequirements.push({type:key||'other',label,hard:Boolean(item.hard)});}
   }
   preferences.interests=unique(preferences.interests).filter(id=>!exclusions.has(id));preferences.food=unique(preferences.food);preferences.accessibility=unique(preferences.accessibility);preferences.mobility=unique(preferences.mobility);
+  travelOrder.excludedCategories=[...exclusions];travelOrder.categories=travelOrder.categories.filter(item=>!exclusions.has(item.category));
+  preferences.shoppingStyle=['centres','specific_shops','mixed'].includes(preferences.shoppingStyle)?preferences.shoppingStyle:'centres';
+  travelOrder.shopping={style:preferences.shoppingStyle};
   if((preferences.interests.includes('nightlife')||travelOrder.mustDo.some(item=>/nachtleben|nightlife/i.test(item)))&&!constraints.some(item=>['notafter','endtime','dayend'].includes(norm(item.key))))policy.notAfter='23:59';
   policy.maximumPerDay=Math.min(policy.maximumPerDay,hardPolicy.maximumPerDay);if(hardPolicy.notBefore)policy.notBefore=hardPolicy.notBefore;if(hardPolicy.notAfter)policy.notAfter=hardPolicy.notAfter;
   travelOrder.rhythm.dayStart=travelOrder.rhythm.dayStart||policy.notBefore;travelOrder.rhythm.dayEnd=travelOrder.rhythm.dayEnd||policy.notAfter;travelOrder.rhythm.freeTimePercent=policy.freeTimePercent;
@@ -557,6 +602,7 @@ function projectTripBrief(input={},response={}){
   const conflictAssessment=normalizeConflictAssessment(data.conflictAssessment),semanticConflictQuestion=conflictQuestion(conflictAssessment),semanticMovementQuestion=unresolved.some(item=>item.hard)?null:movementQuestion(travelOrder);
   const needsHolidayWindow=travelOrder.travelers.schoolHolidayRequired&&matchingHolidayEvidence.length&&!confirmedHolidayCovered,holidayQuestion=travelOrder.travelers.schoolHolidayRequired&&!travelOrder.travelers.schoolHolidayRegion?{id:'school-holiday-region',kind:'calendar',text:'Für welches Bundesland oder welche Schulregion gelten eure Ferien?',reason:'Nur damit kann Luvia einen groben Zeitraum mit echten Ferienterminen abgleichen.',options:[],allowFreeText:true}:needsHolidayWindow?{id:'school-holiday-period',kind:'calendar',text:travelOrder.time.suggestedWindows.length?'Welcher bestätigte Ferienzeitraum passt für euch?':'Für den genannten groben Zeitraum wurde noch kein passendes bestätigtes Ferienfenster gefunden.',reason:travelOrder.time.confirmedStart?'Der bisher gewählte Zeitraum liegt nicht vollständig in den bestätigten Schulferien.':'Luvia plant erst weiter, wenn ihr ein belegtes Zeitfenster gewählt habt.',options:travelOrder.time.suggestedWindows,allowFreeText:false}:null,requestedQuestion=needsRequestedWindow?{id:'requested-travel-period',kind:'calendar',text:`Welcher Zeitraum im ${MONTH_LABELS[requestedMonthYear(travelOrder.time).month-1]||'gewünschten Zeitraum'} passt für euch?`,reason:'Alle Optionen folgen eurem genannten Monat und eurer Reisedauer. Wetter, Flugpreise und Verfügbarkeit werden erst mit echten Quellen bewertet.',options:travelOrder.time.suggestedWindows,allowFreeText:false}:null,modelQuestion=data.followUpQuestion?.text&&!questionsConfirmedDuration(data.followUpQuestion,confirmedNights,requestedNights)?{id:'model-follow-up',kind:'model',text:clean(data.followUpQuestion.text).slice(0,300),reason:clean(data.followUpQuestion.reason).slice(0,300),options:(data.followUpQuestion.options||[]).slice(0,4).map(item=>({label:clean(item.label).slice(0,120),value:clean(item.value).slice(0,120),description:''})),allowFreeText:data.followUpQuestion.allowFreeText!==false}:null,question=holidayQuestion||requestedQuestion||semanticConflictQuestion||modelQuestion||semanticMovementQuestion;
   const explicitKeys=new Set(constraints.map(item=>norm(item.key))),planningAssumptions=[
+    ...(preferences.interests.includes('shopping')?[{id:'shopping-style',label:'Shopping',value:{centres:'Einkaufszentren',specific_shops:'Gezielt besondere Geschäfte',mixed:'Einkaufszentren und besondere Geschäfte'}[preferences.shoppingStyle],source:explicitKeys.has('shoppingstyle')||base.shoppingStyle?'trip-input':'luvia-default',editable:true}]:[]),
     {id:'day-rhythm',label:'Tagesrhythmus',value:preferences.pace||'balanced',source:[...explicitKeys].some(key=>['pace','travelpace','planningpace'].includes(key))?'trip-input':'luvia-default',editable:true},
     {id:'free-time',label:'Bewusster Freiraum',value:`${policy.freeTimePercent}%`,source:explicitKeys.has('freetimepercent')?'trip-input':'luvia-default',editable:true},
     {id:'accommodation-base',label:'Unterkunftsbasis',value:travelOrder.geography.baseStrategy,source:[...explicitKeys].some(key=>['basestrategy','accommodationstrategy'].includes(key))?'trip-input':'luvia-default',editable:true},
@@ -578,5 +624,5 @@ function confirmTripBriefWindow(brief={},selection={}){
   next.automaticPlanningAllowed=!next.unresolved.some(item=>item.hard);return immutable(next);
 }
 
-return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore,projectTripBrief,confirmTripBriefWindow,suggestRequestedTravelWindows});
+return Object.freeze({version:VERSION,feelings:FEELINGS,resolve,rankPlaces,composeDayGuidance,normalizeProfile,fitScore,projectTripBrief,confirmTripBriefWindow,suggestRequestedTravelWindows,experienceSelectionPolicy,tripPlaceExperienceFit,tripExperienceAlignment});
 })();
