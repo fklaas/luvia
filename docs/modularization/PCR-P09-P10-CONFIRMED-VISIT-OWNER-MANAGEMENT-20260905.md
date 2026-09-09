@@ -3,9 +3,9 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.181**, Core **4.82.300**. P17/P19 aktiv: Kandidat App 13.82.168.182 / Core 4.82.301 implementiert vollständige Workflow-Reserven, kompakte Wochenabschnitte, Wiederaufnahme und KI-Auswahl aus der Reserve. Der bisher öffentliche Stand bleibt .181, bis der Kandidat geprüft und veröffentlicht ist.
+**Stand 2026-09-09:** Integration **13.82.168.182**, Core **4.82.301**. P17/P19 aktiv: App .182 / Core .301 ist auf Integration veröffentlicht. Der echte Valencia-Lauf liefert ein räumlich breites 57-Places-Reservoir und sieben Tage einschließlich Strand, braucht aber Reparaturen wegen vom Modell falsch abgeschriebener langer Geoapify-IDs. Kandidat App 13.82.168.183 / Core 4.82.302 ersetzt Modell-IDs durch kurze, exakt rückgebundene Referenzen.
 
-**Zuletzt geliefert:** Lokal belegt: 133 Composer-Prüfungen, 99/99 P19-Workflowprüfungen und 51/51 neue Tests über den tatsächlichen Client-/Server-Transport, 14/21/28-Tage-Reserven, gespeicherte Abschnitte, eindeutige Place-IDs über Abschnittsgrenzen, vollständigen Gesamtaudit und konkrete Edge-Fehler. Die generischen 50-/60-Element-Kürzungen waren trotz früherer Mock-Prüfungen noch wirksam und sind jetzt im Trip-Pfad beseitigt. Kein öffentlicher Erfolg von .182 wird daraus abgeleitet.
+**Zuletzt geliefert:** Integration .182: Quelle COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f, Worker 1fbf6e16-b328-44bb-9284-5413383e6b17, Archiv 92.650.447 Bytes / SHA256 8E60A0A356EBF564E35B34CA67BDEE67670EDC6221FFE15CCDC8D2C9ADBAE540 und 22/22 öffentliche Bytevergleiche. 241/241 Regression, NFR-0 3/3, Composer 133, P19 99/99 und 51/51 Transport-/Abschnittsprüfungen bestanden. Echter Providerbeleg: planning.dialogue erfolgreich in 16.203 ms; trip.compose und Reparaturen liefen real. Der letzte Audit blockierte fehlende gültige Backup-Referenzen. Ein bis zwei abweichende Zeichen in echten 113- bis 125-stelligen Provider-IDs sind als Ursache belegt. Der neue Referenzpfad ist mit 60/60 Transport-/Abschnittsprüfungen und 133 Composer-Prüfungen geprüft; sein öffentlicher Review folgt noch.
 
 **Nächster Schritt (AKTIV): Den korrigierten KI-Reisepfad auf Integration bis zum echten Gesamtreview belegen.** Die tatsächliche Transportstrecke war bisher nicht durch die Composer-Mocks abgesichert. Jetzt muss der reale Providerlauf die lokale Korrektur bestätigen.
 
@@ -16,9 +16,9 @@
 - Echter Valencia-Lauf mit belegtem Pool, Laufzeit, terminalem Providerergebnis und vollständigem Gesamtaudit.
 - Reserveaktionen und Wiederaufnahme auf dem öffentlichen Kandidaten prüfen.
 
-**Danach:** Nach .181 werden der erhaltene Reservepool für gezielten Tausch, Ergänzungen, spontane Vorschläge und Mehr-davon nutzbar gemacht sowie räumliche Streuung und Kategorienmix öffentlich abgenommen. Für sehr lange Reisen folgt anschließend die segmentierte KI-Komposition, damit nicht ein riesiger Prompt alle Wochen gleichzeitig tragen muss. Danach werden autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte abgeschlossen.
+**Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Öffentlicher Integration-Nachweis des neuen Kandidaten mit realen Places, messbarer Dauer, semantischem Kategorienmix und vollständigem Audit; physischen Sperrbildschirm nicht mit Simulation gleichsetzen. Danach bleiben die übrigen P17/P19-Abnahmen zu Ferienfenstern, Konfliktmoderation, Konto-/Timeline-Übernahme und datierten Livebelegen offen.
+**Weiter offen:** Öffentlichen Gesamtreview mit kurzen Modellreferenzen und tatsächlich akzeptierten Reserveoptionen abschließen. Sehr lange Reisen und App-Wechsel sind kontrolliert geprüft; die physische iOS-/Android-Abnahme bleibt gesondert offen. Übrige P17/P19-Abnahmen und datierte Livebelege bleiben im Plan.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
