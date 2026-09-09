@@ -422,7 +422,7 @@ function projectTripBrief(input={},response={}){
       const pace={slow:'slow',ruhig:'slow',relaxed:'slow',entspannt:'slow',balanced:'balanced',ausgewogen:'balanced',active:'active',aktiv:'active'}[value];if(pace){preferences.pace=pace;policy.maximumPerDay=pace==='slow'?3:4;handled=true;}
     }
     if(['budget','budgetlevel','budgetpreference'].includes(key)){
-      const budget={economy:'economy',low:'economy',günstig:'economy',balanced:'balanced',medium:'balanced',generous:'generous',high:'generous',open:'open'}[value];if(budget){preferences.budgetLevel=budget;handled=budget==='open'||!item.hard;}
+      const budget={economy:'economy',low:'economy',günstig:'economy',balanced:'balanced',medium:'balanced',generous:'generous',high:'generous',open:'open'}[value];if(budget){preferences.budgetLevel=budget;handled=true;}
     }
     if(['dietary','diet','food','dietarypreference'].includes(key)){
       const diet={vegetarian:'vegetarian',vegetarisch:'vegetarian',vegan:'vegan'}[value];if(diet){preferences.food.push(diet);handled=true;}

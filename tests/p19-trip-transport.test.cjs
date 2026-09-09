@@ -170,6 +170,9 @@ async function run(){
   check(()=>assert.equal(projectedNight.policy.notAfter,'23:59','A semantic nightlife must-do also prevents the hidden 21:00 limit'));
   check(()=>assert.equal(projectedNight.travelOrder.budget.level,'balanced','Budget level reaches composition and audit without inventing a euro total'));
   check(()=>assert.equal(projectedNight.travelOrder.geography.movementStyle,'city_transit','An explicit movement selection survives incomplete model extraction'));
+  const mediumBudget=project({...details.state.data,tripPreferences:{movementStyle:'city_transit'}},{...mustDoNight,data:{...mustDoNight.data,hardConstraints:[{key:'budgetLevel',value:'balanced',label:'Mittleres Budget'}],softPreferences:[]}});
+  check(()=>assert.equal(mediumBudget.automaticPlanningAllowed,true,'A relative budget level is usable even when the model classifies it as important'));
+  check(()=>assert.equal(mediumBudget.travelOrder.budget.level,'balanced'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

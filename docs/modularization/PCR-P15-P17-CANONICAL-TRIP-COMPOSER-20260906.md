@@ -33,9 +33,9 @@ Die neue Gestaltungsvorgabe wird zusätzlich als Bewegungsstudie und Produktvert
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.190**, Core **4.82.309**. P17/P19 Priorität: vollständige KI-Reise. Kandidat App 13.82.168.191 / Core 4.82.310 korrigiert feste Zielwahl und unnötige semantische Reparaturschleifen.
+**Stand 2026-09-09:** Integration **13.82.168.191**, Core **4.82.310**. P17/P19: Kandidat App 13.82.168.192 / Core 4.82.311 korrigiert relative Budgetstufen und startet einen zuvor abgelehnten Reiseauftrag beim bewussten Neuversuch erneut.
 
-**Zuletzt geliefert:** Public .190 / 39eba77a: 241/241 Regression, 117 Transport/Reserve, 133 Composer, 22/22 Bytes. Echter Valencia-Lauf 890500cb-0279-4149-8be3-bdde6fc6f779: 90 reale Kandidaten in 29 Rastergebieten, größter Anteil 24,4 %, erste vollständige Komposition 30.399 ms, erster Audit 13.960 ms. Keine inhaltliche Abnahme: Audit verwechselte offene künftige Verkehrsverbindungen und eine eigene Markt-Suchhypothese mit unerfüllten Nutzerpflichten; unnötige Neuplanungen verschlechterten gültige Tage. .191 trennt diese Eingaben, behält echte harte Blocker, übernimmt feste Ziele direkt und gibt Budgetniveau/Bewegung vollständig weiter. 132/132 gezielte Verhaltensprüfungen bestanden; neue öffentliche Abnahme steht aus.
+**Zuletzt geliefert:** Integration .191 / a243e91e hat den festen Valencia-Wunsch öffentlich ohne fünf Zielalternativen direkt zur Reisezeit geführt. Das exakte Zeitfenster 14.–20.06.2027 wird aus dem Freitext angeboten. 241/241 Regression, 132/132 Transport/Reserve/Audit/Einstieg, 22/22 Bytes. Der reale Folgeversuch stoppte vor Places, weil mittleres Budget als unerfüllte harte Preisgrenze klassifiziert wurde. Kandidat .192 akzeptiert relative Budgetstufen; konkrete harte Euro-Obergrenzen bleiben unverändert streng. Neuversuche dürfen eine als unplanbar gespeicherte Interpretation neu auswerten. 134/134 gezielte Prüfungen bestanden; echter Gesamtplan bleibt in Abnahme.
 
 **Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Der öffentliche Fehler ist bis zu den konkreten Audit- und Vertragsentscheidungen verfolgt. Der neue Stand muss einen vollständigen echten Plan liefern, bevor dieser Slice abgenommen wird.
 
