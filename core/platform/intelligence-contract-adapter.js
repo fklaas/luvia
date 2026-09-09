@@ -267,7 +267,13 @@
         const prior=timed[slot-1],next=timed[slot],priorStart=minute(prior.time),nextStart=minute(next.time);
         if(nextStart<priorStart+prior.durationMinutes)contractIssues.push({code:'TRIP_ITINERARY_TIME_OVERLAP',dayDate:expected.date,message:`${expected.label} enthält überlappende Vorschlagszeiten.`});
       }
-      const freeTime=(Array.isArray(source.freeTime)?source.freeTime:[]).map(item=>{const start=clean(item?.start,5),end=clean(item?.end,5),from=minute(start),until=minute(end),purpose=clean(item?.purpose,180);return from!=null&&until!=null&&until>from?{start,end,purpose,reason:clean(item?.reason,300)||purpose,minutes:until-from}:null}).filter(Boolean).slice(0,6);
+      const occupied=timed.map(entry=>[minute(entry.time),minute(entry.time)+entry.durationMinutes]);
+      const freeTime=(Array.isArray(source.freeTime)?source.freeTime:[]).slice(0,6).flatMap(item=>{
+        const from=minute(clean(item?.start,5)),until=minute(clean(item?.end,5)),purpose=clean(item?.purpose,180);if(from==null||until==null||until<=from||!purpose)return [];
+        let windows=[[Math.max(from,minute(expected.notBefore)),Math.min(until,minute(expected.notAfter))]].filter(([start,end])=>end>start);
+        for(const [busyStart,busyEnd] of occupied)windows=windows.flatMap(([start,end])=>busyStart>=end||busyEnd<=start?[[start,end]]:[[start,Math.min(end,busyStart)],[Math.max(start,busyEnd),end]].filter(([a,b])=>b>a));
+        occupied.push(...windows);return windows.map(([start,end])=>({start:clock(start),end:clock(end),purpose,reason:clean(item?.reason,300)||purpose,minutes:end-start}));
+      }).sort((a,b)=>a.start.localeCompare(b.start));
       if(expected.freeTimePercent>0&&expected.role==='full'&&!freeTime.length)contractIssues.push({code:'TRIP_ITINERARY_FREETIME_MISSING',dayDate:expected.date,message:`${expected.label} enthält noch keinen bewusst geplanten Freiraum.`});
       const plannedMinutes=entries.reduce((sum,item)=>sum+item.durationMinutes,0),freeTimeMinutes=freeTime.reduce((sum,item)=>sum+item.minutes,0),energy=['light','balanced','intense'].includes(source.balance?.energy)?source.balance.energy:'balanced';
       const longStay=expected.longStayAlternative,deliberateLongStay=longStay&&entries.length>=longStay.minimumMoments&&entries.some(entry=>entry.durationMinutes>=longStay.minimumAnchorMinutes)&&plannedMinutes>=longStay.minimumTotalMinutes&&freeTime.filter(slot=>slot.purpose&&!timed.some(entry=>minute(slot.start)<minute(entry.time)+entry.durationMinutes&&minute(slot.end)>minute(entry.time))).reduce((sum,slot)=>sum+slot.minutes,0)>=longStay.minimumFreeMinutes;

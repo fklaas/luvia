@@ -3,11 +3,11 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.185**, Core **4.82.304**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.186 / Core 4.82.305 ergänzt modellgeleitete spezifische Places-Suchen parallel zur allgemeinen Recherche.
+**Stand 2026-09-09:** Integration **13.82.168.186**, Core **4.82.305**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.187 / Core 4.82.306 korrigiert die Zusatzsuche und überschneidungsfreien Freiraum.
 
-**Zuletzt geliefert:** Integration .182: Quelle COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f, Worker 1fbf6e16-b328-44bb-9284-5413383e6b17, Archiv 92.650.447 Bytes / SHA256 8E60A0A356EBF564E35B34CA67BDEE67670EDC6221FFE15CCDC8D2C9ADBAE540 und 22/22 öffentliche Bytevergleiche. 241/241 Regression, NFR-0 3/3, Composer 133, P19 99/99 und 51/51 Transport-/Abschnittsprüfungen bestanden. Echter Providerbeleg: planning.dialogue erfolgreich in 16.203 ms; trip.compose und Reparaturen liefen real. Der letzte Audit blockierte fehlende gültige Backup-Referenzen. Ein bis zwei abweichende Zeichen in echten 113- bis 125-stelligen Provider-IDs sind als Ursache belegt. Der neue Referenzpfad ist mit 60/60 Transport-/Abschnittsprüfungen und 133 Composer-Prüfungen geprüft; sein öffentlicher Review folgt noch.
+**Zuletzt geliefert:** Integration .186 / Quelle 041facef7a91a28a541b49392ac34bacb76d8d0b / Worker e3ab6e89-8371-4c77-824e-4a779c0559d6: 241/241 Safe Regression, 133 Composer, 99/99 Wiederaufnahme, 72/72 Transport-/Abschnittsprüfungen und 22/22 öffentliche Bytevergleiche. Echter öffentlicher Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b6 erreicht ready_for_review: 69 reale Kandidaten, sieben Tage, Audit 62/100. Die letzten zwei Modellschritte benötigen zusammen 32.212 ms. Hafenabdeckung und überlappende Freiraumfenster bleiben konkrete Inhaltsmängel; das ist noch keine vollständige Produktabnahme.
 
-**Nächster Schritt (AKTIV): Den korrigierten KI-Reisepfad auf Integration bis zum echten Gesamtreview belegen.** Die tatsächliche Transportstrecke war bisher nicht durch die Composer-Mocks abgesichert. Jetzt muss der reale Providerlauf die lokale Korrektur bestätigen.
+**Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Ein echter unabhängiger Review ist erreicht; die darin gefundenen Recherche- und Freiraummängel müssen in einem neuen tatsächlichen Lauf behoben sein.
 
 **Abnahme dieses Schritts:**
 
@@ -18,7 +18,7 @@
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Öffentlichen Gesamtreview mit kurzen Modellreferenzen und tatsächlich akzeptierten Reserveoptionen abschließen. Sehr lange Reisen und App-Wechsel sind kontrolliert geprüft; die physische iOS-/Android-Abnahme bleibt gesondert offen. Übrige P17/P19-Abnahmen und datierte Livebelege bleiben im Plan.
+**Weiter offen:** Kandidat .187 öffentlich mit erneuerter spezifischer Suche und überschneidungsfreien Pausen abnehmen; echte Reserveaktionen und Wiederaufnahme belegen. Physische iOS-/Android-Abnahme sowie übrige P17/P19- und datierte Livebeleg-Gates bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -93,3 +93,8 @@ Die echte Luna-Komposition benötigte 30.088 ms und lieferte sieben Tage sowie d
 ### 09.09.2026 – konkrete Wunschorte vor der Komposition recherchieren
 
 Der echte .185-Audit deckt eine fehlende Hafenidentität im bisherigen Valencia-Pool auf. Das ist eine Recherche-, keine weitere Kompositionsaufgabe. Intelligence leitet nun über den vorhandenen discovery.plan-Vertrag bis zu drei spezifische Zusatzsuchen aus dem semantischen Auftrag ab; zulässige Typen kommen aus places.v1.categories. Places führt sie über recommend mit expliziten includedTypes, Bewegungsradius und denselben harten Präferenzen aus. Diese Suche läuft parallel zur allgemeinen Poolrecherche. Echte Treffer ergänzen die dauerhafte Reserve, bleiben als gezielte Suchtreffer beim Modellshortlisting berücksichtigt, und Suchabdeckung geht in die Poolqualität ein. Der Audit erhält auch den belegten primaryType. Es gibt keine fest codierte Hafenlösung und keinen erfundenen Ersatzort. Kontrolliert 72/72 Transport-/Abschnitts-/Suchprüfungen; der öffentliche Review steht bis zum tatsächlichen Positivnachweis aus.
+
+
+### 09.09.2026 – echter Review und konkrete Inhaltskorrekturen
+
+Integration .186 erreicht im echten Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b6 ready_for_review mit 69 Kandidaten, sieben Tagen und 62/100. Die letzten zwei Modellschritte brauchen zusammen 32.212 ms; das ist keine Messung des gesamten kalten Nutzerablaufs. Der Audit benennt fehlende Hafenabdeckung, offene vegetarische Eignung und überlappende Freiraumzeiten. Kandidat .187 trennt modellgenerierte Suchhypothesen vom harten Ortsnamen-Textfilter, erneuert ältere Zusatzsuchen durch Suchversion 2 und erhält deren Status im fertigen Entwurf. Spezifische Wünsche ohne eindeutige Grobkategorie werden nicht künstlich der Kategorie Aktivitäten zugeordnet. Freiraum wird gegen tatsächliche Besuchszeiten und bereits berücksichtigte Pausen geschnitten; unbelegte Zeiten entstehen nicht. 74/74 Transport-/Abschnittsprüfungen einschließlich Überschneidungsgegenprobe und Suchmigration, 133 Composer und 99/99 Workflow-Prüfungen sind grün. Ein neuer öffentlicher Inhalts- und Reserveaktionsnachweis bleibt der nächste Schritt.

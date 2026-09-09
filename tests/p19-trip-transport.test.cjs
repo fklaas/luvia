@@ -82,6 +82,10 @@ async function run(){
   check(()=>assert.equal(beachPlan.dayPolicies[1].longStayAlternative.minimumAnchorMinutes,180,'The model and independent audit receive the same explicit alternative criterion'));
   anchorMinutes=60;const thinPlan=await beach.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(beachParams);
   check(()=>assert.ok(thinPlan.contractIssues.some(issue=>issue.code==='TRIP_ITINERARY_DAY_TOO_THIN'),'Two short visits cannot masquerade as a long beach day'));
+  const overlapRun=beach.sandbox.LuviaAI.run;anchorMinutes=180;
+  beach.sandbox.LuviaAI.run=async(capability,request,options)=>{const result=await overlapRun(capability,request,options);if(capability==='trip.compose')result.data.days[1].freeTime=[{start:'11:00',end:'18:30',purpose:'Erholung und spontane Zeit'},{start:'13:00',end:'16:00',purpose:'Doppelte Pause'}];return result;};
+  const clipped=await beach.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(beachParams);
+  check(()=>assert.deepEqual(copy(clipped.days[1].freeTime).map(slot=>[slot.start,slot.end]),[['12:30','17:00'],['18:00','18:30']],'Free time is clipped around actual visits and is never counted twice'));
   const restart=harness();await restart.api.loadAiDayDraft(restart.state);restart.state.aiDraft={...restart.state.aiDraft,status:'error',phase:'repair',resumePhase:'repair',audit:null,qualityAttempts:3,retryEscalated:true,repairDayDates:[],repairInstructions:['Gesamten Entwurf mit geprüften Alternativen verbessern.']};
   const restartRun=restart.sandbox.LuviaAI.run;let sparse=true;restart.sandbox.modelCalls=[];
   restart.sandbox.LuviaAI.run=async(capability,request,options)=>{const response=await restartRun(capability,request,options);if(capability==='trip.compose'&&sparse){sparse=false;response.data.days[1].entries=[];}return response;};
@@ -92,12 +96,13 @@ async function run(){
   const anchors=harness();anchors.state.data.requestBrief='Ruhig Kultur entdecken und vegan essen.';await anchors.api.loadAiDayDraft(anchors.state);assert.equal(anchors.state.aiDraft.status,'ready',anchors.state.aiDraft.error);const beforeAnchorCount=anchors.state.aiDraft.places.length;let typedSearchCount=0;
   anchors.sandbox.LuviaPlacesContractV1.reads.categories=()=>({water:{key:'water',label:'Wasser',includedTypes:['beach','marina']},food:{key:'food',label:'Essen',includedTypes:['restaurant']}});
   anchors.sandbox.modelOverride=(capability)=>capability==='discovery.plan'?{ok:true,meta:{fallback:false},data:{searchPlans:[{query:'Marina Valencia',includedTypes:['marina','unsupported_made_up_type'],reason:'Ein Hafen ist ein eigener Wunsch.'}]}}:null;
-  anchors.sandbox.recommend=options=>{if(options.includedTypes?.includes('marina')){typedSearchCount++;assert.equal(options.category,'water');assert.deepEqual(copy(options.includedTypes),['marina']);return {places:[{...anchors.candidate('water',40),providerPlaceId:'verified-marina',name:'Belegter Hafen',primaryType:'marina'}]};}return {places:[]};};
-  anchors.state.aiDraft={...anchors.state.aiDraft,status:'error',phase:'places',brief:copy(anchors.state.aiDraft.brief)};anchors.state.aiDraft.brief.travelOrder.mustDo=['Ein echter Hafenbesuch'];
+  anchors.sandbox.recommend=options=>{if(options.includedTypes?.includes('marina')){typedSearchCount++;assert.equal(options.category,'water');assert.equal(options.subjectText,'','An AI query hypothesis is not an additional hard venue-name filter');assert.deepEqual(copy(options.includedTypes),['marina']);return {places:[{...anchors.candidate('water',40),providerPlaceId:'verified-marina',name:'Belegter Hafen',primaryType:'marina'}]};}return {places:[]};};
+  anchors.state.aiDraft={...anchors.state.aiDraft,status:'error',phase:'places',anchorSearch:{complete:true,targets:[]},brief:copy(anchors.state.aiDraft.brief)};anchors.state.aiDraft.brief.travelOrder.mustDo=['Ein echter Hafenbesuch'];
   await anchors.api.loadAiDayDraft(anchors.state,{force:true,confirmedBrief:true});
   check(()=>assert.equal(typedSearchCount,1,'A semantically identified harbour goes through the typed shared Places read'));
   check(()=>assert.ok(anchors.state.aiDraft.places.some(place=>place.providerPlaceId==='verified-marina'),'Exact provider results join the actual retained reserve'));
   check(()=>assert.equal(anchors.state.aiDraft.places.length,beforeAnchorCount+1));
+  check(()=>assert.equal(anchors.state.aiDraft.anchorSearch.version,2,'Old empty searches are renewed after the query semantics change'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

@@ -47,7 +47,7 @@
   }
 
   function bodyFor(action,payload){
-    const body={action,payload:compact(payload),client:{appVersion:'13.82.168.186',coreVersion:'4.82.305'}};
+    const body={action,payload:compact(payload),client:{appVersion:'13.82.168.187',coreVersion:'4.82.306'}};
     const bytes=new TextEncoder().encode(stable(body)).length,limit=action.startsWith('trip.plan-workflow.')?WORKFLOW_MAX_BYTES:MAX_BYTES;
     if(bytes>limit)throw Object.assign(new Error('Die Reiseanfrage ist zu groß. Der letzte gespeicherte Zwischenstand bleibt erhalten.'),{code:'AI_PAYLOAD_TOO_LARGE',bytes,limit,action});
     return body;

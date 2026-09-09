@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.185",
-  "core": "4.82.304",
+  "app": "13.82.168.186",
+  "core": "4.82.305",
   "runtimeSource": "COMMIT_f71a516d0f7872dc5fbb30253ee7055fa2b0d7c4",
-  "worker": "ccd9f0bb-fae9-4ed1-bf59-66f707b5e3fa",
+  "worker": "e3ab6e89-8371-4c77-824e-4a779c0559d6",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -732,9 +732,9 @@
       "sequence": "Zuerst .173 ausschließlich auf Integration veröffentlichen und den echten Valencia-Auftrag mit Meer, Shopping, Nachtleben und Restaurants gegen die räumlich versetzte Recherche prüfen. Danach wird der getrennte trip.compose-Latenzengpass durch einen kleineren, fortsetzbaren Kompositionsvertrag geschlossen; anschließend folgen der Familien-/Ferien-/Konfliktfall und lange 14-/21-Tage-Pläne als P17/P19-Abnahme."
     }
   ],
-  "acceptanceUpdate": "App .181 / Core .300 beseitigt die feste 160-Places-Grenze aus der KI-Reiseplanung. Der Recherchebedarf skaliert mit der Reisedauer: 42 / 84 / 126 / 168 / 252 Kandidaten sind die Ziele für 7 / 14 / 21 / 28 / 42 Tage. Die pro Reise erhaltene Reserve wächst auf 160 / 160 / 189 / 252 / 378; die kosten- und latenzrelevante KI-Arbeitsauswahl bleibt davon getrennt und wächst für 7 / 14 / 21 / 28 Tage mit 32 / 60 / 92 / 123. Räumliche Suchwellen werden seitenweise fortgesetzt und schließen bereits gefundene Places aus. Kontrolliert hält ein 28-Tage-Lauf 240 unterschiedliche Kandidaten und der Intelligence-Vertrag verarbeitet 180, ohne bei 160 zu schneiden. Der Review sagt ausdrücklich, dass eingeplante Reisemomente und geprüfte Kandidaten kein Gesamtbestand des Reiseziels sind. App .181 wurde ausschließlich auf Integration als Worker 40a40b02-4140-41f4-aadd-b5c130600361 veröffentlicht; 22/22 Dateien stimmen auf Stable und Immutable mit Commit a9321f6c08fe6dad5acf7f011f19e5d9d66da29e überein. Zwei öffentliche Wiederanläufe starteten mit dem gespeicherten Valencia-Auftrag, 7 Tagen und 72 Kandidaten, endeten nach etwa 30–35 Sekunden aber erneut in der Integration-Intelligence-Nichtverfügbarkeit. Der Entwurf blieb erhalten. Main und Production bleiben unverändert.",
-  "safeRegression": "App .181 / Core .300: 240/240 Safe Regression, 3/3 NFR-0, 133 Composer-Prüfungen einschließlich 7/14/21/28/42-Tage-Skalierung, P19 99/99, Structured Output, Intelligence-Platform-, Planungs- und Visual-Gates sind grün. Ein 28-Tage-Recherchepool hält kontrolliert 240 eindeutige Places; der Intelligence-Vertrag verarbeitet kontrolliert 180 Kandidaten ohne die frühere 160er-Grenze.",
-  "publicAssetIdentity": "App .174 / Core .293 stammt aus Quelle 0df4b17ebef77ee8d61df4d647d364b07c1fb6ae und Worker 1fa508e6-e9ba-4c8d-aff0-b363a12b5fcd. 22 releasekritische Dateien stimmen auf Stable Integration und der unveränderlichen Worker-URL 22/22 bytegenau mit dem sauberen Archiv überein. Archiv 92641742 Bytes; SHA-256 1B0F84C1E86D7017663F7A85687B1272239E8BBB66C83F752869671264765D41.",
+  "acceptanceUpdate": "Integration .186 / Quelle 041facef7a91a28a541b49392ac34bacb76d8d0b / Worker e3ab6e89-8371-4c77-824e-4a779c0559d6: 241/241 Safe Regression, 133 Composer, 99/99 Wiederaufnahme, 72/72 Transport-/Abschnittsprüfungen und 22/22 öffentliche Bytevergleiche. Echter öffentlicher Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b6 erreicht ready_for_review: 69 reale Kandidaten, sieben Tage, Audit 62/100. Die letzten zwei Modellschritte benötigen zusammen 32.212 ms. Hafenabdeckung und überlappende Freiraumfenster bleiben konkrete Inhaltsmängel; das ist noch keine vollständige Produktabnahme.",
+  "safeRegression": "Integration .186: 241/241 Safe Regression. Kandidat .187 gezielt: 133 Composer, 99/99 Workflow, 74/74 echte serialisierte Client-/Server-Transport-, 14/21/28-Tage-Abschnitts-, Referenz-, Zusatzsuch- und Freiraumprüfungen; volle Regression folgt.",
+  "publicAssetIdentity": "Integration .186: 22/22 Stable-/Immutable-Bytevergleiche zur Quelle 041facef. Archiv 92.660.654 Bytes, SHA256 429413117C58DA02AA18C34F184F9C2116ED0D3D3E9BEA6988439DB18D1B6EAD.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -768,14 +768,14 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.186 / Core 4.82.305 ergänzt modellgeleitete spezifische Places-Suchen parallel zur allgemeinen Recherche.",
-    "delivered": "Integration .182: Quelle COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f, Worker 1fbf6e16-b328-44bb-9284-5413383e6b17, Archiv 92.650.447 Bytes / SHA256 8E60A0A356EBF564E35B34CA67BDEE67670EDC6221FFE15CCDC8D2C9ADBAE540 und 22/22 öffentliche Bytevergleiche. 241/241 Regression, NFR-0 3/3, Composer 133, P19 99/99 und 51/51 Transport-/Abschnittsprüfungen bestanden. Echter Providerbeleg: planning.dialogue erfolgreich in 16.203 ms; trip.compose und Reparaturen liefen real. Der letzte Audit blockierte fehlende gültige Backup-Referenzen. Ein bis zwei abweichende Zeichen in echten 113- bis 125-stelligen Provider-IDs sind als Ursache belegt. Der neue Referenzpfad ist mit 60/60 Transport-/Abschnittsprüfungen und 133 Composer-Prüfungen geprüft; sein öffentlicher Review folgt noch.",
+    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.187 / Core 4.82.306 korrigiert die Zusatzsuche und überschneidungsfreien Freiraum.",
+    "delivered": "Integration .186 / Quelle 041facef7a91a28a541b49392ac34bacb76d8d0b / Worker e3ab6e89-8371-4c77-824e-4a779c0559d6: 241/241 Safe Regression, 133 Composer, 99/99 Wiederaufnahme, 72/72 Transport-/Abschnittsprüfungen und 22/22 öffentliche Bytevergleiche. Echter öffentlicher Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b6 erreicht ready_for_review: 69 reale Kandidaten, sieben Tage, Audit 62/100. Die letzten zwei Modellschritte benötigen zusammen 32.212 ms. Hafenabdeckung und überlappende Freiraumfenster bleiben konkrete Inhaltsmängel; das ist noch keine vollständige Produktabnahme.",
     "nextStep": {
       "id": "P17-P19-public-reserve-sections-review",
       "package": "P19",
       "status": "AKTIV",
-      "title": "Den korrigierten KI-Reisepfad auf Integration bis zum echten Gesamtreview belegen",
-      "reason": "Die tatsächliche Transportstrecke war bisher nicht durch die Composer-Mocks abgesichert. Jetzt muss der reale Providerlauf die lokale Korrektur bestätigen.",
+      "title": "Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen",
+      "reason": "Ein echter unabhängiger Review ist erreicht; die darin gefundenen Recherche- und Freiraummängel müssen in einem neuen tatsächlichen Lauf behoben sein.",
       "acceptance": [
         "Vollständige Regression und sauberes Releasearchiv.",
         "Integration-Function und Worker aus nachvollziehbarer Quelle veröffentlichen.",
@@ -784,7 +784,7 @@
       ]
     },
     "after": "Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.",
-    "open": "Öffentlichen Gesamtreview mit kurzen Modellreferenzen und tatsächlich akzeptierten Reserveoptionen abschließen. Sehr lange Reisen und App-Wechsel sind kontrolliert geprüft; die physische iOS-/Android-Abnahme bleibt gesondert offen. Übrige P17/P19-Abnahmen und datierte Livebelege bleiben im Plan.",
+    "open": "Kandidat .187 öffentlich mit erneuerter spezifischer Suche und überschneidungsfreien Pausen abnehmen; echte Reserveaktionen und Wiederaufnahme belegen. Physische iOS-/Android-Abnahme sowie übrige P17/P19- und datierte Livebeleg-Gates bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
