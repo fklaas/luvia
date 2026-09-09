@@ -65,7 +65,7 @@ assert.match(registry,/trip\.compose'.*schema:'trip_itinerary_compact'.*maxOutpu
 assert.match(registry,/trip\.compose-day-repair'.*schema:'trip_day_repair'.*maxOutputTokens:4500,reasoningEffort:'low'/s,'A failed day receives a smaller replacement output instead of regenerating the whole trip');
 assert.match(adapter,/purpose:'repair-failed-trip-day'/,'Dated plan blockers must enter the one-day repair lane');
 assert.match(adapter,/for\(const repairPolicy of repairPolicies\)/,'Several failed days must be repaired through isolated, resumable day jobs');
-assert.match(registry,/trip\.audit'.*maxOutputTokens:3500,reasoningEffort:'low'/s,'The independent audit needs a bounded output and reasoning budget');
+assert.match(registry,/trip\.audit'.*maxOutputTokens:2500,reasoningEffort:'none'/s,'The independent audit needs a bounded output and reasoning budget');
 assert.match(registry,/trip\.audit':\{id:'trip\.audit',tier:'default'/,'The audit must use Terra while Sol remains reserved for composition and targeted repair');
 assert.match(provider,/body\.reasoning=\{effort:args\.capability\.reasoningEffort\}/,'All tiers obey the bounded capability reasoning budget');
 

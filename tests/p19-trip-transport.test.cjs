@@ -61,7 +61,7 @@ async function run(){
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.days.length<=7&&call.request.candidateCatalog.length<=64)));
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.candidateCatalog.every(place=>/^p[0-9]+$/.test(place.providerPlaceId))),'Models use short references instead of copying long opaque provider identifiers'));
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.referenceSet),'Idempotency includes the real reference set as well as the short aliases'));
-    check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.options.tier==='fast'),'Whole-trip retries retain the fast composition lane; stronger models repair individual days'));
+    check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.options.tier==='default'),'Complete day composition uses Terra to avoid repeated low-quality drafts'));
     const ids=itinerary.days.flatMap(day=>day.entries.map(entry=>entry.providerPlaceId));check(()=>assert.ok(ids.every(id=>id.startsWith('geoapify:')),'Only exact original verified Place ids leave the adapter'));check(()=>assert.equal(new Set(ids).size,ids.length,'No Place repeats across section boundaries'));
     const calls=h.sandbox.modelCalls;check(()=>assert.equal(calls[1].request.days[0].role,'full','A later section does not introduce a second arrival day'));
     await h.sandbox.LuviaIntelligenceContractV1.reads.auditTripItinerary({brief:params.brief,destination:state.data.destination,candidates,itinerary});
