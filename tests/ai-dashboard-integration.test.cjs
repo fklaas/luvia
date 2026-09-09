@@ -14,3 +14,25 @@ assert(dashboard.includes('openTransparency:transparencyModal'),'Intelligence Tr
 assert(!dashboard.includes('data-ai-timeline-check'),'dashboard must not expose private Timeline execution');
 assert(!dashboard.includes('LuviaTripContext'),'dashboard must read Trip through trip.v1');
 console.log('Dashboard Intelligence Contract and Transparency: OK');
+
+(async()=>{
+  const vm=require('node:vm'),events=new Map(),documentEvents=new Map(),queued=[];
+  let visible=false,calls=0;
+  const trip={id:'test-trip'},node={dataset:{aiBriefTripId:trip.id},getClientRects:()=>visible?[{}]:[],closest:()=>null};
+  const sandbox={console,Map,Date,Promise,Array,Set,Intl,URL,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail}},queueMicrotask:fn=>queued.push(fn),document:{visibilityState:'visible',querySelectorAll:()=>[node],addEventListener:(type,fn)=>documentEvents.set(type,fn)},addEventListener:(type,fn)=>events.set(type,fn),dispatchEvent:event=>events.get(event.type)?.(event)};
+  sandbox.window=sandbox;sandbox.globalThis=sandbox;
+  sandbox.LuviaTripContractV1={reads:{getActiveTrip:()=>trip}};
+  sandbox.LuviaIntelligenceContractV1={run:async()=>{calls++;return{data:{headline:'Guter Tag',message:'Euer Plan',highlights:[]},meta:{}}}};
+  sandbox.LuviaJourneyKnowledgeGraph={load:async()=>{events.get('luvia:journey-context-changed')?.({detail:{reason:'loaded'}});return{plannedVisits:[]}}};
+  vm.createContext(sandbox);vm.runInContext(dashboard,sandbox);
+  sandbox.LuviaAIDashboard.setBriefVisibilityReader(id=>sandbox.document.visibilityState!=='hidden'&&visible&&id===trip.id);
+  const settle=async()=>{while(queued.length)await queued.shift()();await new Promise(setImmediate)};
+  events.get('luvia:journey-context-changed')({detail:{reason:'invalidated'}});sandbox.LuviaAIDashboard.render({trip});await settle();
+  assert.equal(calls,0,'No paid dashboard briefing when its widget is not visible, including Composer background renders');
+  visible=true;sandbox.LuviaAIDashboard.render({trip});await settle();assert.equal(calls,1);
+  for(let i=0;i<12;i++)sandbox.LuviaAIDashboard.render({trip});await settle();assert.equal(calls,1,'Repeated renders and graph load events reuse the visible briefing');
+  sandbox.document.visibilityState='hidden';events.get('luvia:journey-context-changed')({detail:{reason:'invalidated'}});await settle();assert.equal(calls,1,'Lock/app switch defers automatic billing');
+  sandbox.document.visibilityState='visible';await sandbox.LuviaAIDashboard.refresh(trip,{automatic:true});await settle();assert.equal(calls,2,'Changed briefing refreshes once when the actual widget becomes visible');
+  await sandbox.LuviaAIDashboard.refresh(trip,{force:true});assert.equal(calls,3,'An explicit user refresh remains available');
+  console.log('Dashboard visible-only automatic billing: 5 behavioral checks PASS');
+})().catch(error=>{console.error(error);process.exitCode=1});

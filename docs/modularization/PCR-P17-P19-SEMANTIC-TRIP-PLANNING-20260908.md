@@ -3,11 +3,11 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.192**, Core **4.82.311**. P17/P19: Kandidat App 13.82.168.193 / Core 4.82.312 stabilisiert Place-Kurzreferenzen und gibt räumliche Verteilungsziele vor der Komposition explizit vor.
+**Stand 2026-09-09:** Integration **13.82.168.193**, Core **4.82.312**. P17/P19: Kandidat App 13.82.168.194 / Core 4.82.313 repariert veraltete Buchungs- und Unsicherheitsreferenzen nach Tagesaustausch und verhindert unsichtbare automatische Dashboard-Briefings.
 
-**Zuletzt geliefert:** Public .192 setzt den zuvor am relativen Budget gescheiterten Auftrag fort und hält 100 reale Kandidaten. Erster Entwurf und Audit benennen nun echte mangelnde Viertelstreuung statt fehlender künftiger Fahrpläne. Folgeaudit zeigt zusätzlich einen Referenzfehler: Kurz-IDs wurden beim Umsortieren zwischen Modellen neu vergeben und blieben in Begründungstexten stehen. .193 sortiert die Identitäten stabil und löst Textreferenzen vor jeder Weitergabe in die echten Ortsnamen auf. Das Modell bekommt 2-km-Gebietskennungen, mindestens drei volle Tagesgebiete und höchstens 60 % der Besuche im selben Gebiet, sofern der erlaubte Radius und Katalog dies tragen. 139/139 gezielte Prüfungen bestehen. Ein neuer echter Gesamtplan bleibt in Abnahme.
+**Zuletzt geliefert:** Integration .193 ist mit 22/22 identischen öffentlichen Dateien belegt. Der echte Wiederanlauf hält 100 Places und sieben Tage, scheitert jedoch konkret an einer nach Tagesreparatur veralteten Hafen-Buchungsreferenz (Workflow 543c19dc-a559-444b-a83e-94b2666f77b1, zwei Modellaufrufe, 20.621 ms Modellzeit). .194 baut abhängige Planungsangaben einmal anhand der aktuellen Route neu auf, ohne andere Tage umzuschreiben. 145/145 Transportprüfungen und fünf Verhaltenstests für ausschließlich sichtbare automatische Dashboard-Aufrufe bestehen. Ein echter positiver Gesamtaudit steht weiter aus.
 
-**Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Der öffentliche Fehler ist bis zu den konkreten Audit- und Vertragsentscheidungen verfolgt. Der neue Stand muss einen vollständigen echten Plan liefern, bevor dieser Slice abgenommen wird.
+**Nächster Schritt (AKTIV): Den korrigierten öffentlichen KI-Reisepfad inklusive Reserveaktionen inhaltlich abnehmen.** Die konkrete veraltete Hafenreferenz muss im bestehenden öffentlichen Entwurf behoben werden. Keine weitere unbegründete Vollgenerierung oder bezahlte Testschleife.
 
 **Abnahme dieses Schritts:**
 
@@ -18,7 +18,7 @@
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Neuen vollständigen öffentlichen Lauf einschließlich benanntem Reiseziel, Laufzeit, echtem Gesamtaudit, Reservewahl und Reload abschließen. Langreise-Transport kontrolliert geprüft; physische iOS-/Android-Abnahme sowie weitere P17/P19-Gates bleiben offen.
+**Weiter offen:** Öffentlichen Gesamtaudit und eine echte Reservewahl mit Reload auf .194 abschließen. Weitere P17/P19-Gates und physische Geräte bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -123,3 +123,9 @@ Die bisherige narrativ-reguläre Suche nach „nicht belegt“ traf auch einen t
 09.09.2026 – Kandidat App 13.82.168.191 / Core 4.82.310: Ein ausdrücklich gewähltes Ziel wird semantisch erkannt, über places.v1 geocodiert und direkt zur Reisezeit geführt. Offene Wünsche behalten fünf Ideen. Komposition und Audit bekommen ursprünglichen Nutzerwunsch, bestätigten Auftrag und sichtbare Annahmen; KI-Suchhypothesen bleiben außerhalb der verbindlichen Anforderungen. Der Audit prüft einen ehrlichen Entwurf und fordert keine erfundenen künftigen Fahrpläne. Tatsächlich fehlende Pflichtinhalte, falsche Places und nachgewiesene Zeitkonflikte bleiben blockierend. Reparaturanweisungen stammen nur aus Blockern. Der reale .190-Lauf lieferte zunächst 7 vollständige Tage aus 90 Kandidaten, wurde aber durch unnötige Auditreparaturen beschädigt: ausdrücklich kein Positivbeleg. 132/132 gezielte Prüfungen belegen die korrigierte Eingabe- und Wiederaufnahmesemantik; öffentliche .191-Abnahme folgt.
 
 09.09.2026 – .192/.193 Ursachenfortsetzung: Relative Budgetstufen stoppen die Planung nicht mehr, konkrete harte Geldgrenzen bleiben streng. Ein unplanbarer gespeicherter Brief wird beim bewussten Retry erneut interpretiert. Echte .192-Recherche erreicht 100 Kandidaten; erster Audit beanstandet räumliche Konzentration. Die anschließende Übergabe offenbarte instabile pN-Aliase und unaufgelöste Referenzen in Modellprosa. .193 verwendet reihenfolgeunabhängige Aliase und ersetzt reine Textreferenzen durch den exakten Place-Namen. Komposition erhält explizite räumliche Zielwerte; keine erfundenen Stadtteilnamen. 139/139 fokussierte Prüfungen. Kein vorweggenommener öffentlicher Positivstatus.
+
+### 09.09.2026: Kreditdiagnose und abhängige Angaben nach Tagesreparatur
+
+Integration .193 (933cf480; Worker 69b4bd25-3de7-40e1-8a37-43cac55cc8a8) ist mit 22/22 Byteprüfungen belegt. Der reale Retry 543c19dc-a559-444b-a83e-94b2666f77b1 endet nach zwei Modellen und 20.621 ms Modellzeit an veralteten Hafenreferenzen in Buchungsreihenfolge und Unsicherheit. .194 erneuert deshalb nach Tagesreparaturen einmal die abhängigen Angaben und erhält die übrigen Tage. Kein Absenken des Audits.
+
+API-Nutzungsabfrage nach Europe/Berlin: 08.09.2026 218 Aufrufe / 4.052.823 Tokens, 09.09. bis zur Abfrage 169 / 2.379.692. Davon heute 82 Dashboard-Briefings / 1.534.592 Tokens. Dies ist Telemetrie, keine Providerrechnung und keine Codex-Kreditmessung. Das globale Journey-Ereignis konnte unsichtbare automatische Briefings anstoßen; .194 erlaubt sie nur am sichtbaren Widget, nutzt fünf Minuten Wiederverwendung und ignoriert reine Graph-Ladeereignisse. Explizite Aktualisierung bleibt möglich. 145/145 Transport- und fünf Dashboard-Verhaltenstests bestehen.

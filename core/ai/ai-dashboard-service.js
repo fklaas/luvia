@@ -1,10 +1,12 @@
 (() => {
   'use strict';
-const VERSION='4.41.0-source-backed-day-rehearsal';
+const VERSION='4.41.1-visible-dashboard-brief';
   const state=new Map();
   let askOverlay=null,askInput=null;
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const tripId=trip=>String(trip?.id||trip?.tripId||'');
+  let briefVisible=()=>false;
+  function setBriefVisibilityReader(reader){if(typeof reader==='function')briefVisible=reader;}
   const intelligence=()=>window.LuviaIntelligenceContractV1||(()=>{throw new Error('Intelligence Contract v1 ist noch nicht bereit.')})();
   const consumer=()=>globalThis.LuviaHumanAIConsumerProjectionCoreV1||(()=>{throw new Error('Die Luvia Chat-Darstellung ist noch nicht bereit.')})();
   const actionRuntime=()=>window.LuviaAIActionRuntime||(()=>{throw new Error('Luvia Action Runtime ist noch nicht bereit.')})();
@@ -30,11 +32,11 @@ const VERSION='4.41.0-source-backed-day-rehearsal';
   function placeholder(){return{headline:'Luvia verbindet gerade eure Reise.',message:'Vorlieben, Reiseplan und aktueller Moment werden zu einer persönlichen Geschichte zusammengesetzt.',highlights:[],suggestedActions:[]}}
   function render({trip}={}){
     const id=tripId(trip),entry=state.get(id)||{data:placeholder(),loading:false,error:null};const data=entry.data||placeholder();
-    queueMicrotask(()=>refresh(trip).catch(()=>{}));
+    queueMicrotask(()=>refresh(trip,{automatic:true}).catch(()=>{}));
     return `<div class="luv-ai-widget ${entry.loading?'is-loading':''}"><header><span class="luv-ai-orbit">${compassMark()}</span><div><span class="luv-ai-kicker">Luvia Compass</span><h2>${esc(data.headline)}</h2></div><button type="button" data-ai-brief-refresh aria-label="Luvia Briefing aktualisieren">↻</button></header><p>${esc(data.message)}</p>${data.highlights?.length?`<div class="luv-ai-highlights">${data.highlights.map(item=>`<span>${esc(item)}</span>`).join('')}</div>`:''}<div class="luv-ai-widget-actions"><button type="button" data-ai-ask-open>Mit Luvia sprechen</button><button type="button" data-ai-transparency-open>So denkt Luvia</button></div>${entry.error?'<small class="luv-ai-note">Das Live-Briefing ist gerade eingeschränkt. Deine vorhandenen Reiseinformationen bleiben sichtbar.</small>':'<small class="luv-ai-note">Luvia berücksichtigt deine freigegebenen Reiseinformationen. Vorschläge verändern eure Reise nie selbst.</small>'}</div>`;
   }
-  async function refresh(trip,{force=false}={}){
-    const id=tripId(trip);if(!id)return null;const current=state.get(id);if(current?.loading)return current;if(current?.updatedAt&&!force&&Date.now()-current.updatedAt<60000)return current;
+  async function refresh(trip,{force=false,automatic=false}={}){
+    const id=tripId(trip);if(!id)return null;const current=state.get(id);if(automatic&&!briefVisible(id))return current||null;if(current?.loading)return current;if(current?.updatedAt&&!force&&Date.now()-current.updatedAt<300000)return current;
     state.set(id,{...(current||{}),data:current?.data||placeholder(),loading:true,error:null});window.dispatchEvent(new CustomEvent('luvia:dashboard-widget-refresh',{detail:{id:'aiBrain'}}));
     const journey=await window.LuviaJourneyKnowledgeGraph?.load?.({force}).catch(()=>null);
     const response=await intelligence().run('dashboard.brief',{currentMoment:{surface:'dashboard'},journey,plannedVisits:journey?.plannedVisits||[],instruction:'Nenne alle geplanten Einträge des relevanten Tages vollständig und chronologisch. Ein Timeline-Eintrag ist ein geplanter Besuch. Fehlende Buchungsdaten sind niemals eine Warnung.'},{fallback:true});
@@ -126,6 +128,6 @@ const VERSION='4.41.0-source-backed-day-rehearsal';
     const trip=activeTrip()||{};
     if(button.matches('[data-ai-brief-refresh]')){button.disabled=true;await refresh(trip,{force:true}).catch(error=>window.LuviaUIKit?.toast?.(error.message,{type:'error'}));button.disabled=false;}
   },true);
-  window.addEventListener('luvia:journey-context-changed',()=>{const trip=activeTrip()||{};if(tripId(trip))refresh(trip,{force:true}).catch(()=>{})});
-  window.LuviaAIDashboard=Object.freeze({version:VERSION,render,refresh,openChat:askModal,openTransparency:transparencyModal,diagnostics:()=>({version:VERSION,entries:state.size,widget:'aiBrain',contract:'intelligence.v1',actionContract:window.LuviaIntelligenceActionContractCoreV1?.contractId||null,actionRuntime:window.LuviaAIActionRuntime?.diagnostics?.()||null})});
+  window.addEventListener('luvia:journey-context-changed',event=>{if(event.detail?.reason==='loaded'||event.detail?.reason==='load-failed')return;const trip=activeTrip()||{},id=tripId(trip),current=state.get(id);if(current)state.set(id,{...current,updatedAt:0});if(id)refresh(trip,{automatic:true}).catch(()=>{})});
+  window.LuviaAIDashboard=Object.freeze({version:VERSION,render,refresh,setBriefVisibilityReader,openChat:askModal,openTransparency:transparencyModal,diagnostics:()=>({version:VERSION,entries:state.size,widget:'aiBrain',contract:'intelligence.v1',actionContract:window.LuviaIntelligenceActionContractCoreV1?.contractId||null,actionRuntime:window.LuviaAIActionRuntime?.diagnostics?.()||null})});
 })();
