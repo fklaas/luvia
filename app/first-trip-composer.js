@@ -732,7 +732,7 @@
     for(const category of [...new Set([...quality.missingCategories,...quality.thinCategories])]){
       const request=requests.find(item=>item[0]===category);if(!request)continue;
       const details=targets.filter(item=>!item.count&&(item.category===category||(item.includedTypes||[]).some(type=>(request[3]?.includedTypes||[]).includes(type)))).map(item=>item.query);
-      needs.push({category,query:[request[1],...details].join(' · ').slice(0,200)});
+      needs.push({category,query:[...new Set([request[1],request[2],...details].filter(Boolean))].join(' · ').slice(0,200)});
     }
     return needs.slice(0,2);
   }

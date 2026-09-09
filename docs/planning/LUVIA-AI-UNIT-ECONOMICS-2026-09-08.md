@@ -3,15 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.198**, Core **4.82.317**. P17/P19: Integration .198 veröffentlicht; Kandidat App 13.82.168.199 / Core 4.82.318 bewahrt den vollständigen Reiseauftrag vor der Quellenwahl.
+**Stand 2026-09-09:** Integration **13.82.168.199**, Core **4.82.318**. P17/P19: Integration .199 veröffentlicht; Kandidat App 13.82.168.200 / Core 4.82.319 trennt qualitative Budgetvorlieben von harten Geldsummen.
 
-**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.
+**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.
 
-**Nächster Schritt (AKTIV): Vollständigen Reiseauftrag veröffentlichen und die ergänzende Webrecherche echt messen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Budgeteinordnung veröffentlichen und den echten Web-Recherchebeleg abschließen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
 
 **Abnahme dieses Schritts:**
 
-- Alle genannten Erlebniswünsche erreichen unverändert den Kategoriebedarf; Integration .199 lädt die geprüften Dateien; ein begrenzter authentifizierter Lauf belegt Webaufrufe, Kosten und nutzbare Ortszuordnung oder den konkreten Providerfehler. P17/P19 bleiben bis zur positiven Gesamtabnahme teilweise.
+- Qualitative Budgetvorliebe startet die Recherche; harte Geldsumme wird nicht gelockert. Integration .200 lädt die geprüften Dateien. Genau ein begrenzter Weblauf belegt Anbieterantwort, Kosten und Ortszuordnung oder einen konkreten Providerfehler; keine unkontrollierte Wiederholung.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 

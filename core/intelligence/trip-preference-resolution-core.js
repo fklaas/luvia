@@ -524,8 +524,13 @@ function projectTripBrief(input={},response={}){
     if(key==='weatherfallback'){travelOrder.contingency.weatherFallback=['true','yes','ja','required','erforderlich'].includes(value);handled=true;}
     if(key==='indooroutdoorbalance'){travelOrder.contingency.indoorOutdoorBalance=clean(item.value).slice(0,160);handled=true;}
     if(key==='planbperday'){travelOrder.contingency.planBPerDay=['true','yes','ja','required','erforderlich'].includes(value);handled=true;}
-    if(key==='tripbudget'){travelOrder.budget.tripTotal=clean(item.value).slice(0,100);handled=!item.hard;}
-    if(key==='dailybudget'){travelOrder.budget.dailyTotal=clean(item.value).slice(0,100);handled=!item.hard;}
+    if(key==='tripbudget'||key==='dailybudget'){
+      // A price preference sometimes arrives under an amount key as well as
+      // budgetLevel. Preserve monetary limits; do not invent one from "medium".
+      const qualitative={economy:'economy',low:'economy','kleines budget':'economy','günstiges budget':'economy','low budget':'economy',balanced:'balanced',medium:'balanced','mittleres budget':'balanced',generous:'generous',high:'generous','großzügiges budget':'generous',open:'open','budget offen':'open','kein festes budget':'open'}[value];
+      if(qualitative){preferences.budgetLevel=qualitative;handled=true;}
+      else{travelOrder.budget[key==='tripbudget'?'tripTotal':'dailyTotal']=clean(item.value).slice(0,100);handled=!item.hard;}
+    }
     if(key==='currency'){travelOrder.budget.currency=clean(item.value).slice(0,30).toUpperCase();handled=true;}
     if(key==='splurgeday'){travelOrder.budget.splurgeDays.push(label||clean(item.value));handled=true;}
     if(key==='costpriority'){travelOrder.budget.costPriority=clean(item.value).slice(0,160);handled=true;}
