@@ -3,15 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.199**, Core **4.82.318**. P17/P19: Integration .199 veröffentlicht; Kandidat App 13.82.168.200 / Core 4.82.319 trennt qualitative Budgetvorlieben von harten Geldsummen.
+**Stand 2026-09-09:** Integration **13.82.168.200**, Core **4.82.319**. P17/P19: Integration .200 / Core 4.82.319 veröffentlicht; begrenzte Webrecherche echt belegt, passende Ortszuordnung noch offen.
 
-**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.
+**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. App .200 unterscheidet qualitative Budgetvorlieben von harten Geldsummen, erhält die konkrete Kategorieabsicht in Recherchefragen und bewahrt echte Ausgabengrenzen.
 
-**Nächster Schritt (AKTIV): Budgeteinordnung veröffentlichen und den echten Web-Recherchebeleg abschließen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Gespeicherte Webangebote verlässlich Orten zuordnen und konkrete Aktivitäten belegen.** Der echte Webprovider funktioniert; die sechs Hinweise scheitern an der Ortszuordnung. Vorhandene generische Sportstätten erfüllen Escape Room/Bowling nicht. Wiederholte Gesamtkomposition kann diese Quellenlücke nicht beheben.
 
 **Abnahme dieses Schritts:**
 
-- Qualitative Budgetvorliebe startet die Recherche; harte Geldsumme wird nicht gelockert. Integration .200 lädt die geprüften Dateien. Genau ein begrenzter Weblauf belegt Anbieterantwort, Kosten und Ortszuordnung oder einen konkreten Providerfehler; keine unkontrollierte Wiederholung.
+- Die sechs gespeicherten Nachtleben-Hinweise über denselben authentifizierten Places-Vertrag mit konkreten Anbieter-/Filterbelegen auflösen; qualifizierte Escape-Room-/Bowling-Quellen ermitteln; Quellenrecherche bei Wiederaufnahme nicht erneut bezahlen. Danach passender Gesamtplan mit tatsächlichen Aktivitäten, Gastronomie, Abendleben und Strand sowie nachvollziehbarer Streuung. P17/P19 bis zu sämtlichen Gates TEILWEISE.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
@@ -127,3 +127,11 @@ Geoapify: 3.000 kostenlose Credits pro Tag, Einstieg API10 59 USD pro Monat für
 Umsetzung: ein Luna-Versuch je Reiseworkflow, höchstens zwei Web-Tool-Aufrufe, maximal sechs Hinweise und 2.400 Ausgabetokens, 30 Sekunden Serverzeitlimit, keine automatische Modelleskalation. Integration vorerst fünf neue Recherchen je Konto/UTC-Tag, 100 insgesamt/UTC-Tag, daher höchstens 2 USD Web-Tool-Gebühren je Integration-Tag plus Modellkosten. Diese Testkontingente sind keine späteren Abo-Paketdefinitionen. Die API bietet keinen exakten USD-Deckel für variable Eingabetokens; der technische Deckel begrenzt Aufrufe, Ausgabe und Kontextumfang.
 
 Job-/Workflow-Nutzungsdaten erfassen beobachtete Webaufrufe, geschätzte reine Toolgebühr und unklare Abrechnung nach unterbrochenem Transport. Ausgabebegrenzung, Quellenbindung, serverseitige Idempotenz und SQL-Kontingent schützen auch bei mehreren Tabs. Ein Reload kauft keinen zweiten Recherchelauf. Eine neue Reise oder wesentlich geänderte Anfrage ist ein neuer Workflow und verbraucht gegebenenfalls erneut Kontingent.
+
+### Gemessener Weblauf auf Integration .200
+
+Am 09.09.2026 um 09:46 UTC führte der authentifizierte Workflow `30d9c722-6525-4385-a467-747a83d9b91f` den Webjob `df9bd8a3-c628-4aec-95f7-f401df6040e8` erfolgreich aus. Luna brauchte 9.229 ms, zwei Web-Tool-Aufrufe, 21.117 Eingabe- und 507 Ausgabetokens ohne Cachetreffer. Aus den obigen Standardpreisen folgen 0,02 USD Toolgebühr + 0,0048318 USD Modellkosten = **0,0248318 USD**, etwa 2,48 US-Cent. Das ist eine Berechnung aus gemeldeter Nutzung, kein Rechnungsabgleich und kein Durchschnittswert.
+
+Sechs Angebotshinweise mit tatsächlich recherchierten Links wurden gespeichert. **Keine der sechs Ortsidentitäten wurde im anschließenden Places-Abgleich übernommen; der Gesamtplan bestand den Qualitätscheck nicht.** Die Kosten je erfolgreich nutzbarem Gesamtplan sind daher aus diesem Test nicht berechenbar. Die Webquellen sind vorhanden; als nächster Schritt müssen Ortszuordnung und konkrete Aktivitätsabdeckung geklärt werden, ohne denselben Recherchelauf neu zu bezahlen.
+
+Ein reines Mengenszenario mit diesem einzelnen Messwert: 1.000 Recherchen kosten etwa 24,83 USD, 10.000 etwa 248,32 USD. Benötigen nur 20 Prozent von 1.000 Reiseplanungen diesen Zusatz, wären es etwa 4,97 USD zusätzliche Recherchekosten. Orte-/Karten-/Routenabfragen, Komposition, Audit und Reparaturen kommen gegebenenfalls hinzu. Das ist noch keine Kostenprognose für zahlende Nutzer oder ein finales Paketkontingent.

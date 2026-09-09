@@ -3,15 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.199**, Core **4.82.318**. P17/P19: Integration .199 veröffentlicht; Kandidat App 13.82.168.200 / Core 4.82.319 trennt qualitative Budgetvorlieben von harten Geldsummen.
+**Stand 2026-09-09:** Integration **13.82.168.200**, Core **4.82.319**. P17/P19: Integration .200 / Core 4.82.319 veröffentlicht; begrenzte Webrecherche echt belegt, passende Ortszuordnung noch offen.
 
-**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.
+**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. App .200 unterscheidet qualitative Budgetvorlieben von harten Geldsummen, erhält die konkrete Kategorieabsicht in Recherchefragen und bewahrt echte Ausgabengrenzen.
 
-**Nächster Schritt (AKTIV): Budgeteinordnung veröffentlichen und den echten Web-Recherchebeleg abschließen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Gespeicherte Webangebote verlässlich Orten zuordnen und konkrete Aktivitäten belegen.** Der echte Webprovider funktioniert; die sechs Hinweise scheitern an der Ortszuordnung. Vorhandene generische Sportstätten erfüllen Escape Room/Bowling nicht. Wiederholte Gesamtkomposition kann diese Quellenlücke nicht beheben.
 
 **Abnahme dieses Schritts:**
 
-- Qualitative Budgetvorliebe startet die Recherche; harte Geldsumme wird nicht gelockert. Integration .200 lädt die geprüften Dateien. Genau ein begrenzter Weblauf belegt Anbieterantwort, Kosten und Ortszuordnung oder einen konkreten Providerfehler; keine unkontrollierte Wiederholung.
+- Die sechs gespeicherten Nachtleben-Hinweise über denselben authentifizierten Places-Vertrag mit konkreten Anbieter-/Filterbelegen auflösen; qualifizierte Escape-Room-/Bowling-Quellen ermitteln; Quellenrecherche bei Wiederaufnahme nicht erneut bezahlen. Danach passender Gesamtplan mit tatsächlichen Aktivitäten, Gastronomie, Abendleben und Strand sowie nachvollziehbarer Streuung. P17/P19 bis zu sämtlichen Gates TEILWEISE.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 

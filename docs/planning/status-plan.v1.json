@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.199",
-  "core": "4.82.318",
-  "runtimeSource": "6dbe04aed7679933503c06e3451e8d6c9f28e28c",
-  "worker": "b31ba3d8-4f89-4e16-8c9e-4fc2abdd2c15",
+  "app": "13.82.168.200",
+  "core": "4.82.319",
+  "runtimeSource": "bf81e063eebeeb4f144f35c7054611efa76cd011",
+  "worker": "79214166-2224-49b0-8795-9788d64a6272",
   "gateway": "Integration-Gateway v1 ACTIVE / 4.64.39; produktiver Gateway unverändert v235 / 4.64.38",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -739,8 +739,8 @@
     }
   ],
   "acceptanceUpdate": "Integration .197 / Core 4.82.316 aus 2d4796ce veröffentlicht. Explizite Erlebniswünsche steuern Recherche, Kompositionsauswahl, Reserve und Audit; ungefragte Basiskategorien entfallen. Shopping sucht standardmäßig Einkaufszentren, besondere Geschäfte sind tripbezogen wählbar. Ein positiver Modellscore kann fehlende tatsächliche Erlebnisbereiche nicht mehr überstimmen. 244/244 vollständige kontrollierte Regression; anschließend 133 Composer, 145 Transport sowie die 27 Intentprüfungen nach der kleinen Annahmen-UI-Ergänzung erneut grün. 27/27 Stable-/Immutable-Dateien stimmen mit dem sauberen Archiv überein. A2 lokal bedient; der alte .195-Entwurf bleibt nach öffentlichem Reload als sieben Tage und 18 Momente erhalten. Keine neue kostenpflichtige Gesamtgenerierung und kein neuer Provider in diesem Slice; die Quellenlücke ist noch kein positiver Gesamtplan-Nachweis.",
-  "safeRegression": "245 Suites geprüft: 243 sofort PASS; Statuszuordnung und generiertes Inventar berichtigt, beide Gates gezielt erneut PASS. 50/50 Web-/Kosten-/Wunscherhalt-Prüfungen und NFR-0 grün. outputs/p199-safe-regression.log dokumentiert den ersten Lauf.",
-  "publicAssetIdentity": "Integration .199: 28/28 Stable/Immutable-Dateien identisch zum sauberen Archiv; 92731474 Bytes, SHA-256 52fff6083f68fa73b3d0616e862112dc29811ecef987db0b285f4bb8f300cc70",
+  "safeRegression": "245 Suites geprüft: 243 sofort PASS; Statuszuordnung und generiertes Inventar berichtigt, beide Gates gezielt erneut PASS. 50/50 Web-/Kosten-/Wunscherhalt-Prüfungen und NFR-0 grün. outputs/p199-safe-regression.log dokumentiert den ersten Lauf. Danach .200 gezielt: 54 Web-/Budget-/Vertrags-, 133 Composer- und 27 Intentprüfungen sowie Build-/Status-/Inventargates PASS; keine weitere vollständige Wiederholung.",
+  "publicAssetIdentity": "Integration .200: 28/28 Stable/Immutable-Dateien identisch zum sauberen Archiv; 92732738 Bytes, SHA-256 03ca4fcbfd707c7a7d2b95ebc6835f57afe90c78c77c82bc93e8df2d8d5c34a4",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
     "version": "2.8.0-venue-service-reservation-anchor",
@@ -774,16 +774,16 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19: Integration .199 veröffentlicht; Kandidat App 13.82.168.200 / Core 4.82.319 trennt qualitative Budgetvorlieben von harten Geldsummen.",
-    "delivered": "Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.",
+    "stage": "P17/P19: Integration .200 / Core 4.82.319 veröffentlicht; begrenzte Webrecherche echt belegt, passende Ortszuordnung noch offen.",
+    "delivered": "Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. App .200 unterscheidet qualitative Budgetvorlieben von harten Geldsummen, erhält die konkrete Kategorieabsicht in Recherchefragen und bewahrt echte Ausgabengrenzen.",
     "nextStep": {
       "id": "P17-P19-intent-and-experience-source-proof",
       "package": "P19",
       "status": "AKTIV",
-      "title": "Budgeteinordnung veröffentlichen und den echten Web-Recherchebeleg abschließen",
-      "reason": "Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.",
+      "title": "Gespeicherte Webangebote verlässlich Orten zuordnen und konkrete Aktivitäten belegen",
+      "reason": "Der echte Webprovider funktioniert; die sechs Hinweise scheitern an der Ortszuordnung. Vorhandene generische Sportstätten erfüllen Escape Room/Bowling nicht. Wiederholte Gesamtkomposition kann diese Quellenlücke nicht beheben.",
       "acceptance": [
-        "Qualitative Budgetvorliebe startet die Recherche; harte Geldsumme wird nicht gelockert. Integration .200 lädt die geprüften Dateien. Genau ein begrenzter Weblauf belegt Anbieterantwort, Kosten und Ortszuordnung oder einen konkreten Providerfehler; keine unkontrollierte Wiederholung."
+        "Die sechs gespeicherten Nachtleben-Hinweise über denselben authentifizierten Places-Vertrag mit konkreten Anbieter-/Filterbelegen auflösen; qualifizierte Escape-Room-/Bowling-Quellen ermitteln; Quellenrecherche bei Wiederaufnahme nicht erneut bezahlen. Danach passender Gesamtplan mit tatsächlichen Aktivitäten, Gastronomie, Abendleben und Strand sowie nachvollziehbarer Streuung. P17/P19 bis zu sämtlichen Gates TEILWEISE."
       ]
     },
     "after": "Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.",
@@ -844,10 +844,10 @@
         "evidence": "Erster realer positiver Gesamtplan: Valencia 14.–20.06.2027, 7/7 Tage, 19 übernommen, kontextuelle Zeiten, Reiseversprechen, Freiraum, Reise-DNA, Unsicherheitskarte, 4 Buchungsabhängigkeiten, Unterkunftsradius, 2 Plan Bs, Audit 74/100 und Review-Freigabe. Quelle d440b96015bc388b6887ff0a92a17d46934f82e7, Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f, 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 Bytes."
       }
     ],
-    "evidence": "Öffentlicher .198-Lauf ceb94f86-f1a2-4c8d-9a22-483577d6a4d4: korrekte Modellauswertung, danach nur acht Ziele erhalten; dadurch kein Nachtleben/Mitmachbedarf und kein Webaufruf. Sieben Modellaufrufe/92357 Tokens, danach zwei unvollständige Tage; ausdrücklich kein positiver Produktnachweis. Lokal besteht der durchgängige Validator-/Resolver-/Webbedarfstest mit 22 Zielen und Konfliktentscheidung. Öffentlicher .199-Lauf 551bd5f3-7352-4c83-bd96-f6f340fbca02 erhält 11/11 Ziele, stoppt aber bei doppelt als tripBudget und budgetLevel eingeordnetem mittlerem Budget. .200 bewahrt echte monetäre Obergrenzen und akzeptiert die qualitative Preisvorliebe; 54 gezielte Prüfungen, 133 Composer und 27 Intent grün.",
-    "summary": "Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. Öffentlicher .198-Lauf ceb94f86-f1a2-4c8d-9a22-483577d6a4d4: korrekte Modellauswertung, danach nur acht Ziele erhalten; dadurch kein Nachtleben/Mitmachbedarf und kein Webaufruf. Sieben Modellaufrufe/92357 Tokens, danach zwei unvollständige Tage; ausdrücklich kein positiver Produktnachweis. Lokal besteht der durchgängige Validator-/Resolver-/Webbedarfstest mit 22 Zielen und Konfliktentscheidung. Öffentlicher .199-Lauf 551bd5f3-7352-4c83-bd96-f6f340fbca02 erhält 11/11 Ziele, stoppt aber bei doppelt als tripBudget und budgetLevel eingeordnetem mittlerem Budget. .200 bewahrt echte monetäre Obergrenzen und akzeptiert die qualitative Preisvorliebe; 54 gezielte Prüfungen, 133 Composer und 27 Intent grün."
+    "evidence": "Integration .200, Worker 79214166-2224-49b0-8795-9788d64a6272, 28/28 Byteidentität. Echter Webjob df9bd8a3-c628-4aec-95f7-f401df6040e8: Luna, 9229 ms, zwei Webaufrufe, 21117 Eingabe-/507 Ausgabetokens, sechs quellengebundene Hinweise, rechnerisch 0,0248318 USD. Anschließend 0/6 Ortszuordnungen; Audit weist unbewiesenes Nachtleben und Escape Room/Bowling zurück. Gesamtworkflow nach ca. 89 Sekunden/3 Modellaufrufen/48204 Tokens fehlgeschlagen, kein Gesamtplan-PASS. Datendefekte (acht Ziele, Konfliktverlust, qualitative Budgetsumme) korrigiert und mit realen Antworten ohne Neuberechnung geprüft.",
+    "summary": "Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. Veröffentlichte App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag. App .200 unterscheidet qualitative Budgetvorlieben von harten Geldsummen, erhält die konkrete Kategorieabsicht in Recherchefragen und bewahrt echte Ausgabengrenzen. Integration .200, Worker 79214166-2224-49b0-8795-9788d64a6272, 28/28 Byteidentität. Echter Webjob df9bd8a3-c628-4aec-95f7-f401df6040e8: Luna, 9229 ms, zwei Webaufrufe, 21117 Eingabe-/507 Ausgabetokens, sechs quellengebundene Hinweise, rechnerisch 0,0248318 USD. Anschließend 0/6 Ortszuordnungen; Audit weist unbewiesenes Nachtleben und Escape Room/Bowling zurück. Gesamtworkflow nach ca. 89 Sekunden/3 Modellaufrufen/48204 Tokens fehlgeschlagen, kein Gesamtplan-PASS. Datendefekte (acht Ziele, Konfliktverlust, qualitative Budgetsumme) korrigiert und mit realen Antworten ohne Neuberechnung geprüft."
   },
-  "qaCommit": "6dbe04aed7679933503c06e3451e8d6c9f28e28c",
+  "qaCommit": "bf81e063eebeeb4f144f35c7054611efa76cd011",
   "intelligence": "Integration-Intelligence v12 ACTIVE / 4.43.8; produktive Intelligence unverändert v52",
   "backendRelease": {
     "source": "a70ad77542e6377e8d6be7079d4975d9b6247ad9",
@@ -857,8 +857,8 @@
     "intelligenceVersion": 12,
     "scope": "Nur Integration-Intelligence 4.43.8 aktualisiert; Integration-Gateway 4.64.39 unverändert.",
     "proof": "Öffentlicher Health 200, webResearch.enabled true; Budgetmigration separat und transaktional angewendet; fünf erlaubt/sechste abgewiesen, Duplikat/Zweitversuch abgewiesen, Testdaten zurückgerollt.",
-    "browserProof": "Öffentlicher .198-Lauf ceb94f86-f1a2-4c8d-9a22-483577d6a4d4: korrekte Modellauswertung, danach nur acht Ziele erhalten; dadurch kein Nachtleben/Mitmachbedarf und kein Webaufruf. Sieben Modellaufrufe/92357 Tokens, danach zwei unvollständige Tage; ausdrücklich kein positiver Produktnachweis. Lokal besteht der durchgängige Validator-/Resolver-/Webbedarfstest mit 22 Zielen und Konfliktentscheidung.",
-    "regression": "245 Suites geprüft: 243 sofort PASS; Statuszuordnung und generiertes Inventar berichtigt, beide Gates gezielt erneut PASS. 50/50 Web-/Kosten-/Wunscherhalt-Prüfungen und NFR-0 grün. outputs/p199-safe-regression.log dokumentiert den ersten Lauf.",
+    "browserProof": "Integration .200, Worker 79214166-2224-49b0-8795-9788d64a6272, 28/28 Byteidentität. Echter Webjob df9bd8a3-c628-4aec-95f7-f401df6040e8: Luna, 9229 ms, zwei Webaufrufe, 21117 Eingabe-/507 Ausgabetokens, sechs quellengebundene Hinweise, rechnerisch 0,0248318 USD. Anschließend 0/6 Ortszuordnungen; Audit weist unbewiesenes Nachtleben und Escape Room/Bowling zurück. Gesamtworkflow nach ca. 89 Sekunden/3 Modellaufrufen/48204 Tokens fehlgeschlagen, kein Gesamtplan-PASS. Datendefekte (acht Ziele, Konfliktverlust, qualitative Budgetsumme) korrigiert und mit realen Antworten ohne Neuberechnung geprüft.",
+    "regression": "245 Suites geprüft: 243 sofort PASS; Statuszuordnung und generiertes Inventar berichtigt, beide Gates gezielt erneut PASS. 50/50 Web-/Kosten-/Wunscherhalt-Prüfungen und NFR-0 grün. outputs/p199-safe-regression.log dokumentiert den ersten Lauf. Danach .200 gezielt: 54 Web-/Budget-/Vertrags-, 133 Composer- und 27 Intentprüfungen sowie Build-/Status-/Inventargates PASS; keine weitere vollständige Wiederholung.",
     "rollbackSource": "Frontend .198 aus fa5a4cfd: Worker 6598b4c7-db62-49c3-8146-6638c8fc8d29. Integration-Intelligence v12 / 4.43.8 bleibt aktiv; Rückfall auf v11 / 4.43.7 aus a70ad775 oder Recherche per LUVIA_WEB_RESEARCH_ENABLED=false abschaltbar. Additive Budgetmigration kann bestehen bleiben.",
     "integrationCandidate": {
       "functionName": "luvia-intelligence-integration",
