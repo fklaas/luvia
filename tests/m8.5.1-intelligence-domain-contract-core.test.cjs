@@ -27,13 +27,15 @@ const core=context.LuviaIntelligenceDomainContractCoreV1;
 assert.ok(core,'physical Intelligence Core missing');
 assert.equal(core.contractId,'intelligence.v1');
 assert.equal(core.version,'1');
-assert.equal(core.runtimeVersion,'1.3.0-trip-promise-uncertainty');
+assert.equal(core.runtimeVersion,'1.3.1-trip-day-repair-output');
 assert.equal(Object.isFrozen(core),true);
 
 const capabilities=core.listCapabilities();
-assert.equal(capabilities.length,11);
+assert.equal(capabilities.length,12);
 assert.equal(core.getCapability('trip.compose').schema,'trip_itinerary');
 assert.equal(core.getCapability('trip.compose').tier,'deep');
+assert.equal(core.getCapability('trip.compose-day-repair').schema,'trip_day_repair');
+assert.equal(core.getCapability('trip.compose-day-repair').tier,'default');
 assert.equal(core.getCapability('trip.audit').schema,'trip_quality_audit');
 assert.equal(core.getCapability('trip.audit').tier,'default');
 assert.equal(core.resolveModelTier('trip.audit').alias,'Terra');
@@ -113,6 +115,18 @@ assert.equal(audit.issues[0].severity,'blocked');
 assert.equal(audit.promiseAssessment.kept,true);
 assert.deepEqual([...audit.repairInstructions],['Ankunftstag entlasten']);
 assert.equal(Object.isFrozen(audit),true);
+
+const dayRepair=core.validateOutput('trip_day_repair',{
+  days:[{date:'',theme:'Meer und Altstadt',balance:{energy:'balanced',freeTimePurpose:'Strandpause'},freeTime:[{start:'16:00',end:'17:00',purpose:'Strandpause'}],entries:[{providerPlaceId:'place-beach',time:'10:00',durationMinutes:120,reason:'Erfüllt den bestätigten Meerwunsch.'}]}],
+  reasoningSummary:'Tag 6 wird mit einem belegten Strandort ergänzt.',
+  confidence:.93
+});
+assert.equal(dayRepair.days.length,1);
+assert.equal(dayRepair.days[0].date,'','The validator must preserve a missing model date so the single requested day can be normalized by the adapter');
+assert.equal(dayRepair.days[0].entries[0].providerPlaceId,'place-beach');
+assert.equal(dayRepair.days[0].freeTime[0].purpose,'Strandpause');
+assert.equal(dayRepair.reasoningSummary,'Tag 6 wird mit einem belegten Strandort ergänzt.');
+assert.equal(Object.isFrozen(dayRepair),true);
 
 const signal=core.normalizeSignal({
   id:'signal-1',

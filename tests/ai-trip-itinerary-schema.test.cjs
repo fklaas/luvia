@@ -47,6 +47,9 @@ assert.deepStrictEqual(Array.from(repair.required),['days','reasoningSummary','c
 assert.strictEqual(repair.properties.days.minItems,1,'A repair response must contain its requested day');
 assert.strictEqual(repair.properties.days.maxItems,1,'A repair call must return exactly one day');
 assert.deepStrictEqual(Array.from(repair.properties.days.items.required),['date','theme','balance','freeTime','entries']);
+const domainSource=fs.readFileSync('core/intelligence/intelligence-domain-contract-core.js','utf8');
+assert.match(domainSource,/case'trip_day_repair':output=tripDayRepair\(value\)/,'The browser Intelligence validator must preserve structured day-repair output instead of reducing it to a generic answer');
+assert.match(domainSource,/function tripDayRepair\(value=\{\}\).*days:\(Array\.isArray\(value\.days\)\?value\.days:\[\]\)\.slice\(0,1\)/s,'The day-repair validator must retain exactly one replacement day');
 const adapter=fs.readFileSync('core/platform/intelligence-contract-adapter.js','utf8');
 assert(!/source\.role&&source\.role!==expected\.role/.test(adapter),'The compact model normalization must not override the contract-owned arrival or departure role');
 assert.match(adapter,/certainty='modelled'/,'AI placement decisions remain explicitly modelled after compact output normalization');
