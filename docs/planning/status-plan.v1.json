@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.182",
-  "core": "4.82.301",
-  "runtimeSource": "COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f",
-  "worker": "1fbf6e16-b328-44bb-9284-5413383e6b17",
+  "app": "13.82.168.183",
+  "core": "4.82.302",
+  "runtimeSource": "COMMIT_21eac309fc7b6cbb9e1855b5b4bfceb945be4f03",
+  "worker": "5a693c60-25d7-4548-b2fe-b26392a25975",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -768,7 +768,7 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 aktiv: App .182 / Core .301 ist auf Integration veröffentlicht. Der echte Valencia-Lauf liefert ein räumlich breites 57-Places-Reservoir und sieben Tage einschließlich Strand, braucht aber Reparaturen wegen vom Modell falsch abgeschriebener langer Geoapify-IDs. Kandidat App 13.82.168.183 / Core 4.82.302 ersetzt Modell-IDs durch kurze, exakt rückgebundene Referenzen.",
+    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Öffentliche .183-Runtime ist belegt; Kandidat App 13.82.168.184 / Core 4.82.303 korrigiert die zu langsame Eskalation ganzer Abschnitte auf Sol.",
     "delivered": "Integration .182: Quelle COMMIT_569e642836f25b1e02c439472c4d4ef65a6d531f, Worker 1fbf6e16-b328-44bb-9284-5413383e6b17, Archiv 92.650.447 Bytes / SHA256 8E60A0A356EBF564E35B34CA67BDEE67670EDC6221FFE15CCDC8D2C9ADBAE540 und 22/22 öffentliche Bytevergleiche. 241/241 Regression, NFR-0 3/3, Composer 133, P19 99/99 und 51/51 Transport-/Abschnittsprüfungen bestanden. Echter Providerbeleg: planning.dialogue erfolgreich in 16.203 ms; trip.compose und Reparaturen liefen real. Der letzte Audit blockierte fehlende gültige Backup-Referenzen. Ein bis zwei abweichende Zeichen in echten 113- bis 125-stelligen Provider-IDs sind als Ursache belegt. Der neue Referenzpfad ist mit 60/60 Transport-/Abschnittsprüfungen und 133 Composer-Prüfungen geprüft; sein öffentlicher Review folgt noch.",
     "nextStep": {
       "id": "P17-P19-public-reserve-sections-review",
@@ -840,7 +840,8 @@
         "status": "AUF_INTEGRATION_TEILABGENOMMEN",
         "evidence": "Erster realer positiver Gesamtplan: Valencia 14.–20.06.2027, 7/7 Tage, 19 übernommen, kontextuelle Zeiten, Reiseversprechen, Freiraum, Reise-DNA, Unsicherheitskarte, 4 Buchungsabhängigkeiten, Unterkunftsradius, 2 Plan Bs, Audit 74/100 und Review-Freigabe. Quelle d440b96015bc388b6887ff0a92a17d46934f82e7, Worker 19878f2d-6378-4592-b292-1cf63cd8ab5f, 240/240 Regression, 119 Composer, 57/57 P19, NFR-0 3/3 und 16/16 Bytes."
       }
-    ]
+    ],
+    "evidence": "Öffentlich .183: 22/22 Release-Dateien identisch, 57 Kandidaten erhalten. Die Sol-Gesamtkomposition endet eindeutig mit OPENAI_TIMEOUT nach 50.006 ms; sichtbarer Fehler statt Dauerladung. .184 nutzt die schnelle Lane für ganze Abschnitte und weiterhin Terra-Audit plus stärkere gezielte Tagesreparaturen. Kontrolliert 63/63 Transport-/Abschnittsprüfungen, 133 Composer und 99 P19. Echter erfolgreicher .184-Review noch offen."
   },
   "qaCommit": "WORKTREE_CANDIDATE_INTELLIGENCE_4.42.1",
   "intelligence": "Integration-Intelligence 4.43.0 ist getrennt veröffentlicht und öffentlich gesund. Produktionsfunction, Main und Production bleiben unverändert.",

@@ -52,7 +52,7 @@ async function run(){
     const h=harness(),state=h.state;state.data.startDate='2027-06-01';state.data.endDate='2027-06-'+String(days).padStart(2,'0');
     const candidates=Array.from({length:days*9},(_,i)=>({...h.candidate(['food','culture','activities','water'][i%4],i+1),providerPlaceId:'geoapify:'+i.toString(16).padStart(120,'a')}));
     const sections=[];let interrupt=true;
-    const params={destination:state.data.destination,days:h.api.itineraryDays(state),candidates,brief:{travelOrder:{rhythm:{freeTimePercent:20},categories:[]},policy:{}},tripPreferences:state.data.tripPreferences,onSection:async list=>{sections.splice(0,sections.length,...copy(list));if(interrupt&&list.length===1)throw Object.assign(new Error('screen locked'),{code:'TEST_LOCK'});}};
+    const params={qualityAttempt:3,repairInstructions:['Die Reise mit belegten Alternativen neu komponieren.'],destination:state.data.destination,days:h.api.itineraryDays(state),candidates,brief:{travelOrder:{rhythm:{freeTimePercent:20},categories:[]},policy:{}},tripPreferences:state.data.tripPreferences,onSection:async list=>{sections.splice(0,sections.length,...copy(list));if(interrupt&&list.length===1)throw Object.assign(new Error('screen locked'),{code:'TEST_LOCK'});}};
     await assert.rejects(()=>h.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary(params),e=>e.code==='TEST_LOCK');checks++;
     const before=h.sandbox.modelCalls.length;interrupt=false;
     const itinerary=await h.sandbox.LuviaIntelligenceContractV1.reads.composeTripItinerary({...params,completedSections:sections});
@@ -61,6 +61,7 @@ async function run(){
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.days.length<=7&&call.request.candidateCatalog.length<=64)));
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.candidateCatalog.every(place=>/^p[0-9]+$/.test(place.providerPlaceId))),'Models use short references instead of copying long opaque provider identifiers'));
     check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.request.referenceSet),'Idempotency includes the real reference set as well as the short aliases'));
+    check(()=>assert.ok(h.sandbox.modelCalls.every(call=>call.options.tier==='fast'),'Whole-trip retries retain the fast composition lane; stronger models repair individual days'));
     const ids=itinerary.days.flatMap(day=>day.entries.map(entry=>entry.providerPlaceId));check(()=>assert.ok(ids.every(id=>id.startsWith('geoapify:')),'Only exact original verified Place ids leave the adapter'));check(()=>assert.equal(new Set(ids).size,ids.length,'No Place repeats across section boundaries'));
     const calls=h.sandbox.modelCalls;check(()=>assert.equal(calls[1].request.days[0].role,'full','A later section does not introduce a second arrival day'));
     await h.sandbox.LuviaIntelligenceContractV1.reads.auditTripItinerary({brief:params.brief,destination:state.data.destination,candidates,itinerary});
