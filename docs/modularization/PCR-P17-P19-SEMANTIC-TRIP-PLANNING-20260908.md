@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.187**, Core **4.82.306**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.188 / Core 4.82.307 / Integration-Intelligence 4.43.3 ergänzt Alternativen separat und erhält bereits gültige Tagesrouten.
+**Stand 2026-09-09:** Integration **13.82.168.188**, Core **4.82.307**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App .189 / Core .308 behebt zusätzlich den reproduzierten Übergang von laufender Wunschauswertung zur Tagesplanung.
 
 **Zuletzt geliefert:** Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.
 
@@ -18,7 +18,7 @@
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Kandidat .188 öffentlich bis zur tatsächlich nutzbaren Tagesroute und Reserveaktion abnehmen. Physische Geräte, übrige P17/P19-Gates und datierte Livebelege bleiben offen.
+**Weiter offen:** Öffentlichen zuvor hängenden Auftrag nach App-Reload bis zum Review und zu Reserveaktionen fortsetzen. Physische Geräte und weitere P17/P19-Gates bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->
@@ -103,3 +103,8 @@ Integration .186 erreicht im echten Workflow 60c3cf17-5123-4f96-8341-fddd9038c2b
 ### 09.09.2026 – Begleitkorrekturen bewahren gültige Tagesrouten
 
 Der frische .187-Lauf liefert 72 Places aus elf Gebieten, darunter drei Hafenorte. Der echte Audit bestätigt sämtliche gewünschten Erlebnisbereiche. Alle drei vom Modell genannten Backup-Orte waren aber bereits im Hauptplan eingeplant und wurden korrekt verworfen. Die bislang anschließende Gesamtneukomposition war unnötig und erzeugte neue Lücken. Kandidat .188 ergänzt fehlende Begleitangaben durch einen kompakten echten KI-Auftrag mit fixierten Tagen und ausschließlich ungenutzten Backup-Kandidaten. Selbst vom Modell gelieferte geänderte Tage werden in diesem Pfad nicht übernommen. Backup-Bezüge werden auch gegen ihren konkreten Tag validiert. Explizites Nachtleben erweitert einen nicht vom Nutzer gesetzten Abendrahmen bis 23:59; gesetzte Grenzen bleiben bindend. Belegte Ernährungs-/Zugänglichkeitsfelder und Typen erreichen nun auch den Audit. Tests 109/109 inklusive aller fünf Reserveaktionen und Wiederherstellung ihrer Auswahl, Support-Unveränderlichkeit sowie früher expliziter Abendgrenze. Nur Integration wird veröffentlicht; tatsächliche Freigabe bleibt an den öffentlichen Positivlauf gebunden.
+
+
+### 09.09.2026 – schneller Datumswechsel übernimmt laufende Auswertung
+
+Öffentlich reproduziert: Der Nutzer bestätigt Termine während planning.dialogue noch läuft. prepareAiBrief akzeptierte sein Ergebnis ausschließlich im Schritt dates, während preview den brief-loading-Zustand als unvorbereiteten Entwurf darstellte. Kandidat .189 nimmt denselben Auftrag in dates und preview an, zeigt dessen echten Fortschritt und setzt Polling sowie Vordergrund-/Reload-Wiederaufnahme dort fort. Der neue kontrollierte Race-Test bestätigt, dass nur eine Wunschauswertung bezahlt wird, ihre verspätete Antwort ankommt und danach der Gesamtreview erreicht wird. 114/114 Transport-/Reserve-/Übergangsprüfungen und 133 Composer sind grün.

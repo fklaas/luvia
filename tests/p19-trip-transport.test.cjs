@@ -127,6 +127,17 @@ async function run(){
   check(()=>assert.equal(project(details.state.data,nightData).policy.notAfter,'23:59','Nightlife is not silently restricted by the default 21:00 day end'));
   nightData.data.hardConstraints=[{key:'notAfter',value:'20:30',label:'Spätestens um halb neun zurück'}];
   check(()=>assert.equal(project(details.state.data,nightData).policy.notAfter,'20:30','An explicit earlier boundary stays binding'));
+  const handoff=harness();handoff.state.data.requestBrief='Kultur und veganes Essen, mit Bus und Bahn.';handoff.state.index=handoff.api.currentFlow(handoff.state).indexOf('dates');const handoffRun=handoff.sandbox.LuviaAI.run;let releaseBrief;
+  handoff.sandbox.LuviaAI.run=async(capability,request,options)=>{if(capability==='planning.dialogue')await new Promise(resolve=>releaseBrief=resolve);return handoffRun(capability,request,options);};
+  const pendingBrief=handoff.api.prepareAiBrief(handoff.state);while(!releaseBrief)await new Promise(setImmediate);
+  handoff.api.go(handoff.state,handoff.api.currentFlow(handoff.state).indexOf('preview'));
+  check(()=>assert.equal(handoff.state.aiDraft.status,'brief-loading'));
+  check(()=>assert.doesNotMatch(handoff.root.innerHTML,/Bitte öffnet diesen Schritt erneut/,'Fast date confirmation must display actual progress, not a dead-end reload request'));
+  releaseBrief();await pendingBrief;
+  check(()=>assert.equal(handoff.state.aiDraft.status,'brief-ready','The original interpretation result is accepted after moving to preview'));
+  await handoff.api.loadAiDayDraft(handoff.state,{confirmedBrief:true});
+  check(()=>assert.equal(handoff.state.aiDraft.status,'ready'));
+  check(()=>assert.equal(handoff.sandbox.modelCalls.filter(call=>call.capability==='planning.dialogue').length,1,'Date-to-preview handoff must not pay for a duplicate interpretation'));
   console.log('P19 trip transport, reserves and sections: '+checks+'/'+checks+' PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1});

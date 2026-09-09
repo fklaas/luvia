@@ -3,7 +3,7 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.187**, Core **4.82.306**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.188 / Core 4.82.307 / Integration-Intelligence 4.43.3 ergänzt Alternativen separat und erhält bereits gültige Tagesrouten.
+**Stand 2026-09-09:** Integration **13.82.168.188**, Core **4.82.307**. P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App .189 / Core .308 behebt zusätzlich den reproduzierten Übergang von laufender Wunschauswertung zur Tagesplanung.
 
 **Zuletzt geliefert:** Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.
 
@@ -18,7 +18,7 @@
 
 **Danach:** Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.
 
-**Weiter offen:** Kandidat .188 öffentlich bis zur tatsächlich nutzbaren Tagesroute und Reserveaktion abnehmen. Physische Geräte, übrige P17/P19-Gates und datierte Livebelege bleiben offen.
+**Weiter offen:** Öffentlichen zuvor hängenden Auftrag nach App-Reload bis zum Review und zu Reserveaktionen fortsetzen. Physische Geräte und weitere P17/P19-Gates bleiben offen.
 
 Aktuelle Paketstände und nächste Abschlussnachweise: docs/planning/status-plan.v1.json. Nach jedem Arbeitsabschnitt Stand, Beleg, Restumfang und genau einen nächsten Schritt gemeinsam fortschreiben.
 <!-- LUVIA-CURRENT-STATUS:END -->

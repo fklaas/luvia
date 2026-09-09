@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "snapshot": "2026-09-09",
   "sourceBaseline": "91ef2b05",
-  "app": "13.82.168.187",
-  "core": "4.82.306",
+  "app": "13.82.168.188",
+  "core": "4.82.307",
   "runtimeSource": "COMMIT_f71a516d0f7872dc5fbb30253ee7055fa2b0d7c4",
-  "worker": "c47e6c06-ca38-45ad-b0f6-5c6da5ecbf96",
+  "worker": "22e9ab58-28f9-4bc4-b33c-fab748039165",
   "gateway": "v235 ACTIVE / 4.64.38 / Places 4.38.15-exact-google-media-category-matrix",
   "mainHead": "c4b6d1740ad04c291d5e27d8d18b3a32e5ed87ba",
   "packages": [
@@ -733,7 +733,7 @@
     }
   ],
   "acceptanceUpdate": "Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.",
-  "safeRegression": "Integration .187: 241/241 Safe Regression, 133 Composer und 99/99 Workflow. Kandidat .188 gezielt: 109/109 Transport-/Abschnitts-/Reserveaktions-/Begleitkorrekturprüfungen einschließlich Tages-Unveränderlichkeit und expliziter Abendgrenze.",
+  "safeRegression": "Integration .188: 241/241 Safe Regression, 133 Composer, 109/109 Transport-/Reserveprüfungen und 22/22 öffentliche Bytevergleiche. Kandidat .189 gezielt: 114/114 Transport-/Reserve-/Übergangsprüfungen und 133 Composer.",
   "publicAssetIdentity": "Integration .186: 22/22 Stable-/Immutable-Bytevergleiche zur Quelle 041facef. Archiv 92.660.654 Bytes, SHA256 429413117C58DA02AA18C34F184F9C2116ED0D3D3E9BEA6988439DB18D1B6EAD.",
   "acceptance": "docs/planning/B1-END-TO-END-ACCEPTANCE-2026-09-04.md",
   "bookingResolver": {
@@ -768,7 +768,7 @@
     "docs/modularization/PCR-P17-P19-SEMANTIC-TRIP-PLANNING-20260908.md"
   ],
   "currentWork": {
-    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App 13.82.168.188 / Core 4.82.307 / Integration-Intelligence 4.43.3 ergänzt Alternativen separat und erhält bereits gültige Tagesrouten.",
+    "stage": "P17/P19 Priorität: verlässliche vollständige KI-Reise. Kandidat App .189 / Core .308 behebt zusätzlich den reproduzierten Übergang von laufender Wunschauswertung zur Tagesplanung.",
     "delivered": "Integration .187 / c08f7cb5: 241/241 Regression und 22/22 öffentliche Bytevergleiche. Frischer öffentlicher Auftrag 15138a8c-8549-40e8-a0c0-5ba3cf258bf8: 72 Kandidaten aus elf Gebieten, drei echte Hafenorte, räumliche Konzentration 36,1 Prozent; echter KI-Audit bestätigt Strand, Hafen, Altstadt, Shopping und Nachtleben. Drei modellierte Backups waren bereits im Hauptplan verwendet und wurden korrekt verworfen. Eine dadurch ausgelöste unnötige Gesamtneukomposition erzeugte neue Tagesfehler. Kandidat .188 ergänzt stattdessen nur die fehlenden Begleitangaben per KI; bereits gültige Tage bleiben unveränderlich.",
     "nextStep": {
       "id": "P17-P19-public-reserve-sections-review",
@@ -784,7 +784,7 @@
       ]
     },
     "after": "Reserveaktionen, messbare Poolqualität, vollständiger Transport und segmentierte Langreisen sind umgesetzt und kontrolliert geprüft. Nach dem echten öffentlichen Gesamtreview folgen die noch offenen P17/P19-Gates: autoritative Ferienfenster, Konfliktmoderation, P16-Ablehnungsdiagnose, Konto-/Timeline-Übernahme und physische Geräte.",
-    "open": "Kandidat .188 öffentlich bis zur tatsächlich nutzbaren Tagesroute und Reserveaktion abnehmen. Physische Geräte, übrige P17/P19-Gates und datierte Livebelege bleiben offen.",
+    "open": "Öffentlichen zuvor hängenden Auftrag nach App-Reload bis zum Review und zu Reserveaktionen fortsetzen. Physische Geräte und weitere P17/P19-Gates bleiben offen.",
     "completedPackages": [
       {
         "id": "P15-P17-composer-four-experiences",
