@@ -65,4 +65,16 @@ Die browserlosen Cores und Backendverträge sind wiederverwendbar. Die heutige D
 
 ## Nächste Abnahme
 
-A2 und die Evidenzkorrekturen als gebündelten Integration-Stand veröffentlichen; den tatsächlichen Build, Austausch/Reload und einen begrenzten echten KI-Review belegen. Danach die offenen räumlichen Identitäten, die gebietsferne Reserve und den Familien-/Konfliktfall bearbeiten. Keine Freigabe von ganz P17/P19 aus einem einzelnen positiven Valencia-Test ableiten.
+A2 ist mit .195 auf Integration ausgeliefert und öffentlich bedient. Die inhaltliche Prüfung dieses Stands bleibt negativ: Der tatsächliche Valencia-Plan erhält zwar einen formalen Audit von 88, enthält aber einen zu schwachen Erlebnismix. Keine Freigabe von ganz P17/P19 aus dieser Modellbewertung ableiten.
+
+## Nachgewiesene Suchursachen und Kandidat .196
+
+Der gespeicherte .195-Lauf zeigt zwölf Treffer für „Lonja de la Seda de València monumento histórico“, ohne dass der gesuchte Ort enthalten ist. Der Gateway entfernt den Namensfilter bei langen Suchtexten und bei strenger Typauswahl; ein leerer Namenslauf konnte außerdem in eine allgemeine Kategoriesuche übergehen. Beim Zusammenführen mit dem allgemeinen Pool ging der gezielte Suchbezug desselben Places verloren. Diese drei Pfade sind im Kandidaten korrigiert.
+
+Der vorhandene KI-Rechercheaufruf erhält den ursprünglichen Wunsch und bis zu sechs unterschiedliche Recherchebedürfnisse. Ein separates targetName kennzeichnet einen benannten Ort; offene Erlebnissuchen verwenden passende Kategorien. Die Provider erhalten den Namen unverändert. Leere Antworten bleiben leer oder gehen mit demselben Namen zum nächsten freigeschalteten Provider. Eine Namensprüfung berücksichtigt echte Provider-Aliasnamen, aber keine Adresse als Ersatz für die Ortsidentität. Suchversion 3 erneuert alte Zusatzsuchen; bei doppelten IDs bleiben alle Recherchebezüge im dauerhaft gespeicherten Pool erhalten.
+
+Providerkategorien werden präziser abgebildet: ein spanisches Restaurant ist kein Spa, ein Sportgeschäft keine Sportaktivität, und ein Park beziehungsweise ein allgemeiner Freizeit-/Sportbereich kein Beleg für eine Mitmachaktivität. Konkrete Typen wie Escape Room, Bowling, Minigolf, Aquarium und Sportstätte bleiben erreichbar. Die unterstützten Providerkategorien und der Namensparameter sind anhand der [offiziellen Geoapify-Dokumentation](https://apidocs.geoapify.com/docs/places/) geprüft. Eine Ortskategorie bestätigt weiterhin weder ein bestimmtes buchbares Angebot noch dessen Verfügbarkeit.
+
+24 gezielte Verhaltenstests führen die tatsächliche Provider-Suchstrecke mit kontrollierten Antworten aus. Sie prüfen falsche und richtige Namen, Aliasnamen, den Providerwechsel ohne unbenannte Erweiterung, konkrete Aktivitätsbelege, den Browsertransport und die Integration-Isolierung. Bestehende Transport-/Reserveprüfungen: 145/145. Dies sind lokale Gegenbelege gegen die früheren Fehler, noch kein positiver öffentlicher Reiseplan.
+
+Ein separat deploybarer Integration-Gateway importiert die vorhandene kanonische Implementierung. Die produktive Function wird dadurch nicht ersetzt. Authentifizierung, CORS und Providerbudgets gelten auch im Integration-Endpunkt. Nach Veröffentlichung werden zuerst zwei begrenzte öffentliche Recherchen geprüft; erst danach folgt ein neuer vollständiger KI-Plan. Bestehende .195-Entwürfe werden durch einen UI-Reload nicht als inhaltlich verbessert ausgegeben.

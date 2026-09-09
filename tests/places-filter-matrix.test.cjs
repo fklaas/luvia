@@ -101,7 +101,7 @@ for(const [type,category]of Object.entries({hotel:'accommodation.hotel',apartmen
  assert.deepEqual(Array.from(strictSpanish,p=>p.name),['Taberna Española'],'a cuisine filter never relabels generic restaurants as the selected national cuisine');
  const partialCalls=[];ctx.fetch=async url=>{const u=new URL(url),category=u.searchParams.get('categories');partialCalls.push(category);if(category==='entertainment')throw Object.assign(new Error('supplement unavailable'),{code:'PROVIDER_BUDGET_DENIED',status:503});return{ok:true,status:200,json:async()=>({features:[{properties:{place_id:category,name:category,lat:54.02,lon:10.75,categories:[category]}}]})}};
  const partialActivities=await ctx.provider.geoapifyPlacesSearch('Aktivitäten Erlebnisse Freizeit',{location:point},{category:'activities',userQuery:'',maxResultCount:50},null,null);
- assert.deepEqual(partialCalls.sort(),['entertainment','leisure','sport'],'all broad category parents are requested independently');
+ assert.deepEqual(partialCalls.sort(),['entertainment','entertainment.activity_park','sport'],'activity browsing prioritises experience venues instead of a generic leisure/park cohort');
  assert.equal(partialActivities.length,2,'one failed broad-category supplement must retain successful sibling results');
  const composition=ctx.LuviaPlacesSpatialCompositionCoreV1;
  const preferencePins=composition.compose({places:[{id:'yes',name:'Yes',coordinates:point,preferenceDiscoveryMatch:true,preferenceConstraintState:'verify'},{id:'no',name:'No',coordinates:point,preferenceDiscoveryMatch:false,preferenceScore:95,preferenceFit:{score:95,coverage:100},preferenceReasons:['generic'],preferenceConstraintState:'satisfied'}],runtime:{status:'ready'}}).markers;

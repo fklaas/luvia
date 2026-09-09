@@ -2989,3 +2989,4 @@ assets/composer/regions/ZMB.json,Consumer/Experience,Presentation Data,Public-do
 assets/composer/regions/ZWE.json,Consumer/Experience,Presentation Data,Public-domain Natural Earth regional overview loaded only for the selected country
 vendor/d3-7.9.0.min.js,Consumer/Experience,Vendor Asset,Pinned D3 geographic presentation runtime without domain truth
 vendor/d3-7.9.0.LICENSE,Consumer/Experience,License Notice,ISC license for pinned D3 7.9.0
+supabase/functions/luvia-gateway-integration/index.ts,Platform/App Shell,Entry/Deploy,"Integration-only entry; imports the canonical Gateway, no separate domain implementation"

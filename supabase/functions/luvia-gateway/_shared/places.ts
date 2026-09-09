@@ -49,6 +49,9 @@ const HEALTH_PROBES=Object.freeze({
   'vegetarian-osm-scharbeutz':Object.freeze({query:'Vegetarisches Restaurant',destination:SCHARBEUTZ_CUISINE_DESTINATION,options:Object.freeze({providers:Object.freeze(['openstreetmap']),category:'food',includedType:'vegetarian_restaurant',includedTypes:Object.freeze(['vegetarian_restaurant']),strictPlaceType:'vegetarian_restaurant',strictTypeFiltering:true,strictDestination:true,maxResultCount:40,maxDistanceMeters:3000,vegetarianOnly:true,sortBy:'distance'})}),
   'vegetarian-here-8km-scharbeutz':Object.freeze({query:'Vegetarisches Restaurant',destination:SCHARBEUTZ_CUISINE_DESTINATION,options:Object.freeze({providers:Object.freeze(['here']),category:'food',includedType:'vegetarian_restaurant',includedTypes:Object.freeze(['vegetarian_restaurant']),strictPlaceType:'vegetarian_restaurant',strictTypeFiltering:true,strictDestination:true,maxResultCount:50,maxDistanceMeters:8000,vegetarianOnly:true})}),
   'vegetarian-here-15km-scharbeutz':Object.freeze({query:'Vegetarisches Restaurant',destination:SCHARBEUTZ_CUISINE_DESTINATION,options:Object.freeze({providers:Object.freeze(['here']),category:'food',includedType:'vegetarian_restaurant',includedTypes:Object.freeze(['vegetarian_restaurant']),strictPlaceType:'vegetarian_restaurant',strictTypeFiltering:true,strictDestination:true,maxResultCount:50,maxDistanceMeters:15000,vegetarianOnly:true})}),
+  // Bounded regression probes for the trip's named-venue and real-activity reads.
+  'named-landmark-valencia':Object.freeze({query:'Lonja de la Seda de València monumento histórico',destination:Object.freeze({name:'Valencia',countryCode:'ES',location:Object.freeze({latitude:39.4699,longitude:-.3763}),canonicalCity:Object.freeze({name:'Valencia'}),searchRadiusMeters:20000}),options:Object.freeze({providers:Object.freeze(['auto']),category:'sights',targetName:'Lonja de la Seda',includedTypes:Object.freeze(['historical_landmark','tourist_attraction']),strictTypeFiltering:true,strictDestination:true,maxResultCount:20,maxDistanceMeters:20000})}),
+  'participatory-valencia':Object.freeze({query:'Escape rooms Valencia',destination:Object.freeze({name:'Valencia',countryCode:'ES',location:Object.freeze({latitude:39.4699,longitude:-.3763}),canonicalCity:Object.freeze({name:'Valencia'}),searchRadiusMeters:20000}),options:Object.freeze({providers:Object.freeze(['auto']),category:'activities',userQuery:'',includedTypes:Object.freeze(['escape_room']),strictTypeFiltering:true,strictDestination:true,maxResultCount:20,maxDistanceMeters:20000})}),
   'minigolf-scharbeutz':Object.freeze({query:'Minigolf',destination:Object.freeze({name:'Scharbeutz',countryCode:'DE',location:Object.freeze({latitude:54.0214,longitude:10.7536}),canonicalCity:Object.freeze({name:'Scharbeutz'}),searchRadiusMeters:15000}),options:Object.freeze({providers:Object.freeze(['auto']),category:'activities',includedType:'miniature_golf_course',includedTypes:Object.freeze(['miniature_golf_course']),strictTypeFiltering:true,strictDestination:true,maxResultCount:50,maxDistanceMeters:15000})}),
   'minigolf-chat-scharbeutz':Object.freeze({query:'Minigolf in Scharbeutz Scharbeutz',destination:Object.freeze({name:'Scharbeutz',countryCode:'DE',location:Object.freeze({latitude:54.0214,longitude:10.7536}),canonicalCity:Object.freeze({name:'Scharbeutz'}),searchRadiusMeters:15000}),options:Object.freeze({providers:Object.freeze(['auto']),category:'activities',includedType:'miniature_golf_course',includedTypes:Object.freeze(['miniature_golf_course']),strictTypeFiltering:true,strictDestination:true,maxResultCount:50,maxDistanceMeters:15000})}),
   'hotels-scharbeutz':Object.freeze({query:'Hotels Apartments Ferienhäuser Unterkünfte',destination:Object.freeze({name:'Scharbeutz',countryCode:'DE',location:Object.freeze({latitude:54.0214,longitude:10.7536}),canonicalCity:Object.freeze({name:'Scharbeutz'}),searchRadiusMeters:15000}),options:Object.freeze({providers:Object.freeze(['auto']),category:'accommodation',includedType:'lodging',includedTypes:Object.freeze(['lodging','hotel','hostel','motel','guest_house','bed_and_breakfast','apartment','vacation_rental','holiday_home','resort_hotel','campground']),strictTypeFiltering:true,strictDestination:true,maxResultCount:50,maxDistanceMeters:15000})}),
@@ -108,8 +111,8 @@ const GEOAPIFY_CATEGORY_FALLBACK_BY_KEY=Object.freeze({
   restaurant:Object.freeze(['catering.restaurant','catering.cafe','catering.bar']),
   accommodation:Object.freeze(['accommodation']),
   lodging:Object.freeze(['accommodation']),
-  activities:Object.freeze(['entertainment','leisure','sport']),
-  activity:Object.freeze(['entertainment','leisure','sport']),
+  activities:Object.freeze(['entertainment','entertainment.activity_park','sport']),
+  activity:Object.freeze(['entertainment','entertainment.activity_park','sport']),
   themeparks:Object.freeze(['entertainment.theme_park','entertainment.water_park','entertainment.activity_park']),
   wellness:Object.freeze(['leisure.spa']),
   water:Object.freeze(['beach','sport.swimming_pool','entertainment.water_park']),
@@ -164,6 +167,16 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   swimming_pool:'sport.swimming_pool',
   water_park:'entertainment.water_park',
   amusement_center:'entertainment.activity_park',
+  aquarium:'entertainment.aquarium',
+  bowling_alley:'entertainment.bowling_alley',
+  escape_room:'entertainment.escape_game',
+  miniature_golf_course:'entertainment.miniature_golf',
+  golf_course:'sport.golf_course',
+  fitness_center:'sport.fitness.fitness_centre',
+  gym:'sport.fitness.gym',
+  sports_activity_location:'sport.sports_centre',
+  skating_rink:'sport.ice_rink',
+  stadium:'sport.stadium',
   amusement_park:'entertainment.theme_park',
   playground:'leisure.playground',
   zoo:'entertainment.zoo',
@@ -218,8 +231,8 @@ const GEOAPIFY_CATEGORIES_BY_LUVIA_TYPE=Object.freeze({
   // Parent `catering` is the reliable food bucket. Nested lists previously 400'd
   // the whole Places map for the default Restaurant category.
   food:'catering',
-  activities:'entertainment,leisure,sport',
-  activity:'entertainment,leisure,sport',
+  activities:'entertainment,entertainment.activity_park,sport',
+  activity:'entertainment,entertainment.activity_park,sport',
   themeparks:'entertainment.theme_park,entertainment.water_park,entertainment.activity_park',
   wellness:'leisure.spa',
   water:'beach,sport.swimming_pool,entertainment.water_park',
@@ -550,7 +563,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key==='service.vehicle.charging_station')types.add('electric_vehicle_charging_station');
     if(key==='service.financial.atm')types.add('atm');
     if(key==='natural'||key.startsWith('natural.'))types.add('natural_feature');
-    if(key.includes('spa')||key.includes('sauna')||key.includes('wellness'))types.add('spa');
+    if(/(?:^|\.)(?:spa|sauna|wellness)(?:\.|$)/.test(key))types.add('spa');
     if(key.includes('playground'))types.add('playground');
     if(key==='park'||key.startsWith('leisure.park'))types.add('park');
     if(key.includes('beach'))types.add('beach');
@@ -564,7 +577,19 @@ function geoapifyLuviaTypes(categories:any[]=[]){
     if(key==='entertainment.culture.theatre')types.add('performing_arts_theater');
     if(key==='entertainment.culture.gallery')types.add('art_gallery');
     if(key.startsWith('tourism')||key.includes('sights')||key.includes('attraction'))types.add('tourist_attraction');
-    if(key.startsWith('entertainment')||key.startsWith('leisure')||key.startsWith('sport'))types.add('activity');
+    const activityType=({
+      'entertainment.aquarium':'aquarium','entertainment.bowling_alley':'bowling_alley',
+      'entertainment.escape_game':'escape_room','entertainment.miniature_golf':'miniature_golf_course',
+      'entertainment.amusement_arcade':'amusement_center','sport.golf_course':'golf_course',
+      'sport.fitness.fitness_centre':'fitness_center','sport.fitness.gym':'gym',
+      'sport.sports_centre':'sports_activity_location','sport.sports_hall':'sports_activity_location',
+      'sport.dive_centre':'sports_activity_location','sport.horse_riding':'sports_activity_location',
+      'sport.ice_rink':'skating_rink','sport.stadium':'stadium'
+    } as Record<string,string>)[key];
+    if(activityType)types.add(activityType);
+    // Generic parent labels describe land use, not a bookable or participatory
+    // experience. In particular leisure.park and bare sport never earn activity.
+    if(activityType||/^entertainment\.(?:activity_park|theme_park|water_park)(?:\.|$)/.test(key))types.add('activity');
     if(key.startsWith('commercial'))types.add('store');
     if(key.startsWith('commercial.clothing'))types.add('clothing_store');
     if(key==='commercial.department_store')types.add('department_store');
@@ -574,7 +599,7 @@ function geoapifyLuviaTypes(categories:any[]=[]){
   return[...types].slice(0,40);
 }
 const GEOAPIFY_GENERIC_TYPE=/^(?:building|wheelchair|access|access_limited|fee|vegetarian|vegan|no_dogs|internet_access|payment|toilets|outdoor|indoor)(?:_|$)/;
-const GEOAPIFY_PRIMARY_RANK=Object.freeze(['restaurant','cafe','cocktail_bar','wine_bar','pub','bar','night_club','lounge_bar','live_music_venue','jazz_club','comedy_club','karaoke_bar','casino','bakery','meal_takeaway','lodging','spa','playground','amusement_park','water_park','zoo','museum','beach','park','tourist_attraction','shopping_mall','store','activity','sport','leisure','entertainment','catering']);
+const GEOAPIFY_PRIMARY_RANK=Object.freeze(['restaurant','cafe','cocktail_bar','wine_bar','pub','bar','night_club','lounge_bar','live_music_venue','jazz_club','comedy_club','karaoke_bar','casino','bakery','meal_takeaway','lodging','spa','playground','amusement_center','aquarium','bowling_alley','escape_room','miniature_golf_course','golf_course','fitness_center','gym','sports_activity_location','skating_rink','stadium','amusement_park','water_park','zoo','museum','beach','park','tourist_attraction','shopping_mall','store','activity','sport','leisure','entertainment','catering']);
 function preferChildCategory(mappedTypes:string[]=[],nativeEvidence:string[]=[]):string{
   const natives=nativeEvidence.map(value=>String(value||'').toLowerCase());
   // Child Geoapify paths beat generic parents and building.* noise.
@@ -797,7 +822,7 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   const rect=restriction?.rectangle||restriction;
   const anchor=rect?.low&&rect?.high?{latitude:(Number(rect.low.latitude)+Number(rect.high.latitude))/2,longitude:(Number(rect.low.longitude)+Number(rect.high.longitude))/2}:searchAnchor(destination,options);
   const biasParam=anchor?`proximity:${anchor.longitude},${anchor.latitude}`:(typeof bias==='string'?bias:null)||geoapifyBiasFromRestriction(restriction)||circle;
-  const name=geoapifyNameFilter(options.userQuery!==undefined?options.userQuery:textQuery);
+  const targetName=String(options.targetName||'').trim().slice(0,200),name=targetName||geoapifyNameFilter(options.userQuery!==undefined?options.userQuery:textQuery);
   // Geoapify Places treats some multi-category CSV lists as an intersection
   // (live Scharbeutz: leisure≈50, but leisure,sport≈1). Always request one
   // category per call and merge unique place_ids — splitGeoapifyCategories.
@@ -865,9 +890,9 @@ async function geoapifyPlacesSearch(textQuery:string,destination:any,options:any
   // the localized filter label as a venue-name constraint first adds a slow,
   // usually empty request (for example "Minigolf") and can hide valid places
   // whose proper name does not repeat their category.
-  const useNameFirst=Boolean(name)&&options.strictTypeFiltering!==true;
+  const useNameFirst=Boolean(targetName)||(Boolean(name)&&options.strictTypeFiltering!==true);
   let {response,body}=await runBatches(useNameFirst);
-  if(response.ok&&useNameFirst&&!(Array.isArray(body?.features)?body.features:[]).length){
+  if(response.ok&&useNameFirst&&!targetName&&!(Array.isArray(body?.features)?body.features:[]).length){
     ({response,body}=await runBatches(false));
   }
   // A taxonomy error is an error, never permission to substitute another family.
@@ -919,9 +944,21 @@ function effectiveMaxDistanceMeters(destination:any,options:any){
 }
 const meatLedPlace=(place:any)=>/steak|grillhaus|grillhouse|churrasc|kebab|d[oö]ner|barbecue|bbq/.test(String([place?.name,place?.primaryType,place?.primaryTypeLabel,...(Array.isArray(place?.types)?place.types:[])].filter(Boolean).join(' ')).toLowerCase());
 const dedicatedDietaryType=(place:any,type:string)=>Array.isArray(place?.types)&&place.types.includes(type);
+function matchesSearchTarget(place:any,targetName:string){
+  if(!targetName)return true;
+  const fold=(value:any)=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  const wanted=fold(targetName),tokens=wanted.split(' ').filter(word=>!['de','del','la','el','los','las','da','do','di','of','the','at','in','and','und','der','die','das'].includes(word));
+  const raw=place?.raw?.datasource?.raw||place?.raw?.properties?.datasource?.raw||{},aliases=Object.entries(raw).filter(([key])=>/^(?:name(?::.*)?|alt_name(?::.*)?|official_name(?::.*)?|short_name)$/.test(key)).flatMap(([,value])=>String(value||'').split(';'));
+  return [place?.name,place?.displayName?.text,place?.displayName,...aliases].filter(value=>typeof value==='string').some(value=>{const name=fold(value),words=new Set(name.split(' '));return name===wanted||tokens.length>0&&tokens.every(word=>words.has(word));});
+}
+const ACTIVITY_EVIDENCE_TYPES=new Set(['amusement_park','amusement_center','aquarium','bowling_alley','escape_room','miniature_golf_course','golf_course','fitness_center','gym','playground','skating_rink','spa','sports_activity_location','stadium','swimming_pool','water_park','zoo']);
 function postProcessPlaces(places:any[],destination:any,options:any){
   const anchor=searchAnchor(destination,options);
   let list=places.map(p=>({...p,distanceMeters:anchor?distanceMeters(anchor,p.location):null,distanceSource:options?.landmarkContext||destination?.landmarkContext?'landmark':'canonical-city'}));
+  if(options?.targetName)list=list.filter(place=>matchesSearchTarget(place,String(options.targetName)));
+  if(['activities','activity'].includes(String(options?.category||''))){
+    list=list.filter(place=>[place.primaryType,...(place.types||[])].some(type=>ACTIVITY_EVIDENCE_TYPES.has(type)));
+  }
   const excluded=[...(Array.isArray(options?.excludedTypes)?options.excludedTypes:[]),...(Array.isArray(options?.excludedPrimaryTypes)?options.excludedPrimaryTypes:[])].map((value:any)=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')).filter(Boolean);
   if(excluded.length)list=list.filter(place=>{const types=[place?.primaryType,...(Array.isArray(place?.types)?place.types:[])].map(value=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')).filter(Boolean);return!types.some(type=>excluded.some(rule=>type===rule||type.startsWith(`${rule}_`)||type.endsWith(`_${rule}`)))});
   const requestedTypes=[...(Array.isArray(options?.includedTypes)?options.includedTypes:[]),options?.includedType].map((value:any)=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')).filter(Boolean);
@@ -1034,7 +1071,7 @@ if(action==='places.text-search'){
   let geoapifyPlaces:any[]=[],osmPlaces:any[]=[],googlePlaces:any[]=[],foursquarePlaces:any[]=[],fallbackReason:string|null=null;
   let processed:any[]=[],fallbackUsed=false,supplementUsed=false,supplementReason:string|null=null,mode='geoapify_primary';
   const wantsGeoapify=providers.includes('geoapify')||providers.includes('auto');
-  const wantsOsmDietary=providers.includes('openstreetmap')||providers.includes('auto');
+  const wantsOsmDietary=providers.includes('openstreetmap')||providers.includes('auto')&&!options.targetName;
   const wantsLegacy=providers.includes('google')||providers.includes('foursquare');
   const dietaryEvidenceType=String(options.strictPlaceType||options.includedType||'');
   const categoryKey=String(options.category||payload?.type||options.type||'').toLowerCase();
@@ -1096,7 +1133,7 @@ if(action==='places.text-search'){
     }catch(error:any){if(!providerErrors.some(item=>item.provider==='openstreetmap'))providerErrors.push({provider:'openstreetmap',code:error?.code||'OSM_PLACES_PROVIDER_ERROR',message:error?.message||'OpenStreetMap-Orte sind gerade nicht verfügbar.',status:Number(error?.status)||null,reason:error?.reason||null})}
   }
   processed=mergeProviderPlaces(processed);
-  const breadthTarget=providerBreadthTarget(categoryKey,providers);
+  const breadthTarget=options.targetName?0:providerBreadthTarget(categoryKey,providers);
   const primaryResultCount=processed.length;
   if(!processed.length||breadthTarget>0&&processed.length<breadthTarget){
     for(const provider of (providers.includes('auto')?['tomtom','here']:providers.filter((p:string)=>p==='tomtom'||p==='here'))){

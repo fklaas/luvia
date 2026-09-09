@@ -23,7 +23,11 @@ export function additionalTypes(evidence:string[]){
   if(/\bpark and ride\b/.test(text))return['parking'];
   if(/\bbike park\b/.test(text))return['sports_activity_location'];
   if(/\bcamping hiking shop\b/.test(text))return['store'];
-  const types=typeRules.filter(([,pattern])=>pattern.test(text)).map(([type])=>type);
+  // A sports retailer sells equipment; its category is no evidence of an
+  // activity venue. Keep independent explicit venue labels if provided.
+  const activityEvidence=evidence.filter(value=>!/\b(?:shop|store|retail|clothing|fashion|goods)\b/.test(token(value))).map(token).join(' | ');
+  const types=typeRules.filter(([type,pattern])=>pattern.test(type==='sports_activity_location'?activityEvidence:text)).map(([type])=>type);
+  if(/\bsport/.test(text)&&/\b(?:shop|store|retail|goods)\b/.test(text))types.push('sporting_goods_store','store');
   if(types.some(type=>['cocktail_bar','wine_bar','pub','lounge_bar'].includes(type)))types.push('bar');
   for(const [type,aliases] of Object.entries(cuisines))if(aliases.some(alias=>new RegExp(`\\b${alias}\\b`).test(text)))types.push(`${type}_restaurant`,'restaurant');
   if(types.some(type=>/^(chinese|japanese|thai|vietnamese|korean|indian)_restaurant$/.test(type)))types.push('asian_restaurant');
@@ -88,7 +92,7 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
     // avoids oversized requests when the user selects the restaurant family.
     const ids=matches.map((c:any)=>c.id).filter((id:any)=>!matches.some((parent:any)=>parent.id!==id&&String(id).startsWith(String(parent.id))));
     if(ids.length&&ids.length<150)params.set('categorySet',ids.join(','));
-    const q=String(options.userQuery||'').trim()||(ids.length?'':query||'restaurant');
+    const q=String(options.targetName||options.userQuery||'').trim()||(ids.length?'':query||'restaurant');
     if(!q){
       params.set('lat',String(lat));params.set('lon',String(lng));
       params.set('radius',String(rect?Math.min(50000,Math.ceil(Math.hypot(Number(rect.high.latitude)-Number(rect.low.latitude),(Number(rect.high.longitude)-Number(rect.low.longitude))*Math.cos(lat*Math.PI/180))*111320/2)):radius));
@@ -97,13 +101,13 @@ export async function additionalSearch(provider:'tomtom'|'here',query:string,des
     data=await json(provider,'search',`https://api.tomtom.com/search/2/${q?`poiSearch/${encodeURIComponent(q)}`:'nearbySearch/'}.json?${params}`);
     return normalizeRows(data.results||[]);
   }
-  const params=new URLSearchParams({apiKey:secret(provider),at:`${lat},${lng}`,limit:String(limit),lang:'en-US',q:String(options.userQuery||query||'restaurant')});
+  const params=new URLSearchParams({apiKey:secret(provider),at:`${lat},${lng}`,limit:String(limit),lang:'en-US',q:String(options.targetName||options.userQuery||query||'restaurant')});
   params.set('in',rect?`bbox:${rect.low.longitude},${rect.low.latitude},${rect.high.longitude},${rect.high.latitude}`:`circle:${lat},${lng};r=${radius}`);
   const foodTypes=cuisineTypes.length?hereTaxonomy.foodTypes.filter(c=>additionalTypes([c.name]).some(t=>cuisineTypes.includes(t)&&t.endsWith('_restaurant'))).map(c=>c.id.endsWith('-000')?c.id.split('-')[0]:c.id):[];
   if(cuisineTypes.length&&!foodTypes.length)return[];
   const categories=hereTaxonomy.categories.filter(c=>additionalTypes([c.name]).some(t=>required.includes(t))).map(c=>c.id);
   const family=foodTypes.length?['100-1000']:categories;
-  if(family.length){params.delete('q');params.set('categories',[...new Set(family)].join(','));if(foodTypes.length)params.set('foodTypes',[...new Set(foodTypes)].filter(id=>!foodTypes.some(parent=>parent!==id&&id.startsWith(parent+'-'))).join(','));if(options.userQuery)params.set('name',String(options.userQuery))}
+  if(family.length){params.delete('q');params.set('categories',[...new Set(family)].join(','));if(foodTypes.length)params.set('foodTypes',[...new Set(foodTypes)].filter(id=>!foodTypes.some(parent=>parent!==id&&id.startsWith(parent+'-'))).join(','));if(options.targetName||options.userQuery)params.set('name',String(options.targetName||options.userQuery))}
   data=await json(provider,'search',family.length?`https://browse.search.hereapi.com/v1/browse?${params}`:`https://discover.search.hereapi.com/v1/discover?${params}`);
   return normalizeRows((data.items||[]).filter((row:any)=>row.resultType==='place'));
 }

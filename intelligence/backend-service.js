@@ -31,13 +31,14 @@
   const uuid=()=>globalThis.crypto?.randomUUID?.()||`req_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
   function config(){
-    const source=window.LUVIA_AUTH_CONFIG||window.LUVIA_CONFIG||{};
+    const browser=window;
+    const source=browser.LUVIA_AUTH_CONFIG||browser.LUVIA_CONFIG||{};
     const supabaseUrl=String(source.supabaseUrl||source.url||'').replace(/\/$/,'');
     const runtime=window.LuviaPlatform?.get?.('backend',{})||window.LUVIA_RUNTIME_CONFIG?.backend||{};
     return Object.freeze({
       supabaseUrl,
       functionsBase:supabaseUrl?`${supabaseUrl}/functions/v1`:'',
-      functionName:String(runtime.functionName||DEFAULT_FUNCTION),
+      functionName:/^(?:[a-z0-9-]+-)?integration-luvia\./i.test(String(browser.location?.hostname||''))?'luvia-gateway-integration':String(runtime.functionName||DEFAULT_FUNCTION),
       timeoutMs:clamp(Number(runtime.timeoutMs)||DEFAULT_TIMEOUT,1000,30000),
       configured:Boolean(supabaseUrl),
       secureContext:window.isSecureContext===true,

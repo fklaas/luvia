@@ -1,3 +1,6 @@
+[functions.luvia-gateway-integration]
+verify_jwt = false
+
 [functions.luvia-gateway]
 verify_jwt = false
 

@@ -36,7 +36,7 @@ assert.doesNotMatch(gateway.slice(gateway.indexOf('const CUISINE_HEALTH_PROBES')
 assert.match(gateway,/searchDegraded[\s\S]*30_000/,'degraded positive gateway cohorts are cached only briefly');
 assert.match(gateway,/const automaticOsmEligible=.*providers\.includes\('auto'\).*categoryKey.*strictTypeFiltering===true.*includedTypes\.length/s,'automatic specialty searches start the free cached OSM lane beside Geoapify without fanning out broad categories');
 assert.match(gateway,/AbortSignal\?\.timeout\?\.\(2400\)/,'Geoapify search has a bounded first-pin latency budget');
-assert.match(gateway,/const useNameFirst=Boolean\(name\)&&options\.strictTypeFiltering!==true/,'strict provider taxonomies never spend a serial venue-name miss first');
+assert.match(gateway,/const useNameFirst=Boolean\(targetName\)\|\|\(Boolean\(name\)&&options\.strictTypeFiltering!==true\)/,'only an explicit named target overrides the strict category browsing path');
 assert.match(osm,/signal:AbortSignal\.timeout\(2800\).*provider:'openstreetmap-cache'/s,'the authenticated OSM cache lane has a bounded cold wait');
 const edge=fs.readFileSync('cloudflare-worker.js','utf8');assert.match(edge,/const HEDGE_DELAY_MS=250/);assert.match(edge,/const REQUEST_TIMEOUT_MS=2200/);
 assert.match(additional,/options\.strictTypeFiltering===true\?requested\.filter/,'only an explicitly selected cuisine activates provider cuisine mode');

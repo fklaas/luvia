@@ -1,5 +1,7 @@
 # Aktueller Buildstatus
 
+Prüfkandidat: App 13.82.168.196 / Core 4.82.315. Die öffentliche Veröffentlichung ist bis zur dokumentierten Abnahme weiterhin .195; der Kandidat korrigiert benannte Ortsuchen und Aktivitätsbelege.
+
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
