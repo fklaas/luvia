@@ -2,13 +2,17 @@
 
 Stand: 09.09.2026. Die Produktentscheidung lautet **A2 – Route mit Fokus**. Maßgeblich für den tatsächlich veröffentlichten Build und die verbleibenden Abnahmen ist `status-plan.v1.json`; dieser Bericht beschreibt den fachlichen Umfang.
 
-## Kandidat .198: zusätzliche Webquellen für Erlebnislücken
+## Integration .198: zusätzliche Webquellen für Erlebnislücken
 
 Die explizit freigegebene Webrecherche ergänzt den bestehenden Ortskatalog bei fehlenden oder dünn belegten gewünschten Kategorien. Eine gemeinsame READ-Capability discovery.web-research arbeitet auf Luna mit höchstens zwei Webwerkzeug-Aufrufen, kleinen Eingaben und bis zu sechs Hinweisen. Die Recherche bleibt ein fortsetzbarer Intelligence-Job, einmal pro Reiseworkflow. Echte Web-Quellen werden mit Abrufzeit gebunden; vom Modell erfundene URLs und ungewünschte Kategorien entfallen. Vor Aufnahme in die vorhandene Reserve müssen Name, Provider-ID, Lage, Bewegungsradius und relevante Ortsart passen. Öffnung und Buchbarkeit bleiben ausdrücklich ungeprüft. Ein kompakter Link am Tagespunkt führt zum recherchierten Angebot.
 
 Nutzungsdaten unterscheiden Modell-Tokens, beobachtete Webaufrufe und geschätzte reine Toolgebühr. Ein Transportabbruch bedeutet unbekannte Gebühren, nicht null. Integration ist zunächst auf fünf neue Recherchen je Konto/UTC-Tag und 100 insgesamt begrenzt; Produktionsfunctions werden nicht umgestellt. Die additive Intelligence-Migration ist mit Rollback getestet: sechster Tageslauf, zweiter Workflowlauf und zweiter Ausführungsversuch werden abgelehnt. Anschließend wurde ausschließlich diese neue Migration einschließlich Eintrag in die Migrationshistorie angewandt; die ältere nicht passende lokale Migrationshistorie wurde nicht global repariert oder nachgespielt.
 
-Verifikation: 43/43 neue Verhaltenstests, bestehende 133 Composer-, 145 Transport-, 99 Job-, 32 A2-/Erlebnis-, 27 Intent- und 24 Rechercheprüfungen. Vollständige Safe Regression nach Status-/CSS-Inventar-Aktualisierung 245/245 PASS. Ein echter Weblauf und Veröffentlichung werden separat gemessen; dies schließt die offene Gesamtabnahme von P17/P19 noch nicht ab.
+Verifikation: 43/43 neue Verhaltenstests, bestehende 133 Composer-, 145 Transport-, 99 Job-, 32 A2-/Erlebnis-, 27 Intent- und 24 Rechercheprüfungen. Vollständige Safe Regression nach Status-/CSS-Inventar-Aktualisierung 245/245 PASS. Veröffentlicht aus fa5a4cfd als App 13.82.168.198 / Core 4.82.317, Worker 6598b4c7-db62-49c3-8146-6638c8fc8d29, Integration-Intelligence v12 / 4.43.8. 28/28 öffentliche Dateien stimmen mit dem sauberen Archiv überein. Der authentifizierte Valencia-Lauf zeigte anschließend einen Datenverlust im Reiseauftrag; es fand noch kein Webaufruf statt. Das ist kein positiver Gesamtplan-Nachweis.
+
+## Kandidat .199: gemessenen Wunschverlust beheben
+
+Das echte Modell lieferte zehn Ziele einschließlich Nachtleben und Mitmachaktivitäten. Der lokale Dialogue-Vertrag kürzte diese auf acht Ziele; zusätzlich ging die Konfliktbewertung an dieser Grenze verloren. .199 bewahrt alle strukturierten Ziele und Bedingungen bis zur semantischen Auflösung. Der Wiederholungstest mit dem unveränderten echten Resultat erhält 10/10 Ziele, sechs Erlebnisbereiche und Escape Room/Bowling ohne erneuten API-Aufruf. 50/50 gezielte Web-/Budget-/Vertragsprüfungen bestehen einschließlich 22 Zielen und Konfliktrückfrage. Der vollständige Lauf prüfte 245 Suites: 243 bestanden sofort; nur Statuszuordnung und generiertes Inventar waren veraltet. Beide Metadatengates wurden berichtigt und gezielt erneut erfolgreich ausgeführt.
 
 ## Präzisierte Erlebnisabsicht, 09.09.2026, veröffentlicht .197
 
@@ -20,7 +24,7 @@ Kontrollierte Prüfung: **244/244** Safe Regression einschließlich **27/27** ne
 
 ### Quellen und Lernen: nächste zusammenhängende Arbeit
 
-Google oder Apify sind keine zwingende Abhängigkeit. Geoapify, das bereits genutzt wird, ist von Apify zu unterscheiden. Der aktuelle Trip-Recherchepfad lässt die KI Suchaufträge erstellen und Ortsprovider abfragen; er hat noch keinen allgemeinen autonomen Web-Recherchelauf. Eine budgetierte Ergänzung soll gezielt offizielle Angebote für Kurse, Touren, Shows und Veranstaltungen finden und Quellenzeitpunkt, Ortsidentität und tatsächlich belegtes Angebot erhalten. Eine Adresse beweist weder einen angebotenen Kurs noch dessen Verfügbarkeit. Weitere Anbieter werden nach messbarer Abdeckung, Latenz und Kosten ausgewählt.
+Google oder Apify sind keine zwingende Abhängigkeit. Geoapify, das bereits genutzt wird, ist von Apify zu unterscheiden. Der aktuelle Trip-Recherchepfad lässt die KI Suchaufträge erstellen und Ortsprovider abfragen; er enthält seit .198 eine begrenzte ergänzende Webrecherche. Sie soll gezielt offizielle Angebote für Kurse, Touren, Shows und Veranstaltungen finden und Quellenzeitpunkt, Ortsidentität und tatsächlich belegtes Angebot erhalten. Eine Adresse beweist weder einen angebotenen Kurs noch dessen Verfügbarkeit. Weitere Anbieter werden nach messbarer Abdeckung, Latenz und Kosten ausgewählt.
 
 Die gewünschte Verbesserung bei der zweiten und folgenden Reise benötigt bestätigte Rückmeldungen über den vorhandenen Lern-/Identity-Vertrag. Tagesbezogene Ablehnungen, reisespezifische Wünsche und dauerhafte Vorlieben müssen getrennt bleiben. Das ist keine automatische Neuschulung des Basismodells nach jedem Klick. Später eingeladene Mitreisende bekommen eine kenntlich gemachte, noch nicht berücksichtigte Perspektive; bestätigte oder gebuchte Planteile werden nicht stillschweigend ersetzt. Dieser Lernkreislauf über mehrere echte Reisen ist noch nicht abgenommen.
 

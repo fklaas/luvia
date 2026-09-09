@@ -3,15 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.197**, Core **4.82.316**. P17/P19: Integration .197 veröffentlicht; Kandidat App 13.82.168.198 / Core 4.82.317 ergänzt begrenzte Webrecherche.
+**Stand 2026-09-09:** Integration **13.82.168.198**, Core **4.82.317**. P17/P19: Integration .198 veröffentlicht; Kandidat App 13.82.168.199 / Core 4.82.318 bewahrt den vollständigen Reiseauftrag vor der Quellenwahl.
 
-**Zuletzt geliefert:** Integration .197 / Core 4.82.316 aus 2d4796ce veröffentlicht. Explizite Erlebniswünsche steuern Recherche, Kompositionsauswahl, Reserve und Audit; ungefragte Basiskategorien entfallen. Shopping sucht standardmäßig Einkaufszentren, besondere Geschäfte sind tripbezogen wählbar. Ein positiver Modellscore kann fehlende tatsächliche Erlebnisbereiche nicht mehr überstimmen. 244/244 vollständige kontrollierte Regression; anschließend 133 Composer, 145 Transport sowie die 27 Intentprüfungen nach der kleinen Annahmen-UI-Ergänzung erneut grün. 27/27 Stable-/Immutable-Dateien stimmen mit dem sauberen Archiv überein. A2 lokal bedient; der alte .195-Entwurf bleibt nach öffentlichem Reload als sieben Tage und 18 Momente erhalten. Keine neue kostenpflichtige Gesamtgenerierung und kein neuer Provider in diesem Slice; die Quellenlücke ist noch kein positiver Gesamtplan-Nachweis.
+**Zuletzt geliefert:** Integration .198 ergänzt begrenzte OpenAI-Webrecherche für fehlende Erlebnisbereiche: maximal zwei Toolaufrufe, sechs Quellenangebote, ein Rechercheauftrag pro Workflow, fünf pro Nutzer/UTC-Tag und 100 insgesamt. Echte URL-Belege werden durch Places auf Identität und Koordinaten aufgelöst. App .199 korrigiert den im öffentlichen Test gemessenen Verlust später genannter Ziele und der Konfliktbewertung im Dialogue-Vertrag.
 
-**Nächster Schritt (AKTIV): Budgetierte Webrecherche veröffentlichen und mit einem echten Reiseauftrag prüfen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Vollständigen Reiseauftrag veröffentlichen und die ergänzende Webrecherche echt messen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
 
 **Abnahme dieses Schritts:**
 
-- Maximal zwei Webaufrufe pro Workflow, belegte Quellen, echte Ortsidentität, Wiederaufnahme ohne neue Recherche, serverseitiges Tageskontingent; vollständige Regression und öffentlicher Provider-Nachweis. P17/P19 bleiben bis zum passenden Gesamtplan und der weiteren Lern-/Gruppenabnahme teilweise offen.
+- Alle genannten Erlebniswünsche erreichen unverändert den Kategoriebedarf; Integration .199 lädt die geprüften Dateien; ein begrenzter authentifizierter Lauf belegt Webaufrufe, Kosten und nutzbare Ortszuordnung oder den konkreten Providerfehler. P17/P19 bleiben bis zur positiven Gesamtabnahme teilweise.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
@@ -176,3 +176,6 @@ Budget und Recovery: zunächst Integration; eine Recherche pro Reiseworkflow, h�
 Kompatibilität/Rollout: neue Capability wird ausschließlich über authentifizierte fortsetzbare Jobs ausgeführt; alte Capabilities und Produktionsfunctions bleiben unverändert. Additive Migration für Intelligence-eigene Nutzungsdaten/Jobbudget ohne Änderung fremder Tabellen. Frontend aktiviert nur Integration; Backend-Notabschaltung und Rollback auf .197. Migration bleibt additiv.
 
 Abnahme: tatsächlicher Responses-Request mit Max-Tool-Calls, Schema, URLs aus echten Web-Quellen, zurückgewiesene erfundene Quellen, Nachweis von Reise-Lücken, Budget/Idempotenz unter Parallelaufrufen und Wiederaufnahme, keine ungerechtfertigte Orts-/Buchbarkeitsbehauptung, kompakte Quellenanzeige, gezielte Regression und vollständige Safe Regression. Ein begrenzter echter Lauf muss Anbieterfehler oder echten Rechercheerfolg samt gemessener Nutzung zeigen.
+# Ergänzung .199 – vollständiger Reiseauftrag vor Quellenwahl
+
+Der öffentliche .198-Lauf `ceb94f86-f1a2-4c8d-9a22-483577d6a4d4` belegt einen Datenverlust zwischen korrektem Modellresultat und Reiseauftrag: Der Dialogue-Vertrag behielt nur acht Ziele; Nachtleben und Mitmachaktivitäten gingen verloren. Der gleiche Adapter ließ `conflictAssessment` weg. Intelligence erhält alle strukturierten Ziele, Bedingungen und Konfliktvarianten bis zur semantischen Auflösung; Modell- und Eingabebudgets bleiben bestehen. Keine neue Domain-Wahrheit und keine fremde Mutation. Die Quellenrecherche muss außerdem auch das begründete Überspringen im Workflow protokollieren. Validierung: mehr als acht Ziele bis Kategoriepool/Webbedarf sowie ein entscheidungspflichtiger Konflikt durch den echten Validator und Resolver; anschließend Integration-Beleg. Keine weitere bezahlte Vollplanung vor diesem lokalen Nachweis.

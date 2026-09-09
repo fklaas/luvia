@@ -38,6 +38,21 @@ let checks=0;const check=fn=>{fn();checks++};
   globalThis.fetch=async()=>{throw Error('connection lost')};let lost;try{await provider.runOpenAI(args)}catch(error){lost=error;}
   check(()=>assert.equal(lost.code,'OPENAI_NETWORK_ERROR'));check(()=>assert.equal(lost.usage.webUsageKnown,false,'Transport failure does not prove zero billing'));
   const h=harness();h.sandbox.URL=URL;h.sandbox.location={hostname:'integration-luvia.fixture'};h.state.workflowId='11111111-1111-4111-8111-111111111111';
+  // The public Valencia response included these wishes after the eighth goal.
+  // Exercise the real contract boundary, not an already-normalized fixture.
+  const goal=(type,label,key='category',value=type)=>({type,label,hardConstraints:[{key,value,label}],softPreferences:[],timeWindow:null,source:'request'});
+  const rawBrief={goals:[...Array.from({length:8},(_,i)=>goal('destination',`Rahmen ${i+1}`,'destination','Valencia')),goal('nightlife','Bars und Nachtleben'),goal('active','Escape Room oder Bowling','experienceWish','Escape Room oder Bowling'),...Array.from({length:11},(_,i)=>goal('accommodation',`Unterkunftswunsch ${i+1}`,'accommodation',`Wunsch ${i+1}`)),goal('food','Vegetarisch essen','dietary','vegetarian')],softPreferences:[{key:'movementStyle',value:'city_transit',label:'Bus und Bahn sind okay'}],conflictAssessment:{status:'none',summary:'Keine wesentliche Spannung.',tensions:[]}};
+  const semantic=h.sandbox.LuviaIntelligenceDomainContractCoreV1.validateOutput('planning_dialogue',rawBrief);
+  check(()=>assert.equal(semantic.goals.length,22,'No goal shortlist may replace the full travel order'));
+  const projected=h.sandbox.LuviaTripPreferenceResolutionCoreV1.projectTripBrief(h.state.data,{ok:true,meta:{fallback:false},data:semantic});
+  check(()=>assert.ok(projected.travelOrder.categories.some(x=>x.category==='nightlife')));
+  check(()=>assert.ok(projected.travelOrder.categories.some(x=>x.category==='active')));
+  check(()=>assert.ok(projected.travelOrder.categories.some(x=>x.category==='food'),'Requirements beyond goal twenty also survive'));
+  check(()=>assert.ok(projected.travelOrder.experiences.wishes.includes('Escape Room oder Bowling')));
+  h.state.aiDraft.brief=projected;
+  check(()=>assert.deepEqual(copy(h.api.tripWebResearchNeeds(h.state,[])).map(x=>x.category),['nightlife','activities'],'Missing wishes trigger actual web research'));
+  const conflicted=h.sandbox.LuviaIntelligenceDomainContractCoreV1.validateOutput('planning_dialogue',{...rawBrief,conflictAssessment:{status:'tradeoff',summary:'Zwei unterschiedliche Schwerpunkte.',tensions:[{id:'radius',label:'Welche Wege passen?',reason:'Strand und Nachtleben liegen auseinander.',decisionNeeded:true,variants:[{id:'beach',label:'Am Strand',preserves:'Strandnähe',relaxes:'Kurze Abendwege',effect:'Abends mit der Bahn'},{id:'city',label:'In der Stadt',preserves:'Kurze Abendwege',relaxes:'Strand vor der Tür',effect:'Tagsüber mit der Bahn'}]}]}});
+  check(()=>assert.equal(h.sandbox.LuviaTripPreferenceResolutionCoreV1.projectTripBrief(h.state.data,{ok:true,meta:{fallback:false},data:conflicted}).question?.kind,'conflict','A real conflict must reach the user before research'));
   h.state.data.tripPreferences.interests=['active'];h.state.aiDraft.brief={travelOrder:{categories:[{category:'activities'}]},tripPreferences:copy(h.state.data.tripPreferences)};
   let searches=0;h.sandbox.LuviaAI={...h.sandbox.LuviaAI,run:async(id,request)=>{assert.equal(id,web.WEB_RESEARCH_CAPABILITY);searches++;return {ok:true,meta:{fallback:false},data:{...response.result,offers:[{...response.result.offers[0],name:'Bowling am Meer'}]}};}};
   const bowling={...h.candidate('activities',101),name:'Bowling am Meer',primaryType:'bowling_alley',types:['bowling_alley']};

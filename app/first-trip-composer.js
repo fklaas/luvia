@@ -934,7 +934,7 @@
       }
       const anchorResult=await anchorResearch;if(!current())return;result=mergeAiPlaceResults(state,result,anchorResult);state.aiDraft.anchorSearch=anchorResult.anchorSearch;
       const webResult=await readTripWebPlaces(state,brief,result.places,resumed?.webResearch||serverState.webResearch||{},current);if(!current())return;result=mergeAiPlaceResults(state,result,webResult);state.aiDraft.webResearch=webResult.webResearch;
-      if(webResult.webResearch?.report||webResult.webResearch?.errorCode)await checkpointTripWorkflow(state,'candidates',{webResearch:clone(webResult.webResearch),candidates:result.places.map(retainedPoolCandidate)});
+      if(webResult.webResearch?.complete||webResult.webResearch?.report||webResult.webResearch?.errorCode)await checkpointTripWorkflow(state,'candidates',{webResearch:clone(webResult.webResearch),candidates:result.places.map(retainedPoolCandidate)});
       if(!result.places.length)throw new Error('Für diese Auswahl konnten die Ortsquellen noch keine passenden Orte bestätigen. Eure Angaben bleiben erhalten.');
       const timeBudgetExhausted=result.places.length<poolPlan.target&&placeTimeLeft()<2500;
       state.aiDraft.placeRefill=false;state.aiDraft.phase='itinerary';state.aiDraft.lastProgressAt=new Date().toISOString();state.aiDraft.places=clone(result.places);state.aiDraft.coverage=result.coverage;state.aiDraft.preferenceEvidence=result.preferenceEvidence;state.aiDraft.research={...poolPlan,candidateCount:result.places.length,targetReached:result.places.length>=poolPlan.target,timeBudgetMs:AI_PLACE_RESEARCH_BUDGET_MS,timeBudgetExhausted,candidateBreadthWarning};persist(state);render(state);
