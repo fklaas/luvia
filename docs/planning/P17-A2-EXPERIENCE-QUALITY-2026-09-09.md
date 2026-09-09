@@ -2,6 +2,14 @@
 
 Stand: 09.09.2026. Die Produktentscheidung lautet **A2 – Route mit Fokus**. Maßgeblich für den tatsächlich veröffentlichten Build und die verbleibenden Abnahmen ist `status-plan.v1.json`; dieser Bericht beschreibt den fachlichen Umfang.
 
+## Kandidat .198: zusätzliche Webquellen für Erlebnislücken
+
+Die explizit freigegebene Webrecherche ergänzt den bestehenden Ortskatalog bei fehlenden oder dünn belegten gewünschten Kategorien. Eine gemeinsame READ-Capability discovery.web-research arbeitet auf Luna mit höchstens zwei Webwerkzeug-Aufrufen, kleinen Eingaben und bis zu sechs Hinweisen. Die Recherche bleibt ein fortsetzbarer Intelligence-Job, einmal pro Reiseworkflow. Echte Web-Quellen werden mit Abrufzeit gebunden; vom Modell erfundene URLs und ungewünschte Kategorien entfallen. Vor Aufnahme in die vorhandene Reserve müssen Name, Provider-ID, Lage, Bewegungsradius und relevante Ortsart passen. Öffnung und Buchbarkeit bleiben ausdrücklich ungeprüft. Ein kompakter Link am Tagespunkt führt zum recherchierten Angebot.
+
+Nutzungsdaten unterscheiden Modell-Tokens, beobachtete Webaufrufe und geschätzte reine Toolgebühr. Ein Transportabbruch bedeutet unbekannte Gebühren, nicht null. Integration ist zunächst auf fünf neue Recherchen je Konto/UTC-Tag und 100 insgesamt begrenzt; Produktionsfunctions werden nicht umgestellt. Die additive Intelligence-Migration ist mit Rollback getestet: sechster Tageslauf, zweiter Workflowlauf und zweiter Ausführungsversuch werden abgelehnt. Anschließend wurde ausschließlich diese neue Migration einschließlich Eintrag in die Migrationshistorie angewandt; die ältere nicht passende lokale Migrationshistorie wurde nicht global repariert oder nachgespielt.
+
+Verifikation: 43/43 neue Verhaltenstests, bestehende 133 Composer-, 145 Transport-, 99 Job-, 32 A2-/Erlebnis-, 27 Intent- und 24 Rechercheprüfungen. Vollständige Safe Regression nach Status-/CSS-Inventar-Aktualisierung 245/245 PASS. Ein echter Weblauf und Veröffentlichung werden separat gemessen; dies schließt die offene Gesamtabnahme von P17/P19 noch nicht ab.
+
 ## Präzisierte Erlebnisabsicht, 09.09.2026, veröffentlicht .197
 
 Die automatisch ergänzten acht Zielkategorien widersprachen konkreten Nutzerwünschen. Bei expliziten Interessen werden nun ausschließlich diese recherchiert; weiche Profilinteressen fügen keine Parks oder Kultur hinzu. Der semantische Interpreter muss positive Wünsche und Ausschlüsse unterscheiden. Die bisherige Textteil-Suche im Composer, die selbst „keine täglichen Parks“ als Naturwunsch lesen konnte, entfällt. Shopping wird standardmäßig als Einkaufszentrum gesucht; besondere Geschäfte erfordern eine entsprechende Angabe. Diese Voreinstellung ist im Reiseauftrag sichtbar und tripbezogen änderbar.

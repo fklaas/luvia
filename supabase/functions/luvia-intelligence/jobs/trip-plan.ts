@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { capability } from '../capabilities/registry.ts';
 import { sanitizeTripPayload as sanitize, safetyIdentifier } from '../policies/privacy.ts';
 import { runOpenAI } from '../providers/openai.ts';
+import { WEB_RESEARCH_CAPABILITY, researchInput } from '../providers/web-research.ts';
 import { recordUsage } from '../telemetry/usage.ts';
 
 type Tier='fast'|'default'|'deep';
@@ -17,7 +18,7 @@ type WorkflowRow={
   phase_state:any;aggregate_usage:any;created_at:string;updated_at:string;completed_at:string|null;expires_at:string;
 };
 
-export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
+export const TRIP_JOB_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit','discovery.web-research']);
 export const TRIP_WORKFLOW_BUDGET={maxModelCalls:8,maxTotalTokens:180_000};
 export const TRIP_JOB_LEASE_TIMEOUT_MS=60_000;
 export function tripWorkflowBudget(workflow:any){
@@ -64,15 +65,15 @@ async function storeUsage(userId:string,capabilityId:string,tier:Tier,provider:s
     request_id:attempt.requestId,input_tokens:attempt.usage?.inputTokens||0,
     output_tokens:attempt.usage?.outputTokens||0,total_tokens:attempt.usage?.totalTokens||0,
     cached_tokens:attempt.usage?.cachedTokens||0,latency_ms:attempt.latencyMs||0,
-    success:attempt.success===true,error_code:attempt.errorCode||null
+    success:attempt.success===true,error_code:attempt.errorCode||null,web_search_calls:attempt.usage?.webSearchCalls||0,web_tool_cost_usd:attempt.usage?.webToolCostUsd||0,web_usage_known:attempt.usage?.webUsageKnown!==false
   });
 }
 
 async function addWorkflowUsage(admin:any,workflowId:string,attempts:any[]){
   const {data}=await admin.from('intelligence_trip_plan_workflows').select('aggregate_usage').eq('id',workflowId).maybeSingle();
   if(!data)return;
-  const current=data.aggregate_usage||{},delta=(attempts||[]).reduce((sum,item)=>({inputTokens:sum.inputTokens+Number(item.usage?.inputTokens||0),outputTokens:sum.outputTokens+Number(item.usage?.outputTokens||0),totalTokens:sum.totalTokens+Number(item.usage?.totalTokens||0),cachedTokens:sum.cachedTokens+Number(item.usage?.cachedTokens||0),latencyMs:sum.latencyMs+Number(item.latencyMs||0),modelCalls:sum.modelCalls+1}),{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0,latencyMs:0,modelCalls:0});
-  const aggregate={inputTokens:Number(current.inputTokens||0)+delta.inputTokens,outputTokens:Number(current.outputTokens||0)+delta.outputTokens,totalTokens:Number(current.totalTokens||0)+delta.totalTokens,cachedTokens:Number(current.cachedTokens||0)+delta.cachedTokens,latencyMs:Number(current.latencyMs||0)+delta.latencyMs,modelCalls:Number(current.modelCalls||0)+delta.modelCalls};
+  const current=data.aggregate_usage||{},delta=(attempts||[]).reduce((sum,item)=>({inputTokens:sum.inputTokens+Number(item.usage?.inputTokens||0),outputTokens:sum.outputTokens+Number(item.usage?.outputTokens||0),totalTokens:sum.totalTokens+Number(item.usage?.totalTokens||0),cachedTokens:sum.cachedTokens+Number(item.usage?.cachedTokens||0),latencyMs:sum.latencyMs+Number(item.latencyMs||0),modelCalls:sum.modelCalls+1,webSearchCalls:sum.webSearchCalls+Number(item.usage?.webSearchCalls||0),webToolCostUsd:sum.webToolCostUsd+Number(item.usage?.webToolCostUsd||0),webUsageKnown:sum.webUsageKnown&&item.usage?.webUsageKnown!==false}),{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0,latencyMs:0,modelCalls:0,webSearchCalls:0,webToolCostUsd:0,webUsageKnown:true});
+  const aggregate={inputTokens:Number(current.inputTokens||0)+delta.inputTokens,outputTokens:Number(current.outputTokens||0)+delta.outputTokens,totalTokens:Number(current.totalTokens||0)+delta.totalTokens,cachedTokens:Number(current.cachedTokens||0)+delta.cachedTokens,latencyMs:Number(current.latencyMs||0)+delta.latencyMs,modelCalls:Number(current.modelCalls||0)+delta.modelCalls,webSearchCalls:Number(current.webSearchCalls||0)+delta.webSearchCalls,webToolCostUsd:Number(current.webToolCostUsd||0)+delta.webToolCostUsd,webUsageKnown:current.webUsageKnown!==false&&delta.webUsageKnown};
   await admin.from('intelligence_trip_plan_workflows').update({aggregate_usage:aggregate,updated_at:new Date().toISOString()}).eq('id',workflowId);
 }
 
@@ -183,23 +184,26 @@ export async function checkpointTripPlanWorkflow(userId:string,payload:any){
 }
 
 export async function startTripPlanJob(userId:string,payload:any){
-  const idempotencyKey=String(payload?.idempotencyKey||'').trim(),capabilityId=String(payload?.capability||'').trim(),workflowId=String(payload?.workflowId||'').trim();
+  const capabilityId=String(payload?.capability||'').trim(),workflowId=String(payload?.workflowId||'').trim(),research=capabilityId===WEB_RESEARCH_CAPABILITY;
+  const idempotencyKey=research?'web-research-v1:'+workflowId:String(payload?.idempotencyKey||'').trim();
   if(!IDEMPOTENCY.test(idempotencyKey))throw Object.assign(new Error('Für den KI-Auftrag fehlt eine gültige Idempotenz-ID.'),{code:'AI_JOB_IDEMPOTENCY_REQUIRED',status:400});
   if(!TRIP_JOB_CAPABILITIES.has(capabilityId))throw Object.assign(new Error('Diese KI-Fähigkeit darf nicht als Reiseauftrag ausgeführt werden.'),{code:'AI_JOB_CAPABILITY_FORBIDDEN',status:400});
   const definition=capability(capabilityId);if(!definition)throw Object.assign(new Error('Unbekannte Luvia-AI-Capability.'),{code:'CAPABILITY_NOT_FOUND',status:400});
-  const requestedTier=String(payload?.tier||definition.tier),tier=(['fast','default','deep'].includes(requestedTier)?requestedTier:definition.tier) as Tier;
-  const requestPayload={input:sanitize(payload?.input||{}),context:sanitize(payload?.context||{})};
+  const requestedTier=research?'fast':String(payload?.tier||definition.tier),tier=(['fast','default','deep'].includes(requestedTier)?requestedTier:definition.tier) as Tier;
+  const requestPayload=research?{input:researchInput(payload?.input),context:{}}:{input:sanitize(payload?.input||{}),context:sanitize(payload?.context||{})};
   const inputFingerprint=await digest({capability:capabilityId,tier,...requestPayload}),admin=adminClient();
   const workflow=await findWorkflow(admin,userId,workflowId);
+  if(research&&Date.parse(workflow.expires_at)<=Date.now())throw Object.assign(new Error('Dieser Rechercheauftrag ist abgelaufen.'),{code:'AI_WORKFLOW_EXPIRED',status:410});
   await admin.from('intelligence_trip_plan_jobs').delete().eq('user_id',userId).lt('expires_at',new Date().toISOString());
   const {data:existing,error:readError}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('idempotency_key',idempotencyKey).maybeSingle();
   if(readError)throw Object.assign(new Error('Der KI-Auftrag konnte nicht vorbereitet werden.'),{code:'AI_JOB_READ_FAILED',status:502});
   if(existing){
     const prior=existing as JobRow;
-    if(prior.input_fingerprint!==inputFingerprint)throw Object.assign(new Error('Die Auftrags-ID gehört bereits zu einem anderen Reiseentwurf.'),{code:'AI_JOB_IDEMPOTENCY_CONFLICT',status:409});
+    if(research&&(prior.capability!==capabilityId||prior.workflow_id!==workflowId))throw Object.assign(new Error('Der Rechercheauftrag gehört zu einer anderen Planung.'),{code:'AI_JOB_IDEMPOTENCY_CONFLICT',status:409});
+    if(!research&&prior.input_fingerprint!==inputFingerprint)throw Object.assign(new Error('Die Auftrags-ID gehört bereits zu einem anderen Reiseentwurf.'),{code:'AI_JOB_IDEMPOTENCY_CONFLICT',status:409});
     if(prior.status==='queued'){await enqueue(admin,prior);return publicJob((await findOwned(admin,userId,prior.id)));}
     if(prior.status==='running'&&Date.parse(prior.updated_at)<Date.now()-TRIP_JOB_LEASE_TIMEOUT_MS)return publicJob(await failInterruptedJob(admin,userId,prior));
-    if(prior.status==='failed'&&payload?.retryFailed===true&&prior.attempt_count<3){
+    if(!research&&prior.status==='failed'&&payload?.retryFailed===true&&prior.attempt_count<3){
       const now=new Date().toISOString();
       const {data:retried}=await admin.from('intelligence_trip_plan_jobs').update({status:'queued',completed_at:null,updated_at:now,error_code:null,error_message:null}).eq('id',prior.id).eq('user_id',userId).eq('status','failed').select('*').maybeSingle();
       if(retried){await enqueue(admin,retried as JobRow);return publicJob((await findOwned(admin,userId,prior.id)));}
@@ -223,6 +227,7 @@ export async function startTripPlanJob(userId:string,payload:any){
       if(collision)return publicJob(collision as JobRow);
       const {data:same}=await admin.from('intelligence_trip_plan_jobs').select('*').eq('user_id',userId).eq('idempotency_key',idempotencyKey).maybeSingle();if(same)return publicJob(same as JobRow);
     }
+    if(String(createError.message||'').includes('WEB_RESEARCH_DAILY_BUDGET_EXHAUSTED'))throw Object.assign(new Error('Das heutige Recherchekontingent ist ausgeschöpft. Bereits gefundene Orte bleiben erhalten.'),{code:'WEB_RESEARCH_DAILY_BUDGET_EXHAUSTED',status:429});
     throw Object.assign(new Error('Der KI-Auftrag konnte nicht angelegt werden.'),{code:'AI_JOB_CREATE_FAILED',status:502});
   }
   await enqueue(admin,created as JobRow);

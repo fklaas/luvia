@@ -1,11 +1,12 @@
 import type { Capability } from '../capabilities/registry.ts';
 import { outputSchema } from '../schemas/index.ts';
 import { systemPrompt, userInput } from '../prompts/system.ts';
+import { WEB_RESEARCH_CAPABILITY, WEB_RESEARCH_POLICY, researchInput, bindResearchSources, webResearchUsage } from './web-research.ts';
 
 type Tier='fast'|'default'|'deep';
 function models(){return{fast:Deno.env.get('LUVIA_AI_MODEL_FAST')||'gpt-5.6-luna',default:Deno.env.get('LUVIA_AI_MODEL_DEFAULT')||'gpt-5.6-terra',deep:Deno.env.get('LUVIA_AI_MODEL_DEEP')||'gpt-5.6-sol'}}
-export function requestTimeoutMs(capabilityId:string){return ({'planning.dialogue':28_000,'trip.compose':50_000,'trip.compose-day-repair':45_000,'trip.audit':40_000} as Record<string,number>)[capabilityId]||45_000}
-function extractText(response:any){if(typeof response?.output_text==='string')return response.output_text;for(const item of response?.output||[])for(const content of item?.content||[])if(content?.type==='output_text'&&typeof content.text==='string')return content.text;return''}
+export function requestTimeoutMs(capabilityId:string){return ({'discovery.web-research':30_000,'planning.dialogue':28_000,'trip.compose':50_000,'trip.compose-day-repair':45_000,'trip.audit':40_000} as Record<string,number>)[capabilityId]||45_000}
+function extractText(response:any){if(typeof response?.output_text==='string')return response.output_text;for(const item of [...(response?.output||[])].reverse().filter((item:any)=>item.phase!=='commentary'))for(const content of item?.content||[])if(content?.type==='output_text'&&typeof content.text==='string')return content.text;return''}
 function recoverable(status:number,body:any){const code=String(body?.error?.code||'');return status===404||status===400&&/model|unsupported|not_found/i.test(`${code} ${body?.error?.message||''}`)}
 export function parseStructuredOutput(response:any){
   const incomplete=response?.status==='incomplete'||response?.incomplete_details?.reason;
@@ -15,8 +16,10 @@ export function parseStructuredOutput(response:any){
 }
 export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unknown;context:unknown;safetyId:string}){
   const key=Deno.env.get('OPENAI_API_KEY')||'';if(!key)throw Object.assign(new Error('OPENAI_API_KEY ist nicht gesetzt.'),{code:'AI_NOT_CONFIGURED',status:503});
-  const map=models();const primary=map[args.tier]||map.default;const candidates=[primary,...(primary===map.default?[]:[map.default])].filter((value,index,list)=>list.indexOf(value)===index);
-  let lastError:any=null;const attempts:any[]=[],startedAll=performance.now(),sumUsage=()=>attempts.reduce((sum,item)=>({inputTokens:sum.inputTokens+item.usage.inputTokens,outputTokens:sum.outputTokens+item.usage.outputTokens,totalTokens:sum.totalTokens+item.usage.totalTokens,cachedTokens:sum.cachedTokens+item.usage.cachedTokens}),{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0});
+  const research=args.capability.id===WEB_RESEARCH_CAPABILITY;
+  if(research){args={...args,tier:'fast',input:researchInput(args.input),context:{}};}
+  const map=models();const primary=research?'gpt-5.6-luna':map[args.tier]||map.default;const candidates=[primary,...(research||primary===map.default?[]:[map.default])].filter((value,index,list)=>list.indexOf(value)===index);
+  let lastError:any=null;const attempts:any[]=[],startedAll=performance.now(),sumUsage=()=>attempts.reduce((sum,item)=>({inputTokens:sum.inputTokens+item.usage.inputTokens,outputTokens:sum.outputTokens+item.usage.outputTokens,totalTokens:sum.totalTokens+item.usage.totalTokens,cachedTokens:sum.cachedTokens+item.usage.cachedTokens,webSearchCalls:sum.webSearchCalls+Number(item.usage.webSearchCalls||0),webToolCostUsd:sum.webToolCostUsd+Number(item.usage.webToolCostUsd||0),webUsageKnown:sum.webUsageKnown&&item.usage.webUsageKnown!==false}),{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0,webSearchCalls:0,webToolCostUsd:0,webUsageKnown:true});
   for(const model of candidates){
     const started=performance.now();
     const body:any={
@@ -27,16 +30,17 @@ export async function runOpenAI(args:{capability:Capability;tier:Tier;input:unkn
       text:{format:{type:'json_schema',name:`luvia_${args.capability.schema}`,schema:outputSchema(args.capability.schema),strict:true}},
       max_output_tokens:args.capability.maxOutputTokens
     };
+    if(research){body.tools=[{type:'web_search',search_context_size:'low',return_token_budget:'default',external_web_access:true}];body.tool_choice='required';body.max_tool_calls=WEB_RESEARCH_POLICY.maxToolCalls;body.parallel_tool_calls=false;body.include=['web_search_call.action.sources'];body.max_output_tokens=WEB_RESEARCH_POLICY.maxOutputTokens;body.text.verbosity='low';}
     if(args.capability.id==='planning.dialogue'||args.capability.id.startsWith('trip.'))body.text.verbosity='low';
     if(model.includes('gpt-5'))body.reasoning={effort:args.capability.reasoningEffort};
     const controller=new AbortController(),timeoutMs=Math.max(1,requestTimeoutMs(args.capability.id)-Math.round(performance.now()-startedAll)),timeout=setTimeout(()=>controller.abort('LUVIA_AI_SERVER_TIMEOUT'),timeoutMs);let response:Response,json:any;
     try{response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','X-Client-Request-Id':crypto.randomUUID()},body:JSON.stringify(body),signal:controller.signal});json=await response.json()}
-    catch(error){const latencyMs=Math.round(performance.now()-started),timedOut=controller.signal.aborted,lastErrorCode=timedOut?'OPENAI_TIMEOUT':'OPENAI_NETWORK_ERROR',message=timedOut?`OpenAI hat ${args.capability.id} nicht innerhalb von ${Math.round(timeoutMs/1000)} Sekunden abgeschlossen.`:'OpenAI konnte nicht erreicht werden.';lastError=Object.assign(new Error(message),{code:lastErrorCode,status:timedOut?504:502,cause:error,model,latencyMs});attempts.push({model,requestId:null,usage:{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0},latencyMs,success:false,errorCode:lastErrorCode});throw Object.assign(lastError,{attempts,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll)})}
+    catch(error){const latencyMs=Math.round(performance.now()-started),timedOut=controller.signal.aborted,lastErrorCode=timedOut?'OPENAI_TIMEOUT':'OPENAI_NETWORK_ERROR',message=timedOut?`OpenAI hat ${args.capability.id} nicht innerhalb von ${Math.round(timeoutMs/1000)} Sekunden abgeschlossen.`:'OpenAI konnte nicht erreicht werden.';lastError=Object.assign(new Error(message),{code:lastErrorCode,status:timedOut?504:502,cause:error,model,latencyMs});attempts.push({model,requestId:null,usage:{inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0,...(research?{webSearchCalls:0,webToolCostUsd:0,webUsageKnown:false}:{})},latencyMs,success:false,errorCode:lastErrorCode});throw Object.assign(lastError,{attempts,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll)})}
     finally{clearTimeout(timeout)}
-    const usage={inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0)},latencyMs=Math.round(performance.now()-started),requestId=json.id||null;
+    const usage={inputTokens:Number(json.usage?.input_tokens||0),outputTokens:Number(json.usage?.output_tokens||0),totalTokens:Number(json.usage?.total_tokens||0),cachedTokens:Number(json.usage?.input_tokens_details?.cached_tokens||0),...(research?webResearchUsage(json):{})},latencyMs=Math.round(performance.now()-started),requestId=json.id||null;
     if(!response.ok){lastError=Object.assign(new Error(json?.error?.message||'OpenAI request failed'),{code:json?.error?.code||'OPENAI_REQUEST_FAILED',status:response.status,body:json});attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:lastError.code});if(recoverable(response.status,json)&&model!==candidates.at(-1))continue;throw Object.assign(lastError,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)})}
     try{
-      const result=parseStructuredOutput(json);attempts.push({model,requestId,usage,latencyMs,success:true,errorCode:null});
+      const parsed=parseStructuredOutput(json),result=research?bindResearchSources(parsed,json,args.input):parsed;attempts.push({model,requestId,usage,latencyMs,success:true,errorCode:null});
       return{result,provider:'openai',model,tier:args.tier,requestId,usage:sumUsage(),latencyMs:Math.round(performance.now()-startedAll),attempts};
     }catch(error){
       const structured=['OPENAI_INCOMPLETE_OUTPUT','OPENAI_INVALID_JSON','OPENAI_EMPTY_OUTPUT'].includes(String((error as any)?.code||''));lastError=error;attempts.push({model,requestId,usage,latencyMs,success:false,errorCode:(error as any)?.code||'OPENAI_STRUCTURED_OUTPUT_FAILED'});if(structured&&model!==candidates.at(-1)&&performance.now()-startedAll<requestTimeoutMs(args.capability.id)-8000)continue;throw Object.assign(error as any,{attempts,usage:sumUsage(),model,latencyMs:Math.round(performance.now()-startedAll)});

@@ -3,18 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.197**, Core **4.82.316**. P17/P19: A2 und verbindliche Erlebnisabsicht auf Integration .197; zuverlässige Aktivitätsangebote und Lernen über mehrere Reisen bleiben offen.
+**Stand 2026-09-09:** Integration **13.82.168.197**, Core **4.82.316**. P17/P19: Integration .197 veröffentlicht; Kandidat App 13.82.168.198 / Core 4.82.317 ergänzt begrenzte Webrecherche.
 
 **Zuletzt geliefert:** Integration .197 / Core 4.82.316 aus 2d4796ce veröffentlicht. Explizite Erlebniswünsche steuern Recherche, Kompositionsauswahl, Reserve und Audit; ungefragte Basiskategorien entfallen. Shopping sucht standardmäßig Einkaufszentren, besondere Geschäfte sind tripbezogen wählbar. Ein positiver Modellscore kann fehlende tatsächliche Erlebnisbereiche nicht mehr überstimmen. 244/244 vollständige kontrollierte Regression; anschließend 133 Composer, 145 Transport sowie die 27 Intentprüfungen nach der kleinen Annahmen-UI-Ergänzung erneut grün. 27/27 Stable-/Immutable-Dateien stimmen mit dem sauberen Archiv überein. A2 lokal bedient; der alte .195-Entwurf bleibt nach öffentlichem Reload als sieben Tage und 18 Momente erhalten. Keine neue kostenpflichtige Gesamtgenerierung und kein neuer Provider in diesem Slice; die Quellenlücke ist noch kein positiver Gesamtplan-Nachweis.
 
-**Nächster Schritt (AKTIV): Belegte Erlebnisangebote recherchieren und einen echten Gesamtplan prüfen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Budgetierte Webrecherche veröffentlichen und mit einem echten Reiseauftrag prüfen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
 
 **Abnahme dieses Schritts:**
 
-- Die veröffentlichte Erlebnisrichtlinie im nächsten echten vollständigen Plan gegen gewünschten Mix, räumliche Streuung und sinnvolle Dauer prüfen.
-- Danach Geoapify-Transport und HERE-Anfragefehler anhand konkreter Antworten schließen und echte Aktivitätsangebote einschließlich Einkaufszentren und Abendorten belegen.
-- Gezielte Webrecherche für belegte Kurse, Touren und Veranstaltungen über einen budgetierten Quellenvertrag ergänzen; kein Anbieter wird allein wegen seiner Verfügbarkeit eingeschaltet.
-- Einen begrenzten echten Gesamtplan beurteilen; anschließend Feedbacklernen über bestätigte dauerhafte Vorlieben und spätere Mitreisende prüfen. P17/P19 bleiben bis zu allen Gates teilweise offen.
+- Maximal zwei Webaufrufe pro Workflow, belegte Quellen, echte Ortsidentität, Wiederaufnahme ohne neue Recherche, serverseitiges Tageskontingent; vollständige Regression und öffentlicher Provider-Nachweis. P17/P19 bleiben bis zum passenden Gesamtplan und der weiteren Lern-/Gruppenabnahme teilweise offen.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
@@ -165,3 +162,17 @@ Der Nutzer präzisiert: Nachtleben, Bars, Aktivitäten und Shopping dürfen nich
 Ein additiver Shopping-Modus im bestehenden Trip-Präferenzvertrag bleibt tripbezogen, sichtbar und änderbar. Vorhandene Entwürfe und ganze Reservepools bleiben erhalten; neue Kompositionen berücksichtigen die präzisierte Auswahl. Der Audit erhält belegte Abdeckung sowie Gegenbeispiele unabhängig von seiner eigenen positiven Selbsteinschätzung. Neue gezielte Tests prüfen reale Problemformen und beabsichtigte Ausnahmen. Keine neuen kostenpflichtigen Anbieter werden durch diese Änderung aktiviert. Veröffentlichungsziel bleibt ausschließlich Integration.
 
 Offene Folgearbeit: gezielte Recherche belegter Erlebnisangebote über zusätzliche Quellen, semantische Unterteilung allgemeiner Aktivitäten und nachvollziehbares Lernen aus bestätigten Nutzerreaktionen. Dauerhafte Vorlieben werden nur über den zuständigen Identity-/Lernvertrag geändert; spätere Mitreisende bleiben eine eigene noch nicht bekannte Perspektive. Kein automatisches Umschreiben bestätigter oder gebuchter Reisebestandteile.
+
+## Ergänzung 09.09.2026: budgetierte Webrecherche, Nutzerfreigabe
+
+Problem: Kartenkategorien enthalten zu wenige passende belegte Erlebnisangebote; weitere ungezielte Provider- oder Kompositionsschleifen erhöhen Kosten ohne bessere Quellen. Der Nutzer hat OpenAI-Webrecherche nach Kostenvergleich ausdrücklich freigegeben.
+
+Owner und Verträge: Intelligence besitzt die zusätzliche READ-Capability discovery.web-research, ihre Quellenprojektion und Nutzungsdaten. Der vorhandene Intelligence-Vertrag liefert Recherchehinweise. Places bleibt für Namensabgleich, Ort, Provider-ID, Geometrie und fachliche Aufnahme zuständig; ein Webtreffer wird nie allein zum kanonischen Place. Consumer/Trip ergänzt nur die bestehende noch unbestätigte Reserve.
+
+Umfang: Backend-Capability/Schema/Provider, bestehende fortsetzbare Intelligence-Jobs, additive Telemetriespalten und Kostenbegrenzung, Intelligence-Vertrag/Validator, Composer-Recherche und kompakte Quellenlinks. Kein Providerwechsel der bestehenden Basissuche, keine neue Places-Datenbank, keine Profil-, Booking- oder Trip-Bestätigung. Gemeinsame Fähigkeit steht später auch Places zur Verfügung; keine separate KI.
+
+Budget und Recovery: zunächst Integration; eine Recherche pro Reiseworkflow, höchstens zwei Web-Tool-Aufrufe, ein günstiger Modellversuch ohne automatische Hochstufung oder Blindwiederholung, kleine Ein-/Ausgabe. Server erzwingt Wiederverwendung und ein tägliches Kontingent. Quelle und Abrufzeit bleiben erhalten; Wiederaufnahme darf keinen zweiten bezahlten Lauf erzeugen. Fehlgeschlagene Recherche lässt vorhandenen Pool unverändert und als lückenhaft erkennbar.
+
+Kompatibilität/Rollout: neue Capability wird ausschließlich über authentifizierte fortsetzbare Jobs ausgeführt; alte Capabilities und Produktionsfunctions bleiben unverändert. Additive Migration für Intelligence-eigene Nutzungsdaten/Jobbudget ohne Änderung fremder Tabellen. Frontend aktiviert nur Integration; Backend-Notabschaltung und Rollback auf .197. Migration bleibt additiv.
+
+Abnahme: tatsächlicher Responses-Request mit Max-Tool-Calls, Schema, URLs aus echten Web-Quellen, zurückgewiesene erfundene Quellen, Nachweis von Reise-Lücken, Budget/Idempotenz unter Parallelaufrufen und Wiederaufnahme, keine ungerechtfertigte Orts-/Buchbarkeitsbehauptung, kompakte Quellenanzeige, gezielte Regression und vollständige Safe Regression. Ein begrenzter echter Lauf muss Anbieterfehler oder echten Rechercheerfolg samt gemessener Nutzung zeigen.

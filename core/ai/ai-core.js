@@ -51,7 +51,7 @@
     const tier=window.LuviaAIModelRouter.resolve(definition,options);
     metrics={...metrics,requests:metrics.requests+1,lastRequestAt:new Date().toISOString(),lastError:null};emit('request-started',{capability,tier:tier.id});
     try{
-      const provider=window.LuviaOpenAIProvider,persistent=['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit'].includes(capability)&&options.workflowId&&typeof provider.runPersistent==='function';
+      const provider=window.LuviaOpenAIProvider,persistent=['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit','discovery.web-research'].includes(capability)&&options.workflowId&&typeof provider.runPersistent==='function';
       const response=await provider[persistent?'runPersistent':'run']({capability,tier:tier.id,input:sanitize(input),context,schema:definition.schema},{timeoutMs:definition.timeoutMs,workflowId:options.workflowId});
       const data=window.LuviaAIOutputValidator.validate(definition.schema,response?.data?.result||response?.data||{});
       const value={ok:true,data,meta:{...(response?.meta||{}),capability,tier:tier.id,alias:tier.alias,fallback:false}};

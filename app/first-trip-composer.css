@@ -858,3 +858,5 @@
 .ftc.cinematic .lx-trip-party .lx-party-invite{font:inherit;border:1px solid #cedfd2;background:#fffdf7;color:#315b60;border-radius:12px;padding:10px 13px;min-height:42px}
 .ftc.cinematic .lx-trip-party .lx-party-invite[aria-pressed=true]{border-color:#b8526b;background:#fcf0ed}
 @media(max-width:600px){.ftc.cinematic .lx-route-focus-layout>.ftc-copy h1{font-size:24px;line-height:1.2;margin-bottom:8px}.ftc.cinematic .lx-route-focus-layout>.ftc-copy h1 em{display:inline}.ftc.cinematic .lx-route-focus-layout>.ftc-copy{margin-bottom:13px}}
+
+.ftc.cinematic .lx-route-focus-layout .lx-route-source{grid-column:2;grid-row:2;justify-self:start;margin:-5px 0 8px 68px;color:var(--route-accent);font-size:11px;text-underline-offset:3px;min-height:24px;display:inline-flex;align-items:center}

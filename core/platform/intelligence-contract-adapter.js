@@ -184,7 +184,7 @@
     return {providerPlaceId:place.providerPlaceId,name:place.name,category:place.category||place.requestCategory,primaryType:place.primaryType||null,types:place.types||[],searchTarget:place.tripSearchTarget||null,
       spatialAreaId:Math.floor(Number(c.latitude??c.lat)*111.32/2)+':'+Math.floor(Number(c.longitude??c.lng)*111.32*Math.cos(Number(c.latitude??c.lat)*Math.PI/180)/2),
       coordinates:{latitude:Number(c.latitude??c.lat),longitude:Number(c.longitude??c.lng)},
-      experienceEvidence:experienceEvidence(place),...(place.facts?{facts:place.facts}:{})};
+      experienceEvidence:experienceEvidence(place),...(place.tripWebResearch?{researchedOffer:place.tripWebResearch}:{}),...(place.facts?{facts:place.facts}:{})};
   }
   function sectionCandidates(candidates,used,dayCount,priority=[]){
     const buckets=new Map();
@@ -219,7 +219,7 @@
     const planningDayCount=Math.max(1,Math.min(366,Array.isArray(input.days)?input.days.length:1)),planningCandidateLimit=4000,candidateInput=(Array.isArray(input.candidates)?input.candidates:[]).slice(0,planningCandidateLimit).map(item=>{
       const coordinates=item?.coordinates||item?.location||{};
       const providerPlaceId=clean(item?.providerPlaceId||item?.provider_place_id||item?.id,240).replace(/^places\//,''),provider=clean(item?.provider||item?.source,80),observedAt=clean(item?.providerObservedAt||item?.ownerObservedAt,40),evidenceRefs=[`place:${providerPlaceId}:identity`,...(provider&&observedAt?[`place:${providerPlaceId}:provider-snapshot`]:[])];
-      return {providerPlaceId,name:clean(item?.name,200),category:clean(item?.requestCategory||item?.category,80),tripSearchTarget:clean(item?.tripSearchTarget,200),primaryType:clean(item?.primaryType||item?.primary_type||item?.type,80),providerNativeTypes:(item?.providerNativeTypes||[]).slice(0,12),description:clean(item?.description||item?.editorialSummary?.text||item?.editorialSummary,420),types:(item?.types||[]).slice(0,12),formattedAddress:clean(item?.formattedAddress||item?.address,280),coordinates:{latitude:Number(coordinates.latitude??coordinates.lat),longitude:Number(coordinates.longitude??coordinates.lng)},provider,observedAt,evidenceRefs,facts:{features:Object.fromEntries(Object.entries(item?.features||{}).filter(([key,value])=>['servesVegetarianFood','servesVeganFood','wheelchairAccessible','strollerAccessible'].includes(key)&&typeof value==='boolean')),priceLevel:clean(item?.priceLevel||item?.price_level,60),openNow:typeof item?.openNow==='boolean'?item.openNow:null,businessStatus:clean(item?.businessStatus||item?.business_status,80)}};
+      return {providerPlaceId,name:clean(item?.name,200),category:clean(item?.requestCategory||item?.category,80),tripSearchTarget:clean(item?.tripSearchTarget,200),tripWebResearch:item?.tripWebResearch?.providerPlaceId===providerPlaceId?{description:clean(item.tripWebResearch.description,220),source:{url:clean(item.tripWebResearch.source?.url,1200),retrievedAt:clean(item.tripWebResearch.source?.retrievedAt,40)},availability:'unverified'}:null,primaryType:clean(item?.primaryType||item?.primary_type||item?.type,80),providerNativeTypes:(item?.providerNativeTypes||[]).slice(0,12),description:clean(item?.description||item?.editorialSummary?.text||item?.editorialSummary,420),types:(item?.types||[]).slice(0,12),formattedAddress:clean(item?.formattedAddress||item?.address,280),coordinates:{latitude:Number(coordinates.latitude??coordinates.lat),longitude:Number(coordinates.longitude??coordinates.lng)},provider,observedAt,evidenceRefs,facts:{features:Object.fromEntries(Object.entries(item?.features||{}).filter(([key,value])=>['servesVegetarianFood','servesVeganFood','wheelchairAccessible','strollerAccessible'].includes(key)&&typeof value==='boolean')),priceLevel:clean(item?.priceLevel||item?.price_level,60),openNow:typeof item?.openNow==='boolean'?item.openNow:null,businessStatus:clean(item?.businessStatus||item?.business_status,80)}};
     }).filter(item=>item.providerPlaceId&&item.name&&Number.isFinite(item.coordinates.latitude)&&Number.isFinite(item.coordinates.longitude));
     if(!rawDays.length)throw contractError('TRIP_ITINERARY_DAYS_REQUIRED','Für den Reiseentwurf fehlen die Reisetage.');
     if(!candidateInput.length)throw contractError('TRIP_ITINERARY_CANDIDATES_REQUIRED','Für den Reiseentwurf fehlen überprüfte Places.');
@@ -356,6 +356,13 @@
     const response=await run('discovery.plan',{surface:'trip-composer',domain:'trip',userGoal:input.travelOrder||{},originalUserRequest:String(input.userRequest||'').slice(0,2000),destination:input.destination||null,categoryCatalog:definitions,experienceSelectionPolicy:experienceSelectionPolicy(input),task:'Stay within explicitly requested experiences; do not add culture, parks or landmarks to balance a trip about nightlife, shopping and activities. Generic shopping requires shopping_mall; individual shops only for an explicit kind of shop. Identify up to six distinct research needs from the original user request AND the travel order that broad category browsing may miss. Cover requested participation, local food experiences and lively evenings as well as named landmarks or harbours; do not spend every search slot on passive landmarks. Choose concrete relevant experience types, without stereotyping age. Return precise local-language provider search queries and only includedTypes from the supplied categoryCatalog. For a real named venue, set targetName to its actual proper name only, without descriptive keywords or the destination suffix. For an open experience search, use targetName=null and precise includedTypes; a generic activity, restaurant, harbour or nightlife category is not a venue name. Do not equate a beach with a harbour, a shop with shopping in general, or a venue name with verified suitability. Do not repeat generic food, culture or beach browse searches unless they are specifically necessary. Return no searchPlans when there is no concrete additional search need. Queries are hypotheses for provider verification, never invented Places or verified facts. Keep reasons short.'},{tier:'fast',fallback:false,context:{surface:'trip-composer',purpose:'specific-trip-place-research'}});
     if(response?.ok!==true||response?.meta?.fallback!==false)throw contractError('TRIP_SEARCH_PLAN_UNAVAILABLE','Die gezielte Ortsrecherche konnte noch nicht vorbereitet werden.');
     return immutable({source:'ai',plans:(response.data?.searchPlans||[]).slice(0,6).map(plan=>({query:String(plan.query||'').trim().slice(0,200),targetName:String(plan.targetName||'').trim().slice(0,200)||null,includedTypes:[...new Set((plan.includedTypes||[]).filter(type=>allowed.has(type)))].slice(0,4),reason:String(plan.reason||'').slice(0,200)})).filter(plan=>plan.query&&plan.includedTypes.length)});
+  }
+
+  async function researchTripExperiences(input={}){
+    if(!input.workflowId)throw contractError('WEB_RESEARCH_WORKFLOW_REQUIRED','Für die gezielte Recherche fehlt der Reiseauftrag.');
+    const response=await run('discovery.web-research',{surface:'trip-composer',destination:{name:input.destination?.name,countryCode:input.destination?.countryCode},needs:(input.needs||[]).slice(0,2).map(item=>({category:String(item.category||''),query:String(item.query||'').slice(0,200)}))},{tier:'fast',fallback:false,workflowId:input.workflowId,context:{surface:'trip-composer',purpose:'missing-experience-research'}});
+    if(response?.ok!==true||response?.meta?.fallback!==false)throw contractError('WEB_RESEARCH_UNAVAILABLE','Die Angebotsrecherche konnte noch nicht abgeschlossen werden.');
+    return immutable({...response.data,source:'ai-web-research',usage:response.meta?.usage||null});
   }
 
   async function rankTripReserve(input={}){
@@ -666,6 +673,7 @@
       interpretTripBrief,
       suggestTripDestinations,
       planTripPlaceSearch,
+      researchTripExperiences,
       composeTripItinerary,
       auditTripItinerary,
       rankTripReserve,
@@ -713,6 +721,7 @@
     interpretTripBrief,
     suggestTripDestinations,
     planTripPlaceSearch,
+    researchTripExperiences,
     composeTripItinerary,
     auditTripItinerary,
     planningTrace,

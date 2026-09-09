@@ -3,18 +3,15 @@
 <!-- LUVIA-CURRENT-STATUS:START -->
 ## Aktueller Stand und nächster Schritt
 
-**Stand 2026-09-09:** Integration **13.82.168.197**, Core **4.82.316**. P17/P19: A2 und verbindliche Erlebnisabsicht auf Integration .197; zuverlässige Aktivitätsangebote und Lernen über mehrere Reisen bleiben offen.
+**Stand 2026-09-09:** Integration **13.82.168.197**, Core **4.82.316**. P17/P19: Integration .197 veröffentlicht; Kandidat App 13.82.168.198 / Core 4.82.317 ergänzt begrenzte Webrecherche.
 
 **Zuletzt geliefert:** Integration .197 / Core 4.82.316 aus 2d4796ce veröffentlicht. Explizite Erlebniswünsche steuern Recherche, Kompositionsauswahl, Reserve und Audit; ungefragte Basiskategorien entfallen. Shopping sucht standardmäßig Einkaufszentren, besondere Geschäfte sind tripbezogen wählbar. Ein positiver Modellscore kann fehlende tatsächliche Erlebnisbereiche nicht mehr überstimmen. 244/244 vollständige kontrollierte Regression; anschließend 133 Composer, 145 Transport sowie die 27 Intentprüfungen nach der kleinen Annahmen-UI-Ergänzung erneut grün. 27/27 Stable-/Immutable-Dateien stimmen mit dem sauberen Archiv überein. A2 lokal bedient; der alte .195-Entwurf bleibt nach öffentlichem Reload als sieben Tage und 18 Momente erhalten. Keine neue kostenpflichtige Gesamtgenerierung und kein neuer Provider in diesem Slice; die Quellenlücke ist noch kein positiver Gesamtplan-Nachweis.
 
-**Nächster Schritt (AKTIV): Belegte Erlebnisangebote recherchieren und einen echten Gesamtplan prüfen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
+**Nächster Schritt (AKTIV): Budgetierte Webrecherche veröffentlichen und mit einem echten Reiseauftrag prüfen.** Explizite Reisewünsche dürfen keine ungefragten Basiskategorien auslösen. Mehr Recherchequellen helfen erst, wenn Reiseabsicht, Ortsbelege und tatsächlicher Plan übereinstimmen.
 
 **Abnahme dieses Schritts:**
 
-- Die veröffentlichte Erlebnisrichtlinie im nächsten echten vollständigen Plan gegen gewünschten Mix, räumliche Streuung und sinnvolle Dauer prüfen.
-- Danach Geoapify-Transport und HERE-Anfragefehler anhand konkreter Antworten schließen und echte Aktivitätsangebote einschließlich Einkaufszentren und Abendorten belegen.
-- Gezielte Webrecherche für belegte Kurse, Touren und Veranstaltungen über einen budgetierten Quellenvertrag ergänzen; kein Anbieter wird allein wegen seiner Verfügbarkeit eingeschaltet.
-- Einen begrenzten echten Gesamtplan beurteilen; anschließend Feedbacklernen über bestätigte dauerhafte Vorlieben und spätere Mitreisende prüfen. P17/P19 bleiben bis zu allen Gates teilweise offen.
+- Maximal zwei Webaufrufe pro Workflow, belegte Quellen, echte Ortsidentität, Wiederaufnahme ohne neue Recherche, serverseitiges Tageskontingent; vollständige Regression und öffentlicher Provider-Nachweis. P17/P19 bleiben bis zum passenden Gesamtplan und der weiteren Lern-/Gruppenabnahme teilweise offen.
 
 **Danach:** Nach qualitativer Rechercheabnahme den Familien-/Konfliktfall und die übrigen P17/P19-Gates schließen. M16.5 insgesamt offen; M17 ist Design-/Produktsprache, Intelligence II folgt in M18.8.
 
@@ -116,3 +113,17 @@ Bei Vertrieb über einen App Store fällt der Deckungsbeitrag je nach geltender 
 - Deckungsbeitrag nach Umsatzsteuer und Vertriebskanal, nicht nur Umsatz minus OpenAI-Rechnung.
 
 Die Paketgrenzen werden erst nach einem ausreichend großen Integration-/Beta-Datensatz final. Für die technische Beta gilt ein harter Monatsbetrag, ein Workflow-Limit, ein Kontingent pro Konto und ein Alarm bei ungewöhnlicher Reparatur- oder Sol-Nutzung.
+
+## 09.09.2026: gezielte Webrecherche statt weiterer breiter Ortsabfragen
+
+Die Nutzerfreigabe umfasst eine begrenzte OpenAI-Webrecherche im Integration-Reiseauftrag. Sie ersetzt weder Karte noch Ortsidentität. Vorhandene Places-Daten zuerst; Web nur bei fehlenden oder dünn belegten gewünschten Erlebniskategorien. Die Anfrage enthält höchstens zwei Recherchebedürfnisse und ein öffentliches Reiseziel, keine vollständigen Profile, Buchungen oder Rohkonversation.
+
+Aktuell geprüfte USD-Listenpreise (Standard, ohne Steuern): OpenAI web_search 10 USD je 1.000 Tool-Aufrufe plus Modell-/Suchinhalt-Tokens; Luna 0,20 USD Eingabe und 1,20 USD Ausgabe je Million Tokens. Beispiel: zwei Web-Aufrufe + insgesamt 8.000 Eingabe- und 2.000 Ausgabetokens = 0,024 USD je Recherche. 100/1.000/10.000 solche Recherchen = 2,40/24/240 USD. Das sind Annahmen, keine gemessenen Durchschnittskosten und keine gesamten Reisekosten. [OpenAI-Preise](https://developers.openai.com/api/docs/pricing)
+
+Google Text Search Pro bzw. Nearby Search Pro: jeweils 5.000 kostenlose Monatsaufrufe, danach erste Preisstufe 32 USD je 1.000. Zehn tatsächlich kostenpflichtige Suchabfragen wären 0,32 USD, vor weiteren Details. Eine Places-Abfrage liefert strukturierte Treffer; ein Web-Aufruf ist keine identische Leistung. [Google-Preisliste](https://developers.google.com/maps/billing-and-pricing/pricing)
+
+Geoapify: 3.000 kostenlose Credits pro Tag, Einstieg API10 59 USD pro Monat für 10.000 Credits pro Tag. Places bis 20 Treffer kostet einen Credit; größere Abfragen kosten zusätzliche Credits. Solange das vorhandene Kontingent reicht, erzeugt Webrecherche zusätzliche Kosten und ist keine garantierte Ersparnis. Der tatsächliche Kontotarif ist hier nicht als Rechnungsbeleg geprüft. [Geoapify-Preise](https://www.geoapify.com/pricing/), [Credit-Regeln](https://www.geoapify.com/pricing-details/)
+
+Umsetzung: ein Luna-Versuch je Reiseworkflow, höchstens zwei Web-Tool-Aufrufe, maximal sechs Hinweise und 2.400 Ausgabetokens, 30 Sekunden Serverzeitlimit, keine automatische Modelleskalation. Integration vorerst fünf neue Recherchen je Konto/UTC-Tag, 100 insgesamt/UTC-Tag, daher höchstens 2 USD Web-Tool-Gebühren je Integration-Tag plus Modellkosten. Diese Testkontingente sind keine späteren Abo-Paketdefinitionen. Die API bietet keinen exakten USD-Deckel für variable Eingabetokens; der technische Deckel begrenzt Aufrufe, Ausgabe und Kontextumfang.
+
+Job-/Workflow-Nutzungsdaten erfassen beobachtete Webaufrufe, geschätzte reine Toolgebühr und unklare Abrechnung nach unterbrochenem Transport. Ausgabebegrenzung, Quellenbindung, serverseitige Idempotenz und SQL-Kontingent schützen auch bei mehreren Tabs. Ein Reload kauft keinen zweiten Recherchelauf. Eine neue Reise oder wesentlich geänderte Anfrage ist ein neuer Workflow und verbraucht gegebenenfalls erneut Kontingent.

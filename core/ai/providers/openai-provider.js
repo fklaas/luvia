@@ -5,7 +5,7 @@
   const inflight=new Map();
   const MAX_BYTES=150000,WORKFLOW_MAX_BYTES=1500000;
   const FUNCTION_NAME=/integration-luvia\./i.test(String(browser.location?.hostname||''))?'luvia-intelligence-integration':'luvia-intelligence';
-  const PERSISTENT_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit']);
+  const PERSISTENT_CAPABILITIES=new Set(['planning.dialogue','trip.compose','trip.compose-day-repair','trip.audit','discovery.web-research']);
   let blockedUntil=0,lastError=null;
   const stable=value=>JSON.stringify(value);
   const sleep=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
@@ -47,7 +47,7 @@
   }
 
   function bodyFor(action,payload){
-    const body={action,payload:compact(payload),client:{appVersion:'13.82.168.197',coreVersion:'4.82.316'}};
+    const body={action,payload:compact(payload),client:{appVersion:'13.82.168.198',coreVersion:'4.82.317'}};
     const bytes=new TextEncoder().encode(stable(body)).length,limit=action.startsWith('trip.plan-workflow.')?WORKFLOW_MAX_BYTES:MAX_BYTES;
     if(bytes>limit)throw Object.assign(new Error('Die Reiseanfrage ist zu groß. Der letzte gespeicherte Zwischenstand bleibt erhalten.'),{code:'AI_PAYLOAD_TOO_LARGE',bytes,limit,action});
     return body;
@@ -87,7 +87,7 @@
     // Version the key alongside the canonical fingerprint contract. Earlier keys
     // were compared with an order-sensitive server digest and can therefore be
     // poisoned by an otherwise equivalent payload restored in a different key order.
-    const hash=fingerprint(normalized),idempotencyKey=`trip-plan-v3:${capability.replaceAll('.','-')}:${hash}`;
+    const hash=fingerprint(normalized),idempotencyKey=capability==='discovery.web-research'?`web-research-v1:${options.workflowId}`:`trip-plan-v3:${capability.replaceAll('.','-')}:${hash}`;
     const started=Date.now(),maxWaitMs=Math.max(15000,Number(options.timeoutMs||90000)),pollMs=Math.max(500,Math.min(3000,Number(options.pollMs||1200)));
     let response=await invoke('trip.plan-job.start',{...normalized,workflowId:options.workflowId,idempotencyKey,retryFailed:options.retryFailed===true},{timeoutMs:12000});
     let job=response?.data?.job;
