@@ -724,7 +724,7 @@
   }
   function reusablePlaces(api,state,category){const snapshot=api.reads?.getActiveDiscovery?.({destination:state.data.destination?.name,surface:'places',fitOnly:true,maxAgeMs:10*60*1000}),center=placeCoordinates({coordinates:state.data.destination});if(snapshot?.category!==category||!snapshot?.places?.length||!center)return[];const radius=api.reads?.localSearchRadius?.(state.data.destination)||5000;return snapshot.places.filter(place=>{const point=placeCoordinates(place);if(!point||place.profileFit?.state!=='matched')return false;const lat=(point.latitude-center.latitude)*111320,lng=(point.longitude-center.longitude)*111320*Math.cos(center.latitude*Math.PI/180);return Math.hypot(lat,lng)<=radius}).map(place=>({...place,requestCategory:category}))}
   function deterministicTripAnchorPlans(state,brief=state.aiDraft?.brief){
-    const order=brief?.travelOrder||{},filterIntent=window.LuviaGlobalPlaceContracts?.filterIntent,requests=aiCategoryRequests({...state,aiDraft:{...state.aiDraft,brief}}),values=[...(order.mustDo||[]),...(order.experiences?.wishes||[])].map(value=>String(value||'').trim()).filter(Boolean),plans=[],seen=new Set();
+    const order=brief?.travelOrder||{},filterIntent=window.LuviaGlobalPlaceContracts?.filterIntent,requests=aiCategoryRequests({...state,aiDraft:{...state.aiDraft,brief}}),values=(order.mustDo||[]).map(value=>String(value||'').trim()).filter(Boolean),plans=[],seen=new Set();
     if(typeof filterIntent!=='function')return plans;
     for(const value of values){
       const matches=requests.map(([category])=>({category,intent:filterIntent(value,category)})).filter(item=>item.intent?.explicit&&item.intent.includedTypes?.length).sort((left,right)=>right.intent.includedTypes.length-left.intent.includedTypes.length);
